@@ -1,7 +1,6 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.index_search import IndexSearch
-from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -22,6 +21,7 @@ class TestIndexSearch(Commons):
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
                 "user": "drb",
+                "access": "private",
                 "start": "2020-08",
                 "end": "2020-10",
                 "search_term": "random_string",
@@ -33,14 +33,7 @@ class TestIndexSearch(Commons):
         "user", ("drb", "badwolf", "no_user"),
     )
     def test_query(
-        self,
-        client,
-        server_config,
-        query_api,
-        user_ok,
-        find_template,
-        build_auth_header,
-        user,
+        self, client, server_config, query_api, find_template, build_auth_header, user,
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
@@ -61,7 +54,7 @@ class TestIndexSearch(Commons):
             ],
         }
         if user == "no_user":
-            payload.pop("user", None)
+            del payload["user"]
         if user == "no_user" or user is None:
             payload["access"] = "public"
 
@@ -124,16 +117,9 @@ class TestIndexSearch(Commons):
         index = self.build_index(
             server_config, self.date_range(payload["start"], payload["end"])
         )
-        # If we're not asking about a particular user, or if the user
-        # field is to be omitted altogether, or if we have a valid
-        # token, then the request should succeed.
-        if (
-            user == "no_user" or HeaderTypes.is_valid(build_auth_header["header_param"])
-        ) and user != "badwolf":
-            expected_status = HTTPStatus.OK
-        else:
-            expected_status = HTTPStatus.FORBIDDEN
-
+        expected_status = self.get_expected_status(
+            payload, build_auth_header["header_param"]
+        )
         response = query_api(
             "/index/search",
             "/_search?ignore_unavailable=true",

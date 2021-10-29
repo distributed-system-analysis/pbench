@@ -84,7 +84,7 @@ class TestDatasetsMetadata:
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Invalid request payload"
 
-    def test_put_missing_keys(self, client, server_config, user_ok, pbench_token):
+    def test_put_missing_keys(self, client, server_config, pbench_token):
         """
         Test behavior when JSON payload does not contain all required keys.
 

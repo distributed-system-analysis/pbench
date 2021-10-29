@@ -10,10 +10,13 @@ from pbench.server.api.resources import (
     JSON,
     Parameter,
     ParamType,
-    PostprocessError,
     Schema,
 )
-from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
+from pbench.server.api.resources.query_apis import (
+    CONTEXT,
+    ElasticBase,
+    PostprocessError,
+)
 from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
 from pbench.server.database.models.template import Template, TemplateNotFound
 from pbench.server.database.models.users import User

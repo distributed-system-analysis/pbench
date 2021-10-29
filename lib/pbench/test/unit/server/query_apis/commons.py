@@ -87,34 +87,80 @@ class Commons:
             date_range.append(f"{m.year:04}-{m.month:02}")
         return date_range
 
+    def get_expected_status(self, payload: JSON, header: HeaderTypes) -> int:
+        """
+        Decode the various test cases we use, which are a combination of the
+        test case parametrization (for "user" parameter value) and the
+        parametrization of the `build_auth_header` fixture (for the API
+        authentication header);
+
+        1) If the "user" parameter is given and authentication is missing or
+           invalid, we expect UNAUTHORIZED (401) status;
+        2) If the "user" parameter is given and authenticated as a different
+           non-admin user with "access": "private", we expect FORBIDDEN (403)
+        3) If authenticated and a bad "user" parameter is given, we expect
+           NOT_FOUND (404)
+
+        Otherwise, we expect success
+        """
+        has_user = "user" in payload
+        u = payload.get("user")
+        a = payload.get("access")
+        unauthorized = not HeaderTypes.is_valid(header)
+        is_admin = header == HeaderTypes.VALID_ADMIN
+        if (has_user or a == Dataset.PRIVATE_ACCESS) and unauthorized:
+            expected_status = HTTPStatus.UNAUTHORIZED
+        elif u == "badwolf" and not unauthorized:
+            expected_status = HTTPStatus.NOT_FOUND
+        elif u != "drb" and a == Dataset.PRIVATE_ACCESS and not is_admin:
+            expected_status = HTTPStatus.FORBIDDEN
+        else:
+            expected_status = HTTPStatus.OK
+        return expected_status
+
     @pytest.mark.parametrize(
         "malformed_token", ("malformed", "bear token" "Bearer malformed"),
     )
     def test_malformed_authorization_header(
         self, client, server_config, malformed_token, attach_dataset
     ):
+        """
+        Test behavior when the Authorization header is present but is not a
+        proper Bearer schema.
+
+        TODO: This actually tests behavior with no client authentication, as
+        Flask-HTTPTokenAuth hides the validation failure because our query
+        APIs select "optional" authentication. If we fix the authentication
+        validation to give a 401 (not 403) on bad/missing authentication token,
+        we should make the call with user/access parameters that would
+        otherwise be allowed for an unauthenticated client (e.g., all public
+        data) to distinguish the intent of this case from the path we're
+        actually hitting now, which appears to fail as expected but actually
+        fails because we're asking for {"access": "private"} data, which is not
+        allowed for an unauthenticated client call.
+        """
         response = client.post(
             server_config.rest_uri + self.pbench_endpoint,
             headers={"Authorization": malformed_token},
             json=self.payload,
         )
-        assert response.status_code == HTTPStatus.FORBIDDEN
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
 
-    def test_non_accessible_user_data(self, client, server_config, pbench_token):
+    def test_bad_user_name(self, client, server_config, pbench_token):
         """
-        Test behavior when Authorization header does not have access to other user's data
+        Test behavior when authenticated user specifies a non-existent user.
         """
         # The pbench_token fixture logs in as user "drb"
         # Trying to access the data belong to the user "pp"
         if "user" not in self.cls_obj.schema.parameters.keys():
-            pytest.skip("skipping " + self.test_non_accessible_user_data.__name__)
+            pytest.skip("skipping " + self.test_bad_user_name.__name__)
         self.payload["user"] = "pp"
         response = client.post(
             server_config.rest_uri + self.pbench_endpoint,
             headers={"Authorization": "Bearer " + pbench_token},
             json=self.payload,
         )
-        assert response.status_code == HTTPStatus.FORBIDDEN
+        assert response.status_code == HTTPStatus.NOT_FOUND
 
     @pytest.mark.parametrize(
         "user", ("drb", "pp"),
@@ -123,7 +169,16 @@ class Commons:
         self, client, server_config, pbench_token, user
     ):
         """
-        Test behavior when expired Authorization header provided
+        Test behavior when expired authentication token is provided.
+
+        TODO: This actually tests behavior with no client authentication, as
+        Flask-HTTPTokenAuth hides the validation failure because our query
+        APIs select "optional" authentication. We expect UNAUTHORIZED (401)
+        because we are requesting {"access": "private", "user": xxx} on an
+        unauthenticated client connection; because we do not allow an
+        unauthenticated client to determine whether a "user" is valid or not,
+        either form will fail with "authorization required", which a UI may
+        redirect to a login page.
         """
         if "user" not in self.cls_obj.schema.parameters.keys():
             pytest.skip(
@@ -141,7 +196,7 @@ class Commons:
             headers={"Authorization": "Bearer " + pbench_token},
             json=self.payload,
         )
-        assert response.status_code == HTTPStatus.FORBIDDEN
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
 
     def test_missing_json_object(self, client, server_config, pbench_token):
         """
@@ -169,7 +224,7 @@ class Commons:
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Invalid request payload"
 
-    def test_missing_keys(self, client, server_config, user_ok, pbench_token):
+    def test_missing_keys(self, client, server_config, pbench_token):
         """
         Test behavior when JSON payload does not contain all required keys.
 
@@ -220,7 +275,7 @@ class Commons:
         if required_keys:
             missing_key_helper({"notakey": None})
 
-    def test_bad_dates(self, client, server_config, user_ok, pbench_token):
+    def test_bad_dates(self, client, server_config, pbench_token):
         """
         Test behavior when a bad date string is given
         """
@@ -242,13 +297,7 @@ class Commons:
                 self.payload[key] = original_date_value
 
     def test_empty_query(
-        self,
-        client,
-        server_config,
-        query_api,
-        user_ok,
-        find_template,
-        build_auth_header,
+        self, client, server_config, query_api, find_template, build_auth_header,
     ):
         """
         Check proper handling of a query resulting in no Elasticsearch matches.
@@ -257,10 +306,9 @@ class Commons:
         """
         if not self.empty_es_response_payload or not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_empty_query.__name__)
-        expected_status = HTTPStatus.OK
-        if not HeaderTypes.is_valid(build_auth_header["header_param"]):
-            expected_status = HTTPStatus.FORBIDDEN
-
+        expected_status = self.get_expected_status(
+            self.payload, build_auth_header["header_param"]
+        )
         index = self.build_index(
             server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
@@ -303,7 +351,6 @@ class Commons:
         server_config,
         query_api,
         exceptions,
-        user_ok,
         find_template,
         pbench_token,
         provide_metadata,
@@ -337,7 +384,6 @@ class Commons:
         self,
         server_config,
         query_api,
-        user_ok,
         find_template,
         pbench_token,
         provide_metadata,

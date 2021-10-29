@@ -2,7 +2,7 @@ from collections import Counter, defaultdict
 from datetime import datetime
 from http import HTTPStatus
 from logging import Logger
-from typing import Any, Callable, Dict, Iterator
+from typing import Any, Callable, Dict, Iterator, List
 from urllib.parse import urljoin
 
 from dateutil import rrule
@@ -13,15 +13,14 @@ from flask_restful import abort
 import requests
 
 from pbench.server import PbenchServerConfig
+from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
     API_OPERATION,
     ApiBase,
     JSON,
-    PostprocessError,
     Schema,
     SchemaError,
     UnauthorizedAccess,
-    UnsupportedAccessMode,
 )
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 from pbench.server.database.models.template import Template
@@ -44,6 +43,21 @@ class MissingBulkSchemaParameters(SchemaError):
 
     def __str__(self) -> str:
         return f"API {self.subclass_name} is missing schema parameters controller and/or name"
+
+
+class PostprocessError(Exception):
+    """
+    Used by subclasses to report an error during postprocessing of the
+    Elasticsearch response document.
+    """
+
+    def __init__(self, status: int, message: str, data: JSON = None):
+        self.status = status
+        self.message = message
+        self.data = data
+
+    def __str__(self) -> str:
+        return f"Postprocessing error returning {self.status}: {self.message!r} [{self.data}]"
 
 
 class ElasticBase(ApiBase):
@@ -95,45 +109,151 @@ class ElasticBase(ApiBase):
         port = config.get("elasticsearch", "port")
         self.es_url = f"http://{host}:{port}"
 
-    def _get_user_term(self, json: JSON) -> Dict[str, str]:
+    def _get_user_query(self, parameters: JSON, terms: List[JSON]) -> JSON:
         """
-        Generate the user term for an Elasticsearch document query. If the
-        specified "user" parameter is not None, search for documents with that
-        value as the authorized owner. If the "user" parameter is absent or
-        None, and the "access" parameter is "public", search for all published
-        documents.
+        Generate the "query" parameter for an Elasticsearch _search request
+        payload.
 
-        TODO: Currently this code supports either all published data, or all
-        data owned by a specified user. More work in query construction must
-        be completed to support additional combinations. I plan to support
-        additional flexibility in a separate PR based on issue #2370.
+        NOTE: This method is not responsible for authorization checks; that's
+        done by the `ApiBase._check_authorization()` method. This method is
+        only concerned with generating a query to restrict the results to the
+        set matching authorized user and access values. This method will build
+        queries that do not reflect the input when given some inputs that must
+        be prevented by authorization checks.
+
+        Specifically, when asked for "access": "private" on behalf of an
+        unauthenticated client or on behalf of an authenticated but non-admin
+        client for a different user, the generated query will use "access":
+        "public". These cases are designated below with "NOTE(UNAUTHORIZED)".
+
+        Specific cases for user and access values:
+
+            {}: defaulting both user and access
+                All private + public regardless of owner
+
+                ADMIN: all datasets
+                AUTHENTICATED as drb: owner:drb OR access:public
+                UNAUTHENTICATED (or non-drb): access:public
+
+            {"user": "drb"}: defaulting access
+                All datasets owned by "drb"
+
+                ADMIN, AUTHENTICATED as drb: owner:drb
+                UNAUTHENTICATED (or non-drb): owner:drb AND access:public
+
+            {"user": "drb, "access": "private"}: private drb
+                All datasets owned by "drb" with "private" access
+
+                owner:drb AND access:private
+                NOTE(UNAUTHORIZED): owner:drb and access:public
+
+            {"user": "drb", "access": "public"}: public drb
+                All datasets owned by "drb" with "public" access
+
+                NOTE: unauthenticated users are not allowed to query by
+                username, and shouldn't get here, but the query is
+                technically correct if we allowed it.
+
+                owner:drb AND access:public
+
+            {"access": "private"}: private data
+                All datasets with "private" access regardless of user
+
+                ADMIN: all access:private
+                AUTHENTICATED as "drb": owner:"drb" AND access:private
+                NOTE(UNAUTHORIZED): access:public
+
+            {"access": "public"}: public data
+                All datasets with "public" access
+
+                access:public
 
         Args:
             JSON query parameters containing keys:
-                "user": Pbench internal username if present and not None
-                "access": Access category, "public" or "private"; defaults
-                    to "private" if "user" is specified, and "public" if
-                    user is not specified. (NOTE: other combinations are
-                    not currently supported.)
-
-        Raises:
-            UnsupportedAccessMode: This is a temporary situation due to the
-            current query limitations. When the full semantics are complete
-            there will be no "illegal" constraint combinations but only
-            combinations that yield no data (e.g, "private" data for another
-            user).
+                "user": Pbench username to restrict search to datasets owned by
+                    a specific user.
+                "access": Access category, "public" or "private" to restrict
+                    search to datasets with a specific access category.
+            terms: A list of JSON objects describing the Elasticsearch "terms"
+                that must be matched for the query. (These are assumed to be
+                AND clauses.)
 
         Returns:
-            An assembled Elasticsearch query term
+            An assembled Elasticsearch "query" mode that includes the necessary
+            user/access terms.
         """
-        user = json.get("user")
+        user = parameters.get("user")
+        access = parameters.get("access")
+        authorized_user: User = Auth.token_auth.current_user()
+        authorized_id = str(authorized_user.id) if authorized_user else None
+        is_admin = authorized_user.is_admin() if authorized_user else False
+
+        filter = terms.copy()
+        self.logger.debug(
+            "QUERY auth ID {}, user {!r}, access {!r}, admin {}",
+            authorized_id,
+            user,
+            access,
+            is_admin,
+        )
+
+        combo_term = None
+        access_term = None
+        user_term = None
+
+        # If a user is specified, assume we'll be selecting for that user
         if user:
-            term = {"authorization.owner": user}
-        elif json.get("access") == Dataset.PRIVATE_ACCESS:
-            raise UnsupportedAccessMode(user, Dataset.PRIVATE_ACCESS)
+            user_term = {"term": {"authorization.owner": user}}
+
+        # IF we're looking at a user we're not authorized to see (either the
+        # call is unauthenticated, or authenticated as a non-ADMIN user trying
+        # to reference a different user), then we're only allowed to see PUBLIC
+        # data; private data requests aren't allowed, and we expect these cases
+        # to fail with appropriate permission errors (401 or 403) before we
+        # reach this code.
+        #
+        # ELSE IF we're looking for a specific access category, add the query
+        # term.
+        #
+        # ELSE IF this is a {} query from a non-ADMIN user, add a "disjunction"
+        # (OR) covering all the user's own data plus all public data.
+        #
+        # ELSE this must be an admin user looking for data owned by a specific
+        # user (there's no access parameter, and possibly no user parameter),
+        # and we'll pass through the query either with the specified user
+        # constraint or with no constraint at all.
+        if not authorized_user or (user and user != authorized_id and not is_admin):
+            access_term = {"term": {"authorization.access": Dataset.PUBLIC_ACCESS}}
+            self.logger.debug("QUERY: not self public: {}", access_term)
+        elif access:
+            access_term = {"term": {"authorization.access": access}}
+            if not user and access == Dataset.PRIVATE_ACCESS and not is_admin:
+                user_term = {"term": {"authorization.owner": authorized_id}}
+            self.logger.debug("QUERY: user: {}, access: {}", user_term, access_term)
+        elif not user and not is_admin:
+            combo_term = {
+                "dis_max": {
+                    "queries": [
+                        {"term": {"authorization.owner": authorized_id}},
+                        {"term": {"authorization.access": Dataset.PUBLIC_ACCESS}},
+                    ]
+                }
+            }
+            self.logger.debug("QUERY: {{}} self + public: {}", combo_term)
         else:
-            term = {"authorization.access": Dataset.PUBLIC_ACCESS}
-        return term
+            # Either "user" was specified and will be added to the filter,
+            # or client is ADMIN and no access restrictions are required.
+            self.logger.debug("QUERY: {{}} default, user: {}", user_term)
+
+        # We control the order of terms here to allow stable unit testing.
+        if combo_term:
+            filter.append(combo_term)
+        else:
+            if access_term:
+                filter.append(access_term)
+            if user_term:
+                filter.append(user_term)
+        return {"bool": {"filter": filter}}
 
     def _gen_month_range(self, index: str, start: datetime, end: datetime) -> str:
         """
@@ -263,7 +383,7 @@ class ElasticBase(ApiBase):
                 return "", HTTPStatus.NO_CONTENT
         except UnauthorizedAccess as e:
             self.logger.warning("{}", e)
-            abort(HTTPStatus.FORBIDDEN, message="Not Authorized")
+            abort(e.http_status, message=str(e))
         except KeyError as e:
             self.logger.exception("{} problem in preprocess, missing {}", klasname, e)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
@@ -276,7 +396,9 @@ class ElasticBase(ApiBase):
             es_request = self.assemble(json_data, context)
             path = es_request.get("path")
             url = urljoin(self.es_url, path)
-            self.logger.debug("ASSEMBLE returned URL {}", url)
+            self.logger.info(
+                "ASSEMBLE returned URL {!r}, {!r}", url, es_request.get("json")
+            )
         except Exception as e:
             self.logger.exception("{} assembly failed: {}", klasname, e)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
@@ -285,9 +407,10 @@ class ElasticBase(ApiBase):
             # perform the Elasticsearch query
             es_response = method(url, **es_request["kwargs"])
             self.logger.debug(
-                "ES query response {}:{}", es_response.reason, es_response.status_code
+                "ES query response {}:{}", es_response.reason, es_response.status_code,
             )
             es_response.raise_for_status()
+            json_response = es_response.json()
         except requests.exceptions.HTTPError as e:
             self.logger.exception(
                 "{} HTTP error {} from Elasticsearch request: {}",
@@ -330,7 +453,7 @@ class ElasticBase(ApiBase):
 
         try:
             # postprocess Elasticsearch response
-            return self.postprocess(es_response.json(), context)
+            return self.postprocess(json_response, context)
         except PostprocessError as e:
             msg = f"{klasname}: the query postprocessor was unable to complete: {e}"
             self.logger.warning("{}", msg)
@@ -345,7 +468,7 @@ class ElasticBase(ApiBase):
             self.logger.exception(
                 "{}: unexpected problem postprocessing Elasticsearch response {}: {}",
                 klasname,
-                es_response.json(),
+                json_response,
                 e,
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
@@ -503,9 +626,9 @@ class ElasticBulkBase(ApiBase):
         # ownership of a designated dataset rather than having an explicit
         # "user" JSON parameter. This will raise UnauthorizedAccess on failure.
         try:
-            self._check_authorization(owner.username, json_data["access"])
+            self._check_authorization(owner.username, dataset.access)
         except UnauthorizedAccess as e:
-            abort(HTTPStatus.FORBIDDEN, message=str(e))
+            abort(e.http_status, message=str(e))
 
         # Build an Elasticsearch instance to manage the bulk update
         elastic = elasticsearch.Elasticsearch(self.node)

@@ -37,11 +37,19 @@ class UnauthorizedAccess(Exception):
     resource.
     """
 
-    def __init__(self, user: str, operation: "API_OPERATION", owner: str, access: str):
+    def __init__(
+        self,
+        user: User,
+        operation: "API_OPERATION",
+        owner: str,
+        access: str,
+        http_status: int = HTTPStatus.FORBIDDEN,
+    ):
         self.user = user
         self.operation = operation
         self.owner = owner
         self.access = access
+        self.http_status = http_status
 
     def __str__(self) -> str:
         return f"{'User ' + self.user.username if self.user else 'Unauthenticated client'} is not authorized to {self.operation.name} a resource owned by {self.owner} with {self.access} access"
@@ -52,8 +60,8 @@ class SchemaError(TypeError):
     Generic base class for errors in processing a JSON schema.
     """
 
-    def __init__(self, status: int = HTTPStatus.BAD_REQUEST):
-        self.http_status = status
+    def __init__(self, http_status: int = HTTPStatus.BAD_REQUEST):
+        self.http_status = http_status
 
     def __str__(self) -> str:
         return "Generic schema validation error"
@@ -61,15 +69,20 @@ class SchemaError(TypeError):
 
 class UnverifiedUser(SchemaError):
     """
-    Unverified attempt to access other user data.
+    Attempt by an unauthenticated client to reference a username in a query. An
+    unauthenticated client does not have the right to look up any username.
+
+    HTTPStatus.UNAUTHORIZED tells the client that the operation might succeed
+    if the request is retried with authentication. (A UI might redirect to a
+    login page.)
     """
 
     def __init__(self, username: str):
-        super().__init__(status=HTTPStatus.UNAUTHORIZED)
+        super().__init__(http_status=HTTPStatus.UNAUTHORIZED)
         self.username = username
 
     def __str__(self):
-        return f"User {self.username} can not be verified"
+        return f"Requestor is unable to verify username {self.username!r}"
 
 
 class InvalidRequestPayload(SchemaError):
@@ -115,15 +128,16 @@ class ConversionError(SchemaError):
     Used to report an invalid parameter type
     """
 
-    def __init__(self, value: Any, expected_type: str):
+    def __init__(self, value: Any, expected_type: str, **kwargs):
         """
         Construct a ConversionError exception
 
         Args:
             value: The value we tried to convert
             expected_type: The expected type
+            kwargs: Optional SchemaError parameters
         """
-        super().__init__()
+        super().__init__(**kwargs)
         self.value = value
         self.expected_type = expected_type
 
@@ -189,21 +203,6 @@ class ListElementError(SchemaError):
         return f"Unrecognized list value{'s' if len(self.bad) > 1 else ''} {self.bad!r} given for parameter {self.parameter.name}; expected {expected}"
 
 
-class PostprocessError(Exception):
-    """
-    Used by subclasses to report an error during postprocessing of the
-    Elasticsearch response document.
-    """
-
-    def __init__(self, status: int, message: str, data: JSON = None):
-        self.status = status
-        self.message = message
-        self.data = data
-
-    def __str__(self) -> str:
-        return f"Postprocessing error returning {self.status}: {self.message!r} [{self.data}]"
-
-
 def convert_date(value: str, _) -> datetime:
     """
     Convert a date/time string to a datetime.datetime object.
@@ -229,9 +228,13 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
     Validate that the user object referenced by the username string exists, and
     return the internal representation of that user.
 
-    The internal representation is the user row ID as a string. If the external
-    value is None, (which means the API's user parameter is nullable), we
-    return None to indicate that instead of attempting to query the User DB.
+    We do not want an unauthenticated client to be able to distinguish between
+    "invalid user" (ConversionError here) and "valid user I can't access" (some
+    sort of permission error later). Checking for a valid authentication token
+    here allows rejecting any USERNAME parameter passed by an unauthenticated
+    user with UNAUTHORIZED/401
+
+    The internal representation is the user row ID as a string.
 
     Args:
         value: external user representation
@@ -239,20 +242,26 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
 
     Raises:
         ConversionError: input can't be validated or normalized
+        UnverifiedUser: unauthenticated client can't validate a username
 
     Returns:
-        internal username representation or None
+        internal username representation
     """
-    if value is None:
-        return None
     if not isinstance(value, str):
-        raise ConversionError(value, str.__name__)
-    try:
-        user = Auth().verify_user(value)
-    except Exception:
         raise ConversionError(value, "username")
-    if not user:
+    if not Auth.token_auth.current_user():
         raise UnverifiedUser(value)
+
+    try:
+        user = User.query(username=value)
+    except Exception:
+        raise ConversionError(
+            value, "username", http_status=HTTPStatus.INTERNAL_SERVER_ERROR
+        )
+
+    if not user:
+        raise ConversionError(value, "username", http_status=HTTPStatus.NOT_FOUND)
+
     return str(user.id)
 
 
@@ -611,17 +620,14 @@ class ApiBase(Resource):
         self.schema = schema
         self.role = role
 
-    def _check_authorization(self, user: str, access: str):
+    def _check_authorization(self, user: Union[str, None], access: Union[str, None]):
         """
         Check whether an API call is able to access data, based on the API's
         authorization header, the requested user, the requested access
         policy, and the API's role.
 
-        If "user" is None, then the request is unauthenticated. READ operations
-        may be allowed, UPDATE and DELETE operations will not be allowed.
-
-        If "access" is None, READ will assume we're looking for access only to
-        public datasets.
+        If there is no current authenticated client, only READ operations on
+        public data will be allowed.
 
         for API_OPERATION.READ:
 
@@ -641,15 +647,19 @@ class ApiBase(Resource):
             Any authenticated ADMIN user can update any data.
 
         Args:
-            user: The user parameter to the API, or None
+            user: The username parameter to the API, or None
             access: The access parameter to the API, or None
 
         Raises:
-            UnauthorizedAccess The user isn't authorized for the requested
-                access.
+            UnauthorizedAccess: The user isn't authorized for the requested
+            access. One of two HTTP status values are encoded:
+                HTTP 401/UNAUTHORIZED: No user was authenticated, meaning
+                    that login is required to perform the operation.
+                HTTP 402/FORBIDDEN: The authenticated user does not have
+                    rights to the specified combination of API ROLE, USER,
+                    and ACCESS.
         """
         authorized_user: User = Auth.token_auth.current_user()
-        authorized = True
         self.logger.debug(
             "Authorizing {} access for {} to user {} with access {}",
             self.role,
@@ -657,22 +667,66 @@ class ApiBase(Resource):
             user,
             access,
         )
-        if self.role != API_OPERATION.READ or access == Dataset.PRIVATE_ACCESS:
+
+        # Accept or reject the described operation according to the following
+        # rules:
+        #
+        # 1) An ADMIN user can do anything.
+        # 2) An unauthenticated client can't perform any operation on PRIVATE
+        #    data, nor any operation other than READ on PUBLIC data;
+        # 3) The "user" parameter can be omitted only for READ operations,
+        #    which will be defaulted according to the visibility of the
+        #    authenticated client.
+        # 4) An authenticated client cannot mutate data owned by a different
+        #    user, nor READ private data owned by another user.
+        if self.role == API_OPERATION.READ and access == Dataset.PUBLIC_ACCESS:
+            # We are reading public data: this is always allowed.
+            pass
+        else:
+            # ROLE is UPDATE, CREATE, DELETE or ACCESS is private; we need to
+            # evaluate access rights to determine whether to allow the request
             if authorized_user is None:
+                # An unauthenticated user is never allowed to access private
+                # data nor to perform an potential mutation of data: REJECT
                 self.logger.warning(
                     "Attempt to {} user {} data without login", self.role, user
                 )
-                authorized = False
-            elif user != authorized_user.username and not authorized_user.is_admin():
+                raise UnauthorizedAccess(
+                    authorized_user, self.role, user, access, HTTPStatus.UNAUTHORIZED
+                )
+            elif self.role != API_OPERATION.READ and user is None:
+                # No target user is specified, so we won't allow mutation of
+                # data: REJECT
+                self.logger.warning(
+                    "Unauthorized attempt by {} to {} data with defaulted user",
+                    authorized_user,
+                    self.role,
+                )
+                raise UnauthorizedAccess(
+                    authorized_user, self.role, user, access, HTTPStatus.FORBIDDEN
+                )
+            elif (
+                user
+                and user != authorized_user.username
+                and not authorized_user.is_admin()
+            ):
+                # We are mutating data, or reading private data, so the
+                # authenticated user must either be the owner of the data or
+                # must have ADMIN role: REJECT
                 self.logger.warning(
                     "Unauthorized attempt by {} to {} user {} data",
                     authorized_user,
                     self.role,
                     user,
                 )
-                authorized = False
-        if not authorized:
-            raise UnauthorizedAccess(authorized_user, self.role, user, access)
+                raise UnauthorizedAccess(
+                    authorized_user, self.role, user, access, HTTPStatus.FORBIDDEN
+                )
+            else:
+                # We have determined that there is an authenticated user with
+                # legitimate access: the data is public and the operation is
+                # READ, the user owns the data, or the user has ADMIN role.
+                pass
 
     def _get_metadata(
         self, controller: str, name: str, requested_items: List[str]
@@ -750,12 +804,12 @@ class ApiBase(Resource):
             new_data = self.schema.validate(json_data)
         except UnverifiedUser as e:
             self.logger.warning("{}", str(e))
-            abort(HTTPStatus.FORBIDDEN, message=str(e))
+            abort(e.http_status, message=str(e))
         except SchemaError as e:
             self.logger.warning(
                 "{}: {} on {!r}", self.__class__.__name__, str(e), json_data
             )
-            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+            abort(e.http_status, message=str(e))
         except Exception as e:
             self.logger.exception(
                 "Unexpected validation exception in {}: {}",
@@ -778,7 +832,7 @@ class ApiBase(Resource):
                 self._check_authorization(user, access)
             except UnauthorizedAccess as e:
                 self.logger.warning("{}", e)
-                abort(HTTPStatus.FORBIDDEN, message="Not Authorized")
+                abort(e.http_status, message=str(e))
         return method(new_data, request)
 
     def _get(self, json_data: JSON, request: Request) -> Response:

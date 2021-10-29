@@ -224,19 +224,6 @@ def create_admin_user(client) -> User:
     return user
 
 
-@pytest.fixture
-def user_ok(monkeypatch, create_user):
-    """
-    Override the Auth.validate_user method to pass without checking the
-    database.
-    """
-
-    def ok(user: str) -> str:
-        return str(create_user.id)
-
-    monkeypatch.setattr(Auth, "validate_user", ok)
-
-
 @pytest.fixture()
 def fake_mtime(monkeypatch):
     """
@@ -601,3 +588,33 @@ def build_auth_header(request, server_config, pbench_token, pbench_admin_token, 
     else:
         assert False, f"Unexpected request.param value:  {request.param}"
     return {"header": header, "header_param": request.param}
+
+
+@pytest.fixture()
+def current_user_drb(monkeypatch):
+    drb = User(
+        email="drb@example.com",
+        id=3,
+        username="drb",
+        first_name="Authorized",
+        last_name="User",
+    )
+
+    class FakeHTTPTokenAuth:
+        def current_user(self) -> User:
+            return drb
+
+    with monkeypatch.context() as m:
+        m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
+        yield drb
+
+
+@pytest.fixture()
+def current_user_none(monkeypatch):
+    class FakeHTTPTokenAuth:
+        def current_user(self) -> User:
+            return None
+
+    with monkeypatch.context() as m:
+        m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
+        yield None

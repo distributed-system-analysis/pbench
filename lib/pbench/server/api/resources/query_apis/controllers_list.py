@@ -3,14 +3,12 @@ from flask import jsonify
 from logging import Logger
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources import (
-    JSON,
-    Schema,
-    Parameter,
-    ParamType,
+from pbench.server.api.resources import JSON, Schema, Parameter, ParamType
+from pbench.server.api.resources.query_apis import (
+    CONTEXT,
+    ElasticBase,
     PostprocessError,
 )
-from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 
 
 class ControllersList(ElasticBase):
@@ -89,18 +87,10 @@ class ControllersList(ElasticBase):
             "path": f"/{uri_fragment}/_search",
             "kwargs": {
                 "json": {
-                    "query": {
-                        "bool": {
-                            "filter": [
-                                {"term": self._get_user_term(json_data)},
-                                {
-                                    "range": {
-                                        "@timestamp": {"gte": start_arg, "lte": end_arg}
-                                    }
-                                },
-                            ]
-                        }
-                    },
+                    "query": self._get_user_query(
+                        json_data,
+                        [{"range": {"@timestamp": {"gte": start_arg, "lte": end_arg}}}],
+                    ),
                     "size": 0,  # Don't return "hits", only aggregations
                     "aggs": {
                         "controllers": {
@@ -134,6 +124,7 @@ class ControllersList(ElasticBase):
         ]
         """
         controllers = []
+
         # If there are no matches for the user, controller name,
         # and time range, return the empty list rather than failing.
         # Note that we can't check the length of ["hits"]["hits"]

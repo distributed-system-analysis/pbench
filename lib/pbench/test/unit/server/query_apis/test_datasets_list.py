@@ -1,7 +1,6 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
-from pbench.test.unit.server.conftest import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -22,6 +21,7 @@ class TestDatasetsList(Commons):
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
                 "user": "drb",
+                "access": "private",
                 "controller": "cpntroller.name",
                 "start": "2020-08",
                 "end": "2020-10",
@@ -33,18 +33,9 @@ class TestDatasetsList(Commons):
         [{"pbench": "/datasets/list", "elastic": "/_search?ignore_unavailable=true"}],
         indirect=True,
     )
-    @pytest.mark.parametrize(
-        "user", ("drb", "badwolf", "notauser", "no_user"),
-    )
+    @pytest.mark.parametrize("user", ("drb", "badwolf", "no_user"))
     def test_query(
-        self,
-        client,
-        server_config,
-        query_api,
-        user_ok,
-        find_template,
-        build_auth_header,
-        user,
+        self, client, server_config, query_api, find_template, build_auth_header, user,
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
@@ -53,12 +44,14 @@ class TestDatasetsList(Commons):
         """
         payload = {
             "user": user,
+            "access": "private",
             "controller": "dbutenho.csb",
             "start": "2020-08",
             "end": "2020-10",
         }
         if user == "no_user":
-            payload.pop("user", None)
+            del payload["user"]
+            payload["access"] = "public"
         response_payload = {
             "took": 6,
             "timed_out": False,
@@ -94,18 +87,9 @@ class TestDatasetsList(Commons):
             server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
 
-        # Determine whether we should expect the request to succeed, or to
-        # fail with a permission error. We always authenticate with the
-        # user "drb" as fabricated by the build_auth_header fixure; we
-        # don't expect success for an "invalid" authentication, for a different
-        # user, or for an invalid username.
-        if (
-            user == "no_user" or HeaderTypes.is_valid(build_auth_header["header_param"])
-        ) and user not in ["badwolf", "notauser"]:
-            expected_status = HTTPStatus.OK
-        else:
-            expected_status = HTTPStatus.FORBIDDEN
-
+        expected_status = self.get_expected_status(
+            payload, build_auth_header["header_param"]
+        )
         response = query_api(
             "/datasets/list",
             "/_search?ignore_unavailable=true",
@@ -142,7 +126,6 @@ class TestDatasetsList(Commons):
         client,
         server_config,
         query_api,
-        user_ok,
         find_template,
         provide_metadata,
         pbench_token,

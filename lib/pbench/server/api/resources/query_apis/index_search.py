@@ -8,10 +8,13 @@ from pbench.server.api.resources import (
     JSON,
     Parameter,
     ParamType,
-    PostprocessError,
     Schema,
 )
-from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
+from pbench.server.api.resources.query_apis import (
+    CONTEXT,
+    ElasticBase,
+    PostprocessError,
+)
 
 
 class IndexSearch(ElasticBase):
@@ -99,19 +102,17 @@ class IndexSearch(ElasticBase):
             "path": f"/{uri_fragment}/_search",
             "kwargs": {
                 "json": {
-                    "query": {
-                        "bool": {
-                            "filter": [
-                                {"term": self._get_user_term(json_data)},
-                                {
-                                    "range": {
-                                        "@timestamp": {"gte": start_arg, "lte": end_arg}
-                                    }
-                                },
-                                {"query_string": {"query": f"*{search_term}*"}},
-                            ]
-                        }
-                    },
+                    "query": self._get_user_query(
+                        json_data,
+                        [
+                            {
+                                "range": {
+                                    "@timestamp": {"gte": start_arg, "lte": end_arg}
+                                }
+                            },
+                            {"query_string": {"query": f"*{search_term}*"}},
+                        ],
+                    ),
                     "sort": [{"@timestamp": {"order": "desc"}}],
                     "_source": {"include": selected_fields},
                 },

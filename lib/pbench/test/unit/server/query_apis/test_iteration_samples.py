@@ -3,7 +3,6 @@ from http import HTTPStatus
 from pbench.server.api.resources.query_apis.iteration_samples import (
     IterationSampleNamespace,
 )
-from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -29,7 +28,6 @@ class TestIterationSamplesNamespace(Commons):
         self,
         server_config,
         query_api,
-        user_ok,
         pbench_token,
         build_auth_header,
         find_template,
@@ -263,10 +261,14 @@ class TestIterationSamplesNamespace(Commons):
         }
         index = self.build_index_from_metadata()
 
-        if HeaderTypes.is_valid(build_auth_header["header_param"]):
-            expected_status = HTTPStatus.OK
-        else:
-            expected_status = HTTPStatus.FORBIDDEN
+        # get_expected_status() expects to read username and access from the
+        # JSON client payload, however this API acquires that information
+        # from the Dataset. Construct a fake payload corresponding to the
+        # attach_dataset fixture.
+        auth_json = {"user": "drb", "access": "private"}
+        expected_status = self.get_expected_status(
+            auth_json, build_auth_header["header_param"]
+        )
 
         response = query_api(
             self.pbench_endpoint,

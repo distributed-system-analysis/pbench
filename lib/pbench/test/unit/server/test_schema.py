@@ -4,7 +4,6 @@ from typing import Callable
 import dateutil
 import pytest
 
-from pbench.server.api.auth import Auth, UnknownUser
 from pbench.server.api.resources import (
     API_OPERATION,
     ConversionError,
@@ -14,13 +13,13 @@ from pbench.server.api.resources import (
     MissingParameters,
     Parameter,
     ParamType,
-    PostprocessError,
     Schema,
     SchemaError,
     UnauthorizedAccess,
     UnsupportedAccessMode,
     UnverifiedUser,
 )
+from pbench.server.api.resources.query_apis import PostprocessError
 from pbench.server.database.models.users import User
 
 
@@ -44,7 +43,7 @@ class TestExceptions:
         s = SchemaError()
         assert str(s) == "Generic schema validation error"
         u = UnverifiedUser("you")
-        assert str(u) == "User you can not be verified"
+        assert str(u) == "Requestor is unable to verify username 'you'"
         i = InvalidRequestPayload()
         assert str(i) == "Invalid request payload"
         u = UnsupportedAccessMode("him", "private")
@@ -54,6 +53,11 @@ class TestExceptions:
         c = ConversionError({}, "str")
         assert str(c) == "Value {} (dict) cannot be parsed as a str"
         assert c.value == {}
+        assert c.http_status == HTTPStatus.BAD_REQUEST
+        c = ConversionError(1, "dict", http_status=HTTPStatus.NOT_FOUND)
+        assert str(c) == "Value 1 (int) cannot be parsed as a dict"
+        assert c.value == 1
+        assert c.http_status == HTTPStatus.NOT_FOUND
         p = PostprocessError(HTTPStatus.OK, "all's well", {"param": "none"})
         assert (
             str(p)
@@ -93,26 +97,20 @@ class TestParamType:
             (ParamType.KEYWORD, ["Llave"], "llave", "llave"),
         ),
     )
-    def test_successful_conversions(self, client, test, monkeypatch):
-        """
-        Test successful parameter conversion / normalization.
+    def test_successful_conversions(self, client, test, monkeypatch, current_user_drb):
+        user = User(
+            id=1,
+            username="drb",
+            password="password",
+            first_name="first_name",
+            last_name="last_name",
+            email="test@test.com",
+        )
 
-        NOTE that we can't test LIST without the element type; we'll test that
-        separately.
-        """
-
-        def ok(auth: Auth, username: str) -> User:
-            user = User(
-                id=1,
-                username=username,
-                password="password",
-                first_name="first_name",
-                last_name="last_name",
-                email="test@test.com",
-            )
+        def ok(username: str) -> User:
             return user
 
-        monkeypatch.setattr(Auth, "verify_user", ok)
+        monkeypatch.setattr(User, "query", ok)
 
         ptype, kwd, value, expected = test
         param = Parameter("test", ptype, keywords=kwd)
@@ -127,30 +125,60 @@ class TestParamType:
             (ParamType.DATE, "2021-06-45"),  # few months have 45 days
             (ParamType.DATE, "notadate"),  # not valid date string
             (ParamType.DATE, 1),  # not a string representing a date
-            (ParamType.USER, "drb"),  # we haven't established a "drb" user
             (ParamType.USER, False),  # not a user string
+            (ParamType.USER, "xyzzy"),  # not a defined username
             (ParamType.ACCESS, ["foobar"]),  # ACCESS is "public" or "private"
             (ParamType.ACCESS, 0),  # ACCESS must be a string
         ),
     )
-    def test_failed_conversions(self, test, monkeypatch):
+    def test_failed_conversions(self, test, current_user_drb):
         """
         Test unsuccessful parameter conversion / normalization.
 
         NOTE that we can't test LIST without the element type; we'll test that
         separately.
         """
-
-        def not_ok(auth: Auth, username: str) -> User:
-            raise UnknownUser()
-
-        monkeypatch.setattr(Auth, "verify_user", not_ok)
-
         ptype, value = test
         param = Parameter("test", ptype)
         with pytest.raises(ConversionError) as exc:
             ptype.convert(value, param)
         assert str(value) in str(exc)
+
+    def test_unauthenticated_username(self, monkeypatch, current_user_none):
+        """
+        Show that a valid username results in raising UnverifiedUser when the
+        client is unauthenticated even when the username exists.
+        """
+        user = User(
+            id=1,
+            username="drb",
+            password="password",
+            first_name="first_name",
+            last_name="last_name",
+            email="test@test.com",
+        )
+
+        def ok(username: str) -> User:
+            return user
+
+        monkeypatch.setattr(User, "query", ok)
+        with pytest.raises(UnverifiedUser) as exc:
+            ParamType.USER.convert("drb", None)
+        assert exc.value.username == "drb"
+
+    def test_authenticated_bad_username(self, monkeypatch, current_user_drb):
+        """
+        Show that an invalid username results in raising ConversionError with
+        NOT_FOUND (404) when the client is authenticated.
+        """
+
+        def bad(username: str) -> User:
+            return None
+
+        monkeypatch.setattr(User, "query", bad)
+        with pytest.raises(ConversionError) as exc:
+            ParamType.USER.convert("test", None)
+        assert exc.value.http_status == HTTPStatus.NOT_FOUND
 
 
 class TestParameter:

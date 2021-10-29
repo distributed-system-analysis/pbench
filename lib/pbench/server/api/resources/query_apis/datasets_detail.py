@@ -4,14 +4,12 @@ from flask_restful import abort
 from logging import Logger
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources import (
-    JSON,
-    Schema,
-    Parameter,
-    ParamType,
+from pbench.server.api.resources import JSON, Schema, Parameter, ParamType
+from pbench.server.api.resources.query_apis import (
+    CONTEXT,
+    ElasticBase,
     PostprocessError,
 )
-from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 from pbench.server.database.models.datasets import DatasetNotFound, MetadataError
 
 
@@ -93,14 +91,9 @@ class DatasetsDetail(ElasticBase):
             "kwargs": {
                 "params": {"ignore_unavailable": "true"},
                 "json": {
-                    "query": {
-                        "bool": {
-                            "filter": [
-                                {"term": {"run.name": name}},
-                                {"term": self._get_user_term(json_data)},
-                            ]
-                        }
-                    },
+                    "query": self._get_user_query(
+                        json_data, [{"term": {"run.name": name}}]
+                    ),
                     "sort": "_index",
                 },
             },

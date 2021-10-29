@@ -1,7 +1,6 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.controllers_list import ControllersList
-from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -20,7 +19,12 @@ class TestControllersList(Commons):
             cls_obj=ControllersList(client.config, client.logger),
             pbench_endpoint="/controllers/list",
             elastic_endpoint="/_search?ignore_unavailable=true",
-            payload={"user": "drb", "start": "2020-08", "end": "2020-10"},
+            payload={
+                "user": "drb",
+                "access": "private",
+                "start": "2020-08",
+                "end": "2020-10",
+            },
             empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 
@@ -32,7 +36,6 @@ class TestControllersList(Commons):
         client,
         server_config,
         query_api,
-        user_ok,
         find_template,
         build_auth_header,
         user,
@@ -43,15 +46,23 @@ class TestControllersList(Commons):
         The test will run once with each parameter supplied from the local parameterization,
         and, for each of those, multiple times with different values of the build_auth_header fixture.
         """
+
+        # By default, ask for all "private" data for the "user" parameter; we
+        # expect success when "user" matches our authentication token user
+        # (drb) or when the authentication token is an administrator. These
+        # cases are injected via the `build_auth_header` fixture.
         payload = {
             "user": user,
             "access": "private",
             "start": "2020-08",
             "end": "2020-10",
         }
-        # "no_user" means omitting the "user" parameter entirely.
+
+        # "no_user" means omitting the "user" parameter entirely, which means
+        # asking for data for all users. We add "access": "public" so that
+        # we can expect success regardless of the authenticated user.
         if user == "no_user":
-            payload.pop("user", None)
+            del payload["user"]
             payload["access"] = "public"
 
         response_payload = {
@@ -93,18 +104,9 @@ class TestControllersList(Commons):
             server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
 
-        # Determine whether we should expect the request to succeed, or to
-        # fail with a permission error. We always authenticate with the
-        # user "drb" as fabricated by the build_auth_header fixure; we
-        # don't expect success for an "invalid" authentication, for a different
-        # user, or for an invalid username.
-        if (
-            user == "no_user" or HeaderTypes.is_valid(build_auth_header["header_param"])
-        ) and user != "badwolf":
-            expected_status = HTTPStatus.OK
-        else:
-            expected_status = HTTPStatus.FORBIDDEN
-
+        expected_status = self.get_expected_status(
+            payload, build_auth_header["header_param"]
+        )
         response = query_api(
             "/controllers/list",
             "/_search?ignore_unavailable=true",

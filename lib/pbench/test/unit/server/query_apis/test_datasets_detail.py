@@ -1,7 +1,6 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
-from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -22,6 +21,7 @@ class TestDatasetsDetail(Commons):
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
                 "user": "drb",
+                "access": "private",
                 "name": "fio",
                 "start": "2020-08",
                 "end": "2020-10",
@@ -33,14 +33,7 @@ class TestDatasetsDetail(Commons):
         "user", ("drb", "badwolf", "no_user"),
     )
     def test_query(
-        self,
-        client,
-        server_config,
-        query_api,
-        user_ok,
-        find_template,
-        build_auth_header,
-        user,
+        self, client, server_config, query_api, find_template, build_auth_header, user
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
@@ -49,12 +42,18 @@ class TestDatasetsDetail(Commons):
         """
         payload = {
             "user": user,
+            "access": "private",
             "name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
             "start": "2020-08",
             "end": "2020-10",
         }
+
+        # We expect "no_user" to succeed, looking for only public data. We
+        # normally remove the user parameter; for this case, we'll look for
+        # public data owned by a known user; which should succeed.
         if user == "no_user":
-            payload.pop("user", None)
+            del payload["user"]
+            payload["access"] = "public"
 
         response_payload = {
             "took": 112,
@@ -124,18 +123,9 @@ class TestDatasetsDetail(Commons):
 
         expected_status = HTTPStatus.OK
 
-        # Determine whether we should expect the request to succeed, or to
-        # fail with a permission error. We always authenticate with the
-        # user "drb" as fabricated by the build_auth_header fixure; we
-        # don't expect success for an "invalid" authentication, for a different
-        # user, or for an invalid username.
-        if (
-            user == "no_user" or HeaderTypes.is_valid(build_auth_header["header_param"])
-        ) and user != "badwolf":
-            expected_status = HTTPStatus.OK
-        else:
-            expected_status = HTTPStatus.FORBIDDEN
-
+        expected_status = self.get_expected_status(
+            payload, build_auth_header["header_param"]
+        )
         response = query_api(
             "/datasets/detail",
             "/_search?ignore_unavailable=true",
@@ -194,7 +184,6 @@ class TestDatasetsDetail(Commons):
         client,
         server_config,
         query_api,
-        user_ok,
         find_template,
         provide_metadata,
         pbench_token,
@@ -335,23 +324,21 @@ class TestDatasetsDetail(Commons):
         assert expected == res_json
 
     def test_empty_query(
-        self,
-        client,
-        server_config,
-        query_api,
-        user_ok,
-        find_template,
-        build_auth_header,
+        self, client, server_config, query_api, find_template, build_auth_header,
     ):
         """
         Check the handling of a query that doesn't return any data.
         The test will run thrice with different values of the build_auth_header
         fixture.
         """
-        expected_status = HTTPStatus.BAD_REQUEST
-        if not HeaderTypes.is_valid(build_auth_header["header_param"]):
-            expected_status = HTTPStatus.FORBIDDEN
+        expected_status = self.get_expected_status(
+            self.payload, build_auth_header["header_param"]
+        )
 
+        # In this case, if we don't get a validation/permission error, expect
+        # to fail because of the unexpectedly empty Elasticsearch result.
+        if expected_status == HTTPStatus.OK:
+            expected_status = HTTPStatus.BAD_REQUEST
         index = self.build_index(
             server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
@@ -368,14 +355,13 @@ class TestDatasetsDetail(Commons):
         if response.status_code == HTTPStatus.BAD_REQUEST:
             assert response.json["message"].find("dataset has gone missing") != -1
 
-    def test_nonunique_query(
-        self, client, server_config, query_api, user_ok, find_template
-    ):
+    def test_nonunique_query(self, client, server_config, query_api, find_template):
         """
         Check the handling of a query that returns too much data.
         """
-        # We remove the user value so we can make an unauthorized query
+        # We look for public data so we can make an unauthorized query
         del self.payload["user"]
+        self.payload["access"] = "public"
         response_payload = {
             "hits": {
                 "total": {"value": 0, "relation": "eq"},
