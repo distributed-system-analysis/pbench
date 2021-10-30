@@ -27,8 +27,12 @@ The following options are available:
 		file sizes in MiB
 
 	-d str[,str] --targets=str[,str]
-		one or more directories or block devices (default is /tmp/fio)
-		(persistent names for devices highly recommended)
+		one or more files, block devices, or directories (default is /tmp/fio);
+		use of persistent names for block devices is highly recommended;
+		when a directory is specified, one must also provide a job file
+		via '--job-file=<path>' which employs the 'directory = $target'
+		syntax, or use the predefined job file provided at:
+		  /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/templates/fio-shared-fs.job
 
 	-j str --job-mode=str    str=[serial|concurrent]  (default is 'concurrent')
 		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations

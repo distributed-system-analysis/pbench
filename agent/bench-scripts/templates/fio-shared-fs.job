@@ -1,5 +1,5 @@
 # Syntax:
-#   $target : expands to the fio target file directory
+#   $target : expands to the fio target directory
 #   $@ : expands to the value of the option as passed to
 #        pbench-fio
 #
