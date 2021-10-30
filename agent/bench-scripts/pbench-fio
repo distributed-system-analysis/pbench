@@ -699,6 +699,7 @@ function fio_run_job() {
 	debug_log "$benchmark: Going to run [$benchmark_bin $bench_opts $client_opts]"
 	pushd $benchmark_results_dir >/dev/null
 	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/fio-result.txt
+	local _fio_exit_code=$?
 	popd >/dev/null
 
 	pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
@@ -762,7 +763,12 @@ function fio_run_job() {
 		fi
 	fi
 
-	echo "fio job complete"
+	if [[ ${_fio_exit_code} -eq 0 ]]; then
+		printf "fio job complete\n"
+	else
+		printf "fio job failed, status code %s\n" "${_fio_exit_code}"
+	fi
+	return ${_fio_exit_code}
 }
 
 # Run the benchmark and start/stop perf analysis tools
@@ -772,8 +778,8 @@ function fio_run_benchmark() {
 	if [[ ! -z "$client_file" ]] ;then
 		# Copy the clients file given on the command line into the run
 		# directory to keep it with the run.
-		cp $client_file $benchmark_run_dir/fio-client.file
 		_client_file=$benchmark_run_dir/fio-client.file
+		cp $client_file ${_client_file}
 	else
 		if [[ ! -z "$clients" ]]; then
 			# Record the -c|--clients list into the
@@ -801,21 +807,21 @@ function fio_run_benchmark() {
 	typeset -i ntesttypes=$(echo $test_types | sed -e 's/,/ /g' | wc -w)
 	typeset -i nblocksizes=$(echo $block_sizes | sed -e 's/,/ /g' | wc -w)
 	typeset -i total_iterations=$ntargets*$ntesttypes*$nblocksizes
+	local iteration_failures=0
 	for dev in $targets; do
 		for test_type in `echo $test_types | sed -e s/,/" "/g`; do
 			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
-				job_num=1
-				iteration="${count}-${test_type}-${block_size}KiB"
+				local job_num=1
+				local iteration="${count}-${test_type}-${block_size}KiB"
 				if [[ "$job_mode" = "serial" ]]; then
 					dev_short_name="$(basename $dev)"
 					# easier to identify what job used what device when having 1 job per device
 					iteration="${iteration}-${dev_short_name}"
 				fi
 				record_iteration ${count} ${test_type} ${block_size} ${dev} ${iteration}
-				iteration_dir=$benchmark_run_dir/$iteration
-				result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
-				failures=0
-				while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
+				local iteration_dir=$benchmark_run_dir/$iteration
+				local failures=0
+				while true; do
 					if [[ $failures -gt 0 ]]; then
 						echo "Restarting iteration $iteration ($count of $total_iterations)"
 						log "Restarting iteration $iteration ($count of $total_iterations)"
@@ -844,7 +850,7 @@ function fio_run_benchmark() {
 						fi
 					fi
 					if [ -e $iteration_dir ]; then
-						fio_job_file="$iteration_dir/fio.job"
+						local fio_job_file="$iteration_dir/fio.job"
 						local _action=""
 						if [ "$postprocess_only" = "n" ]; then
 							_action="Created"
@@ -856,11 +862,9 @@ function fio_run_benchmark() {
 						echo "${_action} the following job file (${fio_job_file}):"
 						cat ${fio_job_file}
 
-						iteration_failed=0
-						sample_failed=0
 						for sample in `seq 1 $nr_samples`; do
 							# each attempt at a test config requires multiple samples to get stddev
-							benchmark_results_dir="$iteration_dir/sample$sample"
+							local benchmark_results_dir="$iteration_dir/sample$sample"
 							if [ "$postprocess_only" = "n" ]; then
 								if [ -e $benchmark_results_dir ]; then
 									# FIXME - Shouldn't we error and exit out instead of removing data?
@@ -868,15 +872,29 @@ function fio_run_benchmark() {
 								fi
 								mkdir -p $benchmark_results_dir
 								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$dev" "$clients"
+								rc=$?
+								if [ $rc -ne 0 ]; then
+									debug_log "failed: fio_run_job \"$iteration\" \"$benchmark_results_dir\" \"$fio_job_file\" \"$dev\" \"$clients\""
+									# we need all samples to be good, so bust out of testing samples now
+									((iteration_failures++))
+									break 2
+								fi
 							else
 								# we are only postprocessing, so we might have to untar an existing result
 								if [ ! -e $benchmark_results_dir ]; then
 									if [ -e ${iteration_dir}/sample${sample}.tar.xz ]; then
 										pushd $iteration_dir >/dev/null
 										tar Jxf sample$sample.tar.xz && /bin/rm sample$sample.tar.xz
+										local _tar_rc=$?
 										popd >/dev/null
+										if [[ ${_tar_rc} -ne 0 ]]; then
+											error_log "could not unpack sample tar ball, ${iteration_dir}/sample${sample}.tar.xz"
+											((iteration_failures++))
+											break 2
+										fi
 									else
 										echo "sample $sample missing.  There should be $nr_samples samples"
+										((iteration_failures++))
 										break 2
 									fi
 								fi
@@ -890,11 +908,9 @@ function fio_run_benchmark() {
 							rc=$?
 							# if for any reason the benchmark postprocessing script fails, consider this a failure to get a sample
 							if [ $rc -ne 0 ]; then
-								debug_log "failed: $script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $tool_group"
-								sample_failed=1
-							fi
-							if [ $sample_failed -eq 1 ]; then
+								debug_log "failed: $(cat $benchmark_results_dir/$benchmark-postprocess.cmd)"
 								# we need all samples to be good, so bust out of testing samples now
+								((iteration_failures++))
 								break 2
 							fi
 						done
@@ -903,17 +919,26 @@ function fio_run_benchmark() {
 					chmod +x "$iteration_dir/process-iteration-samples.cmd"
 					$iteration_dir/process-iteration-samples.cmd
 					fail=$?
-					if [ $fail -ne  0 ]; then
-						((failures++))
+					if [[ $fail -eq 0 || "$postprocess_only" = "n" ]]; then
+						# Either this sample was successful, or we are in
+						# post-processing only mode, so break out of the retry
+						# loop.
+						break
 					fi
-					if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
-						break 1
+					# The sample was not within the max stddev.
+					((failures++))
+					if [ $failures -ge $max_failures ]; then
+						# We consider this iteration to be a failure since too
+						# many sample failures were encountered.
+						((iteration_failures++))
+						break
 					fi
 				done
-			let count=$count+1 # now we can move to the next iteration
+				let count=$count+1 # now we can move to the next iteration
 			done
 		done
 	done
+	return ${iteration_failures}
 }
 
 fio_process_options "$@"
@@ -945,9 +970,12 @@ if [[ "$postprocess_only" == "n" ]]; then
 fi
 
 fio_run_benchmark
+_frb_sts=${?}
+
 echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
 $benchmark_run_dir/generate-benchmark-summary.cmd
+_gbs_sts=${?}
 
 if [[ "$postprocess_only" == "n" ]]; then
 	# Stop the tool meisters on each registered local/remote host
@@ -957,3 +985,7 @@ if [[ "$postprocess_only" == "n" ]]; then
 	fi
 	rmdir $benchmark_run_dir/.running
 fi
+
+# FYI this tricky using the exit status of `[[` itself, where we only exit with
+# zero if both statuses are 0, otherwise we exit with 1 indicating an error.
+[[ ${_frb_sts} -eq 0 && ${_gbs_sts} -eq 0 ]]
