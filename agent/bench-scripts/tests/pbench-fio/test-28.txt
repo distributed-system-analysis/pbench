@@ -16,6 +16,7 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
+log_unix_epoch=1
 
 [job-/tmp/fio]
 filename=/tmp/fio
