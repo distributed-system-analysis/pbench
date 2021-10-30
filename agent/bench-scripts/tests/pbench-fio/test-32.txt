@@ -17,6 +17,7 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
+log_unix_epoch=1
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -25,9 +26,9 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/fio.job (sample1)
-[fio-postprocess-viz.py] Chart Type: xy (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/results.html)
-[fio-postprocess-viz.py] Chart Type: xy (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/results.html)
-[fio-postprocess-viz.py] Chart Type: xy (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/results.html)
+[fio-postprocess-viz.py] Chart Type: timeseries (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/results.html)
+[fio-postprocess-viz.py] Chart Type: timeseries (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/results.html)
+[fio-postprocess-viz.py] Chart Type: timeseries (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/results.html)
 fio job complete
 --- Finished test-32 pbench-fio (status=0)
 +++ pbench tree state
@@ -156,7 +157,7 @@ iteration_name = 1-rw-42KiB
     <script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
     <div id='jschart_latency'>
       <script>
-        create_jschart(0, "xy", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
+        create_jschart(0, "timeseries", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
             { plotfiles: [ "min.log", "median.log", "p90.0.log", "p95.0.log", "p99.0.log", "p99.5.log", "max.log" ],
               sort_datasets: false, x_log_scale: false
             });
@@ -179,7 +180,7 @@ iteration_name = 1-rw-42KiB
     <script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
     <div id='jschart_latency'>
       <script>
-        create_jschart(0, "xy", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
+        create_jschart(0, "timeseries", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
             { plotfiles: [ "min.log", "median.log", "p90.0.log", "p95.0.log", "p99.0.log", "p99.5.log", "max.log" ],
               sort_datasets: false, x_log_scale: false
             });
@@ -202,7 +203,7 @@ iteration_name = 1-rw-42KiB
     <script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
     <div id='jschart_latency'>
       <script>
-        create_jschart(0, "xy", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
+        create_jschart(0, "timeseries", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
             { plotfiles: [ "min.log", "median.log", "p90.0.log", "p95.0.log", "p99.0.log", "p99.5.log", "max.log" ],
               sort_datasets: false, x_log_scale: false
             });
