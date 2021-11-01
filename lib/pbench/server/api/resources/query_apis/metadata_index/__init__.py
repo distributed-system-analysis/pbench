@@ -52,8 +52,9 @@ class RunIdBase(ElasticBase):
         request is authorized for this dataset.
 
         If the user has authorization to read the dataset, return the Dataset
-        object as CONTEXT so that the postprocess operations can use it to
-        identify the index to be searched from document index metadata.
+        object and run_id as JSON CONTEXT so that the postprocess operations
+        can use it to identify the index to be searched from document index
+        metadata.
         """
         run_id = client_json["run_id"]
 
@@ -82,7 +83,7 @@ class RunIdBase(ElasticBase):
     def get_index(self, dataset: Dataset, root_index_name: AnyStr) -> AnyStr:
         """
         Retrieve the list of ES indices from the metadata table based on a given
-        index_prefix.
+        root_index_name.
         """
         try:
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)

@@ -56,8 +56,8 @@ class IterationSampleNamespace(RunIdBase):
         given run id.
 
         Args:
-        json_data: JSON dictionary of type-normalized parameters
-            "run_id": Dataset document ID
+            json_data: JSON dictionary of type-normalized parameters
+                "run_id": Dataset document ID
 
         EXAMPLE:
         {
@@ -84,7 +84,7 @@ class IterationSampleNamespace(RunIdBase):
             self.logger.exception(
                 "Document template 'result-data-sample' not found in the database."
             )
-            abort(HTTPStatus.NOT_FOUND, message="Mapping not found")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Mapping not found")
 
         # Only keep the whitelisted fields for aggregation
         mappings = {
@@ -194,6 +194,7 @@ class IterationSamplesRows(RunIdBase):
     """
 
     DOCUMENT_SIZE = 10000  # Number of documents to return in one page
+    SCROLL_EXPIRY = "1m"  # Scroll id expires in 1 minute
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
@@ -210,7 +211,7 @@ class IterationSamplesRows(RunIdBase):
         """
         Construct a pbench Elasticsearch query for filtering iteration
         samples based on a given run id and other filtering parameters
-        mention in JSON payload.
+        specified in JSON payload.
 
         Note: If the ES scroll id is present we will ignore the filters
         parameter and instead construct an Elasticsearch query for scrolling
@@ -223,22 +224,26 @@ class IterationSamplesRows(RunIdBase):
 
         Args:
             json_data:
-            "run_id": run id of a dataset that client wants to search for
-                    fetching the iteration samples.
+                "run_id": run id of a dataset that client wants to search for
+                        fetching the iteration samples.
 
-            "scroll_id": Server provided Elasticsearch scroll id that client
-                        recieved in the result of the original query with
-                        filters. This can be used to fetch the next page of
-                        the result.
+                "scroll_id": Server provided Elasticsearch scroll id that client
+                            recieved in the result of the original query with
+                            filters. This can be used to fetch the next page of
+                            the result.
 
-            "filters": key-value representation of query filter parameters to
-                       narrow the search results e.g. {"sample.name": "sample1"}
+                "filters": key-value representation of query filter parameters to
+                           narrow the search results e.g. {"sample.name": "sample1"}
 
-        EXAMPLE:
+        EXAMPLES:
+            {
+                "run_id": "1234567"
+                "filters": {"sample.name": "sample1"},
+            }
+            or
             {
                 "run_id": "1234567"
                 "scroll_id": "cmFuZG9tX3Njcm9sbF9pZF9zdHJpbmdfMg=="
-                "filters": {"sample.name": "sample1"},
             }
         """
         run_id = context["run_id"]
@@ -255,10 +260,14 @@ class IterationSamplesRows(RunIdBase):
 
         scroll_id = json_data.get("scroll_id")
         if scroll_id:
-            # Note: Scroll id expires in 1 minute
             return {
                 "path": "/_search/scroll",
-                "kwargs": {"json": {"scroll": "1m", "scroll_id": scroll_id}},
+                "kwargs": {
+                    "json": {
+                        "scroll": IterationSamplesRows.SCROLL_EXPIRY,
+                        "scroll_id": scroll_id,
+                    }
+                },
             }
 
         # Retrieve the ES indices that belong to this run_id
@@ -269,7 +278,7 @@ class IterationSamplesRows(RunIdBase):
             es_filter.append({"match": {filter: value}})
 
         return {
-            "path": f"/{index}/_search?scroll=1m",
+            "path": f"/{index}/_search?scroll={IterationSamplesRows.SCROLL_EXPIRY}",
             "kwargs": {
                 "json": {
                     "size": IterationSamplesRows.DOCUMENT_SIZE,
