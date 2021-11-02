@@ -986,6 +986,6 @@ if [[ "$postprocess_only" == "n" ]]; then
 	rmdir $benchmark_run_dir/.running
 fi
 
-# FYI this tricky using the exit status of `[[` itself, where we only exit with
-# zero if both statuses are 0, otherwise we exit with 1 indicating an error.
+# FYI this is tricky using the exit status of `[[` itself, where we only exit
+# with 0 if both statuses are 0, otherwise we exit with 1 indicating an error.
 [[ ${_frb_sts} -eq 0 && ${_gbs_sts} -eq 0 ]]
