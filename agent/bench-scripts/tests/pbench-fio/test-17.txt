@@ -2,7 +2,7 @@
 [error][1900-01-01T00:00:00.000000] Unsupported --job-mode=bad encountered
 The following options are available:
 
-	-t str[,str] --test-types=str[,str]
+	-t str[,str...] --test-types=str[,str...]
 		one or more of read,write,rw,randread,randwrite,randrw
 
 	--direct=[0/1]
@@ -20,13 +20,13 @@ The following options are available:
 	--ramptime=int
 		time in seconds to warm up test before taking measurements (default is )
 
-	-b int[,int] --block-sizes=str[,str] (default is 4,64,1024)
+	-b int[,int...] --block-sizes=int[,int...] (default is 4,64,1024)
 		one or more block sizes in KiB
 
-	-s int[,int] --file-size=str[,str] (no default)
+	-s int[,int...] --file-size=int[,int...] (no default)
 		file sizes in MiB
 
-	-d str[,str] --targets=str[,str]
+	-d str[,str...] --targets=str[,str...]
 		one or more files, block devices, or directories (default is /tmp/fio);
 		use of persistent names for block devices is highly recommended;
 		when a directory is specified, one must also provide a job file
@@ -43,7 +43,7 @@ The following options are available:
 
 	--iodepth=<int>		Set the iodepth config variable in the fio job file
 
-	-c str[,str] --clients=str[,str]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run
+	-c str[,str...] --clients=str[,str...]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run
 		If no clients are specified, fio is run locally
 		Note: the pbench-agent must be installed on each of the client systems already.
 
