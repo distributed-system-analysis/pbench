@@ -1,0 +1,1 @@
+-d /var/tmp --test-type=read,write --block-size=4k --samples=2

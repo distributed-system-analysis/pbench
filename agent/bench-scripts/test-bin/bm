@@ -19,3 +19,5 @@ if [[ "${_tst_benchmark}" == "pbench-fio" ]]; then
         done
     fi
 fi
+
+exit ${_BM_EXIT_STS:-0}
