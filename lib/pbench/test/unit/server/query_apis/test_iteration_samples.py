@@ -329,13 +329,11 @@ class TestIterationSamplesRows(Commons):
             cls_obj=IterationSamplesRows(client.config, client.logger),
             pbench_endpoint="/dataset/samples/rows",
             elastic_endpoint="/_search",
-            payload={
-                "run_id": "random_md5_string1",
-                "filters": {"sample.name": "sample1"},
-            },
+            payload={"run_id": "random_md5_string1"},
             use_index_from_metadata=True,
         )
 
+    @pytest.mark.parametrize("filters", ({"sample.name": "sample1"}, {}, None))
     def test_rows_query_without_scroll(
         self,
         server_config,
@@ -344,6 +342,7 @@ class TestIterationSamplesRows(Commons):
         build_auth_header,
         find_template,
         provide_metadata,
+        filters,
     ):
         response_payload = {
             "_scroll_id": TestIterationSamplesRows.SCROLL_ID,
@@ -489,6 +488,8 @@ class TestIterationSamplesRows(Commons):
         expected_status = self.get_expected_status(
             auth_json, build_auth_header["header_param"]
         )
+        if filters is not None:
+            self.payload["filters"] = filters
 
         response = query_api(
             self.pbench_endpoint,
@@ -505,6 +506,7 @@ class TestIterationSamplesRows(Commons):
                 "results": [hit["_source"] for hit in response_payload["hits"]["hits"]]
             }
 
+    @pytest.mark.parametrize("filters", ({"sample.name": "sample1"}, {}, None))
     def test_scroll_id_return(
         self,
         server_config,
@@ -513,6 +515,7 @@ class TestIterationSamplesRows(Commons):
         build_auth_header,
         find_template,
         provide_metadata,
+        filters,
     ):
         response_payload = {
             "_scroll_id": TestIterationSamplesRows.SCROLL_ID,
@@ -551,6 +554,8 @@ class TestIterationSamplesRows(Commons):
         expected_status = self.get_expected_status(
             auth_json, build_auth_header["header_param"]
         )
+        if filters is not None:
+            self.payload["filters"] = filters
 
         response = query_api(
             self.pbench_endpoint,
@@ -575,7 +580,6 @@ class TestIterationSamplesRows(Commons):
         find_template,
         provide_metadata,
     ):
-        del self.payload["filters"]
         self.payload["scroll_id"] = TestIterationSamplesRows.SCROLL_ID
 
         response_payload = {
