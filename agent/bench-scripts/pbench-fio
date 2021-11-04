@@ -603,11 +603,6 @@ function fio_run_job() {
 			ssh ${ssh_opts} ${client} mkdir -p ${benchmark_results_dir} &
 		done
 		wait
-		debug_log "opening client port in firewall on the clients"
-		for client in "${client_names[@]}"; do
-			ssh ${ssh_opts} ${client} "firewall-cmd --add-port=${client_ports[${client}]}/tcp >/dev/null" &
-		done
-		wait
 		debug_log "killing any old fio process on the clients"
 		for client in "${client_names[@]}"; do
 			ssh ${ssh_opts} ${client} "killall fio >/dev/null 2>&1" &

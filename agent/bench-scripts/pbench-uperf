@@ -632,7 +632,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
 										scp $scp_opts $xml_file $client:$xml_file >/dev/null
 										scp $scp_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
-										ssh $ssh_opts $client "systemctl stop firewalld"
 									fi
 
 									# prepare test files and dirs on servers
@@ -641,7 +640,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 
 									# start the uperf server(s)
 									stop_server $server $server_port 1
-									ssh $ssh_opts $server "systemctl stop firewalld"
 									ssh $ssh_opts $server "screen -dmS uperf-server $benchmark_server_cmd_file"
 
 									((server_nr++))

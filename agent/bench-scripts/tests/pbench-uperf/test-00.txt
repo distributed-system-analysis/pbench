@@ -133,10 +133,6 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 127.0.0.1 ss -tlnp --vsock
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 127.0.0.1 ss -tlnp --vsock
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 127.0.0.1 ss -tlnp --vsock
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 127.0.0.1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 127.0.0.1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 127.0.0.1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 127.0.0.1 systemctl stop firewalld
 --- test-execution.log file contents
 +++ uperf_test-00_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
