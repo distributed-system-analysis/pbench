@@ -38,7 +38,6 @@ nr_jvms=1
 start_warehouses=1
 stop_warehouses="default"
 inc_warehouses=1
-peak_warehouses=2
 heap_size="4096m"
 nr_cpus=`cat /proc/cpuinfo | grep processor | wc -l`
 specjbb2005_dir=/usr/local/share/specjbb2005
@@ -344,6 +343,7 @@ function record_iteration {
 	local iteration=$1
 	local iteration_name=$2
 	local benchmark_bin=$3
+	local mdlog="${benchmark_run_dir}/metadata.log"
 
 	echo ${iteration_name} >> ${benchmark_iterations}
 	echo ${iteration}      | pbench-add-metalog-option ${mdlog} iterations/${iteration_name} iteration_number
