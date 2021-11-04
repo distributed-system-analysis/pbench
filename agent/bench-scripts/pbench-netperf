@@ -471,9 +471,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 							if [ "$postprocess_only" != "y" ]; then
 								# prepare the netperf server(s)
 								for server in `echo $servers | sed -e s/,/" "/g`; do
-									ssh $ssh_opts $server killall netperf
-									ssh $ssh_opts $server "systemctl stop firewalld"
-									ssh $ssh_opts $server "screen -dmS netperf-server /usr/bin/netperf -s"
+									ssh $ssh_opts $server "killall netperf; screen -dmS netperf-server /usr/bin/netperf -s"
 								done
 								# prepare test files and dirs if using remote clients
 								if [ ! -z "$clients" ]; then
@@ -483,7 +481,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 										xml_file="$benchmark_run_dir/$iteration/netperf-config-$server.xml"
 										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
 										scp $scp_opts $xml_file $client:$xml_file
-										ssh $ssh_opts $client "systemctl stop firewalld"
 										let i=$i+1
 									done
 									wait

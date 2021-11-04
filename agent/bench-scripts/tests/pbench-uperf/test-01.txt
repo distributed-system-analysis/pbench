@@ -214,10 +214,6 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c1-server::s1:20010--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c1-server::s1:20010--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c1-server::s1:20010--client_start.sh
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 systemctl stop firewalld
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1
@@ -227,10 +223,6 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c2-server::s2:20020--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c2-server::s2:20020--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c2-server::s2:20020--client_start.sh
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 systemctl stop firewalld
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1
@@ -240,10 +232,6 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c3-server::s3:20030--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c3-server::s3:20030--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c3-server::s3:20030--client_start.sh
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 systemctl stop firewalld
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1
@@ -261,10 +249,6 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 ss -tlnp --vsock
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 ss -tlnp --vsock
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 ss -tlnp --vsock
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 systemctl stop firewalld
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1
@@ -282,10 +266,6 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 ss -tlnp --vsock
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 ss -tlnp --vsock
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 ss -tlnp --vsock
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 systemctl stop firewalld
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1
@@ -303,10 +283,6 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 ss -tlnp --vsock
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 ss -tlnp --vsock
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 ss -tlnp --vsock
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 systemctl stop firewalld
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 systemctl stop firewalld
 --- test-execution.log file contents
 +++ uperf_test-01_1900.01.01T00.00.00/metadata.log file contents
 [pbench]

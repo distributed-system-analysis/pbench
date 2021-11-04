@@ -79,15 +79,27 @@ they only have to allow password-less ssh access from the head node.
 
 ## firewalls
 
-*you must ensure that the network firewall or poke holes in the firewall for pbench-uperf*.  Typically there are two possible firewall implementations encountered:
+*You must ensure that the network firewall is not up, or poke holes in the firewall
+for pbench-uperf*.  Typically there are two possible firewall implementations
+encountered:
 
 * the **firewalld** service
 * the **iptables** service
 
-to temporarily disable (this may give security folks heartburn):
+To temporarily disable (this may give security folks heartburn):
 
     # systemctl stop firewalld
     # systemctl stop iptables
+
+To temporarily enable port under firewalld use:
+
+    # firewall-cmd --add-port=20000/tcp
+
+Where "20000" is the default port pbench-uperf will use for the uperf server.
+If you are using multiple servers, then starting with port 20000, pbench-uperf
+will use ports in increments of 10.  E.g. for 3 client / server pairs, ports
+ports 20000, 20010, and 20020 will be used.  Be sure you open those ports on
+the remote systems ahead of time.
 
 ## syntax
 
