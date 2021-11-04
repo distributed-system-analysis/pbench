@@ -1,0 +1,1 @@
+--specjbb2005-dir=${_testtmp}/specjbb2005 --nr-jvms=2 --start-warehouses=13 --inc-warehouses=5 --stop-warehouses=23
