@@ -271,14 +271,14 @@ class IterationSamplesRows(RunIdBase):
             }
 
         # Retrieve the ES indices that belong to this run_id
-        index = self.get_index(dataset, "result-data-sample")
+        indices = self.get_index(dataset, "result-data-sample")
 
         es_filter = [{"match": {"run.id": run_id}}]
         for filter, value in json_data.get("filters", {}).items():
             es_filter.append({"match": {filter: value}})
 
         return {
-            "path": f"/{index}/_search?scroll={IterationSamplesRows.SCROLL_EXPIRY}",
+            "path": f"/{indices}/_search?scroll={IterationSamplesRows.SCROLL_EXPIRY}",
             "kwargs": {
                 "json": {
                     "size": IterationSamplesRows.DOCUMENT_SIZE,
