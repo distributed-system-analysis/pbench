@@ -1,7 +1,7 @@
 +++ Running test-18 pbench-fio
 pbench-fio --
 
-	"--postprocess-only yes" not compatible with specified --install option
+	"--postprocess-only yes" not compatible with specified --pre-check option
 
 The following options are available:
 

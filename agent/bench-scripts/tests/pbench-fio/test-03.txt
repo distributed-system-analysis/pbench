@@ -11,8 +11,9 @@
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [pbench-fio] required fio-3.21 is installed
+[debug][1900-01-01T00:00:00.000000] local_pre_check(devs="/tmp/fio", ver="3.19", match="gte")
+[debug][1900-01-01T00:00:00.000000] found fio-3.42
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n fio
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --version
 --- test-execution.log file contents

@@ -1,1 +1,1 @@
---install --postprocess-only=yes
+--pre-check --postprocess-only=yes

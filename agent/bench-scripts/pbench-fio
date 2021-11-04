@@ -21,17 +21,6 @@ if [[ -z "${benchmark_bin}" ]]; then
 		exit 1
 	fi
 fi
-ver="$(pbench-config version ${benchmark})"
-if [[ -z "${ver}" ]]; then
-	error_log "${script_name}: package version is missing in config file"
-	exit 1
-fi
-match="$(pbench-config match ${benchmark})"
-fio_server_port="$(pbench-config server_port ${benchmark})"
-if [[ -z "${fio_server_port}" ]]; then
-	error_log "${script_name}: server_port is missing in config file"
-	exit 1
-fi
 
 job_file="${script_path}/templates/fio.job"
 
@@ -56,7 +45,7 @@ maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 supported_test_types="read,write,rw,randread,randwrite,randrw"
 test_types="read,randread"		# default is -non- destructive
-install_only="n"
+pre_check="n"
 export config=""
 rate_iops=""
 block_sizes="4,64,1024"
@@ -179,7 +168,7 @@ function usage {
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o b:c:d:hj:r:s:t: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:,unique-ports" -n "getopt.sh" -- "$@")
+	opts=$(getopt -q -o b:c:d:hj:r:s:t: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,pre-check,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:,unique-ports" -n "getopt.sh" -- "$@")
 	if [ $? -ne 0 ]; then
 		printf -- "${script_name} $*\n"
 		printf -- "\n"
@@ -196,15 +185,15 @@ function fio_process_options() {
 			usage
 			exit 0
 			;;
-		--install)
+		--pre-check)
 			if [[ "$postprocess_only" != "n" ]]; then
 				printf -- "${script_name} $*\n"
 				printf -- "\n"
-				printf -- "\t--install not compatible with specified \"--postprocess-only ${postprocess_only}\" option\n\n"
+				printf -- "\t--pre-check not compatible with specified \"--postprocess-only ${postprocess_only}\" option\n\n"
 				usage >&2
 				exit 1
 			fi
-			install_only="y"
+			pre_check="y"
 			;;
 		--remote-only)
 			warn_log "--remote-only is deprecated, ignoring (was non-operational previously)"
@@ -354,10 +343,10 @@ function fio_process_options() {
 			if [ -n "$1" ]; then
 				postprocess_only="$1"
 				shift
-				if [[ "$postprocess_only" != "n" && "$install_only" == "y" ]]; then
+				if [[ "$postprocess_only" != "n" && "$pre_check" == "y" ]]; then
 					printf -- "${script_name} $*\n"
 					printf -- "\n"
-					printf -- "\t\"--postprocess-only ${postprocess_only}\" not compatible with specified --install option\n\n"
+					printf -- "\t\"--postprocess-only ${postprocess_only}\" not compatible with specified --pre-check option\n\n"
 					usage >&2
 					exit 1
 				fi
@@ -421,9 +410,13 @@ function fio_process_options() {
 		esac
 	done
 
-	if [[ "${install_only}" == "y" ]]; then
-		check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
-		exit 0
+	if [[ "${pre_check}" == "y" ]]; then
+		# The extra arguments are the expected version number and match
+		# condition the controller found in its configuration file. This
+		# means we do NOT use the local clients configuration file for
+		# the `fio` version.
+		local_pre_check "${targets}" ${@}
+		exit ${?}
 	fi
 
 	verify_common_bench_script_options $tool_group $sysinfo
@@ -462,22 +455,6 @@ function fio_process_options() {
 		benchmark_fullname="$(basename $run_dir)"
 		benchmark_run_dir="$run_dir"
 	fi
-	if [[ -n "${clients}" ]] ; then
-		for client in ${clients//,/ } ; do
-			if [[ $client = *':'* ]] ; then
-				client_name=${client%%:*}
-				client_port=${client#*:}
-			else
-				client_name=${client}
-				client_port=${fio_server_port}
-				if (( unique_ports )) ; then
-					fio_server_port=$((fio_server_port+1))
-				fi
-			fi
-			client_names+=("${client_name}")
-			client_ports["${client_name}"]=${client_port}
-		done
-	fi
 }
 
 function record_iteration {
@@ -496,46 +473,80 @@ function record_iteration {
 	echo ${iteration} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
 }
 
-# Ensure the right version of the benchmark is installed
-function fio_install() {
-	check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
-	if [ ! -z "${clients}" ] ; then
-		debug_log "verifying clients have fio installed"
-		echo "verifying clients have fio installed"
-		for client in "${client_names[@]}" ; do
-			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/$script_name --install &
-		done
-		# FIXME - save the pid and wait for each pid to ensure it returns with success
-		wait
-	fi
-}
+function local_pre_check() {
+	local devs="${1}"
+	local ver="${2}"
+	local match="${3}"
 
-# Make sure this devices exists
-function fio_device_check() {
-	local devs=$1
-	local clients=$2
+	debug_log "local_pre_check(devs=\"${devs}\", ver=\"${ver}\", match=\"${match}\")"
+
+	# First check for the supported version of fio in use.
+
+	local _stdout=$(${benchmark_bin} --version)
+	local ver_installed=${_stdout##*-}
+
+	local _stderr=$(rpmdev-vercmp "${ver_installed}" "${ver}" 2>&1 > /dev/null)
+	local _res=${?}
+	if [[ ${_res} -ne 0 && ${_res} -ne 11 && ${_res} -ne 12 ]]; then
+		error_log "rpmdev-vercmp - ${_stderr}"
+		return 1
+	fi
+	if [[ "${match}" == "equ" ]]; then
+		[[ ${_res} -eq 0 ]]
+	elif [[ "${match}" == "gte" ]]; then
+		[[ ${_res} -eq 0 || ${_res} -eq 11 ]]
+	elif [[ "${match}" == "gtr" ]]; then
+		[[ ${_res} -eq 11 ]]
+	else
+		error_log "unrecognized 'match' argument, '${match}'"
+		return 1
+	fi
+	if [[ ${?} -eq 0 ]]; then
+		debug_log "found ${benchmark}-${ver_installed}"
+	else
+		error_log "wrong version installed: found ${benchmark}-${ver_installed}, expected ${benchmark}-${ver} (${match})"
+		return 1
+	fi
+
+	# Now if we have any block devices specified, verify them.
 
 	local dev=""
-	local client=""
 	local rc=0
-
-	debug_log "fio_device_check(devs=\"${devs}\", clients=\"${clients}\")"
 	for dev in ${devs//,/ }; do
-		if echo $dev | grep -q "^/dev/"; then
-			if [ ! -z "${clients}" ]; then
-				for client in "${client_names[@]}" ; do
-					debug_log "checking to see if $dev exists on client $client"
-					ssh $ssh_opts $client "if [ -L $dev ]; then dev=`dirname $dev`/`readlink $dev`; fi; test -b $dev" || rc=1
-				done
-			else
-				if [ -L $dev ]; then dev=`dirname $dev`/`readlink $dev`; fi; test -b $dev || rc=1
-			fi
-			if [ $rc -eq 1 ]; then
-				error_log "At least one client did not have block device $dev, exiting"
-				exit 1
+		if [[ ${dev} =~ ^/dev/ ]]; then
+			local rp_dev=$(realpath ${dev})
+			if [[ ! -b ${rp_dev} ]]; then
+				error_log "${pbench_hostname_full} does not have block device ${dev}"
 			fi
 		fi
 	done
+
+	return ${rc}
+}
+
+function fio_pre_check() {
+	local targets="${1}"
+	local clients="${2}"
+	local ver="${3}"
+	local match="${4}"
+
+	local rc=0
+
+	debug_log "fio_pre_check(targets=\"${targets}\", clients=\"${clients}\", ver=\"${ver}\", match=\"${match}\")"
+	if [ ! -z "${clients}" ]; then
+		local client=""
+		for client in "${client_names[@]}" ; do
+			debug_log "Running pre-check on client ${client}"
+			ssh ${ssh_opts} ${client} pbench-fio --pre-check --targets="${targets}" "${ver}" "${match}" || rc=1
+		done
+	else
+		local_pre_check "${devs}" "${ver}" "${match}"
+		rc=${?}
+	fi
+	if [[ ${rc} -ne 0 ]]; then
+		error_log "pre-checks failed, exiting"
+		exit 1
+	fi
 }
 
 function fio_create_jobfile() {
@@ -598,19 +609,9 @@ function fio_run_job() {
 	echo "running fio job: $fio_job_file ($(basename $benchmark_results_dir))"
 
 	if [ ! -z "${clients}" ]; then
-		debug_log "creating directories on the clients"
+		debug_log "killing any old fio processes, creating directories, and starting new a fio process on the clients"
 		for client in "${client_names[@]}"; do
-			ssh ${ssh_opts} ${client} mkdir -p ${benchmark_results_dir} &
-		done
-		wait
-		debug_log "killing any old fio process on the clients"
-		for client in "${client_names[@]}"; do
-			ssh ${ssh_opts} ${client} "killall fio >/dev/null 2>&1" &
-		done
-		wait
-		debug_log "starting new fio process on the clients"
-		for client in "${client_names[@]}"; do
-			ssh ${ssh_opts} ${client} "cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '$benchmark_bin --server=,${client_ports[${client}]} 2>&1 >client-result.txt'"
+			ssh ${ssh_opts} ${client} "killall ${benchmark} >/dev/null 2>&1; mkdir -p ${benchmark_results_dir} && cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2>&1'"
 		done
 		debug_log "waiting for fio process(server) to start on clients"
 		for client in "${client_names[@]}"; do
@@ -900,11 +901,42 @@ function fio_run_benchmark() {
 
 fio_process_options "$@"
 if [ "$postprocess_only" = "n" ]; then
-	fio_install
-	if [ "$install_only" = "y" ]; then
-		exit 0
+	ver="$(pbench-config version ${benchmark})"
+	if [[ -z "${ver}" ]]; then
+		error_log "${script_name}: 'version' is missing in the [${benchmark}] section of the config file"
+		exit 1
 	fi
-	fio_device_check "$targets" "${clients}"
+	match="$(pbench-config match ${benchmark})"
+	if [[ -z "${match}" ]]; then
+		error_log "${script_name}: 'match' is missing in the [${benchmark}] section of the config file"
+		exit 1
+	fi
+	fio_server_port="$(pbench-config server_port ${benchmark})"
+	if [[ -z "${fio_server_port}" ]]; then
+		error_log "${script_name}: 'server_port' is missing in the [${benchmark}] section of the config file"
+		exit 1
+	fi
+
+	if [[ -n "${clients}" ]] ; then
+		for client in ${clients//,/ } ; do
+			if [[ $client = *':'* ]] ; then
+				client_name=${client%%:*}
+				client_port=${client#*:}
+				exit 1
+			else
+				client_name=${client}
+				client_port=${fio_server_port}
+				if (( unique_ports )) ; then
+					fio_server_port=$((fio_server_port+1))
+				fi
+			fi
+			client_names+=("${client_name}")
+			client_ports["${client_name}"]=${client_port}
+		done
+	fi
+
+	fio_pre_check "${targets}" "${clients}" "${ver}" "${match}"
+
 	mkdir -p $benchmark_run_dir/.running
 	if [[ $? -ne 0 ]]; then
 		error_log "Unable to create $benchmark_run_dir path and/or .running marker directory"

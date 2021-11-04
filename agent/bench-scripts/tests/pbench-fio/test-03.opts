@@ -1,1 +1,1 @@
---install
+--pre-check -- 3.19 gte

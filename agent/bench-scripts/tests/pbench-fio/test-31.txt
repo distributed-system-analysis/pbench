@@ -1,5 +1,4 @@
 +++ Running test-31 pbench-fio
-verifying clients have fio installed
 Created the following job file (/var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/fio.job):
 [global]
 bs=4k
@@ -58,12 +57,10 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [pbench-fio] required fio-3.21 is installed
-[debug][1900-01-01T00:00:00.000000] verifying clients have fio installed
-[debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/tmp", clients="nodeA,nodeB")
-[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
+[debug][1900-01-01T00:00:00.000000] fio_pre_check(targets="/tmp", clients="nodeA,nodeB", ver="3.21", match="gte")
+[debug][1900-01-01T00:00:00.000000] Running pre-check on client nodeA
+[debug][1900-01-01T00:00:00.000000] Running pre-check on client nodeB
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/fio-client.file --max-jobs=8]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/nodeA/fio_clat_hist.*.log*) to process for histograms
@@ -83,15 +80,10 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=default default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n fio
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA killall fio >/dev/null 2>&1; mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1 && cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 > client-result.txt 2>&1'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA pbench-fio --pre-check --targets=/tmp 3.21 gte
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB killall fio >/dev/null 2>&1; mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1 && cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 > client-result.txt 2>&1'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB pbench-fio --pre-check --targets=/tmp 3.21 gte
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done nodeA 8765
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done nodeB 8765
 --- test-execution.log file contents
