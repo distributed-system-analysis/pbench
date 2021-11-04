@@ -12,10 +12,11 @@ class TestEndpointConfig:
 
     def test_query(self, client, server_config):
         """
-        test_query Check that endpoint data matches the config file.
+        test_query Check that endpoint data matches the config file. In the
+        local Flask mocked environment, `request.host` will always be
+        "localhost".
         """
-        host = server_config.get("pbench-server", "host")
-        self.check_config(client, server_config, host)
+        self.check_config(client, server_config, "localhost")
 
     def test_proxy_query(self, client, server_config):
         host = "proxy.example.com:8901"

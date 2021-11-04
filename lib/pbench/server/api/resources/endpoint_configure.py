@@ -31,13 +31,20 @@ class EndpointConfig(Resource):
         Report the server configuration to a web client. By default, the Pbench
         server ansible script sets up a local Apache reverse proxy routing
         through the HTTP port (80); an external reverse-proxy can be configured
-        without the knowledge of the server, and this API will use reverse-proxy
-        Forwarded or X-Forwarded-Host HTTP headers to discover the proxy
-        configuration. All server endpoints will be reported with respect to that
-        address.
+        without the knowledge of the server, and this API will try to use the
+        reverse-proxy Forwarded or X-Forwarded-Host HTTP headers to discover
+        preferred HTTP address of the server.
+
+        If neither forwarding header is present, this API will use the `host`
+        attribute from the Flask `Requests` object, which records how the
+        client directed the request.
+
+        All server endpoints will be reported with respect to the identified
+        address. This means subsequent client API calls will preserve whatever
+        proxying was set up for the original endpoints query: e.g., the
+        Javascript `window.origin` from which the Pbench dashboard was loaded.
         """
         self.logger = logger
-        self.host = config.get("pbench-server", "host")
         self.uri_prefix = config.rest_uri
         self.prefix = config.get("Indexing", "index_prefix")
         self.commit_id = config.COMMIT_ID
@@ -86,8 +93,8 @@ class EndpointConfig(Resource):
         """
         self.logger.debug("Received these headers: {!r}", request.headers)
         origin = None
-        host_source = "configuration"
-        host_value = self.host
+        host_source = "request"
+        host_value = request.host
         header = request.headers.get("Forwarded")
         if header:
             m = self.forward_pattern.search(header)
@@ -104,7 +111,7 @@ class EndpointConfig(Resource):
                     host_source = "X-Forwarded-Host"
                     host_value = header
         if not origin:
-            origin = self.host
+            origin = host_value
         host = f"http://{origin}"
         self.logger.info(
             "Advertising endpoints at {} relative to {} ({})",
