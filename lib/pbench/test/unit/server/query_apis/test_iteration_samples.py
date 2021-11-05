@@ -1,8 +1,13 @@
-import pytest
 from http import HTTPStatus
-from pbench.server.api.resources.query_apis.iteration_samples import (
+
+import pytest
+from werkzeug.exceptions import InternalServerError
+
+from pbench.server.api.resources.query_apis.metadata_index.iteration_samples import (
     IterationSampleNamespace,
+    IterationSamplesRows,
 )
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -107,7 +112,7 @@ class TestIterationSamplesNamespace(Commons):
                     "buckets": [
                         {
                             "doc_count": 50,
-                            "key": "benchmark_name:uperf-controller_host:dhcp31-171.perf.lab.eng.bos.redhat.com",
+                            "key": "benchmark_name:uperf-controller_host:host.name.com",
                         }
                     ],
                     "doc_count_error_upper_bound": 0,
@@ -135,17 +140,12 @@ class TestIterationSamplesNamespace(Commons):
                     "sum_other_doc_count": 0,
                 },
                 "run.config": {
-                    "buckets": [{"doc_count": 50, "key": "npalaska-dhcp31-171"}],
+                    "buckets": [{"doc_count": 50, "key": "npalaska"}],
                     "doc_count_error_upper_bound": 0,
                     "sum_other_doc_count": 0,
                 },
                 "run.controller": {
-                    "buckets": [
-                        {
-                            "doc_count": 50,
-                            "key": "dhcp31-171.perf.lab.eng.bos.redhat.com",
-                        }
-                    ],
+                    "buckets": [{"doc_count": 50, "key": "host.name.com"}],
                     "doc_count_error_upper_bound": 0,
                     "sum_other_doc_count": 0,
                 },
@@ -158,10 +158,7 @@ class TestIterationSamplesNamespace(Commons):
                 },
                 "run.name": {
                     "buckets": [
-                        {
-                            "doc_count": 50,
-                            "key": "uperf_npalaska-dhcp31-171_2021.07.14T15.30.22",
-                        }
+                        {"doc_count": 50, "key": "uperf_npalaska_2021.07.14T15.30.22"}
                     ],
                     "doc_count_error_upper_bound": 0,
                     "sum_other_doc_count": 0,
@@ -287,9 +284,7 @@ class TestIterationSamplesNamespace(Commons):
                 "benchmark.primary_metric": ["Gb_sec"],
                 "benchmark.protocol": ["tcp"],
                 "benchmark.test_type": ["stream"],
-                "benchmark.uid": [
-                    "benchmark_name:uperf-controller_host:dhcp31-171.perf.lab.eng.bos.redhat.com"
-                ],
+                "benchmark.uid": ["benchmark_name:uperf-controller_host:host.name.com"],
                 "benchmark.uid_tmpl": [
                     "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
                 ],
@@ -300,10 +295,10 @@ class TestIterationSamplesNamespace(Commons):
                     "1-tcp_stream-131072B-2i-fail3",
                     "1-tcp_stream-131072B-2i-fail4",
                 ],
-                "run.config": ["npalaska-dhcp31-171"],
-                "run.controller": ["dhcp31-171.perf.lab.eng.bos.redhat.com"],
+                "run.config": ["npalaska"],
+                "run.controller": ["host.name.com"],
                 "run.id": ["f3a37c9891a78886639e3bc00e3c5c4e"],
-                "run.name": ["uperf_npalaska-dhcp31-171_2021.07.14T15.30.22"],
+                "run.name": ["uperf_npalaska_2021.07.14T15.30.22"],
                 "run.script": ["uperf"],
                 "sample.client_hostname": ["127.0.0.1", "all"],
                 "sample.measurement_title.raw": ["Gb_sec"],
@@ -320,3 +315,394 @@ class TestIterationSamplesNamespace(Commons):
             }
 
             assert expected_result == res_json
+
+
+class TestIterationSamplesRows(Commons):
+    """
+    Unit testing for IterationSamplesRowse class.
+    In a web service context, we access class functions mostly via the
+    Flask test client rather than trying to directly invoke the class
+    constructor and `post` service.
+    """
+
+    SCROLL_ID = "random_scroll_id_string_1=="
+
+    @pytest.fixture(autouse=True)
+    def _setup(self, client):
+        super()._setup(
+            cls_obj=IterationSamplesRows(client.config, client.logger),
+            pbench_endpoint="/dataset/samples/rows",
+            elastic_endpoint="/_search",
+            payload={"run_id": "random_md5_string1"},
+            use_index_from_metadata=True,
+        )
+
+    @pytest.mark.parametrize("filters", ({"sample.name": "sample1"}, {}, None))
+    def test_rows_query_without_scroll(
+        self,
+        server_config,
+        query_api,
+        pbench_token,
+        build_auth_header,
+        find_template,
+        provide_metadata,
+        filters,
+    ):
+        response_payload = {
+            "_scroll_id": TestIterationSamplesRows.SCROLL_ID,
+            "took": 14,
+            "timed_out": "false",
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {
+                "total": {"value": 2, "relation": "eq"},
+                "max_score": "null",
+                "hits": [
+                    {
+                        "_index": "staging-pbench.v5.result-data-sample.2021-03-03",
+                        "_type": "_doc",
+                        "_id": "624a30066072f836d4cd501174d23f35",
+                        "_score": 0.0,
+                        "_source": {
+                            "@timestamp": "2021-03-03T01:58:58.712889",
+                            "run": {
+                                "id": "58bed61de1fd6ce57d682c320c506c4a",
+                                "controller": "controller.name.com",
+                                "name": "fio_rw_2021.03.03T01.58.34",
+                                "script": "fio",
+                                "date": "2021-03-03T01:58:34",
+                                "start": "2021-03-03T01:58:57.712889",
+                                "end": "2021-03-03T02:01:46.382422",
+                                "config": "rw",
+                                "user": "ndk",
+                            },
+                            "iteration": {"name": "1-rw-4KiB", "number": 1},
+                            "benchmark": {
+                                "bs": "4k",
+                                "clocksource": "gettimeofday",
+                                "direct": "0",
+                                "filename": "/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo",
+                                "iodepth": "32",
+                                "ioengine": "libaio",
+                                "log_avg_msec": "1000",
+                                "log_hist_msec": "10000",
+                                "max_stddevpct": 5,
+                                "numjobs": "4,4,4,4",
+                                "primary_metric": "iops_sec",
+                                "ramp_time": "5",
+                                "runtime": "10",
+                                "rw": "rw,rw,rw,rw",
+                                "size": "4096M,4096M,4096M,4096M",
+                                "sync": "0",
+                                "time_based": "1",
+                                "uid": "benchmark_name:fio-controller_host:controller.name.com",
+                                "name": "fio",
+                                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
+                            },
+                            "sample": {
+                                "client_hostname": "localhost-1",
+                                "closest_sample": 1,
+                                "description": "Average completion latency per I/O operation",
+                                "mean": 759737976.333333,
+                                "role": "client",
+                                "stddev": 0,
+                                "stddevpct": 0,
+                                "uid": "client_hostname:localhost-1",
+                                "measurement_type": "latency",
+                                "measurement_idx": 3,
+                                "measurement_title": "clat",
+                                "uid_tmpl": "client_hostname:%client_hostname%",
+                                "@idx": 0,
+                                "name": "sample1",
+                                "start": "2021-03-03T01:58:58.712889",
+                                "end": "2021-03-03T01:59:07.725889",
+                            },
+                            "@timestamp_original": "1000",
+                            "@generated-by": "cce1f6d53404b43e5a006c8e6d88e1e0",
+                        },
+                    },
+                    {
+                        "_index": "staging-pbench.v5.result-data-sample.2021-03-03",
+                        "_type": "_doc",
+                        "_id": "20c70f03ff717b82e9f419e8d972b748",
+                        "_score": 0.0,
+                        "_source": {
+                            "@timestamp": "2021-03-03T01:58:58.712889",
+                            "run": {
+                                "id": "58bed61de1fd6ce57d682c320c506c4a",
+                                "controller": "controller.name.com",
+                                "name": "fio_rw_2021.03.03T01.58.34",
+                                "script": "fio",
+                                "date": "2021-03-03T01:58:34",
+                                "start": "2021-03-03T01:58:57.712889",
+                                "end": "2021-03-03T02:01:46.382422",
+                                "config": "rw",
+                                "user": "ndk",
+                            },
+                            "iteration": {"name": "1-rw-4KiB", "number": 1},
+                            "benchmark": {
+                                "bs": "4k",
+                                "clocksource": "gettimeofday",
+                                "direct": "0",
+                                "filename": "/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo",
+                                "iodepth": "32",
+                                "ioengine": "libaio",
+                                "log_avg_msec": "1000",
+                                "log_hist_msec": "10000",
+                                "max_stddevpct": 5,
+                                "numjobs": "4,4,4,4",
+                                "primary_metric": "iops_sec",
+                                "ramp_time": "5",
+                                "runtime": "10",
+                                "rw": "rw,rw,rw,rw",
+                                "size": "4096M,4096M,4096M,4096M",
+                                "sync": "0",
+                                "time_based": "1",
+                                "uid": "benchmark_name:fio-controller_host:controller.name.com",
+                                "name": "fio",
+                                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
+                            },
+                            "sample": {
+                                "client_hostname": "localhost-4",
+                                "closest_sample": 1,
+                                "description": "Average completion latency per I/O operation",
+                                "mean": 761676162.46875,
+                                "role": "client",
+                                "stddev": 0,
+                                "stddevpct": 0,
+                                "uid": "client_hostname:localhost-4",
+                                "measurement_type": "latency",
+                                "measurement_idx": 0,
+                                "measurement_title": "clat",
+                                "uid_tmpl": "client_hostname:%client_hostname%",
+                                "@idx": 0,
+                                "name": "sample1",
+                                "start": "2021-03-03T01:58:58.712889",
+                                "end": "2021-03-03T01:59:07.725889",
+                            },
+                            "@timestamp_original": "1000",
+                            "@generated-by": "cce1f6d53404b43e5a006c8e6d88e1e0",
+                        },
+                    },
+                ],
+            },
+        }
+        index = self.build_index_from_metadata()
+
+        auth_json = {"user": "drb", "access": "private"}
+        expected_status = self.get_expected_status(
+            auth_json, build_auth_header["header_param"]
+        )
+        if filters is not None:
+            self.payload["filters"] = filters
+
+        response = query_api(
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            self.payload,
+            index,
+            expected_status,
+            json=response_payload,
+            status=HTTPStatus.OK,
+            headers=build_auth_header["header"],
+        )
+        if expected_status == HTTPStatus.OK:
+            assert response.json == {
+                "results": [hit["_source"] for hit in response_payload["hits"]["hits"]]
+            }
+
+    @pytest.mark.parametrize("filters", ({"sample.name": "sample1"}, {}, None))
+    def test_scroll_id_return(
+        self,
+        server_config,
+        query_api,
+        pbench_token,
+        build_auth_header,
+        find_template,
+        provide_metadata,
+        filters,
+    ):
+        response_payload = {
+            "_scroll_id": TestIterationSamplesRows.SCROLL_ID,
+            "took": 14,
+            "timed_out": "false",
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {
+                "total": {"value": 10001, "relation": "eq"},
+                "max_score": "null",
+                "hits": [
+                    {
+                        "_index": "staging-pbench.v5.result-data-sample.2021-03-03",
+                        "_type": "_doc",
+                        "_id": "624a30066072f836d4cd501174d23f35",
+                        "_score": 0.0,
+                        "_source": {},
+                    },
+                ]
+                + (
+                    [
+                        {
+                            "_index": "staging-pbench.v5.result-data-sample.2021-03-03",
+                            "_type": "_doc",
+                            "_id": "20c70f03ff717b82e9f419e8d972b748",
+                            "_score": 0.0,
+                            "_source": {},
+                        }
+                    ]
+                    * 9999
+                ),
+            },
+        }
+        index = self.build_index_from_metadata()
+
+        auth_json = {"user": "drb", "access": "private"}
+        expected_status = self.get_expected_status(
+            auth_json, build_auth_header["header_param"]
+        )
+        if filters is not None:
+            self.payload["filters"] = filters
+
+        response = query_api(
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            self.payload,
+            index,
+            expected_status,
+            json=response_payload,
+            status=HTTPStatus.OK,
+            headers=build_auth_header["header"],
+        )
+        if expected_status == HTTPStatus.OK:
+            res_json = response.json
+            assert TestIterationSamplesRows.SCROLL_ID == res_json["scroll_id"]
+
+    def test_iteration_samples_with_scroll_id(
+        self,
+        server_config,
+        query_api,
+        pbench_token,
+        build_auth_header,
+        find_template,
+        provide_metadata,
+    ):
+        self.payload["scroll_id"] = TestIterationSamplesRows.SCROLL_ID
+
+        response_payload = {
+            "_scroll_id": "random_scroll_id_string_2==",
+            "took": 3,
+            "timed_out": "false",
+            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
+            "hits": {
+                "total": {"value": 10001, "relation": "eq"},
+                "max_score": "null",
+                "hits": [
+                    {
+                        "_index": "staging-pbench.v5.result-data-sample.2020-09-03",
+                        "_type": "_doc",
+                        "_id": "84602c1c6417260ee72d92eca68ecca3",
+                        "_score": "null",
+                        "_source": {
+                            "@timestamp": "2020-09-03T01:58:58.712889",
+                            "run": {
+                                "id": "58bed61de1fd6ce57d682c320c506c4a",
+                                "controller": "controller.name.com",
+                                "name": "fio_rw_2020.09.03T01.58.34",
+                                "script": "fio",
+                                "date": "2020-09-03T01:58:34",
+                                "start": "2020-09-03T01:58:57.712889",
+                                "end": "2020-09-03T02:01:46.382422",
+                                "config": "rw",
+                                "user": "ndk",
+                            },
+                            "iteration": {"name": "1-rw-4KiB", "number": 1},
+                            "benchmark": {
+                                "bs": "4k",
+                                "clocksource": "gettimeofday",
+                                "direct": "0",
+                                "filename": "/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo",
+                                "iodepth": "32",
+                                "ioengine": "libaio",
+                                "log_avg_msec": "1000",
+                                "log_hist_msec": "10000",
+                                "max_stddevpct": 5,
+                                "numjobs": "4,4,4,4",
+                                "primary_metric": "iops_sec",
+                                "ramp_time": "5",
+                                "runtime": "10",
+                                "rw": "rw,rw,rw,rw",
+                                "size": "4096M,4096M,4096M,4096M",
+                                "sync": "0",
+                                "time_based": "1",
+                                "uid": "benchmark_name:fio-controller_host:controller.name.com",
+                                "name": "fio",
+                                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
+                            },
+                            "sample": {
+                                "client_hostname": "localhost-2",
+                                "closest_sample": 1,
+                                "description": "Average submission latency per I/O operation",
+                                "mean": 1857025.80208333,
+                                "role": "client",
+                                "stddev": 0,
+                                "stddevpct": 0,
+                                "uid": "client_hostname:localhost-2",
+                                "measurement_type": "latency",
+                                "measurement_idx": 2,
+                                "measurement_title": "slat",
+                                "uid_tmpl": "client_hostname:%client_hostname%",
+                                "@idx": 0,
+                                "name": "sample1",
+                                "start": "2020-09-03T01:58:58.712889",
+                                "end": "2020-09-03T01:59:07.725889",
+                            },
+                            "@timestamp_original": "1000",
+                            "@generated-by": "cce1f6d53404b43e5a006c8e6d88e1e0",
+                        },
+                        "sort": [1],
+                    }
+                ],
+            },
+        }
+
+        auth_json = {"user": "drb", "access": "private"}
+        expected_status = self.get_expected_status(
+            auth_json, build_auth_header["header_param"]
+        )
+
+        response = query_api(
+            self.pbench_endpoint,
+            f"{self.elastic_endpoint}/scroll",
+            self.payload,
+            "",
+            expected_status,
+            json=response_payload,
+            status=HTTPStatus.OK,
+            headers=build_auth_header["header"],
+        )
+
+        if expected_status == HTTPStatus.OK:
+            assert response.json == {
+                "results": [hit["_source"] for hit in response_payload["hits"]["hits"]]
+            }
+
+    def test_get_index(self, attach_dataset, provide_metadata):
+        drb = Dataset.attach(controller="node", name="drb")
+        indices = self.cls_obj.get_index(drb, "result-data-sample")
+        assert indices == "unit-test.v5.result-data-sample.2020-08"
+
+    def test_exceptions_on_get_index(self, attach_dataset):
+        test = Dataset.attach(controller="node", name="test")
+
+        # When server index_map is None we expect 500
+        with pytest.raises(InternalServerError) as exc:
+            self.cls_obj.get_index(test, "result-data-sample")
+        assert exc.value.code == HTTPStatus.INTERNAL_SERVER_ERROR
+
+        Metadata.setvalue(
+            dataset=test,
+            key=Metadata.INDEX_MAP,
+            value={"unit-test.v6.run-data.2020-08": ["random_md5_string1"]},
+        )
+
+        # When server index_map doesn't have mappings for result-data-sample
+        # documents we expect the indices to an empty string
+        assert self.cls_obj.get_index(test, "result-data-sample") == ""
