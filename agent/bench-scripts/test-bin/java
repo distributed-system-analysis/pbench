@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+""" Emulate / mock the behavior of SPECjbb 2005.
+
+The `pbench-specjbb2005` bench-script runs SPECjbb via the `java` command,
+so we provide this fake `java` executable.
+
+It then reads the generated properties file to figure out how to behave, and
+then sets about created the expected output files in the locations determined
+by the properties.
+"""
 import sys
 
 from pathlib import Path
