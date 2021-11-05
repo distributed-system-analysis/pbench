@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 import pytest
-from werkzeug.exceptions import InternalServerError, NotFound
+from werkzeug.exceptions import InternalServerError
 
 from pbench.server.api.resources.query_apis.metadata_index.iteration_samples import (
     IterationSampleNamespace,
@@ -684,6 +684,11 @@ class TestIterationSamplesRows(Commons):
                 "results": [hit["_source"] for hit in response_payload["hits"]["hits"]]
             }
 
+    def test_get_index(self, attach_dataset, provide_metadata):
+        drb = Dataset.attach(controller="node", name="drb")
+        indices = self.cls_obj.get_index(drb, "result-data-sample")
+        assert indices == "unit-test.v5.result-data-sample.2020-08"
+
     def test_exceptions_on_get_index(self, attach_dataset):
         test = Dataset.attach(controller="node", name="test")
 
@@ -694,12 +699,10 @@ class TestIterationSamplesRows(Commons):
 
         Metadata.setvalue(
             dataset=test,
-            key="server.index-map",
+            key=Metadata.INDEX_MAP,
             value={"unit-test.v6.run-data.2020-08": ["random_md5_string1"]},
         )
 
         # When server index_map doesn't have mappings for result-data-sample
-        # documents we expect 404
-        with pytest.raises(NotFound) as exc:
-            self.cls_obj.get_index(test, "result-data-sample")
-        assert exc.value.code == HTTPStatus.NOT_FOUND
+        # documents we expect the indices to an empty string
+        assert self.cls_obj.get_index(test, "result-data-sample") == ""

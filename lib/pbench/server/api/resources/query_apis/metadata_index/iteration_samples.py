@@ -77,6 +77,12 @@ class IterationSampleNamespace(RunIdBase):
         # Retrieve the ES indices that belong to this run_id from the metadata
         # table
         indices = self.get_index(dataset, "result-data-sample")
+        if not indices:
+            self.logger.debug(
+                f"Found no indices matching the prefix result-data-sample"
+                f"for a dataset {dataset!r}"
+            )
+            abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
         try:
             template = Template.find("result-data-sample")
@@ -272,6 +278,12 @@ class IterationSamplesRows(RunIdBase):
 
         # Retrieve the ES indices that belong to this run_id
         indices = self.get_index(dataset, "result-data-sample")
+        if not indices:
+            self.logger.debug(
+                f"Found no indices matching the prefix result-data-sample"
+                f"for a dataset {dataset!r}"
+            )
+            abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
         es_filter = [{"match": {"run.id": run_id}}]
         for filter, value in json_data.get("filters", {}).items():

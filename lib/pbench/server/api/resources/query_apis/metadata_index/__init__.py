@@ -98,12 +98,6 @@ class RunIdBase(ElasticBase):
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         index_keys = [key for key in index_map if root_index_name in key]
-        if len(index_keys) == 0:
-            self.logger.debug(
-                f"Found no indices matching the prefix {root_index_name}"
-                f"for a dataset {dataset!r}"
-            )
-            abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
         indices = ",".join(index_keys)
         self.logger.debug(f"Indices from metadata , {indices!r}")
         return indices
