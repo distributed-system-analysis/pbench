@@ -205,9 +205,10 @@ if [ $? -ne 0 ]; then
 fi
 eval set -- "$opts"
 while true; do
-	case "$1" in
+	arg="${1}"
+	shift
+	case "${arg}" in
 		--install)
-		shift
 		check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
 		exit 0
 		;;
@@ -216,172 +217,148 @@ while true; do
 		exit 0
 		;;
 		--client-label)
-		shift
 		if [ -n "$1" ]; then
 			shift
 		fi
 		warn_log "The --client-label option is deprecated, please use --tool-label-pattern"
 		;;
 		--server-label)
-		shift
 		if [ -n "$1" ]; then
 			shift
 		fi
 		warn_log "The --server-label option is deprecated, please use --tool-label-pattern"
 		;;
 		--tool-label-pattern)
-		shift
 		if [ -n "$1" ]; then
 			tool_label_pattern="$1"
 			shift
 		fi
 		;;
 		--postprocess-only)
-		shift
 		if [ -n "$1" ]; then
 			postprocess_only="$1"
 			shift
 		fi
 		;;
 		--run-dir)
-		shift
 		if [ -n "$1" ]; then
 			benchmark_run_dir="$1"
 			shift
 		fi
 		;;
 		--max-stddev)
-		shift
 		if [ -n "$1" ]; then
 			maxstddevpct="$1"
 			shift
 		fi
 		;;
 		--max-failures)
-		shift
 		if [ -n "$1" ]; then
 			max_failures="$1"
 			shift
 		fi
 		;;
 		--samples)
-		shift
 		if [ -n "$1" ]; then
 			nr_samples="$1"
 			shift
 		fi
 		;;
 		-i|--instances)
-		shift
 		if [ -n "$1" ]; then
 			instances="$1"
 			shift
 		fi
 		;;
 		-t|--test-types)
-		shift
 		if [ -n "$1" ]; then
 			test_types="$1"
 			shift
 		fi
 		;;
 		--tool-group)
-		shift
 		if [ -n "$1" ]; then
 			tool_group="$1"
 			shift
 		fi
 		;;
 		-m|--message-sizes)
-		shift
 		if [ -n "$1" ]; then
 			message_sizes="$1"
 			shift
 		fi
 		;;
 		-r|--runtime)
-		shift
 		if [ -n "$1" ]; then
 			runtime="$1"
 			shift
 		fi
 		;;
 		--log-response-times)
-		shift
 		if [ -n "$1" ]; then
 			log_response_times="$1"
 			shift
 		fi
 		;;
 		-p|--protocols)
-		shift
 		if [ -n "$1" ]; then
 			protocols="$1"
 			shift
 		fi
 		;;
 		-C|--client|--clients)
-		shift
 		if [ -n "$1" ]; then
 			clients="$1"
 			shift
 		fi
 		;;
 		-S|--server|--servers)
-		shift
 		if [ -n "$1" ]; then
 			servers="$1"
 			shift
 		fi
 		;;
 		--vsock-server|--vsock-servers)
-		shift
 		if [ -n "$1" ]; then
 			vsock_servers="$1"
 			shift
 		fi
 		;;
 		-c|--config)
-		shift
 		if [ -n "$1" ]; then
 			config="$1"
 			shift
 		fi
 		;;
 		--start-iteration-num)
-		shift
 		if [ -n "$1" ]; then
 			start_iteration_num=$1
 			shift
 		fi
 		;;
 		--client-node|--client-nodes)
-		shift
 		if [ -n "$1" ]; then
 			client_nodes="$1"
 			shift
 		fi
 		;;
 		--server-node|--server-nodes)
-		shift
 		if [ -n "$1" ]; then
 			server_nodes="$1"
 			shift
 		fi
 		;;
 		--sysinfo)
-		shift;
 		if [ -n "$1" ]; then
 			sysinfo="$1"
-			shift;
+			shift
 		fi
 		;;
 		--)
-		shift
 		break
 		;;
 		*)
-		error_log "[$script_name] bad option, \"$1 $2\""
+		error_log "[$script_name] bad option, \"${arg} ${1}\""
 		exit 1
 		break
 		;;
