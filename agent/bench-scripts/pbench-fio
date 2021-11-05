@@ -289,7 +289,7 @@ function fio_process_options() {
 			fi
 			;;
 		--client-file)
-			if [ ! -z "$clients" ] ;then
+			if [ ! -z "${clients}" ] ;then
 				printf -- "${script_name} $*\n"
 				printf -- "\n"
 				printf -- "\t--client-file and -c|--clients are mutually exclusive\n\n"
@@ -310,10 +310,9 @@ function fio_process_options() {
 				client_file=$PWD/$client_file
 			fi
 			while read line; do
-				clients="$clients,$line"
+				clients="${clients},${line}"
 			done < ${client_file}
-			# Remove the leading comma since $clients starts off empty
-			clients=`echo $clients | sed -e 's/^,//'`
+			clients=${clients:1}
 			;;
 		-d|--targets)
 			if [ -n "$1" ]; then
@@ -463,22 +462,20 @@ function fio_process_options() {
 		benchmark_fullname="$(basename $run_dir)"
 		benchmark_run_dir="$run_dir"
 	fi
-	if [[ -n "$clients" ]] ; then
+	if [[ -n "${clients}" ]] ; then
 		for client in ${clients//,/ } ; do
-			client_name=
-			client_port=
 			if [[ $client = *':'* ]] ; then
 				client_name=${client%%:*}
 				client_port=${client#*:}
 			else
-				client_name=$client
+				client_name=${client}
+				client_port=${fio_server_port}
 				if (( unique_ports )) ; then
-					client_port=$fio_server_port
 					fio_server_port=$((fio_server_port+1))
 				fi
 			fi
-			client_names+=("$client_name")
-			client_ports["$client_name"]=$client_port
+			client_names+=("${client_name}")
+			client_ports["${client_name}"]=${client_port}
 		done
 	fi
 }
@@ -502,7 +499,7 @@ function record_iteration {
 # Ensure the right version of the benchmark is installed
 function fio_install() {
 	check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
-	if [ ! -z "$clients" ] ; then
+	if [ ! -z "${clients}" ] ; then
 		debug_log "verifying clients have fio installed"
 		echo "verifying clients have fio installed"
 		for client in "${client_names[@]}" ; do
@@ -517,6 +514,7 @@ function fio_install() {
 function fio_device_check() {
 	local devs=$1
 	local clients=$2
+
 	local dev=""
 	local client=""
 	local rc=0
@@ -524,7 +522,7 @@ function fio_device_check() {
 	debug_log "fio_device_check(devs=\"${devs}\", clients=\"${clients}\")"
 	for dev in `echo $devs | sed -e s/,/" "/g`; do
 		if echo $dev | grep -q "^/dev/"; then
-			if [ ! -z "$clients" ]; then
+			if [ ! -z "${clients}" ]; then
 				for client in "${client_names[@]}" ; do
 					debug_log "checking to see if $dev exists on client $client"
 					ssh $ssh_opts $client "if [ -L $dev ]; then dev=`dirname $dev`/`readlink $dev`; fi; test -b $dev" || rc=1
@@ -599,32 +597,31 @@ function fio_run_job() {
 
 	echo "running fio job: $fio_job_file ($(basename $benchmark_results_dir))"
 
-	if [ ! -z "$clients" ]; then
+	if [ ! -z "${clients}" ]; then
 		debug_log "creating directories on the clients"
 		for client in "${client_names[@]}"; do
-			ssh $ssh_opts $client mkdir -p $benchmark_results_dir &
+			ssh ${ssh_opts} ${client} mkdir -p ${benchmark_results_dir} &
 		done
 		wait
-		debug_log "opening port 8765 on firewall on the clients"
+		debug_log "opening client port in firewall on the clients"
 		for client in "${client_names[@]}"; do
-			ssh $ssh_opts $client "firewall-cmd --add-port=${client_ports[$client]:-$fio_server_port}/tcp >/dev/null" &
+			ssh ${ssh_opts} ${client} "firewall-cmd --add-port=${client_ports[${client}]}/tcp >/dev/null" &
 		done
 		wait
 		debug_log "killing any old fio process on the clients"
 		for client in "${client_names[@]}"; do
-			ssh $ssh_opts $client "killall fio >/dev/null 2>&1" &
+			ssh ${ssh_opts} ${client} "killall fio >/dev/null 2>&1" &
 		done
 		wait
 		debug_log "starting new fio process on the clients"
 		for client in "${client_names[@]}"; do
-			ssh $ssh_opts $client "pushd $benchmark_results_dir >/dev/null; screen -dmS fio-server bash -c ''$benchmark_bin' --server${client_ports[$client]:+=,${client_ports[$client]}} 2>&1 >client-result.txt'"
+			ssh ${ssh_opts} ${client} "cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '$benchmark_bin --server=,${client_ports[${client}]} 2>&1 >client-result.txt'"
 		done
-		wait
 		debug_log "waiting for fio process(server) to start on clients"
 		for client in "${client_names[@]}"; do
-			timeout --kill-after=1 60 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' $client ${client_ports[$client]:-${fio_server_port}}
+			timeout --kill-after=1 60 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' "${client}" "${client_ports[${client}]}"
 			if [[ $? -eq 124 ]]; then
-				error_log "fio process took more than 60 seconds to start in client $client, failing"
+				error_log "fio process took more than 60 seconds to start in client ${client}, failing"
 				exit 1
 			fi
 		done
@@ -632,7 +629,7 @@ function fio_run_job() {
 
 	local client_opts=""
 
-	if [ ! -z "$clients" ]; then
+	if [ ! -z "${clients}" ]; then
 		# If a client-file parameter was passed, then clients is
 		# already initialized to its contents.
 		local max_jobs=0
@@ -679,9 +676,11 @@ function fio_run_job() {
 	local histogram_cmd="fio-histo-log-pctiles.py ${histogram_params} -- "
 
 	# First move all fio log files to the appropriate client directory.
+	local _clients_list=""
 	if [ ! -z "${clients}" ]; then
 		local client
 		for client in "${client_names[@]}"; do
+			_clients_list="${_clients_list} ${client}"
 			mkdir -p ${benchmark_results_dir}/clients/${client}
 			/bin/mv ${benchmark_results_dir}/*.log.${client} ${benchmark_results_dir}/clients/${client}/ 2> /dev/null
 			# remove the trailing client name in the log file names
@@ -692,18 +691,12 @@ function fio_run_job() {
 			popd >/dev/null
 		done
 	else
+		_clients_list="localhost"
 		mkdir -p ${benchmark_results_dir}/clients/localhost/
 		/bin/mv ${benchmark_results_dir}/*.log ${benchmark_results_dir}/clients/localhost/ 2> /dev/null
 	fi
 
 	if grep -q "^log_hist_msec" ${fio_job_file}; then
-		local client
-		local _clients_list
-		if [ ! -z "${clients}" ]; then
-			_clients_list="$(echo ${clients} | sed -e s/,/" "/g)"
-		else
-			_clients_list="localhost"
-		fi
 		for client in ${_clients_list}; do
 			# Process the histograms
 			# Determine histogram interval based on value used in job file.
@@ -751,7 +744,7 @@ function fio_run_benchmark() {
 		_client_file=$benchmark_run_dir/fio-client.file
 		cp $client_file ${_client_file}
 	else
-		if [[ ! -z "$clients" ]]; then
+		if [[ ! -z "${clients}" ]]; then
 			# Record the -c|--clients list into the
 			# fio-client.file.  This makes the fio command shorter
 			# by always using a client file regardless of how
@@ -759,11 +752,7 @@ function fio_run_benchmark() {
 			# client list once in the benchmark run directory.
 			_client_file=$benchmark_run_dir/fio-client.file
 			for client in "${client_names[@]}"; do
-				if [[ -n "${client_ports[$client]:-}" ]] ; then
-					echo ip:$client,${client_ports[$client]}
-				else
-					echo "$client"
-				fi
+				echo ip:$client,${client_ports[$client]}
 			done > $_client_file
 		fi
 	fi
@@ -841,10 +830,10 @@ function fio_run_benchmark() {
 									/bin/rm -rf $benchmark_results_dir
 								fi
 								mkdir -p $benchmark_results_dir
-								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$dev" "$clients"
+								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$dev" "${clients}"
 								rc=$?
 								if [ $rc -ne 0 ]; then
-									debug_log "failed: fio_run_job \"$iteration\" \"$benchmark_results_dir\" \"$fio_job_file\" \"$dev\" \"$clients\""
+									debug_log "failed: fio_run_job \"$iteration\" \"$benchmark_results_dir\" \"$fio_job_file\" \"$dev\" \"${clients}\""
 									# we need all samples to be good, so bust out of testing samples now
 									((iteration_failures++))
 									break 2
@@ -917,7 +906,7 @@ if [ "$postprocess_only" = "n" ]; then
 	if [ "$install_only" = "y" ]; then
 		exit 0
 	fi
-	fio_device_check "$targets" "$clients"
+	fio_device_check "$targets" "${clients}"
 	mkdir -p $benchmark_run_dir/.running
 	if [[ $? -ne 0 ]]; then
 		error_log "Unable to create $benchmark_run_dir path and/or .running marker directory"

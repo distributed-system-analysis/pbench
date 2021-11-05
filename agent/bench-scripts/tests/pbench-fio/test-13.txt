@@ -233,7 +233,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] checking to see if /dev/rbd1 exists on client 192.168.121.112
 [debug][1900-01-01T00:00:00.000000] checking to see if /dev/rbd1 exists on client 192.168.121.158
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -245,7 +245,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -257,7 +257,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -269,7 +269,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -281,7 +281,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -293,7 +293,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -305,7 +305,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -317,7 +317,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -329,7 +329,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -341,7 +341,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -421,6 +421,16 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n fio
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample2 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample3 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample4 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample5 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample2 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample3 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample4 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample5 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 firewall-cmd --add-port=8765/tcp >/dev/null
@@ -453,17 +463,17 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample3
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample4
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample2 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample3 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample4 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample5 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample2 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample3 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample4 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample5 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample2 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample3 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample4 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample5 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample2 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample3 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample4 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample5 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 firewall-cmd --add-port=8765/tcp >/dev/null
@@ -496,17 +506,17 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample3
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample4
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample2 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample3 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample4 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample5 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample2 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample3 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample4 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample5 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample2 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample3 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample4 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample5 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample2 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample3 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample4 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample5 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,8765 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 firewall-cmd --add-port=8765/tcp >/dev/null
@@ -539,16 +549,6 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample3
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample4
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample2 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample3 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample4 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/1-read-4KiB-rbd0/sample5 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample2 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample3 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample4 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-13_1900.01.01T00.00.00/2-read-4KiB-rbd1/sample5 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.112 8765
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.112 8765
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.112 8765
