@@ -97,7 +97,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] verifying clients have fio installed
 [debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/tmp/fio", clients="hist.foo,hist.bar")
 [debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] opening client port in firewall on the clients
 [debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
@@ -121,17 +121,17 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n fio
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.bar /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.bar firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.bar cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,42 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.bar firewall-cmd --add-port=42/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.bar killall fio >/dev/null 2>&1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.bar mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.bar pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.foo /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.foo firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.foo cd /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 && screen -dmS fio-server bash -c '/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --server=,42 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.foo firewall-cmd --add-port=42/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.foo killall fio >/dev/null 2>&1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.foo mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.foo pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done hist.bar 8765
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done hist.foo 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done hist.bar 42
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done hist.foo 42
 --- test-execution.log file contents
 +++ fio_test-32_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
