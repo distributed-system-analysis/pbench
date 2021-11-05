@@ -361,7 +361,6 @@ while true; do
 		error_log "[$script_name] bad option, \"${arg} ${1}\""
 		usage >&2
 		exit 1
-		break
 		;;
 	esac
 done
