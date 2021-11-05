@@ -309,11 +309,10 @@ function fio_process_options() {
 				# make it absolute
 				client_file=$PWD/$client_file
 			fi
-			local delim=""
 			while read line; do
-				clients="${clients}${delim}${line}"
-				delim=","
+				clients="${clients},${line}"
 			done < ${client_file}
+			clients=${clients:1}
 			;;
 		-d|--targets)
 			if [ -n "$1" ]; then
@@ -616,7 +615,7 @@ function fio_run_job() {
 		wait
 		debug_log "starting new fio process on the clients"
 		for client in "${client_names[@]}"; do
-			ssh ${ssh_opts} ${client} "cd ${benchmark_results_dir} >/dev/null && screen -dmS fio-server bash -c '$benchmark_bin --server=,${client_ports[${client}]} 2>&1 >client-result.txt'"
+			ssh ${ssh_opts} ${client} "cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '$benchmark_bin --server=,${client_ports[${client}]} 2>&1 >client-result.txt'"
 		done
 		debug_log "waiting for fio process(server) to start on clients"
 		for client in "${client_names[@]}"; do
