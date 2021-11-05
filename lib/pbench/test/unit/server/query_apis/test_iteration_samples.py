@@ -1,9 +1,13 @@
-import pytest
 from http import HTTPStatus
+
+import pytest
+from werkzeug.exceptions import InternalServerError, NotFound
+
 from pbench.server.api.resources.query_apis.metadata_index.iteration_samples import (
     IterationSampleNamespace,
     IterationSamplesRows,
 )
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -679,3 +683,23 @@ class TestIterationSamplesRows(Commons):
             assert response.json == {
                 "results": [hit["_source"] for hit in response_payload["hits"]["hits"]]
             }
+
+    def test_exceptions_on_get_index(self, attach_dataset):
+        test = Dataset.attach(controller="node", name="test")
+
+        # When server index_map is None we expect 500
+        with pytest.raises(InternalServerError) as exc:
+            self.cls_obj.get_index(test, "result-data-sample")
+        assert exc.value.code == HTTPStatus.INTERNAL_SERVER_ERROR
+
+        Metadata.setvalue(
+            dataset=test,
+            key="server.index-map",
+            value={"unit-test.v6.run-data.2020-08": ["random_md5_string1"]},
+        )
+
+        # When server index_map doesn't have mappings for result-data-sample
+        # documents we expect 404
+        with pytest.raises(NotFound) as exc:
+            self.cls_obj.get_index(test, "result-data-sample")
+        assert exc.value.code == HTTPStatus.NOT_FOUND

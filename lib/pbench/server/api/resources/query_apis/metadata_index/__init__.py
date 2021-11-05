@@ -61,7 +61,7 @@ class RunIdBase(ElasticBase):
         # Query the dataset using the given run id
         dataset = Dataset.query(md5=run_id)
         if not dataset:
-            self.logger.error(f"Dataset with Run ID {run_id!r} not found")
+            self.logger.debug(f"Dataset with Run ID {run_id!r} not found")
             abort(HTTPStatus.NOT_FOUND, message="Dataset not found")
 
         owner = User.query(id=dataset.owner_id)
@@ -89,6 +89,12 @@ class RunIdBase(ElasticBase):
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
         except MetadataError as e:
             self.logger.error(f"Indices from metadata table not found {e!r}")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+
+        if index_map is None:
+            self.logger.error(
+                f"server.index-map not found in Metadata for a dataset {dataset!r}"
+            )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         index_keys = [key for key in index_map if root_index_name in key]

@@ -76,7 +76,7 @@ class IterationSampleNamespace(RunIdBase):
 
         # Retrieve the ES indices that belong to this run_id from the metadata
         # table
-        index = self.get_index(dataset, "result-data-sample")
+        indices = self.get_index(dataset, "result-data-sample")
 
         try:
             template = Template.find("result-data-sample")
@@ -104,7 +104,7 @@ class IterationSampleNamespace(RunIdBase):
         aggs = {key: {"terms": {"field": key}} for key in result}
 
         return {
-            "path": f"/{index}/_search",
+            "path": f"/{indices}/_search",
             "kwargs": {
                 "json": {
                     "size": 0,
