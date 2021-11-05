@@ -38,7 +38,6 @@ nr_jvms=1
 start_warehouses=1
 stop_warehouses="default"
 inc_warehouses=1
-peak_warehouses=2
 heap_size="4096m"
 nr_cpus=`cat /proc/cpuinfo | grep processor | wc -l`
 specjbb2005_dir=/usr/local/share/specjbb2005
@@ -322,14 +321,11 @@ fi
 sleep 5
 
 specjbb_opts="-cp ${specjbb_cp} -Xms${heap_size} -Xmx${heap_size} ${java_opts} spec.jbb.JBBmain -propfile ${benchmark_run_dir}/SPECjbb.props"
-for i in `seq $nr_jvms -1 1`; do
-	if [ $i -eq 1 ]; then
-		# the last JVM gets output so we can trigger the tools starting at iteration 1
-		java ${specjbb_opts} -id $i | tee ./jvm-$i-worker.txt | pbench-tool-trigger 1 "${benchmark_run_dir}" "${tool_group}" "${sample}"
-	else
-		java ${specjbb_opts} -id $i >     ./jvm-$i-worker.txt &
-	fi
+for i in `seq $nr_jvms -1 2`; do
+	java ${specjbb_opts} -id $i > ./jvm-$i-worker.txt &
 done
+# The last JVM's output is used to trigger the tools starting at iteration 1.
+java ${specjbb_opts} -id 1 | tee ./jvm-1-worker.txt | pbench-tool-trigger 1 "${benchmark_run_dir}" "${tool_group}"
 
 debug_log "worker JVMs have finished"
 debug_log "waiting for controller JVM to finish"
@@ -347,6 +343,7 @@ function record_iteration {
 	local iteration=$1
 	local iteration_name=$2
 	local benchmark_bin=$3
+	local mdlog="${benchmark_run_dir}/metadata.log"
 
 	echo ${iteration_name} >> ${benchmark_iterations}
 	echo ${iteration}      | pbench-add-metalog-option ${mdlog} iterations/${iteration_name} iteration_number
