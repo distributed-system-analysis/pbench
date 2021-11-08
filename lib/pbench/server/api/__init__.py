@@ -29,6 +29,9 @@ from pbench.server.api.resources.query_apis.metadata_index.iteration_samples imp
     IterationSampleNamespace,
     IterationSamplesRows,
 )
+from pbench.server.api.resources.query_apis.metadata_index.timeseries_samples import (
+    TimeSeriesSamples,
+)
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
 from pbench.server.api.resources.upload_api import HostInfo, Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
@@ -89,6 +92,11 @@ def register_endpoints(api, app, config):
     api.add_resource(
         IterationSamplesRows,
         f"{base_uri}/dataset/samples/rows",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        TimeSeriesSamples,
+        f"{base_uri}/dataset/samples/timeseries",
         resource_class_args=(config, logger),
     )
     api.add_resource(
