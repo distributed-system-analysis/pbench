@@ -435,10 +435,10 @@ function fio_process_options() {
 	fi
 
 	local tt=""
-	space_sep_vtt=$(echo $supported_test_types | sed -e s/,/" "/g)
-	for tt in $(echo "$test_types" | sed -e s/,/" "/g); do
+	local space_sep_stt=${supported_test_types//,/ }
+	for tt in ${test_types//,/ }; do
 		local found=0
-		for vtt in ${space_sep_vtt}; do
+		for vtt in ${space_sep_stt}; do
 			if [[ "${tt}" == "${vtt}" ]]; then
 				found=1
 				break
@@ -520,7 +520,7 @@ function fio_device_check() {
 	local rc=0
 
 	debug_log "fio_device_check(devs=\"${devs}\", clients=\"${clients}\")"
-	for dev in `echo $devs | sed -e s/,/" "/g`; do
+	for dev in ${devs//,/ }; do
 		if echo $dev | grep -q "^/dev/"; then
 			if [ ! -z "${clients}" ]; then
 				for client in "${client_names[@]}" ; do
@@ -558,7 +558,7 @@ function fio_create_jobfile() {
 		-size="${9}" \
 		-rate_iops="${10}" \
 		-log_hist_msec="${11}" \
-		-targets $(echo "${12}" | sed -e 's/,/ /g') \
+		-targets ${12//,/ } \
 		-numjobs="${14}" \
 		| sed -e 's/ = /=/g' > ${fio_job_file}
 
@@ -635,7 +635,7 @@ function fio_run_job() {
 			# for each (host, job-number) pair
 			let max_jobs=$numjobs
 		else
-			for t in `echo $tgts | sed -e s/,/" "/g` ; do
+			for t in ${tgts//,/ }; do
 				let max_jobs=$max_jobs+1
 			done
 		fi
@@ -755,16 +755,16 @@ function fio_run_benchmark() {
 	local count=1
 	if [ "$job_mode" = "serial" ]; then
 		# if each target is separated by a space, there will be one job for each in next for loop
-		targets=`echo $targets | sed -e s/,/" "/g`
+		targets=${targets//,/ }
 	fi
 	typeset -i ntargets=$(echo $targets | wc -w)
-	typeset -i ntesttypes=$(echo $test_types | sed -e 's/,/ /g' | wc -w)
-	typeset -i nblocksizes=$(echo $block_sizes | sed -e 's/,/ /g' | wc -w)
+	typeset -i ntesttypes=$(echo ${test_types//,/ } | wc -w)
+	typeset -i nblocksizes=$(echo ${block_sizes//,/ } | wc -w)
 	typeset -i total_iterations=$ntargets*$ntesttypes*$nblocksizes
 	local iteration_failures=0
 	for dev in $targets; do
-		for test_type in `echo $test_types | sed -e s/,/" "/g`; do
-			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
+		for test_type in ${test_types//,/ }; do
+			for block_size in ${block_sizes//,/ }; do
 				local job_num=1
 				local iteration="${count}-${test_type}-${block_size}KiB"
 				if [[ "$job_mode" = "serial" ]]; then
