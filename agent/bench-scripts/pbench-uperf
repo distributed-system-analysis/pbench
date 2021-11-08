@@ -369,11 +369,11 @@ verify_common_bench_script_options $tool_group $sysinfo
 # Verify the number of clients and servers match.
 if [ ! -z "$clients" -a "$postprocess_only" != "y" ]; then
 	let c_cnt=0
-	for client in `echo $clients | sed -e s/,/" "/g`; do
+	for client in ${clients//,/ }; do
 		let c_cnt=c_cnt+1
 	done
 	let s_cnt=0
-	for server in `echo $servers | sed -e s/,/" "/g`; do
+	for server in ${servers//,/ }; do
 		let s_cnt=s_cnt+1
 	done
 	if [ $c_cnt -ne $s_cnt ]; then
@@ -383,13 +383,13 @@ if [ ! -z "$clients" -a "$postprocess_only" != "y" ]; then
 		exit 1
 	fi
 	let has_vsock=0
-	for protocol in `echo ${protocols} | sed -e s/,/" "/g`; do
+	for protocol in ${protocols//,/ }; do
 		if [[ ${protocol} == "vsock" ]]; then
 			has_vsock=1
 		fi
 	done
 	let v_cnt=0
-	for vserver in `echo ${vsock_servers} | sed -e s/,/" "/g`; do
+	for vserver in ${vsock_servers//,/ }; do
 		let v_cnt=v_cnt+1
 	done
 	if [[ ${has_vsock} -eq 1 && ${v_cnt} -eq 0 ]]; then
@@ -411,7 +411,7 @@ if [ "$postprocess_only" != "y" ]; then
 	check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
 	let err_cnt=0
 	err_clients=""
-	for client in `echo $clients | sed -e s/,/" "/g`; do
+	for client in ${clients//,/ }; do
 		debug_log "checking for uperf on client $client"
 		ssh $ssh_opts $client pbench-uperf --install
 		if [ $? -ne 0 ]; then
@@ -420,7 +420,7 @@ if [ "$postprocess_only" != "y" ]; then
 		fi
 	done
 	err_servers=""
-	for server in `echo $servers | sed -e s/,/" "/g`; do
+	for server in ${servers//,/ }; do
 		debug_log "checking for uperf on server $server"
 		ssh $ssh_opts $server pbench-uperf --install
 		if [ $? -ne 0 ]; then
@@ -488,10 +488,10 @@ chmod +x $benchmark_run_dir/$script_name.cmd
 ## Run the benchmark and start/stop perf analysis tools
 
 total_iterations=0
-for protocol in `echo $protocols | sed -e s/,/" "/g`; do
-	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
-		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
-			for instance in `echo $instances | sed -e s/,/" "/g`; do
+for protocol in ${protocols//,/ }; do
+	for test_type in ${test_types//,/ }; do
+		for message_size in ${message_sizes//,/ }; do
+			for instance in ${instances//,/ }; do
 				((total_iterations++))
 			done
 		done
@@ -511,8 +511,8 @@ fi
 
 # start the server processes
 count=1
-for protocol in `echo $protocols | sed -e s/,/" "/g`; do
-	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
+for protocol in ${protocols//,/ }; do
+	for test_type in ${test_types//,/ }; do
 		case $test_type in
 			rr)
 			primary_metric="trans_sec"
@@ -525,8 +525,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 			continue
 			;;
 		esac
-		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
-			for instance in `echo $instances | sed -e s/,/" "/g`; do
+		for message_size in ${message_sizes//,/ }; do
+			for instance in ${instances//,/ }; do
 				if [ $count -ge $start_iteration_num ]; then
 					echo "Starting iteration $iteration ($count of $total_iterations)"
 					log "Starting iteration $iteration ($count of $total_iterations)"
@@ -551,7 +551,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								mkdir -p $benchmark_results_dir
 								server_nr=1
 								# the following loop does all of the pre-benchmark execution work
-								for server in `echo $servers | sed -e s/,/" "/g`; do
+								for server in ${servers//,/ }; do
 									client=`echo $clients | cut -d, -f$server_nr`
 									if [ -z "$client" ]; then
 										client="127.0.0.1"
@@ -628,7 +628,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								echo "test sample $sample of $nr_samples"
 								log "test sample $sample of $nr_samples"
 								server_nr=1
-								for server in `echo $servers | sed -e s/","/" "/g`; do
+								for server in ${servers//,/ }; do
 									client=`echo $clients | cut -d, -f$server_nr`
 									if [ -z "$client" ]; then
 										client="127.0.0.1"
@@ -676,7 +676,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
 
 								server_nr=1
-								for server in `echo $servers | sed -e s/,/" "/g`; do
+								for server in ${servers//,/ }; do
 									client=`echo $clients | cut -d, -f$server_nr`
 									if [ -z "$client" ]; then
 										client="127.0.0.1"
