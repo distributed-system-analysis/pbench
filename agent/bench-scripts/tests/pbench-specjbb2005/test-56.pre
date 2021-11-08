@@ -19,4 +19,6 @@ printf "input.ending_number_warehouses=_replace_\n" >> ${_dir}/SPECjbb.props
 touch ${_dir}/SPECjbb_config.props || exit 1
 # 4. a file named "xml" to which a symlink can be created
 touch ${_dir}/xml
+# 5.  we need to use the real `kill` for this test since `pbench-specjbb2005`
+#     forks the `java` processes.
 mv ${_testopt}/unittest-scripts/kill ${_testopt}/unittest-scripts/kill.save
