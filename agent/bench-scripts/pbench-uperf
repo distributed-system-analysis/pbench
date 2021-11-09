@@ -208,7 +208,10 @@ function stop_server {
 function local_pre_check {
 	local _ver="${1}"
 	local _match="${2}"
-	check_install_rpm "${benchmark}" "${_ver}" "${_match}"
+
+	local ver_installed=$(${benchmark_bin} -V | head -n 1 | awk '{print $3}')
+	vercmp "${benchmark}" "${_match}" "${_ver}" "${ver_installed}"
+	return ${?}
 }
 
 # Process options and arguments

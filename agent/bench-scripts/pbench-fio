@@ -485,26 +485,8 @@ function local_pre_check() {
 	local _stdout=$(${benchmark_bin} --version)
 	local ver_installed=${_stdout##*-}
 
-	local _stderr=$(rpmdev-vercmp "${ver_installed}" "${ver}" 2>&1 > /dev/null)
-	local _res=${?}
-	if [[ ${_res} -ne 0 && ${_res} -ne 11 && ${_res} -ne 12 ]]; then
-		error_log "rpmdev-vercmp - ${_stderr}"
-		return 1
-	fi
-	if [[ "${match}" == "equ" ]]; then
-		[[ ${_res} -eq 0 ]]
-	elif [[ "${match}" == "gte" ]]; then
-		[[ ${_res} -eq 0 || ${_res} -eq 11 ]]
-	elif [[ "${match}" == "gtr" ]]; then
-		[[ ${_res} -eq 11 ]]
-	else
-		error_log "unrecognized 'match' argument, '${match}'"
-		return 1
-	fi
-	if [[ ${?} -eq 0 ]]; then
-		debug_log "found ${benchmark}-${ver_installed}"
-	else
-		error_log "wrong version installed: found ${benchmark}-${ver_installed}, expected ${benchmark}-${ver} (${match})"
+	vercmp "${benchmark}" "${match}" "${ver}" "${ver_installed}"
+	if [[ ${?} -ne 0 ]]; then
 		return 1
 	fi
 

@@ -11,8 +11,8 @@
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [pbench-uperf] required uperf-1.0.7 is installed
+[debug][1900-01-01T00:00:00.000000] found uperf-1.0.42
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n uperf
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm -V
 --- test-execution.log file contents
