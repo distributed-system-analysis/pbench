@@ -64,6 +64,7 @@ elif metric_type == "prom":
         "./prometheus",
         "--config.file=/data/prometheus.yml",
         "--storage.tsdb.path=/data",
+        "--storage.tsdb.retention.time=1y",
     ]
     collector = subprocess.Popen(cmd)
 
