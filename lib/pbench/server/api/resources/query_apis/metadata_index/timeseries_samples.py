@@ -41,11 +41,12 @@ class TimeSeriesSamples(RunIdBase):
         template = Template.find(index_name)
         mappings = template.mappings
         result = {}
-        for p in mappings["properties"]:
-            for inner_p in mappings["properties"][p]:
-                result[f"{p}.{inner_p}"] = mappings["properties"][p][inner_p]["type"]
-            else:
-                result[p] = mappings["properties"][p]["type"]
+        for p, m in mappings["properties"].items():
+            if m.get("type"):
+                result[f"{p}"] = m["type"]
+            elif m.get("properties"):
+                for p_inner, m_inner in m["properties"].items():
+                    result[f"{p}.{p_inner}"] = m_inner["type"]
         return result
 
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
@@ -126,9 +127,7 @@ class TimeSeriesSamples(RunIdBase):
             # Retrive result-data mappings for validating user provided filters
             mappings = self.get_mappings("result-data")
         except (TemplateNotFound, KeyError) as e:
-            self.logger.exception(
-                f"Exception while getting 'result-data' template {e}"
-            )
+            self.logger.exception(f"Exception while getting 'result-data' template {e}")
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         es_filter = [{"match": {"run.id": run_id}}]
