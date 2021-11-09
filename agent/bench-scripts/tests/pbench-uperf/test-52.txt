@@ -74,12 +74,12 @@ Iteration 2-vsock_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/pbench-uperf.cmd
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] checking for uperf on client c1
-[debug][1900-01-01T00:00:00.000000] checking for uperf on client c2
-[debug][1900-01-01T00:00:00.000000] checking for uperf on client c3
-[debug][1900-01-01T00:00:00.000000] checking for uperf on server s1
-[debug][1900-01-01T00:00:00.000000] checking for uperf on server s2
-[debug][1900-01-01T00:00:00.000000] checking for uperf on server s3
+[debug][1900-01-01T00:00:00.000000] performing uperf pre-checks on client c1
+[debug][1900-01-01T00:00:00.000000] performing uperf pre-checks on client c2
+[debug][1900-01-01T00:00:00.000000] performing uperf pre-checks on client c3
+[debug][1900-01-01T00:00:00.000000] performing uperf pre-checks on server s1
+[debug][1900-01-01T00:00:00.000000] performing uperf pre-checks on server s2
+[debug][1900-01-01T00:00:00.000000] performing uperf pre-checks on server s3
 [info][1900-01-01T00:00:00.000000] Starting iteration  (1 of 2)
 [info][1900-01-01T00:00:00.000000] test sample 1 of 2
 [debug][1900-01-01T00:00:00.000000] client[c1]node[1]protocol[vsock]test[rr]instances[1]size[64] <-> server[s1]node[0]
@@ -207,7 +207,7 @@ Iteration 2-vsock_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 pbench-uperf --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 pbench-uperf --pre-check 1.0.7 gte
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c1-server::s1:20010--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c1-server::s1:20010--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c1 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/client::c1-server::s1:20010--client_start.sh
@@ -216,7 +216,7 @@ Iteration 2-vsock_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 pbench-uperf --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 pbench-uperf --pre-check 1.0.7 gte
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c2-server::s2:20020--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c2-server::s2:20020--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c2 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/client::c2-server::s2:20020--client_start.sh
@@ -225,7 +225,7 @@ Iteration 2-vsock_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 pbench-uperf --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 pbench-uperf --pre-check 1.0.7 gte
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c3-server::s3:20030--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c3-server::s3:20030--client_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no c3 screen -dmS uperf-client /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/client::c3-server::s3:20030--client_start.sh
@@ -234,7 +234,7 @@ Iteration 2-vsock_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 pbench-uperf --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 pbench-uperf --pre-check 1.0.7 gte
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c1-server::s1:20010--server_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c1-server::s1:20010--server_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s1 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/client::c1-server::s1:20010--server_start.sh
@@ -251,7 +251,7 @@ Iteration 2-vsock_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 pbench-uperf --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 pbench-uperf --pre-check 1.0.7 gte
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c2-server::s2:20020--server_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c2-server::s2:20020--server_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s2 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/client::c2-server::s2:20020--server_start.sh
@@ -268,7 +268,7 @@ Iteration 2-vsock_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 pbench-uperf --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 pbench-uperf --pre-check 1.0.7 gte
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c3-server::s3:20030--server_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/1-vsock_rr-64B-1i/client::c3-server::s3:20030--server_start.sh
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no s3 screen -dmS uperf-server /var/tmp/pbench-test-bench/pbench-agent/uperf_test-52_1900.01.01T00.00.00/2-vsock_stream-64B-1i/client::c3-server::s3:20030--server_start.sh

@@ -25,7 +25,6 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 export benchmark="uperf"
-benchmark_rpm=${benchmark}
 if [[ -z "${benchmark_bin}" ]]; then
 	benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
 	if [[ -z "${benchmark_bin}" ]]; then
@@ -33,12 +32,6 @@ if [[ -z "${benchmark_bin}" ]]; then
 		exit 1
 	fi
 fi
-ver="$(pbench-config version ${benchmark})"
-if [[ -z "${ver}" ]]; then
-	error_log "${script_name}: package version is missing in config file"
-	exit 1
-fi
-match="$(pbench-config match ${benchmark})"
 
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
@@ -77,6 +70,7 @@ tool_label_pattern="uperf-"
 server_nodes=""
 client_nodes=""
 sysinfo="default"
+do_pre_check_only=0
 
 function usage {
 	printf "\tThe following options are available:\n\n"
@@ -211,8 +205,14 @@ function stop_server {
 	fi
 }
 
+function local_pre_check {
+	local _ver="${1}"
+	local _match="${2}"
+	check_install_rpm "${benchmark}" "${_ver}" "${_match}"
+}
+
 # Process options and arguments
-opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,server:,servers:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,vsock-server:,vsock-servers:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,tool-label-pattern:,pre-check,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,server:,servers:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,vsock-server:,vsock-servers:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
@@ -225,9 +225,13 @@ while true; do
 	arg="${1}"
 	shift
 	case "${arg}" in
-		--install)
-			check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
-			exit 0
+		--pre-check)
+			if [[ ${postprocess_only} == "y" ]]; then
+				error_log "[${script_name}] '--pre-check not compatible with previously specified '--postprocess-only=y' option"
+				usage >&2
+				exit 1
+			fi
+			do_pre_check_only=1
 		;;
 		-h|--help)
 			usage
@@ -242,6 +246,11 @@ while true; do
 		--postprocess-only)
 			if [ -n "$1" ]; then
 				postprocess_only="$1"
+				if [[ ${do_pre_check_only} -eq 1 ]]; then
+					error_log "[${script_name}] '--postprocess-only=y' not compatible with previously specified '--pre-check' option"
+					usage >&2
+					exit 1
+				fi
 				shift
 			fi
 		;;
@@ -369,12 +378,29 @@ while true; do
 		;;
 	esac
 done
+
+if [[ ${do_pre_check_only} -eq 1 ]]; then
+	local_pre_check ${@}
+	exit ${?}
+fi
+
 verify_common_bench_script_options $tool_group $sysinfo
 
 clients=${clients:-${clients_def}}
 servers=${servers:-${servers_def}}
 
 if [[ "${postprocess_only}" != "y" ]]; then
+	ver="$(pbench-config version ${benchmark})"
+	if [[ -z "${ver}" ]]; then
+		error_log "${script_name}: ${benchmark} 'version' is missing in config file"
+		exit 1
+	fi
+	match="$(pbench-config match ${benchmark})"
+	if [[ -z "${match}" ]]; then
+		error_log "${script_name}: ${benchmark} 'match' is missing in config file"
+		exit 1
+	fi
+
 	# Boolean value recording if local clients or servers are specified.
 	let check_local=0
 
@@ -432,16 +458,16 @@ if [[ "${postprocess_only}" != "y" ]]; then
 
 	if [[ ${check_local} -eq 1 ]]; then
 		# At least one client or server is a local host, so perform the
-		# installation check.
-		check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
+		# pre-check.
+		local_pre_check "${ver}" "${match}"
 	fi
 
 	let err_cnt=0
 	err_clients=""
 	for client in ${clients//,/ }; do
 		if is_remote "${client}"; then
-			debug_log "checking for uperf on client ${client}"
-			ssh ${ssh_opts} ${client} pbench-uperf --install
+			debug_log "performing uperf pre-checks on client ${client}"
+			ssh ${ssh_opts} ${client} pbench-uperf --pre-check "${ver}" "${match}"
 			if [ ${?} -ne 0 ]; then
 				(( err_cnt++ ))
 				err_clients+=" ${client}"
@@ -451,8 +477,8 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	err_servers=""
 	for server in ${servers//,/ }; do
 		if is_remote "${server}"; then
-			debug_log "checking for uperf on server ${server}"
-			ssh ${ssh_opts} ${server} pbench-uperf --install
+			debug_log "performing uperf pre-checks on server ${server}"
+			ssh ${ssh_opts} ${server} pbench-uperf --pre-check "${ver}" "${match}"
 			if [ ${?} -ne 0 ]; then
 				let err_cnt=err_cnt+1
 				err_servers+=" ${server}"
@@ -460,7 +486,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 		fi
 	done
 	if [[ ${err_cnt} -gt 0 ]]; then
-		error_log "Unable to verify connectivity and uperf installation on the following:"
+		error_log "The following pre-checks on clients and servers failed:"
 		error_log "    clients: ${err_clients}"
 		error_log "    servers: ${err_servers}"
 		exit 1
