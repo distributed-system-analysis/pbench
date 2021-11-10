@@ -44,10 +44,10 @@ class DatasetSqlError(DatasetError):
 
     def __init__(self, operation: str, **kwargs):
         self.operation = operation
-        self.kwargs = kwargs
+        self.kwargs = [f"{key}={value}" for key, value in kwargs.items()]
 
     def __str__(self) -> str:
-        return f"Error {self.operation} dataset {self.kwargs}"
+        return f"Error {self.operation} dataset {'|'.join(self.kwargs)}"
 
 
 class DatasetDuplicate(DatasetError):
@@ -68,12 +68,11 @@ class DatasetNotFound(DatasetError):
     Attempt to attach to a Dataset that doesn't exist.
     """
 
-    def __init__(self, controller: str, name: str):
-        self.controller = controller
-        self.name = name
+    def __init__(self, **kwargs):
+        self.kwargs = [f"{key}={value}" for key, value in kwargs.items()]
 
     def __str__(self) -> str:
-        return f"No dataset {self.controller}|{self.name}"
+        return f"No dataset {'|'.join(self.kwargs)}"
 
 
 class DatasetBadParameterType(DatasetError):
@@ -383,7 +382,9 @@ class Dataset(Database.Base):
 
     # NOTE: this relationship defines a `dataset` property in `Metadata`
     # that refers to the parent `Dataset` object.
-    metadatas = relationship("Metadata", backref="dataset")
+    metadatas = relationship(
+        "Metadata", back_populates="dataset", cascade="all, delete-orphan"
+    )
 
     # Require that the combination of controller and name is unique.
     #
@@ -461,8 +462,8 @@ class Dataset(Database.Base):
     @staticmethod
     def _render_path(patharg=None, controllerarg=None, namearg=None) -> Tuple[str, str]:
         """
-        _render_path Process a `path` string and convert it into `controller`
-        and/or `name` strings.
+        Process a `path` string and convert it into `controller` and/or `name`
+        strings.
 
         This pre-processes the controller and name before they are presented to
         a query or constructor. If the calling context has only the full file
@@ -510,7 +511,7 @@ class Dataset(Database.Base):
     @staticmethod
     def create(**kwargs) -> "Dataset":
         """
-        create A simple factory method to construct a new Dataset object and
+        A simple factory method to construct a new Dataset object and
         add it to the database.
 
         Args:
@@ -543,7 +544,7 @@ class Dataset(Database.Base):
     @staticmethod
     def attach(path=None, controller=None, name=None, state=None) -> "Dataset":
         """
-        attach Attempt to fetch dataset for the controller and dataset name,
+        Attempt to fetch dataset for the controller and dataset name,
         or using a specified file path (see _render_path and the path_init
         event listener for details).
 
@@ -577,11 +578,7 @@ class Dataset(Database.Base):
         # Make sure we have controller and name from path
         controller, name = Dataset._render_path(path, controller, name)
         dataset = Dataset.query(controller=controller, name=name)
-
-        if dataset is None:
-            Dataset.logger.warning("{}>{} not found", controller, name)
-            raise DatasetNotFound(controller, name)
-        elif state:
+        if state:
             dataset.advance(state)
         return dataset
 
@@ -591,14 +588,19 @@ class Dataset(Database.Base):
         Query dataset object based on a given column name of the run document
         """
         try:
-            return Database.db_session.query(Dataset).filter_by(**kwargs).first()
+            dataset = Database.db_session.query(Dataset).filter_by(**kwargs).first()
+
+            if dataset is None:
+                raise DatasetNotFound(**kwargs)
+
+            return dataset
         except SQLAlchemyError as e:
             Dataset.logger.warning("Error querying {}: {}", kwargs, str(e))
             raise DatasetSqlError("querying", **kwargs)
 
     def __str__(self) -> str:
         """
-        __str__ Return a string representation of the dataset
+        Return a string representation of the dataset
 
         Returns:
             string: Representation of the dataset
@@ -607,7 +609,7 @@ class Dataset(Database.Base):
 
     def advance(self, new_state: States):
         """
-        advance Modify the state of the Dataset object, if the new_state is
+        Modify the state of the Dataset object, if the new_state is
         a valid transition from the dataset's current state.
 
         Args:
@@ -641,7 +643,7 @@ class Dataset(Database.Base):
 
     def add(self):
         """
-        add Add the Dataset object to the database
+        Add the Dataset object to the database
         """
         try:
             Database.db_session.add(self)
@@ -658,7 +660,7 @@ class Dataset(Database.Base):
 
     def update(self):
         """
-        update Update the database row with the modified version of the
+        Update the database row with the modified version of the
         Dataset object.
         """
         try:
@@ -670,10 +672,22 @@ class Dataset(Database.Base):
                 "updating", controller=self.controller, name=self.name
             )
 
+    def delete(self):
+        """
+        Delete the Dataset from the database
+        """
+        try:
+            Database.db_session.delete(self)
+            Database.db_session.commit()
+        except Exception:
+            Database.db_session.rollback()
+            raise
+
 
 @event.listens_for(Dataset, "init")
 def path_init(target, args, kwargs):
-    """Listen for an init event on a Dataset to process a path before the
+    """
+    Listen for an init event on a Dataset to process a path before the
     SQLAlchemy constructor sees it.
 
     We want the constructor to see both "controller" and "name" parameters in
@@ -698,7 +712,8 @@ def path_init(target, args, kwargs):
 
 
 class Metadata(Database.Base):
-    """Retain secondary information about datasets
+    """
+    Retain secondary information about datasets
 
     Columns:
         id          Generated unique ID of table row
@@ -834,9 +849,9 @@ class Metadata(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(255), unique=False, nullable=False, index=True)
     value = Column(JSON, unique=False, nullable=True)
-    dataset_ref = Column(
-        Integer, ForeignKey("datasets.id", ondelete="CASCADE"), nullable=False
-    )
+    dataset_ref = Column(Integer, ForeignKey("datasets.id"), nullable=False)
+
+    dataset = relationship("Dataset", back_populates="metadatas", single_parent=True)
 
     @validates("key")
     def validate_key(self, _, value: Any) -> str:

@@ -7,7 +7,12 @@ from flask_restful import abort
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import JSON, Schema, SchemaError
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
-from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
+from pbench.server.database.models.datasets import (
+    Dataset,
+    DatasetNotFound,
+    Metadata,
+    MetadataError
+)
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 
@@ -90,8 +95,9 @@ class RunIdBase(ElasticBase):
         run_id = client_json["run_id"]
 
         # Query the dataset using the given run id
-        dataset = Dataset.query(md5=run_id)
-        if not dataset:
+        try:
+            dataset = Dataset.query(md5=run_id)
+        except DatasetNotFound:
             self.logger.debug(f"Dataset with Run ID {run_id!r} not found")
             abort(HTTPStatus.NOT_FOUND, message="Dataset not found")
 

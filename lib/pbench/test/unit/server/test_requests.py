@@ -1,4 +1,4 @@
-import hashlib
+from logging import Logger
 import socket
 from http import HTTPStatus
 from pathlib import Path
@@ -7,6 +7,8 @@ import pytest
 
 from freezegun import freeze_time
 
+from pbench.server import PbenchServerConfig
+from pbench.server.filetree import FileTree
 from pbench.server.database.models.datasets import Dataset, States, Metadata
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
@@ -34,19 +36,17 @@ def get_pbench_token(client, server_config):
 
 class TestHostInfo:
     @staticmethod
-    def test_host_info(client, pytestconfig, caplog, server_config):
-        tmp_d = pytestconfig.cache.get("TMP", None)
-        expected_message = (
-            f"pbench@pbench.example.com:{tmp_d}/srv/pbench"
-            "/pbench-move-results-receive"
-            "/fs-version-002"
-        )
+    def test_host_info_ok(client, monkeypatch, server_config):
+        monkeypatch.setattr(Path, "read_text", lambda self: "address")
         response = client.get(f"{server_config.rest_uri}/host_info")
-
         assert response.status_code == HTTPStatus.OK
-        assert response.json.get("message") == expected_message
-        for record in caplog.records:
-            assert record.levelname == "INFO"
+
+    @staticmethod
+    def test_host_info_not_ready(client, monkeypatch, server_config):
+        monkeypatch.setattr(Path, "read_text", lambda self: "MESSAGE===not now")
+        response = client.get(f"{server_config.rest_uri}/host_info")
+        assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
+        assert response.json.get("message") == "not now"
 
 
 class TestElasticsearch:
@@ -98,6 +98,9 @@ class TestGraphQL:
 
 
 class TestUpload:
+    controller_created = None
+    tarball_created = None
+
     @pytest.fixture
     def setup_ctrl(self):
         self.controller = socket.gethostname()
@@ -121,6 +124,26 @@ class TestUpload:
         for record in caplog.records:
             assert record.levelname not in ("ERROR", "CRITICAL")
         assert caplog.records[-1].levelname == "WARNING"
+
+    @pytest.fixture(scope="function", autouse=True)
+    def fake_filetree(self, monkeypatch):
+        class FakeTarball:
+            def __init__(self, path: Path):
+                self.tarball_path = path
+
+        def fake_constructor(self, options: PbenchServerConfig, logger: Logger):
+            pass
+
+        def fake_create(self, controller: str, path: Path) -> None:
+            TestUpload.controller_created = controller
+            TestUpload.tarball_created = path
+            return FakeTarball(path)
+
+        TestUpload.controller_created = None
+        TestUpload.tarball_created = None
+        monkeypatch.setattr(FileTree, "__init__", fake_constructor)
+        monkeypatch.setattr(FileTree, "create", fake_create)
+        monkeypatch.setattr(FileTree, "__contains__", lambda self, name: False)
 
     def test_missing_authorization_header(self, client, server_config):
         response = client.put(self.gen_uri(server_config))
@@ -194,8 +217,9 @@ class TestUpload:
                 headers=self.gen_headers(pbench_token, "md5sum"),
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message").startswith(
-            "MD5 checksum does not match Content-MD5 header"
+        assert (
+            response.json.get("message")
+            == "MD5 checksum 9d5a479f6f75fa9b3bab27ef79ad5b29 does not match expected md5sum"
         )
         self.verify_logs(caplog)
 
@@ -210,7 +234,6 @@ class TestUpload:
         setup_ctrl,
         pbench_token,
     ):
-        expected_message = "File extension not supported, must be .tar.xz"
         tmp_d = pytestconfig.cache.get("TMP", None)
         datafile = Path(tmp_d, bad_extension)
         datafile.write_text("compressed tar ball")
@@ -222,7 +245,10 @@ class TestUpload:
                 headers=self.gen_headers(pbench_token, "md5sum"),
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == expected_message
+        assert (
+            response.json.get("message")
+            == "File extension not supported, must be .tar.xz"
+        )
         self.verify_logs(caplog)
 
     def test_invalid_authorization_upload(
@@ -246,9 +272,6 @@ class TestUpload:
     def test_empty_upload(
         self, client, pytestconfig, caplog, server_config, setup_ctrl, pbench_token
     ):
-        expected_message = (
-            "Content-Length (0) must be greater than 0 and no greater than 1.1 GB"
-        )
         filename = "tmp.tar.xz"
         tmp_d = pytestconfig.cache.get("TMP", None)
         datafile = Path(tmp_d, filename)
@@ -264,28 +287,25 @@ class TestUpload:
                 ),
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == expected_message
+        assert response.json.get("message") == "Content-Length 0 must be greater than 0"
         self.verify_logs(caplog)
 
     def test_upload(
-        self, client, pytestconfig, caplog, server_config, setup_ctrl, pbench_token
+        self,
+        client,
+        pytestconfig,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
     ):
-        # This is a really weird and ugly file name that should be
-        # maintained through all the marshalling and unmarshalling on the
-        # wire until it lands on disk and in the Dataset.
-        filename = "pbench-user-benchmark_some + config_2021.05.01T12.42.42.tar.xz"
-        tmp_d = pytestconfig.cache.get("TMP", None)
-        datafile = Path(tmp_d, filename)
-        file_contents = b"something\n"
-        md5 = hashlib.md5()
-        md5.update(file_contents)
-        datafile.write_bytes(file_contents)
-
+        datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
             response = client.put(
-                self.gen_uri(server_config, filename),
+                self.gen_uri(server_config, datafile.name),
                 data=data_fp,
-                headers=self.gen_headers(pbench_token, md5.hexdigest()),
+                headers=self.gen_headers(pbench_token, md5),
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
@@ -295,13 +315,13 @@ class TestUpload:
         )
         assert (
             receive_dir.exists()
-        ), f"receive_dir = '{receive_dir}', filename = '{filename}'"
+        ), f"receive_dir = '{receive_dir}', filename = '{datafile.name}'"
 
-        dataset = Dataset.attach(controller=self.controller, path=filename)
+        dataset = Dataset.attach(controller=self.controller, path=datafile.name)
         assert dataset is not None
-        assert dataset.md5 == md5.hexdigest()
+        assert dataset.md5 == md5
         assert dataset.controller == self.controller
-        assert dataset.name == filename[:-7]
+        assert dataset.name == datafile.name[:-7]
         assert dataset.state == States.UPLOADED
         assert Metadata.getvalue(dataset, "dashboard") is None
         assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-01"

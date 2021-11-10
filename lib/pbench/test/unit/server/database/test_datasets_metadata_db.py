@@ -1,6 +1,7 @@
 import pytest
 from pbench.server.database.models.datasets import (
     Dataset,
+    DatasetNotFound,
     Metadata,
     DatasetBadParameterType,
     MetadataBadStructure,
@@ -186,3 +187,21 @@ class TestMetadataNamespace:
             "first": "My",
             "last": "Name",
         }
+
+    def test_delete_with_metadata(self, db_session, create_user):
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        Metadata.setvalue(
+            ds,
+            "user.contact",
+            {"email": "me@example.com", "name": {"first": "My", "last": "Name"}},
+        )
+        assert Metadata.getvalue(ds, "user.contact.email") == "me@example.com"
+        assert Metadata.getvalue(ds, "user.contact.name.first") == "My"
+        assert Metadata.getvalue(ds, "user.contact.name") == {
+            "first": "My",
+            "last": "Name",
+        }
+        ds.delete()
+
+        with pytest.raises(DatasetNotFound):
+            Dataset.query(name="fio")

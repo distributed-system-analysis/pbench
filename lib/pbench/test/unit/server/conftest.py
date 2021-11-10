@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 from http import HTTPStatus
 import os
 import pytest
@@ -659,3 +660,25 @@ def current_user_none(monkeypatch):
     with monkeypatch.context() as m:
         m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
         yield None
+
+
+@pytest.fixture
+def tarball(pytestconfig):
+    filename = "pbench-user-benchmark_some + config_2021.05.01T12.42.42.tar.xz"
+    tmp_d = pytestconfig.cache.get("TMP", None)
+    datafile = Path(tmp_d, filename)
+    file_contents = b"something\n"
+    md5 = hashlib.md5()
+    md5.update(file_contents)
+    datafile.write_bytes(file_contents)
+    md5file = Path(tmp_d) / (filename + ".md5")
+    md5file.write_text(md5.hexdigest())
+
+    yield datafile, md5file, md5.hexdigest()
+
+    # Clean up after the test case
+
+    if md5file.exists():
+        md5file.unlink()
+    if datafile.exists():
+        datafile.unlink()
