@@ -182,16 +182,40 @@ function gen_xml {
 	echo "</profile>"
 }
 
+function is_remote {
+	local arg="${1}"
+	local _remote
+	if [[ "${arg}" == "127.0.0.1" || "${arg}" == "localhost" ]]; then
+		# False, non-zero return code
+		_remote=1
+	else
+		# True, zero return code
+		_remote=0
+	fi
+	return ${_remote}
+}
+
 function stop_server {
-	local server=$1
-	local server_port=$2
-	local message=$3
-	local uperf_pids=`ssh $ssh_opts $server ss -tlnp --vsock | sed -En -e "/:$server_port / s/.*pid=([^,]+),.*/\1/p" | sort -u`
-	if [ ! -z "$uperf_pids" ]; then
-		if [ $message -eq 1 ]; then
-			echo "found uperf pid(s) $uperf_pids on $server:$server_port, killing"
+	local server="${1}"
+	local server_port="${2}"
+	local message="${3}"
+
+	local ss_output
+	if is_remote ${server}; then
+		ss_output=$(ssh ${ssh_opts} ${server} ss -tlnp --vsock)
+	else
+		ss_output=$(ss -tlnp --vsock)
+	fi
+	local uperf_pids=$(sed -En -e "/:${server_port} / s/.*pid=([^,]+),.*/\1/p" <<< "${ss_output}" | sort -u)
+	if [[ ! -z "${uperf_pids}" ]]; then
+		if [[ ${message} -eq 1 ]]; then
+			echo "found uperf pid(s) ${uperf_pids} on ${server}:${server_port}, killing"
 		fi
-		ssh $ssh_opts $server "for pid in $uperf_pids; do kill \$pid; done"
+		if is_remote ${server}; then
+			ssh ${ssh_opts} ${server} "for pid in ${uperf_pids}; do kill \${pid}; done"
+		else
+			for pid in ${uperf_pids}; do kill ${pid}; done
+		fi
 	fi
 }
 
@@ -378,28 +402,32 @@ fi
 # before we run a test, verify clients and servers are accessible and install
 # uperf if necessary
 if [[ "${postprocess_only}" != "y" ]]; then
-	# Let's count how many localhost clients are servers are specified.
+	# Let's count how many local clients and servers are specified.
 	let check_local=0
 
 	# Verify the number of clients, servers, and option vsock servers match.
 	let c_cnt=0
 	for client in ${clients//,/ }; do
 		(( c_cnt++ ))
-		if [[ "${client}" == "127.0.0.1" || "${client}" == "localhost" ]]; then
+		if ! is_remote "${client}"; then
 			(( check_local++ ))
 		fi
 	done
 	if [[ ${c_cnt} -eq 0 ]]; then
-		# No clients on the command line, default to localhost.
-		c_cnt=1
+		error_log "[${script_name}] INTERNAL ERROR - no clients found"
+		exit 1
 	fi
 	let s_cnt=0
 	for server in ${servers//,/ }; do
 		(( s_cnt++ ))
-		if [[ "${server}" == "127.0.0.1" || "${server}" == "localhost" ]]; then
+		if ! is_remote "${server}"; then
 			(( check_local++ ))
 		fi
 	done
+	if [[ ${c_cnt} -eq 0 ]]; then
+		error_log "[${script_name}] INTERNAL ERROR - no servers found"
+		exit 1
+	fi
 	if [ ${c_cnt} -ne ${s_cnt} ]; then
 		error_log "Number of clients and servers specified on command line must match"
 		error_log "    clients(${c_cnt}): ${clients}"
@@ -435,7 +463,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	err_clients=""
 	_clients=${clients:-localhost}
 	for client in ${clients//,/ }; do
-		if [[ "${client}" != "127.0.0.1" && "${client}" != "localhost" ]]; then
+		if is_remote "${client}"; then
 			debug_log "checking for uperf on client ${client}"
 			ssh ${ssh_opts} ${client} pbench-uperf --install
 			if [ ${?} -ne 0 ]; then
@@ -446,7 +474,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	done
 	err_servers=""
 	for server in ${servers//,/ }; do
-		if [[ "${server}" != "127.0.0.1" && "${server}" != "localhost" ]]; then
+		if is_remote "${server}"; then
 			debug_log "checking for uperf on server ${server}"
 			ssh ${ssh_opts} ${server} pbench-uperf --install
 			if [ ${?} -ne 0 ]; then
@@ -629,14 +657,14 @@ for protocol in ${protocols//,/ }; do
 									chmod +x $benchmark_client_cmd_file
 
 									# prepare test files and dirs if using remote clients
-									if [[ "${client}" != "127.0.0.1" && "${client}" != "localhost" ]]; then
+									if is_remote "${client}"; then
 										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
 										scp $scp_opts $xml_file $client:$xml_file >/dev/null
 										scp $scp_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
 									fi
 
 									# prepare test files and dirs on servers
-									if [[ "${server}" != "127.0.0.1" && "${server}" != "localhost" ]]; then
+									if is_remote "${server}"; then
 										ssh $ssh_opts $server mkdir -p $benchmark_results_dir
 										scp $scp_opts $benchmark_server_cmd_file $server:$benchmark_server_cmd_file >/dev/null
 									fi
@@ -644,7 +672,7 @@ for protocol in ${protocols//,/ }; do
 									# start the uperf server(s)
 									stop_server $server $server_port 1
 
-									if [[ "${server}" != "127.0.0.1" && "${server}" != "localhost" ]]; then
+									if is_remote "${server}"; then
 										ssh $ssh_opts $server "screen -dmS uperf-server $benchmark_server_cmd_file"
 									else
 										screen -dmS uperf-server $benchmark_server_cmd_file
@@ -685,7 +713,7 @@ for protocol in ${protocols//,/ }; do
 									debug_log "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 									echo "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 
-									if [[ "${client}" == "127.0.0.1" || "${client}" == "localhost" ]]; then
+									if ! is_remote "${client}"; then
 										# using local client
 										debug_log "screen -dmS uperf-client $benchmark_client_cmd_file"
 										screen -dmS uperf-client $benchmark_client_cmd_file
@@ -711,11 +739,11 @@ for protocol in ${protocols//,/ }; do
 
 									stop_server $server $server_port 0
 
-									if [[ "${server}" != "127.0.0.1" && "${server}" != "localhost" ]]; then
+									if is_remote "${server}"; then
 										server_log="$benchmark_results_dir/$uperf_identifier--server.log"
 										scp $scp_opts $server:$server_log $server_log >/dev/null
 									fi
-									if [[ "${client}" != "127.0.0.1" && "${client}" != "localhost" ]]; then
+									if is_remote "${client}"; then
 										result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
 										scp $scp_opts $client:$result_file $result_file >/dev/null
 									fi
