@@ -183,16 +183,8 @@ function gen_xml {
 }
 
 function is_remote {
-	local arg="${1}"
-	local _remote
-	if [[ "${arg}" == "127.0.0.1" || "${arg}" == "localhost" ]]; then
-		# False, non-zero return code
-		_remote=1
-	else
-		# True, zero return code
-		_remote=0
-	fi
-	return ${_remote}
+	# Returns 0 if the argument is considered "remote", and 1 if not.
+	[[ "${1}" != "127.0.0.1" && "${1}" != "localhost" ]]
 }
 
 function stop_server {
@@ -207,7 +199,7 @@ function stop_server {
 		ss_output=$(ss -tlnp --vsock)
 	fi
 	local uperf_pids=$(sed -En -e "/:${server_port} / s/.*pid=([^,]+),.*/\1/p" <<< "${ss_output}" | sort -u)
-	if [[ ! -z "${uperf_pids}" ]]; then
+	if [[ -n "${uperf_pids}" ]]; then
 		if [[ ${message} -eq 1 ]]; then
 			echo "found uperf pid(s) ${uperf_pids} on ${server}:${server_port}, killing"
 		fi
@@ -387,7 +379,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	let check_local=0
 
 	# Verify that the number of clients, servers, and optional vsock servers
-	#  match.
+	# match.
 	let c_cnt=0
 	for client in ${clients//,/ }; do
 		(( c_cnt++ ))
@@ -406,7 +398,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 			check_local=1
 		fi
 	done
-	if [[ ${c_cnt} -eq 0 ]]; then
+	if [[ ${s_cnt} -eq 0 ]]; then
 		error_log "[${script_name}] INTERNAL ERROR - no servers found"
 		exit 1
 	fi
@@ -428,7 +420,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	done
 	if [[ ${has_vsock} -eq 1 ]]; then
 		if [[ ${v_cnt} -ne ${s_cnt} ]]; then
-			error_log "When using the vsock protocol, the number of servers and vsock-servers specified on command line must also match"
+			error_log "When using the 'vsock' protocol, servers and vsock-servers must match"
 			error_log "    servers(${s_cnt}): ${servers}"
 			error_log "    vsock-servers(${v_cnt}): ${vsock_servers}"
 			exit 1
