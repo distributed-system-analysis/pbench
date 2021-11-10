@@ -220,7 +220,7 @@ function stop_server {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,server:,servers:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,vsock-server:,vsock-servers:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,server:,servers:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,vsock-server:,vsock-servers:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
@@ -240,18 +240,6 @@ while true; do
 		-h|--help)
 			usage
 			exit 0
-		;;
-		--client-label)
-			if [ -n "$1" ]; then
-				shift
-			fi
-			warn_log "The --client-label option is deprecated, please use --tool-label-pattern"
-		;;
-		--server-label)
-			if [ -n "$1" ]; then
-				shift
-			fi
-			warn_log "The --server-label option is deprecated, please use --tool-label-pattern"
 		;;
 		--tool-label-pattern)
 			if [ -n "$1" ]; then
