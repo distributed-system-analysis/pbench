@@ -379,26 +379,20 @@ while true; do
 done
 verify_common_bench_script_options $tool_group $sysinfo
 
-if [[ -z "${clients}" ]]; then
-	clients=${clients_def}
-fi
+clients=${clients:-${clients_def}}
+servers=${servers:-${servers_def}}
 
-if [[ -z "${servers}" ]]; then
-	servers=${servers_def}
-fi
-
-# before we run a test, verify clients and servers are accessible and install
-# uperf if necessary
 if [[ "${postprocess_only}" != "y" ]]; then
-	# Let's count how many local clients and servers are specified.
+	# Boolean value recording if local clients or servers are specified.
 	let check_local=0
 
-	# Verify the number of clients, servers, and option vsock servers match.
+	# Verify that the number of clients, servers, and optional vsock servers
+	#  match.
 	let c_cnt=0
 	for client in ${clients//,/ }; do
 		(( c_cnt++ ))
 		if ! is_remote "${client}"; then
-			(( check_local++ ))
+			check_local=1
 		fi
 	done
 	if [[ ${c_cnt} -eq 0 ]]; then
@@ -409,7 +403,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	for server in ${servers//,/ }; do
 		(( s_cnt++ ))
 		if ! is_remote "${server}"; then
-			(( check_local++ ))
+			check_local=1
 		fi
 	done
 	if [[ ${c_cnt} -eq 0 ]]; then
@@ -432,18 +426,19 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	for vserver in ${vsock_servers//,/ }; do
 		(( v_cnt++ ))
 	done
-	if [[ ${has_vsock} -eq 1 && ${v_cnt} -eq 0 ]]; then
-		error_log "You must provide vsock-servers when the vsock protocol is specified"
-		exit 1
-	fi
-	if [[ ${v_cnt} -gt 0 && ${v_cnt} -ne ${s_cnt} ]]; then
-		error_log "Number of servers and vsock-servers specified on command line must match"
-		error_log "    servers(${s_cnt}): ${servers}"
-		error_log "    vsock-servers(${v_cnt}): ${vsock_servers}"
+	if [[ ${has_vsock} -eq 1 ]]; then
+		if [[ ${v_cnt} -ne ${s_cnt} ]]; then
+			error_log "When using the vsock protocol, the number of servers and vsock-servers specified on command line must also match"
+			error_log "    servers(${s_cnt}): ${servers}"
+			error_log "    vsock-servers(${v_cnt}): ${vsock_servers}"
+			exit 1
+		fi
+	elif [[ ${v_cnt} -gt 0 ]]; then
+		error_log "Do not provide vsock-servers without using the vsock protocol"
 		exit 1
 	fi
 
-	if [[ ${check_local} -gt 0 ]]; then
+	if [[ ${check_local} -eq 1 ]]; then
 		# At least one client or server is a local host, so perform the
 		# installation check.
 		check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
@@ -451,14 +446,13 @@ if [[ "${postprocess_only}" != "y" ]]; then
 
 	let err_cnt=0
 	err_clients=""
-	_clients=${clients:-localhost}
 	for client in ${clients//,/ }; do
 		if is_remote "${client}"; then
 			debug_log "checking for uperf on client ${client}"
 			ssh ${ssh_opts} ${client} pbench-uperf --install
 			if [ ${?} -ne 0 ]; then
 				(( err_cnt++ ))
-				err_clients="${err_clients} ${client}"
+				err_clients+=" ${client}"
 			fi
 		fi
 	done
@@ -469,12 +463,12 @@ if [[ "${postprocess_only}" != "y" ]]; then
 			ssh ${ssh_opts} ${server} pbench-uperf --install
 			if [ ${?} -ne 0 ]; then
 				let err_cnt=err_cnt+1
-				err_servers="${err_servers} ${server}"
+				err_servers+=" ${server}"
 			fi
 		fi
 	done
 	if [[ ${err_cnt} -gt 0 ]]; then
-		error_log "Unable to verify connectivity and uperf installation on the following clients and servers:"
+		error_log "Unable to verify connectivity and uperf installation on the following:"
 		error_log "    clients: ${err_clients}"
 		error_log "    servers: ${err_servers}"
 		exit 1
