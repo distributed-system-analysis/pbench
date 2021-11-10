@@ -456,6 +456,8 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	fi
 
 	if [[ ${check_local} -gt 0 ]]; then
+		# At least one client or server is a local host, so perform the
+		# installation check.
 		check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
 	fi
 
