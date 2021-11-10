@@ -50,6 +50,7 @@ class TestEndpointConfig:
             "api": {
                 "controllers_list": f"{uri}/controllers/list",
                 "controllers_months": f"{uri}/controllers/months",
+                "datasets_delete": f"{uri}/datasets/delete",
                 "datasets_detail": f"{uri}/datasets/detail",
                 "datasets_list": f"{uri}/datasets/list",
                 "datasets_mappings": f"{uri}/datasets/mappings/",

@@ -2,12 +2,13 @@ from collections import Counter, defaultdict
 from datetime import datetime
 from http import HTTPStatus
 from logging import Logger
+import re
 from typing import Any, Callable, Dict, Iterator, List
 from urllib.parse import urljoin
 
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
-import elasticsearch
+from elasticsearch import Elasticsearch, helpers, VERSION
 from flask.wrappers import Response
 from flask_restful import abort
 import requests
@@ -505,6 +506,8 @@ class ElasticBulkBase(ApiBase):
     processing the response documents.
     """
 
+    EXCEPTION_NAME = re.compile(r"^(\w+)")
+
     def __init__(
         self,
         config: PbenchServerConfig,
@@ -535,13 +538,16 @@ class ElasticBulkBase(ApiBase):
             role: specify the API role, defaulting to UPDATE
         """
         super().__init__(config, logger, schema, role=role)
+        self.host = config.get("elasticsearch", "host")
+        self.port = config.get("elasticsearch", "port")
         self.node = {
             "host": config.get("elasticsearch", "host"),
             "port": config.get("elasticsearch", "port"),
         }
         self.action = action
+        self.config = config
 
-        if "controller" not in schema or "name" not in schema:
+        if "name" not in schema:
             raise MissingBulkSchemaParameters(self.__class__.__name__)
 
     def generate_actions(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
@@ -609,9 +615,7 @@ class ElasticBulkBase(ApiBase):
         klasname = self.__class__.__name__
 
         try:
-            dataset = Dataset.attach(
-                controller=json_data["controller"], name=json_data["name"]
-            )
+            dataset = Dataset.query(name=json_data["name"])
         except DatasetNotFound as e:
             abort(HTTPStatus.NOT_FOUND, message=str(e))
 
@@ -624,14 +628,20 @@ class ElasticBulkBase(ApiBase):
 
         # For bulk Elasticsearch operations, we check authorization against the
         # ownership of a designated dataset rather than having an explicit
-        # "user" JSON parameter. This will raise UnauthorizedAccess on failure.
+        # "user" JSON parameter. If the subclass schema includes an "access"
+        # parameter, validate authorization against that value, otherwise use
+        # the current dataset access value.
+        #
+        # This will raise UnauthorizedAccess on failure.
         try:
-            self._check_authorization(owner.username, dataset.access)
+            access = json_data["access"] if "access" in self.schema else dataset.access
+            self._check_authorization(owner.username, access)
         except UnauthorizedAccess as e:
             abort(e.http_status, message=str(e))
 
         # Build an Elasticsearch instance to manage the bulk update
-        elastic = elasticsearch.Elasticsearch(self.node)
+        elastic = Elasticsearch(f"http://{self.host}:{self.port}")
+        self.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
 
         # Internally report a summary of successes and Elasticsearch failure
         # reasons: this will look something like
@@ -662,7 +672,7 @@ class ElasticBulkBase(ApiBase):
         # `try` block to catch failures.
         try:
             # Pass the bulk command generator to the helper
-            results = elasticsearch.helpers.streaming_bulk(
+            results = helpers.streaming_bulk(
                 elastic,
                 self.generate_actions(json_data, dataset),
                 raise_on_exception=False,
@@ -684,7 +694,28 @@ class ElasticBulkBase(ApiBase):
                 status = "ok"
                 if "error" in u:
                     e = u["error"]
-                    status = e["reason"]
+                    # The bulk helper seems to return a stringified exception
+                    # as the "error" key value, at least in some cases. The
+                    # documentation is not entirely clear, so to be safe this
+                    # handles either a stringified exception or the standard
+                    # Elasticsearch server bulk action response, where "error"
+                    # is a dict with details. If the type of "error" isn't
+                    # either of these, just stringify it.
+                    #
+                    # For the stringified exception, we try to extract the
+                    # leading exception name (e.g., 'ConnectionError(...)') for
+                    # a simpler and more readable error report key; if the
+                    # pattern doesn't match, use the entire string.
+                    if isinstance(e, str):
+                        match = self.EXCEPTION_NAME.match(e)
+                        if match:
+                            status = match[1]
+                        else:
+                            status = e
+                    elif isinstance(e, dict) and "reason" in e:
+                        status = e["reason"]
+                    else:
+                        status = str(e)
                     error_count += 1
                 report[status][u["_index"]] += 1
         except Exception as e:
@@ -711,7 +742,7 @@ class ElasticBulkBase(ApiBase):
         # pyesbulk side.
         if error_count > 0:
             self.logger.error(
-                "{}:dataset {}: {} successful document updates and {} failures: {}",
+                "{}:dataset {}: {} successful document actions and {} failures: {}",
                 klasname,
                 dataset,
                 count - error_count,
@@ -720,11 +751,11 @@ class ElasticBulkBase(ApiBase):
             )
             abort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
-                message=f"{error_count:d} of {count:d} Elasticsearch document UPDATE operations failed",
+                message=f"{error_count:d} of {count:d} Elasticsearch document actions failed",
                 data=summary,
             )
 
         self.logger.info(
-            "{}:dataset {}: {} successful document updates", klasname, dataset, count
+            "{}:dataset {}: {} successful document actions", klasname, dataset, count
         )
         return summary

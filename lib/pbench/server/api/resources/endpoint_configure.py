@@ -91,7 +91,14 @@ class EndpointConfig(Resource):
         implementations. The entire "indices" section can be removed once that is
         resolved.
         """
-        self.logger.debug("Received these headers: {!r}", request.headers)
+        self.logger.debug(
+            "Received headers: {!r}, access_route {!r}, base_url {!r}, host {!r}, host_url {!r}",
+            request.headers,
+            request.access_route,
+            request.base_url,
+            request.host,
+            request.host_url,
+        )
         origin = None
         host_source = "request"
         host_value = request.host

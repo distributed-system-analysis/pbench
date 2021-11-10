@@ -1,24 +1,28 @@
 from http import HTTPStatus
+from logging import Logger
 from typing import Iterator
 
 import elasticsearch
 import pytest
 
+from pbench.server import PbenchServerConfig
+from pbench.server.filetree import FileTree
 from pbench.server.api.resources import JSON
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
-class TestDatasetsPublish:
+class TestDatasetsDelete:
     """
-    Unit testing for DatasetsPublish class.
+    Unit testing for DatasetsDelete class.
 
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
     constructor and `post` service.
     """
 
-    PAYLOAD = {"controller": "node", "name": "drb", "access": "public"}
+    PAYLOAD = {"name": "drb"}
+    tarball_deleted = None
 
     def fake_elastic(self, monkeypatch, map: JSON, partial_fail: bool):
         """
@@ -40,7 +44,7 @@ class TestDatasetsPublish:
         for index in map:
             first = True
             for docid in map[index]:
-                update = {
+                delete = {
                     "_index": index,
                     "_type": "_doc",
                     "_id": docid,
@@ -54,10 +58,10 @@ class TestDatasetsPublish:
                 if first and partial_fail:
                     status = False
                     first = False
-                    update["error"] = {"reason": "Just kidding", "type": "KIDDING"}
+                    delete["error"] = {"reason": "Just kidding", "type": "KIDDING"}
                 else:
                     status = True
-                item = {"update": update}
+                item = {"delete": delete}
                 expected_results.append((status, item))
                 expected_ids.append(docid)
 
@@ -83,7 +87,7 @@ class TestDatasetsPublish:
             """
             # Consume and validate the command generator
             for cmd in stream:
-                assert cmd["_op_type"] == "update"
+                assert cmd["_op_type"] == "delete"
                 assert cmd["_id"] in expected_ids
 
             # Generate a sequence of result documents more or less as we'd
@@ -92,6 +96,17 @@ class TestDatasetsPublish:
                 yield item
 
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
+
+    def fake_filetree(self, monkeypatch):
+        def fake_constructor(self, options: PbenchServerConfig, logger: Logger):
+            pass
+
+        def fake_delete(self, name: str) -> None:
+            TestDatasetsDelete.tarball_deleted = name
+
+        TestDatasetsDelete.tarball_deleted = None
+        monkeypatch.setattr(FileTree, "__init__", fake_constructor)
+        monkeypatch.setattr(FileTree, "delete", fake_delete)
 
     @pytest.mark.parametrize(
         "owner", ("drb", "test"),
@@ -112,6 +127,7 @@ class TestDatasetsPublish:
         user (managed by the build_auth_header fixture).
         """
         self.fake_elastic(monkeypatch, get_document_map, False)
+        self.fake_filetree(monkeypatch)
         payload = self.PAYLOAD.copy()
         payload["name"] = owner
 
@@ -124,15 +140,22 @@ class TestDatasetsPublish:
             expected_status = HTTPStatus.OK
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish",
+            f"{server_config.rest_uri}/datasets/delete",
             headers=build_auth_header["header"],
             json=payload,
         )
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
             assert response.json == {"ok": 31, "failure": 0}
-            dataset = Dataset.attach(controller="node", name=owner)
-            assert dataset.access == Dataset.PUBLIC_ACCESS
+            assert TestDatasetsDelete.tarball_deleted == owner
+
+            # On success, the Dataset should be gone
+            with pytest.raises(DatasetNotFound):
+                Dataset.query(name=owner)
+        else:
+            # On failure, the Dataset should remain
+            assert TestDatasetsDelete.tarball_deleted is None
+            Dataset.query(name=owner)
 
     def test_partial(
         self,
@@ -149,9 +172,10 @@ class TestDatasetsPublish:
         internal error with a report of success and failure counts.
         """
         self.fake_elastic(monkeypatch, get_document_map, True)
+        self.fake_filetree(monkeypatch)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish",
+            f"{server_config.rest_uri}/datasets/delete",
             headers={"authorization": f"Bearer {pbench_token}"},
             json=self.PAYLOAD,
         )
@@ -166,12 +190,11 @@ class TestDatasetsPublish:
             ):
                 assert (
                     record.message
-                    == "DatasetsPublish:dataset drb(1)|node|drb: 28 successful document updates and 3 failures: defaultdict(<class 'collections.Counter'>, {'Just kidding': Counter({'unit-test.v6.run-data.2021-06': 1, 'unit-test.v6.run-toc.2021-06': 1, 'unit-test.v5.result-data-sample.2021-06': 1}), 'ok': Counter({'unit-test.v5.result-data-sample.2021-06': 19, 'unit-test.v6.run-toc.2021-06': 9})})"
+                    == "DatasetsDelete:dataset drb(1)|node|drb: 28 successful document updates and 3 failures: defaultdict(<class 'collections.Counter'>, {'Just kidding': Counter({'unit-test.v6.run-data.2021-06': 1, 'unit-test.v6.run-toc.2021-06': 1, 'unit-test.v5.result-data-sample.2021-06': 1}), 'ok': Counter({'unit-test.v5.result-data-sample.2021-06': 19, 'unit-test.v6.run-toc.2021-06': 9})})"
                 )
 
-        # Verify that the Dataset access didn't change
-        dataset = Dataset.query(controller="node", name="drb")
-        assert dataset.access == Dataset.PRIVATE_ACCESS
+        # Verify that the Dataset still exists
+        Dataset.query(controller="node", name="drb")
 
     def test_no_dataset(
         self, client, get_document_map, monkeypatch, pbench_token, server_config
@@ -183,7 +206,7 @@ class TestDatasetsPublish:
         payload["name"] = "badwolf"
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish",
+            f"{server_config.rest_uri}/datasets/delete",
             headers={"authorization": f"Bearer {pbench_token}"},
             json=payload,
         )
@@ -213,7 +236,7 @@ class TestDatasetsPublish:
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish",
+            f"{server_config.rest_uri}/datasets/delete",
             headers={"authorization": f"Bearer {pbench_token}"},
             json=self.PAYLOAD,
         )

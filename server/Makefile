@@ -20,6 +20,7 @@ INSTALL = install
 INSTALLOPTS = --directory
 
 click-scripts = \
+	pbench-tree-manage \
 	pbench-user-create \
 	pbench-user-update \
 	pbench-user-list \

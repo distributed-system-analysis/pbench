@@ -126,6 +126,25 @@ class TestDatasets:
         assert ds2.md5 is ds1.md5
         assert ds2.id is ds1.id
 
+    def test_query_name(self, db_session, create_user):
+        """ Test that we can find a dataset by name alone
+        """
+        ds1 = Dataset(
+            owner=create_user.username,
+            controller="frodo",
+            name="fio",
+            state=States.INDEXING,
+        )
+        ds1.add()
+
+        ds2 = Dataset.query(name="fio")
+        assert ds2.owner == ds1.owner
+        assert ds2.controller == ds1.controller
+        assert ds2.name == ds1.name
+        assert ds2.state == ds1.state
+        assert ds2.md5 is ds1.md5
+        assert ds2.id is ds1.id
+
     def test_advanced_good(self, db_session, create_user):
         """ Test advancing the state of a dataset
         """
@@ -189,3 +208,23 @@ class TestDatasets:
             lifecycle
             == "UPLOADING,UPLOADED,UNPACKING,UNPACKED,INDEXING,INDEXED,EXPIRING,EXPIRED"
         )
+
+    def test_delete(self, db_session, create_user):
+        """ Test that we can attach to a dataset
+        """
+        ds1 = Dataset(
+            owner=create_user.username,
+            controller="frodo",
+            name="foobar",
+            state=States.INDEXING,
+        )
+        ds1.add()
+
+        # we can find it
+        ds2 = Dataset.attach(controller="frodo", name="foobar", state=States.INDEXED)
+        assert ds2.name == ds1.name
+
+        ds2.delete()
+
+        with pytest.raises(DatasetNotFound):
+            Dataset.query(name="foobar")
