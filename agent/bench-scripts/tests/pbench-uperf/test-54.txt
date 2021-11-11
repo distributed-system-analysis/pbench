@@ -1,5 +1,7 @@
 +++ Running test-54 pbench-uperf
-[error][1900-01-01T00:00:00.000000] You must provide vsock-servers when the vsock protocol is specified
+[error][1900-01-01T00:00:00.000000] When using the 'vsock' protocol, servers and vsock-servers must match
+[error][1900-01-01T00:00:00.000000]     servers(3): s1,s2,s3
+[error][1900-01-01T00:00:00.000000]     vsock-servers(0): 
 --- Finished test-54 pbench-uperf (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
@@ -12,5 +14,7 @@
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[error][1900-01-01T00:00:00.000000] You must provide vsock-servers when the vsock protocol is specified
+[error][1900-01-01T00:00:00.000000] When using the 'vsock' protocol, servers and vsock-servers must match
+[error][1900-01-01T00:00:00.000000]     servers(3): s1,s2,s3
+[error][1900-01-01T00:00:00.000000]     vsock-servers(0): 
 --- pbench.log file contents

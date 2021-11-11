@@ -1,5 +1,5 @@
 +++ Running test-53 pbench-uperf
-[error][1900-01-01T00:00:00.000000] Number of servers and vsock-servers specified on command line must match
+[error][1900-01-01T00:00:00.000000] When using the 'vsock' protocol, servers and vsock-servers must match
 [error][1900-01-01T00:00:00.000000]     servers(3): s1,s2,s3
 [error][1900-01-01T00:00:00.000000]     vsock-servers(2): v1,v2
 --- Finished test-53 pbench-uperf (status=1)
@@ -14,7 +14,7 @@
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[error][1900-01-01T00:00:00.000000] Number of servers and vsock-servers specified on command line must match
+[error][1900-01-01T00:00:00.000000] When using the 'vsock' protocol, servers and vsock-servers must match
 [error][1900-01-01T00:00:00.000000]     servers(3): s1,s2,s3
 [error][1900-01-01T00:00:00.000000]     vsock-servers(2): v1,v2
 --- pbench.log file contents
