@@ -757,9 +757,12 @@ function fio_run_benchmark() {
 		# if each target is separated by a space, there will be one job for each in next for loop
 		targets=${targets//,/ }
 	fi
-	typeset -i ntargets=$(echo $targets | wc -w)
-	typeset -i ntesttypes=$(echo ${test_types//,/ } | wc -w)
-	typeset -i nblocksizes=$(echo ${block_sizes//,/ } | wc -w)
+	local _targets_arr=(${targets})
+	typeset -i ntargets=${#_targets_arr[@]}
+	local _test_types_arr=(${test_types})
+	typeset -i ntesttypes=${#_test_types_arr[@]}
+	local _block_sizes_arr=(${block_sizes})
+	typeset -i nblocksizes=${#_block_sizes_arr[@]}
 	typeset -i total_iterations=$ntargets*$ntesttypes*$nblocksizes
 	local iteration_failures=0
 	for dev in $targets; do
