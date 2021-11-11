@@ -34,7 +34,7 @@ function usage() {
 	printf -- "${script_name} --toolset=<tool-set> [--group=<group-name>]"
 	printf -- " [--interval=<interval>] [--no-install]"
 	printf -- " [--remotes=@<remotes-file>]\n\n"
-        #             1         2         3         4         5         6         7         8
+	#             1         2         3         4         5         6         7         8
 	# (tab)    1 901234567890123456789012345678901234567890123456789012345678901234567890
 	printf -- "\tWhere the list of labels must match the list of remotes.\n\n"
 	printf -- "\tOne can specify as the argument to the \"--remotes\" option a single\n"
@@ -129,16 +129,10 @@ if [[ -z ${the_tool_set} ]]; then
 	exit 1
 fi
 
-if [[ -n "${labels_arg}" ]]; then
-	pbench-register-tool --name=perf --test-labels ${remotes_arg}${labels_arg}
-	if [[ ${?} -ne 0 ]]; then
-		if [[ -z "${remotes_arg}" ]]; then
-			remotes_arg="(default) --remotes=${_pbench_full_hostname}"
-		fi
-		error_log "The number of labels given, \"${labels_arg}\", does not match the number of remotes given, \"${remotes_arg}\""
-		usage >&2
-		exit 1
-	fi
+pbench-register-tool --test-args ${remotes_arg}${labels_arg}
+if [[ ${?} -ne 0 ]]; then
+	usage >&2
+	exit 1
 fi
 
 typeset -i nerrs=0

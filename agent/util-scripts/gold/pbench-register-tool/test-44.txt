@@ -1,5 +1,5 @@
 +++ Running test-44 pbench-register-tool --name=mpstat --no-install --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/doesntexist.lis
-[error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/doesntexist.lis specifies a file that does not exist
+[error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/doesntexist.lis specifies a file that does not exist or is not readable
 usage:
 pbench-register-tool --name=<tool-name> [--group=<group-name>] [--no-install] [--persistent] [--transient] [--remotes=<remote-host>[,<remote-host>]] [--labels=<label>[,<label>]] -- [all tool specific options here]
 pbench-register-tool --name=<tool-name> [--group=<group-name>] [--no-install] [--persistent] [--transient] [--remotes=@<remotes-file>] -- [all tool specific options here]
@@ -72,5 +72,5 @@ For a list of tool specific options, run:
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
 +++ pbench.log file contents
-[error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/doesntexist.lis specifies a file that does not exist
+[error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/doesntexist.lis specifies a file that does not exist or is not readable
 --- pbench.log file contents
