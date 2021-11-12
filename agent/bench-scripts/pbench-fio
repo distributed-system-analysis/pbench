@@ -265,7 +265,7 @@ function fio_process_options() {
 			fi
 			;;
 		-c|--clients)
-			if [ ! -z "$client_file" ] ;then
+			if [ -n "$client_file" ] ;then
 				printf -- "${script_name} $*\n"
 				printf -- "\n"
 				printf -- "\t-c|--clients and --client-file are mutually exclusive\n\n"
@@ -278,7 +278,7 @@ function fio_process_options() {
 			fi
 			;;
 		--client-file)
-			if [ ! -z "${clients}" ] ;then
+			if [ -n "${clients}" ] ;then
 				printf -- "${script_name} $*\n"
 				printf -- "\n"
 				printf -- "\t--client-file and -c|--clients are mutually exclusive\n\n"
@@ -515,7 +515,7 @@ function fio_pre_check() {
 	local rc=0
 
 	debug_log "fio_pre_check(targets=\"${targets}\", clients=\"${clients}\", ver=\"${ver}\", match=\"${match}\")"
-	if [ ! -z "${clients}" ]; then
+	if [ -n "${clients}" ]; then
 		local client=""
 		for client in "${client_names[@]}" ; do
 			debug_log "Running pre-check on client ${client}"
@@ -590,7 +590,7 @@ function fio_run_job() {
 
 	echo "running fio job: $fio_job_file ($(basename $benchmark_results_dir))"
 
-	if [ ! -z "${clients}" ]; then
+	if [ -n "${clients}" ]; then
 		debug_log "killing any old fio processes, creating directories, and starting new a fio process on the clients"
 		for client in "${client_names[@]}"; do
 			ssh ${ssh_opts} ${client} "killall ${benchmark} >/dev/null 2>&1; mkdir -p ${benchmark_results_dir} && cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2>&1'"
@@ -607,19 +607,19 @@ function fio_run_job() {
 
 	local client_opts=""
 
-	if [ ! -z "${clients}" ]; then
-		# If a client-file parameter was passed, then clients is
-		# already initialized to its contents.
+	if [ -n "${clients}" ]; then
+		# If a client-file parameter was passed, then clients is already
+		# initialized to its contents.
 		local max_jobs=0
 		local nclients=0
 
-		if [ ! -z $numjobs ]; then
-			# so that a separate filename will be generated
-			# for each (host, job-number) pair
-			let max_jobs=$numjobs
+		if [ -n "${numjobs}" ]; then
+			# So that a separate filename will be generated for each (host,
+			# job-number) pair.
+			max_jobs=${numjobs}
 		else
 			for t in ${tgts//,/ }; do
-				let max_jobs=$max_jobs+1
+				(( max_jobs++ ))
 			done
 		fi
 
@@ -655,7 +655,7 @@ function fio_run_job() {
 
 	# First move all fio log files to the appropriate client directory.
 	local _clients_list=""
-	if [ ! -z "${clients}" ]; then
+	if [ -n "${clients}" ]; then
 		local client
 		for client in "${client_names[@]}"; do
 			_clients_list="${_clients_list} ${client}"
@@ -716,13 +716,13 @@ function fio_run_job() {
 function fio_run_benchmark() {
 	(( histogram_interval_msec = histogram_interval_sec * 1000 ))
 
-	if [[ ! -z "$client_file" ]] ;then
+	if [[ -n "$client_file" ]] ;then
 		# Copy the clients file given on the command line into the run
 		# directory to keep it with the run.
 		_client_file=$benchmark_run_dir/fio-client.file
 		cp $client_file ${_client_file}
 	else
-		if [[ ! -z "${clients}" ]]; then
+		if [[ -n "${clients}" ]]; then
 			# Record the -c|--clients list into the
 			# fio-client.file.  This makes the fio command shorter
 			# by always using a client file regardless of how
