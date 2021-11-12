@@ -413,7 +413,7 @@ function fio_process_options() {
 	if [[ "${pre_check}" == "y" ]]; then
 		# The extra arguments are the expected version number and match
 		# condition the controller found in its configuration file. This
-		# means we do NOT use the local clients configuration file for
+		# means we do NOT use the local client's configuration file for
 		# the `fio` version.
 		local_pre_check "${targets}" ${@}
 		exit ${?}
