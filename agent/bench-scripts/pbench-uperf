@@ -209,7 +209,7 @@ function local_pre_check {
 	local _ver="${1}"
 	local _match="${2}"
 
-	local ver_installed=$(${benchmark_bin} -V | head -n 1 | awk '{print $3}')
+	local ver_installed=$(${benchmark_bin} -V | awk 'NR==1 {print $3}')
 	vercmp "${benchmark}" "${_match}" "${_ver}" "${ver_installed}"
 	return ${?}
 }
