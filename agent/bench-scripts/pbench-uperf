@@ -395,12 +395,12 @@ servers=${servers:-${servers_def}}
 if [[ "${postprocess_only}" != "y" ]]; then
 	ver="$(pbench-config version ${benchmark})"
 	if [[ -z "${ver}" ]]; then
-		error_log "${script_name}: ${benchmark} 'version' is missing in config file"
+		error_log "${script_name}: 'version' is missing in the [${benchmark}] section of the config file"
 		exit 1
 	fi
 	match="$(pbench-config match ${benchmark})"
 	if [[ -z "${match}" ]]; then
-		error_log "${script_name}: ${benchmark} 'match' is missing in config file"
+		error_log "${script_name}: 'match' is missing in the [${benchmark}] section of the config file"
 		exit 1
 	fi
 
