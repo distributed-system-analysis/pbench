@@ -904,7 +904,6 @@ if [ "$postprocess_only" = "n" ]; then
 			if [[ $client = *':'* ]] ; then
 				client_name=${client%%:*}
 				client_port=${client#*:}
-				exit 1
 			else
 				client_name=${client}
 				client_port=${fio_server_port}
