@@ -1,6 +1,9 @@
+import ifaddr
+import ipaddress
 import logging
 import os
 import signal
+import socket
 import subprocess
 import sys
 import time
@@ -391,3 +394,37 @@ def collect_local_info(pbench_bin):
         hostdata[arg] = cp.stdout.strip() if cp.stdout is not None else ""
 
     return (version, seqno, sha1, hostdata)
+
+
+class LocalRemoteHost:
+    """Dynamically build a list of all the local IP addresses so that a simple
+    simple query interface provides the answer to the question, "is the given
+    host name or IP address remote?"
+    """
+
+    def __init__(self):
+        """Build up a list of local IP addresses from all the interfaces.
+        """
+        local_ips_l = []
+        for adapter in ifaddr.get_adapters():
+            for ip in adapter.ips:
+                local_ips_l.append(ip.ip[0] if isinstance(ip.ip, tuple) else ip.ip)
+        self.local_ips = frozenset(local_ips_l)
+
+    def is_remote(self, host_name):
+        """Returns True if the given host name (or IP address) is remote else
+        returns False.
+        """
+        ips_l = []
+        try:
+            ip_addrs = socket.getaddrinfo(host_name, None)
+            for addrinfo in ip_addrs:
+                ips_l.append(addrinfo[4][0])
+        except socket.gaierror:
+            try:
+                ipaddress.ip_address(host_name)
+            except ValueError:
+                return True
+            ips_l.append(host_name)
+        ips = frozenset(ips_l)
+        return self.local_ips.isdisjoint(ips)

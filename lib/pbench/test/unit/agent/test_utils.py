@@ -7,7 +7,7 @@ import pytest
 import signal
 import time
 
-from pbench.agent.utils import BaseServer, BaseReturnCode
+from pbench.agent.utils import BaseServer, BaseReturnCode, LocalRemoteHost
 
 
 class OurServer(BaseServer):
@@ -209,3 +209,19 @@ class TestBaseServer:
             monkeypatch.setattr(time, "sleep", mock_time.sleep)
             ret = bs.kill(42)
             assert ret == ret_code, f"{desc} FAILED, {pid_text!r}, {ret_code!r}"
+
+
+class TestLocalRemoteHost:
+    """Verify LocalRemoteHost class works as expected.
+    """
+
+    @staticmethod
+    def test_methods():
+        lrh = LocalRemoteHost()
+        assert lrh.is_remote(
+            "testhost.example.com"
+        ), "'testhost.example.com' (which is not a real name) should still be remote"
+        assert lrh.is_remote("example.com"), "'example.com' should be remote"
+        assert not lrh.is_remote("localhost"), "'localhost' should be local"
+        assert lrh.is_remote("1.0.0.1"), "'1.0.0.1' should be remote"
+        assert not lrh.is_remote("127.0.0.1"), "'127.0.0.1' should be local"
