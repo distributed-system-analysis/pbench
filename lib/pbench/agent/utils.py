@@ -396,35 +396,58 @@ def collect_local_info(pbench_bin):
     return (version, seqno, sha1, hostdata)
 
 
-class LocalRemoteHost:
-    """Dynamically build a list of all the local IP addresses so that a simple
-    simple query interface provides the answer to the question, "is the given
-    host name or IP address remote?"
-    """
+if os.environ.get("_PBENCH_UNIT_TESTS"):
 
-    def __init__(self):
-        """Build up a list of local IP addresses from all the interfaces.
+    class LocalRemoteHost:
+        """Mock out behavior for legacy unit tests.
         """
-        local_ips_l = []
-        for adapter in ifaddr.get_adapters():
-            for ip in adapter.ips:
-                local_ips_l.append(ip.ip[0] if isinstance(ip.ip, tuple) else ip.ip)
-        self.local_ips = frozenset(local_ips_l)
 
-    def is_remote(self, host_name):
-        """Returns True if the given host name (or IP address) is remote else
-        returns False.
+        def __init__(self):
+            self._local_names = frozenset(
+                [
+                    "127.0.0.1",
+                    "localhost",
+                    "172.16.42.42",
+                    "testhost.example.com",
+                    "testhost",
+                ]
+            )
+
+        def is_remote(self, host_name):
+            return host_name not in self._local_names
+
+
+else:
+
+    class LocalRemoteHost:
+        """Dynamically build a list of all the local IP addresses so that a simple
+        simple query interface provides the answer to the question, "is the given
+        host name or IP address remote?"
         """
-        ips_l = []
-        try:
-            ip_addrs = socket.getaddrinfo(host_name, None)
-            for addrinfo in ip_addrs:
-                ips_l.append(addrinfo[4][0])
-        except socket.gaierror:
+
+        def __init__(self):
+            """Build up a list of local IP addresses from all the interfaces.
+            """
+            local_ips_l = []
+            for adapter in ifaddr.get_adapters():
+                for ip in adapter.ips:
+                    local_ips_l.append(ip.ip[0] if isinstance(ip.ip, tuple) else ip.ip)
+            self.local_ips = frozenset(local_ips_l)
+
+        def is_remote(self, host_name):
+            """Returns True if the given host name (or IP address) is remote else
+            returns False.
+            """
+            ips_l = []
             try:
-                ipaddress.ip_address(host_name)
-            except ValueError:
-                return True
-            ips_l.append(host_name)
-        ips = frozenset(ips_l)
-        return self.local_ips.isdisjoint(ips)
+                ip_addrs = socket.getaddrinfo(host_name, None)
+                for addrinfo in ip_addrs:
+                    ips_l.append(addrinfo[4][0])
+            except socket.gaierror:
+                try:
+                    ipaddress.ip_address(host_name)
+                except ValueError:
+                    return True
+                ips_l.append(host_name)
+            ips = frozenset(ips_l)
+            return self.local_ips.isdisjoint(ips)
