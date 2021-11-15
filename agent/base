@@ -263,6 +263,38 @@ function resolve_benchmark_bin {
     which --skip-alias --skip-functions "${1}"
 }
 
+function vercmp {
+    # Compare two package versions via `rpmdev-vercmp`.
+    local _package="${1}"
+    local _match="${2}"
+    local _exp_ver="${3}"
+    local _ins_ver="${4}"
+
+	local _stderr=$(rpmdev-vercmp "${_ins_ver}" "${_exp_ver}" 2>&1 > /dev/null)
+	local _res=${?}
+	if [[ ${_res} -ne 0 && ${_res} -ne 11 && ${_res} -ne 12 ]]; then
+		error_log "rpmdev-vercmp - ${_stderr}"
+		return 1
+	fi
+	if [[ "${_match}" == "equ" ]]; then
+		[[ ${_res} -eq 0 ]]
+	elif [[ "${_match}" == "gte" ]]; then
+		[[ ${_res} -eq 0 || ${_res} -eq 11 ]]
+	elif [[ "${_match}" == "gtr" ]]; then
+		[[ ${_res} -eq 11 ]]
+	else
+		error_log "unrecognized 'match' argument, '${_match}'"
+		return 1
+	fi
+	if [[ ${?} -ne 0 ]]; then
+		error_log "wrong version installed: found ${_package}-${_ins_ver}, expected ${_package}-${_exp_ver} (${_match})"
+		return 1
+	fi
+
+	debug_log "found ${_package}-${_ins_ver}"
+    return 0
+}
+
 function interrupt() {
     # On abnormal exit, stop the tool meister declaring an interrupt occurred.
     pbench-tool-meister-stop --interrupt "${tool_group}"

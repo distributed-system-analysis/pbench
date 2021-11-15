@@ -1,4 +1,4 @@
 #!/bin/bash
 
 prog=$(basename ${0})
-echo abc def ghi | tr ' ' '\n' > ${_testtmp}/${prog%%.*}_clients.file
+echo abc:42 def:43 ghi:44 | tr ' ' '\n' > ${_testtmp}/${prog%%.*}_clients.file

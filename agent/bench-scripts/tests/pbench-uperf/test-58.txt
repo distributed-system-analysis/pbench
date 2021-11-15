@@ -1,5 +1,5 @@
-+++ Running test-03 pbench-fio
---- Finished test-03 pbench-fio (status=0)
++++ Running test-58 pbench-uperf
+--- Finished test-58 pbench-uperf (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
@@ -11,9 +11,8 @@
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] local_pre_check(devs="/tmp/fio", ver="3.19", match="gte")
-[debug][1900-01-01T00:00:00.000000] found fio-3.42
+[debug][1900-01-01T00:00:00.000000] found uperf-1.0.42
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --version
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm -V
 --- test-execution.log file contents

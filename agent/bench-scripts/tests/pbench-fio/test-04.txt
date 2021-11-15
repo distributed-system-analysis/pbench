@@ -513,8 +513,9 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [pbench-fio] required fio-3.21 is installed
-[debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/tmp/fio", clients="")
+[debug][1900-01-01T00:00:00.000000] fio_pre_check(targets="/tmp/fio", clients="", ver="3.21", match="gte")
+[debug][1900-01-01T00:00:00.000000] local_pre_check(devs="", ver="3.21", match="gte")
+[debug][1900-01-01T00:00:00.000000] found fio-3.42
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
@@ -734,6 +735,7 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --version
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3
@@ -856,7 +858,6 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=default default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n fio
 --- test-execution.log file contents
 +++ fio_test-04_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
