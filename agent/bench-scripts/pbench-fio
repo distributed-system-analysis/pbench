@@ -593,7 +593,7 @@ function fio_run_job() {
 	if [ -n "${clients}" ]; then
 		debug_log "killing any old fio processes, creating directories, and starting new a fio process on the clients"
 		for client in "${client_names[@]}"; do
-			ssh ${ssh_opts} ${client} "killall ${benchmark} >/dev/null 2>&1; mkdir -p ${benchmark_results_dir} && cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2>&1'"
+			ssh ${ssh_opts} ${client} "killall ${benchmark} >/dev/null 2>&1; mkdir -p ${benchmark_results_dir} && cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err'"
 		done
 		debug_log "waiting for fio process(server) to start on clients"
 		for client in "${client_names[@]}"; do
