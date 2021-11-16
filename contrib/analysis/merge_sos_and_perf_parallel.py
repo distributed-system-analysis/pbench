@@ -86,6 +86,7 @@ def load_pbench_runs(es, now: datetime):
     recs = 0
     missing_ctrl_dir = 0
     missing_sos = 0
+    sos_not_two = 0
     accepted = 0
 
     for _source in pbench_runs_gen(es, _month_gen(now)):
@@ -102,16 +103,30 @@ def load_pbench_runs(es, now: datetime):
             missing_sos += 1
             continue
 
+        if len(run["sosreports"]) != 2:
+            sos_not_two += 1
+            continue
+
+        first = run["sosreports"][0]
+        second = run["sosreports"][1]
+        if first["hostname-f"] != second["hostname-f"]:
+            print(f"pbench run with sosreports from different hosts: {run_id}")
+            continue 
+
         accepted += 1
 
         run_index = _source["_index"]
 
         sosreports = dict()
+        # FIXME: Should I remove the forloop here after the above change? 
         for sosreport in run["sosreports"]:
             sosreports[os.path.split(sosreport["name"])[1]] = {
                 "hostname-s": sosreport["hostname-s"],
                 "hostname-f": sosreport["hostname-f"],
                 "time": sosreport["name"].split("/")[2],
+                "inet": [nic["ipaddr"] for nic in sosreport["inet"]],
+                # FIXME: Key Error on inet6
+                #"inet6": [nic["ipaddr"] for nic in sosreport["inet6"]],
             }
 
         pbench_runs[run_id] = dict(
@@ -125,6 +140,7 @@ def load_pbench_runs(es, now: datetime):
         f"Stats for pbench runs: accepted {accepted:n} records of"
         f" {recs:n}, missing 'controller_dir' field {missing_ctrl_dir:n},"
         f" missing 'sosreports' field {missing_sos:n}",
+        f" 'sosreports' not equal to two for single clients {sos_not_two:n}",
         flush=True,
     )
 
@@ -260,6 +276,10 @@ def transform_result(source, pbench_runs, results_seen, stats):
         stats["missing_mean"] += 1
         return None
 
+    if sample["client_hostname"] == 'all':
+        stats["aggregate_result"] += 1
+        return None
+
     # The following field names are required
     try:
         benchmark = index["benchmark"]
@@ -347,6 +367,9 @@ def process_results(es, now, session, incoming_url, pool, pbench_runs, stats):
     stats["total_recs"] = 0
     stats["missing_mean"] = 0
     stats["missing_runs"] = 0
+    stats["aggregate_result"] = 0
+    stats["multiple_clients"] = 0
+    stats["no_clients"] = 0
     stats["errors"] = 0
     stats["mean"] = 0
 
@@ -379,6 +402,16 @@ def process_results(es, now, session, incoming_url, pool, pbench_runs, stats):
             print(f"{key} / client names", flush=True)
             clientnames = extract_clients(result, es)
             clientnames_map[key] = clientnames
+
+        # Ignore result if 0 or more than 1 client names
+        if not clientnames: 
+            stats["no_clients"] += 1
+            continue 
+
+        if len(clientnames) > 1:
+            stats["multiple_clients"] += 1
+            continue 
+
         result["clientnames"] = clientnames
 
         yield result
