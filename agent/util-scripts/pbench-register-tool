@@ -250,6 +250,12 @@ if [[ ${remotes_arg::1} == "@" ]]; then
 		exit 1
 	fi
 
+	if [[ ! -s ${remotes_file} ]]; then
+		error_log "--remotes=@${remotes_file} specifies an empty file"
+		usage >&2
+		exit 1
+	fi
+
 	declare -a remotes_A
 	declare -A labels_A
 	idx=0

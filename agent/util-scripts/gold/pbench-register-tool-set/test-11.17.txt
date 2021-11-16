@@ -1,0 +1,33 @@
++++ Running test-11.17 pbench-register-tool-set --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/empty-remote-file
+[error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/empty-remote-file specifies an empty file
+usage:
+pbench-register-tool-set --toolset=<tool-set> [--group=<group-name>] [--interval=<interval>] [--no-install] [--remotes=<remote-host>[,<remote-host>]] [--labels=<label>[,<label>]]
+pbench-register-tool-set --toolset=<tool-set> [--group=<group-name>] [--interval=<interval>] [--no-install] [--remotes=@<remotes-file>]
+
+	Where the list of labels must match the list of remotes.
+
+	One can specify as the argument to the "--remotes" option a single
+	remote host, a list of remote hosts (comma-separated, no spaces) or an
+	"at" sign ("@") followed by a filename.  In this last case, the file
+	should contain a list of hosts and their (optional) labels.  Each line
+	of the file should contain a host name, optionally followed by a label
+	separated by a comma (","); empty lines are ignored, and comments are
+	denoted by a leading hash, or pound ("#"), character.
+
+Available tool sets from /var/tmp/pbench-test-utils/opt/pbench-agent/config/pbench-agent.cfg:
+	default
+	heavy
+	legacy
+	light
+	medium
+--- Finished test-11.17 pbench-register-tool-set (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tmp/empty-remote-file
+=== /var/tmp/pbench-test-utils/pbench/tmp/empty-remote-file:
+--- pbench tree state
++++ pbench.log file contents
+[error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/empty-remote-file specifies an empty file
+--- pbench.log file contents
