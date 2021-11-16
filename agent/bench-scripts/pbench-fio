@@ -510,20 +510,29 @@ function fio_pre_check() {
 	local match="${4}"
 
 	local rc=0
+	local do_local_pre_check=0
 
 	debug_log "fio_pre_check(targets=\"${targets}\", clients=\"${clients}\", ver=\"${ver}\", match=\"${match}\")"
 	if [ -n "${clients}" ]; then
 		local client=""
 		for client in "${client_names[@]}" ; do
-			debug_log "Running pre-check on client ${client}"
-			ssh ${ssh_opts} ${client} pbench-fio --pre-check --targets="${targets}" "${ver}" "${match}" || rc=1
+			if pbench-is-remote ${client}; then
+				debug_log "Running pre-check on client ${client}"
+				ssh ${ssh_opts} ${client} pbench-fio --pre-check --targets="${targets}" "${ver}" "${match}" || rc=1
+			else
+				do_local_pre_check=1
+			fi
 		done
 	else
+		do_local_pre_check=1
+	fi
+	if [[ ${do_local_pre_check} -eq 1 ]]; then
+		debug_log "Running pre-check locally"
 		local_pre_check "${devs}" "${ver}" "${match}"
 		rc=${?}
 	fi
 	if [[ ${rc} -ne 0 ]]; then
-		error_log "pre-checks failed, exiting"
+		error_log "pre-check(s) failed, exiting"
 		exit 1
 	fi
 }
@@ -579,6 +588,8 @@ function fio_run_job() {
 	local tgts="$4"
 	local clients="$5"
 
+	local do_local_client=0
+
 	mkdir -p $benchmark_results_dir/clients
 	if [[ ! -d $benchmark_results_dir/clients ]]; then
 		error_log "Failed to create results directory hierarchy: $benchmark_results_dir/clients"
@@ -588,11 +599,15 @@ function fio_run_job() {
 	echo "running fio job: $fio_job_file ($(basename $benchmark_results_dir))"
 
 	if [ -n "${clients}" ]; then
-		debug_log "killing any old fio processes, creating directories, and starting new a fio process on the clients"
+		debug_log "killing any old fio processes, creating directories, and starting new a fio process on the remote clients"
 		for client in "${client_names[@]}"; do
-			ssh ${ssh_opts} ${client} "killall ${benchmark} >/dev/null 2>&1; mkdir -p ${benchmark_results_dir} && cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err'"
+			if pbench-is-remote ${client}; then
+				ssh ${ssh_opts} ${client} "killall ${benchmark} >/dev/null 2>&1; mkdir -p ${benchmark_results_dir} && cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err'"
+			else
+				do_local_client=1
+			fi
 		done
-		debug_log "waiting for fio process(server) to start on clients"
+		debug_log "waiting for fio process(server) to start on the remote clients"
 		for client in "${client_names[@]}"; do
 			timeout --kill-after=1 60 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' "${client}" "${client_ports[${client}]}"
 			if [[ $? -eq 124 ]]; then
@@ -640,6 +655,11 @@ function fio_run_job() {
 	chmod +x $benchmark_results_dir/fio.cmd
 	debug_log "$benchmark: Going to run [$benchmark_bin $bench_opts $client_opts]"
 	pushd $benchmark_results_dir >/dev/null
+	if [[ ${do_local_client} -eq 1 ]]; then
+		debug_log "killing any old local fio processes and starting new a fio process for the local client"
+		killall ${benchmark} > /dev/null 2>&1
+		screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err'
+	fi
 	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/fio-result.txt
 	local _fio_exit_code=$?
 	popd >/dev/null
@@ -897,6 +917,7 @@ if [ "$postprocess_only" = "n" ]; then
 	fi
 
 	if [[ -n "${clients}" ]] ; then
+		let local_client_count=0
 		for client in ${clients//,/ } ; do
 			if [[ $client = *':'* ]] ; then
 				client_name=${client%%:*}
@@ -908,9 +929,16 @@ if [ "$postprocess_only" = "n" ]; then
 					fio_server_port=$((fio_server_port+1))
 				fi
 			fi
+			if ! pbench-is-remote ${client}; then
+				(( local_client_count++ ))
+			fi
 			client_names+=("${client_name}")
 			client_ports["${client_name}"]=${client_port}
 		done
+		if [[ ${local_client_count} -gt 1 ]]; then
+			error_log "${script_name}: more than one client refers to the local host"
+			exit 1
+		fi
 	fi
 
 	fio_pre_check "${targets}" "${clients}" "${ver}" "${match}"
