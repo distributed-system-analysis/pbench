@@ -1,6 +1,7 @@
 bottle
 cffi
 click>=8.0
+hiredis
 jinja2
 python-daemon
 python-pidfile
