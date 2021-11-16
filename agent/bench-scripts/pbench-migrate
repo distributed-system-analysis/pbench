@@ -225,6 +225,8 @@ while true; do
 done
 verify_common_bench_script_options $tool_group $sysinfo
 
+warn_log "${script_name} is deprecated and will be removed in the next release"
+
 function do_migrate() {
 	local src_host=$1
 	local dest_host=$2

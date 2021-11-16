@@ -257,6 +257,8 @@ while true; do
 done
 verify_common_bench_script_options $tool_group $sysinfo
 
+warn_log "${script_name} is deprecated and will be removed in the next release"
+
 if [[ -z "$benchmark_run_dir" ]]; then
 	# We don't have an explicit run directory, construct one
 	benchmark_fullname="${benchmark}_${config}_${date_suffix}"

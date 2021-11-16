@@ -1,4 +1,5 @@
 +++ Running test-46 pbench-run-benchmark
+WARNING: pbench-run-benchmark is deprecated and will be removed in the next release.
 cmdfile: /var/tmp/pbench-test-bench/pbench-agent/linpack_test-46-tags_1900.01.01T00.00.00/pbench-run-benchmark.cmd
 Generating all benchmark iterations
 resolving default first with pbench-gen-iterations linpack --defaults-only --clients=testhost.example.com
