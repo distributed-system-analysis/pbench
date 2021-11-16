@@ -1,0 +1,11 @@
++++ Running test-50 pbench-copy-results --prefix=foo/bar3%
+[error][1900-01-01T00:00:00.000000] Missing required 'user' value (provided either by the '--user' option or the 'PBENCH_USER' environment variable)
+--- Finished test-50 pbench-copy-results (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state
++++ pbench.log file contents
+[error][1900-01-01T00:00:00.000000] Missing required 'user' value (provided either by the '--user' option or the 'PBENCH_USER' environment variable)
+--- pbench.log file contents

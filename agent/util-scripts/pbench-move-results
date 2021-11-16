@@ -106,7 +106,7 @@ fi
 validate_hostname "${controller}" "controller"
 
 if [[ -z "${user}" ]]; then
-    error_log "Missing required '--user' option (not found via 'PBENCH_USER' environment variable, either)"
+    error_log "Missing required 'user' value (provided either by the '--user' option or the 'PBENCH_USER' environment variable)"
     exit 1
 fi
 

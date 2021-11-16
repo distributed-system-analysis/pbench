@@ -116,7 +116,7 @@ function _run {
     echo "+++ Running ${tname} ${tscrpt} ${opts}" >> ${_testout}
 
     _runout=${_testroot}/run.out
-    PBENCH_USER="unittests" eval ${tscrpt} ${opts} > ${_runout} 2>&1
+    eval ${tscrpt} ${opts} > ${_runout} 2>&1
     sts=${?}
 
     popd > /dev/null
@@ -293,6 +293,8 @@ function _setup_state {
     printf -- "\n[pbench-agent]\npbench_run = %s\n" "${_testdir}" >> ${_testopt}/config/pbench-agent.cfg
     export _PBENCH_AGENT_CONFIG=${_testopt}/config/pbench-agent.cfg
 
+    export PBENCH_USER="unittests"
+
     mkdir ${_testdir}
     if [[ ${?} -ne 0 ]]; then
         echo "ERROR: failed to create test pbench directory, \"${_testdir}\"" >&2
@@ -404,6 +406,7 @@ declare -A tools=(
     [test-47]="pbench-register-tool"
     [test-48]="test-add-metalog-%-option"
     [test-49]="pbench-copy-results"
+    [test-50]="pbench-copy-results"
     [test-51]="test-start-stop-tool-meister"
     [test-52]="test-start-stop-tool-meister"
     [test-53]="test-client-tool-meister"
@@ -494,6 +497,7 @@ declare -A options=(
     [test-47]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis --labels=labelOne,labelTwo"
     # pbench-copy-results - verify handling of "%"
     [test-49]="--prefix=foo/bar3% --user=ndk20%"
+    [test-50]="--prefix=foo/bar3%"
     [test-52]="mygroup"
     [test-54]="--help"
     [test-55]="--help"
@@ -521,6 +525,7 @@ declare -A expected_status=(
     [test-44]=1
     [test-46]=1
     [test-47]=1
+    [test-50]=1
     [test-58]=1
     [test-59]=1
     [test-60]=1
@@ -538,6 +543,7 @@ declare -A pre_hooks=(
     [test-46]='mkdir ${_testdir}/tmp; printf -- "# bad list\none.example.com\ntwo.example.com,labelTwo\n\nthree.example.com,labelThree,junk\n" > ${_testdir}/tmp/remotes.lis'
     [test-47]='mkdir ${_testdir}/tmp; printf -- "# good list with no labels\none.example.com\ntwo.example.com\nthree.example.com\n" > ${_testdir}/tmp/remotes.lis'
     [test-48]='mkdir ${_testdir}/tmp; printf -- "%s\n" "30%" > ${_testdir}/tmp/foo.txt'
+    [test-50]='unset PBENCH_USER'
 )
 
 function sort_testlog {
