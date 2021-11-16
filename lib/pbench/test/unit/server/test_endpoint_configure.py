@@ -55,7 +55,6 @@ class TestEndpointConfig:
                 "index_search": f"{uri}/index/search",
                 "index_namespace": f"{uri}/index/namespace/",
                 "index_rows": f"{uri}/index/rows/",
-                "dataset_samples_timeseries": f"{uri}/dataset/samples/timeseries",
                 "graphql": f"{uri}/graphql",
                 "controllers_list": f"{uri}/controllers/list",
                 "controllers_months": f"{uri}/controllers/months",
