@@ -38,26 +38,26 @@ while true; do
     case "${opt}" in
         -c|--controller)
             if [[ -n "${1}" ]]; then
-        	controller="${1}"
-        	shift;
+                controller="${1}"
+                shift;
             else
-        	missing_arg "${opt}"
+                missing_arg "${opt}"
             fi
             ;;
         -u|--user)
             if [[ -n "${1}" ]]; then
-        	user="${1}"
-        	shift;
+                user="${1}"
+                shift;
             else
-        	missing_arg "${opt}"
+                missing_arg "${opt}"
             fi
             ;;
         -p|--prefix)
             if [[ -n "${1}" ]]; then
-        	prefix="${1}"
-        	shift;
+                prefix="${1}"
+                shift;
             else
-        	missing_arg "${opt}"
+                missing_arg "${opt}"
             fi
             ;;
         -x|--xz-single-threaded)
@@ -68,7 +68,7 @@ while true; do
             ;;
         -h|--help)
             usage
-   	    exit 0
+            exit 0
             ;;
         --)
             break;
