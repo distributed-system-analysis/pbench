@@ -10,11 +10,14 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 function usage() {
     printf -- "usage:\n%s [--help] --user=<user> [--controller=<controller>]" "${script_name}"
     printf -- " [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
-    printf -- "\nThe '--user' option value is required, and can also be provided\n"
-    printf -- "by the 'PBENCH_USER' environment variable.\n"
-    printf -- "\nThe '--controller' option is also required, but defaults to\n"
-    printf -- "the 'hostname -f' value, or the 'PBENCH_CONTROLLER' environment\n"
-    printf -- "variable.\n"
+    printf -- "\nThe '--user' option value is required if not provided by the\n"
+    printf -- "'PBENCH_USER' environment variable; otherwise, the value provided\n"
+    printf -- "on the command line will override any value provided by the\n"
+    printf -- "environment.\n"
+    printf -- "The '--controller' option may be used to override the value\n"
+    printf -- "provided by the 'PBENCH_CONTROLLER' environment variable; if\n"
+    printf -- "neither value is available, the result of 'hostname -f' is used.\n"
+    printf -- "(If no value is available, the command will exit with an error.)\n"
     printf -- "\nThe '--prefix' option allows the user to specify an optional\n"
     printf -- "directory path hierarchy to be used when displaying the result\n"
     printf -- "tar balls on the pbench server.\n"
@@ -237,13 +240,12 @@ while read -r dir; do
     # contain the tarball and the md5 file (as ${tb}.tar.xz.md5.check); pass
     # that information on to pbench-make-result-tb.
     result_dir=$(basename ${dir})
-    user_arg="--user ${user}"
     if [[ -n "${prefix}" ]]; then
-        prefix_arg="--prefix ${prefix}"
+        prefix_arg=" --prefix ${prefix}"
     else
         prefix_arg=""
     fi
-    result_tb_name=$(pbench-make-result-tb --result-dir "${result_dir}" --target-dir "${tmp}/${controller}" ${user_arg} ${prefix_arg} --xz-single-threaded "${xz_single_threaded}")
+    result_tb_name=$(pbench-make-result-tb --result-dir "${result_dir}" --target-dir "${tmp}/${controller}" --user ${user}${prefix_arg} --xz-single-threaded "${xz_single_threaded}")
     if [[ ${?} -ne 0 ]]; then
         # Messaging already handled by pbench-make-result-tb
         continue
