@@ -8,8 +8,24 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 . "${pbench_bin}"/base
 
 function usage() {
-    printf "usage:\n"
-    printf "${script_name} [--help] [--controller=<controller>] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
+    printf -- "usage:\n%s [--help] --user=<user> [--controller=<controller>]" "${script_name}"
+    printf -- " [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
+    printf -- "\nThe '--user' option value is required, and can also be provided\n"
+    printf -- "by the 'PBENCH_USER' environment variable.\n"
+    printf -- "\nThe '--controller' option is also required, but defaults to\n"
+    printf -- "the 'hostname -f' value, or the 'PBENCH_CONTROLLER' environment\n"
+    printf -- "variable.\n"
+    printf -- "\nThe '--prefix' option allows the user to specify an optional\n"
+    printf -- "directory path hierarchy to be used when displaying the result\n"
+    printf -- "tar balls on the pbench server.\n"
+    local op="move"
+    if [[ "${script_name}" == "pbench-copy-results" ]]; then
+	op="copy"
+    fi
+    printf -- "\nThe '--show-server' will not ${op} any results, but resolve and\n"
+    printf -- "then display the pbench server destination for results.\n"
+    printf -- "\nThe '--xz-single-threaded' will force the use of a single\n"
+    printf -- "thread for locally compressing the result tar balls.\n"
 }
 
 function missing_arg() {
@@ -83,11 +99,16 @@ done
 if [[ -z "${controller}" ]]; then
     controller=${_pbench_full_hostname}
     if [[ -z "${controller}" ]]; then
-        error_log "Missing controller name (should be \"hostname -f\" value)"
+        error_log "Missing required controller name (should be \"hostname -f\" value)"
         exit 1
     fi
 fi
 validate_hostname "${controller}" "controller"
+
+if [[ -z "${user}" ]]; then
+    error_log "Missing required '--user' option (not found via 'PBENCH_USER' environment variable, either)"
+    exit 1
+fi
 
 # Move into pbench run collection directory
 cd ${pbench_run} >/dev/null
@@ -135,7 +156,7 @@ if [[ -z "${rel}" ]]; then
     rel="unknown"
 fi
 # User-Agent HTTP header: <pbench-agent-ver-rel>:<FQDN>:<$USER>:<full path of this script>""
-user_agent="pbench-agent-${ver}-${rel}:${_pbench_full_hostname}:${USER}:${script_name}"
+user_agent="pbench-agent-${ver}-${rel}:${_pbench_full_hostname}:${USER}:${user}:${script_name}"
 
 results_host_info_url=$(pbench-config host_info_url results)
 results_host_info=$(curl -s -A "${user_agent}" -L "${results_host_info_url}")
@@ -216,11 +237,7 @@ while read -r dir; do
     # contain the tarball and the md5 file (as ${tb}.tar.xz.md5.check); pass
     # that information on to pbench-make-result-tb.
     result_dir=$(basename ${dir})
-    if [[ -n "${user}" ]]; then
-        user_arg="--user ${user}"
-    else
-        user_arg=""
-    fi
+    user_arg="--user ${user}"
     if [[ -n "${prefix}" ]]; then
         prefix_arg="--prefix ${prefix}"
     else
@@ -247,7 +264,7 @@ while read -r dir; do
         continue
     fi
 
-    if [[ "$script_name" == "pbench-move-results" ]]; then
+    if [[ "${script_name}" == "pbench-move-results" ]]; then
         rm -r ${result_dir}
         if [[ ${?} -ne 0 ]]; then
             error_log "UNEXPECTED ERROR: rm failed to remove the ${result_dir} directory hierarchy"

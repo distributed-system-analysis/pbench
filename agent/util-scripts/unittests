@@ -116,7 +116,7 @@ function _run {
     echo "+++ Running ${tname} ${tscrpt} ${opts}" >> ${_testout}
 
     _runout=${_testroot}/run.out
-    eval ${tscrpt} ${opts} > ${_runout} 2>&1
+    PBENCH_USER="unittests" eval ${tscrpt} ${opts} > ${_runout} 2>&1
     sts=${?}
 
     popd > /dev/null

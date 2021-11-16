@@ -1,6 +1,23 @@
 +++ Running test-20 pbench-move-results --help
 usage:
-pbench-move-results [--help] [--controller=<controller>] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]
+pbench-move-results [--help] --user=<user> [--controller=<controller>] [--prefix=<path>] [--xz-single-threaded] [--show-server]
+
+The '--user' option value is required, and can also be provided
+by the 'PBENCH_USER' environment variable.
+
+The '--controller' option is also required, but defaults to
+the 'hostname -f' value, or the 'PBENCH_CONTROLLER' environment
+variable.
+
+The '--prefix' option allows the user to specify an optional
+directory path hierarchy to be used when displaying the result
+tar balls on the pbench server.
+
+The '--show-server' will not move any results, but resolve and
+then display the pbench server destination for results.
+
+The '--xz-single-threaded' will force the use of a single
+thread for locally compressing the result tar balls.
 --- Finished test-20 pbench-move-results (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
