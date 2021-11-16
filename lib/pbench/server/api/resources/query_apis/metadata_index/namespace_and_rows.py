@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from logging import Logger
-from typing import AnyStr, List, Union
 
 from flask import Response, jsonify
 from flask_restful import abort
@@ -17,43 +16,26 @@ from pbench.server.api.resources.query_apis.metadata_index import RunIdBase
 from pbench.server.database.models.template import Template, TemplateNotFound
 
 
-class IterationSampleNamespace(RunIdBase):
+class SampleNamespace(RunIdBase):
     """
-    Iteration samples API that returns namespace for each whitelisted
-    result-data-sample subdocuments as well as lists of available values for
-    each name.
+    Pbench ES query API that returns namespace for each whitelisted user
+    supplied index (result-data/result-data-sample) subdocuments as well as
+    lists of available values for each name.
     """
-
-    WHITELIST_AGGS_FIELDS = ["run", "sample", "iteration", "benchmark"]
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
             config,
             logger,
-            Schema(Parameter("run_id", ParamType.STRING, required=True)),
+            Schema(Parameter("run_id", ParamType.STRING, required=True),),
         )
-
-    def get_keyword_fields(
-        self, mappings: JSON, prefix: AnyStr = "", result: Union[List, None] = None
-    ) -> List:
-        if result is None:
-            result = []
-        if "properties" in mappings:
-            for p, m in mappings["properties"].items():
-                self.get_keyword_fields(m, f"{prefix}{p}.", result)
-        elif mappings.get("type") == "keyword":
-            result.append(prefix[:-1])  # Remove the trailing dot, if any
-        else:
-            for f, v in mappings.get("fields", {}).items():
-                self.get_keyword_fields(v, f"{prefix}{f}.", result)
-        return result
 
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
         Construct a pbench Elasticsearch query for aggregating a list of
         values for keyword fields mentioned in the WHITELIST_AGGS_FIELDS
-        sub-documents of result-data-sample index document that belong to the
-        given run id.
+        sub-documents of user supplied (iterations/timeseries) index document
+        that belong to the given run id.
 
         Args:
             json_data: JSON dictionary of type-normalized parameters
@@ -66,9 +48,14 @@ class IterationSampleNamespace(RunIdBase):
         """
         run_id = context["run_id"]
         dataset = context["dataset"]
+        document = self.ES_INTERNAL_INDEX_NAMES.get(json_data["target_document"])
+        if not document:
+            self.logger.debug("Illegal document name {}", json_data["target_document"])
+            abort(HTTPStatus.NOT_FOUND, message="Document not found")
 
         self.logger.info(
-            "Return iteration sample namespace for dataset {}, prefix {}, " "run id {}",
+            "Return {} sample namespace for dataset {}, prefix {}, run id {}",
+            document,
             dataset,
             self.prefix,
             run_id,
@@ -76,19 +63,19 @@ class IterationSampleNamespace(RunIdBase):
 
         # Retrieve the ES indices that belong to this run_id from the metadata
         # table
-        indices = self.get_index(dataset, "result-data-sample")
+        indices = self.get_index(dataset, document)
         if not indices:
             self.logger.debug(
-                f"Found no indices matching the prefix result-data-sample"
+                f"Found no indices matching the prefix {document!r}"
                 f"for a dataset {dataset!r}"
             )
             abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
         try:
-            template = Template.find("result-data-sample")
+            template = Template.find(document)
         except TemplateNotFound:
             self.logger.exception(
-                "Document template 'result-data-sample' not found in the database."
+                f"Document template {document!r} not found in the database."
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Mapping not found")
 
@@ -97,16 +84,15 @@ class IterationSampleNamespace(RunIdBase):
             "properties": {
                 key: value
                 for key, value in template.mappings["properties"].items()
-                if key in IterationSampleNamespace.WHITELIST_AGGS_FIELDS
+                if key in RunIdBase.WHITELIST_AGGS_FIELDS[document]
             }
         }
 
-        # Get all the fields from result-data-sample document mapping that
-        # are of type keyword
-        result = self.get_keyword_fields(mappings)
+        # Get all the fields from user supplied document mappings that
+        # are not of type text (aggregatable)
+        result = self.get_aggregatable_fields(mappings)
 
-        # Build ES aggregation query for getting the iteration samples
-        # namespaces
+        # Build ES aggregation query for getting the document's namespaces
         aggs = {key: {"terms": {"field": key}} for key in result}
 
         return {
@@ -125,11 +111,11 @@ class IterationSampleNamespace(RunIdBase):
         """
         Returns a Flask Response containing a JSON object (keyword/value
         pairs) where each key is the fully qualified dot-separated name of a
-        keyword (sub-)field (from result-data-sample documents) and
+        non-text (sub-)field (from result-data/result-data-sample documents) and
         corresponding value is a non-empty list of values which appear in
         that field.
 
-        Example:
+        result-data-sample document Example:
             {
                "benchmark.name":["uperf"],
                "benchmark.primary_metric":["Gb_sec"],
@@ -193,9 +179,9 @@ class IterationSampleNamespace(RunIdBase):
             )
 
 
-class IterationSamplesRows(RunIdBase):
+class SampleRows(RunIdBase):
     """
-    Iteration samples API that returns iteration sample rows after
+    Pbench ES query API that returns client supplied document sample rows after
     applying client specified filters.
     """
 
@@ -215,9 +201,9 @@ class IterationSamplesRows(RunIdBase):
 
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
-        Construct a pbench Elasticsearch query for filtering iteration
-        samples based on a given run id and other filtering parameters
-        specified in JSON payload.
+        Construct a pbench Elasticsearch query for filtering
+        iteration/timeseries samples based on a given run id and other
+        filtering parameters specified in JSON payload.
 
         Note: If the ES scroll id is present we will ignore the filters
         parameter and instead construct an Elasticsearch query for scrolling
@@ -233,13 +219,14 @@ class IterationSamplesRows(RunIdBase):
                 "run_id": run id of a dataset that client wants to search for
                         fetching the iteration samples.
 
-                "scroll_id": Server provided Elasticsearch scroll id that client
-                            recieved in the result of the original query with
-                            filters. This can be used to fetch the next page of
-                            the result.
+                "scroll_id": Optional Server provided Elasticsearch scroll id
+                            that client recieved in the result of the
+                            original query with filters. This can be used to
+                            fetch the next page of the result.
 
-                "filters": key-value representation of query filter parameters to
-                           narrow the search results e.g. {"sample.name": "sample1"}
+                "filters": Optional key-value representation of query filter
+                            parameters to narrow the search results e.g.
+                            {"sample.name": "sample1"}
 
         EXAMPLES:
             {
@@ -255,9 +242,11 @@ class IterationSamplesRows(RunIdBase):
         run_id = context["run_id"]
         dataset = context["dataset"]
         scroll_id = json_data.get("scroll_id")
+        document = self.ES_INTERNAL_INDEX_NAMES.get(json_data["target_document"])
 
         self.logger.info(
-            "Return iteration sample rows {} for dataset {}, prefix {}, run id {}",
+            "Return {} sample rows {} for dataset {}, prefix {}, run id {}",
+            document,
             "next page " if scroll_id else "",
             dataset,
             self.prefix,
@@ -270,33 +259,63 @@ class IterationSamplesRows(RunIdBase):
                 "path": "/_search/scroll",
                 "kwargs": {
                     "json": {
-                        "scroll": IterationSamplesRows.SCROLL_EXPIRY,
+                        "scroll": SampleRows.SCROLL_EXPIRY,
                         "scroll_id": scroll_id,
                     }
                 },
             }
 
         # Retrieve the ES indices that belong to this run_id
-        indices = self.get_index(dataset, "result-data-sample")
+        indices = self.get_index(dataset, document)
         if not indices:
             self.logger.debug(
-                f"Found no indices matching the prefix result-data-sample"
+                f"Found no indices matching the prefix {document!r}"
                 f"for a dataset {dataset!r}"
             )
             abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
+        try:
+            template = Template.find(document)
+        except TemplateNotFound:
+            self.logger.exception(
+                f"Document template {document!r} not found in the database."
+            )
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Mapping not found")
+
+        mappings = {
+            "properties": {
+                key: value
+                for key, value in template.mappings["properties"].items()
+                if key in self.WHITELIST_AGGS_FIELDS[document]
+            }
+        }
+
         es_filter = [{"match": {"run.id": run_id}}]
+        query_strings = []
+        # Validate each user provided filters against the respective document
+        # mappings.
         for filter, value in json_data.get("filters", {}).items():
-            es_filter.append({"match": {filter: value}})
+            if filter in self.get_aggregatable_fields(mappings):
+                # Get all the non-text filters to apply
+                es_filter.append({"match": {filter: value}})
+            else:
+                # Get all the text filters to apply
+                # Note: There is only one text field sample.measurement_title
+                # in result-data documents and if we can re-index it as a
+                # keyword we can get rid of this loop.
+                query_strings.append(
+                    {"query_string": {"fields": f"{filter}", "query": f"{value}"}}
+                )
 
         return {
-            "path": f"/{indices}/_search?scroll={IterationSamplesRows.SCROLL_EXPIRY}",
+            "path": f"/{indices}/_search?scroll={SampleRows.SCROLL_EXPIRY}",
             "kwargs": {
                 "json": {
-                    "size": IterationSamplesRows.DOCUMENT_SIZE,
-                    "query": {"bool": {"filter": es_filter}},
+                    "size": SampleRows.DOCUMENT_SIZE,
+                    "query": {"bool": {"filter": es_filter, "must": query_strings}},
                     "sort": [
-                        {"iteration.number": {"order": "asc", "unmapped_type": "long"}}
+                        {"iteration.number": {"order": "asc", "unmapped_type": "long"}},
+                        {"sample.start": {"order": "asc", "unmapped_type": "long"}},
                     ],
                 },
                 "params": {"ignore_unavailable": "true"},
@@ -349,8 +368,8 @@ class IterationSamplesRows(RunIdBase):
             ret_val = {"results": results}
 
             if (
-                count > IterationSamplesRows.DOCUMENT_SIZE
-                and len(es_json["hits"]["hits"]) == IterationSamplesRows.DOCUMENT_SIZE
+                count > SampleRows.DOCUMENT_SIZE
+                and len(es_json["hits"]["hits"]) == SampleRows.DOCUMENT_SIZE
             ):
                 ret_val["scroll_id"] = es_json["_scroll_id"]
 

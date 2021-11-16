@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from logging import Logger
-from typing import AnyStr
+from typing import AnyStr, Union, List
 
 from flask_restful import abort
 
@@ -40,6 +40,23 @@ class RunIdBase(ElasticBase):
     containing dataset and a run_id that's passed to the assemble and
     postprocess methods.
     """
+
+    WHITELIST_AGGS_FIELDS = {
+        "result-data-sample": ["run", "sample", "iteration", "benchmark"],
+        "result-data": [
+            "@timestamp",
+            "@timestamp_original",
+            "result_data_sample_parent",
+            "run",
+            "iteration",
+            "sample",
+            "result",
+        ],
+    }
+    ES_INTERNAL_INDEX_NAMES = {
+        "iterations": "result-data-sample",
+        "timeseries": "result-data",
+    }
 
     def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
         if "run_id" not in schema:
@@ -101,3 +118,18 @@ class RunIdBase(ElasticBase):
         indices = ",".join(index_keys)
         self.logger.debug(f"Indices from metadata , {indices!r}")
         return indices
+
+    def get_aggregatable_fields(
+        self, mappings: JSON, prefix: AnyStr = "", result: Union[List, None] = None
+    ) -> List:
+        if result is None:
+            result = []
+        if "properties" in mappings:
+            for p, m in mappings["properties"].items():
+                self.get_aggregatable_fields(m, f"{prefix}{p}.", result)
+        elif mappings.get("type") != "text":
+            result.append(prefix[:-1])  # Remove the trailing dot, if any
+        else:
+            for f, v in mappings.get("fields", {}).items():
+                self.get_aggregatable_fields(v, f"{prefix}{f}.", result)
+        return result

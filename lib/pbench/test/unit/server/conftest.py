@@ -480,7 +480,6 @@ def find_template(monkeypatch, fake_mtime):
                     "properties": {
                         "@timestamp": {"type": "date", "format": "dateOptionalTime"},
                         "@timestamp_original": {"type": "keyword", "index": "false"},
-                        "result_data_sample_parent": {"type": "keyword"},
                         "run": {
                             "properties": {
                                 "id": {"type": "keyword"},
@@ -506,19 +505,61 @@ def find_template(monkeypatch, fake_mtime):
                                 "uid": {"type": "keyword"},
                             }
                         },
-                        "result": {
-                            "properties": {
-                                "@idx": {"type": "long"},
-                                "read_or_write": {"type": "long"},
-                                "value": {"type": "double"},
-                            }
-                        },
                         "benchmark": {
                             "properties": {
                                 "name": {"type": "keyword"},
                                 "bs": {"type": "keyword"},
                                 "filename": {"type": "text"},
                                 "frame_size": {"type": "long"},
+                            }
+                        },
+                    },
+                },
+                version=5,
+            )
+        elif name == "result-data":
+            return Template(
+                name="result-data",
+                idxname="result-data",
+                template_name="unit-test.v5.result-data",
+                file="result-data.json",
+                template_pattern="unit-test.v5.result-data.*",
+                index_template="unit-test.v5.result-data.{year}-{month}",
+                settings={"none": False},
+                mappings={
+                    "_meta": {"version": "5"},
+                    "date_detection": "false",
+                    "properties": {
+                        "@timestamp": {"type": "date", "format": "dateOptionalTime"},
+                        "@timestamp_original": {"type": "keyword", "index": "false"},
+                        "result_data_sample_parent": {"type": "keyword"},
+                        "run": {
+                            "properties": {
+                                "id": {"type": "keyword"},
+                                "name": {"type": "keyword"},
+                            }
+                        },
+                        "iteration": {
+                            "properties": {
+                                "name": {"type": "keyword"},
+                                "number": {"type": "long"},
+                            }
+                        },
+                        "sample": {
+                            "properties": {
+                                "@idx": {"type": "long"},
+                                "name": {"type": "keyword"},
+                                "measurement_type": {"type": "keyword"},
+                                "measurement_idx": {"type": "long"},
+                                "measurement_title": {"type": "text"},
+                                "uid": {"type": "keyword"},
+                            }
+                        },
+                        "result": {
+                            "properties": {
+                                "@idx": {"type": "long"},
+                                "read_or_write": {"type": "long"},
+                                "value": {"type": "double"},
                             }
                         },
                     },

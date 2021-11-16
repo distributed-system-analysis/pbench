@@ -92,7 +92,6 @@ class TestIndexMappings:
             res_json = response.json
             assert res_json == {
                 "iteration": ["name", "number"],
-                "result": ["@idx", "read_or_write", "value"],
                 "run": ["id", "name"],
                 "sample": [
                     "@idx",

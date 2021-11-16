@@ -767,7 +767,9 @@ class ApiBase(Resource):
 
         return metadata
 
-    def _dispatch(self, method: Callable, request: Request) -> Response:
+    def _dispatch(
+        self, method: Callable, request: Request, uri_encoded: JSON = {}
+    ) -> Response:
         """
         This is a common front end for HTTP operations.
 
@@ -787,7 +789,7 @@ class ApiBase(Resource):
         # We don't accept or process a request payload for GET, or if no
         # parameter schema is defined
         if not self.schema or method == self._get:
-            return method({}, request)
+            return method(uri_encoded, request)
 
         try:
             json_data = request.get_json()
@@ -801,6 +803,8 @@ class ApiBase(Resource):
             abort(HTTPStatus.BAD_REQUEST, message="Invalid request payload")
 
         try:
+            if json_data:
+                json_data.update(uri_encoded)
             new_data = self.schema.validate(json_data)
         except UnverifiedUser as e:
             self.logger.warning("{}", str(e))
@@ -904,29 +908,29 @@ class ApiBase(Resource):
         )
 
     @Auth.token_auth.login_required(optional=True)
-    def get(self):
+    def get(self, **kwargs):
         """
         Handle an authenticated GET operation on the Resource
         """
-        return self._dispatch(self._get, request)
+        return self._dispatch(self._get, request, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
-    def post(self):
+    def post(self, **kwargs):
         """
         Handle an authenticated POST operation on the Resource
         """
-        return self._dispatch(self._post, request)
+        return self._dispatch(self._post, request, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
-    def put(self):
+    def put(self, **kwargs):
         """
         Handle an authenticated PUT operation on the Resource
         """
-        return self._dispatch(self._put, request)
+        return self._dispatch(self._put, request, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
-    def delete(self):
+    def delete(self, **kwargs):
         """
         Handle an authenticated DELETE operation on the Resource
         """
-        return self._dispatch(self._delete, request)
+        return self._dispatch(self._delete, request, kwargs)

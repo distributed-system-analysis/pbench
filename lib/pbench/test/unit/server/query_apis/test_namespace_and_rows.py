@@ -1,19 +1,20 @@
 from http import HTTPStatus
 
 import pytest
-from werkzeug.exceptions import InternalServerError
+from werkzeug.exceptions import InternalServerError, NotFound
 
-from pbench.server.api.resources.query_apis.metadata_index.iteration_samples import (
-    IterationSampleNamespace,
-    IterationSamplesRows,
+from pbench.server.api.resources.query_apis.metadata_index.namespace_and_rows import (
+    SampleNamespace,
+    SampleRows,
 )
 from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.template import Template
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
-class TestIterationSamplesNamespace(Commons):
+class TestSamplesNamespace(Commons):
     """
-    Unit testing for IterationSamplesNamespace class.
+    Unit testing for SamplesNamespace class.
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
     constructor and `post` service.
@@ -22,12 +23,64 @@ class TestIterationSamplesNamespace(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=IterationSampleNamespace(client.config, client.logger),
-            pbench_endpoint="/dataset/samples/namespace",
+            cls_obj=SampleNamespace(client.config, client.logger),
+            pbench_endpoint="/index/namespace/iterations",
             elastic_endpoint="/_search",
             payload={"run_id": "random_md5_string1"},
             use_index_from_metadata=True,
         )
+
+    def test_with_no_index_document(self, client, server_config):
+        """
+        Check the Namespace API when no index name is provided
+        """
+        with client:
+            response = client.get(f"{server_config.rest_uri}/dataset/samples/namespace")
+            assert response.status_code == HTTPStatus.NOT_FOUND
+
+    def test_with_incorrect_index_document(self, provide_metadata):
+        """
+        Check the Namespace API when an incorrect index name is provided.
+        currently we only support iterations (result-data-samples) and
+        timeseries (result-data) documents
+        """
+        drb = Dataset.attach(controller="node", name="drb")
+
+        # When target_document encoded in URI is `test` we expect 404
+        with pytest.raises(NotFound) as exc:
+            self.cls_obj.assemble(
+                json_data={"target_document": "test"},
+                context={"run_id": "random_md5_string1", "dataset": drb},
+            )
+        assert exc.value.code == HTTPStatus.NOT_FOUND
+
+    def test_get_aggregatable_fields(self, attach_dataset, find_template):
+        template = Template.find("result-data")
+        mappings = {
+            "properties": {
+                key: value
+                for key, value in template.mappings["properties"].items()
+                if key in self.cls_obj.WHITELIST_AGGS_FIELDS["result-data"]
+            }
+        }
+        result = self.cls_obj.get_aggregatable_fields(mappings)
+        assert result == [
+            "@timestamp",
+            "@timestamp_original",
+            "result_data_sample_parent",
+            "run.id",
+            "run.name",
+            "iteration.name",
+            "iteration.number",
+            "sample.@idx",
+            "sample.name",
+            "sample.measurement_type",
+            "sample.measurement_idx",
+            "sample.uid",
+            "result.@idx",
+            "result.read_or_write",
+            "result.value",
+        ]
 
     def test_query(
         self,
@@ -317,7 +370,7 @@ class TestIterationSamplesNamespace(Commons):
             assert expected_result == res_json
 
 
-class TestIterationSamplesRows(Commons):
+class TestSampleRows(Commons):
     """
     Unit testing for IterationSamplesRowse class.
     In a web service context, we access class functions mostly via the
@@ -330,8 +383,8 @@ class TestIterationSamplesRows(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=IterationSamplesRows(client.config, client.logger),
-            pbench_endpoint="/dataset/samples/rows",
+            cls_obj=SampleRows(client.config, client.logger),
+            pbench_endpoint="/index/rows/iterations",
             elastic_endpoint="/_search",
             payload={"run_id": "random_md5_string1"},
             use_index_from_metadata=True,
@@ -349,7 +402,7 @@ class TestIterationSamplesRows(Commons):
         filters,
     ):
         response_payload = {
-            "_scroll_id": TestIterationSamplesRows.SCROLL_ID,
+            "_scroll_id": TestSampleRows.SCROLL_ID,
             "took": 14,
             "timed_out": "false",
             "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
@@ -522,7 +575,7 @@ class TestIterationSamplesRows(Commons):
         filters,
     ):
         response_payload = {
-            "_scroll_id": TestIterationSamplesRows.SCROLL_ID,
+            "_scroll_id": TestSampleRows.SCROLL_ID,
             "took": 14,
             "timed_out": "false",
             "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
@@ -573,9 +626,9 @@ class TestIterationSamplesRows(Commons):
         )
         if expected_status == HTTPStatus.OK:
             res_json = response.json
-            assert TestIterationSamplesRows.SCROLL_ID == res_json["scroll_id"]
+            assert TestSampleRows.SCROLL_ID == res_json["scroll_id"]
 
-    def test_iteration_samples_with_scroll_id(
+    def test_rows_query_with_scroll_id(
         self,
         server_config,
         query_api,
@@ -584,7 +637,7 @@ class TestIterationSamplesRows(Commons):
         find_template,
         provide_metadata,
     ):
-        self.payload["scroll_id"] = TestIterationSamplesRows.SCROLL_ID
+        self.payload["scroll_id"] = TestSampleRows.SCROLL_ID
 
         response_payload = {
             "_scroll_id": "random_scroll_id_string_2==",
