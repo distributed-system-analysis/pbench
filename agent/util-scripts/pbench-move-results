@@ -39,7 +39,7 @@ while true; do
         -c|--controller)
             if [[ -n "${1}" ]]; then
                 controller="${1}"
-                shift;
+                shift
             else
                 missing_arg "${opt}"
             fi
@@ -47,7 +47,7 @@ while true; do
         -u|--user)
             if [[ -n "${1}" ]]; then
                 user="${1}"
-                shift;
+                shift
             else
                 missing_arg "${opt}"
             fi
@@ -55,7 +55,7 @@ while true; do
         -p|--prefix)
             if [[ -n "${1}" ]]; then
                 prefix="${1}"
-                shift;
+                shift
             else
                 missing_arg "${opt}"
             fi
@@ -71,7 +71,7 @@ while true; do
             exit 0
             ;;
         --)
-            break;
+            break
             ;;
         *)
             printf "\n${script_name}: you specified an invalid option or an unexpected argument\n\n" >&2
