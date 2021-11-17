@@ -1,7 +1,7 @@
 pipeline {
     agent { label 'pbench' }
     environment {
-        COV_REPORT_LOC="cov.${BUILD_NUMBER}.xml"
+        EXTRA_PODMAN_SWITCHES="-e COV_REPORT_XML=yes"
         NO_COLORS=0
         PY_COLORS=0
         TERM='dumb'
@@ -10,7 +10,7 @@ pipeline {
         stage('Linting & Unit Tests') {
             steps {
                 echo 'Linting, pytest-based unit tests, and legacy unit tests'
-                sh 'jenkins/run "source jenkins/python-setup.sh && jenkins/run-pytests && jenkins/run-unittests"'
+                sh 'jenkins/run jenkins/run-unittests'
             }
         }
     }
@@ -24,7 +24,7 @@ pipeline {
             step([$class: 'CoberturaPublisher',
                 autoUpdateHealth: false,
                 autoUpdateStability: false,
-                coberturaReportFile: "${COV_REPORT_LOC}",
+                coberturaReportFile: "cov/report.xml",
                 failNoReports: false,
                 failUnhealthy: false,
                 failUnstable: false,
@@ -32,7 +32,7 @@ pipeline {
                 onlyStable: false,
                 sourceEncoding: 'ASCII',
                 zoomCoverageChart: false])
-            sh 'rm ${COV_REPORT_LOC}'
+            sh 'rm cov/report.xml'
         }
     }
 }

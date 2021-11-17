@@ -1,41 +1,10 @@
 #!/bin/bash
 
-# This script runs the legacy unit tests for the Agent and the Server.
-#
-# NOTE:  Before invoking this script, the various bits of Python setup should
-#        have been performed, e.g., via `source jenkins/python-setup.sh`.
-
-prog="$(basename "${0}")"
-progdir="$(realpath -e $(dirname "${0}")/..)"
-
-# List of environments to run.
-envs="agent/tool-scripts/datalog agent/tool-scripts/postprocess agent/tool-scripts agent/util-scripts agent/bench-scripts server/bin"
-
-for env in ${envs}; do
-    if [[ ! -x ${progdir}/${env}/unittests ]]; then
-        printf -- "Ignoring unrecognized environment, ${env}\n" >&2
-        (( errors++ ))
-        continue
-    fi
-
-    printf -- "+++ Env ${name} Tests +++\n\n"
-    ${progdir}/${env}/unittests
-    status=${?}
-    printf -- "\n--- Env ${name} Tests ($status) ---\n"
-
-    if [[ ${status} -ne 0 ]]; then
-        printf -- "#--- (FAILED: %d)\n" "${status}"
-        (( errors++ ))
-    else
-        printf -- "#--- (SUCCESS)\n"
-    fi
-    printf -- "\n\n"
-done
-
-if [[ ${errors} -gt 0 ]]; then
-    printf -- "\n\nTests failed! (%d errors)\n" ${errors}
-    exit 1
-else
-    printf -- "\n\nTests succeeded.\n"
-    exit 0
-fi
+# For the CI jobs, we run unit tests expecting most of the environment to be
+# provided by the container image, and only a few modules not installable via
+# RPM need to be added (see jenkins/python-setup.sh).  We then instruct tox to
+# use the current environment (not setting up a virtualenv), and to run the
+# tests using whatever version of the python interpreter the install provides
+# (the `py` directs Tox to use whatever it finds).
+source jenkins/python-setup.sh
+tox --current-env -e py -- ${@}

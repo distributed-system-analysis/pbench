@@ -4,14 +4,10 @@ export LC_ALL=C.UTF-8
 _tdir=$(dirname $(readlink -f ${0}))
 
 _testroot=/var/tmp/pbench-test-utils
-mkdir -p ${_testroot}
+rm -rf ${_testroot}
+mkdir ${_testroot}
 if [[ ! -d ${_testroot} ]]; then
     echo "ERROR: failed to create test root directory, \"${_testroot}\"" >&2
-    exit 1
-fi
-rm -rf ${_testroot}/*
-if [[ ${?} -gt 0 ]]; then
-    echo "ERROR: failed to empty test root directory, \"${_testroot}\"" >&2
     exit 1
 fi
 export _testout=${_testroot}/output.txt
@@ -19,9 +15,16 @@ export _testlog=${_testroot}/test-execution.log
 export _testdir=${_testroot}/pbench
 
 # Copy util-scripts execution environment to _testroot
-_testopt=${_testroot}/opt/pbench-agent
+
 res=0
-mkdir -p ${_testopt}/config ${_testopt}/templates ${_testopt}/util-scripts/tool-meister ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
+mkdir ${_testroot}/opt
+let res=res+${?}
+_testopt=${_testroot}/opt/pbench-agent
+mkdir ${_testopt}
+let res=res+${?}
+mkdir ${_testopt}/config ${_testopt}/templates ${_testopt}/util-scripts ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common
+let res=res+${?}
+mkdir ${_testopt}/util-scripts/tool-meister ${_testopt}/common/lib
 let res=res+${?}
 cat ${_tdir}/../base.ut.pre ${_tdir}/../base ${_tdir}/../base.ut.post > ${_testopt}/base
 let res=res+${?}
@@ -61,6 +64,12 @@ let res=res+${?}
 cp -rL ${_tdir}/../lib/* ${_testopt}/lib/
 let res=res+${?}
 cp -rL ${_tdir}/test-bin/* ${_testopt}/unittest-scripts/
+let res=res+${?}
+
+export _testhome=${_testroot}/home
+mkdir ${_testhome}
+let res=res+${?}
+ln -s ${HOME}/.local ${_testhome}/.local
 let res=res+${?}
 
 if [[ $res -ne 0 ]]; then
@@ -538,8 +547,8 @@ declare -A pre_hooks=(
     [test-05]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-06]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client; mkdir -p ${_testdir}/42-iter/sample42/tools-default/testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/tools-default/testhost.example.com/iostat/iostat-stdout.txt'
     [test-07]='mkdir -p ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/iostat/iostat-stdout.txt'
-    [test-11.16]='mkdir -p ${_testdir}/tmp; (echo foo; echo bar) > ${_testdir}/tmp/good-remote-file'
-    [test-11.17]='mkdir -p ${_testdir}/tmp; touch  ${_testdir}/tmp/empty-remote-file'
+    [test-11.16]='mkdir ${_testdir}/tmp; (echo foo; echo bar) > ${_testdir}/tmp/good-remote-file'
+    [test-11.17]='mkdir ${_testdir}/tmp; touch  ${_testdir}/tmp/empty-remote-file'
     [test-19]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> ${_testout}'
     [test-34]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> ${_testout}'
