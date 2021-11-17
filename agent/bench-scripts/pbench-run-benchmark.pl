@@ -59,7 +59,7 @@ if (! exists($benchmarks_hash{$benchmark})) {
     exit 1;
 }
 
-print "WARNING: pbench-run-benchmark is deprecated and will be removed in the next release.\n";
+print "WARNING: pbench-run-benchmark is deprecated and will be removed in the next release\n";
 
 # The rest of the parameters are --arg=val, most of which we just pass to other scripts,
 my %params = get_params(@ARGV);

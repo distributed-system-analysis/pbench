@@ -1,5 +1,5 @@
 +++ Running test-45 pbench-run-benchmark
-WARNING: pbench-run-benchmark is deprecated and will be removed in the next release.
+WARNING: pbench-run-benchmark is deprecated and will be removed in the next release
 cmdfile: /var/tmp/pbench-test-bench/pbench-agent/fio_test-45-tags_1900.01.01T00.00.00/pbench-run-benchmark.cmd
 Generating all benchmark iterations
 resolving default first with pbench-gen-iterations fio --defaults-only --clients=testhost.example.com

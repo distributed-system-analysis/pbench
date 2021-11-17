@@ -1,5 +1,5 @@
 +++ Running test-43 pbench-run-benchmark
-WARNING: pbench-run-benchmark is deprecated and will be removed in the next release.
+WARNING: pbench-run-benchmark is deprecated and will be removed in the next release
 You must specify at least 1 client with --clients
 --- Finished test-43 pbench-run-benchmark (status=1)
 +++ pbench tree state

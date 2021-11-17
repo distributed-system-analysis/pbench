@@ -2,6 +2,7 @@
 
 Bench Script: pbench-cyclictest --help
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-cyclictest is deprecated and will be removed in the next release
 	The following options are available:
 
 		-c str --config=str name of the test config
@@ -14,6 +15,7 @@ Bench Script: pbench-cyclictest --help
 
 Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-cyclictest is deprecated and will be removed in the next release
 	pbench-cyclictest: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-cyclictest: invalid --sysinfo option ("bad")
@@ -30,6 +32,7 @@ Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 
 Bench Script: pbench-cyclictest --bad-to-the-bone
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-cyclictest is deprecated and will be removed in the next release
 pbench-cyclictest --bad-to-the-bone
 
 	unrecognized option specified
@@ -46,6 +49,7 @@ pbench-cyclictest --bad-to-the-bone
 
 Bench Script: pbench-dbench --help
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-dbench is deprecated and will be removed in the next release
 	The following options are available:
 
 		             --tool-group=str
@@ -81,6 +85,7 @@ Bench Script: pbench-dbench --help
 
 Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-dbench is deprecated and will be removed in the next release
 	pbench-dbench: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-dbench: invalid --sysinfo option ("bad")
@@ -120,6 +125,7 @@ Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 
 Bench Script: pbench-dbench --bad-to-the-bone
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-dbench is deprecated and will be removed in the next release
 pbench-dbench --bad-to-the-bone
 
 	unrecognized option specified
@@ -437,6 +443,7 @@ The following options are available:
 
 Bench Script: pbench-iozone --help
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-iozone is deprecated and will be removed in the next release
 	The following options are available:
 
 		-C str --config=str name of the test config
@@ -454,6 +461,7 @@ Bench Script: pbench-iozone --help
 
 Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-iozone is deprecated and will be removed in the next release
 	pbench-iozone: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-iozone: invalid --sysinfo option ("bad")
@@ -475,6 +483,7 @@ Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 
 Bench Script: pbench-iozone --bad-to-the-bone
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-iozone is deprecated and will be removed in the next release
 pbench-iozone --bad-to-the-bone
 
 	unrecognized option specified
@@ -534,6 +543,7 @@ pbench-linpack --bad-to-the-bone
 
 Bench Script: pbench-migrate --help
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-migrate is deprecated and will be removed in the next release
 	The following options are available:
 
 		--tool-group=str
@@ -558,6 +568,7 @@ Bench Script: pbench-migrate --help
 
 Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-migrate is deprecated and will be removed in the next release
 	pbench-migrate: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-migrate: invalid --sysinfo option ("bad")
@@ -586,6 +597,7 @@ Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 
 Bench Script: pbench-migrate --bad-to-the-bone
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-migrate is deprecated and will be removed in the next release
 pbench-migrate --bad-to-the-bone
 
 	unrecognized option specified
@@ -614,6 +626,7 @@ pbench-migrate --bad-to-the-bone
 
 Bench Script: pbench-netperf --help
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-netperf is deprecated and will be removed in the next release
 	The following options are available:
 
 		             --tool-group=str
@@ -651,6 +664,7 @@ Bench Script: pbench-netperf --help
 
 Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-netperf is deprecated and will be removed in the next release
 	pbench-netperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-netperf: invalid --sysinfo option ("bad")
@@ -692,6 +706,7 @@ Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 
 Bench Script: pbench-netperf --bad-to-the-bone
 ------------
+[warn][1900-01-01T00:00:00.000000] pbench-netperf is deprecated and will be removed in the next release
 pbench-netperf --bad-to-the-bone
 
 	unrecognized option specified
@@ -1779,13 +1794,28 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
+[warn][1900-01-01T00:00:00.000000] pbench-cyclictest is deprecated and will be removed in the next release
+[warn][1900-01-01T00:00:00.000000] pbench-cyclictest is deprecated and will be removed in the next release
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+[warn][1900-01-01T00:00:00.000000] pbench-cyclictest is deprecated and will be removed in the next release
+[warn][1900-01-01T00:00:00.000000] pbench-dbench is deprecated and will be removed in the next release
+[warn][1900-01-01T00:00:00.000000] pbench-dbench is deprecated and will be removed in the next release
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+[warn][1900-01-01T00:00:00.000000] pbench-dbench is deprecated and will be removed in the next release
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+[warn][1900-01-01T00:00:00.000000] pbench-iozone is deprecated and will be removed in the next release
+[warn][1900-01-01T00:00:00.000000] pbench-iozone is deprecated and will be removed in the next release
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+[warn][1900-01-01T00:00:00.000000] pbench-iozone is deprecated and will be removed in the next release
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+[warn][1900-01-01T00:00:00.000000] pbench-migrate is deprecated and will be removed in the next release
+[warn][1900-01-01T00:00:00.000000] pbench-migrate is deprecated and will be removed in the next release
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+[warn][1900-01-01T00:00:00.000000] pbench-migrate is deprecated and will be removed in the next release
+[warn][1900-01-01T00:00:00.000000] pbench-netperf is deprecated and will be removed in the next release
+[warn][1900-01-01T00:00:00.000000] pbench-netperf is deprecated and will be removed in the next release
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
+[warn][1900-01-01T00:00:00.000000] pbench-netperf is deprecated and will be removed in the next release
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"

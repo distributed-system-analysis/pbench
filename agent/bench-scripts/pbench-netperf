@@ -34,6 +34,8 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
+warn_log "${script_name} is deprecated and will be removed in the next release"
+
 benchmark_rpm=$script_name
 export benchmark="netperf"
 if [[ -z "${benchmark_bin}" ]]; then
@@ -345,8 +347,6 @@ while true; do
 	esac
 done
 verify_common_bench_script_options $tool_group $sysinfo
-
-warn_log "${script_name} is deprecated and will be removed in the next release."
 
 if [[ -z "$benchmark_run_dir" ]]; then
 	# We don't have an explicit run directory, construct one
