@@ -9,7 +9,7 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 . "$pbench_bin"/base
 
 function usage() {
-    printf -- "usage:\n%s --result-dir=<pbench results dir> --target-dir=<where to put tar ball> [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded=<0|1>]\n" "${script_name}"
+    printf -- "usage:\n%s --result-dir=<pbench results dir> --target-dir=<where to put tar ball> [--help] --user=<user> [--prefix=<path>] [--xz-single-threaded=<0|1>]\n" "${script_name}"
 }
 function missing_arg() {
     printf -- "\n%s: %s is missing its argument\n\n" "${script_name}" "${1}" >&2
@@ -91,6 +91,11 @@ while true; do
     esac
 done
 
+if [[ -z "$user" ]] ;then
+    error_log "Missing required '--user' option"
+    exit 1
+fi
+
 if [[ ! -d "${result_dir}" ]]; then
     error_log "Invalid result directory provided: \"${result_dir}\""
     usage >&2
@@ -162,10 +167,8 @@ if [[ -e pbench.log ]]; then
     /bin/cp pbench.log ${pbench_run_name}/
 fi
 
-# if -u|--user was specified, store the specified user in metadata.log
-if [[ ! -z "$user" ]] ;then
-    printf -- "%s" "$user" | pbench-add-metalog-option ${mdlog} run user
-fi
+# Store the specified user in metadata.log
+printf -- "%s" "$user" | pbench-add-metalog-option ${mdlog} run user
 
 # if -p|--prefix was specified, store the specified prefix in metadata.log
 if [[ ! -z "$prefix" ]] ;then
