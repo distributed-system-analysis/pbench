@@ -181,12 +181,14 @@
                                 separately as well with a benchmark
                                 that is not built-in to Pbench, or a Pbench script can be written for
                                 the benchmark. Such contributions are
-                                more than welcome!</p>
+                                more than welcome!
+                            </p>
                         </div>
                         <div id="how" class="section_cardbody">
                             <p class="cardHeader">TL;DR - How to set up Pbench and run a benchmark </p>
-                            <p class="info_text" style="text-align:justify">Prerequisite: Somebody has
-                                already done the server setup.</p>
+                            <p class="info_text" style="text-align:justify">
+                                Prerequisite: Somebody has already done the server setup.
+                            </p>
                             <p class="info_text" style="text-align:justify">
                                 The following steps assume that only a single node participates in the
                                 benchmark run. If you want a multi-node setup, you have to read up on
@@ -233,23 +235,25 @@
                                     on a host named "myhost", the results will be found at (<b>N.B.:</b>
                                     this is a fake link serving as an example only - talk to your local
                                     administrator to find out what server to use
-                                    to get to Pbench
-                                    results):<a>http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>.
+                                    to get to Pbench results):
+                                    <a>http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>.
                                 </li>
                             </div>
-                            <p class="info_text" style="text-align:justify">For explanations and
+                            <p class="info_text" style="text-align:justify">
+                                For explanations and
                                 details, see subsequent sections.
                             </p>
                         </div>
                         <div id="install" class="section_cardbody">
                             <p class="cardHeader">How to install</p>
-                            <p class="info_text" style="text-align:justify">See the
-                                <a href="start.html">install section</a> for details.
+                            <p class="info_text" style="text-align:justify">
+                                See the <a href="start.html">install section</a> for details.
                             </p>
                         </div>
                         <div id="default" class="section_cardbody">
                             <p class="cardHeader">Defaults</p>
-                            <p class="info_text" style="text-align:justify">The benchmark scripts source
+                            <p class="info_text" style="text-align:justify">
+                                The benchmark scripts source
                                 the base script (/opt/pbench-agent/base) which sets a bunch of defaults:
                             </p>
                             <p class="c_snip">
@@ -261,12 +265,15 @@
                                 <br>results_repo_dir=/pbench/public_html/incoming
                                 <br>ssh_opts='-o StrictHostKeyChecking=no'
                             </p>
-                            <p class="info_text" style="text-align:justify">These are now specified in
-                                the config file /opt/pbench-agent/config/pbench-agent.cfg.</p>
+                            <p class="info_text" style="text-align:justify">
+                                These are now specified in the config file
+                                /opt/pbench-agent/config/pbench-agent.cfg.
+                            </p>
                         </div>
                         <div id="availabletool" class="section_cardbody">
                             <p class="cardHeader">Available tools</p>
-                            <p class="info_text" style="text-align:justify">The configured default set
+                            <p class="info_text" style="text-align:justify">
+                                The configured default set
                                 of tools (what you would get by running pbench-register-tool-set) is:
                             </p>
                             <div class="info_text" style="text-align:justify">
@@ -276,8 +283,10 @@
                                     </li>
                                 </ul>
                             </div>
-                            <p class="info_text" style="text-align:justify">In addition, there are tools
-                                that can be added to the default set with pbench-register-tool:</p>
+                            <p class="info_text" style="text-align:justify">
+                                In addition, there are tools
+                                that can be added to the default set with pbench-register-tool:
+                            </p>
                             <div class="info_text" style="text-align:justify">
                                 <ul>
                                     <li>
@@ -317,14 +326,15 @@
                                 --freq=200"
                             </p>
                             <p class="info_text" style="text-align:justify">
-                                Tools can be also be registered, started and stopped on remote hosts
-                                (see the --remote option described in What does --remote do? in <a
-                                    href="learn.html">FAQ section</a>
+                                Tools can be also be registered, started, and stopped on remote hosts
+                                (see the --remote option described in "What does --remote do?" in
+                                <a href="learn.html">FAQ section</a>).
                             </p>
                         </div>
                         <div id="availablescript" class="section_cardbody">
                             <p class="cardHeader">Available benchmark scripts</p>
-                            <p class="info_text" style="text-align:justify">Pbench provides a set of
+                            <p class="info_text" style="text-align:justify">
+                                Pbench provides a set of
                                 pre-packaged scripts to run some common benchmarks using the collection
                                 tools and other facilities
                                 that pbench provides. These are found in the bench-scripts directory of
@@ -339,11 +349,16 @@
                                     <li> pbench-migrate </li>
                                     <li> pbench-tpcc</li>
                                     <li> pbench-uperf </li>
-                                    <li>pbench-user-benchmark (see <a href="#runningtools">Running Pbench
-                                        collection tools with an arbitrary benchmark </a>below for more on this)</li>
+                                    <li>
+                                        pbench-user-benchmark
+                                        <ul>
+                                           <li>See <a href="#runningtools">Running Pbench collection tools with an arbitrary benchmark</a> below for more information</li>
+                                        </ul>
+                                    </li>
                                 </ul>
                             </div>
-                            <p class="info_text" style="text-align:justify">You can run any of these
+                            <p class="info_text" style="text-align:justify">
+                                You can run any of these
                                 with the --help option to get basic information about how to run the
                                 script. Most of these scripts accept a standard set
                                 of generic options, some semi-generic ones that are common to a bunch of
@@ -351,8 +366,9 @@
                                 benchmark to benchmark.
                             </p>
                             <p class="info_text"
-                                style="text-align:justify;font-size:var(--pf-global--FontSize--lg);">The
-                                generic options are:</p>
+                                style="text-align:justify;font-size:var(--pf-global--FontSize--lg);">
+                                The generic options are:
+                            </p>
                             <p class="info_text" style="text-align:justify">
                                 <b>--help</b>
                                 <br>show the set of options that the benchmark accepts.
@@ -373,7 +389,8 @@
                             </p>
                             <p class="info_text"
                                 style="text-align:justify; font-size:var(--pf-global--FontSize--lg);">
-                                The semi-generic ones are:</p>
+                                The semi-generic ones are:
+                            </p>
                             <p class="info_text" style="text-align:justify">
                                 <b>--test-types</b>
                                 <br>the test types for the given benchmark - the values are
@@ -414,11 +431,15 @@
                             <p class="info_text" style="text-align:justify">
                                 <b>--tool-label-pattern</b>
                             </p>
-                            <p class="info_text" style="text-align:justify">Benchmark-specific options
-                                are called out in the following sections for each benchmark.</p>
-                            <p class="info_text" style="text-align:justify">Note that in some of these
+                            <p class="info_text" style="text-align:justify">
+                                Benchmark-specific options
+                                are called out in the following sections for each benchmark.
+                            </p>
+                            <p class="info_text" style="text-align:justify">
+                                Note that in some of these
                                 scripts the default tool group is hard-wired: if you want them to run a
-                                different tool group, you need to edit the script.</p>
+                                different tool group, you need to edit the script.
+                            </p>
                         </div>
                         <div id="pbenchdbench" class="section_cardbody">
                             <p class="subCardHeader">pbench-dbench</p>
@@ -510,7 +531,6 @@
                         <div id="pbenchuperf" class="section_cardbody">
                             <p class="subCardHeader">pbench-uperf</p>
                             <p class="info_text" style="text-align:justify">
-                            <p class="info_text" style="text-align:justify">
                                 <b>--kvm-host</b>
                             </p>
                             <p class="info_text" style="text-align:justify">
@@ -534,21 +554,18 @@
                             <p class="info_text" style="text-align:justify">
                                 <b>--log-response-times</b>
                             </p>
-                            </p>
                         </div>
                         <div id="pbenchuserbenchmark" class="section_cardbody">
-                            <p class="subCardHeader">pbench-user-benchmark
-                            </p>
+                            <p class="subCardHeader">pbench-user-benchmark</p>
                             <p class="info_text" style="text-align:justify">
                                 TBD
                             </p>
                         </div>
                         <div id="utility" class="section_cardbody">
-                            <p class="cardHeader">Utility Scripts
-                            </p>
+                            <p class="cardHeader">Utility Scripts</p>
                             <p class="info_text" style="text-align:justify">
-                                This section is needed as preparation for the <a
-                                    href="#secondstep">Second steps</a> section below.
+                                This section is needed as preparation for the
+                                <a href="#secondstep">Second steps</a> section below.
                             </p>
                             <p class="info_text" style="text-align:justify">
                                 Pbench uses a bunch of utility scripts to do common operations. There is
@@ -635,8 +652,8 @@
                             </p>
                             <p class="info_text" style="text-align:justify">
                                 <b>pbench-edit-prefix</b>
-                                <br>change the directory structure of the results (see the <a
-                                    href="#web">Accessing results on the web</a> section below for
+                                <br>change the directory structure of the results (see the
+                                <a href="#web">Accessing results on the web</a> section below for
                                 details).
                             </p>
                             <p class="info_text" style="text-align:justify">
@@ -667,38 +684,41 @@
                             </p>
                         </div>
                         <div id="secondstep" class="section_cardbody">
-                            <p class="cardHeader">Second Steps
-                            </p>
+                            <p class="cardHeader">Second Steps</p>
                             <p class="info_text" style="text-align:justify">
-                                WARNING: It is highly recommended that you use one of the pbench-<
-                                    benchmark> scripts for running your benchmark. If one does not exist
-                                    already, you might be able to use the pbench-user-benchmark
-                                    script to run your own script. The advantage is that these scripts
-                                    already embody some conventions that Pbench and associated tools
-                                    depend on, e.g. using a timestamp in the name of the results
-                                    directory to make the name unique. If you cannot use
-                                    pbench-user-benchmark and a pbench-< benchmark> script does not
-                                        exist already, consider writing one or helping us write one. The
-                                        more we can
-                                        encapsulate all these details into generally useful tools, the
-                                        easier it will be for everybody: people running it will not need
-                                        to worry about all these details and people maintaining the
-                                        system will not have to fix stuff because the script broke some
-                                        assumptions. The easiest way to do so is to crib an existing
-                                        pbench-<benchmark> script, e.g pbench-fio.
+                                WARNING: It is highly recommended that you use one of the pbench-&lt;benchmark&gt;
+                                scripts for running your benchmark. If one does not exist
+                                already, you might be able to use the pbench-user-benchmark
+                                script to run your own script. The advantage is that these scripts
+                                already embody some conventions that Pbench and associated tools
+                                depend on, e.g. using a timestamp in the name of the results
+                                directory to make the name unique. If you cannot use
+                                pbench-user-benchmark and a pbench-&lt;benchmark&gt; script does not
+                                exist already, consider writing one or helping us write one. The
+                                more we can encapsulate all these details into generally useful tools, the
+                                easier it will be for everybody: people running it will not need
+                                to worry about all these details and people maintaining the
+                                system will not have to fix stuff because the script broke some
+                                assumptions. The easiest way to do so is to crib an existing
+                                pbench-&lt;benchmark&gt; script, e.g pbench-fio.
                             </p>
                             <p class="info_text" style="text-align:justify">
                                 Once collection tools have been registered, the work flow of a benchmark
                                 script is as follows:
                             </p>
                             <div class="info_text" style="text-align:justify">
-                                <li>Process options (see <a href="#availablescript">Benchmark scripts
-                                        options</a>).</li>
-                                <li>Check that the necessary prerequisites are installed and if not,
-                                    install them.</li>
-                                <li>Iterate over some set of benchmark characteristics (e.g. pbench-fio
+                                <li>
+                                    Process options (see <a href="#availablescript">Benchmark scripts options</a>).
+                                </li>
+                                <li>
+                                    Check that the necessary prerequisites are installed and if not,
+                                    install them.
+                                </li>
+                                <li>
+                                    Iterate over some set of benchmark characteristics (e.g. pbench-fio
                                     iterates over a couple test types: read, randread and a bunch of
-                                    block sizes), with each iteration doing the following:</li>
+                                    block sizes), with each iteration doing the following:
+                                </li>
                                 <ul>
                                     <li class="subList">create a benchmark_results directory</li>
                                     <li class="subList">start the collection tools</li>
@@ -707,55 +727,63 @@
                                     <li class="subList">postprocess the collection tools data</li>
                                 </ul>
                             </div>
-                            <p class="info_text" style="text-align:justify">The tools are started with
-                                an invocation of pbench-start-tools like this:</p>
-                            <p class="c_snip">pbench-start-tools --group=$group --iteration=$iteration
-                                --dir=$benchmark_tools_dir</p>
-                            <p class="info_text" style="text-align:justify">where the group is usually
+                            <p class="info_text" style="text-align:justify">
+                                The tools are started with
+                                an invocation of pbench-start-tools like this:
+                            </p>
+                            <p class="c_snip">
+                                pbench-start-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+                            </p>
+                            <p class="info_text" style="text-align:justify">
+                                where the group is usually
                                 "default" but can be changed to taste as described above, iteration is a
                                 benchmark-specific tag that disambiguates the separate
                                 iterations in a run (e.g. for pbench-fio it is a combination of a count,
                                 the test type, the block size and a device name), and the
                                 benchmark_tools_dir specifies where the collection results are
-                                going to end up (see the section for much more detail on this).</p>
-                            <p class="info_text" style="text-align:justify">The stop invocation is
-                                parallel, as is the postprocessing invocation:</p>
-                            <p class="c_snip">pbench-stop-tools --group=$group --iteration=$iteration
-                                --dir=$benchmark_tools_dir
-                                <br>pbench-postprocess-tools --group=$group --iteration=$iteration
-                                --dir=$benchmark_tools_dir</p>
-                        </div>
-                        <div id="secondstepa" class="section_cardbody">
-                            <p class="subCardHeader">Benchmark scripts options
+                                going to end up (see the section for much more detail on this).
                             </p>
                             <p class="info_text" style="text-align:justify">
+                                The stop invocation is
+                                parallel, as is the postprocessing invocation:
+                            </p>
+                            <p class="c_snip">
+                                pbench-stop-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+                                <br>pbench-postprocess-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+                            </p>
+                        </div>
+                        <div id="secondstepa" class="section_cardbody">
+                            <p class="subCardHeader">Benchmark scripts options</p>
+                            <p class="info_text" style="text-align:justify">
                                 Generally speaking, benchmark scripts do not take any pbench-specific
-                                options except --config (see What does --config do? in <a
-                                    href="learn.html">FAQ section</a>). Other options tend to be
+                                options except --config (see What does --config do? in
+                                <a href="learn.html">FAQ section</a>). Other options tend to be
                                 benchmark-specific.
                             </p>
                         </div>
                         <div id="secondstepb" class="section_cardbody">
-                            <p class="subCardHeader">Collection tools options
-                            </p>
+                            <p class="subCardHeader">Collection tools options</p>
                             <p class="info_text" style="text-align:justify">
                                 --help can be used to trigger the usage message on all of the tools
                                 (even though it's an invalid option for many of them). Here is a list of
                                 gotcha's:
                             </p>
                             <div class="info_text" style="text-align:justify">
-                                <li>blktrace: you need to pass --devices=/dev/sda,/dev/sdb when you
-                                    register the tool:</li>
-                                <p class="c_snip">pbench-register-tool --name=blktrace [--remote=foo] --
-                                    --devices=/dev/sda,/dev/sdb</p>
-                                <p class="info_text" style="text-align:justify">There is no default and
-                                    leaving it empty causes errors in postprocessing (this should be
-                                    flagged).</p>
+                                <li>
+                                    blktrace: you need to pass --devices=/dev/sda,/dev/sdb when you
+                                    register the tool:
+                                </li>
+                                <p class="c_snip">
+                                    pbench-register-tool --name=blktrace [--remote=foo] -- --devices=/dev/sda,/dev/sdb
+                                </p>
+                                <p class="info_text" style="text-align:justify">
+                                    There is no default and leaving it empty causes
+                                    errors in postprocessing (this should be flagged).
+                                </p>
                             </div>
                         </div>
                         <div id="secondstepc" class="section_cardbody">
-                            <p class="subCardHeader">Utility script options
-                            </p>
+                            <p class="subCardHeader">Utility script options</p>
                             <p class="info_text" style="text-align:justify">
                                 Note that pbench-move-results, pbench-copy-results and
                                 pbench-clear-results always assume that the run directory is the default
@@ -776,19 +804,19 @@
                                 <br>specify the run directory for all the collections tools. This
                                 argument <b>must</b> be used by pbench-start/stop/postprocess-tools, so
                                 that all the results files are in known places:
-                            <p class="c_snip">
-                                pbench-start-tools --dir=/var/lib/pbench-agent/foo
-                                <br>pbench-stop-tools --dir=/var/lib/pbench-agent/foo
-                                <br>pbench-postprocess-tools --dir=/var/lib/pbench-agent/foo
-                            </p>
+                                <p class="c_snip">
+                                    pbench-start-tools --dir=/var/lib/pbench-agent/foo
+                                    <br>pbench-stop-tools --dir=/var/lib/pbench-agent/foo
+                                    <br>pbench-postprocess-tools --dir=/var/lib/pbench-agent/foo
+                                </p>
                             </p>
                             <p class="info_text" style="text-align:justify">
                                 <b>--remote</b>
                                 <br>specify a remote host on which a collection tool (or set of
                                 collection tools) is to be registered:
-                            <p class="c_snip">
-                                pbench-register-tool --name=< tool> --remote=< host>
-                            </p>
+                                <p class="c_snip">
+                                    pbench-register-tool --name=< tool> --remote=< host>
+                                </p>
                             </p>
                         </div>
                         <div id="runningtools" class="section_cardbody">
@@ -810,15 +838,12 @@
                                 <br>benchmark_tools_dir=TBD
                                 <br>
                                 <br>pbench-register-tool-set --group=$group
-                                <br>pbench-start-tools --group=$group --iteration=$iteration
-                                --dir=$benchmark_tools_dir
+                                <br>pbench-start-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
                                 <br>
-                                < run your benchmark>
-                                    <br>pbench-stop-tools --group=$group --iteration=$iteration
-                                    --dir=$benchmark_tools_dir
-                                    <br>pbench-postprocess-tools --group=$group --iteration=$iteration
-                                    --dir=$benchmark_tools_dir
-                                    <br>pbench-copy-results
+                                &lt;run your benchmark&gt;
+                                <br>pbench-stop-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+                                <br>pbench-postprocess-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+                                <br>pbench-copy-results
                             </p>
                             <p class="info_text" style="text-align:justify">
                                 Often, multiple experiments (or "iterations") are run as part of a
@@ -831,15 +856,12 @@
                                 <br>
                                 <br>pbench-register-tool-set --group=$group
                                 <br>for exp in $experiments ;do
-                                <br>&nbsp;&nbsp;&nbsp;&nbsp; pbench-start-tools --group=$group
-                                --iteration=$exp
-                                <br>&nbsp;&nbsp;&nbsp;&nbsp; < run the experiment>
-                                    <br>&nbsp;&nbsp;&nbsp;&nbsp; pbench-stop-tools --group=$group
-                                    --iteration=$exp
-                                    <br>&nbsp;&nbsp;&nbsp;&nbsp; pbench-postprocess-tools --group=$group
-                                    --iteration=$exp
-                                    <br>done
-                                    <br>pbench-copy-results
+                                <br>&nbsp;&nbsp;&nbsp;&nbsp; pbench-start-tools --group=$group --iteration=$exp
+                                <br>&nbsp;&nbsp;&nbsp;&nbsp; &lt;run the experiment&gt;
+                                <br>&nbsp;&nbsp;&nbsp;&nbsp; pbench-stop-tools --group=$group --iteration=$exp
+                                <br>&nbsp;&nbsp;&nbsp;&nbsp; pbench-postprocess-tools --group=$group --iteration=$exp
+                                <br>done
+                                <br>pbench-copy-results
                             </p>
                             <p class="info_text" style="text-align:justify">
                                 Alternatively, you may be able to use the pbench-user-benchmark script
@@ -849,16 +871,16 @@
                                 pbench-user-benchmark --config="specjbb2005-4-JVMs" -- my_benchmark.sh
                             </p>
                             <p class="info_text" style="text-align:justify">
-                                which is going to run my_benchmark.sh in the < run your benchmark> slot
-                                    above. Iterations and such are your responsibility.
-                                    <br>
-                                    pbench-user-benchmark can also be used for a somewhat more
-                                    specialized scenario: sometimes you just want to run the collection
-                                    tools for a short time while your benchmark is running to get an
-                                    idea of how the system looks. The idea here is to use
-                                    pbench-user-benchmark
-                                    to run a sleep of the appropriate duration in parallel with your
-                                    benchmark:
+                                which is going to run my_benchmark.sh in the &lt;run your benchmark&gt; slot
+                                above. Iterations and such are your responsibility.
+                                <br>
+                                pbench-user-benchmark can also be used for a somewhat more
+                                specialized scenario: sometimes you just want to run the collection
+                                tools for a short time while your benchmark is running to get an
+                                idea of how the system looks. The idea here is to use
+                                pbench-user-benchmark
+                                to run a sleep of the appropriate duration in parallel with your
+                                benchmark:
                             </p>
                             <p class="c_snip">
                                 pbench-user-benchmark --config="specjbb2005-4-JVMs" -- sleep 10
@@ -870,8 +892,7 @@
                                 to make sure it's unique.
                                 <br>
                                 This works well for one-off scenarios, but for repeated usage on well
-                                defined phase changes you might want to investigate <a
-                                    href="#triggers">Triggers</a>.
+                                defined phase changes you might want to investigate <a href="#triggers">Triggers</a>.
                             </p>
                         </div>
                         <div id="remotehost" class="section_cardbody">
@@ -896,15 +917,19 @@
                                     <br>&nbsp;&nbsp;&nbsp;&nbsp;pbench-register-tool-set --remote=$host
                                     <br>done
                                 </p>
-                                <li>Invoke pbench-user-benchmark with your workload generator as
+                                <li>
+                                    Invoke pbench-user-benchmark with your workload generator as
                                     argument: that will start the collection tools on all the hosts and
                                     then run your workload generator; when that finishes, it will stop
                                     the
                                     collection tools on all the hosts and then run the postprocessing
                                     phase which will gather the data from all the remote hosts and run
-                                    the postprocessing tools on everything.</li>
-                                <li>Run pbench-copy-results or pbench-move-results to upload the data to
-                                    the results server.</li>
+                                    the postprocessing tools on everything.
+                                </li>
+                                <li>
+                                    Run pbench-copy-results or pbench-move-results to upload the data to
+                                    the results server.
+                                </li>
                             </div>
                             <p class="info_text" style="text-align:justify">
                                 If you cannot use the pbench-user-benchmark script, then the process
@@ -912,16 +937,24 @@
                             </p>
                             <div class="info_text" style="text-align:justify">
                                 <li>Register the collection tools on <b>each</b> host as above.</li>
-                                <li>Invoke pbench-start-tools on the controller: that will start data
-                                    collection on all of the remote hosts.</li>
+                                <li>
+                                    Invoke pbench-start-tools on the controller: that will start data
+                                    collection on all of the remote hosts.
+                                </li>
                                 <li>Run the workload generator.</li>
-                                <li>Invoke pbench-stop-tools on the controller: that will stop data
-                                    collection on all of the remote hosts.</li>
-                                <li>Invoke pbench-postprocess-tools on the controller: that will gather
+                                <li>
+                                    Invoke pbench-stop-tools on the controller: that will stop data
+                                    collection on all of the remote hosts.
+                                </li>
+                                <li>
+                                    Invoke pbench-postprocess-tools on the controller: that will gather
                                     all the data from the remotes and run the postprocessing tools on
-                                    all the data.</li>
-                                <li>Run pbench-copy-results or pbench-move-results to upload the data to
-                                    the results server.</li>
+                                    all the data.
+                                </li>
+                                <li>
+                                    Run pbench-copy-results or pbench-move-results to upload the data to
+                                    the results server.
+                                </li>
                             </div>
                         </div>
                         <div id="customizing" class="section_cardbody">
