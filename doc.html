@@ -75,28 +75,18 @@
                             <a href="#availablescript">Available benchmark scripts</a>
                         </div>
                         <div class="pf-c-page__sidebar-body contactLink">
-                            <a href="#pbenchdbench">
-                                <li> pbench-dbench </li>
-                            </a>
-                        </div>
-                        <div class="pf-c-page__sidebar-body contactLink">
                             <a href="#pbenchfio">
                                 <li> pbench-fio </li>
                             </a>
                         </div>
                         <div class="pf-c-page__sidebar-body contactLink">
                             <a href="#pbenchlinpack">
-                                <li> pbench-linpack</li>
+                                <li> pbench-linpack </li>
                             </a>
                         </div>
                         <div class="pf-c-page__sidebar-body contactLink">
-                            <a href="#pbenchmigrate">
-                                <li> pbench-migrate </li>
-                            </a>
-                        </div>
-                        <div class="pf-c-page__sidebar-body contactLink">
-                            <a href="#pbenchtpcc">
-                                <li> pbench-tpcc</li>
+                            <a href="#pbenchspecjbb2005">
+                                <li> pbench-specjbb2005 </li>
                             </a>
                         </div>
                         <div class="pf-c-page__sidebar-body contactLink">
@@ -343,11 +333,9 @@
                             </p>
                             <div class="info_text" style="text-align:justify">
                                 <ul>
-                                    <li> pbench-dbench </li>
                                     <li> pbench fio </li>
                                     <li> pbench-linpack</li>
-                                    <li> pbench-migrate </li>
-                                    <li> pbench-tpcc</li>
+                                    <li> pbench-specjbb2005</li>
                                     <li> pbench-uperf </li>
                                     <li>
                                         pbench-user-benchmark
@@ -441,12 +429,6 @@
                                 different tool group, you need to edit the script.
                             </p>
                         </div>
-                        <div id="pbenchdbench" class="section_cardbody">
-                            <p class="subCardHeader">pbench-dbench</p>
-                            <p class="info_text" style="text-align:justify">
-                                <b>--threads</b>
-                            </p>
-                        </div>
                         <div id="pbenchfio" class="section_cardbody">
                             <p class="subCardHeader">pbench-fio</p>
                             <p class="info_text" style="text-align:justify">
@@ -516,14 +498,8 @@
                                 TBD
                             </p>
                         </div>
-                        <div id="pbenchmigrate" class="section_cardbody">
-                            <p class="subCardHeader">pbench-migrate</p>
-                            <p class="info_text" style="text-align:justify">
-                                TBD
-                            </p>
-                        </div>
-                        <div id="pbenchtpcc" class="section_cardbody">
-                            <p class="subCardHeader">pbench-tpcc</p>
+                        <div id="pbenchspecjbb2005" class="section_cardbody">
+                            <p class="subCardHeader">pbench-specjbb2005</p>
                             <p class="info_text" style="text-align:justify">
                                 TBD
                             </p>
@@ -994,8 +970,7 @@
                                 --start-trigger
                                 and --stop-trigger options. The output of the benchmark is piped into
                                 the pbench-tool-trigger tool which detects the conditions for starting
-                                and stopping the
-                                specified group of tools.
+                                and stopping the specified group of tools.
                             </p>
                             <p class="info_text" style="text-align:justify">
                                 There are some commands specifically for triggers:
@@ -1016,40 +991,6 @@
                                 the start-trigger and end-trigger markers in the benchmark's output,
                                 starting and stopping the appropriate group of tools when it finds the
                                 corresponding marker.
-                            </p>
-                            <p class="info_text" style="text-align:justify">
-                                As an example, pbench-dbench uses three groups of tools: warmup,
-                                measurement and cleanup. It registers these groups as triggers using
-                            </p>
-                            <p class="c_snip" style="text-align:initial">
-                                pbench-register-tool-trigger --group=warmup --start-trigger="warmup"
-                                --stop-trigger="execute"
-                                <br>pbench-register-tool-trigger --group=measurement
-                                --start-trigger="execute" --stop-trigger="cleanup"
-                                <br>pbench-register-tool-trigger --group=cleanup
-                                --start-trigger="cleanup" --stop-trigger="Operation"
-                            </p>
-                            <p class="info_text" style="text-align:justify">
-                                It then pipes the output of the benchmark into pbench-tool-trigger:
-                            </p>
-                            <p class="c_snip" style="text-align:initial">
-                                $benchmark_bin --machine-readable --directory=$dir --timelimit=$runtime
-                                <br>&nbsp; &nbsp; &nbsp; &nbsp;--warmup=$warmup --loadfile $loadfile
-                                $client |
-                                <br>&nbsp; &nbsp; &nbsp; &nbsp; tee $benchmark_results_dir/result.txt |
-                                <br>&nbsp; &nbsp; &nbsp; &nbsp; pbench-tool-trigger "$iteration"
-                                "$benchmark_results_dir" no
-                            </p>
-                            <p class="info_text" style="text-align:justify">
-                                pbench-tool-trigger will then start the warmup group when it encounters
-                                the string "warmup" in the benchmark's output and stop
-                                it when it encounters "execute". It will also start the measurement
-                                group when it encounters "execute" and stop it when it
-                                encounters "cleanup" - and so on.
-                            </p>
-                            <p class="info_text" style="text-align:justify">
-                                Obviously, the start/stop conditions will have to be chosen with some
-                                care to ensure correct actions.
                             </p>
                         </div>
                     </div>
