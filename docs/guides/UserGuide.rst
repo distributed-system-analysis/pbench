@@ -112,11 +112,9 @@ Pbench provides a set of pre-packaged scripts to run some common benchmarks usin
 pbench provides. These are found in the bench-scripts directory of the Pbench installation (``/opt/pbench-agent/bench-scripts`` by 
 default). The current set includes:
 
-* pbench-dbench
 * pbench fio
 * pbench-linpack
-* pbench-migrate
-* pbench-tpcc
+* pbench-specjbb2005
 * pbench-uperf
 * pbench-user-benchmark (see :ref:`Running Pbench collection tools with an arbitrary benchmark` below for more on this)
 
@@ -165,13 +163,6 @@ Benchmark-specific options are called out in the following sections for each ben
 Note that in some of these scripts the default tool group is hard-wired: if you want them to run a different tool group, you need 
 to edit the script.
 
-pbench-dbench
-==============
-
-+-----------+
-| --threads |
-+-----------+
-
 pbench-fio
 ===========
 
@@ -217,15 +208,8 @@ pbench-linpack
 
      TBD
 
-pbench-migrate
+pbench-specjbb2005
 ================
-
-.. note::
-
-     TBD
-
-pbench-tpcc
-==============
 
 .. note::
 
@@ -560,26 +544,3 @@ pbench-tool-trigger               | this is a Perl script that looks for the sta
                                   | markers in the benchmark's output, starting and stopping the appropriate 
                                   | group of tools when it finds the corresponding marker.
 ================================= ===================================================================================
-
-As an example, pbench-dbench uses three groups of tools: warmup, measurement and cleanup. It registers these groups as triggers using
-
-.. sourcecode:: bash
-
- pbench-register-tool-trigger --group=warmup --start-trigger="warmup" --stop-trigger="execute"
- pbench-register-tool-trigger --group=measurement --start-trigger="execute" --stop-trigger="cleanup"
- pbench-register-tool-trigger --group=cleanup --start-trigger="cleanup" --stop-trigger="Operation"
-
-It then pipes the output of the benchmark into pbench-tool-trigger:
-
-.. sourcecode:: bash
-
- $benchmark_bin --machine-readable --directory=$dir --timelimit=$runtime
-        --warmup=$warmup --loadfile $loadfile $client |
-         tee $benchmark_results_dir/result.txt |
-         pbench-tool-trigger "$iteration" "$benchmark_results_dir" no
-
-pbench-tool-trigger will then start the warmup group when it encounters the string "warmup" in the benchmark's output and stop 
-it when it encounters "execute". It will also start the measurement group when it encounters "execute" and stop it when it 
-encounters "cleanup" - and so on.
-
-Obviously, the start/stop conditions will have to be chosen with some care to ensure correct actions.
