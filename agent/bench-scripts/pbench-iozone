@@ -20,6 +20,8 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
+warn_log "${script_name} is deprecated and will be removed in the next release"
+
 benchmark_rpm=$script_name
 export benchmark="iozone"
 if [[ -z "${benchmark_bin}" ]]; then

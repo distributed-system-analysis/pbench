@@ -1,4 +1,5 @@
 +++ Running test-47 pbench-run-benchmark
+WARNING: pbench-run-benchmark is deprecated and will be removed in the next release
 cmdfile: /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-47-tags_1900.01.01T00.00.00/pbench-run-benchmark.cmd
 Generating all benchmark iterations
 resolving default first with pbench-gen-iterations trafficgen --defaults-only --clients=testhost.example.com
