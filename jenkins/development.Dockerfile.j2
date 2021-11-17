@@ -170,6 +170,8 @@ RUN \
 {%- endif %}
         python3-pytest-mock \
         python3-responses \
+        python3-tox-current-env \
+        \
         `#` \
         `# These two packages are dependencies of the pip-installed PyTest` \
         `# package; when we switch to the RPM-installed version, we should` \
@@ -192,6 +194,7 @@ RUN \
         python3-pytest-mock \
         python3-requests-mock \
         python3-responses \
+        python3-tox-current-env \
         \
         `#` \
         `# Install Docs dependencies` \
@@ -212,6 +215,7 @@ RUN \
         rpmlint \
         rpm-build \
         sqlite \
+        time \
         && \
     \
     `#` \

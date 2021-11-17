@@ -17,11 +17,24 @@
 # chosen over any installed ones, and it adds `/usr/sbin` to the end of the
 # path for the `ip` command, used by pbench-register-tool.
 
-PATH=$(python3 -m site --user-base)/bin:${PATH}:/usr/sbin
-unset PYTHONPATH
-pip3 install --user -r lint-requirements.txt -r docs/requirements.txt -r agent/requirements.txt -r server/requirements.txt -r agent/test-requirements.txt -r server/test-requirements.txt
-python3 setup.py develop --user
+function _pbench_pathins() {
+    if [[ ":${PATH}:" != *":${1}:"* ]]; then
+        PATH="${1}${PATH:+:${PATH}}"
+    fi
+}
 
-# We delete any python compiler caches to avoid conflicts with the python compiler
-# in the container.
-find . \( -name __pycache__ -o -path "*/__pycache__/*" \) -delete
+_pbench_pathins "/usr/sbin"
+_pbench_pathins "/usr/bin"
+_pbench_pathins "$(python3 -m site --user-base)/bin"
+unset -f _pbench_pathins
+export PATH
+
+unset PYTHONPATH
+pip3 install --user --no-cache-dir \
+    -r lint-requirements.txt \
+    -r docs/requirements.txt \
+    -r agent/requirements.txt \
+    -r server/requirements.txt \
+    -r agent/test-requirements.txt \
+    -r server/test-requirements.txt
+python3 setup.py install --user

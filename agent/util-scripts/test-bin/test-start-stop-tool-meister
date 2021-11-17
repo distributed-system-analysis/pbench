@@ -56,14 +56,15 @@ printf -- "Exit code: %d\n" ${?} >> ${_ptms_output}
 cat -n ${_ptms_output}
 rm ${_ptms_output}
 
+# Now execute the success case.
+
 function _timeout {
     timeout --kill-after=10 --signal TERM 20 $*
 }
 
-# Now execute the success case.
 source ${_script_path}/common-tm-cleanup
 
-_PBENCH_TOOL_MEISTER_LOG_LEVEL="debug" _PBENCH_TOOL_DATA_SINK_LOG_LEVEL="debug" _PBENCH_TOOL_MEISTER_START_LOG_LEVEL="debug" PBENCH_REDIS_SERVER="localhost" PBENCH_TOOL_DATA_SINK="localhost:8080;localhost:8080" _timeout pbench-tool-meister-start --sysinfo="none" ${group}
+HOME=${_testhome} _PBENCH_TOOL_MEISTER_LOG_LEVEL="debug" _PBENCH_TOOL_DATA_SINK_LOG_LEVEL="debug" _PBENCH_TOOL_MEISTER_START_LOG_LEVEL="debug" PBENCH_REDIS_SERVER="localhost" PBENCH_TOOL_DATA_SINK="localhost:8080;localhost:8080" _timeout pbench-tool-meister-start --sysinfo="none" ${group}
 status=${?}
 if [[ ${status} -ne 0 ]]; then
     printf -- "\"pbench-tool-meister-start ${group}\" failed to execute successfully (exit code: ${status})\n" >&2

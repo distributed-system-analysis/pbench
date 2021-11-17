@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# Test execution helper for tox.  It is not intended to be executed outside of a
+# tox environment test execution.
+
+# For now we ignore the tox environment directory argument.
+_toxenvdir="${1}"
+if [[ -z "${_toxenvdir}" ]]; then
+    printf -- "Missing required tox environment directory." >&2
+    exit 2
+fi
+shift
+
+# The first argument will be which major sub-system to run tests for: the
+# agent side or the server side of the source tree.
+
+major="${1}"
+shift
+major_list="agent server"
+if [[ -n "${major}" ]]; then
+    if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "both" ]]; then
+        printf -- "Expected major sub-system to be either 'agent', 'server', or 'both', got '%s'\n" "${major}" >&2
+        exit 2
+    fi
+    if [[ "${major}" != "both" ]]; then
+        major_list="${major}"
+    fi
+fi
+
+# Sub-test of the major test.
+subtst="${1}"
+shift
+
+# Remaining positional arguments past along to whatever test is run.
+posargs="${@}"
+
+function _time {
+    /usr/bin/time --format="\n\nCommand: '%C'\nExit status: %x\nTimings: user %Us, system %Ss, elapsed %es (%E, %P)\nMemory: max RSS %Mk, minor pf: %R, major pf: %F, swaps %W\nContext switches: inv %c, vol %w, signals %k\nI/O: fs in %I, fs out %O, socket in %r, socket out %s\n" ${@}
+}
+
+function run_legacy {
+    printf -- "\n\n\nRunning %s/%s legacy unit tests\n\n" "${1}" "${2}"
+    local _rc
+    _time ${1}/${2}/unittests ${posargs}
+    _rc=${?}
+    if [[ ${_rc} -ne 0 ]]; then
+        printf -- "\n%s %s legacy unit tests failed with '%s'\n\n" "${1^}" "${2}" "${_rc}"
+    else
+        printf -- "\n%s %s legacy unit tests succeeded\n\n" "${1^}" "${2}"
+    fi
+    return ${_rc}
+}
+
+rc=0
+
+if [[ -n "${COV_REPORT_XML}" ]]; then
+    _cov_report_kind="xml"
+    _cov_report_name="cov/report.xml"
+else
+    _cov_report_kind="html"
+    _cov_report_name="${_toxenvdir}/cov/html"
+fi
+_cov_report="${_cov_report_kind}:${_cov_report_name}"
+
+if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
+    _pytest_majros="pbench.test.unit.common"
+    for _major in ${major_list}; do
+        _pytest_majors="${_pytest_majors} pbench.test.unit.${_major}"
+        if [[ "${_major}" == "agent" ]]; then
+            _pytest_majors="${_pytest_majors} pbench.test.functional"
+        fi
+    done
+
+    printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${major_list// /,}"
+    _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent.parent)')
+    _PBENCH_COV_DIR="${_toxenvdir}/cov" _time pytest \
+        --basetemp="${_toxenvdir}/tmp" \
+        --cov=${_pbench_sources} \
+        --cov-branch \
+        --cov-append \
+        --cov-report ${_cov_report} \
+        ${posargs} \
+        --pyargs ${_pytest_majors}
+    rc=${?}
+    if [[ ${rc} -ne 0 ]]; then
+        printf -- "\n%s pytest command failed with '%s'\n\n" "${_major^}" "${rc}"
+    else
+        printf -- "\n%s pytest command succeeded\n\n" "${_major^}"
+    fi
+fi
+
+_subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-scripts bench-scripts"
+
+let count=0
+for _major in ${major_list}; do
+    if [[ "${_major}" == "agent" ]]; then
+        for _subtst in ${_subtst_list}; do
+            if [[ -z "${subtst}" || "${subtst}" == "$(basename ${_subtst})" ]]; then
+                (( count++ ))
+                run_legacy ${_major} ${_subtst} ${posargs} || rc=1
+            fi
+        done
+    elif [[ "${_major}" == "server" ]]; then
+        if [[ -z "${subtst}" || "${subtst}" == "legacy" ]]; then
+            (( count++ ))
+            run_legacy ${_major} bin ${posargs} || rc=1
+        fi
+    else
+        printf -- "Logic bomb!  Unrecognized major test sub-set, '%s'" "${_major}" >&2
+        rc=1
+    fi
+done
+
+if [[ ${count} -eq 0 && "${subtst}" != "python" ]]; then
+    printf -- "Error - unrecognized sub-test, '%s'" "${subtst}" >&2
+    rc=1
+fi
+
+exit ${rc}
