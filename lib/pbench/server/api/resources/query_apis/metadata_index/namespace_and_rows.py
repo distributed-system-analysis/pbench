@@ -291,7 +291,6 @@ class SampleRows(RunIdBase):
         }
 
         es_filter = [{"match": {"run.id": run_id}}]
-        query_strings = []
         # Validate each user provided filters against the respective document
         # mappings.
         for filter, value in json_data.get("filters", {}).items():
@@ -303,7 +302,7 @@ class SampleRows(RunIdBase):
                 # Note: There is only one text field sample.measurement_title
                 # in result-data documents and if we can re-index it as a
                 # keyword we can get rid of this loop.
-                query_strings.append(
+                es_filter.append(
                     {"query_string": {"fields": f"{filter}", "query": f"{value}"}}
                 )
 
@@ -312,7 +311,7 @@ class SampleRows(RunIdBase):
             "kwargs": {
                 "json": {
                     "size": SampleRows.DOCUMENT_SIZE,
-                    "query": {"bool": {"filter": es_filter, "must": query_strings}},
+                    "query": {"bool": {"filter": es_filter}},
                     "sort": [
                         {"iteration.number": {"order": "asc", "unmapped_type": "long"}},
                         {"sample.start": {"order": "asc", "unmapped_type": "long"}},
