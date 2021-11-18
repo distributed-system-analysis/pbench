@@ -8,6 +8,12 @@ URL:            https://github.com/distributed-system-analysis/pbench
 Source0:        pbench-agent-%{version}.tar.gz
 Buildarch:      noarch
 
+%if 0%{?rhel} < 9
+Requires:  ansible
+%else
+Requires:  ansible-core
+%endif
+
 %if 0%{?rhel} == 7
 Requires:  python3, python3-pip
 # For RHEL boxen we need the python development environment in order for the
@@ -19,6 +25,14 @@ Requires:  gcc python3-devel
 Requires:  python36, python3-pip
 # RPMs for modules in requirements.txt
 Requires:  python3-cffi, python3-click, python3-requests
+# RPMs for module dependencies
+Requires:  python3-docutils, python3-psutil
+%endif
+
+%if 0%{?rhel} == 9
+Requires:  python3-pip
+# RPMs for modules in requirements.txt
+Requires:  python3-cffi, python3-requests
 # RPMs for module dependencies
 Requires:  python3-docutils, python3-psutil
 %endif
@@ -38,7 +52,7 @@ Requires:  python3-psutil
 Requires:  perl, perl-Data-UUID, perl-JSON, %{?prefixjsonxs}perl-JSON-XS
 Requires:  perl-Time-HiRes
 
-Requires:  ansible, bc, bzip2, hostname, iproute, iputils, net-tools
+Requires:  bc, bzip2, hostname, iproute, iputils, net-tools
 Requires:  openssh-clients, openssh-server, procps-ng, psmisc, redis
 Requires:  rpmdevtools, rsync, screen, sos, tar, xz
 
