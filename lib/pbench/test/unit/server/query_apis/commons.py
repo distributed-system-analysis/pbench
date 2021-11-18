@@ -247,7 +247,7 @@ class Commons:
         required_keys = [
             key
             for key, parameter in parameter_items
-            if parameter.required and not parameter.uri_parameters
+            if parameter.required and not parameter.uri_parameter
         ]
 
         all_combinations = []
@@ -256,7 +256,7 @@ class Commons:
                 tmp_req_keys = [
                     key
                     for key, parameter in item
-                    if parameter.required and not parameter.uri_parameters
+                    if parameter.required and not parameter.uri_parameter
                 ]
                 if tmp_req_keys != required_keys:
                     all_combinations.append(item)

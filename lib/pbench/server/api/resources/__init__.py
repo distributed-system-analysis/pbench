@@ -448,7 +448,7 @@ class Parameter:
         keywords: List[str] = None,
         element_type: ParamType = None,
         required: bool = False,
-        uri_parameters: bool = False,
+        uri_parameter: bool = False,
     ):
         """
         Initialize a Parameter object describing a JSON parameter with its type
@@ -466,7 +466,7 @@ class Parameter:
         self.keywords = [k.lower() for k in keywords] if keywords else None
         self.element_type = element_type
         self.required = required
-        self.uri_parameters = uri_parameters
+        self.uri_parameter = uri_parameter
 
     def invalid(self, json: JSON) -> bool:
         """

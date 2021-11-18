@@ -8,6 +8,7 @@ from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import JSON, Schema, SchemaError
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
+from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 
 
@@ -136,3 +137,15 @@ class RunIdBase(ElasticBase):
             for f, v in mappings.get("fields", {}).items():
                 self.get_aggregatable_fields(v, f"{prefix}{f}.", result)
         return result
+
+    def get_mappings(self, document):
+        template = Template.find(document["index"])
+
+        # Only keep the whitelisted fields
+        return {
+            "properties": {
+                key: value
+                for key, value in template.mappings["properties"].items()
+                if key in document["whitelist"]
+            }
+        }

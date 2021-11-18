@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 import pytest
-from werkzeug.exceptions import InternalServerError, NotFound
+from werkzeug.exceptions import InternalServerError
 
 from pbench.server.api.resources.query_apis.metadata_index.namespace_and_rows import (
     SampleNamespace,
@@ -33,27 +33,24 @@ class TestSamplesNamespace(Commons):
         """
         Check the Namespace API when no index name is provided
         """
-        with client:
-            # remove the last component of the pbench_endpoint
-            incorrect_endpoint = "".join(self.pbench_endpoint.split("/")[:-1])
-            response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}")
-            assert response.status_code == HTTPStatus.NOT_FOUND
+        # remove the last component of the pbench_endpoint
+        incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-1])
+        response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}")
+        assert response.status_code == HTTPStatus.NOT_FOUND
 
-    def test_with_incorrect_index_document(self, provide_metadata):
+    def test_with_incorrect_index_document(self, client, server_config, pbench_token):
         """
         Check the Namespace API when an incorrect index name is provided.
         currently we only support iterations (result-data-samples) and
         timeseries (result-data) documents
         """
-        drb = Dataset.attach(controller="node", name="drb")
-
-        # When target_document encoded in URI is `test` we expect 404
-        with pytest.raises(NotFound) as exc:
-            self.cls_obj.assemble(
-                json_data={"type": "test"},
-                context={"run_id": "random_md5_string1", "dataset": drb},
-            )
-        assert exc.value.code == HTTPStatus.NOT_FOUND
+        incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-1]) + "/test"
+        response = client.post(
+            f"{server_config.rest_uri}{incorrect_endpoint}",
+            headers={"Authorization": "Bearer " + pbench_token},
+            json=self.payload,
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
 
     def test_get_aggregatable_fields(self, attach_dataset):
         mappings = {

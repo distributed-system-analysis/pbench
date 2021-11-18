@@ -13,7 +13,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
 from pbench.server.api.resources.query_apis.metadata_index import RunIdBase
-from pbench.server.database.models.template import Template, TemplateNotFound
+from pbench.server.database.models.template import TemplateNotFound
 
 
 class SampleNamespace(RunIdBase):
@@ -30,7 +30,13 @@ class SampleNamespace(RunIdBase):
             logger,
             Schema(
                 Parameter("run_id", ParamType.STRING, required=True),
-                Parameter("type", ParamType.STRING, required=True, uri_parameters=True),
+                Parameter(
+                    "type",
+                    ParamType.KEYWORD,
+                    required=True,
+                    keywords=list(RunIdBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                    uri_parameter=True,
+                ),
             ),
         )
 
@@ -53,9 +59,6 @@ class SampleNamespace(RunIdBase):
         run_id = context["run_id"]
         dataset = context["dataset"]
         document = self.ES_INTERNAL_INDEX_NAMES.get(json_data["type"])
-        if not document:
-            self.logger.debug("Illegal document name {}", json_data["type"])
-            abort(HTTPStatus.NOT_FOUND, message="Namespace not found")
 
         document_index = document["index"]
 
@@ -78,21 +81,12 @@ class SampleNamespace(RunIdBase):
             abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
         try:
-            template = Template.find(document_index)
+            mappings = self.get_mappings(document)
         except TemplateNotFound:
             self.logger.exception(
                 f"Document template {document_index!r} not found in the database."
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Mapping not found")
-
-        # Only keep the whitelisted fields for aggregation
-        mappings = {
-            "properties": {
-                key: value
-                for key, value in template.mappings["properties"].items()
-                if key in document["whitelist"]
-            }
-        }
 
         result = self.get_aggregatable_fields(mappings)
 
@@ -199,7 +193,13 @@ class SampleValues(RunIdBase):
                 Parameter("filters", ParamType.JSON, required=False),
                 Parameter("run_id", ParamType.STRING, required=True),
                 Parameter("scroll_id", ParamType.STRING, required=False),
-                Parameter("type", ParamType.STRING, required=True, uri_parameters=True),
+                Parameter(
+                    "type",
+                    ParamType.KEYWORD,
+                    required=True,
+                    keywords=list(RunIdBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                    uri_parameter=True,
+                ),
             ),
         )
 
@@ -225,10 +225,10 @@ class SampleValues(RunIdBase):
                 "run_id": run id of a dataset that client wants to search for
                         fetching the iteration samples.
 
-                "scroll_id": Optional Server-provided Elasticsearch scroll id
-                            that the client recieved in the result of the
-                            original query. This will, if specified, be used to
-                            fetch the next page of the result.
+                "scroll_id": Optional Elasticsearch scroll id that the client
+                             recieved in the result of the original query.
+                             This will, if specified, be used to fetch the
+                             next page of the result.
 
                 "filters": Optional key-value representation of query filter
                             parameters to narrow the search results e.g.
@@ -286,20 +286,12 @@ class SampleValues(RunIdBase):
             abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
         try:
-            template = Template.find(document_index)
+            mappings = self.get_mappings(document)
         except TemplateNotFound:
             self.logger.exception(
                 f"Document template {document_index!r} not found in the database."
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Mapping not found")
-
-        mappings = {
-            "properties": {
-                key: value
-                for key, value in template.mappings["properties"].items()
-                if key in document["whitelist"]
-            }
-        }
 
         es_filter = [{"match": {"run.id": run_id}}]
         # Validate each user-provided filter against the respective document
