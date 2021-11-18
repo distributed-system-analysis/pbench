@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from http import HTTPStatus
 from typing import AnyStr, Type
 
-from pbench.server.api.resources import JSON, ParamType
+from pbench.server.api.resources import JSON, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.test.unit.server.headertypes import HeaderTypes
@@ -198,16 +198,13 @@ class Commons:
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
 
-    def test_missing_json_object(self, client, server_config, pbench_token):
+    def test_missing_json_object(self):
         """
         Test behavior when no JSON payload is given
         """
-        response = client.post(
-            server_config.rest_uri + self.pbench_endpoint,
-            headers={"Authorization": "Bearer " + pbench_token},
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == "Invalid request payload"
+        with pytest.raises(SchemaError) as exc:
+            self.cls_obj.schema.validate({})
+        assert str(exc.value) == "Invalid request payload"
 
     def test_malformed_payload(self, client, server_config, pbench_token):
         """
@@ -248,13 +245,19 @@ class Commons:
         parameter_items = self.cls_obj.schema.parameters.items()
 
         required_keys = [
-            key for key, parameter in parameter_items if parameter.required
+            key
+            for key, parameter in parameter_items
+            if parameter.required and not parameter.uri_parameters
         ]
 
         all_combinations = []
         for r in range(1, len(parameter_items) + 1):
             for item in itertools.combinations(parameter_items, r):
-                tmp_req_keys = [key for key, parameter in item if parameter.required]
+                tmp_req_keys = [
+                    key
+                    for key, parameter in item
+                    if parameter.required and not parameter.uri_parameters
+                ]
                 if tmp_req_keys != required_keys:
                     all_combinations.append(item)
 

@@ -448,6 +448,7 @@ class Parameter:
         keywords: List[str] = None,
         element_type: ParamType = None,
         required: bool = False,
+        uri_parameters: bool = False,
     ):
         """
         Initialize a Parameter object describing a JSON parameter with its type
@@ -465,6 +466,7 @@ class Parameter:
         self.keywords = [k.lower() for k in keywords] if keywords else None
         self.element_type = element_type
         self.required = required
+        self.uri_parameters = uri_parameters
 
     def invalid(self, json: JSON) -> bool:
         """
@@ -768,7 +770,7 @@ class ApiBase(Resource):
         return metadata
 
     def _dispatch(
-        self, method: Callable, request: Request, uri_encoded: JSON = {}
+        self, method: Callable, request: Request, uri_parameters: JSON = {}
     ) -> Response:
         """
         This is a common front end for HTTP operations.
@@ -789,7 +791,7 @@ class ApiBase(Resource):
         # We don't accept or process a request payload for GET, or if no
         # parameter schema is defined
         if not self.schema or method == self._get:
-            return method(uri_encoded, request)
+            return method(uri_parameters, request)
 
         try:
             json_data = request.get_json()
@@ -804,7 +806,9 @@ class ApiBase(Resource):
 
         try:
             if json_data:
-                json_data.update(uri_encoded)
+                json_data.update(uri_parameters)
+            else:
+                json_data = uri_parameters
             new_data = self.schema.validate(json_data)
         except UnverifiedUser as e:
             self.logger.warning("{}", str(e))

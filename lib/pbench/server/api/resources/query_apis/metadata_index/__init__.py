@@ -41,21 +41,24 @@ class RunIdBase(ElasticBase):
     postprocess methods.
     """
 
-    WHITELIST_AGGS_FIELDS = {
-        "result-data-sample": ["run", "sample", "iteration", "benchmark"],
-        "result-data": [
-            "@timestamp",
-            "@timestamp_original",
-            "result_data_sample_parent",
-            "run",
-            "iteration",
-            "sample",
-            "result",
-        ],
-    }
+    # Mapping for client friendly ES index names and ES internal index names
     ES_INTERNAL_INDEX_NAMES = {
-        "iterations": "result-data-sample",
-        "timeseries": "result-data",
+        "iterations": {
+            "index": "result-data-sample",
+            "whitelist": ["run", "sample", "iteration", "benchmark"],
+        },
+        "timeseries": {
+            "index": "result-data",
+            "whitelist": [
+                "@timestamp",
+                "@timestamp_original",
+                "result_data_sample_parent",
+                "run",
+                "iteration",
+                "sample",
+                "result",
+            ],
+        },
     }
 
     def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
