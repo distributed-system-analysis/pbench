@@ -460,6 +460,7 @@ class Parameter:
             keywords: List of keywords for ParamType.KEYWORD
             element_type: List element type if ParamType.LIST
             required: whether the parameter is required (defaults to False)
+            uri_parameter: whether the parameter is coming from the uri
         """
         self.name = name
         self.type = type

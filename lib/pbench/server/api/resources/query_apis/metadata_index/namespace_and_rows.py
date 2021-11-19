@@ -58,7 +58,7 @@ class SampleNamespace(RunIdBase):
         """
         run_id = context["run_id"]
         dataset = context["dataset"]
-        document = self.ES_INTERNAL_INDEX_NAMES.get(json_data["type"])
+        document = self.ES_INTERNAL_INDEX_NAMES[json_data["type"]]
 
         document_index = document["index"]
 
@@ -248,7 +248,7 @@ class SampleValues(RunIdBase):
         run_id = context["run_id"]
         dataset = context["dataset"]
         scroll_id = json_data.get("scroll_id")
-        document = self.ES_INTERNAL_INDEX_NAMES.get(json_data["type"])
+        document = self.ES_INTERNAL_INDEX_NAMES[json_data["type"]]
 
         document_index = document["index"]
 
