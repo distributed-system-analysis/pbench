@@ -6,7 +6,7 @@
 # For now we ignore the tox environment directory argument.
 _toxenvdir="${1}"
 if [[ -z "${_toxenvdir}" ]]; then
-    printf -- "Missing required tox environment directory." >&2
+    printf -- "Missing required tox environment directory.\n" >&2
     exit 2
 fi
 shift
@@ -31,25 +31,56 @@ fi
 subtst="${1}"
 shift
 
-# Remaining positional arguments past along to whatever test is run.
+# Remaining positional arguments passed along to whatever test is run.
 posargs="${@}"
+
+parallel=${PBENCH_UNITTEST_PARALLEL:-auto}
+if [[ "${parallel}" == "serial" ]]; then
+    para_jobs_arg="-j 1"
+    pytest_jobs_arg="-n 1"
+elif [[ "${parallel}" == "auto" ]]; then
+    para_jobs_arg=""
+    pytest_jobs_arg="-n auto"
+else
+    printf -- "Unrecognized PBENCH_UNITTEST_PARALLEL environment variable value, '%s'\n" "${parallel}" >&2
+    exit 2
+fi
 
 function _time {
     /usr/bin/time --format="\n\nCommand: '%C'\nExit status: %x\nTimings: user %Us, system %Ss, elapsed %es (%E, %P)\nMemory: max RSS %Mk, minor pf: %R, major pf: %F, swaps %W\nContext switches: inv %c, vol %w, signals %k\nI/O: fs in %I, fs out %O, socket in %r, socket out %s\n" ${@}
 }
 
 function run_legacy {
-    printf -- "\n\n\nRunning %s/%s legacy unit tests\n\n" "${1}" "${2}"
     local _rc
-    _time ${1}/${2}/unittests ${posargs}
+    local _major
+    local _subtst
+
+    _major=${1}
+    shift
+    _subtst=${1}
+    shift
+
+    printf -- "\n\n\nRunning %s/%s legacy unit tests\n\n" "${_major}" "${_subtst}"
+    _time ${_major}/${_subtst}/unittests ${@}
     _rc=${?}
     if [[ ${_rc} -ne 0 ]]; then
-        printf -- "\n%s %s legacy unit tests failed with '%s'\n\n" "${1^}" "${2}" "${_rc}"
+        printf -- "\n%s %s legacy unit tests failed with '%s'\n\n" "${_major^}" "${_subtst}" "${_rc}"
     else
-        printf -- "\n%s %s legacy unit tests succeeded\n\n" "${1^}" "${2}"
+        printf -- "\n%s %s legacy unit tests succeeded\n\n" "${_major^}" "${_subtst}"
     fi
     return ${_rc}
 }
+
+function para_run_legacy {
+    # When we want to use the `run_legacy` function with `parallel`, we have a
+    # problem because the command line arguments are passed as one long
+    # string.  So this jump function breaks up the arguments and invokes
+    # `run_legacy` as expected.
+    run_legacy ${1}
+}
+
+# Export functions for use with `parallel` below.
+export -f para_run_legacy run_legacy _time
 
 rc=0
 
@@ -74,6 +105,7 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
     printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${major_list// /,}"
     _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent.parent)')
     _PBENCH_COV_DIR="${_toxenvdir}/cov" _time pytest \
+        ${pytest_jobs_arg} \
         --basetemp="${_toxenvdir}/tmp" \
         --cov=${_pbench_sources} \
         --cov-branch \
@@ -91,28 +123,41 @@ fi
 
 _subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-scripts bench-scripts"
 
+_para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
+trap "rm -f ${_para_jobs_file}" EXIT INT TERM
+
 let count=0
 for _major in ${major_list}; do
     if [[ "${_major}" == "agent" ]]; then
+        # The parallel program is really cool.  The usage of `parallel` is
+        # internal and automated; only test code depends on this tool, and we,
+        # as developers, have viewed the citation and are justified in
+        # suppressing future displays of it in our development processes (use of
+        # --will-cite below).
+
         for _subtst in ${_subtst_list}; do
-            if [[ -z "${subtst}" || "${subtst}" == "$(basename ${_subtst})" ]]; then
+            if [[ "${subtst:-legacy}" == "legacy" || "${subtst}" == "$(basename ${_subtst})" ]]; then
+                echo "${_major} ${_subtst} ${posargs}"
                 (( count++ ))
-                run_legacy ${_major} ${_subtst} ${posargs} || rc=1
             fi
-        done
+        done > ${_para_jobs_file}
+        parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
+        if [[ ${?} -ne 0 ]]; then
+            rc=1
+        fi
     elif [[ "${_major}" == "server" ]]; then
         if [[ -z "${subtst}" || "${subtst}" == "legacy" ]]; then
             (( count++ ))
             run_legacy ${_major} bin ${posargs} || rc=1
         fi
     else
-        printf -- "Logic bomb!  Unrecognized major test sub-set, '%s'" "${_major}" >&2
+        printf -- "Logic bomb!  Unrecognized major test sub-set, '%s'\n" "${_major}" >&2
         rc=1
     fi
 done
 
 if [[ ${count} -eq 0 && "${subtst}" != "python" ]]; then
-    printf -- "Error - unrecognized sub-test, '%s'" "${subtst}" >&2
+    printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
     rc=1
 fi
 

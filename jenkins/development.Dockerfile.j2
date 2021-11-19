@@ -160,6 +160,7 @@ RUN \
         `#` \
         `# Install Agent testing dependencies` \
         `#` \
+        parallel \
         python3-coverage \
         python3-GitPython \
         python3-mock \
@@ -171,6 +172,7 @@ RUN \
         python3-pytest-mock \
         python3-responses \
         python3-tox-current-env \
+        python3-pytest-xdist \
         \
         `#` \
         `# These two packages are dependencies of the pip-installed PyTest` \
@@ -183,6 +185,7 @@ RUN \
         `#` \
         `# Install Server testing dependencies` \
         `#` \
+        parallel \
         python3-coverage \
         python3-GitPython \
         python3-mock \
@@ -195,6 +198,7 @@ RUN \
         python3-requests-mock \
         python3-responses \
         python3-tox-current-env \
+        python3-pytest-xdist \
         \
         `#` \
         `# Install Docs dependencies` \
