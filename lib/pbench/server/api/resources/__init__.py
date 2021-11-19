@@ -782,6 +782,8 @@ class ApiBase(Resource):
         Args:
             method: A reference to the implementation method
             request: The flask Request object containing payload and headers
+            uri_parameters: URI encoded keyword-arg supplied by the Flask
+            framework
 
         Returns:
             Flask Response object generally constructed implicitly from a JSON

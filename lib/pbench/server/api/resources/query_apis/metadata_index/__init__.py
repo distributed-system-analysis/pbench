@@ -138,7 +138,17 @@ class RunIdBase(ElasticBase):
                 self.get_aggregatable_fields(v, f"{prefix}{f}.", result)
         return result
 
-    def get_mappings(self, document):
+    def get_mappings(self, document: JSON):
+        """
+        Utility function to return ES mappings by querying the Template
+        database against a given index.
+
+        :Args
+            document: One of the values of ES_INTERNAL_INDEX_NAMES (JSON)
+        Returns:
+            JSON containing whitelisted keys of the index and corresponding
+            values.
+        """
         template = Template.find(document["index"])
 
         # Only keep the whitelisted fields

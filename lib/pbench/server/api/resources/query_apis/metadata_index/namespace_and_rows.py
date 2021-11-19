@@ -226,7 +226,7 @@ class SampleValues(RunIdBase):
                         fetching the iteration samples.
 
                 "scroll_id": Optional Elasticsearch scroll id that the client
-                             recieved in the result of the original query.
+                             received in the result of the original query.
                              This will, if specified, be used to fetch the
                              next page of the result.
 
@@ -249,9 +249,6 @@ class SampleValues(RunIdBase):
         dataset = context["dataset"]
         scroll_id = json_data.get("scroll_id")
         document = self.ES_INTERNAL_INDEX_NAMES.get(json_data["type"])
-        if not document:
-            self.logger.debug(f"Illegal document name {json_data['type']!r}")
-            abort(HTTPStatus.NOT_FOUND, message="Namespace not found")
 
         document_index = document["index"]
 
@@ -293,9 +290,8 @@ class SampleValues(RunIdBase):
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Mapping not found")
 
+        # Prepare list of filters to apply for ES query
         es_filter = [{"match": {"run.id": run_id}}]
-        # Validate each user-provided filter against the respective document
-        # mappings.
         for filter, value in json_data.get("filters", {}).items():
             if filter in self.get_aggregatable_fields(mappings):
                 # Get all the non-text filters to apply
