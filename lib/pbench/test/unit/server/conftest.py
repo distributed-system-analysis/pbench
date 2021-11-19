@@ -1,18 +1,18 @@
 from configparser import ConfigParser
 import datetime
 import hashlib
+from filelock import FileLock
 from freezegun import freeze_time
 from http import HTTPStatus
+import json
 import os
-import shutil
-import tempfile
 import uuid
 from pathlib import Path
 from posix import stat_result
+import pytest
+import shutil
 from stat import ST_MTIME
 import tarfile
-
-import pytest
 
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
@@ -63,14 +63,11 @@ admin_email = "test_admin@example.com"
 generic_password = "12345"
 
 
-@pytest.fixture(scope="session", autouse=True)
-def setup(request, pytestconfig):
-    """Test package setup for pbench-server"""
-
+def do_setup(tmp_path_factory):
+    """Perform on disk server config setup."""
     # Create a single temporary directory for the "/srv/pbench" and
     # "/opt/pbench-server" directories.
-    TMP = tempfile.TemporaryDirectory(suffix=".d", prefix="pbench-server-unit-tests.")
-    tmp_d = Path(TMP.name)
+    tmp_d = tmp_path_factory.mktemp("server-tmp")
 
     srv_pbench = tmp_d / "srv" / "pbench"
     pbench_tmp = srv_pbench / "tmp"
@@ -96,31 +93,43 @@ def setup(request, pytestconfig):
 
     cfg_file = pbench_cfg / "pbench-server.cfg"
     with cfg_file.open(mode="w") as fp:
-        fp.write(server_cfg_tmpl.format(TMP=TMP.name))
+        fp.write(server_cfg_tmpl.format(TMP=str(tmp_d)))
 
-    pytestconfig.cache.set("TMP", TMP.name)
-    pytestconfig.cache.set("_PBENCH_SERVER_CONFIG", str(cfg_file))
+    return dict(tmp=tmp_d, cfg_file=str(cfg_file))
 
-    def teardown():
-        """Test package teardown for pbench-server"""
-        TMP.cleanup()
 
-    request.addfinalizer(teardown)
+@pytest.fixture(scope="session", autouse=True)
+def on_disk_server_config(tmp_path_factory):
+    """Test package setup for pbench-server
+
+    See https://github.com/pytest-dev/pytest-xdist.
+    """
+    root_tmp_dir = tmp_path_factory.getbasetemp()
+    marker = root_tmp_dir / "server-marker.json"
+    with FileLock(f"{marker}.lock"):
+        if marker.is_file():
+            the_setup = json.loads(marker.read_text())
+            the_setup["tmp"] = Path(the_setup["tmp"])
+        else:
+            the_setup = do_setup(tmp_path_factory)
+            data = dict(tmp=str(the_setup["tmp"]), cfg_file=the_setup["cfg_file"])
+            marker.write_text(json.dumps(data))
+    return the_setup
 
 
 @pytest.fixture
-def server_config(pytestconfig, monkeypatch):
+def server_config(on_disk_server_config, monkeypatch):
     """
     Mock a pbench-server.cfg configuration as defined above.
 
     Args:
-        pytestconfig: pytest environmental configuration fixture
+        on_disk_server_config: the on-disk server configuration setup
         monkeypatch: testing environment patch fixture
 
     Returns:
         a PbenchServerConfig object the test case can use
     """
-    cfg_file = pytestconfig.cache.get("_PBENCH_SERVER_CONFIG", None)
+    cfg_file = on_disk_server_config["cfg_file"]
     monkeypatch.setenv("_PBENCH_SERVER_CONFIG", cfg_file)
 
     server_config = get_server_config()
@@ -687,7 +696,7 @@ def current_user_none(monkeypatch):
 
 
 @pytest.fixture
-def tarball(pytestconfig):
+def tarball(tmp_path):
     """
     Create a test tarball and MD5 file; the tarball is empty, but has a real
     MD5.
@@ -697,19 +706,18 @@ def tarball(pytestconfig):
     it lands on disk and in the Dataset.
     """
     filename = "pbench-user-benchmark_some + config_2021.05.01T12.42.42.tar.xz"
-    tmp_d = Path(pytestconfig.cache.get("TMP", None))
-    datafile = tmp_d / filename
+    datafile = tmp_path / filename
     metadata = ConfigParser()
     metadata.add_section("pbench")
     metadata.set("pbench", "date", "2002-05-16")
-    metadata_file = tmp_d / "metadata.log"
+    metadata_file = tmp_path / "metadata.log"
     with metadata_file.open("w") as meta_fp:
         metadata.write(meta_fp)
     with tarfile.open(datafile, "w:xz") as tar:
         tar.add(str(metadata_file), arcname=f"{Tarball.stem(filename)}/metadata.log")
     md5 = hashlib.md5()
     md5.update(datafile.read_bytes())
-    md5file = tmp_d / (filename + ".md5")
+    md5file = tmp_path / (filename + ".md5")
     md5file.write_text(md5.hexdigest())
 
     yield datafile, md5file, md5.hexdigest()

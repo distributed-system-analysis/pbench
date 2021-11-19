@@ -2,12 +2,13 @@ import os
 import pytest
 import subprocess
 
-from pbench.test.unit.agent.conftest import base_setup
+from pbench.test.unit.agent.conftest import on_disk_agent_config
 
 
 @pytest.fixture(scope="session", autouse=True)
-def setup(request, pytestconfig):
-    return base_setup(request, pytestconfig)
+def func_setup(tmp_path_factory):
+    """Test package setup for functional tests"""
+    return on_disk_agent_config(tmp_path_factory)
 
 
 @pytest.helpers.register

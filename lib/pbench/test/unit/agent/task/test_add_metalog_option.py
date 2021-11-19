@@ -1,14 +1,12 @@
 import configparser
-from pathlib import Path
 
 from pbench.cli.agent.commands.log import add_metalog_option
 
 
 class TestAddMetalogOption:
     @staticmethod
-    def test_add_metalog_option(pytestconfig):
-        TMP = pytestconfig.cache.get("TMP", None)
-        mdlog = Path(TMP) / "metadata.log"
+    def test_add_metalog_option(tmp_path):
+        mdlog = tmp_path / "metadata.log"
         mdlog.write_text(
             """[existing]
             existing_option = 41

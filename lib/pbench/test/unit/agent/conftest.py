@@ -1,44 +1,9 @@
-import shutil
-import tempfile
+import json
 import pytest
+import shutil
 
+from filelock import FileLock
 from pathlib import Path
-
-
-def base_setup(request, pytestconfig):
-    """Test package setup for pbench-agent"""
-
-    # Create a single temporary directory for the "/opt/pbench-agent" and
-    # "/var/lib/pbench-agent" directories.
-    TMP = tempfile.TemporaryDirectory(suffix=".d", prefix="pbench-agent-unit-tests.")
-    tmp_d = Path(TMP.name)
-
-    opt_pbench = tmp_d / "opt" / "pbench-agent"
-    pbench_cfg = opt_pbench / "config"
-    pbench_cfg.mkdir(parents=True, exist_ok=True)
-
-    var = tmp_d / "var" / "lib" / "pbench_agent"
-    var.mkdir(parents=True, exist_ok=True)
-
-    shutil.copyfile(
-        "./agent/config/pbench-agent-default.cfg",
-        str(pbench_cfg / "pbench-agent-default.cfg"),
-    )
-
-    pytestconfig.cache.set("TMP", TMP.name)
-    cfg_file = pbench_cfg / "pbench-agent.cfg"
-    pytestconfig.cache.set("_PBENCH_AGENT_CONFIG", str(cfg_file))
-
-    def teardown():
-        """Test package teardown for pbench-agent"""
-        TMP.cleanup()
-
-    request.addfinalizer(teardown)
-
-
-@pytest.fixture(scope="session", autouse=True)
-def setup(request, pytestconfig):
-    return base_setup(request, pytestconfig)
 
 
 agent_cfg_tmpl = """[DEFAULT]
@@ -55,23 +20,66 @@ files = pbench-agent-default.cfg
 """
 
 
-@pytest.fixture
-def valid_config(pytestconfig):
-    TMP = pytestconfig.cache.get("TMP", None)
-    cfg_file = pytestconfig.cache.get("_PBENCH_AGENT_CONFIG", None)
-    with open(cfg_file, "w") as fp:
-        fp.write(agent_cfg_tmpl.format(TMP=TMP))
+def do_setup(tmp_path_factory):
+    """Perform on disk agent config setup."""
+    # Create a single temporary directory for the "/opt/pbench-agent" and
+    # "/var/lib/pbench-agent" directories.
+    tmp_d = tmp_path_factory.mktemp("agent-tmp")
 
+    opt_pbench = tmp_d / "opt" / "pbench-agent"
+    pbench_cfg = opt_pbench / "config"
+    pbench_cfg.mkdir(parents=True, exist_ok=True)
 
-@pytest.fixture
-def invalid_config(pytestconfig):
-    cfg_file = pytestconfig.cache.get("_PBENCH_AGENT_CONFIG", None)
     shutil.copyfile(
-        "./lib/pbench/test/unit/agent/config/pbench-agent.invalid.cfg", cfg_file
+        "./agent/config/pbench-agent-default.cfg",
+        str(pbench_cfg / "pbench-agent-default.cfg"),
     )
+
+    cfg_file = pbench_cfg / "pbench-agent.cfg"
+    with open(cfg_file, "w") as fp:
+        fp.write(agent_cfg_tmpl.format(TMP=tmp_d))
+
+    return dict(tmp=tmp_d, cfg_dir=pbench_cfg)
+
+
+def on_disk_agent_config(tmp_path_factory):
+    """Base setup function shared between the agent and functional tests.
+
+    See https://github.com/pytest-dev/pytest-xdist.
+    """
+    root_tmp_dir = tmp_path_factory.getbasetemp()
+    marker = root_tmp_dir / "agent-marker.json"
+    with FileLock(f"{marker}.lock"):
+        if marker.is_file():
+            the_setup = json.loads(marker.read_text())
+            the_setup["tmp"] = Path(the_setup["tmp"])
+            the_setup["cfg_dir"] = Path(the_setup["cfg_dir"])
+        else:
+            the_setup = do_setup(tmp_path_factory)
+            data = dict(tmp=str(the_setup["tmp"]), cfg_dir=str(the_setup["cfg_dir"]))
+            marker.write_text(json.dumps(data))
+    return the_setup
+
+
+@pytest.fixture(scope="session", autouse=True)
+def agent_setup(tmp_path_factory):
+    """Test package setup for agent unit tests"""
+    on_disk_agent_config(tmp_path_factory)
 
 
 @pytest.fixture(autouse=True)
-def agent_config_env(pytestconfig, monkeypatch):
-    cfg_file = pytestconfig.cache.get("_PBENCH_AGENT_CONFIG", None)
-    monkeypatch.setenv("_PBENCH_AGENT_CONFIG", cfg_file)
+def setup(tmp_path_factory, monkeypatch):
+    """Test package setup for pbench-agent"""
+    _setup = on_disk_agent_config(tmp_path_factory)
+    var = _setup["tmp"] / "var" / "lib" / "pbench-agent"
+    try:
+        if var.exists():
+            assert var.is_dir()
+            shutil.rmtree(str(var))
+    except Exception as exc:
+        print(exc)
+    var.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv(
+        "_PBENCH_AGENT_CONFIG", str(_setup["cfg_dir"] / "pbench-agent.cfg")
+    )
+    return _setup

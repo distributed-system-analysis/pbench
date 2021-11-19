@@ -1,7 +1,5 @@
 import datetime
 import logging
-import os
-from pathlib import Path
 
 import responses
 from click.testing import CliRunner
@@ -54,7 +52,7 @@ class TestMoveResults:
 
     @staticmethod
     @responses.activate
-    def test_help(pytestconfig):
+    def test_help():
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(main, ["--help"])
         assert result.exit_code == 0
@@ -65,7 +63,7 @@ class TestMoveResults:
 
     @staticmethod
     @responses.activate
-    def test_args(valid_config, pytestconfig):
+    def test_args():
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -92,18 +90,15 @@ class TestMoveResults:
 
     @staticmethod
     @responses.activate
-    def test_results_move(monkeypatch, caplog, pytestconfig):
+    def test_results_move(monkeypatch, caplog, setup):
         monkeypatch.setenv("_pbench_full_hostname", "localhost")
         monkeypatch.setattr(datetime, "datetime", MockDatetime)
-
-        ctx = {"args": {"config": os.environ["_PBENCH_AGENT_CONFIG"]}}
 
         # In order for a pbench tar ball to be moved/copied to a pbench-server
         # the run directory has to have one file in it, a "metadata.log" file.
         # We make a run directory and populate it with our test specific
         # information.
-        TMP = pytestconfig.cache.get("TMP", None)
-        pbrun = Path(TMP) / "var" / "lib" / "pbench-agent"
+        pbrun = setup["tmp"] / "var" / "lib" / "pbench-agent"
         script = "pbench-user-benchmark"
         config = "test-results-move"
         date = "YYYY.MM.DDTHH.MM.SS"

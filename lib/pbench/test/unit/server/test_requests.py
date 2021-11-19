@@ -281,14 +281,13 @@ class TestUpload:
         self,
         client,
         bad_extension,
-        pytestconfig,
+        tmp_path,
         caplog,
         server_config,
         setup_ctrl,
         pbench_token,
     ):
-        tmp_d = pytestconfig.cache.get("TMP", None)
-        datafile = Path(tmp_d, bad_extension)
+        datafile = tmp_path / bad_extension
         datafile.write_text("compressed tar ball")
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -325,11 +324,10 @@ class TestUpload:
         assert not self.filetree_created
 
     def test_empty_upload(
-        self, client, pytestconfig, caplog, server_config, setup_ctrl, pbench_token
+        self, client, tmp_path, caplog, server_config, setup_ctrl, pbench_token
     ):
         filename = "tmp.tar.xz"
-        tmp_d = pytestconfig.cache.get("TMP", None)
-        datafile = Path(tmp_d, filename)
+        datafile = tmp_path / filename
         datafile.touch()
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -349,14 +347,7 @@ class TestUpload:
         assert not self.filetree_created
 
     def test_upload_filetree_error(
-        self,
-        client,
-        pytestconfig,
-        caplog,
-        server_config,
-        setup_ctrl,
-        pbench_token,
-        tarball,
+        self, client, caplog, server_config, setup_ctrl, pbench_token, tarball,
     ):
         """
         Cause the FileTree.create() to fail; this should trigger the cleanup
@@ -383,14 +374,7 @@ class TestUpload:
         assert not Path(str(self.filetree_create_path) + ".md5").exists()
 
     def test_upload(
-        self,
-        client,
-        pytestconfig,
-        caplog,
-        server_config,
-        setup_ctrl,
-        pbench_token,
-        tarball,
+        self, client, caplog, server_config, setup_ctrl, pbench_token, tarball,
     ):
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
@@ -419,14 +403,7 @@ class TestUpload:
             assert record.levelname in ["DEBUG", "INFO"]
 
     def test_upload_duplicate(
-        self,
-        client,
-        pytestconfig,
-        caplog,
-        server_config,
-        setup_ctrl,
-        pbench_token,
-        tarball,
+        self, client, caplog, server_config, setup_ctrl, pbench_token, tarball,
     ):
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
@@ -458,14 +435,7 @@ class TestUpload:
         assert TestUpload.filetree_created is None
 
     def test_upload_duplicate_diff_md5(
-        self,
-        client,
-        pytestconfig,
-        caplog,
-        server_config,
-        setup_ctrl,
-        pbench_token,
-        tarball,
+        self, client, caplog, server_config, setup_ctrl, pbench_token, tarball,
     ):
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
@@ -507,7 +477,6 @@ class TestUpload:
     def test_upload_metadata_error(
         self,
         client,
-        pytestconfig,
         caplog,
         monkeypatch,
         server_config,

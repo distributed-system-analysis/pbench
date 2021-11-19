@@ -1,5 +1,6 @@
 ansible
 coverage
+filelock
 gitpython
 mock>=3.0.5
 pytest>=4.6.3, < 5
