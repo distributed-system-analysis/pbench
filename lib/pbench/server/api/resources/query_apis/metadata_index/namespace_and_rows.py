@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from logging import Logger
-from typing import AnyStr, List, Union
 
 from flask import Response, jsonify
 from flask_restful import abort
@@ -14,46 +13,39 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
 from pbench.server.api.resources.query_apis.metadata_index import RunIdBase
-from pbench.server.database.models.template import Template, TemplateNotFound
+from pbench.server.database.models.template import TemplateNotFound
 
 
-class IterationSampleNamespace(RunIdBase):
+class SampleNamespace(RunIdBase):
     """
-    Iteration samples API that returns namespace for each whitelisted
-    result-data-sample subdocuments as well as lists of available values for
-    each name.
+    Pbench API which returns the list of available fields in the dataset
+    as well as lists of values available for each of them. These can be used
+    by UI clients to allow users to select documents from the data sent by
+    selecting for certain fields or certain values within those fields.
     """
-
-    WHITELIST_AGGS_FIELDS = ["run", "sample", "iteration", "benchmark"]
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
             config,
             logger,
-            Schema(Parameter("run_id", ParamType.STRING, required=True)),
+            Schema(
+                Parameter("run_id", ParamType.STRING, required=True),
+                Parameter(
+                    "type",
+                    ParamType.KEYWORD,
+                    required=True,
+                    keywords=list(RunIdBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                    uri_parameter=True,
+                ),
+            ),
         )
-
-    def get_keyword_fields(
-        self, mappings: JSON, prefix: AnyStr = "", result: Union[List, None] = None
-    ) -> List:
-        if result is None:
-            result = []
-        if "properties" in mappings:
-            for p, m in mappings["properties"].items():
-                self.get_keyword_fields(m, f"{prefix}{p}.", result)
-        elif mappings.get("type") == "keyword":
-            result.append(prefix[:-1])  # Remove the trailing dot, if any
-        else:
-            for f, v in mappings.get("fields", {}).items():
-                self.get_keyword_fields(v, f"{prefix}{f}.", result)
-        return result
 
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
-        Construct a pbench Elasticsearch query for aggregating a list of
-        values for keyword fields mentioned in the WHITELIST_AGGS_FIELDS
-        sub-documents of result-data-sample index document that belong to the
-        given run id.
+        Construct an Elasticsearch query which returns a list of values which
+        appear in each of the keyword fields in the WHITELIST_AGGS_FIELDS
+        sub-documents of the documents that belong to the given run id in the
+        specified index.
 
         Args:
             json_data: JSON dictionary of type-normalized parameters
@@ -66,9 +58,13 @@ class IterationSampleNamespace(RunIdBase):
         """
         run_id = context["run_id"]
         dataset = context["dataset"]
+        document = self.ES_INTERNAL_INDEX_NAMES[json_data["type"]]
+
+        document_index = document["index"]
 
         self.logger.info(
-            "Return iteration sample namespace for dataset {}, prefix {}, " "run id {}",
+            "Return {} namespace for dataset {}, prefix {}, run id {}",
+            document_index,
             dataset,
             self.prefix,
             run_id,
@@ -76,37 +72,25 @@ class IterationSampleNamespace(RunIdBase):
 
         # Retrieve the ES indices that belong to this run_id from the metadata
         # table
-        indices = self.get_index(dataset, "result-data-sample")
+        indices = self.get_index(dataset, document_index)
         if not indices:
             self.logger.debug(
-                f"Found no indices matching the prefix result-data-sample"
+                f"Found no indices matching the prefix {document_index!r}"
                 f"for a dataset {dataset!r}"
             )
             abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
         try:
-            template = Template.find("result-data-sample")
+            mappings = self.get_mappings(document)
         except TemplateNotFound:
             self.logger.exception(
-                "Document template 'result-data-sample' not found in the database."
+                f"Document template {document_index!r} not found in the database."
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Mapping not found")
 
-        # Only keep the whitelisted fields for aggregation
-        mappings = {
-            "properties": {
-                key: value
-                for key, value in template.mappings["properties"].items()
-                if key in IterationSampleNamespace.WHITELIST_AGGS_FIELDS
-            }
-        }
+        result = self.get_aggregatable_fields(mappings)
 
-        # Get all the fields from result-data-sample document mapping that
-        # are of type keyword
-        result = self.get_keyword_fields(mappings)
-
-        # Build ES aggregation query for getting the iteration samples
-        # namespaces
+        # Build ES aggregation query for getting the document's namespace
         aggs = {key: {"terms": {"field": key}} for key in result}
 
         return {
@@ -125,11 +109,10 @@ class IterationSampleNamespace(RunIdBase):
         """
         Returns a Flask Response containing a JSON object (keyword/value
         pairs) where each key is the fully qualified dot-separated name of a
-        keyword (sub-)field (from result-data-sample documents) and
-        corresponding value is a non-empty list of values which appear in
-        that field.
+        non-text (sub-)field and the corresponding value is a non-empty list
+        of values which appear in that field.
 
-        Example:
+        result-data-sample document Example:
             {
                "benchmark.name":["uperf"],
                "benchmark.primary_metric":["Gb_sec"],
@@ -193,9 +176,9 @@ class IterationSampleNamespace(RunIdBase):
             )
 
 
-class IterationSamplesRows(RunIdBase):
+class SampleValues(RunIdBase):
     """
-    Iteration samples API that returns iteration sample rows after
+    Pbench ES query API that returns client supplied document sample rows after
     applying client specified filters.
     """
 
@@ -210,18 +193,27 @@ class IterationSamplesRows(RunIdBase):
                 Parameter("filters", ParamType.JSON, required=False),
                 Parameter("run_id", ParamType.STRING, required=True),
                 Parameter("scroll_id", ParamType.STRING, required=False),
+                Parameter(
+                    "type",
+                    ParamType.KEYWORD,
+                    required=True,
+                    keywords=list(RunIdBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                    uri_parameter=True,
+                ),
             ),
         )
 
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
-        Construct a pbench Elasticsearch query for filtering iteration
-        samples based on a given run id and other filtering parameters
-        specified in JSON payload.
+        Construct an Elasticsearch query which returns a list of data values
+        from a selected set of documents that belong to the given run id in
+        the specified index.
 
-        Note: If the ES scroll id is present we will ignore the filters
-        parameter and instead construct an Elasticsearch query for scrolling
-        based on a client provided scroll id.
+        Note: "type" (i.e., the ES index selector) and the scroll ID (if any)
+        come from the json_data parameter, while the "run_id" and "dataset"
+        values come from the context argument. If the ES scroll id is present
+        we will ignore the filters parameter and instead construct an
+        Elasticsearch query for scrolling based on a client provided scroll id.
 
         If a scroll_id is specified, the query will return the next page of
         results of the original query; otherwise we form a new query, either
@@ -233,13 +225,14 @@ class IterationSamplesRows(RunIdBase):
                 "run_id": run id of a dataset that client wants to search for
                         fetching the iteration samples.
 
-                "scroll_id": Server provided Elasticsearch scroll id that client
-                            recieved in the result of the original query with
-                            filters. This can be used to fetch the next page of
-                            the result.
+                "scroll_id": Optional Elasticsearch scroll id that the client
+                             received in the result of the original query.
+                             This will, if specified, be used to fetch the
+                             next page of the result.
 
-                "filters": key-value representation of query filter parameters to
-                           narrow the search results e.g. {"sample.name": "sample1"}
+                "filters": Optional key-value representation of query filter
+                            parameters to narrow the search results e.g.
+                            {"sample.name": "sample1"}
 
         EXAMPLES:
             {
@@ -255,9 +248,13 @@ class IterationSamplesRows(RunIdBase):
         run_id = context["run_id"]
         dataset = context["dataset"]
         scroll_id = json_data.get("scroll_id")
+        document = self.ES_INTERNAL_INDEX_NAMES[json_data["type"]]
+
+        document_index = document["index"]
 
         self.logger.info(
-            "Return iteration sample rows {} for dataset {}, prefix {}, run id {}",
+            "Return {} rows {} for dataset {}, prefix {}, run id {}",
+            document_index,
             "next page " if scroll_id else "",
             dataset,
             self.prefix,
@@ -270,33 +267,51 @@ class IterationSamplesRows(RunIdBase):
                 "path": "/_search/scroll",
                 "kwargs": {
                     "json": {
-                        "scroll": IterationSamplesRows.SCROLL_EXPIRY,
+                        "scroll": SampleValues.SCROLL_EXPIRY,
                         "scroll_id": scroll_id,
                     }
                 },
             }
 
         # Retrieve the ES indices that belong to this run_id
-        indices = self.get_index(dataset, "result-data-sample")
+        indices = self.get_index(dataset, document_index)
         if not indices:
             self.logger.debug(
-                f"Found no indices matching the prefix result-data-sample"
+                f"Found no indices matching the prefix {document_index!r}"
                 f"for a dataset {dataset!r}"
             )
             abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
+        try:
+            mappings = self.get_mappings(document)
+        except TemplateNotFound:
+            self.logger.exception(
+                f"Document template {document_index!r} not found in the database."
+            )
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Mapping not found")
+
+        # Prepare list of filters to apply for ES query
         es_filter = [{"match": {"run.id": run_id}}]
         for filter, value in json_data.get("filters", {}).items():
-            es_filter.append({"match": {filter: value}})
+            if filter in self.get_aggregatable_fields(mappings):
+                # Get all the non-text filters to apply
+                es_filter.append({"match": {filter: value}})
+            else:
+                # Get all the text filters to apply
+                # Note: There is only one text field sample.measurement_title
+                # in result-data documents and if we can re-index it as a
+                # keyword we can get rid of this loop.
+                es_filter.append({"query_string": {"fields": filter, "query": value}})
 
         return {
-            "path": f"/{indices}/_search?scroll={IterationSamplesRows.SCROLL_EXPIRY}",
+            "path": f"/{indices}/_search?scroll={SampleValues.SCROLL_EXPIRY}",
             "kwargs": {
                 "json": {
-                    "size": IterationSamplesRows.DOCUMENT_SIZE,
+                    "size": SampleValues.DOCUMENT_SIZE,
                     "query": {"bool": {"filter": es_filter}},
                     "sort": [
-                        {"iteration.number": {"order": "asc", "unmapped_type": "long"}}
+                        {"iteration.number": {"order": "asc", "unmapped_type": "long"}},
+                        {"sample.start": {"order": "asc", "unmapped_type": "long"}},
                     ],
                 },
                 "params": {"ignore_unavailable": "true"},
@@ -349,8 +364,8 @@ class IterationSamplesRows(RunIdBase):
             ret_val = {"results": results}
 
             if (
-                count > IterationSamplesRows.DOCUMENT_SIZE
-                and len(es_json["hits"]["hits"]) == IterationSamplesRows.DOCUMENT_SIZE
+                count > SampleValues.DOCUMENT_SIZE
+                and len(es_json["hits"]["hits"]) == SampleValues.DOCUMENT_SIZE
             ):
                 ret_val["scroll_id"] = es_json["_scroll_id"]
 

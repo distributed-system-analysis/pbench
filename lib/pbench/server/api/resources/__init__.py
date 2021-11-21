@@ -448,6 +448,7 @@ class Parameter:
         keywords: List[str] = None,
         element_type: ParamType = None,
         required: bool = False,
+        uri_parameter: bool = False,
     ):
         """
         Initialize a Parameter object describing a JSON parameter with its type
@@ -459,12 +460,14 @@ class Parameter:
             keywords: List of keywords for ParamType.KEYWORD
             element_type: List element type if ParamType.LIST
             required: whether the parameter is required (defaults to False)
+            uri_parameter: whether the parameter is coming from the uri
         """
         self.name = name
         self.type = type
         self.keywords = [k.lower() for k in keywords] if keywords else None
         self.element_type = element_type
         self.required = required
+        self.uri_parameter = uri_parameter
 
     def invalid(self, json: JSON) -> bool:
         """
@@ -767,7 +770,9 @@ class ApiBase(Resource):
 
         return metadata
 
-    def _dispatch(self, method: Callable, request: Request) -> Response:
+    def _dispatch(
+        self, method: Callable, request: Request, uri_parameters: JSON = {}
+    ) -> Response:
         """
         This is a common front end for HTTP operations.
 
@@ -778,6 +783,8 @@ class ApiBase(Resource):
         Args:
             method: A reference to the implementation method
             request: The flask Request object containing payload and headers
+            uri_parameters: URI encoded keyword-arg supplied by the Flask
+            framework
 
         Returns:
             Flask Response object generally constructed implicitly from a JSON
@@ -787,7 +794,7 @@ class ApiBase(Resource):
         # We don't accept or process a request payload for GET, or if no
         # parameter schema is defined
         if not self.schema or method == self._get:
-            return method({}, request)
+            return method(uri_parameters, request)
 
         try:
             json_data = request.get_json()
@@ -801,6 +808,10 @@ class ApiBase(Resource):
             abort(HTTPStatus.BAD_REQUEST, message="Invalid request payload")
 
         try:
+            if json_data:
+                json_data.update(uri_parameters)
+            else:
+                json_data = uri_parameters
             new_data = self.schema.validate(json_data)
         except UnverifiedUser as e:
             self.logger.warning("{}", str(e))
@@ -904,29 +915,29 @@ class ApiBase(Resource):
         )
 
     @Auth.token_auth.login_required(optional=True)
-    def get(self):
+    def get(self, **kwargs):
         """
         Handle an authenticated GET operation on the Resource
         """
-        return self._dispatch(self._get, request)
+        return self._dispatch(self._get, request, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
-    def post(self):
+    def post(self, **kwargs):
         """
         Handle an authenticated POST operation on the Resource
         """
-        return self._dispatch(self._post, request)
+        return self._dispatch(self._post, request, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
-    def put(self):
+    def put(self, **kwargs):
         """
         Handle an authenticated PUT operation on the Resource
         """
-        return self._dispatch(self._put, request)
+        return self._dispatch(self._put, request, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
-    def delete(self):
+    def delete(self, **kwargs):
         """
         Handle an authenticated DELETE operation on the Resource
         """
-        return self._dispatch(self._delete, request)
+        return self._dispatch(self._delete, request, kwargs)

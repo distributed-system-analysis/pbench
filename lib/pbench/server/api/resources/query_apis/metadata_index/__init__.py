@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from logging import Logger
-from typing import AnyStr
+from typing import AnyStr, Union, List
 
 from flask_restful import abort
 
@@ -8,6 +8,7 @@ from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import JSON, Schema, SchemaError
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
+from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 
 
@@ -40,6 +41,26 @@ class RunIdBase(ElasticBase):
     containing dataset and a run_id that's passed to the assemble and
     postprocess methods.
     """
+
+    # Mapping for client friendly ES index names and ES internal index names
+    ES_INTERNAL_INDEX_NAMES = {
+        "iterations": {
+            "index": "result-data-sample",
+            "whitelist": ["run", "sample", "iteration", "benchmark"],
+        },
+        "timeseries": {
+            "index": "result-data",
+            "whitelist": [
+                "@timestamp",
+                "@timestamp_original",
+                "result_data_sample_parent",
+                "run",
+                "iteration",
+                "sample",
+                "result",
+            ],
+        },
+    }
 
     def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
         if "run_id" not in schema:
@@ -101,3 +122,40 @@ class RunIdBase(ElasticBase):
         indices = ",".join(index_keys)
         self.logger.debug(f"Indices from metadata , {indices!r}")
         return indices
+
+    def get_aggregatable_fields(
+        self, mappings: JSON, prefix: AnyStr = "", result: Union[List, None] = None
+    ) -> List:
+        if result is None:
+            result = []
+        if "properties" in mappings:
+            for p, m in mappings["properties"].items():
+                self.get_aggregatable_fields(m, f"{prefix}{p}.", result)
+        elif mappings.get("type") != "text":
+            result.append(prefix[:-1])  # Remove the trailing dot, if any
+        else:
+            for f, v in mappings.get("fields", {}).items():
+                self.get_aggregatable_fields(v, f"{prefix}{f}.", result)
+        return result
+
+    def get_mappings(self, document: JSON) -> JSON:
+        """
+        Utility function to return ES mappings by querying the Template
+        database against a given index.
+
+        Args:
+            document: One of the values of ES_INTERNAL_INDEX_NAMES (JSON)
+        Returns:
+            JSON containing whitelisted keys of the index and corresponding
+            values.
+        """
+        template = Template.find(document["index"])
+
+        # Only keep the whitelisted fields
+        return {
+            "properties": {
+                key: value
+                for key, value in template.mappings["properties"].items()
+                if key in document["whitelist"]
+            }
+        }

@@ -25,9 +25,9 @@ from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPubl
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.index_mappings import IndexMappings
 from pbench.server.api.resources.query_apis.index_search import IndexSearch
-from pbench.server.api.resources.query_apis.metadata_index.iteration_samples import (
-    IterationSampleNamespace,
-    IterationSamplesRows,
+from pbench.server.api.resources.query_apis.metadata_index.namespace_and_rows import (
+    SampleNamespace,
+    SampleValues,
 )
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
 from pbench.server.api.resources.upload_api import HostInfo, Upload
@@ -82,18 +82,18 @@ def register_endpoints(api, app, config):
         IndexSearch, f"{base_uri}/index/search", resource_class_args=(config, logger),
     )
     api.add_resource(
-        IterationSampleNamespace,
-        f"{base_uri}/dataset/samples/namespace",
-        resource_class_args=(config, logger),
-    )
-    api.add_resource(
-        IterationSamplesRows,
-        f"{base_uri}/dataset/samples/rows",
-        resource_class_args=(config, logger),
-    )
-    api.add_resource(
         MonthIndices,
         f"{base_uri}/controllers/months",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        SampleNamespace,
+        f"{base_uri}/datasets/namespace/<string:type>",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        SampleValues,
+        f"{base_uri}/datasets/values/<string:type>",
         resource_class_args=(config, logger),
     )
     api.add_resource(
