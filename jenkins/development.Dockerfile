@@ -109,6 +109,7 @@ RUN \
         python3-flask \
         python3-flask-cors \
         python3-flask-httpauth \
+        python3-flask-mail \
         python3-flask-migrate \
         python3-flask-restful \
         python3-flask-sqlalchemy \
