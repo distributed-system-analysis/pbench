@@ -70,11 +70,15 @@ class ForgotPassword(Schema(Parameter("email", ParamType.STRING, required=True))
         # generate email and send to the user
         # Ideally the message should be a template
         # rendered using render_template
-        msg = Message(subject="Reset your password!",
-                      sender=self.config.get("pbench-server", "email_username"),
-                      recipients=[email],
-                      body=("Please reset your password at http://localhost:8000/reset_password/" + token)
-                      )
+        msg = Message(
+            subject="Reset your password!",
+            sender=self.config.get("pbench-server", "email_username"),
+            recipients=[email],
+            body=(
+                "Please reset your password at http://localhost:8000/reset_password/"
+                + token
+            ),
+        )
 
         # This function needs to be asynchronous
         self.mail.send(msg)

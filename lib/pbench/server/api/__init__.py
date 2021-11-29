@@ -31,7 +31,13 @@ from pbench.server.api.resources.query_apis.metadata_index.namespace_and_rows im
 )
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
 from pbench.server.api.resources.upload_api import HostInfo, Upload
-from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI, ForgotPassword
+from pbench.server.api.resources.users_api import (
+    Login,
+    Logout,
+    RegisterUser,
+    UserAPI,
+    ForgotPassword,
+)
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
 
@@ -121,7 +127,9 @@ def register_endpoints(api, app, config):
         Login, f"{base_uri}/login", resource_class_args=(config, logger, token_auth),
     )
     api.add_resource(
-        ForgotPassword, f"{base_uri}/forgot_password", resource_class_args=(config, logger, token_auth),
+        ForgotPassword,
+        f"{base_uri}/forgot_password",
+        resource_class_args=(config, logger, token_auth),
     )
     api.add_resource(
         Logout, f"{base_uri}/logout", resource_class_args=(config, logger, token_auth),
