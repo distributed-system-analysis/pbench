@@ -185,6 +185,15 @@ def login_user(client, server_config, username, password):
     )
 
 
+def forgot_password(client, server_config, email):
+    """
+    Helper function to send a recovery email
+    """
+    return client.post(
+        f"{server_config.rest_uri}/forgot_password", json={"email": email}
+    )
+
+
 @pytest.fixture()
 def create_user(client) -> User:
     """

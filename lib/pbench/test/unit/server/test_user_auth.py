@@ -6,7 +6,12 @@ from http import HTTPStatus
 from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.database import Database
-from pbench.test.unit.server.conftest import register_user, login_user, admin_username
+from pbench.test.unit.server.conftest import (
+    register_user,
+    login_user,
+    admin_username,
+    forgot_password,
+)
 
 
 class TestUserAuthentication:
@@ -387,6 +392,44 @@ class TestUserAuthentication:
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
             assert response.status_code == HTTPStatus.OK
+
+    @staticmethod
+    def test_forgot_password_valid_email(client, server_config):
+        with client:
+            # user registration
+            resp_register = register_user(
+                client,
+                server_config,
+                username="username",
+                firstname="firstname",
+                lastname="lastName",
+                email="user@domain.com",
+                password="12345",
+            )
+            assert resp_register.status_code == HTTPStatus.CREATED
+
+        resp_forgot_password = forgot_password(client, server_config, "user@domain.com")
+        assert resp_forgot_password.status_code == HTTPStatus.OK
+
+    @staticmethod
+    def test_forgot_password_invalid_email(client, server_config):
+        with client:
+            # user registration
+            resp_register = register_user(
+                client,
+                server_config,
+                username="username",
+                firstname="firstname",
+                lastname="lastName",
+                email="user@domain.com",
+                password="12345",
+            )
+            assert resp_register.status_code == HTTPStatus.CREATED
+
+        resp_forgot_password = forgot_password(
+            client, server_config, "user1@domain.com"
+        )
+        assert resp_forgot_password.status_code == HTTPStatus.OK
 
     @staticmethod
     def test_delete_user(client, server_config):
