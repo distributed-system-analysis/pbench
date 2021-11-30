@@ -18,12 +18,13 @@ from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.api.auth import Auth
 
 
-class ForgotPassword(Schema(Parameter("email", ParamType.STRING, required=True))):
+class ForgotPassword(Resource):
     def __init__(self, config, logger, auth):
         self.auth = auth
         self.config = config
         self.logger = logger
         self.mail = Mail(flask_app)
+        Schema(Parameter("email", ParamType.STRING, required=True),),
 
     def post(self):
         """
@@ -69,10 +70,12 @@ class ForgotPassword(Schema(Parameter("email", ParamType.STRING, required=True))
 
         # generate email and send to the user
         # Ideally the message should be a template
-        # rendered using render_template
+        # rendered using render_template and the hostname
+        # needs to be a variable that points opens up
+        # pbench-dashboard
         msg = Message(
             subject="Reset your password!",
-            sender=self.config.get("pbench-server", "email_username"),
+            sender=self.config.get("pbench-server", "mailfrom"),
             recipients=[email],
             body=(
                 "Please reset your password at http://localhost:8000/reset_password/"
@@ -80,10 +83,7 @@ class ForgotPassword(Schema(Parameter("email", ParamType.STRING, required=True))
             ),
         )
 
-        # This function needs to be asynchronous
         self.mail.send(msg)
-
-        return "", HTTPStatus.OK
 
 
 class RegisterUser(Resource):
