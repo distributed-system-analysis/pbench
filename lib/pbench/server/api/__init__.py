@@ -23,7 +23,9 @@ from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetai
 from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
-from pbench.server.api.resources.query_apis.index_mappings import IndexMappings
+from pbench.server.api.resources.query_apis.metadata_index.index_mappings import (
+    IndexMappings,
+)
 from pbench.server.api.resources.query_apis.index_search import IndexSearch
 from pbench.server.api.resources.query_apis.metadata_index.namespace_and_rows import (
     SampleNamespace,
@@ -75,7 +77,7 @@ def register_endpoints(api, app, config):
     )
     api.add_resource(
         IndexMappings,
-        f"{base_uri}/index/mappings/<string:index_name>",
+        f"{base_uri}/index/mappings/<string:index_key>",
         resource_class_args=(logger,),
     )
     api.add_resource(

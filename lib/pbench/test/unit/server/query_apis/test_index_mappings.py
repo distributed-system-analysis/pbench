@@ -30,7 +30,7 @@ class TestIndexMappings:
         response body.
         """
         with client:
-            response = client.get(f"{server_config.rest_uri}/index/mappings/run")
+            response = client.get(f"{server_config.rest_uri}/index/mappings/search")
             assert response.status_code == HTTPStatus.OK
             res_json = response.json
             assert res_json == {
@@ -85,9 +85,7 @@ class TestIndexMappings:
         response body.
         """
         with client:
-            response = client.get(
-                f"{server_config.rest_uri}/index/mappings/result-data-sample"
-            )
+            response = client.get(f"{server_config.rest_uri}/index/mappings/iterations")
             assert response.status_code == HTTPStatus.OK
             res_json = response.json
             assert res_json == {
@@ -110,7 +108,7 @@ class TestIndexMappings:
         present in the database.
         """
         with client:
-            response = client.get(f"{server_config.rest_uri}/index/mappings/run")
+            response = client.get(f"{server_config.rest_uri}/index/mappings/test")
             assert response.status_code == HTTPStatus.NOT_FOUND
             assert response.json["message"] == "Mapping not found"
 
@@ -119,6 +117,6 @@ class TestIndexMappings:
         Check the index mappings API if there is an error connecting to sql database.
         """
         with client:
-            response = client.get(f"{server_config.rest_uri}/index/mappings/run")
+            response = client.get(f"{server_config.rest_uri}/index/mappings/search")
             assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
             assert response.json["message"] == "Internal Server Error"
