@@ -7,26 +7,33 @@ from flask_mail import Mail, Message
 from email_validator import EmailNotValidError
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from typing import NamedTuple
+from logging import Logger
+from pbench.server import PbenchServerConfig
 
 from pbench.server.api.resources import (
     Schema,
     Parameter,
     ParamType,
+    ApiBase,
+    JSON,
+    Request,
 )
 from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.api.auth import Auth
 
 
-class ForgotPassword(Resource):
-    def __init__(self, config, logger, auth):
+class ForgotPassword(ApiBase):
+    def __init__(self, config: PbenchServerConfig, logger: Logger, auth):
+        super().__init__(
+            config, logger, Schema(Parameter("email", ParamType.STRING, required=True),)
+        ),
         self.auth = auth
-        self.config = config
-        self.logger = logger
         self.mail = Mail(flask_app)
-        Schema(Parameter("email", ParamType.STRING, required=True),),
+        self.host = config.get("DEFAULT", "default-host")
+        self.mailfrom = config.get("pbench-server", "mailfrom")
 
-    def post(self):
+    def _post(self, json_data: JSON, request: Request):
         """
         Post request for initiating password recovery.
         This requires a JSON data with required user fields
@@ -68,22 +75,20 @@ class ForgotPassword(Resource):
         # generate auth token for the valid user
         token = self.auth.encode_auth_token("60", user.id)
 
-        # generate email and send to the user
+        # generates the email
         # Ideally the message should be a template
-        # rendered using render_template and the hostname
-        # needs to be a variable that points opens up
-        # pbench-dashboard
+        # rendered using render_template
         msg = Message(
             subject="Reset your password!",
-            sender=self.config.get("pbench-server", "mailfrom"),
+            sender=self.mailfrom,
             recipients=[email],
-            body=(
-                "Please reset your password at http://localhost:8000/reset_password/"
-                + token
-            ),
+            body=("Please reset your password at " + self.host + "/" + token),
         )
 
+        # Send an email
         self.mail.send(msg)
+
+        return "", HTTPStatus.OK
 
 
 class RegisterUser(Resource):
