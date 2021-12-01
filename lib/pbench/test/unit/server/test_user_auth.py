@@ -7,11 +7,13 @@ from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.database import Database
 from pbench.test.unit.server.conftest import (
-    register_user,
-    login_user,
     admin_username,
     forgot_password,
+    login_user,
+    register_user,
 )
+
+from flask_mail import Mail
 
 
 class TestUserAuthentication:
@@ -394,7 +396,7 @@ class TestUserAuthentication:
             assert response.status_code == HTTPStatus.OK
 
     @staticmethod
-    def test_forgot_password_valid_email(client, server_config):
+    def test_forgot_password_valid_email(client, monkeypatch, server_config):
         with client:
             # user registration
             resp_register = register_user(
@@ -407,12 +409,17 @@ class TestUserAuthentication:
                 password="12345",
             )
             assert resp_register.status_code == HTTPStatus.CREATED
+
+        def ok(self, msg: str):
+            return
+
+        monkeypatch.setattr(Mail, "send", ok)
 
         resp_forgot_password = forgot_password(client, server_config, "user@domain.com")
         assert resp_forgot_password.status_code == HTTPStatus.OK
 
     @staticmethod
-    def test_forgot_password_invalid_email(client, server_config):
+    def test_forgot_password_invalid_email(client, monkeypatch, server_config):
         with client:
             # user registration
             resp_register = register_user(
@@ -425,6 +432,11 @@ class TestUserAuthentication:
                 password="12345",
             )
             assert resp_register.status_code == HTTPStatus.CREATED
+
+        def ok(self, msg: str):
+            return
+
+        monkeypatch.setattr(Mail, "send", ok)
 
         resp_forgot_password = forgot_password(
             client, server_config, "user1@domain.com"
