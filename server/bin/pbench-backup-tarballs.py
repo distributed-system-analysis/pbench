@@ -97,9 +97,11 @@ def sanity_check(lb_obj, s3_obj, config, logger):
                 backuppath,
             )
             lb_obj = None
-    except Exception:
+    except Exception as exc:
         logger.error(
-            "os.mkdir: Unable to create backup destination directory: {}", backup
+            "os.mkdir: Unable to create backup destination directory: {} '{}'",
+            backup,
+            exc,
         )
         lb_obj = None
 
