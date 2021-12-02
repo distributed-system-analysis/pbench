@@ -3,13 +3,23 @@ from logging import Logger
 from typing import Any, AnyStr, Dict
 
 from flask import jsonify
-from flask_restful import Resource, abort
+from flask.wrappers import Request
+from flask_restful import abort
+
+from pbench.server import PbenchServerConfig
+from pbench.server.api.resources import (
+    ApiBase,
+    Schema,
+    Parameter,
+    ParamType,
+    SchemaError,
+)
 
 from pbench.server.api.resources.query_apis.metadata_index import RunIdBase
 from pbench.server.database.models.template import Template, TemplateNotFound
 
 
-class IndexMappings(Resource):
+class IndexMappings(ApiBase):
     """
     Get properties of a document on which the client can search.
     This API currently only supports mapping properties of documents specified
@@ -56,23 +66,41 @@ class IndexMappings(Resource):
     }
     """
 
-    def __init__(self, logger: Logger):
-        self.logger = logger
+    def __init__(self, config: PbenchServerConfig, logger: Logger):
+        super().__init__(
+            config,
+            logger,
+            Schema(
+                Parameter(
+                    "index_key",
+                    ParamType.KEYWORD,
+                    required=True,
+                    keywords=list(RunIdBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                    uri_parameter=True,
+                )
+            ),
+        )
 
-    def get(self, index_key: AnyStr) -> Dict[AnyStr, Any]:
+    def _get(self, index_key: AnyStr, request: Request) -> Dict[AnyStr, Any]:
         """
-        Return mapping properties of the document specified by the index name
-        in the URI. For example, user can get the run document properties by
-        making a GET request on index/mappings/search. Similarly other index
-        documents can be fetched by making a GET request on appropriate index names.
+        Return mapping properties of the document specified by the index key
+        in the URI (supported index keys are defined in RunIdBase.ES_INTERNAL_INDEX_NAMES).
+        For example, user can get the run document properties by making a GET
+        request on index/mappings/search. Similarly other index documents can be
+        fetched by making a GET request on appropriate index names.
 
         We fetch the mapping by querying the template database. If the
         template is not found in the database NOT_FOUND error will be raised.
         """
-        index = RunIdBase.ES_INTERNAL_INDEX_NAMES.get(index_key)
-        if not index:
-            self.logger.debug(f"Document index key is not valid {index_key!r}")
-            abort(HTTPStatus.NOT_FOUND, message="Mapping not found")
+        # Normalize and validate the index keys we got via URI string. These
+        # don't go through JSON schema validation, so we have
+        # to do it here.
+        try:
+            self.schema.validate(index_key)
+        except SchemaError as e:
+            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+
+        index = RunIdBase.ES_INTERNAL_INDEX_NAMES[index_key["index_key"]]
         try:
             index_name = index["index"]
             template = Template.find(index_name)

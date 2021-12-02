@@ -108,9 +108,14 @@ class TestIndexMappings:
         present in the database.
         """
         with client:
-            response = client.get(f"{server_config.rest_uri}/index/mappings/test")
-            assert response.status_code == HTTPStatus.NOT_FOUND
-            assert response.json["message"] == "Mapping not found"
+            response = client.get(
+                f"{server_config.rest_uri}/index/mappings/bad_data_object_type"
+            )
+            assert response.status_code == HTTPStatus.BAD_REQUEST
+            assert (
+                response.json["message"]
+                == "Unrecognized keyword ['bad_data_object_type'] given for parameter index_key; allowed keywords are ['iterations', 'search', 'timeseries']"
+            )
 
     def test_with_db_error(self, client, server_config, database_error):
         """

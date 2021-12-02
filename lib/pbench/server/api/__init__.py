@@ -78,7 +78,7 @@ def register_endpoints(api, app, config):
     api.add_resource(
         IndexMappings,
         f"{base_uri}/index/mappings/<string:index_key>",
-        resource_class_args=(logger,),
+        resource_class_args=(config, logger),
     )
     api.add_resource(
         IndexSearch, f"{base_uri}/index/search", resource_class_args=(config, logger),
