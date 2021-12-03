@@ -69,14 +69,16 @@ class Commons:
 
     def build_index_from_metadata(self, root_index_name: str) -> str:
         """
-            Retrieve the list of ES indices from the dataset index map metadata based on a given root index name.
+            Retrieve the list of ES indices from the dataset index
+            map metadata based on a given root index name.
 
             Args:
                 root_index_name: root index name
 
             Returns:
-                An Elasticsearch query URL string listing the set of indices containing documents for the specified
-                root index name.
+                An Elasticsearch query URL string listing the set of
+                indices containing documents for the specified root
+                index name.
         """
         drb = Dataset.attach(controller="node", name="drb")
         index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
