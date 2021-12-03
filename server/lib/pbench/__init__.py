@@ -167,12 +167,14 @@ def get_pbench_logger(caller, config):
             handler = logging.FileHandler(os.path.join(logdir, "{}.log".format(caller)))
         elif config.logger_type == "devlog":
             handler = handlers.SysLogHandler(address="/dev/log")
+            handler.ident = caller
         elif (
             config.logger_type == "hostport"
         ):  # hostport logger type uses UDP-based logging
             handler = handlers.SysLogHandler(
                 address=(config.logger_host, int(config.logger_port))
             )
+            handler.ident = caller
         else:
             raise Exception("Unsupported logger type")
 
