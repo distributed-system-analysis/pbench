@@ -327,7 +327,7 @@ class TestSamplesNamespace(Commons):
                 },
             },
         }
-        index = self.build_index_from_metadata()
+        index = self.build_index_from_metadata("result-data-sample")
 
         # get_expected_status() expects to read username and access from the
         # JSON client payload, however this API acquires that information
@@ -557,7 +557,7 @@ class TestSampleValues(Commons):
                 ],
             },
         }
-        index = self.build_index_from_metadata()
+        index = self.build_index_from_metadata("result-data-sample")
 
         auth_json = {"user": "drb", "access": "private"}
         expected_status = self.get_expected_status(
@@ -623,7 +623,7 @@ class TestSampleValues(Commons):
                 ),
             },
         }
-        index = self.build_index_from_metadata()
+        index = self.build_index_from_metadata("result-data-sample")
 
         auth_json = {"user": "drb", "access": "private"}
         expected_status = self.get_expected_status(
