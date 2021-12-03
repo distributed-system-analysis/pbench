@@ -36,7 +36,7 @@ Requires:  python3-flask-httpauth
 %endif
 
 Requires: python3-flask-migrate python3-flask-restful python3-flask-sqlalchemy
-# Requires: python3-flask-bcrypt flask-jwt-extended  # Not available
+# Requires: python3-Bcrypt-Flask flask-jwt-extended  # Not available
 Requires: python3-gunicorn python3-humanize python3-psycopg2 python3-requests
 # Requires: pyesbulk>=2.0.1 PyJwt  # Not available
 Requires: python3-sqlalchemy
@@ -51,7 +51,7 @@ Requires: python3-sqlalchemy-utils
 # The following are indirect dependencies -- dependencies of dependencies that
 # we currently install via pip -- we require them here so that they will
 # already be satisfied during the pip install.  (certifi is required by
-# elasticsearch; bcrypt by flask-bcrypt; and greenlet by sqlalchemy.)  If/when
+# elasticsearch; bcrypt by Bcrypt-Flask; and greenlet by sqlalchemy.)  If/when
 # the packages requiring these are installed via RPM, these requirements should
 # no longer be necessary.
 Requires: python3-certifi python3-bcrypt python3-greenlet
