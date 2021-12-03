@@ -589,14 +589,14 @@ class Dataset(Database.Base):
         """
         try:
             dataset = Database.db_session.query(Dataset).filter_by(**kwargs).first()
-
-            if dataset is None:
-                raise DatasetNotFound(**kwargs)
-
-            return dataset
         except SQLAlchemyError as e:
             Dataset.logger.warning("Error querying {}: {}", kwargs, str(e))
             raise DatasetSqlError("querying", **kwargs)
+
+        if dataset is None:
+            raise DatasetNotFound(**kwargs)
+
+        return dataset
 
     def __str__(self) -> str:
         """

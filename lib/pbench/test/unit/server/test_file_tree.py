@@ -1,13 +1,11 @@
-from pathlib import Path
 import re
-
 import hashlib
-
-import pytest
 import shutil
 
+import pytest
+
 from pbench.common.logger import get_pbench_logger
-from pbench.server.filetree import FileTree
+from pbench.server.filetree import BadFilename, DatasetNotFound, DuplicateDataset, FileTree, Tarball
 
 
 @pytest.fixture
@@ -15,25 +13,23 @@ def make_logger(server_config):
     return get_pbench_logger("TEST", server_config)
 
 
-def clean_subtree(tree: Path):
-    if not tree.exists():
-        return
-    for d in tree.iterdir():
-        if d.is_dir():
-            shutil.rmtree(d, ignore_errors=True)
-        else:
-            d.unlink()
-
-
 @pytest.fixture(scope="function", autouse=True)
 def file_sweeper(server_config):
+    trees = [server_config.ARCHIVE, server_config.INCOMING, server_config.RESULTS]
+
+    for tree in trees:
+        tree.mkdir(parents=True, exist_ok=True)
+
     yield
 
     # After each test case:
 
-    clean_subtree(server_config.ARCHIVE)
-    clean_subtree(server_config.INCOMING)
-    clean_subtree(server_config.RESULTS)
+    for tree in trees:
+        for d in tree.iterdir():
+            if d.is_dir():
+                shutil.rmtree(d, ignore_errors=True)
+            else:
+                d.unlink()
 
 
 class TestFileTree:
@@ -83,6 +79,85 @@ class TestFileTree:
             for r in roots:
                 assert not (r / c).exists()
 
+    def test_create_bad(self, monkeypatch, server_config, make_logger, tarball):
+        # Calling restorecon() gives warning messages about "no default label"
+        monkeypatch.setattr("selinux.restorecon", lambda a: None)
+
+        source_tarball, source_md5, md5 = tarball
+        dataset_name = Tarball.stem(source_tarball)
+        tree = FileTree(server_config, make_logger)
+
+        # Attempting to create a dataset from the md5 file should result in
+        # a bad filename error
+        with pytest.raises(BadFilename) as exc:
+            tree.create("ABC", source_md5)
+        assert type(exc.value) is BadFilename
+        assert exc.value.path == str(source_md5)
+
+        tree.create("ABC", source_tarball)
+
+        # The create will remove the source files, so trying again should
+        # result in an error.
+        with pytest.raises(BadFilename) as exc:
+            tree.create("ABC", source_md5)
+        assert type(exc.value) is BadFilename
+        assert exc.value.path == str(source_md5)
+
+        # Attempting to create the same dataset again (from the archive copy)
+        # should fail with a duplicate dataset error.
+        tarball = tree.find_dataset(dataset_name)
+        with pytest.raises(DuplicateDataset) as exc:
+            tree.create("ABC", tarball.tarball_path)
+        assert type(exc.value) is DuplicateDataset
+        assert str(exc.value) == "A dataset named 'pbench-user-benchmark_some + config_2021.05.01T12.42.42' is already present in the file tree"
+        assert exc.value.dataset == tarball.name
+
+    def test_find(self, monkeypatch, server_config, make_logger, tarball):
+        # Calling restorecon() gives warning messages about "no default label"
+        monkeypatch.setattr("selinux.restorecon", lambda a: None)
+
+        source_tarball, source_md5, md5 = tarball
+        dataset_name = Tarball.stem(source_tarball)
+        tree = FileTree(server_config, make_logger)
+        tree.create("ABC", source_tarball)
+
+        # The original files should have been removed
+        assert not source_tarball.exists()
+        assert not source_md5.exists()
+
+        tarball = tree.find_dataset(dataset_name)
+        assert tarball
+        assert tarball.name == dataset_name
+
+        # Test __getitem__
+        assert tarball == tree[dataset_name]
+        with pytest.raises(DatasetNotFound) as exc:
+            tree["foobar"]
+        assert type(exc.value) is DatasetNotFound
+        assert str(exc.value) == "The dataset named 'foobar' is not present in the file tree"
+
+        # Test __contains__
+        assert dataset_name in tree
+        assert "foobar" not in tree
+
+        # Try to find a dataset that doesn't exist
+        with pytest.raises(DatasetNotFound) as exc:
+            tree.find_dataset("foobar")
+        assert type(exc.value) is DatasetNotFound
+        assert str(exc.value) == "The dataset named 'foobar' is not present in the file tree"
+        assert exc.value.dataset == "foobar"
+
+        # We should be able to find the tarball even in a new file tree
+        # that hasn't been fully discovered.
+        new = FileTree(server_config, make_logger)
+        assert dataset_name not in new
+
+        tarball = new.find_dataset(dataset_name)
+        assert tarball
+        assert tarball.name == dataset_name
+        assert list(new.controllers.keys()) == ["ABC"]
+        assert list(new.datasets.keys()) == [dataset_name]
+
     def test_lifecycle(self, monkeypatch, server_config, make_logger, tarball):
 
         # Calling restorecon() gives warning messages about "no default label"
@@ -91,7 +166,6 @@ class TestFileTree:
         source_tarball, source_md5, md5 = tarball
         tree = FileTree(server_config, make_logger)
         tree.create("ABC", source_tarball)
-
         archive = tree.archive_root / "ABC"
         incoming = tree.incoming_root / "ABC"
         results = tree.results_root / "ABC"
@@ -137,7 +211,6 @@ class TestFileTree:
         newtree = FileTree(server_config, make_logger)
         newtree.full_discovery()
 
-        # Is it worth writing __eql__ for the classes?
         assert newtree.archive_root == tree.archive_root
         assert newtree.incoming_root == tree.incoming_root
         assert newtree.results_root == tree.results_root
@@ -171,7 +244,6 @@ class TestFileTree:
 
         # Now that we have all that setup, delete the dataset
         tree.delete(dataset_name)
-
         assert not archive.exists()
         assert not tree.controllers
         assert not tree.datasets

@@ -1,6 +1,3 @@
-"""pbench-show-tree"""
-
-from pathlib import Path
 from typing import List
 
 import click
@@ -9,9 +6,6 @@ from pbench.cli.server import config_setup, pass_cli_context
 from pbench.cli.server.options import common_options
 from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig
-from pbench.server.api.resources.upload_api import Upload
-from pbench.server.database.models.datasets import Dataset
-from pbench.server.database.models.users import User
 from pbench.server.filetree import FileTree
 
 
@@ -43,29 +37,13 @@ def print_tree(tree: FileTree):
                     print(f"        States: {', '.join(states)}")
 
 
-@click.command()
+@click.command(name="pbench-tree-manager")
 @pass_cli_context
-@click.option("--controller", help="Controller name for a created dataset")
-@click.option(
-    "--create",
-    type=click.Path(
-        exists=True, file_okay=True, dir_okay=False, readable=True, resolve_path=True
-    ),
-    prompt="Tarball path",
-    prompt_required=False,
-    help="Create a dataset from a tarball and MD5 file",
-)
 @click.option(
     "--display", default=False, is_flag=True, help="Display the full tree on completion"
 )
-@click.option(
-    "--full/--no-full", default=False, help="Discover the full tree on startup"
-)
-@click.option("--user", help="Username to own a created dataset")
 @common_options
-def tree_manage(
-    context: object, controller: str, create: str, display: bool, full: bool, user: str
-):
+def tree_manage(context: object, display: bool):
     """
     Discover, display, and manipulate the on-disk representation of controllers
     and datasets.
@@ -78,42 +56,24 @@ def tree_manage(
     the network upload when the tarball and MD5 file are available locally). We
     don't implement `--delete` however, as that would require also integrating
     with the Elasticsearch bulk delete: this has to be done through the API.
+    \f
 
     Args:
         context: Click context (contains shared `--config` value)
-        controller: Controller name (required for `--create`)
-        create: Create a new on-disk dataset from a tarball path
         display: Print a simplified representation of the hierarchy
-        full: Discover the full Pbench on-disk hierarchy
-        user: Username to own a new dataset
     """
     try:
         config = config_setup(context)
         logger = get_pbench_logger("filetree", config)
-
         file_tree = FileTree(config, logger)
-        if full:
-            file_tree.full_discovery()
-
-        if create:
-            if not controller:
-                click.echo("Create requires a controller name", err=True)
-                exit(1)
-            if not user:
-                click.echo("Create requires a username", err=True)
-                exit(1)
-            owner = User.query(username=user)
-            dataset = Dataset.create(controller=controller, owner=owner, path=create)
-            tarball = file_tree.create(controller, Path(create))
-            Upload.finalize_dataset(dataset, tarball, config, logger)
-
-        if display:
-            print_tree(file_tree)
-
+        file_tree.full_discovery()
         rv = 0
     except Exception as exc:
-        logger.exception("Something went awry! {}", exc)
+        logger.exception("An error occurred discovering the file tree: {}", exc)
         click.echo(exc, err=True)
         rv = 2 if isinstance(exc, BadConfig) else 1
+    else:
+        if display:
+            print_tree(file_tree)
 
     click.get_current_context().exit(rv)

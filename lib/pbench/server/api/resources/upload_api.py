@@ -6,8 +6,7 @@ import hashlib
 from logging import Logger
 import os
 from http import HTTPStatus
-from pathlib import Path
-from typing import Any, Deque
+from typing import Any, Callable, Deque
 
 import humanize
 from flask import jsonify, request
@@ -15,7 +14,7 @@ from flask_restful import Resource, abort
 
 from pbench.common.utils import validate_hostname
 from pbench.server import PbenchServerConfig
-from pbench.server.filetree import FileTree, Tarball
+from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -24,55 +23,6 @@ from pbench.server.database.models.datasets import (
     Metadata,
 )
 from pbench.server.utils import filesize_bytes
-
-
-class HostInfo(Resource):
-    """
-    Show the status of the server.
-
-    This code will read a standard file and return a stock 200 / OK status if
-    the content doesn't start with `MESSAGE==`; and, if it does, fail with
-    503 / Service Unavailable and the remaining text of the file as a
-    `"message"` response key.
-
-    TODO: This is an artifact of the old ssh-based mechanism, where a fixed
-    symlink on disk points either to a templated file with the scp target
-    directory or a status string prefixed with `MESSAGE===` intended to be
-    reported to the user as an explanation that the server is not currently
-    taking calls -- e.g. (in standard boilerplate) because it's "in
-    maintenance mode". We should get away from the fixed files, and we have no
-    need for the templated scp directory as we no longer support ssh uploads.
-    We should create a new ADMIN-only server status API to specify whether the
-    server should be active or not, with an optional message that will be
-    reported by this API. This could become part of a "server state"
-    PostgreSQL table.
-
-    NOTE: `PUT` should check the status and fail with 503 if the server is not
-    in service, rather than relying on a separate API call.
-    """
-
-    STATUS_LINK = Path(
-        "/var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL002"
-    )
-
-    def __init__(self, config, logger):
-        self.logger = logger
-
-    def get(self):
-        try:
-            status = HostInfo.STATUS_LINK.read_text()
-            self.logger.info(
-                "Read status {!r} from {}", status, str(HostInfo.STATUS_LINK)
-            )
-        except Exception as exc:
-            self.logger.error(
-                "There was something wrong constructing the host info: '{}'", exc
-            )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-        if status.startswith("MESSAGE==="):
-            msg = status[len("MESSAGE===") :]
-            abort(HTTPStatus.SERVICE_UNAVAILABLE, message=msg)
-        return HTTPStatus.OK
 
 
 class CleanupTime(Exception):
@@ -93,9 +43,24 @@ class Step(Enum):
     be undone if the upload ultimately fails.
     """
 
-    DATASET = 1  # Dataset was created
-    UPLOAD = 2  # Uploaded tar file was created
-    MD5 = 3  # MD5 file was created
+    DATASET = (1, lambda d: d.delete())  # Dataset was created
+    UPLOAD = (2, lambda p: p.unlink())  # Uploaded tar file was created
+    MD5 = (3, lambda p: p.unlink())  # MD5 file was created
+
+    def __init__(self, value: int, revert: Callable[[Any], None]):
+        """
+        Enum initializer: provide a Callable to revert the effect of an upload
+        step.
+
+        NOTE: The type of the lambda argument depends on the step, and can't be
+        easily expressed in type hints. For now,
+
+            DATASET: a reference to a Dataset object, on which we call delete()
+            UPLOAD: a reference to a Path object, on which we call unlink()
+            MD5: a reference to a Path object, on which we call unlink()
+        """
+        self.__value__ = value
+        self.revert = revert
 
 
 class CleanupAction:
@@ -125,29 +90,12 @@ class CleanupAction:
         This handles errors and reports them, but doesn't propagate failure to
         ensure that cleanup continues as best we can.
         """
-        if self.step is Step.DATASET:
-            try:
-                self.parameter.delete()
-            except Exception as e:
-                self.logger.error("Unable to remove dataset {}: {}", self.parameter, e)
-        elif self.step is Step.MD5:
-            try:
-                self.parameter.unlink()
-            except FileNotFoundError:
-                pass  # Note: Python 3.8 avoids this with `missing_ok=True`
-            except Exception as e:
-                self.logger.error(
-                    "Unable to remove temporary MD5 file {}: {}", self.parameter, e
-                )
-        elif self.step is Step.UPLOAD:
-            try:
-                self.parameter.unlink()
-            except FileNotFoundError:
-                pass  # Note: Python 3.8 avoids this with `missing_ok=True`
-            except Exception as e:
-                self.logger.error(
-                    "Unable to remove temporary TAR file {}: {}", self.parameter, e
-                )
+        try:
+            self.step.revert(self.parameter)
+        except Exception as e:
+            self.logger.error(
+                "Unable to revert {} {}: {}", self.step, self.parameter, e
+            )
 
 
 class Cleanup:
@@ -226,8 +174,16 @@ class Upload(Resource):
                     HTTPStatus.INTERNAL_SERVER_ERROR, "Error verifying username"
                 )
 
-            controller = None
-            self.logger.info("Entertaining PUT request for {}...", filename)
+            controller = request.headers.get("controller")
+            if not controller:
+                raise CleanupTime(
+                    HTTPStatus.BAD_REQUEST, "Missing required 'controller' header"
+                )
+
+            if validate_hostname(controller) != 0:
+                raise CleanupTime(HTTPStatus.BAD_REQUEST, "Invalid 'controller' header")
+
+            self.logger.info("Uploading {} on controller {}", filename, controller)
 
             if os.path.basename(filename) != filename:
                 raise CleanupTime(
@@ -240,19 +196,10 @@ class Upload(Resource):
                     f"File extension not supported, must be {self.ALLOWED_EXTENSION}",
                 )
 
-            controller = request.headers.get("controller")
-            if not controller:
-                raise CleanupTime(
-                    HTTPStatus.BAD_REQUEST, "Missing required controller header"
-                )
-
-            if validate_hostname(controller) != 0:
-                raise CleanupTime(HTTPStatus.BAD_REQUEST, "Invalid controller header")
-
             md5sum = request.headers.get("Content-MD5")
             if not md5sum:
                 raise CleanupTime(
-                    HTTPStatus.BAD_REQUEST, "Missing required Content-MD5 header"
+                    HTTPStatus.BAD_REQUEST, "Missing required 'Content-MD5' header"
                 )
 
             try:
@@ -260,24 +207,25 @@ class Upload(Resource):
                 content_length = int(length_string)
             except KeyError:
                 raise CleanupTime(
-                    HTTPStatus.LENGTH_REQUIRED, "Missing required Content-Length header"
+                    HTTPStatus.LENGTH_REQUIRED,
+                    "Missing required 'Content-Length' header",
                 )
             except ValueError:
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,
-                    f"Invalid Content-Length header, not an integer ({length_string})",
+                    f"Invalid 'Content-Length' header, not an integer ({length_string})",
                 )
-            else:
-                if content_length <= 0:
-                    raise CleanupTime(
-                        HTTPStatus.BAD_REQUEST,
-                        f"Content-Length {content_length} must be greater than 0",
-                    )
-                elif content_length > self.max_content_length:
-                    raise CleanupTime(
-                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                        f"Content-Length {content_length} must be no greater than than {humanize.naturalsize(self.max_content_length)}",
-                    )
+
+            if content_length <= 0:
+                raise CleanupTime(
+                    HTTPStatus.BAD_REQUEST,
+                    f"'Content-Length' {content_length} must be greater than 0",
+                )
+            elif content_length > self.max_content_length:
+                raise CleanupTime(
+                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                    f"'Content-Length' {content_length} must be no greater than than {humanize.naturalsize(self.max_content_length)}",
+                )
 
             try:
                 file_tree = FileTree(self.config, self.logger)
@@ -291,11 +239,11 @@ class Upload(Resource):
             bytes_received = 0
 
             self.logger.info(
-                "PUT uploading {}:{} to {}, {}",
+                "PUT uploading {}:{} for user {} to {}",
                 controller,
                 filename,
+                username,
                 tar_full_path,
-                md5_full_path,
             )
 
             # Create a tracking dataset object; it'll begin in UPLOADING state
@@ -308,15 +256,33 @@ class Upload(Resource):
                 )
                 dataset.add()
             except DatasetDuplicate:
+                dataset_name = Tarball.stem(tar_full_path)
                 self.logger.info(
                     "Dataset already exists, user = {}, ctrl = {!a}, file = {!a}",
                     username,
                     controller,
-                    filename,
+                    dataset_name,
                 )
-                response = jsonify(dict(message="Dataset already exists"))
-                response.status_code = HTTPStatus.OK
-                return response
+                try:
+                    duplicate = Dataset.query(name=dataset_name)
+                except DatasetNotFound:
+                    self.logger.error(
+                        "Duplicate dataset {}:{}:{} not found",
+                        username,
+                        controller,
+                        dataset_name,
+                    )
+                    abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+                else:
+                    if duplicate.md5 == md5sum:
+                        response = jsonify(dict(message="Dataset already exists"))
+                        response.status_code = HTTPStatus.OK
+                        return response
+                    else:
+                        abort(
+                            HTTPStatus.CONFLICT,
+                            message=f"Duplicate dataset has different MD5 ({duplicate.md5} != {md5sum})",
+                        )
             except Exception:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -330,7 +296,6 @@ class Upload(Resource):
             # file exists in the file system but no Dataset was created: which
             # would be odd and certainly qualifies as an internal error.
             if dataset.name in file_tree:
-                tarball = file_tree[dataset.name]
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     message="File tree dataset already exists",
@@ -410,39 +375,47 @@ class Upload(Resource):
                         HTTPStatus.INTERNAL_SERVER_ERROR,
                         "Unable to create dataset in file system",
                     )
-        except CleanupTime as c:
-            cause = c.__cause__ if c.__cause__ else c.__context__
-            if c.status == HTTPStatus.INTERNAL_SERVER_ERROR:
-                abort_msg = "INTERNAL ERROR"
-                if cause:
-                    self.logger.exception(
-                        "{}:{}:{} error {}", username, controller, filename, c.message
-                    )
-                else:
-                    self.logger.error(
-                        "{}:{}:{} error {}", username, controller, filename, c.message
-                    )
-            else:
-                self.logger.warning(
-                    "{}:{}:{} error {} ({})",
-                    username,
-                    controller,
-                    filename,
-                    c.message,
-                    cause,
-                )
-                abort_msg = c.message
-            recovery.cleanup()
-            abort(c.status, message=abort_msg)
-        except Exception:
-            self.logger.exception("Unexpected exception in outer try")
-            recovery.cleanup()
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
-        try:
             self.finalize_dataset(dataset, tarball, self.config, self.logger)
-        except Exception:
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+        except Exception as e:
+            status = HTTPStatus.INTERNAL_SERVER_ERROR
+            abort_msg = "INTERNAL ERROR"
+            if isinstance(e, CleanupTime):
+                cause = e.__cause__ if e.__cause__ else e.__context__
+                if e.status == HTTPStatus.INTERNAL_SERVER_ERROR:
+                    abort_msg = "INTERNAL ERROR"
+                    if cause:
+                        self.logger.exception(
+                            "{}:{}:{} error {}",
+                            username,
+                            controller,
+                            filename,
+                            e.message,
+                        )
+                    else:
+                        self.logger.error(
+                            "{}:{}:{} error {}",
+                            username,
+                            controller,
+                            filename,
+                            e.message,
+                        )
+                else:
+                    self.logger.warning(
+                        "{}:{}:{} error {} ({})",
+                        username,
+                        controller,
+                        filename,
+                        e.message,
+                        cause,
+                    )
+                    abort_msg = e.message
+                status = e.status
+            else:
+                self.logger.exception("Unexpected exception in outer try")
+            recovery.cleanup()
+            abort(status, message=abort_msg)
+
         response = jsonify(dict(message="File successfully uploaded"))
         response.status_code = HTTPStatus.CREATED
         return response

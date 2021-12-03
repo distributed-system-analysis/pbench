@@ -1,6 +1,7 @@
 from collections import Counter, defaultdict
 from datetime import datetime
 from http import HTTPStatus
+import json
 from logging import Logger
 import re
 from typing import Any, Callable, Dict, Iterator, List
@@ -108,6 +109,11 @@ class ElasticBase(ApiBase):
         self.prefix = config.get("Indexing", "index_prefix")
         host = config.get("elasticsearch", "host")
         port = config.get("elasticsearch", "port")
+
+        # TODO: For future flexibility, we should consider reading this entire
+        # Elasticsearch URI from the config file as we do for PostgreSQL rather
+        # than stitching it together. This would allow backend control over
+        # authentication and http vs https for example.
         self.es_url = f"http://{host}:{port}"
 
     def _get_user_query(self, parameters: JSON, terms: List[JSON]) -> JSON:
@@ -538,12 +544,14 @@ class ElasticBulkBase(ApiBase):
             role: specify the API role, defaulting to UPDATE
         """
         super().__init__(config, logger, schema, role=role)
-        self.host = config.get("elasticsearch", "host")
-        self.port = config.get("elasticsearch", "port")
-        self.node = {
-            "host": config.get("elasticsearch", "host"),
-            "port": config.get("elasticsearch", "port"),
-        }
+        host = config.get("elasticsearch", "host")
+        port = config.get("elasticsearch", "port")
+
+        # TODO: For future flexibility, we should consider reading this entire
+        # Elasticsearch URI from the config file as we do for PostgreSQL rather
+        # than stitching it together. This would allow backend control over
+        # authentication and http vs https for example.
+        self.elastic_uri = f"http://{host}:{port}"
         self.action = action
         self.config = config
 
@@ -634,13 +642,12 @@ class ElasticBulkBase(ApiBase):
         #
         # This will raise UnauthorizedAccess on failure.
         try:
-            access = json_data["access"] if "access" in self.schema else dataset.access
-            self._check_authorization(owner.username, access)
+            self._check_authorization(owner.username, dataset.access)
         except UnauthorizedAccess as e:
             abort(e.http_status, message=str(e))
 
         # Build an Elasticsearch instance to manage the bulk update
-        elastic = Elasticsearch(f"http://{self.host}:{self.port}")
+        elastic = Elasticsearch(self.elastic_uri)
         self.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
 
         # Internally report a summary of successes and Elasticsearch failure
@@ -730,7 +737,15 @@ class ElasticBulkBase(ApiBase):
         summary = {"ok": count - error_count, "failure": error_count}
 
         # Let the subclass complete the operation
-        self.complete(dataset, json_data, summary)
+        try:
+            self.complete(dataset, json_data, summary)
+        except Exception as e:
+            self.logger.exception(
+                "{}: exception {} occurred during bulk operation completion",
+                klasname,
+                type(e).__name__,
+            )
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         # Return the summary document as the success response, or abort with an
         # internal error if we weren't 100% successful. Some elasticsearch
@@ -747,7 +762,7 @@ class ElasticBulkBase(ApiBase):
                 dataset,
                 count - error_count,
                 error_count,
-                report,
+                json.dumps(report),
             )
             abort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
