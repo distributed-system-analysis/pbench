@@ -33,6 +33,7 @@ class Commons:
             "hits": [],
         },
     }
+    RESULT_DATA_SAMPLE = "result-data-sample"
 
     def _setup(
         self,
@@ -66,7 +67,11 @@ class Commons:
 
         return f"/{index}"
 
-    def build_index_from_metadata(self, root_index_name):
+    def build_index_from_metadata(self, root_index_name:str) -> str:
+        """Args
+            - root_index_name: Retrieve the list of ES indices from
+                the metadata table based on a given root_index_name.
+        """
         drb = Dataset.attach(controller="node", name="drb")
         index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
         index_keys = [key for key in index_map if root_index_name in key]
@@ -365,7 +370,7 @@ class Commons:
             pytest.skip("skipping " + self.test_http_exception.__name__)
 
         if self.use_index_from_metadata:
-            index = self.build_index_from_metadata("result-data-sample")
+            index = self.build_index_from_metadata(Commons.RESULT_DATA_SAMPLE)
         else:
             index = self.build_index(
                 server_config,
@@ -400,7 +405,7 @@ class Commons:
             pytest.skip("skipping " + self.test_http_error.__name__)
 
         if self.use_index_from_metadata:
-            index = self.build_index_from_metadata("result-data-sample")
+            index = self.build_index_from_metadata(Commons.RESULT_DATA_SAMPLE)
         else:
             index = self.build_index(
                 server_config,

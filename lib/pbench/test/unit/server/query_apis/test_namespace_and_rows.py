@@ -397,6 +397,7 @@ class TestSampleValues(Commons):
     """
 
     SCROLL_ID = "random_scroll_id_string_1=="
+    RESULT_DATA_SAMPLE = "result-data-sample"
 
     @pytest.fixture(autouse=True)
     def _setup(self, client):
@@ -557,7 +558,7 @@ class TestSampleValues(Commons):
                 ],
             },
         }
-        index = self.build_index_from_metadata("result-data-sample")
+        index = self.build_index_from_metadata(TestSampleValues.RESULT_DATA_SAMPLE)
 
         auth_json = {"user": "drb", "access": "private"}
         expected_status = self.get_expected_status(
@@ -623,7 +624,7 @@ class TestSampleValues(Commons):
                 ),
             },
         }
-        index = self.build_index_from_metadata("result-data-sample")
+        index = self.build_index_from_metadata(TestSampleValues.RESULT_DATA_SAMPLE)
 
         auth_json = {"user": "drb", "access": "private"}
         expected_status = self.get_expected_status(
@@ -757,7 +758,7 @@ class TestSampleValues(Commons):
 
     def test_get_index(self, attach_dataset, provide_metadata):
         drb = Dataset.attach(controller="node", name="drb")
-        indices = self.cls_obj.get_index(drb, "result-data-sample")
+        indices = self.cls_obj.get_index(drb, TestSampleValues.RESULT_DATA_SAMPLE)
         assert indices == "unit-test.v5.result-data-sample.2020-08"
 
     def test_exceptions_on_get_index(self, attach_dataset):
@@ -765,7 +766,7 @@ class TestSampleValues(Commons):
 
         # When server index_map is None we expect 500
         with pytest.raises(InternalServerError) as exc:
-            self.cls_obj.get_index(test, "result-data-sample")
+            self.cls_obj.get_index(test, TestSampleValues.RESULT_DATA_SAMPLE)
         assert exc.value.code == HTTPStatus.INTERNAL_SERVER_ERROR
 
         Metadata.setvalue(
@@ -776,4 +777,4 @@ class TestSampleValues(Commons):
 
         # When server index_map doesn't have mappings for result-data-sample
         # documents we expect the indices to an empty string
-        assert self.cls_obj.get_index(test, "result-data-sample") == ""
+        assert self.cls_obj.get_index(test, TestSampleValues.RESULT_DATA_SAMPLE) == ""
