@@ -33,6 +33,7 @@ class Commons:
             "hits": [],
         },
     }
+    RESULT_DATA_SAMPLE = "result-data-sample"
 
     def _setup(
         self,
@@ -66,10 +67,22 @@ class Commons:
 
         return f"/{index}"
 
-    def build_index_from_metadata(self):
+    def build_index_from_metadata(self, root_index_name: str) -> str:
+        """
+            Retrieve the list of ES indices from the dataset index
+            map metadata based on a given root index name.
+
+            Args:
+                root_index_name: root index name
+
+            Returns:
+                An Elasticsearch query URL string listing the set of
+                indices containing documents for the specified root
+                index name.
+        """
         drb = Dataset.attach(controller="node", name="drb")
         index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
-        index_keys = [key for key in index_map if "result-data-sample" in key]
+        index_keys = [key for key in index_map if root_index_name in key]
         return "/" + ",".join(index_keys)
 
     def date_range(self, start: AnyStr, end: AnyStr) -> list:
@@ -365,7 +378,7 @@ class Commons:
             pytest.skip("skipping " + self.test_http_exception.__name__)
 
         if self.use_index_from_metadata:
-            index = self.build_index_from_metadata()
+            index = self.build_index_from_metadata(self.RESULT_DATA_SAMPLE)
         else:
             index = self.build_index(
                 server_config,
@@ -400,7 +413,7 @@ class Commons:
             pytest.skip("skipping " + self.test_http_error.__name__)
 
         if self.use_index_from_metadata:
-            index = self.build_index_from_metadata()
+            index = self.build_index_from_metadata(self.RESULT_DATA_SAMPLE)
         else:
             index = self.build_index(
                 server_config,
