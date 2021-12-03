@@ -3384,11 +3384,20 @@ Template: pbench-unittests.v6.run-data
                     "controller": {
                         "type": "keyword"
                     },
+                    "controller_orig": {
+                        "type": "keyword"
+                    },
                     "date": {
                         "type": "date"
                     },
                     "end": {
                         "type": "date"
+                    },
+                    "hostname_f": {
+                        "type": "keyword"
+                    },
+                    "hostname_s": {
+                        "type": "keyword"
                     },
                     "id": {
                         "type": "keyword"
