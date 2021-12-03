@@ -89,8 +89,7 @@ class IndexMappings(ApiBase):
         request on index/mappings/search. Similarly other index documents can be
         fetched by making a GET request on appropriate index names.
 
-        We fetch the mapping by querying the template database. If the
-        template is not found in the database NOT_FOUND error will be raised.
+        The mappings are retrieved by querying the template database.
         """
         # Normalize and validate the index keys we got via URI string. These
         # don't go through JSON schema validation, so we have
