@@ -57,8 +57,7 @@ class TestDatasetsPublish:
                     update["error"] = {"reason": "Just kidding", "type": "KIDDING"}
                 else:
                     status = True
-                item = {"update": update}
-                expected_results.append((status, item))
+                expected_results.append((status, {"update": update}))
                 expected_ids.append(docid)
 
         def fake_bulk(

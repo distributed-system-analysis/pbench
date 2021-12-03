@@ -6,9 +6,9 @@ import elasticsearch
 import pytest
 
 from pbench.server import PbenchServerConfig
-from pbench.server.filetree import FileTree
 from pbench.server.api.resources import JSON
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server.filetree import FileTree
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -61,8 +61,7 @@ class TestDatasetsDelete:
                     delete["error"] = {"reason": "Just kidding", "type": "KIDDING"}
                 else:
                     status = True
-                item = {"delete": delete}
-                expected_results.append((status, item))
+                expected_results.append((status, {"delete": delete}))
                 expected_ids.append(docid)
 
         def fake_bulk(
@@ -108,9 +107,7 @@ class TestDatasetsDelete:
         monkeypatch.setattr(FileTree, "__init__", fake_constructor)
         monkeypatch.setattr(FileTree, "delete", fake_delete)
 
-    @pytest.mark.parametrize(
-        "owner", ("drb", "test"),
-    )
+    @pytest.mark.parametrize("owner", ("drb", "test"))
     def test_query(
         self,
         attach_dataset,
@@ -122,7 +119,7 @@ class TestDatasetsDelete:
         server_config,
     ):
         """
-        Check behavior of the publish API with various combinations of dataset
+        Check behavior of the delete API with various combinations of dataset
         owner (managed by the "owner" parametrization here) and authenticated
         user (managed by the build_auth_header fixture).
         """
@@ -168,7 +165,7 @@ class TestDatasetsDelete:
         server_config,
     ):
         """
-        Check the publish API when some document updates fail. We expect an
+        Check the delete API when some document updates fail. We expect an
         internal error with a report of success and failure counts.
         """
         self.fake_elastic(monkeypatch, get_document_map, True)
@@ -200,7 +197,7 @@ class TestDatasetsDelete:
         self, client, get_document_map, monkeypatch, pbench_token, server_config
     ):
         """
-        Check the publish API if the dataset doesn't exist.
+        Check the delete API if the dataset doesn't exist.
         """
         payload = self.PAYLOAD.copy()
         payload["name"] = "badwolf"
@@ -219,7 +216,7 @@ class TestDatasetsDelete:
         self, attach_dataset, client, monkeypatch, pbench_token, server_config
     ):
         """
-        Check the publish API response if the bulk helper throws an exception.
+        Check the delete API response if the bulk helper throws an exception.
 
         (It shouldn't do this as we've set raise_on_exception=False, but we
         check the code path anyway.)

@@ -11,7 +11,7 @@ from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
     Metadata,
-    MetadataError
+    MetadataError,
 )
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User

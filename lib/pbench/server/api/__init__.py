@@ -26,13 +26,14 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,
 )
+from pbench.server.api.resources.query_apis.datasets_delete import DatasetsDelete
 from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
 from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
-from pbench.server.api.resources.upload_api import HostInfo, Upload
+from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
@@ -59,6 +60,11 @@ def register_endpoints(api, app, config):
     api.add_resource(
         MonthIndices,
         f"{base_uri}/controllers/months",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        DatasetsDelete,
+        f"{base_uri}/datasets/delete",
         resource_class_args=(config, logger),
     )
     api.add_resource(
@@ -110,10 +116,6 @@ def register_endpoints(api, app, config):
 
     api.add_resource(
         GraphQL, f"{base_uri}/graphql", resource_class_args=(config, logger),
-    )
-
-    api.add_resource(
-        HostInfo, f"{base_uri}/host_info", resource_class_args=(config, logger),
     )
 
     api.add_resource(

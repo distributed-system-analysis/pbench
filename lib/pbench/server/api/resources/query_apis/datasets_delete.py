@@ -2,7 +2,6 @@ from logging import Logger
 from typing import Iterator
 
 from pbench.server import PbenchServerConfig
-from pbench.server.filetree import FileTree
 from pbench.server.api.resources import (
     API_OPERATION,
     JSON,
@@ -12,6 +11,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import ElasticBulkBase
 from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.filetree import FileTree
 
 
 class DatasetsDelete(ElasticBulkBase):
@@ -41,10 +41,11 @@ class DatasetsDelete(ElasticBulkBase):
         dataset document map.
 
         Args:
+            json_data: the client's JSON payload
             dataset: the Dataset object
 
         Returns:
-            A sequence of Elasticsearch bulk actions
+            A generator for Elasticsearch bulk delete actions
         """
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
 
@@ -58,6 +59,21 @@ class DatasetsDelete(ElasticBulkBase):
                 yield {"_op_type": self.action, "_index": index, "_id": id}
 
     def complete(self, dataset: Dataset, json_data: JSON, summary: JSON) -> None:
+        """
+        Complete the delete operation by deleting files (both the tarball, MD5
+        file, and unpacked tarball contents) from the file system, and then
+        deleting the Dataset object.
+
+        Note that an exception will be caught outside this class; the Dataset
+        object will remain to allow a retry.
+
+        Args:
+            dataset: Dataset object
+            json_data: client JSON payload
+            summary: summary of the bulk operation
+                ok: count of successful updates
+                failure: count of failures
+        """
         # Only on total success we update the Dataset's registered access
         # column; a "partial success" will remain in the previous state.
         if summary["failure"] == 0:

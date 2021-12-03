@@ -34,21 +34,6 @@ def get_pbench_token(client, server_config):
     return data["auth_token"]
 
 
-class TestHostInfo:
-    @staticmethod
-    def test_host_info_ok(client, monkeypatch, server_config):
-        monkeypatch.setattr(Path, "read_text", lambda self: "address")
-        response = client.get(f"{server_config.rest_uri}/host_info")
-        assert response.status_code == HTTPStatus.OK
-
-    @staticmethod
-    def test_host_info_not_ready(client, monkeypatch, server_config):
-        monkeypatch.setattr(Path, "read_text", lambda self: "MESSAGE===not now")
-        response = client.get(f"{server_config.rest_uri}/host_info")
-        assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
-        assert response.json.get("message") == "not now"
-
-
 class TestElasticsearch:
     @staticmethod
     def test_missing_json_object(client, caplog, server_config, pbench_token):
@@ -163,7 +148,7 @@ class TestUpload:
     def test_missing_controller_header_upload(
         self, client, caplog, server_config, pbench_token
     ):
-        expected_message = "Missing required controller header"
+        expected_message = "Missing required 'controller' header"
         response = client.put(
             self.gen_uri(server_config),
             headers={"Authorization": "Bearer " + pbench_token},
@@ -175,7 +160,7 @@ class TestUpload:
     def test_missing_md5sum_header_upload(
         self, client, caplog, server_config, setup_ctrl, pbench_token
     ):
-        expected_message = "Missing required Content-MD5 header"
+        expected_message = "Missing required 'Content-MD5' header"
         response = client.put(
             self.gen_uri(server_config),
             headers={
@@ -190,7 +175,7 @@ class TestUpload:
     def test_missing_length_header_upload(
         self, client, caplog, server_config, setup_ctrl, pbench_token
     ):
-        expected_message = "Missing required Content-Length header"
+        expected_message = "Missing required 'Content-Length' header"
         response = client.put(
             self.gen_uri(server_config),
             headers={
@@ -287,7 +272,9 @@ class TestUpload:
                 ),
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == "Content-Length 0 must be greater than 0"
+        assert (
+            response.json.get("message") == "'Content-Length' 0 must be greater than 0"
+        )
         self.verify_logs(caplog)
 
     def test_upload(

@@ -44,7 +44,7 @@ class DatasetsPublish(ElasticBulkBase):
             dataset: the Dataset object
 
         Returns:
-            A sequence of Elasticsearch bulk actions
+            A generator for Elasticsearch bulk update actions
         """
         access = json_data["access"]
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
@@ -68,8 +68,20 @@ class DatasetsPublish(ElasticBulkBase):
                 }
 
     def complete(self, dataset: Dataset, json_data: JSON, summary: JSON) -> None:
-        # Only on total success we update the Dataset's registered access
-        # column; a "partial success" will remain in the previous state.
+        """
+        Complete the delete operation by updating the access of the Dataset
+        object.
+
+        Note that an exception will be caught outside this class; the Dataset
+        object will remain in the previous state to allow a retry.
+
+        Args:
+            dataset: Dataset object
+            json_data: client JSON payload
+            summary: summary of the bulk operation
+                ok: count of successful updates
+                failure: count of failures
+        """
         if summary["failure"] == 0:
             dataset.access = json_data["access"]
             dataset.update()

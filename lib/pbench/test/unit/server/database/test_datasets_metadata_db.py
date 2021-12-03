@@ -1,4 +1,5 @@
 import pytest
+from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
@@ -201,7 +202,14 @@ class TestMetadataNamespace:
             "first": "My",
             "last": "Name",
         }
+        id = ds.id
         ds.delete()
 
+        # Test that the dataset is gone by searching for it
         with pytest.raises(DatasetNotFound):
             Dataset.query(name="fio")
+
+        # Peek under the carpet to look for orphaned metadata objects linked
+        # to the deleted Dataset
+        metadata = Database.db_session.query(Metadata).filter_by(dataset_ref=id).first()
+        assert metadata is None

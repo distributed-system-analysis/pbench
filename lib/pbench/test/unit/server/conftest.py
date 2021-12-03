@@ -664,6 +664,14 @@ def current_user_none(monkeypatch):
 
 @pytest.fixture
 def tarball(pytestconfig):
+    """
+    Create a test tarball and MD5 file; the tarball is empty, but has a real
+    MD5.
+
+    This intentionally uses a weird and ugly file name that should be
+    maintained through all the marshalling and unmarshalling on the wire until
+    it lands on disk and in the Dataset.
+    """
     filename = "pbench-user-benchmark_some + config_2021.05.01T12.42.42.tar.xz"
     tmp_d = pytestconfig.cache.get("TMP", None)
     datafile = Path(tmp_d, filename)

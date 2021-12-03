@@ -138,12 +138,15 @@ class TestDatasets:
         ds1.add()
 
         ds2 = Dataset.query(name="fio")
+        assert ds2.name == "fio"
+        ds2.name = "abc"
+        assert ds1.name == "abc"
         assert ds2.owner == ds1.owner
         assert ds2.controller == ds1.controller
         assert ds2.name == ds1.name
         assert ds2.state == ds1.state
-        assert ds2.md5 is ds1.md5
-        assert ds2.id is ds1.id
+        assert ds2.md5 == ds1.md5
+        assert ds2.id == ds1.id
 
     def test_advanced_good(self, db_session, create_user):
         """ Test advancing the state of a dataset
@@ -210,7 +213,7 @@ class TestDatasets:
         )
 
     def test_delete(self, db_session, create_user):
-        """ Test that we can attach to a dataset
+        """ Test that we can delete a dataset
         """
         ds1 = Dataset(
             owner=create_user.username,
