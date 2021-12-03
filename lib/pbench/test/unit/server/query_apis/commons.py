@@ -67,7 +67,7 @@ class Commons:
 
         return f"/{index}"
 
-    def build_index_from_metadata(self, root_index_name:str) -> str:
+    def build_index_from_metadata(self, root_index_name: str) -> str:
         """Args
             - root_index_name: Retrieve the list of ES indices from
                 the metadata table based on a given root_index_name.
