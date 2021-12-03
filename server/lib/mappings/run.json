@@ -118,6 +118,15 @@
                 "controller": {
                     "type": "keyword"
                 },
+                "controller_orig": {
+                    "type": "keyword"
+                },
+                "hostname_f": {
+                    "type": "keyword"
+                },
+                "hostname_s": {
+                    "type": "keyword"
+                },
                 "user": {
                     "type": "keyword"
                 },

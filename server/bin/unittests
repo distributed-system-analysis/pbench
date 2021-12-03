@@ -762,6 +762,9 @@ declare -A cmds=(
     # Verify re-indexing
     [test-7.26]="_run_re_indexing"
 
+    # Verify 0.69 agent metadata.log file handling
+    [test-7.27]="_run_indexing"
+
     # activation test
     [test-8]="_run_activate"
 
