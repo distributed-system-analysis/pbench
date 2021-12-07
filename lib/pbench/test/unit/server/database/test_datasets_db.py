@@ -32,7 +32,8 @@ class TestDatasets:
         assert ds.name == "fio"
         assert ds.state == States.UPLOADING
         assert ds.md5 is None
-        assert ds.created <= ds.transition
+        assert ds.created is None
+        assert ds.uploaded <= ds.transition
         assert ds.id is not None
         assert "test(1)|frodo|fio" == str(ds)
 
@@ -44,7 +45,7 @@ class TestDatasets:
         ds = Dataset(owner=user.username, controller="frodo", name="fio")
         ds.add()
         User.delete(username=user.username)
-        ds1 = Dataset.attach(controller="frodo", name="fio")
+        ds1 = Dataset.query(name="fio")
         assert ds1 == ds
 
     def test_construct_bad_owner(self):
@@ -75,7 +76,7 @@ class TestDatasets:
         )
         ds1.add()
 
-        ds2 = Dataset.attach(controller="frodo", name="fio", state=States.INDEXED)
+        ds2 = Dataset.attach(name="fio", state=States.INDEXED)
         assert ds2.owner == ds1.owner
         assert ds2.controller == ds1.controller
         assert ds2.name == ds1.name
@@ -88,7 +89,7 @@ class TestDatasets:
         does not exist.
         """
         with pytest.raises(DatasetNotFound):
-            Dataset.attach(controller="frodo", name="venus", state=States.UPLOADING)
+            Dataset.attach(name="venus", state=States.UPLOADING)
 
     def test_attach_controller_path(self, db_session, create_user):
         """ Test that we can attach using controller and name to a
@@ -101,7 +102,7 @@ class TestDatasets:
         )
         ds1.add()
 
-        ds2 = Dataset.attach(controller="frodo", name="fio")
+        ds2 = Dataset.query(name="fio")
         assert ds2.owner == ds1.owner
         assert ds2.controller == ds1.controller
         assert ds2.name == ds1.name
@@ -118,7 +119,7 @@ class TestDatasets:
         )
         ds1.add()
 
-        ds2 = Dataset.attach(controller="bilbo", name="rover")
+        ds2 = Dataset.query(name="rover")
         assert ds2.owner == ds1.owner
         assert ds2.controller == ds1.controller
         assert ds2.name == ds1.name
@@ -153,7 +154,7 @@ class TestDatasets:
         ds.add()
         ds.advance(States.UPLOADED)
         assert ds.state == States.UPLOADED
-        assert ds.created <= ds.transition
+        assert ds.uploaded <= ds.transition
 
     def test_advanced_bad_state(self, db_session, create_user):
         """Test with a non-States state value

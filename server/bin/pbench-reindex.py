@@ -97,7 +97,7 @@ def reindex(controller_name, tb_name, archive_p, incoming_p, dry_run=False):
     try:
         if not dry_run:
             paths[0].rename(newpath)
-            ds = Dataset.attach(controller=controller_name, path=tb_name)
+            ds = Dataset.attach(path=tb_name)
             Metadata.setvalue(dataset=ds, key=Metadata.REINDEX, value=True)
     except DatasetError as exc:
         msg = f"WARNING: unable to set REINDEX metadata for {controller_name}:{tb_name}: {str(exc)}"

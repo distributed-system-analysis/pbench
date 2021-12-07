@@ -7,6 +7,7 @@ from logging import Logger
 from typing import Any, AnyStr, Callable, Dict, List, Union
 
 from dateutil import parser as date_parser
+from sqlalchemy.orm.query import Query
 from flask import request
 from flask.wrappers import Request, Response
 from flask_restful import Resource, abort
@@ -587,10 +588,21 @@ class ApiBase(Resource):
     _put, and _delete methods.
     """
 
-    # We treat the current "access category" of the dataset as user-accessible
-    # metadata for the purposes of these APIs even though it's represented as
-    # a column on the Dataset model.
-    METADATA = Metadata.USER_METADATA + [Dataset.ACCESS, Dataset.OWNER]
+    # We treat some Dataset object attributes as user-accessible metadata for
+    # the purposes of these APIs even though they're represented as columns on
+    # the main SQL table.
+    #
+    # TODO: Should we allow querying all columns? In any case, we should allow
+    # `"metadata": {"dataset"}` to retrieve all (exposed) columns rather than
+    # naming each separately. We should support this for "server" as
+    # well, generalizing the "namespace" model so that "user" and "dashboard"
+    # namespaces are special only in that they allow PUT as well as GET...
+    METADATA = Metadata.USER_METADATA + [
+        Dataset.ACCESS,
+        Dataset.CREATED,
+        Dataset.OWNER,
+        Dataset.UPLOADED,
+    ]
 
     def __init__(
         self,
@@ -731,8 +743,144 @@ class ApiBase(Resource):
                 # READ, the user owns the data, or the user has ADMIN role.
                 pass
 
-    def _get_metadata(
-        self, controller: str, name: str, requested_items: List[str]
+    def _build_sql_query(self, parameters: JSON, base_query: Query) -> Query:
+        """
+        Extend a SQLAlchemy Query with additional terms applying specified
+        owner and access constraints from the parameters JSON.
+
+        NOTE: This method is not responsible for authorization checks; that's
+        done by the `ApiBase._check_authorization()` method. This method is
+        only concerned with generating a query to restrict the results to the
+        set matching authorized user and access values. This method will build
+        queries that do not reflect the input when given some inputs that must
+        be prevented by authorization checks.
+
+        Specifically, when asked for "access": "private" on behalf of an
+        unauthenticated client or on behalf of an authenticated but non-admin
+        client for a different user, the generated query will use "access":
+        "public". These cases are designated below with "NOTE(UNAUTHORIZED)".
+
+        Specific cases for user and access values:
+
+            {}: defaulting both user and access
+                All private + public regardless of owner
+
+                ADMIN: all datasets
+                AUTHENTICATED as drb: owner:drb OR access:public
+                UNAUTHENTICATED (or non-drb): access:public
+
+            {"user": "drb"}: defaulting access
+                All datasets owned by "drb"
+
+                ADMIN, AUTHENTICATED as drb: owner:drb
+                UNAUTHENTICATED (or non-drb): owner:drb AND access:public
+
+            {"user": "drb, "access": "private"}: private drb
+                All datasets owned by "drb" with "private" access
+
+                owner:drb AND access:private
+                NOTE(UNAUTHORIZED): owner:drb and access:public
+
+            {"user": "drb", "access": "public"}: public drb
+                All datasets owned by "drb" with "public" access
+
+                NOTE: unauthenticated users are not allowed to query by
+                username, and shouldn't get here, but the query is
+                technically correct if we allowed it.
+
+                owner:drb AND access:public
+
+            {"access": "private"}: private data
+                All datasets with "private" access regardless of user
+
+                ADMIN: all access:private
+                AUTHENTICATED as "drb": owner:"drb" AND access:private
+                NOTE(UNAUTHORIZED): access:public
+
+            {"access": "public"}: public data
+                All datasets with "public" access
+
+                access:public
+
+        Args:
+            JSON query parameters containing keys:
+                "owner": Pbench username to restrict search to datasets owned by
+                    a specific user.
+                "access": Access category, "public" or "private" to restrict
+                    search to datasets with a specific access category.
+            base_query: A SQLAlchemy Query object to be extended with user and
+                access terms as appropriate
+
+        Returns:
+            A new SQLAlchemy Query object adding owner and access checks to the
+            base query.
+        """
+        user = parameters.get("owner")
+        access = parameters.get("access")
+        authorized_user: User = Auth.token_auth.current_user()
+        authorized_id = str(authorized_user.id) if authorized_user else None
+        is_admin = authorized_user.is_admin() if authorized_user else False
+        query = base_query
+
+        self.logger.debug(
+            "QUERY auth ID {}, user {!r}, access {!r}, admin {}",
+            authorized_id,
+            user,
+            access,
+            is_admin,
+        )
+
+        user_term = False
+
+        # IF we're looking at a user we're not authorized to see (either the
+        # call is unauthenticated, or authenticated as a non-ADMIN user trying
+        # to reference a different user), then we're only allowed to see PUBLIC
+        # data; private data requests aren't allowed, and we expect these cases
+        # to fail with appropriate permission errors (401 or 403) before we
+        # reach this code.
+        #
+        # ELSE IF we're looking for a specific access category, add the query
+        # term.
+        #
+        # ELSE IF this is a {} query from a non-ADMIN user, add a "disjunction"
+        # (OR) covering all the user's own data plus all public data.
+        #
+        # ELSE this must be an admin user looking for data owned by a specific
+        # user (there's no access parameter, and possibly no user parameter),
+        # and we'll pass through the query either with the specified user
+        # constraint or with no constraint at all.
+        if not authorized_user or (user and user != authorized_id and not is_admin):
+            query = query.filter(Dataset.access == Dataset.PUBLIC_ACCESS)
+            self.logger.debug("QUERY: not self public")
+        elif access:
+            query = query.filter(Dataset.access == access)
+            if not user and access == Dataset.PRIVATE_ACCESS and not is_admin:
+                query = query.filter(Dataset.owner_id == authorized_id)
+                user_term = True
+            self.logger.debug("QUERY: user: {}, access: {}", authorized_id, access)
+        elif not user and not is_admin:
+            query = query.filter(
+                (Dataset.owner_id == authorized_id)
+                | (Dataset.access == Dataset.PUBLIC_ACCESS)
+            )
+            user_term = True
+            self.logger.debug("QUERY: self ({}) + public", authorized_user.username)
+        else:
+            # Either "user" was specified and will be added to the filter,
+            # or client is ADMIN and no access restrictions are required.
+            self.logger.debug(
+                "QUERY: default, user: {}", user if user else authorized_user
+            )
+
+        # If a user is specified, and we haven't already added a user term, add
+        # it now.
+        if user and not user_term:
+            query = query.filter(Dataset.owner_id == user)
+
+        return query
+
+    def _get_dataset_metadata(
+        self, dataset: Dataset, requested_items: List[str]
     ) -> JSON:
         """
         Get requested metadata about a specific Dataset and return a JSON
@@ -742,8 +890,7 @@ class ApiBase(Resource):
         Dataset as well as selected columns from the Dataset model.
 
         Args:
-            controller: Dataset controller name
-            name: Dataset run name
+            dataset: Dataset object
             requested_items: List of metadata key names
 
         Returns:
@@ -753,13 +900,16 @@ class ApiBase(Resource):
         if not requested_items:
             return {}
 
-        dataset: Dataset = Dataset.attach(controller=controller, name=name)
         metadata = {}
         for i in requested_items:
             if i == Dataset.ACCESS:
                 metadata[i] = dataset.access
+            elif i == Dataset.CREATED:
+                metadata[i] = f"{dataset.created:%Y-%m-%d:%H:%M}"
             elif i == Dataset.OWNER:
                 metadata[i] = dataset.owner.username
+            elif i == Dataset.UPLOADED:
+                metadata[i] = f"{dataset.uploaded:%Y-%m-%d:%H:%M}"
             elif Metadata.is_key_path(i, Metadata.USER_METADATA):
                 try:
                     metadata[i] = Metadata.getvalue(dataset=dataset, key=i)
@@ -769,6 +919,25 @@ class ApiBase(Resource):
                 raise MetadataBadKey(i)
 
         return metadata
+
+    def _get_metadata(self, name: str, requested_items: List[str]) -> JSON:
+        """
+        Get requested metadata about a specific Dataset and return a JSON
+        fragment that can be added to other data about the Dataset.
+
+        This supports strict Metadata key/value items associated with the
+        Dataset as well as selected columns from the Dataset model.
+
+        Args:
+            name: Dataset run name
+            requested_items: List of metadata key names
+
+        Returns:
+            JSON object (Python dict) containing a key-value pair for each
+            requested metadata key present on the dataset.
+        """
+        dataset: Dataset = Dataset.query(name=name)
+        return self._get_dataset_metadata(dataset, requested_items)
 
     def _dispatch(
         self, method: Callable, request: Request, uri_parameters: JSON = {}

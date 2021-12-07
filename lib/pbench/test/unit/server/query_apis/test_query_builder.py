@@ -13,7 +13,7 @@ USER_ID = "20"  # This is arbitrary, but can't match either fixture
 
 class TestQueryBuilder:
     @pytest.fixture()
-    def elasticbase(self, client):
+    def elasticbase(self, client) -> ElasticBase:
         return ElasticBase(client.config, client.logger, Schema())
 
     @pytest.fixture()
@@ -78,7 +78,7 @@ class TestQueryBuilder:
         additional constraints on queries.
         """
         term = {"term": {"icecream": "ginger"}}
-        query = elasticbase._get_user_query(ask, [term])
+        query = elasticbase._build_elasticsearch_query(ask, [term])
         filter = self.assemble(term, ask)
         assert query == {"bool": {"filter": filter}}
 
@@ -115,7 +115,7 @@ class TestQueryBuilder:
         than building the unique disjunction syntax here
         """
         term = {"term": {"icecream": "ginger"}}
-        query = elasticbase._get_user_query(ask, [term])
+        query = elasticbase._build_elasticsearch_query(ask, [term])
         filter = self.assemble(term, expect)
         assert query == {"bool": {"filter": filter}}
 
@@ -141,7 +141,7 @@ class TestQueryBuilder:
         Test the query builder when we have an unauthenticated client.
         """
         term = {"term": {"icecream": "ginger"}}
-        query = elasticbase._get_user_query(ask, [term])
+        query = elasticbase._build_elasticsearch_query(ask, [term])
         filter = self.assemble(term, expect)
         assert query == {"bool": {"filter": filter}}
 
@@ -153,7 +153,7 @@ class TestQueryBuilder:
         authenticated user plus all public datasets regardless of owner.)
         """
         id = str(current_user_drb.id)
-        query: JSON = elasticbase._get_user_query(
+        query: JSON = elasticbase._build_elasticsearch_query(
             {}, [{"term": {"icecream": "vanilla"}}]
         )
         assert query == {

@@ -366,10 +366,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         controller_path = tar.parent
         controller = controller_path.name
         try:
-            # This tool can't see a dataset until it's been prepared either
-            # by server PUT or by pbench-server-prep-shim-002.py; in either
-            # case, the Dataset object must already exist.
-            dataset = Dataset.attach(controller=controller, path=resultname)
+            dataset = Dataset.attach(path=resultname)
         except DatasetError as e:
             logger.warning("Trouble tracking {}:{}: {}", controller, resultname, str(e))
             dataset = None

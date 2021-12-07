@@ -1,19 +1,16 @@
+import socket
 from http import HTTPStatus
 from logging import Logger
 from pathlib import Path
-import socket
 
-from freezegun import freeze_time
+from freezegun.api import freeze_time
+from pbench.server import PbenchServerConfig
+from pbench.server.filetree import DatasetNotFound, FileTree
+
+import dateutil
 import pytest
 
-from pbench.server import PbenchServerConfig
-from pbench.server.database.models.datasets import (
-    Dataset,
-    DatasetNotFound,
-    States,
-    Metadata,
-)
-from pbench.server.filetree import FileTree
+from pbench.server.database.models.datasets import Dataset, States, Metadata
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
 
@@ -355,7 +352,7 @@ class TestUpload:
         datafile, _, md5 = tarball
         TestUpload.filetree_create_fail = True
 
-        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+        with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
                 data=data_fp,
@@ -391,12 +388,14 @@ class TestUpload:
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
 
-        dataset = Dataset.attach(controller=self.controller, path=datafile.name)
+        dataset = Dataset.query(name=Dataset.stem(datafile))
         assert dataset is not None
         assert dataset.md5 == md5
         assert dataset.controller == self.controller
         assert dataset.name == datafile.name[:-7]
         assert dataset.state == States.UPLOADED
+        assert dataset.created == dateutil.parser.parse("2002-05-16")
+        assert dataset.uploaded == dateutil.parser.parse("1970-01-01")
         assert Metadata.getvalue(dataset, "dashboard") is None
         assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-01"
         assert self.filetree_created

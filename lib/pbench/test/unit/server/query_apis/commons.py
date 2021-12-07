@@ -76,7 +76,7 @@ class Commons:
                 indices containing documents for the specified root
                 index name.
         """
-        drb = Dataset.attach(controller="node", name="drb")
+        drb = Dataset.query(name="drb")
         index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
         index_keys = [key for key in index_map if self.index_from_metadata in key]
         return "/" + ",".join(index_keys)

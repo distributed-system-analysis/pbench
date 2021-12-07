@@ -756,12 +756,12 @@ class TestSampleValues(Commons):
             }
 
     def test_get_index(self, attach_dataset, provide_metadata):
-        drb = Dataset.attach(controller="node", name="drb")
+        drb = Dataset.query(name="drb")
         indices = self.cls_obj.get_index(drb, self.index_from_metadata)
         assert indices == "unit-test.v5.result-data-sample.2020-08"
 
     def test_exceptions_on_get_index(self, attach_dataset):
-        test = Dataset.attach(controller="node", name="test")
+        test = Dataset.query(name="test")
 
         # When server index_map is None we expect 500
         with pytest.raises(InternalServerError) as exc:

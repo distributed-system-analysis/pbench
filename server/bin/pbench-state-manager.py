@@ -34,7 +34,7 @@ def main(options):
                 " _PBENCH_SERVER_CONFIG env variable",
                 file=sys.stderr,
             )
-            return 1
+            return 2
 
         try:
             config = PbenchServerConfig(options.cfg_name)
@@ -51,7 +51,10 @@ def main(options):
         args = {}
         if options.create:
             args["owner"] = options.create
-        if options.controller:
+        if options.controller and options.create:
+            # The create operation requires both controller and name, whether
+            # explicitly or via path resolution. Attach, however, wants only
+            # path or name, so don't copy a controller parameter.
             args["controller"] = options.controller
         if options.path:
             args["path"] = options.path
@@ -67,15 +70,21 @@ def main(options):
                     f"{_NAME_}: Specified string '{options.state}' is not a Pbench dataset state",
                     file=sys.stderr,
                 )
-                return 1
+                return 2
             args["state"] = new_state
 
-        if "path" not in args and ("controller" not in args or "name" not in args):
+        if "path" not in args and "name" not in args:
             print(
-                f"{_NAME_}: Either --path or both --controller and --name must be specified",
+                f"{_NAME_}: Either --path --name must be specified", file=sys.stderr,
+            )
+            return 2
+
+        if options.create and "path" not in args and "controller" not in args:
+            print(
+                f"{_NAME_}: Either --path or both --controller and --name must be specified for create",
                 file=sys.stderr,
             )
-            return 1
+            return 2
 
         # Either create a new dataset or attach to an existing dataset
         doit = Dataset.create if options.create else Dataset.attach

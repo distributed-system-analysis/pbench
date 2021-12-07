@@ -1,9 +1,12 @@
 from collections import deque
+from configparser import ConfigParser
 import datetime
 import errno
 import hashlib
 from logging import Logger
 import os
+import tarfile
+import tempfile
 from http import HTTPStatus
 from typing import Callable, Deque
 
@@ -15,6 +18,7 @@ from pbench.common.utils import validate_hostname
 from pbench.server import PbenchServerConfig
 from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
 from pbench.server.api.auth import Auth
+from pbench.server.api.resources import convert_date
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetDuplicate,
@@ -406,9 +410,8 @@ class Upload(Resource):
         response.status_code = HTTPStatus.CREATED
         return response
 
-    @staticmethod
     def finalize_dataset(
-        dataset: Dataset, tarball: Tarball, config: PbenchServerConfig, logger: Logger
+        self, dataset: Dataset, tarball: Tarball, config: PbenchServerConfig, logger: Logger
     ):
         try:
             dataset.advance(States.UPLOADED)
@@ -423,8 +426,41 @@ class Upload(Resource):
             except Exception as e:
                 logger.error("Unable to get integer retention days: {}", str(e))
                 raise
+
+            # Now that we have the tarball, extract the dataset timestamp from
+            # the metadata.log file.
+            #
+            # If this fails, the metadata.log is missing or corrupt, so fail
+            # the upload.
+            #
+            # TODO: If we did this before the `advance` we could avoid a second
+            # `update` operation, though that means relying on the implicit
+            # update in `advance`, which is perhaps a bit weird.
+            try:
+                data = (
+                    tarfile.open(tarball.tarball_path, "r:*")
+                    .extractfile(f"{dataset.name}/metadata.log")
+                    .read()
+                    .decode()
+                )
+                metadata = ConfigParser()
+                metadata.read_string(data)
+                date_str = metadata.get("pbench", "date")
+                date = convert_date(date_str, None)
+                dataset.created = date
+                dataset.update()
+            except Exception as exc:
+                # FIXME: This should tie into rollback logic to delete the
+                # tarball and MD5 file!
+                msg = f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}"
+                self.logger.warning(msg)
+                abort(HTTPStatus.BAD_REQUEST, message=msg)
+
+            # Calculate a default deletion time for the dataset, based on the
+            # time it was uploaded rather than the time it was originally
+            # created which might be in the past.
             retention = datetime.timedelta(days=retention_days)
-            deletion = datetime.datetime.now() + retention
+            deletion = dataset.uploaded + retention
             Metadata.setvalue(
                 dataset=dataset,
                 key=Metadata.TARBALL_PATH,
