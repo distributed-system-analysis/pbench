@@ -60,6 +60,16 @@ class RunIdBase(ElasticBase):
                 "result",
             ],
         },
+        "search": {
+            "index": "run",
+            "whitelist": [
+                "@timestamp",
+                "@metadata",
+                "host_tools_info",
+                "run",
+                "sosreports",
+            ],
+        },
     }
 
     def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
