@@ -60,7 +60,7 @@ class RunIdBase(ElasticBase):
                 "result",
             ],
         },
-        "search": {
+        "summary": {
             "index": "run",
             "whitelist": [
                 "@timestamp",

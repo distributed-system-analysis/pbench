@@ -1,10 +1,10 @@
 import pytest
 from http import HTTPStatus
-from pbench.server.api.resources.query_apis.index_search import IndexSearch
+from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
-class TestIndexSearch(Commons):
+class TestDatasetSummary(Commons):
     """
     Unit testing for resources/IndexSearch class.
 
@@ -16,8 +16,8 @@ class TestIndexSearch(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=IndexSearch(client.config, client.logger),
-            pbench_endpoint="/index/search",
+            cls_obj=DatasetsSearch(client.config, client.logger),
+            pbench_endpoint="/datasets/search",
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
                 "user": "drb",
@@ -121,8 +121,8 @@ class TestIndexSearch(Commons):
             payload, build_auth_header["header_param"]
         )
         response = query_api(
-            "/index/search",
-            "/_search?ignore_unavailable=true",
+            self.pbench_endpoint,
+            self.elastic_endpoint,
             payload,
             index,
             expected_status,

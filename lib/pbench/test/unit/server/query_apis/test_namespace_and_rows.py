@@ -3,7 +3,7 @@ from http import HTTPStatus
 import pytest
 from werkzeug.exceptions import InternalServerError
 
-from pbench.server.api.resources.query_apis.metadata_index.namespace_and_rows import (
+from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,
 )

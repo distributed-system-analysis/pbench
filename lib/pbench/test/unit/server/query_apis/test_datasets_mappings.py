@@ -15,7 +15,7 @@ def database_error(monkeypatch):
         yield
 
 
-class TestIndexMappings:
+class TestDatasetsMappings:
     """
     Unit testing for resources/IndexMappings class.
 
@@ -30,7 +30,7 @@ class TestIndexMappings:
         response body.
         """
         with client:
-            response = client.get(f"{server_config.rest_uri}/index/mappings/search")
+            response = client.get(f"{server_config.rest_uri}/datasets/mappings/summary")
             assert response.status_code == HTTPStatus.OK
             res_json = response.json
             assert res_json == {
@@ -85,7 +85,9 @@ class TestIndexMappings:
         response body.
         """
         with client:
-            response = client.get(f"{server_config.rest_uri}/index/mappings/iterations")
+            response = client.get(
+                f"{server_config.rest_uri}/datasets/mappings/iterations"
+            )
             assert response.status_code == HTTPStatus.OK
             res_json = response.json
             assert res_json == {
@@ -109,12 +111,12 @@ class TestIndexMappings:
         """
         with client:
             response = client.get(
-                f"{server_config.rest_uri}/index/mappings/bad_data_object_type"
+                f"{server_config.rest_uri}/datasets/mappings/bad_data_object_view"
             )
             assert response.status_code == HTTPStatus.BAD_REQUEST
             assert (
                 response.json["message"]
-                == "Unrecognized keyword ['bad_data_object_type'] given for parameter index_key; allowed keywords are ['iterations', 'search', 'timeseries']"
+                == "Unrecognized keyword ['bad_data_object_view'] given for parameter dataset_view; allowed keywords are ['iterations', 'summary', 'timeseries']"
             )
 
     def test_with_db_error(self, client, server_config, database_error):
@@ -122,6 +124,6 @@ class TestIndexMappings:
         Check the index mappings API if there is an error connecting to sql database.
         """
         with client:
-            response = client.get(f"{server_config.rest_uri}/index/mappings/search")
+            response = client.get(f"{server_config.rest_uri}/datasets/mappings/summary")
             assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
             assert response.json["message"] == "Internal Server Error"
