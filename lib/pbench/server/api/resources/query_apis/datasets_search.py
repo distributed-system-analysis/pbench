@@ -17,9 +17,10 @@ from pbench.server.api.resources.query_apis import (
 )
 
 
-class IndexSearch(ElasticBase):
+class DatasetsSearch(ElasticBase):
     """
-    Create a search request based on given query parameter.
+    Pbench ES query API that returns run-data document sample rows after
+    applying client specified search term within specified start and end time.
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):

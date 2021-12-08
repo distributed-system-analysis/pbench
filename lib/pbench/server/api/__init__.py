@@ -23,11 +23,11 @@ from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetai
 from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
-from pbench.server.api.resources.query_apis.metadata_index.index_mappings import (
-    IndexMappings,
+from pbench.server.api.resources.query_apis.datasets.datasets_mappings import (
+    DatasetsMappings,
 )
-from pbench.server.api.resources.query_apis.index_search import IndexSearch
-from pbench.server.api.resources.query_apis.metadata_index.namespace_and_rows import (
+from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
+from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,
 )
@@ -76,12 +76,14 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        IndexMappings,
-        f"{base_uri}/index/mappings/<string:index_key>",
+        DatasetsMappings,
+        f"{base_uri}/datasets/mappings/<string:dataset_view>",
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        IndexSearch, f"{base_uri}/index/search", resource_class_args=(config, logger),
+        DatasetsSearch,
+        f"{base_uri}/datasets/search",
+        resource_class_args=(config, logger),
     )
     api.add_resource(
         MonthIndices,
@@ -90,12 +92,12 @@ def register_endpoints(api, app, config):
     )
     api.add_resource(
         SampleNamespace,
-        f"{base_uri}/datasets/namespace/<string:type>",
+        f"{base_uri}/datasets/namespace/<string:dataset_view>",
         resource_class_args=(config, logger),
     )
     api.add_resource(
         SampleValues,
-        f"{base_uri}/datasets/values/<string:type>",
+        f"{base_uri}/datasets/values/<string:dataset_view>",
         resource_class_args=(config, logger),
     )
     api.add_resource(

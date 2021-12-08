@@ -12,7 +12,7 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
-from pbench.server.api.resources.query_apis.metadata_index import RunIdBase
+from pbench.server.api.resources.query_apis.datasets import RunIdBase
 from pbench.server.database.models.template import TemplateNotFound
 
 
@@ -31,7 +31,7 @@ class SampleNamespace(RunIdBase):
             Schema(
                 Parameter("run_id", ParamType.STRING, required=True),
                 Parameter(
-                    "type",
+                    "dataset_view",
                     ParamType.KEYWORD,
                     required=True,
                     keywords=list(RunIdBase.ES_INTERNAL_INDEX_NAMES.keys()),
@@ -58,7 +58,7 @@ class SampleNamespace(RunIdBase):
         """
         run_id = context["run_id"]
         dataset = context["dataset"]
-        document = self.ES_INTERNAL_INDEX_NAMES[json_data["type"]]
+        document = self.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
 
         document_index = document["index"]
 
@@ -194,7 +194,7 @@ class SampleValues(RunIdBase):
                 Parameter("run_id", ParamType.STRING, required=True),
                 Parameter("scroll_id", ParamType.STRING, required=False),
                 Parameter(
-                    "type",
+                    "dataset_view",
                     ParamType.KEYWORD,
                     required=True,
                     keywords=list(RunIdBase.ES_INTERNAL_INDEX_NAMES.keys()),
@@ -209,10 +209,10 @@ class SampleValues(RunIdBase):
         from a selected set of documents that belong to the given run id in
         the specified index.
 
-        Note: "type" (i.e., the ES index selector) and the scroll ID (if any)
-        come from the json_data parameter, while the "run_id" and "dataset"
-        values come from the context argument. If the ES scroll id is present
-        we will ignore the filters parameter and instead construct an
+        Note: "dataset_view" (i.e., the ES index selector) and the scroll ID
+        (if any) come from the json_data parameter, while the "run_id" and
+        "dataset" values come from the context argument. If the ES scroll id
+        is present we will ignore the filters parameter and instead construct an
         Elasticsearch query for scrolling based on a client provided scroll id.
 
         If a scroll_id is specified, the query will return the next page of
@@ -248,7 +248,7 @@ class SampleValues(RunIdBase):
         run_id = context["run_id"]
         dataset = context["dataset"]
         scroll_id = json_data.get("scroll_id")
-        document = self.ES_INTERNAL_INDEX_NAMES[json_data["type"]]
+        document = self.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
 
         document_index = document["index"]
 
