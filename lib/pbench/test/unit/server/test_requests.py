@@ -1,15 +1,19 @@
-from logging import Logger
-import socket
 from http import HTTPStatus
+from logging import Logger
 from pathlib import Path
-
-import pytest
+import socket
 
 from freezegun import freeze_time
+import pytest
 
 from pbench.server import PbenchServerConfig
+from pbench.server.database.models.datasets import (
+    Dataset,
+    DatasetNotFound,
+    States,
+    Metadata,
+)
 from pbench.server.filetree import FileTree
-from pbench.server.database.models.datasets import Dataset, States, Metadata
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
 
@@ -83,8 +87,9 @@ class TestGraphQL:
 
 
 class TestUpload:
-    controller_created = None
-    tarball_created = None
+    filetree_created = None
+    filetree_create_fail = False
+    filetree_create_path = None
 
     @pytest.fixture
     def setup_ctrl(self):
@@ -115,24 +120,33 @@ class TestUpload:
         class FakeTarball:
             def __init__(self, path: Path):
                 self.tarball_path = path
+                self.name = path.name[:-7]
 
-        def fake_constructor(self, options: PbenchServerConfig, logger: Logger):
-            pass
+        class FakeFileTree(FileTree):
+            def __init__(self, options: PbenchServerConfig, logger: Logger):
+                self.controllers = []
+                self.datasets = {}
+                TestUpload.filetree_created = self
 
-        def fake_create(self, controller: str, path: Path) -> None:
-            TestUpload.controller_created = controller
-            TestUpload.tarball_created = path
-            return FakeTarball(path)
+            def create(self, controller: str, path: Path) -> FakeTarball:
+                TestUpload.filetree_create_path = path
+                if TestUpload.filetree_create_fail:
+                    raise Exception()
+                self.controllers.append(controller)
+                tarball = FakeTarball(path)
+                self.datasets[tarball.name] = tarball
+                return tarball
 
-        TestUpload.controller_created = None
-        TestUpload.tarball_created = None
-        monkeypatch.setattr(FileTree, "__init__", fake_constructor)
-        monkeypatch.setattr(FileTree, "create", fake_create)
-        monkeypatch.setattr(FileTree, "__contains__", lambda self, name: False)
+        TestUpload.filetree_created = None
+        TestUpload.filetree_create_fail = False
+        TestUpload.filetree_create_path = None
+        monkeypatch.setattr(FileTree, "__init__", FakeFileTree.__init__)
+        monkeypatch.setattr(FileTree, "create", FakeFileTree.create)
 
     def test_missing_authorization_header(self, client, server_config):
         response = client.put(self.gen_uri(server_config))
         assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert not self.filetree_created
 
     @pytest.mark.parametrize(
         "malformed_token", ("malformed", "bear token" "Bearer malformed"),
@@ -144,6 +158,7 @@ class TestUpload:
             self.gen_uri(server_config), headers={"Authorization": malformed_token},
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert not self.filetree_created
 
     def test_missing_controller_header_upload(
         self, client, caplog, server_config, pbench_token
@@ -156,6 +171,7 @@ class TestUpload:
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
         self.verify_logs(caplog)
+        assert not self.filetree_created
 
     def test_missing_md5sum_header_upload(
         self, client, caplog, server_config, setup_ctrl, pbench_token
@@ -171,11 +187,12 @@ class TestUpload:
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
         self.verify_logs(caplog)
+        assert not self.filetree_created
 
     def test_missing_length_header_upload(
         self, client, caplog, server_config, setup_ctrl, pbench_token
     ):
-        expected_message = "Missing required 'Content-Length' header"
+        expected_message = "Missing or invalid 'Content-Length' header"
         response = client.put(
             self.gen_uri(server_config),
             headers={
@@ -187,6 +204,43 @@ class TestUpload:
         assert response.status_code == HTTPStatus.LENGTH_REQUIRED
         assert response.json.get("message") == expected_message
         self.verify_logs(caplog)
+        assert not self.filetree_created
+
+    def test_bad_length_header_upload(
+        self, client, caplog, server_config, setup_ctrl, pbench_token
+    ):
+        expected_message = "Missing or invalid 'Content-Length' header"
+        response = client.put(
+            self.gen_uri(server_config),
+            headers={
+                "Authorization": "Bearer " + pbench_token,
+                "controller": self.controller,
+                "Content-MD5": "ANYMD5",
+                "Content-Length": "string",
+            },
+        )
+        assert response.status_code == HTTPStatus.LENGTH_REQUIRED
+        assert response.json.get("message") == expected_message
+        self.verify_logs(caplog)
+        assert not self.filetree_created
+
+    def test_bad_controller_upload(
+        self, client, caplog, server_config, setup_ctrl, pbench_token
+    ):
+        expected_message = "Invalid 'controller' header"
+        response = client.put(
+            self.gen_uri(server_config),
+            headers={
+                "Authorization": "Bearer " + pbench_token,
+                "controller": "not_a_hostname",
+                "Content-MD5": "ANYMD5",
+                "Content-Length": "STRING",
+            },
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json.get("message") == expected_message
+        self.verify_logs(caplog)
+        assert not self.filetree_created
 
     def test_mismatched_md5sum_header(
         self, client, caplog, server_config, setup_ctrl, pbench_token
@@ -207,6 +261,9 @@ class TestUpload:
             == "MD5 checksum 9d5a479f6f75fa9b3bab27ef79ad5b29 does not match expected md5sum"
         )
         self.verify_logs(caplog)
+        assert not self.filetree_created
+        with pytest.raises(DatasetNotFound):
+            Dataset.query(name="log")
 
     @pytest.mark.parametrize("bad_extension", ("test.tar.bad", "test.tar", "test.tar."))
     def test_bad_extension_upload(
@@ -235,6 +292,7 @@ class TestUpload:
             == "File extension not supported, must be .tar.xz"
         )
         self.verify_logs(caplog)
+        assert not self.filetree_created
 
     def test_invalid_authorization_upload(
         self, client, caplog, server_config, setup_ctrl, pbench_token
@@ -253,6 +311,7 @@ class TestUpload:
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         for record in caplog.records:
             assert record.levelname in ["DEBUG", "INFO"]
+        assert not self.filetree_created
 
     def test_empty_upload(
         self, client, pytestconfig, caplog, server_config, setup_ctrl, pbench_token
@@ -276,6 +335,41 @@ class TestUpload:
             response.json.get("message") == "'Content-Length' 0 must be greater than 0"
         )
         self.verify_logs(caplog)
+        assert not self.filetree_created
+
+    def test_upload_filetree_error(
+        self,
+        client,
+        pytestconfig,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
+    ):
+        """
+        Cause the FileTree.create() to fail; this should trigger the cleanup
+        actions to delete the tarball, MD5 file, and Dataset, and fail with an
+        internal server error.
+        """
+        datafile, _, md5 = tarball
+        TestUpload.filetree_create_fail = True
+
+        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+
+        with pytest.raises(DatasetNotFound):
+            Dataset.attach(controller=self.controller, path=datafile.name)
+        assert self.filetree_created
+        assert self.filetree_create_path
+        assert not self.filetree_create_path.exists()
+        assert not Path(str(self.filetree_create_path) + ".md5").exists()
 
     def test_upload(
         self,
@@ -296,13 +390,6 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
-        tmp_d = pytestconfig.cache.get("TMP", None)
-        receive_dir = Path(
-            tmp_d, "srv", "pbench", "pbench-move-results-receive", "fs-version-002"
-        )
-        assert (
-            receive_dir.exists()
-        ), f"receive_dir = '{receive_dir}', filename = '{datafile.name}'"
 
         dataset = Dataset.attach(controller=self.controller, path=datafile.name)
         assert dataset is not None
@@ -312,6 +399,82 @@ class TestUpload:
         assert dataset.state == States.UPLOADED
         assert Metadata.getvalue(dataset, "dashboard") is None
         assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-01"
+        assert self.filetree_created
+        assert dataset.name in self.filetree_created
 
         for record in caplog.records:
             assert record.levelname in ["DEBUG", "INFO"]
+
+    def test_upload_duplicate(
+        self,
+        client,
+        pytestconfig,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
+    ):
+        datafile, _, md5 = tarball
+        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.CREATED, repr(response)
+
+        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.OK, repr(response)
+        assert response.json.get("message") == "Dataset already exists"
+
+        for record in caplog.records:
+            assert record.levelname in ["DEBUG", "INFO", "WARNING"]
+
+    def test_upload_duplicate_diff_md5(
+        self,
+        client,
+        pytestconfig,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
+    ):
+        datafile, _, md5 = tarball
+        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.CREATED, repr(response)
+
+        OTHER_MD5 = "NOT_THE_MD5_YOURE_LOOKING_FOR"
+        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers={
+                    "Authorization": "Bearer " + pbench_token,
+                    "controller": self.controller,
+                    "Content-MD5": OTHER_MD5,
+                },
+            )
+
+        assert response.status_code == HTTPStatus.CONFLICT, repr(response)
+        assert (
+            response.json.get("message")
+            == f"Duplicate dataset has different MD5 ({md5} != {OTHER_MD5})"
+        )
+
+        for record in caplog.records:
+            assert record.levelname in ["WARNING", "DEBUG", "INFO"]

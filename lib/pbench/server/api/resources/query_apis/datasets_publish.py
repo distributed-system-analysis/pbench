@@ -25,7 +25,6 @@ class DatasetsPublish(ElasticBulkBase):
             config,
             logger,
             Schema(
-                Parameter("controller", ParamType.STRING, required=True),
                 Parameter("name", ParamType.STRING, required=True),
                 Parameter("access", ParamType.ACCESS, required=True),
             ),
@@ -69,7 +68,7 @@ class DatasetsPublish(ElasticBulkBase):
 
     def complete(self, dataset: Dataset, json_data: JSON, summary: JSON) -> None:
         """
-        Complete the delete operation by updating the access of the Dataset
+        Complete the publish operation by updating the access of the Dataset
         object.
 
         Note that an exception will be caught outside this class; the Dataset
@@ -78,6 +77,7 @@ class DatasetsPublish(ElasticBulkBase):
         Args:
             dataset: Dataset object
             json_data: client JSON payload
+                access: new dataset access setting
             summary: summary of the bulk operation
                 ok: count of successful updates
                 failure: count of failures

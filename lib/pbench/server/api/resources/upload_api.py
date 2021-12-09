@@ -1,12 +1,11 @@
 from collections import deque
 import datetime
-from enum import Enum
 import errno
 import hashlib
 from logging import Logger
 import os
 from http import HTTPStatus
-from typing import Any, Callable, Deque
+from typing import Callable, Deque
 
 import humanize
 from flask import jsonify, request
@@ -37,50 +36,23 @@ class CleanupTime(Exception):
         self.message = message
 
 
-class Step(Enum):
-    """
-    Define the persistent changes caused during the PUT upload, which need to
-    be undone if the upload ultimately fails.
-    """
-
-    DATASET = (1, lambda d: d.delete())  # Dataset was created
-    UPLOAD = (2, lambda p: p.unlink())  # Uploaded tar file was created
-    MD5 = (3, lambda p: p.unlink())  # MD5 file was created
-
-    def __init__(self, value: int, revert: Callable[[Any], None]):
-        """
-        Enum initializer: provide a Callable to revert the effect of an upload
-        step.
-
-        NOTE: The type of the lambda argument depends on the step, and can't be
-        easily expressed in type hints. For now,
-
-            DATASET: a reference to a Dataset object, on which we call delete()
-            UPLOAD: a reference to a Path object, on which we call unlink()
-            MD5: a reference to a Path object, on which we call unlink()
-        """
-        self.__value__ = value
-        self.revert = revert
-
-
 class CleanupAction:
     """
     Define a single cleanup action necessary to reverse persistent steps in the
     upload procedure, based on the Step ENUM associated with the action.
     """
 
-    def __init__(self, step: Step, logger: Logger, parameter: Any):
+    def __init__(self, logger: Logger, action: Callable, name: str = None):
         """
         Define a cleanup action
 
         Args:
-            step: The persistent step taken
             logger: The active Pbench Logger object
-            parameter: The object (type varies depending on step) on which the
-                cleanup action is performed.
+            action: a Callable to perform cleanup
+            name: informative string
         """
-        self.step = step
-        self.parameter = parameter
+        self.action = action
+        self.name = name
         self.logger = logger
 
     def cleanup(self):
@@ -91,11 +63,9 @@ class CleanupAction:
         ensure that cleanup continues as best we can.
         """
         try:
-            self.step.revert(self.parameter)
+            self.action()
         except Exception as e:
-            self.logger.error(
-                "Unable to revert {} {}: {}", self.step, self.parameter, e
-            )
+            self.logger.error("Unable to revert {}: {}", self.name, e)
 
 
 class Cleanup:
@@ -116,7 +86,7 @@ class Cleanup:
         self.logger = logger
         self.actions: Deque[CleanupAction] = deque()
 
-    def add(self, step: Step, parameter: Any) -> None:
+    def add(self, action: Callable, name: str = None) -> None:
         """
         Add a new cleanup action to the front of the deque
 
@@ -124,7 +94,7 @@ class Cleanup:
             step: Step ENUM value describing the cleanup action
             parameter: A parameter for the cleanup action
         """
-        self.actions.appendleft(CleanupAction(step, self.logger, parameter))
+        self.actions.appendleft(CleanupAction(self.logger, action, name))
 
     def cleanup(self):
         """
@@ -206,11 +176,18 @@ class Upload(Resource):
                 length_string = request.headers["Content-Length"]
                 content_length = int(length_string)
             except KeyError:
+                # NOTE: Werkzeug is "smart" about header access, and knows that
+                # Content-Length is an integer. Therefore, a non-integer value
+                # will raise KeyError. It's virtually impossible to report the
+                # actual incorrect value as we'd just get a KeyError again.
                 raise CleanupTime(
                     HTTPStatus.LENGTH_REQUIRED,
-                    "Missing required 'Content-Length' header",
+                    "Missing or invalid 'Content-Length' header",
                 )
             except ValueError:
+                # NOTE: Because of the way Werkzeug works, this should not be
+                # possible: if Content-Length isn't an integer, we'll see the
+                # KeyError. This however serves as a clarifying backup case.
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,
                     f"Invalid 'Content-Length' header, not an integer ({length_string})",
@@ -225,13 +202,6 @@ class Upload(Resource):
                 raise CleanupTime(
                     HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                     f"'Content-Length' {content_length} must be no greater than than {humanize.naturalsize(self.max_content_length)}",
-                )
-
-            try:
-                file_tree = FileTree(self.config, self.logger)
-            except Exception:
-                raise CleanupTime(
-                    HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the file tree"
                 )
 
             tar_full_path = self.temporary / filename
@@ -264,7 +234,7 @@ class Upload(Resource):
                     dataset_name,
                 )
                 try:
-                    duplicate = Dataset.query(name=dataset_name)
+                    duplicate = Dataset.query(controller=controller, name=dataset_name)
                 except DatasetNotFound:
                     self.logger.error(
                         "Duplicate dataset {}:{}:{} not found",
@@ -272,34 +242,28 @@ class Upload(Resource):
                         controller,
                         dataset_name,
                     )
-                    abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+                    raise CleanupTime(
+                        HTTPStatus.INTERNAL_SERVER_ERROR, "INTERNAL ERROR"
+                    )
                 else:
                     if duplicate.md5 == md5sum:
                         response = jsonify(dict(message="Dataset already exists"))
                         response.status_code = HTTPStatus.OK
                         return response
                     else:
-                        abort(
+                        raise CleanupTime(
                             HTTPStatus.CONFLICT,
-                            message=f"Duplicate dataset has different MD5 ({duplicate.md5} != {md5sum})",
+                            f"Duplicate dataset has different MD5 ({duplicate.md5} != {md5sum})",
                         )
+            except CleanupTime:
+                pass
             except Exception:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     message="Unable to create dataset",
                 )
 
-            recovery.add(Step.DATASET, dataset)
-
-            # NOTE: Let the Dataset path filter extract the dataset name rather
-            # repeat that logic here. If we hit this case it means that the dataset
-            # file exists in the file system but no Dataset was created: which
-            # would be odd and certainly qualifies as an internal error.
-            if dataset.name in file_tree:
-                raise CleanupTime(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    message="File tree dataset already exists",
-                )
+            recovery.add(dataset.delete, "delete dataset")
 
             self.logger.info(
                 "Uploading file {!a} (user = {}, ctrl = {!a}) to {}",
@@ -312,7 +276,7 @@ class Upload(Resource):
             # An exception from this point on MAY leave an uploaded tar file
             # (possibly partial, or corrupted); remove it if possible on
             # error recovery.
-            recovery.add(Step.UPLOAD, tar_full_path)
+            recovery.add(tar_full_path.unlink, "delete tarball")
 
             with tar_full_path.open(mode="wb") as ofp:
                 hash_md5 = hashlib.md5()
@@ -358,7 +322,7 @@ class Upload(Resource):
                 self.logger.info("Creating MD5 file {}: {}", md5_full_path, md5sum)
 
                 # From this point attempt to remove the MD5 file on error exit
-                recovery.add(Step.MD5, md5_full_path)
+                recovery.add(md5_full_path.unlink, "remove MD5 file")
                 try:
                     md5_full_path.write_text(f"{md5sum} {filename}\n")
                 except Exception:
@@ -367,7 +331,18 @@ class Upload(Resource):
                         f"Failed to write .md5 file '{md5_full_path}'",
                     )
 
-                # Move the files to their official location
+                # Create a file tree object
+                try:
+                    file_tree = FileTree(self.config, self.logger)
+                    self.logger.info(
+                        "Created {} of type {}", file_tree, type(file_tree)
+                    )
+                except Exception:
+                    raise CleanupTime(
+                        HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the file tree"
+                    )
+
+                # Move the files to their final location
                 try:
                     tarball = file_tree.create(controller, tar_full_path)
                 except Exception:
@@ -383,23 +358,10 @@ class Upload(Resource):
             if isinstance(e, CleanupTime):
                 cause = e.__cause__ if e.__cause__ else e.__context__
                 if e.status == HTTPStatus.INTERNAL_SERVER_ERROR:
-                    abort_msg = "INTERNAL ERROR"
-                    if cause:
-                        self.logger.exception(
-                            "{}:{}:{} error {}",
-                            username,
-                            controller,
-                            filename,
-                            e.message,
-                        )
-                    else:
-                        self.logger.error(
-                            "{}:{}:{} error {}",
-                            username,
-                            controller,
-                            filename,
-                            e.message,
-                        )
+                    log_func = self.logger.exception if cause else self.logger.error
+                    log_func(
+                        "{}:{}:{} error {}", username, controller, filename, e.message,
+                    )
                 else:
                     self.logger.warning(
                         "{}:{}:{} error {} ({})",

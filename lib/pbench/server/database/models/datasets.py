@@ -649,10 +649,11 @@ class Dataset(Database.Base):
             Database.db_session.add(self)
             Database.db_session.commit()
         except IntegrityError as e:
-            Dataset.logger.exception(
-                "Duplicate dataset {}|{}", self.controller, self.name
+            Dataset.logger.warning(
+                "Duplicate dataset {}|{}: {}", self.controller, self.name, e
             )
-            raise DatasetDuplicate(self.controller, self.name) from e
+            Database.db_session.rollback()
+            raise DatasetDuplicate(self.controller, self.name) from None
         except Exception:
             self.logger.exception("Can't add {} to DB", str(self))
             Database.db_session.rollback()
