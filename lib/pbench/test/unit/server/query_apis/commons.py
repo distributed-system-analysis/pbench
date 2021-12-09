@@ -33,7 +33,6 @@ class Commons:
             "hits": [],
         },
     }
-    RESULT_DATA_SAMPLE = "result-data-sample"
 
     def _setup(
         self,
@@ -44,7 +43,7 @@ class Commons:
         bad_date_payload: JSON = None,
         error_payload: JSON = None,
         empty_es_response_payload: JSON = None,
-        use_index_from_metadata: bool = False,
+        index_from_metadata: AnyStr = None,
     ):
         self.cls_obj = cls_obj
         self.pbench_endpoint = pbench_endpoint
@@ -53,7 +52,7 @@ class Commons:
         self.bad_date_payload = bad_date_payload
         self.error_payload = error_payload
         self.empty_es_response_payload = empty_es_response_payload
-        self.use_index_from_metadata = use_index_from_metadata
+        self.index_from_metadata = index_from_metadata
 
     def build_index(self, server_config, dates):
         """
@@ -67,13 +66,10 @@ class Commons:
 
         return f"/{index}"
 
-    def build_index_from_metadata(self, root_index_name: str) -> str:
+    def build_index_from_metadata(self) -> str:
         """
             Retrieve the list of ES indices from the dataset index
             map metadata based on a given root index name.
-
-            Args:
-                root_index_name: root index name
 
             Returns:
                 An Elasticsearch query URL string listing the set of
@@ -82,7 +78,7 @@ class Commons:
         """
         drb = Dataset.attach(controller="node", name="drb")
         index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
-        index_keys = [key for key in index_map if root_index_name in key]
+        index_keys = [key for key in index_map if self.index_from_metadata in key]
         return "/" + ",".join(index_keys)
 
     def date_range(self, start: AnyStr, end: AnyStr) -> list:
@@ -377,8 +373,8 @@ class Commons:
         if not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_http_exception.__name__)
 
-        if self.use_index_from_metadata:
-            index = self.build_index_from_metadata(self.RESULT_DATA_SAMPLE)
+        if self.index_from_metadata:
+            index = self.build_index_from_metadata()
         else:
             index = self.build_index(
                 server_config,
@@ -412,8 +408,8 @@ class Commons:
         if not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_http_error.__name__)
 
-        if self.use_index_from_metadata:
-            index = self.build_index_from_metadata(self.RESULT_DATA_SAMPLE)
+        if self.index_from_metadata:
+            index = self.build_index_from_metadata()
         else:
             index = self.build_index(
                 server_config,
