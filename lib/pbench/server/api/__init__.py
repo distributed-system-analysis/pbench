@@ -19,18 +19,18 @@ from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.server.api.resources.graphql_api import GraphQL
 from pbench.server.api.resources.query_apis.controllers_list import ControllersList
-from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
-from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
-from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
-from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.datasets.datasets_mappings import (
     DatasetsMappings,
 )
-from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
 from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,
 )
+from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
+from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
+from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
+from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
+from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
 from pbench.server.api.resources.upload_api import HostInfo, Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
@@ -52,28 +52,22 @@ def register_endpoints(api, app, config):
     logger.info("Registering service endpoints with base URI {}", base_uri)
 
     api.add_resource(
-        Upload,
-        f"{base_uri}/upload/<string:filename>",
-        resource_class_args=(config, logger),
-    )
-    api.add_resource(
-        HostInfo, f"{base_uri}/host_info", resource_class_args=(config, logger),
-    )
-    api.add_resource(
-        EndpointConfig, f"{base_uri}/endpoints", resource_class_args=(config, logger),
-    )
-    api.add_resource(
-        Elasticsearch,
-        f"{base_uri}/elasticsearch",
-        resource_class_args=(config, logger),
-    )
-    api.add_resource(
-        GraphQL, f"{base_uri}/graphql", resource_class_args=(config, logger),
-    )
-    api.add_resource(
         ControllersList,
         f"{base_uri}/controllers/list",
         resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        MonthIndices,
+        f"{base_uri}/controllers/months",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        DatasetsDetail,
+        f"{base_uri}/datasets/detail",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        DatasetsList, f"{base_uri}/datasets/list", resource_class_args=(config, logger),
     )
     api.add_resource(
         DatasetsMappings,
@@ -81,13 +75,8 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        DatasetsSearch,
-        f"{base_uri}/datasets/search",
-        resource_class_args=(config, logger),
-    )
-    api.add_resource(
-        MonthIndices,
-        f"{base_uri}/controllers/months",
+        DatasetsMetadata,
+        f"{base_uri}/datasets/metadata",
         resource_class_args=(config, logger),
     )
     api.add_resource(
@@ -101,26 +90,32 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        DatasetsList, f"{base_uri}/datasets/list", resource_class_args=(config, logger),
-    )
-    api.add_resource(
-        DatasetsDetail,
-        f"{base_uri}/datasets/detail",
-        resource_class_args=(config, logger),
-    )
-    api.add_resource(
         DatasetsPublish,
         f"{base_uri}/datasets/publish",
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        DatasetsMetadata,
-        f"{base_uri}/datasets/metadata",
+        DatasetsSearch,
+        f"{base_uri}/datasets/search",
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        RegisterUser, f"{base_uri}/register", resource_class_args=(config, logger),
+        Elasticsearch,
+        f"{base_uri}/elasticsearch",
+        resource_class_args=(config, logger),
     )
+    api.add_resource(
+        EndpointConfig, f"{base_uri}/endpoints", resource_class_args=(config, logger),
+    )
+
+    api.add_resource(
+        GraphQL, f"{base_uri}/graphql", resource_class_args=(config, logger),
+    )
+
+    api.add_resource(
+        HostInfo, f"{base_uri}/host_info", resource_class_args=(config, logger),
+    )
+
     api.add_resource(
         Login, f"{base_uri}/login", resource_class_args=(config, logger, token_auth),
     )
@@ -128,9 +123,18 @@ def register_endpoints(api, app, config):
         Logout, f"{base_uri}/logout", resource_class_args=(config, logger, token_auth),
     )
     api.add_resource(
+        RegisterUser, f"{base_uri}/register", resource_class_args=(config, logger),
+    )
+    api.add_resource(
         UserAPI,
         f"{base_uri}/user/<string:target_username>",
         resource_class_args=(logger, token_auth),
+    )
+
+    api.add_resource(
+        Upload,
+        f"{base_uri}/upload/<string:filename>",
+        resource_class_args=(config, logger),
     )
 
 
