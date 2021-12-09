@@ -50,12 +50,6 @@ def tree_manage(context: object, display: bool):
 
     This primarily exposes the FileTree object hierarchy, and provides a simple
     hierarchical display of controllers and datasets.
-
-    This command can also be used to create a dataset, using the Dataset and
-    FileTree classes to maintain equivalence with the PUT operation (skipping
-    the network upload when the tarball and MD5 file are available locally). We
-    don't implement `--delete` however, as that would require also integrating
-    with the Elasticsearch bulk delete: this has to be done through the API.
     \f
 
     Args:
@@ -67,13 +61,12 @@ def tree_manage(context: object, display: bool):
         logger = get_pbench_logger("filetree", config)
         file_tree = FileTree(config, logger)
         file_tree.full_discovery()
+        if display:
+            print_tree(file_tree)
         rv = 0
     except Exception as exc:
         logger.exception("An error occurred discovering the file tree: {}", exc)
         click.echo(exc, err=True)
         rv = 2 if isinstance(exc, BadConfig) else 1
-    else:
-        if display:
-            print_tree(file_tree)
 
     click.get_current_context().exit(rv)

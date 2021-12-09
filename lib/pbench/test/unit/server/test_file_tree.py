@@ -1,11 +1,17 @@
-import re
 import hashlib
+import re
 import shutil
 
 import pytest
 
 from pbench.common.logger import get_pbench_logger
-from pbench.server.filetree import BadFilename, DatasetNotFound, DuplicateDataset, FileTree, Tarball
+from pbench.server.filetree import (
+    BadFilename,
+    DatasetNotFound,
+    DuplicateDataset,
+    FileTree,
+    Tarball,
+)
 
 
 @pytest.fixture
@@ -25,11 +31,8 @@ def file_sweeper(server_config):
     # After each test case:
 
     for tree in trees:
-        for d in tree.iterdir():
-            if d.is_dir():
-                shutil.rmtree(d, ignore_errors=True)
-            else:
-                d.unlink()
+        shutil.rmtree(tree, ignore_errors=True)
+        tree.mkdir(parents=True)
 
 
 class TestFileTree:
@@ -60,16 +63,15 @@ class TestFileTree:
         assert not tree.datasets  # No datasets expected
         assert list(tree.controllers.keys()) == ["TEST"]
 
-    def test_clean_emptys(self, server_config, make_logger):
+    def test_clean_empties(self, server_config, make_logger):
         tree = FileTree(server_config, make_logger)
         controllers = ["PLUGH", "XYZZY"]
         roots = [tree.archive_root, tree.incoming_root, tree.results_root]
         for c in controllers:
             for r in roots:
-                d = r / c
-                d.mkdir(parents=True)
+                (r / c).mkdir(parents=True)
         tree.full_discovery()
-        ctrls = sorted(list(tree.controllers.keys()))
+        ctrls = sorted(tree.controllers)
         assert ctrls == controllers
 
         for c in controllers:
@@ -81,7 +83,7 @@ class TestFileTree:
 
     def test_create_bad(self, monkeypatch, server_config, make_logger, tarball):
         # Calling restorecon() gives warning messages about "no default label"
-        monkeypatch.setattr("selinux.restorecon", lambda a: None)
+        monkeypatch.setattr("selinux.is_selinux_enabled", lambda a: False)
 
         source_tarball, source_md5, md5 = tarball
         dataset_name = Tarball.stem(source_tarball)
@@ -91,7 +93,6 @@ class TestFileTree:
         # a bad filename error
         with pytest.raises(BadFilename) as exc:
             tree.create("ABC", source_md5)
-        assert type(exc.value) is BadFilename
         assert exc.value.path == str(source_md5)
 
         tree.create("ABC", source_tarball)
@@ -100,7 +101,6 @@ class TestFileTree:
         # result in an error.
         with pytest.raises(BadFilename) as exc:
             tree.create("ABC", source_md5)
-        assert type(exc.value) is BadFilename
         assert exc.value.path == str(source_md5)
 
         # Attempting to create the same dataset again (from the archive copy)
@@ -108,8 +108,10 @@ class TestFileTree:
         tarball = tree.find_dataset(dataset_name)
         with pytest.raises(DuplicateDataset) as exc:
             tree.create("ABC", tarball.tarball_path)
-        assert type(exc.value) is DuplicateDataset
-        assert str(exc.value) == "A dataset named 'pbench-user-benchmark_some + config_2021.05.01T12.42.42' is already present in the file tree"
+        assert (
+            str(exc.value)
+            == "A dataset named 'pbench-user-benchmark_some + config_2021.05.01T12.42.42' is already present in the file tree"
+        )
         assert exc.value.dataset == tarball.name
 
     def test_find(self, monkeypatch, server_config, make_logger, tarball):
@@ -133,8 +135,10 @@ class TestFileTree:
         assert tarball == tree[dataset_name]
         with pytest.raises(DatasetNotFound) as exc:
             tree["foobar"]
-        assert type(exc.value) is DatasetNotFound
-        assert str(exc.value) == "The dataset named 'foobar' is not present in the file tree"
+        assert (
+            str(exc.value)
+            == "The dataset named 'foobar' is not present in the file tree"
+        )
 
         # Test __contains__
         assert dataset_name in tree
@@ -143,8 +147,10 @@ class TestFileTree:
         # Try to find a dataset that doesn't exist
         with pytest.raises(DatasetNotFound) as exc:
             tree.find_dataset("foobar")
-        assert type(exc.value) is DatasetNotFound
-        assert str(exc.value) == "The dataset named 'foobar' is not present in the file tree"
+        assert (
+            str(exc.value)
+            == "The dataset named 'foobar' is not present in the file tree"
+        )
         assert exc.value.dataset == "foobar"
 
         # We should be able to find the tarball even in a new file tree
@@ -155,8 +161,8 @@ class TestFileTree:
         tarball = new.find_dataset(dataset_name)
         assert tarball
         assert tarball.name == dataset_name
-        assert list(new.controllers.keys()) == ["ABC"]
-        assert list(new.datasets.keys()) == [dataset_name]
+        assert list(new.controllers) == ["ABC"]
+        assert list(new.datasets) == [dataset_name]
 
     def test_lifecycle(self, monkeypatch, server_config, make_logger, tarball):
 
@@ -165,10 +171,17 @@ class TestFileTree:
 
         source_tarball, source_md5, md5 = tarball
         tree = FileTree(server_config, make_logger)
-        tree.create("ABC", source_tarball)
         archive = tree.archive_root / "ABC"
         incoming = tree.incoming_root / "ABC"
         results = tree.results_root / "ABC"
+
+        # None of the controller directories should exist yet
+        assert not archive.exists()
+        assert not incoming.exists()
+        assert not results.exists()
+
+        # Create a dataset in the file tree from our source tarball
+        tree.create("ABC", source_tarball)
 
         # Expect the archive directory was created, but we haven't unpacked so
         # incoming and results should not exist.
@@ -196,7 +209,7 @@ class TestFileTree:
 
         assert list(tree.controllers.keys()) == ["ABC"]
         dataset_name = source_tarball.name[:-7]
-        assert list(tree.datasets.keys()) == [dataset_name]
+        assert list(tree.datasets) == [dataset_name]
 
         # Now "unpack" the tarball and check that the incoming directory and
         # results link are set up.
@@ -214,19 +227,13 @@ class TestFileTree:
         assert newtree.archive_root == tree.archive_root
         assert newtree.incoming_root == tree.incoming_root
         assert newtree.results_root == tree.results_root
-        assert sorted(list(newtree.controllers.keys())) == sorted(
-            list(tree.controllers.keys())
-        )
-        assert sorted(list(newtree.datasets.keys())) == sorted(
-            list(tree.datasets.keys())
-        )
+        assert sorted(newtree.controllers) == sorted(tree.controllers)
+        assert sorted(newtree.datasets) == sorted(tree.datasets)
         for controller in tree.controllers.values():
             other = newtree.controllers[controller.name]
             assert controller.name == other.name
             assert controller.path == other.path
-            assert sorted(list(controller.tarballs.keys())) == sorted(
-                list(other.tarballs.keys())
-            )
+            assert sorted(controller.tarballs) == sorted(other.tarballs)
         for tarball in tree.datasets.values():
             other = newtree.datasets[tarball.name]
             assert tarball.name == other.name

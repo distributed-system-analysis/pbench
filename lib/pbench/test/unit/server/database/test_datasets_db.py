@@ -139,8 +139,6 @@ class TestDatasets:
 
         ds2 = Dataset.query(name="fio")
         assert ds2.name == "fio"
-        ds2.name = "abc"
-        assert ds1.name == "abc"
         assert ds2.owner == ds1.owner
         assert ds2.controller == ds1.controller
         assert ds2.name == ds1.name

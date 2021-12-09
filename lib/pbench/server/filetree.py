@@ -27,7 +27,7 @@ class BadFilename(FiletreeError):
         self.path = str(path)
 
     def __str__(self) -> str:
-        return f"The file path {self.path} is not a tarball"
+        return f"The file path {self.path!r} is not a tarball"
 
 
 class DatasetNotFound(FiletreeError):
@@ -77,11 +77,17 @@ class Tarball:
         Args:
             path: A file path that might be a Pbench tarball
 
+        Raises:
+            BadFilename: the path name does not end in ".tar.xz"
+
         Returns:
             The stripped "stem" of the dataset
         """
         name = path.name
-        return name[:-7] if name[-7:] == ".tar.xz" else name
+        if name[-7:] == ".tar.xz":
+            return name[:-7]
+        else:
+            raise BadFilename(path)
 
     def __init__(self, path: Path, controller: "Controller"):
         """
@@ -146,24 +152,22 @@ class Tarball:
         proper place along with the md5 companion file. It returns the new
         Tarball object.
         """
-        # Make sure that the tarball name ends with ".tar.xz" and complain
-        # if not.
+
+        # Fail quickly if the tarball name doesn't end with ".tar.xz"
         name = Tarball.stem(tarball)
-        if name != tarball.name[:-7]:
-            raise BadFilename(tarball)
 
         # NOTE: with_suffix replaces only the final suffix, .xz, not the full
         # standard .tar.xz
         md5_source = tarball.with_suffix(".xz.md5")
-        destination = None
-        md5_destination = None
 
         # Copy the MD5 file first; only if that succeeds, copy the tarball
         # itself.
         try:
             md5_destination = Path(shutil.copy2(md5_source, controller.path))
         except Exception as e:
-            controller.logger.error("ERROR copying dataset {} MD5: {}", tarball, e)
+            controller.logger.error(
+                "ERROR copying dataset {} ({}) MD5: {}", name, tarball, e
+            )
             raise
 
         try:
@@ -173,19 +177,23 @@ class Tarball:
                 md5_destination.unlink()
             except Exception as e:
                 controller.logger.error(
-                    "Unable to recover by removing MD5 after tarball copy failure: {}",
+                    "Unable to recover by removing {} MD5 after tarball copy failure: {}",
+                    name,
                     e,
                 )
-            controller.logger.error("ERROR copying dataset {}: {}", tarball, e)
+            controller.logger.error(
+                "ERROR copying dataset {} tarball {}: {}", name, tarball, e
+            )
             raise
 
         # Restore the SELinux context properly
         try:
-            selinux.restorecon(destination)
-            selinux.restorecon(md5_destination)
+            if selinux.is_selinux_enabled():
+                selinux.restorecon(destination)
+                selinux.restorecon(md5_destination)
         except Exception as e:
             # log it but do not abort
-            controller.logger.error("Unable to 'restorecon {}', {}", destination, e)
+            controller.logger.error("Unable to set SELINUX context for {}: {}", name, e)
 
         # To get the new tarball into the server pipeline, we start with a
         # symlink in the TODO state directory.
@@ -199,9 +207,7 @@ class Tarball:
             controller.link(destination, "TODO")
         except Exception as e:
             controller.logger.error(
-                "Failed to link dataset {} into TODO state directory: {}",
-                destination,
-                e,
+                "Failed to link dataset {} into TODO state directory: {}", name, e
             )
 
         # If we were able to copy both files, remove the originals
@@ -209,9 +215,7 @@ class Tarball:
             tarball.unlink()
             md5_source.unlink()
         except Exception as e:
-            controller.logger.error(
-                "Error removing incoming dataset {}: {}", tarball, e
-            )
+            controller.logger.error("Error removing incoming dataset {}: {}", name, e)
 
         return Tarball(destination, controller)
 
@@ -631,17 +635,9 @@ class FileTree:
     def full_discovery(self):
         """
         We discover the ARCHIVE, INCOMING, and RESULTS trees as defined by the
-        pbench-server.cfg file. We do not support the 0.69 USERS directory,
-        which is completely superseded by dataset user ownership in 0.72. We
-        also do not support the `prefix` mechanism that allowed inserting a
-        directory prefix or directory sub-tree in front of the RESULTS link
-        which exposes the unpacked tarball data. Both of these may become
-        accessible through dataset metadata.
+        pbench-server.cfg file.
 
-        This is useful for standalone reporting, including to enable an audit
-        check. Generally it's overkill for specific operations such as adding
-        or removing a dataset. This setup is sufficient but not necessary for
-        mutation operations.
+        Full discovery is not required before adding or deleting a dataset.
         """
         self._discover_archive()
         self._discover_unpacked()
@@ -699,7 +695,15 @@ class FileTree:
                 archive.rmdir()
             del self.controllers[controller]
 
-    def _add_controller(self, directory: Path):
+    def _add_controller(self, directory: Path) -> None:
+        """
+        Create a new Controller object, add it to the set of known controllers,
+        and append the discovered datasets (tarballs) to the list of known
+        datasets.
+
+        Args:
+            directory: A controller directory within the ARCHIVE tree
+        """
         controller = Controller(
             directory, self.options.INCOMING, self.options.RESULTS, self.logger
         )

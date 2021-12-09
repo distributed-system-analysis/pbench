@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from logging import ERROR
 from typing import Iterator
 
 import elasticsearch
@@ -158,15 +159,11 @@ class TestDatasetsPublish:
         # Verify the report and status
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
         assert response.json["data"] == {"ok": 28, "failure": 3}
-        for record in caplog.records:
-            if (
-                record.levelname == "ERROR"
-                and record.name == "pbench.server.api:__init__.py"
-            ):
-                assert (
-                    record.message
-                    == "DatasetsPublish:dataset drb(1)|node|drb: 28 successful document updates and 3 failures: defaultdict(<class 'collections.Counter'>, {'Just kidding': Counter({'unit-test.v6.run-data.2021-06': 1, 'unit-test.v6.run-toc.2021-06': 1, 'unit-test.v5.result-data-sample.2021-06': 1}), 'ok': Counter({'unit-test.v5.result-data-sample.2021-06': 19, 'unit-test.v6.run-toc.2021-06': 9})})"
-                )
+        assert (
+            "pbench.server.api",
+            ERROR,
+            'DatasetsPublish:dataset drb(1)|node|drb: 28 successful document actions and 3 failures: {"Just kidding": {"unit-test.v6.run-data.2021-06": 1, "unit-test.v6.run-toc.2021-06": 1, "unit-test.v5.result-data-sample.2021-06": 1}, "ok": {"unit-test.v6.run-toc.2021-06": 9, "unit-test.v5.result-data-sample.2021-06": 19}}',
+        ) in caplog.record_tuples
 
         # Verify that the Dataset access didn't change
         dataset = Dataset.query(controller="node", name="drb")
