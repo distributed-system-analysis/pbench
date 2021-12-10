@@ -17,7 +17,8 @@ PIDFile = /run/pbench-server/gunicorn.pid
 ExecStart = /opt/pbench-server/bin/pbench-server
 ExecStop = /bin/kill -s TERM $MAINPID
 Restart = always
-StartLimitInterval = 60
+RestartSec = 30
+StartLimitInterval = 600
 StartLimitBurst = 10
 
 [Install]
