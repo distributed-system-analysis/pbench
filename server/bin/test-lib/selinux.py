@@ -21,3 +21,7 @@ def restorecon(path, recursive=False, verbose=False, force=False):
         )
 
     return 0
+
+
+def is_selinux_enabled():
+    return 1
