@@ -92,6 +92,7 @@ RUN \
         `# using the Server RPM.  Then, if a 'pip3 install -r requirements.txt'` \
         `# shows any missing dependencies they should be added to the RPM spec` \
         `# file and this list should be regenerated.` \
+        cronie \
         npm \
         policycoreutils \
         policycoreutils-python-utils \
@@ -171,6 +172,7 @@ RUN \
         python3-sphinx \
         `#` \
         `# Install utilities for building RPMs, evaluating test results, etc.` \
+        copr-cli \
         diffutils \
         git \
         less \
