@@ -241,13 +241,16 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors):
             nerrs += 1
             continue
 
-        # Restore the SELinux context properly
-        try:
-            selinux.restorecon(dest / tb.name)
-            selinux.restorecon(dest / tbmd5.name)
-        except Exception as e:
-            # log it but do not abort
-            logger.error("{}: Error: 'restorecon {}', {}", config.TS, dest / tb.name, e)
+        if selinux.is_selinux_enabled():
+            # Restore the SELinux context properly
+            try:
+                selinux.restorecon(dest / tb.name)
+                selinux.restorecon(dest / tbmd5.name)
+            except Exception as e:
+                # log it but do not abort
+                logger.error(
+                    "{}: Error: 'restorecon {}', {}", config.TS, dest / tb.name, e
+                )
 
         # Now that we have successfully moved the tar ball and its .md5 to the
         # destination, we can remove the original .md5 file.
