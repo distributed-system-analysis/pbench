@@ -26,7 +26,7 @@ class TestSamplesNamespace(Commons):
             pbench_endpoint="/datasets/namespace/iterations",
             elastic_endpoint="/_search",
             payload={"run_id": "random_md5_string1"},
-            use_index_from_metadata=True,
+            index_from_metadata="result-data-sample",
         )
 
     def test_with_no_index_document(self, client, server_config):
@@ -327,7 +327,7 @@ class TestSamplesNamespace(Commons):
                 },
             },
         }
-        index = self.build_index_from_metadata(self.RESULT_DATA_SAMPLE)
+        index = self.build_index_from_metadata()
 
         # get_expected_status() expects to read username and access from the
         # JSON client payload, however this API acquires that information
@@ -405,7 +405,7 @@ class TestSampleValues(Commons):
             pbench_endpoint="/datasets/values/iterations",
             elastic_endpoint="/_search",
             payload={"run_id": "random_md5_string1"},
-            use_index_from_metadata=True,
+            index_from_metadata="result-data-sample",
         )
 
     @pytest.mark.parametrize("filters", ({"sample.name": "sample1"}, {}, None))
@@ -557,7 +557,7 @@ class TestSampleValues(Commons):
                 ],
             },
         }
-        index = self.build_index_from_metadata(self.RESULT_DATA_SAMPLE)
+        index = self.build_index_from_metadata()
 
         auth_json = {"user": "drb", "access": "private"}
         expected_status = self.get_expected_status(
@@ -623,7 +623,7 @@ class TestSampleValues(Commons):
                 ),
             },
         }
-        index = self.build_index_from_metadata(self.RESULT_DATA_SAMPLE)
+        index = self.build_index_from_metadata()
 
         auth_json = {"user": "drb", "access": "private"}
         expected_status = self.get_expected_status(
@@ -757,7 +757,7 @@ class TestSampleValues(Commons):
 
     def test_get_index(self, attach_dataset, provide_metadata):
         drb = Dataset.attach(controller="node", name="drb")
-        indices = self.cls_obj.get_index(drb, self.RESULT_DATA_SAMPLE)
+        indices = self.cls_obj.get_index(drb, self.index_from_metadata)
         assert indices == "unit-test.v5.result-data-sample.2020-08"
 
     def test_exceptions_on_get_index(self, attach_dataset):
@@ -765,7 +765,7 @@ class TestSampleValues(Commons):
 
         # When server index_map is None we expect 500
         with pytest.raises(InternalServerError) as exc:
-            self.cls_obj.get_index(test, self.RESULT_DATA_SAMPLE)
+            self.cls_obj.get_index(test, self.index_from_metadata)
         assert exc.value.code == HTTPStatus.INTERNAL_SERVER_ERROR
 
         Metadata.setvalue(
@@ -776,4 +776,4 @@ class TestSampleValues(Commons):
 
         # When server index_map doesn't have mappings for result-data-sample
         # documents we expect the indices to an empty string
-        assert self.cls_obj.get_index(test, self.RESULT_DATA_SAMPLE) == ""
+        assert self.cls_obj.get_index(test, self.index_from_metadata) == ""
