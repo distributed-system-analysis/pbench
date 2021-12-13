@@ -16,11 +16,18 @@ from pbench.server.filetree import (
 
 @pytest.fixture
 def make_logger(server_config):
+    """
+    Construct a Pbench Logger object
+    """
     return get_pbench_logger("TEST", server_config)
 
 
 @pytest.fixture(scope="function", autouse=True)
 def file_sweeper(server_config):
+    """
+    Make sure that the required directory trees exist before each test case,
+    and clean up afterwards.
+    """
     trees = [server_config.ARCHIVE, server_config.INCOMING, server_config.RESULTS]
 
     for tree in trees:
@@ -37,6 +44,9 @@ def file_sweeper(server_config):
 
 class TestFileTree:
     def test_create(self, server_config, make_logger):
+        """
+        Create an empty FileTree object and check the properties
+        """
         tree = FileTree(server_config, make_logger)
         assert tree is not None
         assert not tree.datasets  # No datasets expected
@@ -50,12 +60,18 @@ class TestFileTree:
         assert str(tree.results_root) == root + "/srv/pbench/public_html/results"
 
     def test_discover_empties(self, server_config, make_logger):
+        """
+        Full discovery with no controllers or datasets
+        """
         tree = FileTree(server_config, make_logger)
         tree.full_discovery()
         assert not tree.datasets  # No datasets expected
         assert not tree.controllers  # No controllers expected
 
     def test_empty_controller(self, server_config, make_logger):
+        """
+        Discover a "controller" directory with no datasets
+        """
         tree = FileTree(server_config, make_logger)
         test_controller = tree.archive_root / "TEST"
         test_controller.mkdir()
@@ -64,6 +80,9 @@ class TestFileTree:
         assert list(tree.controllers.keys()) == ["TEST"]
 
     def test_clean_empties(self, server_config, make_logger):
+        """
+        Test that empty controller directories are removed
+        """
         tree = FileTree(server_config, make_logger)
         controllers = ["PLUGH", "XYZZY"]
         roots = [tree.archive_root, tree.incoming_root, tree.results_root]
@@ -82,8 +101,14 @@ class TestFileTree:
                 assert not (r / c).exists()
 
     def test_create_bad(self, monkeypatch, server_config, make_logger, tarball):
-        # Calling restorecon() gives warning messages about "no default label"
-        monkeypatch.setattr("selinux.is_selinux_enabled", lambda a: False)
+        """
+        Test several varieties of dataset errors:
+
+        1) Attempt to create a new dataset from an MD5 file
+        2) Attempt to create a new dataset from a non-existent file
+        3) Attempt to create a dataset that already exists
+        """
+        monkeypatch.setattr("selinux.is_selinux_enabled", lambda a: 0)
 
         source_tarball, source_md5, md5 = tarball
         dataset_name = Tarball.stem(source_tarball)
@@ -114,8 +139,33 @@ class TestFileTree:
         )
         assert exc.value.dataset == tarball.name
 
+    def test_duplicate(self, monkeypatch, server_config, make_logger, tarball):
+        """
+        Test behavior when we try to create a new dataset but the tarball file
+        name already exists
+        """
+        monkeypatch.setattr("selinux.is_selinux_enabled", lambda a: 0)
+
+        source_tarball, source_md5, md5 = tarball
+        tree = FileTree(server_config, make_logger)
+
+        # Create a tarball file in the expected destination directory
+        controller = tree.archive_root / "ABC"
+        controller.mkdir()
+        (controller / source_tarball.name).write_text("Send in the clones")
+
+        # Attempting to create a dataset from the md5 file should result in
+        # a duplicate dataset error
+        with pytest.raises(DuplicateDataset) as exc:
+            tree.create("ABC", source_tarball)
+        assert exc.value.dataset == Tarball.stem(source_tarball)
+
     def test_find(self, monkeypatch, server_config, make_logger, tarball):
-        # Calling restorecon() gives warning messages about "no default label"
+        """
+        Create a dataset, check the tree state, and test that we can find it
+        through the various supported methods.
+        """
+        monkeypatch.setattr("selinux.is_selinux_enabled", lambda a: 1)
         monkeypatch.setattr("selinux.restorecon", lambda a: None)
 
         source_tarball, source_md5, md5 = tarball
@@ -165,8 +215,11 @@ class TestFileTree:
         assert list(new.datasets) == [dataset_name]
 
     def test_lifecycle(self, monkeypatch, server_config, make_logger, tarball):
-
-        # Calling restorecon() gives warning messages about "no default label"
+        """
+        Create a dataset, unpack it, remove the unpacked version, and finally
+        delete it.
+        """
+        monkeypatch.setattr("selinux.is_selinux_enabled", lambda a: 1)
         monkeypatch.setattr("selinux.restorecon", lambda a: None)
 
         source_tarball, source_md5, md5 = tarball

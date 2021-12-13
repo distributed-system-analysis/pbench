@@ -64,6 +64,22 @@ class Tarball:
     dataset.
     """
 
+    TARBALL_SUFFIX = ".tar.xz"
+
+    @staticmethod
+    def has_suffix(path: Union[Path, str]) -> bool:
+        """
+        Determine whether a path has the expected suffix to qualify as a Pbench
+        tarball.
+
+        Args:
+            path: file path
+
+        Returns:
+            True if path ends with the supported suffix, False if not
+        """
+        return str(path).endswith(Tarball.TARBALL_SUFFIX)
+
     @staticmethod
     def stem(path: Path) -> str:
         """
@@ -83,9 +99,8 @@ class Tarball:
         Returns:
             The stripped "stem" of the dataset
         """
-        name = path.name
-        if name[-7:] == ".tar.xz":
-            return name[:-7]
+        if Tarball.has_suffix(path):
+            return path.name[:-7]
         else:
             raise BadFilename(path)
 
@@ -153,12 +168,18 @@ class Tarball:
         Tarball object.
         """
 
-        # Fail quickly if the tarball name doesn't end with ".tar.xz"
+        # Validate the tarball suffix and extract the dataset name
         name = Tarball.stem(tarball)
 
         # NOTE: with_suffix replaces only the final suffix, .xz, not the full
         # standard .tar.xz
         md5_source = tarball.with_suffix(".xz.md5")
+
+        # If either expected destination file exists, something is wrong
+        if (controller.path / tarball.name).exists() or (
+            controller.path / md5_source.name
+        ).exists():
+            raise DuplicateDataset(name)
 
         # Copy the MD5 file first; only if that succeeds, copy the tarball
         # itself.
@@ -268,27 +289,24 @@ class Tarball:
         """
         Delete the tarball and MD5 file from the ARCHIVE tree.
 
-        Exceptions raised by the deletion will be propagated; nothing is
-        returned on success, but the "path" instance variables will be cleared
-        to avoid future confusion.
+        We'll log errors in deletion, but "succeed" and clear the links to both
+        files. There's nothing more we can do.
         """
         self.uncache()
         if self.md5_path:
-            # NOTE: it's actually an error if there's no MD5 companion, but
-            # since Tarball object creation is driven by presence of the
-            # .tar.xz file we won't assume it's there to delete.
             try:
                 self.md5_path.unlink()
-                self.md5_path = None
             except Exception as e:
                 self.logger.error("archive unlink for {} failed with {}", self.name, e)
-                raise
-        try:
-            self.tarball_path.unlink()
+            self.md5_path = None
+        if self.tarball_path:
+            try:
+                self.tarball_path.unlink()
+            except Exception as e:
+                self.logger.error(
+                    "archive MD5 unlink for {} failed with {}", self.name, e
+                )
             self.tarball_path = None
-        except Exception as e:
-            self.logger.error("archive MD5 unlink for {} failed with {}", self.name, e)
-            raise
 
 
 class Controller:

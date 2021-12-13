@@ -62,7 +62,6 @@ class TestEndpointConfig:
                 "elasticsearch": f"{uri}/elasticsearch",
                 "endpoints": f"{uri}/endpoints",
                 "graphql": f"{uri}/graphql",
-                "host_info": f"{uri}/host_info",
                 "login": f"{uri}/login",
                 "logout": f"{uri}/logout",
                 "register": f"{uri}/register",
