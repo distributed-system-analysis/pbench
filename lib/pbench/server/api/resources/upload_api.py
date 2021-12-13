@@ -24,6 +24,19 @@ from pbench.server.database.models.datasets import (
 from pbench.server.utils import filesize_bytes
 
 
+class CleanupNotCallable(Exception):
+    """
+    Signal that caller tried to register a cleanup action with an object that
+    was not a Callable on an object.
+    """
+
+    def __init__(self, action):
+        self.action = action
+
+    def __str__(self) -> str:
+        return f"Parameter {self.action!r} ({type(self.action)} is not a Callable"
+
+
 class CleanupTime(Exception):
     """
     Used to support handling errors during PUT without constantly testing the
@@ -42,22 +55,21 @@ class CleanupAction:
     upload procedure, based on the Step ENUM associated with the action.
     """
 
-    def __init__(self, logger: Logger, action: Callable, name: str = None):
+    def __init__(self, logger: Logger, action: Callable):
         """
         Define a cleanup action
 
         Args:
             logger: The active Pbench Logger object
             action: a Callable to perform cleanup
-            name: informative string
         """
         self.action = action
-        self.name = name
         self.logger = logger
 
     def cleanup(self):
         """
-        Perform a cleanup action depending on the associated Step value.
+        Perform a cleanup action, executing a callable associated with some
+        object (usually a Dataset or a Path) that needs cleaning.
 
         This handles errors and reports them, but doesn't propagate failure to
         ensure that cleanup continues as best we can.
@@ -65,7 +77,14 @@ class CleanupAction:
         try:
             self.action()
         except Exception as e:
-            self.logger.error("Unable to revert {}: {}", self.name, e)
+            op = self.action
+            self.logger.error(
+                "Unable to {} {} {}: {}",
+                op.__name__,
+                type(op.__self__),
+                str(op.__self__),
+                e,
+            )
 
 
 class Cleanup:
@@ -86,15 +105,20 @@ class Cleanup:
         self.logger = logger
         self.actions: Deque[CleanupAction] = deque()
 
-    def add(self, action: Callable, name: str = None) -> None:
+    def add(self, action: Callable) -> None:
         """
-        Add a new cleanup action to the front of the deque
+        Add a new cleanup action to the front of the deque.
+
+        This is a Callable on some object, requiring no parameters; for example
+        if `dataset` is a Dataset object, `dataset.delete`, or for a Path
+        object `file` representing a directory, `file.rmdir`.
 
         Args:
-            step: Step ENUM value describing the cleanup action
-            parameter: A parameter for the cleanup action
+            Callable to be executed to clean up a step
         """
-        self.actions.appendleft(CleanupAction(self.logger, action, name))
+        if not callable(action):
+            raise CleanupNotCallable(action)
+        self.actions.appendleft(CleanupAction(self.logger, action))
 
     def cleanup(self):
         """
@@ -113,7 +137,6 @@ class Upload(Resource):
     controller directory under the configured ARCHIVE file tree.
     """
 
-    ALLOWED_EXTENSION = ".tar.xz"
     CHUNK_SIZE = 65536
 
     def __init__(self, config, logger):
@@ -160,10 +183,10 @@ class Upload(Resource):
                     HTTPStatus.BAD_REQUEST, "Filename must not contain a path"
                 )
 
-            if not self.supported_file_extension(filename):
+            if not Tarball.has_suffix(filename):
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,
-                    f"File extension not supported, must be {self.ALLOWED_EXTENSION}",
+                    f"File extension not supported, must be {Tarball.TARBALL_SUFFIX}",
                 )
 
             md5sum = request.headers.get("Content-MD5")
@@ -201,7 +224,8 @@ class Upload(Resource):
             elif content_length > self.max_content_length:
                 raise CleanupTime(
                     HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                    f"'Content-Length' {content_length} must be no greater than than {humanize.naturalsize(self.max_content_length)}",
+                    f"'Content-Length' {content_length} must be no greater "
+                    f"than {humanize.naturalsize(self.max_content_length)}",
                 )
 
             tar_full_path = self.temporary / filename
@@ -256,14 +280,14 @@ class Upload(Resource):
                             f"Duplicate dataset has different MD5 ({duplicate.md5} != {md5sum})",
                         )
             except CleanupTime:
-                pass
+                raise  # Propagate a CleanupTime exception to the outer block
             except Exception:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     message="Unable to create dataset",
                 )
 
-            recovery.add(dataset.delete, "delete dataset")
+            recovery.add(dataset.delete)
 
             self.logger.info(
                 "Uploading file {!a} (user = {}, ctrl = {!a}) to {}",
@@ -276,7 +300,7 @@ class Upload(Resource):
             # An exception from this point on MAY leave an uploaded tar file
             # (possibly partial, or corrupted); remove it if possible on
             # error recovery.
-            recovery.add(tar_full_path.unlink, "delete tarball")
+            recovery.add(tar_full_path.unlink)
 
             with tar_full_path.open(mode="wb") as ofp:
                 hash_md5 = hashlib.md5()
@@ -322,7 +346,7 @@ class Upload(Resource):
                 self.logger.info("Creating MD5 file {}: {}", md5_full_path, md5sum)
 
                 # From this point attempt to remove the MD5 file on error exit
-                recovery.add(md5_full_path.unlink, "remove MD5 file")
+                recovery.add(md5_full_path.unlink)
                 try:
                     md5_full_path.write_text(f"{md5sum} {filename}\n")
                 except Exception:
@@ -360,7 +384,7 @@ class Upload(Resource):
                 if e.status == HTTPStatus.INTERNAL_SERVER_ERROR:
                     log_func = self.logger.exception if cause else self.logger.error
                     log_func(
-                        "{}:{}:{} error {}", username, controller, filename, e.message,
+                        "{}:{}:{} error {}", username, controller, filename, e.message
                     )
                 else:
                     self.logger.warning(
@@ -412,11 +436,3 @@ class Upload(Resource):
         except Exception as exc:
             logger.error("Unable to finalize {}, '{}'", dataset, exc)
             raise
-
-    @staticmethod
-    def supported_file_extension(filename: str) -> bool:
-        """Check if the given file name ends with the allowed extension.
-
-        Return True if the allowed extension is found, False otherwise.
-        """
-        return filename.endswith(Upload.ALLOWED_EXTENSION)
