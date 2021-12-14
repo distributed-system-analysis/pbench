@@ -67,7 +67,7 @@ class Tarball:
     TARBALL_SUFFIX = ".tar.xz"
 
     @staticmethod
-    def has_suffix(path: Union[Path, str]) -> bool:
+    def is_tarball(path: Union[Path, str]) -> bool:
         """
         Determine whether a path has the expected suffix to qualify as a Pbench
         tarball.
@@ -99,8 +99,8 @@ class Tarball:
         Returns:
             The stripped "stem" of the dataset
         """
-        if Tarball.has_suffix(path):
-            return path.name[:-7]
+        if Tarball.is_tarball(path):
+            return path.name[:-len(Tarball.TARBALL_SUFFIX)]
         else:
             raise BadFilename(path)
 
@@ -176,9 +176,9 @@ class Tarball:
         md5_source = tarball.with_suffix(".xz.md5")
 
         # If either expected destination file exists, something is wrong
-        if (controller.path / tarball.name).exists() or (
-            controller.path / md5_source.name
-        ).exists():
+        if (controller.path / tarball.name).exists():
+            raise DuplicateDataset(name)
+        if (controller.path / md5_source.name).exists():
             raise DuplicateDataset(name)
 
         # Copy the MD5 file first; only if that succeeds, copy the tarball

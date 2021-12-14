@@ -35,11 +35,32 @@ def file_sweeper(server_config):
 
     yield
 
-    # After each test case:
+    # After each test case, remove the contents of each of the root tree
+    # directories.
 
     for tree in trees:
-        shutil.rmtree(tree, ignore_errors=True)
-        tree.mkdir(parents=True)
+        for file in tree.iterdir():
+            if file.is_dir():
+                shutil.rmtree(file, ignore_errors=True)
+            else:
+                file.unlink()
+
+
+@pytest.fixture()
+def selinux_disabled(monkeypatch):
+    """
+    Pretend that selinux is disabled so restorecon isn't called
+    """
+    monkeypatch.setattr("selinux.is_selinux_enabled", lambda: 0)
+
+
+@pytest.fixture()
+def selinux_enabled(monkeypatch):
+    """
+    Pretend that selinux is enabled but make restorecon exit with no action
+    """
+    monkeypatch.setattr("selinux.is_selinux_enabled", lambda: 1)
+    monkeypatch.setattr("selinux.restorecon", lambda a: None)
 
 
 class TestFileTree:
@@ -100,7 +121,7 @@ class TestFileTree:
             for r in roots:
                 assert not (r / c).exists()
 
-    def test_create_bad(self, monkeypatch, server_config, make_logger, tarball):
+    def test_create_bad(self, selinux_disabled, server_config, make_logger, tarball):
         """
         Test several varieties of dataset errors:
 
@@ -108,7 +129,6 @@ class TestFileTree:
         2) Attempt to create a new dataset from a non-existent file
         3) Attempt to create a dataset that already exists
         """
-        monkeypatch.setattr("selinux.is_selinux_enabled", lambda a: 0)
 
         source_tarball, source_md5, md5 = tarball
         dataset_name = Tarball.stem(source_tarball)
@@ -139,12 +159,11 @@ class TestFileTree:
         )
         assert exc.value.dataset == tarball.name
 
-    def test_duplicate(self, monkeypatch, server_config, make_logger, tarball):
+    def test_duplicate(self, selinux_disabled, server_config, make_logger, tarball):
         """
         Test behavior when we try to create a new dataset but the tarball file
         name already exists
         """
-        monkeypatch.setattr("selinux.is_selinux_enabled", lambda a: 0)
 
         source_tarball, source_md5, md5 = tarball
         tree = FileTree(server_config, make_logger)
@@ -160,13 +179,11 @@ class TestFileTree:
             tree.create("ABC", source_tarball)
         assert exc.value.dataset == Tarball.stem(source_tarball)
 
-    def test_find(self, monkeypatch, server_config, make_logger, tarball):
+    def test_find(self, selinux_enabled, server_config, make_logger, tarball):
         """
         Create a dataset, check the tree state, and test that we can find it
         through the various supported methods.
         """
-        monkeypatch.setattr("selinux.is_selinux_enabled", lambda a: 1)
-        monkeypatch.setattr("selinux.restorecon", lambda a: None)
 
         source_tarball, source_md5, md5 = tarball
         dataset_name = Tarball.stem(source_tarball)
@@ -214,13 +231,11 @@ class TestFileTree:
         assert list(new.controllers) == ["ABC"]
         assert list(new.datasets) == [dataset_name]
 
-    def test_lifecycle(self, monkeypatch, server_config, make_logger, tarball):
+    def test_lifecycle(self, selinux_enabled, server_config, make_logger, tarball):
         """
         Create a dataset, unpack it, remove the unpacked version, and finally
         delete it.
         """
-        monkeypatch.setattr("selinux.is_selinux_enabled", lambda a: 1)
-        monkeypatch.setattr("selinux.restorecon", lambda a: None)
 
         source_tarball, source_md5, md5 = tarball
         tree = FileTree(server_config, make_logger)
