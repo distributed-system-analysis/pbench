@@ -48,6 +48,10 @@ class TestEndpointConfig:
                 "result_data_index": f"{prefix}.v5.result-data.",
             },
             "api": {
+                # API endpoints with trailing Flask parameters are marked with
+                # a trailing "/" here; for example, /datasets/mappings/
+                # corresponds to /datasets/mappings/<string:dataset_view>";
+                # see endpoint_configure.py for more detail.
                 "controllers_list": f"{uri}/controllers/list",
                 "controllers_months": f"{uri}/controllers/months",
                 "datasets_delete": f"{uri}/datasets/delete",
