@@ -100,7 +100,7 @@ class Tarball:
             The stripped "stem" of the dataset
         """
         if Tarball.is_tarball(path):
-            return path.name[:-len(Tarball.TARBALL_SUFFIX)]
+            return path.name[: -len(Tarball.TARBALL_SUFFIX)]
         else:
             raise BadFilename(path)
 
