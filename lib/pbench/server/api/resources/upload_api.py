@@ -183,7 +183,7 @@ class Upload(Resource):
                     HTTPStatus.BAD_REQUEST, "Filename must not contain a path"
                 )
 
-            if not Tarball.has_suffix(filename):
+            if not Tarball.is_tarball(filename):
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,
                     f"File extension not supported, must be {Tarball.TARBALL_SUFFIX}",
