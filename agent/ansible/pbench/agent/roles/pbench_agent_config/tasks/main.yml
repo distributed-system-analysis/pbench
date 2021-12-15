@@ -17,3 +17,8 @@
     dest: "{{ pbench_key_dest }}"
     mode: "0600"
     files: id_rsa
+
+- name: "pbench agent configuration - open firewall ports for tool meister"
+  include_role:
+    name: pbench_firewall_open_ports
+

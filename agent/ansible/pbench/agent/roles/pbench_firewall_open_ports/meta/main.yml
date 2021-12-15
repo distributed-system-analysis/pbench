@@ -1,0 +1,25 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: pbench_firewall_open_ports
+  author: The Pbench team
+  description: Role to open firewall ports for tool meister
+  license: "license(GPL-3.0-or-later)"
+  min_ansible_version: 2.4
+  platforms:
+    - name: Fedora
+      versions:
+        - all
+    - name: RHEL
+      versions:
+        - 7
+        - 8
+        - 9
+    - name: CentOS
+      versions:
+        - 7
+        - 8
+        - 9
+  galaxy_tags:
+    - pbench
