@@ -11,6 +11,7 @@ import uuid
 from pathlib import Path
 from posix import stat_result
 from stat import ST_MTIME
+import tarfile
 
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
@@ -688,19 +689,19 @@ def tarball(pytestconfig):
     it lands on disk and in the Dataset.
     """
     filename = "pbench-user-benchmark_some + config_2021.05.01T12.42.42.tar.xz"
-    tmp_d = pytestconfig.cache.get("TMP", None)
-    datafile = Path(tmp_d, filename)
+    tmp_d = Path(pytestconfig.cache.get("TMP", None))
+    datafile = tmp_d / filename
     metadata = ConfigParser()
     metadata.add_section("pbench")
     metadata.set("pbench", "date", "05/16/2002")
     metadata_file = tmp_d / "metadata.log"
     with metadata_file.open("w") as meta_fp:
         metadata.write(meta_fp)
-    with datafile.open(datafile, "w:xz") as tar:
+    with tarfile.open(datafile, "w:xz") as tar:
         tar.add(str(metadata_file), arcname=f"{filename[:-7]}/metadata.log")
     md5 = hashlib.md5()
     md5.update(datafile.read_bytes())
-    md5file = Path(tmp_d) / (filename + ".md5")
+    md5file = tmp_d / (filename + ".md5")
     md5file.write_text(md5.hexdigest())
 
     yield datafile, md5file, md5.hexdigest()

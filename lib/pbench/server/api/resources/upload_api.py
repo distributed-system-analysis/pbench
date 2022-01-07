@@ -6,7 +6,6 @@ import hashlib
 from logging import Logger
 import os
 import tarfile
-import tempfile
 from http import HTTPStatus
 from typing import Callable, Deque
 
@@ -411,7 +410,11 @@ class Upload(Resource):
         return response
 
     def finalize_dataset(
-        self, dataset: Dataset, tarball: Tarball, config: PbenchServerConfig, logger: Logger
+        self,
+        dataset: Dataset,
+        tarball: Tarball,
+        config: PbenchServerConfig,
+        logger: Logger,
     ):
         try:
             dataset.advance(States.UPLOADED)

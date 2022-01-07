@@ -5,12 +5,17 @@ from pathlib import Path
 
 from freezegun.api import freeze_time
 from pbench.server import PbenchServerConfig
-from pbench.server.filetree import DatasetNotFound, FileTree
+from pbench.server.filetree import FileTree
 
 import dateutil
 import pytest
 
-from pbench.server.database.models.datasets import Dataset, States, Metadata
+from pbench.server.database.models.datasets import (
+    Dataset,
+    DatasetNotFound,
+    States,
+    Metadata,
+)
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
 
@@ -362,7 +367,7 @@ class TestUpload:
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
 
         with pytest.raises(DatasetNotFound):
-            Dataset.attach(controller=self.controller, path=datafile.name)
+            Dataset.attach(path=datafile.name)
         assert self.filetree_created
         assert self.filetree_create_path
         assert not self.filetree_create_path.exists()

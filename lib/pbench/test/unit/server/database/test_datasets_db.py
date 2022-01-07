@@ -223,7 +223,7 @@ class TestDatasets:
         ds1.add()
 
         # we can find it
-        ds2 = Dataset.attach(controller="frodo", name="foobar", state=States.INDEXED)
+        ds2 = Dataset.attach(name="foobar", state=States.INDEXED)
         assert ds2.name == ds1.name
 
         ds2.delete()
