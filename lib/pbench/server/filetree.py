@@ -72,6 +72,9 @@ class Tarball:
         Determine whether a path has the expected suffix to qualify as a Pbench
         tarball.
 
+        NOTE: The file represented by the path doesn't need to exist, only end
+        with the expected suffix.
+
         Args:
             path: file path
 
@@ -94,7 +97,7 @@ class Tarball:
             path: A file path that might be a Pbench tarball
 
         Raises:
-            BadFilename: the path name does not end in ".tar.xz"
+            BadFilename: the path name does not end in TARBALL_SUFFIX
 
         Returns:
             The stripped "stem" of the dataset
@@ -160,8 +163,8 @@ class Tarball:
     #   Remove the tarball and MD5 file from ARCHIVE after uncaching the
     #   unpacked directory tree.
 
-    @staticmethod
-    def create(tarball: Path, controller: "Controller") -> "Tarball":
+    @classmethod
+    def create(cls, tarball: Path, controller: "Controller") -> "Tarball":
         """
         This is an alternate constructor to move an incoming tarball into the
         proper place along with the md5 companion file. It returns the new
@@ -238,7 +241,7 @@ class Tarball:
         except Exception as e:
             controller.logger.error("Error removing incoming dataset {}: {}", name, e)
 
-        return Tarball(destination, controller)
+        return cls(destination, controller)
 
     def unpack(self, incoming: Path, results: Path):
         """
@@ -265,10 +268,8 @@ class Tarball:
 
     def uncache(self):
         """
-        Remove the unpacked tarball directory and all contents. The Tarball
-        object isn't directly aware of the RESULTS tree at all, so the caller
-        is responsible for managing that along with the controller directories
-        in each tree.
+        Remove the unpacked tarball directory and all contents. The caller
+        is responsible for removing empty controller directories.
         """
         if self.unpacked:
             try:
@@ -360,16 +361,17 @@ class Controller:
     @staticmethod
     def is_statedir(directory: Path) -> bool:
         """
-        Determine whether the path's name matches a known state directory
-        pattern. Most of the standard Pbench state directories are fixed
-        strings, but `WONT-INDEX` can be suffixed with ".n" where "n" is
-        a pbench_index error exit code.
+        Determine whether the path represents a known state directory.
+
+        Most of the standard Pbench state directories are fixed strings, but
+        `WONT-INDEX` can be suffixed with ".n" where "n" is a pbench_index
+        error exit code.
 
         Args:
             directory: A directory path
 
         Returns:
-            True if the path's name matches a state directory pattern
+            True if the path represents a Pbench state directory
         """
         if not directory.is_dir():
             return False
@@ -382,7 +384,13 @@ class Controller:
     def __init__(self, path: Path, incoming: Path, results: Path, logger: Logger):
         """
         Manage the representation of a controller on disk, which is a set of
-        directories; one each in the ARCHIVE, INCOMING, and RESULTS tree.
+        directories; one each in the ARCHIVE, INCOMING, and RESULTS trees.
+
+        In this context, the path parameter refers to a controller directory
+        within the configured ARCHIVE tree; "incoming" and "results" refer to
+        the configured base directories of INCOMING and RESULTS trees,
+        respectively. There need not be any files or directories related to
+        this controller within those trees at this time.
 
         Args:
             path: Controller directory path
@@ -406,9 +414,9 @@ class Controller:
         controller directory.
         """
         for file in self.path.iterdir():
-            if Controller.is_statedir(file):
+            if self.is_statedir(file):
                 self.state_dirs[file.name] = file
-            elif file.is_file() and file.name[-7:] == ".tar.xz":
+            elif file.is_file() and Tarball.is_tarball(file):
                 tarball = Tarball(file, self)
                 self.tarballs[tarball.name] = tarball
 
@@ -434,8 +442,10 @@ class Controller:
                 if dataset in self.tarballs:
                     self.tarballs[dataset].record_results(file)
 
-    @staticmethod
-    def create(name: str, options: PbenchServerConfig, logger: Logger) -> "Controller":
+    @classmethod
+    def create(
+        cls, name: str, options: PbenchServerConfig, logger: Logger
+    ) -> "Controller":
         """
         Create a new controller directory under the ARCHIVE tree if one doesn't
         already exist, and return a Controller object.
@@ -446,7 +456,7 @@ class Controller:
         controller_dir = options.ARCHIVE / name
         controller_dir.mkdir(exist_ok=True, mode=0o755)
         (controller_dir / "TODO").mkdir(exist_ok=True)
-        return Controller(controller_dir, options.INCOMING, options.RESULTS, logger)
+        return cls(controller_dir, options.INCOMING, options.RESULTS, logger)
 
     def create_tarball(self, dataset: Path) -> Tarball:
         """
@@ -655,7 +665,10 @@ class FileTree:
         We discover the ARCHIVE, INCOMING, and RESULTS trees as defined by the
         pbench-server.cfg file.
 
-        Full discovery is not required before adding or deleting a dataset.
+        NOTE: both _discover_unpacked and _discover_results rely on the results
+        of _discover_archive, which must run first.
+
+        Full discovery is not required before adding or deleting a dataset
         """
         self._discover_archive()
         self._discover_unpacked()
@@ -704,13 +717,11 @@ class FileTree:
         incoming = self.options.INCOMING / controller
         self.delete_if_empty(incoming)
         archive = self.options.ARCHIVE / controller
-        if archive.exists() and not any(archive.glob("*.tar.xz")):
+        if archive.exists() and not any(archive.glob(f"*{Tarball.TARBALL_SUFFIX}")):
             for file in archive.iterdir():
                 if Controller.is_statedir(file):
-                    if not any(file.iterdir()):
-                        file.rmdir()
-            if not any(archive.iterdir()):
-                archive.rmdir()
+                    self.delete_if_empty(file)
+            self.delete_if_empty(archive)
             del self.controllers[controller]
 
     def _add_controller(self, directory: Path) -> None:
@@ -796,7 +807,7 @@ class FileTree:
         # and (if found) discover the controller containing that dataset.
         for dir in self.archive_root.iterdir():
             if dir.is_dir():
-                for file in dir.glob("*.tar.xz"):
+                for file in dir.glob(f"*{Tarball.TARBALL_SUFFIX}"):
                     name = Tarball.stem(file)
                     if name == dataset:
                         self._add_controller(dir)
