@@ -156,6 +156,7 @@ class ReturnCode(BaseReturnCode):
 
     BADTOOLGROUP = 1
     BADAGENTCONFIG = 2
+    MISSINGBENCHRUNDIR = 3
     MISSINGINSTALLDIR = 4
     EXCINSTALLDIR = 5
     BADTOOLMETADATA = 6
@@ -172,6 +173,7 @@ class ReturnCode(BaseReturnCode):
     TDSFORKFAILED = 17
     TDSLOGPUBFAILED = 18
     TMFAILURES = 19
+    EXCBENCHRUNDIR = 20
     TDSWAITFAILURE = 21
     EXCSYSINFODIR = 22
     EXCTOOLGROUPDIR = 23
@@ -181,6 +183,7 @@ class ReturnCode(BaseReturnCode):
     TOOLGROUPEXC = 27
     BADREDISARG = 28
     BADREDISPORT = 29
+    TMMISSING = 30
     BADWSGIPORT = 31
     BADSYSINFO = 32
     MISSINGPARAMS = 33
@@ -218,7 +221,7 @@ def start_tms_via_ssh(
     exec_dir: Path,
     ssh_cmd: str,
     ssh_path: Path,
-    tool_group: str,
+    tool_group: ToolGroup,
     ssh_opts: str,
     full_hostname: str,
     redis_server: RedisServerCommon,
@@ -279,7 +282,7 @@ def start_tms_via_ssh(
             except Exception:
                 logger.exception("failed to create localhost tool meister, daemonized")
                 failures += 1
-                tms[host] = {"pid": None, "status": "failed"}
+                tms[host] = {"status": "failed"}
             else:
                 # Record the child pid to wait below.
                 tms[host] = {"pid": pid, "status": "forked"}
@@ -298,7 +301,7 @@ def start_tms_via_ssh(
                 logger.exception(
                     "failed to create a tool meister instance for host %s", host
                 )
-                tms[host] = {"pid": None, "status": "failed"}
+                tms[host] = {"status": "failed"}
             else:
                 # Record the child pid to wait below.
                 tms[host] = {"pid": pid, "status": "spawned"}
@@ -911,7 +914,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
             start_tms_via_ssh(
                 PROG.parent,
                 ssh_cmd,
-                ssh_path,
+                Path(ssh_path),
                 tool_group,
                 ssh_opts,
                 full_hostname,
