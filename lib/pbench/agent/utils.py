@@ -60,8 +60,8 @@ class BaseServer:
     """
 
     def_port = None
-    bad_port_code = None
-    bad_host_code = None
+    bad_port_ret_code = None
+    bad_host_ret_code = None
     name = None
 
     class Err(BaseReturnCode.Err):
@@ -203,6 +203,7 @@ class RedisServerCommon(BaseServer):
     bad_port_ret_code = 1
     bad_host_ret_code = 1
     name = "Redis server"
+    local_host = None
 
 
 def setup_logging(debug, logfile):
