@@ -1,14 +1,5 @@
-[copr-pbench-test]
-name=Copr pbench repo
-baseurl=https://copr-be.cloud.fedoraproject.org/results/ndokos/pbench-test/epel-8-$basearch
-gpgcheck= 1
-gpgkey=https://copr-be.cloud.fedoraproject.org/results/ndokos/pbench-test/pubkey.gpg
-enabled=1
-enabled_metadata=1
-skip_if_unavailable=1
-
-[copr-pbench-webb]
-name=Webbs Copr pbench repo
+[copr-pbench-server]
+name=Copr pbench Server repo
 baseurl=https://copr-be.cloud.fedoraproject.org/results/wscales/pbench/epel-8-$basearch
 gpgcheck= 1
 gpgkey=https://copr-be.cloud.fedoraproject.org/results/wscales/pbench/pubkey.gpg
@@ -16,8 +7,8 @@ enabled=1
 enabled_metadata=1
 skip_if_unavailable=1
 
-[copr-pbench-webb-dashboard]
-name=Webbs Copr pbench-dashboard repo
+[copr-pbench-dashboard]
+name=Copr pbench Dashboard repo
 baseurl=https://copr-be.cloud.fedoraproject.org/results/wscales/pbench-dashboard/epel-8-$basearch
 gpgcheck= 1
 gpgkey=https://copr-be.cloud.fedoraproject.org/results/wscales/pbench-dashboard/pubkey.gpg
