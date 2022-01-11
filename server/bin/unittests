@@ -477,10 +477,9 @@ function _setup_state {
 
     # Determine which users the test needs and create them. We discover
     # users dynamically from the database state ".db" files, but also
-    # always allow use of the quarantiner and satellite users for the
-    # pre-shim and satellite intake tests, as well as "pbench" for
-    # un-owned prep-shim intake success.
-    local users="pbench quarantiner satellite"
+    # always allow use of the satellite user for the satellite intake tests,
+    # as well as "pbench" for un-owned prep-shim intake.
+    local users="pbench satellite"
     if [ -f ${_state_db} ]; then
         users="$(cat ${_state_db} | cut --d ' ' -f 4 | sort -u) ${users}"
     fi
@@ -946,7 +945,7 @@ done
 if [[ $count -eq 0 ]]; then
     printf "No tests run!\n" >&2
     let failures=1
-elif [[ $mode == "parallel" ]]; then
+elif [[ ${mode} == "parallel" ]]; then
     for testname in $tests ;do
         wait ${pids[${testname}]} > /dev/null 2>&1
         report_test_result ${testname}
