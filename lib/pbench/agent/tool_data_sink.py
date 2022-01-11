@@ -26,6 +26,7 @@ from http import HTTPStatus
 from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
 from threading import Thread, Lock, Condition
+from typing import Tuple
 from wsgiref.simple_server import WSGIRequestHandler, make_server
 
 import pidfile
@@ -165,7 +166,7 @@ class DataSinkWsgiServer(ServerAdapter):
             self._logger.debug("Running tool data sink WSGI server ...")
             server.serve_forever()
 
-    def wait(self):
+    def wait(self) -> Tuple[str, int]:
         """ wait - wait for the WSGI thread executing the `run` method to start
         running and successfully create a WSGI server object, or fail trying.
 
@@ -177,6 +178,7 @@ class DataSinkWsgiServer(ServerAdapter):
         with self._lock:
             while self._err_code is None:
                 self._cv.wait()
+            assert self._err_code is not None  # Work around type-checking bug
         return self._err_text, self._err_code
 
     def stop(self):
