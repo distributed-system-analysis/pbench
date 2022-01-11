@@ -48,9 +48,8 @@ buildah run $container dnf clean all
 
 # Skip installing and configuring the Firewall
 
-# Work around a problem with cron running jobs as other users in a container
-# FIXME:  it's unclear whether abusing anything other than crond's file helps.
-buildah run $container bash -c "sed -i -e '/pam_loginuid/ s/^/#/' /etc/pam.d/*"
+# Work around a problem with cron running jobs as other users in a container.
+buildah run $container bash -c "sed -i -e '/pam_loginuid/ s/^/#/' /etc/pam.d/crond"
 
 # Copy the Pbench Server config file; then correct the hostname configuration.
 buildah copy --chown pbench:pbench --chmod 0644 $container \
