@@ -1,21 +1,22 @@
-import socket
+import dateutil
 from http import HTTPStatus
 from logging import Logger
 from pathlib import Path
+import pytest
+import socket
+from typing import Any
 
 from freezegun.api import freeze_time
+
 from pbench.server import PbenchServerConfig
-from pbench.server.filetree import FileTree
-
-import dateutil
-import pytest
-
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
+    MetadataKeyError,
     States,
     Metadata,
 )
+from pbench.server.filetree import FileTree, Tarball
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
 
@@ -92,6 +93,7 @@ class TestUpload:
     filetree_created = None
     filetree_create_fail = False
     filetree_create_path = None
+    tarball_deleted = None
 
     @pytest.fixture
     def setup_ctrl(self):
@@ -122,7 +124,13 @@ class TestUpload:
         class FakeTarball:
             def __init__(self, path: Path):
                 self.tarball_path = path
-                self.name = path.name[:-7]
+                self.name = Tarball.stem(path)
+
+            def delete(self):
+                TestUpload.tarball_deleted = self.name
+
+            def get_metadata(self):
+                return {"pbench": {"date": dateutil.parser.parse("2002-05-16")}}
 
         class FakeFileTree(FileTree):
             def __init__(self, options: PbenchServerConfig, logger: Logger):
@@ -142,6 +150,7 @@ class TestUpload:
         TestUpload.filetree_created = None
         TestUpload.filetree_create_fail = False
         TestUpload.filetree_create_path = None
+        TestUpload.tarball_deleted = None
         monkeypatch.setattr(FileTree, "__init__", FakeFileTree.__init__)
         monkeypatch.setattr(FileTree, "create", FakeFileTree.create)
 
@@ -367,7 +376,7 @@ class TestUpload:
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
 
         with pytest.raises(DatasetNotFound):
-            Dataset.attach(path=datafile.name)
+            Dataset.attach(path=datafile)
         assert self.filetree_created
         assert self.filetree_create_path
         assert not self.filetree_create_path.exists()
@@ -393,7 +402,7 @@ class TestUpload:
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
 
-        dataset = Dataset.query(name=Dataset.stem(datafile))
+        dataset = Dataset.query(name=Tarball.stem(datafile))
         assert dataset is not None
         assert dataset.md5 == md5
         assert dataset.controller == self.controller
@@ -429,6 +438,9 @@ class TestUpload:
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
 
+        # Reset manually since we upload twice in this test
+        TestUpload.filetree_created = None
+
         with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
@@ -441,6 +453,9 @@ class TestUpload:
 
         for record in caplog.records:
             assert record.levelname in ["DEBUG", "INFO", "WARNING"]
+
+        # We didn't get far enough to create a FileTree
+        assert TestUpload.filetree_created is None
 
     def test_upload_duplicate_diff_md5(
         self,
@@ -462,6 +477,9 @@ class TestUpload:
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
 
+        # Reset manually since we upload twice in this test
+        TestUpload.filetree_created = None
+
         OTHER_MD5 = "NOT_THE_MD5_YOURE_LOOKING_FOR"
         with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
             response = client.put(
@@ -482,3 +500,45 @@ class TestUpload:
 
         for record in caplog.records:
             assert record.levelname in ["WARNING", "DEBUG", "INFO"]
+
+        # We didn't get far enough to create a FileTree
+        assert TestUpload.filetree_created is None
+
+    def test_upload_metadata_error(
+        self,
+        client,
+        pytestconfig,
+        caplog,
+        monkeypatch,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
+    ):
+        """
+        Cause the Metadata.setvalue to fail at the very end of the upload so we
+        can test recovery handling.
+        """
+        datafile, _, md5 = tarball
+
+        def setvalue(dataset: Dataset, key: str, value: Any):
+            raise MetadataKeyError()
+
+        monkeypatch.setattr(Metadata, "setvalue", setvalue)
+
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+
+        with pytest.raises(DatasetNotFound):
+            Dataset.attach(path=datafile)
+        assert self.filetree_created
+        assert self.filetree_create_path
+        assert not self.filetree_create_path.exists()
+        assert not Path(str(self.filetree_create_path) + ".md5").exists()
+        assert self.tarball_deleted == Tarball.stem(datafile)

@@ -1,11 +1,15 @@
+from configparser import ConfigParser
 from logging import Logger
 from pathlib import Path
 import re
-import selinux
 import shutil
 from typing import Dict, List, Union
 
+import selinux
+import tarfile
+
 from pbench.server import PbenchServerConfig
+from pbench.server.api.resources import JSON, convert_date
 from pbench.server.database.models.datasets import Dataset
 
 
@@ -55,6 +59,19 @@ class DuplicateDataset(FiletreeError):
         return f"A dataset named {self.dataset!r} is already present in the file tree"
 
 
+class MetadataError(FiletreeError):
+    """
+    A problem was found locating or processing a tarball's metadata.log file.
+    """
+
+    def __init__(self, tarball: Path, error: Exception):
+        self.tarball = tarball
+        self.error = str(error)
+
+    def __str__(self) -> str:
+        return f"A problem occurred processing metadata.log from {self.tarball!s}: {self.error!r}"
+
+
 class Tarball:
     """
     This class corresponds to the physical representation of a Dataset: the
@@ -64,27 +81,8 @@ class Tarball:
     dataset.
     """
 
-    TARBALL_SUFFIX = ".tar.xz"
-
     @staticmethod
-    def is_tarball(path: Union[Path, str]) -> bool:
-        """
-        Determine whether a path has the expected suffix to qualify as a Pbench
-        tarball.
-
-        NOTE: The file represented by the path doesn't need to exist, only end
-        with the expected suffix.
-
-        Args:
-            path: file path
-
-        Returns:
-            True if path ends with the supported suffix, False if not
-        """
-        return str(path).endswith(Tarball.TARBALL_SUFFIX)
-
-    @staticmethod
-    def stem(path: Path) -> str:
+    def stem(path: Union[str, Path]) -> str:
         """
         The Path.stem() removes a single suffix, so our standard "a.tar.xz"
         returns "a.tar" instead of "a". We could double-stem, but instead
@@ -102,10 +100,11 @@ class Tarball:
         Returns:
             The stripped "stem" of the dataset
         """
-        if Tarball.is_tarball(path):
-            return path.name[: -len(Tarball.TARBALL_SUFFIX)]
+        p = Path(path)
+        if Dataset.is_tarball(p):
+            return p.name[: -len(Dataset.TARBALL_SUFFIX)]
         else:
-            raise BadFilename(path)
+            raise BadFilename(p)
 
     def __init__(self, path: Path, controller: "Controller"):
         """
@@ -242,6 +241,59 @@ class Tarball:
             controller.logger.error("Error removing incoming dataset {}: {}", name, e)
 
         return cls(destination, controller)
+
+    def extract(self, path: Path) -> str:
+        """
+        Extract a file from the tarball and return it as a string
+
+        TODO: Should we allow fetching a full directory path, e.g., "/" to
+        extract everything? And, if so, in what form would we return it.
+        Similarly, what about a binary file?
+
+        Args:
+            path: relative path within the tarball of a file
+
+        Raises:
+            MetadataError if an exception occurs unpacking the tarball
+
+        Returns:
+            The named file as a string
+        """
+        try:
+            return (
+                tarfile.open(self.tarball_path, "r:*").extractfile(path).read().decode()
+            )
+        except Exception as exc:
+            raise MetadataError(self.tarball_path, exc)
+
+    def get_metadata(self) -> JSON:
+        """
+        Fetch the values in metadata.log from the tarball, and return a JSON
+        document organizing the metadata by section.
+
+        TODO: Right now this returns just a few particular items that stand
+        out as "likely useful" ... it may make sense to essentially JSONify the
+        entire ConfigParser payload, although there's a lot of data there
+        that's unlikely to be widely useful.
+
+        Returns:
+            A JSON representation of `metadata.log`
+        """
+        data = self.extract(f"{self.name}/metadata.log")
+        metadata = ConfigParser()
+        metadata.read_string(data)
+        date_str = metadata.get("pbench", "date")
+
+        return {
+            "controller": {"hostname": metadata.get("controller", "hostname")},
+            "pbench": {
+                "config": metadata.get("pbench", "config"),
+                "date": convert_date(date_str, None),
+                "script": metadata.get("pbench", "script"),
+                "version": metadata.get("pbench", "rpm-version"),
+            },
+            "run": {"controller": metadata.get("run", "controller")},
+        }
 
     def unpack(self, incoming: Path, results: Path):
         """
@@ -416,7 +468,7 @@ class Controller:
         for file in self.path.iterdir():
             if self.is_statedir(file):
                 self.state_dirs[file.name] = file
-            elif file.is_file() and Tarball.is_tarball(file):
+            elif file.is_file() and Dataset.is_tarball(file):
                 tarball = Tarball(file, self)
                 self.tarballs[tarball.name] = tarball
 
@@ -717,7 +769,7 @@ class FileTree:
         incoming = self.options.INCOMING / controller
         self.delete_if_empty(incoming)
         archive = self.options.ARCHIVE / controller
-        if archive.exists() and not any(archive.glob(f"*{Tarball.TARBALL_SUFFIX}")):
+        if archive.exists() and not any(archive.glob(f"*{Dataset.TARBALL_SUFFIX}")):
             for file in archive.iterdir():
                 if Controller.is_statedir(file):
                     self.delete_if_empty(file)
@@ -807,7 +859,7 @@ class FileTree:
         # and (if found) discover the controller containing that dataset.
         for dir in self.archive_root.iterdir():
             if dir.is_dir():
-                for file in dir.glob(f"*{Tarball.TARBALL_SUFFIX}"):
+                for file in dir.glob(f"*{Dataset.TARBALL_SUFFIX}"):
                     name = Tarball.stem(file)
                     if name == dataset:
                         self._add_controller(dir)

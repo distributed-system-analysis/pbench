@@ -1,12 +1,10 @@
 from collections import deque
-from configparser import ConfigParser
 import datetime
 import errno
 import hashlib
+from http import HTTPStatus
 from logging import Logger
 import os
-import tarfile
-from http import HTTPStatus
 from typing import Callable, Deque
 
 import humanize
@@ -14,10 +12,8 @@ from flask import jsonify, request
 from flask_restful import Resource, abort
 
 from pbench.common.utils import validate_hostname
-from pbench.server import PbenchServerConfig
 from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
 from pbench.server.api.auth import Auth
-from pbench.server.api.resources import convert_date
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetDuplicate,
@@ -186,10 +182,10 @@ class Upload(Resource):
                     HTTPStatus.BAD_REQUEST, "Filename must not contain a path"
                 )
 
-            if not Tarball.is_tarball(filename):
+            if not Dataset.is_tarball(filename):
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,
-                    f"File extension not supported, must be {Tarball.TARBALL_SUFFIX}",
+                    f"File extension not supported, must be {Dataset.TARBALL_SUFFIX}",
                 )
 
             md5sum = request.headers.get("Content-MD5")
@@ -261,7 +257,7 @@ class Upload(Resource):
                     dataset_name,
                 )
                 try:
-                    duplicate = Dataset.query(controller=controller, name=dataset_name)
+                    duplicate = Dataset.query(name=dataset_name)
                 except DatasetNotFound:
                     self.logger.error(
                         "Duplicate dataset {}:{}:{} not found",
@@ -358,27 +354,95 @@ class Upload(Resource):
                         f"Failed to write .md5 file '{md5_full_path}'",
                     )
 
-                # Create a file tree object
-                try:
-                    file_tree = FileTree(self.config, self.logger)
-                    self.logger.info(
-                        "Created {} of type {}", file_tree, type(file_tree)
-                    )
-                except Exception:
-                    raise CleanupTime(
-                        HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the file tree"
-                    )
+            # Create a file tree object
+            try:
+                file_tree = FileTree(self.config, self.logger)
+            except Exception:
+                raise CleanupTime(
+                    HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the file tree"
+                )
 
-                # Move the files to their final location
-                try:
-                    tarball = file_tree.create(controller, tar_full_path)
-                except Exception:
-                    raise CleanupTime(
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
-                        "Unable to create dataset in file system",
-                    )
+            # Move the files to their final location
+            try:
+                tarball = file_tree.create(controller, tar_full_path)
+            except Exception:
+                raise CleanupTime(
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    f"Unable to create dataset in file system for {tar_full_path}",
+                )
 
-            self.finalize_dataset(dataset, tarball, self.config, self.logger)
+            # From this point, failure will remove the tarball from the file
+            # tree.
+            #
+            # TODO: the Tarball.delete method won't clean up empty controller
+            # directories, but to call FileTree.delete(dataset.name) we'd need
+            # to add parameters to the recovery object.
+            recovery.add(tarball.delete)
+
+            # Now that we have the tarball, extract the dataset timestamp from
+            # the metadata.log file.
+            #
+            # If this fails, the metadata.log is missing or corrupt, so fail
+            # the upload.
+            #
+            # NOTE: we're setting the Dataset "created" timestamp here, but it
+            # won't be committed to the database until the "advance" operation
+            # at the end.
+            #
+            # TODO: Create a Metadata key containing the full metadata.log JSON
+            # returned by `tarball.get_metadata()`; for now we're throwing away
+            # everything except the date, which we need for the main Dataset
+            # object.
+            try:
+                date = tarball.get_metadata()["pbench"]["date"]
+                dataset.created = date
+            except Exception as exc:
+                raise CleanupTime(
+                    HTTPStatus.BAD_REQUEST,
+                    f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
+                )
+
+            # TODO: Implement per-user override of default (requires PR #2049)
+            try:
+                retention_days = int(
+                    self.config.get_conf(
+                        __name__, "pbench-server", "default-dataset-retention-days", 90
+                    )
+                )
+            except Exception as e:
+                raise CleanupTime(
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    f"Unable to get integer retention days: {e!s}",
+                )
+
+            # Calculate a default deletion time for the dataset, based on the
+            # time it was uploaded rather than the time it was originally
+            # created which might be in the past.
+            try:
+                retention = datetime.timedelta(days=retention_days)
+                deletion = dataset.uploaded + retention
+                Metadata.setvalue(
+                    dataset=dataset,
+                    key=Metadata.TARBALL_PATH,
+                    value=str(tarball.tarball_path),
+                )
+                Metadata.setvalue(
+                    dataset=dataset, key=Metadata.DELETION, value=f"{deletion:%Y-%m-%d}"
+                )
+            except Exception as e:
+                raise CleanupTime(
+                    HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to set metadata: {e!s}"
+                )
+
+            # Finally, update the dataset state and commit the `created` date
+            # and state change.
+            try:
+                dataset.advance(States.UPLOADED)
+            except Exception as exc:
+                raise CleanupTime(
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    f"Unable to finalize dataset {dataset}: {exc!s}",
+                )
         except Exception as e:
             status = HTTPStatus.INTERNAL_SERVER_ERROR
             abort_msg = "INTERNAL ERROR"
@@ -408,70 +472,3 @@ class Upload(Resource):
         response = jsonify(dict(message="File successfully uploaded"))
         response.status_code = HTTPStatus.CREATED
         return response
-
-    def finalize_dataset(
-        self,
-        dataset: Dataset,
-        tarball: Tarball,
-        config: PbenchServerConfig,
-        logger: Logger,
-    ):
-        try:
-            dataset.advance(States.UPLOADED)
-
-            # TODO: Implement per-user override of default (requires PR #2049)
-            try:
-                retention_days = int(
-                    config.get_conf(
-                        __name__, "pbench-server", "default-dataset-retention-days", 90
-                    )
-                )
-            except Exception as e:
-                logger.error("Unable to get integer retention days: {}", str(e))
-                raise
-
-            # Now that we have the tarball, extract the dataset timestamp from
-            # the metadata.log file.
-            #
-            # If this fails, the metadata.log is missing or corrupt, so fail
-            # the upload.
-            #
-            # TODO: If we did this before the `advance` we could avoid a second
-            # `update` operation, though that means relying on the implicit
-            # update in `advance`, which is perhaps a bit weird.
-            try:
-                data = (
-                    tarfile.open(tarball.tarball_path, "r:*")
-                    .extractfile(f"{dataset.name}/metadata.log")
-                    .read()
-                    .decode()
-                )
-                metadata = ConfigParser()
-                metadata.read_string(data)
-                date_str = metadata.get("pbench", "date")
-                date = convert_date(date_str, None)
-                dataset.created = date
-                dataset.update()
-            except Exception as exc:
-                # FIXME: This should tie into rollback logic to delete the
-                # tarball and MD5 file!
-                msg = f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}"
-                self.logger.warning(msg)
-                abort(HTTPStatus.BAD_REQUEST, message=msg)
-
-            # Calculate a default deletion time for the dataset, based on the
-            # time it was uploaded rather than the time it was originally
-            # created which might be in the past.
-            retention = datetime.timedelta(days=retention_days)
-            deletion = dataset.uploaded + retention
-            Metadata.setvalue(
-                dataset=dataset,
-                key=Metadata.TARBALL_PATH,
-                value=str(tarball.tarball_path),
-            )
-            Metadata.setvalue(
-                dataset=dataset, key=Metadata.DELETION, value=f"{deletion:%Y-%m-%d}"
-            )
-        except Exception as exc:
-            logger.error("Unable to finalize {}, '{}'", dataset, exc)
-            raise

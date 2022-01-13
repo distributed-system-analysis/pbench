@@ -29,7 +29,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.*', 'user.*', 'server.deletion', 'dataset.access', 'dataset.created', 'dataset.owner', 'dataset.uploaded']"
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.*', 'dataset.access', 'dataset.created', 'dataset.owner', 'dataset.uploaded', 'server.deletion', 'user.*']"
         }
 
     def test_get1(self, client, server_config, provide_metadata):

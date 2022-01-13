@@ -1,16 +1,14 @@
 import datetime
 from http import HTTPStatus
+import pytest
+import requests
 from typing import List
 
 from freezegun.api import freeze_time
+
 from pbench.server import PbenchServerConfig
-from pbench.server.database.models.datasets import Dataset
-
-import pytest
-
-import requests
-
 from pbench.server.api.resources import JSON
+from pbench.server.database.models.datasets import Dataset
 
 
 class TestDatasetsList:
@@ -33,6 +31,17 @@ class TestDatasetsList:
     def more_datasets(
         self, client, server_config, create_drb_user, create_admin_user, attach_dataset
     ):
+        """
+        Supplement the conftest.py "attach_dataset" fixture with a few more
+        datasets so we can practice various queries.
+
+        Args:
+            client: Provide a Flask API client
+            server_config: Provide a Pbench server configuration
+            create_drb_user: Create the "drb" user
+            create_admin_user: Create the "test_admin" user
+            attach_dataset: Provide some datasets
+        """
         with freeze_time("1978-06-26 08:00:00"):
             Dataset(
                 owner="drb",
@@ -61,7 +70,7 @@ class TestDatasetsList:
         Args:
             client: Flask test API client fixture
             server_config: Pbench config fixture
-            attach_dataset: Dataset construction fixture
+            more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
         """
 
@@ -135,6 +144,17 @@ class TestDatasetsList:
         ],
     )
     def test_dataset_list(self, query_as, login, query, results):
+        """
+        Test the operation of `datasets/list` against our set of test
+        datasets.
+
+        Args:
+            query_as: A fixture to provide a helper that executes the API call
+            login: The username as which to perform a query
+            query: A JSON representation of the query parameters (these will be
+                automatically supplemented with a metadata request term)
+            results: A list of the dataset names we expect to be returned
+        """
         query.update({"metadata": ["dataset.created"]})
         result = query_as(query, login, HTTPStatus.OK)
         assert result.json == self.get_results(results)
@@ -144,7 +164,7 @@ class TestDatasetsList:
         Test case requesting non-existent metadata keys.
 
         Args:
-            do_query: Query helper fixture
+            query_as: Query helper fixture
         """
         response = query_as(
             {"metadata": ["xyzzy", "plugh", "dataset.owner", "dataset.access"]},
@@ -152,5 +172,5 @@ class TestDatasetsList:
             HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.*', 'user.*', 'server.deletion', 'dataset.access', 'dataset.created', 'dataset.owner', 'dataset.uploaded']"
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.*', 'dataset.access', 'dataset.created', 'dataset.owner', 'dataset.uploaded', 'server.deletion', 'user.*']"
         }

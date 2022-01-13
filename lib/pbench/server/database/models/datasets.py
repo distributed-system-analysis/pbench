@@ -4,7 +4,7 @@ import enum
 import os
 import re
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Union
 
 from sqlalchemy import event, Column, DateTime, Enum, ForeignKey, Integer, JSON, String
 from sqlalchemy.orm import relationship, validates
@@ -388,7 +388,9 @@ class Dataset(Database.Base):
     # TODO: Do we want to kick this out of the Dataset record and into
     # metadata? I'm considering collecting all of the `metadata.log` values
     # into metadata for easy reference, and perhaps controller is just a part
-    # of that now?
+    # of that now? The main issue is that figuring out how to integrate the
+    # JSON Metadata table into a Dataset query (via a join or sub-select?) will
+    # be somewhat complicated, and I'd rather not do it now.
     controller = Column(String(255), unique=False, nullable=False)
 
     # FIXME:
@@ -420,6 +422,25 @@ class Dataset(Database.Base):
     metadatas = relationship(
         "Metadata", back_populates="dataset", cascade="all, delete-orphan"
     )
+
+    TARBALL_SUFFIX = ".tar.xz"
+
+    @staticmethod
+    def is_tarball(path: Union[Path, str]) -> bool:
+        """
+        Determine whether a path has the expected suffix to qualify as a Pbench
+        tarball.
+
+        NOTE: The file represented by the path doesn't need to exist, only end
+        with the expected suffix.
+
+        Args:
+            path: file path
+
+        Returns:
+            True if path ends with the supported suffix, False if not
+        """
+        return str(path).endswith(Dataset.TARBALL_SUFFIX)
 
     @validates("state")
     def validate_state(self, key: str, value: Any) -> States:
@@ -513,7 +534,7 @@ class Dataset(Database.Base):
             controllerarg: The controller name (hostname) of the dataset;
                 this is retained if specified, or will be constructed
                 from "path" if not present.
-            namearg: The dataset name (file path basename minus ".tar.xz");
+            namearg: The dataset name (file path stem);
                 this is retained if specified, or will be constructed from
                 "path" if not present
 
@@ -529,30 +550,11 @@ class Dataset(Database.Base):
                 path = Path(os.path.realpath(path))
             if not name_result:
                 name_result = path.name
-                if name_result.endswith(".tar.xz"):
-                    name_result = name_result[:-7]
+                if Dataset.is_tarball(name_result):
+                    name_result = name_result[: -len(Dataset.TARBALL_SUFFIX)]
             if not controller_result:
                 controller_result = path.parent.name
         return controller_result, name_result
-
-    @staticmethod
-    def stem(path: Path) -> str:
-        """
-        The Path.stem() removes a single suffix, so our standard "a.tar.xz"
-        returns "a.tar" instead of "a". We could double-stem, but instead
-        this just checks for the expected 7 character suffix and strips it.
-
-        If the path does not end in ".tar.xz" then the full path.name is
-        returned.
-
-        Args:
-            path: A file path that might be a Pbench tarball
-
-        Returns:
-            The stripped "stem" of the dataset
-        """
-        name = path.name
-        return name[:-7] if name[-7:] == ".tar.xz" else name
 
     @staticmethod
     def create(**kwargs) -> "Dataset":
@@ -569,7 +571,7 @@ class Dataset(Database.Base):
                 "controller": The controller name (hostname) of the dataset;
                     this is retained if specified, or will be constructed
                     from "path" if not present.
-                "name": The dataset name (file path basename minus ".tar.xz");
+                "name": The dataset name (file path stem);
                     this is retained if specified, or will be constructed from
                     "path" if not present.
                 "state": The initial state of the new dataset.
@@ -604,7 +606,7 @@ class Dataset(Database.Base):
             "path": A tarball file path from which the controller (host)
                 name, the tarball dataset name (basename minus extension),
                 or both will be derived.
-            "name": The dataset name (file path basename minus ".tar.xz");
+            "name": The dataset name (file path stem);
                 this is retained if specified, or will be constructed from
                 "path" if not present.
             "state": The desired state to advance the dataset.
@@ -621,12 +623,12 @@ class Dataset(Database.Base):
         Returns:
             Dataset: a dataset object in the desired state (if specified)
         """
-        # Make sure we have controller and name from path
+        # Make sure we have a name if only path was specified
         _, name = Dataset._render_path(patharg=path, namearg=name)
         dataset = Dataset.query(name=name)
 
         if dataset is None:
-            Dataset.logger.warning("{} not found", name)
+            Dataset.logger.warning("Dataset {} not found", name)
             raise DatasetNotFound(path=path, name=name)
         elif state:
             dataset.advance(state)

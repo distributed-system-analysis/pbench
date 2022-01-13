@@ -32,6 +32,12 @@ class TestDatasets:
         assert ds.name == "fio"
         assert ds.state == States.UPLOADING
         assert ds.md5 is None
+
+        # The "uploaded" and "transition" timestamps will be set automatically
+        # the the current time, and should initially be identical. The
+        # "created" timestamp cannot be set until a tarball has been fully
+        # uploaded and we unpack and process the metadata.log file; the
+        # constructor leaves this empty to avoid confusion.
         assert ds.created is None
         assert ds.uploaded <= ds.transition
         assert ds.id is not None

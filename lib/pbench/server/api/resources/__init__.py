@@ -1,16 +1,16 @@
-import json
 from datetime import datetime
 from enum import Enum
 from http import HTTPStatus
+import json
 from json.decoder import JSONDecodeError
 from logging import Logger
 from typing import Any, AnyStr, Callable, Dict, List, Union
 
 from dateutil import parser as date_parser
-from sqlalchemy.orm.query import Query
 from flask import request
 from flask.wrappers import Request, Response
 from flask_restful import Resource, abort
+from sqlalchemy.orm.query import Query
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
@@ -597,12 +597,10 @@ class ApiBase(Resource):
     # naming each separately. We should support this for "server" as
     # well, generalizing the "namespace" model so that "user" and "dashboard"
     # namespaces are special only in that they allow PUT as well as GET...
-    METADATA = Metadata.USER_METADATA + [
-        Dataset.ACCESS,
-        Dataset.CREATED,
-        Dataset.OWNER,
-        Dataset.UPLOADED,
-    ]
+    METADATA = sorted(
+        Metadata.USER_METADATA
+        + [Dataset.ACCESS, Dataset.CREATED, Dataset.OWNER, Dataset.UPLOADED]
+    )
 
     def __init__(
         self,
@@ -751,16 +749,12 @@ class ApiBase(Resource):
         NOTE: This method is not responsible for authorization checks; that's
         done by the `ApiBase._check_authorization()` method. This method is
         only concerned with generating a query to restrict the results to the
-        set matching authorized user and access values. This method will build
-        queries that do not reflect the input when given some inputs that must
-        be prevented by authorization checks.
+        set matching authorized user and access values.
 
-        Specifically, when asked for "access": "private" on behalf of an
-        unauthenticated client or on behalf of an authenticated but non-admin
-        client for a different user, the generated query will use "access":
-        "public". These cases are designated below with "NOTE(UNAUTHORIZED)".
-
-        Specific cases for user and access values:
+        Specific cases for user and access values are described below. The
+        cases marked "UNAUTHORIZED" are "default" behaviors where we expect
+        that authorization checks will block API calls before reaching this
+        code.
 
             {}: defaulting both user and access
                 All private + public regardless of owner
@@ -812,8 +806,7 @@ class ApiBase(Resource):
                 access terms as appropriate
 
         Returns:
-            A new SQLAlchemy Query object adding owner and access checks to the
-            base query.
+            An SQLAlchemy Query object that may include additional query terms
         """
         user = parameters.get("owner")
         access = parameters.get("access")

@@ -19,6 +19,7 @@ from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
+from pbench.server.filetree import Tarball
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 server_cfg_tmpl = """[DEFAULT]
@@ -271,6 +272,11 @@ def attach_dataset(create_drb_user, create_user):
         create_drb_user: create a "drb" user
         create_user: create a "test" user
     """
+
+    # The default time for the `uploaded` timestamp will be locked by the
+    # "freeze_time" context manager, and overridden by an explicit value to
+    # the constructor. We're testing both cases here by overriding "uploaded"
+    # for one Dataset and letting it default for the other.
     with freeze_time("1970-01-01 00:42:00"):
         Dataset(
             owner="drb",
@@ -693,12 +699,12 @@ def tarball(pytestconfig):
     datafile = tmp_d / filename
     metadata = ConfigParser()
     metadata.add_section("pbench")
-    metadata.set("pbench", "date", "05/16/2002")
+    metadata.set("pbench", "date", "2002-05-16")
     metadata_file = tmp_d / "metadata.log"
     with metadata_file.open("w") as meta_fp:
         metadata.write(meta_fp)
     with tarfile.open(datafile, "w:xz") as tar:
-        tar.add(str(metadata_file), arcname=f"{filename[:-7]}/metadata.log")
+        tar.add(str(metadata_file), arcname=f"{Tarball.stem(filename)}/metadata.log")
     md5 = hashlib.md5()
     md5.update(datafile.read_bytes())
     md5file = tmp_d / (filename + ".md5")

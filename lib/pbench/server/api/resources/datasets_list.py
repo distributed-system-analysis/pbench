@@ -43,7 +43,6 @@ class DatasetsList(ApiBase):
                     ParamType.LIST,
                     element_type=ParamType.KEYWORD,
                     keywords=ApiBase.METADATA,
-                    required=False,
                 ),
             ),
             role=API_OPERATION.READ,
@@ -67,21 +66,19 @@ class DatasetsList(ApiBase):
         # We missed automatic schema validation due to the lack of a JSON body;
         # construct an equivalent JSON body now so we can run it through the
         # validator.
-        json = {}
-        for key in request.args.keys():
-            if key in self.schema:
-                if self.schema[key].type == ParamType.LIST:
-                    json[key] = request.args.getlist(key)
-                else:
-                    json[key] = request.args.get(key)
+        json = {
+            key: request.args.getlist(key)
+            if self.schema[key].type == ParamType.LIST
+            else request.args.get(key)
+            for key in request.args.keys()
+            if key in self.schema
+        }
 
-        # Normalize and validate the metadata keys we got via the HTTP query
-        # string. These aren't automatically validated by the superclass, so we
+        # Normalize and validate the keys we got via the HTTP query string.
+        # These aren't automatically validated by the superclass, so we
         # have to do it here.
         try:
-            self.logger.info("pre-validate {!r}", json)
             new_json = self.schema.validate(json)
-            self.logger.info("post-validate {!r}", new_json)
         except SchemaError as e:
             self.logger.warning("Schema validation error {}", e)
             abort(HTTPStatus.BAD_REQUEST, message=str(e))

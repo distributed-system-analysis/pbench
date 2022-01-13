@@ -51,10 +51,12 @@ def main(options):
         args = {}
         if options.create:
             args["owner"] = options.create
+
+        # The create operation requires both controller and name, whether
+        # explicitly or via path resolution. Attach, however, wants only
+        # path or name, so don't copy a controller parameter unless this is
+        # a create operation.
         if options.controller and options.create:
-            # The create operation requires both controller and name, whether
-            # explicitly or via path resolution. Attach, however, wants only
-            # path or name, so don't copy a controller parameter.
             args["controller"] = options.controller
         if options.path:
             args["path"] = options.path
@@ -75,7 +77,7 @@ def main(options):
 
         if "path" not in args and "name" not in args:
             print(
-                f"{_NAME_}: Either --path --name must be specified", file=sys.stderr,
+                f"{_NAME_}: Either --path or --name must be specified", file=sys.stderr,
             )
             return 2
 
