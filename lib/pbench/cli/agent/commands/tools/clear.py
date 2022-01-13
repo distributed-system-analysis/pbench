@@ -1,15 +1,14 @@
 """
 pbench-clear-tools
 
-This script will remove tools that have been registered.  If no options are
-used, then all tools from the "default" tool group are removed.  Specifying
-a tool name and/or remote host will limit the scope of the removal.
-
-
+This script will remove tools that have been registered for a particular group.
+If no options are used, then all tools from the "default" tool group are removed.
+Specifying a tool name and/or remote host will limit the scope of the removal.
 """
+
+import pathlib
 import shutil
 import sys
-import pathlib
 
 import click
 
@@ -41,7 +40,7 @@ class ClearTools(ToolCommand):
             tg_dir_r = self.tool_group_dir / remote
             if not tg_dir_r.exists():
                 self.logger.warn(
-                    'The given remote host, "%s", is not a directory in' " %s.",
+                    'The given remote host, "%s", is not a directory in %s.',
                     remote,
                     self.tool_group_dir,
                 )
@@ -120,7 +119,7 @@ class ClearTools(ToolCommand):
 def _group_option(f):
     """Group name option"""
 
-    def callback(ctxt, param, value):
+    def callback(ctxt, _param, value):
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.group = value
         return value
@@ -139,7 +138,7 @@ def _group_option(f):
 def _name_option(f):
     """Tool name to use"""
 
-    def callback(ctxt, param, value):
+    def callback(ctxt, _param, value):
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.name = []
         if value:
@@ -161,7 +160,7 @@ def _name_option(f):
 def _remote_option(f):
     """Remote hostname"""
 
-    def callback(ctxt, param, value):
+    def callback(ctxt, _param, value):
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.remote = value
         return value

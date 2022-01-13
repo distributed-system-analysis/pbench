@@ -11,7 +11,7 @@ def common_options(f):
 def _pbench_agent_config(f):
     """Option for agent configuration"""
 
-    def callback(ctx, param, value):
+    def callback(ctx, _param, value):
         clictx = ctx.ensure_object(CliContext)
         clictx.config = value
         return value

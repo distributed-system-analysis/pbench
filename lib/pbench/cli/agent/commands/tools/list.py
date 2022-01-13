@@ -1,8 +1,8 @@
 """
 pbench-list-tools
 
-This script can list all tools from all groups, list tools from a specific
-group, or list which groups contain a specific tool
+This script lists all tools from all groups, all tools from a specific group,
+or all groups which contain a specific tool.
 
 """
 
@@ -10,10 +10,10 @@ import sys
 
 import click
 
+from pbench.agent.tool_group import BadToolGroup
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
 from pbench.cli.agent.options import common_options
-from pbench.agent.tool_group import BadToolGroup
 
 
 class ListTools(ToolCommand):
@@ -23,7 +23,7 @@ class ListTools(ToolCommand):
         super(ListTools, self).__init__(context)
 
     @staticmethod
-    def print_results(toolinfo: dict, tool: str, with_option: bool):
+    def print_results(toolinfo: dict, with_option: bool):
         for group, gval in sorted(toolinfo.items()):
             for host, tools in sorted(gval.items()):
                 if tools:
@@ -70,7 +70,7 @@ class ListTools(ToolCommand):
                         )
 
             if tool_info:
-                self.print_results(tool_info, None, self.context.with_option)
+                self.print_results(tool_info, self.context.with_option)
         else:
             # List the groups which include this tool
             tool = self.context.name
@@ -99,7 +99,7 @@ class ListTools(ToolCommand):
                         )
                         found = True
             if found:
-                self.print_results(tool_info, tool, self.context.with_option)
+                self.print_results(tool_info, self.context.with_option)
                 return 0
             else:
                 self.logger.error(
@@ -111,7 +111,7 @@ class ListTools(ToolCommand):
 def _group_option(f):
     """Group name option"""
 
-    def callback(ctxt, param, value):
+    def callback(ctxt, _param, value):
         clictxt = ctxt.ensure_object(CliContext)
         try:
             clictxt.group = value.split()
@@ -131,7 +131,7 @@ def _group_option(f):
 def _name_option(f):
     """Name of the tool option"""
 
-    def callback(ctxt, param, value):
+    def callback(ctxt, _param, value):
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.name = value
         return value
@@ -151,7 +151,7 @@ def _name_option(f):
 def _with_option(f):
     """display options with tools"""
 
-    def callback(ctxt, param, value):
+    def callback(ctxt, _param, value):
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.with_option = value
         return value
@@ -162,7 +162,7 @@ def _with_option(f):
         is_flag=True,
         expose_value=False,
         callback=callback,
-        help=("list the options with each tool"),
+        help="list the options with each tool",
     )(f)
 
 
