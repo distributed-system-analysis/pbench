@@ -1,16 +1,46 @@
 # Base Makefile for building all images and tagging them
 
+# List of external Make targets:
+#
+#   FIXME:  Are there any missing from this list?  Are there any here which can/should be removed (e.g., the last two)??
+#
+#   These act on all default platforms' containers:
+#
+#     all (default):  make all images for all default platforms
+#     tds:  make Tool Data Sink images for all default platforms
+#     tm:  make Tool Meister images for all default platforms
+#     tag-<TYPE> (e.g., "tag-latest"):  apply specified tag to all images for all default platforms
+#     push:  push images for all default platforms with "<git commit hash>" and "v<full RPM version>" tags
+#     push-<TYPE> (e.g., "push-latest"):  push images for all default platforms with specified tag
+#
+#   These act on the indicated distribution's containers:
+#
+#     <DISTRO> (e.g., "fedora-34"):  make all images for the requested platform
+#     <DISTRO>-tds (e.g., "fedora-34-tds"):  make the TDS image for the requested platform
+#     <DISTRO>-tm (e.g., "fedora-34-tm"):  make the TM image for the requested platform
+#     <DISTRO>-tag-<TYPE> (e.g., "fedora-34-tag-alpha"):  apply the specified tag to the distro containers
+#     <DISTRO>-push (e.g., "fedora-34-push"):  push the specified containers
+#     <DISTRO>-push-<TYPE> (e.g., "fedora-34-push-alpha"):  push the specified containers
+#
+#   Utility targets:
+#
+#     clean:  remove build artifacts
+#     pkgmgr-clean:  clear the local package manager cache
+#     all-tags:  build all default distro "-tags.lis" files and verify that they are consistent.
+#     all-dockerfiles:  build all default distro ".repo" and ".Dockerfile" files
+#
+
 # By default we only build images for x86_64 architectures.
 _ARCH = x86_64
 
 # By default we use this user's account on Fedora COPR for where to
 # find the RPMs.  You can override this using an environment variable
 # as appropriate.
-USER = ndokos
+COPR_USER = ndokos
 
 # By default we use Fedora COPR repos. You can override this default
 # using an environment variable as appropriate.
-URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${USER}
+URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${COPR_USER}
 
 # By default we use non-"test" COPR repos named "pbench".  We expect
 # test COPR repos to have a suffix added, typically "test", so that
@@ -25,7 +55,11 @@ IMAGE_REPO = docker://quay.io/pbench
 
 # Convenience reference to the repo template in the pbench tree.
 # Not intended to be overridden with an environment variable.
-_REPO_TEMPLATE = ../../ansible/pbench/agent/roles/pbench_repo_install/templates/etc/yum.repos.d/pbench.repo.j2
+_PBENCH_REPO_TEMPLATE = ../../ansible/pbench/agent/roles/pbench_repo_install/templates/etc/yum.repos.d/pbench.repo.j2
+
+# This is for use on CentOS; on Fedora, the package is available without a
+# custom .repo file.
+_PROMETHEUS_REPO_URL = https://packagecloud.io/install/repositories/prometheus-rpm/release/config_file.repo?os=el&dist=${DIST_VERSION}&source=script
 
 # This list of PCP RPMs we need to provide all the required features.  We use
 # pcp-gui to ensure pmchart is installed in the tools container so that users
@@ -37,6 +71,17 @@ _PCP_RPMS = \
 	pcp-gui \
 	pcp-system-tools \
 	pcp-zeroconf
+
+# These are the lists of Prometheus RPMs -- the packages are the same, but they
+# have different names in the different distributions -- so we have two lists
+# keyed by the distro name.
+_centos_PROMETHEUS_RPMS = \
+    node_exporter \
+    prometheus2
+_fedora_PROMETHEUS_RPMS = \
+    golang-github-prometheus-node-exporter \
+    golang-github-prometheus
+
 # The list of RPMs which provide the various tools we offer.
 # Not intended to be overridden with an environment variable.
 # Please keep the lists sorted.
@@ -48,13 +93,12 @@ _TOOL_RPMS = \
 	kernel-tools \
 	libvirt-client \
 	nmap-ncat \
-	node_exporter \
 	numactl \
 	pbench-sysstat \
 	${_PCP_RPMS} \
 	perf \
 	procps-ng \
-	prometheus2 \
+	${_${DIST_NAME}_PROMETHEUS_RPMS} \
 	strace \
 	tcpdump \
 	trace-cmd
@@ -66,85 +110,32 @@ _WORKLOAD_RPMS = fio uperf
 # Not intended to be overridden with an environment variable.
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
-# By default we only build images for the following distributions:
-_DISTROS = centos-8 centos-7 fedora-33 fedora-32
+# Compose lists of all conceivable distro-version strings (e.g.,
+# `_ALL_centos_VERSIONS` including "centos-7", "centos-8", "centos-9",
+# `_ALL_fedora_VERSIONS` including "fedora-32", "fedora-33", and "fedora-34",
+# and `_DISTROS` containing the contents of all the lists) which will be used
+# to drive pattern matching on distro-based target rules.
+_DIGITS := 0 1 2 3 4 5 6 7 8 9
+_NUMBERS := $(patsubst 0%,%,$(foreach tens,${_DIGITS},$(foreach ones,${_DIGITS},${tens}${ones})))
+_ALL_DISTRO_NAMES := centos fedora
+_ADV_TMPL = _ALL_${d}_VERSIONS := $(foreach v,${_NUMBERS},${d}-${v}) # template for setting version lists
+$(foreach d,${_ALL_DISTRO_NAMES},$(eval $(call _ADV_TMPL, ${d})))  # set _ALL_centos_VERSIONS, etc.
+_DISTROS := $(foreach d,${_ALL_DISTRO_NAMES},${_ALL_${d}_VERSIONS})
+
+# By default we only build images for the following distributions.  (At the time
+# of this writing, centos-9 has no support in packagecloud.io, so it is omitted.)
+_DEFAULT_DISTROS = centos-8 fedora-34 fedora-35
 
 # By default we won't build the Tool Data Sink and Tool Meister images
-all: all-tags $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
+all: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
 
-tds: all-tags $(foreach distro, ${_DISTROS}, ${distro}-tool-data-sink-tagged)
+tds: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
 
-tm: all-tags $(foreach distro, ${_DISTROS}, ${distro}-tool-meister-tagged)
-
-# We also offer targets per distribution target
-centos-8: all-tags centos-8-all-tagged
-
-centos-7: all-tags centos-7-all-tagged
-
-fedora-33: all-tags fedora-33-all-tagged
-
-fedora-32: all-tags fedora-32-all-tagged
-
-centos-8-tds: all-tags centos-8-tool-data-sink-tagged
-
-centos-7-tds: all-tags centos-7-tool-data-sink-tagged
-
-fedora-33-tds: all-tags fedora-33-tool-data-sink-tagged
-
-fedora-32-tds: all-tags fedora-32-tool-data-sink-tagged
-
-centos-8-tm: all-tags centos-8-tool-meister-tagged
-
-centos-7-tm: all-tags centos-7-tool-meister-tagged
-
-fedora-33-tm: all-tags fedora-33-tool-meister-tagged
-
-fedora-32-tm: all-tags fedora-32-tool-meister-tagged
-
-#+
-# Tagging targets
-#-
-
-# Add the "latest" tag to the local images.
-tag-latest: $(foreach distro, ${_DISTROS}, ${distro}-tag-latest)
-
-# Add the "beta" tag to the local images.
-tag-beta: $(foreach distro, ${_DISTROS}, ${distro}-tag-beta)
-
-# Add the "alpha" tag to the local images.
-tag-alpha: $(foreach distro, ${_DISTROS}, ${distro}-tag-alpha)
-
-# Add the "v<Major>-latest" tag to the local images.
-tag-major: $(foreach distro, ${_DISTROS}, ${distro}-tag-major)
-
-# Add the "v<Major>.<Minor>-latest" tag to the local images.
-tag-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-tag-major-minor)
-
-#+
-# Push targets
-#-
-
-# Push images with "<git commit hash>" and "v<full RPM version>" tags.
-push: $(foreach distro, ${_DISTROS}, ${distro}-push)
-
-# Push images with the "latest" tag.
-push-latest: $(foreach distro, ${_DISTROS}, ${distro}-push-latest)
-
-# Push images with the "beta" tag.
-push-beta: $(foreach distro, ${_DISTROS}, ${distro}-push-beta)
-
-# Push images with the "alpha" tag.
-push-alpha: $(foreach distro, ${_DISTROS}, ${distro}-push-alpha)
-
-# Push images with the "v<Major>-latest" tag.
-push-major: $(foreach distro, ${_DISTROS}, ${distro}-push-major)
-
-# Push images with the "v<Major>.<Minor>-latest" tag.
-push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
+tm: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
 
 #+
 # For the following rule patterns, the "%" represents the "distribution" name,
-# as derived from the "all" target's *-distro list.
+# e.g., as derived from the _DEFAULT_DISTROS list.
 #
 # The string matching the "%" is called the "stem", in GNU Make parlance.  The
 # "$*" references are replaced with that stem value.
@@ -152,19 +143,60 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 # See https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 #-
 
+# We also offer targets per distribution target
+${_DISTROS}: %: pkgmgr-clean %-all-tagged
+
+$(_DISTROS:%=%-tds): %-tds: pkgmgr-clean %-tool-data-sink-tagged
+
+$(_DISTROS:%=%-tm): %-tm: pkgmgr-clean %-tool-meister-tagged
+
+# For any given target, extract the distribution name and version from the
+# first two fields, e.g., fedora-35-tds would yield values "fedora" and "35"
+# for DIST_NAME and DIST_VERSION, respectively.
+%: DIST_NAME = $(wordlist 1, 1, $(subst -, ,$*))
+%: DIST_VERSION = $(wordlist 2, 2, $(subst -, ,$*))
+
+
+# Tagging targets
+#
+# Available tags values are "latest", "alpha", "beta", "major", and "major-minor"
+# "major" produces a tag of "v<Major>-latest", and "major-minor" produces a tag
+# of "v<Major>.<Minor>-latest".
+#
+# See the `tagit` script for details.
+_TAG_TYPES = latest alpha beta major major-minor
+$(_TAG_TYPES:%=tag-%): tag-%: $(_DEFAULT_DISTROS:%=%-tag-%)
+
+
+#+
+# Push targets
+#-
+
+# Push images with "<git commit hash>" and "v<full RPM version>" tags.
+push: $(_DEFAULT_DISTROS:%=%-push)
+
+# Push images with a specific tag (see the `tag-%` target).
+$(_TAG_TYPES:%=push-%): push-%: $(_DEFAULT_DISTROS:%=%-push-%)
+
+
+#+
+# Build targets
+#-
+
 %-all-tagged: %-all %-tags.lis
 	./apply-tags pbench-agent-all-$* $*-tags.lis
 
-%-all: %-workloads-tagged %-tool-data-sink-tagged %-tool-meister-tagged %-all.Dockerfile
+%-all: %-workloads-tagged %-tool-data-sink-tagged %-tool-meister-tagged %-all.Dockerfile %-tags.lis
 	./build-image all $* $*-tags.lis
 
 %-all.Dockerfile: Dockerfile.layered.j2 %-tags.lis
-	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="all" -D rpms="${_ALL_RPMS}" > ./$@
+	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" \
+		-D kind="all" -D rpms="${_ALL_RPMS}" > ./$@
 
 %-tool-data-sink-tagged: %-tool-data-sink %-tags.lis
 	./apply-tags pbench-agent-tool-data-sink-$* $*-tags.lis
 
-%-tool-data-sink: %-tools-tagged %-tool-data-sink.Dockerfile
+%-tool-data-sink: %-tools-tagged %-tool-data-sink.Dockerfile %-tags.lis
 	./build-image tool-data-sink $* $*-tags.lis
 
 %-tool-data-sink.Dockerfile: Dockerfile.tds.j2 %-tags.lis
@@ -173,7 +205,7 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 %-tool-meister-tagged: %-tool-meister %-tags.lis
 	./apply-tags pbench-agent-tool-meister-$* $*-tags.lis
 
-%-tool-meister: %-tools-tagged %-tool-meister.Dockerfile
+%-tool-meister: %-tools-tagged %-tool-meister.Dockerfile %-tags.lis
 	./build-image tool-meister $* $*-tags.lis
 
 %-tool-meister.Dockerfile: Dockerfile.tm.j2 %-tags.lis
@@ -182,76 +214,68 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 %-tools-tagged: %-tools %-tags.lis
 	./apply-tags pbench-agent-tools-$* $*-tags.lis
 
-%-tools: %-base-tagged %-tools.Dockerfile %-pcp.repo
+# Add an additional dependency for centos-%-tools targets (this .repo file is
+# not required on Fedora).
+$(_ALL_centos_VERSIONS:%=%-tools): centos-%-tools: centos-%-prometheus.repo
+
+%-tools: %-base-tagged %-tools.Dockerfile %-pcp.repo %-tags.lis
 	./build-image tools $* $*-tags.lis
 
 %-tools.Dockerfile: Dockerfile.layered.j2 %-tags.lis
-	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="tools" -D rpms="${_TOOL_RPMS}" > ./$@
+	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" \
+		-D kind="tools" -D rpms="${_TOOL_RPMS}" > ./$@
 
 %-workloads-tagged: %-workloads %-tags.lis
 	./apply-tags pbench-agent-workloads-$* $*-tags.lis
 
-%-workloads: %-base-tagged %-workloads.Dockerfile
+%-workloads: %-base-tagged %-workloads.Dockerfile %-tags.lis
 	./build-image workloads $* $*-tags.lis
 
 %-workloads.Dockerfile: Dockerfile.layered.j2 %-tags.lis
-	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="workloads" -D rpms="${_WORKLOAD_RPMS}" > ./$@
+	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" \
+		-D kind="workloads" -D rpms="${_WORKLOAD_RPMS}" > ./$@
 
-%-base-tagged: %-base
+%-base-tagged: %-base %-tags.lis
 	./apply-tags pbench-agent-base-$* $*-tags.lis
 
-%-base: %-base.Dockerfile %-tags.lis
+%-base: %-base.Dockerfile %-pbench.repo %-tags.lis
 	./build-image base $* $*-tags.lis
 
 #+
 # Push local images for the given tag and distribution.
 #-
 
+define _PUSH_RULE
+%-push-$(1): %-tags.lis
+	./push ${IMAGE_REPO} $$* $(1)
+endef
+
+$(foreach tagtype,${_TAG_TYPES},$(eval $(call _PUSH_RULE,${tagtype})))  # Define rules
+
 %-push: %-tags.lis
 	./push ${IMAGE_REPO} $*
 
-%-push-latest: %-tags.lis
-	./push ${IMAGE_REPO} $* latest
-
-%-push-beta: %-tags.lis
-	./push ${IMAGE_REPO} $* beta
-
-%-push-alpha: %-tags.lis
-	./push ${IMAGE_REPO} $* alpha
-
-%-push-major: %-tags.lis
-	./push ${IMAGE_REPO} $* _major
-
-%-push-major-minor: %-tags.lis
-	./push ${IMAGE_REPO} $* _minor
-
 #+
 # Tag local images for the given distribution.
+#
+# "major" produces a tag of "v<Major>-latest", and "major-minor" produces a tag
+# of "v<Major>.<Minor>-latest".  (See the `tag-%` target.)
 #-
 
-%-tag-latest: %-tags.lis
-	./tagit $* latest
+define _TAG_RULE
+%-tag-$(1): %-tags.lis
+	./tagit $$* $(1)$(if $(findstring major,$(1)),-latest)
+endef
 
-%-tag-beta: %-tags.lis
-	./tagit $* beta
+$(foreach tagtype,${_TAG_TYPES},$(eval $(call _TAG_RULE,${tagtype})))  # Define rules
 
-%-tag-alpha: %-tags.lis
-	./tagit $* alpha
-
-%-tag-major: %-tags.lis
-	./tagit $* major-latest
-
-%-tag-major-minor: %-tags.lis
-	./tagit $* major-minor-latest
-
-# Build the tags file for the given distribution.
+# Build the tags file for the given distribution. (We rename "centos" to "epel".)
 %-tags.lis:
-	./gen-tags-from-rpm "${URL_PREFIX}" "$*" "${_ARCH}" "${_TEST_SUFFIX}" > ${@}
+	./gen-tags-from-rpm "${URL_PREFIX}" "$(subst centos,epel,$*)" "${_ARCH}" "${_TEST_SUFFIX}" > ${@}
 
-# Helper target to build each distro's "-tags.lis" file and verify they
-# are consistent.
-all-tags: pkgmgr-clean $(foreach distro, ${_DISTROS}, ${distro}-tags.lis)
-	./verify-tags *-tags.lis
+# This file takes a long time to generate, so preserve it between builds (it can
+# be removed explicitly via the `clean` target).
+.PRECIOUS:: %-tags.lis
 
 # Helper target to ensure local cache consistent by "cleaning"
 pkgmgr-clean:
@@ -265,38 +289,42 @@ pkgmgr-clean:
 # mappings (e.g. centos-7 -> yum, centos:7, CentOS 7, fedora-32 -> dnf,
 # fedora:32, Fedora 32).
 #-
-centos-8-base.Dockerfile: Dockerfile.base.j2 epel-8-pbench.repo
-	jinja2 Dockerfile.base.j2 -D pbench_repo_file=epel-8-pbench.repo -D pkgmgr=dnf -D distro_image=centos:8 -D distro_image_name="CentOS 8" -o $@
+_PKGMGR = dnf
+centos-7-base.Dockerfile: _PKGMGR = yum
 
-centos-7-base.Dockerfile: Dockerfile.base.j2 epel-7-pbench.repo
-	jinja2 Dockerfile.base.j2 -D pbench_repo_file=epel-7-pbench.repo -D pkgmgr=yum -D distro_image=centos:7 -D distro_image_name="CentOS 7" -o $@
+centos-%-base.Dockerfile: Dockerfile.base.j2
+	jinja2 Dockerfile.base.j2 -D pbench_repo_file=centos-$*-pbench.repo \
+        -D pkgmgr=${_PKGMGR} -D distro_name="CentOS $*" -o $@ \
+        -D image_repo=quay.io/centos -D image_name=centos -D image_tag=centos$*
 
-fedora-33-base.Dockerfile: Dockerfile.base.j2 fedora-33-pbench.repo
-	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-33-pbench.repo -D pkgmgr=dnf -D distro_image=fedora:33 -D distro_image_name="Fedora 33" -o $@
-
-fedora-32-base.Dockerfile: Dockerfile.base.j2 fedora-32-pbench.repo
-	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-32-pbench.repo -D pkgmgr=dnf -D distro_image=fedora:32 -D distro_image_name="Fedora 32" -o $@
+fedora-%-base.Dockerfile: Dockerfile.base.j2
+	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-$*-pbench.repo \
+        -D pkgmgr=dnf -D distro_name="Fedora $*" -o $@ \
+        -D image_repo=quay.io/fedora -D image_name=fedora -D image_tag=$*
 
 # Helper target to build each distro's ".repo" and ".Dockerfile"
-all-dockerfiles: $(foreach distro, ${_DISTROS}, ${distro}-base.Dockerfile ${distro}-tools.Dockerfile ${distro}-workloads.Dockerfile ${distro}-all.Dockerfile)
+all-dockerfiles: \
+    $(_DEFAULT_DISTROS:%=%-base.Dockerfile) $(_DEFAULT_DISTROS:%=%-tools.Dockerfile) \
+    $(_DEFAULT_DISTROS:%=%-workloads.Dockerfile) $(_DEFAULT_DISTROS:%=%-all.Dockerfile)
 
-%-pbench.repo: %-pbench.yml ${_REPO_TEMPLATE}
-	jinja2 ${_REPO_TEMPLATE} $*-pbench.yml -o $@
+# Helper target to build each distro's "-tags.lis" file and verify they
+# are consistent.
+all-tags: pkgmgr-clean $(_DEFAULT_DISTROS:%=%-tags.lis)
+	./verify-tags *-tags.lis
+
+%-pbench.repo: %-pbench.yml ${_PBENCH_REPO_TEMPLATE}
+	jinja2 ${_PBENCH_REPO_TEMPLATE} $*-pbench.yml -o $@
 
 %-pbench.yml: repo.yml.j2
-	jinja2 repo.yml.j2 -D distro=$* -D url_prefix=${URL_PREFIX} -D test_suffix=${_TEST_SUFFIX} -D user=${USER} -o $@
+	jinja2 repo.yml.j2 -D test_suffix=${_TEST_SUFFIX} -D user=${COPR_USER} \
+        -D distro=$(if $(filter centos,${DIST_NAME}),$(subst centos,epel,$*),$*) \
+        -D url_prefix=${URL_PREFIX} -o $@
 
-fedora-33-pcp.repo: pcp.repo.j2
-	jinja2 pcp.repo.j2 -D distro=fedora -D version=33 -o $@
+%-pcp.repo: pcp.repo.j2
+	jinja2 pcp.repo.j2 -D distro=${DIST_NAME} -D version=${DIST_VERSION} -o $@
 
-fedora-32-pcp.repo: pcp.repo.j2
-	jinja2 pcp.repo.j2 -D distro=fedora -D version=32 -o $@
-
-centos-8-pcp.repo: pcp.repo.j2
-	jinja2 pcp.repo.j2 -D distro=centos -D version=8 -o $@
-
-centos-7-pcp.repo: pcp.repo.j2
-	jinja2 pcp.repo.j2 -D distro=centos -D version=7 -o $@
+%-prometheus.repo:
+	curl -sSf "${_PROMETHEUS_REPO_URL}" > $@
 
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis

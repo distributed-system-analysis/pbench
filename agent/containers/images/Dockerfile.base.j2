@@ -1,22 +1,23 @@
-# {{ distro_image_name }} pbench-agent base image
-FROM docker.io/library/{{ distro_image }}
+# {{ distro_name }} pbench-agent base image
+FROM {{ image_repo }}/{{ image_name }}:{{ image_tag }}
 
-# Install the appropriate pbench repository file for {{ distro_image_name }}.
+# Install the appropriate pbench repository file for {{ distro_name }}.
 COPY ./{{ pbench_repo_file }} /etc/yum.repos.d/pbench.repo
 
 # Install the pbench-agent RPM, which should have all its dependencies enumerated;
 # ... and make sure we have a proper pbench-agent.cfg file in place;
 # ... and finally, ensure the proper pbench-agent environment variables are set up.
+{% set is_centos_8 = true if image_name == 'centos' and image_tag == 'centos8' else false %}
 RUN \
-{% if distro_image == 'centos:8' %}
+{% if is_centos_8 %}
     {{ pkgmgr }} module -y enable python36 && \
     {{ pkgmgr }} module -y disable python38 && \
 {% endif %}
-{% if distro_image.startswith('centos') %}
-    {{ pkgmgr }} install -y --setopt=tsflags=nodocs https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ distro_image.split(':', 1)[1] }}.noarch.rpm && \
+{% if image_name == 'centos' %}
+    {{ pkgmgr }} install -y --setopt=tsflags=nodocs https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ image_tag.removeprefix('centos') }}.noarch.rpm && \
 {% endif %}
-    {{ pkgmgr }} install -y --setopt=tsflags=nodocs {% if distro_image == 'centos:8' %}--enablerepo powertools glibc-locale-source {% endif %} pbench-agent && \
-{% if distro_image == 'centos:8' %}
+    {{ pkgmgr }} install -y --setopt=tsflags=nodocs {% if is_centos_8 %}--enablerepo powertools glibc-locale-source {% endif %} pbench-agent && \
+{% if is_centos_8 %}
     localedef -i en_US -f UTF-8 en_US.UTF-8 && \
 {% endif %}
     {{ pkgmgr }} -y clean all && \
