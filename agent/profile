@@ -3,6 +3,8 @@
 function _pbench_pathins() {
     if [[ -d "${1}" ]] && [[ ":${PATH:-}:" != *":${1}:"* ]]; then
         PATH="${1}${PATH:+:${PATH}}"
+        if [[$PATH != *"/usr/sbin"*]]; then
+            PATH="$PATH:/usr/sbin" # For /usr/sbin/ip, used by pbench-register-tool
     fi
 }
 
