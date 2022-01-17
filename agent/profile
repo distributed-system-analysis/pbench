@@ -3,10 +3,15 @@
 function _pbench_pathins() {
     if [[ -d "${1}" ]] && [[ ":${PATH:-}:" != *":${1}:"* ]]; then
         PATH="${1}${PATH:+:${PATH}}"
-        if [[$PATH != *"/usr/sbin"*]]; then
-            PATH="$PATH:/usr/sbin" # For /usr/sbin/ip, used by pbench-register-tool
     fi
 }
+
+_pbench_pathins "/usr/local/sbin"
+_pbench_pathins "/usr/local/bin"
+_pbench_pathins "/usr/sbin"
+_pbench_pathins "/usr/bin"
+_pbench_pathins "/root/bin"
+_pbench_pathins "/sbin"
 
 function _pbench_setup() {
     local prefix=/opt/pbench-agent
