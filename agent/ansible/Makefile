@@ -18,6 +18,7 @@ test:   build
 	ansible-galaxy collection install ${tb} -p ./collections
 	git submodule update --init --recursive
 	cd ${colldir}; ansible-test sanity
+	# test for README.md in *every* role
 
 publish: clean build
 	ansible-galaxy collection publish -vvv -s "${apiserver}"  --api-key "${apikey}" ${tb}

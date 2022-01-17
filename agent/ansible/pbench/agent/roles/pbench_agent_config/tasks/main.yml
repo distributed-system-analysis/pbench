@@ -21,4 +21,3 @@
 - name: "pbench agent configuration - open firewall ports for tool meister"
   include_role:
     name: pbench_firewall_open_ports
-

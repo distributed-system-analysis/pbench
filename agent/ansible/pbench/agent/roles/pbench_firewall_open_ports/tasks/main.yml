@@ -9,4 +9,3 @@
   with_items:
     - "{{ pbench_redis_port }}"
     - "{{ pbench_wsgi_port }}"
-
