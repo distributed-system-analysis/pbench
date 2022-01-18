@@ -58,9 +58,6 @@ function _run_activate {
 }
 
 function _run_allscripts {
-    # The first two pull in new tar balls from move-results and remote
-    # satellite pbench servers feeding them into the dispatch loop.
-    _run pbench-server-prep-shim-002
     # NOTE WELL: the "satellite-one" argument refers a configuration
     # section in the unit test's pbench-server.cfg file - keep them
     # synchronized.
@@ -108,17 +105,11 @@ function _save_tree {
         echo "+++ var/www/html tree state (${_testhtml})" >> ${_testout}
         _local_find ${_testhtml} >> ${_testout}
         echo "--- var/www/html tree state" >> ${_testout}
-        echo "+++ results host info (${_testhtml}/pbench-results-host-info.versioned)" >> ${_testout}
-        grep -HvF "\-\-should-n0t-ex1st--" ${_testhtml}/pbench-results-host-info.versioned/pbench-results-host-info.URL00?.* >> ${_testout} 2>&1
-        echo "--- results host info" >> ${_testout}
     fi
     if [[ -d ${_testhtml_sat} ]]; then
         echo "+++ var/www/html-satellite tree state (${_testhtml_sat})" >> ${_testout}
         _local_find ${_testhtml_sat} >> ${_testout}
         echo "--- var/www/html-satellite tree state" >> ${_testout}
-        echo "+++ results host info (${_testhtml_sat}/pbench-results-host-info.versioned)" >> ${_testout}
-        grep -HvF "\-\-should-n0t-ex1st--" ${_testhtml_sat}/pbench-results-host-info.versioned/pbench-results-host-info.URL00?.* >> ${_testout} 2>&1
-        echo "--- results host info" >> ${_testout}
     fi
     echo "+++ pbench tree state (${_testdir})" >> ${_testout}
     if [[ -d ${_testdir} ]]; then
@@ -447,7 +438,7 @@ function _setup_state {
     # Determine which users the test needs and create them. We discover
     # users dynamically from the database state ".db" files, but also
     # always allow use of the satellite user for the satellite intake tests,
-    # as well as "pbench" for un-owned prep-shim intake.
+    # as well as "pbench" just in case.
     local users="pbench satellite"
     if [[ -f ${_state_db} ]]; then
         users="$(cat ${_state_db} | cut --d ' ' -f 4 | sort -u) ${users}"

@@ -116,7 +116,8 @@ class Tarball:
         # Record the path of the companion MD5 file
         self.md5_path: Path = path.with_suffix(".xz.md5")
 
-        # Record the name of the containing controller
+        # Record the resource ID and the name of the containing controller
+        self.md5 = self.md5_path.read_text().split()[0]
         self.controller_name: str = controller.name
 
         # Cache results metadata when it's been processed
@@ -255,11 +256,13 @@ class Tarball:
 
         return cls(destination, controller)
 
-    def extract(self, path: str) -> str:
+    @staticmethod
+    def extract(tarball: Path, path: str) -> str:
         """
-        Extract a file from the tarball and return it as a string
+        Extract a file from a tarball and return it as a string
 
         Args:
+            tarball: a dataset tarball
             path: relative path within the tarball of a file
 
         Raises:
@@ -269,11 +272,9 @@ class Tarball:
             The named file as a string
         """
         try:
-            return (
-                tarfile.open(self.tarball_path, "r:*").extractfile(path).read().decode()
-            )
+            return tarfile.open(tarball, "r:*").extractfile(path).read().decode()
         except Exception as exc:
-            raise MetadataError(self.tarball_path, exc)
+            raise MetadataError(tarball, exc)
 
     def get_metadata(self) -> JSONOBJECT:
         """

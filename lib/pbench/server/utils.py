@@ -108,7 +108,7 @@ def quarantine(dest, logger, *files):
                 try:
                     Dataset.attach(resource_id=id, state=States.QUARANTINED)
                 except DatasetNotFound:
-                    logger.exception("quarantine dataset {} not found", afile)
+                    logger.debug("quarantine dataset {} not found", afile)
             shutil.move(afile, os.path.join(dest, os.path.basename(afile)))
         except Exception:
             logger.exception(

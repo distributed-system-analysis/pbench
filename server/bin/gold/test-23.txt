@@ -5,31 +5,17 @@
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-23/var-www-html)
 lrwxrwxrwx         63 incoming -> /var/tmp/pbench-test-server/test-23/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        118 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         62 results -> /var/tmp/pbench-test-server/test-23/pbench/public_html/results
 lrwxrwxrwx         61 static -> /var/tmp/pbench-test-server/test-23/pbench/public_html/static
 lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-23/pbench/public_html/users
 --- var/www/html tree state
-+++ results host info (/var/tmp/pbench-test-server/test-23/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-23/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-23/pbench-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/test-23/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
---- results host info
 +++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-23/var-www-html-satellite)
 lrwxrwxrwx         73 incoming -> /var/tmp/pbench-test-server/test-23/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        138 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         72 results -> /var/tmp/pbench-test-server/test-23/pbench-satellite/public_html/results
 lrwxrwxrwx         71 static -> /var/tmp/pbench-test-server/test-23/pbench-satellite/public_html/static
 lrwxrwxrwx         70 users -> /var/tmp/pbench-test-server/test-23/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
-+++ results host info (/var/tmp/pbench-test-server/test-23/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-23/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-23/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/test-23/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
---- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-23/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
@@ -64,8 +50,6 @@ drwxrwxr-x          - logs/pbench-audit-server
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
 -rw-rw-r--        665 logs/pbench-dispatch/pbench-dispatch.log
-drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
@@ -100,8 +84,6 @@ drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
 +++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-23/pbench-satellite-local)
 drwxrwxr-x          - logs
-drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002

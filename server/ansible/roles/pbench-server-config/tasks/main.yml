@@ -12,8 +12,6 @@
 - import_role:
     name: pbench-server-activate-create-crontab
 - import_role:
-    name: pbench-server-activate-setup-results-host-info
-- import_role:
     name: pbench-server-activate-create-results-dir-structure
 - import_role:
     name: pbench-server-activate-httpd-setup-restart

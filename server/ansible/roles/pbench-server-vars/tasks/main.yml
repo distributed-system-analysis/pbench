@@ -87,40 +87,6 @@
     msg: "{{ pbench_quarantine_dir }}"
     verbosity: 1
 
-# pbench hostinfo prefix
-- name: fetch the host info prefix
-  shell: "pbench-config host-info-path-prefix results"
-  register: cmd_output
-  ignore_errors: yes
-  environment:
-    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
-    PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib"
-
-- set_fact:
-    pbench_host_info_prefix: "{{ cmd_output.stdout_lines[0].strip() }}"
-
-- debug:
-    msg: "{{ pbench_host_info_prefix }}"
-    verbosity: 1
-
-# pbench reception area
-- name: fetch the reception area directory
-  shell: "pbench-config pbench-receive-dir-prefix pbench-server"
-  register: cmd_output
-  ignore_errors: yes
-  environment:
-    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
-    PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib"
-
-- set_fact:
-    pbench_reception_dir_prefix: "{{ cmd_output.stdout_lines[0].strip() }}"
-
-- debug:
-    msg: "{{ pbench_reception_dir_prefix }}"
-    verbosity: 1
-
 # httpd document root
 - name: fetch the httpd document root directory
   shell: "pbench-config documentroot apache"
