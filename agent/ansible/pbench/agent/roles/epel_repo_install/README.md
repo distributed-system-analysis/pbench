@@ -1,24 +1,16 @@
-pbench_firewall_open_ports
-==========================
+epel_repo_install
+=================
 
-This role punches a hole through the firewall for various ports that the tool meister
-processes need to use.
+This role installs a repo file for EPEL.
 
 Requirements
 ------------
-None.
 
 Role Variables
 --------------
-These are the variables that are defined by default and do not
-generally need to be modified unless there is a conflict:
-
-- pbench_redis_port: 17001
-- pbench_wsgi_port: 8080
 
 Dependencies
 ------------
-None
 
 Example Playbook
 ----------------
@@ -33,8 +25,10 @@ or you can use the raw link to wget/curl the file:
 
 License
 -------
+
 GPL-3.0-or-later.
 
 Author Information
 ------------------
+
 The Pbench team.
