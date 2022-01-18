@@ -91,7 +91,7 @@ class DatasetsDetail(ElasticBase):
             "kwargs": {
                 "params": {"ignore_unavailable": "true"},
                 "json": {
-                    "query": self._get_user_query(
+                    "query": self._build_elasticsearch_query(
                         json_data, [{"term": {"run.name": name}}]
                     ),
                     "sort": "_index",
@@ -156,9 +156,7 @@ class DatasetsDetail(ElasticBase):
         }
 
         try:
-            m = self._get_metadata(
-                src["run"]["controller"], src["run"]["name"], context["metadata"]
-            )
+            m = self._get_metadata(src["run"]["name"], context["metadata"])
         except DatasetNotFound:
             abort(
                 HTTPStatus.BAD_REQUEST,

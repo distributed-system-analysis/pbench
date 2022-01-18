@@ -1,5 +1,7 @@
+from configparser import ConfigParser
 import datetime
 import hashlib
+from freezegun import freeze_time
 from http import HTTPStatus
 import os
 import pytest
@@ -9,6 +11,7 @@ import uuid
 from pathlib import Path
 from posix import stat_result
 from stat import ST_MTIME
+import tarfile
 
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
@@ -16,6 +19,7 @@ from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
+from pbench.server.filetree import Tarball
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 server_cfg_tmpl = """[DEFAULT]
@@ -259,23 +263,38 @@ def fake_mtime(monkeypatch):
 
 
 @pytest.fixture()
-def attach_dataset(pbench_token, create_user):
+def attach_dataset(create_drb_user, create_user):
     """
     Create test Datasets for the authorized user ("drb") and for another user
     ("test")
 
     Args:
-        pbench_token: create a "drb" user and authorize it
+        create_drb_user: create a "drb" user
         create_user: create a "test" user
     """
-    Dataset(
-        owner="drb",
-        controller="node",
-        name="drb",
-        access="private",
-        md5="random_md5_string1",
-    ).add()
-    Dataset(owner="test", controller="node", name="test", access="private").add()
+
+    # The default time for the `uploaded` timestamp will be locked by the
+    # "freeze_time" context manager, and overridden by an explicit value to
+    # the constructor. We're testing both cases here by overriding "uploaded"
+    # for one Dataset and letting it default for the other.
+    with freeze_time("1970-01-01 00:42:00"):
+        Dataset(
+            owner="drb",
+            created=datetime.datetime(2020, 2, 15),
+            uploaded=datetime.datetime(2022, 1, 1),
+            controller="node",
+            name="drb",
+            access="private",
+            md5="random_md5_string1",
+        ).add()
+        Dataset(
+            owner="test",
+            created=datetime.datetime(2002, 5, 16),
+            controller="node",
+            name="test",
+            access="private",
+            md5="random_md5_string2",
+        ).add()
 
 
 @pytest.fixture()
@@ -289,8 +308,8 @@ def provide_metadata(attach_dataset):
     contexts, using "half DB" and "half mock" will result in SQLAlchemy
     confusion.)
     """
-    drb = Dataset.attach(controller="node", name="drb")
-    test = Dataset.attach(controller="node", name="test")
+    drb = Dataset.query(name="drb")
+    test = Dataset.query(name="test")
     Metadata.setvalue(dataset=drb, key="user.contact", value="me@example.com")
     Metadata.setvalue(dataset=drb, key=Metadata.DELETION, value="2022-12-25")
     Metadata.setvalue(
@@ -586,8 +605,8 @@ def pbench_admin_token(client, server_config, create_admin_user):
 
 
 @pytest.fixture
-def pbench_token(client, server_config):
-    # First create a user
+def create_drb_user(client, server_config):
+    # Create a user
     response = register_user(
         client,
         server_config,
@@ -599,6 +618,9 @@ def pbench_token(client, server_config):
     )
     assert response.status_code == HTTPStatus.CREATED
 
+
+@pytest.fixture
+def pbench_token(client, server_config, create_drb_user):
     # Login user to get valid pbench token
     response = login_user(client, server_config, "drb", generic_password)
     assert response.status_code == HTTPStatus.OK
@@ -673,13 +695,19 @@ def tarball(pytestconfig):
     it lands on disk and in the Dataset.
     """
     filename = "pbench-user-benchmark_some + config_2021.05.01T12.42.42.tar.xz"
-    tmp_d = pytestconfig.cache.get("TMP", None)
-    datafile = Path(tmp_d, filename)
-    file_contents = b"something\n"
+    tmp_d = Path(pytestconfig.cache.get("TMP", None))
+    datafile = tmp_d / filename
+    metadata = ConfigParser()
+    metadata.add_section("pbench")
+    metadata.set("pbench", "date", "2002-05-16")
+    metadata_file = tmp_d / "metadata.log"
+    with metadata_file.open("w") as meta_fp:
+        metadata.write(meta_fp)
+    with tarfile.open(datafile, "w:xz") as tar:
+        tar.add(str(metadata_file), arcname=f"{Tarball.stem(filename)}/metadata.log")
     md5 = hashlib.md5()
-    md5.update(file_contents)
-    datafile.write_bytes(file_contents)
-    md5file = Path(tmp_d) / (filename + ".md5")
+    md5.update(datafile.read_bytes())
+    md5file = tmp_d / (filename + ".md5")
     md5file.write_text(md5.hexdigest())
 
     yield datafile, md5file, md5.hexdigest()

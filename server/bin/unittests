@@ -455,7 +455,7 @@ function _setup_state {
     # Add files for a given test
     _state_tb=${_tdir}/state/${1}.tar.xz
     if [ -e ${_state_tb} ]; then
-        (cd $_testroot; tar xpf $_state_tb)
+        (cd $_testroot && tar --no-same-owner -xpf $_state_tb)
         if [[ $? -gt 0 ]]; then
             echo "ERROR: unable to create pbench hierarchy for state $1" >&2
             exit 1

@@ -16,7 +16,7 @@ class TestDatasetsMetadata:
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json == {"message": "Dataset node>foobar not found"}
+        assert response.json == {"message": "Dataset foobar not found"}
 
     def test_get_bad_keys(self, client, server_config, attach_dataset):
         response = client.get(
@@ -29,7 +29,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.*', 'user.*', 'server.deletion', 'dataset.access', 'dataset.owner']"
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.*', 'dataset.access', 'dataset.created', 'dataset.owner', 'dataset.uploaded', 'server.deletion', 'user.*']"
         }
 
     def test_get1(self, client, server_config, provide_metadata):
@@ -152,7 +152,7 @@ class TestDatasetsMetadata:
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json == {"message": "Dataset node>foobar not found"}
+        assert response.json == {"message": "Dataset foobar not found"}
 
     def test_put_bad_keys(self, client, server_config, attach_dataset):
         response = client.put(

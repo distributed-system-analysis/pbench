@@ -15,6 +15,7 @@ from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
+from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.server.api.resources.graphql_api import GraphQL
@@ -28,7 +29,6 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
 )
 from pbench.server.api.resources.query_apis.datasets_delete import DatasetsDelete
 from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
-from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch

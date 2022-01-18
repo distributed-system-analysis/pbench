@@ -131,7 +131,7 @@ class TestDatasetsPublish:
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
             assert response.json == {"ok": 31, "failure": 0}
-            dataset = Dataset.attach(controller="node", name=owner)
+            dataset = Dataset.query(name=owner)
             assert dataset.access == Dataset.PUBLIC_ACCESS
 
     def test_partial(
@@ -166,7 +166,7 @@ class TestDatasetsPublish:
         ) in caplog.record_tuples
 
         # Verify that the Dataset access didn't change
-        dataset = Dataset.query(controller="node", name="drb")
+        dataset = Dataset.query(name="drb")
         assert dataset.access == Dataset.PRIVATE_ACCESS
 
     def test_no_dataset(

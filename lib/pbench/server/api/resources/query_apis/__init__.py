@@ -116,7 +116,7 @@ class ElasticBase(ApiBase):
         # authentication and http vs https for example.
         self.es_url = f"http://{host}:{port}"
 
-    def _get_user_query(self, parameters: JSON, terms: List[JSON]) -> JSON:
+    def _build_elasticsearch_query(self, parameters: JSON, terms: List[JSON]) -> JSON:
         """
         Generate the "query" parameter for an Elasticsearch _search request
         payload.
@@ -404,7 +404,9 @@ class ElasticBase(ApiBase):
             path = es_request.get("path")
             url = urljoin(self.es_url, path)
             self.logger.info(
-                "ASSEMBLE returned URL {!r}, {!r}", url, es_request.get("json")
+                "ASSEMBLE returned URL {!r}, {!r}",
+                url,
+                es_request.get("kwargs").get("json"),
             )
         except Exception as e:
             self.logger.exception("{} assembly failed: {}", klasname, e)
@@ -613,7 +615,6 @@ class ElasticBulkBase(ApiBase):
 
         Args:
             json_data: Type-normalized client JSON input
-                controller: Dataset controller name
                 name: Dataset name
             _: Original incoming Request object (not used)
 

@@ -135,7 +135,7 @@ function quarantine () {
         if [ ! -e $afile -a ! -L $afile ] ;then
             continue
         fi
-        # Create/update state record if we're not moving a .md5 file
+        # Update dataset state if we're quarantining a tarball (not an MD5)
         if [ ${afile} != ${afile%.tar.xz} ] ;then
             pbench-state-manager --path="${afile}" --state=quarantined
             sts=${?}

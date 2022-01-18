@@ -4,19 +4,9 @@ import enum
 import os
 import re
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Union
 
-from sqlalchemy import (
-    event,
-    Column,
-    DateTime,
-    Enum,
-    ForeignKey,
-    Integer,
-    JSON,
-    String,
-    UniqueConstraint,
-)
+from sqlalchemy import event, Column, DateTime, Enum, ForeignKey, Integer, JSON, String
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
@@ -319,6 +309,21 @@ class States(enum.Enum):
         return self.friendly
 
 
+def current_time() -> datetime.datetime:
+    """
+    Return the current time.
+
+    NOTE: we use this intermediary rather than binding the Column default
+    directly to datetime.datetime.now because that load-time binding defeats
+    unit test mocking. Binding it instead to this method allows a mock to
+    take effect.
+
+    Returns:
+        datetime.datetime.now()
+    """
+    return datetime.datetime.now()
+
+
 class Dataset(Database.Base):
     """
     Identify a Pbench dataset (tarball plus metadata)
@@ -330,7 +335,8 @@ class Dataset(Database.Base):
         controller  Name of controller node
         name        Base name of dataset (tarball)
         md5         The dataset MD5 hash (Elasticsearch ID)
-        created     Date the dataset was PUT to server
+        created     Tarball metadata timestamp (set during PUT)
+        uploaded    Dataset record creation timestamp
         state       The current state of the dataset
         transition  The timestamp of the last state transition
     """
@@ -352,6 +358,8 @@ class Dataset(Database.Base):
     # "Virtual" metadata key paths to access Dataset column data
     ACCESS = "dataset.access"
     OWNER = "dataset.owner"
+    CREATED = "dataset.created"
+    UPLOADED = "dataset.uploaded"
 
     # Acceptable values of the "access" column
     #
@@ -360,12 +368,23 @@ class Dataset(Database.Base):
     PRIVATE_ACCESS = "private"
     ACCESS_KEYWORDS = [PUBLIC_ACCESS, PRIVATE_ACCESS]
 
+    # Generated unique ID for Dataset row
     id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # Dataset name
+    name = Column(String(255), unique=True, nullable=False)
+
+    # ID of the owning user
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # Indirect reference to the owning User record
     owner = relationship("User")
+
+    # Access policy for Dataset (public or private)
     access = Column(String(255), unique=False, nullable=False, default="private")
+
+    # Host name of the system that collected the data
     controller = Column(String(255), unique=False, nullable=False)
-    name = Column(String(255), unique=False, nullable=False)
 
     # FIXME:
     # Ideally, `md5` would not be `nullable`, but allowing it means that
@@ -376,9 +395,20 @@ class Dataset(Database.Base):
     # This could be improved when we drop `pbench-server-prep-shim-002`
     # as server `PUT` does not have the same problem.
     md5 = Column(String(255), unique=False, nullable=True)
-    created = Column(DateTime, nullable=False, default=datetime.datetime.now())
+
+    # Time of Dataset record creation
+    uploaded = Column(DateTime, nullable=False, default=current_time)
+
+    # Time of the data collection run (from metadata.log `date`). This is the
+    # time the data was generated as opposed to the date it was imported into
+    # the server ("uploaded").
+    created = Column(DateTime, nullable=True, unique=False)
+
+    # Current state of the Dataset
     state = Column(Enum(States), unique=False, nullable=False, default=States.UPLOADING)
-    transition = Column(DateTime, nullable=False, default=datetime.datetime.now())
+
+    # Timestamp when Dataset state was last changed
+    transition = Column(DateTime, nullable=False, default=current_time)
 
     # NOTE: this relationship defines a `dataset` property in `Metadata`
     # that refers to the parent `Dataset` object.
@@ -386,13 +416,24 @@ class Dataset(Database.Base):
         "Metadata", back_populates="dataset", cascade="all, delete-orphan"
     )
 
-    # Require that the combination of controller and name is unique.
-    #
-    # NOTE: some existing server code depends on "name" alone being unique,
-    # although it's not entirely clear that any code enforces this except
-    # within a controller directory. (Although as a real dataset tarball is
-    # timestamped, the chances of duplication are small.)
-    __table_args__ = (UniqueConstraint("controller", "name"), {})
+    TARBALL_SUFFIX = ".tar.xz"
+
+    @staticmethod
+    def is_tarball(path: Union[Path, str]) -> bool:
+        """
+        Determine whether a path has the expected suffix to qualify as a Pbench
+        tarball.
+
+        NOTE: The file represented by the path doesn't need to exist, only end
+        with the expected suffix.
+
+        Args:
+            path: file path
+
+        Returns:
+            True if path ends with the supported suffix, False if not
+        """
+        return str(path).endswith(Dataset.TARBALL_SUFFIX)
 
     @validates("state")
     def validate_state(self, key: str, value: Any) -> States:
@@ -486,7 +527,7 @@ class Dataset(Database.Base):
             controllerarg: The controller name (hostname) of the dataset;
                 this is retained if specified, or will be constructed
                 from "path" if not present.
-            namearg: The dataset name (file path basename minus ".tar.xz");
+            namearg: The dataset name (file path stem);
                 this is retained if specified, or will be constructed from
                 "path" if not present
 
@@ -502,8 +543,8 @@ class Dataset(Database.Base):
                 path = Path(os.path.realpath(path))
             if not name_result:
                 name_result = path.name
-                if name_result.endswith(".tar.xz"):
-                    name_result = name_result[:-7]
+                if Dataset.is_tarball(name_result):
+                    name_result = name_result[: -len(Dataset.TARBALL_SUFFIX)]
             if not controller_result:
                 controller_result = path.parent.name
         return controller_result, name_result
@@ -523,7 +564,7 @@ class Dataset(Database.Base):
                 "controller": The controller name (hostname) of the dataset;
                     this is retained if specified, or will be constructed
                     from "path" if not present.
-                "name": The dataset name (file path basename minus ".tar.xz");
+                "name": The dataset name (file path stem);
                     this is retained if specified, or will be constructed from
                     "path" if not present.
                 "state": The initial state of the new dataset.
@@ -542,23 +583,23 @@ class Dataset(Database.Base):
         return dataset
 
     @staticmethod
-    def attach(path=None, controller=None, name=None, state=None) -> "Dataset":
+    def attach(path=None, name=None, state=None) -> "Dataset":
         """
-        Attempt to fetch dataset for the controller and dataset name,
-        or using a specified file path (see _render_path and the path_init
-        event listener for details).
+        Attempt to find dataset for the specified dataset name, or using a
+        specified file path (see _render_path and the path_init event listener
+        for details).
 
         If state is specified, attach will attempt to advance the dataset to
         that state.
+
+        NOTE: Unless you need to advance the state of the dataset, or query
+        using a full path, use Dataset.query instead.
 
         Args:
             "path": A tarball file path from which the controller (host)
                 name, the tarball dataset name (basename minus extension),
                 or both will be derived.
-            "controller": The controller name (hostname) of the dataset;
-                this is retained if specified, or will be constructed
-                from "path" if not present.
-            "name": The dataset name (file path basename minus ".tar.xz");
+            "name": The dataset name (file path stem);
                 this is retained if specified, or will be constructed from
                 "path" if not present.
             "state": The desired state to advance the dataset.
@@ -575,10 +616,14 @@ class Dataset(Database.Base):
         Returns:
             Dataset: a dataset object in the desired state (if specified)
         """
-        # Make sure we have controller and name from path
-        controller, name = Dataset._render_path(path, controller, name)
-        dataset = Dataset.query(controller=controller, name=name)
-        if state:
+        # Make sure we have a name if only path was specified
+        _, name = Dataset._render_path(patharg=path, namearg=name)
+        dataset = Dataset.query(name=name)
+
+        if dataset is None:
+            Dataset.logger.warning("Dataset {} not found", name)
+            raise DatasetNotFound(path=path, name=name)
+        elif state:
             dataset.advance(state)
         return dataset
 

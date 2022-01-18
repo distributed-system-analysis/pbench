@@ -85,7 +85,7 @@ class TestDatasetsDetail(Commons):
                             "authorization": {"user": "unknown", "access": "private"},
                             "run": {
                                 "controller": "dhcp31-187.example.com",
-                                "name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                                "name": "drb",
                                 "script": "fio",
                                 "config": "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus",
                                 "date": "2020-04-29T12:48:33",
@@ -167,7 +167,7 @@ class TestDatasetsDetail(Commons):
                     "id": "12fb1e952fd826727810868c9327254f",
                     "iterations": "0__bs=4k_iodepth=1_iodepth_batch_complete_max=1, 1__bs=32k_iodepth=1_iodepth_batch_complete_max=1, 2__bs=256k_iodepth=1_iodepth_batch_complete_max=1, 3__bs=4k_iodepth=8_iodepth_batch_complete_max=8, 4__bs=32k_iodepth=8_iodepth_batch_complete_max=8, 5__bs=256k_iodepth=8_iodepth_batch_complete_max=8, 6__bs=4k_iodepth=16_iodepth_batch_complete_max=16, 7__bs=32k_iodepth=16_iodepth_batch_complete_max=16, 8__bs=256k_iodepth=16_iodepth_batch_complete_max=16",
                     "md5": "12fb1e952fd826727810868c9327254f",
-                    "name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                    "name": "drb",
                     "pbench-agent-version": "0.68-1gf4c94b4d",
                     "raw_size": 292124533,
                     "script": "fio",

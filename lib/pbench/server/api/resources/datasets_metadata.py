@@ -30,7 +30,6 @@ class DatasetsMetadata(ApiBase):
     """
 
     GET_SCHEMA = Schema(
-        Parameter("controller", ParamType.STRING, required=True),
         Parameter("name", ParamType.STRING, required=True),
         Parameter(
             "metadata",
@@ -45,7 +44,6 @@ class DatasetsMetadata(ApiBase):
             config,
             logger,
             Schema(
-                Parameter("controller", ParamType.STRING, required=True),
                 Parameter("name", ParamType.STRING, required=True),
                 Parameter(
                     "metadata",
@@ -69,14 +67,13 @@ class DatasetsMetadata(ApiBase):
         GET. In this case, we're going to experiment with an alternative, using
         query parameters.
 
-        GET /api/v1/datasets/metadata?controller=ctrl&name=dname&metadata=dashboard.seen&metadata=server.deletion
+        GET /api/v1/datasets/metadata?name=dname&metadata=dashboard.seen&metadata=server.deletion
         """
 
         # We missed automatic schema validation due to the lack of a JSON body;
         # construct an equivalent JSON body now so we can run it through the
         # validator.
         json = {
-            "controller": request.args.get("controller"),
             "name": request.args.get("name"),
             "metadata": request.args.getlist("metadata"),
         }
@@ -89,17 +86,14 @@ class DatasetsMetadata(ApiBase):
         except SchemaError as e:
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
 
-        controller = new_json.get("controller")
         name = new_json.get("name")
         keys = new_json.get("metadata")
 
-        self.logger.info("GET metadata {} for {}>{}", keys, controller, name)
+        self.logger.info("GET metadata {} for {}", keys, name)
         try:
-            metadata = self._get_metadata(controller, name, keys)
+            metadata = self._get_metadata(name, keys)
         except DatasetNotFound:
-            abort(
-                HTTPStatus.BAD_REQUEST, message=f"Dataset {controller}>{name} not found"
-            )
+            abort(HTTPStatus.BAD_REQUEST, message=f"Dataset {name} not found")
         except MetadataError as e:
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
 
@@ -111,7 +105,6 @@ class DatasetsMetadata(ApiBase):
 
         PUT /api/v1/datasets/metadata
         {
-            "controller": "ctrlname",
             "name": "datasetname",
             "metadata": [
                 "dashboard.seen": True,
@@ -135,18 +128,17 @@ class DatasetsMetadata(ApiBase):
             "user": {"cloud": "AWS", "contact": "json.carter@mars.org}
         ]
         """
-        controller = json_data["controller"]
         name = json_data["name"]
         metadata = json_data["metadata"]
 
         try:
             self.logger.info("PUT with {}", repr(json_data))
-            dataset = Dataset.attach(controller=controller, name=name)
+            dataset = Dataset.query(name=name)
         except DatasetError as e:
-            self.logger.warning("Dataset {}>{} not found: {}", controller, name, str(e))
+            self.logger.warning("Dataset {} not found: {}", name, str(e))
             abort(
                 HTTPStatus.BAD_REQUEST,
-                message=f"Dataset {json_data['controller']}>{json_data['name']} not found",
+                message=f"Dataset {json_data['name']} not found",
             )
 
         failures = []
@@ -161,5 +153,5 @@ class DatasetsMetadata(ApiBase):
                 HTTPStatus.INTERNAL_SERVER_ERROR,
                 message=f"Unable to update metadata keys {','.join(failures)}",
             )
-        results = self._get_metadata(controller, name, list(metadata.keys()))
+        results = self._get_metadata(name, list(metadata.keys()))
         return jsonify(results)

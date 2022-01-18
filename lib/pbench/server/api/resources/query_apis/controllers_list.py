@@ -87,7 +87,7 @@ class ControllersList(ElasticBase):
             "path": f"/{uri_fragment}/_search",
             "kwargs": {
                 "json": {
-                    "query": self._get_user_query(
+                    "query": self._build_elasticsearch_query(
                         json_data,
                         [{"range": {"@timestamp": {"gte": start_arg, "lte": end_arg}}}],
                     ),
