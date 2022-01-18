@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from logging import Logger
+import logging
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
@@ -27,7 +27,7 @@ class DatasetsList(ApiBase):
     API class to list datasets based on PostgreSQL metadata
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig, logger: logging.Logger):
         super().__init__(
             config,
             logger,
@@ -54,11 +54,6 @@ class DatasetsList(ApiBase):
 
         NOTE: This does not rely on a JSON payload to identify the dataset and
         desired metadata keys; instead we rely on URI query parameters.
-
-        TODO: The dispatcher is currently merging JSON request body and Flask
-        URI keywords ... it probably makes sense to also merge request query
-        parameters and then validate them all together; although it might make
-        more sense to validate each against separate schemas.
 
         GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen&metadata=server.deletion
         """
@@ -88,10 +83,6 @@ class DatasetsList(ApiBase):
         self._check_authorization(json_data.get("owner"), new_json.get("access"))
 
         # Build a SQLAlchemy Query object expressing all of our constraints
-        #
-        # TODO: Think about what other constraints we might want to support.
-        # Including Metadata outside the Dataset table would be more difficult,
-        # but should be possible.
         query = Database.db_session.query(Dataset)
         if "start" in new_json and "end" in new_json:
             self.logger.info("Adding start / end query")
@@ -114,9 +105,11 @@ class DatasetsList(ApiBase):
 
         # Useful for debugging, but verbose: this displays the fully expanded
         # SQL `SELECT` statement.
-        self.logger.debug(
-            "QUERY {}", query.statement.compile(compile_kwargs={"literal_binds": True})
-        )
+        if self.logger.isEnabledFor(logging.DEBUG):
+            self.logger.debug(
+                "QUERY {}",
+                query.statement.compile(compile_kwargs={"literal_binds": True}),
+            )
 
         # Execute the filtered query, sorted by dataset name so we have a
         # consistent and reproducible output to compare.
@@ -126,12 +119,6 @@ class DatasetsList(ApiBase):
 
         response = []
         for dataset in results:
-            # TODO: Decide what we really need here for basic information. We
-            # should probably drop "controller" but allow "dataset.controller"
-            # metadata. We currently require "run_id" for the TOC, iteration
-            # sample, and timeseries APIs, although those *should* be based on
-            # dataset name. Should the output here ultimately be anything but
-            # a list of matching dataset names and requested metadata for each?
             d = {
                 "name": dataset.name,
                 "controller": dataset.controller,

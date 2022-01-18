@@ -246,10 +246,6 @@ class Tarball:
         """
         Extract a file from the tarball and return it as a string
 
-        TODO: Should we allow fetching a full directory path, e.g., "/" to
-        extract everything? And, if so, in what form would we return it.
-        Similarly, what about a binary file?
-
         Args:
             path: relative path within the tarball of a file
 
@@ -271,24 +267,18 @@ class Tarball:
         Fetch the values in metadata.log from the tarball, and return a JSON
         document organizing the metadata by section.
 
-        TODO: Right now this returns just a few particular items that stand
-        out as "likely useful" ... it may make sense to essentially JSONify the
-        entire ConfigParser payload, although there's a lot of data there
-        that's unlikely to be widely useful.
-
         Returns:
             A JSON representation of `metadata.log`
         """
         data = self.extract(f"{self.name}/metadata.log")
         metadata = ConfigParser()
         metadata.read_string(data)
-        date_str = metadata.get("pbench", "date")
 
         return {
             "controller": {"hostname": metadata.get("controller", "hostname")},
             "pbench": {
                 "config": metadata.get("pbench", "config"),
-                "date": convert_date(date_str, None),
+                "date": convert_date(metadata.get("pbench", "date"), None),
                 "script": metadata.get("pbench", "script"),
                 "version": metadata.get("pbench", "rpm-version"),
             },

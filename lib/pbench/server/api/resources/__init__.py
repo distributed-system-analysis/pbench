@@ -591,12 +591,6 @@ class ApiBase(Resource):
     # We treat some Dataset object attributes as user-accessible metadata for
     # the purposes of these APIs even though they're represented as columns on
     # the main SQL table.
-    #
-    # TODO: Should we allow querying all columns? In any case, we should allow
-    # `"metadata": {"dataset"}` to retrieve all (exposed) columns rather than
-    # naming each separately. We should support this for "server" as
-    # well, generalizing the "namespace" model so that "user" and "dashboard"
-    # namespaces are special only in that they allow PUT as well as GET...
     METADATA = sorted(
         Metadata.USER_METADATA
         + [Dataset.ACCESS, Dataset.CREATED, Dataset.OWNER, Dataset.UPLOADED]

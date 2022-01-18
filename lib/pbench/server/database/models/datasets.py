@@ -384,13 +384,6 @@ class Dataset(Database.Base):
     access = Column(String(255), unique=False, nullable=False, default="private")
 
     # Host name of the system that collected the data
-    #
-    # TODO: Do we want to kick this out of the Dataset record and into
-    # metadata? I'm considering collecting all of the `metadata.log` values
-    # into metadata for easy reference, and perhaps controller is just a part
-    # of that now? The main issue is that figuring out how to integrate the
-    # JSON Metadata table into a Dataset query (via a join or sub-select?) will
-    # be somewhat complicated, and I'd rather not do it now.
     controller = Column(String(255), unique=False, nullable=False)
 
     # FIXME:
@@ -1001,13 +994,6 @@ class Metadata(Database.Base):
         this would return "Dave", whereas Metadata.get(dataset, "user") would
         return the entire user key JSON, such as
         {"user" {"contact": {"name": "Dave", "email": "d@example.com}}}
-
-        TODO: I'd like to generalize the integration between "Dataset" table
-        columns and external metadata by centralizing the distinction here
-        rather than in ApiBase.__get_dataset_metadata(). This would allow
-        "metadata": {"dataset"} for example to return all user-accessible
-        in-table metadata. (This should work with "server" as well.) I'll
-        defer this to a separate PR, however.
 
         Args:
             dataset: associated dataset

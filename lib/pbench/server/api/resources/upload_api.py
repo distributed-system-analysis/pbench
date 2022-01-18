@@ -137,6 +137,7 @@ class Upload(Resource):
     """
 
     CHUNK_SIZE = 65536
+    DEFAULT_RETENTION_DAYS = 90
 
     def __init__(self, config, logger):
         self.config = config
@@ -374,39 +375,36 @@ class Upload(Resource):
             # From this point, failure will remove the tarball from the file
             # tree.
             #
-            # TODO: the Tarball.delete method won't clean up empty controller
-            # directories, but to call FileTree.delete(dataset.name) we'd need
-            # to add parameters to the recovery object.
+            # NOTE: the Tarball.delete method won't clean up empty controller
+            # directories. This isn't ideal, but we don't want to deal with the
+            # potential synchronization issues and it'll become irrelevant with
+            # the switch to object store. For now we ignore it.
             recovery.add(tarball.delete)
 
             # Now that we have the tarball, extract the dataset timestamp from
             # the metadata.log file.
             #
-            # If this fails, the metadata.log is missing or corrupt, so fail
-            # the upload.
+            # If this fails, the metadata.log is missing or corrupt and we'll
+            # abort the upload with an erorr.
             #
             # NOTE: we're setting the Dataset "created" timestamp here, but it
             # won't be committed to the database until the "advance" operation
             # at the end.
-            #
-            # TODO: Create a Metadata key containing the full metadata.log JSON
-            # returned by `tarball.get_metadata()`; for now we're throwing away
-            # everything except the date, which we need for the main Dataset
-            # object.
             try:
-                date = tarball.get_metadata()["pbench"]["date"]
-                dataset.created = date
+                dataset.created = tarball.get_metadata()["pbench"]["date"]
             except Exception as exc:
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,
                     f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
                 )
 
-            # TODO: Implement per-user override of default (requires PR #2049)
             try:
                 retention_days = int(
                     self.config.get_conf(
-                        __name__, "pbench-server", "default-dataset-retention-days", 90
+                        __name__,
+                        "pbench-server",
+                        "default-dataset-retention-days",
+                        self.DEFAULT_RETENTION_DAYS,
                     )
                 )
             except Exception as e:
@@ -417,7 +415,7 @@ class Upload(Resource):
 
             # Calculate a default deletion time for the dataset, based on the
             # time it was uploaded rather than the time it was originally
-            # created which might be in the past.
+            # created which might much earlier.
             try:
                 retention = datetime.timedelta(days=retention_days)
                 deletion = dataset.uploaded + retention
