@@ -6,9 +6,20 @@ from pathlib import Path
 from datetime import datetime, tzinfo, timedelta
 from time import time as _time
 from configparser import NoSectionError, NoOptionError
+from typing import Dict, List, Union
 
 from pbench import PbenchConfig, _STD_DATETIME_FMT
 from pbench.common.exceptions import BadConfig
+
+
+# A type defined to conform to the semantic definition of a JSON structure
+# with Python syntax.
+JSONSTRING = str
+JSONNUMBER = Union[int, float]
+JSONVALUE = Union["JSONOBJECT", "JSONARRAY", JSONSTRING, JSONNUMBER, bool, None]
+JSONARRAY = List[JSONVALUE]
+JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
+JSON = JSONVALUE
 
 
 class simple_utc(tzinfo):

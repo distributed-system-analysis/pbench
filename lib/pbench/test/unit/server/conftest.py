@@ -4,7 +4,6 @@ import hashlib
 from freezegun import freeze_time
 from http import HTTPStatus
 import os
-import pytest
 import shutil
 import tempfile
 import uuid
@@ -12,6 +11,8 @@ from pathlib import Path
 from posix import stat_result
 from stat import ST_MTIME
 import tarfile
+
+import pytest
 
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth

@@ -2,11 +2,11 @@ import dateutil
 from http import HTTPStatus
 from logging import Logger
 from pathlib import Path
-import pytest
 import socket
 from typing import Any
 
 from freezegun.api import freeze_time
+import pytest
 
 from pbench.server import PbenchServerConfig
 from pbench.server.database.models.datasets import (

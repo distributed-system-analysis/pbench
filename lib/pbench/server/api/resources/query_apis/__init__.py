@@ -14,12 +14,11 @@ from flask.wrappers import Response
 from flask_restful import abort
 import requests
 
-from pbench.server import PbenchServerConfig
+from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
     API_OPERATION,
     ApiBase,
-    JSON,
     Schema,
     SchemaError,
     UnauthorizedAccess,

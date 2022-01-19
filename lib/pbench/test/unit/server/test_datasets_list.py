@@ -1,13 +1,12 @@
 import datetime
 from http import HTTPStatus
-import pytest
 import requests
 from typing import List
 
 from freezegun.api import freeze_time
+import pytest
 
-from pbench.server import PbenchServerConfig
-from pbench.server.api.resources import JSON
+from pbench.server import PbenchServerConfig, JSON
 from pbench.server.database.models.datasets import Dataset
 
 

@@ -4,7 +4,7 @@ from http import HTTPStatus
 import json
 from json.decoder import JSONDecodeError
 from logging import Logger
-from typing import Any, AnyStr, Callable, Dict, List, Union
+from typing import Any, AnyStr, Callable, List, Union
 
 from dateutil import parser as date_parser
 from flask import request
@@ -12,7 +12,7 @@ from flask.wrappers import Request, Response
 from flask_restful import Resource, abort
 from sqlalchemy.orm.query import Query
 
-from pbench.server import PbenchServerConfig
+from pbench.server import PbenchServerConfig, JSON, JSONVALUE
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -21,15 +21,6 @@ from pbench.server.database.models.datasets import (
     MetadataNotFound,
 )
 from pbench.server.database.models.users import User
-
-# A type defined to conform to the semantic definition of a JSON structure
-# with Python syntax.
-JSONSTRING = str
-JSONNUMBER = Union[int, float]
-JSONVALUE = Union["JSONOBJECT", "JSONARRAY", JSONSTRING, JSONNUMBER, bool, None]
-JSONARRAY = List[JSONVALUE]
-JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
-JSON = JSONVALUE
 
 
 class UnauthorizedAccess(Exception):
