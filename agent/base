@@ -209,6 +209,9 @@ function verify_tool_group {
         printf -- "\t${script_name}: invalid ${param_name} option (\"${group}\"), directory not found: ${tools_group_dir}\n" >&2
         return 1
     fi
+    if [[ -z "$(ls ${tools_group_dir})" ]]; then
+        printf -- "${script_name}: WARNING: No tools are registered\n" >&2
+    fi
     printf -- "${tools_group_dir}"
     return 0
 }
