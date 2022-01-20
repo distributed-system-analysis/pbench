@@ -22,7 +22,8 @@ def pbench_cfg(tmp_path, opt_pbench):
 
 
 @pytest.fixture
-def pbench_run(tmp_path):
+def pbench_run(monkeypatch, tmp_path):
+    monkeypatch.delenv("pbench_run")
     pbench_agent_d = tmp_path / "var" / "lib" / "pbench-agent"
     pbench_agent_d.mkdir(parents=True, exist_ok=True)
 
