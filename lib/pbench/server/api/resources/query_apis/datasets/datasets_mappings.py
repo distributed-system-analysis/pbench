@@ -5,10 +5,9 @@ from flask import jsonify
 from flask.wrappers import Request, Response
 from flask_restful import abort
 
-from pbench.server import PbenchServerConfig
+from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.resources import (
     ApiBase,
-    JSON,
     Schema,
     Parameter,
     ParamType,

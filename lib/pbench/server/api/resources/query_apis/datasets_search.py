@@ -3,9 +3,8 @@ from logging import Logger
 
 from flask import jsonify
 
-from pbench.server import PbenchServerConfig
+from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.resources import (
-    JSON,
     Parameter,
     ParamType,
     Schema,

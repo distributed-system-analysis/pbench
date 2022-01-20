@@ -5,8 +5,7 @@ from typing import Iterator
 import elasticsearch
 import pytest
 
-from pbench.server import PbenchServerConfig
-from pbench.server.api.resources import JSON
+from pbench.server import PbenchServerConfig, JSON
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 from pbench.server.filetree import FileTree
 from pbench.test.unit.server.headertypes import HeaderTypes

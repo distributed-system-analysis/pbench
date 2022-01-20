@@ -1,8 +1,9 @@
 import pytest
 
-from pbench.server.api.resources import Schema
+from pbench.server import JSON
 from pbench.server.api.auth import Auth
-from pbench.server.api.resources.query_apis import ElasticBase, JSON
+from pbench.server.api.resources import Schema
+from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.users import User
 
 

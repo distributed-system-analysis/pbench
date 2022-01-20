@@ -4,8 +4,8 @@ from typing import AnyStr, Union, List
 
 from flask_restful import abort
 
-from pbench.server import PbenchServerConfig
-from pbench.server.api.resources import JSON, Schema, SchemaError
+from pbench.server import PbenchServerConfig, JSON
+from pbench.server.api.resources import Schema, SchemaError
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 from pbench.server.database.models.datasets import (
     Dataset,

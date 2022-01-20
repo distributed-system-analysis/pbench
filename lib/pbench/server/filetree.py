@@ -5,11 +5,11 @@ import re
 import shutil
 from typing import Dict, List, Union
 
+from dateutil import parser as date_parser
 import selinux
 import tarfile
 
-from pbench.server import PbenchServerConfig
-from pbench.server.api.resources import JSON, convert_date
+from pbench.server import PbenchServerConfig, JSON
 from pbench.server.database.models.datasets import Dataset
 
 
@@ -278,7 +278,7 @@ class Tarball:
             "controller": {"hostname": metadata.get("controller", "hostname")},
             "pbench": {
                 "config": metadata.get("pbench", "config"),
-                "date": convert_date(metadata.get("pbench", "date"), None),
+                "date": date_parser.parse(metadata.get("pbench", "date"), None),
                 "script": metadata.get("pbench", "script"),
                 "version": metadata.get("pbench", "rpm-version"),
             },

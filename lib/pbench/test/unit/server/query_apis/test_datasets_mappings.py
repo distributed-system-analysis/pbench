@@ -1,5 +1,6 @@
-import pytest
 from http import HTTPStatus
+
+import pytest
 from sqlalchemy.exc import DatabaseError
 
 from pbench.server.database.models.template import Template

@@ -1,10 +1,9 @@
 from logging import Logger
 from typing import Iterator
 
-from pbench.server import PbenchServerConfig
+from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.resources import (
     API_OPERATION,
-    JSON,
     Schema,
     Parameter,
     ParamType,

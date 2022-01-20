@@ -1,5 +1,7 @@
-import pytest
 from http import HTTPStatus
+
+import pytest
+
 from pbench.server.api.resources.query_apis.controllers_list import ControllersList
 from pbench.test.unit.server.query_apis.commons import Commons
 

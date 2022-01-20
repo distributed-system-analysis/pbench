@@ -3,8 +3,8 @@ from flask import jsonify
 from flask_restful import abort
 from logging import Logger
 
-from pbench.server import PbenchServerConfig
-from pbench.server.api.resources import JSON, Schema, Parameter, ParamType
+from pbench.server import PbenchServerConfig, JSON
+from pbench.server.api.resources import Schema, Parameter, ParamType
 from pbench.server.api.resources.query_apis import (
     CONTEXT,
     ElasticBase,

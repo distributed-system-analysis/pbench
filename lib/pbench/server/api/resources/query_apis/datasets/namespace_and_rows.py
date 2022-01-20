@@ -4,13 +4,8 @@ from logging import Logger
 from flask import Response, jsonify
 from flask_restful import abort
 
-from pbench.server import PbenchServerConfig
-from pbench.server.api.resources import (
-    JSON,
-    Parameter,
-    ParamType,
-    Schema,
-)
+from pbench.server import PbenchServerConfig, JSON
+from pbench.server.api.resources import Parameter, ParamType, Schema
 from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import RunIdBase
 from pbench.server.database.models.template import TemplateNotFound
