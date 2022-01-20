@@ -5,7 +5,7 @@ import re
 import shutil
 from typing import Dict, List, Union
 
-import dateutil
+from dateutil import parser as date_parser
 import selinux
 import tarfile
 
@@ -278,7 +278,7 @@ class Tarball:
             "controller": {"hostname": metadata.get("controller", "hostname")},
             "pbench": {
                 "config": metadata.get("pbench", "config"),
-                "date": dateutil.parser.parse(metadata.get("pbench", "date"), None),
+                "date": date_parser.parse(metadata.get("pbench", "date"), None),
                 "script": metadata.get("pbench", "script"),
                 "version": metadata.get("pbench", "rpm-version"),
             },

@@ -1,8 +1,8 @@
 from http import HTTPStatus
-import requests
-import responses
 
 import pytest
+import requests
+import responses
 
 
 @responses.activate
