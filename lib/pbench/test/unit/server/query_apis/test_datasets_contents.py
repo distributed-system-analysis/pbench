@@ -58,9 +58,8 @@ class TestDatasetsContents(Commons):
         provide_metadata,
     ):
         """
-        Check the construction of Elasticsearch query URI and filtering of the
-        response body. Note that the mock set up by the attach_dataset fixture
-        matches the dataset name to the dataset's owner.
+        Check behaviour of Contents API when both sub-directories and
+        the list of files are present in the given payload.
         """
         response_payload = {
             "took": 7,
@@ -153,22 +152,21 @@ class TestDatasetsContents(Commons):
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
-        if expected_status == HTTPStatus.OK:
-            res_json = response.json
-            expected_result = {
-                "directories": ["sample1"],
-                "files": [
-                    {
-                        "name": "reference-result",
-                        "mtime": "2021-05-01T24:00:00",
-                        "size": 0,
-                        "mode": "0o777",
-                        "type": "sym",
-                        "linkpath": "sample1",
-                    }
-                ],
-            }
-            assert expected_result == res_json
+        res_json = response.json
+        expected_result = {
+            "directories": ["sample1"],
+            "files": [
+                {
+                    "name": "reference-result",
+                    "mtime": "2021-05-01T24:00:00",
+                    "size": 0,
+                    "mode": "0o777",
+                    "type": "sym",
+                    "linkpath": "sample1",
+                }
+            ],
+        }
+        assert expected_result == res_json
 
     def test_subdirectory_query(
         self,
@@ -180,9 +178,8 @@ class TestDatasetsContents(Commons):
         provide_metadata,
     ):
         """
-        Check the construction of Elasticsearch query URI and filtering of the
-        response body. Note that the mock set up by the attach_dataset fixture
-        matches the dataset name to the dataset's owner.
+        Check the API when only sub-directories are present in the
+        payload and NO files list.
         """
         response_payload = {
             "took": 7,
@@ -265,10 +262,9 @@ class TestDatasetsContents(Commons):
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
-        if expected_status == HTTPStatus.OK:
-            res_json = response.json
-            expected_result = {"directories": ["sample1"], "files": []}
-            assert expected_result == res_json
+        res_json = response.json
+        expected_result = {"directories": ["sample1"], "files": []}
+        assert expected_result == res_json
 
     def test_files_query(
         self,
@@ -280,9 +276,7 @@ class TestDatasetsContents(Commons):
         provide_metadata,
     ):
         """
-        Check the construction of Elasticsearch query URI and filtering of the
-        response body. Note that the mock set up by the attach_dataset fixture
-        matches the dataset name to the dataset's owner.
+        Checks the API when only list of files are present in a directory.
         """
         response_payload = {
             "took": 7,
@@ -340,21 +334,20 @@ class TestDatasetsContents(Commons):
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
-        if expected_status == HTTPStatus.OK:
-            res_json = response.json
-            expected_result = {
-                "directories": [],
-                "files": [
-                    {
-                        "name": "default.csv",
-                        "mtime": "2021-05-01T24:00:00",
-                        "size": 122,
-                        "mode": "0o644",
-                        "type": "reg",
-                    }
-                ],
-            }
-            assert expected_result == res_json
+        res_json = response.json
+        expected_result = {
+            "directories": [],
+            "files": [
+                {
+                    "name": "default.csv",
+                    "mtime": "2021-05-01T24:00:00",
+                    "size": 122,
+                    "mode": "0o644",
+                    "type": "reg",
+                }
+            ],
+        }
+        assert expected_result == res_json
 
     def test_empty_query(
         self,
@@ -366,9 +359,7 @@ class TestDatasetsContents(Commons):
         provide_metadata,
     ):
         """
-        Check the construction of Elasticsearch query URI and filtering of the
-        response body. Note that the mock set up by the attach_dataset fixture
-        matches the dataset name to the dataset's owner.
+        Check the API when a directory is empty.
         """
         response_payload = {
             "took": 55,
@@ -401,10 +392,9 @@ class TestDatasetsContents(Commons):
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
-        if expected_status == HTTPStatus.OK:
-            res_json = response.json
-            expected_result = {"directories": [], "files": []}
-            assert expected_result == res_json
+        res_json = response.json
+        expected_result = {"directories": [], "files": []}
+        assert expected_result == res_json
 
     def test_get_index(self, attach_dataset, provide_metadata):
         drb = Dataset.query(name="drb")
