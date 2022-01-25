@@ -62,11 +62,11 @@ class TestDatasetsContents(Commons):
         the list of files are present in the given payload.
         """
         response_payload = {
-            "took": 7,
+            "took": 6,
             "timed_out": False,
             "_shards": {"total": 3, "successful": 3, "skipped": 0, "failed": 0},
             "hits": {
-                "total": {"value": 1, "relation": "eq"},
+                "total": {"value": 2, "relation": "eq"},
                 "max_score": 0.0,
                 "hits": [
                     {
@@ -152,21 +152,22 @@ class TestDatasetsContents(Commons):
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
-        res_json = response.json
-        expected_result = {
-            "directories": ["sample1"],
-            "files": [
-                {
-                    "name": "reference-result",
-                    "mtime": "2021-05-01T24:00:00",
-                    "size": 0,
-                    "mode": "0o777",
-                    "type": "sym",
-                    "linkpath": "sample1",
-                }
-            ],
-        }
-        assert expected_result == res_json
+        if expected_status == HTTPStatus.OK:
+            res_json = response.json
+            expected_result = {
+                "directories": ["sample1"],
+                "files": [
+                    {
+                        "name": "reference-result",
+                        "mtime": "2021-05-01T24:00:00",
+                        "size": 0,
+                        "mode": "0o777",
+                        "type": "sym",
+                        "linkpath": "sample1",
+                    }
+                ],
+            }
+            assert expected_result == res_json
 
     def test_subdirectory_query(
         self,
@@ -186,7 +187,7 @@ class TestDatasetsContents(Commons):
             "timed_out": False,
             "_shards": {"total": 3, "successful": 3, "skipped": 0, "failed": 0},
             "hits": {
-                "total": {"value": 1, "relation": "eq"},
+                "total": {"value": 2, "relation": "eq"},
                 "max_score": 0.0,
                 "hits": [
                     {
@@ -262,9 +263,10 @@ class TestDatasetsContents(Commons):
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
-        res_json = response.json
-        expected_result = {"directories": ["sample1"], "files": []}
-        assert expected_result == res_json
+        if expected_status == HTTPStatus.OK:
+            res_json = response.json
+            expected_result = {"directories": ["sample1"], "files": []}
+            assert expected_result == res_json
 
     def test_files_query(
         self,
@@ -334,20 +336,21 @@ class TestDatasetsContents(Commons):
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
-        res_json = response.json
-        expected_result = {
-            "directories": [],
-            "files": [
-                {
-                    "name": "default.csv",
-                    "mtime": "2021-05-01T24:00:00",
-                    "size": 122,
-                    "mode": "0o644",
-                    "type": "reg",
-                }
-            ],
-        }
-        assert expected_result == res_json
+        if expected_status == HTTPStatus.OK:
+            res_json = response.json
+            expected_result = {
+                "directories": [],
+                "files": [
+                    {
+                        "name": "default.csv",
+                        "mtime": "2021-05-01T24:00:00",
+                        "size": 122,
+                        "mode": "0o644",
+                        "type": "reg",
+                    }
+                ],
+            }
+            assert expected_result == res_json
 
     def test_empty_query(
         self,
@@ -392,9 +395,10 @@ class TestDatasetsContents(Commons):
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
-        res_json = response.json
-        expected_result = {"directories": [], "files": []}
-        assert expected_result == res_json
+        if expected_status == HTTPStatus.OK:
+            res_json = response.json
+            expected_result = ["NOT_FOUND"]
+            assert expected_result == res_json
 
     def test_get_index(self, attach_dataset, provide_metadata):
         drb = Dataset.query(name="drb")
