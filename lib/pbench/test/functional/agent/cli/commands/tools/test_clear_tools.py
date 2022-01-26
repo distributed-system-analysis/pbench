@@ -20,7 +20,9 @@ def test_clear_tools_test12(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
     command = ["pbench-clear-tools"]
     out, err, exitcode = pytest.helpers.capture(command)
-    assert b'All tools removed from host, "testhost.example.com"' in err
+    assert (
+        b'All tools removed from group "default" on host "testhost.example.com"' in err
+    )
     assert exitcode == 0
     assert mpstat.exists() is False
     assert default_group.exists() is False
@@ -79,7 +81,7 @@ def test_clear_tools_test66(monkeypatch, agent_config, pbench_run, pbench_cfg):
     command = ["pbench-clear-tools", "--group=bad"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert exitcode == 1
-    assert b"\tpbench-clear-tools: invalid" in out
+    assert b"pbench-clear-tools: invalid" in err
 
 
 def test_clear_tools_test67(monkeypatch, agent_config, pbench_run, pbench_cfg):
@@ -108,10 +110,7 @@ def test_clear_tools_test67(monkeypatch, agent_config, pbench_run, pbench_cfg):
     ]
     out, err, exitcode = pytest.helpers.capture(command)
     assert exitcode == 0
-    assert (
-        b'The given remote host, "doesnotexist.example.com", is not a directory in'
-        in err
-    )
+    assert b'No remote host "doesnotexist.example.com" in group default' in err
     assert iostat_tool.exists() is False
     assert vmstat_tool.exists() is False
     assert pidstat_tool.exists() is False
