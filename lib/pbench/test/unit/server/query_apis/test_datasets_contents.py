@@ -454,7 +454,9 @@ class TestDatasetsContents(Commons):
             self.elastic_endpoint,
             self.payload,
             index,
-            expected_status,
+            expected_status
+            if expected_status != HTTPStatus.OK
+            else HTTPStatus.NOT_FOUND,
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],

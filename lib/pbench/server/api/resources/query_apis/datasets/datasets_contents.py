@@ -10,7 +10,7 @@ from pbench.server.api.resources import (
     Parameter,
     ParamType,
 )
-from pbench.server.api.resources.query_apis import CONTEXT
+from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import RunIdBase
 
 
@@ -197,11 +197,10 @@ class DatasetsContents(RunIdBase):
                 ]
             }
         """
-        count = int(es_json["hits"]["total"]["value"])
-        if count == 0:
-            abort(
+        if len(es_json["hits"]["hits"]) == 0:
+            raise PostprocessError(
                 HTTPStatus.NOT_FOUND,
-                message=f"No directory '{context['parent']}' in '{context['run_id']}' contents.",
+                f"No directory '{context['parent']}' in '{context['run_id']}' contents.",
             )
 
         dir_list = []
