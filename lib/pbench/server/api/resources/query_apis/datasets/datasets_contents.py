@@ -199,8 +199,10 @@ class DatasetsContents(RunIdBase):
         """
         count = int(es_json["hits"]["total"]["value"])
         if count == 0:
-            self.logger.info("No data returned by Elasticsearch")
-            return ["NOT_FOUND"]
+            abort(
+                HTTPStatus.NOT_FOUND,
+                message=f"No directory '{context['parent']}' in '{context['run_id']}' contents.",
+            )
 
         dir_list = []
         file_list = []

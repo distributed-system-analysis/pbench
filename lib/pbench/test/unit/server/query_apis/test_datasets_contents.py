@@ -352,6 +352,70 @@ class TestDatasetsContents(Commons):
             }
             assert expected_result == res_json
 
+    def test_no_subdirectory_no_files_query(
+        self,
+        server_config,
+        query_api,
+        pbench_token,
+        build_auth_header,
+        find_template,
+        provide_metadata,
+    ):
+        """
+        Check the API when no subdirectory or files are present.
+        """
+        response_payload = {
+            "took": 7,
+            "timed_out": False,
+            "_shards": {"total": 3, "successful": 3, "skipped": 0, "failed": 0},
+            "hits": {
+                "total": {"value": 1, "relation": "eq"},
+                "max_score": 0.0,
+                "hits": [
+                    {
+                        "_index": "riya-pbench.v6.run-toc.2021-05",
+                        "_type": "_doc",
+                        "_id": "9e95ccb385b7a7a2d70ededa07c391da",
+                        "_score": 0.0,
+                        "_source": {
+                            "parent": "/",
+                            "directory": "/1-default",
+                            "mtime": "2021-05-01T24:00:00",
+                            "mode": "0o755",
+                            "run_data_parent": "ece030bdgfkjasdkf7435e6a7a6be804",
+                            "authorization": {"owner": "1", "access": "private"},
+                            "@timestamp": "2021-05-01T24:00:00",
+                        },
+                    }
+                ],
+            },
+        }
+        index = self.build_index_from_metadata()
+
+        # get_expected_status() expects to read username and access from the
+        # JSON client payload, however this API acquires that information
+        # from the Dataset. Construct a fake payload corresponding to the
+        # attach_dataset fixture.
+        auth_json = {"user": "drb", "access": "private"}
+        expected_status = self.get_expected_status(
+            auth_json, build_auth_header["header_param"]
+        )
+
+        response = query_api(
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            self.payload,
+            index,
+            expected_status,
+            json=response_payload,
+            status=HTTPStatus.OK,
+            headers=build_auth_header["header"],
+        )
+        if expected_status == HTTPStatus.OK:
+            res_json = response.json
+            expected_result = {"directories": [], "files": []}
+            assert expected_result == res_json
+
     def test_empty_query(
         self,
         server_config,
@@ -395,9 +459,11 @@ class TestDatasetsContents(Commons):
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
         )
-        if expected_status == HTTPStatus.OK:
+        if expected_status == HTTPStatus.NOT_FOUND:
             res_json = response.json
-            expected_result = ["NOT_FOUND"]
+            expected_result = {
+                "message": "No directory '/1-default' in 'random_md5_string1' contents."
+            }
             assert expected_result == res_json
 
     def test_get_index(self, attach_dataset, provide_metadata):
