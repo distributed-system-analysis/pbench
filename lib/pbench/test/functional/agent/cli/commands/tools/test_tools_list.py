@@ -7,6 +7,7 @@ TRACEBACK = b"Traceback (most recent call last):\n"
 
 BAD_GROUP_ERR = b"Bad tool group: "
 TOOL_ERR = b"Tool does not exist in any group: "
+NO_TOOL_GROUP = b"No tool groups found"
 
 
 class Test_list_tools_no_tools_registered:
@@ -22,7 +23,7 @@ class Test_list_tools_no_tools_registered:
         command = ["pbench-list-tools"]
         out, err, exitcode = pytest.helpers.capture(command)
         assert TRACEBACK not in err
-        assert EMPTY == err
+        assert NO_TOOL_GROUP in err
         assert EMPTY == out
         assert exitcode == 0
 
@@ -71,7 +72,7 @@ class Test_list_tools_no_tools_registered:
     def test_option(self, agent_config):
         command = ["pbench-list-tools", "--with-option"]
         out, err, exitcode = pytest.helpers.capture(command)
-        assert EMPTY == err
+        assert NO_TOOL_GROUP in err
         assert EMPTY == out
         assert exitcode == 0
 

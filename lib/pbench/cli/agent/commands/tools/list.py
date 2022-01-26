@@ -6,8 +6,6 @@ or all groups which contain a specific tool.
 
 """
 
-import sys
-
 import click
 
 from pbench.agent.tool_group import BadToolGroup
@@ -23,7 +21,13 @@ class ListTools(ToolCommand):
         super(ListTools, self).__init__(context)
 
     @staticmethod
-    def print_results(toolinfo: dict, with_option: bool):
+    def print_results(toolinfo: dict, with_option: bool) -> bool:
+        """
+        Print the results.
+
+        Return True indicating that something was printed.
+        """
+        printed = False
         for group, gval in sorted(toolinfo.items()):
             for host, tools in sorted(gval.items()):
                 if tools:
@@ -35,11 +39,13 @@ class ListTools(ToolCommand):
                         ]
                         s = ", ".join(tools_with_options)
                     print(f"group: {group}; host: {host}; tools: {s}")
+                    printed = True
+        return printed
 
-    def execute(self):
+    def execute(self) -> int:
         if not self.pbench_run.exists():
             self.logger.warn("The %s directory does not exist", self.pbench_run)
-            return 0
+            return 1
 
         # list tools in one or all groups
         if self.context.group:
@@ -70,7 +76,17 @@ class ListTools(ToolCommand):
                         )
 
             if tool_info:
-                self.print_results(tool_info, self.context.with_option)
+                found = self.print_results(tool_info, self.context.with_option)
+                if not found:
+                    msg = "No tools found"
+                    if self.context.group:
+                        msg += f' in group "{self.context.group[0]}"'
+                    self.logger.warn(msg)
+            else:
+                self.logger.warn("No tool groups found")
+
+            return 0
+
         else:
             # List the groups which include this tool
             tool = self.context.name
@@ -98,6 +114,7 @@ class ListTools(ToolCommand):
                             else ""
                         )
                         found = True
+
             if found:
                 self.print_results(tool_info, self.context.with_option)
                 return 0
@@ -141,10 +158,7 @@ def _name_option(f):
         "--name",
         expose_value=False,
         callback=callback,
-        help=(
-            "list the tool groups in which <tool-name> is used.\n"
-            "Not allowed with the --group option"
-        ),
+        help=("list the tool groups in which <tool-name> is used."),
     )(f)
 
 
@@ -166,7 +180,7 @@ def _with_option(f):
     )(f)
 
 
-@click.command()
+@click.command(help="list all tools or filter by name or group")
 @common_options
 @_name_option
 @_group_option
@@ -174,4 +188,4 @@ def _with_option(f):
 @pass_cli_context
 def main(ctxt):
     status = ListTools(ctxt).execute()
-    sys.exit(status)
+    click.get_current_context().exit(status)
