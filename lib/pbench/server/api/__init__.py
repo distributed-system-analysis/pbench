@@ -20,6 +20,9 @@ from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.server.api.resources.graphql_api import GraphQL
 from pbench.server.api.resources.query_apis.controllers_list import ControllersList
+from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
+    DatasetsContents,
+)
 from pbench.server.api.resources.query_apis.datasets.datasets_mappings import (
     DatasetsMappings,
 )
@@ -60,6 +63,11 @@ def register_endpoints(api, app, config):
     api.add_resource(
         MonthIndices,
         f"{base_uri}/controllers/months",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        DatasetsContents,
+        f"{base_uri}/datasets/contents",
         resource_class_args=(config, logger),
     )
     api.add_resource(

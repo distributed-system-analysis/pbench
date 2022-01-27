@@ -54,6 +54,7 @@ class TestEndpointConfig:
                 # see endpoint_configure.py for more detail.
                 "controllers_list": f"{uri}/controllers/list",
                 "controllers_months": f"{uri}/controllers/months",
+                "datasets_contents": f"{uri}/datasets/contents",
                 "datasets_delete": f"{uri}/datasets/delete",
                 "datasets_detail": f"{uri}/datasets/detail",
                 "datasets_list": f"{uri}/datasets/list",
