@@ -6,7 +6,7 @@ USAGE = b"Usage: pbench-list-tools [OPTIONS]"
 TRACEBACK = b"Traceback (most recent call last):\n"
 
 BAD_GROUP_ERR = b"Bad tool group: "
-TOOL_ERR = b'Tool "unknown" not found'
+TOOL_ERR = b'Tool "unknown" not found in '
 NO_TOOL_GROUP = b"No tool groups found"
 
 
@@ -30,7 +30,7 @@ class Test_list_tools_no_tools_registered:
     def test_name(self, agent_config):
         command = ["pbench-list-tools", "--name", "unknown"]
         out, err, exitcode = pytest.helpers.capture(command)
-        assert TOOL_ERR in err
+        assert TOOL_ERR + b"any group" in err
         assert EMPTY == out
         assert exitcode == 1
 
@@ -165,7 +165,7 @@ class Test_list_tools_tools_registered:
     def test_non_existent_name(self, tool, agent_config):
         command = ["pbench-list-tools", "-n", "unknown"]
         out, err, exitcode = pytest.helpers.capture(command)
-        assert TOOL_ERR in err and exitcode == 1
+        assert TOOL_ERR + b"any group" in err and exitcode == 1
         assert EMPTY == out
 
     def test_existing_group_name(self, tool, agent_config):
@@ -177,7 +177,7 @@ class Test_list_tools_tools_registered:
     def test_existing_group_non_existent_name(self, tool, agent_config):
         command = ["pbench-list-tools", "--group", "default", "--name", "unknown"]
         out, err, exitcode = pytest.helpers.capture(command)
-        assert TOOL_ERR in err and exitcode == 1
+        assert TOOL_ERR + b"default" in err and exitcode == 1
         assert EMPTY == out
 
     def test_non_existent_group_existing_name(self, tool, agent_config):
@@ -191,9 +191,30 @@ class Test_list_tools_tools_registered:
         out, err, exitcode = pytest.helpers.capture(command)
         assert EMPTY == err and exitcode == 0
         assert (
-            b"group: default; host: testhost.example.com; tools: mpstat, perf, sar\ngroup: default; host: testhost2.example.com; tools: iostat, proc-vmstat, sar\n"
+            b"group: default; host: testhost.example.com; tools: mpstat, perf, sar\n"
+            b"group: default; host: testhost2.example.com; tools: iostat, proc-vmstat, sar\n"
             == out
         )
+
+    def test_no_tools_found(self, pbench_run, agent_config):
+        p = pbench_run / "tools-v1-default"
+        p.mkdir(parents=True)
+
+        command = ["pbench-list-tools"]
+        out, err, exitcode = pytest.helpers.capture(command)
+        assert exitcode == 0
+        assert EMPTY == out
+        assert b"No tools found\n" == err
+
+    def test_no_tools_found_in_group(self, pbench_run, agent_config):
+        p = pbench_run / "tools-v1-default"
+        p.mkdir(parents=True)
+
+        command = ["pbench-list-tools", "--group", "default"]
+        out, err, exitcode = pytest.helpers.capture(command)
+        assert exitcode == 0
+        assert EMPTY == out
+        assert b'No tools found in group "default"' in err
 
 
 class Test_list_tools_tools_registered_with_options:

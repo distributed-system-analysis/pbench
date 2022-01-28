@@ -43,6 +43,7 @@ def test_clear_tools_test13(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
     command = ["pbench-clear-tools", "--remote=fubar2"]
     out, err, exitcode = pytest.helpers.capture(command)
+    assert b'Removed "mpstat" from host "fubar2" in tools group "default"' in err
     assert exitcode == 0
     assert default_mpstat.exists() is True
     assert foo_mpstat.exists() is False
@@ -81,8 +82,8 @@ def test_clear_tools_test66(monkeypatch, agent_config, pbench_run, pbench_cfg):
     monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
     command = ["pbench-clear-tools", "--group=bad"]
     out, err, exitcode = pytest.helpers.capture(command)
+    assert b'pbench-clear-tools: invalid --group option "bad"' in err
     assert exitcode == 1
-    assert b"pbench-clear-tools: invalid" in err
 
 
 def test_clear_tools_test67(monkeypatch, agent_config, pbench_run, pbench_cfg):
@@ -185,3 +186,20 @@ def test_clear_tools_test69(monkeypatch, agent_config, pbench_run, pbench_cfg):
     assert pidstat5_tool.exists() is False
     assert pidstat6_tool.exists() is False
     assert pidstat7_tool.exists() is False
+
+
+def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
+    """ Attempt to clear the wrong tool, by name """
+    monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
+    default_group = pbench_run / "tools-v1-default"
+    default_group.mkdir(parents=True)
+    fubar5_host = default_group / "fubar5.example.com"
+    fubar5_host.mkdir(parents=True, exist_ok=True)
+    pidstat5_tool = fubar5_host / "pidstat"
+    pidstat5_tool.touch()
+
+    command = ["pbench-clear-tools", "--name=vmstat"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+    assert b'Tool "vmstat" not found' in err
+    assert exitcode == 0
