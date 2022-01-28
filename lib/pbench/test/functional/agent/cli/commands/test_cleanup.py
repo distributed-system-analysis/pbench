@@ -25,10 +25,10 @@ def test_cleanup(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
     # test-64
     command = ["pbench-cleanup"]
-    err, out, exitcode = pytest.helpers.capture(command)
+    out, err, exitcode = pytest.helpers.capture(command)
     assert (
         b"pbench-cleanup deprecated, will be removed in future release in favor of pbench-clear-results\n"
-        in out
+        in err
     )
     assert exitcode == 0
 
