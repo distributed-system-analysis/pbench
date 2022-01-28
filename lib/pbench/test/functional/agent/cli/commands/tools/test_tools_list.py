@@ -6,7 +6,7 @@ USAGE = b"Usage: pbench-list-tools [OPTIONS]"
 TRACEBACK = b"Traceback (most recent call last):\n"
 
 BAD_GROUP_ERR = b"Bad tool group: "
-TOOL_ERR = b"Tool does not exist in any group: "
+TOOL_ERR = b'Tool "unknown" not found'
 NO_TOOL_GROUP = b"No tool groups found"
 
 
@@ -28,7 +28,7 @@ class Test_list_tools_no_tools_registered:
         assert exitcode == 0
 
     def test_name(self, agent_config):
-        command = ["pbench-list-tools", "--name", "foo"]
+        command = ["pbench-list-tools", "--name", "unknown"]
         out, err, exitcode = pytest.helpers.capture(command)
         assert TOOL_ERR in err
         assert EMPTY == out

@@ -119,9 +119,9 @@ class ListTools(ToolCommand):
                 self.print_results(tool_info, self.context.with_option)
                 return 0
             else:
-                self.logger.error(
-                    "Tool does not exist in any group: %s", self.context.name
-                )
+                msg = f'Tool "{self.context.name}" not found in '
+                msg += self.context.group[0] if self.context.group else "any group"
+                self.logger.error(msg)
                 return 1
 
 
