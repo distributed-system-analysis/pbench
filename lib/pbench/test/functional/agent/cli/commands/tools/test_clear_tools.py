@@ -5,6 +5,7 @@ def test_pbench_clear_tools_help():
     command = ["pbench-clear-tools", "--help"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"Usage: pbench-clear-tools [OPTIONS]" in out
+    assert b"" == err
     assert exitcode == 0
 
 
@@ -23,6 +24,7 @@ def test_clear_tools_test12(monkeypatch, agent_config, pbench_run, pbench_cfg):
     assert (
         b'All tools removed from group "default" on host "testhost.example.com"' in err
     )
+    assert b"" == out
     assert exitcode == 0
     assert mpstat.exists() is False
     assert default_group.exists() is False
@@ -44,6 +46,7 @@ def test_clear_tools_test13(monkeypatch, agent_config, pbench_run, pbench_cfg):
     command = ["pbench-clear-tools", "--remote=fubar2"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert b'Removed "mpstat" from host "fubar2" in tools group "default"' in err
+    assert b"" == out
     assert exitcode == 0
     assert default_mpstat.exists() is True
     assert foo_mpstat.exists() is False
@@ -82,6 +85,7 @@ def test_clear_tools_test66(monkeypatch, agent_config, pbench_run, pbench_cfg):
     monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
     command = ["pbench-clear-tools", "--group=bad"]
     out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
     assert b'pbench-clear-tools: invalid --group option "bad"' in err
     assert exitcode == 1
 
@@ -111,8 +115,9 @@ def test_clear_tools_test67(monkeypatch, agent_config, pbench_run, pbench_cfg):
         "--remotes=fubar3.example.com,doesnotexist.example.com,fubar4.example.com",
     ]
     out, err, exitcode = pytest.helpers.capture(command)
-    assert exitcode == 0
+    assert b"" == out
     assert b'No remote host "doesnotexist.example.com" in group default' in err
+    assert exitcode == 0
     assert iostat_tool.exists() is False
     assert vmstat_tool.exists() is False
     assert pidstat_tool.exists() is False
@@ -145,11 +150,11 @@ def test_clear_tools_test68(monkeypatch, agent_config, pbench_run, pbench_cfg):
         "--remotes=fubar5.example.com,fubar6.example.com",
     ]
     out, err, exitcode = pytest.helpers.capture(command)
+    assert exitcode == 0
     assert vmstat6_tool.exists() is False
     assert vmstat5_tool.exists() is False
     assert turbostat_tool.exists() is True
     assert pidstat_tool.exists() is True
-    assert exitcode == 0
 
 
 def test_clear_tools_test69(monkeypatch, agent_config, pbench_run, pbench_cfg):
