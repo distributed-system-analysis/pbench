@@ -112,7 +112,9 @@ class BaseCommand(metaclass=abc.ABCMeta):
         try:
             self.tool_group_dir = self.gen_tools_group_dir(group)
         except BadToolGroup as exc:
-            click.echo(f'{self.name}: invalid --group option "{group}" ({exc})')
+            click.echo(
+                f'{self.name}: invalid --group option "{group}" ({exc})', err=True
+            )
             ret_code = 1
         else:
             ret_code = 0
