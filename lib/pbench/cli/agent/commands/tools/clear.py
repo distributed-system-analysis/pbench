@@ -35,6 +35,12 @@ class ClearTools(ToolCommand):
             # from the tools group directory.
             remotes = self.remote(self.tool_group_dir)
             if not remotes:
+                # FIXME:  This is a weird case -- the group directory exists,
+                #  but contains no remotes. This is the result of clearing the
+                #  tools from a group which has already been cleared, because
+                #  the first clear does not remove the group directory.  This
+                #  behavior might be desirable for the `default` directory, but
+                #  it seems wrong for custom groups.
                 self.logger.error(f'No such group "{self.context.group}".')
                 return 1
 
@@ -53,6 +59,8 @@ class ClearTools(ToolCommand):
                 # Discover all the tools registered for this remote
                 names = self.tools(tg_dir_r)
                 if not names:
+                    # FIXME:  this is another odd case -- the remote subdirectory
+                    #  exists, but it's empty.  (We'll remove it below.)
                     self.logger.warn(
                         'No tools in group "%s" on host "%s".',
                         self.context.group,

@@ -77,6 +77,8 @@ def test_clear_tools_test65(monkeypatch, agent_config, pbench_run, pbench_cfg):
     assert pidstat_tool.exists() is False
     assert turbostat_tool.exists() is False
     assert mpstat_tool.exists() is False
+    # FIXME:  Why do we want to retain the group directory after deleting everything out of it??
+    # FIXME:  Contrary to the test docstring, this test doesn't create or assert that the default group is unmolested.
     assert good_group.exists() is True
 
 
