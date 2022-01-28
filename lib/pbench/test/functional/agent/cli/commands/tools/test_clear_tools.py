@@ -39,6 +39,7 @@ def test_clear_tools_test13(monkeypatch, agent_config, pbench_run, pbench_cfg):
     foo_group = pbench_run / "tools-v1-default" / "fubar2"
     foo_group.mkdir(parents=True)
     foo_mpstat = foo_group / "mpstat"
+    foo_mpstat.touch()
 
     command = ["pbench-clear-tools", "--remote=fubar2"]
     out, err, exitcode = pytest.helpers.capture(command)
