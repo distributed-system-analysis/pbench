@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""quay-repo: idempotent method to ensure a given repository exists in Quay.io
+
+If the repository exists already, no action is taken (we don't want to cause
+unnecessary traffic to Quay.io).
+
+If the repository does not exist, it is created with visibility public, and
+the core team added as admins.
+
+Returns 0 on success
+Returns 1 on failure (
+"""
+
+import json
+import os
+from pathlib import Path
+import requests
+import sys
+
+
+prog = Path(sys.argv[0]).name
+
+home = os.environ.get("HOME", "")
+quay_bearer_token_file = Path(f"{home}/") / ".config" / "pbench" / "quay_bearer.token"
+try:
+    quay_bearer_token = quay_bearer_token_file.read_text()
+except Exception as exc:
+    print(
+        f"[{prog}] ERROR - failure reading Quay.io API bearer token from"
+        f" {quay_bearer_token_file}, {exc}",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+else:
+    quay_bearer_token = quay_bearer_token.strip()
+    if not quay_bearer_token:
+        print(
+            f"[{prog}] ERROR - Quay.io API bearer token not found in"
+            f" {quay_bearer_token_file}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+headers = {
+    "User-Agent": "pbench quay-repo",
+    "Authorization": f"Bearer {quay_bearer_token}",
+}
+session = requests.Session()
+session.headers.update(headers)
+
+
+def exists(session, repo):
+    url = f"https://quay.io/api/v1/repository/pbench/{repo}"
+    response = session.get(url, allow_redirects=False)
+    if response.status_code == 404:
+        return False
+    elif response.status_code == 200:
+        return True
+    else:
+        print(
+            f"[{prog}] ERROR - 'GET {url}' failed with {response.status_code},"
+            f" '{response.text}'",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
+def create(session, repo):
+    url = "https://quay.io/api/v1/repository"
+    body = {
+        "repository": repo,
+        "visibility": "public",
+        "namespace": "pbench",
+        "description": "",
+        "repo_kind": "image",
+    }
+    payload = json.dumps(body)
+    mod_headers = headers.copy()
+    mod_headers["Content-Type"] = "application/json"
+
+    response = session.post(
+        url, headers=mod_headers, data=payload, allow_redirects=False
+    )
+    if response.status_code != 201:
+        print(
+            f"[{prog}] ERROR - 'POST {url}', with body '{payload}', failed"
+            f" with {response.status_code}, '{response.text}'",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
+def add_core(session, repo):
+    url = f"https://quay.io/api/v1/repository/pbench/{repo}/permissions/team/core"
+    body = {"role": "admin"}
+    payload = json.dumps(body)
+    mod_headers = headers.copy()
+    mod_headers["Content-Type"] = "application/json"
+    response = session.put(
+        url, headers=mod_headers, data=payload, allow_redirects=False
+    )
+    if response.status_code != 200:
+        print(
+            f"[{prog}] ERROR - 'PUT {url}', with body '{payload}', failed"
+            f" with {response.status_code}, '{response.text}'",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
+def make_public(session, repo):
+    url = f"https://quay.io/api/v1/repository/pbench/{repo}/changevisibility"
+    body = {"visibility": "public"}
+    payload = json.dumps(body)
+    mod_headers = headers.copy()
+    mod_headers["Content-Type"] = "application/json"
+    response = session.post(
+        url, headers=mod_headers, data=payload, allow_redirects=False
+    )
+    if response.status_code != 200:
+        print(
+            f"[{prog}] ERROR - 'POST {url}', with body '{payload}', failed"
+            f" with {response.status_code}, '{response.text}'",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
+repo_arg = sys.argv[1]
+if not exists(session, repo_arg):
+    create(session, repo_arg)
+    add_core(session, repo_arg)
+    print(f"{repo_arg} created")
+else:
+    try:
+        force = sys.argv[2]
+    except IndexError:
+        pass
+    else:
+        make_public(session, repo_arg)
+        print(f"{repo_arg} made public")
+        add_core(session, repo_arg)
+        print(f"{repo_arg} core added")
