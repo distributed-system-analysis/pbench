@@ -20,7 +20,13 @@ fi
 # in the container.
 find . -name __pycache__ -exec rm -r {} \; > /dev/null 2>&1
 
-podman run -it --userns=keep-id ${EXTRA_PODMAN_SWITCHES} --pull=always \
-    --volume $(pwd):/src/pbench:z -w /src/pbench \
-    --env-host --ulimit nofile=65536:65536 \
-    --rm ${IMAGE_REPO}/pbench-devel:${_branch_name} /bin/bash -c "${*}"
+podman run \
+    --pull=always \
+    --userns=keep-id \
+    --volume $(pwd):/src/pbench:z \
+    -w /src/pbench \
+    --env-host \
+    --ulimit nofile=65536:65536 \
+    --rm \
+    ${EXTRA_PODMAN_SWITCHES} \
+    ${IMAGE_REPO}/pbench-devel:${_branch_name} /bin/bash -c "${*}"
