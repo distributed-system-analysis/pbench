@@ -16,10 +16,6 @@ if [[ -z "${IMAGE_REPO}" ]]; then
     IMAGE_REPO="quay.io/pbench"
 fi
 
-# We delete any python compiler caches to avoid conflicts with the python compiler
-# in the container.
-find . -name __pycache__ -exec rm -r {} \; > /dev/null 2>&1
-
 podman run \
     --pull=always \
     --userns=keep-id \
