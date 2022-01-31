@@ -21,3 +21,7 @@ PATH=$(python3 -m site --user-base)/bin:${PATH}:/usr/sbin
 unset PYTHONPATH
 pip3 install --user -r lint-requirements.txt -r docs/requirements.txt -r agent/requirements.txt -r server/requirements.txt -r agent/test-requirements.txt -r server/test-requirements.txt
 python3 setup.py develop --user
+
+# We delete any python compiler caches to avoid conflicts with the python compiler
+# in the container.
+find . \( -name __pycache__ -o -path "*/__pycache__/*" \) -delete
