@@ -44,7 +44,7 @@ class ClearTools(ToolCommand):
                 self.logger.error(f'No such group "{self.context.group}".')
                 return 1
 
-        tool_not_found = bool(self.context.name)  # Can't not find if not specified
+        tool_not_found = True  # Not found, yet
         for remote in remotes:
             tg_dir_r = self.tool_group_dir / remote
             if not tg_dir_r.exists():
@@ -96,7 +96,7 @@ class ClearTools(ToolCommand):
                     self.logger.error("Failed to remove remote directory %s", tg_dir_r)
                     errors = 1
 
-        if tool_not_found:
+        if self.context.name and tool_not_found:
             self.logger.warn(f'Tool "{self.context.name}" not found')
 
         return 0 if errors == 0 else 1
