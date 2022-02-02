@@ -5,6 +5,7 @@ def test_pbench_clear_tools_help():
     command = ["pbench-clear-tools", "--help"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"Usage: pbench-clear-tools [OPTIONS]" in out
+    assert b"" == err
     assert exitcode == 0
 
 
@@ -20,7 +21,10 @@ def test_clear_tools_test12(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
     command = ["pbench-clear-tools"]
     out, err, exitcode = pytest.helpers.capture(command)
-    assert b'All tools removed from host, "testhost.example.com"' in err
+    assert (
+        b'All tools removed from group "default" on host "testhost.example.com"' in err
+    )
+    assert b"" == out
     assert exitcode == 0
     assert mpstat.exists() is False
     assert default_group.exists() is False
@@ -37,9 +41,12 @@ def test_clear_tools_test13(monkeypatch, agent_config, pbench_run, pbench_cfg):
     foo_group = pbench_run / "tools-v1-default" / "fubar2"
     foo_group.mkdir(parents=True)
     foo_mpstat = foo_group / "mpstat"
+    foo_mpstat.touch()
 
     command = ["pbench-clear-tools", "--remote=fubar2"]
     out, err, exitcode = pytest.helpers.capture(command)
+    assert b'Removed "mpstat" from host "fubar2" in tools group "default"' in err
+    assert b"" == out
     assert exitcode == 0
     assert default_mpstat.exists() is True
     assert foo_mpstat.exists() is False
@@ -70,6 +77,8 @@ def test_clear_tools_test65(monkeypatch, agent_config, pbench_run, pbench_cfg):
     assert pidstat_tool.exists() is False
     assert turbostat_tool.exists() is False
     assert mpstat_tool.exists() is False
+    # FIXME:  Why do we want to retain the group directory after deleting everything out of it??
+    # FIXME:  Contrary to the test docstring, this test doesn't create or assert that the default group is unmolested.
     assert good_group.exists() is True
 
 
@@ -78,8 +87,9 @@ def test_clear_tools_test66(monkeypatch, agent_config, pbench_run, pbench_cfg):
     monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
     command = ["pbench-clear-tools", "--group=bad"]
     out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+    assert b'pbench-clear-tools: invalid --group option "bad"' in err
     assert exitcode == 1
-    assert b"\tpbench-clear-tools: invalid" in out
 
 
 def test_clear_tools_test67(monkeypatch, agent_config, pbench_run, pbench_cfg):
@@ -107,11 +117,9 @@ def test_clear_tools_test67(monkeypatch, agent_config, pbench_run, pbench_cfg):
         "--remotes=fubar3.example.com,doesnotexist.example.com,fubar4.example.com",
     ]
     out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+    assert b'No remote host "doesnotexist.example.com" in group default' in err
     assert exitcode == 0
-    assert (
-        b'The given remote host, "doesnotexist.example.com", is not a directory in'
-        in err
-    )
     assert iostat_tool.exists() is False
     assert vmstat_tool.exists() is False
     assert pidstat_tool.exists() is False
@@ -144,11 +152,11 @@ def test_clear_tools_test68(monkeypatch, agent_config, pbench_run, pbench_cfg):
         "--remotes=fubar5.example.com,fubar6.example.com",
     ]
     out, err, exitcode = pytest.helpers.capture(command)
+    assert exitcode == 0
     assert vmstat6_tool.exists() is False
     assert vmstat5_tool.exists() is False
     assert turbostat_tool.exists() is True
     assert pidstat_tool.exists() is True
-    assert exitcode == 0
 
 
 def test_clear_tools_test69(monkeypatch, agent_config, pbench_run, pbench_cfg):
@@ -185,3 +193,20 @@ def test_clear_tools_test69(monkeypatch, agent_config, pbench_run, pbench_cfg):
     assert pidstat5_tool.exists() is False
     assert pidstat6_tool.exists() is False
     assert pidstat7_tool.exists() is False
+
+
+def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
+    """ Attempt to clear the wrong tool, by name """
+    monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
+    default_group = pbench_run / "tools-v1-default"
+    default_group.mkdir(parents=True)
+    fubar5_host = default_group / "fubar5.example.com"
+    fubar5_host.mkdir(parents=True, exist_ok=True)
+    pidstat5_tool = fubar5_host / "pidstat"
+    pidstat5_tool.touch()
+
+    command = ["pbench-clear-tools", "--name=vmstat"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+    assert b'Tool "vmstat" not found' in err
+    assert exitcode == 0
