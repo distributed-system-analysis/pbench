@@ -79,7 +79,7 @@ def test_clear_tools_test65(monkeypatch, agent_config, pbench_run, pbench_cfg):
     assert mpstat_tool.exists() is False
     # FIXME:  Why do we want to retain the group directory after deleting everything out of it??
     # FIXME:  Contrary to the test docstring, this test doesn't create or assert that the default group is unmolested.
-    assert good_group.exists() is True
+    assert good_group.exists() is False
 
 
 def test_clear_tools_test66(monkeypatch, agent_config, pbench_run, pbench_cfg):
@@ -208,5 +208,151 @@ def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
     command = ["pbench-clear-tools", "--name=vmstat"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"" == out
-    assert b'Tool "vmstat" not found' in err
+    assert b"Tools ['vmstat'] not found\n" in err
     assert exitcode == 0
+
+
+def test_clear_tools_test71(monkeypatch, agent_config, pbench_run, pbench_cfg):
+    """ Attempt to clear the tool groups, by name, separated by comma"""
+    monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
+    default_group = pbench_run / "tools-v1-default"
+    default_group.mkdir(parents=True)
+    fubar_default_host = default_group / "fubar6.example.com"
+    fubar_default_host.mkdir(parents=True, exist_ok=True)
+    pidstat_default_tool = fubar_default_host / "pidstat"
+    pidstat_default_tool.touch()
+
+    another_group = pbench_run / "tools-v1-another"
+    another_group.mkdir(parents=True)
+    fubar_another_host = another_group / "fubar7.example.com"
+    fubar_another_host.mkdir(parents=True, exist_ok=True)
+    pidstat_another_tool = fubar_another_host / "pidstat"
+    pidstat_another_tool.touch()
+
+    command = ["pbench-clear-tools", "--group=default,another"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+    assert default_group.exists() is True
+    assert fubar_default_host.exists() is False
+    assert another_group.exists() is False
+    assert fubar_another_host.exists() is False
+
+
+def test_clear_tools_test72(monkeypatch, agent_config, pbench_run, pbench_cfg):
+    """ Attempt to clear the tool groups, by name, separated by comma.
+    However one of the tool group name is wrong"""
+    monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
+
+    another_group = pbench_run / "tools-v1-another"
+    another_group.mkdir(parents=True)
+    fubar_another_host = another_group / "fubar7.example.com"
+    fubar_another_host.mkdir(parents=True, exist_ok=True)
+    pidstat_another_tool = fubar_another_host / "pidstat"
+    pidstat_another_tool.touch()
+
+    command = ["pbench-clear-tools", "--group=another,wrong"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+    assert (
+        b'Removed "pidstat" from host "fubar7.example.com" in tools group '
+        b'"another' in err
+    )
+    assert b'pbench-clear-tools: invalid --group option "wrong"' in err
+    assert another_group.exists() is False
+    assert fubar_another_host.exists() is False
+
+
+def test_clear_tools_test73(monkeypatch, agent_config, pbench_run, pbench_cfg):
+    """ Attempt to clear the tools, by name, separated by comma"""
+    monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
+    default_group = pbench_run / "tools-v1-default"
+    default_group.mkdir(parents=True)
+    fubar6_host = default_group / "fubar6.example.com"
+    fubar6_host.mkdir(parents=True, exist_ok=True)
+    pidstat6_tool = fubar6_host / "pidstat"
+    pidstat6_tool.touch()
+    mpstat6_tool = fubar6_host / "mpstat"
+    mpstat6_tool.touch()
+    iostat6_tool = fubar6_host / "iostat"
+    iostat6_tool.touch()
+
+    command = ["pbench-clear-tools", "--name=pidstat,mpstat"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+    assert b"" in err
+    assert pidstat6_tool.exists() is False
+    assert mpstat6_tool.exists() is False
+    assert iostat6_tool.exists() is True
+    assert fubar6_host.exists() is True
+
+
+def test_clear_tools_test74(monkeypatch, agent_config, pbench_run, pbench_cfg):
+    """ Attempt to clear all tools in default group, by name, separated by
+    comma"""
+    monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
+    default_group = pbench_run / "tools-v1-default"
+    default_group.mkdir(parents=True)
+    fubar6_host = default_group / "fubar6.example.com"
+    fubar6_host.mkdir(parents=True, exist_ok=True)
+    pidstat6_tool = fubar6_host / "pidstat"
+    pidstat6_tool.touch()
+    mpstat6_tool = fubar6_host / "mpstat"
+    mpstat6_tool.touch()
+    iostat6_tool = fubar6_host / "iostat"
+    iostat6_tool.touch()
+
+    command = ["pbench-clear-tools", "--name=pidstat,mpstat,iostat"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+    assert pidstat6_tool.exists() is False
+    assert mpstat6_tool.exists() is False
+    assert iostat6_tool.exists() is False
+    assert fubar6_host.exists() is False
+    assert default_group.exists() is True
+
+
+def test_clear_tools_test75(monkeypatch, agent_config, pbench_run, pbench_cfg):
+    """ Attempt to clear all tools in non-default group, by name, separated by
+        comma"""
+    another_group = pbench_run / "tools-v1-another"
+    another_group.mkdir(parents=True)
+    fubar7_host = another_group / "fubar7.example.com"
+    fubar7_host.mkdir(parents=True, exist_ok=True)
+    pidstat7_tool = fubar7_host / "pidstat"
+    pidstat7_tool.touch()
+    mpstat7_tool = fubar7_host / "mpstat"
+    mpstat7_tool.touch()
+
+    command = ["pbench-clear-tools", "--group=another", "--name=pidstat,mpstat"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+    assert pidstat7_tool.exists() is False
+    assert mpstat7_tool.exists() is False
+    assert fubar7_host.exists() is False
+    assert another_group.exists() is False
+
+
+def test_clear_tools_test76(monkeypatch, agent_config, pbench_run, pbench_cfg):
+    """ Attempt to clear a group, by name, registered on multiple
+    hosts"""
+    another_group = pbench_run / "tools-v1-another"
+    another_group.mkdir(parents=True)
+
+    fubar7_1_host = another_group / "fubar7_1.example.com"
+    fubar7_1_host.mkdir(parents=True, exist_ok=True)
+    pidstat7_1_tool = fubar7_1_host / "pidstat"
+    pidstat7_1_tool.touch()
+
+    fubar7_2_host = another_group / "fubar7_2.example.com"
+    fubar7_2_host.mkdir(parents=True, exist_ok=True)
+    pidstat7_2_tool = fubar7_2_host / "pidstat"
+    pidstat7_2_tool.touch()
+
+    command = ["pbench-clear-tools", "--group=another", "--remote=fubar7_2.example.com"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+    assert pidstat7_1_tool.exists() is True
+    assert pidstat7_2_tool.exists() is False
+    assert fubar7_1_host.exists() is True
+    assert fubar7_2_host.exists() is False
+    assert another_group.exists() is True
