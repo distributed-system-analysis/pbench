@@ -10,6 +10,7 @@ import pathlib
 import shutil
 
 import click
+from typing import Union
 
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
@@ -26,88 +27,20 @@ class ClearTools(ToolCommand):
         errors = 0
 
         groups = self.context.group.split(",")
+        # groups is never empty and if the user doesn't specify a --group,
+        # then it has the value "default"
         for group in groups:
             if self.verify_tool_group(group) != 0:
                 self.logger.warn(f'No such group "{group}".')
                 errors = 1
                 continue
 
-            try:
-                remotes = self.context.remote.split(",")
-            except Exception:
-                # We were not given any remotes on the command line, build the list
-                # from the tools group directory.
-                remotes = self.remote(self.tool_group_dir)
-                if not remotes:
-                    # Unless it is not a default group we will remove any
-                    # empty tool directories lingering or wasn't cleaned before.
-                    try:
-                        if group != "default":
-                            shutil.rmtree(self.tool_group_dir)
-                    except OSError:
-                        self.logger.error(
-                            "Failed to remove empty group directory %s",
-                            self.tool_group_dir,
-                        )
-                        return 1
-
-            tools_not_found = []  # Not found, yet
-            for remote in remotes:
-                tg_dir_r = self.tool_group_dir / remote
-                if not tg_dir_r.exists():
-                    self.logger.warn(
-                        'No remote host "%s" in group %s.', remote, group,
-                    )
-                    continue
-
-                if self.context.name:
-                    names = self.context.name.split(",")
-                else:
-                    # Discover all the tools registered for this remote
-                    names = self.tools(tg_dir_r)
-                    if not names:
-                        # FIXME:  this is another odd case -- the remote subdirectory
-                        #  exists, but it's empty.  (We'll remove it below.)
-                        self.logger.warn(
-                            'No tools in group "%s" on host "%s".', group, remote,
-                        )
-
-                for name in names:
-                    status = self._clear_tools(name, remote, group)
-                    if status > 0:
-                        errors = 1
-                        tools_not_found.append(name)
-                    elif status < 0:
-                        tools_not_found.append(name)
-
-                tool_files = [p.name for p in tg_dir_r.iterdir()]
-
-                if len(tool_files) == 1 and tool_files[0] == "__label__":
-                    label = tg_dir_r / "__label__"
-                    try:
-                        label.unlink()
-                    except Exception:
-                        self.logger.error(
-                            "Failed to remove label for remote %s", tg_dir_r
-                        )
-                        errors = 1
-
-                if self.is_empty(tg_dir_r):
-                    self.logger.info(
-                        'All tools removed from group "%s" on host "%s"',
-                        group,
-                        tg_dir_r.name,
-                    )
-                    try:
-                        shutil.rmtree(tg_dir_r)
-                    except OSError:
-                        self.logger.error(
-                            "Failed to remove remote directory %s", tg_dir_r
-                        )
-                        errors = 1
+            errors, tools_not_found = self._clear_remotes(group)
 
             if self.context.name and tools_not_found:
-                self.logger.warn(f"Tools {tools_not_found} not found")
+                self.logger.warn(
+                    f"Tools {sorted(tools_not_found)} not found in group {group}"
+                )
 
             # Remove a custom (non-default) tool group directory if there are
             # no tools registered anymore under this group
@@ -121,6 +54,81 @@ class ClearTools(ToolCommand):
                     errors = 1
 
         return errors
+
+    def _clear_remotes(self, group) -> Union[int, list]:
+        errors = 0
+        tools_not_found = []
+        if self.context.remote:
+            remotes = self.context.remote.split(",")
+        else:
+            # We were not given any remotes on the command line, build the list
+            # from the tools group directory.
+            remotes = self.remote(self.tool_group_dir)
+            if (
+                not remotes
+                and group != "default"
+                and self.is_empty(self.tool_group_dir)
+            ):
+                # Unless it is not a default group we will remove any
+                # empty tool directories lingering or wasn't cleaned before.
+                try:
+                    shutil.rmtree(self.tool_group_dir)
+                except OSError as e:
+                    self.logger.error(
+                        "Failed to remove empty group directory %s\n%s",
+                        self.tool_group_dir,
+                        str(e),
+                    )
+
+        for remote in remotes:
+            tg_dir_r = self.tool_group_dir / remote
+            if not tg_dir_r.exists():
+                self.logger.warn(
+                    'No remote host "%s" in group %s.', remote, group,
+                )
+                continue
+
+            if self.context.name:
+                names = self.context.name.split(",")
+            else:
+                # Discover all the tools registered for this remote
+                names = self.tools(tg_dir_r)
+                if not names:
+                    # FIXME:  this is another odd case -- the remote subdirectory
+                    #  exists, but it's empty.  (We'll remove it below.)
+                    self.logger.warn(
+                        'No tools in group "%s" on host "%s".', group, remote,
+                    )
+
+            for name in names:
+                status = self._clear_tools(name, remote, group)
+                if status:
+                    tools_not_found.append(name)
+                    if status > 0:
+                        errors = 1
+
+            tool_files = [p.name for p in tg_dir_r.iterdir()]
+
+            if len(tool_files) == 1 and tool_files[0] == "__label__":
+                label = tg_dir_r / "__label__"
+                try:
+                    label.unlink()
+                except Exception:
+                    self.logger.error("Failed to remove label for remote %s", tg_dir_r)
+                    errors = 1
+
+            if self.is_empty(tg_dir_r):
+                self.logger.info(
+                    'All tools removed from group "%s" on host "%s"',
+                    group,
+                    tg_dir_r.name,
+                )
+                try:
+                    shutil.rmtree(tg_dir_r)
+                except OSError:
+                    self.logger.error("Failed to remove remote directory %s", tg_dir_r)
+                    errors = 1
+        return errors, tools_not_found
 
     def _clear_tools(self, name, remote, group) -> int:
         """
@@ -172,6 +180,7 @@ def _group_option(f):
     return click.option(
         "-g",
         "--group",
+        "--groups",
         default="default",
         expose_value=False,
         callback=callback,
@@ -195,6 +204,7 @@ def _name_option(f):
     return click.option(
         "-n",
         "--name",
+        "--names",
         expose_value=False,
         callback=callback,
         help="Clear only the <tool-name> tool.",

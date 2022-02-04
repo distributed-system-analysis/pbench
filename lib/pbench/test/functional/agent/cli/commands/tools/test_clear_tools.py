@@ -55,6 +55,10 @@ def test_clear_tools_test13(monkeypatch, agent_config, pbench_run, pbench_cfg):
 def test_clear_tools_test65(monkeypatch, agent_config, pbench_run, pbench_cfg):
     """ Remove all tools from group good, leave default alone """
     monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
+    default_group = pbench_run / "tools-v1-default"
+    fubar_default_group = default_group / "fubar2.example.com"
+    fubar_default_group.mkdir(parents=True)
+
     good_group = pbench_run / "tools-v1-good"
     for host in ["fubar2", "fubar", "testhost.example.com"]:
         (good_group / host).mkdir(parents=True)
@@ -78,6 +82,7 @@ def test_clear_tools_test65(monkeypatch, agent_config, pbench_run, pbench_cfg):
     assert turbostat_tool.exists() is False
     assert mpstat_tool.exists() is False
     assert good_group.exists() is False
+    assert fubar_default_group.exists() is True
 
 
 def test_clear_tools_test66(monkeypatch, agent_config, pbench_run, pbench_cfg):
@@ -206,7 +211,7 @@ def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
     command = ["pbench-clear-tools", "--name=vmstat"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"" == out
-    assert b"Tools ['vmstat'] not found\n" in err
+    assert b"Tools ['vmstat'] not found in group default\n" in err
     assert exitcode == 0
 
 
@@ -231,9 +236,7 @@ def test_clear_tools_test71(monkeypatch, agent_config, pbench_run, pbench_cfg):
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"" == out
     assert default_group.exists() is True
-    assert fubar_default_host.exists() is False
     assert another_group.exists() is False
-    assert fubar_another_host.exists() is False
 
 
 def test_clear_tools_test72(monkeypatch, agent_config, pbench_run, pbench_cfg):
@@ -253,11 +256,10 @@ def test_clear_tools_test72(monkeypatch, agent_config, pbench_run, pbench_cfg):
     assert b"" == out
     assert (
         b'Removed "pidstat" from host "fubar7.example.com" in tools group '
-        b'"another' in err
+        b'"another"' in err
     )
     assert b'pbench-clear-tools: invalid --group option "wrong"' in err
     assert another_group.exists() is False
-    assert fubar_another_host.exists() is False
 
 
 def test_clear_tools_test73(monkeypatch, agent_config, pbench_run, pbench_cfg):
@@ -281,7 +283,6 @@ def test_clear_tools_test73(monkeypatch, agent_config, pbench_run, pbench_cfg):
     assert pidstat6_tool.exists() is False
     assert mpstat6_tool.exists() is False
     assert iostat6_tool.exists() is True
-    assert fubar6_host.exists() is True
 
 
 def test_clear_tools_test74(monkeypatch, agent_config, pbench_run, pbench_cfg):
@@ -324,9 +325,6 @@ def test_clear_tools_test75(monkeypatch, agent_config, pbench_run, pbench_cfg):
     command = ["pbench-clear-tools", "--group=another", "--name=pidstat,mpstat"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"" == out
-    assert pidstat7_tool.exists() is False
-    assert mpstat7_tool.exists() is False
-    assert fubar7_host.exists() is False
     assert another_group.exists() is False
 
 
@@ -350,7 +348,4 @@ def test_clear_tools_test76(monkeypatch, agent_config, pbench_run, pbench_cfg):
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"" == out
     assert pidstat7_1_tool.exists() is True
-    assert pidstat7_2_tool.exists() is False
-    assert fubar7_1_host.exists() is True
     assert fubar7_2_host.exists() is False
-    assert another_group.exists() is True
