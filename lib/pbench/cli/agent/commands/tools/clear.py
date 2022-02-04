@@ -28,7 +28,7 @@ class ClearTools(ToolCommand):
         groups = self.context.group.split(",")
         for group in groups:
             if self.verify_tool_group(group) != 0:
-                self.logger.error(f'No such group "{group}".')
+                self.logger.warn(f'No such group "{group}".')
                 errors = 1
                 continue
 
@@ -39,18 +39,15 @@ class ClearTools(ToolCommand):
                 # from the tools group directory.
                 remotes = self.remote(self.tool_group_dir)
                 if not remotes:
-                    # FIXME:  This is a weird case -- the group directory exists,
-                    #  but contains no remotes. This is the result of clearing the
-                    #  tools from a group which has already been cleared, because
-                    #  the first clear does not remove the group directory.  This
-                    #  behavior might be desirable for the `default` directory, but
-                    #  it seems wrong for custom groups.
+                    # Unless it is not a default group we will remove any
+                    # empty tool directories lingering or wasn't cleaned before.
                     try:
                         if group != "default":
                             shutil.rmtree(self.tool_group_dir)
                     except OSError:
                         self.logger.error(
-                            "Failed to remove group directory %s", self.tool_group_dir
+                            "Failed to remove empty group directory %s",
+                            self.tool_group_dir,
                         )
                         return 1
 
@@ -112,6 +109,8 @@ class ClearTools(ToolCommand):
             if self.context.name and tools_not_found:
                 self.logger.warn(f"Tools {tools_not_found} not found")
 
+            # Remove a custom (non-default) tool group directory if there are
+            # no tools registered anymore under this group
             if group != "default" and not any(self.tool_group_dir.iterdir()):
                 try:
                     shutil.rmtree(self.tool_group_dir)
@@ -121,7 +120,7 @@ class ClearTools(ToolCommand):
                     )
                     errors = 1
 
-        return 0 if errors == 0 else 1
+        return errors
 
     def _clear_tools(self, name, remote, group) -> int:
         """
