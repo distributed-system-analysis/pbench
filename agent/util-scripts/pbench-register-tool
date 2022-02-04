@@ -215,6 +215,8 @@ while true; do
 	esac
 done
 
+check_install_rpm "pbench_sysstat"
+
 # Normally --name is required but, when called with --test-args, we allow an
 # exception: that allows pbench-register-tool-set to call us without having to
 # specify a (meaningless in that case) --name.
