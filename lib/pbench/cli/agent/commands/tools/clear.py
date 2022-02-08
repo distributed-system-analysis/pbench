@@ -10,7 +10,7 @@ import pathlib
 import shutil
 
 import click
-from typing import Union
+from typing import List, Tuple
 
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
@@ -32,12 +32,13 @@ class ClearTools(ToolCommand):
         for group in groups:
             if self.verify_tool_group(group) != 0:
                 self.logger.warn(f'No such group "{group}".')
-                errors = 1
+                errors += 1
                 continue
 
-            errors, tools_not_found = self._clear_remotes(group)
+            error, tools_not_found = self._clear_remotes(group)
+            errors += error
 
-            if self.context.name and tools_not_found:
+            if tools_not_found:
                 self.logger.warn(
                     f"Tools {sorted(tools_not_found)} not found in group {group}"
                 )
@@ -51,11 +52,15 @@ class ClearTools(ToolCommand):
                     self.logger.error(
                         "Failed to remove group directory %s", self.tool_group_dir
                     )
-                    errors = 1
+                    errors += 1
 
-        return errors
+        return 1 if errors else 0
 
-    def _clear_remotes(self, group) -> Union[int, list]:
+    def _clear_remotes(self, group: str) -> Tuple[int, List[str]]:
+        """
+        Find tools to be removed under each remote host under the specified
+        tool group.
+        """
         errors = 0
         tools_not_found = []
         if self.context.remote:
@@ -70,7 +75,7 @@ class ClearTools(ToolCommand):
                 and self.is_empty(self.tool_group_dir)
             ):
                 # Unless it is not a default group we will remove any
-                # empty tool directories lingering or wasn't cleaned before.
+                # empty tool group directories.
                 try:
                     shutil.rmtree(self.tool_group_dir)
                 except OSError as e:
@@ -130,7 +135,7 @@ class ClearTools(ToolCommand):
                     errors = 1
         return errors, tools_not_found
 
-    def _clear_tools(self, name, remote, group) -> int:
+    def _clear_tools(self, name: str, remote: str, group: str) -> int:
         """
         Remove specified tool and associated files
 
