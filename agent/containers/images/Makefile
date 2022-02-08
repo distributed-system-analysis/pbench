@@ -295,12 +295,12 @@ centos-7-base.Dockerfile: _PKGMGR = yum
 centos-%-base.Dockerfile: Dockerfile.base.j2
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=centos-$*-pbench.repo \
         -D pkgmgr=${_PKGMGR} -D distro_name="CentOS $*" -o $@ \
-        -D image_repo=quay.io/centos -D image_name=centos -D image_tag=stream$*
+        -D image_repo=quay.io/centos -D image_name=centos -D image_rev=$*
 
 fedora-%-base.Dockerfile: Dockerfile.base.j2
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-$*-pbench.repo \
         -D pkgmgr=dnf -D distro_name="Fedora $*" -o $@ \
-        -D image_repo=quay.io/fedora -D image_name=fedora -D image_tag=$*
+        -D image_repo=quay.io/fedora -D image_name=fedora -D image_rev=$*
 
 # Helper target to build each distro's ".repo" and ".Dockerfile"
 all-dockerfiles: \
