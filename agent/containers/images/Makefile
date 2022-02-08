@@ -295,7 +295,7 @@ centos-7-base.Dockerfile: _PKGMGR = yum
 centos-%-base.Dockerfile: Dockerfile.base.j2
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=centos-$*-pbench.repo \
         -D pkgmgr=${_PKGMGR} -D distro_name="CentOS $*" -o $@ \
-        -D image_repo=quay.io/centos -D image_name=centos -D image_tag=centos$*
+        -D image_repo=quay.io/centos -D image_name=centos -D image_tag=stream$*
 
 fedora-%-base.Dockerfile: Dockerfile.base.j2
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-$*-pbench.repo \
