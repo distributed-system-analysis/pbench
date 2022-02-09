@@ -45,7 +45,7 @@ class ClearTools(ToolCommand):
 
             # Remove a custom (non-default) tool group directory if there are
             # no tools registered anymore under this group
-            if group != "default" and not any(self.tool_group_dir.iterdir()):
+            if group != "default" and self.is_empty(self.tool_group_dir):
                 try:
                     shutil.rmtree(self.tool_group_dir)
                 except OSError:
