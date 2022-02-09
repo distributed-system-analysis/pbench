@@ -2,8 +2,6 @@
 
 # List of external Make targets:
 #
-#   FIXME:  Are there any missing from this list?  Are there any here which can/should be removed (e.g., the last two)??
-#
 #   These act on all default platforms' containers:
 #
 #     all (default):  make all images for all default platforms
@@ -110,11 +108,11 @@ _WORKLOAD_RPMS = fio uperf
 # Not intended to be overridden with an environment variable.
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
-# Compose lists of all conceivable distro-version strings (e.g.,
-# `_ALL_centos_VERSIONS` including "centos-7", "centos-8", "centos-9",
+# Compose lists of potential distro-version strings with versions 0-99
+# (e.g., `_ALL_centos_VERSIONS` including "centos-7", "centos-8", "centos-9",
 # `_ALL_fedora_VERSIONS` including "fedora-32", "fedora-33", and "fedora-34",
-# and `_DISTROS` containing the contents of all the lists) which will be used
-# to drive pattern matching on distro-based target rules.
+# and `_DISTROS` concatenating the contents of all the lists) which will be
+# used to drive pattern matching on distro-based target rules.
 _DIGITS := 0 1 2 3 4 5 6 7 8 9
 _NUMBERS := $(patsubst 0%,%,$(foreach tens,${_DIGITS},$(foreach ones,${_DIGITS},${tens}${ones})))
 _ALL_DISTRO_NAMES := centos fedora
