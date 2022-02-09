@@ -215,7 +215,11 @@ while true; do
 	esac
 done
 
-check_install_rpm "pbench-sysstat"
+check_sysstat=$(rpm --query 'pbench-sysstat' 2>/dev/null)
+if echo ${check_sysstat} | grep -q "is not installed"; then
+  error_log "[${script_name}] required "pbench-sysstat" is not installed"
+  exit 1
+fi
 
 # Normally --name is required but, when called with --test-args, we allow an
 # exception: that allows pbench-register-tool-set to call us without having to
