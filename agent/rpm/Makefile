@@ -8,6 +8,13 @@
 # 7. Optionally generate a local RPM.
 # 8. Clean up the temp directory
 
+# Do not use the RHEL9 chroots - v0.69 does not work on RHEL9
+CHROOTS = --exclude-chroot centos-stream-9-aarch64 \
+	  --exclude-chroot centos-stream-9-x86_64 \
+	  --exclude-chroot epel-9-aarch64 \
+	  --exclude-chroot epel-9-x86_64
+
+
 CWD = $(shell pwd)
 
 # adjust as necessary
