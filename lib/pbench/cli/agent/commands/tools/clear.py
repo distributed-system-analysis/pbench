@@ -32,11 +32,12 @@ class ClearTools(ToolCommand):
         for group in groups:
             if self.verify_tool_group(group) != 0:
                 self.logger.warn(f'No such group "{group}".')
-                errors += 1
+                errors = 1
                 continue
 
             error, tools_not_found = self._clear_remotes(group)
-            errors += error
+            if error:
+                errors = 1
 
             if tools_not_found:
                 self.logger.warn(
@@ -52,9 +53,9 @@ class ClearTools(ToolCommand):
                     self.logger.error(
                         "Failed to remove group directory %s", self.tool_group_dir
                     )
-                    errors += 1
+                    errors = 1
 
-        return 1 if errors else 0
+        return errors
 
     def _clear_remotes(self, group: str) -> Tuple[int, List[str]]:
         """
@@ -74,8 +75,7 @@ class ClearTools(ToolCommand):
                 and group != "default"
                 and self.is_empty(self.tool_group_dir)
             ):
-                # Unless it is not a default group we will remove any
-                # empty tool group directories.
+                # Remove non-default empty tool directories
                 try:
                     shutil.rmtree(self.tool_group_dir)
                 except OSError as e:

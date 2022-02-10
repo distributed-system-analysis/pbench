@@ -275,7 +275,7 @@ def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
 @pytest.mark.parametrize(
     "groups",
-    ["", "default", "default,group1", "default,group1,group2", "group1,group2,group3",],
+    ["", "default", "default,group1", "default,group1,group2", "group1,group2,group3"],
 )
 @pytest.mark.parametrize(
     "remotes",
@@ -291,17 +291,7 @@ def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
     "tools",
     ["", "pidstat", "pidstat,mpstat", "pidstat,mpstat,iostat", "mpstat,vmstat"],
 )
-def test_clear_tools_test85(
-    monkeypatch,
-    tmp_path,
-    agent_config,
-    pbench_run,
-    pbench_cfg,
-    tools_configuration,
-    groups,
-    remotes,
-    tools,
-):
+def test_clear_tools_test85(tmp_path, tools_configuration, groups, remotes, tools):
     """ Attempt to clear tools with various combinations of groups, remotes
     and tools against fixed tools configuration"""
     tools_existence = tools_configuration
@@ -351,17 +341,7 @@ def test_clear_tools_test85(
 @pytest.mark.parametrize(
     "tools", ["pidstat,mpstat,iostat", "mpstat,vmstat"],
 )
-def test_clear_tools_test86(
-    monkeypatch,
-    tmp_path,
-    agent_config,
-    pbench_run,
-    pbench_cfg,
-    tools_configuration,
-    groups,
-    remotes,
-    tools,
-):
+def test_clear_tools_test86(tools_configuration, groups, remotes, tools):
     """ Attempt to clear tools at various group-remote-tool locations where the
     combination may not present on the hosts"""
     command = [
