@@ -78,7 +78,7 @@ endif
 COPR_TARGETS = copr copr-test
 .PHONY: ${COPR_TARGETS}
 ${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(version)-$(seqno)$(sha1).src.rpm
-	copr-cli build $(_copr_user)/$(subst copr,pbench,$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
+	copr-cli build ${CHROOTS} $(_copr_user)/$(subst copr,pbench,$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
 
 .PHONY: distclean
 distclean:
