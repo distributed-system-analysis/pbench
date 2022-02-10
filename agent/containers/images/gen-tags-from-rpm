@@ -26,12 +26,6 @@ dist="${2}"
 arch="${3}"
 test="${4}"
 
-if [[ "${dist}" == "centos-8" ]]; then
-    dist="epel-8"
-elif [[ "${dist}" == "centos-7" ]]; then
-    dist="epel-7"
-fi
-
 # Ensure we only consider the pbench-agent RPM's version string from the
 # target repo.
 url="${url_prefix}/pbench${test}/${dist}-${arch}"
