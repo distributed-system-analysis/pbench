@@ -1,11 +1,13 @@
 """Tests for the utils module.
 """
-
 import os
 import pathlib
+import socket
 import pytest
 import signal
 import time
+
+import ifaddr
 
 from pbench.agent.utils import BaseServer, BaseReturnCode, LocalRemoteHost
 
@@ -216,12 +218,42 @@ class TestLocalRemoteHost:
     """
 
     @staticmethod
-    def test_methods():
+    def test_methods(monkeypatch):
+        monkeypatch.setattr(
+            "ifaddr.get_adapters",
+            lambda: [
+                ifaddr.Adapter(
+                    "lo",
+                    "lo",
+                    [
+                        ifaddr.IP("127.0.0.1", 8, "lo"),
+                        ifaddr.IP(("::1", 0, 0), 128, "lo"),
+                    ],
+                    1,
+                ),
+                ifaddr.Adapter(
+                    "eth0",
+                    "eth0",
+                    [
+                        ifaddr.IP("10.1.1.1", 255, "eth0"),
+                        ifaddr.IP(("2600::1", 0, 0), 64, "eth0"),
+                        ifaddr.IP(("fe80::1", 0, 2), 64, "eth0"),
+                    ],
+                    2,
+                ),
+            ],
+        )
         lrh = LocalRemoteHost()
-        assert not lrh.is_local(
-            "testhost.example.com"
-        ), "'testhost.example.com' (which is not a real name) should still be remote"
+
+        # An unresolvable host isn't usable for benchmarking; we expect name
+        # resolution to fail, and the exception should propagate to the caller.
+        with pytest.raises(socket.gaierror):
+            lrh.is_local("testhost.example.com")
         assert not lrh.is_local("example.com"), "'example.com' should be remote"
         assert lrh.is_local("localhost"), "'localhost' should be local"
         assert not lrh.is_local("1.0.0.1"), "'1.0.0.1' should be remote"
         assert lrh.is_local("127.0.0.1"), "'127.0.0.1' should be local"
+        assert lrh.is_local("::1"), "'::1' should be local"
+        assert lrh.is_local("2600::1"), "'2600::1' should be local"
+        assert lrh.is_local("2600::0:0:1"), "'2600::0:0:1' should be local"
+        assert not lrh.is_local("2600::3"), "'2600::3' should be remote"
