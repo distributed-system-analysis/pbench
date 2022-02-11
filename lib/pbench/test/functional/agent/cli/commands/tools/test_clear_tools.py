@@ -27,7 +27,7 @@ def tools_configuration(monkeypatch, agent_config, pbench_run, pbench_cfg):
                 t.touch()
                 tools_existence.append(t)
 
-    return tools_existence
+    return tools_existence, tree
 
 
 def test_pbench_clear_tools_help():
@@ -264,7 +264,7 @@ def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
 def test_clear_tools_test85(pbench_run, tools_configuration, groups, remotes, tools):
     """ Attempt to clear tools with various combinations of groups, remotes
     and tools against fixed tools configuration"""
-    tools_existence = tools_configuration
+    tools_existence, _ = tools_configuration
 
     command = ["pbench-clear-tools"]
     if groups:
@@ -281,12 +281,11 @@ def test_clear_tools_test85(pbench_run, tools_configuration, groups, remotes, to
     assert b"" == out
     for tool in tools_existence:
         tool_str = str(tool).replace(str(pbench_run), "")
+        group_check = "default" in tool_str
         remote_check = True
         tool_check = True
         if groups:
             group_check = any(x in tool_str for x in groups.split(","))
-        else:
-            group_check = "default" in tool_str
         if remotes:
             remote_check = any(x in tool_str for x in remotes.split(","))
         if tools:
@@ -309,37 +308,51 @@ def test_clear_tools_test85(pbench_run, tools_configuration, groups, remotes, to
 
 
 @pytest.mark.parametrize(
-    "groups", ["default", "default,wrong_group", "group1,wrong_group"],
+    "groups", ["", "default,wrong_group", "group1,wrong_group"],
 )
 @pytest.mark.parametrize(
     "remotes", ["", "remote1,wrong_remote1", "wrong_remote1,wrong_remote2"],
 )
 @pytest.mark.parametrize(
-    "tools", ["", "pidstat,mpstat,wrong_tool1", "wrong_tool1,wrong_tool2"],
+    "tools", ["", "pidstat,wrong_tool1", "wrong_tool1,wrong_tool2"],
 )
 def test_clear_tools_test86(tools_configuration, groups, remotes, tools):
     """ Attempt to clear tools at various group-remote-tool locations where the
     combination may not present on the hosts"""
-    command = [
-        "pbench-clear-tools",
-        f"--groups={groups}" if groups else "",
-        f"--remotes={remotes}" if remotes else "",
-        f"--name={tools}" if tools else "",
-    ]
-    command_refined = [x for x in command if x]
-
-    out, err, exitcode = pytest.helpers.capture(command_refined)
-    assert b"" == out
-    if groups != "default":
-        assert any(
-            f'pbench-clear-tools: invalid --group option "{x}"'.encode() in err
-            for x in groups.split(",")
-        )
+    _, tools_tree = tools_configuration
+    command = ["pbench-clear-tools"]
+    if groups:
+        command.append(f"--groups={groups}")
     if remotes:
-        assert any(f'No remote host "{x}"'.encode() in err for x in remotes.split(","))
-    if (
-        tools == "wrong_tool1,wrong_tool2"
-        and "wrong_remote" not in remotes
-        and "wrong_group" not in groups
-    ):
-        assert b"Tools ['wrong_tool1', 'wrong_tool2'] not found in remote" in err
+        command.append(
+            f"--remotes={','.join(map('{}.example.com'.format, remotes.split(',')))}"
+        )
+    if tools:
+        command.append(f"--name={tools}")
+
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert b"" == out
+
+    if not groups:
+        groups = "default"
+
+    for group in groups.split(","):
+        err_msg = f'pbench-clear-tools: invalid --group option "{group}"'
+        if group not in tools_tree.keys():
+            assert err_msg.encode() in err
+        else:
+            assert err_msg.encode() not in err
+            for remote in remotes.split(","):
+                err_msg = f'No remote host "{remote}.example.com"'
+                if remote and remote not in tools_tree[group]:
+                    assert err_msg.encode() in err
+                elif remote:
+                    wrong_tools = []
+                    if tools:
+                        for tool in tools.split(","):
+                            if tool not in tools_tree[group][remote]:
+                                wrong_tools.append(tool)
+                    if wrong_tools:
+                        wrong_tools = sorted(wrong_tools)
+                        err_msg = f"Tools {wrong_tools} not found in remote"
+                        assert err_msg.encode() in err
