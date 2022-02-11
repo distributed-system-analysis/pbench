@@ -257,7 +257,7 @@ def start_tms_via_ssh(
     for host in tool_group.hostnames.keys():
         tm_count += 1
         tm_param_key = f"tm-{tool_group.group}-{host}"
-        if not lrh.is_remote(host):
+        if lrh.is_local(host):
             logger.debug("6a. starting localhost tool meister")
             try:
                 pid = os.fork()

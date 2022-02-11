@@ -64,7 +64,7 @@ click-scripts = \
 	pbench-clear-results \
 	pbench-clear-tools \
 	pbench-config \
-	pbench-is-remote \
+	pbench-is-local \
 	pbench-list-tools \
 	pbench-list-triggers \
 	pbench-results-move \

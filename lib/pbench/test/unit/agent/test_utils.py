@@ -218,10 +218,10 @@ class TestLocalRemoteHost:
     @staticmethod
     def test_methods():
         lrh = LocalRemoteHost()
-        assert lrh.is_remote(
+        assert not lrh.is_local(
             "testhost.example.com"
         ), "'testhost.example.com' (which is not a real name) should still be remote"
-        assert lrh.is_remote("example.com"), "'example.com' should be remote"
-        assert not lrh.is_remote("localhost"), "'localhost' should be local"
-        assert lrh.is_remote("1.0.0.1"), "'1.0.0.1' should be remote"
-        assert not lrh.is_remote("127.0.0.1"), "'127.0.0.1' should be local"
+        assert not lrh.is_local("example.com"), "'example.com' should be remote"
+        assert lrh.is_local("localhost"), "'localhost' should be local"
+        assert not lrh.is_local("1.0.0.1"), "'1.0.0.1' should be remote"
+        assert lrh.is_local("127.0.0.1"), "'127.0.0.1' should be local"

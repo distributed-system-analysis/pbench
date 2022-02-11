@@ -413,41 +413,104 @@ if os.environ.get("_PBENCH_UNIT_TESTS"):
                 ]
             )
 
-        def is_remote(self, host_name):
-            return host_name not in self._local_names
-
+        def is_local(self, host_name):
+            return host_name in self._local_names
 
 else:
 
     class LocalRemoteHost:
-        """Dynamically build a list of all the local IP addresses so that a simple
-        simple query interface provides the answer to the question, "is the given
-        host name or IP address remote?"
+        """
+        Provide a mechanism to determine whether a hostname is "local" (an
+        alias for the current host) or "remote".
         """
 
         def __init__(self):
-            """Build up a list of local IP addresses from all the interfaces.
             """
-            local_ips_l = []
+            Build up a list of local IP addresses from all the interfaces.
+
+            The IP list reported for each adapter uses the ifaddr.IP type, so
+            we convert each text address into an `ipaddress` type that we can
+            reliably compare. Note that this would be unnecessary in a strictly
+            IPv4 environment, but IPv6 addresses cannot be compared as text.
+
+            IPv6 addresses have additional attributes, including the "scope id"
+            which defines whether an address is uniquely associated with a
+            specific adapter, e.g., for a restricted subnet, or a MAC-based or
+            dynamically configured link-local address. Scope IDs are
+            represented with a "%scope" at the end of the IP address. Scope ID
+            0 means "global" and the ID is by convention omitted; however if
+            the reported IPv6 address includes a non-zero scope ID, we'll add
+            it to the IP address. Linux conventionally uses the name of the NIC
+            to represent the scope ID rather than the numeric index, so we'll
+            use that here.
+
+            NOTE: The Python IPv6Address parser doesn't support a scope ID
+            prior to 3.9; these addresses will be rejected with a ValueError
+            and we'll ignore them. This is unlikely to be a problem unless all
+            communicating hosts are on a subnet with only link-local IPv6
+            addresses, and not worth working around.
+            """
+            ips = []
             for adapter in ifaddr.get_adapters():
                 for ip in adapter.ips:
-                    local_ips_l.append(ip.ip[0] if isinstance(ip.ip, tuple) else ip.ip)
-            self.local_ips = frozenset(local_ips_l)
+                    if isinstance(ip.ip, tuple) and len(ip.ip) > 2 and ip.ip[2] != 0:
+                        addr = f"{ip.ip[0]}%{adapter.name}"
+                    else:
+                        addr = ip.ip
+                    try:
+                        addr = ipaddress.ip_address(addr)
+                    except ValueError:
+                        # Until Python 3.9, the ipaddress parser cannot handle
+                        # a scope ID. For now, we'll simply skip such addresses
+                        # entirely. (It's sufficiently unlikely that we'll get
+                        # an unparseable address from `ifaddr` that it's not
+                        # worth trying to decode the value error here.)
+                        pass
+                    else:
+                        ips.append(addr)
+            self.aliases = frozenset(ips)
 
-        def is_remote(self, host_name):
-            """Returns True if the given host name (or IP address) is remote else
-            returns False.
+        def is_local(self, host_name):
             """
-            ips_l = []
+            Determine whether a given hostname is an alias for the local host; in
+            other words, whether it matches a canonical representation of one of
+            the routable addresses reported by `ifaddr`.
+
+            Args:
+                host_name: A hostname or IP address to check
+
+            Returns:
+                True if `host_name` matches a routable local host address
+            """
             try:
-                ip_addrs = socket.getaddrinfo(host_name, None)
-                for addrinfo in ip_addrs:
-                    ips_l.append(addrinfo[4][0])
+                infos = socket.getaddrinfo(host_name, None)
             except socket.gaierror:
+                # If address lookup fails, check whether the hostname is legal
                 try:
-                    ipaddress.ip_address(host_name)
+                    addr = ipaddress.ip_address(host_name)
+                    return addr in self.aliases
                 except ValueError:
-                    return True
-                ips_l.append(host_name)
-            ips = frozenset(ips_l)
-            return self.local_ips.isdisjoint(ips)
+                    return False
+
+            # getaddrinfo returns 5-tuples of names for the host in the format
+            # (family, type, proto, name, (address, port[, flowinfo, scopeid]))
+            # where flowinfo and scopeid are present only for IPv6. We want to
+            # compare all IPv4 and IPv6 addresses against our list of local
+            # host aliases. If any match, the given `host_name` must be a
+            # representation of the local host.
+            for info in infos:
+                proto = info[0]
+                addr = info[4]
+                if proto == socket.AF_INET:
+                    ip = addr[0]
+                elif proto == socket.AF_INET6:
+                    ip = f"{addr[0]}%{addr[3]}" if addr[3] != 0 else addr[0]
+                else:  # Skip any protocol that's not IPv4 or IPv6
+                    continue
+                try:
+                    ipaddr = ipaddress.ip_address(ip)
+                    if ipaddr in self.aliases:
+                        return True
+                except ValueError:
+                    continue
+            return False
