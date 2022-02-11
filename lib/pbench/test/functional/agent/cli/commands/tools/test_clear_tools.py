@@ -261,7 +261,7 @@ def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
     "tools",
     ["", "pidstat", "pidstat,mpstat", "pidstat,mpstat,iostat", "mpstat,vmstat"],
 )
-def test_clear_tools_test85(tmp_path, tools_configuration, groups, remotes, tools):
+def test_clear_tools_test85(pbench_run, tools_configuration, groups, remotes, tools):
     """ Attempt to clear tools with various combinations of groups, remotes
     and tools against fixed tools configuration"""
     tools_existence = tools_configuration
@@ -280,7 +280,7 @@ def test_clear_tools_test85(tmp_path, tools_configuration, groups, remotes, tool
 
     assert b"" == out
     for tool in tools_existence:
-        tool_str = str(tool).replace(str(tmp_path), "")
+        tool_str = str(tool).replace(str(pbench_run), "")
         remote_check = True
         tool_check = True
         if groups:
