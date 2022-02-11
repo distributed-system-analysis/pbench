@@ -416,6 +416,7 @@ if os.environ.get("_PBENCH_UNIT_TESTS"):
         def is_local(self, host_name):
             return host_name in self._local_names
 
+
 else:
 
     class LocalRemoteHost:
