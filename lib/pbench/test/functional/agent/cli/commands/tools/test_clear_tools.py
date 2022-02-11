@@ -3,56 +3,29 @@ import pytest
 
 @pytest.fixture
 def tools_configuration(monkeypatch, agent_config, pbench_run, pbench_cfg):
+    tree = {
+        "default": {
+            "remote1": ["pidstat"],
+            "remote2": ["mpstat"],
+            "remote3": ["pidstat", "turbostat"],
+        },
+        "group1": {"remote1": ["mpstat"]},
+        "group3": {"remote3": ["pidstat", "mpstat"]},
+    }
     tools_existence = []
-    monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
 
-    # Default group configuration
-    default_group = pbench_run / "tools-v1-default"
-    default_group.mkdir(parents=True)
+    for group, remotes in tree.items():
+        gd = pbench_run / f"tools-v1-{group}"
+        gd.mkdir(parents=True)
 
-    remote1_default = default_group / "remote1.example.com"
-    remote1_default.mkdir(parents=True, exist_ok=True)
-    pidstat1_tool = remote1_default / "pidstat"
-    pidstat1_tool.touch()
-    tools_existence.append(pidstat1_tool)
+        for remote, tools in remotes.items():
+            rd = gd / f"{remote}.example.com"
+            rd.mkdir(parents=True)
 
-    remote2_default = default_group / "remote2.example.com"
-    remote2_default.mkdir(parents=True, exist_ok=True)
-    mpstat_tool = remote2_default / "mpstat"
-    mpstat_tool.touch()
-    tools_existence.append(mpstat_tool)
-
-    remote3_default = default_group / "remote3.example.com"
-    remote3_default.mkdir(parents=True, exist_ok=True)
-    pidstat3_tool = remote3_default / "pidstat"
-    pidstat3_tool.touch()
-    tools_existence.append(pidstat3_tool)
-
-    turbostat_tool = remote3_default / "turbostat"
-    turbostat_tool.touch()
-    tools_existence.append(turbostat_tool)
-
-    # Custom groups configuration
-    custom_group1 = pbench_run / "tools-v1-group1"
-    custom_group1.mkdir(parents=True)
-
-    remote1_group1 = custom_group1 / "remote1.example.com"
-    remote1_group1.mkdir(parents=True, exist_ok=True)
-    mpstat1_tool = remote1_group1 / "mpstat"
-    mpstat1_tool.touch()
-    tools_existence.append(mpstat1_tool)
-
-    custom_group3 = pbench_run / "tools-v1-group3"
-    custom_group3.mkdir(parents=True)
-    remote3_group3 = custom_group3 / "remote3.example.com"
-    remote3_group3.mkdir(parents=True, exist_ok=True)
-    pidstat3_tool = remote3_group3 / "pidstat"
-    pidstat3_tool.touch()
-    tools_existence.append(pidstat3_tool)
-
-    mpstat_tool = remote3_group3 / "mpstat"
-    mpstat_tool.touch()
-    tools_existence.append(mpstat_tool)
+            for tool in tools:
+                t = rd / tool
+                t.touch()
+                tools_existence.append(t)
 
     return tools_existence
 
@@ -269,7 +242,10 @@ def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
     command = ["pbench-clear-tools", "--name=vmstat"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"" == out
-    assert b"Tools ['vmstat'] not found in group default\n" in err
+    assert (
+        b"Tools ['vmstat'] not found in remote fubar.example.com and group "
+        b"default\n" in err
+    )
     assert exitcode == 0
 
 
@@ -279,13 +255,7 @@ def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
 )
 @pytest.mark.parametrize(
     "remotes",
-    [
-        "",
-        "remote1.example.com",
-        "remote1.example.com,remote2.example.com",
-        "remote1.example.com,remote2.example.com,remote3.example.com",
-        "remote2.example.com,remote4.example.com",
-    ],
+    ["", "remote1", "remote1,remote2", "remote1,remote2,remote3", "remote2,remote4"],
 )
 @pytest.mark.parametrize(
     "tools",
@@ -296,50 +266,56 @@ def test_clear_tools_test85(tmp_path, tools_configuration, groups, remotes, tool
     and tools against fixed tools configuration"""
     tools_existence = tools_configuration
 
-    command = [
-        "pbench-clear-tools",
-        f"--groups={groups}" if groups else "",
-        f"--remotes={remotes}" if remotes else "",
-        f"--name={tools}" if tools else "",
-    ]
-    command_refined = [x for x in command if x]
+    command = ["pbench-clear-tools"]
+    if groups:
+        command.append(f"--groups={groups}")
+    if remotes:
+        command.append(
+            f"--remotes={','.join(map('{}.example.com'.format, remotes.split(',')))}"
+        )
+    if tools:
+        command.append(f"--name={tools}")
 
-    out, err, exitcode = pytest.helpers.capture(command_refined)
+    out, err, exitcode = pytest.helpers.capture(command)
+
     assert b"" == out
     for tool in tools_existence:
         tool_str = str(tool).replace(str(tmp_path), "")
-        if not groups:
-            groups = "default"
-        if (
-            any(x in tool_str for x in tools.split(","))
-            and any(x in tool_str for x in remotes.split(","))
-            and any(x in tool_str for x in groups.split(","))
-        ):
-            assert tool.exists() is False
+        remote_check = True
+        tool_check = True
+        if groups:
+            group_check = any(x in tool_str for x in groups.split(","))
+        else:
+            group_check = "default" in tool_str
+        if remotes:
+            remote_check = any(x in tool_str for x in remotes.split(","))
+        if tools:
+            tool_check = any(x in tool_str for x in tools.split(","))
+
+        if tool_check and remote_check and group_check:
+            assert not tool.exists()
             # Default group should exist even if all the remotes are gone
             if "default" in tool_str:
-                assert tool.parent.parent.exists() is True
+                assert tool.parent.parent.exists()
             # if custom group exists then we need to make sure at least one
             # of the remote is not empty
             elif tool.parent.parent.exists():
-                for _dir in tool.parent.parent.iterdir():
-                    assert any(_dir.iterdir()) is True
+                for remote_dir in tool.parent.parent.iterdir():
+                    assert any(
+                        remote_dir.iterdir()
+                    ), f'Found an empty "remote" directory, "{remote_dir!s}", which should have been deleted.'
         else:
-            assert tool.exists() is True
+            assert tool.exists()
 
 
 @pytest.mark.parametrize(
-    "groups", ["default,group4", "group1,group4"],
+    "groups", ["default", "default,wrong_group", "group1,wrong_group"],
 )
 @pytest.mark.parametrize(
-    "remotes",
-    [
-        "remote1.example.com,remote4.example.com",
-        "remote4.example.com,remote5.example.com",
-    ],
+    "remotes", ["", "remote1,wrong_remote1", "wrong_remote1,wrong_remote2"],
 )
 @pytest.mark.parametrize(
-    "tools", ["pidstat,mpstat,iostat", "mpstat,vmstat"],
+    "tools", ["", "pidstat,mpstat,wrong_tool1", "wrong_tool1,wrong_tool2"],
 )
 def test_clear_tools_test86(tools_configuration, groups, remotes, tools):
     """ Attempt to clear tools at various group-remote-tool locations where the
@@ -354,8 +330,16 @@ def test_clear_tools_test86(tools_configuration, groups, remotes, tools):
 
     out, err, exitcode = pytest.helpers.capture(command_refined)
     assert b"" == out
-    assert any(
-        f'pbench-clear-tools: invalid --group option "{x}"'.encode() in err
-        for x in groups.split(",")
-    )
-    assert any(f'No remote host "{x}"'.encode() in err for x in remotes.split(","))
+    if groups != "default":
+        assert any(
+            f'pbench-clear-tools: invalid --group option "{x}"'.encode() in err
+            for x in groups.split(",")
+        )
+    if remotes:
+        assert any(f'No remote host "{x}"'.encode() in err for x in remotes.split(","))
+    if (
+        tools == "wrong_tool1,wrong_tool2"
+        and "wrong_remote" not in remotes
+        and "wrong_group" not in groups
+    ):
+        assert b"Tools ['wrong_tool1', 'wrong_tool2'] not found in remote" in err

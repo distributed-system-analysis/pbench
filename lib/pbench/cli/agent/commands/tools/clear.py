@@ -10,7 +10,7 @@ import pathlib
 import shutil
 
 import click
-from typing import List, Tuple
+from typing import Dict, Tuple
 
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
@@ -39,10 +39,11 @@ class ClearTools(ToolCommand):
             if error:
                 errors = 1
 
-            if tools_not_found:
-                self.logger.warn(
-                    f"Tools {sorted(tools_not_found)} not found in group {group}"
-                )
+            for remote, tools in tools_not_found.items():
+                if tools:
+                    self.logger.warn(
+                        f"Tools {sorted(tools)} not found in remote {remote} and group {group}"
+                    )
 
             # Remove a custom (non-default) tool group directory if there are
             # no tools registered anymore under this group
@@ -57,13 +58,13 @@ class ClearTools(ToolCommand):
 
         return errors
 
-    def _clear_remotes(self, group: str) -> Tuple[int, List[str]]:
+    def _clear_remotes(self, group: str) -> Tuple[int, Dict[str, list]]:
         """
         Find tools to be removed under each remote host under the specified
         tool group.
         """
         errors = 0
-        tools_not_found = []
+        tools_not_found_group = {}
         if self.context.remote:
             remotes = self.context.remote.split(",")
         else:
@@ -86,6 +87,7 @@ class ClearTools(ToolCommand):
                     )
 
         for remote in remotes:
+            tools_not_found_remote = []
             tg_dir_r = self.tool_group_dir / remote
             if not tg_dir_r.exists():
                 self.logger.warn(
@@ -108,10 +110,11 @@ class ClearTools(ToolCommand):
             for name in names:
                 status = self._clear_tools(name, remote, group)
                 if status:
-                    tools_not_found.append(name)
+                    tools_not_found_remote.append(name)
                     if status > 0:
                         errors = 1
 
+            tools_not_found_group[remote] = tools_not_found_remote
             tool_files = [p.name for p in tg_dir_r.iterdir()]
 
             if len(tool_files) == 1 and tool_files[0] == "__label__":
@@ -133,7 +136,7 @@ class ClearTools(ToolCommand):
                 except OSError:
                     self.logger.error("Failed to remove remote directory %s", tg_dir_r)
                     errors = 1
-        return errors, tools_not_found
+        return errors, tools_not_found_group
 
     def _clear_tools(self, name: str, remote: str, group: str) -> int:
         """
