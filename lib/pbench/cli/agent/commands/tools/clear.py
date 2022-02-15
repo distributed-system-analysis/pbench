@@ -26,7 +26,7 @@ class ClearTools(ToolCommand):
     def execute(self) -> int:
         errors = 0
 
-        groups = self.context.group.split(",")
+        groups = [group for group in self.context.group.split(",") if group]
         # groups is never empty and if the user doesn't specify a --group,
         # then it has the value "default"
         for group in groups:
@@ -66,7 +66,7 @@ class ClearTools(ToolCommand):
         errors = 0
         tools_not_found_group = {}
         if self.context.remote:
-            remotes = self.context.remote.split(",")
+            remotes = [remote for remote in self.context.remote.split(",") if remote]
         else:
             # We were not given any remotes on the command line, build the list
             # from the tools group directory.
@@ -96,7 +96,7 @@ class ClearTools(ToolCommand):
                 continue
 
             if self.context.name:
-                names = self.context.name.split(",")
+                names = [name for name in self.context.name.split(",") if name]
             else:
                 # Discover all the tools registered for this remote
                 names = self.tools(tg_dir_r)

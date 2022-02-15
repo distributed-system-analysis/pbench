@@ -251,15 +251,36 @@ def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
 @pytest.mark.parametrize(
     "groups",
-    ["", "default", "default,group1", "default,group1,group2", "group1,group2,group3"],
+    [
+        "",
+        "default",
+        "default,group1",
+        "default,,,group1,",
+        "default,group1,group2",
+        "group1,group2,group3",
+    ],
 )
 @pytest.mark.parametrize(
     "remotes",
-    ["", "remote1", "remote1,remote2", "remote1,remote2,remote3", "remote2,remote4"],
+    [
+        "",
+        "remote1",
+        "remote1,remote2",
+        ",remote1,,,remote2,",
+        "remote1,remote2,remote3",
+        "remote2,remote4",
+    ],
 )
 @pytest.mark.parametrize(
     "tools",
-    ["", "pidstat", "pidstat,mpstat", "pidstat,mpstat,iostat", "mpstat,vmstat"],
+    [
+        "",
+        "pidstat",
+        "pidstat,mpstat",
+        ",pidstat,,mpstat",
+        "pidstat,mpstat,iostat",
+        "mpstat,vmstat",
+    ],
 )
 def test_clear_tools_test85(pbench_run, tools_configuration, groups, remotes, tools):
     """ Attempt to clear tools with various combinations of groups, remotes
@@ -285,11 +306,15 @@ def test_clear_tools_test85(pbench_run, tools_configuration, groups, remotes, to
         remote_check = True
         tool_check = True
         if groups:
-            group_check = any(x in tool_str for x in groups.split(","))
+            group_check = any(
+                x in tool_str for x in [x for x in groups.split(",") if x]
+            )
         if remotes:
-            remote_check = any(x in tool_str for x in remotes.split(","))
+            remote_check = any(
+                x in tool_str for x in [x for x in remotes.split(",") if x]
+            )
         if tools:
-            tool_check = any(x in tool_str for x in tools.split(","))
+            tool_check = any(x in tool_str for x in [x for x in tools.split(",") if x])
 
         if tool_check and remote_check and group_check:
             assert not tool.exists()
@@ -355,4 +380,19 @@ def test_clear_tools_test86(tools_configuration, groups, remotes, tools):
                     if wrong_tools:
                         wrong_tools = sorted(wrong_tools)
                         err_msg = f"Tools {wrong_tools} not found in remote"
+                        assert err_msg.encode() in err
+                    else:
+                        err_msg = f'All tools removed from group "{group}" on host "{remote}.example.com"'
+                        assert err_msg.encode() in err
+                else:
+                    remotes = tools_tree[group].keys()
+                    for remote in remotes:
+                        tools_not_found = list(
+                            set(tools.split(",")) - set(tools_tree[group][remote])
+                        )
+                        tools_not_found = [tool for tool in tools_not_found if tool]
+                        if tools_not_found:
+                            err_msg = f"Tools {sorted(tools_not_found)} not found in remote {remote}.example.com"
+                        else:
+                            err_msg = f'All tools removed from group "{group}" on host "{remote}.example.com"'
                         assert err_msg.encode() in err
