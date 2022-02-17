@@ -22,15 +22,6 @@ def pbench_cfg(tmp_path, opt_pbench):
 
 
 @pytest.fixture
-def pbench_run(monkeypatch, tmp_path):
-    monkeypatch.delenv("pbench_run")
-    pbench_agent_d = tmp_path / "var" / "lib" / "pbench-agent"
-    pbench_agent_d.mkdir(parents=True, exist_ok=True)
-
-    yield pbench_agent_d
-
-
-@pytest.fixture
 def agent_config(monkeypatch, tmp_path, opt_pbench, pbench_cfg, pbench_run):
     shutil.copyfile("./agent/config/pbench-agent-default.cfg", pbench_cfg)
 
