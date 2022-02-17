@@ -119,7 +119,7 @@ fi
 validate_hostname "${_pbench_full_hostname}" "_pbench_full_hostname"
 
 if [[ -z "${_pbench_hostname_ip}" ]]; then
-    export _pbench_hostname_ip=$(hostname --ip-address)
+    export _pbench_hostname_ip=$(hostname --all-ip-addresses)
 fi
 for _ip in ${_pbench_hostname_ip}; do
     validate-ipaddress "${_ip}"
