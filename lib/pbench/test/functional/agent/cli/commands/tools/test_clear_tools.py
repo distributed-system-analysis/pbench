@@ -362,9 +362,9 @@ def test_clear_tools_test86(tools_configuration, groups, remotes, tools):
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"" == out
 
-    empty_group_err_msg = "Tool group name can not be empty"
-    empty_remote_err_msg = "Remote host name can not be empty if specified"
-    empty_tool_err_msg = "Tool name can not be empty if specified"
+    empty_group_err_msg = "Blank group name specified; skipping."
+    empty_remote_err_msg = "Blank remote host name specified; skipping."
+    empty_tool_err_msg = "Blank tool name specified; skipping."
 
     if not groups:
         groups = "default"

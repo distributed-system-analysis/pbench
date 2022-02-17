@@ -31,7 +31,7 @@ class ClearTools(ToolCommand):
         # then it has the value "default"
         for group in groups:
             if not group:
-                self.logger.warn("Tool group name can not be empty")
+                self.logger.warn("Blank group name specified; skipping.")
                 errors = 1
                 continue
             elif self.verify_tool_group(group) != 0:
@@ -90,7 +90,7 @@ class ClearTools(ToolCommand):
 
         for remote in remotes:
             if not remote:
-                self.logger.warn("Remote host name can not be empty if specified")
+                self.logger.warn("Blank remote host name specified; skipping.")
                 errors = 1
                 continue
             tools_not_found_remote = []
@@ -115,7 +115,7 @@ class ClearTools(ToolCommand):
 
             for name in names:
                 if not name:
-                    self.logger.warn("Tool name can not be empty if specified")
+                    self.logger.warn("Blank tool name specified; skipping.")
                     errors = 1
                     continue
                 status = self._clear_tools(name, remote, group)
