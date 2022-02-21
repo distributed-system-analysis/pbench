@@ -1,7 +1,5 @@
-import os
-import subprocess
-
 import pytest
+import subprocess
 
 from pbench.test.unit.agent.conftest import base_setup
 
@@ -19,7 +17,9 @@ def capture(command):
 
 
 @pytest.fixture
-def pbench_run(tmpdir):
-    pbench_run = tmpdir / "test/var/lib/pbench-agent"
-    os.makedirs(pbench_run)
-    yield pbench_run
+def pbench_run(monkeypatch, tmp_path):
+    monkeypatch.delenv("pbench_run")
+    pbench_agent_d = tmp_path / "var" / "lib" / "pbench-agent"
+    pbench_agent_d.mkdir(parents=True, exist_ok=True)
+
+    yield pbench_agent_d
