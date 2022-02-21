@@ -588,8 +588,6 @@ function fio_run_job() {
 	local tgts="$4"
 	local clients="$5"
 
-	local do_local_client=0
-
 	mkdir -p $benchmark_results_dir/clients
 	if [[ ! -d $benchmark_results_dir/clients ]]; then
 		error_log "Failed to create results directory hierarchy: $benchmark_results_dir/clients"
@@ -599,11 +597,13 @@ function fio_run_job() {
 	echo "running fio job: $fio_job_file ($(basename $benchmark_results_dir))"
 
 	if [ -n "${clients}" ]; then
-		debug_log "killing any old fio processes, creating directories, and starting new a fio process on the remote clients"
 		for client in "${client_names[@]}"; do
 			if pbench-is-local ${client}; then
-				do_local_client=1
+				debug_log "killing any old local fio processes and starting new a fio process for the local client"
+				killall ${benchmark} > /dev/null 2>&1
+				screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err'
 			else
+				debug_log "killing any old fio processes, creating directories, and starting new a fio process on remote client ${client}:${client_ports[${client}]}"
 				ssh ${ssh_opts} ${client} "killall ${benchmark} >/dev/null 2>&1; mkdir -p ${benchmark_results_dir} && cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err'"
 			fi
 		done
@@ -655,11 +655,6 @@ function fio_run_job() {
 	chmod +x $benchmark_results_dir/fio.cmd
 	debug_log "$benchmark: Going to run [$benchmark_bin $bench_opts $client_opts]"
 	pushd $benchmark_results_dir >/dev/null
-	if [[ ${do_local_client} -eq 1 ]]; then
-		debug_log "killing any old local fio processes and starting new a fio process for the local client"
-		killall ${benchmark} > /dev/null 2>&1
-		screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err'
-	fi
 	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/fio-result.txt
 	local _fio_exit_code=$?
 	popd >/dev/null

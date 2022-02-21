@@ -151,30 +151,33 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] Running pre-check locally
 [debug][1900-01-01T00:00:00.000000] local_pre_check(devs="", ver="3.21", match="gte")
 [debug][1900-01-01T00:00:00.000000] found fio-3.42
-[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on the remote clients
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on remote client foo:8765
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on remote client bar:8765
+[debug][1900-01-01T00:00:00.000000] killing any old local fio processes and starting new a fio process for the local client
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on the remote clients
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-61_1900.01.01T00.00.00/1-rw-4KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-61_1900.01.01T00.00.00/fio-client.file --max-jobs=3]
-[debug][1900-01-01T00:00:00.000000] killing any old local fio processes and starting new a fio process for the local client
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/foo/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/bar/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/testhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on the remote clients
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on remote client foo:8765
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on remote client bar:8765
+[debug][1900-01-01T00:00:00.000000] killing any old local fio processes and starting new a fio process for the local client
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on the remote clients
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-61_1900.01.01T00.00.00/2-rw-64KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-61_1900.01.01T00.00.00/fio-client.file --max-jobs=3]
-[debug][1900-01-01T00:00:00.000000] killing any old local fio processes and starting new a fio process for the local client
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/foo/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/bar/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/testhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on the remote clients
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on remote client foo:8765
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on remote client bar:8765
+[debug][1900-01-01T00:00:00.000000] killing any old local fio processes and starting new a fio process for the local client
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on the remote clients
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-61_1900.01.01T00.00.00/3-rw-1024KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-61_1900.01.01T00.00.00/fio-client.file --max-jobs=3]
-[debug][1900-01-01T00:00:00.000000] killing any old local fio processes and starting new a fio process for the local client
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/foo/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/bar/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/testhost/fio_clat_hist.*.log*) to process for histograms

@@ -2,12 +2,12 @@
 """
 import os
 import pathlib
-import socket
-import pytest
 import signal
+import socket
 import time
 
 import ifaddr
+import pytest
 
 from pbench.agent.utils import BaseServer, BaseReturnCode, LocalRemoteHost
 
