@@ -68,7 +68,7 @@ other_args = [
     "direct",
     "sync",
     "runtime",
-    "ramptime",
+    "ramp_time",
     "size",
     "rate_iops",
     "log_hist_msec",
