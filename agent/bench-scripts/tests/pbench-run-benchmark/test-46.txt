@@ -54,3 +54,9 @@ iteration_name = 0__linpack
 clients = testhost.example.com
 
 --- linpack_test-46-tags_1900.01.01T00.00.00/metadata.log file contents
++++ linpack_test-46-tags_1900.01.01T00.00.00/0__linpack/sample0/benchmark-sample.cmd file contents
+pbench-run-benchmark-sample /var/tmp/pbench-test-bench/pbench-agent/linpack_test-46-tags_1900.01.01T00.00.00/es/bench/iteration-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE.json /var/tmp/pbench-test-bench/pbench-agent/linpack_test-46-tags_1900.01.01T00.00.00/0__linpack/sample0 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-46-tags_1900.01.01T00.00.00 default 1 html 0
+--- linpack_test-46-tags_1900.01.01T00.00.00/0__linpack/sample0/benchmark-sample.cmd file contents
++++ linpack_test-46-tags_1900.01.01T00.00.00/pbench-run-benchmark.cmd file contents
+pbench-run-benchmark linpack --user-tags=test-46-tags --user-email=test-46@example.com --user-name=test-46-user --user-desc=test-46-desc --clients=testhost.example.com
+--- linpack_test-46-tags_1900.01.01T00.00.00/pbench-run-benchmark.cmd file contents
