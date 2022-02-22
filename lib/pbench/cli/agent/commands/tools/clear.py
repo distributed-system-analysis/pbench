@@ -30,11 +30,7 @@ class ClearTools(ToolCommand):
         # groups is never empty and if the user doesn't specify a --group,
         # then it has the value "default"
         for group in groups:
-            if not group:
-                self.logger.warn("Blank group name specified; skipping.")
-                errors = 1
-                continue
-            elif self.verify_tool_group(group) != 0:
+            if self.verify_tool_group(group) != 0:
                 self.logger.warn(f'No such group "{group}".')
                 errors = 1
                 continue
@@ -89,10 +85,6 @@ class ClearTools(ToolCommand):
                     )
 
         for remote in remotes:
-            if not remote:
-                self.logger.warn("Blank remote host name specified; skipping.")
-                errors = 1
-                continue
             tools_not_found_remote = []
             tg_dir_r = self.tool_group_dir / remote
             if not tg_dir_r.exists():
@@ -114,10 +106,6 @@ class ClearTools(ToolCommand):
                     )
 
             for name in names:
-                if not name:
-                    self.logger.warn("Blank tool name specified; skipping.")
-                    errors = 1
-                    continue
                 status = self._clear_tools(name, remote, group)
                 if status:
                     tools_not_found_remote.append(name)
@@ -187,10 +175,17 @@ class ClearTools(ToolCommand):
         return not any(path.iterdir())
 
 
+def contains_empty(items: str) -> bool:
+    """Determine if the comma separated string contains en empty element"""
+    return bool([name for name in items.split(",") if not name])
+
+
 def _group_option(f):
     """Group name option"""
 
     def callback(ctxt, _param, value):
+        if value and contains_empty(value):
+            raise click.BadParameter(message="Blank group name specified; terminating.")
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.group = value
         return value
@@ -213,6 +208,8 @@ def _name_option(f):
     """Tool name to use"""
 
     def callback(ctxt, _param, value):
+        if value and contains_empty(value):
+            raise click.BadParameter(message="Blank tool name specified; terminating.")
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.name = None
         if value:
@@ -233,6 +230,10 @@ def _remote_option(f):
     """Remote hostname"""
 
     def callback(ctxt, _param, value):
+        if value and contains_empty(value):
+            raise click.BadParameter(
+                message="Blank remote name specified; terminating."
+            )
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.remote = value
         return value
