@@ -160,7 +160,7 @@ function _dump_logs {
         _dump_file ${rundir} user-benchmark-summary.json
         (
         if cd ${_testdir}/${rundir} > /dev/null 2>&1 ;then
-            for f in $(find . -name user-benchmark.cmd 2> /dev/null | sort); do
+            for f in $(find . -name '*.cmd' 2> /dev/null | sort); do
                 _dump_file ${rundir} ${f:2}
             done
             for f in $(find . -name results.html 2> /dev/null | sort); do
@@ -303,7 +303,7 @@ else
     mv ${_testroot}/tests-unsorted.lis ${_testroot}/tests.lis
 fi
 
-export date="1900.01.01T00.00.00"
+export _date_suffix="1900.01.01T00.00.00"
 let errs=0
 
 while read tst benchmark; do
@@ -318,27 +318,34 @@ while read tst benchmark; do
 
     # Determine what the test will use for a "benchmark_run_dir"
     if [[ ${benchmark} == "pbench-user-benchmark" ]]; then
-        _rundir="${benchmark}_${tst}_${date}"
+        _rundir="${benchmark}_${tst}_${_date_suffix}"
     elif [[ ${benchmark} == "pbench-run-benchmark" ]]; then
-	# The first argument in the "opts" file determines the name
-	# that will be used for the benchmark run directory.
-	if [[ -f ${_tdir}/tests/${_tst}.opts ]]; then
-	    bm_name="$(head -n 1 ${_tdir}/tests/${_tst}.opts | awk '{print $1}')"
-	    if [[ "${bm_name}" != "list" ]]; then
-	        bm_config="$(head -n 1 ${_tdir}/tests/${_tst}.opts | awk '{print $2}')"
-		if [[ "${bm_config%=*}" == "--user-tags" ]]; then
-                    _rundir="${bm_name}_${bm_config#*=}_${date}"
+        # The first argument in the "opts" file determines the name
+        # that will be used for the benchmark run directory.
+        if [[ -f ${_tdir}/tests/${_tst}.opts ]]; then
+            bm_name="$(head -n 1 ${_tdir}/tests/${_tst}.opts | awk '{print $1}')"
+            if [[ "${bm_name}" != "list" ]]; then
+                bm_config="$(head -n 1 ${_tdir}/tests/${_tst}.opts | awk '{print $2}')"
+                if [[ "${bm_config%=*}" == "--user-tags" ]]; then
+                    _rundir="${bm_name}_${bm_config#*=}_${_date_suffix}"
                 else
-                    _rundir="${bm_name}__${date}"
-		fi
-	    else
-	        _rundir=""
-	    fi
-	else
-	    _rundir=""
-	fi
+                    _rundir="${bm_name}__${_date_suffix}"
+                fi
+            else
+                _rundir=""
+            fi
+        else
+            _rundir=""
+        fi
+    elif [[ ${benchmark} == "pbench-trafficgen" ]]; then
+        if [[ -f "${_tdir}/tests/${_tst}.cfg" ]]; then
+            _config="${tst}_$(${_real_cat} ${_tdir}/tests/${_tst}.cfg)"
+        else
+            _config="${tst}"
+        fi
+        _rundir="${bm_postfix}_${_config}_${_date_suffix}"
     elif [[ ${benchmark%%-*} == "pbench" ]]; then
-        _rundir="${bm_postfix}_${tst}_${date}"
+        _rundir="${bm_postfix}_${tst}_${_date_suffix}"
     else
         _rundir=""
     fi
@@ -349,6 +356,7 @@ while read tst benchmark; do
         ${_tdir}/tests/${_tst}.pre
     fi
 
+    export _rundir
     _run ${tst} ${benchmark} ${_tdir}/tests/${_tst}.opts ${_tdir}/tests/${_tst}.env
     res=${?}
 
@@ -358,6 +366,7 @@ while read tst benchmark; do
 
     _save_tree
     _dump_logs "${_rundir}"
+    unset _rundir
     _verify_output ${res} ${tst} ${benchmark} ${status}
     res=${?}
     let errs=${errs}+${res}

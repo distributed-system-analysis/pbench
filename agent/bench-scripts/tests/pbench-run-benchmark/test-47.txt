@@ -55,3 +55,9 @@ process-all-profiler-data = ON
 clients = testhost.example.com
 
 --- trafficgen_test-47-tags_1900.01.01T00.00.00/metadata.log file contents
++++ trafficgen_test-47-tags_1900.01.01T00.00.00/0__trafficgen/sample0/benchmark-sample.cmd file contents
+pbench-run-benchmark-sample /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-47-tags_1900.01.01T00.00.00/es/bench/iteration-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE.json /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-47-tags_1900.01.01T00.00.00/0__trafficgen/sample0 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-47-tags_1900.01.01T00.00.00 default 1 html 0
+--- trafficgen_test-47-tags_1900.01.01T00.00.00/0__trafficgen/sample0/benchmark-sample.cmd file contents
++++ trafficgen_test-47-tags_1900.01.01T00.00.00/pbench-run-benchmark.cmd file contents
+pbench-run-benchmark trafficgen --user-tags=test-47-tags --user-email=test-47@example.com --user-name=test-47-user --user-desc=test-47-desc --clients=testhost.example.com
+--- trafficgen_test-47-tags_1900.01.01T00.00.00/pbench-run-benchmark.cmd file contents

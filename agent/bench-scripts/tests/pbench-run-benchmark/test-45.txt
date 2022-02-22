@@ -63,3 +63,9 @@ write_lat_log = fio
 clients = testhost.example.com
 
 --- fio_test-45-tags_1900.01.01T00.00.00/metadata.log file contents
++++ fio_test-45-tags_1900.01.01T00.00.00/0__fio/sample0/benchmark-sample.cmd file contents
+pbench-run-benchmark-sample /var/tmp/pbench-test-bench/pbench-agent/fio_test-45-tags_1900.01.01T00.00.00/es/bench/iteration-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE.json /var/tmp/pbench-test-bench/pbench-agent/fio_test-45-tags_1900.01.01T00.00.00/0__fio/sample0 /var/tmp/pbench-test-bench/pbench-agent/fio_test-45-tags_1900.01.01T00.00.00 default 1 html 0
+--- fio_test-45-tags_1900.01.01T00.00.00/0__fio/sample0/benchmark-sample.cmd file contents
++++ fio_test-45-tags_1900.01.01T00.00.00/pbench-run-benchmark.cmd file contents
+pbench-run-benchmark fio --user-tags=test-45-tags --user-email=test-45@example.com --user-name=test-45-user --user-desc=test-45-desc --clients=testhost.example.com
+--- fio_test-45-tags_1900.01.01T00.00.00/pbench-run-benchmark.cmd file contents

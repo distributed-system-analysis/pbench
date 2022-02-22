@@ -134,3 +134,12 @@ dev = /var/tmp
 iteration_name = 2-write-4kKiB
 
 --- fio_test-55_1900.01.01T00.00.00/metadata.log file contents
++++ fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/sample1/fio.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/fio.job
+--- fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/sample1/fio.cmd file contents
++++ fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/sample1/fio.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/fio.job
+--- fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/sample1/fio.cmd file contents
++++ fio_test-55_1900.01.01T00.00.00/generate-benchmark-summary.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary "fio" "--config=test-55 -d /var/tmp --test-type=read,write --block-size=4k --samples=2" "/var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00"
+--- fio_test-55_1900.01.01T00.00.00/generate-benchmark-summary.cmd file contents
