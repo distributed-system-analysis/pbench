@@ -177,7 +177,7 @@ class ClearTools(ToolCommand):
 
 def contains_empty(items: str) -> bool:
     """Determine if the comma separated string contains en empty element"""
-    return bool([name for name in items.split(",") if not name])
+    return not all(items.split(","))
 
 
 def _group_option(f):
@@ -185,7 +185,7 @@ def _group_option(f):
 
     def callback(ctxt, _param, value):
         if value and contains_empty(value):
-            raise click.BadParameter(message="Blank group name specified; terminating.")
+            raise click.BadParameter(message="Blank group name specified.")
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.group = value
         return value
@@ -209,7 +209,7 @@ def _name_option(f):
 
     def callback(ctxt, _param, value):
         if value and contains_empty(value):
-            raise click.BadParameter(message="Blank tool name specified; terminating.")
+            raise click.BadParameter(message="Blank tool name specified.")
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.name = None
         if value:
@@ -231,9 +231,7 @@ def _remote_option(f):
 
     def callback(ctxt, _param, value):
         if value and contains_empty(value):
-            raise click.BadParameter(
-                message="Blank remote name specified; terminating."
-            )
+            raise click.BadParameter(message="Blank remote name specified.")
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.remote = value
         return value

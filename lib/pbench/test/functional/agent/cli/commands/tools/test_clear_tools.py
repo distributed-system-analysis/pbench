@@ -305,21 +305,27 @@ def test_clear_tools_test85(pbench_run, tools_configuration, groups, remotes, to
         group_check = "default" in tool_str
         remote_check = True
         tool_check = True
+
+        # The target tool should only have been cleared if none of the target
+        # group values is empty and one of the target groups is in its path.
         if groups:
             groups_list = groups.split(",")
-            group_check = not bool(
-                [group for group in groups_list if not group]
-            ) and any(x in tool_str for x in groups_list if x)
+            group_check = all(groups_list) and any(
+                x in tool_str for x in groups_list if x
+            )
+        # The target tool should only have been cleared if none of the target
+        # remote values is empty and one of the target remote host is in its
+        # path.
         if remotes:
             remotes_list = remotes.split(",")
-            remote_check = not bool(
-                [remote for remote in remotes_list if not remote]
-            ) and any(x in tool_str for x in remotes_list if x)
+            remote_check = all(remotes_list) and any(
+                x in tool_str for x in remotes_list if x
+            )
+        # The target tool should only have been cleared if none of the target
+        # tool values is empty and one of the target tool name is in its path.
         if tools:
             tools_list = tools.split(",")
-            tool_check = not bool([tool for tool in tools_list if not tool]) and any(
-                x in tool_str for x in tools_list if x
-            )
+            tool_check = all(tools_list) and any(x in tool_str for x in tools_list if x)
 
         if tool_check and remote_check and group_check:
             assert not tool.exists()
@@ -373,15 +379,15 @@ def test_clear_tools_test86(tools_configuration, groups, remotes, tools):
 
     empty_group_err_msg = (
         "Error: Invalid value for '-g' / '--group' / '--groups': "
-        "Blank group name specified; terminating.\n"
+        "Blank group name specified.\n"
     )
     empty_remote_err_msg = (
         "Error: Invalid value for '-r' / '--remote' / '--remotes': "
-        "Blank remote name specified; terminating.\n"
+        "Blank remote name specified.\n"
     )
     empty_tool_err_msg = (
         "Error: Invalid value for '-n' / '--name' / '--names': "
-        "Blank tool name specified; terminating.\n"
+        "Blank tool name specified.\n"
     )
 
     if not groups:
@@ -392,49 +398,45 @@ def test_clear_tools_test86(tools_configuration, groups, remotes, tools):
     tools_list = tools.split(",")
 
     # Check for the blank group name
-    if [group for group in groups_list if not group]:
+    if not all(groups_list):
         assert empty_group_err_msg.encode() in err
+    # Check for the blank remote host name
+    elif remotes and not all(remotes_list):
+        assert empty_remote_err_msg.encode() in err
+    # Check for the blank tool name
+    elif tools and not all(tools_list):
+        assert empty_tool_err_msg.encode() in err
     else:
-        # Check for the blank remote host name
-        if remotes and [remote for remote in remotes_list if not remote]:
-            assert empty_remote_err_msg.encode() in err
-        else:
-            # Check for the blank tool name
-            if tools and [tool for tool in tools_list if not tool]:
-                assert empty_tool_err_msg.encode() in err
+        # If none of the options have any blank value specified
+        for group in groups_list:
+            invalid_group_err_msg = (
+                f'pbench-clear-tools: invalid --group option "{group}"'
+            )
+            if group not in tools_tree.keys():
+                assert invalid_group_err_msg.encode() in err
             else:
-                # If none of the options have any blank value specified
-                for group in groups_list:
-                    invalid_group_err_msg = (
-                        f'pbench-clear-tools: invalid --group option "{group}"'
-                    )
-                    if group not in tools_tree.keys():
-                        assert invalid_group_err_msg.encode() in err
+                assert invalid_group_err_msg.encode() not in err
+                if not remotes:
+                    remotes_list = tools_tree[group].keys()
+                for remote in remotes_list:
+                    invalid_remote_err_msg = f'No remote host "{remote}.example.com"'
+                    if remote not in tools_tree[group]:
+                        assert invalid_remote_err_msg.encode() in err
                     else:
-                        assert invalid_group_err_msg.encode() not in err
-                        if not remotes:
-                            remotes_list = tools_tree[group].keys()
-                        for remote in remotes_list:
-                            invalid_remote_err_msg = (
-                                f'No remote host "{remote}.example.com"'
-                            )
-                            if remote not in tools_tree[group]:
-                                assert invalid_remote_err_msg.encode() in err
+                        assert invalid_remote_err_msg.encode() not in err
+                        wrong_tools = []
+                        all_tools_removed = f'All tools removed from group "{group}" on host "{remote}.example.com"'
+                        if not tools:
+                            assert all_tools_removed.encode() in err
+                        else:
+                            for tool in tools_list:
+                                if tool not in tools_tree[group][remote]:
+                                    wrong_tools.append(tool)
+                            if wrong_tools:
+                                wrong_tools = sorted(wrong_tools)
+                                wrong_tools_err_msg = (
+                                    f"Tools {wrong_tools} not found in remote"
+                                )
+                                assert wrong_tools_err_msg.encode() in err
                             else:
-                                assert invalid_remote_err_msg.encode() not in err
-                                wrong_tools = []
-                                all_tools_removed = f'All tools removed from group "{group}" on host "{remote}.example.com"'
-                                if not tools:
-                                    assert all_tools_removed.encode() in err
-                                else:
-                                    for tool in tools_list:
-                                        if tool not in tools_tree[group][remote]:
-                                            wrong_tools.append(tool)
-                                    if wrong_tools:
-                                        wrong_tools = sorted(wrong_tools)
-                                        wrong_tools_err_msg = (
-                                            f"Tools {wrong_tools} not found in remote"
-                                        )
-                                        assert wrong_tools_err_msg.encode() in err
-                                    else:
-                                        assert all_tools_removed.encode() in err
+                                assert all_tools_removed.encode() in err
