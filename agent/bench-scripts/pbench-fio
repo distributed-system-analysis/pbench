@@ -544,7 +544,7 @@ function fio_create_jobfile() {
 		-direct="${5}" \
 		-sync="${6}" \
 		-runtime="${7}" \
-		-ramptime="${8}" \
+		-ramp_time="${8}" \
 		-size="${9}" \
 		-rate_iops="${10}" \
 		-log_hist_msec="${11}" \

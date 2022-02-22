@@ -9,7 +9,7 @@ direct=1
 sync=0
 time_based=1
 clocksource=gettimeofday
-ramp_time=5
+ramp_time=61
 write_bw_log=fio
 write_iops_log=fio
 write_lat_log=fio
@@ -54,7 +54,7 @@ direct=1
 sync=0
 time_based=1
 clocksource=gettimeofday
-ramp_time=5
+ramp_time=61
 write_bw_log=fio
 write_iops_log=fio
 write_lat_log=fio
@@ -99,7 +99,7 @@ direct=1
 sync=0
 time_based=1
 clocksource=gettimeofday
-ramp_time=5
+ramp_time=61
 write_bw_log=fio
 write_iops_log=fio
 write_lat_log=fio
@@ -144,7 +144,7 @@ direct=1
 sync=0
 time_based=1
 clocksource=gettimeofday
-ramp_time=5
+ramp_time=61
 write_bw_log=fio
 write_iops_log=fio
 write_lat_log=fio
@@ -189,7 +189,7 @@ direct=1
 sync=0
 time_based=1
 clocksource=gettimeofday
-ramp_time=5
+ramp_time=61
 write_bw_log=fio
 write_iops_log=fio
 write_lat_log=fio
@@ -234,7 +234,7 @@ direct=1
 sync=0
 time_based=1
 clocksource=gettimeofday
-ramp_time=5
+ramp_time=61
 write_bw_log=fio
 write_iops_log=fio
 write_lat_log=fio
@@ -698,7 +698,7 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3 fio- default
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4 fio- default
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5 fio- default
-/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary fio --config=test-04 --test-types=rw,randrw /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary fio --config=test-04 --test-types=rw,randrw --ramptime=61 /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB readwrite_IOPS 5 0 6 y y
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB readwrite_IOPS 5 0 6 y y
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB readwrite_IOPS 5 0 6 y y
