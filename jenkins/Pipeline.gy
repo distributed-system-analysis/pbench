@@ -2,7 +2,6 @@ pipeline {
     agent { label 'pbench' }
     environment {
         COV_REPORT_LOC="cov.${BUILD_NUMBER}.xml"
-        EXTRA_PODMAN_SWITCHES='--user=root'
         NO_COLORS=0
         PY_COLORS=0
         TERM='dumb'

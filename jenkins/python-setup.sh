@@ -17,6 +17,12 @@
 # chosen over any installed ones, and it adds `/usr/sbin` to the end of the
 # path for the `ip` command, used by pbench-register-tool.
 
+# Override the inherited HOME (which is a path generally not mapped inside the
+# container) so that pip and setup.py will install to a directory that exists
+# and doesn't require root access (e.g., to create /home/jenkins/.local/)
+export HOME=/tmp/jenkins
+mkdir -p ${HOME}
+
 PATH=$(python3 -m site --user-base)/bin:${PATH}:/usr/sbin
 unset PYTHONPATH
 pip3 install --user -r lint-requirements.txt -r docs/requirements.txt -r agent/requirements.txt -r server/requirements.txt -r agent/test-requirements.txt -r server/test-requirements.txt

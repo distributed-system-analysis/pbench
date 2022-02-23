@@ -16,10 +16,21 @@ if [[ -z "${IMAGE_REPO}" ]]; then
     IMAGE_REPO="quay.io/pbench"
 fi
 
+# The PBR in our setup.py Pbench installer relies on `git` knowledge and can't
+# handle a git worktree. This handy sequence solves the problem by importing
+# the base git tree into the container along with the worktree.
+GIT_BASE_VOLUME=""
+git_dir="$(git rev-parse --absolute-git-dir)"
+if [ "${git_dir}" != "$(pwd)/.git" ]; then
+    git_common_dir="$(git rev-parse --git-common-dir)"
+    GIT_BASE_VOLUME="--volume ${git_common_dir}:${git_common_dir}:z"
+fi
+
 podman run \
     --pull=always \
     --userns=keep-id \
     --volume $(pwd):/src/pbench:z \
+    ${GIT_BASE_VOLUME} \
     -w /src/pbench \
     --env-host \
     --ulimit nofile=65536:65536 \
