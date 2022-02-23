@@ -43,7 +43,6 @@
 FROM quay.io/fedora/fedora:33
 
 RUN \
-    mkdir /tmp/jenkins && \
     dnf install -y \
         `#` \
         `# Install Agent dependencies` \
