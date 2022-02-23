@@ -10,6 +10,7 @@ import pathlib
 import shutil
 
 import click
+from typing import Dict, Tuple
 
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
@@ -25,36 +26,75 @@ class ClearTools(ToolCommand):
     def execute(self) -> int:
         errors = 0
 
-        if self.verify_tool_group(self.context.group) != 0:
-            return 1
+        groups = self.context.group.split(",")
+        # groups is never empty and if the user doesn't specify a --group,
+        # then it has the value "default"
+        for group in groups:
+            if self.verify_tool_group(group) != 0:
+                self.logger.warn(f'No such group "{group}".')
+                errors = 1
+                continue
 
-        try:
+            error, tools_not_found = self._clear_remotes(group, self.tool_group_dir)
+            if error:
+                errors = 1
+
+            for remote, tools in tools_not_found.items():
+                if tools:
+                    self.logger.warn(
+                        f"Tools {sorted(tools)} not found in remote {remote} and group {group}"
+                    )
+
+            # Remove a custom (non-default) tool group directory if there are
+            # no tools registered anymore under this group
+            if group != "default" and self.is_empty(self.tool_group_dir):
+                try:
+                    shutil.rmtree(self.tool_group_dir)
+                except OSError:
+                    self.logger.error(
+                        "Failed to remove group directory %s", self.tool_group_dir
+                    )
+                    errors = 1
+
+        return errors
+
+    def _clear_remotes(
+        self, group: str, group_dir: pathlib.Path
+    ) -> Tuple[int, Dict[str, list]]:
+        """
+        Find tools to be removed under each remote host under the specified
+        tool group.
+        """
+        errors = 0
+        tools_not_found_group = {}
+        if self.context.remote:
             remotes = self.context.remote.split(",")
-        except Exception:
+        else:
             # We were not given any remotes on the command line, build the list
             # from the tools group directory.
-            remotes = self.remote(self.tool_group_dir)
-            if not remotes:
-                # FIXME:  This is a weird case -- the group directory exists,
-                #  but contains no remotes. This is the result of clearing the
-                #  tools from a group which has already been cleared, because
-                #  the first clear does not remove the group directory.  This
-                #  behavior might be desirable for the `default` directory, but
-                #  it seems wrong for custom groups.
-                self.logger.error(f'No such group "{self.context.group}".')
-                return 1
+            remotes = self.remote(group_dir)
+            if not remotes and group != "default" and self.is_empty(group_dir):
+                # Remove non-default empty tool directories
+                try:
+                    shutil.rmtree(group_dir)
+                except OSError as e:
+                    self.logger.error(
+                        "Failed to remove empty group directory %s\n%s",
+                        self.tool_group_dir,
+                        str(e),
+                    )
 
-        tool_not_found = True  # Not found, yet
         for remote in remotes:
+            tools_not_found_remote = []
             tg_dir_r = self.tool_group_dir / remote
             if not tg_dir_r.exists():
                 self.logger.warn(
-                    'No remote host "%s" in group %s.', remote, self.context.group,
+                    'No remote host "%s" in group %s.', remote, group,
                 )
                 continue
 
             if self.context.name:
-                names = [self.context.name]
+                names = self.context.name.split(",")
             else:
                 # Discover all the tools registered for this remote
                 names = self.tools(tg_dir_r)
@@ -62,18 +102,17 @@ class ClearTools(ToolCommand):
                     # FIXME:  this is another odd case -- the remote subdirectory
                     #  exists, but it's empty.  (We'll remove it below.)
                     self.logger.warn(
-                        'No tools in group "%s" on host "%s".',
-                        self.context.group,
-                        remote,
+                        'No tools in group "%s" on host "%s".', group, remote,
                     )
 
             for name in names:
-                status = self._clear_tools(name, remote)
-                if status > 0:
-                    errors = 1
-                elif status == 0:
-                    tool_not_found = False
+                status = self._clear_tools(name, remote, group)
+                if status:
+                    tools_not_found_remote.append(name)
+                    if status > 0:
+                        errors = 1
 
+            tools_not_found_group[remote] = tools_not_found_remote
             tool_files = [p.name for p in tg_dir_r.iterdir()]
 
             if len(tool_files) == 1 and tool_files[0] == "__label__":
@@ -87,7 +126,7 @@ class ClearTools(ToolCommand):
             if self.is_empty(tg_dir_r):
                 self.logger.info(
                     'All tools removed from group "%s" on host "%s"',
-                    self.context.group,
+                    group,
                     tg_dir_r.name,
                 )
                 try:
@@ -95,13 +134,9 @@ class ClearTools(ToolCommand):
                 except OSError:
                     self.logger.error("Failed to remove remote directory %s", tg_dir_r)
                     errors = 1
+        return errors, tools_not_found_group
 
-        if self.context.name and tool_not_found:
-            self.logger.warn(f'Tool "{self.context.name}" not found')
-
-        return 0 if errors == 0 else 1
-
-    def _clear_tools(self, name, remote) -> int:
+    def _clear_tools(self, name: str, remote: str, group: str) -> int:
         """
         Remove specified tool and associated files
 
@@ -130,10 +165,7 @@ class ClearTools(ToolCommand):
 
         if ret_val == 0:
             self.logger.info(
-                'Removed "%s" from host "%s" in tools group "%s"',
-                name,
-                remote,
-                self.context.group,
+                'Removed "%s" from host "%s" in tools group "%s"', name, remote, group,
             )
         return ret_val
 
@@ -143,10 +175,17 @@ class ClearTools(ToolCommand):
         return not any(path.iterdir())
 
 
+def contains_empty(items: str) -> bool:
+    """Determine if the comma separated string contains en empty element"""
+    return not all(items.split(","))
+
+
 def _group_option(f):
     """Group name option"""
 
     def callback(ctxt, _param, value):
+        if value and contains_empty(value):
+            raise click.BadParameter(message="Blank group name specified.")
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.group = value
         return value
@@ -154,6 +193,7 @@ def _group_option(f):
     return click.option(
         "-g",
         "--group",
+        "--groups",
         default="default",
         expose_value=False,
         callback=callback,
@@ -168,6 +208,8 @@ def _name_option(f):
     """Tool name to use"""
 
     def callback(ctxt, _param, value):
+        if value and contains_empty(value):
+            raise click.BadParameter(message="Blank tool name specified.")
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.name = None
         if value:
@@ -177,6 +219,7 @@ def _name_option(f):
     return click.option(
         "-n",
         "--name",
+        "--names",
         expose_value=False,
         callback=callback,
         help="Clear only the <tool-name> tool.",
@@ -187,6 +230,8 @@ def _remote_option(f):
     """Remote hostname"""
 
     def callback(ctxt, _param, value):
+        if value and contains_empty(value):
+            raise click.BadParameter(message="Blank remote name specified.")
         clictxt = ctxt.ensure_object(CliContext)
         clictxt.remote = value
         return value
