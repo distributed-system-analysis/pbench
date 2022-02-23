@@ -33,6 +33,7 @@ podman run \
     ${GIT_BASE_VOLUME} \
     -w /src/pbench \
     --env-host \
+    --env HOME=/tmp/jenkins \
     --ulimit nofile=65536:65536 \
     --rm \
     ${EXTRA_PODMAN_SWITCHES} \
