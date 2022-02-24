@@ -1,5 +1,5 @@
 boto3
 elasticsearch1
-humanize>=3.11
+humanize>=3.11, <4.0.0
 jinja2>=3.0
 jinja2-humanize-extension

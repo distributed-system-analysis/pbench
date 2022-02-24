@@ -173,13 +173,13 @@ report_tmpl = """Summary Statistics for Tar Balls on {{ now.strftime("%Y-%m-%d")
         {{ "{:>18s}".format(good.size|humanize_naturalsize) }} size
 
         By Server Origin:
-        {% for name, value in server_origin.items() %}
+        {% for name, value in server_origin.items()|sort %}
         {{ "{:18n}".format(value) }} {% if name == "main" %}{{ name }} pbench server{% else %}"{{ name }}" pbench satellite server{% endif +%}
         {% endfor %}
 
         Controller Counts:
         {{ "{:18n}".format(good.ctrls.keys()|length) }} controllers
-        {% for name, value in satellites.items() %}
+        {% for name, value in satellites.items()|sort %}
         {{ "{:18n}".format(value) }} {% if name == "main" %}{{ name }} pbench server{% else %}"{{ name }}" pbench satellite server{% endif +%}
         {% endfor %}
         {% endif %}
