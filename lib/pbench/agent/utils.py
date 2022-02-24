@@ -1,14 +1,16 @@
-import ifaddr
 import ipaddress
 import logging
 import os
+from pathlib import Path
 import signal
 import socket
 import subprocess
 import sys
 import time
+from typing import Dict, List, Tuple
 
 from datetime import datetime
+import ifaddr
 
 from pbench.agent.constants import (
     def_redis_port,
@@ -394,6 +396,58 @@ def collect_local_info(pbench_bin):
         hostdata[arg] = cp.stdout.strip() if cp.stdout is not None else ""
 
     return (version, seqno, sha1, hostdata)
+
+
+class TemplateSsh:
+    """
+    Set up to easily launch repeated asynchronous ssh commands from a template
+    and acquire the stdout and stderr streams along with the completion status.
+    """
+
+    def __init__(self, ssh_cmd: Path, ssh_args: List[str], cmd: List[str]):
+        """
+        Create an SSH template object
+
+        Args:
+            ssh_cmd: Path to the ssh command
+            ssh_args: A partial argv representing ssh command options
+            cmd: A partial argv representing a remote command to be executed
+        """
+        self.command = cmd
+        self.procs: Dict[str, subprocess.Popen] = {}
+        self.base_args = [ssh_cmd] + ssh_args
+
+    def start(self, host: str):
+        """
+        Begin an asynchronous ssh command on the specified remote host
+
+        Args:
+            host: hostname or IP
+        """
+        args = self.base_args + [host] + self.command
+        popen = subprocess.Popen(args, stdout=subprocess.PIPE, universal_newlines=True)
+        self.procs[host] = popen
+
+    def wait(self, host: str) -> Tuple[int, str, str]:
+        """
+        Wait for an asynchronous ssh command to complete, returning the
+        completion status, stdout and stderr streams as strings.
+
+        Args:
+            host: Remote host
+
+        Returns:
+            Tuple of completion status, stdout, stderr
+        """
+        popen: subprocess.Popen = self.procs[host]
+        try:
+            out, err = popen.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            popen.kill()
+            out, err = popen.communicate()
+        status = popen.returncode
+        del self.procs[host]
+        return (status, out, err)
 
 
 class LocalRemoteHost:

@@ -97,6 +97,7 @@ the benchmark execution environment:
   - ssh-opts
 """
 
+import ipaddress
 import json
 import logging
 import os
@@ -108,7 +109,6 @@ import time
 from argparse import ArgumentParser, Namespace
 from distutils.spawn import find_executable
 from pathlib import Path
-
 import redis
 
 from pbench.agent.constants import (
@@ -133,6 +133,7 @@ from pbench.agent.utils import (
     info_log,
     LocalRemoteHost,
     RedisServerCommon,
+    TemplateSsh
 )
 from pbench.common.utils import validate_hostname
 
@@ -194,6 +195,7 @@ class ReturnCode(BaseReturnCode):
     BADFULLHOSTNAME = 37
     BADHOSTNAME = 38
     INVALIDORCHESTRATE = 39
+    REMOTENOTREACHABLE = 40
 
 
 def _waitpid(pid: int) -> int:
@@ -732,6 +734,9 @@ def main(_prog: str, cli_params: Namespace) -> int:
         ssh_opts=ssh_opts,
     )
 
+    redis_server_spec = cli_params.redis_server
+    tds_server_spec = cli_params.tool_data_sink
+
     if cli_params.orchestrate == "create":
         orchestrate = True
         ssh_cmd = "ssh"
@@ -739,6 +744,76 @@ def main(_prog: str, cli_params: Namespace) -> int:
         if ssh_path is None:
             logger.error("required ssh command not in our PATH")
             return ReturnCode.MISSINGSSHCMD
+
+        # Connect with each of the tool hosts: if we can't connect via ssh,
+        # this isn't going to work, so if any of them fails we'll terminate
+        # with an error code.
+        #
+        # If we can connect, they'll tell us the IP address from which they see
+        # us connecting, and we'll use that (by default) as the server address.
+        localhost = LocalRemoteHost()
+        origin_ip = set()
+        template = TemplateSsh(ssh_cmd, shlex.split(ssh_opts), ['echo', '${SSH_CONNECTION}'])
+        for host in tool_group.hostnames.keys():
+            if not localhost.is_local(host):
+                template.start(host)
+
+        for host, params in tool_group.hostnames.items():
+            if not localhost.is_local(host):
+                connection = template.wait(host)
+                logger.debug("Host %s reports connection `%s`", host, connection)
+                if connection[0] == 0 and connection[1]:
+                    # The SSH_CONNECTION value is the full `stdout` and we
+                    # don't expect a stderr on success; the format is
+                    #   "origin_node origin_port local_node local_port"
+                    # we only need the origin node because we know that's an
+                    # IP for our local TDS and Redis host that the remote can
+                    # understand.
+                    origin = connection[1].split()[0]
+                    origin_ip.add(origin)
+
+                    # Store the origin reported by this remote in its parameter
+                    # block: we'll program this as the connection address when
+                    # we send the init handshake to that remote later.
+                    params["origin_host"] = origin
+                else:
+                    # If `ssh` fails, there's no point in continuing!
+                    logger.error("Host %s reports %s", host, connection)
+                    return ReturnCode.REMOTENOTREACHABLE
+
+        # Convert the de-duplicating set into an indexable list. Ideally there
+        # will be only a single entry here, since the current BaseServer init
+        # (and the Bottle WSGI server) doesn't support listening on multiple
+        # addresses; however we're going to just take the first returned origin
+        # address and hope they can all connect.
+        #
+        # NOTE: an alternative would be (in the absence of an explicit
+        # connection spec) to always listen on '0.0.0.0', but this eliminates
+        # IPv6, and we currently lack the mechanism to listen on both '0.0.0.0'
+        # and '::' (the IPv6 equivalent, aka '0:0:0:0:0:0:0:0').
+        origin_list = list(origin_ip)
+
+        # NOTE: If the caller/human supplied explicit PBENCH_REDIS_SERVER or
+        # PBENCH_TOOL_DATA_SINK (--redis-server or --tool-data-sink), we'll use
+        # those, but by default we'll use the ssh connection origin instead of
+        # the local `hostname` which may not be reachable by the remotes (or
+        # necessarily routable at all).
+        #
+        # If we aren't able to contact any remotes, or if there were no remotes
+        # in the first place, then the origin_list will be empty, and we'll
+        # proceed with the default local hostname. If we have SSH origin IPs,
+        # however, we'll use the first of them.
+        if len(origin_list) > 0:
+            logger.debug("Our connection hosts are %s", origin_list)
+            ip = ipaddress.ip_address(origin_list[0])
+            if isinstance(ip, ipaddress.IPv6Address):
+                origin = f"[{str(ip)}]"
+            else:
+                origin = str(ip)
+            if not tds_server_spec:
+                tds_server_spec = origin
+            if not redis_server_spec:
+                redis_server_spec = origin
     else:
         assert (
             cli_params.orchestrate == "existing"
@@ -753,13 +828,13 @@ def main(_prog: str, cli_params: Namespace) -> int:
         orchestrate = False
 
     try:
-        redis_server = RedisServer(cli_params.redis_server, full_hostname)
+        redis_server = RedisServer(redis_server_spec, full_hostname)
     except RedisServer.Err as exc:
         logger.error(str(exc))
         return exc.return_code
 
     try:
-        tool_data_sink = ToolDataSink(cli_params.tool_data_sink, full_hostname)
+        tool_data_sink = ToolDataSink(tds_server_spec, full_hostname)
     except ToolDataSink.Err as exc:
         logger.error(str(exc))
         return exc.return_code
@@ -835,12 +910,12 @@ def main(_prog: str, cli_params: Namespace) -> int:
 
     logger.debug("4. push tool group data and metadata")
     tool_group_data = dict()
-    for host in tool_group.hostnames.keys():
+    for host, params in tool_group.hostnames.items():
         tools = tool_group.get_tools(host)
         tm = dict(
             benchmark_run_dir=str(benchmark_run_dir),
             channel_prefix=cli_tm_channel_prefix,
-            tds_hostname=tool_data_sink.host,
+            tds_hostname=params["origin_host"] if "origin_host" in params else tool_data_sink.host,
             tds_port=tool_data_sink.port,
             controller=full_hostname,
             group=group,
