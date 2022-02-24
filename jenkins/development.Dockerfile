@@ -40,7 +40,7 @@
 #
 # [1] See https://www.redhat.com/sysadmin/user-flag-rootless-containers
 
-FROM docker.io/library/fedora:33
+FROM quay.io/fedora/fedora:33
 
 RUN \
     dnf install -y \
@@ -174,6 +174,7 @@ RUN \
         `# Install utilities for building RPMs, evaluating test results, etc.` \
         copr-cli \
         diffutils \
+        copr-cli \
         git \
         less \
         python3-jinja2-cli \
@@ -181,6 +182,6 @@ RUN \
         rpmlint \
         rpm-build \
         sqlite && \
-        `#` \
-        `# Save space in the container image.` \
-        dnf -y clean all && rm -rf /var/cache/dnf
+    `#` \
+    `# Save space in the container image.` \
+    dnf -y clean all && rm -rf /var/cache/dnf
