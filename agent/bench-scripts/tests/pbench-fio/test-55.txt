@@ -90,6 +90,7 @@ fio job failed, status code 42
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] fio_pre_check(targets="/var/tmp", clients="", ver="3.21", match="gte")
+[debug][1900-01-01T00:00:00.000000] Running pre-check locally
 [debug][1900-01-01T00:00:00.000000] local_pre_check(devs="", ver="3.21", match="gte")
 [debug][1900-01-01T00:00:00.000000] found fio-3.42
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/fio.job ]

@@ -176,31 +176,26 @@ function gen_xml {
 	echo "</profile>"
 }
 
-function is_remote {
-	# Returns 0 if the argument is considered "remote", and 1 if not.
-	[[ "${1}" != "127.0.0.1" && "${1}" != "localhost" ]]
-}
-
 function stop_server {
 	local server="${1}"
 	local server_port="${2}"
 	local message="${3}"
 
 	local ss_output
-	if is_remote ${server}; then
-		ss_output=$(ssh ${ssh_opts} ${server} ss -tlnp --vsock)
-	else
+	if pbench-is-local ${server}; then
 		ss_output=$(ss -tlnp --vsock)
+	else
+		ss_output=$(ssh ${ssh_opts} ${server} ss -tlnp --vsock)
 	fi
 	local uperf_pids=$(sed -En -e "/:${server_port} / s/.*pid=([^,]+),.*/\1/p" <<< "${ss_output}" | sort -u)
 	if [[ -n "${uperf_pids}" ]]; then
 		if [[ ${message} -eq 1 ]]; then
 			echo "found uperf pid(s) ${uperf_pids} on ${server}:${server_port}, killing"
 		fi
-		if is_remote ${server}; then
-			ssh ${ssh_opts} ${server} "for pid in ${uperf_pids}; do kill \${pid}; done"
-		else
+		if pbench-is-local ${server}; then
 			for pid in ${uperf_pids}; do kill ${pid}; done
+		else
+			ssh ${ssh_opts} ${server} "for pid in ${uperf_pids}; do kill \${pid}; done"
 		fi
 	fi
 }
@@ -412,7 +407,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	let c_cnt=0
 	for client in ${clients//,/ }; do
 		(( c_cnt++ ))
-		if ! is_remote "${client}"; then
+		if pbench-is-local "${client}"; then
 			check_local=1
 		fi
 	done
@@ -423,7 +418,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	let s_cnt=0
 	for server in ${servers//,/ }; do
 		(( s_cnt++ ))
-		if ! is_remote "${server}"; then
+		if pbench-is-local "${server}"; then
 			check_local=1
 		fi
 	done
@@ -468,7 +463,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	let err_cnt=0
 	err_clients=""
 	for client in ${clients//,/ }; do
-		if is_remote "${client}"; then
+		if ! pbench-is-local "${client}"; then
 			debug_log "performing uperf pre-checks on client ${client}"
 			ssh ${ssh_opts} ${client} pbench-uperf --pre-check "${ver}" "${match}"
 			if [ ${?} -ne 0 ]; then
@@ -479,7 +474,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 	done
 	err_servers=""
 	for server in ${servers//,/ }; do
-		if is_remote "${server}"; then
+		if ! pbench-is-local "${server}"; then
 			debug_log "performing uperf pre-checks on server ${server}"
 			ssh ${ssh_opts} ${server} pbench-uperf --pre-check "${ver}" "${match}"
 			if [ ${?} -ne 0 ]; then
@@ -662,14 +657,14 @@ for protocol in ${protocols//,/ }; do
 									chmod +x $benchmark_client_cmd_file
 
 									# prepare test files and dirs if using remote clients
-									if is_remote "${client}"; then
+									if ! pbench-is-local "${client}"; then
 										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
 										scp $scp_opts $xml_file $client:$xml_file >/dev/null
 										scp $scp_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
 									fi
 
 									# prepare test files and dirs on servers
-									if is_remote "${server}"; then
+									if ! pbench-is-local "${server}"; then
 										ssh $ssh_opts $server mkdir -p $benchmark_results_dir
 										scp $scp_opts $benchmark_server_cmd_file $server:$benchmark_server_cmd_file >/dev/null
 									fi
@@ -677,10 +672,10 @@ for protocol in ${protocols//,/ }; do
 									# start the uperf server(s)
 									stop_server $server $server_port 1
 
-									if is_remote "${server}"; then
-										ssh $ssh_opts $server "screen -dmS uperf-server $benchmark_server_cmd_file"
-									else
+									if pbench-is-local "${server}"; then
 										screen -dmS uperf-server $benchmark_server_cmd_file
+									else
+										ssh $ssh_opts $server "screen -dmS uperf-server $benchmark_server_cmd_file"
 									fi
 
 									((server_nr++))
@@ -718,7 +713,7 @@ for protocol in ${protocols//,/ }; do
 									debug_log "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 									echo "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 
-									if ! is_remote "${client}"; then
+									if pbench-is-local "${client}"; then
 										# using local client
 										debug_log "screen -dmS uperf-client $benchmark_client_cmd_file"
 										screen -dmS uperf-client $benchmark_client_cmd_file
@@ -744,11 +739,11 @@ for protocol in ${protocols//,/ }; do
 
 									stop_server $server $server_port 0
 
-									if is_remote "${server}"; then
+									if ! pbench-is-local "${server}"; then
 										server_log="$benchmark_results_dir/$uperf_identifier--server.log"
 										scp $scp_opts $server:$server_log $server_log >/dev/null
 									fi
-									if is_remote "${client}"; then
+									if ! pbench-is-local "${client}"; then
 										result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
 										scp $scp_opts $client:$result_file $result_file >/dev/null
 									fi

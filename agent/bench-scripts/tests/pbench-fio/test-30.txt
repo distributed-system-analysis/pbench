@@ -60,8 +60,9 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] fio_pre_check(targets="/tmp", clients="nodeA,nodeB", ver="3.21", match="gte")
 [debug][1900-01-01T00:00:00.000000] Running pre-check on client nodeA
 [debug][1900-01-01T00:00:00.000000] Running pre-check on client nodeB
-[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on the clients
-[debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on remote client nodeA:8765
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on remote client nodeB:8765
+[debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on the remote clients
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-30_1900.01.01T00.00.00/1-read-4KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-30_1900.01.01T00.00.00/fio-client.file --max-jobs=8]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/nodeA/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/nodeB/fio_clat_hist.*.log*) to process for histograms

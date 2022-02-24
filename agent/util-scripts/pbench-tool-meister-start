@@ -131,6 +131,7 @@ from pbench.agent.utils import (
     cli_verify_sysinfo,
     error_log,
     info_log,
+    LocalRemoteHost,
     RedisServerCommon,
 )
 from pbench.common.utils import validate_hostname
@@ -223,13 +224,12 @@ def start_tms_via_ssh(
     ssh_path: Path,
     tool_group: ToolGroup,
     ssh_opts: str,
-    full_hostname: str,
     redis_server: RedisServerCommon,
     redis_client: redis.Redis,
     logger: logging.Logger,
 ) -> None:
-    """start_tms_via_ssh - orchestrate the creation of local and remote Tool
-    Meister instances using ssh for those that are remote.
+    """Orchestrate the creation of local and remote Tool Meister instances using
+    ssh for those that are remote.
 
     Raises a StartTmsErr on failure.
 
@@ -238,6 +238,7 @@ def start_tms_via_ssh(
     failures.
     """
     assert len(tool_group.hostnames) > 0, "Logic bomb!  No hosts to run tools"
+    lrh = LocalRemoteHost()
     failures = 0
     successes = 0
     tool_meister_cmd = exec_dir / "tool-meister" / "pbench-tool-meister"
@@ -256,7 +257,7 @@ def start_tms_via_ssh(
     for host in tool_group.hostnames.keys():
         tm_count += 1
         tm_param_key = f"tm-{tool_group.group}-{host}"
-        if host == full_hostname:
+        if lrh.is_local(host):
             logger.debug("6a. starting localhost tool meister")
             try:
                 pid = os.fork()
@@ -917,7 +918,6 @@ def main(_prog: str, cli_params: Namespace) -> int:
                 Path(ssh_path),
                 tool_group,
                 ssh_opts,
-                full_hostname,
                 redis_server,
                 redis_client,
                 logger,
