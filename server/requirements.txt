@@ -3,21 +3,21 @@ aniso8601>=9.0.1
 Bcrypt-Flask
 boto3
 click>=8.0
-python-dateutil
 elasticsearch>=7.13.1, <7.14
 email-validator>1.1.1
 flask
-Flask-HTTPAuth>=4.0.0
-flask-restful>=0.3.9
 flask_cors
+Flask-HTTPAuth>=4.0.0
 flask-jwt-extended
-flask-sqlalchemy
 flask-migrate
+flask-restful>=0.3.9
+flask-sqlalchemy
 gunicorn
 humanize
+psycopg2
 pyesbulk>=2.0.1
 PyJwt
-psycopg2
+python-dateutil
 requests
 sqlalchemy>=1.4.23
 sqlalchemy_utils>=0.37.6
