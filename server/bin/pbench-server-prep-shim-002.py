@@ -12,11 +12,11 @@ import os
 import sys
 import glob
 import shutil
-import selinux
 import tempfile
 
 from pathlib import Path
 
+from pbench.common import selinux
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum

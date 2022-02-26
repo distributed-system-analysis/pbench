@@ -6,9 +6,9 @@ import shutil
 from typing import Dict, List, Union
 
 from dateutil import parser as date_parser
-import selinux
 import tarfile
 
+from pbench.common import selinux
 from pbench.server import PbenchServerConfig, JSON
 from pbench.server.database.models.datasets import Dataset
 

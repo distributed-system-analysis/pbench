@@ -51,7 +51,7 @@ def selinux_disabled(monkeypatch):
     """
     Pretend that selinux is disabled so restorecon isn't called
     """
-    monkeypatch.setattr("selinux.is_selinux_enabled", lambda: 0)
+    monkeypatch.setattr("pbench.common.selinux.is_selinux_enabled", lambda: 0)
 
 
 @pytest.fixture()
@@ -59,8 +59,8 @@ def selinux_enabled(monkeypatch):
     """
     Pretend that selinux is enabled but make restorecon exit with no action
     """
-    monkeypatch.setattr("selinux.is_selinux_enabled", lambda: 1)
-    monkeypatch.setattr("selinux.restorecon", lambda a: None)
+    monkeypatch.setattr("pbench.common.selinux.is_selinux_enabled", lambda: 1)
+    monkeypatch.setattr("pbench.common.selinux.restorecon", lambda a: None)
 
 
 class TestFileTree:
