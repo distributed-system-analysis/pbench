@@ -176,7 +176,7 @@ user-tool)
 	postprocess_script=""
 	start_script=""
 	stop_script=""
-	tool_name=""
+	tool_name_arg=""
 	longoptions="${longoptions},file-to-capture:,postprocess-script:,start-script:,stop-script:,tool-name:"
 	;;
 virsh-migrate)
@@ -464,7 +464,7 @@ while true; do
 		;;
 	--tool-name)
 		if [[ -n "${1}" ]]; then
-			tool_name="${1}"
+			tool_name_arg="${1}"
 			shift
 		fi
 		;;
@@ -497,7 +497,7 @@ if [[ "${mode}" != "install" && ( -z "${tool_dir}" || ! -d "${tool_dir}" ) ]]; t
 fi
 
 if [[ "${tool}" == "user-tool" ]]; then
-	if [[ -z "${tool_name}" ]]; then
+	if [[ -z "${tool_name_arg}" ]]; then
 		printf -- "%s: You must provide a value for --tool-name\n" "${tool}" >&2
 		usage >&2
 		exit 1
@@ -507,7 +507,7 @@ if [[ "${tool}" == "user-tool" ]]; then
 		usage >&2
 		exit 1
 	fi
-	tool_name="${tool}-${tool_name}"
+	tool_name="${tool}-${tool_name_arg}"
 else
 	tool_name="${tool}"
 fi
@@ -708,26 +708,26 @@ start)
 	mkdir -p "${tool_output_dir}"
 	pushd "${tool_output_dir}" >/dev/null
 	if [[ ${?} -ne 0 ]]; then
-		printf -- "%s: failed to create tool output directory, %s\n" "${tool_name}" "${tool_output_dir}" >&2
+		printf -- "%s: failed to create tool output directory, %s\n" "${tool}" "${tool_output_dir}" >&2
 		exit 1
 	fi
 
 	if [[ ! -z "${options}" ]]; then
 		# Record any options for later post-processing use.
-		echo "${options}" > ./${tool_name}.options
+		echo "${options}" > ./${tool}.options
 	fi
 
-	tool_cmd_file="./${tool_name}.cmd"
+	tool_cmd_file="./${tool}.cmd"
 	if [[ -z "${gopath}" ]]; then
 		if [[ "${tool_package_name}" == "golang" ]]; then
-			printf -- "%s: golang based tools require the --gopath option\n" "${tool_name}" >&2
+			printf -- "%s: golang based tools require the --gopath option\n" "${tool}" >&2
 			popd > /dev/null
 			exit 1
 		fi
 		_gopath=""
 	else
 		if [[ ! -d "${gopath}/bin" ]]; then
-			printf -- "%s: invalid GOPATH directory specified, '%s'\n" "${tool_name}" "${gopath}" >&2
+			printf -- "%s: invalid GOPATH directory specified, '%s'\n" "${tool}" "${gopath}" >&2
 			popd > /dev/null
 			exit 1
 		fi
@@ -738,7 +738,7 @@ start)
 		_goroot=""
 	else
 		if [[ ! -x "${goroot}/bin/go" ]]; then
-			printf -- "%s: invalid GOROOT directory specified, '%s'\n" "${tool_name}" "${goroot}" >&2
+			printf -- "%s: invalid GOROOT directory specified, '%s'\n" "${tool}" "${goroot}" >&2
 			popd > /dev/null
 			exit 1
 		fi
@@ -759,22 +759,22 @@ start)
 	# Force LANG=C for all tools
 	printf -- "#!/bin/bash\n# base-tool generated command file\n\nLANG=C PYTHONUNBUFFERED=True%s%s%s exec %s\n" "${_goroot}" "${_gopath}" "${_newpath}" "${tool_cmd}" > "${tool_cmd_file}"
 	chmod +x "${tool_cmd_file}"
-	printf -- "%s: running \"%s\"\n" "${tool_name}" "${tool_cmd}"
-	tool_stdout_file="./${tool_name}-stdout.txt"
-	tool_stderr_file="./${tool_name}-stderr.txt"
-	${tool_cmd_file} > "${tool_stdout_file}" 2> "${tool_stderr_file}" & echo ${!} > "./${tool_name}.pid"
+	printf -- "%s: running \"%s\"\n" "${tool}" "${tool_cmd}"
+	tool_stdout_file="./${tool}-stdout.txt"
+	tool_stderr_file="./${tool}-stderr.txt"
+	${tool_cmd_file} > "${tool_stdout_file}" 2> "${tool_stderr_file}" & echo ${!} > "./${tool}.pid"
 	wait
 	rc=0
 	popd > /dev/null
 	;;
 stop)
 	if [[ ! -d "${tool_output_dir}" ]]; then
-		printf -- "%s: WARNING - stop - tool output directory, '%s', missing\n" "${tool_name}" "${tool_output_dir}" >&2
+		printf -- "%s: WARNING - stop - tool output directory, '%s', missing\n" "${tool}" "${tool_output_dir}" >&2
 		exit 1
 	fi
 	enable -n kill
-	printf -- "%s: stopping\n" "${tool_name}"
-	tool_pid_file="${tool_output_dir}/${tool_name}.pid"
+	printf -- "%s: stopping\n" "${tool}"
+	tool_pid_file="${tool_output_dir}/${tool}.pid"
 	if [[ -s "${tool_pid_file}" ]]; then
 		pid="$(cat ${tool_pid_file})"
 		if [[ ! -z "${pid}" ]] ;then
@@ -789,20 +789,20 @@ stop)
 				fi
 				# wait for the trace-cmd pid to complete
 				while [[ -d /proc/${pid} ]]; do
-					printf -- "%s: waiting for PID '%s' to die\n" "${tool_name}" "${pid}"
+					printf -- "%s: waiting for PID '%s' to die\n" "${tool}" "${pid}"
 					sleep 0.5
 				done
 				rc=0
 				;;
 			perf)
-				safe_kill "${tool_name}" "${pid}" "INT"
+				safe_kill "${tool}" "${pid}" "INT"
 				# Wait for perf to finish recording.  if you
 				# do not wait, 'perf report' will not be
 				# correct.  perf is not a child process, so we
 				# cannot use "wait".
 				pidcmd="$(ps -p ${pid} | tail -1 | awk '{print $4}')"
 				while [[ -d /proc/${pid} ]]; do
-					printf -- "%s: Waiting for PID '%s' (%s) to finish\n" "${tool_name}" "${pid}" "${pidcmd}"
+					printf -- "%s: Waiting for PID '%s' (%s) to finish\n" "${tool}" "${pid}" "${pidcmd}"
 					sleep 0.5
 				done
 				rc=0
@@ -816,7 +816,7 @@ stop)
 				rc=${?}
 				;;
 			blktrace|bpftrace|iostat|mpstat|sar|systemtap|tcpdump|turbostat|vmstat)
-				safe_kill "${tool_name}" "${pid}"
+				safe_kill "${tool}" "${pid}"
 				rc=${?}
 				;;
 			pidstat)
@@ -828,7 +828,7 @@ stop)
 				rc=${?}
 				;;
 			*)
-				safe_kill "${tool_name}-datalog" "${pid}"
+				safe_kill "${tool}-datalog" "${pid}"
 				rc=${?}
 				;;
 			esac
@@ -836,10 +836,10 @@ stop)
 				/bin/rm -f "${tool_pid_file}"
 			fi
 		else
-			printf -- "%s: tool is not running, nothing to kill (empty pid file)\n" "${tool_name}" >&2
+			printf -- "%s: tool is not running, nothing to kill (empty pid file)\n" "${tool}" >&2
 		fi
 	else
-		printf -- "%s: tool is not running, nothing to kill (missing or empty pid file)\n" "${tool_name}" >&2
+		printf -- "%s: tool is not running, nothing to kill (missing or empty pid file)\n" "${tool}" >&2
 	fi
 	if [[ ${rc} == 0 ]]; then
 		case "${tool}" in
@@ -852,7 +852,7 @@ stop)
 		esac
 		# We only post-process if we were successfully able to stop the tool.
 		if [[ -x ${_script_path} ]]; then
-			printf -- "%s: post-processing following stop\n" "${tool_name}"
+			printf -- "%s: post-processing following stop\n" "${tool}"
 			if [[ "${tool}" == "kvmtrace" ]]; then
 				args="${vm}"
 			elif [[ "${tool}" == "perf" ]]; then
@@ -865,19 +865,19 @@ stop)
 			fi
 			pushd ${tool_output_dir} >/dev/null
 			${_script_path} "." ${args} \
-					>  ./${tool_name}-stop-postprocess.out \
-					2> ./${tool_name}-stop-postprocess.err
+					>  ./${tool}-stop-postprocess.out \
+					2> ./${tool}-stop-postprocess.err
 			rc=${?}
 			popd >/dev/null
 		else
-			printf -- "%s: no post-processing available following stop\n" "${tool_name}"
+			printf -- "%s: no post-processing available following stop\n" "${tool}"
 			rc=0
 		fi
 	fi
 	;;
 postprocess)
 	if [[ ! -d "${tool_output_dir}" ]]; then
-		printf -- "%s: WARNING - postprocess - tool output directory, '%s', missing\n" "${tool_name}" "${tool_output_dir}" >&2
+		printf -- "%s: WARNING - postprocess - tool output directory, '%s', missing\n" "${tool}" "${tool_output_dir}" >&2
 		exit 1
 	fi
 	case "${tool}" in
@@ -889,20 +889,20 @@ postprocess)
 		;;
 	esac
 	if [[ -x "${_script_path}" ]]; then
-		printf -- "%s: post-processing data\n" "${tool_name}"
+		printf -- "%s: post-processing data\n" "${tool}"
 		pushd ${tool_output_dir} >/dev/null
 		${_script_path} "." \
-				>  ./${tool_name}-postprocess.out \
-				2> ./${tool_name}-postprocess.err
+				>  ./${tool}-postprocess.out \
+				2> ./${tool}-postprocess.err
 		rc=${?}
 		popd >/dev/null
 	else
-		printf -- "%s: no data post-processing available\n" "${tool_name}"
+		printf -- "%s: no data post-processing available\n" "${tool}"
 		rc=0
 	fi
 	;;
 *)
-	printf -- "%s: unexpected mode: '%s', no action taken\n" "${tool_name}" "${mode}" >&2
+	printf -- "%s: unexpected mode: '%s', no action taken\n" "${tool}" "${mode}" >&2
 	rc=1
 	;;
 esac
