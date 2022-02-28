@@ -753,7 +753,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
         # us connecting, and we'll use that (by default) as the server address.
         localhost = LocalRemoteHost()
         origin_ip = set()
-        template = TemplateSsh(ssh_cmd, shlex.split(ssh_opts), ['echo', '${SSH_CONNECTION}'])
+        template = TemplateSsh(ssh_cmd, shlex.split(ssh_opts), "echo ${SSH_CONNECTION}")
         for host in tool_group.hostnames.keys():
             if not localhost.is_local(host):
                 template.start(host)
@@ -762,14 +762,14 @@ def main(_prog: str, cli_params: Namespace) -> int:
             if not localhost.is_local(host):
                 connection = template.wait(host)
                 logger.debug("Host %s reports connection `%s`", host, connection)
-                if connection[0] == 0 and connection[1]:
+                if connection.status == 0 and connection.stdout:
                     # The SSH_CONNECTION value is the full `stdout` and we
                     # don't expect a stderr on success; the format is
                     #   "origin_node origin_port local_node local_port"
                     # we only need the origin node because we know that's an
                     # IP for our local TDS and Redis host that the remote can
-                    # understand.
-                    origin = connection[1].split()[0]
+                    # reach.
+                    origin = connection.stdout.split()[0]
                     origin_ip.add(origin)
 
                     # Store the origin reported by this remote in its parameter
@@ -777,12 +777,13 @@ def main(_prog: str, cli_params: Namespace) -> int:
                     # we send the init handshake to that remote later.
                     params["origin_host"] = origin
                 else:
-                    # If `ssh` fails, there's no point in continuing!
+                    # If `ssh` fails, we can't orchestrate anything on this
+                    # remote, so terminate with an error.
                     logger.error("Host %s reports %s", host, connection)
                     return ReturnCode.REMOTENOTREACHABLE
 
-        # Convert the de-duplicating set into an indexable list. Ideally there
-        # will be only a single entry here, since the current BaseServer init
+        # Process the collected origin addresses from our remotes. Ideally we
+        # have only a single entry here, since the current BaseServer init
         # (and the Bottle WSGI server) doesn't support listening on multiple
         # addresses; however we're going to just take the first returned origin
         # address and hope they can all connect.
@@ -791,21 +792,15 @@ def main(_prog: str, cli_params: Namespace) -> int:
         # connection spec) to always listen on '0.0.0.0', but this eliminates
         # IPv6, and we currently lack the mechanism to listen on both '0.0.0.0'
         # and '::' (the IPv6 equivalent, aka '0:0:0:0:0:0:0:0').
-        origin_list = list(origin_ip)
-
+        #
         # NOTE: If the caller/human supplied explicit PBENCH_REDIS_SERVER or
         # PBENCH_TOOL_DATA_SINK (--redis-server or --tool-data-sink), we'll use
         # those, but by default we'll use the ssh connection origin instead of
         # the local `hostname` which may not be reachable by the remotes (or
         # necessarily routable at all).
-        #
-        # If we aren't able to contact any remotes, or if there were no remotes
-        # in the first place, then the origin_list will be empty, and we'll
-        # proceed with the default local hostname. If we have SSH origin IPs,
-        # however, we'll use the first of them.
-        if len(origin_list) > 0:
-            logger.debug("Our connection hosts are %s", origin_list)
-            ip = ipaddress.ip_address(origin_list[0])
+        if len(origin_ip) > 0:
+            logger.debug("Our connection hosts are %s", origin_ip)
+            ip = ipaddress.ip_address(iter(origin_ip).next())
             if isinstance(ip, ipaddress.IPv6Address):
                 origin = f"[{str(ip)}]"
             else:

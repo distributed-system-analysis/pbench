@@ -7,7 +7,7 @@ import socket
 import subprocess
 import sys
 import time
-from typing import Dict, List, Tuple
+from typing import Dict, List, NamedTuple, Tuple
 
 from datetime import datetime
 import ifaddr
@@ -404,27 +404,34 @@ class TemplateSsh:
     and acquire the stdout and stderr streams along with the completion status.
     """
 
-    def __init__(self, ssh_cmd: Path, ssh_args: List[str], cmd: List[str]):
+    class Return(NamedTuple):
+        status: int
+        stdout: str
+        stderr: str
+
+    def __init__(self, ssh_cmd: Path, ssh_args: List[str], cmd: str):
         """
         Create an SSH template object
 
         Args:
             ssh_cmd: Path to the ssh command
             ssh_args: A partial argv representing ssh command options
-            cmd: A partial argv representing a remote command to be executed
+            cmd: A templated string representing a remote command to be executed
         """
         self.command = cmd
         self.procs: Dict[str, subprocess.Popen] = {}
         self.base_args = [ssh_cmd] + ssh_args
 
-    def start(self, host: str):
+    def start(self, host: str, **kwargs):
         """
         Begin an asynchronous ssh command on the specified remote host
 
         Args:
             host: hostname or IP
+            kwargs: key/value pairs to expand cmd template
         """
-        args = self.base_args + [host] + self.command
+        cmd = self.command.format(**kwargs) if kwargs else self.command
+        args = self.base_args + [host, cmd]
         popen = subprocess.Popen(args, stdout=subprocess.PIPE, universal_newlines=True)
         self.procs[host] = popen
 
@@ -447,7 +454,7 @@ class TemplateSsh:
             out, err = popen.communicate()
         status = popen.returncode
         del self.procs[host]
-        return (status, out, err)
+        return self.Return(status, out, err)
 
 
 class LocalRemoteHost:
