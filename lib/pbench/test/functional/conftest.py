@@ -1,3 +1,4 @@
+import os
 import pytest
 import subprocess
 
@@ -18,7 +19,7 @@ def capture(command):
 
 @pytest.fixture
 def pbench_run(monkeypatch, tmp_path):
-    monkeypatch.delenv("pbench_run")
+    assert "pbench_run" not in os.environ
     pbench_agent_d = tmp_path / "var" / "lib" / "pbench-agent"
     pbench_agent_d.mkdir(parents=True, exist_ok=True)
 
