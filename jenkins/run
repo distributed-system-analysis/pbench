@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Run commands within the pbench-devel container image.
+# Run commands within the pbench-devel-${IMAGE_KIND} container image.
 #
-# Generally you want to run a shell, and `source jenkins/python-setup.py` to
+# Generally you want to run a shell, and `source jenkins/python-setup.sh` to
 # initialize a Pbench testing environment.
 #
 # Several customizing inputs can be given via environment variables:
@@ -11,6 +11,7 @@
 # CONTAINER_HOME_OPTION [z] (used only if CONTAINER_HOME is given)
 # EXTRA_PODMAN_SWITCHES []
 # IMAGE_REPO [quay.io/pbench]
+# IMAGE_KIND [fedora] (see Makefile for options)
 #
 # For example, run with HOME mapped to /tmp/jenkins in the host system, and run
 # an interactive bash shell:
@@ -31,6 +32,10 @@ _branch_name="$(cat jenkins/branch.name)"
 
 if [[ -z "${IMAGE_REPO}" ]]; then
     IMAGE_REPO="quay.io/pbench"
+fi
+
+if [[ -z "${IMAGE_KIND}" ]]; then
+    IMAGE_KIND="fedora"
 fi
 
 IHOME=/container/home
@@ -63,4 +68,4 @@ podman run \
     --ulimit nofile=65536:65536 \
     --rm \
     ${EXTRA_PODMAN_SWITCHES} \
-    ${IMAGE_REPO}/pbench-devel:${_branch_name} /bin/bash -c "${*}"
+    ${IMAGE_REPO}/pbench-devel-${IMAGE_KIND}:${_branch_name} /bin/bash -c "${*}"

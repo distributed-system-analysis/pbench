@@ -24,9 +24,12 @@ HOSTNAME_F=pbenchinacan
 GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PBINC_DIR=${GITTOP}/server/pbenchinacan
 
+# Image tag determined from jenkins/branch.name
+BRANCH := $(shell cat ${GITTOP}/jenkins/branch.name)
+
 # Open a copy of the base container.  Docker format is required in order to set
 # the hostname.
-container=$(buildah from --format=docker quay.io/pbench/pbench-devel-rhel8:main)
+container=$(buildah from --format=docker quay.io/pbench/pbench-devel-ubi:${BRANCH})
 
 # We could mount the container filesystem and access it directly, but we
 # instead access it with buildah commands.
