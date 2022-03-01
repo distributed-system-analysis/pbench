@@ -478,7 +478,7 @@ appendonly no
 dbfilename pbench-redis.rdb
 logfile {tm_dir}/redis.log
 loglevel notice
-pidfile {tm_dir}/redis_{redis_port:d}.pid
+pidfile {redis_pid_file}
 port {redis_port:d}
 """
 
@@ -566,11 +566,13 @@ port {redis_port:d}
         bind_host_names = " ".join(bind_hostnames_l)
 
         # Create the Redis server pbench-specific configuration file
+        self.pid_file = tm_dir / f"redis_{self.bind_port:d}.pid"
         redis_conf = tm_dir / "redis.conf"
         params = {
             "bind_host_names": bind_host_names,
             "tm_dir": tm_dir,
             "redis_port": self.bind_port,
+            "redis_pid_file": str(self.pid_file),
         }
         try:
             with redis_conf.open("w") as fp:
@@ -583,7 +585,6 @@ port {redis_port:d}
         # Start the Redis Server itself
         redis_srvr = "redis-server"
         redis_srvr_path = find_executable(redis_srvr)
-        self.pid_file = tm_dir / f"redis_{self.bind_port:d}.pid"
         try:
             retcode = os.spawnl(os.P_WAIT, redis_srvr_path, redis_srvr, redis_conf)
         except Exception as exc:
