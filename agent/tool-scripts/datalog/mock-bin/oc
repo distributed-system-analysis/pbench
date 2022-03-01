@@ -16,11 +16,10 @@ if [[ "${1}" == "get" ]]; then
             ;;
         *)
             if [[ -x /bin/sleep ]]; then
-                /bin/sleep 120
+                exec /bin/sleep 120
             else
-                /usr/bin/sleep 120
+                exec /usr/bin/sleep 120
             fi
-            echo "${2} slept a long time!"
             ;;
     esac
     exit 0

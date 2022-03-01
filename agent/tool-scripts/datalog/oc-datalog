@@ -116,7 +116,7 @@ else:
 # Gather "nodes" and "events" before we start other watchers.
 gather_nodes_ev("start")
 
-cmd_fmt = "oc get {all_ns_opt} {component} -o wide -w"
+cmd_fmt = "oc get {all_ns_opt}{component} -o wide -w"
 opts = {}
 pids = {}
 
@@ -129,7 +129,7 @@ try:
         # Wait 5 seconds between starting watchers.
         time.sleep(_OC_DELAY)
 
-        opts['all_ns_opt'] = "" if component in ('cs', 'pv') else "--all-namespaces"
+        opts['all_ns_opt'] = "" if component in ('cs', 'pv') else "--all-namespaces "
         opts['component'] = component
         cmd = cmd_fmt.format(**opts)
         cfp = open(os.path.join(tool_output_dir, f"{component}.txt"), "w")
@@ -146,7 +146,7 @@ try:
             stdout=cfp,
             stderr=subprocess.STDOUT,
             shell=True)
-        pids['component'] = (oc_cmd, log_ts, cfp)
+        pids[component] = (oc_cmd, log_ts, cfp)
 
     # Wait for all sub-processes to complete
     while not terminate:
