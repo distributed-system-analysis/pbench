@@ -454,7 +454,7 @@ class TemplateSsh:
             out, err = popen.communicate()
         status = popen.returncode
         del self.procs[host]
-        return self.Return(status, out, err)
+        return self.Return(status=status, stdout=out, stderr=err)
 
 
 class LocalRemoteHost:
