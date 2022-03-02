@@ -161,6 +161,8 @@ if ($pp_only) {
     # Spaces in directories, just don't do it
     $base_bench_dir =~ s/\s+/_/g;
     mkdir("$base_bench_dir");
+    # Ensure base dir is exported in environment (required by TM)
+    $ENV{"benchmark_run_dir"} = $base_bench_dir;
 
     # Document the params used for this invocation so one can re-run, and then they can add
     # "--postprocess-only=y --base-bench_dir=$base_bench_dir" if they wish to not run but
