@@ -18,7 +18,7 @@ development.fedora.Dockerfile: development.Dockerfile.j2
 	jinja2 development.Dockerfile.j2 \
 		-D base_image_ref="quay.io/fedora/fedora:34" \
 		-D fedora=True \
-		> ./$@
+		> $@
 
 development.ubi.Dockerfile: development.Dockerfile.j2
 	jinja2 development.Dockerfile.j2 \
@@ -26,7 +26,7 @@ development.ubi.Dockerfile: development.Dockerfile.j2
 		-D ubi=True \
 		-D repo_file_url="${REPO_FILE_URL}" \
 		-D hosts_file_url="${HOSTS_FILE_URL}" \
-		> ./$@
+		> $@
 
 clean:
-	rm -f development.ubi.Dockerfile development.fedora.Dockerfile
+	rm -f development.*.Dockerfile

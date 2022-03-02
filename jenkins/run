@@ -2,7 +2,7 @@
 
 # Run commands within the pbench-devel-${IMAGE_KIND} container image.
 #
-# Generally you want to run a shell, and `source jenkins/python-setup.sh` to
+# Generally you want to run a shell and `source jenkins/python-setup.sh` to
 # initialize a Pbench testing environment.
 #
 # Several customizing inputs can be given via environment variables:

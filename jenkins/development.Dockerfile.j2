@@ -83,11 +83,13 @@ RUN \
 {%- endif %}
         python3-cffi \
         python3-click \
+{%- if fedora %}
+        python3-daemon \
+{%- endif %}
 {%- if ubi %}
         python3-docutils \
 {%- endif %}
 {%- if fedora %}
-        python3-daemon \
         python3-jinja2 \
 {%- endif %}
         python3-pip \
@@ -154,20 +156,24 @@ RUN \
         `# wrong, but, if so, the setup will install the proper versions.` \
         `# The packages in this list other than Black and Flake8 cover their` \
         `# dependencies when installed via pip.` \
-{%- if fedora and False %}
+{%- if fedora %}
         black \
+{%- endif %}
+        python3-appdirs \
+        python3-attrs \
+        python3-entrypoints \
+{%- if fedora %}
         python3-flake8 \
+{%- endif %}
+        python3-mccabe \
+        python3-pathspec \
+        python3-pycodestyle \
+{%- if fedora %}
         python3-pyflakes \
 {%- endif %}
-        python3-toml \
         python3-regex \
+        python3-toml \
         python3-typed_ast \
-        python3-pathspec \
-        python3-attrs \
-        python3-appdirs \
-        python3-entrypoints \
-        python3-pycodestyle \
-        python3-mccabe \
         tox \
         \
         `#` \
@@ -178,7 +184,7 @@ RUN \
         python3-mock \
         python3-pytest \
         python3-pytest-cov \
-{%- if fedora and False %}
+{%- if fedora %}
         python3-pytest-helpers-namespace \
 {%- endif %}
         python3-pytest-mock \
@@ -199,7 +205,7 @@ RUN \
         python3-mock \
         python3-pytest \
         python3-pytest-cov \
-{%- if fedora and False %}
+{%- if fedora %}
         python3-pytest-helpers-namespace \
 {%- endif %}
         python3-pytest-mock \

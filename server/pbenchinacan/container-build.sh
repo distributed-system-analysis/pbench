@@ -25,7 +25,7 @@ GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PBINC_DIR=${GITTOP}/server/pbenchinacan
 
 # Image tag determined from jenkins/branch.name
-BRANCH := $(shell cat ${GITTOP}/jenkins/branch.name)
+BRANCH=$(< ${GITTOP}/jenkins/branch.name)
 
 # Open a copy of the base container.  Docker format is required in order to set
 # the hostname.
