@@ -88,24 +88,8 @@ cp -a agent/* %{?buildroot}/%{installdir}/
 # configtools installed: zap it.
 if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;fi
 
-%post
-%if 0%{?rhel} == 7
-# This is a very ugly work-around for RHEL 7 / CentOS 7 environments. The
-# version of `pip3` that is available in those environments no longer works
-# to install the latest Python3 modules, which we need. So we have to fetch
-# our own copy of `pip3`, as described at:
-#   https://pip.pypa.io/en/latest/installing/#installing-with-get-pip-py 
-# We then install it separately from the existing version and set `PATH` and
-# `PYTHONPATH` so that we use this updated version when we install our module
-# dependencies below.
-curl -X GET -o /%{installdir}/get-pip.py https://bootstrap.pypa.io/get-pip.py > /%{installdir}/pip3-update.log 2>&1
-python3 /%{installdir}/get-pip.py --prefix=/%{installdir} >> /%{installdir}/pip3-update.log 2>&1
-export PYTHONPATH=/%{installdir}/lib/python3.6/site-packages:${PYTHONPATH}
-export PATH=/%{installdir}/bin:${PATH}
-%endif
-
-# Install python dependencies
-pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log
+python3 -m pip install --upgrade pip 2>&1 > /%{installdir}/pip3-upgrade.log
+python3 -m pip --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log 2>&1
 
 # link the pbench profile, so it'll automatically be sourced on login
 ln -sf /%{installdir}/profile /etc/profile.d/pbench-agent.sh

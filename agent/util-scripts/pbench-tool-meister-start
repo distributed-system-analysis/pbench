@@ -798,6 +798,12 @@ def main(_prog: str, cli_params: Namespace) -> int:
         # those, but by default we'll use the ssh connection origin instead of
         # the local `hostname` which may not be reachable by the remotes (or
         # necessarily routable at all).
+        if len(origin_ip) != 1:
+            logger.warning(
+                "Remote hosts don't report a single controller "
+                "origin IP: this may be a problem: origins are %s",
+                origin_ip
+            )
         if len(origin_ip) > 0:
             logger.debug("Our connection hosts are %s", origin_ip)
             ip = ipaddress.ip_address(iter(origin_ip).next())
