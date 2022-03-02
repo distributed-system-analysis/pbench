@@ -178,6 +178,11 @@ if (! $pp_only) {
     system("pbench-stop-tools --group=" . $tool_group . " --dir=" . $sample_dir) == 0
 		or die "Failed to stop tools: $?";
 
+    # send the tools:
+    print "sending tools\n";
+    system("pbench-send-tools --group=" . $tool_group . " --dir=" . $sample_dir) == 0
+		or die "Failed to send tools: $?";
+
     # post-process the tools:
     print "post-processing tools\n";
     system("pbench-postprocess-tools --group=" . $tool_group . " --dir=" . $sample_dir) == 0
