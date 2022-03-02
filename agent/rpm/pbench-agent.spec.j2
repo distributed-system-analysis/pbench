@@ -88,6 +88,9 @@ cp -a agent/* %{?buildroot}/%{installdir}/
 # configtools installed: zap it.
 if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;fi
 
+%post
+
+# Install python dependencies
 python3 -m pip install --upgrade pip 2>&1 > /%{installdir}/pip3-upgrade.log
 python3 -m pip --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log 2>&1
 
