@@ -579,8 +579,10 @@ install)
 	function check_required_rpm {
 		local _tpn="${1}"
 		local _tpv="${2}"
-		local _installed_rpm="$(require-rpm "${_tpn}" "${_tpv}")"
-		local rc=${?}
+		local _installed_rpm
+		local rc
+    _installed_rpm="$(require-rpm "${_tpn}" "${_tpv}")"
+    rc=${?} 
 		if [[ ${rc} != 0 ]]; then
 			if [[ ! -z "${_tpv}" ]]; then
 				_tpv="-${_tpv}"
