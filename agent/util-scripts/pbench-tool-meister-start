@@ -143,6 +143,7 @@ from pbench.agent.constants import (
     tm_channel_suffix_to_client,
     tm_channel_suffix_from_client,
     tm_channel_suffix_to_logging,
+    tm_data_key,
 )
 from pbench.agent.redis_utils import RedisChannelSubscriber
 from pbench.agent.tool_data_sink import main as tds_main
@@ -157,6 +158,7 @@ from pbench.agent.utils import (
     error_log,
     info_log,
     LocalRemoteHost,
+    log_failed_tool_init,
     RedisServerCommon,
     TemplateSsh,
 )
@@ -487,11 +489,14 @@ class ToolDataSink(BaseServer):
             logger.error("TDS daemonization didn't create %s", pid_file)
 
     @staticmethod
-    def wait(chan: RedisChannelSubscriber, logger: logging.Logger) -> int:
+    def wait(
+        chan: RedisChannelSubscriber, logger: logging.Logger, redis_client: redis.Redis
+    ) -> int:
         """wait - Wait for the Tool Data Sink to report back success or
-        failure regarding the Tool Meister environment setup.
+        failure regarding the Tool Meister environment setup. If failure,
+        report it.
         """
-        status = ""
+        failure_count = 0
         for data in chan.fetch_json(logger):
             # We expect the payload to look like:
             #   { "kind": "ds",
@@ -513,7 +518,7 @@ class ToolDataSink(BaseServer):
                     logger.warning("unrecognized action field in message, '%r'", data)
                     continue
                 break
-        return 0 if status == "success" else 1
+        return failure_count
 
     @staticmethod
     def is_running(pid: int) -> bool:
@@ -1196,7 +1201,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
             "7. waiting for all successfully created Tool Meister processes"
             " to show up as subscribers"
         )
-        ret_val = tool_data_sink.wait(to_client_chan, logger)
+        ret_val = tool_data_sink.wait(to_client_chan, logger, redis_client)
         if ret_val != 0:
             raise CleanupTime(
                 ReturnCode.TDSWAITFAILURE, "TDS didn't confirm init sequence completion"

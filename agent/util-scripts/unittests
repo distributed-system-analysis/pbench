@@ -123,7 +123,7 @@ function _run {
     echo "+++ Running ${tname} ${tscrpt} ${opts}" >> ${_testout}
 
     _runout=${_testroot}/run.out
-    eval ${tscrpt} ${opts} > ${_runout} 2>&1
+    _PBENCH_UNIT_TEST_NAME=${tname} eval ${tscrpt} ${opts} > ${_runout} 2>&1
     sts=${?}
 
     popd > /dev/null
@@ -425,6 +425,7 @@ declare -A tools=(
     [test-58]="pbench-stop-tools"
     [test-59]="pbench-postprocess-tools"
     [test-60]="pbench-send-tools"
+    [test-61]="test-client-tool-meister"
 )
 
 declare -A sortem=(
@@ -515,6 +516,7 @@ declare -A options=(
     [test-58]="--group=default --dir=42-iter/sample42"
     [test-59]="--group=foobar --dir=42-iter/sample42"
     [test-60]="--group=default --dir=42-iter/sample42"
+    [test-61]="lite with-remotes"
 )
 
 declare -A expected_status=(
@@ -606,6 +608,7 @@ declare -A post_hooks=(
     [test-53]='sort_testlog; sort_tmlogs; filter_tmerrs'
     [test-56]='sort_testlog; sort_tdslog; sort_tmlogs; filter_tmerrs'
     [test-57]='sort_testlog; sort_tdslog; sort_tmlogs; filter_tmerrs'
+    [test-61]='sort_testlog; sort_tdslog; sort_tmlogs; filter_tmerrs'
 )
 
 # Verify that there are no dangling gold files and sample directories.
