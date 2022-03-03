@@ -83,20 +83,14 @@ RUN \
 {%- endif %}
         python3-cffi \
         python3-click \
-{%- if not ubi %}
         python3-daemon \
-{%- endif %}
 {%- if ubi %}
         python3-docutils \
 {%- endif %}
-{%- if not ubi %}
         python3-jinja2 \
-{%- endif %}
         python3-pip \
         python3-psutil \
-{%- if not ubi %}
         python3-redis \
-{%- endif %}
         python3-requests \
         python3-sh \
         redis \
@@ -152,25 +146,12 @@ RUN \
         `#` \
         `# Install common lint and testing dependencies` \
         `#` \
-        `# Note that the versions of Black and Flake8 are almost certainly` \
-        `# wrong, but, if so, the setup will install the proper versions.` \
-        `# The packages in this list other than Black and Flake8 cover their` \
-        `# dependencies when installed via pip.` \
-{%- if not ubi %}
-        black \
-{%- endif %}
         python3-appdirs \
         python3-attrs \
         python3-entrypoints \
-{%- if not ubi %}
-        python3-flake8 \
-{%- endif %}
         python3-mccabe \
         python3-pathspec \
         python3-pycodestyle \
-{%- if not ubi %}
-        python3-pyflakes \
-{%- endif %}
         python3-regex \
         python3-toml \
         python3-typed_ast \
