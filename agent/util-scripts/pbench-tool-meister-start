@@ -802,12 +802,12 @@ def main(_prog: str, cli_params: Namespace) -> int:
         # necessarily routable at all).
         if len(origin_ip) != 1 and any_remote:
             logger.warning(
-                "Remote hosts don't report a single controller "
-                "origin IP: this may be a problem: origins are %s",
-                origin_ip
+                "Remote hosts don't agree on a single controller "
+                "origin IP, which may indicate a problem: origin(s) %s",
+                ",".join(origin_ip) if origin_ip else "<none>"
             )
         if len(origin_ip) > 0:
-            logger.debug("Our connection hosts are %s", origin_ip)
+            logger.debug("Our connection host(s): %s", ",".join(origin_ip))
             ip = ipaddress.ip_address(next(iter(origin_ip)))
             if isinstance(ip, ipaddress.IPv6Address):
                 origin = f"[{str(ip)}]"
