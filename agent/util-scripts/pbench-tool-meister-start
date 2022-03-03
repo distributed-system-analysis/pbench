@@ -753,9 +753,11 @@ def main(_prog: str, cli_params: Namespace) -> int:
         # us connecting, and we'll use that (by default) as the server address.
         localhost = LocalRemoteHost()
         origin_ip = set()
+        any_remote = False
         template = TemplateSsh(ssh_cmd, shlex.split(ssh_opts), "echo ${SSH_CONNECTION}")
         for host in tool_group.hostnames.keys():
             if not localhost.is_local(host):
+                any_remote = True
                 template.start(host)
 
         for host, params in tool_group.hostnames.items():
@@ -798,7 +800,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
         # those, but by default we'll use the ssh connection origin instead of
         # the local `hostname` which may not be reachable by the remotes (or
         # necessarily routable at all).
-        if len(origin_ip) != 1:
+        if len(origin_ip) != 1 and any_remote:
             logger.warning(
                 "Remote hosts don't report a single controller "
                 "origin IP: this may be a problem: origins are %s",
@@ -806,7 +808,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
             )
         if len(origin_ip) > 0:
             logger.debug("Our connection hosts are %s", origin_ip)
-            ip = ipaddress.ip_address(iter(origin_ip).next())
+            ip = ipaddress.ip_address(next(iter(origin_ip)))
             if isinstance(ip, ipaddress.IPv6Address):
                 origin = f"[{str(ip)}]"
             else:
