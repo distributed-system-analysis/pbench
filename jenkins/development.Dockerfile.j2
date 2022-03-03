@@ -78,23 +78,23 @@ RUN \
         procps-ng \
         psmisc \
         python3 \
-{%- if fedora %}
+{%- if not ubi %}
         python3-bottle \
 {%- endif %}
         python3-cffi \
         python3-click \
-{%- if fedora %}
+{%- if not ubi %}
         python3-daemon \
 {%- endif %}
 {%- if ubi %}
         python3-docutils \
 {%- endif %}
-{%- if fedora %}
+{%- if not ubi %}
         python3-jinja2 \
 {%- endif %}
         python3-pip \
         python3-psutil \
-{%- if fedora %}
+{%- if not ubi %}
         python3-redis \
 {%- endif %}
         python3-requests \
@@ -132,7 +132,7 @@ RUN \
         python3-email-validator \
         python3-flask \
         python3-flask-cors \
-{%- if fedora %}
+{%- if not ubi %}
         python3-flask-httpauth \
 {%- endif %}
         python3-flask-migrate \
@@ -145,7 +145,7 @@ RUN \
         python3-psycopg2 \
         python3-requests \
         python3-sqlalchemy \
-{%- if fedora %}
+{%- if not ubi %}
         python3-sqlalchemy-utils \
 {%- endif %}
         \
@@ -156,19 +156,19 @@ RUN \
         `# wrong, but, if so, the setup will install the proper versions.` \
         `# The packages in this list other than Black and Flake8 cover their` \
         `# dependencies when installed via pip.` \
-{%- if fedora %}
+{%- if not ubi %}
         black \
 {%- endif %}
         python3-appdirs \
         python3-attrs \
         python3-entrypoints \
-{%- if fedora %}
+{%- if not ubi %}
         python3-flake8 \
 {%- endif %}
         python3-mccabe \
         python3-pathspec \
         python3-pycodestyle \
-{%- if fedora %}
+{%- if not ubi %}
         python3-pyflakes \
 {%- endif %}
         python3-regex \
@@ -184,7 +184,7 @@ RUN \
         python3-mock \
         python3-pytest \
         python3-pytest-cov \
-{%- if fedora %}
+{%- if not ubi %}
         python3-pytest-helpers-namespace \
 {%- endif %}
         python3-pytest-mock \
@@ -205,7 +205,7 @@ RUN \
         python3-mock \
         python3-pytest \
         python3-pytest-cov \
-{%- if fedora %}
+{%- if not ubi %}
         python3-pytest-helpers-namespace \
 {%- endif %}
         python3-pytest-mock \
@@ -224,7 +224,7 @@ RUN \
         diffutils \
         git \
         less \
-{%- if fedora %}
+{%- if not ubi %}
         python3-jinja2-cli \
 {%- endif %}
         python3-wheel \
