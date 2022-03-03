@@ -130,11 +130,6 @@ pbench-tool-meister-stop: system information not collected when --interrupt spec
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/pcp_data.tar.xz
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/prometheus_data.tar.xz
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm/dcgm-exporter.file
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm/tm-dcgm-start.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm/tm-dcgm-start.out
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.err
@@ -145,26 +140,8 @@ pbench-tool-meister-stop: system information not collected when --interrupt spec
 /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.out
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter/node_exporter.file
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter/tm-node-exporter-start.err
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter/tm-node-exporter-start.out
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/dcgm-exporter.file
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/tm-dcgm-start.err
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/tm-dcgm-start.out
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp/pmcd.file
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp/tm-pcp-start.err
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp/tm-pcp-start.out
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat
@@ -192,11 +169,13 @@ INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
+INFO pbench-tool-meister end_tools -- remote-a.example.com: deleting persistent tool tmp directory lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
 INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.out:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.err:
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
+INFO pbench-tool-meister start -- Starting persistent tool node-exporter, args ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/node_exporter']
 INFO pbench-tool-meister start -- Started persistent tool node-exporter, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/node_exporter']
 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com --interval=42 --options=forty-two
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com --interval=42 --options=forty-two
@@ -210,31 +189,23 @@ INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT tool-data 
 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool node-exporter
 INFO pbench-tool-meister wait -- Stopped persistent tool node-exporter
+INFO pbench-tool-meister end_tools -- remote-b.example.com: deleting persistent tool tmp directory lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
 INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.out:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.err:
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
+INFO pbench-tool-meister start -- Starting persistent tool dcgm, args ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
+INFO pbench-tool-meister start -- Starting persistent tool pcp, args ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmcd', '--foreground', '--socket=./pmcd.socket', '--port=55677', '--config=/var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmcd.conf']
 INFO pbench-tool-meister start -- Started persistent tool pcp, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmcd', '--foreground', '--socket=./pmcd.socket', '--port=55677', '--config=/var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmcd.conf']
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool pcp
 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
 INFO pbench-tool-meister wait -- Stopped persistent tool pcp
+INFO pbench-tool-meister end_tools -- remote-c.example.com: deleting persistent tool tmp directory lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.out:
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter/node_exporter.file:
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/node_exporter
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter/tm-node-exporter-start.err:
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter/tm-node-exporter-start.out:
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/dcgm-exporter.file:
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/tm-dcgm-start.err:
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/tm-dcgm-start.out:
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp/pmcd.file:
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmcd --foreground --socket=./pmcd.socket --port=55677 --config=/var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmcd.conf
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp/tm-pcp-start.err:
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp/tm-pcp-start.out:
 === /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat:
 --interval=42
 --options=forty-two
@@ -444,6 +415,7 @@ port 17001
 +++ mock-run/tm/tm-lite-testhost.example.com.err file contents
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
+INFO pbench-tool-meister start -- Starting persistent tool dcgm, args ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
@@ -457,6 +429,7 @@ INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) 
 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
+INFO pbench-tool-meister end_tools -- testhost.example.com: deleting persistent tool tmp directory lite /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com
 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
 --- mock-run/tm/tm-lite-testhost.example.com.err file contents
 +++ mock-run/tm/tm-lite-testhost.example.com.out file contents
@@ -475,48 +448,56 @@ remote-a.example.com 0008 INFO pbench-tool-meister wait -- Waiting for transient
 remote-a.example.com 0009 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
 remote-a.example.com 0010 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
 remote-a.example.com 0011 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
-remote-a.example.com 0012 INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
+remote-a.example.com 0012 INFO pbench-tool-meister end_tools -- remote-a.example.com: deleting persistent tool tmp directory lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
+remote-a.example.com 0013 INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
 remote-b.example.com 0000 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com block,security_mitigations,sos parallel
 remote-b.example.com 0001 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
-remote-b.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool node-exporter, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/node_exporter']
-remote-b.example.com 0003 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com --interval=42 --options=forty-two
-remote-b.example.com 0004 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com --interval=42 --options=forty-two
-remote-b.example.com 0005 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
-remote-b.example.com 0006 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
-remote-b.example.com 0007 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com --interval=42 --options=forty-two
-remote-b.example.com 0008 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com --interval=42 --options=forty-two
-remote-b.example.com 0009 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
-remote-b.example.com 0010 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
-remote-b.example.com 0011 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
+remote-b.example.com 0002 INFO pbench-tool-meister start -- Starting persistent tool node-exporter, args ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/node_exporter']
+remote-b.example.com 0003 INFO pbench-tool-meister start -- Started persistent tool node-exporter, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/node_exporter']
+remote-b.example.com 0004 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com --interval=42 --options=forty-two
+remote-b.example.com 0005 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com --interval=42 --options=forty-two
+remote-b.example.com 0006 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
+remote-b.example.com 0007 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
+remote-b.example.com 0008 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com --interval=42 --options=forty-two
+remote-b.example.com 0009 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com --interval=42 --options=forty-two
+remote-b.example.com 0010 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
+remote-b.example.com 0011 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
 remote-b.example.com 0012 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
-remote-b.example.com 0013 INFO pbench-tool-meister stop -- Terminate issued for persistent tool node-exporter
-remote-b.example.com 0014 INFO pbench-tool-meister wait -- Stopped persistent tool node-exporter
-remote-b.example.com 0015 INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
+remote-b.example.com 0013 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
+remote-b.example.com 0014 INFO pbench-tool-meister stop -- Terminate issued for persistent tool node-exporter
+remote-b.example.com 0015 INFO pbench-tool-meister wait -- Stopped persistent tool node-exporter
+remote-b.example.com 0016 INFO pbench-tool-meister end_tools -- remote-b.example.com: deleting persistent tool tmp directory lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
+remote-b.example.com 0017 INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
 remote-c.example.com 0000 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com block,security_mitigations,sos parallel
 remote-c.example.com 0001 INFO pbench-tool-meister _send_directory -- remote-c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
-remote-c.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
-remote-c.example.com 0003 INFO pbench-tool-meister start -- Started persistent tool pcp, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmcd', '--foreground', '--socket=./pmcd.socket', '--port=55677', '--config=/var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmcd.conf']
-remote-c.example.com 0004 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
-remote-c.example.com 0005 INFO pbench-tool-meister stop -- Terminate issued for persistent tool pcp
-remote-c.example.com 0006 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
-remote-c.example.com 0007 INFO pbench-tool-meister wait -- Stopped persistent tool pcp
-remote-c.example.com 0008 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
+remote-c.example.com 0002 INFO pbench-tool-meister start -- Starting persistent tool dcgm, args ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
+remote-c.example.com 0003 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
+remote-c.example.com 0004 INFO pbench-tool-meister start -- Starting persistent tool pcp, args ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmcd', '--foreground', '--socket=./pmcd.socket', '--port=55677', '--config=/var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmcd.conf']
+remote-c.example.com 0005 INFO pbench-tool-meister start -- Started persistent tool pcp, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmcd', '--foreground', '--socket=./pmcd.socket', '--port=55677', '--config=/var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmcd.conf']
+remote-c.example.com 0006 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
+remote-c.example.com 0007 INFO pbench-tool-meister stop -- Terminate issued for persistent tool pcp
+remote-c.example.com 0008 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
+remote-c.example.com 0009 INFO pbench-tool-meister wait -- Stopped persistent tool pcp
+remote-c.example.com 0010 INFO pbench-tool-meister end_tools -- remote-c.example.com: deleting persistent tool tmp directory lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn
+remote-c.example.com 0011 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
 testhost.example.com 0000 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
 testhost.example.com 0001 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
-testhost.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
-testhost.example.com 0003 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
-testhost.example.com 0004 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
-testhost.example.com 0005 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
-testhost.example.com 0006 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
-testhost.example.com 0007 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
-testhost.example.com 0008 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
-testhost.example.com 0009 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
-testhost.example.com 0010 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
-testhost.example.com 0011 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com
-testhost.example.com 0012 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com
-testhost.example.com 0013 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
-testhost.example.com 0014 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
-testhost.example.com 0015 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
+testhost.example.com 0002 INFO pbench-tool-meister start -- Starting persistent tool dcgm, args ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
+testhost.example.com 0003 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
+testhost.example.com 0004 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
+testhost.example.com 0005 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
+testhost.example.com 0006 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
+testhost.example.com 0007 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
+testhost.example.com 0008 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
+testhost.example.com 0009 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
+testhost.example.com 0010 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
+testhost.example.com 0011 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
+testhost.example.com 0012 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com
+testhost.example.com 0013 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com
+testhost.example.com 0014 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
+testhost.example.com 0015 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
+testhost.example.com 0016 INFO pbench-tool-meister end_tools -- testhost.example.com: deleting persistent tool tmp directory lite /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com
+testhost.example.com 0017 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
 --- mock-run/tm/tm.logs file contents
 +++ tools-lite/pcp/pmproxy-proc.log file contents
 --- tools-lite/pcp/pmproxy-proc.log file contents
@@ -561,13 +542,6 @@ scrape_configs:
     static_configs:
     - targets: ['testhost.example.com:9400']
 --- tools-lite/prometheus/prometheus.yml file contents
-+++ tools-lite/testhost.example.com/dcgm/dcgm-exporter.file file contents
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
---- tools-lite/testhost.example.com/dcgm/dcgm-exporter.file file contents
-+++ tools-lite/testhost.example.com/dcgm/tm-dcgm-start.err file contents
---- tools-lite/testhost.example.com/dcgm/tm-dcgm-start.err file contents
-+++ tools-lite/testhost.example.com/dcgm/tm-dcgm-start.out file contents
---- tools-lite/testhost.example.com/dcgm/tm-dcgm-start.out file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
