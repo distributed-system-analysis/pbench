@@ -452,7 +452,7 @@ class PersistentTool(Tool):
                 shell=True,
             )
         else:
-            self.logger.info(
+            self.logger.debug(
                 "Starting persistent tool %s, args %r", self.name, self.args
             )
             self.process = subprocess.Popen(
@@ -1543,7 +1543,7 @@ class ToolMeister:
         else:
             directory_to_delete = tool_dir.parent
 
-        self.logger.info(
+        self.logger.debug(
             "%s: deleting persistent tool tmp directory %s %s",
             self._hostname,
             self._group,

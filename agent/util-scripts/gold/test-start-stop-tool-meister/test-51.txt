@@ -227,7 +227,7 @@ DEBUG pbench-tool-meister fetch_message -- payload from pbench-agent-cli-to-tms:
 DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms payload, '{"action": "end", "args": null, "directory": "/var/tmp/pbench-test-utils/pbench/mock-run/tools-default", "group": "default"}'
 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-default', 'group': 'default'}
 DEBUG pbench-tool-meister driver -- acting ... end_tools, {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-default', 'group': 'default'}
-INFO pbench-tool-meister end_tools -- testhost.example.com: deleting persistent tool tmp directory default /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com
+DEBUG pbench-tool-meister end_tools -- testhost.example.com: deleting persistent tool tmp directory default /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com
 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "success"}
 DEBUG pbench-tool-meister _send_client_status -- posted client status message, '{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'
 DEBUG pbench-tool-meister driver -- waiting ...
@@ -260,7 +260,7 @@ testhost.example.com 0014 DEBUG pbench-tool-meister fetch_message -- payload fro
 testhost.example.com 0015 DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms payload, '{"action": "end", "args": null, "directory": "/var/tmp/pbench-test-utils/pbench/mock-run/tools-default", "group": "default"}'
 testhost.example.com 0016 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-default', 'group': 'default'}
 testhost.example.com 0017 DEBUG pbench-tool-meister driver -- acting ... end_tools, {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-default', 'group': 'default'}
-testhost.example.com 0018 INFO pbench-tool-meister end_tools -- testhost.example.com: deleting persistent tool tmp directory default /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com
+testhost.example.com 0018 DEBUG pbench-tool-meister end_tools -- testhost.example.com: deleting persistent tool tmp directory default /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com
 testhost.example.com 0019 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "success"}
 testhost.example.com 0020 DEBUG pbench-tool-meister _send_client_status -- posted client status message, '{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'
 testhost.example.com 0021 DEBUG pbench-tool-meister driver -- waiting ...
