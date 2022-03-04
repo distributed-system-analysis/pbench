@@ -161,6 +161,8 @@ if ($pp_only) {
     # Spaces in directories, just don't do it
     $base_bench_dir =~ s/\s+/_/g;
     mkdir("$base_bench_dir");
+    # Ensure base dir is exported in environment (required by TM)
+    $ENV{"benchmark_run_dir"} = $base_bench_dir;
 
     # Document the params used for this invocation so one can re-run, and then they can add
     # "--postprocess-only=y --base-bench_dir=$base_bench_dir" if they wish to not run but
@@ -317,10 +319,6 @@ while (scalar @param_sets > 0) {
         push(@iterations_labels, $iteration_label);
     }
 
-    if (! $pp_only) {
-    	system("pbench-init-tools --group=" . $tool_group . " --dir=" . $base_bench_dir);
-    }
-
     for (my $index=0; $index<@iterations; $index++) {
         my $iteration_params = $iterations[$index];
         my $iteration_label = $iterations_labels[$index];
@@ -416,8 +414,6 @@ while (scalar @param_sets > 0) {
         print BULK_FH "echo Sample processing complete!\n";
         close(BULK_FH);
         system(". ./bulk-sample.sh");
-    } else {
-        system("pbench-end-tools --group=" . $tool_group . " --dir=" . $base_bench_dir);
     }
     $run_doc{'run'}{'end'} = int time * 1000; # time in milliseconds
     put_json_file(\%run_doc, $es_dir . "/run/run" . $run_part . "-" . $run_doc{'run'}{'id'} . ".json");
