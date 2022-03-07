@@ -1550,11 +1550,23 @@ class ToolMeister:
             self._group,
             tool_dir,
         )
+        unexpected_files = []
         for dirpath, _, files in os.walk(tool_dir):
             if files:
-                self.logger.warning(
-                    f"Found regular files {files} at {dirpath} and will be deleted later"
-                )
+                relative_file_path = {
+                    ",".join(
+                        map(
+                            lambda x: f"{Path(dirpath).relative_to(tool_dir)}/{x}",
+                            files,
+                        )
+                    )
+                }
+                unexpected_files += relative_file_path
+
+        if unexpected_files:
+            self.logger.warning(
+                f"{self._hostname}: unexpected temp files {unexpected_files}"
+            )
         try:
             shutil.rmtree(tool_dir)
         except Exception:

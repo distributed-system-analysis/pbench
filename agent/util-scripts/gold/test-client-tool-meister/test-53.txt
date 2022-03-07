@@ -188,7 +188,7 @@ INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
-WARNING pbench-tool-meister end_tools -- Found regular files ['dcgm-exporter.file'] at /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm and will be deleted later
+WARNING pbench-tool-meister end_tools -- testhost.example.com: unexpected temp files ['dcgm/dcgm-exporter.file']
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
@@ -212,7 +212,7 @@ testhost.example.com 0011 INFO pbench-tool-meister wait -- Waiting for transient
 testhost.example.com 0012 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com
 testhost.example.com 0013 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 testhost.example.com 0014 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
-testhost.example.com 0015 WARNING pbench-tool-meister end_tools -- Found regular files ['dcgm-exporter.file'] at /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm and will be deleted later
+testhost.example.com 0015 WARNING pbench-tool-meister end_tools -- testhost.example.com: unexpected temp files ['dcgm/dcgm-exporter.file']
 testhost.example.com 0016 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
 testhost.example.com 0017 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
 testhost.example.com 0018 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
