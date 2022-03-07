@@ -98,7 +98,7 @@ def do_setup(tmp_path_factory):
     return dict(tmp=tmp_d, cfg_file=str(cfg_file))
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 def on_disk_server_config(tmp_path_factory):
     """Test package setup for pbench-server
 
