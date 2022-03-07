@@ -1551,21 +1551,15 @@ class ToolMeister:
             tool_dir,
         )
         unexpected_files = []
-        for dirpath, _, files in os.walk(tool_dir):
+        for dir, _, files in os.walk(tool_dir):
+            dirpath = Path(dir).relative_to(tool_dir)
             if files:
-                relative_file_path = {
-                    ",".join(
-                        map(
-                            lambda x: f"{Path(dirpath).relative_to(tool_dir)}/{x}",
-                            files,
-                        )
-                    )
-                }
+                relative_file_path = map(lambda x: f"{dirpath}/{x}", files)
                 unexpected_files += relative_file_path
 
         if unexpected_files:
             self.logger.warning(
-                f"{self._hostname}: unexpected temp files {unexpected_files}"
+                f"{self._hostname}: unexpected temp files {','.join(unexpected_files)}"
             )
         try:
             shutil.rmtree(tool_dir)
