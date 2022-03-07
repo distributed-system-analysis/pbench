@@ -423,9 +423,13 @@ class PersistentTool(Tool):
         self.args = None
         self.process = None
 
-    def log_subprocess_output(self, pipe):
-        for line in iter(pipe.readline, b""):
-            self.logger.info(f"{self.__class__.__name__}: {line}")
+    def log_subprocess_output(self, pipe: subprocess.PIPE):
+        """
+        Utility function to log outputs from a given pipe.
+        """
+        logger = self.logger.getChild(self.__class__.__name__)
+        for line in pipe.readlines():
+            logger.info(line)
 
     def start(self, env=None):
         assert self.args is not None, "Logic bomb!  {self.name} install had failed!"
@@ -1022,6 +1026,11 @@ class ToolMeister:
         _tool_dir = _dir / sub_dir
         try:
             _tool_dir.mkdir()
+            # Remember this persistent tmp tool directory so that we can delete it
+            # when requested.
+            self.directories[data["directory"]] = (
+                _tool_dir if self._controller == self._hostname else _dir
+            )
         except Exception:
             self.logger.exception(
                 "Failed to create local result directory, %s", _tool_dir
@@ -1057,9 +1066,6 @@ class ToolMeister:
                     self._persistent_tools[name] = persistent_tool
                     self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
 
-        # Remember this persistent tmp tool directory so that we can delete it
-        # when requested.
-        self.directories[data["directory"]] = _tool_dir
         if failures > 0:
             msg = f"{failures} of {tool_cnt} persistent tools failed to start"
             self._send_client_status(msg)
@@ -1534,37 +1540,27 @@ class ToolMeister:
                 )
                 failures += 1
 
-        # Remove persistent tool temporary working directory on remote host
+        # Remove persistent tool temporary working directory
         directory = data["directory"]
         tool_dir = self.directories[directory]
-
-        if self._hostname == self._controller:
-            directory_to_delete = tool_dir
-        else:
-            directory_to_delete = tool_dir.parent
 
         self.logger.debug(
             "%s: deleting persistent tool tmp directory %s %s",
             self._hostname,
             self._group,
-            directory_to_delete,
+            tool_dir,
         )
-        unexpected_files = [x for x in directory_to_delete.iterdir() if x.is_file()]
-        if not unexpected_files:
-            try:
-                shutil.rmtree(directory_to_delete)
-            except Exception:
-                self.logger.exception(
-                    f"Failed to remove tmp persistent tool data hierarchy, "
-                    f"{directory_to_delete}"
+        for dirpath, _, files in os.walk(tool_dir):
+            if files:
+                self.logger.warning(
+                    f"Found regular files {files} at {dirpath} and will be deleted later"
                 )
-                failures += 1
-        else:
+        try:
+            shutil.rmtree(tool_dir)
+        except Exception:
             self.logger.exception(
-                f"Unexpected files found at tmp persistent tool directory "
-                f"hierarchy, {directory_to_delete}. Files: {unexpected_files}"
+                f"Failed to remove persistent tool data tmp directory: " f"{tool_dir}"
             )
-            failures += 1
         del self.directories[directory]
         if failures > 0:
             msg = f"{failures} of {tool_cnt} failed stopping persistent tools"

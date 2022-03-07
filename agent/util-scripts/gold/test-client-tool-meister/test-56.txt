@@ -210,6 +210,7 @@ INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool node-exporter
 INFO pbench-tool-meister wait -- Stopped persistent tool node-exporter
+WARNING pbench-tool-meister end_tools -- Found regular files ['node_exporter.file'] at /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter and will be deleted later
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
 INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
@@ -223,6 +224,8 @@ INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool pcp
 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
 INFO pbench-tool-meister wait -- Stopped persistent tool pcp
+WARNING pbench-tool-meister end_tools -- Found regular files ['pmcd.file'] at /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp and will be deleted later
+WARNING pbench-tool-meister end_tools -- Found regular files ['dcgm-exporter.file'] at /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm and will be deleted later
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
@@ -452,6 +455,7 @@ INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
+WARNING pbench-tool-meister end_tools -- Found regular files ['dcgm-exporter.file'] at /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm and will be deleted later
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
@@ -490,9 +494,10 @@ remote-b.example.com 0011 INFO pbench-tool-meister wait -- Waiting for transient
 remote-b.example.com 0012 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
 remote-b.example.com 0013 INFO pbench-tool-meister stop -- Terminate issued for persistent tool node-exporter
 remote-b.example.com 0014 INFO pbench-tool-meister wait -- Stopped persistent tool node-exporter
-remote-b.example.com 0015 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com block,security_mitigations,sos parallel
-remote-b.example.com 0016 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
-remote-b.example.com 0017 INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
+remote-b.example.com 0015 WARNING pbench-tool-meister end_tools -- Found regular files ['node_exporter.file'] at /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter and will be deleted later
+remote-b.example.com 0016 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com block,security_mitigations,sos parallel
+remote-b.example.com 0017 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
+remote-b.example.com 0018 INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
 remote-c.example.com 0000 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com block,security_mitigations,sos parallel
 remote-c.example.com 0001 INFO pbench-tool-meister _send_directory -- remote-c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
 remote-c.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
@@ -501,9 +506,11 @@ remote-c.example.com 0004 INFO pbench-tool-meister stop -- Terminate issued for 
 remote-c.example.com 0005 INFO pbench-tool-meister stop -- Terminate issued for persistent tool pcp
 remote-c.example.com 0006 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
 remote-c.example.com 0007 INFO pbench-tool-meister wait -- Stopped persistent tool pcp
-remote-c.example.com 0008 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com block,security_mitigations,sos parallel
-remote-c.example.com 0009 INFO pbench-tool-meister _send_directory -- remote-c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
-remote-c.example.com 0010 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
+remote-c.example.com 0008 WARNING pbench-tool-meister end_tools -- Found regular files ['pmcd.file'] at /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp and will be deleted later
+remote-c.example.com 0009 WARNING pbench-tool-meister end_tools -- Found regular files ['dcgm-exporter.file'] at /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm and will be deleted later
+remote-c.example.com 0010 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com block,security_mitigations,sos parallel
+remote-c.example.com 0011 INFO pbench-tool-meister _send_directory -- remote-c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
+remote-c.example.com 0012 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
 testhost.example.com 0000 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
 testhost.example.com 0001 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
 testhost.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
@@ -519,9 +526,10 @@ testhost.example.com 0011 INFO pbench-tool-meister wait -- Waiting for transient
 testhost.example.com 0012 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com
 testhost.example.com 0013 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 testhost.example.com 0014 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
-testhost.example.com 0015 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
-testhost.example.com 0016 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
-testhost.example.com 0017 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
+testhost.example.com 0015 WARNING pbench-tool-meister end_tools -- Found regular files ['dcgm-exporter.file'] at /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm and will be deleted later
+testhost.example.com 0016 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
+testhost.example.com 0017 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
+testhost.example.com 0018 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
 --- mock-run/tm/tm.logs file contents
 +++ tools-lite/pcp/pmproxy-proc.log file contents
 --- tools-lite/pcp/pmproxy-proc.log file contents
