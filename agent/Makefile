@@ -82,6 +82,7 @@ bench-scripts = \
 	pbench-migrate \
 	pbench-netperf \
 	pbench-run-benchmark \
+	pbench-run-benchmark.pl \
 	pbench-run-benchmark-sample \
 	pbench-specjbb2005 \
 	pbench-trafficgen \
