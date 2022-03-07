@@ -25,12 +25,13 @@ class TemplateSqlError(TemplateError):
     original SQLAlchemy exception.
     """
 
-    def __init__(self, operation: str, name: str):
+    def __init__(self, operation: str, name: str, cause: str):
         self.operation = operation
         self.name = name
+        self.cause = cause
 
     def __str__(self) -> str:
-        return f"Error {self.operation} index {self.name!r}"
+        return f"Error {self.operation} index {self.name!r}: {self.cause}"
 
 
 class TemplateFileMissing(TemplateError):
@@ -62,11 +63,12 @@ class TemplateDuplicate(TemplateError):
     Attempt to commit a duplicate Template.
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, cause: str):
         self.name = name
+        self.cause = cause
 
     def __str__(self) -> str:
-        return f"Duplicate template {self.name!r}"
+        return f"Duplicate template {self.name!r}: {self.cause}"
 
 
 class TemplateMissingParameter(TemplateError):
@@ -149,8 +151,7 @@ class Template(Database.Base):
         try:
             template = Database.db_session.query(Template).filter_by(name=name).first()
         except SQLAlchemyError as e:
-            Template.logger.warning("Error looking for {}: {}", name, str(e))
-            raise TemplateSqlError("finding", name)
+            raise TemplateSqlError("finding", name, str(e))
 
         if template is None:
             raise TemplateNotFound(name)
@@ -181,12 +182,9 @@ class Template(Database.Base):
         # returns (message); so always take the last element.
         cause = exception.orig.args[-1]
         if cause.find("UNIQUE constraint") != -1:
-            Template.logger.warning("Duplicate template {!r}: {}", self.name, cause)
-            return TemplateDuplicate(self.name)
+            return TemplateDuplicate(self.name, cause)
         elif cause.find("NOT NULL constraint") != -1:
-            Template.logger.warning("Missing parameter {!r}, {}", self.name, cause)
             return TemplateMissingParameter(self.name, cause)
-        Template.logger.exception("Other integrity error {}", cause)
         return exception
 
     def add(self):
@@ -199,10 +197,9 @@ class Template(Database.Base):
         except IntegrityError as e:
             Database.db_session.rollback()
             raise self._decode(e)
-        except Exception:
-            self.logger.exception("Can't add {} to DB", str(self))
+        except Exception as e:
             Database.db_session.rollback()
-            raise TemplateSqlError("adding", self.name)
+            raise TemplateSqlError("adding", self.name, str(e))
 
     def update(self):
         """
@@ -214,10 +211,9 @@ class Template(Database.Base):
         except IntegrityError as e:
             Database.db_session.rollback()
             raise self._decode(e)
-        except Exception:
-            self.logger.error("Can't update {} in DB", str(self))
+        except Exception as e:
             Database.db_session.rollback()
-            raise TemplateSqlError("updating", self.name)
+            raise TemplateSqlError("updating", self.name, str(e))
 
 
 @event.listens_for(Template, "init")
