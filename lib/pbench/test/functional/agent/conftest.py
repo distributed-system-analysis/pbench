@@ -2,13 +2,14 @@ import os
 import pytest
 import subprocess
 
-from pbench.test.unit.agent.conftest import on_disk_agent_config
+from pbench.test import on_disk_config
+from pbench.test.unit.agent.conftest import do_setup
 
 
 @pytest.fixture(scope="session", autouse=True)
 def func_setup(tmp_path_factory):
     """Test package setup for functional tests"""
-    return on_disk_agent_config(tmp_path_factory)
+    return on_disk_config(tmp_path_factory, "agent", do_setup)
 
 
 @pytest.helpers.register
@@ -19,7 +20,7 @@ def capture(command):
 
 
 @pytest.fixture
-def pbench_run(monkeypatch, tmp_path):
+def pbench_run(tmp_path):
     assert "pbench_run" not in os.environ
     pbench_agent_d = tmp_path / "var" / "lib" / "pbench-agent"
     pbench_agent_d.mkdir(parents=True, exist_ok=True)

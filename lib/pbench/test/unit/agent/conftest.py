@@ -1,9 +1,7 @@
-import json
 import pytest
 import shutil
 
-from filelock import FileLock
-from pathlib import Path
+from pbench.test import on_disk_config
 
 
 agent_cfg_tmpl = """[DEFAULT]
@@ -20,12 +18,15 @@ files = pbench-agent-default.cfg
 """
 
 
-def do_setup(tmp_path_factory):
-    """Perform on disk agent config setup."""
-    # Create a single temporary directory for the "/opt/pbench-agent" and
-    # "/var/lib/pbench-agent" directories.
-    tmp_d = tmp_path_factory.mktemp("agent-tmp")
+def do_setup(tmp_d):
+    """Perform on disk agent config setup.
 
+    Accept a single temporary directory created by its caller, creating a
+    proper pbench directory hierarchy in it, with appropriately constructed
+    configuration files.
+
+    Returns a Path object for the created pbench configuration directory.
+    """
     opt_pbench = tmp_d / "opt" / "pbench-agent"
     pbench_cfg = opt_pbench / "config"
     pbench_cfg.mkdir(parents=True, exist_ok=True)
@@ -39,39 +40,19 @@ def do_setup(tmp_path_factory):
     with open(cfg_file, "w") as fp:
         fp.write(agent_cfg_tmpl.format(TMP=tmp_d))
 
-    return dict(tmp=tmp_d, cfg_dir=pbench_cfg)
-
-
-def on_disk_agent_config(tmp_path_factory):
-    """Base setup function shared between the agent and functional tests.
-
-    See https://github.com/pytest-dev/pytest-xdist.
-    """
-    root_tmp_dir = tmp_path_factory.getbasetemp()
-    marker = root_tmp_dir / "agent-marker.json"
-    with FileLock(f"{marker}.lock"):
-        if marker.is_file():
-            the_setup = json.loads(marker.read_text())
-            the_setup["tmp"] = Path(the_setup["tmp"])
-            the_setup["cfg_dir"] = Path(the_setup["cfg_dir"])
-        else:
-            the_setup = do_setup(tmp_path_factory)
-            data = dict(tmp=str(the_setup["tmp"]), cfg_dir=str(the_setup["cfg_dir"]))
-            marker.write_text(json.dumps(data))
-    return the_setup
+    return pbench_cfg
 
 
 @pytest.fixture(scope="session", autouse=True)
 def agent_setup(tmp_path_factory):
     """Test package setup for agent unit tests"""
-    on_disk_agent_config(tmp_path_factory)
+    return on_disk_config(tmp_path_factory, "agent", do_setup)
 
 
 @pytest.fixture(autouse=True)
-def setup(tmp_path_factory, monkeypatch):
+def setup(tmp_path_factory, agent_setup, monkeypatch):
     """Test package setup for pbench-agent"""
-    _setup = on_disk_agent_config(tmp_path_factory)
-    var = _setup["tmp"] / "var" / "lib" / "pbench-agent"
+    var = agent_setup["tmp"] / "var" / "lib" / "pbench-agent"
     try:
         if var.exists():
             assert var.is_dir()
@@ -80,6 +61,6 @@ def setup(tmp_path_factory, monkeypatch):
         print(exc)
     var.mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv(
-        "_PBENCH_AGENT_CONFIG", str(_setup["cfg_dir"] / "pbench-agent.cfg")
+        "_PBENCH_AGENT_CONFIG", str(agent_setup["cfg_dir"] / "pbench-agent.cfg")
     )
-    return _setup
+    return agent_setup

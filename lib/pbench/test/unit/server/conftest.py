@@ -1,10 +1,8 @@
 from configparser import ConfigParser
 import datetime
 import hashlib
-from filelock import FileLock
 from freezegun import freeze_time
 from http import HTTPStatus
-import json
 import os
 import uuid
 from pathlib import Path
@@ -22,6 +20,7 @@ from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 from pbench.server.filetree import Tarball
+from pbench.test import on_disk_config
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 server_cfg_tmpl = """[DEFAULT]
@@ -64,12 +63,10 @@ admin_email = "test_admin@example.com"
 generic_password = "12345"
 
 
-def do_setup(tmp_path_factory) -> dict:
+def do_setup(tmp_d: Path) -> dict:
     """Perform on disk server config setup."""
     # Create a single temporary directory for the "/srv/pbench" and
     # "/opt/pbench-server" directories.
-    tmp_d = tmp_path_factory.mktemp("server-tmp")
-
     srv_pbench = tmp_d / "srv" / "pbench"
     pbench_tmp = srv_pbench / "tmp"
     pbench_tmp.mkdir(parents=True, exist_ok=True)
@@ -96,26 +93,14 @@ def do_setup(tmp_path_factory) -> dict:
     with cfg_file.open(mode="w") as fp:
         fp.write(server_cfg_tmpl.format(TMP=str(tmp_d)))
 
-    return dict(tmp=tmp_d, cfg_file=str(cfg_file))
+    return pbench_cfg
 
 
 @pytest.fixture(scope="session")
 def on_disk_server_config(tmp_path_factory) -> dict:
     """Test package setup for pbench-server
-
-    See https://github.com/pytest-dev/pytest-xdist.
     """
-    root_tmp_dir = tmp_path_factory.getbasetemp()
-    marker = root_tmp_dir / "server-marker.json"
-    with FileLock(f"{marker}.lock"):
-        if marker.is_file():
-            the_setup = json.loads(marker.read_text())
-            the_setup["tmp"] = Path(the_setup["tmp"])
-        else:
-            the_setup = do_setup(tmp_path_factory)
-            data = dict(tmp=str(the_setup["tmp"]), cfg_file=the_setup["cfg_file"])
-            marker.write_text(json.dumps(data))
-    return the_setup
+    return on_disk_config(tmp_path_factory, "server", do_setup)
 
 
 @pytest.fixture
@@ -130,8 +115,8 @@ def server_config(on_disk_server_config, monkeypatch) -> PbenchServerConfig:
     Returns:
         a PbenchServerConfig object the test case can use
     """
-    cfg_file = on_disk_server_config["cfg_file"]
-    monkeypatch.setenv("_PBENCH_SERVER_CONFIG", cfg_file)
+    cfg_file = on_disk_server_config["cfg_dir"] / "pbench-server.cfg"
+    monkeypatch.setenv("_PBENCH_SERVER_CONFIG", str(cfg_file))
 
     server_config = get_server_config()
     return server_config
