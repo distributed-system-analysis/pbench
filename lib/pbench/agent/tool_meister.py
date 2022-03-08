@@ -1554,18 +1554,19 @@ class ToolMeister:
         for dir, _, files in os.walk(tool_dir):
             dirpath = Path(dir).relative_to(tool_dir)
             if files:
-                relative_file_path = map(lambda x: f"{dirpath}/{x}", files)
-                unexpected_files += relative_file_path
+                unexpected_files += map(lambda x: f"{dirpath}/{x}", files)
 
         if unexpected_files:
             self.logger.warning(
-                f"{self._hostname}: unexpected temp files {','.join(unexpected_files)}"
+                "%s: unexpected temp files %s",
+                self._hostname,
+                ",".join(unexpected_files),
             )
         try:
             shutil.rmtree(tool_dir)
         except Exception:
             self.logger.exception(
-                f"Failed to remove persistent tool data tmp directory: " f"{tool_dir}"
+                "Failed to remove persistent tool data tmp directory: %s", tool_dir
             )
         del self.directories[directory]
         if failures > 0:
