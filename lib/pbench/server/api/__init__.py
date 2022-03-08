@@ -148,7 +148,7 @@ def register_endpoints(api, app, config):
     )
 
 
-def get_server_config():
+def get_server_config() -> PbenchServerConfig:
     cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG")
     if not cfg_name:
         raise ConfigFileNotSpecified(

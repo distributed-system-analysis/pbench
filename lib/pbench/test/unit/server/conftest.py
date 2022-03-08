@@ -14,6 +14,7 @@ import shutil
 from stat import ST_MTIME
 import tarfile
 
+from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
@@ -63,7 +64,7 @@ admin_email = "test_admin@example.com"
 generic_password = "12345"
 
 
-def do_setup(tmp_path_factory):
+def do_setup(tmp_path_factory) -> dict:
     """Perform on disk server config setup."""
     # Create a single temporary directory for the "/srv/pbench" and
     # "/opt/pbench-server" directories.
@@ -99,7 +100,7 @@ def do_setup(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def on_disk_server_config(tmp_path_factory):
+def on_disk_server_config(tmp_path_factory) -> dict:
     """Test package setup for pbench-server
 
     See https://github.com/pytest-dev/pytest-xdist.
@@ -118,7 +119,7 @@ def on_disk_server_config(tmp_path_factory):
 
 
 @pytest.fixture
-def server_config(on_disk_server_config, monkeypatch):
+def server_config(on_disk_server_config, monkeypatch) -> PbenchServerConfig:
     """
     Mock a pbench-server.cfg configuration as defined above.
 
