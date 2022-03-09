@@ -1,17 +1,9 @@
 #!/usr/libexec/platform-python
 # -*- mode: python -*-
 
-"""Pbench Re-Index
+"""Pbench Verify Indexed
 
-Re-index all data for a given date range, "YYYY-MM-DD" to "YYYY-MM-DD".
-
-The process of re-indexing first looks to see which INDEXED, TO-INDEX-TOOL,
-and WONT-INDEX* symlinks exist in the given date range, and moves them to
-TO-RE-INDEX.
-
-NOTE: this interface is intended to be used interactively, this is NOT a
-service that runs as a cronjob.  NO RE-INDEXING STEPS SHOULD BE AUTOMATED
-AT THIS POINT.
+Review all archived tar balls and report how many have been properly indexed.
 """
 
 import os
@@ -26,7 +18,7 @@ from elasticsearch1 import Elasticsearch
 import pbench
 
 
-_NAME_ = "pbench-reindex"
+_NAME_ = "pbench-verify-indexed"
 
 tb_pat_r = (
     r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)\.tar\.xz"
@@ -42,7 +34,7 @@ def gen_tb_list(archive):
         # sub-directories.
         for c_entry in archive_scan:
             if c_entry.name.startswith(".") and c_entry.is_dir(follow_symlinks=False):
-                # Ignore the ".", "..", and any other ".*" subdirectories.
+                # Ignore any ".*" subdirectories.
                 continue
             if not c_entry.is_dir(follow_symlinks=False):
                 # NOTE: the pbench-audit-server should pick up and flag this
@@ -104,8 +96,8 @@ def main(options):
     es = Elasticsearch(
         [
             {
-                "host": "elasticsearch.perf.lab.eng.bos.redhat.com",
-                "port": "9280",
+                "host": "elasticsearch.intlab.perf-infra.lab.eng.rdu2.redhat.com",
+                "port": "10081",
                 "timeout": 600,
             },
         ]
