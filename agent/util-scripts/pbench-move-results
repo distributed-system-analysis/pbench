@@ -145,10 +145,10 @@ if [[ ! -f "${pbench_bin}/id_rsa" ]]; then
 fi
 
 # ask the server where to send the tarballs
-results_webserver=$(pbench-config webserver results)
+results_webserver=$(pbench-config pbench_web_server results)
 if [[ -z "${results_webserver}" ]]; then
     error_log "ERROR: No web server host configured from which we can fetch the FQDN of the host to which we ${_op} results"
-    debug_log "\"webserver\" variable in \"results\" section not set"
+    debug_log "\"pbench_web_server\" variable \"results\" section not set"
     exit 1
 fi
 

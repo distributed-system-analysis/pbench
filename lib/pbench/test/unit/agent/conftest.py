@@ -7,7 +7,7 @@ from pbench.test import on_disk_config
 
 agent_cfg_tmpl = """[DEFAULT]
 pbench_install_dir = {TMP}/opt/pbench-agent
-pbench_results_redirector = pbench.results.example.com
+pbench_web_server = pbench.example.com
 
 [pbench-agent]
 debug_unittest = 1
