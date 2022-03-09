@@ -53,11 +53,11 @@ def setup(tmp_path_factory, agent_setup, monkeypatch):
     """Test package setup for pbench-agent"""
     var = agent_setup["tmp"] / "var" / "lib" / "pbench-agent"
     try:
-        if var.exists():
-            assert var.is_dir()
-            shutil.rmtree(str(var))
-    except Exception as exc:
-        print(exc)
+        shutil.rmtree(str(var))
+    except FileNotFoundError:
+        pass
+    except NotADirectoryError:
+        var.unlink()
     var.mkdir(parents=True, exist_ok=True)
     monkeypatch.setenv(
         "_PBENCH_AGENT_CONFIG", str(agent_setup["cfg_dir"] / "pbench-agent.cfg")

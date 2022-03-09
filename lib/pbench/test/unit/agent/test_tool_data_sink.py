@@ -31,12 +31,16 @@ class TestBenchmarkRunDir:
         yield
         try:
             shutil.rmtree(self.int_pb_run)
-        except Exception as exc:
-            print(exc)
+        except FileNotFoundError:
+            pass
+        except NotADirectoryError:
+            self.int_pb_run.unlink()
         try:
             shutil.rmtree(self.ext_pb_run)
-        except Exception as exc:
-            print(exc)
+        except FileNotFoundError:
+            pass
+        except NotADirectoryError:
+            self.ext_pb_run.unlink()
 
     def test_validate(self, cleanup_tmp):
         """test_validate - verify the behavior of the validate() using both an

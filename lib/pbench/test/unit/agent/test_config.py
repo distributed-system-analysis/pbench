@@ -11,11 +11,8 @@ def test_invalid_config(setup, monkeypatch):
         "./lib/pbench/test/unit/agent/config/pbench-agent.invalid.cfg",
         str(setup["cfg_dir"] / "pbench-agent.invalid.cfg"),
     )
-    monkeypatch.setenv(
-        "_PBENCH_AGENT_CONFIG", str(setup["cfg_dir"] / "pbench-agent.invalid.cfg")
-    )
     with pytest.raises(BadConfig):
-        PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"])
+        PbenchAgentConfig(setup["cfg_dir"] / "pbench-agent.invalid.cfg")
 
 
 def test_valid_config():
