@@ -44,13 +44,13 @@ def do_setup(tmp_d: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def agent_setup(tmp_path_factory) -> dict[Path, Path]:
+def agent_setup(tmp_path_factory) -> dict[str, Path]:
     """Test package setup for agent unit tests"""
     return on_disk_config(tmp_path_factory, "agent", do_setup)
 
 
 @pytest.fixture(autouse=True)
-def setup(tmp_path_factory, agent_setup, monkeypatch) -> dict[Path, Path]:
+def setup(tmp_path_factory, agent_setup, monkeypatch) -> dict[str, Path]:
     """Test package setup for pbench-agent"""
     var = agent_setup["tmp"] / "var" / "lib" / "pbench-agent"
     try:

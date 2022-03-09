@@ -8,7 +8,7 @@ from typing import Callable
 
 def on_disk_config(
     tmp_path_factory, prefix: str, setup_func: Callable[[Path], Path]
-) -> dict[Path, Path]:
+) -> dict[str, Path]:
     """Base on-disk configuration recorder.
 
     Callers use this method to ensure an on-disk configuration is only created
@@ -16,18 +16,19 @@ def on_disk_config(
 
     Args:
         tmp_path_factory:  the temporary directory creator factory to be used
-        prefix:            a value to be prefixed to the name of the JSON marker
-                           file in which will be store the dictionary containing
-                           the temporary directory and the configuration
-                           directory created by the setup_func.
+        prefix:            a value to be prefixed to the name of the JSON
+                           marker file in which will be stored the dictionary
+                           containing the temporary directory and the
+                           configuration directory created by the setup_func
         setup_func:        the setup function provided by the caller, which
                            expects to be called with a Path argument for the
-                           temporary directory to use, and returns a Path object
-                           for the configuration directory created.
+                           temporary directory to use, and returns a Path
+                           object for the configuration directory created
 
     Returns:
         a dictionary with two items, "tmp" and "cfg_dir", two Path objects for
-        the temporary directory in which the configuration directory is created
+        the temporary directory in which the configuration directory is
+        created
     """
     root_tmp_dir = tmp_path_factory.getbasetemp()
     marker = root_tmp_dir / f"{prefix}-marker.json"
