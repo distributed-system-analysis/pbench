@@ -1,8 +1,7 @@
-
 name: 🐞 Bug
 description: Report an issue to help improve the project.
-title: "[BUG] <title>"
-labels: ["bug"]
+title: "[BUG]"
+labels: ["needs-triage"]
 body:
   - type: checkboxes
     attributes:
@@ -26,35 +25,23 @@ body:
     validations:
       required: true
   - type: textarea
-    id: screenshots
+    id: actual-result
     attributes:
-      label: Screenshots
-      description: Please add screenshots if applicable
+      label: Actual Results
+      description: Add your observations/output/log/screenshots if applicable
+    validations:
+      required: false
+  - type: textarea
+    id: expected-result
+    attributes:
+      label: Expected Results
+      description: what is your excepted result?
     validations:
       required: false
   - type: textarea
     id: extrainfo
     attributes:
       label: Additional information
-      description: Is there anything else we should know about this bug? (like linux distribution(version + arch), python version and etc)   
+      description: Is there anything else we should know about this bug? (like Version-Release number of selected component, linux distribution and etc)   
     validations:
       required: false
-  - type: dropdown
-    id: component
-    attributes:
-      label: Where did you see this issue?
-      description: In which pbench component this issue was found?
-      options:
-        - Agent
-        - Server
-        - Other
-    validations:
-      required: true
-  - type: input
-    id: component-version
-    attributes:
-      label: In which version? 
-      description: In which version this issue was found?
-      placeholder: v0.71
-    validations:
-      required: true
