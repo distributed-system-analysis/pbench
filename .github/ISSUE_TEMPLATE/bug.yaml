@@ -35,7 +35,7 @@ body:
     id: expected-result
     attributes:
       label: Expected Results
-      description: what is your excepted result?
+      description: what is your expected result?
     validations:
       required: false
   - type: textarea
