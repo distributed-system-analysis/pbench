@@ -19,7 +19,7 @@ function usage() {
     printf -- "\nhost:\n"
     printf -- " The Pbench 0.69 server hostname to which the tarball will be copied; it should\n"
     printf -- " be the FQDN for the server host configured in the Pbench agent config file, as\n"
-    printf -- " reported by 'pbench-config webserver results'\n"
+    printf -- " reported by 'pbench-config pbench-web-server results'\n"
     printf -- "\nprefix:\n"
     printf -- " The Pbench server path where incoming tarballs are stored, as reported by\n"
     printf -- " 'pbench-config host_info_url results'\n"
