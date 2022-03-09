@@ -54,7 +54,7 @@ class TestDatasets:
         ds1 = Dataset.query(name="fio")
         assert ds1 == ds
 
-    def test_construct_bad_owner(self):
+    def test_construct_bad_owner(self, db_session):
         """Test with a non-existent username
         """
         with pytest.raises(DatasetBadParameterType):
