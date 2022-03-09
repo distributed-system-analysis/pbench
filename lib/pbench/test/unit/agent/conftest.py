@@ -1,3 +1,4 @@
+from pathlib import Path
 import pytest
 import shutil
 
@@ -18,7 +19,7 @@ files = pbench-agent-default.cfg
 """
 
 
-def do_setup(tmp_d):
+def do_setup(tmp_d: Path) -> Path:
     """Perform on disk agent config setup.
 
     Accept a single temporary directory created by its caller, creating a
@@ -42,14 +43,14 @@ def do_setup(tmp_d):
     return pbench_cfg
 
 
-@pytest.fixture(scope="session", autouse=True)
-def agent_setup(tmp_path_factory):
+@pytest.fixture(scope="session")
+def agent_setup(tmp_path_factory) -> dict[Path, Path]:
     """Test package setup for agent unit tests"""
     return on_disk_config(tmp_path_factory, "agent", do_setup)
 
 
 @pytest.fixture(autouse=True)
-def setup(tmp_path_factory, agent_setup, monkeypatch):
+def setup(tmp_path_factory, agent_setup, monkeypatch) -> dict[Path, Path]:
     """Test package setup for pbench-agent"""
     var = agent_setup["tmp"] / "var" / "lib" / "pbench-agent"
     try:

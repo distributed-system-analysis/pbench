@@ -8,27 +8,31 @@ from typing import Callable
 
 def on_disk_config(
     tmp_path_factory, prefix: str, setup_func: Callable[[Path], Path]
-) -> dict:
-    """Base on-disk configuration recorder.  It returns a dictionary with two
-    items, "tmp" and "cfg_dir", two Path objects for the temporary directory
-    in which the configuration directory is created.
+) -> dict[Path, Path]:
+    """Base on-disk configuration recorder.
 
-    The first argument is the temporary directory creator factory to be used.
+    Callers use this method to ensure an on-disk configuration is only created
+    once for a given prefix.
 
-    The second argument is a prefix to use for the JSON marker file in which
-    will be store the dictionary containing the temporary directory and the
-    configuration directory created by the setup_func.
+    Args:
+        tmp_path_factory:  the temporary directory creator factory to be used
+        prefix:            a value to be prefixed to the name of the JSON marker
+                           file in which will be store the dictionary containing
+                           the temporary directory and the configuration
+                           directory created by the setup_func.
+        setup_func:        the setup function provided by the caller, which
+                           expects to be called with a Path argument for the
+                           temporary directory to use, and returns a Path object
+                           for the configuration directory created.
 
-    The third argument is the setup function itself.
-
-    The setup_func is expected to take one argument, a Path object
-    representing the created temporary directory, which this method invokes
-    before it is called.
+    Returns:
+        a dictionary with two items, "tmp" and "cfg_dir", two Path objects for
+        the temporary directory in which the configuration directory is created
     """
     root_tmp_dir = tmp_path_factory.getbasetemp()
     marker = root_tmp_dir / f"{prefix}-marker.json"
     with FileLock(f"{marker}.lock"):
-        if marker.is_file():
+        if marker.exists():
             the_setup = json.loads(marker.read_text())
             the_setup["tmp"] = Path(the_setup["tmp"])
             the_setup["cfg_dir"] = Path(the_setup["cfg_dir"])

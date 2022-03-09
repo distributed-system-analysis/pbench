@@ -63,7 +63,7 @@ admin_email = "test_admin@example.com"
 generic_password = "12345"
 
 
-def do_setup(tmp_d: Path) -> dict:
+def do_setup(tmp_d: Path) -> Path:
     """Perform on disk server config setup."""
     # Create a single temporary directory for the "/srv/pbench" and
     # "/opt/pbench-server" directories.
@@ -96,7 +96,7 @@ def do_setup(tmp_d: Path) -> dict:
 
 
 @pytest.fixture(scope="session")
-def on_disk_server_config(tmp_path_factory) -> dict:
+def on_disk_server_config(tmp_path_factory) -> dict[Path, Path]:
     """Test package setup for pbench-server
     """
     return on_disk_config(tmp_path_factory, "server", do_setup)
