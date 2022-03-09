@@ -47,6 +47,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 
 from distutils.spawn import find_executable
@@ -422,6 +423,14 @@ class PersistentTool(Tool):
         self.args = None
         self.process = None
 
+    def log_subprocess_output(self, pipe: subprocess.PIPE):
+        """
+        Utility function to log outputs from a given pipe.
+        """
+        logger = self.logger.getChild(self.__class__.__name__)
+        for line in pipe.readlines():
+            logger.info(line)
+
     def start(self, env=None):
         assert self.args is not None, "Logic bomb!  {self.name} install had failed!"
         assert (
@@ -429,32 +438,38 @@ class PersistentTool(Tool):
         ), "Logic bomb!  No persistent tool directory provided!"
         self.tool_dir = self.tool_dir / self.name
         self.tool_dir.mkdir()
-        o_file = self.tool_dir / f"tm-{self.name}-start.out"
-        e_file = self.tool_dir / f"tm-{self.name}-start.err"
-        with o_file.open("w") as ofp, e_file.open("w") as efp:
-            if env:
-                pp = env["PYTHONPATH"]
-                self.logger.debug(
-                    "Starting persistent tool %s, env PYTHONPATH=%s, args %r",
-                    self.name,
-                    pp,
-                    self.args,
-                )
-                self.process = subprocess.Popen(
-                    " ".join(self.args),
-                    cwd=self.tool_dir,
-                    stdout=ofp,
-                    stderr=efp,
-                    env=self.env,
-                    shell=True,
-                )
-            else:
-                self.logger.debug(
-                    "Starting persistent tool %s, args %r", self.name, self.args
-                )
-                self.process = subprocess.Popen(
-                    self.args, cwd=self.tool_dir, stdout=ofp, stderr=efp,
-                )
+
+        if env:
+            pp = env["PYTHONPATH"]
+            self.logger.debug(
+                "Starting persistent tool %s, env PYTHONPATH=%s, args %r",
+                self.name,
+                pp,
+                self.args,
+            )
+            self.process = subprocess.Popen(
+                " ".join(self.args),
+                cwd=self.tool_dir,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                env=self.env,
+                shell=True,
+            )
+        else:
+            self.logger.debug(
+                "Starting persistent tool %s, args %r", self.name, self.args
+            )
+            self.process = subprocess.Popen(
+                self.args,
+                cwd=self.tool_dir,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+        child_reader = threading.Thread(
+            target=self.log_subprocess_output, args=(self.process.stdout,)
+        )
+        child_reader.daemon = True
+        child_reader.start()
         if env:
             pp = env["PYTHONPATH"]
             self.logger.info(
@@ -1011,6 +1026,11 @@ class ToolMeister:
         _tool_dir = _dir / sub_dir
         try:
             _tool_dir.mkdir()
+            # Remember this persistent tmp tool directory so that we can delete it
+            # when requested.
+            self.directories[data["directory"]] = (
+                _tool_dir if self._controller == self._hostname else _dir
+            )
         except Exception:
             self.logger.exception(
                 "Failed to create local result directory, %s", _tool_dir
@@ -1045,6 +1065,7 @@ class ToolMeister:
                 else:
                     self._persistent_tools[name] = persistent_tool
                     self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
+
         if failures > 0:
             msg = f"{failures} of {tool_cnt} persistent tools failed to start"
             self._send_client_status(msg)
@@ -1518,6 +1539,36 @@ class ToolMeister:
                     name,
                 )
                 failures += 1
+
+        # Remove persistent tool temporary working directory
+        directory = data["directory"]
+        tool_dir = self.directories[directory]
+
+        self.logger.debug(
+            "%s: deleting persistent tool tmp directory %s %s",
+            self._hostname,
+            self._group,
+            tool_dir,
+        )
+        unexpected_files = []
+        for dir, _, files in os.walk(tool_dir):
+            dirpath = Path(dir).relative_to(tool_dir)
+            if files:
+                unexpected_files += map(lambda x: f"{dirpath}/{x}", files)
+
+        if unexpected_files:
+            self.logger.warning(
+                "%s: unexpected temp files %s",
+                self._hostname,
+                ",".join(unexpected_files),
+            )
+        try:
+            shutil.rmtree(tool_dir)
+        except Exception:
+            self.logger.exception(
+                "Failed to remove persistent tool data tmp directory: %s", tool_dir
+            )
+        del self.directories[directory]
         if failures > 0:
             msg = f"{failures} of {tool_cnt} failed stopping persistent tools"
             self._send_client_status(msg)

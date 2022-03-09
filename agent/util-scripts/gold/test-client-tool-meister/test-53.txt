@@ -63,11 +63,6 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/prometheus_data.tar.xz
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm/dcgm-exporter.file
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm/tm-dcgm-start.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm/tm-dcgm-start.out
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-default
@@ -193,6 +188,7 @@ INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
+WARNING pbench-tool-meister end_tools -- testhost.example.com: unexpected temp files dcgm/dcgm-exporter.file
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
@@ -216,9 +212,10 @@ testhost.example.com 0011 INFO pbench-tool-meister wait -- Waiting for transient
 testhost.example.com 0012 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com
 testhost.example.com 0013 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 testhost.example.com 0014 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
-testhost.example.com 0015 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
-testhost.example.com 0016 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
-testhost.example.com 0017 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
+testhost.example.com 0015 WARNING pbench-tool-meister end_tools -- testhost.example.com: unexpected temp files dcgm/dcgm-exporter.file
+testhost.example.com 0016 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
+testhost.example.com 0017 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
+testhost.example.com 0018 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
 --- mock-run/tm/tm.logs file contents
 +++ tools-default/prometheus/prom.log file contents
 --- tools-default/prometheus/prom.log file contents
@@ -240,13 +237,6 @@ scrape_configs:
     static_configs:
     - targets: ['testhost.example.com:9400']
 --- tools-default/prometheus/prometheus.yml file contents
-+++ tools-default/testhost.example.com/dcgm/dcgm-exporter.file file contents
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
---- tools-default/testhost.example.com/dcgm/dcgm-exporter.file file contents
-+++ tools-default/testhost.example.com/dcgm/tm-dcgm-start.err file contents
---- tools-default/testhost.example.com/dcgm/tm-dcgm-start.err file contents
-+++ tools-default/testhost.example.com/dcgm/tm-dcgm-start.out file contents
---- tools-default/testhost.example.com/dcgm/tm-dcgm-start.out file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter

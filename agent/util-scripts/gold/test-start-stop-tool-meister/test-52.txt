@@ -49,7 +49,6 @@ pbench-tool-meister-stop: waiting for tool-data-sink (#####) to exit
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-mygroup-testhost.example.com.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup/testhost.example.com
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-mygroup
@@ -228,6 +227,7 @@ DEBUG pbench-tool-meister fetch_message -- payload from pbench-agent-cli-to-tms:
 DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms payload, '{"action": "end", "args": null, "directory": "/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup", "group": "mygroup"}'
 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'group': 'mygroup'}
 DEBUG pbench-tool-meister driver -- acting ... end_tools, {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'group': 'mygroup'}
+DEBUG pbench-tool-meister end_tools -- testhost.example.com: deleting persistent tool tmp directory mygroup /var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup/testhost.example.com
 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "success"}
 DEBUG pbench-tool-meister _send_client_status -- posted client status message, '{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'
 DEBUG pbench-tool-meister driver -- waiting ...
@@ -260,15 +260,16 @@ testhost.example.com 0014 DEBUG pbench-tool-meister fetch_message -- payload fro
 testhost.example.com 0015 DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms payload, '{"action": "end", "args": null, "directory": "/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup", "group": "mygroup"}'
 testhost.example.com 0016 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'group': 'mygroup'}
 testhost.example.com 0017 DEBUG pbench-tool-meister driver -- acting ... end_tools, {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'group': 'mygroup'}
-testhost.example.com 0018 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "success"}
-testhost.example.com 0019 DEBUG pbench-tool-meister _send_client_status -- posted client status message, '{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'
-testhost.example.com 0020 DEBUG pbench-tool-meister driver -- waiting ...
-testhost.example.com 0021 DEBUG pbench-tool-meister fetch_message -- next pbench-agent-cli-to-tms
-testhost.example.com 0022 DEBUG pbench-tool-meister fetch_message -- payload from pbench-agent-cli-to-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-tms', 'data': b'{"action": "terminate", "args": {"interrupt": false}, "directory": null, "group": "mygroup"}'}
-testhost.example.com 0023 DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms payload, '{"action": "terminate", "args": {"interrupt": false}, "directory": null, "group": "mygroup"}'
-testhost.example.com 0024 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'terminate', 'args': {'interrupt': False}, 'directory': None, 'group': 'mygroup'}
-testhost.example.com 0025 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
-testhost.example.com 0026 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "terminated"}
+testhost.example.com 0018 DEBUG pbench-tool-meister end_tools -- testhost.example.com: deleting persistent tool tmp directory mygroup /var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup/testhost.example.com
+testhost.example.com 0019 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "success"}
+testhost.example.com 0020 DEBUG pbench-tool-meister _send_client_status -- posted client status message, '{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'
+testhost.example.com 0021 DEBUG pbench-tool-meister driver -- waiting ...
+testhost.example.com 0022 DEBUG pbench-tool-meister fetch_message -- next pbench-agent-cli-to-tms
+testhost.example.com 0023 DEBUG pbench-tool-meister fetch_message -- payload from pbench-agent-cli-to-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-tms', 'data': b'{"action": "terminate", "args": {"interrupt": false}, "directory": null, "group": "mygroup"}'}
+testhost.example.com 0024 DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms payload, '{"action": "terminate", "args": {"interrupt": false}, "directory": null, "group": "mygroup"}'
+testhost.example.com 0025 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'terminate', 'args': {'interrupt': False}, 'directory': None, 'group': 'mygroup'}
+testhost.example.com 0026 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
+testhost.example.com 0027 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "terminated"}
 --- mock-run/tm/tm.logs file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
