@@ -90,8 +90,7 @@ def do_setup(tmp_d: Path) -> dict:
     )
 
     cfg_file = pbench_cfg / "pbench-server.cfg"
-    with cfg_file.open(mode="w") as fp:
-        fp.write(server_cfg_tmpl.format(TMP=str(tmp_d)))
+    cfg_file.write_text(server_cfg_tmpl.format(TMP=str(tmp_d)))
 
     return pbench_cfg
 

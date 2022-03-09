@@ -37,8 +37,7 @@ def do_setup(tmp_d):
     )
 
     cfg_file = pbench_cfg / "pbench-agent.cfg"
-    with open(cfg_file, "w") as fp:
-        fp.write(agent_cfg_tmpl.format(TMP=tmp_d))
+    cfg_file.write_text(agent_cfg_tmpl.format(TMP=tmp_d))
 
     return pbench_cfg
 
