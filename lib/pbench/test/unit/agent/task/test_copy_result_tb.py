@@ -15,7 +15,7 @@ from pbench.test.unit.agent.task.common import tarball, bad_tarball
 
 class TestCopyResults:
     @pytest.fixture(autouse=True)
-    def config_and_logger(self, valid_config):
+    def config_and_logger(self):
         # Setup the configuration and logger
         self.config = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"])
         self.logger = get_pbench_logger("pbench", self.config)
@@ -24,7 +24,7 @@ class TestCopyResults:
         self.config, self.logger = None, None
 
     @responses.activate
-    def test_copy_tar(self, valid_config):
+    def test_copy_tar(self):
         tbname = Path(tarball)
         responses.add(
             responses.PUT,
@@ -42,7 +42,7 @@ class TestCopyResults:
         crt.copy_result_tb("token")
 
     @responses.activate
-    def test_bad_tar(self, caplog, valid_config):
+    def test_bad_tar(self, caplog):
         responses.add(
             responses.PUT,
             f"http://pbench.example.com/api/v1/upload/{bad_tarball}",

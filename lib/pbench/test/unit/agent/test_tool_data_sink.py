@@ -8,7 +8,6 @@ import time
 
 from http import HTTPStatus
 from io import BytesIO
-from pathlib import Path
 from threading import Condition, Lock, Thread
 from unittest.mock import patch
 from wsgiref.simple_server import WSGIRequestHandler
@@ -26,19 +25,22 @@ class TestBenchmarkRunDir:
     """
 
     @pytest.fixture
-    def cleanup_tmp(self, pytestconfig):
-        TMP = Path(pytestconfig.cache.get("TMP", None))
-        self.int_pb_run = TMP / "pbench-run-int"
-        self.ext_pb_run = TMP / "pbench-run-ext"
+    def cleanup_tmp(self, tmp_path):
+        self.int_pb_run = tmp_path / "pbench-run-int"
+        self.ext_pb_run = tmp_path / "pbench-run-ext"
         yield
         try:
             shutil.rmtree(self.int_pb_run)
-        except Exception as exc:
-            print(exc)
+        except FileNotFoundError:
+            pass
+        except NotADirectoryError:
+            self.int_pb_run.unlink()
         try:
             shutil.rmtree(self.ext_pb_run)
-        except Exception as exc:
-            print(exc)
+        except FileNotFoundError:
+            pass
+        except NotADirectoryError:
+            self.ext_pb_run.unlink()
 
     def test_validate(self, cleanup_tmp):
         """test_validate - verify the behavior of the validate() using both an

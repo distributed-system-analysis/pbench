@@ -40,7 +40,7 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_help(pytestconfig):
+    def test_help():
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(main, ["--help"])
         assert result.exit_code == 0, result.stderr
@@ -49,7 +49,7 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_missing_arg(valid_config, pytestconfig):
+    def test_missing_arg():
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -64,7 +64,7 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_bad_arg(valid_config, pytestconfig):
+    def test_bad_arg():
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -86,7 +86,7 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_extra_arg(valid_config, pytestconfig):
+    def test_extra_arg():
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -103,7 +103,7 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_args(valid_config, pytestconfig):
+    def test_args():
         """Test normal operation when all arguments and options are specified"""
 
         TestResultsPush.add_http_mock_response()
@@ -122,7 +122,7 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_token_prompt(valid_config, pytestconfig):
+    def test_token_prompt():
         """Test normal operation when the token option is omitted"""
 
         TestResultsPush.add_http_mock_response()
@@ -137,7 +137,7 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_token_envar(monkeypatch, caplog, valid_config, pytestconfig):
+    def test_token_envar(monkeypatch, caplog):
         """Test normal operation with the token in an environment variable"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
@@ -150,7 +150,7 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_connection_error(monkeypatch, caplog, valid_config, pytestconfig):
+    def test_connection_error(monkeypatch, caplog):
         """Test handling of connection errors"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
@@ -163,7 +163,7 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_http_error(monkeypatch, caplog, valid_config, pytestconfig):
+    def test_http_error(monkeypatch, caplog):
         """Test handling of 404 errors"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)

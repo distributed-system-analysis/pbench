@@ -50,7 +50,7 @@ class TestGenerateToken:
 
     @staticmethod
     @responses.activate
-    def test_help(pytestconfig):
+    def test_help():
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(generate_token.main, ["--help"])
         assert result.exit_code == 0
@@ -59,7 +59,7 @@ class TestGenerateToken:
 
     @staticmethod
     @responses.activate
-    def test_args_both(valid_config, pytestconfig):
+    def test_args_both():
         TestGenerateToken.add_success_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
@@ -77,7 +77,7 @@ class TestGenerateToken:
 
     @staticmethod
     @responses.activate
-    def test_args_username(valid_config, pytestconfig):
+    def test_args_username():
         TestGenerateToken.add_success_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
@@ -95,7 +95,7 @@ class TestGenerateToken:
 
     @staticmethod
     @responses.activate
-    def test_args_password(valid_config, pytestconfig):
+    def test_args_password():
         TestGenerateToken.add_success_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
@@ -113,7 +113,7 @@ class TestGenerateToken:
 
     @staticmethod
     @responses.activate
-    def test_args_none(valid_config, pytestconfig):
+    def test_args_none():
         TestGenerateToken.add_success_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
@@ -132,7 +132,7 @@ class TestGenerateToken:
 
     @staticmethod
     @responses.activate
-    def test_bad_login(valid_config, pytestconfig):
+    def test_bad_login():
         TestGenerateToken.add_badlogin_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
@@ -150,7 +150,7 @@ class TestGenerateToken:
 
     @staticmethod
     @responses.activate
-    def test_connection_failed(valid_config, pytestconfig):
+    def test_connection_failed():
 
         TestGenerateToken.add_connectionerr_mock_response()
         runner = CliRunner(mix_stderr=False)

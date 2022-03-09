@@ -1,7 +1,5 @@
 import pytest
 
-from pbench.test.unit.agent.conftest import valid_config, agent_config_env  # noqa F401
-
 
 def test_pbench_config():
     command = ["pbench-config"]
@@ -16,8 +14,11 @@ def test_pbench_config_help():
     assert exitcode == 0
 
 
-def test_pbench_agent_config(valid_config, agent_config_env, pytestconfig):  # noqa F811
-    TMP = pytestconfig.cache.get("TMP", None)
+def test_pbench_agent_config(func_setup, monkeypatch):
+    TMP = func_setup["tmp"]
+    monkeypatch.setenv(
+        "_PBENCH_AGENT_CONFIG", str(func_setup["cfg_dir"] / "pbench-agent.cfg")
+    )
     command = ["pbench-config", "pbench_run", "pbench-agent"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert f"{TMP}/var/lib/pbench-agent".encode("UTF-8") in out

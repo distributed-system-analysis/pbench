@@ -11,8 +11,8 @@ from pbench.test.unit.server.conftest import register_user, login_user, admin_us
 
 class TestUserAuthentication:
     @staticmethod
-    def test_registration(client, server_config, pytestconfig):
-        client.config["SESSION_FILE_DIR"] = pytestconfig.cache.get("TMP", None)
+    def test_registration(client, server_config, tmp_path):
+        client.config["SESSION_FILE_DIR"] = tmp_path
         """ Test for user registration """
         with client:
             response = register_user(

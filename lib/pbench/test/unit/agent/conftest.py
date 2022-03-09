@@ -1,44 +1,8 @@
-import shutil
-import tempfile
-import pytest
-
 from pathlib import Path
+import pytest
+import shutil
 
-
-def base_setup(request, pytestconfig):
-    """Test package setup for pbench-agent"""
-
-    # Create a single temporary directory for the "/opt/pbench-agent" and
-    # "/var/lib/pbench-agent" directories.
-    TMP = tempfile.TemporaryDirectory(suffix=".d", prefix="pbench-agent-unit-tests.")
-    tmp_d = Path(TMP.name)
-
-    opt_pbench = tmp_d / "opt" / "pbench-agent"
-    pbench_cfg = opt_pbench / "config"
-    pbench_cfg.mkdir(parents=True, exist_ok=True)
-
-    var = tmp_d / "var" / "lib" / "pbench_agent"
-    var.mkdir(parents=True, exist_ok=True)
-
-    shutil.copyfile(
-        "./agent/config/pbench-agent-default.cfg",
-        str(pbench_cfg / "pbench-agent-default.cfg"),
-    )
-
-    pytestconfig.cache.set("TMP", TMP.name)
-    cfg_file = pbench_cfg / "pbench-agent.cfg"
-    pytestconfig.cache.set("_PBENCH_AGENT_CONFIG", str(cfg_file))
-
-    def teardown():
-        """Test package teardown for pbench-agent"""
-        TMP.cleanup()
-
-    request.addfinalizer(teardown)
-
-
-@pytest.fixture(scope="session", autouse=True)
-def setup(request, pytestconfig):
-    return base_setup(request, pytestconfig)
+from pbench.test import on_disk_config
 
 
 agent_cfg_tmpl = """[DEFAULT]
@@ -55,23 +19,48 @@ files = pbench-agent-default.cfg
 """
 
 
-@pytest.fixture
-def valid_config(pytestconfig):
-    TMP = pytestconfig.cache.get("TMP", None)
-    cfg_file = pytestconfig.cache.get("_PBENCH_AGENT_CONFIG", None)
-    with open(cfg_file, "w") as fp:
-        fp.write(agent_cfg_tmpl.format(TMP=TMP))
+def do_setup(tmp_d: Path) -> Path:
+    """Perform on disk agent config setup.
 
+    Accept a single temporary directory created by its caller, creating a
+    proper pbench directory hierarchy in it, with appropriately constructed
+    configuration files.
 
-@pytest.fixture
-def invalid_config(pytestconfig):
-    cfg_file = pytestconfig.cache.get("_PBENCH_AGENT_CONFIG", None)
+    Returns a Path object for the created pbench configuration directory.
+    """
+    opt_pbench = tmp_d / "opt" / "pbench-agent"
+    pbench_cfg = opt_pbench / "config"
+    pbench_cfg.mkdir(parents=True, exist_ok=True)
+
     shutil.copyfile(
-        "./lib/pbench/test/unit/agent/config/pbench-agent.invalid.cfg", cfg_file
+        "./agent/config/pbench-agent-default.cfg",
+        str(pbench_cfg / "pbench-agent-default.cfg"),
     )
+
+    cfg_file = pbench_cfg / "pbench-agent.cfg"
+    cfg_file.write_text(agent_cfg_tmpl.format(TMP=tmp_d))
+
+    return pbench_cfg
+
+
+@pytest.fixture(scope="session")
+def agent_setup(tmp_path_factory) -> dict[str, Path]:
+    """Test package setup for agent unit tests"""
+    return on_disk_config(tmp_path_factory, "agent", do_setup)
 
 
 @pytest.fixture(autouse=True)
-def agent_config_env(pytestconfig, monkeypatch):
-    cfg_file = pytestconfig.cache.get("_PBENCH_AGENT_CONFIG", None)
-    monkeypatch.setenv("_PBENCH_AGENT_CONFIG", cfg_file)
+def setup(tmp_path_factory, agent_setup, monkeypatch) -> dict[str, Path]:
+    """Test package setup for pbench-agent"""
+    var = agent_setup["tmp"] / "var" / "lib" / "pbench-agent"
+    try:
+        shutil.rmtree(str(var))
+    except FileNotFoundError:
+        pass
+    except NotADirectoryError:
+        var.unlink()
+    var.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv(
+        "_PBENCH_AGENT_CONFIG", str(agent_setup["cfg_dir"] / "pbench-agent.cfg")
+    )
+    return agent_setup

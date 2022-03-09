@@ -17,7 +17,7 @@ from pbench.test.unit.agent.task.common import MockDatetime
 
 class TestMakeResultTb:
     @pytest.fixture(autouse=True)
-    def config_and_logger(self, valid_config):
+    def config_and_logger(self):
         with tempfile.TemporaryDirectory() as target_dir, tempfile.TemporaryDirectory() as run_dir:
             # Setup the configuration and logger
             self.controller = "controller-42.example.com"

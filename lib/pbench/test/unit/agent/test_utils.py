@@ -1,7 +1,6 @@
 """Tests for the utils module.
 """
 import os
-import pathlib
 import signal
 import socket
 import time
@@ -94,14 +93,13 @@ class TestBaseServer:
         assert bs.bind_port == 2345
         assert repr(bs) == "forty-two - bind.example.com:2345 / host.example.com:6789"
 
-    def test_kill(self, pytestconfig, monkeypatch):
+    def test_kill(self, tmp_path, monkeypatch):
         bs = OurServer("localhost", "localhost")
         with pytest.raises(AssertionError):
             bs.kill(1)
 
         bs = OurServer("localhost", "localhost")
-        TMP = pathlib.Path(pytestconfig.cache.get("TMP", None))
-        pidfile = TMP / "test.pid"
+        pidfile = tmp_path / "test.pid"
         pidfile.write_text("12345")
         bs.pid_file = pidfile
         ret = bs.kill(42)
@@ -111,7 +109,7 @@ class TestBaseServer:
         ret = bs.kill(42)
         assert ret == (BaseReturnCode.KILL_BADPID * 100) + 42
 
-        bs.pid_file = TMP / "enoent.pid"
+        bs.pid_file = tmp_path / "enoent.pid"
         ret = bs.kill(42)
         assert ret == 42
 

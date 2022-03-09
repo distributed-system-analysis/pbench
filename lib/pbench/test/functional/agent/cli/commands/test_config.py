@@ -2,7 +2,7 @@ import os
 import pytest
 
 
-def test_pbench_run(monkeypatch, tmpdir, agent_config, pbench_run):  # noqa F811
+def test_pbench_run(monkeypatch, agent_config, pbench_run):
     """Use pbench_run value from pbench-agent.cfg file"""
     assert os.environ.get("pbench_run") is None
     command = ["pbench-list-tools"]
