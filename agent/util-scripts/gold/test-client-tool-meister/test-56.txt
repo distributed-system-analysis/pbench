@@ -224,7 +224,7 @@ INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool pcp
 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
 INFO pbench-tool-meister wait -- Stopped persistent tool pcp
-WARNING pbench-tool-meister end_tools -- remote-c.example.com: unexpected temp files red:remote-c.example.com/pcp/pmcd.file,red:remote-c.example.com/dcgm/dcgm-exporter.file
+WARNING pbench-tool-meister end_tools -- remote-c.example.com: unexpected temp files red:remote-c.example.com/dcgm/dcgm-exporter.file,red:remote-c.example.com/pcp/pmcd.file
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
@@ -505,7 +505,7 @@ remote-c.example.com 0004 INFO pbench-tool-meister stop -- Terminate issued for 
 remote-c.example.com 0005 INFO pbench-tool-meister stop -- Terminate issued for persistent tool pcp
 remote-c.example.com 0006 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
 remote-c.example.com 0007 INFO pbench-tool-meister wait -- Stopped persistent tool pcp
-remote-c.example.com 0008 WARNING pbench-tool-meister end_tools -- remote-c.example.com: unexpected temp files red:remote-c.example.com/pcp/pmcd.file,red:remote-c.example.com/dcgm/dcgm-exporter.file
+remote-c.example.com 0008 WARNING pbench-tool-meister end_tools -- remote-c.example.com: unexpected temp files red:remote-c.example.com/dcgm/dcgm-exporter.file,red:remote-c.example.com/pcp/pmcd.file
 remote-c.example.com 0009 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com block,security_mitigations,sos parallel
 remote-c.example.com 0010 INFO pbench-tool-meister _send_directory -- remote-c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
 remote-c.example.com 0011 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating

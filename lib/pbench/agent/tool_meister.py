@@ -1560,7 +1560,7 @@ class ToolMeister:
             self.logger.warning(
                 "%s: unexpected temp files %s",
                 self._hostname,
-                ",".join(unexpected_files),
+                ",".join(sorted(unexpected_files)),
             )
         try:
             shutil.rmtree(tool_dir)
