@@ -30,18 +30,19 @@ body:
       label: Actual Results
       description: Add your observations/output/log/screenshots if applicable
     validations:
-      required: false
+      required: true
   - type: textarea
     id: expected-result
     attributes:
       label: Expected Results
-      description: what is your expected result?
+      description: What is your expected result?
     validations:
-      required: false
+      required: true
   - type: textarea
     id: extrainfo
     attributes:
       label: Additional information
-      description: Is there anything else we should know about this bug? (like Version-Release number of selected component, linux distribution and etc)   
+      description: Is there anything else we should know about this bug? (Like version or release number of selected component, Linux distribution, etc.)   
     validations:
       required: false
+
