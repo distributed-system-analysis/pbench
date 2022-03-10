@@ -1,0 +1,50 @@
+#!/bin/bash
+
+_PROG=$(basename ${0})
+
+_mode="execute"
+_verbose="no"
+
+while getopts ":hnv" option; do 
+    case "${option}" in
+    h)
+        printf -- "%s: remove all 'ignored' files throughout the source tree\n" "${_PROG}"
+        printf -- "\nUsage: %s [-hvn]\n" "${_PROG}"
+        printf -- "       -h  emit this help/usage message\n"
+        printf -- "       -n  emit actions that would be taken without executing them\n"
+        printf -- "       -v  verbose mode, printing each action that will be taken\n"
+        exit 0
+        ;;
+    n)
+        _mode="dry-run"
+        ;;
+    v)
+        _verbose="yes"
+        ;;
+    :)
+        printf -- "colon\n" >&2
+        exit 1
+        ;;
+    *)
+        printf -- "Unrecognized argument, '${option}' (option argument '${OPTARG}')\n" >&2
+        exit 1
+        ;;
+    esac
+done
+
+# Start from the repository root.
+cd ./$(git rev-parse --show-cdup)
+
+_mode=execute
+
+while read _ignored _file; do
+    if [[ -z "${_file}" ]]; then
+        continue
+    fi
+    if [[ "${_verbose}" == "yes" || "${_mode}" == "dry-run" ]]; then
+        echo "rm -rf '${_file}'"
+    fi
+    if [[ "${_mode}" == "execute" ]]; then
+        rm -rf ${_file}
+    fi
+done <<< "$(git status --short --ignored | grep -E '^!!')"
