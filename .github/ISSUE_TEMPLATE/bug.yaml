@@ -1,0 +1,48 @@
+name: 🐞 Bug
+description: Report an issue to help improve the project.
+title: "[BUG]"
+labels: ["needs-triage"]
+body:
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+      - label: I have searched the existing issues
+        required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A brief description of the question or issue, also include what you tried and what didn't work
+    validations:
+      required: true
+  - type: textarea
+    id: Reproduce
+    attributes:
+      label: To Reproduce
+      description: Steps to reproduce this bug
+    validations:
+      required: true
+  - type: textarea
+    id: actual-result
+    attributes:
+      label: Actual Results
+      description: Add your observations/output/log/screenshots if applicable
+    validations:
+      required: true
+  - type: textarea
+    id: expected-result
+    attributes:
+      label: Expected Results
+      description: What is your expected result?
+    validations:
+      required: true
+  - type: textarea
+    id: extrainfo
+    attributes:
+      label: Additional information
+      description: Is there anything else we should know about this bug? (Like version or release number of selected component, Linux distribution, etc.)   
+    validations:
+      required: false
+
