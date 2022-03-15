@@ -74,6 +74,7 @@ function testit {
     _testlog=${_execdir}/test-execution.log \
     pbench_lib_dir=${_tdir}/../../lib \
     PATH=${_tdir}/mock-bin:${PATH} \
+    PYTHONPATH=${_tdir}/mock-lib:${PYTHONPATH} \
     _tool_bin="${_tdir}/mock-bin/${2}" \
     ./${2}-datalog $(tests/${2}/options 2> /dev/null) > ${_execdir}/stdout 2> ${_execdir}/stderr < /dev/null
 
