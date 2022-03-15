@@ -785,8 +785,7 @@ if [ "${postprocess_only}" == "n" ]; then
 	if cat /proc/cmdline | grep -q "intel_iommu=on"; then
 		echo "found IOMMU option, continuing"
 	else
-		error_log "could not find IOMMU option, intel_iommu=on, in /proc/cmdline, exiting"
-		exit 1
+		warn_log "Warning:  could not find IOMMU option, intel_iommu=on, in /proc/cmdline"
 	fi
 	# - dpdk-tools package must be installed
 	check_install_rpm dpdk-tools
