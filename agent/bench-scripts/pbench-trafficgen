@@ -40,6 +40,8 @@ orig_cmd="${*}"
 
 benchmark_name="trafficgen"
 export benchmark=${benchmark_name}
+trafficgen_repo="https://github.com/distributed-system-analysis/trafficgen.git"
+trafficgen_tag="v0.71"
 
 # General pbench defaults
 export benchmark_run_dir=""
@@ -410,7 +412,8 @@ function usage {
 	printf -- "  running already)\n"
 	printf -- "\n"
 	printf -- "--skip-git-pull\n"
-	printf -- "  Do not call git pull on the trafficgen repo if it already exists\n"
+	printf -- "  By default, this script will maintain a compatible version of trafficgen\n"
+	printf -- "  in ${trafficgen_dir}; use this switch to disable updates.\n"
 	printf -- "\n\n"
 	printf -- "options common in most pbench benchmark scripts\n"
 	printf -- "-----------------------------------------------\n"
@@ -875,25 +878,31 @@ if [ "${postprocess_only}" == "n" ]; then
 
 	if [ -d $trafficgen_dir ]; then
 		if [ $skip_git_pull == "n" ]; then
-			if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
-				echo "trafficgen is up to date"
-				trafficgen_version=$(git log --max-count=1 --pretty=%h)
-				popd >/dev/null
+			if ( cd $trafficgen_dir >/dev/null && \
+					git fetch --force --quiet --depth=1 origin ${trafficgen_tag} && \
+					git checkout --force ${trafficgen_tag} )
+			then
+				echo "Updated trafficgen ${trafficgen_tag} from ${trafficgen_repo}."
 			else
-				error_log "could not pull latest trafficgen"
+				error_log "Updating trafficgen ${trafficgen_tag} from ${trafficgen_repo} failed."
 				exit 1
 			fi
 		fi
 	else
-		if pushd /opt >/dev/null && git clone https://github.com/atheurer/trafficgen.git; then
-			trafficgen_version=$(git log --max-count=1 --pretty=%h)
-			echo "trafficgen cloned"
-			popd >/dev/null
+		if git clone \
+				--branch $trafficgen_tag \
+				--single-branch \
+				--depth 1 \
+				--no-tags \
+				$trafficgen_repo $trafficgen_dir
+		then
+			echo "Checked out trafficgen ${trafficgen_tag} from ${trafficgen_repo}."
 		else
-			error_log "could not clone latest trafficgen"
+			error_log "Cloning trafficgen ${trafficgen_tag} from ${trafficgen_repo} to \"${trafficgen_dir}\" failed."
 			exit 1
 		fi
 	fi
+	trafficgen_version=$(cd $trafficgen_dir >/dev/null && git log --max-count=1 --pretty=%h)
 
 	# Moongen is built under the trafficgen repo
 	if [ $traffic_generator == "moongen-txrx" ]; then
