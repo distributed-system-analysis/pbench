@@ -791,7 +791,10 @@ if [ "${postprocess_only}" == "n" ]; then
 		warn_log "Warning:  could not find IOMMU option, intel_iommu=on, in /proc/cmdline"
 	fi
 	# - dpdk-tools package must be installed
-	check_install_rpm dpdk-tools
+
+	##### DEBUG (this should not be commented out....) #####
+	# check_install_rpm dpdk-tools
+
 	echo "found dpdk-tools, continuing"
 	# - PCI devices bound to vfio-pci
 	if [ -z "$devices" ]; then
@@ -903,6 +906,8 @@ if [ "${postprocess_only}" == "n" ]; then
 		fi
 	fi
 	trafficgen_version=$(cd $trafficgen_dir >/dev/null && git log --max-count=1 --pretty=%h)
+
+exit 0  #### DEBUG
 
 	# Moongen is built under the trafficgen repo
 	if [ $traffic_generator == "moongen-txrx" ]; then
