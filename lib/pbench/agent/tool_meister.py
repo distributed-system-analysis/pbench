@@ -424,8 +424,7 @@ class PersistentTool(Tool):
         self.process = None
 
     def log_subprocess_output(self, pipe: subprocess.PIPE):
-        """
-        Utility function to log outputs from a given pipe.
+        """Thread start function to log outputs from a given pipe.
         """
         logger = self.logger.getChild(self.__class__.__name__)
         for line in pipe.readlines():
@@ -515,16 +514,10 @@ class PersistentTool(Tool):
                 "Killed un-responsive persistent tool %s after 30 seconds", self.name
             )
         elif sts != 0 and sts != -(signal.SIGTERM):
-            o_file = self.tool_dir / f"tm-{self.name}-start.out"
-            e_file = self.tool_dir / f"tm-{self.name}-start.err"
-            stdout = o_file.read_text()
-            stderr = e_file.read_text()
             self.logger.warning(
-                "Persistent tool %s failed to return success, %d, stdout %r, stderr %r",
+                "Persistent tool %s failed to return success, %d",
                 self.name,
                 self.process.returncode,
-                stdout,
-                stderr,
             )
         else:
             self.logger.info("Stopped persistent tool %s", self.name)
