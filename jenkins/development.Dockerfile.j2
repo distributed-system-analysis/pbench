@@ -10,17 +10,20 @@
 # possible, we install indirect dependencies of the run-time installations
 # below, as well.
 #
-# The image is published to https://quay.io/pbench/development and "tagged"
-# using the branch name in which it works: `master`, `b0.70`, `b0.71`, etc.
+# The image is published to https://quay.io/pbench/pbench-devel-<distro> (see
+# jenkins/Makefile for the <distro> options) and "tagged" using the branch name
+# in which it was built (e.g. `main`, `b0.70`, `b0.71`, etc.).
 #
 # NOTE WELL: The Fedora based image has no entry point, but the UBI based
 # image inherits its entry point from the UBI base image -- /sbin/init --
 # which allows systemctl-enabled daemons to run automatically.
 #
+# WARNING: Do not publish images layered on top of UBI images.
+#
 # You can use this image to run our development environment from a command
 # line, e.g.:
 #
-#  $ podman run -it --rm pbench-devel:<branch name> /bin/bash
+#  $ podman run -it --rm pbench-devel-<distro>:<branch name> /bin/bash
 #
 # which will allow you to run a Fedora- or UBI-based pbench development
 # environment. Or you can use this image as a base image, and build another
@@ -32,13 +35,12 @@
 #
 # Build the image using (see jenkins/Makefile):
 #
-#   $ buildah bud -f development.Dockerfile -t pbench-devel:<branch name>
+#   $ buildah bud -f development.Dockerfile -t pbench-devel-<distro>:<branch name>
 #
 # Run tests using (see jenkins/run and jenkins/Pipeline.gy):
 #
 #   $ podman run -it --userns=keep-id --volume $(pwd):/src/pbench:z \
-#     --rm localhost/pbench-devel:<branch name> \
-#     "source jenkins/python-setup.sh; jenkins/run-pytests; jenkins/run-unittests"
+#     --rm localhost/pbench-devel-<distro>:<branch name> tox
 #
 # [1] See https://www.redhat.com/sysadmin/user-flag-rootless-containers
 
@@ -110,6 +112,7 @@ RUN \
         `# file and this list should be regenerated.` \
         `#` \
         cronie \
+        libpq-devel \
         npm \
         policycoreutils \
         policycoreutils-python-utils \

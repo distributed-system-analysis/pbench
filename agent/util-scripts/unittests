@@ -69,8 +69,6 @@ let res=res+${?}
 export _testhome=${_testroot}/home
 mkdir ${_testhome}
 let res=res+${?}
-ln -s ${HOME}/.local ${_testhome}/.local
-let res=res+${?}
 
 if [[ $res -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
