@@ -113,22 +113,16 @@ class Tool:
 
     _tool_type = None
 
-    def __init__(
-        self, name, tool_opts, pbench_install_dir=None, tool_dir=None, logger=None,
-    ):
+    def __init__(self, name, tool_opts, pbench_install_dir, logger, tool_dir=None):
         self.name = name
         self.tool_opts = tool_opts
-        assert (
-            pbench_install_dir is not None
-        ), "Logic bomb!  no installation directory provided!"
         if not pbench_install_dir.is_dir():
             raise RuntimeError(
                 f"pbench installation directory does not exist: {pbench_install_dir}"
             )
         self.pbench_install_dir = pbench_install_dir
-        self.tool_dir = tool_dir
-        assert logger is not None, "Logic bomb!  no logger provided!"
         self.logger = logger
+        self.tool_dir = tool_dir
 
     def install(self):
         raise NotImplementedError(
@@ -213,35 +207,31 @@ class Tool:
         """Generic method of waiting for a given process, killing the process
         if the initial wait failed, waiting a second time for the kill to take
         effect.
-
-        Always returns None
         """
+        _ctx_name = f" {ctx_name}" if ctx_name else ""
         self.logger.info(
-            "Waiting for %s tool %s%s process",
-            self._tool_type,
-            self.name,
-            f" {ctx_name}" if ctx_name else "",
+            "Waiting for %s tool %s%s process", self._tool_type, self.name, _ctx_name
         )
         # We wait for the {ctx_name} process to finish first ...
         sts = self._wait_for_process(process, ctx_name)
         if sts is None:
-            # The {ctx_name} process did not terminate gracefully after 30 seconds,
-            # so we bring out the big guns ...
+            # The {ctx_name} process did not terminate gracefully, so we bring
+            # out the big guns ...
             process.kill()
             self.logger.error(
-                "Killed un-responsive %s tool %s %s process",
+                "Killed un-responsive %s tool %s%s process",
                 self._tool_type,
                 self.name,
-                ctx_name,
+                _ctx_name,
             )
             try:
                 process.wait(timeout=30)
             except subprocess.TimeoutExpired:
                 self.logger.warning(
-                    "Killed %s tool %s %s process STILL didn't die after waiting another 30 seconds, closing its FDs",
+                    "Killed %s tool %s%s process STILL didn't die after waiting another 30 seconds, closing its FDs",
                     self._tool_type,
                     self.name,
-                    ctx_name,
+                    _ctx_name,
                 )
                 process.stdin.close()
                 process.stdout.close()
@@ -251,7 +241,7 @@ class Tool:
                 "%s tool %s%s process failed with %d",
                 self._tool_type,
                 self.name,
-                f" {ctx_name}" if ctx_name else "",
+                _ctx_name,
                 sts,
             )
 
@@ -386,14 +376,13 @@ class PcpTransientTool(Tool):
 
     def __init__(self, name, tool_opts, **kwargs):
         super().__init__(name, tool_opts, **kwargs)
-        self.real_name = self.name.replace("-transient", "")
         self.pmcd_args = None
         self.pmcd_process = None
         self.pmlogger_args = None
         self.pmlogger_process = None
         if "/usr/libexec/pcp/bin" not in os.environ["PATH"]:
             # FIXME - Shouldn't this be provided by the environment?
-            os.environ["PATH"] += ":/usr/libexec/pcp/bin"
+            os.environ["PATH"] += f"{os.pathsep}/usr/libexec/pcp/bin"
         self.pmcd_path = find_executable("pmcd")
         self.pmlogger_path = find_executable("pmlogger")
 
@@ -421,7 +410,7 @@ class PcpTransientTool(Tool):
                 f"Tool({self.name}) has an unexpected pmlogger process running"
             )
 
-        tool_dir = self.tool_dir / self.real_name
+        tool_dir = self.tool_dir / self.name.replace("-transient", "")
         self.pmcd_args = [
             self.pmcd_path,
             "--foreground",
@@ -860,10 +849,7 @@ class ToolMeister:
 
         tool_installs = {}
         for name, tool_opts in sorted(self._tools.items()):
-            try:
-                tklass = self._tool_name_class_mappings[name]
-            except KeyError:
-                tklass = TransientTool
+            tklass = self._tool_name_class_mappings.get(name, TransientTool)
             try:
                 tool = tklass(
                     name,
@@ -1078,29 +1064,25 @@ class ToolMeister:
         for name, tool_opts in sorted(self._tools.items()):
             if name not in self.persistent_tool_names:
                 continue
+            tool_cnt += 1
+            tklass = self._tool_name_class_mappings[name]
             try:
-                tklass = self._tool_name_class_mappings[name]
-            except KeyError:
-                pass
+                persistent_tool = tklass(
+                    name,
+                    tool_opts,
+                    pbench_install_dir=self.pbench_install_dir,
+                    tool_dir=_tool_dir,
+                    logger=self.logger,
+                )
+                persistent_tool.start()
+            except Exception:
+                self.logger.exception(
+                    "Failed to init PersistentTool %s running in background", name
+                )
+                failures += 1
             else:
-                tool_cnt += 1
-                try:
-                    persistent_tool = tklass(
-                        name,
-                        tool_opts,
-                        pbench_install_dir=self.pbench_install_dir,
-                        tool_dir=_tool_dir,
-                        logger=self.logger,
-                    )
-                    persistent_tool.start()
-                except Exception:
-                    self.logger.exception(
-                        "Failed to init PersistentTool %s running in background", name
-                    )
-                    failures += 1
-                else:
-                    self._persistent_tools[name] = persistent_tool
-                    self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
+                self._persistent_tools[name] = persistent_tool
+                self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
 
         if failures > 0:
             msg = f"{failures} of {tool_cnt} persistent tools failed to start"
@@ -1196,10 +1178,7 @@ class ToolMeister:
             if name in self.persistent_tool_names:
                 continue
             tool_cnt += 1
-            try:
-                tklass = self._tool_name_class_mappings[name]
-            except KeyError:
-                tklass = TransientTool
+            tklass = self._tool_name_class_mappings.get(name, TransientTool)
             try:
                 tool = tklass(
                     name,
