@@ -169,12 +169,12 @@ INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT tool-data 
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
 INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
-INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
-INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
+INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.out:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.err:
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com block,security_mitigations,sos parallel
@@ -196,12 +196,12 @@ WARNING pbench-tool-meister end_tools -- remote-b.example.com: unexpected temp f
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
 INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
-INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
-INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
+INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.out:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.err:
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com block,security_mitigations,sos parallel
@@ -446,12 +446,12 @@ WARNING pbench-tool-meister end_tools -- testhost.example.com: unexpected temp f
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
-INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
-INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
+INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
 --- mock-run/tm/tm-lite-testhost.example.com.err file contents
 +++ mock-run/tm/tm-lite-testhost.example.com.out file contents
 --- mock-run/tm/tm-lite-testhost.example.com.out file contents
@@ -522,24 +522,24 @@ testhost.example.com WARNING pbench-tool-meister end_tools -- testhost.example.c
 testhost.example.com INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
 testhost.example.com INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
 testhost.example.com INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
-remote-a.example.com INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-remote-a.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-remote-a.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
-remote-a.example.com INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-remote-a.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-remote-a.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
-remote-b.example.com INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-remote-b.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-remote-b.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
-remote-b.example.com INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-remote-b.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-remote-b.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
-testhost.example.com INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-testhost.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-testhost.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
-testhost.example.com INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-testhost.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-testhost.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
+remote-a.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+remote-a.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+remote-a.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+remote-a.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+remote-a.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+remote-a.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+remote-b.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+remote-b.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+remote-b.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+remote-b.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+remote-b.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+remote-b.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+testhost.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+testhost.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
 --- mock-run/tm/tm.logs file contents
 +++ tools-lite/pcp/pmproxy-proc.log file contents
 --- tools-lite/pcp/pmproxy-proc.log file contents
