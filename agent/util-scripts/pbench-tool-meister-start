@@ -299,7 +299,7 @@ def start_tms_via_ssh(
                 )
                 tms[host] = {"status": "failed"}
             else:
-                # Record the child pid to wait below.
+                # Record the the host command has spawned
                 tms[host] = {"status": "spawned"}
 
     for host, tm_proc in tms.items():

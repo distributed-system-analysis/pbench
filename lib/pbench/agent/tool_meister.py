@@ -1987,7 +1987,7 @@ def start(prog: Path, parsed: Arguments) -> int:
         tmp_dir,
         parsed,
         params,
-        redis_server
+        redis_server,
     )
 
 

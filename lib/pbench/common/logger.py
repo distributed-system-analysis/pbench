@@ -15,20 +15,22 @@ class HostnameFilter(logging.Filter):
     strings, in the form `%(hostname)s`
     """
 
-    def __init__(self, hostname: str = None):  # lgtm[py/missing-call-to-init]
+    def __init__(self, hostname: str = None):
         """
         Initialize the filter. By default, `%(hostname)s` will be expanded to
         the platform hostname. This can be overridden by specifying an explicit
         hostname value.
 
         NOTE: the `Filter` class is an "example" filter that filters for a
-        "name" parameter. Calling the superclass constructor would add two
-        instance properties our `filter` will ignore. We suppress the warning
-        in LGTM.com.
+        logger "name". Calling the superclass constructor adds two instance
+        properties our `filter` will ignore, but LGTM.com complains if it's
+        omitted. In theory we can suppress the warning with
+        `# lgtm[py/missing-call-to-init]` but that doesn't seem to work.
 
         Args:
             hostname: Hostname to report. Defaults to platform.node().
         """
+        super().__init__()
         self.hostname = hostname if hostname else platform.node()
 
     def filter(self, record: logging.LogRecord) -> bool:
