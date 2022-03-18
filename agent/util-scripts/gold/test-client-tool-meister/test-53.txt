@@ -184,12 +184,12 @@ WARNING pbench-tool-meister end_tools -- testhost.example.com: unexpected temp f
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
-INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
-INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
+INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
 --- mock-run/tm/tm-default-testhost.example.com.err file contents
 +++ mock-run/tm/tm-default-testhost.example.com.out file contents
 --- mock-run/tm/tm-default-testhost.example.com.out file contents
@@ -214,12 +214,12 @@ testhost.example.com WARNING pbench-tool-meister end_tools -- testhost.example.c
 testhost.example.com INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
 testhost.example.com INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
 testhost.example.com INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
-testhost.example.com INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-testhost.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-testhost.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
-testhost.example.com INFO pbench-tool-meister.logger-start log_subprocess_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
-testhost.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: stopping
-testhost.example.com INFO pbench-tool-meister.logger-stop log_subprocess_output -- mpstat: post-processing following stop
+testhost.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+testhost.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
 --- mock-run/tm/tm.logs file contents
 +++ tools-default/prometheus/prom.log file contents
 --- tools-default/prometheus/prom.log file contents
