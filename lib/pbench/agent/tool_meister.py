@@ -111,7 +111,7 @@ class Tool:
     two helper methods are provided for waiting on processes.
     """
 
-    _tool_type = "None"
+    _tool_type = None
 
     def __init__(
         self, name, tool_opts, pbench_install_dir=None, tool_dir=None, logger=None,
@@ -405,6 +405,9 @@ class PcpTransientTool(Tool):
         return (0, "pcp tool (pmcd and pmlogger) properly installed")
 
     def start(self):
+        assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
+        if not self.tool_dir.is_dir():
+            raise RuntimeError(f"tool directory does not exist: {self.tool_dir}")
         if not self.pmcd_path:
             raise RuntimeError("Path to pmcd not provided")
         if not self.pmlogger_path:
@@ -503,6 +506,9 @@ class PersistentTool(Tool):
 
     def start(self, env=None):
         assert self.args is not None, "Logic bomb!  {self.name} install had failed!"
+        assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
+        if not self.tool_dir.is_dir():
+            raise RuntimeError(f"tool directory does not exist: {self.tool_dir}")
         tool_dir = self.tool_dir / self.name
         tool_dir.mkdir()
 
