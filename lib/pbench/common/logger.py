@@ -1,11 +1,39 @@
 import logging
 import logging.handlers
+import platform
 
 from configparser import NoOptionError, NoSectionError
 from datetime import datetime
 from pathlib import Path
 
 from pbench.common.exceptions import BadConfig
+
+
+class HostnameFilter(logging.Filter):
+    """
+    This logging filter allows adding hostname to standard Python log format
+    strings, in the form `%(hostname)s`
+    """
+
+    def __init__(self, hostname: str = None):  # lgtm[py/missing-call-to-init]
+        """
+        Initialize the filter. By default, `%(hostname)s` will be expanded to
+        the platform hostname. This can be overridden by specifying an explicit
+        hostname value.
+
+        NOTE: the `Filter` class is an "example" filter that filters for a
+        "name" parameter. Calling the superclass constructor would add two
+        instance properties our `filter` will ignore. We suppress the warning
+        in LGTM.com.
+
+        Args:
+            hostname: Hostname to report. Defaults to platform.node().
+        """
+        self.hostname = hostname if hostname else platform.node()
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.hostname = self.hostname
+        return True
 
 
 class _Message:

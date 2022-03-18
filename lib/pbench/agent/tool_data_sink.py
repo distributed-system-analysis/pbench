@@ -9,31 +9,29 @@
 #   sudo dnf install python3-bottle python3-daemon
 #   sudo pip3 install python-pidfile
 
+from datetime import datetime
 import errno
 import hashlib
+from http import HTTPStatus
 import json
 import logging
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
-
-from configparser import DuplicateSectionError
-from datetime import datetime
-from distutils.spawn import find_executable
-from http import HTTPStatus
-from jinja2 import Environment, FileSystemLoader
-from pathlib import Path
 from threading import Thread, Lock, Condition
-from typing import Tuple
-from wsgiref.simple_server import WSGIRequestHandler, make_server
-
-import pidfile
-import redis
+from typing import Any, Dict, NamedTuple, Tuple
 
 from bottle import Bottle, ServerAdapter, request, abort
+from configparser import DuplicateSectionError
 from daemon import DaemonContext
+from distutils.spawn import find_executable
+from jinja2 import Environment, FileSystemLoader
+import pidfile
+import redis
+from wsgiref.simple_server import WSGIRequestHandler, make_server
 
 from pbench.agent.constants import (
     tm_allowed_actions,
@@ -47,11 +45,12 @@ from pbench.agent.redis import RedisChannelSubscriber, wait_for_conn_and_key
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
 from pbench.common import MetadataLog
+from pbench.common.logger import HostnameFilter
 
 
 # Logging format string for unit tests
 fmtstr_ut = "%(levelname)s %(name)s %(funcName)s -- %(message)s"
-fmtstr = "%(asctime)s %(levelname)s %(process)s %(thread)s %(name)s %(funcName)s %(lineno)d -- %(message)s"
+fmtstr = "%(asctime)s %(levelname)s %(hostname)s %(process)s %(thread)s %(name)s %(funcName)s %(lineno)d -- %(message)s"
 
 
 # Read in 64 KB chunks off the wire for HTTP PUT requests.
@@ -1833,8 +1832,8 @@ class ToolDataSink(Bottle):
             abort(500, "INTERNAL ERROR")
 
 
-def get_logger(PROG, daemon=False):
-    """get_logger - construct a logger for a Tool Meister instance.
+def get_logger(PROG: str, daemon: bool = False, level: bool = "info") -> logging.Logger:
+    """construct a logger for a Tool Meister Data Sync instance.
 
     If in the Unit Test environment, just log to console.
     If in non-unit test environment:
@@ -1842,7 +1841,7 @@ def get_logger(PROG, daemon=False):
        If not daemonized, log to console AND log back to Redis
     """
     logger = logging.getLogger(PROG)
-    if os.environ.get("_PBENCH_TOOL_DATA_SINK_LOG_LEVEL") == "debug":
+    if level == "debug":
         log_level = logging.DEBUG
     else:
         log_level = logging.INFO
@@ -1857,29 +1856,36 @@ def get_logger(PROG, daemon=False):
     shf = logging.Formatter(fmtstr_ut if unit_tests else fmtstr)
     sh.setFormatter(shf)
     logger.addHandler(sh)
+    logger.addFilter(HostnameFilter())
 
     return logger
 
 
+class Arguments(NamedTuple):
+    host: str
+    port: int
+    key: str
+    daemonize: bool
+    level: str
+
+
 def driver(
-    PROG,
-    redis_server,
-    redis_host,
-    redis_port,
-    pbench_bin,
-    pbench_run,
-    hostname,
-    tar_path,
-    cp_path,
-    param_key,
-    params,
-    optional_md,
-    logger=None,
+    PROG: str,
+    redis_server: redis.Redis,
+    parsed: Arguments,
+    pbench_bin: str,
+    pbench_run: str,
+    hostname: str,
+    tar_path: str,
+    cp_path: str,
+    params: Dict[str, Any],
+    optional_md: Dict[str, Any],
+    logger: logging.Logger = None,
 ):
     if logger is None:
-        logger = get_logger(PROG)
+        logger = get_logger(PROG, level=parsed.level)
 
-    logger.debug("params_key (%s): %r", param_key, params)
+    logger.debug("params_key (%s): %r", parsed.key, params)
 
     try:
         with ToolDataSink(
@@ -1889,8 +1895,8 @@ def driver(
             tar_path,
             cp_path,
             redis_server,
-            redis_host,
-            redis_port,
+            parsed.host,
+            parsed.port,
             params,
             optional_md,
             logger,
@@ -1916,18 +1922,16 @@ def driver(
 
 
 def daemon(
-    PROG,
-    redis_server,
-    redis_host,
-    redis_port,
-    pbench_bin,
-    pbench_run,
-    hostname,
-    tar_path,
-    cp_path,
-    param_key,
-    params,
-    optional_md,
+    PROG: str,
+    redis_server: redis.Redis,
+    parsed: Arguments,
+    pbench_bin: str,
+    pbench_run: str,
+    hostname: str,
+    tar_path: str,
+    cp_path: str,
+    params: Dict[str, Any],
+    optional_md: Dict[str, Any],
 ):
     # Disconnect any existing connections to the Redis server.
     redis_server.connection_pool.disconnect()
@@ -1948,18 +1952,18 @@ def daemon(
         umask=0o022,
         pidfile=pfctx,
     ):
-        logger = get_logger(PROG, daemon=True)
+        logger = get_logger(PROG, daemon=True, level=parsed.level)
 
         # We have to re-open the connection to the redis server now that we
         # are "daemonized".
         logger.debug("re-constructing Redis server object")
         try:
-            redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+            redis_server = redis.Redis(host=parsed.host, port=parsed.port, db=0)
         except Exception as e:
             logger.error(
                 "Unable to construct Redis server object, %s:%s: %s",
-                redis_host,
-                redis_port,
+                parsed.host,
+                parsed.port,
                 e,
             )
             return 7
@@ -1968,23 +1972,20 @@ def daemon(
         return driver(
             PROG,
             redis_server,
-            redis_host,
-            redis_port,
+            parsed,
             pbench_bin,
             pbench_run,
             hostname,
             tar_path,
             cp_path,
-            param_key,
             params,
             optional_md,
             logger=logger,
         )
 
 
-def main(argv):
-    _prog = Path(argv[0])
-    PROG = _prog.name
+def start(prog: Path, parsed: Arguments):
+    PROG = prog.name
     # The Tool Data Sink executable is in:
     #   ${pbench_bin}/util-scripts/tool-meister/pbench-tool-data-sink
     # So .parent at each level is:
@@ -1992,23 +1993,7 @@ def main(argv):
     #     .parent   ${pbench_bin}/util-scripts/tool-meister
     #     .parent   ${pbench_bin}/util-scripts
     #     .parent   ${pbench_bin}
-    pbench_bin = _prog.parent.parent.parent
-
-    try:
-        redis_host = argv[1]
-        redis_port = argv[2]
-        param_key = argv[3]
-    except IndexError as e:
-        print(f"{PROG}: Invalid arguments: {e}", file=sys.stderr)
-        return 1
-    else:
-        if not redis_host or not redis_port or not param_key:
-            print(f"{PROG}: Invalid arguments: {argv!r}", file=sys.stderr)
-            return 1
-    try:
-        daemonize = argv[4]
-    except IndexError:
-        daemonize = "no"
+    pbench_bin = prog.parent.parent.parent
 
     tar_path = find_executable("tar")
     if tar_path is None:
@@ -2030,10 +2015,10 @@ def main(argv):
         return 3
 
     try:
-        redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+        redis_server = redis.Redis(host=parsed.host, port=parsed.port, db=0)
     except Exception as e:
         print(
-            f"Unable to connect to redis server, {redis_host}:{redis_port}: {e}",
+            f"Unable to connect to redis server, {parsed.host}:{parsed.port}: {e}",
             file=sys.stderr,
         )
         return 4
@@ -2049,7 +2034,7 @@ def main(argv):
 
     try:
         # Wait for the parameter key value to show up.
-        params_str = wait_for_conn_and_key(redis_server, param_key, PROG)
+        params_str = wait_for_conn_and_key(redis_server, parsed.key, PROG)
         # The expected parameters for this "data-sink" is what "channel" to
         # subscribe to for the tool meister operational life-cycle.  The
         # data-sink listens for the actions, sysinfo | init | start | stop |
@@ -2062,26 +2047,62 @@ def main(argv):
         ToolDataSink.fetch_params(params, pbench_run)
     except Exception as ex:
         print(
-            f"Unable to fetch and decode parameter key, {param_key}: {ex}",
+            f"Unable to fetch and decode parameter key, {parsed.key}: {ex}",
             file=sys.stderr,
         )
         return 6
 
     optional_md = params.get("optional_md", dict())
 
-    func = daemon if daemonize == "yes" else driver
+    func = daemon if parsed.daemonize else driver
     ret_val = func(
         PROG,
         redis_server,
-        redis_host,
-        redis_port,
+        parsed,
         pbench_bin,
         pbench_run,
         hostname,
         tar_path,
         cp_path,
-        param_key,
         params,
         optional_md,
     )
     return ret_val
+
+
+def main(argv):
+    """Main program for the Tool Meister.
+
+    Arguments:  argv - a list of parameters
+
+                argv[1] - host name or IP address of Redis Server
+                argv[2] - port number of Redis Server
+                argv[3] - name of key in Redis Server for operational
+                          parameters
+                argv[4] - "yes" to run as a daemon
+                argv[5] - desired debug level
+
+    Returns 0 on success, > 0 when an error occurs.
+    """
+    prog = Path(argv[0])
+    PROG = prog.name
+    try:
+        parsed = Arguments(
+            host=argv[1],
+            port=int(argv[2]),
+            key=argv[3],
+            daemonize=argv[4] == "yes" if len(argv) > 4 else False,
+            level=argv[5] if len(argv) > 5 else "info",
+        )
+    except (ValueError, IndexError) as e:
+        print(f"{PROG}: Invalid arguments, {argv!r}: {e}", file=sys.stderr)
+        return 1
+    else:
+        if not parsed.host or not parsed.port or not parsed.key:
+            print(
+                f"{PROG}: Invalid arguments, {argv!r}: must not be blank",
+                file=sys.stderr,
+            )
+            return 1
+
+    return start(prog, parsed)

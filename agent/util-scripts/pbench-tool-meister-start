@@ -244,16 +244,15 @@ def start_tms_via_ssh(
     failures = 0
     successes = 0
     tool_meister_cmd = exec_dir / "tool-meister" / "pbench-tool-meister"
-    base_args = [ssh_cmd]
-    base_args.extend(shlex.split(ssh_opts))
-    args = [
-        "<host replace me>",
-        f"{tool_meister_cmd}-remote",
-        redis_server.host,
-        str(redis_server.port),
-        "<tm param key>",
-        "yes",  # Yes, request the tool meister daemonize itself
-    ]
+    debug_level = os.environ.get("_PBENCH_TOOL_MEISTER_LOG_LEVEL")
+    cmd = f"{tool_meister_cmd}-remote {redis_server.host} {redis_server.port} {{tm_param_key}} yes"
+    if debug_level:
+        cmd += f" {debug_level}"
+    template = TemplateSsh(
+        ssh_cmd,
+        shlex.split(ssh_opts),
+        cmd
+    )
     tms = dict()
     tm_count = 0
     for host in tool_group.hostnames.keys():
@@ -276,6 +275,7 @@ def start_tms_via_ssh(
                             str(redis_server.port),
                             tm_param_key,
                             "yes",  # Yes, daemonize yourself TM ...
+                            debug_level
                         ]
                     )
                     sys.exit(status)
@@ -290,16 +290,9 @@ def start_tms_via_ssh(
                 # Record the child pid to wait below.
                 tms[host] = {"pid": pid, "status": "forked"}
         else:
-            args[0] = host
-            args[4] = tm_param_key
-            ssh_args = base_args + args
-            logger.debug(
-                "6b. starting remote tool meister, ssh_path=%r ssh_args=%r",
-                ssh_path,
-                ssh_args,
-            )
+            logger.debug("6b. starting remote tool meister on %s", host)
             try:
-                pid = os.spawnv(os.P_NOWAIT, ssh_path, ssh_args)
+                template.start(host, tm_param_key=tm_param_key)
             except Exception:
                 logger.exception(
                     "failed to create a tool meister instance for host %s", host
@@ -307,28 +300,40 @@ def start_tms_via_ssh(
                 tms[host] = {"status": "failed"}
             else:
                 # Record the child pid to wait below.
-                tms[host] = {"pid": pid, "status": "spawned"}
+                tms[host] = {"status": "spawned"}
 
     for host, tm_proc in tms.items():
         if tm_proc["status"] == "failed":
             failures += 1
             continue
-        pid = tm_proc["pid"]
-        try:
-            exit_status = _waitpid(pid)
-        except Exception:
-            failures += 1
-            logger.exception(
-                "failed to create a tool meister instance for host %s", host
-            )
-        else:
-            if exit_status != 0:
+        elif tm_proc["status"] == "forked":
+            pid = tm_proc["pid"]
+            try:
+                exit_status = _waitpid(pid)
+            except Exception:
+                failures += 1
+                logger.exception(
+                    "failed to create a tool meister instance for host %s", host
+                )
+            else:
+                if exit_status != 0:
+                    failures += 1
+                    logger.error(
+                        "failed to start tool meister on remote host '%s'"
+                        " (pid %d), exit status: %d",
+                        host,
+                        pid,
+                        exit_status,
+                    )
+                else:
+                    successes += 1
+        elif tm_proc["status"] == "spawned":
+            status = template.wait(host)
+            if status.status != 0:
                 failures += 1
                 logger.error(
-                    "failed to start tool meister on remote host '%s'"
-                    " (pid %d), exit status: %d",
+                    "failed to start tool meister on remote host '%s', exit status: %d",
                     host,
-                    pid,
                     exit_status,
                 )
             else:
@@ -390,6 +395,7 @@ class ToolDataSink(BaseServer):
                         str(redis_server.port),
                         tds_param_key,
                         "yes",  # Request tool-data-sink daemonize itself
+                        os.environ.get("_PBENCH_TOOL_DATA_SINK_LOG_LEVEL", "info")
                     ]
                 )
                 sys.exit(status)
@@ -1055,7 +1061,8 @@ def main(_prog: str, cli_params: Namespace) -> int:
             sysinfo_path = benchmark_run_dir / "sysinfo" / "beg"
             try:
                 sysinfo_path.mkdir(parents=True)
-            except Exception:
+            except Exception as e:
+                logger.debug("Unable to create sysinfo-dump directory {}: {}", sysinfo_path, e)
                 error_log(
                     f"Unable to create sysinfo-dump directory base path: {sysinfo_path}"
                 )
