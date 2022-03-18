@@ -574,7 +574,12 @@ function sort_tdslog {
 }
 
 function sort_tmlogs {
-    sort_log_file ${_testdir}/mock-run/tm/tm.logs
+    # Sort the tool-meister logs created by the tool data sink leveraging
+    # the sequence number ordering, but remove the sequence the number.
+    sort ${_testdir}/mock-run/tm/tm.logs \
+        | sed -e 's;^\([a-z\.0-9-]*\) \([0-9][0-9]*\) \(.*\)$;\1 \3;g' \
+              > ${_testdir}/mock-run/tm/tm.logs.sorted
+    mv ${_testdir}/mock-run/tm/tm.logs.sorted ${_testdir}/mock-run/tm/tm.logs
 }
 
 declare -A post_hooks=(
@@ -582,7 +587,7 @@ declare -A post_hooks=(
     [test-06]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-07]='cat ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/postprocess.log >> ${_testout} 2>&1'
     [test-19]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
-    [test-53]='sort_testlog'
+    [test-53]='sort_testlog; sort_tmlogs'
     [test-56]='sort_testlog; sort_tdslog; sort_tmlogs'
     [test-57]='sort_testlog; sort_tdslog; sort_tmlogs'
 )
