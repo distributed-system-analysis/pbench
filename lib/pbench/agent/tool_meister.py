@@ -360,12 +360,12 @@ class TransientTool(Tool):
             )
 
         # First wait for the "stop" process to do it's job ...
-        self.stop_process = self._wait_for_process_with_kill(self.stop_process, "stop")
+        self._wait_for_process_with_kill(self.stop_process, "stop")
+        self.stop_process = None
         # ... then we wait for the start process to finish; in either case,
         # we'll only wait a short time before killing them.
-        self.start_process = self._wait_for_process_with_kill(
-            self.start_process, "start"
-        )
+        self._wait_for_process_with_kill(self.start_process, "start")
+        self.start_process = None
 
 
 class PcpTransientTool(Tool):
@@ -470,10 +470,10 @@ class PcpTransientTool(Tool):
     def wait(self):
         """Wait for the pmcd and pmlogger processes to stop executing.
         """
-        self.pmcd_process = self._wait_for_process_with_kill(self.pmcd_process, "pmcd")
-        self.pmlogger_process = self._wait_for_process_with_kill(
-            self.pmlogger_process, "pmlogger"
-        )
+        self._wait_for_process_with_kill(self.pmcd_process, "pmcd")
+        self.pmcd_process = None
+        self._wait_for_process_with_kill(self.pmlogger_process, "pmlogger")
+        self.pmlogger_process = None
 
 
 class PersistentTool(Tool):
@@ -553,7 +553,8 @@ class PersistentTool(Tool):
         if self.process is None:
             self.logger.error("No process for which to wait")
             return
-        self.process = self._wait_for_process_with_kill(self.process)
+        self._wait_for_process_with_kill(self.process)
+        self.process = None
 
 
 class DcgmTool(PersistentTool):
