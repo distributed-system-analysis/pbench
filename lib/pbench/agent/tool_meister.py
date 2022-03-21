@@ -435,13 +435,13 @@ class PcpTransientTool(Tool):
         self.logger.info("%s: stop_tool", self.name)
         try:
             self.pmlogger_process.terminate()
-        except Exception:
+        except (Warning, RuntimeError, OSError):
             self.logger.exception(
                 "Failed to terminate pmlogger ('%s')", self.pmlogger_process.args
             )
         try:
             self.pmcd_process.terminate()
-        except Exception:
+        except (Warning, RuntimeError, OSError):
             self.logger.exception(
                 "Failed to terminate pmcd ('%s')", self.pmcd_process.args
             )
@@ -505,7 +505,7 @@ class PersistentTool(Tool):
 
         try:
             self.process.terminate()
-        except Exception:
+        except (Warning, RuntimeError, OSError):
             self.logger.exception("Failed to terminate %s ('%s')", self.name, self.args)
         self.logger.info("Terminate issued for persistent tool %s", self.name)
 
@@ -809,7 +809,7 @@ class ToolMeister:
                 )
                 # FIXME - consider running these in parallel.
                 res = tool.install()
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception("Failed to run tool %s install check", name)
                 res = (-42, "internal-error")
             # Record the result of the tool installation check so it can be
@@ -946,7 +946,7 @@ class ToolMeister:
                 "Failed to publish client status message, %r: %s", msg, exc
             )
             ret_val = 1
-        except Exception:
+        except (Warning, RuntimeError, OSError):
             self.logger.exception("Failed to publish client status message, %r", msg)
             ret_val = 1
         else:
@@ -978,7 +978,7 @@ class ToolMeister:
             # given to us in the `start` message.
             try:
                 _dir = Path(data["directory"]).resolve(strict=True)
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to access provided result directory, %s", data["directory"]
                 )
@@ -991,7 +991,7 @@ class ToolMeister:
                         dir=self._tmp_dir, prefix=f"tm.{self._group}.{os.getpid()}."
                     )
                 )
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to create temporary directory for start operation"
                 )
@@ -1009,7 +1009,7 @@ class ToolMeister:
             self.directories[data["directory"]] = (
                 _tool_dir if self._controller == self._hostname else _dir
             )
-        except Exception:
+        except (Warning, RuntimeError, OSError):
             self.logger.exception(
                 "Failed to create local result directory, %s", _tool_dir
             )
@@ -1022,7 +1022,7 @@ class ToolMeister:
             tool_cnt += 1
             try:
                 tool.start(_tool_dir)
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to init PersistentTool %s running in background", name
                 )
@@ -1074,7 +1074,7 @@ class ToolMeister:
             # given to us in the `start` message.
             try:
                 _dir = _dir.resolve(strict=True)
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to access provided result directory, %s", data["directory"]
                 )
@@ -1087,7 +1087,7 @@ class ToolMeister:
                         dir=self._tmp_dir, prefix=f"tm.{self._group}.{os.getpid()}."
                     )
                 )
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to create temporary directory for start operation"
                 )
@@ -1100,7 +1100,7 @@ class ToolMeister:
         self._tool_dir = _dir / sub_dir
         try:
             self._tool_dir.mkdir()
-        except Exception:
+        except (Warning, RuntimeError, OSError):
             self.logger.exception(
                 "Failed to create local result directory, %s", self._tool_dir
             )
@@ -1114,7 +1114,7 @@ class ToolMeister:
             tool_cnt += 1
             try:
                 tool.start(self._tool_dir)
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to start tool %s running in background", name
                 )
@@ -1139,7 +1139,7 @@ class ToolMeister:
         for name, tool in sorted(self._running_tools.items()):
             try:
                 tool.wait()
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to wait for tool %s to stop running in background", name
                 )
@@ -1157,7 +1157,7 @@ class ToolMeister:
         for name, tool in sorted(self._running_tools.items()):
             try:
                 tool.stop()
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to stop tool %s running in background", name
                 )
@@ -1254,7 +1254,7 @@ class ToolMeister:
                     stdout=ofp,
                     stderr=efp,
                 )
-        except Exception:
+        except (Warning, RuntimeError, OSError):
             self.logger.exception("Failed to create tar ball '%s'", tar_file)
             failures += 1
         else:
@@ -1268,13 +1268,13 @@ class ToolMeister:
                 else:
                     try:
                         (_, tar_md5) = md5sum(tar_file)
-                    except Exception:
+                    except (Warning, RuntimeError, OSError):
                         self.logger.exception("Failed to read tar ball, '%s'", tar_file)
                         failures += 1
                     else:
                         try:
                             o_file.unlink()
-                        except Exception as exc:
+                        except (Warning, RuntimeError, OSError) as exc:
                             self.logger.warning(
                                 "Failure removing tar command output file, %s: %s",
                                 o_file,
@@ -1282,7 +1282,7 @@ class ToolMeister:
                             )
                         try:
                             e_file.unlink()
-                        except Exception as exc:
+                        except (Warning, RuntimeError, OSError) as exc:
                             self.logger.warning(
                                 "Failure removing tar command output file, %s: %s",
                                 e_file,
@@ -1337,7 +1337,7 @@ class ToolMeister:
                                     )
                                     try:
                                         shutil.rmtree(parent_dir)
-                                    except Exception:
+                                    except (Warning, RuntimeError, OSError):
                                         self.logger.exception(
                                             "Failed to remove tool data"
                                             " hierarchy, '%s'",
@@ -1351,7 +1351,7 @@ class ToolMeister:
                             self._group,
                             directory,
                         )
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception("Unexpected error encountered")
                 failures += 1
         finally:
@@ -1368,7 +1368,7 @@ class ToolMeister:
                     self.logger.warning(
                         "error removing tar ball, '%s': %s", tar_file, exc
                     )
-            except Exception as exc:
+            except (Warning, RuntimeError) as exc:
                 self.logger.warning(
                     "unexpected error removing tar ball, '%s': %s", tar_file, exc
                 )
@@ -1459,7 +1459,7 @@ class ToolMeister:
             tool_cnt += 1
             try:
                 persistent_tool.stop()
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to stop persistent tool %s running in background", name
                 )
@@ -1468,7 +1468,7 @@ class ToolMeister:
             tool_cnt += 1
             try:
                 persistent_tool.wait()
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to wait for persistent tool %s to stop running"
                     " in background",
@@ -1500,7 +1500,7 @@ class ToolMeister:
             )
         try:
             shutil.rmtree(tool_dir)
-        except Exception:
+        except (Warning, RuntimeError, OSError):
             self.logger.exception(
                 "Failed to remove persistent tool data tmp directory: %s", tool_dir
             )
@@ -1535,7 +1535,7 @@ class ToolMeister:
         if self._hostname == self._controller:
             try:
                 sysinfo_dir = Path(data["directory"]).resolve(strict=True)
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to access provided sysinfo directory, %s", data["directory"]
                 )
@@ -1548,7 +1548,7 @@ class ToolMeister:
                         dir=self._tmp_dir, prefix=f"tm.{self._group}.{os.getpid()}."
                     )
                 ).resolve(strict=True)
-            except Exception:
+            except (Warning, RuntimeError, OSError):
                 self.logger.exception(
                     "Failed to create temporary directory for sysinfo operation"
                 )
@@ -1558,7 +1558,7 @@ class ToolMeister:
         instance_dir = sysinfo_dir / sub_dir
         try:
             instance_dir.mkdir()
-        except Exception:
+        except (Warning, RuntimeError, OSError):
             self.logger.exception(
                 "Failed to create instance directory for sysinfo operation"
             )
@@ -1585,7 +1585,7 @@ class ToolMeister:
                     stderr=efp,
                     env=my_env,
                 )
-        except Exception as exc:
+        except (Warning, RuntimeError, OSError) as exc:
             msg = f"Failed to collect system information: {exc}"
             self.logger.exception(msg)
             failures += 1
@@ -1713,7 +1713,7 @@ def driver(
                         data,
                     )
                 logger.debug("waiting ...")
-    except Exception:
+    except (Warning, RuntimeError, OSError):
         logger.exception("Unexpected error encountered")
         ret_val = 10
     finally:
@@ -1777,7 +1777,7 @@ def daemon(
             # since all open file descriptors were closed as part of the
             # daemonizing process.
             redis_server = redis.Redis(host=parsed.host, port=parsed.port, db=0)
-        except Exception as exc:
+        except (Warning, RuntimeError, OSError) as exc:
             logger.error(
                 "Unable to construct Redis server object, %s:%s: %s",
                 parsed.host,
@@ -1855,9 +1855,9 @@ def start(prog: Path, parsed: Arguments) -> int:
     except KeyError:
         print(f"{PROG}: Missing pbench_tmp environment variable", file=sys.stderr)
         return 4
-    except Exception as e:
+    except (Warning, RuntimeError, OSError) as exc:
         print(
-            f"{PROG}: Error working with pbench_tmp environment variable, '{tmp_dir}': {e}",
+            f"{PROG}: Error working with pbench_tmp environment variable, '{tmp_dir}': {exc}",
             file=sys.stderr,
         )
         return 4
@@ -1871,7 +1871,7 @@ def start(prog: Path, parsed: Arguments) -> int:
 
     try:
         redis_server = redis.Redis(host=parsed.host, port=parsed.port, db=0)
-    except Exception as exc:
+    except (Warning, RuntimeError, OSError) as exc:
         print(
             f"{PROG}: Unable to construct Redis client, {parsed.host}:{parsed.port}: {exc}",
             file=sys.stderr,
@@ -1886,7 +1886,7 @@ def start(prog: Path, parsed: Arguments) -> int:
         # just yet, as we want to make sure we can talk to the redis server
         # before we go through the trouble of daemonizing below.
         ToolMeister.fetch_params(params)
-    except Exception as exc:
+    except (Warning, RuntimeError, OSError) as exc:
         print(
             f"{PROG}: Unable to fetch and decode parameter key, '{parsed.key}': {exc}",
             file=sys.stderr,
