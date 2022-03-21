@@ -80,6 +80,15 @@ fmtstr_ut = "%(levelname)s %(name)s %(funcName)s -- %(message)s"
 fmtstr = "%(asctime)s %(levelname)s %(process)s %(thread)s %(name)s %(funcName)s %(lineno)d -- %(message)s"
 
 
+def log_subprocess_output(pipe: subprocess.PIPE, logger: logging.Logger):
+    """Thread start function to log outputs from a given pipe.
+    """
+    for line in pipe.readlines():
+        _log_line = line.decode("utf-8").strip()
+        if _log_line:
+            logger.info(_log_line)
+
+
 class ToolException(Exception):
     """ToolException - Exception class for all exceptions raised by the Tool
     class object methods.
@@ -94,36 +103,159 @@ class Tool:
 
     The ToolMeister class uses one Tool object per running tool.
 
-    FIXME: this class effectively re-implements the former
-    "tool-scripts/base-tool" bash script.
+    This base class provides for constructing an object with the required
+    parameters, ensuring the pbench installation directory and tool directory
+    exist.
+
+    The four abstract methods, install, start, stop, and wait, are defined, and
+    two helper methods are provided for waiting on processes.
+    """
+
+    _tool_type = None
+
+    def __init__(self, name, tool_opts, pbench_install_dir, logger, tool_dir=None):
+        self.name = name
+        self.tool_opts = tool_opts
+        if not pbench_install_dir.is_dir():
+            raise RuntimeError(
+                f"pbench installation directory does not exist: {pbench_install_dir}"
+            )
+        self.pbench_install_dir = pbench_install_dir
+        self.logger = logger
+        self.tool_dir = tool_dir
+
+    def install(self):
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not implement the install method"
+        )
+
+    def start(self):
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not implement the start method"
+        )
+
+    def stop(self):
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not implement the stop method"
+        )
+
+    def wait(self):
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not implement the wait method"
+        )
+
+    def _create_process_with_logger(
+        self, args: list, cwd: Path, ctx: str = None, env: dict = None
+    ) -> subprocess.Popen:
+        """Generic method of creating a sub-process with a thread to capture
+        stdout/stderr and log it.
+        """
+        if env:
+            process = subprocess.Popen(
+                " ".join(args),
+                cwd=cwd,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                env=env,
+                shell=True,
+            )
+        else:
+            process = subprocess.Popen(
+                args,
+                cwd=cwd,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+        _ctx = f"-{ctx}" if ctx else ""
+        process_logger = threading.Thread(
+            target=log_subprocess_output,
+            args=(process.stdout, self.logger.getChild(f"logger{_ctx}"),),
+        )
+        process_logger.daemon = True
+        process_logger.start()
+        return process
+
+    def _wait_for_process(self, process: subprocess.Popen, ctx_name: str = None) -> int:
+        """Generic method to wait for a given process to stop after 30
+        seconds, emitting a message every 5 seconds in between.
+
+        Returns the process return code on success, or None if the process
+        failed to exit.
+        """
+        count = 6
+        sts = None
+        while count > 0 and sts is None:
+            try:
+                sts = process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                count -= 1
+                if count > 0:
+                    self.logger.debug(
+                        "%s tool %s%s has not stopped after %d seconds",
+                        self._tool_type,
+                        self.name,
+                        f" {ctx_name}" if ctx_name else "",
+                        5 * (6 - count),
+                    )
+        return sts
+
+    def _wait_for_process_with_kill(
+        self, process: subprocess.Popen, ctx_name: str = None
+    ):
+        """Generic method of waiting for a given process, killing the process
+        if the initial wait failed, waiting a second time for the kill to take
+        effect.
+        """
+        _ctx_name = f" {ctx_name}" if ctx_name else ""
+        self.logger.info(
+            "Waiting for %s tool %s%s process", self._tool_type, self.name, _ctx_name
+        )
+        # We wait for the {ctx_name} process to finish first ...
+        sts = self._wait_for_process(process, ctx_name)
+        if sts is None:
+            # The {ctx_name} process did not terminate gracefully, so we bring
+            # out the big guns ...
+            process.kill()
+            self.logger.error(
+                "Killed un-responsive %s tool %s%s process",
+                self._tool_type,
+                self.name,
+                _ctx_name,
+            )
+            try:
+                process.wait(timeout=30)
+            except subprocess.TimeoutExpired:
+                self.logger.warning(
+                    "Killed %s tool %s%s process STILL didn't die after waiting another 30 seconds, closing its FDs",
+                    self._tool_type,
+                    self.name,
+                    _ctx_name,
+                )
+                process.stdin.close()
+                process.stdout.close()
+                process.stderr.close()
+        elif sts != 0 and sts != -(signal.SIGTERM):
+            self.logger.warning(
+                "%s tool %s%s process failed with %d",
+                self._tool_type,
+                self.name,
+                _ctx_name,
+                sts,
+            )
+
+
+class TransientTool(Tool):
+    """Encapsulates handling of most transient tools.
     """
 
     _tool_type = "Transient"
 
-    def __init__(
-        self, name, tool_opts, pbench_install_dir=None, tool_dir=None, logger=None,
-    ):
-        assert logger is not None, "Logic bomb!  no logger provided!"
-        self.logger = logger
-        self.name = name
-        self.tool_opts = tool_opts
-        assert (
-            pbench_install_dir is not None
-        ), "Logic bomb!  no installation directory provided!"
-        self.pbench_install_dir = pbench_install_dir
-        self.tool_dir = tool_dir
+    def __init__(self, name, tool_opts, **kwargs):
+        super().__init__(name, tool_opts, **kwargs)
         self.start_process = None
         self.stop_process = None
-
-    def _check_no_processes(self):
-        if self.start_process is not None:
-            raise ToolException(
-                f"Tool({self.name}) has an unexpected start process running"
-            )
-        if self.stop_process is not None:
-            raise ToolException(
-                f"Tool({self.name}) has an unexpected stop process running"
-            )
 
     def install(self):
         """Synchronously runs the tool --install mode capturing the return code and
@@ -147,7 +279,17 @@ class Tool:
         """Creates the background process running the tool's "start" operation.
         """
         assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
-        self._check_no_processes()
+        if not self.tool_dir.is_dir():
+            raise RuntimeError(f"tool directory does not exist: {self.tool_dir}")
+        if self.start_process is not None:
+            raise ToolException(
+                f"Tool({self.name}) has an unexpected start process running"
+            )
+        if self.stop_process is not None:
+            raise ToolException(
+                f"Tool({self.name}) has an unexpected stop process running"
+            )
+
         args = [
             f"{self.pbench_install_dir}/tool-scripts/{self.name}",
             "--start",
@@ -155,21 +297,16 @@ class Tool:
             self.tool_opts,
         ]
         self.logger.info("%s: start_tool -- %s", self.name, " ".join(args))
-        o_file = self.tool_dir / f"tm-{self.name}-start.out"
-        e_file = self.tool_dir / f"tm-{self.name}-start.err"
-        with o_file.open("w") as ofp, e_file.open("w") as efp:
-            self.start_process = subprocess.Popen(
-                args,
-                cwd=self.tool_dir,
-                stdin=subprocess.DEVNULL,
-                stdout=ofp,
-                stderr=efp,
-            )
+        self.start_process = self._create_process_with_logger(
+            args, self.tool_dir, "start"
+        )
 
     def stop(self):
         """Stops the background process by running the tool's "stop" operation.
         """
         assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
+        if not self.tool_dir.is_dir():
+            raise RuntimeError(f"tool directory does not exist: {self.tool_dir}")
         if self.start_process is None:
             raise ToolException(f"Tool({self.name})'s start process not running")
         if self.stop_process is not None:
@@ -200,47 +337,21 @@ class Tool:
             self.tool_opts,
         ]
         self.logger.info("%s: stop_tool -- %s", self.name, " ".join(args))
-        o_file = self.tool_dir / f"tm-{self.name}-stop.out"
-        e_file = self.tool_dir / f"tm-{self.name}-stop.err"
-        with o_file.open("w") as ofp, e_file.open("w") as efp:
-            self.stop_process = subprocess.Popen(
-                args,
-                cwd=self.tool_dir,
-                stdin=subprocess.DEVNULL,
-                stdout=ofp,
-                stderr=efp,
-            )
-
-    def _wait_for_process(self, process):
-        """_wait_for_process - generic method to wait for a given process to
-        stop after 30 seconds, emitting a message every 5 seconds in between.
-
-        Returns the process return code on success, or None if the process
-        failed to exit.
-        """
-        count = 6
-        sts = None
-        while count > 0 and sts is None:
-            try:
-                sts = process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                count -= 1
-                if count > 0:
-                    self.logger.info(
-                        "%s tool %s has not stopped after %d seconds",
-                        self._tool_type,
-                        self.name,
-                        5 * (6 - count),
-                    )
-        return sts
+        self.stop_process = self._create_process_with_logger(
+            args, self.tool_dir, "stop"
+        )
 
     def wait(self):
         """Wait for any tool processes to terminate after a "stop" process has
         completed.
 
         Waits for the tool's "stop" process to complete, if started, then
-        waits for the tool's start process to complete.
+        waits for the tool's start process to complete (since the "stop"
+        process is supposed stop the "start" process).
         """
+        assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
+        if not self.tool_dir.is_dir():
+            raise RuntimeError(f"tool directory does not exist: {self.tool_dir}")
         if self.stop_process is None:
             raise ToolException(f"Tool({self.name}) wait not called after 'stop'")
         if self.start_process is None:
@@ -248,162 +359,121 @@ class Tool:
                 f"Tool({self.name}) does not have a start process running"
             )
 
-        self.logger.info("Waiting for transient tool %s stop process", self.name)
-        # We wait for the stop process to finish first ...
-        sts = self._wait_for_process(self.stop_process)
-        if sts is None:
-            # The stop process did not terminate gracefully after 30 seconds,
-            # so we bring out the big guns ...
-            self.stop_process.kill()
-            self.logger.error(
-                "Killed un-responsive transient tool %s stop process after"
-                " 30 seconds",
-                self.name,
-            )
-        elif sts != 0 and sts != -(signal.SIGTERM):
-            self.logger.warning(
-                "Transient tool %s stop process failed with %d", self.name, sts
-            )
+        # First wait for the "stop" process to do it's job ...
+        self._wait_for_process_with_kill(self.stop_process, "stop")
         self.stop_process = None
-
-        # ... then we wait for the start process to finish, but we only wait
-        # for 30 seconds before we kill it.
-        self.logger.info("Waiting for transient tool %s start process", self.name)
-        try:
-            sts = self.start_process.wait(timeout=30)
-        except subprocess.TimeoutExpired:
-            self.start_process.kill()
-            self.logger.warning(
-                "Killed un-responsive transient tool %s start process after"
-                " 30 seconds",
-                self.name,
-            )
-        else:
-            if sts != 0 and sts != -(signal.SIGTERM):
-                self.logger.warning(
-                    "Transient tool %s start process failed with %d", self.name, sts
-                )
+        # ... then we wait for the start process to finish; in either case,
+        # we'll only wait a short time before killing them.
+        self._wait_for_process_with_kill(self.start_process, "start")
         self.start_process = None
 
 
-class PcpTransTool(Tool):
-    """PcpTransTool - A more traditional alternative to the pcp persistent tool that
-                      allows one to run both the pmlogger and pmcd locally on each
-                      registered node. Additionally, this tool starts, stops, and
-                      sends data alongside other transient tools, rather than always
-                      running in the background.
+class PcpTransientTool(Tool):
+    """The transient tool alternative to the PCP persistent tool, which starts
+    and stops both a pmcd and pmlogger process, and sends data remotely, as
+    directed for transient tools.
     """
 
-    def __init__(self, name, tool_opts, logger=None, **kwargs):
-        super().__init__(name, tool_opts, logger=logger, **kwargs)
-        if self.tool_dir:
-            self.tool_dir = self.tool_dir / self.name.replace("-transient", "")
-        if "/usr/libexec/pcp/bin" not in os.environ["PATH"]:
-            os.environ["PATH"] += os.pathsep + "/usr/libexec/pcp/bin"
-        pmcd_path = find_executable("pmcd")
-        if pmcd_path:
-            self.pmcd_args = [
-                pmcd_path,
-                "--foreground",
-                "--socket=./pmcd.socket",
-                "--port=55677",
-                f"--config={self.pbench_install_dir}/templates/pmcd.conf",
-            ]
-        else:
-            self.pmcd_args = None
-        pmlogger_path = find_executable("pmlogger")
-        if pmlogger_path:
-            self.pmlogger_args = [
-                pmlogger_path,
-                "--log=-",
-                "--report",
-                "-t",
-                "3s",
-                "-c",
-                f"{self.pbench_install_dir}/templates/pmlogger.conf",
-                "--host=localhost:55677",
-                f"{self.tool_dir}/%Y%m%d.%H.%M",
-            ]
-        else:
-            self.pmlogger_args = None
+    def __init__(self, name, tool_opts, **kwargs):
+        super().__init__(name, tool_opts, **kwargs)
+        self.pmcd_args = None
         self.pmcd_process = None
+        self.pmlogger_args = None
         self.pmlogger_process = None
-        if self.tool_dir:
-            try:
-                self.tool_dir.mkdir()
-            except Exception as exc:
-                self.logger.error(
-                    "Failed to create tool directory '%s': '%s'", self.tool_dir, exc
-                )
+        if "/usr/libexec/pcp/bin" not in os.environ["PATH"]:
+            # FIXME - Shouldn't this be provided by the environment?
+            os.environ["PATH"] += f"{os.pathsep}/usr/libexec/pcp/bin"
+        self.pmcd_path = find_executable("pmcd")
+        self.pmlogger_path = find_executable("pmlogger")
 
     def install(self):
-        if self.pmcd_args is None:
+        if not self.pmcd_path:
             return (1, "pcp tool (pmcd) not found")
-        elif self.pmlogger_args is None:
+        if not self.pmlogger_path:
             return (1, "pcp tool (pmlogger) not found")
-        return (0, "pcp tool (pmcd and pmlogger properly installed")
+        return (0, "pcp tool (pmcd and pmlogger) properly installed")
 
     def start(self):
         assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
-        if self.pmcd_process or self.pmlogger_process:
+        if not self.tool_dir.is_dir():
+            raise RuntimeError(f"tool directory does not exist: {self.tool_dir}")
+        if not self.pmcd_path:
+            raise RuntimeError("Path to pmcd not provided")
+        if not self.pmlogger_path:
+            raise RuntimeError("Path to pmlogger not provided")
+        if self.pmcd_process is not None:
             raise ToolException(
-                f"Tool({self.name}) has an unexpected process still running"
+                f"Tool({self.name}) has an unexpected pmcd process running"
+            )
+        if self.pmlogger_process is not None:
+            raise ToolException(
+                f"Tool({self.name}) has an unexpected pmlogger process running"
             )
 
+        tool_dir = self.tool_dir / self.name.replace("-transient", "")
+        self.pmcd_args = [
+            self.pmcd_path,
+            "--foreground",
+            "--socket=./pmcd.socket",
+            "--port=55677",
+            f"--config={self.pbench_install_dir}/templates/pmcd.conf",
+        ]
+        self.pmlogger_args = [
+            self.pmlogger_path,
+            "--log=-",
+            "--report",
+            "-t",
+            "3s",
+            "-c",
+            f"{self.pbench_install_dir}/templates/pmlogger.conf",
+            "--host=localhost:55677",
+            f"{tool_dir}/%Y%m%d.%H.%M",
+        ]
+
         self.logger.info(
-            "%s: start_tool -- %s -- %s",
+            "%s: start_tool -- '%s' && '%s'",
             self.name,
             " ".join(self.pmcd_args),
             " ".join(self.pmlogger_args),
         )
-        o_file = self.tool_dir / f"tm-{self.name}-start.out"
-        e_file = self.tool_dir / f"tm-{self.name}-start.err"
-        with o_file.open("w") as ofp, e_file.open("w") as efp:
-            try:
-                self.pmcd_process = subprocess.Popen(
-                    self.pmcd_args,
-                    cwd=self.tool_dir,
-                    stdin=subprocess.DEVNULL,
-                    stdout=ofp,
-                    stderr=efp,
-                )
-            except Exception as exc:
-                self.logger.error(
-                    "Pmcd run process failed: '%s', %r", exc, self.pmcd_args
-                )
-            try:
-                self.pmlogger_process = subprocess.Popen(
-                    self.pmlogger_args,
-                    cwd=self.tool_dir,
-                    stdin=subprocess.DEVNULL,
-                    stdout=ofp,
-                    stderr=efp,
-                )
-            except Exception as exc:
-                self.logger.error(
-                    "Pmlogger run process failed: '%s', %r", exc, self.pmlogger_args
-                )
+        self.pmcd_process = self._create_process_with_logger(
+            self.pmcd_args, tool_dir, "pmcd"
+        )
+        self.pmlogger_process = self._create_process_with_logger(
+            self.pmlogger_args, tool_dir, "pmlogger"
+        )
 
     def stop(self):
+        """Stop the pmcd and pmlogger processes.
+        """
+        if self.pmcd_process is None:
+            raise ToolException(
+                f"Tool({self.name}) the expected pmcd process is not running"
+            )
+        if self.pmlogger_process is None:
+            raise ToolException(
+                f"Tool({self.name}) the expected pmlogger process is not running"
+            )
+
         self.logger.info("%s: stop_tool", self.name)
         try:
             self.pmlogger_process.terminate()
-        except Exception as exc:
-            self.logger.error("Failed to terminate pmlogger: '%s", exc)
+        except Exception:
+            self.logger.exception(
+                "Failed to terminate pmlogger ('%s')", self.pmlogger_args
+            )
         try:
             self.pmcd_process.terminate()
-        except Exception as exc:
-            self.logger.error("Failed to terminate pmcd: '%s", exc)
+        except Exception:
+            self.logger.exception("Failed to terminate pmcd ('%s')", self.pmcd_args)
 
     def wait(self):
-        try:
-            self.pmlogger_process.wait(timeout=20)
-        except subprocess.TimeoutExpired:
-            self.logger.error("pmlogger not properly terminated after 20s")
-        try:
-            self.pmcd_process.wait(timeout=20)
-        except subprocess.TimeoutExpired:
-            self.logger.error("pmcd not properly terminated after 20s")
+        """Wait for the pmcd and pmlogger processes to stop executing.
+        """
+        self._wait_for_process_with_kill(self.pmcd_process, "pmcd")
+        self.pmcd_process = None
+        self._wait_for_process_with_kill(self.pmlogger_process, "pmlogger")
+        self.pmlogger_process = None
 
 
 class PersistentTool(Tool):
@@ -418,25 +488,18 @@ class PersistentTool(Tool):
 
     _tool_type = "Persistent"
 
-    def __init__(self, name, tool_opts, logger=None, **kwargs):
-        super().__init__(name, tool_opts, logger=logger, **kwargs)
+    def __init__(self, name, tool_opts, **kwargs):
+        super().__init__(name, tool_opts, **kwargs)
         self.args = None
         self.process = None
 
-    def log_subprocess_output(self, pipe: subprocess.PIPE):
-        """Thread start function to log outputs from a given pipe.
-        """
-        logger = self.logger.getChild(self.__class__.__name__)
-        for line in pipe.readlines():
-            logger.info(line)
-
     def start(self, env=None):
         assert self.args is not None, "Logic bomb!  {self.name} install had failed!"
-        assert (
-            self.tool_dir is not None
-        ), "Logic bomb!  No persistent tool directory provided!"
-        self.tool_dir = self.tool_dir / self.name
-        self.tool_dir.mkdir()
+        assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
+        if not self.tool_dir.is_dir():
+            raise RuntimeError(f"tool directory does not exist: {self.tool_dir}")
+        tool_dir = self.tool_dir / self.name
+        tool_dir.mkdir()
 
         if env:
             pp = env["PYTHONPATH"]
@@ -446,29 +509,15 @@ class PersistentTool(Tool):
                 pp,
                 self.args,
             )
-            self.process = subprocess.Popen(
-                " ".join(self.args),
-                cwd=self.tool_dir,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                env=self.env,
-                shell=True,
-            )
         else:
             self.logger.debug(
                 "Starting persistent tool %s, args %r", self.name, self.args
             )
-            self.process = subprocess.Popen(
-                self.args,
-                cwd=self.tool_dir,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
-        child_reader = threading.Thread(
-            target=self.log_subprocess_output, args=(self.process.stdout,)
+
+        self.process = self._create_process_with_logger(
+            self.args, tool_dir, "start", env=env
         )
-        child_reader.daemon = True
-        child_reader.start()
+
         if env:
             pp = env["PYTHONPATH"]
             self.logger.info(
@@ -481,46 +530,30 @@ class PersistentTool(Tool):
             self.logger.info("Started persistent tool %s, %r", self.name, self.args)
 
     def stop(self):
-        """stop - terminate the persistent tool sub-process.
+        """Terminate the persistent tool sub-process.
 
         This method does not wait for the process to actually exit. The caller
         should issue a wait() for that.
         """
         if self.process is None:
-            self.logger.error("Nothing to terminate")
+            self.logger.error("No process to stop")
             return
 
-        # First try to gracefully terminate.
-        self.process.terminate()
+        try:
+            self.process.terminate()
+        except Exception:
+            self.logger.exception("Failed to terminate %s ('%s')", self.name, self.args)
         self.logger.info("Terminate issued for persistent tool %s", self.name)
 
     def wait(self):
-        """wait - Wait for the persistent tool to exit.
+        """Wait for the persistent tool to exit.
 
         Requires the caller to issue a stop() first.
-
-        The wait() method will wait for 30 seconds before forcibly killing
-        the persistent tool sub-process.  It will emit an informational log
-        message every 5 seconds in between.
         """
         if self.process is None:
-            self.logger.error("Nothing to terminate")
+            self.logger.error("No process for which to wait")
             return
-
-        sts = self._wait_for_process(self.process)
-        if sts is None:
-            self.process.kill()
-            self.logger.error(
-                "Killed un-responsive persistent tool %s after 30 seconds", self.name
-            )
-        elif sts != 0 and sts != -(signal.SIGTERM):
-            self.logger.warning(
-                "Persistent tool %s failed to return success, %d",
-                self.name,
-                self.process.returncode,
-            )
-        else:
-            self.logger.info("Stopped persistent tool %s", self.name)
+        self._wait_for_process_with_kill(self.process)
         self.process = None
 
 
@@ -532,15 +565,15 @@ class DcgmTool(PersistentTool):
     executable in our PATH.
     """
 
-    def __init__(self, name, tool_opts, logger=None, **kwargs):
-        super().__init__(name, tool_opts, logger=logger, **kwargs)
+    def __init__(self, name, tool_opts, **kwargs):
+        super().__init__(name, tool_opts, **kwargs)
         executable = find_executable("dcgm-exporter")
         self.args = None if executable is None else [executable]
 
     def install(self):
         if self.args is None:
-            return (1, "dcgm-exporter tool not found")
-        return (0, "dcgm tool properly installed")
+            return (1, "dcgm tool (dcgm-exporter) not found")
+        return (0, "dcgm tool (dcgm-exporter) properly installed")
 
 
 class NodeExporterTool(PersistentTool):
@@ -551,8 +584,8 @@ class NodeExporterTool(PersistentTool):
     executable in our PATH.
     """
 
-    def __init__(self, name, tool_opts, logger=None, **kwargs):
-        super().__init__(name, tool_opts, logger=logger, **kwargs)
+    def __init__(self, name, tool_opts, **kwargs):
+        super().__init__(name, tool_opts, **kwargs)
         executable = find_executable("node_exporter")
         self.args = None if executable is None else [executable]
 
@@ -569,8 +602,8 @@ class PcpTool(PersistentTool):
     # Default path to the "pmcd" executable.
     _pmcd_path_def = "/usr/libexec/pcp/bin/pmcd"
 
-    def __init__(self, name, tool_opts, logger=None, **kwargs):
-        super().__init__(name, tool_opts, logger=logger, **kwargs)
+    def __init__(self, name, tool_opts, **kwargs):
+        super().__init__(name, tool_opts, **kwargs)
         pmcd_path = find_executable("pmcd")
         if pmcd_path is None:
             pmcd_path = self._pmcd_path_def
@@ -719,7 +752,7 @@ class ToolMeister:
         "dcgm": DcgmTool,
         "node-exporter": NodeExporterTool,
         "pcp": PcpTool,
-        "pcp-transient": PcpTransTool,
+        "pcp-transient": PcpTransientTool,
     }
 
     def __init__(
@@ -817,10 +850,7 @@ class ToolMeister:
 
         tool_installs = {}
         for name, tool_opts in sorted(self._tools.items()):
-            try:
-                tklass = self._tool_name_class_mappings[name]
-            except KeyError:
-                tklass = Tool
+            tklass = self._tool_name_class_mappings.get(name, TransientTool)
             try:
                 tool = tklass(
                     name,
@@ -1035,29 +1065,25 @@ class ToolMeister:
         for name, tool_opts in sorted(self._tools.items()):
             if name not in self.persistent_tool_names:
                 continue
+            tool_cnt += 1
+            tklass = self._tool_name_class_mappings[name]
             try:
-                tklass = self._tool_name_class_mappings[name]
-            except KeyError:
-                pass
+                persistent_tool = tklass(
+                    name,
+                    tool_opts,
+                    pbench_install_dir=self.pbench_install_dir,
+                    tool_dir=_tool_dir,
+                    logger=self.logger,
+                )
+                persistent_tool.start()
+            except Exception:
+                self.logger.exception(
+                    "Failed to init PersistentTool %s running in background", name
+                )
+                failures += 1
             else:
-                tool_cnt += 1
-                try:
-                    persistent_tool = tklass(
-                        name,
-                        tool_opts,
-                        pbench_install_dir=self.pbench_install_dir,
-                        tool_dir=_tool_dir,
-                        logger=self.logger,
-                    )
-                    persistent_tool.start()
-                except Exception:
-                    self.logger.exception(
-                        "Failed to init PersistentTool %s running in background", name
-                    )
-                    failures += 1
-                else:
-                    self._persistent_tools[name] = persistent_tool
-                    self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
+                self._persistent_tools[name] = persistent_tool
+                self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
 
         if failures > 0:
             msg = f"{failures} of {tool_cnt} persistent tools failed to start"
@@ -1153,10 +1179,7 @@ class ToolMeister:
             if name in self.persistent_tool_names:
                 continue
             tool_cnt += 1
-            try:
-                tklass = self._tool_name_class_mappings[name]
-            except KeyError:
-                tklass = Tool
+            tklass = self._tool_name_class_mappings.get(name, TransientTool)
             try:
                 tool = tklass(
                     name,
@@ -1677,7 +1700,7 @@ class ToolMeister:
         return failures
 
 
-def get_logger(PROG, daemon=False):
+def get_logger(PROG: str, daemon: bool = False) -> logging.Logger:
     """get_logger - contruct a logger for a Tool Meister instance.
 
     If in the Unit Test environment, just log to console.

@@ -573,8 +573,31 @@ function sort_tdslog {
     sort_log_file ${_testdir}/mock-run/tm/pbench-tool-data-sink.err
 }
 
+function filter_tmerrs {
+    for lf in ${_testdir}/mock-run/tm/tm-*.err ${_testdir}/tmp/tm-*.err; do
+        if [[ ! -f ${lf} ]]; then
+            continue
+        fi
+        grep  -F "pbench-tool-meister.logger" ${lf} > ${lf}.filtered-loggers
+        grep -vF "pbench-tool-meister.logger" ${lf} > ${lf}.filtered
+        mv ${lf}.filtered ${lf}
+        cat ${lf}.filtered-loggers >> ${lf}
+        rm ${lf}.filtered-loggers
+    done
+}
+
 function sort_tmlogs {
-    sort_log_file ${_testdir}/mock-run/tm/tm.logs
+    grep  -F "pbench-tool-meister.logger" ${_testdir}/mock-run/tm/tm.logs \
+        | sort \
+        | sed -e 's;^\([a-z\.0-9-]*\) \([0-9][0-9]*\) \(.*\)$;\1 \3;g' \
+              > ${_testdir}/mock-run/tm/tm.logs.loggers
+    grep -vF "pbench-tool-meister.logger" ${_testdir}/mock-run/tm/tm.logs \
+        | sort \
+        | sed -e 's;^\([a-z\.0-9-]*\) \([0-9][0-9]*\) \(.*\)$;\1 \3;g' \
+              > ${_testdir}/mock-run/tm/tm.logs.no-loggers
+    mv ${_testdir}/mock-run/tm/tm.logs.no-loggers ${_testdir}/mock-run/tm/tm.logs
+    cat ${_testdir}/mock-run/tm/tm.logs.loggers >> ${_testdir}/mock-run/tm/tm.logs
+    rm ${_testdir}/mock-run/tm/tm.logs.loggers
 }
 
 declare -A post_hooks=(
@@ -582,9 +605,9 @@ declare -A post_hooks=(
     [test-06]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-07]='cat ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/postprocess.log >> ${_testout} 2>&1'
     [test-19]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
-    [test-53]='sort_testlog'
-    [test-56]='sort_testlog; sort_tdslog; sort_tmlogs'
-    [test-57]='sort_testlog; sort_tdslog; sort_tmlogs'
+    [test-53]='sort_testlog; sort_tmlogs; filter_tmerrs'
+    [test-56]='sort_testlog; sort_tdslog; sort_tmlogs; filter_tmerrs'
+    [test-57]='sort_testlog; sort_tdslog; sort_tmlogs; filter_tmerrs'
 )
 
 # Verify that there are no dangling gold files and sample directories.
