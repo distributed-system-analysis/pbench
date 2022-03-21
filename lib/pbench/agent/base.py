@@ -22,16 +22,18 @@ class BaseCommand(metaclass=abc.ABCMeta):
         self.name = os.path.basename(sys.argv[0])
 
         env_pbench_run = os.environ.get("pbench_run")
-        self.pbench_run = pathlib.Path(
-            env_pbench_run if env_pbench_run else self.config.pbench_run
-        )
-
-        if not self.pbench_run.exists():
-            click.echo(
-                f"[ERROR] pbench run directory does not exist, {self.pbench_run}",
-                err=True,
-            )
-            click.get_current_context().exit(1)
+        if env_pbench_run:
+            self.pbench_run = pathlib.Path(env_pbench_run)
+            if not self.pbench_run.exists():
+                click.echo(
+                    f"[ERROR] pbench run directory does not exist, {env_pbench_run}",
+                    err=True,
+                )
+                click.get_current_context().exit(1)
+        else:
+            self.pbench_run = pathlib.Path(self.config.pbench_run)
+            if not self.pbench_run:
+                self.pbench_run = pathlib.Path("/var/lib/pbench-agent")
 
         # the pbench temporary directory is always relative to the $pbench_run
         # directory

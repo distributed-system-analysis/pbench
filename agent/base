@@ -16,10 +16,11 @@ if [[ -z "$pbench_run" ]]; then
         pbench_run=/var/lib/pbench-agent
     fi
     export pbench_run
-fi
-
-if [[ ! -d $pbench_run ]]; then
-    echo "[Warning] pbench run directory, ${pbench_run}, does not exist and will be created" >&2
+else
+    if [[ ! -d $pbench_run ]]; then
+        echo "[ERROR] the provided pbench run directory, ${pbench_run}, does not exist" >&2
+        exit 1
+    fi
 fi
 
 # the pbench temporary directory is always relative to the $pbench_run
