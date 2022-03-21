@@ -15,8 +15,7 @@ from pbench.server.database.models.datasets import (
 
 class TestMetadata:
     def test_metadata(self, db_session, create_user):
-        """ Various tests on Metadata keys
-        """
+        """Various tests on Metadata keys"""
         # See if we can create a metadata row
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
         assert ds.metadatas == []
@@ -92,8 +91,7 @@ class TestMetadata:
         assert ds.metadatas == []
 
     def test_metadata_remove(self, db_session, create_user):
-        """ Test that we can remove a Metadata key
-        """
+        """Test that we can remove a Metadata key"""
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
         assert ds.metadatas == []
         m = Metadata(key="user", value="TRUE")

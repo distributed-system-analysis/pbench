@@ -187,7 +187,10 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
     user_name = fetch_username(tb_incoming_dir)
     if user_name:
         errors, _actions_taken = remove_symlinks(
-            Path(users, user_name, controller_name), tb_incoming_dir, logger, dry_run,
+            Path(users, user_name, controller_name),
+            tb_incoming_dir,
+            logger,
+            dry_run,
         )
         actions_taken.extend(_actions_taken)
         if errors > 0:
@@ -228,7 +231,9 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
                 shutil.rmtree(del_path)
         except OSError as exc:
             logger.error(
-                "Failed to remove incoming directory tree, '{}': '{}'", del_path, exc,
+                "Failed to remove incoming directory tree, '{}': '{}'",
+                del_path,
+                exc,
             )
             errors = 1
             act.set_status("fail")

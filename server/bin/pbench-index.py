@@ -36,56 +36,56 @@ _DEBUG = 0
 def main(options, name):
     """Main entry point to pbench-index.
 
-       The caller is required to pass the "options" argument with the following
-       expected attributes:
-           cfg_name              - Name of the configuration file to use
-           dump_index_patterns   - Don't do any indexing, but just emit the
-                                   list of index patterns that would be used
-           dump_templates        - Dump the templates that would be used
-           index_tool_data       - Index tool data only
-           re_index              - Consider tar balls marked for re-indexing
-       All exceptions are caught and logged to syslog with the stacktrace of
-       the exception in a sub-object of the logged JSON document.
+    The caller is required to pass the "options" argument with the following
+    expected attributes:
+        cfg_name              - Name of the configuration file to use
+        dump_index_patterns   - Don't do any indexing, but just emit the
+                                list of index patterns that would be used
+        dump_templates        - Dump the templates that would be used
+        index_tool_data       - Index tool data only
+        re_index              - Consider tar balls marked for re-indexing
+    All exceptions are caught and logged to syslog with the stacktrace of
+    the exception in a sub-object of the logged JSON document.
 
-        Signal Handlers used to establish different patterns for the three
-        behaviors:
+     Signal Handlers used to establish different patterns for the three
+     behaviors:
 
-        1. Gracefully stop processing tar balls
-            - SIGQUIT
-            - The current tar ball is indexed until completion, but no other
-              tar balls are processed.
-            - Handler Behavior:
-                - Sets a flag that causes the code flow to break out of the
-                  for loop.
-                - Does not raise an exception.
+     1. Gracefully stop processing tar balls
+         - SIGQUIT
+         - The current tar ball is indexed until completion, but no other
+           tar balls are processed.
+         - Handler Behavior:
+             - Sets a flag that causes the code flow to break out of the
+               for loop.
+             - Does not raise an exception.
 
-        2. Interrupt the current tar ball being indexed, and proceed to the
-           next one, if any
-            - SIGINT
-            - Handler Behavior:
-                - try/except/finally placed immediately around the es_index()
-                  call so that the signal handler will only be established for
-                  the duration of the call.
-                - Raises an exception caught by above try/except/finally.
-                - The finally clause would take down the signal handler.
+     2. Interrupt the current tar ball being indexed, and proceed to the
+        next one, if any
+         - SIGINT
+         - Handler Behavior:
+             - try/except/finally placed immediately around the es_index()
+               call so that the signal handler will only be established for
+               the duration of the call.
+             - Raises an exception caught by above try/except/finally.
+             - The finally clause would take down the signal handler.
 
-        3. Stop processing tar balls immediately and exit gracefully
-            - SIGTERM
-            - Handler Behavior:
-                - Raises an exception caught be a new, outer-most, try/except
-                  block that does not have a finally clause (as you don't want
-                  any code execution in the finally block).
+     3. Stop processing tar balls immediately and exit gracefully
+         - SIGTERM
+         - Handler Behavior:
+             - Raises an exception caught be a new, outer-most, try/except
+               block that does not have a finally clause (as you don't want
+               any code execution in the finally block).
 
-        4. Re-evaluate the list of tar balls to index after indexing of the
-            current tar ball has finished
-            - SIGHUP
-            - Report the current state of indexing
-                - Current tar ball being processed
-                - Count of Remaining tarballs
-                - Count of Completed tarballs
-                - No. of Errors encountered
-            - Handler Behavior:
-                - No exception raised
+     4. Re-evaluate the list of tar balls to index after indexing of the
+         current tar ball has finished
+         - SIGHUP
+         - Report the current state of indexing
+             - Current tar ball being processed
+             - Count of Remaining tarballs
+             - Count of Completed tarballs
+             - No. of Errors encountered
+         - Handler Behavior:
+             - No exception raised
     """
 
     _name_suf = "-tool-data" if options.index_tool_data else ""

@@ -15,7 +15,7 @@ from pbench.cli.agent.options import common_options
 
 
 class ListTools(ToolCommand):
-    """ List registered Tools """
+    """List registered Tools"""
 
     def __init__(self, context):
         super(ListTools, self).__init__(context)

@@ -29,7 +29,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_registration_missing_fields(client, server_config):
-        """ Test for user registration missing fields"""
+        """Test for user registration missing fields"""
         with client:
             response = client.post(
                 f"{server_config.rest_uri}/register",
@@ -46,7 +46,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_registration_email_validity(client, server_config):
-        """ Test for validating an email field during registration"""
+        """Test for validating an email field during registration"""
         with client:
             response = register_user(
                 client,
@@ -64,7 +64,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_registration_with_registered_user(client, server_config):
-        """ Test registration with already registered email"""
+        """Test registration with already registered email"""
         user = User(
             email="user@domain.com",
             password="12345",
@@ -91,7 +91,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_user_login(client, server_config):
-        """ Test for login of registered-user login """
+        """Test for login of registered-user login"""
         with client:
             # user registration
             resp_register = register_user(
@@ -114,7 +114,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_user_relogin(client, server_config):
-        """ Test for login of registered-user login """
+        """Test for login of registered-user login"""
         with client:
             # user registration
             resp_register = register_user(
@@ -154,7 +154,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_user_login_with_wrong_password(client, server_config):
-        """ Test for login of registered-user login """
+        """Test for login of registered-user login"""
         with client:
             # user registration
             resp_register = register_user(
@@ -177,10 +177,11 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_login_without_password(client, server_config):
-        """ Test for login of non-registered user """
+        """Test for login of non-registered user"""
         with client:
             response = client.post(
-                f"{server_config.rest_uri}/login", json={"username": "username"},
+                f"{server_config.rest_uri}/login",
+                json={"username": "username"},
             )
             data = response.json
             assert data["message"] == "Please provide a valid password"
@@ -188,7 +189,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_non_registered_user_login(client, server_config):
-        """ Test for login of non-registered user """
+        """Test for login of non-registered user"""
         with client:
             response = login_user(client, server_config, "username", "12345")
             data = response.json
@@ -197,7 +198,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_get_user(client, server_config):
-        """ Test for get user api"""
+        """Test for get user api"""
         with client:
             resp_register = register_user(
                 client,
@@ -226,7 +227,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_update_user(client, server_config):
-        """ Test for get user api"""
+        """Test for get user api"""
         with client:
             resp_register = register_user(
                 client,
@@ -269,7 +270,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_external_token_update(client, server_config):
-        """ Test for external attempt at updating auth token"""
+        """Test for external attempt at updating auth token"""
         with client:
             resp_register = register_user(
                 client,
@@ -297,7 +298,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_malformed_auth_token(client, server_config):
-        """ Test for user status for malformed auth token"""
+        """Test for user status for malformed auth token"""
         with client:
             resp_register = register_user(
                 client,
@@ -319,7 +320,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_valid_logout(client, server_config):
-        """ Test for logout before token expires """
+        """Test for logout before token expires"""
         with client:
             # user registration
             resp_register = register_user(
@@ -353,7 +354,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_invalid_logout(client, server_config):
-        """ Testing logout after the token expires """
+        """Testing logout after the token expires"""
         with client:
             # user registration
             resp_register = register_user(
@@ -390,7 +391,7 @@ class TestUserAuthentication:
 
     @staticmethod
     def test_delete_user(client, server_config):
-        """ Test for user status for malformed auth token"""
+        """Test for user status for malformed auth token"""
         with client:
             resp_register = register_user(
                 client,

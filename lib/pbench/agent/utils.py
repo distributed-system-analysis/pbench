@@ -38,8 +38,7 @@ class BaseReturnCode:
     KILL_KILLEXC = 5
 
     class Err(RuntimeError):
-        """Err - exception definition to capture return code as an attribute.
-        """
+        """Err - exception definition to capture return code as an attribute."""
 
         def __init__(self, message: str, return_code: int):
             """Adds a return_code attribute to capture an integer representing
@@ -270,8 +269,7 @@ def _log_date():
 
 
 def _pbench_log(message):
-    """_pbench_log - helper function for logging to the ${pbench_log} file.
-    """
+    """_pbench_log - helper function for logging to the ${pbench_log} file."""
     with open(os.environ["pbench_log"], "a+") as fp:
         print(message, file=fp)
 

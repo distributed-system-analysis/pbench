@@ -27,7 +27,6 @@ except ImportError:
             "Logic bomb!  selinux.restorecon() called when selinux is not enabled."
         )
 
-
 else:
     # The import succeeded; forward our functions to the real implementations.
     is_selinux_enabled = selinux.is_selinux_enabled

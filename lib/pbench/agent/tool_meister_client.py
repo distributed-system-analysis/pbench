@@ -97,8 +97,7 @@ class Client:
             self.logger = logger
 
     def __enter__(self):
-        """On context entry, setup the connection with the Redis server.
-        """
+        """On context entry, setup the connection with the Redis server."""
         if self.redis_server is None:
             self.logger.debug("constructing Redis() object")
             try:
@@ -123,8 +122,7 @@ class Client:
         return self
 
     def __exit__(self, *args):
-        """On context exit, just close down the to client channel object.
-        """
+        """On context exit, just close down the to client channel object."""
         if self.to_client_chan is not None:
             self.to_client_chan.close()
 
@@ -188,7 +186,8 @@ class Client:
                     continue
                 if status != "success":
                     self.logger.warning(
-                        "Status message not successful: '%s'", status,
+                        "Status message not successful: '%s'",
+                        status,
                     )
                     ret_val = 1
                 break

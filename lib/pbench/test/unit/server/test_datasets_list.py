@@ -89,7 +89,8 @@ class TestDatasetsList:
 
     def token(self, client, config: PbenchServerConfig, user: str) -> str:
         response = client.post(
-            f"{config.rest_uri}/login", json={"username": user, "password": "12345"},
+            f"{config.rest_uri}/login",
+            json={"username": user, "password": "12345"},
         )
         assert response.status_code == HTTPStatus.OK
         data = response.json

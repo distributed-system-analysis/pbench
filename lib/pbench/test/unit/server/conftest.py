@@ -97,8 +97,7 @@ def do_setup(tmp_d: Path) -> Path:
 
 @pytest.fixture(scope="session")
 def on_disk_server_config(tmp_path_factory) -> dict[str, Path]:
-    """Test package setup for pbench-server
-    """
+    """Test package setup for pbench-server"""
     return on_disk_config(tmp_path_factory, "server", do_setup)
 
 

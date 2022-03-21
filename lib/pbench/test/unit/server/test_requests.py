@@ -160,13 +160,15 @@ class TestUpload:
         assert not self.filetree_created
 
     @pytest.mark.parametrize(
-        "malformed_token", ("malformed", "bear token" "Bearer malformed"),
+        "malformed_token",
+        ("malformed", "bear token" "Bearer malformed"),
     )
     def test_malformed_authorization_header(
         self, client, server_config, malformed_token
     ):
         response = client.put(
-            self.gen_uri(server_config), headers={"Authorization": malformed_token},
+            self.gen_uri(server_config),
+            headers={"Authorization": malformed_token},
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert not self.filetree_created
@@ -347,7 +349,13 @@ class TestUpload:
         assert not self.filetree_created
 
     def test_upload_filetree_error(
-        self, client, caplog, server_config, setup_ctrl, pbench_token, tarball,
+        self,
+        client,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
     ):
         """
         Cause the FileTree.create() to fail; this should trigger the cleanup
@@ -374,7 +382,13 @@ class TestUpload:
         assert not Path(str(self.filetree_create_path) + ".md5").exists()
 
     def test_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_token, tarball,
+        self,
+        client,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
     ):
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
@@ -403,7 +417,13 @@ class TestUpload:
             assert record.levelname in ["DEBUG", "INFO"]
 
     def test_upload_duplicate(
-        self, client, caplog, server_config, setup_ctrl, pbench_token, tarball,
+        self,
+        client,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
     ):
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
@@ -435,7 +455,13 @@ class TestUpload:
         assert TestUpload.filetree_created is None
 
     def test_upload_duplicate_diff_md5(
-        self, client, caplog, server_config, setup_ctrl, pbench_token, tarball,
+        self,
+        client,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
     ):
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):

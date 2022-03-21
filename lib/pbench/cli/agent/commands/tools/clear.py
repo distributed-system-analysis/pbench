@@ -89,7 +89,9 @@ class ClearTools(ToolCommand):
             tg_dir_r = self.tool_group_dir / remote
             if not tg_dir_r.exists():
                 self.logger.warn(
-                    'No remote host "%s" in group %s.', remote, group,
+                    'No remote host "%s" in group %s.',
+                    remote,
+                    group,
                 )
                 continue
 
@@ -102,7 +104,9 @@ class ClearTools(ToolCommand):
                     # FIXME:  this is another odd case -- the remote subdirectory
                     #  exists, but it's empty.  (We'll remove it below.)
                     self.logger.warn(
-                        'No tools in group "%s" on host "%s".', group, remote,
+                        'No tools in group "%s" on host "%s".',
+                        group,
+                        remote,
                     )
 
             for name in names:
@@ -165,7 +169,10 @@ class ClearTools(ToolCommand):
 
         if ret_val == 0:
             self.logger.info(
-                'Removed "%s" from host "%s" in tools group "%s"', name, remote, group,
+                'Removed "%s" from host "%s" in tools group "%s"',
+                name,
+                remote,
+                group,
             )
         return ret_val
 

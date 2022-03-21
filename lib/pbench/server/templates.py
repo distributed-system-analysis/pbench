@@ -716,7 +716,10 @@ class PbenchTemplates:
                 continue
             try:
                 _beg, _end, _retries, _stat = pyesbulk.put_template(
-                    es, name, "pbench-{}".format(template.name), template.body(),
+                    es,
+                    name,
+                    "pbench-{}".format(template.name),
+                    template.body(),
                 )
             except Exception as e:
                 self.counters["put_template_failures"] += 1

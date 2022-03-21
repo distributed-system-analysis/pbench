@@ -145,16 +145,24 @@ def user_list(context: object) -> None:
 @common_options
 @click.argument("updateuser")
 @click.option(
-    "--username", required=False, help="Specify the new username",
+    "--username",
+    required=False,
+    help="Specify the new username",
 )
 @click.option(
-    "--email", required=False, help="Specify the new email",
+    "--email",
+    required=False,
+    help="Specify the new email",
 )
 @click.option(
-    "--first-name", required=False, help="Specify the new first name",
+    "--first-name",
+    required=False,
+    help="Specify the new first name",
 )
 @click.option(
-    "--last-name", required=False, help="Specify the new last name",
+    "--last-name",
+    required=False,
+    help="Specify the new last name",
 )
 @click.option(
     "--role",

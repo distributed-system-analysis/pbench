@@ -86,7 +86,10 @@ def _start_option(f):
         return value
 
     return click.option(
-        "--start-trigger", required=True, expose_value=False, callback=callback,
+        "--start-trigger",
+        required=True,
+        expose_value=False,
+        callback=callback,
     )(f)
 
 
@@ -97,7 +100,10 @@ def _stop_option(f):
         return value
 
     return click.option(
-        "--stop-trigger", required=True, expose_value=False, callback=callback,
+        "--stop-trigger",
+        required=True,
+        expose_value=False,
+        callback=callback,
     )(f)
 
 

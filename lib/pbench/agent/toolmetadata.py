@@ -72,8 +72,7 @@ class ToolMetadata:
 
     @classmethod
     def tool_md_from_dict(cls, metadata):
-        """tool_md_from_dict - returns a ToolMetadata object given a raw dictionary.
-        """
+        """tool_md_from_dict - returns a ToolMetadata object given a raw dictionary."""
         ToolMetadata._validate_metadata(metadata)
         tmd = cls()
         tmd._data = metadata
@@ -98,8 +97,7 @@ class ToolMetadata:
         return list(self._data["transient"].keys())
 
     def getProperties(self, tool):
-        """getProperties - return the recorded properties for the given tool.
-        """
+        """getProperties - return the recorded properties for the given tool."""
         try:
             tool_prop = self._data["transient"][tool]
         except KeyError:

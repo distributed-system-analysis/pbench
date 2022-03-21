@@ -69,13 +69,13 @@ class Commons:
 
     def build_index_from_metadata(self) -> str:
         """
-            Retrieve the list of ES indices from the dataset index
-            map metadata based on a given root index name.
+        Retrieve the list of ES indices from the dataset index
+        map metadata based on a given root index name.
 
-            Returns:
-                An Elasticsearch query URL string listing the set of
-                indices containing documents for the specified root
-                index name.
+        Returns:
+            An Elasticsearch query URL string listing the set of
+            indices containing documents for the specified root
+            index name.
         """
         drb = Dataset.query(name="drb")
         index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
@@ -129,7 +129,8 @@ class Commons:
         return expected_status
 
     @pytest.mark.parametrize(
-        "malformed_token", ("malformed", "bear token" "Bearer malformed"),
+        "malformed_token",
+        ("malformed", "bear token" "Bearer malformed"),
     )
     def test_malformed_authorization_header(
         self, client, server_config, malformed_token, attach_dataset
@@ -173,7 +174,8 @@ class Commons:
         assert response.status_code == HTTPStatus.NOT_FOUND
 
     @pytest.mark.parametrize(
-        "user", ("drb", "pp"),
+        "user",
+        ("drb", "pp"),
     )
     def test_accessing_user_data_with_invalid_token(
         self, client, server_config, pbench_token, user
@@ -310,7 +312,12 @@ class Commons:
                 self.payload[key] = original_date_value
 
     def test_empty_query(
-        self, client, server_config, query_api, find_template, build_auth_header,
+        self,
+        client,
+        server_config,
+        query_api,
+        find_template,
+        build_auth_header,
     ):
         """
         Check proper handling of a query resulting in no Elasticsearch matches.

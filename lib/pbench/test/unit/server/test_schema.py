@@ -243,7 +243,13 @@ class TestParameter:
         assert x.invalid(json) is expected
 
     @pytest.mark.parametrize(
-        "test", ({"data": "yes"}, {"data": None}, {"foo": "yes"}, {"foo": None},),
+        "test",
+        (
+            {"data": "yes"},
+            {"data": None},
+            {"foo": "yes"},
+            {"foo": None},
+        ),
     )
     def test_invalid_optional(self, test):
         """
@@ -297,7 +303,8 @@ class TestParameter:
         assert x.normalize(input) == expected
 
     @pytest.mark.parametrize(
-        "test", (1, {"json": "is not OK"}, ["Yes"], False),
+        "test",
+        (1, {"json": "is not OK"}, ["Yes"], False),
     )
     def test_invalid_keyword_type(self, test):
         """
@@ -309,7 +316,8 @@ class TestParameter:
         assert str(test) in str(exc)
 
     @pytest.mark.parametrize(
-        "test", ("I'm not sure", "yes!", "ebyam", "yes.foo", "yes."),
+        "test",
+        ("I'm not sure", "yes!", "ebyam", "yes.foo", "yes."),
     )
     def test_invalid_keyword(self, test):
         """

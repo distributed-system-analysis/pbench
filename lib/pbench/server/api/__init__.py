@@ -81,7 +81,9 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        DatasetsList, f"{base_uri}/datasets/list", resource_class_args=(config, logger),
+        DatasetsList,
+        f"{base_uri}/datasets/list",
+        resource_class_args=(config, logger),
     )
     api.add_resource(
         DatasetsMappings,
@@ -119,21 +121,31 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        EndpointConfig, f"{base_uri}/endpoints", resource_class_args=(config, logger),
+        EndpointConfig,
+        f"{base_uri}/endpoints",
+        resource_class_args=(config, logger),
     )
 
     api.add_resource(
-        GraphQL, f"{base_uri}/graphql", resource_class_args=(config, logger),
+        GraphQL,
+        f"{base_uri}/graphql",
+        resource_class_args=(config, logger),
     )
 
     api.add_resource(
-        Login, f"{base_uri}/login", resource_class_args=(config, logger, token_auth),
+        Login,
+        f"{base_uri}/login",
+        resource_class_args=(config, logger, token_auth),
     )
     api.add_resource(
-        Logout, f"{base_uri}/logout", resource_class_args=(config, logger, token_auth),
+        Logout,
+        f"{base_uri}/logout",
+        resource_class_args=(config, logger, token_auth),
     )
     api.add_resource(
-        RegisterUser, f"{base_uri}/register", resource_class_args=(config, logger),
+        RegisterUser,
+        f"{base_uri}/register",
+        resource_class_args=(config, logger),
     )
     api.add_resource(
         UserAPI,

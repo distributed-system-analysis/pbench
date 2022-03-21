@@ -19,8 +19,7 @@ class OurServer(BaseServer):
 
 
 class TestBaseServer:
-    """Verify the utils BaseServer class.
-    """
+    """Verify the utils BaseServer class."""
 
     def test_constructor(self):
         with pytest.raises(AssertionError):
@@ -212,8 +211,7 @@ class TestBaseServer:
 
 
 class TestLocalRemoteHost:
-    """Verify LocalRemoteHost class works as expected.
-    """
+    """Verify LocalRemoteHost class works as expected."""
 
     @staticmethod
     def test_methods(monkeypatch):

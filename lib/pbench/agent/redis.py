@@ -173,16 +173,14 @@ class RedisChannelSubscriber:
             self._pubsub.unsubscribe()
 
     def close(self):
-        """close - unsubscribes from the channel, and closes the pub/sub object.
-        """
+        """close - unsubscribes from the channel, and closes the pub/sub object."""
         if self._pubsub is not None:
             self._pubsub.unsubscribe()
             self._pubsub.close()
 
 
 class RedisHandler(logging.Handler):
-    """Publish messages to a given channel on a Redis server.
-    """
+    """Publish messages to a given channel on a Redis server."""
 
     def __init__(
         self,
@@ -192,8 +190,7 @@ class RedisHandler(logging.Handler):
         level=logging.NOTSET,
         **redis_kwargs,
     ):
-        """Create a new logger for the given channel and redis_client.
-        """
+        """Create a new logger for the given channel and redis_client."""
         super().__init__(level)
         self.channel = channel
         self.hostname = hostname
@@ -204,8 +201,7 @@ class RedisHandler(logging.Handler):
         self.dropped = 0
 
     def emit(self, record):
-        """Publish record to redis logging channel
-        """
+        """Publish record to redis logging channel"""
         try:
             formatted_record = self.format(record)
             num_present = self.redis_client.publish(
@@ -282,7 +278,8 @@ def wait_for_conn_and_key(redis_server: redis.Redis, key: str, prog: str) -> str
             if connected is False:
                 # We always report re-connections (connections was not None).
                 print(
-                    f"{prog}: connected to Redis server {redis_server}", flush=True,
+                    f"{prog}: connected to Redis server {redis_server}",
+                    flush=True,
                 )
             if payload is not None:
                 break

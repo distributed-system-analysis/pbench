@@ -64,7 +64,11 @@ def _group_option(f):
         return value
 
     return click.option(
-        "-g", "--groups", "--group", expose_value=False, callback=callback,
+        "-g",
+        "--groups",
+        "--group",
+        expose_value=False,
+        callback=callback,
     )(f)
 
 

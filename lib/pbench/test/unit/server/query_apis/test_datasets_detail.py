@@ -32,7 +32,8 @@ class TestDatasetsDetail(Commons):
         )
 
     @pytest.mark.parametrize(
-        "user", ("drb", "badwolf", "no_user"),
+        "user",
+        ("drb", "badwolf", "no_user"),
     )
     def test_query(
         self, client, server_config, query_api, find_template, build_auth_header, user
@@ -326,7 +327,12 @@ class TestDatasetsDetail(Commons):
         assert expected == res_json
 
     def test_empty_query(
-        self, client, server_config, query_api, find_template, build_auth_header,
+        self,
+        client,
+        server_config,
+        query_api,
+        find_template,
+        build_auth_header,
     ):
         """
         Check the handling of a query that doesn't return any data.

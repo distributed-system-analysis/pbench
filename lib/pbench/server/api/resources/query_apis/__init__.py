@@ -415,7 +415,9 @@ class ElasticBase(ApiBase):
             # perform the Elasticsearch query
             es_response = method(url, **es_request["kwargs"])
             self.logger.debug(
-                "ES query response {}:{}", es_response.reason, es_response.status_code,
+                "ES query response {}:{}",
+                es_response.reason,
+                es_response.status_code,
             )
             es_response.raise_for_status()
             json_response = es_response.json()

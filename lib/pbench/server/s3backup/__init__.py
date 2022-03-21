@@ -51,8 +51,8 @@ class Entry:
 
 class S3Config:
 
-    GB = 1024 ** 3
-    MB = 1024 ** 2
+    GB = 1024**3
+    MB = 1024**2
 
     def __init__(self, config, logger):
         try:
@@ -363,7 +363,7 @@ class MockS3Connector(Connector):
     """
 
     # class "constant"
-    GB = 1024 ** 3
+    GB = 1024**3
 
     def __init__(self, config, logger):
         try:
