@@ -58,7 +58,7 @@ fmtstr = "%(asctime)s %(levelname)s %(process)s %(thread)s %(name)s %(funcName)s
 _BUFFER_SIZE = 65536
 
 # Maximum size of the tar ball for collected tool data.
-_MAX_TOOL_DATA_SIZE = 2 ** 30
+_MAX_TOOL_DATA_SIZE = 2**30
 
 
 def _now(when):
@@ -132,8 +132,7 @@ class DataSinkWsgiServer(ServerAdapter):
         self._logger = logger
 
     def _do_notify(self, text=None, code=0, server=None):
-        """_do_notify - simple helper method to encapsulate method of notification.
-        """
+        """_do_notify - simple helper method to encapsulate method of notification."""
         with self._lock:
             self._err_text = text
             self._err_code = code
@@ -167,7 +166,7 @@ class DataSinkWsgiServer(ServerAdapter):
             server.serve_forever()
 
     def wait(self) -> Tuple[str, int]:
-        """ wait - wait for the WSGI thread executing the `run` method to start
+        """wait - wait for the WSGI thread executing the `run` method to start
         running and successfully create a WSGI server object, or fail trying.
 
         Returns a tuple of the error text and the error code set by the _run()
@@ -182,7 +181,7 @@ class DataSinkWsgiServer(ServerAdapter):
         return self._err_text, self._err_code
 
     def stop(self):
-        """ stop - stop the running WSGI server via the shutdown() method of
+        """stop - stop the running WSGI server via the shutdown() method of
         the WSGI server object.
         """
         # We have to wait for the thread to start the server and fill in the
@@ -915,8 +914,7 @@ class ToolDataSink(Bottle):
             self.logger.debug("Exiting Tool Data Sink context ...")
 
     def web_server_run(self):
-        """web_server_run - Start the Bottle web server running.
-        """
+        """web_server_run - Start the Bottle web server running."""
         self.logger.info("Running Bottle web server ...")
         try:
             super().run(server=self._server)
@@ -1389,7 +1387,8 @@ class ToolDataSink(Bottle):
                     ret_val = 1
                 elif status not in ("success", "terminated"):
                     self.logger.warning(
-                        "Status message not successful: '%s'", status,
+                        "Status message not successful: '%s'",
+                        status,
                     )
                     ret_val = 1
                 done_count += 1
@@ -1602,7 +1601,10 @@ class ToolDataSink(Bottle):
                 self.data_ctx = None
                 self.directory = None
             else:
-                assert action in ("start", "stop",), f"Unexpected action, '{action}'"
+                assert action in (
+                    "start",
+                    "stop",
+                ), f"Unexpected action, '{action}'"
                 # Forward to TMs
                 ret_val = self._forward_tms_and_wait(data)
             self.action = None
@@ -2022,7 +2024,8 @@ def main(argv):
         pbench_run = os.environ["pbench_run"]
     except KeyError:
         print(
-            "Unable to fetch pbench_run environment variable", file=sys.stderr,
+            "Unable to fetch pbench_run environment variable",
+            file=sys.stderr,
         )
         return 3
 

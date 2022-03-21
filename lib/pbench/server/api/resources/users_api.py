@@ -59,7 +59,8 @@ class RegisterUser(Resource):
         if User.is_admin_username(username):
             self.logger.warning("User tried to register with admin username")
             abort(
-                HTTPStatus.BAD_REQUEST, message="Please choose another username",
+                HTTPStatus.BAD_REQUEST,
+                message="Please choose another username",
             )
 
         # check if provided username already exists
@@ -214,7 +215,8 @@ class Login(Resource):
                 "Could not encode the JWT auth token for user: {} while login", username
             )
             abort(
-                HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR",
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                message="INTERNAL ERROR",
             )
 
         # Add the new auth token to the database for later access
@@ -509,7 +511,8 @@ class UserAPI(Resource):
             )
         except Exception:
             self.logger.exception(
-                "Exception occurred while deleting a user {}", target_username,
+                "Exception occurred while deleting a user {}",
+                target_username,
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 

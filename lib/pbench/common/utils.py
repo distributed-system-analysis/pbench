@@ -18,7 +18,7 @@ def md5sum(filename: str) -> (int, str):
     with open(filename, mode="rb") as f:
         d = hashlib.md5()
         length = 0
-        for buf in iter(partial(f.read, 2 ** 20), b""):
+        for buf in iter(partial(f.read, 2**20), b""):
             length += len(buf)
             d.update(buf)
     return length, d.hexdigest()

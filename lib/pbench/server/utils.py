@@ -50,7 +50,7 @@ def filesize_bytes(size):
             unit = parts[1].strip()
 
         idx = size_name.index(unit.upper()) if unit else 0
-        factor = 1024 ** idx
+        factor = 1024**idx
     except Exception as exc:
         raise Exception("Invalid file size value encountered, '%s': %s", size, exc)
     else:

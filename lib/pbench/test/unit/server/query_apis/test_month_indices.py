@@ -131,7 +131,8 @@ class TestMonthIndices:
         Check that an exception in calling Elasticsearch is reported correctly.
         """
         get_helper(
-            exceptions["status"], body=exceptions["exception"],
+            exceptions["status"],
+            body=exceptions["exception"],
         )
 
     @pytest.mark.parametrize("errors", (400, 500, 409))
@@ -141,5 +142,6 @@ class TestMonthIndices:
         response.raise_for_status() and Pbench handlers.
         """
         get_helper(
-            HTTPStatus.BAD_GATEWAY, status=errors,
+            HTTPStatus.BAD_GATEWAY,
+            status=errors,
         )

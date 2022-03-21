@@ -31,8 +31,8 @@ def write_config(dictionary, out=sys.stdout):
 
 
 def replace_all(dct, old, new):
-    """ Replace all instances of string 'old' with string 'new' in
-        both keys and values of the (possibly nested) dictionary """
+    """Replace all instances of string 'old' with string 'new' in
+    both keys and values of the (possibly nested) dictionary"""
     keys = list(dct.keys())
     for k in keys:
         if isinstance(dct[k], dict):
@@ -46,9 +46,9 @@ def replace_all(dct, old, new):
 
 
 def replace_val(dct, magic, delta):
-    """ Replace all values of string 'magic' with the new value
-        given by the same key in dict 'delta', in the possibly nested
-        dictionary dct """
+    """Replace all values of string 'magic' with the new value
+    given by the same key in dict 'delta', in the possibly nested
+    dictionary dct"""
     keys = list(dct.keys())
     for k in keys:
         if isinstance(dct[k], dict):

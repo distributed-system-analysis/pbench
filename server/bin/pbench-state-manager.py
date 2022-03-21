@@ -77,7 +77,8 @@ def main(options):
 
         if "path" not in args and "name" not in args:
             print(
-                f"{_NAME_}: Either --path or --name must be specified", file=sys.stderr,
+                f"{_NAME_}: Either --path or --name must be specified",
+                file=sys.stderr,
             )
             return 2
 
@@ -130,10 +131,14 @@ if __name__ == "__main__":
         help="Specify controller name (agent host name)",
     )
     parser.add_argument(
-        "--name", dest="name", help="Specify dataset name",
+        "--name",
+        dest="name",
+        help="Specify dataset name",
     )
     parser.add_argument(
-        "--state", dest="state", help="Specify desired dataset state",
+        "--state",
+        dest="state",
+        help="Specify desired dataset state",
     )
     parser.add_argument("--md5", dest="md5", help="Specify dataset MD5 hash")
     parsed = parser.parse_args()

@@ -31,7 +31,8 @@ class TestControllersList(Commons):
         )
 
     @pytest.mark.parametrize(
-        "user", ("drb", "badwolf", "no_user"),
+        "user",
+        ("drb", "badwolf", "no_user"),
     )
     def test_query(
         self,

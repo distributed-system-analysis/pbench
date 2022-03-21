@@ -3,7 +3,7 @@ import os
 
 
 def restorecon(path, recursive=False, verbose=False, force=False):
-    """ Restore SELinux context on a given path
+    """Restore SELinux context on a given path
 
     Arguments:
     path -- The pathname for the file or directory to be relabeled.

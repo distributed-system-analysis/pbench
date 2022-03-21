@@ -94,7 +94,8 @@ class TestDatasetsPublish:
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
     @pytest.mark.parametrize(
-        "owner", ("drb", "test"),
+        "owner",
+        ("drb", "test"),
     )
     def test_query(
         self,

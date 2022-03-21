@@ -7,7 +7,6 @@ class MetadataLog(configparser.ConfigParser):
     """
 
     def __init__(self, *args, **kwargs):
-        """ Constructor - overrides `interpolation` to always be None.
-        """
+        """Constructor - overrides `interpolation` to always be None."""
         kwargs["interpolation"] = None
         super().__init__(*args, **kwargs)

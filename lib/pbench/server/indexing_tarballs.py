@@ -62,8 +62,7 @@ class Errors:
 
 
 def _count_lines(fname):
-    """Simple method to count the lines of a file.
-    """
+    """Simple method to count the lines of a file."""
     try:
         with open(fname, "r") as fp:
             cnt = sum(1 for line in fp)
@@ -73,11 +72,11 @@ def _count_lines(fname):
 
 
 class Index:
-    """ class used to collect tarballs and index them
+    """class used to collect tarballs and index them
 
-        Status codes used by es_index and the error below are defined to
-        maintain compatibility with the previous code base when pbench-index
-        was a bash script.
+    Status codes used by es_index and the error below are defined to
+    maintain compatibility with the previous code base when pbench-index
+    was a bash script.
     """
 
     error_code = Errors(
@@ -86,7 +85,10 @@ class Index:
         ErrorCode("CFG_ERROR", 2, False, "Configuration file not specified"),
         ErrorCode("BAD_CFG", 3, False, "Bad configuration file"),
         ErrorCode(
-            "TB_META_ABSENT", 4, True, "Tar ball does not contain a metadata.log file",
+            "TB_META_ABSENT",
+            4,
+            True,
+            "Tar ball does not contain a metadata.log file",
         ),
         ErrorCode("BAD_DATE", 5, True, "Bad start run date value encountered"),
         ErrorCode("FILE_NOT_FOUND_ERROR", 6, True, "File Not Found error"),
@@ -130,7 +132,7 @@ class Index:
         self.qdir = qdir
 
     def collect_tb(self):
-        """ Collect tarballs that needs indexing"""
+        """Collect tarballs that needs indexing"""
 
         # find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
         tarballs = []
@@ -189,18 +191,18 @@ class Index:
     def emit_error(self, logger_method, error, exception):
         """Helper method to write a log message in a standard format from an error code
 
-            Args
-                logger_method -- Reference to a method of a Python logger object,
-                                like idxctx.logger.warning
-                error -- An error code name from the Errors collection, like "OK"
-                exception -- the original exception leading to the error
+        Args
+            logger_method -- Reference to a method of a Python logger object,
+                            like idxctx.logger.warning
+            error -- An error code name from the Errors collection, like "OK"
+            exception -- the original exception leading to the error
 
-            Returns
-                Relevant error_code object
+        Returns
+            Relevant error_code object
 
-            Although all log messages will appear to have originated from this method,
-            the origin can easily be identified from the error code value, and this
-            interface provides simplicity and consistency.
+        Although all log messages will appear to have originated from this method,
+        the origin can easily be identified from the error code value, and this
+        interface provides simplicity and consistency.
         """
         ec = self.error_code[error]
         logger_method("{}: {}", ec.message, exception)
@@ -209,8 +211,8 @@ class Index:
     def process_tb(self, tarballs):
         """Process Tarballs For Indexing and creates report
 
-            "tarballs" - List of tarball, it is the second value of
-                the tuple returned by collect_tb() """
+        "tarballs" - List of tarball, it is the second value of
+            the tuple returned by collect_tb()"""
         res = 0
         idxctx = self.idxctx
         error_code = self.error_code
@@ -331,7 +333,8 @@ class Index:
                                 )
                             except DatasetNotFound:
                                 idxctx.logger.warn(
-                                    "Unable to locate Dataset {}", path,
+                                    "Unable to locate Dataset {}",
+                                    path,
                                 )
                             except DatasetTransitionError as e:
                                 # TODO: This means the Dataset is known, but not in a

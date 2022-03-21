@@ -99,7 +99,8 @@ class TestDatasetsMetadata:
 
         def missing_key_helper(keys):
             response = client.post(
-                f"{server_config.rest_uri}/datasets/metadata", json=keys,
+                f"{server_config.rest_uri}/datasets/metadata",
+                json=keys,
             )
             assert response.status_code == HTTPStatus.BAD_REQUEST
             missing = sorted(set(required_keys) - set(keys))

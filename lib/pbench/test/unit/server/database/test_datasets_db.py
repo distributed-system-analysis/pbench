@@ -12,8 +12,7 @@ from pbench.server.database.models.users import User
 
 class TestDatasets:
     def test_state_enum(self):
-        """ Test the States ENUM properties
-        """
+        """Test the States ENUM properties"""
         assert len(States.__members__) == 9
         for n, s in States.__members__.items():
             assert str(s) == s.friendly
@@ -22,8 +21,7 @@ class TestDatasets:
             ), f"Enum {n} name and state don't match"
 
     def test_construct(self, db_session, create_user):
-        """ Test dataset contructor
-        """
+        """Test dataset contructor"""
         user = create_user
         ds = Dataset(owner=user.username, controller="frodo", name="fio")
         ds.add()
@@ -55,14 +53,12 @@ class TestDatasets:
         assert ds1 == ds
 
     def test_construct_bad_owner(self, db_session):
-        """Test with a non-existent username
-        """
+        """Test with a non-existent username"""
         with pytest.raises(DatasetBadParameterType):
             Dataset(owner="notme", controller="frodo", name="fio")
 
     def test_construct_bad_state(self, db_session, create_user):
-        """Test with a non-States state value
-        """
+        """Test with a non-States state value"""
         with pytest.raises(DatasetBadParameterType):
             Dataset(
                 owner=create_user.username,
@@ -72,8 +68,7 @@ class TestDatasets:
             )
 
     def test_attach_exists(self, db_session, create_user):
-        """ Test that we can attach to a dataset
-        """
+        """Test that we can attach to a dataset"""
         ds1 = Dataset(
             owner=create_user.username,
             controller="frodo",
@@ -91,14 +86,14 @@ class TestDatasets:
         assert ds2.id is ds1.id
 
     def test_attach_none(self, db_session):
-        """ Test expected failure when we try to attach to a dataset that
+        """Test expected failure when we try to attach to a dataset that
         does not exist.
         """
         with pytest.raises(DatasetNotFound):
             Dataset.attach(name="venus", state=States.UPLOADING)
 
     def test_attach_controller_path(self, db_session, create_user):
-        """ Test that we can attach using controller and name to a
+        """Test that we can attach using controller and name to a
         dataset created by file path.
         """
         ds1 = Dataset(
@@ -117,7 +112,7 @@ class TestDatasets:
         assert ds2.id is ds1.id
 
     def test_attach_filename(self, db_session, create_user):
-        """ Test that we can create a dataset using the full tarball
+        """Test that we can create a dataset using the full tarball
         file path.
         """
         ds1 = Dataset(
@@ -134,8 +129,7 @@ class TestDatasets:
         assert ds2.id is ds1.id
 
     def test_query_name(self, db_session, create_user):
-        """ Test that we can find a dataset by name alone
-        """
+        """Test that we can find a dataset by name alone"""
         ds1 = Dataset(
             owner=create_user.username,
             controller="frodo",
@@ -154,8 +148,7 @@ class TestDatasets:
         assert ds2.id == ds1.id
 
     def test_advanced_good(self, db_session, create_user):
-        """ Test advancing the state of a dataset
-        """
+        """Test advancing the state of a dataset"""
         ds = Dataset(owner=create_user.username, controller="frodo", name="fio")
         ds.add()
         ds.advance(States.UPLOADED)
@@ -163,15 +156,14 @@ class TestDatasets:
         assert ds.uploaded <= ds.transition
 
     def test_advanced_bad_state(self, db_session, create_user):
-        """Test with a non-States state value
-        """
+        """Test with a non-States state value"""
         ds = Dataset(owner=create_user.username, controller="frodo", name="fio")
         ds.add()
         with pytest.raises(DatasetBadParameterType):
             ds.advance("notStates")
 
     def test_advanced_illegal(self, db_session, create_user):
-        """ Test that we can't advance to a state that's not a
+        """Test that we can't advance to a state that's not a
         successor to the initial state.
         """
         ds = Dataset(owner=create_user.username, controller="frodo", name="fio")
@@ -180,8 +172,7 @@ class TestDatasets:
             ds.advance(States.EXPIRED)
 
     def test_advanced_terminal(self, db_session, create_user):
-        """ Test that we can't advance from a terminal state
-        """
+        """Test that we can't advance from a terminal state"""
         ds = Dataset(
             owner=create_user.username,
             controller="frodo",
@@ -193,7 +184,7 @@ class TestDatasets:
             ds.advance(States.UPLOADING)
 
     def test_lifecycle(self, db_session, create_user):
-        """ Advance a dataset through the entire lifecycle using the state
+        """Advance a dataset through the entire lifecycle using the state
         transition dict.
         """
         ds = Dataset(owner=create_user.username, controller="frodo", name="fio")
@@ -218,8 +209,7 @@ class TestDatasets:
         )
 
     def test_delete(self, db_session, create_user):
-        """ Test that we can delete a dataset
-        """
+        """Test that we can delete a dataset"""
         ds1 = Dataset(
             owner=create_user.username,
             controller="frodo",

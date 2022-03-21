@@ -82,7 +82,7 @@ def test_clear_tools_test13(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
 
 def test_clear_tools_test65(monkeypatch, agent_config, pbench_run, pbench_cfg):
-    """ Remove all tools from group good, leave default alone """
+    """Remove all tools from group good, leave default alone"""
     monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
     default_group = pbench_run / "tools-v1-default"
     fubar_default_group = default_group / "fubar2.example.com"
@@ -117,7 +117,7 @@ def test_clear_tools_test65(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
 
 def test_clear_tools_test66(monkeypatch, agent_config, pbench_run, pbench_cfg):
-    """ Error group does not exist """
+    """Error group does not exist"""
     monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
     command = ["pbench-clear-tools", "--group=bad"]
     out, err, exitcode = pytest.helpers.capture(command)
@@ -127,7 +127,7 @@ def test_clear_tools_test66(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
 
 def test_clear_tools_test67(monkeypatch, agent_config, pbench_run, pbench_cfg):
-    """ Remove all tools from 2 remotes, one remote does not exist """
+    """Remove all tools from 2 remotes, one remote does not exist"""
     monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
     default_group = pbench_run / "tools-v1-default"
     default_group.mkdir(parents=True)
@@ -161,7 +161,7 @@ def test_clear_tools_test67(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
 
 def test_clear_tools_test68(monkeypatch, agent_config, pbench_run, pbench_cfg):
-    """ Remove one tool from two remotes, remotes not removed """
+    """Remove one tool from two remotes, remotes not removed"""
     monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
     default_group = pbench_run / "tools-v1-default"
     default_group.mkdir(parents=True)
@@ -194,7 +194,7 @@ def test_clear_tools_test68(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
 
 def test_clear_tools_test69(monkeypatch, agent_config, pbench_run, pbench_cfg):
-    """ One tool, one remote w label, one remote w/o label, one remote w 2 tools, 1st two remotes removed """
+    """One tool, one remote w label, one remote w/o label, one remote w 2 tools, 1st two remotes removed"""
     monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
     default_group = pbench_run / "tools-v1-default"
     default_group.mkdir(parents=True)
@@ -230,7 +230,7 @@ def test_clear_tools_test69(monkeypatch, agent_config, pbench_run, pbench_cfg):
 
 
 def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
-    """ Attempt to clear the wrong tool, by name """
+    """Attempt to clear the wrong tool, by name"""
     monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
     default_group = pbench_run / "tools-v1-default"
     default_group.mkdir(parents=True)
@@ -283,7 +283,7 @@ def test_clear_tools_test70(monkeypatch, agent_config, pbench_run, pbench_cfg):
     ],
 )
 def test_clear_tools_test85(pbench_run, tools_configuration, groups, remotes, tools):
-    """ Attempt to clear tools with various combinations of groups, remotes
+    """Attempt to clear tools with various combinations of groups, remotes
     and tools against fixed tools configuration"""
     tools_existence, tools_tree = tools_configuration
 
@@ -361,7 +361,7 @@ def test_clear_tools_test85(pbench_run, tools_configuration, groups, remotes, to
     ["", "pidstat,wrong_tool1", ",pidstat,,wrong_tool1,", "wrong_tool1,wrong_tool2"],
 )
 def test_clear_tools_test86(tools_configuration, groups, remotes, tools):
-    """ Attempt to clear tools at various group-remote-tool locations where the
+    """Attempt to clear tools at various group-remote-tool locations where the
     combination may not present on the hosts"""
     _, tools_tree = tools_configuration
     command = ["pbench-clear-tools"]

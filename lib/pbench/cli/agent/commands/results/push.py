@@ -41,17 +41,20 @@ class ResultsPush(BaseCommand):
 )
 @pass_cli_context
 def main(
-    context: CliContext, controller: str, result_tb_name: str, token: str,
+    context: CliContext,
+    controller: str,
+    result_tb_name: str,
+    token: str,
 ):
     """Push a result tar ball to the configured Pbench server.
 
-        \b
-        CONTROLLER is the name of the controlling node.
-        RESULT_TB_NAME is the path to the result tar ball.
-        \f
-        (This docstring will be printed as the help text for this command;
-        the backslash-escaped letters are formatting directives; this
-        parenthetical text will not appear in the help output.)
+    \b
+    CONTROLLER is the name of the controlling node.
+    RESULT_TB_NAME is the path to the result tar ball.
+    \f
+    (This docstring will be printed as the help text for this command;
+    the backslash-escaped letters are formatting directives; this
+    parenthetical text will not appear in the help output.)
     """
     context.controller = controller
     context.result_tb_name = result_tb_name

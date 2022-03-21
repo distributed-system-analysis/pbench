@@ -52,7 +52,9 @@ def query_api(client, server_config, provide_metadata):
             ):
                 rsp.add(responses.POST, es_url, **kwargs)
             response = client.post(
-                f"{server_config.rest_uri}{pbench_uri}", headers=headers, json=payload,
+                f"{server_config.rest_uri}{pbench_uri}",
+                headers=headers,
+                json=payload,
             )
         assert response.status_code == expected_status
         return response

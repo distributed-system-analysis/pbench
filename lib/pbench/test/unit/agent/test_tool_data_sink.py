@@ -21,8 +21,7 @@ from pbench.agent.tool_data_sink import (
 
 
 class TestBenchmarkRunDir:
-    """Verify the Tool Data Sink BenchmarkRunDir class.
-    """
+    """Verify the Tool Data Sink BenchmarkRunDir class."""
 
     @pytest.fixture
     def cleanup_tmp(self, tmp_path):
@@ -123,12 +122,10 @@ def _test_app(environ, start_response):
 
 
 class TestDataSinkWsgiServer:
-    """Verify the DataSinkWsgiServer wrapper class.
-    """
+    """Verify the DataSinkWsgiServer wrapper class."""
 
     def test_constructor(self):
-        """test_constructor - verify the DataSinkWsgiServer constructor.
-        """
+        """test_constructor - verify the DataSinkWsgiServer constructor."""
         with pytest.raises(Exception) as exc:
             DataSinkWsgiServer()
         assert "DataSinkWsgiServer requires a logger" == str(exc.value)

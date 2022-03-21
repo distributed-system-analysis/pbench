@@ -75,7 +75,9 @@ class Auth:
         """
         try:
             payload = jwt.decode(
-                auth_token, os.getenv("SECRET_KEY", "my_precious"), algorithms="HS256",
+                auth_token,
+                os.getenv("SECRET_KEY", "my_precious"),
+                algorithms="HS256",
             )
             user_id = payload["sub"]
             if ActiveTokens.valid(auth_token):

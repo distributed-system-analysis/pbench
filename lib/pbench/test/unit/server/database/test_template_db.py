@@ -12,8 +12,7 @@ from pbench.server.database.models.template import (
 
 class TestTemplate:
     def test_construct(self, fake_mtime, db_session):
-        """ Test dataset constructor
-        """
+        """Test dataset constructor"""
         template = Template(
             name="run",
             idxname="run-data",
@@ -31,8 +30,7 @@ class TestTemplate:
         assert "run: drb.v1.run.{year}-{month}" == str(template)
 
     def test_construct_duplicate(self, fake_mtime, db_session):
-        """ Test dataset constructor
-        """
+        """Test dataset constructor"""
         template = Template(
             name="run",
             idxname="run-data",
@@ -61,8 +59,7 @@ class TestTemplate:
         assert str(e).find("run") != -1
 
     def test_construct_fileless(self, fake_mtime, db_session):
-        """ Test dataset constructor without a file column
-        """
+        """Test dataset constructor without a file column"""
         with pytest.raises(TemplateFileMissing) as e:
             Template(
                 name="run",
@@ -77,7 +74,7 @@ class TestTemplate:
         assert str(e).find("run") != -1
 
     def test_construct_missing(self, fake_mtime, db_session):
-        """ Test dataset constructor when non-nullable columns are omitted;
+        """Test dataset constructor when non-nullable columns are omitted;
         the constuctor works, but SQL will throw an IntegrityError when we
         try to commit to the DB.
         """
@@ -94,8 +91,7 @@ class TestTemplate:
         assert str(e).find("run") != -1
 
     def test_find_exists(self, fake_mtime, db_session):
-        """ Test that we can find a template
-        """
+        """Test that we can find a template"""
         template1 = Template(
             name="run",
             idxname="run-data",
@@ -114,15 +110,14 @@ class TestTemplate:
         assert template2.id is template1.id
 
     def test_find_none(self, fake_mtime, db_session):
-        """ Test expected failure when we try to find a template that
+        """Test expected failure when we try to find a template that
         does not exist.
         """
         with pytest.raises(TemplateNotFound):
             Template.find(name="data")
 
     def test_update(self, fake_mtime, db_session):
-        """ Test template update
-        """
+        """Test template update"""
         template = Template(
             name="run",
             file="run.json",
@@ -139,8 +134,7 @@ class TestTemplate:
         template.update()
 
     def test_update_missing(self, fake_mtime, db_session):
-        """ Test template update
-        """
+        """Test template update"""
         template = Template(
             name="run",
             file="run.json",

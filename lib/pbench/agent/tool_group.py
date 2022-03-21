@@ -5,8 +5,7 @@ from pathlib import Path
 
 
 class BadToolGroup(Exception):
-    """Exception representing a tool group that does not exist or is invalid.
-    """
+    """Exception representing a tool group that does not exist or is invalid."""
 
     pass
 

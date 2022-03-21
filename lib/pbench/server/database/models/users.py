@@ -15,7 +15,7 @@ class Roles(enum.Enum):
 
 
 class User(Database.Base):
-    """ User Model for storing user related details """
+    """User Model for storing user related details"""
 
     __tablename__ = "users"
 

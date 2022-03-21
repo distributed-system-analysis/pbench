@@ -81,8 +81,7 @@ fmtstr = "%(asctime)s %(levelname)s %(process)s %(thread)s %(name)s %(funcName)s
 
 
 def log_subprocess_output(pipe: subprocess.PIPE, logger: logging.Logger):
-    """Thread start function to log outputs from a given pipe.
-    """
+    """Thread start function to log outputs from a given pipe."""
     for line in pipe.readlines():
         _log_line = line.decode("utf-8").strip()
         if _log_line:
@@ -171,7 +170,10 @@ class Tool:
         _ctx = f"-{ctx}" if ctx else ""
         process_logger = threading.Thread(
             target=log_subprocess_output,
-            args=(process.stdout, self.logger.getChild(f"logger{_ctx}"),),
+            args=(
+                process.stdout,
+                self.logger.getChild(f"logger{_ctx}"),
+            ),
         )
         process_logger.daemon = True
         process_logger.start()
@@ -247,8 +249,7 @@ class Tool:
 
 
 class TransientTool(Tool):
-    """Encapsulates handling of most transient tools.
-    """
+    """Encapsulates handling of most transient tools."""
 
     _tool_type = "Transient"
 
@@ -276,8 +277,7 @@ class TransientTool(Tool):
         return (cp.returncode, cp.stdout.strip())
 
     def start(self):
-        """Creates the background process running the tool's "start" operation.
-        """
+        """Creates the background process running the tool's "start" operation."""
         assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
         if not self.tool_dir.is_dir():
             raise RuntimeError(f"tool directory does not exist: {self.tool_dir}")
@@ -302,8 +302,7 @@ class TransientTool(Tool):
         )
 
     def stop(self):
-        """Stops the background process by running the tool's "stop" operation.
-        """
+        """Stops the background process by running the tool's "stop" operation."""
         assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
         if not self.tool_dir.is_dir():
             raise RuntimeError(f"tool directory does not exist: {self.tool_dir}")
@@ -444,8 +443,7 @@ class PcpTransientTool(Tool):
         )
 
     def stop(self):
-        """Stop the pmcd and pmlogger processes.
-        """
+        """Stop the pmcd and pmlogger processes."""
         if self.pmcd_process is None:
             raise ToolException(
                 f"Tool({self.name}) the expected pmcd process is not running"
@@ -468,8 +466,7 @@ class PcpTransientTool(Tool):
             self.logger.exception("Failed to terminate pmcd ('%s')", self.pmcd_args)
 
     def wait(self):
-        """Wait for the pmcd and pmlogger processes to stop executing.
-        """
+        """Wait for the pmcd and pmlogger processes to stop executing."""
         self._wait_for_process_with_kill(self.pmcd_process, "pmcd")
         self.pmcd_process = None
         self._wait_for_process_with_kill(self.pmlogger_process, "pmlogger")
@@ -596,8 +593,7 @@ class NodeExporterTool(PersistentTool):
 
 
 class PcpTool(PersistentTool):
-    """PcpTool - provide specifics for running the "pcp" tool, which is really the "pmcd" process.
-    """
+    """PcpTool - provide specifics for running the "pcp" tool, which is really the "pmcd" process."""
 
     # Default path to the "pmcd" executable.
     _pmcd_path_def = "/usr/libexec/pcp/bin/pmcd"
@@ -1342,7 +1338,8 @@ class ToolMeister:
             try:
                 if cp.returncode != 0:
                     self.logger.error(
-                        "Failed to create tar ball; return code: %d", cp.returncode,
+                        "Failed to create tar ball; return code: %d",
+                        cp.returncode,
                     )
                     failures += 1
                 else:

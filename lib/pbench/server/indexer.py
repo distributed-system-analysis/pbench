@@ -502,12 +502,14 @@ class ResultData(PbenchData):
                     return None
                 if ubm_driver["start_ts_col"] not in cols:
                     idxctx.logger.error(
-                        "Logic bomb! bad ubm driver start_ts_col ({})", ptb._tbctx,
+                        "Logic bomb! bad ubm driver start_ts_col ({})",
+                        ptb._tbctx,
                     )
                     return None
                 if ubm_driver["end_ts_col"] and (ubm_driver["end_ts_col"] not in cols):
                     idxctx.logger.error(
-                        "Logic bomb! bad ubm driver end_ts_col ({})", ptb._tbctx,
+                        "Logic bomb! bad ubm driver end_ts_col ({})",
+                        ptb._tbctx,
                     )
                     return None
                 for bm_md_col in ubm_driver["benchmark_md_cols"]:
@@ -1376,9 +1378,13 @@ class ResultData(PbenchData):
                             del res["date"]
                             ts = cvt_ts(orig_ts)
                             if prev_ts is not None:
-                                assert prev_ts <= ts, (
-                                    "prev_ts (%r, %r) > ts (%r, %r)"
-                                    % (prev_ts, prev_orig_ts, ts, orig_ts,)
+                                assert (
+                                    prev_ts <= ts
+                                ), "prev_ts (%r, %r) > ts (%r, %r)" % (
+                                    prev_ts,
+                                    prev_orig_ts,
+                                    ts,
+                                    orig_ts,
                                 )
                             prev_orig_ts = orig_ts
                             prev_ts = ts
@@ -1823,7 +1829,10 @@ class ToolData(PbenchData):
             iterseqno = -1
         itername = iteration
 
-        self.iteration_metadata = _dict_const(name=itername, number=iterseqno,)
+        self.iteration_metadata = _dict_const(
+            name=itername,
+            number=iterseqno,
+        )
         self.sample_metadata = _dict_const(name=sample, hostname=host)
 
         try:
@@ -2140,9 +2149,13 @@ class ToolData(PbenchData):
             # string.
             ts_val = self.mk_abs_timestamp_millis(first)
             if prev_ts_val is not None:
-                assert prev_ts_val <= ts_val, (
-                    "prev_ts_val (%r, %r) > first (%r, %r)"
-                    % (prev_ts_val, prev_first, ts_val, first,)
+                assert (
+                    prev_ts_val <= ts_val
+                ), "prev_ts_val (%r, %r) > first (%r, %r)" % (
+                    prev_ts_val,
+                    prev_first,
+                    ts_val,
+                    first,
                 )
             prev_first = first
             prev_ts_val = ts_val
@@ -2251,9 +2264,13 @@ class ToolData(PbenchData):
                     if col == 0:
                         ts_val = self.mk_abs_timestamp_millis(val)
                         if prev_ts_val is not None:
-                            assert prev_ts_val <= ts_val, (
-                                "prev_ts_val (%r, %r) > ts_val (%r, %r)"
-                                % (prev_ts_val, prev_val, ts_val, val,)
+                            assert (
+                                prev_ts_val <= ts_val
+                            ), "prev_ts_val (%r, %r) > ts_val (%r, %r)" % (
+                                prev_ts_val,
+                                prev_val,
+                                ts_val,
+                                val,
                             )
                         prev_val = val
                         prev_ts_val = ts_val
@@ -3763,7 +3780,10 @@ class PbenchTarBall:
             source_id = get_md5sum_of_dir(source, self.run_metadata["id"])
             self.map_document(idx_name, source_id)
             action = _dict_const(
-                _id=source_id, _op_type=_op_type, _index=idx_name, _source=source,
+                _id=source_id,
+                _op_type=_op_type,
+                _index=idx_name,
+                _source=source,
             )
             count += 1
             yield action
@@ -4005,7 +4025,10 @@ class PbenchTarBall:
                 pass
             else:
                 action = _dict_const(
-                    _op_type=_op_type, _index=idx_name, _id=source_id, _source=source,
+                    _op_type=_op_type,
+                    _index=idx_name,
+                    _id=source_id,
+                    _source=source,
                 )
                 self.map_document(idx_name, source_id)
                 if parent_id is None:

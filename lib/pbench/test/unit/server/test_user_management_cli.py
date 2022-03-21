@@ -144,7 +144,9 @@ class TestUserManagement:
         monkeypatch.setattr(User, "query_all", mock_valid_list)
         runner = CliRunner(mix_stderr=False)
 
-        result = runner.invoke(cli.user_list,)
+        result = runner.invoke(
+            cli.user_list,
+        )
         assert result.exit_code == 0, result.stderr
         assert (
             result.stdout
@@ -185,7 +187,8 @@ class TestUserManagement:
 
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            cli.user_update, args=[TestUserManagement.USER_TEXT, switch, value],
+            cli.user_update,
+            args=[TestUserManagement.USER_TEXT, switch, value],
         )
         assert result.exit_code == 0, result.stderr
         assert result.stdout == "User test_user updated\n"
@@ -196,7 +199,8 @@ class TestUserManagement:
 
         # Update with invalid role for the user
         result = runner.invoke(
-            cli.user_update, args=["test_user", TestUserManagement.ROLE_SWITCH, "ADMN"],
+            cli.user_update,
+            args=["test_user", TestUserManagement.ROLE_SWITCH, "ADMN"],
         )
         assert result.exit_code == 2
         assert result.stderr.find("Invalid value for '--role'") > -1

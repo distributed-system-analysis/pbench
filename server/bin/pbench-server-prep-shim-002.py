@@ -32,7 +32,13 @@ _NAME_ = "pbench-server-prep-shim-002"
 
 class Results:
     def __init__(
-        self, nstatus="", ntotal=0, ntbs=0, nquarantined=0, ndups=0, nerrs=0,
+        self,
+        nstatus="",
+        ntotal=0,
+        ntbs=0,
+        nquarantined=0,
+        ndups=0,
+        nerrs=0,
     ):
         self.nstatus = nstatus
         self.ntotal = ntotal
@@ -76,7 +82,9 @@ def qdirs_check(qdir_val, qdir, logger):
         pass
     except Exception:
         logger.exception(
-            "os.mkdir: Unable to create {} destination directory: {}", qdir_val, qdir,
+            "os.mkdir: Unable to create {} destination directory: {}",
+            qdir_val,
+            qdir,
         )
         return None
     return qdir
@@ -270,7 +278,10 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors):
             # if we fail to make the link, we quarantine the (already moved)
             # tarball and .md5.
             quarantine(
-                (errors / controller), logger, (dest / tb), (dest / tbmd5),
+                (errors / controller),
+                logger,
+                (dest / tb),
+                (dest / tbmd5),
             )
             nerrs += 1
             continue

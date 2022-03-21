@@ -16,5 +16,6 @@ fio-histo-log-pctiles.py
 | .git
 | .local
 | .venv
+| web-server/v0.3/demo.py
 )
 '''
