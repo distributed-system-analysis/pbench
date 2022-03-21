@@ -1311,122 +1311,120 @@ class ToolMeister:
         target_dir = directory.name
         parent_dir = directory.parent
         tar_file = parent_dir / f"{target_dir}.tar.xz"
-        o_file = parent_dir / f"{target_dir}.tar.out"
-        e_file = parent_dir / f"{target_dir}.tar.err"
+        tar_args = [
+            self.tar_path,
+            "--create",
+            "--xz",
+            "--force-local",
+            f"--file={tar_file}",
+            target_dir,
+        ]
         try:
             # Invoke tar directly for efficiency.
-            with o_file.open("w") as ofp, e_file.open("w") as efp:
-                cp = subprocess.run(
-                    [
-                        self.tar_path,
-                        "--create",
-                        "--xz",
-                        "--force-local",
-                        f"--file={tar_file}",
-                        target_dir,
-                    ],
-                    cwd=parent_dir,
-                    stdin=None,
-                    stdout=ofp,
-                    stderr=efp,
-                )
+            cp = subprocess.run(
+                tar_args,
+                cwd=parent_dir,
+                stdin=None,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
         except Exception:
             self.logger.exception("Failed to create tar ball '%s'", tar_file)
             failures += 1
         else:
             try:
                 if cp.returncode != 0:
-                    self.logger.error(
-                        "Failed to create tar ball; return code: %d",
-                        cp.returncode,
+                    self.logger.warning(
+                        "Failed to create tar ball first time; Error: %s, re-trying with --warning=none",
+                        str(cp.stdout),
                     )
+                    # record the tar error we encountered first time
+                    with open(target_dir / "tar_command_error") as file:
+                        file.write(str(cp.stdout))
+                    tar_args.insert(2, "--warning=none")
+                    try:
+                        cp = subprocess.run(
+                            tar_args,
+                            cwd=parent_dir,
+                            stdin=None,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT,
+                        )
+                        assert (
+                            cp.returncode == 0
+                        ), "Failed to create tar file second time"
+                    except Exception:
+                        self.logger.exception(
+                            "Failed to create tar ball second time'%s'", tar_file
+                        )
+                        failures += 1
+                try:
+                    (_, tar_md5) = md5sum(tar_file)
+                except Exception:
+                    self.logger.exception("Failed to read tar ball, '%s'", tar_file)
                     failures += 1
                 else:
-                    try:
-                        (_, tar_md5) = md5sum(tar_file)
-                    except Exception:
-                        self.logger.exception("Failed to read tar ball, '%s'", tar_file)
-                        failures += 1
-                    else:
+                    self.logger.debug(
+                        "%s: starting send_data group=%s, directory=%s",
+                        self._hostname,
+                        self._group,
+                        self._directory,
+                    )
+                    headers = {"md5sum": tar_md5}
+                    url = (
+                        f"http://{self._tds_hostname}:{self._tds_port}/{uri}"
+                        f"/{ctx}/{self._hostname}"
+                    )
+                    sent = False
+                    retries = 200
+                    while not sent:
                         try:
-                            o_file.unlink()
-                        except Exception as exc:
-                            self.logger.warning(
-                                "Failure removing tar command output file, %s: %s",
-                                o_file,
-                                exc,
-                            )
-                        try:
-                            e_file.unlink()
-                        except Exception as exc:
-                            self.logger.warning(
-                                "Failure removing tar command output file, %s: %s",
-                                e_file,
-                                exc,
-                            )
-
-                        self.logger.debug(
-                            "%s: starting send_data group=%s, directory=%s",
-                            self._hostname,
-                            self._group,
-                            self._directory,
-                        )
-                        headers = {"md5sum": tar_md5}
-                        url = (
-                            f"http://{self._tds_hostname}:{self._tds_port}/{uri}"
-                            f"/{ctx}/{self._hostname}"
-                        )
-                        sent = False
-                        retries = 200
-                        while not sent:
-                            try:
-                                with tar_file.open("rb") as tar_fp:
-                                    response = requests.put(
-                                        url, headers=headers, data=tar_fp
-                                    )
-                            except (
-                                ConnectionRefusedError,
-                                requests.exceptions.ConnectionError,
-                            ) as exc:
-                                self.logger.debug("%s", exc)
-                                # Try until we get a connection.
-                                time.sleep(0.1)
-                                retries -= 1
-                                if retries <= 0:
-                                    raise
+                            with tar_file.open("rb") as tar_fp:
+                                response = requests.put(
+                                    url, headers=headers, data=tar_fp
+                                )
+                        except (
+                            ConnectionRefusedError,
+                            requests.exceptions.ConnectionError,
+                        ) as exc:
+                            self.logger.debug("%s", exc)
+                            # Try until we get a connection.
+                            time.sleep(0.1)
+                            retries -= 1
+                            if retries <= 0:
+                                raise
+                        else:
+                            sent = True
+                            if response.status_code != 200:
+                                self.logger.error(
+                                    "PUT '%s' failed with '%d', '%s'",
+                                    url,
+                                    response.status_code,
+                                    response.text,
+                                )
+                                failures += 1
                             else:
-                                sent = True
-                                if response.status_code != 200:
-                                    self.logger.error(
-                                        "PUT '%s' failed with '%d', '%s'",
-                                        url,
-                                        response.status_code,
-                                        response.text,
+                                self.logger.debug(
+                                    "PUT '%s' succeeded ('%d', '%s')",
+                                    url,
+                                    response.status_code,
+                                    response.text,
+                                )
+                                try:
+                                    shutil.rmtree(parent_dir)
+                                except Exception:
+                                    self.logger.exception(
+                                        "Failed to remove tool data" " hierarchy, '%s'",
+                                        parent_dir,
                                     )
                                     failures += 1
-                                else:
-                                    self.logger.debug(
-                                        "PUT '%s' succeeded ('%d', '%s')",
-                                        url,
-                                        response.status_code,
-                                        response.text,
-                                    )
-                                    try:
-                                        shutil.rmtree(parent_dir)
-                                    except Exception:
-                                        self.logger.exception(
-                                            "Failed to remove tool data"
-                                            " hierarchy, '%s'",
-                                            parent_dir,
-                                        )
-                                        failures += 1
-                        self.logger.info(
-                            "%s: PUT %s completed %s %s",
-                            self._hostname,
-                            uri,
-                            self._group,
-                            directory,
-                        )
+                    self.logger.info(
+                        "%s: PUT %s completed %s %s",
+                        self._hostname,
+                        uri,
+                        self._group,
+                        directory,
+                    )
             except Exception:
                 self.logger.exception("Unexpected error encountered")
                 failures += 1
