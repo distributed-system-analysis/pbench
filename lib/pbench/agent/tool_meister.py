@@ -49,7 +49,7 @@ import sys
 import tempfile
 import threading
 import time
-from typing import Any, Dict, NamedTuple
+from typing import Any, Dict, List, NamedTuple
 
 from daemon import DaemonContext
 from distutils.spawn import find_executable
@@ -1696,8 +1696,8 @@ class ToolMeister:
         return failures
 
 
-def get_logger(PROG, daemon: bool = False, level: str = "info") -> logging.Logger:
-    """get_logger - contruct a logger for a Tool Meister instance.
+def get_logger(PROG: str, daemon: bool = False, level: str = "info") -> logging.Logger:
+    """Contruct a logger for a Tool Meister instance.
 
     If in the Unit Test environment, just log to console.
     If in non-unit test environment:
@@ -1743,10 +1743,7 @@ def driver(
     redis_server: redis.Redis,
     logger: logging.Logger = None,
 ):
-    """
-    responsible for creating and driving operation of the Tool
-    Meister instance
-    """
+    """Create and drive a Tool Meister instance"""
     if logger is None:
         logger = get_logger(PROG, level=parsed.level)
 
@@ -1816,10 +1813,7 @@ def daemon(
     params: Dict[str, Any],
     redis_server: redis.Redis,
 ):
-    """
-    responsible for properly daemonizing the operation of the Tool
-    Meister.
-    """
+    """Daemonize a Tool Meister instance"""
     # Disconnect any Redis server object connection pools to avoid problems
     # when we daemonize.
     redis_server.connection_pool.disconnect()
@@ -1884,10 +1878,9 @@ def daemon(
 
 def start(prog: Path, parsed: Arguments) -> int:
     """
-    This function is the simple driver for the tool meister behaviors,
-    handling argument processing, logging setup, initial connection to
-    Redis(), fetch and validation of operational paramters from Redis(), and
-    then the daemonization of the ToolMeister operation.
+    Start a tool meister instance; including logging setup, initial connection
+    to Redis(), fetching and validating operational paramters from Redis(), and
+    daemonization of the ToolMeister.
 
     Args:
         prog    The Path to the program binary
@@ -1916,13 +1909,13 @@ def start(prog: Path, parsed: Arguments) -> int:
     # executables are found.  So we have to add to the default PATH to be sure
     # it can be found, but only if it is not already present.
     _path = os.environ.get("PATH", "")
-    _path_list = _path.split(":")
+    _path_list = _path.split(os.pathsep)
     for _path_el in _path_list:
         if _path_el.endswith("tool-meister"):
             break
     else:
-        _sep = "" if not _path else ":"
-        os.environ["PATH"] = f"{_path}{_sep}{prog.parent}"
+        _path_list.append(str(prog.parent))
+        os.environ["PATH"] = os.pathsep.join(_path_list)
 
     sysinfo_dump = find_executable("pbench-sysinfo-dump")
     if sysinfo_dump is None:
@@ -1989,7 +1982,7 @@ def start(prog: Path, parsed: Arguments) -> int:
     )
 
 
-def main(argv):
+def main(argv: List[str]):
     """Main program for the Tool Meister.
 
     Arguments:  argv - a list of parameters

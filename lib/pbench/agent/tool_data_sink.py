@@ -22,7 +22,7 @@ import subprocess
 import sys
 import tempfile
 from threading import Thread, Lock, Condition
-from typing import Any, Dict, NamedTuple, Tuple
+from typing import Any, Dict, List, NamedTuple, Tuple
 
 from bottle import Bottle, ServerAdapter, request, abort
 from configparser import DuplicateSectionError
@@ -1831,7 +1831,7 @@ class ToolDataSink(Bottle):
             abort(500, "INTERNAL ERROR")
 
 
-def get_logger(PROG: str, daemon: bool = False, level: bool = "info") -> logging.Logger:
+def get_logger(PROG: str, daemon: bool = False, level: str = "info") -> logging.Logger:
     """construct a logger for a Tool Meister Data Sync instance.
 
     If in the Unit Test environment, just log to console.
@@ -1880,6 +1880,7 @@ def driver(
     optional_md: Dict[str, Any],
     logger: logging.Logger = None,
 ):
+    """Create and drive a Tool Data Sink instance"""
     if logger is None:
         logger = get_logger(PROG, level=parsed.level)
 
@@ -1931,6 +1932,7 @@ def daemon(
     params: Dict[str, Any],
     optional_md: Dict[str, Any],
 ):
+    """Daemonize a Tool Data Sink instance"""
     # Disconnect any existing connections to the Redis server.
     redis_server.connection_pool.disconnect()
     del redis_server
@@ -1983,11 +1985,22 @@ def daemon(
 
 
 def start(prog: Path, parsed: Arguments):
+    """
+    Start a tool data sink instance.
+
+    Args:
+        prog    The Path to the program binary
+        parsed  The Namespace resulting from parse_args
+
+    Returns:
+        integer status code (0 success, > 0 coded failure)
+    """
+
     PROG = prog.name
     # The Tool Data Sink executable is in:
     #   ${pbench_bin}/util-scripts/tool-meister/pbench-tool-data-sink
     # So .parent at each level is:
-    #   _prog       ${pbench_bin}/util-scripts/tool-meister/pbench-tool-data-sink
+    #   prog       ${pbench_bin}/util-scripts/tool-meister/pbench-tool-data-sink
     #     .parent   ${pbench_bin}/util-scripts/tool-meister
     #     .parent   ${pbench_bin}/util-scripts
     #     .parent   ${pbench_bin}
@@ -2068,7 +2081,7 @@ def start(prog: Path, parsed: Arguments):
     return ret_val
 
 
-def main(argv):
+def main(argv: List[str]):
     """Main program for the Tool Meister.
 
     Arguments:  argv - a list of parameters

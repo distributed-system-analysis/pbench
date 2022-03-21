@@ -1062,7 +1062,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
             try:
                 sysinfo_path.mkdir(parents=True)
             except Exception as e:
-                logger.debug("Unable to create sysinfo-dump directory {}: {}", sysinfo_path, e)
+                logger.debug("Unable to create sysinfo-dump directory %s: %s", sysinfo_path, e)
                 error_log(
                     f"Unable to create sysinfo-dump directory base path: {sysinfo_path}"
                 )
