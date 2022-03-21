@@ -45,12 +45,11 @@ from pbench.agent.redis import RedisChannelSubscriber, wait_for_conn_and_key
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
 from pbench.common import MetadataLog
-from pbench.common.logger import HostnameFilter
 
 
 # Logging format string for unit tests
 fmtstr_ut = "%(levelname)s %(name)s %(funcName)s -- %(message)s"
-fmtstr = "%(asctime)s %(levelname)s %(hostname)s %(process)s %(thread)s %(name)s %(funcName)s %(lineno)d -- %(message)s"
+fmtstr = "%(asctime)s %(levelname)s %(process)s %(thread)s %(name)s %(funcName)s %(lineno)d -- %(message)s"
 
 
 # Read in 64 KB chunks off the wire for HTTP PUT requests.
@@ -1856,7 +1855,6 @@ def get_logger(PROG: str, daemon: bool = False, level: bool = "info") -> logging
     shf = logging.Formatter(fmtstr_ut if unit_tests else fmtstr)
     sh.setFormatter(shf)
     logger.addHandler(sh)
-    logger.addFilter(HostnameFilter())
 
     return logger
 

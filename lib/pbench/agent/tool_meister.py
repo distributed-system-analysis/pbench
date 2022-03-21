@@ -71,13 +71,12 @@ from pbench.agent.redis import (
 )
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
-from pbench.common.logger import HostnameFilter
 from pbench.common.utils import md5sum
 
 
 # Logging format string for unit tests
 fmtstr_ut = "%(levelname)s %(name)s %(funcName)s -- %(message)s"
-fmtstr = "%(asctime)s %(levelname)s %(hostname)s %(process)s %(thread)s %(name)s %(funcName)s %(lineno)d -- %(message)s"
+fmtstr = "%(asctime)s %(levelname)s %(process)s %(thread)s %(name)s %(funcName)s %(lineno)d -- %(message)s"
 
 
 def log_subprocess_output(pipe: subprocess.PIPE, logger: logging.Logger):
@@ -1721,7 +1720,6 @@ def get_logger(PROG, daemon: bool = False, level: str = "info") -> logging.Logge
     shf = logging.Formatter(fmtstr_ut if unit_tests else fmtstr)
     sh.setFormatter(shf)
     logger.addHandler(sh)
-    logger.addFilter(HostnameFilter())
 
     return logger
 
