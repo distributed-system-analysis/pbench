@@ -19,8 +19,7 @@ if [[ -z "$pbench_run" ]]; then
 fi
 
 if [[ ! -d $pbench_run ]]; then
-    echo "[ERROR] pbench run directory, ${pbench_run}, does not exist" >&2
-    exit 1
+    echo "[Warning] pbench run directory, ${pbench_run}, does not exist and will be created" >&2
 fi
 
 # the pbench temporary directory is always relative to the $pbench_run
