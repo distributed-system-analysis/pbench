@@ -26,7 +26,7 @@ class BaseCommand(metaclass=abc.ABCMeta):
             self.pbench_run = pathlib.Path(env_pbench_run)
             if not self.pbench_run.exists():
                 click.echo(
-                    f"[ERROR] pbench run directory does not exist, {env_pbench_run}",
+                    f"[ERROR] the provided pbench run directory, {env_pbench_run}, does not exist",
                     err=True,
                 )
                 click.get_current_context().exit(1)

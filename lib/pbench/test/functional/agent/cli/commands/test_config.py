@@ -18,7 +18,10 @@ def test_pbench_run_dir_existence(monkeypatch, agent_config, pbench_run):
     out, err, exitcode = pytest.helpers.capture(command)
     assert exitcode == 1
     assert b"" == out
-    assert b"[ERROR] pbench run directory does not exist," in err
+    assert (
+        f"[ERROR] the provided pbench run directory, {os.getenv('pbench_run')}, does not exist\n".encode()
+        == err
+    )
 
 
 def test_pbench_dir_existence(monkeypatch, pbench_run, agent_config):
