@@ -4,10 +4,9 @@
 exclude: (agent/bench-scripts/test-bin/fio-histo-log-pctiles.py|agent/stockpile/roles|agent/bench-scripts/tests/pbench-trafficgen/test-39.trafficgen|agent/bench-scripts/tests/pbench-trafficgen/test-40.trafficgen)
 repos:
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.7.9
+    rev: 4.0.1
     hooks:
      - id: flake8
-       additional_dependencies: [flake8-typing-imports==1.6.0]
   - repo: https://github.com/python/black.git
     rev: 19.10b0
     hooks:
