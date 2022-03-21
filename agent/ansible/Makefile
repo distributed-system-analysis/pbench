@@ -11,14 +11,16 @@ version = $(shell ./bin/yamlconf -C ./pbench/agent/galaxy.yml version)
 tb = ${namespace}-${collection}-${version}.tar.gz
 colldir = collections/ansible_collections/${namespace}/${collection}
 
-build:
+lint:
+	make -C pbench/agent
+
+build:	lint
 	ansible-galaxy collection build ${namespace}/${collection}
 
 test:   build
 	ansible-galaxy collection install ${tb} -p ./collections
 	git submodule update --init --recursive
 	cd ${colldir}; ansible-test sanity
-	# test for README.md in *every* role
 
 publish: clean build
 	ansible-galaxy collection publish -vvv -s "${apiserver}"  --api-key "${apikey}" ${tb}

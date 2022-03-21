@@ -1,7 +1,7 @@
 ---
 # pbench agent configuration
 - name: "pbench agent configuration - install config file(s)"
-  include_role:
+  ansible.builtin.include_role:
     name: pbench_agent_files_install
   vars:
     source: "{{ pbench_config_url }}"
@@ -10,7 +10,7 @@
     files: "{{ pbench_config_files }}"
 
 - name: "pbench agent configuration - install ssh key"
-  include_role:
+  ansible.builtin.include_role:
     name: pbench_agent_files_install
   vars:
     source: "{{ pbench_key_url }}"
