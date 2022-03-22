@@ -23,7 +23,7 @@ from pbench.agent.constants import (
     tm_channel_suffix_from_client,
     api_tm_allowed_actions,
 )
-from pbench.agent.redis import RedisChannelSubscriber
+from pbench.agent.redis_utils import RedisChannelSubscriber
 
 
 class Client:

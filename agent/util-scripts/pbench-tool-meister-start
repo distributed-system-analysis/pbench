@@ -119,7 +119,7 @@ from pbench.agent.constants import (
     tm_channel_suffix_from_client,
     tm_channel_suffix_to_logging,
 )
-from pbench.agent.redis import RedisChannelSubscriber
+from pbench.agent.redis_utils import RedisChannelSubscriber
 from pbench.agent.tool_data_sink import main as tds_main
 from pbench.agent.tool_group import BadToolGroup, ToolGroup
 from pbench.agent.tool_meister import main as tm_main
@@ -133,7 +133,7 @@ from pbench.agent.utils import (
     info_log,
     LocalRemoteHost,
     RedisServerCommon,
-    TemplateSsh
+    TemplateSsh,
 )
 from pbench.common.utils import validate_hostname
 
@@ -810,7 +810,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
             logger.warning(
                 "Remote hosts don't agree on a single controller "
                 "origin IP, which may indicate a problem: origin(s) %s",
-                ",".join(origin_ip) if origin_ip else "<none>"
+                ",".join(origin_ip) if origin_ip else "<none>",
             )
         if len(origin_ip) > 0:
             logger.debug("Our connection host(s): %s", ",".join(origin_ip))
@@ -866,7 +866,8 @@ def main(_prog: str, cli_params: Namespace) -> int:
         return ReturnCode.MISSINGINSTALLDIR
     except Exception as exc:
         logger.exception(
-            "Unexpected error encountered resolving installation directory: '%s'", exc,
+            "Unexpected error encountered resolving installation directory: '%s'",
+            exc,
         )
         return ReturnCode.EXCINSTALLDIR
     else:
@@ -905,7 +906,9 @@ def main(_prog: str, cli_params: Namespace) -> int:
         )
     except Exception as exc:
         logger.error(
-            "Unable to connect to redis server, %s: %r", redis_server, exc,
+            "Unable to connect to redis server, %s: %r",
+            redis_server,
+            exc,
         )
         if orchestrate:
             return redis_server.kill(ReturnCode.REDISCHANFAILED)
@@ -924,7 +927,9 @@ def main(_prog: str, cli_params: Namespace) -> int:
         tm = dict(
             benchmark_run_dir=str(benchmark_run_dir),
             channel_prefix=cli_tm_channel_prefix,
-            tds_hostname=params["origin_host"] if "origin_host" in params else tool_data_sink.host,
+            tds_hostname=params["origin_host"]
+            if "origin_host" in params
+            else tool_data_sink.host,
             tds_port=tool_data_sink.port,
             controller=full_hostname,
             group=group,
