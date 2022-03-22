@@ -11,6 +11,8 @@ version = $(shell ./bin/yamlconf -C ./pbench/agent/galaxy.yml version)
 tb = ${namespace}-${collection}-${version}.tar.gz
 colldir = collections/ansible_collections/${namespace}/${collection}
 
+all:	test
+
 lint:
 	make -C pbench/agent
 
