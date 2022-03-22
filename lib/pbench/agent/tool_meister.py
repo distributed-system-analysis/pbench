@@ -49,16 +49,14 @@ import sys
 import tempfile
 import threading
 import time
+from typing import Any, Dict, List, NamedTuple
 
+from daemon import DaemonContext
 from distutils.spawn import find_executable
 from pathlib import Path
-
 import pidfile
 import redis
 
-from daemon import DaemonContext
-
-from pbench.common.utils import md5sum
 from pbench.agent.constants import (
     tm_allowed_actions,
     tm_channel_suffix_to_tms,
@@ -73,6 +71,7 @@ from pbench.agent.redis import (
 )
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
+from pbench.common.utils import md5sum
 
 
 # Logging format string for unit tests
@@ -1697,8 +1696,8 @@ class ToolMeister:
         return failures
 
 
-def get_logger(PROG: str, daemon: bool = False) -> logging.Logger:
-    """get_logger - contruct a logger for a Tool Meister instance.
+def get_logger(PROG: str, daemon: bool = False, level: str = "info") -> logging.Logger:
+    """Contruct a logger for a Tool Meister instance.
 
     If in the Unit Test environment, just log to console.
     If in non-unit test environment:
@@ -1706,7 +1705,7 @@ def get_logger(PROG: str, daemon: bool = False) -> logging.Logger:
        If not daemonized, log to console AND log back to Redis
     """
     logger = logging.getLogger(PROG)
-    if os.environ.get("_PBENCH_TOOL_MEISTER_LOG_LEVEL") == "debug":
+    if level == "debug":
         log_level = logging.DEBUG
     else:
         log_level = logging.INFO
@@ -1725,22 +1724,28 @@ def get_logger(PROG: str, daemon: bool = False) -> logging.Logger:
     return logger
 
 
+class Arguments(NamedTuple):
+    host: str
+    port: int
+    key: str
+    daemonize: bool
+    level: str
+
+
 def driver(
-    PROG,
-    tar_path,
-    sysinfo_dump,
-    pbench_install_dir,
-    tmp_dir,
-    param_key,
-    params,
-    redis_server,
-    logger=None,
+    PROG: str,
+    tar_path: str,
+    sysinfo_dump: str,
+    pbench_install_dir: Path,
+    tmp_dir: Path,
+    parsed: Arguments,
+    params: Dict[str, Any],
+    redis_server: redis.Redis,
+    logger: logging.Logger = None,
 ):
-    """driver - responsible for creating and driving operation of the Tool
-    Meister instance
-    """
+    """Create and drive a Tool Meister instance"""
     if logger is None:
-        logger = get_logger(PROG)
+        logger = get_logger(PROG, level=parsed.level)
 
     # Add a logging handler to send logs back to the Redis server, with each
     # log entry prepended with the given hostname parameter.
@@ -1750,17 +1755,12 @@ def driver(
         hostname=params["hostname"],
         redis_client=redis_server,
     )
-    if os.environ.get("_PBENCH_TOOL_MEISTER_LOG_LEVEL") == "debug":
-        log_level = logging.DEBUG
-    else:
-        log_level = logging.INFO
-    rh.setLevel(log_level)
     redis_fmtstr = fmtstr_ut if os.environ.get("_PBENCH_UNIT_TESTS") else fmtstr
     rhf = logging.Formatter(redis_fmtstr)
     rh.setFormatter(rhf)
     logger.addHandler(rh)
 
-    logger.debug("params_key (%s): %r", param_key, params)
+    logger.debug("params_key (%s): %r", parsed.key, params)
 
     # FIXME: we should establish signal handlers that do the following:
     #   a. handle graceful termination (TERM, INT, QUIT)
@@ -1804,20 +1804,16 @@ def driver(
 
 
 def daemon(
-    PROG,
-    tar_path,
-    sysinfo_dump,
-    pbench_install_dir,
-    tmp_dir,
-    param_key,
-    params,
-    redis_server,
-    redis_host,
-    redis_port,
+    PROG: str,
+    tar_path: str,
+    sysinfo_dump: str,
+    pbench_install_dir: Path,
+    tmp_dir: Path,
+    parsed: Arguments,
+    params: Dict[str, Any],
+    redis_server: redis.Redis,
 ):
-    """daemon - responsible for properly daemonizing the operation of the Tool
-    Meister.
-    """
+    """Daemonize a Tool Meister instance"""
     # Disconnect any Redis server object connection pools to avoid problems
     # when we daemonize.
     redis_server.connection_pool.disconnect()
@@ -1831,6 +1827,7 @@ def daemon(
         working_dir = tmp_dir
     else:
         working_dir = Path(".")
+    param_key = parsed.key
     pidfile_name = working_dir / f"{param_key}.pid"
     d_out = working_dir / f"{param_key}.out"
     d_err = working_dir / f"{param_key}.err"
@@ -1843,7 +1840,7 @@ def daemon(
         pidfile=pfctx,
     ):
         # We need a logger earlier than the driver now that we are daemonized.
-        logger = get_logger(PROG, daemon=True)
+        logger = get_logger(PROG, daemon=True, level=parsed.level)
 
         # Previously we validated the Tool Meister parameters, and in doing so
         # made sure we had proper access to the Redis server.
@@ -1855,12 +1852,12 @@ def daemon(
             # NOTE: we have to recreate the connection to the redis service
             # since all open file descriptors were closed as part of the
             # daemonizing process.
-            redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+            redis_server = redis.Redis(host=parsed.host, port=parsed.port, db=0)
         except Exception as exc:
             logger.error(
                 "Unable to construct Redis server object, %s:%s: %s",
-                redis_host,
-                redis_port,
+                parsed.host,
+                parsed.port,
                 exc,
             )
             return 8
@@ -1872,53 +1869,27 @@ def daemon(
             sysinfo_dump,
             pbench_install_dir,
             tmp_dir,
-            param_key,
+            parsed,
             params,
             redis_server,
             logger=logger,
         )
 
 
-def main(argv):
-    """Main program for the Tool Meister.
-
-    This function is the simple driver for the tool meister behaviors,
-    handling argument processing, logging setup, initial connection to
-    Redis(), fetch and validation of operational paramters from Redis(), and
-    then the daemonization of the ToolMeister operation.
-
-    Arguments:  argv - a list of parameters
-
-                argv[1] - host name or IP address of Redis Server
-                argv[2] - port number of Redis Server
-                argv[3] - name of key in Redis Server for operational
-                          parameters
-                argv[4] - (optional) if value is "yes", then the Tool Meister
-                          should daemonize itself.
-
-    Returns 0 on success, > 0 when an error occurs.
+def start(prog: Path, parsed: Arguments) -> int:
     """
-    _prog = Path(argv[0])
-    PROG = _prog.name
+    Start a tool meister instance; including logging setup, initial connection
+    to Redis(), fetching and validating operational paramters from Redis(), and
+    daemonization of the ToolMeister.
 
-    try:
-        redis_host = argv[1]
-        redis_port = argv[2]
-        param_key = argv[3]
-    except IndexError as e:
-        print(f"{PROG}: Invalid arguments: {e}", file=sys.stderr)
-        return 1
-    else:
-        if not redis_host or not redis_port or not param_key:
-            print(f"{PROG}: Invalid arguments: {argv!r}", file=sys.stderr)
-            return 1
-    try:
-        daemonize = argv[4]
-    except IndexError:
-        daemonize = "no"
-    else:
-        if not daemonize:
-            daemonize = "no"
+    Args:
+        prog    The Path to the program binary
+        parsed  The Namespace resulting from parse_args
+
+    Returns:
+        integer status code (0 success, > 0 coded failure)
+    """
+    PROG = prog.name
 
     tar_path = find_executable("tar")
     if tar_path is None:
@@ -1928,23 +1899,23 @@ def main(argv):
     # The Tool Meister executable is in:
     #   ${pbench_install_dir}/util-scripts/tool-meister/pbench-tool-meister
     # So .parent at each level is:
-    #   _prog       ${pbench_install_dir}/util-scripts/tool-meister/pbench-tool-meister
+    #   prog       ${pbench_install_dir}/util-scripts/tool-meister/pbench-tool-meister
     #     .parent   ${pbench_install_dir}/util-scripts/tool-meister
     #     .parent   ${pbench_install_dir}/util-scripts
     #     .parent   ${pbench_install_dir}
-    pbench_install_dir = _prog.parent.parent.parent
+    pbench_install_dir = prog.parent.parent.parent
 
     # The pbench-sysinfo-dump utility is no longer in the path where the CLI
     # executables are found.  So we have to add to the default PATH to be sure
     # it can be found, but only if it is not already present.
     _path = os.environ.get("PATH", "")
-    _path_list = _path.split(":")
+    _path_list = _path.split(os.pathsep)
     for _path_el in _path_list:
         if _path_el.endswith("tool-meister"):
             break
     else:
-        _sep = "" if not _path else ":"
-        os.environ["PATH"] = f"{_path}{_sep}{_prog.parent}"
+        _path_list.append(str(prog.parent))
+        os.environ["PATH"] = os.pathsep.join(_path_list)
 
     sysinfo_dump = find_executable("pbench-sysinfo-dump")
     if sysinfo_dump is None:
@@ -1975,17 +1946,17 @@ def main(argv):
             return 4
 
     try:
-        redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+        redis_server = redis.Redis(host=parsed.host, port=parsed.port, db=0)
     except Exception as exc:
         print(
-            f"{PROG}: Unable to construct Redis client, {redis_host}:{redis_port}: {exc}",
+            f"{PROG}: Unable to construct Redis client, {parsed.host}:{parsed.port}: {exc}",
             file=sys.stderr,
         )
         return 5
 
     try:
         # Wait for the key to show up with a value.
-        params_str = wait_for_conn_and_key(redis_server, param_key, PROG)
+        params_str = wait_for_conn_and_key(redis_server, parsed.key, PROG)
         params = json.loads(params_str)
         # Validate the tool meister parameters without constructing an object
         # just yet, as we want to make sure we can talk to the redis server
@@ -1993,23 +1964,57 @@ def main(argv):
         ToolMeister.fetch_params(params)
     except Exception as exc:
         print(
-            f"{PROG}: Unable to fetch and decode parameter key, '{param_key}': {exc}",
+            f"{PROG}: Unable to fetch and decode parameter key, '{parsed.key}': {exc}",
             file=sys.stderr,
         )
         return 6
 
-    func_args = (
+    func = daemon if parsed.daemonize else driver
+    func(
         PROG,
         tar_path,
         sysinfo_dump,
         pbench_install_dir,
         tmp_dir,
-        param_key,
+        parsed,
         params,
         redis_server,
     )
-    if daemonize == "yes":
-        ret_val = daemon(*func_args, redis_host, redis_port)
+
+
+def main(argv: List[str]):
+    """Main program for the Tool Meister.
+
+    Arguments:  argv - a list of parameters
+
+                argv[1] - host name or IP address of Redis Server
+                argv[2] - port number of Redis Server
+                argv[3] - name of key in Redis Server for operational
+                          parameters
+                argv[4] - "yes" to run as a daemon
+                argv[5] - desired debug level
+
+    Returns 0 on success, > 0 when an error occurs.
+    """
+    prog = Path(argv[0])
+    PROG = prog.name
+    try:
+        parsed = Arguments(
+            host=argv[1],
+            port=int(argv[2]),
+            key=argv[3],
+            daemonize=argv[4] == "yes" if len(argv) > 4 else False,
+            level=argv[5] if len(argv) > 5 else "info",
+        )
+    except (ValueError, IndexError) as e:
+        print(f"{PROG}: Invalid arguments, {argv!r}: {e}", file=sys.stderr)
+        return 1
     else:
-        ret_val = driver(*func_args)
-    return ret_val
+        if not parsed.host or not parsed.port or not parsed.key:
+            print(
+                f"{PROG}: Invalid arguments, {argv!r}: must not be blank",
+                file=sys.stderr,
+            )
+            return 1
+
+    return start(prog, parsed)
