@@ -64,7 +64,7 @@ from pbench.agent.constants import (
     tm_channel_suffix_to_logging,
     TDS_RETRY_PERIOD_SECS,
 )
-from pbench.agent.redis import (
+from pbench.agent.redis_utils import (
     RedisHandler,
     RedisChannelSubscriber,
     wait_for_conn_and_key,

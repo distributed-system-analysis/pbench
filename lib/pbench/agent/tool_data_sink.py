@@ -41,7 +41,7 @@ from pbench.agent.constants import (
     tm_channel_suffix_to_logging,
     tm_channel_suffix_to_tms,
 )
-from pbench.agent.redis import RedisChannelSubscriber, wait_for_conn_and_key
+from pbench.agent.redis_utils import RedisChannelSubscriber, wait_for_conn_and_key
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
 from pbench.common import MetadataLog
