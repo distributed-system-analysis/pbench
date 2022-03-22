@@ -1285,6 +1285,42 @@ class ToolMeister:
             self._send_client_status("success")
         return failures
 
+    def _create_tar(
+        self,
+        directory: Path,
+        tar_file: Path,
+        ignore_warning: list = [],
+    ) -> subprocess.CompletedProcess:
+        """
+        Creates a tar file at a given tar file path.
+        """
+        tar_args = [
+            self.tar_path,
+            "--create",
+            "--xz",
+            "--force-local",
+            f"--file={tar_file}",
+            directory.name,
+        ]
+        for warning in ignore_warning:
+            tar_args.insert(2, f"--warning={warning}")
+
+        # Invoke tar directly for efficiency.
+        cp = subprocess.run(
+            tar_args,
+            cwd=directory.parent,
+            stdin=None,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        if cp.returncode != 0:
+            self.logger.warning(
+                "Failed to create tar ball with arguments %s; Error: %s",
+                str(tar_args),
+                cp.stdout.decode("utf-8"),
+            )
+        return cp
+
     def _send_directory(self, directory, uri, ctx):
         """_send_directory - tar up the given directory and send via PUT to the
         URL constructed from the "uri" fragment, using the provided context.
@@ -1311,123 +1347,90 @@ class ToolMeister:
         target_dir = directory.name
         parent_dir = directory.parent
         tar_file = parent_dir / f"{target_dir}.tar.xz"
-        tar_args = [
-            self.tar_path,
-            "--create",
-            "--xz",
-            "--force-local",
-            f"--file={tar_file}",
-            target_dir,
-        ]
+
         try:
-            # Invoke tar directly for efficiency.
-            cp = subprocess.run(
-                tar_args,
-                cwd=parent_dir,
-                stdin=None,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
+            tar_process = self._create_tar(directory, tar_file)
+            if tar_process.returncode != 0:
+                # Re-try creating tar ball by suppressing all the warnings
+                tar_process = self._create_tar(
+                    directory, tar_file, ignore_warning=["none"]
+                )
+                if tar_process.returncode != 0:
+                    # Tar ball creation failed even after suppressing all the warnings,
+                    # we will now proceed to create an empty tar ball
+                    self._create_tar(
+                        Path("/dev/null"), tar_file, ignore_warning=["none"]
+                    )
+                    failures += 1
         except Exception:
-            self.logger.exception("Failed to create tar ball '%s'", tar_file)
+            self.logger.exception("Failed to create tar ball, '%s'", tar_file)
             failures += 1
         else:
             try:
-                if cp.returncode != 0:
-                    self.logger.warning(
-                        "Failed to create tar ball first time; Error: %s, re-trying with --warning=none",
-                        str(cp.stdout),
-                    )
-                    # record the tar error we encountered first time
-                    with open(target_dir / "tar_command_error") as file:
-                        file.write(str(cp.stdout))
-                    tar_args.insert(2, "--warning=none")
+                (_, tar_md5) = md5sum(tar_file)
+            except Exception:
+                self.logger.exception("Failed to read tar ball, '%s'", tar_file)
+                failures += 1
+            else:
+                self.logger.debug(
+                    "%s: starting send_data group=%s, directory=%s",
+                    self._hostname,
+                    self._group,
+                    self._directory,
+                )
+                headers = {"md5sum": tar_md5}
+                url = (
+                    f"http://{self._tds_hostname}:{self._tds_port}/{uri}"
+                    f"/{ctx}/{self._hostname}"
+                )
+                sent = False
+                retries = 200
+                while not sent:
                     try:
-                        cp = subprocess.run(
-                            tar_args,
-                            cwd=parent_dir,
-                            stdin=None,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT,
-                        )
-                        assert (
-                            cp.returncode == 0
-                        ), "Failed to create tar file second time"
-                    except Exception:
-                        self.logger.exception(
-                            "Failed to create tar ball second time'%s'", tar_file
-                        )
-                        failures += 1
-                try:
-                    (_, tar_md5) = md5sum(tar_file)
-                except Exception:
-                    self.logger.exception("Failed to read tar ball, '%s'", tar_file)
-                    failures += 1
-                else:
-                    self.logger.debug(
-                        "%s: starting send_data group=%s, directory=%s",
-                        self._hostname,
-                        self._group,
-                        self._directory,
-                    )
-                    headers = {"md5sum": tar_md5}
-                    url = (
-                        f"http://{self._tds_hostname}:{self._tds_port}/{uri}"
-                        f"/{ctx}/{self._hostname}"
-                    )
-                    sent = False
-                    retries = 200
-                    while not sent:
-                        try:
-                            with tar_file.open("rb") as tar_fp:
-                                response = requests.put(
-                                    url, headers=headers, data=tar_fp
-                                )
-                        except (
-                            ConnectionRefusedError,
-                            requests.exceptions.ConnectionError,
-                        ) as exc:
-                            self.logger.debug("%s", exc)
-                            # Try until we get a connection.
-                            time.sleep(0.1)
-                            retries -= 1
-                            if retries <= 0:
-                                raise
+                        with tar_file.open("rb") as tar_fp:
+                            response = requests.put(url, headers=headers, data=tar_fp)
+                    except (
+                        ConnectionRefusedError,
+                        requests.exceptions.ConnectionError,
+                    ) as exc:
+                        self.logger.debug("%s", exc)
+                        # Try until we get a connection.
+                        time.sleep(0.1)
+                        retries -= 1
+                        if retries <= 0:
+                            raise
+                    else:
+                        sent = True
+                        if response.status_code != 200:
+                            self.logger.error(
+                                "PUT '%s' failed with '%d', '%s'",
+                                url,
+                                response.status_code,
+                                response.text,
+                            )
+                            failures += 1
                         else:
-                            sent = True
-                            if response.status_code != 200:
-                                self.logger.error(
-                                    "PUT '%s' failed with '%d', '%s'",
-                                    url,
-                                    response.status_code,
-                                    response.text,
+                            self.logger.debug(
+                                "PUT '%s' succeeded ('%d', '%s')",
+                                url,
+                                response.status_code,
+                                response.text,
+                            )
+                            try:
+                                shutil.rmtree(parent_dir)
+                            except Exception:
+                                self.logger.exception(
+                                    "Failed to remove tool data" " hierarchy, '%s'",
+                                    parent_dir,
                                 )
                                 failures += 1
-                            else:
-                                self.logger.debug(
-                                    "PUT '%s' succeeded ('%d', '%s')",
-                                    url,
-                                    response.status_code,
-                                    response.text,
-                                )
-                                try:
-                                    shutil.rmtree(parent_dir)
-                                except Exception:
-                                    self.logger.exception(
-                                        "Failed to remove tool data" " hierarchy, '%s'",
-                                        parent_dir,
-                                    )
-                                    failures += 1
-                    self.logger.info(
-                        "%s: PUT %s completed %s %s",
-                        self._hostname,
-                        uri,
-                        self._group,
-                        directory,
-                    )
-            except Exception:
-                self.logger.exception("Unexpected error encountered")
-                failures += 1
+                self.logger.info(
+                    "%s: PUT %s completed %s %s",
+                    self._hostname,
+                    uri,
+                    self._group,
+                    directory,
+                )
         finally:
             # We always remove the created tar file regardless of success or
             # failure. The above code should take care of removing the
