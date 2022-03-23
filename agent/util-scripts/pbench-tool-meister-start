@@ -248,11 +248,7 @@ def start_tms_via_ssh(
     cmd = f"{tool_meister_cmd}-remote {redis_server.host} {redis_server.port} {{tm_param_key}} yes"
     if debug_level:
         cmd += f" {debug_level}"
-    template = TemplateSsh(
-        ssh_cmd,
-        shlex.split(ssh_opts),
-        cmd
-    )
+    template = TemplateSsh(ssh_cmd, shlex.split(ssh_opts), cmd)
     tms = dict()
     tm_count = 0
     for host in tool_group.hostnames.keys():
@@ -275,7 +271,7 @@ def start_tms_via_ssh(
                             str(redis_server.port),
                             tm_param_key,
                             "yes",  # Yes, daemonize yourself TM ...
-                            debug_level
+                            debug_level,
                         ]
                     )
                     sys.exit(status)
@@ -395,7 +391,7 @@ class ToolDataSink(BaseServer):
                         str(redis_server.port),
                         tds_param_key,
                         "yes",  # Request tool-data-sink daemonize itself
-                        os.environ.get("_PBENCH_TOOL_DATA_SINK_LOG_LEVEL", "info")
+                        os.environ.get("_PBENCH_TOOL_DATA_SINK_LOG_LEVEL", "info"),
                     ]
                 )
                 sys.exit(status)
@@ -1067,7 +1063,9 @@ def main(_prog: str, cli_params: Namespace) -> int:
             try:
                 sysinfo_path.mkdir(parents=True)
             except Exception as e:
-                logger.debug("Unable to create sysinfo-dump directory %s: %s", sysinfo_path, e)
+                logger.debug(
+                    "Unable to create sysinfo-dump directory %s: %s", sysinfo_path, e
+                )
                 error_log(
                     f"Unable to create sysinfo-dump directory base path: {sysinfo_path}"
                 )
