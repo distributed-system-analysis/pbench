@@ -13,13 +13,14 @@ def test_pbench_run(monkeypatch, agent_config, pbench_run):
 def test_pbench_run_dir_existence(monkeypatch, agent_config, pbench_run):
     """Verify that pbench_list_tools fail when pbench_run is defined
     to a directory that doesn't exist"""
-    monkeypatch.setenv("pbench_run", f"{pbench_run}/test")
+    my_pbench_run = f"{pbench_run}/test"
+    monkeypatch.setenv("pbench_run", my_pbench_run)
     command = ["pbench-list-tools"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert exitcode == 1
     assert b"" == out
     assert (
-        f"[ERROR] the provided pbench run directory, {os.getenv('pbench_run')}, does not exist\n".encode()
+        f"[ERROR] the provided pbench run directory, {my_pbench_run}, does not exist\n".encode()
         == err
     )
 
