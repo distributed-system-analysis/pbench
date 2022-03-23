@@ -1,0 +1,21 @@
+#! /bin/bash
+
+status=0
+if [[ ! -f ./README.md ]] ;then
+    echo "${PWD}/README.md is missing or not a regular file"
+    status=1
+fi
+
+if [[ ! -f ./plugins/README.md ]] ;then
+    echo "{PWD}/plugins/README.md is missing or not a regular file"
+    status=1
+fi
+
+for role in roles/* ;do
+    if [[ ! -f ${role}/README.md ]] ;then
+        echo "${PWD}/${role}/README.md is missing or not a regular file"
+        status=1
+    fi
+done
+
+exit ${status}
