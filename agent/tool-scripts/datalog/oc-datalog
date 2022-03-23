@@ -28,12 +28,12 @@ if not components:
 if os.environ.get("_PBENCH_UNIT_TESTS"):
 
     def _now():
-        return datetime.utcnow()
+        return datetime.utcfromtimestamp(0)
 
 else:
 
     def _now():
-        return datetime.utcfromtimestamp(0)
+        return datetime.utcnow()
 
 
 def now():
