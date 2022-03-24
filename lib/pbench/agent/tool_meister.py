@@ -1289,21 +1289,22 @@ class ToolMeister:
         self,
         directory: Path,
         tar_file: Path,
-        ignore_warning: list = [],
+        tar_args: List = [],
+        retry: bool = False,
     ) -> subprocess.CompletedProcess:
         """
         Creates a tar file at a given tar file path.
+        If an error occurs it will retry by suppressing all the warnings.
         """
-        tar_args = [
-            self.tar_path,
-            "--create",
-            "--xz",
-            "--force-local",
-            f"--file={tar_file}",
-            directory.name,
-        ]
-        for warning in ignore_warning:
-            tar_args.insert(2, f"--warning={warning}")
+        if not tar_args:
+            tar_args = [
+                self.tar_path,
+                "--create",
+                "--xz",
+                "--force-local",
+                f"--file={tar_file}",
+                directory.name,
+            ]
 
         # Invoke tar directly for efficiency.
         cp = subprocess.run(
@@ -1315,11 +1316,18 @@ class ToolMeister:
         )
         if cp.returncode != 0:
             self.logger.warning(
-                "Failed to create tar ball with arguments %s; Error: %s",
-                str(tar_args),
+                "Tar ball creation failed with '%s', %s; returncode: %d",
                 cp.stdout.decode("utf-8"),
+                "re-trying ignoring all warnings using --warning=none" if retry else "",
+                cp.returncode,
             )
-        return cp
+            if retry:
+                tar_args.insert(2, f"--warning=none")
+                self._create_tar(directory, tar_file, tar_args)
+            else:
+                return cp
+        else:
+            return cp
 
     def _send_directory(self, directory, uri, ctx):
         """_send_directory - tar up the given directory and send via PUT to the
@@ -1349,19 +1357,13 @@ class ToolMeister:
         tar_file = parent_dir / f"{target_dir}.tar.xz"
 
         try:
-            tar_process = self._create_tar(directory, tar_file)
-            if tar_process.returncode != 0:
-                # Re-try creating tar ball by suppressing all the warnings
-                tar_process = self._create_tar(
-                    directory, tar_file, ignore_warning=["none"]
-                )
-                if tar_process.returncode != 0:
-                    # Tar ball creation failed even after suppressing all the warnings,
-                    # we will now proceed to create an empty tar ball
-                    self._create_tar(
-                        Path("/dev/null"), tar_file, ignore_warning=["none"]
-                    )
-                    failures += 1
+            if self._create_tar(directory, tar_file, retry=True).returncode != 0:
+                # Tar ball creation failed even after suppressing all the warnings,
+                # we will now proceed to create an empty tar ball.
+                # TODO: it'd be better to be able to skip the PUT entirely if the
+                #  tar fails and simply log a failure without TDS waiting forever
+                if self._create_tar(Path("/dev/null"), tar_file, retry=True) != 0:
+                    raise ToolMeisterError
         except Exception:
             self.logger.exception("Failed to create tar ball, '%s'", tar_file)
             failures += 1
