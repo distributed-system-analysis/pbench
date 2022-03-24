@@ -21,7 +21,6 @@ export benchmark="linpack"
 ver=11.1.3
 linpack_dir=/usr/local/${script_name}-${ver}/benchmarks/linpack
 linpack_cmd=xlinpack_xeon64
-linpack_dat=linpack.dat
 threads=`cat /proc/cpuinfo | grep processor | wc -l`
 
 
@@ -126,10 +125,6 @@ function store_and_run {
 }
 
 function postprocess-iteration {
-	# First move our results to the expected location
-	mkdir -p "$1/clients/localhost"
-	cp "$1/result.txt" "$1/clients/localhost/linpack.out"
-	# Now run the linpack-postprocess-cdm
 	local _cmd="$pbench_bin/bench-scripts/postprocess/linpack-postprocess-cdm"
 	store_and_run "$1" "'$_cmd' '$1' '$2' '$tool_group' 1 html" \
 			"$benchmark-postprocess.cmd"
@@ -159,8 +154,12 @@ iteration=1-$threads-threads
 sample="sample1"
 echo $iteration >> $benchmark_iterations
 benchmark_results_dir="$benchmark_run_dir/$iteration/${sample}"
-result_file=$benchmark_results_dir/result.txt
 mkdir -p $benchmark_results_dir
+
+# Generate the linpack.input dirs (in /var/lib/pbench-agent/tmp)
+store_and_run "$benchmark_results_dir" "'$pbench_bin/bench-scripts/postprocess/linpack-prepare-input-file' --threads '$threads' --run-samples 2 --linpack-binary '$linpack_dir/$linpack_cmd'" "$benchmark-preprocess.cmd"
+mkdir -p $benchmark_results_dir/clients/localhost
+cp /var/lib/pbench-agent/tmp/linpack* "$benchmark_results_dir/clients/localhost"
 
 # Start the tool meisters on each registered local/remote host
 pbench-tool-meister-start --sysinfo="${sysinfo}" "${tool_group}"
@@ -176,7 +175,9 @@ echo "Starting iteration 1 (1 of 1)"
 pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
 echo "test sample 1 of 1"
-OMP_NUM_THREADS=$threads ${linpack_dir}/${linpack_cmd} < ${linpack_dir}/${linpack_dat} | tee $result_file
+pushd "$benchmark_results_dir/clients/localhost/"
+./linpack.sh
+popd
 
 pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
 pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
