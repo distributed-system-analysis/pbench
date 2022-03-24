@@ -1322,7 +1322,7 @@ class ToolMeister:
                 cp.returncode,
             )
             if retry:
-                tar_args.insert(2, f"--warning=none")
+                tar_args.insert(2, "--warning=none")
                 self._create_tar(directory, tar_file, tar_args)
             else:
                 return cp
