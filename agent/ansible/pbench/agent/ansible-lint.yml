@@ -1,0 +1,4 @@
+---
+skip_list:
+  - experimental  # all rules tagged as experimental
+  - no-changed-when  # Commands should not change things if nothing needs doing.

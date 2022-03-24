@@ -1,10 +1,10 @@
 ---
 - name: Clean yum cache
-  command: yum clean all
+  ansible.builtin.command: yum clean all
   args:
-    warn: False
+    warn: false
 
 - name: Delete /var/cache/yum directory
-  file:
+  ansible.builtin.file:
     path: /var/cache/yum
     state: absent

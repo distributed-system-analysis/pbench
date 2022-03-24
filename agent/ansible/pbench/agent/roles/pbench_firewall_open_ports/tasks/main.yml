@@ -3,8 +3,8 @@
 - name: "pbench agent configuration - open firewall ports for tool meister"
   ansible.posix.firewalld:
     port: "{{ item }}/tcp"
-    permanent: yes
-    offline: yes
+    permanent: true
+    offline: true
     state: enabled
   with_items:
     - "{{ pbench_redis_port }}"
