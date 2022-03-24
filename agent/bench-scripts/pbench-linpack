@@ -108,6 +108,39 @@ while true; do
 done
 verify_common_bench_script_options $tool_group $sysinfo
 
+function store_and_run {
+	workdir="$1"
+	cmd="$2"
+	filename="$3"
+	(
+		cd "$1" &&
+		echo "$cmd" > "$filename" &&
+		chmod +x "$filename" &&
+		"./$filename" &> "$filename.out"
+	)
+	ret=$?
+	if [ $ret -ne 0 ]; then
+		debug_log "failed to execute: $workdir/$filename"
+	fi
+	return $ret
+}
+
+function postprocess-iteration {
+	# First move our results to the expected location
+	mkdir -p "$1/clients/localhost"
+	cp "$1/result.txt" "$1/clients/localhost/linpack.out"
+	# Now run the linpack-postprocess-cdm
+	local _cmd="$pbench_bin/bench-scripts/postprocess/linpack-postprocess-cdm"
+	store_and_run "$1" "'$_cmd' '$1' '$2' '$tool_group' 1 html" \
+			"$benchmark-postprocess.cmd"
+}
+
+function postprocess-results {
+	local _cmd="$pbench_bin/bench-scripts/postprocess/generate-benchmark-summary"
+	store_and_run "$1" "'$_cmd' '$benchmark' '$orig_cmd' '$1'" \
+			"generate-benchmark-summary.cmd"
+}
+
 ## Ensure the right version of the benchmark is installed
 check_install_rpm "${benchmark_rpm}" "${ver}"
 
@@ -139,13 +172,18 @@ fi
 trap "interrupt" INT QUIT TERM
 
 ## Run the benchmark and start/stop perf analysis tools
+echo "Starting iteration 1 (1 of 1)"
 pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
+echo "test sample 1 of 1"
 OMP_NUM_THREADS=$threads ${linpack_dir}/${linpack_cmd} < ${linpack_dir}/${linpack_dat} | tee $result_file
 
 pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
 pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
+postprocess-iteration "$benchmark_results_dir" "$benchmark_run_dir"
+echo "Iteration 1 complete (1 of 1 iterations)"
+postprocess-results "$benchmark_run_dir"
 
 ln -s ${sample} $benchmark_run_dir/$iteration/reference-result
 
