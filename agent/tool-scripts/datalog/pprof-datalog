@@ -223,14 +223,18 @@ pids = {}
 for operation in gen_operations(masters, nodes):
     if operation.op_id in pids:
         logging.warning(
-            "[%s]: encountered duplicate operation, %s", PROG, operation.op_id,
+            "[%s]: encountered duplicate operation, %s",
+            PROG,
+            operation.op_id,
         )
         continue
     try:
         pid = os.fork()
     except OSError:
         logging.exception(
-            "[%s]: os.fork() failed [operation=%s]", PROG, operation.op_id,
+            "[%s]: os.fork() failed [operation=%s]",
+            PROG,
+            operation.op_id,
         )
         sys.exit(1)
     else:
@@ -303,7 +307,7 @@ if _unit_test_iterations is not None:
 
     def _time(*args, **kwargs):
         """Each call to mock'd _time() increments the internal clock by
-           one second.
+        one second.
         """
         global _ts
         _ts += 1
@@ -314,11 +318,11 @@ if _unit_test_iterations is not None:
 
     def _sleep(length):
         """Each call to mock'd _sleep() increments the internal clock by
-           the amount of time requested for the sleep, and checks to see
-           if we have exceeded the number of times time.sleep() should be
-           called before exiting the datalog. It calls the actual time.sleep
-           for one second no matter how much time the actual sleep would
-           have been.
+        the amount of time requested for the sleep, and checks to see
+        if we have exceeded the number of times time.sleep() should be
+        called before exiting the datalog. It calls the actual time.sleep
+        for one second no matter how much time the actual sleep would
+        have been.
         """
         global _ts
         global _sleep_iterations
