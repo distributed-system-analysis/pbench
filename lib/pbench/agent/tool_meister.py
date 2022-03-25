@@ -1289,45 +1289,45 @@ class ToolMeister:
         self,
         directory: Path,
         tar_file: Path,
-        tar_args: List = [],
         retry: bool = False,
     ) -> subprocess.CompletedProcess:
         """
         Creates a tar file at a given tar file path.
-        If an error occurs it will retry by suppressing all the warnings.
+        If an error occurs, it will retry with all warnings suppressed.
         """
-        if not tar_args:
-            tar_args = [
-                self.tar_path,
-                "--create",
-                "--xz",
-                "--force-local",
-                f"--file={tar_file}",
-                directory.name,
-            ]
+
+        def tar(directory: Path, tar_args: List):
+            return subprocess.run(
+                tar_args,
+                cwd=directory.parent,
+                stdin=None,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
 
         # Invoke tar directly for efficiency.
-        cp = subprocess.run(
-            tar_args,
-            cwd=directory.parent,
-            stdin=None,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
+        tar_args = [
+            self.tar_path,
+            "--create",
+            "--xz",
+            "--force-local",
+            f"--file={tar_file}",
+            directory.name,
+        ]
+
+        cp = tar(directory, tar_args)
         if cp.returncode != 0:
             self.logger.warning(
-                "Tar ball creation failed with '%s', %s; returncode: %d",
+                "Tar ball creation failed with '%s' and returncode: %d, on directory %s; %s",
                 cp.stdout.decode("utf-8"),
-                "re-trying ignoring all warnings using --warning=none" if retry else "",
                 cp.returncode,
+                directory,
+                "re-trying ignoring all warnings using --warning=none" if retry else "",
             )
             if retry:
                 tar_args.insert(2, "--warning=none")
-                self._create_tar(directory, tar_file, tar_args)
-            else:
-                return cp
-        else:
-            return cp
+                return tar(directory, tar_args)
+        return cp
 
     def _send_directory(self, directory, uri, ctx):
         """_send_directory - tar up the given directory and send via PUT to the
@@ -1357,13 +1357,17 @@ class ToolMeister:
         tar_file = parent_dir / f"{target_dir}.tar.xz"
 
         try:
-            if self._create_tar(directory, tar_file, retry=True).returncode != 0:
+            cp = self._create_tar(directory, tar_file, retry=True)
+            if cp.returncode != 0:
+                self.logger.warning("Failed to create tarball, %s", cp.stdout)
                 # Tar ball creation failed even after suppressing all the warnings,
                 # we will now proceed to create an empty tar ball.
                 # TODO: it'd be better to be able to skip the PUT entirely if the
-                #  tar fails and simply log a failure without TDS waiting forever
-                if self._create_tar(Path("/dev/null"), tar_file, retry=True) != 0:
-                    raise ToolMeisterError
+                # tar fails and simply log a failure without TDS waiting forever.
+                if self._create_tar(Path("/dev/null"), tar_file) != 0:
+                    # Empty tarball creation failed, so we're going to skip the PUT
+                    # operation, and that's going to cause the TDS to hang.
+                    raise ToolMeisterError("Failed to create an empty tar")
         except Exception:
             self.logger.exception("Failed to create tar ball, '%s'", tar_file)
             failures += 1
