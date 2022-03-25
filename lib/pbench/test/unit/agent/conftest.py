@@ -1,6 +1,7 @@
 from pathlib import Path
 import pytest
 import shutil
+from typing import Dict
 
 from pbench.test import on_disk_config
 
@@ -44,13 +45,13 @@ def do_setup(tmp_d: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def agent_setup(tmp_path_factory) -> dict[str, Path]:
+def agent_setup(tmp_path_factory) -> Dict[str, Path]:
     """Test package setup for agent unit tests"""
     return on_disk_config(tmp_path_factory, "agent", do_setup)
 
 
 @pytest.fixture(autouse=True)
-def setup(tmp_path_factory, agent_setup, monkeypatch) -> dict[str, Path]:
+def setup(tmp_path_factory, agent_setup, monkeypatch) -> Dict[str, Path]:
     """Test package setup for pbench-agent"""
     var = agent_setup["tmp"] / "var" / "lib" / "pbench-agent"
     try:

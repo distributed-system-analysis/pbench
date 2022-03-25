@@ -3,12 +3,12 @@ import json
 
 from filelock import FileLock
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Dict
 
 
 def on_disk_config(
     tmp_path_factory, prefix: str, setup_func: Callable[[Path], Path]
-) -> dict[str, Path]:
+) -> Dict[str, Path]:
     """Base on-disk configuration recorder.
 
     Callers use this method to ensure an on-disk configuration is only created

@@ -308,5 +308,5 @@ function interrupt() {
     if [[ ${?} != 0 ]]; then
         error_log "[${script_name}]: failed to stop the tool meisters on interrupt."
     fi
-    return 0
+    exit 0
 }

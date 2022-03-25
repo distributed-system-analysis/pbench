@@ -2,13 +2,14 @@ import os
 from pathlib import Path
 import pytest
 import subprocess
+from typing import Dict
 
 from pbench.test import on_disk_config
 from pbench.test.unit.agent.conftest import do_setup
 
 
 @pytest.fixture(scope="session", autouse=True)
-def func_setup(tmp_path_factory) -> dict[str, Path]:
+def func_setup(tmp_path_factory) -> Dict[str, Path]:
     """Test package setup for functional tests"""
     return on_disk_config(tmp_path_factory, "agent", do_setup)
 

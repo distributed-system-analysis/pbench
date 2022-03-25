@@ -11,6 +11,7 @@ import pytest
 import shutil
 from stat import ST_MTIME
 import tarfile
+from typing import Dict
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
@@ -96,7 +97,7 @@ def do_setup(tmp_d: Path) -> Path:
 
 
 @pytest.fixture(scope="session")
-def on_disk_server_config(tmp_path_factory) -> dict[str, Path]:
+def on_disk_server_config(tmp_path_factory) -> Dict[str, Path]:
     """Test package setup for pbench-server"""
     return on_disk_config(tmp_path_factory, "server", do_setup)
 

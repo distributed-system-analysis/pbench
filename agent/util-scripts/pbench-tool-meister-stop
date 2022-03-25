@@ -219,6 +219,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
             end_ret_val = 1
         else:
             end_ret_val = client.publish(group, tool_dir, "end", None)
+
         # Next we collect the system configuration information only if we were
         # successfully able to end the persistent tools run.
         if end_ret_val == 0 and sysinfo:
@@ -245,9 +246,15 @@ def main(_prog: str, cli_params: Namespace) -> int:
         term_ret_val = client.terminate(group, interrupt)
 
     # If the "end" persistent tools operation failed, we want to be sure that
-    # this command returns an error status.  If the "end" succeeded, then we
-    # just return the success/failure of the terminate operation.
-    ret_val = end_ret_val if end_ret_val != 0 else term_ret_val
+    # this command returns an error status unless running with --interrupt.
+    # "pbench-tool-meister-stop --interrupt" may occur in any TM state (e.g.,
+    # actively "running"), in which case "end" will be rejected. We won't fail
+    # the stop command because of this, since the point is to terminate as
+    # gracefully and quickly as possible.
+    #
+    # If the "end" succeeded, or if we're in interrupt mode, return the status
+    # of the terminate operation instead.
+    ret_val = end_ret_val if (end_ret_val != 0 and not interrupt) else term_ret_val
 
     if redis_server.locally_managed():
         # The client operations have finished, successful or unsuccessfully,
