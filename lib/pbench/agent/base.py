@@ -66,26 +66,17 @@ class BaseCommand(metaclass=abc.ABCMeta):
 
         self.logger = setup_logging(debug=False, logfile=self.pbench_log)
 
-        ssh_opts = os.environ.get("ssh_opts")
-        if not ssh_opts:
-            ssh_opts = self.config.ssh_opts
-        self.ssh_opts = ssh_opts
-        scp_opts = os.environ.get("scp_opts")
-        if not scp_opts:
-            scp_opts = self.config.scp_opts
-        self.scp_opts = scp_opts
+        self.ssh_opts = os.environ.get("ssh_opts", self.config.ssh_opts)
+        self.scp_opts = os.environ.get("scp_opts", self.config.scp_opts)
 
-        if os.environ.get("_PBENCH_UNIT_TESTS"):
-            self.date = "1900-01-01T00:00:00"
-            self.date_suffix = "1900.01.01T00.00.00"
-            self.hostname = "testhost"
-            self.full_hostname = "testhost.example.com"
-        else:
-            now = datetime.datetime.utcnow()
-            self.date = now.strftime("%Y-%m-%dT%H:%M:%s")
-            self.date_suffix = now.strftime("%Y.%m.%dT%H.%M.%s")
-            self.hostname = socket.gethostname()
-            self.full_hostname = socket.getfqdn()
+        ut = os.environ.get("_PBENCH_UNIT_TESTS")
+        self.hostname = "testhost" if ut else socket.gethostname()
+        self.full_hostname = "testhost.example.com" if ut else socket.getfqdn()
+        now = datetime.datetime.utcnow()
+        if ut:
+            now = datetime.datetime(1900, 1, 1, tzinfo=datetime.timezone.utc)
+        self.date = now.strftime("%FT%H:%M:%S")
+        self.date_suffix = now.strftime("%Y.%m.%dT%H.%M.%S")
 
     @abc.abstractmethod
     def execute(self):
