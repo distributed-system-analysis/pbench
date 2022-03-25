@@ -39,12 +39,13 @@ class BaseCommand(metaclass=abc.ABCMeta):
         # the pbench temporary directory is always relative to the $pbench_run
         # directory
         self.pbench_tmp = self.pbench_run / "tmp"
-        if not self.pbench_tmp.exists():
-            try:
-                os.makedirs(self.pbench_tmp)
-            except OSError:
-                click.secho(f"[ERROR] unable to create TMP dir, {self.pbench_tmp}")
-                sys.exit(1)
+        try:
+            self.pbench_tmp.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            click.secho(
+                f"[ERROR] unable to create TMP dir, '{self.pbench_tmp}': '{exc}'"
+            )
+            sys.exit(1)
 
         # log file - N.B. not a directory
         self.pbench_log = self.config.pbench_log
@@ -65,18 +66,17 @@ class BaseCommand(metaclass=abc.ABCMeta):
 
         self.logger = setup_logging(debug=False, logfile=self.pbench_log)
 
-        self.ssh_opts = self.config.ssh_opts
-        self.scp_opts = self.config.scp_opts
-        if os.environ.get("_PBENCH_UNIT_TESTS"):
-            self.date = "1900-01-01T00:00:00"
-            self.date_suffix = "1900.01.01T00.00.00"
-            self.hostname = "testhost"
-            self.full_hostname = "testhost.example.com"
-        else:
-            self.date = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%s")
-            self.date_suffix = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H.%M.%s")
-            self.hostname = socket.gethostname()
-            self.full_hostname = socket.getfqdn()
+        self.ssh_opts = os.environ.get("ssh_opts", self.config.ssh_opts)
+        self.scp_opts = os.environ.get("scp_opts", self.config.scp_opts)
+
+        ut = os.environ.get("_PBENCH_UNIT_TESTS")
+        self.hostname = "testhost" if ut else socket.gethostname()
+        self.full_hostname = "testhost.example.com" if ut else socket.getfqdn()
+        now = datetime.datetime.utcnow()
+        if ut:
+            now = datetime.datetime(1900, 1, 1, tzinfo=datetime.timezone.utc)
+        self.date = now.strftime("%FT%H:%M:%S")
+        self.date_suffix = now.strftime("%Y.%m.%dT%H.%M.%S")
 
     @abc.abstractmethod
     def execute(self):
