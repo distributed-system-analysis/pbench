@@ -92,7 +92,7 @@ function debug_log {
 
 # date may be set "accidentally" so add a var with an unlikely name
 # to check whether we need to set it.
-if [[ -z "$date" || -z "${_PBENCH_DATE_SET}" ]]; then
+if [[ -z "${date}" || -z "${_PBENCH_DATE_SET}" ]]; then
     # don't use ns in the date
     export date=$(date --utc +"${TS_FORMAT}")
     export _PBENCH_DATE_SET=1
@@ -163,6 +163,9 @@ function check_install_rpm {
     local _n="${1}"
     local _v="${2}"
     local _m="${3}"
+    # Note we declare `_rpm` local without an initializer becaues the return
+    # code of require-rpm would be overwritten by the return code of the "local"
+    # declaration.
     local _rpm
     _rpm=$(require-rpm "${_n}" "${_v}" "${_m}")
     local rc=${?}
