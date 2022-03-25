@@ -10,14 +10,14 @@
 set -o pipefail
 
 # very first thing to do is figure out which pbench we are
-if [[ -z "$pbench_run" ]]; then
+if [[ -z "${pbench_run}" ]]; then
     pbench_run=$(pbench-config pbench_run pbench-agent)
-    if [[ -z "$pbench_run" ]]; then
+    if [[ -z "${pbench_run}" ]]; then
         pbench_run=/var/lib/pbench-agent
     fi
     export pbench_run
 else
-    if [[ ! -d $pbench_run ]]; then
+    if [[ ! -d ${pbench_run} ]]; then
         echo "[ERROR] the provided pbench run directory, ${pbench_run}, does not exist" >&2
         exit 1
     fi
@@ -25,7 +25,7 @@ fi
 
 # the pbench temporary directory is always relative to the $pbench_run
 # directory
-pbench_tmp="$pbench_run/tmp"
+pbench_tmp="${pbench_run}/tmp"
 mkdir -p ${pbench_tmp}
 if [[ ${?} -ne 0 ]]; then
     echo "[ERROR] unable to create TMP directory, ${pbench_tmp}" >&2
@@ -34,27 +34,27 @@ fi
 export pbench_tmp
 
 # log file - N.B. not a directory
-if [[ -z "$pbench_log" ]]; then
+if [[ -z "${pbench_log}" ]]; then
     pbench_log=$(pbench-config pbench_log pbench-agent)
-    if [[ -z "$pbench_log" ]]; then
-        pbench_log=$pbench_run/pbench.log
+    if [[ -z "${pbench_log}" ]]; then
+        pbench_log=${pbench_run}/pbench.log
     fi
     export pbench_log
 fi
 
-if [[ -z "$pbench_install_dir" ]]; then
+if [[ -z "${pbench_install_dir}" ]]; then
     pbench_install_dir=$(pbench-config install-dir pbench-agent)
-    if [[ -z "$pbench_install_dir" ]]; then
+    if [[ -z "${pbench_install_dir}" ]]; then
         pbench_install_dir=/opt/pbench-agent
     fi
-    if [[ ! -d $pbench_install_dir ]]; then
+    if [[ ! -d ${pbench_install_dir} ]]; then
         echo "[ERROR] pbench installation directory, ${pbench_install_dir}, does not exist" >&2
         exit 1
     fi
     export pbench_install_dir
 fi
-pbench_bspp_dir=$pbench_install_dir/bench-scripts/postprocess
-pbench_lib_dir=$pbench_install_dir/lib
+pbench_bspp_dir=${pbench_install_dir}/bench-scripts/postprocess
+pbench_lib_dir=${pbench_install_dir}/lib
 export pbench_bspp_dir pbench_lib_dir
 
 TS_FORMAT="%FT%H:%M:%S"
@@ -65,19 +65,19 @@ function timestamp {
 }
 
 function log {
-    echo "[info][$(timestamp)] $*" >> $pbench_log
+    echo "[info][$(timestamp)] $*" >> ${pbench_log}
 }
 
 function warn_log {
     local log_date=$(timestamp)
-    echo "[warn][$log_date] $*" >&2
-    echo "[warn][$log_date] $*" >> $pbench_log
+    echo "[warn][${log_date}] $*" >&2
+    echo "[warn][${log_date}] $*" >> ${pbench_log}
 }
 
 function error_log {
     local log_date=$(timestamp)
-    echo "[error][$log_date] $*" >&2
-    echo "[error][$log_date] $*" >> $pbench_log
+    echo "[error][${log_date}] $*" >&2
+    echo "[error][${log_date}] $*" >> ${pbench_log}
 }
 
 export _pbench_debug_mode=0
@@ -92,7 +92,7 @@ function debug_log {
 
 # date may be set "accidentally" so add a var with an unlikely name
 # to check whether we need to set it.
-if [[ -z "$date" || -z "$_PBENCH_DATE_SET" ]]; then
+if [[ -z "$date" || -z "${_PBENCH_DATE_SET}" ]]; then
     # don't use ns in the date
     export date=$(date --utc +"${TS_FORMAT}")
     export _PBENCH_DATE_SET=1
@@ -129,17 +129,17 @@ for _ip in ${_pbench_hostname_ip}; do
     fi
 done
 
-if [[ -z "$ssh_opts" ]]; then
+if [[ -z "${ssh_opts}" ]]; then
     ssh_opts=$(pbench-config ssh_opts results)
-    if [[ -z "$ssh_opts" ]]; then
+    if [[ -z "${ssh_opts}" ]]; then
         ssh_opts='-o StrictHostKeyChecking=no'
     fi
     export ssh_opts
 fi
 
-if [[ -z "$scp_opts" ]]; then
+if [[ -z "${scp_opts}" ]]; then
     scp_opts=$(pbench-config scp_opts results)
-    if [[ -z "$scp_opts" ]]; then
+    if [[ -z "${scp_opts}" ]]; then
         scp_opts='-o StrictHostKeyChecking=no'
     fi
     export scp_opts
@@ -160,9 +160,10 @@ function get_redhat_version() {
 }
 
 function check_install_rpm {
-    _n="${1}"
-    _v="${2}"
-    _m="${3}"
+    local _n="${1}"
+    local _v="${2}"
+    local _m="${3}"
+    local _rpm
     _rpm=$(require-rpm "${_n}" "${_v}" "${_m}")
     local rc=${?}
     if [[ ${rc} -ne 0 ]]; then
@@ -273,28 +274,28 @@ function vercmp {
     local _exp_ver="${3}"
     local _ins_ver="${4}"
 
-	local _stderr=$(rpmdev-vercmp "${_ins_ver}" "${_exp_ver}" 2>&1 > /dev/null)
-	local _res=${?}
-	if [[ ${_res} -ne 0 && ${_res} -ne 11 && ${_res} -ne 12 ]]; then
-		error_log "rpmdev-vercmp - ${_stderr}"
-		return 1
-	fi
-	if [[ "${_match}" == "equ" ]]; then
-		[[ ${_res} -eq 0 ]]
-	elif [[ "${_match}" == "gte" ]]; then
-		[[ ${_res} -eq 0 || ${_res} -eq 11 ]]
-	elif [[ "${_match}" == "gtr" ]]; then
-		[[ ${_res} -eq 11 ]]
-	else
-		error_log "unrecognized 'match' argument, '${_match}'"
-		return 1
-	fi
-	if [[ ${?} -ne 0 ]]; then
-		error_log "wrong version installed: found ${_package}-${_ins_ver}, expected ${_package}-${_exp_ver} (${_match})"
-		return 1
-	fi
+    local _stderr=$(rpmdev-vercmp "${_ins_ver}" "${_exp_ver}" 2>&1 > /dev/null)
+    local _res=${?}
+    if [[ ${_res} -ne 0 && ${_res} -ne 11 && ${_res} -ne 12 ]]; then
+        error_log "rpmdev-vercmp - ${_stderr}"
+        return 1
+    fi
+    if [[ "${_match}" == "equ" ]]; then
+        [[ ${_res} -eq 0 ]]
+    elif [[ "${_match}" == "gte" ]]; then
+        [[ ${_res} -eq 0 || ${_res} -eq 11 ]]
+    elif [[ "${_match}" == "gtr" ]]; then
+        [[ ${_res} -eq 11 ]]
+    else
+        error_log "unrecognized 'match' argument, '${_match}'"
+        return 1
+    fi
+    if [[ ${?} -ne 0 ]]; then
+        error_log "wrong version installed: found ${_package}-${_ins_ver}, expected ${_package}-${_exp_ver} (${_match})"
+        return 1
+    fi
 
-	debug_log "found ${_package}-${_ins_ver}"
+    debug_log "found ${_package}-${_ins_ver}"
     return 0
 }
 
