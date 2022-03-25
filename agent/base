@@ -163,7 +163,7 @@ function check_install_rpm {
     local _n="${1}"
     local _v="${2}"
     local _m="${3}"
-    # Note we declare `_rpm` local without an initializer becaues the return
+    # Note we declare `_rpm` local without an initializer because the return
     # code of require-rpm would be overwritten by the return code of the "local"
     # declaration.
     local _rpm
