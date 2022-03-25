@@ -1322,7 +1322,7 @@ class ToolMeister:
                 cp.stdout.decode("utf-8"),
                 cp.returncode,
                 directory,
-                "re-trying ignoring all warnings using --warning=none" if retry else "",
+                "re-trying with --warning=none" if retry else "",
             )
             if retry:
                 tar_args.insert(2, "--warning=none")

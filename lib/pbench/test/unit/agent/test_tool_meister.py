@@ -13,12 +13,7 @@ logger = get_logger("__logger__")
 @pytest.fixture()
 def mock_tar(monkeypatch):
     def fake_run(*args, **kwargs):
-        def f():
-            return
-
-        f.returncode = 0
-        f.stdout = b""
-        return f
+        return subprocess.CompletedProcess(args, returncode=0, stdout=b"", stderr=None)
 
     monkeypatch.setattr(subprocess, "run", fake_run)
 
@@ -26,16 +21,14 @@ def mock_tar(monkeypatch):
 @pytest.fixture()
 def mock_tar_no_warnings(monkeypatch):
     def fake_run(*args, **kwargs):
-        def f():
-            return
-
         if "--warning=none" in args[0]:
-            f.returncode = 0
-            f.stdout = b""
+            return subprocess.CompletedProcess(
+                args, returncode=0, stdout=b"", stderr=None
+            )
         else:
-            f.returncode = 1
-            f.stdout = b"Some error running tar"
-        return f
+            return subprocess.CompletedProcess(
+                args, returncode=1, stdout=b"Some error running tar", stderr=None
+            )
 
     monkeypatch.setattr(subprocess, "run", fake_run)
 
@@ -43,12 +36,9 @@ def mock_tar_no_warnings(monkeypatch):
 @pytest.fixture()
 def mock_tar_failure(monkeypatch):
     def fake_run(*args, **kwargs):
-        def f():
-            return
-
-        f.returncode = 1
-        f.stdout = b"Some error running tar"
-        return f
+        return subprocess.CompletedProcess(
+            args, returncode=1, stdout=b"Some error running tar", stderr=None
+        )
 
     monkeypatch.setattr(subprocess, "run", fake_run)
 
