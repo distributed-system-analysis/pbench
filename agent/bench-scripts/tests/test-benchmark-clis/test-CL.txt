@@ -508,6 +508,7 @@ Bench Script: pbench-linpack --help
 	The following options are available:
 
 	-C str --config=str         name of the test config
+	       --samples=<int>      number of samples to use per test iteration (default is 2)
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
@@ -522,6 +523,7 @@ Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 	The following options are available:
 
 	-C str --config=str         name of the test config
+	       --samples=<int>      number of samples to use per test iteration (default is 2)
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
@@ -536,6 +538,7 @@ pbench-linpack --bad-to-the-bone
 	The following options are available:
 
 	-C str --config=str         name of the test config
+	       --samples=<int>      number of samples to use per test iteration (default is 2)
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected

@@ -22,6 +22,7 @@ ver=11.1.3
 linpack_dir=/usr/local/${script_name}-${ver}/benchmarks/linpack
 linpack_cmd=xlinpack_xeon64
 threads=`cat /proc/cpuinfo | grep processor | wc -l`
+nr_samples=2
 
 
 # Every bench-script follows a similar sequence:
@@ -44,6 +45,7 @@ sysinfo="default"
 function usage {
 	printf "\tThe following options are available:\n\n"
 	printf -- "\t-C str --config=str         name of the test config\n"
+	printf -- "\t       --samples=<int>      number of samples to use per test iteration (default is $nr_samples)\n"
 	printf -- "\t       --threads=int[,int]  number of threads to use (default is num_cpus)\n"
 	printf -- "\t       --tool-group=str\n"
 	printf -- "\t       --sysinfo=str,       str= comma separated values of sysinfo to be collected\n"
@@ -51,7 +53,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:h --longoptions "config:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:h --longoptions "config:,samples:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
@@ -66,6 +68,13 @@ while true; do
 		shift;
 		if [ -n "$1" ]; then
 			config="$1"
+			shift;
+		fi
+		;;
+		--samples)
+		shift;
+		if [ -n "$1" ]; then
+			nr_samples="$1"
 			shift;
 		fi
 		;;
@@ -141,25 +150,12 @@ check_install_rpm "${benchmark_rpm}" "${ver}"
 
 benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 export benchmark_run_dir="$pbench_run/${benchmark_fullname}"
-benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
-benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
 benchmark_iterations="${benchmark_run_dir}/.iterations"
 
 mkdir -p ${benchmark_run_dir}/.running
 
 # now that the benchmark_run_dir directory exists, we can initialize the iterations file
 > ${benchmark_iterations}
-
-iteration=1-$threads-threads
-sample="sample1"
-echo $iteration >> $benchmark_iterations
-benchmark_results_dir="$benchmark_run_dir/$iteration/${sample}"
-mkdir -p $benchmark_results_dir
-
-# Generate the linpack.input dirs (in /var/lib/pbench-agent/tmp)
-store_and_run "$benchmark_results_dir" "'$pbench_bin/bench-scripts/postprocess/linpack-prepare-input-file' --threads '$threads' --run-samples 2 --linpack-binary '$linpack_dir/$linpack_cmd'" "$benchmark-preprocess.cmd"
-mkdir -p $benchmark_results_dir/clients/localhost
-cp /var/lib/pbench-agent/tmp/linpack* "$benchmark_results_dir/clients/localhost"
 
 # Start the tool meisters on each registered local/remote host
 pbench-tool-meister-start --sysinfo="${sysinfo}" "${tool_group}"
@@ -170,23 +166,37 @@ fi
 
 trap "interrupt" INT QUIT TERM
 
-## Run the benchmark and start/stop perf analysis tools
-echo "Starting iteration 1 (1 of 1)"
-pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
+let count=1
+for thread in ${threads//,/ }; do
+	iteration="$count-$thread-threads"
+	echo $iteration >> $benchmark_iterations
+	echo "Starting iteration ${iteration}"
+	for sample in $(seq 1 $nr_samples); do
+		echo "test sample $sample of $nr_samples"
+		benchmark_results_dir="$benchmark_run_dir/$iteration/sample$sample"
+		mkdir -p $benchmark_results_dir
 
-echo "test sample 1 of 1"
-pushd "$benchmark_results_dir/clients/localhost/"
-./linpack.sh
-popd
+		# Generate the linpack.input dirs (in /var/lib/pbench-agent/tmp)
+		store_and_run "$benchmark_results_dir" "'$pbench_bin/bench-scripts/postprocess/linpack-prepare-input-file' --threads '$thread' --run-samples 1 --linpack-binary '$linpack_dir/$linpack_cmd'" "$benchmark-preprocess.cmd"
+		mkdir -p $benchmark_results_dir/clients/localhost
+		cp /var/lib/pbench-agent/tmp/linpack* "$benchmark_results_dir/clients/localhost"
 
-pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
-pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
-pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
-postprocess-iteration "$benchmark_results_dir" "$benchmark_run_dir"
-echo "Iteration 1 complete (1 of 1 iterations)"
+		## Run the benchmark and start/stop perf analysis tools
+		pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
+
+		pushd "$benchmark_results_dir/clients/localhost/" >/dev/null
+		./linpack.sh
+		popd >/dev/null
+
+		pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
+		pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
+		pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
+		postprocess-iteration "$benchmark_results_dir" "$benchmark_run_dir"
+	done
+	echo "Iteration $iteration complete"
+	let count++
+done
 postprocess-results "$benchmark_run_dir"
-
-ln -s ${sample} $benchmark_run_dir/$iteration/reference-result
 
 # Stop the tool meisters on each registered local/remote host
 pbench-tool-meister-stop --sysinfo="${sysinfo}" "${tool_group}"
