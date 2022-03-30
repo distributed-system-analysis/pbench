@@ -2,7 +2,7 @@ import collections
 import logging
 from pathlib import Path
 
-from pbench.common.utils import md5sum, Cleanup, CleanupAction
+from pbench.common.utils import md5sum, Cleanup
 
 
 class TestMd5sum:
