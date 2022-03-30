@@ -138,9 +138,26 @@ class CleanupAction:
 
 class Cleanup:
     """
-    Maintain and process a deque of cleanup actions accumulated during the
-    upload procedure. Cleanup actions will be processed in reverse of the
-    order they were registered.
+    Maintain and process a deque of cleanup actions accumulated during a
+    sequence of steps that need to be reversed or otherwise cleaned up when
+    an error condition occurs: for example, shutting down subprocesses,
+    deleting directories or object instances.
+
+    Cleanup actions are maintained in an ordered list and will be processed
+    in reverse of the order they were registered.
+
+    For example,
+
+        cleanup = Cleanup(logger)
+        try:
+            [...]
+            file = Path(name).mkdir()
+            cleanup.add(file.unlink, "Remove file")
+            [...]
+            cleanup.add(object.delete, "Delete Object")
+            [...]
+        except Exception:
+            cleanup.cleanup()
     """
 
     def __init__(self, logger: Logger):
@@ -158,9 +175,8 @@ class Cleanup:
         """
         Add a new cleanup action to the front of the deque.
 
-        This is a Callable on some object, requiring no parameters; for example
-        if `dataset` is a Dataset object, `dataset.delete`, or for a Path
-        object `file` representing a directory, `file.rmdir`.
+        This registers a Callable that requires no parameters; for example
+        `dataset.delete`, or `lambda : del foo["bar"]`
 
         Args:
             Callable to be executed to clean up a step

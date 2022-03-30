@@ -98,9 +98,16 @@ the benchmark execution environment:
   - PBENCH_TOOL_DATA_SINK connection;listen information for TDS
   - PBENCH_REDIS_SERVER connection;listen information for Redis
 
-Additionally, _PBENCH_TOOL_MEISTER_START_LOG_LEVEL can be defined to specify
-the logging level (e.g., _PBENCH_TOOL_MEISTER_START_LOG_LEVEL=debug); my
-default only INFO, WARNING, and ERROR are included.
+The environment variable _PBENCH_TOOL_MEISTER_START_LOG_LEVEL can be defined to
+specify the logging level (e.g., _PBENCH_TOOL_MEISTER_START_LOG_LEVEL=debug);
+by default only INFO, WARNING, and ERROR are included.
+
+The pbench-tool-meister-start command will also propagate component Log level
+environment variables when the tool data sink and remote tool meister instances
+are created with `--orchestrate=create`:
+
+    _PBENCH_TOOL_MEISTER_LOG_LEVEL      Remote Tool Meister client
+    _PBENCH_TOOL_DATA_SINK_LOG_LEVEL    Tool Data Sink
 """
 
 import ipaddress
