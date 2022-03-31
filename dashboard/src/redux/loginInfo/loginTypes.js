@@ -1,0 +1,1 @@
+export const STORE_LOGIN_INFO='STORE_LOGIN_INFO'

@@ -1,0 +1,131 @@
+.dataTable{
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+table td,table th {
+    border: 1px solid #dddddd;
+    padding: 8px;
+  }
+  
+table tr:nth-child(even){background-color: #f2f2f2;}
+  
+table tr:hover {background-color: #ddd;}
+  
+table th{
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: center;
+    background-color: #04AA6D;
+    color: white;
+    position: sticky;
+  }
+
+.firstPage,.lastPage{
+
+  background-color: #21C328;
+  color: white;
+  font-size: 20px;
+  border: none;
+  width: 60px;
+  border-radius: 2px;
+  margin: 5px;
+}
+.previousPage,.nextPage{
+  border: 1px solid #21C328;
+  background-color: white;
+}
+.previousPage
+{
+  margin-right: 5px;
+}
+.previousPage:hover
+{
+  background-color: #21C328;
+  transition: 0.2s ease-in-out;
+  color: white;
+
+}
+.nextPage:hover
+{
+  background-color: #21C328;
+  transition: 0.2s ease-in-out;
+  color: white;
+}
+.pageInfo
+{
+  color: #767676;
+}
+.pageSize
+{
+  width: 200px;
+  height: 30px;
+  font-size: 18px;
+  color: #1c87c9;
+  border-radius: 5px;
+  box-shadow: 4px 4px #ccc;
+  background-color: #eee;  
+  margin: 5px;
+  outline: none;
+}
+.destinationPage
+{
+  width: 100px;
+  height: 30px;
+  font-size: 18px;
+  color: #1c87c9;
+  border-radius: 5px;
+  background-color: #eee;  
+  margin: 5px;
+  outline: none; 
+  border: none;
+}
+.pagination
+{
+ width: 100%;
+display: flex;
+justify-content: space-between;
+}
+.gotoPage
+{
+  color: #767676;
+}
+.dlt-btn
+{
+    height: 38px;
+    width: 120px;
+    cursor: pointer;
+    border-radius: 5px;
+    outline: none;
+    border:none;
+    color: white;
+    margin-top: -2px;
+}
+.chng-btn
+{
+  height: 38px;
+    width: 155px;
+    cursor: pointer;
+    border-radius: 5px;
+    outline: none;
+    border:none;
+    color: white;
+    margin-top: -5px;
+    margin-left: 5px;
+}
+.btn-enabled
+{
+    background-color: red;
+    pointer-events: all;
+}
+.btn-enabled-green
+{
+  background-color: green;
+  pointer-events: all;
+}
+.btn-disabled
+{
+    background-color: #ddd;
+    pointer-events: none;
+}

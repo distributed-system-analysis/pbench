@@ -1,0 +1,65 @@
+{
+  "name": "pbench",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@babel/core": "^7.17.8",
+    "@patternfly/patternfly": "^4.171.1",
+    "@patternfly/react-core": "^4.192.15",
+    "@patternfly/react-table": "^4.61.15",
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.5.0",
+    "@tippy.js/react": "^3.1.1",
+    "animate.css": "^4.1.1",
+    "axios": "^0.25.0",
+    "babel-jest": "^27.5.1",
+    "gulp": "^4.0.2",
+    "jest": "^27.5.1",
+    "moment": "^2.29.1",
+    "multiselect-react-dropdown": "^2.0.17",
+    "patternfly": "^3.59.5",
+    "react": "^17.0.2",
+    "react-bootstrap": "^2.1.2",
+    "react-dom": "^17.0.2",
+    "react-redux": "^7.2.6",
+    "react-router-dom": "^6.2.1",
+    "react-scripts": "5.0.0",
+    "react-select": "^5.2.2",
+    "react-spinners": "^0.11.0",
+    "react-table": "^7.7.0",
+    "react-toastify": "^8.1.1",
+    "redux": "^4.1.2",
+    "rsuite": "^5.6.2",
+    "validator": "^13.7.0",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "jest-jasmine2": "^27.5.1"
+  }
+}

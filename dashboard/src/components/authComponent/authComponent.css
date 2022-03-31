@@ -1,0 +1,302 @@
+.login-layout-container
+{
+  background: url("../../../public/images/darkness.png");
+  height: 100vh;
+  background-size: contain;
+  display: flex;
+  overflow-x: hidden;
+}
+.login-layout{
+  display: flex;
+  align-items: center;
+  margin-left: 50%;
+  transform: translateX(-346px);
+}
+.login-box{
+  height: 610px;
+  width: 692px;
+  background-color: white;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+  display: flex;
+}
+.pbench-login{
+  flex:64%;
+  display: flex;
+  flex-direction: column;
+}
+.pbench-info
+{   background-color: #c4c4c4;
+    flex: 36%;
+    border-radius: 0px 6px 6px 0px;
+}
+.pbench-icon
+{
+ 
+  height: 109px;
+  width: 134px;
+  margin-left: 55px;
+  margin-top: 140px;
+}
+.pbench-info-text
+{
+  height: 200px;
+  width: 200px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #585757;
+  margin-left:32px;
+  
+}
+.pbench-login h1{
+  color: 35353F;
+  text-align: center;
+  margin-top: 40px;
+}
+.github-icon{
+  height: 42px;
+  width: 42px;
+  cursor: pointer;
+}
+.google-icon
+{
+  height: 42px;
+  width: 42px;
+  margin: 0px 10px;
+  cursor: pointer;
+}
+.redhat-icon
+{
+  height: 42px;
+  width: 42px;
+  cursor: pointer;
+}
+.pbench-login-icons{
+  text-align: center;
+}
+.pbench-text{
+  color: #c2c2c2;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 40px;
+  margin-bottom: 30px;
+}
+.pbench-enter-email,.pbench-enter-password,.pbench-enter-firstname,.pbench-enter-lastname,.pbench-enter-username{
+  height: 34px;
+  width: 240px;
+  background-color: #ececec;
+  display: flex;
+  flex-direction: row;
+  margin: auto;
+  padding: 2px;
+}
+.pbench-enter-password,.pbench-enter-firstname,.pbench-enter-email,.pbench-enter-lastname,.pbench-enter-username{
+  margin-top: 10px;
+}
+.email-icon,.password-icon,.user-icon
+{
+  height: 20px;
+  width: 20px;
+  margin: auto 5px;
+}
+.pbench-enter-email input,.pbench-enter-password input,.pbench-enter-firstname input,.pbench-enter-lastname input,.pbench-enter-username input
+{
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+}
+.password-rules
+{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.password-rule
+{
+  display: flex;
+  flex-direction: row;
+  margin-left: 100px;
+  margin-top: 3px;
+  align-items: center;
+}
+.bullet-icon
+{
+  height: 8px;
+  width: 8px;
+  background-color:#d4d4d4;
+  border-radius: 100%;
+  margin-right: 5px;
+}
+.password-title{
+  font-size: 11px;
+  color: #d4d4d4;
+  margin-left: 100px;
+  margin-top: 8px;
+}
+.password-rule span{
+  font-size: 11px;
+  color: #d4d4d4;
+}
+.forget-password div
+{
+  border-bottom: 1px solid #ECECEC;
+  width: 40%;
+  color: #d4d4d4;
+  font-size: 14px;
+  text-align: center;
+  padding: 2px;
+  margin: auto;
+  margin-top: 35px;
+  cursor: pointer;
+}
+.sign-in-button button{
+  background-color: #c4c4c4;
+  border-radius: 6px;
+  height: 32px;
+  outline: none;
+  width: 120px;
+  font-size: 14px;
+  text-decoration: none;
+   border-style: none;
+   margin: auto;
+   cursor: pointer;
+}
+.sign-in-button{
+  text-align: center;
+  margin-top: 40px;
+}
+.sign-up-link,.sign-in-link{
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  width: 64%;
+}
+.sign-up-link p,.sign-in-link p
+{
+  color: #767676;
+  font-size: 14px;
+}
+.sign-up-link span,.sign-in-link span
+{
+  color: black;
+  cursor: pointer;
+}
+.pbench-info-container{
+  width: 100%;
+  height: 50%;  
+}
+.signup-box
+{
+  height: 610px;
+  width: 692px;
+  background-color: white;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+  display: flex;
+  opacity: 0;
+  pointer-events: none;
+}
+.pbench-info-2
+{
+  background-color: #c4c4c4;
+  flex: 36%;
+  border-radius: 6px 0px 0px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.pbench-info-text-2
+{
+  font-weight: bold;
+  font-size: 18px;
+  color: #585757;
+  height: 200px;
+  width: 200px;
+}
+.pbench-icon-2
+{
+  height: 109px;
+  width: 134px;
+}
+.pbench-signup
+{
+  flex:64%;
+  display: flex;
+  flex-direction: column;
+}
+.pbench-signup h1{
+  color: 35353F;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.swapToSignUp{
+  animation: swapSignUp;
+  animation-duration: 0.8s;
+  animation-fill-mode: forwards;
+}
+.replaceSignIn{
+  animation: replaceAnimation !important;
+  animation-duration: 0.8s !important;
+  animation-fill-mode: forwards !important;
+}
+.swapToSignIn{
+  animation: swapSignIn;
+  animation-duration: 0.8s;
+  animation-fill-mode: forwards;
+}
+.replaceSignUp{
+  animation: replaceAnimationTwo !important;
+  animation-duration: 0.8s !important;
+  animation-fill-mode:forwards !important;
+}
+.appear{
+  animation: appearOnScreen;
+  animation-duration: 2s;
+}
+@keyframes swapSignUp{
+  from{
+    opacity: 1;
+     margin-left: 0%;
+  }
+  to
+  {
+    opacity: 0;
+    margin-left: -50%;
+    pointer-events: none
+  }
+}
+@keyframes replaceAnimation{
+  from{
+    opacity: 0;
+  }
+  to{
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+@keyframes swapSignIn{
+  from{
+    opacity: 0;
+    margin-left: -50%;
+  }
+  to{
+    opacity: 1;
+    margin-left: 0%;
+    pointer-events: all
+  }
+  
+}
+@keyframes replaceAnimationTwo{
+  from{
+    opacity: 1;
+  }
+  to{
+    opacity: 0;
+    pointer-events: all;
+  }
+}
