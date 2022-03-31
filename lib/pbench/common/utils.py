@@ -25,7 +25,7 @@ def md5sum(filename: str) -> Md5Result:
         filename    Filename to hash
 
     Returns:
-        Md5Result tuple of the length and the hex digest string of the file.
+        Md5Result tuple containing the length and the hex digest of the file.
     """
     with open(filename, mode="rb") as f:
         d = hashlib.md5()
@@ -101,8 +101,8 @@ class CleanupNotCallable(Exception):
 
 class CleanupAction:
     """
-    Define a single cleanup action necessary to reverse persistent steps in the
-    upload procedure, based on the Step ENUM associated with the action.
+    Define a single cleanup action necessary to reverse persistent steps in an
+    operation.
     """
 
     def __init__(self, logger: Logger, action: Callable, name: str = None):
@@ -128,9 +128,9 @@ class CleanupAction:
         """
         try:
             self.action()
-        except Exception as e:
+        except Exception:
             # TODO: f-string used because this is shared by agent and server
-            self.logger.exception(f"Unable to {self}: {e}")
+            self.logger.exception(f"Unable to {self}")
 
     def __str__(self) -> str:
         return self.name

@@ -88,15 +88,27 @@ There are 4 environment variables required for execution as well:
   - _pbench_hostname
   - _pbench_full_hostname
 
-There are 4 optional environment variables used to provide metadata about
+There are optional environment variables used to provide metadata about
 the benchmark execution environment:
 
   - benchmark
   - config
   - date
+
+There are also optional environment variables to affect the network operation
+of the Pbench Tool Meister servers and clients:
+
   - ssh-opts
-  - PBENCH_TOOL_DATA_SINK connection;listen information for TDS
-  - PBENCH_REDIS_SERVER connection;listen information for Redis
+  - PBENCH_TOOL_DATA_SINK connection information for TDS
+  - PBENCH_REDIS_SERVER connection information for Redis
+
+        Both PBENCH_TOOL_DATA_SINK and PBENCH_REDIS_SERVER allow you to specify
+        the host:port for the server. You can omit either the port or the host
+        ("host" or ":port"), taking the hardcoded defaults. You can specify
+        separate "connection" (for the clients) and "bind" (for the server)
+        specifications by separating the bind specification and the connection
+        specification (in that order) with a semicolon: e.g.,
+        "bindhost:bindport;connectionhost:connectionport"
 
 The environment variable _PBENCH_TOOL_MEISTER_START_LOG_LEVEL can be defined to
 specify the logging level (e.g., _PBENCH_TOOL_MEISTER_START_LOG_LEVEL=debug);
@@ -223,6 +235,9 @@ class CleanupTime(Exception):
     def __init__(self, status: ReturnCode, message: str):
         self.status = status
         self.message = message
+
+    def __str__(self) -> str:
+        return f"Cleanup requested with status {self.status}: {self.message}"
 
 
 def _waitpid(pid: int) -> int:
@@ -659,12 +674,8 @@ def terminate_no_wait(
         redis_client: Redis client
         key: TDS Redis pubsub key
     """
-    terminate_msg = dict(action="terminate", group=group, directory=None)
+    terminate_msg = {"action": "terminate", group: group, "directory": None}
     try:
-        # Encapsulate redis_client better; it should understand
-        # "terminate" and the from/to client keys; we should have a
-        # `redis_client.shutdown()` that would publish the message
-        # and wait a reasonable time before killing it.
         ret = redis_client.publish(
             key,
             json.dumps(terminate_msg, sort_keys=True),
@@ -964,14 +975,15 @@ def main(_prog: str, cli_params: Namespace) -> int:
                 redis_server.start(tm_dir, full_hostname, logger)
             except redis_server.Err as exc:
                 raise CleanupTime(
-                    exc.return_code, "Failed to start a local Redis server: '{exc}'"
+                    exc.return_code, f"Failed to start a local Redis server: '{exc}'"
                 )
 
-            # TODO: The `kill` method is designed to modify a "base" return
+            # NOTE: The `kill` method is designed to modify a "base" return
             # value with an additional kill status. This would require a lot
             # of extra cleanup logic to bind the parameter at cleanup time, and
-            # then we'd need to figure out how to reconsile that with later
-            # cleanup actions. For now just ignore this.
+            # then capture the returned values from the queued cleanup actions
+            # and somehow combine them into a single integer. It seems unlikely
+            # this would be useful.
             recovery.add(
                 lambda: redis_server.kill(ReturnCode.KEYBOARDINTERRUPT), "stop Redis"
             )
@@ -1083,7 +1095,6 @@ def main(_prog: str, cli_params: Namespace) -> int:
                     exc.return_code, f"failed to start local tool data sink, '{exc}'"
                 )
 
-            # FIXME: arbitrary return code, which will be ignored
             recovery.add(
                 lambda: tool_data_sink.kill(ReturnCode.KEYBOARDINTERRUPT), "stop TDS"
             )

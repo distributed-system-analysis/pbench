@@ -1,8 +1,9 @@
-import collections
 import logging
 from pathlib import Path
 
-from pbench.common.utils import md5sum, Cleanup
+import pytest
+
+from pbench.common.utils import Cleanup, CleanupNotCallable, Md5Result, md5sum
 
 
 class TestMd5sum:
@@ -13,7 +14,15 @@ class TestMd5sum:
         test_file = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
         expected_length = test_file.stat().st_size
         expected_hash_md5 = open(f"{test_file}.md5", "r").read().split()[0]
-        length, hash_md5 = md5sum(test_file)
+        retval = md5sum(test_file)
+
+        # Validate the return as a named tuple
+        assert isinstance(retval, Md5Result)
+        assert retval.length == expected_length
+        assert retval.md5_hash == expected_hash_md5
+
+        # Validate as a plain list tuple
+        length, hash_md5 = retval
         assert (
             length == expected_length
         ), f"Expected length '{expected_length}', got '{length}'"
@@ -23,26 +32,15 @@ class TestMd5sum:
 
 
 class TestCleanup:
-    def test_contruct(self, caplog):
-        logger = logging.getLogger("test_construct")
+    def test_bad_add(self, caplog):
+        logger = logging.getLogger("test_bad_add")
         c = Cleanup(logger)
-        assert isinstance(c.actions, collections.deque)
-        assert len(c.actions) == 0
-        assert c.logger is logger
 
-    def test_add(self, caplog):
-        class Test:
-            def delete(self):
-                pass
-
-        logger = logging.getLogger("test_construct")
-        c = Cleanup(logger)
-        t = Test()
-        c.add(t.delete)
-        assert c.actions.pop().action == t.delete
+        with pytest.raises(CleanupNotCallable):
+            c.add(1)
 
     def test_cleanup(self, caplog):
-        class Test:
+        class FakeObject:
             def __init__(self):
                 self.called = []
 
@@ -55,12 +53,36 @@ class TestCleanup:
             def d3(self):
                 self.called.append("d3")
 
-        logger = logging.getLogger("test_construct")
+        logger = logging.getLogger("test_cleanup")
         c = Cleanup(logger)
-        t = Test()
+        t = FakeObject()
         c.add(t.d2)
         c.add(t.d1)
         c.add(t.d3)
 
         c.cleanup()
         assert t.called == ["d3", "d1", "d2"]
+
+    def test_cleanup_throws(self, caplog):
+        class FakeObject:
+            def __init__(self):
+                self.called = []
+
+            def d1(self):
+                self.called.append("d1")
+
+            def d2(self):
+                self.called.append("d2")
+
+            def d3(self):
+                raise Exception("I'm a bad apple")
+
+        logger = logging.getLogger("test_cleanup")
+        c = Cleanup(logger)
+        t = FakeObject()
+        c.add(t.d2)
+        c.add(t.d3)
+        c.add(t.d1)
+
+        c.cleanup()
+        assert t.called == ["d1", "d2"]

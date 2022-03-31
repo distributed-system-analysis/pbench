@@ -435,12 +435,15 @@ class TemplateSsh:
 
     def kill(self, host: str):
         popen: subprocess.Popen = self.procs[host]
-        popen.kill(popen)
+        popen.kill()
 
     def abort(self) -> None:
         for popen in self.procs.values():
             popen.kill()
-            popen.wait(timeout=10)
+            try:
+                popen.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                pass
 
     def wait(self, host: str) -> Tuple[int, str, str]:
         """
