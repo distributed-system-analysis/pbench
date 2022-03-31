@@ -1,0 +1,64 @@
+.logout-icon
+{
+    height: 36px;
+    width: 36px;
+    cursor: pointer;
+}
+.profile-pic
+{
+    border-radius: 100%;
+    cursor: pointer;
+    height: 36px;
+    width: 36px;
+    color: white;
+    background-color: tomato;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0px;
+}
+.profileContainer
+{
+    position: absolute;
+    right: 30px;
+    top: 65px;
+    height: 200px;
+    width: 300px;
+    background-color: white;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    color: black;
+    border-radius: 5px;
+    visibility: hidden;
+    opacity: 1;
+    z-index: 999;
+}
+.active
+{
+    visibility: visible;
+    opacity: 1;
+}
+.userInfo
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.userInfo button
+{
+    background-color: #21C328;
+    border: none;
+    outline: none;
+    border-radius: 2px;
+    color: white;
+    height: 30px;
+    width: 140px;
+}
+.userInfo img
+{
+    margin-top: 20px;
+}
+.invalid
+{
+    border: 1px solid red;
+}

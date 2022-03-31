@@ -1,0 +1,32 @@
+.dashboardInput
+{
+  border: none;
+  background: transparent;
+  outline: none;
+  border-radius: 0px 5px 5px 0px;
+  background-color: #ddd;
+  width: 200px;
+}
+.search-Icon
+{
+    height: 20px;
+    width: 20px;
+    margin: auto 5px;
+}
+.searchField
+{
+    height: 34px;
+  width: 240px;
+  display: flex;
+  flex-direction: row;
+  padding: 2px;
+  margin-bottom: 20px;
+}
+.searchIconContainer
+{
+  background-color: #04AA6D;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
