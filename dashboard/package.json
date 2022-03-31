@@ -40,6 +40,13 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "jest":{
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    },
+    "transformIgnorePatterns":["node_modules/(?!@patternfly)/"]
+  }
+  ,
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -59,7 +66,10 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.17.10",
+    "babel-jest": "^28.1.0",
     "css-loader": "^6.7.1",
+    "jest": "^28.1.0",
     "less": "^4.1.2",
     "less-loader": "^10.2.0",
     "style-loader": "^3.3.1"
