@@ -5,3 +5,4 @@ export const CLEAR_TOAST = "CLEAR_TOAST";
 /* LOADING */
 export const LOADING = "LOADING";
 export const COMPLETED = "COMPLETED";
+export const NETWORK_ERROR = "NETWORK_ERROR";
