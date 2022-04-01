@@ -1292,7 +1292,7 @@ class ToolMeister:
         retry: bool = False,
     ) -> subprocess.CompletedProcess:
         """
-        Creates a tar file at a given tar file path.
+        Creates a tar file at a given tar file path. We invoke tar directly for efficiency.
         If an error occurs, it will retry with all warnings suppressed.
         """
 
@@ -1305,7 +1305,6 @@ class ToolMeister:
                 stderr=subprocess.STDOUT,
             )
 
-        # Invoke tar directly for efficiency.
         tar_args = [
             self.tar_path,
             "--create",
@@ -1318,11 +1317,11 @@ class ToolMeister:
         cp = tar(directory, tar_args)
         if cp.returncode != 0:
             self.logger.warning(
-                "Tar ball creation failed with '%s' and returncode: %d, on directory %s; %s",
+                "Tar ball creation failed with '%s' and returncode: %d, on directory %s %s",
                 cp.stdout.decode("utf-8"),
                 cp.returncode,
                 directory,
-                "re-trying with --warning=none" if retry else "",
+                "; re-trying with --warning=none" if retry else "",
             )
             if retry:
                 tar_args.insert(2, "--warning=none")
@@ -1366,8 +1365,10 @@ class ToolMeister:
                 # tar fails and simply log a failure without TDS waiting forever.
                 if self._create_tar(Path("/dev/null"), tar_file) != 0:
                     # Empty tarball creation failed, so we're going to skip the PUT
-                    # operation, and that's going to cause the TDS to hang.
-                    raise ToolMeisterError("Failed to create an empty tar")
+                    # operation.
+                    raise ToolMeisterError("Failed to create an empty tar %s", tar_file)
+        except ToolMeisterError:
+            raise
         except Exception:
             self.logger.exception("Failed to create tar ball, '%s'", tar_file)
             failures += 1

@@ -1,19 +1,40 @@
 """
-Tests for the Tool Data Meister modules.
+Tests for the Tool Meister modules.
 """
+import io
+import logging
 import pathlib
+import shutil
 import subprocess
+from http import HTTPStatus
+
 import pytest
+import responses
 
-from pbench.agent.tool_meister import ToolMeister, get_logger
+from pbench.agent.tool_meister import ToolMeister, ToolMeisterError, get_logger
 
-logger = get_logger("__logger__")
+tar_file = "test.tar.xz"
 
 
 @pytest.fixture()
-def mock_tar(monkeypatch):
+def mock_tar(monkeypatch, agent_setup):
     def fake_run(*args, **kwargs):
-        return subprocess.CompletedProcess(args, returncode=0, stdout=b"", stderr=None)
+        assert kwargs["cwd"] == agent_setup["tmp"].parent
+        assert kwargs["stdin"] is None
+        assert kwargs["stderr"] == subprocess.STDOUT
+        assert kwargs["stdout"] == subprocess.PIPE
+        c = subprocess.CompletedProcess(args, returncode=0, stdout=b"", stderr=None)
+        assert all(
+            x in c.args[0]
+            for x in [
+                "tar_path",
+                "--create",
+                "--xz",
+                "--force-local",
+                f"--file={tar_file}",
+            ]
+        )
+        return c
 
     monkeypatch.setattr(subprocess, "run", fake_run)
 
@@ -37,13 +58,17 @@ def mock_tar_no_warnings(monkeypatch):
 def mock_tar_failure(monkeypatch):
     def fake_run(*args, **kwargs):
         return subprocess.CompletedProcess(
-            args, returncode=1, stdout=b"Some error running tar", stderr=None
+            args,
+            returncode=1,
+            stdout=b"Some error running tar command, empty tar creation failed",
+            stderr=None,
         )
 
     monkeypatch.setattr(subprocess, "run", fake_run)
 
 
 class TestCreateTar:
+    logger = get_logger("__logger__")
     tm_params = {
         "benchmark_run_dir": "",
         "channel_prefix": "",
@@ -57,37 +82,37 @@ class TestCreateTar:
         "tools": [],
     }
 
-    def test_create_tar(self, agent_setup, mock_tar):
+    def test_create_tar(self, agent_setup, mock_tar, caplog):
         """Test create tar file"""
+        self.logger.setLevel(level=logging.ERROR)
         tm = ToolMeister(
             pbench_install_dir=None,
             tmp_dir=None,
             tar_path="tar_path",
             sysinfo_dump=None,
-            params=TestCreateTar.tm_params,
+            params=self.tm_params,
             redis_server=None,
             logger=None,
         )
         tmp_dir = agent_setup["tmp"]
-        tar_file = "test.tar.xz"
-
         cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file))
         assert cp.returncode == 0
         assert cp.stdout == b""
 
-    def test_create_tar_ignore_warnings(self, agent_setup, mock_tar_no_warnings):
+    def test_create_tar_ignore_warnings(
+        self, agent_setup, mock_tar_no_warnings, caplog
+    ):
         """Test if we can suppress the errors raised during the tar creation"""
         tm = ToolMeister(
             pbench_install_dir=None,
             tmp_dir=None,
             tar_path="tar_path",
             sysinfo_dump=None,
-            params=TestCreateTar.tm_params,
+            params=self.tm_params,
             redis_server=None,
-            logger=logger,
+            logger=self.logger,
         )
         tmp_dir = agent_setup["tmp"]
-        tar_file = "test.tar.xz"
 
         cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file))
         assert cp.returncode == 1
@@ -97,47 +122,67 @@ class TestCreateTar:
         assert cp.returncode == 0
         assert cp.stdout == b""
 
-    def test_create_tar_failure(self, agent_setup, mock_tar_failure):
+    def test_create_tar_failure(self, agent_setup, mock_tar_failure, caplog):
         """Test if we can suppress the errors raised during the tar creation"""
         tm = ToolMeister(
             pbench_install_dir=None,
             tmp_dir=None,
             tar_path="tar_path",
             sysinfo_dump=None,
-            params=TestCreateTar.tm_params,
+            params=self.tm_params,
             redis_server=None,
-            logger=logger,
+            logger=self.logger,
         )
         tmp_dir = agent_setup["tmp"]
-        tar_file = "test.tar.xz"
 
         cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file))
         assert cp.returncode == 1
-        assert cp.stdout == b"Some error running tar"
+        assert cp.stdout == b"Some error running tar command, empty tar creation failed"
 
 
 class TestSendDirectory:
     """Test create_tar in send directory of tool meister"""
 
-    def test_tar_create_success(self, agent_setup, mock_tar, caplog):
+    logger = get_logger("__logger__")
+
+    @staticmethod
+    def add_http_mock_response(
+        uri: str, code: HTTPStatus = HTTPStatus.OK, text: str = "succeeded"
+    ):
+        responses.add(responses.PUT, uri, status=code, body=text)
+
+    def fake_tar(self, returncode: int, stdout: bytes):
+        def f(directory: pathlib.Path, tar_file: pathlib.Path, retry: bool = False):
+            return subprocess.CompletedProcess(
+                args=[], returncode=returncode, stdout=stdout, stderr=None
+            )
+
+        return f
+
+    @responses.activate
+    def test_tar_create_success(self, agent_setup, caplog, monkeypatch):
         """This test should pass the tar creation in send directory"""
 
-        tm = ToolMeister(
-            pbench_install_dir=None,
-            tmp_dir=None,
-            tar_path="tar_path",
-            sysinfo_dump=None,
-            params=TestCreateTar.tm_params,
-            redis_server=None,
-            logger=logger,
-        )
-        directory = agent_setup["tmp"] / f"{TestCreateTar.tm_params['hostname']}"
-        failures = tm._send_directory(directory, "", "")
-        assert "Failed to create an empty tar" not in caplog.text
-        assert failures == 1
+        def fake_rmtree(directory: pathlib.Path):
+            return True
 
-    def test_tar_create_failure(self, agent_setup, mock_tar_failure, caplog):
-        """Check if the tar creation error is properly captured in send_directory"""
+        monkeypatch.setattr(shutil, "rmtree", fake_rmtree)
+
+        def fake_md5(directory: str):
+            return 10, "random_md5"
+
+        monkeypatch.setattr("pbench.agent.tool_meister.md5sum", fake_md5)
+
+        def fake_unlink(*args):
+            return True
+
+        monkeypatch.setattr(pathlib.Path, "unlink", fake_unlink)
+
+        def fake_open(*args):
+            return io.StringIO()
+
+        monkeypatch.setattr(pathlib.Path, "open", fake_open)
+
         tm = ToolMeister(
             pbench_install_dir=None,
             tmp_dir=None,
@@ -145,9 +190,42 @@ class TestSendDirectory:
             sysinfo_dump=None,
             params=TestCreateTar.tm_params,
             redis_server=None,
-            logger=logger,
+            logger=self.logger,
         )
+
+        monkeypatch.setattr(tm, "_create_tar", self.fake_tar(0, b""))
+
         directory = agent_setup["tmp"] / f"{TestCreateTar.tm_params['hostname']}"
-        failures = tm._send_directory(directory, "", "")
-        assert "Failed to create an empty tar" in caplog.text
-        assert failures == 1
+        url = (
+            f"http://{TestCreateTar.tm_params['tds_hostname']}:{TestCreateTar.tm_params['tds_port']}/uri"
+            f"/{'ctx'}/{TestCreateTar.tm_params['hostname']}"
+        )
+        self.add_http_mock_response(url)
+
+        failures = tm._send_directory(directory, "uri", "ctx")
+        assert "Failed to create an empty tar" not in caplog.text
+        assert failures == 0
+
+    def test_tar_create_failure(
+        self, agent_setup, mock_tar_failure, caplog, monkeypatch
+    ):
+        """Check if the tar creation error is properly captured in send_directory"""
+        self.logger.setLevel(level=logging.WARNING)
+        tm = ToolMeister(
+            pbench_install_dir=None,
+            tmp_dir=None,
+            tar_path="tar_path",
+            sysinfo_dump=None,
+            params=TestCreateTar.tm_params,
+            redis_server=None,
+            logger=self.logger,
+        )
+
+        monkeypatch.setattr(tm, "_create_tar", self.fake_tar(1, b"Error in tarball creation"))
+
+        directory = agent_setup["tmp"] / f"{TestCreateTar.tm_params['hostname']}"
+        with pytest.raises(ToolMeisterError) as exc:
+            failures = tm._send_directory(directory, "", "")
+            assert failures == 1
+        assert "Failed to create an empty tar" in str(exc.value)
+        assert "Error in tarball creation" in caplog.text
