@@ -1,25 +1,20 @@
 import React from 'react';
-import './index.less';
+import { Route, Routes, Outlet } from "react-router-dom";
 import ToastComponent from "../../components/ToastNotificationComponent";
 import LoginComponent  from '../../components/LoginComponent';
 import { useSelector } from "react-redux";
 import { Spinner } from '@patternfly/react-core';
+import * as AppRoutes from "../../../utils/routeConstants";
 
-const MainLayout = () => {
+const AuthLayout = () => {
     const { alerts } = useSelector((state) => state.toastReducer);
     const isLoading = useSelector(state => state.loading.isLoading);
     return (
         <>
-        {
-            alerts && alerts.length > 0 &&
-            <ToastComponent />
-        }
-        {
-            isLoading &&
-            <Spinner />
-        }
-        <div>Pbench Dashboard</div>
+       
+        <Outlet />
         </>
+       
     )
 }
-export default MainLayout;
+export default AuthLayout;
