@@ -19,6 +19,7 @@ import { getUserDetails } from "actions/authActions";
 import { constructToast } from "actions/toastActions";
 import { fetchEndpoints } from "./actions/endpointAction";
 import Cookies from "js-cookie";
+import OverviewComponent from "modules/components/OverviewComponent";
 
 const ProtectedRoute = ({ redirectPath = APP_ROUTES.AUTH_LOGIN, children }) => {
   const loggedIn = Cookies.get("isLoggedIn");
@@ -53,6 +54,7 @@ const App = () => {
                 path={APP_ROUTES.USER_PROFILE}
                 element={<ProfileComponent />}
               />
+              <Route path="dashboard" element={<OverviewComponent />} />
             </Route>
           </Route>
           <Route path={APP_ROUTES.AUTH} element={<AuthComponent />} />

@@ -6,6 +6,7 @@ import NavbarReducer from "./navbarReducer";
 import DatasetListReducer from "./datasetListReducer";
 import EndpointReducer from "./endpointReducer";
 import UserProfileReducer from "./userProfileReducer";
+import OverviewReducer from "./overviewReducer";
 
 export default combineReducers({
   toastReducer: ToastReducer,
@@ -15,4 +16,5 @@ export default combineReducers({
   navOpen: NavbarReducer,
   datasetlist: DatasetListReducer,
   apiEndpoint: EndpointReducer,
+  overview: OverviewReducer,
 });
