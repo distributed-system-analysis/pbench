@@ -1289,14 +1289,13 @@ class ToolMeister:
         self,
         directory: Path,
         tar_file: Path,
-        retry: bool = False,
     ) -> subprocess.CompletedProcess:
         """
         Creates a tar file at a given tar file path. We invoke tar directly for efficiency.
         If an error occurs, it will retry with all warnings suppressed.
         """
 
-        def tar(directory: Path, tar_args: List):
+        def tar(tar_args: List):
             return subprocess.run(
                 tar_args,
                 cwd=directory.parent,
@@ -1314,18 +1313,17 @@ class ToolMeister:
             directory.name,
         ]
 
-        cp = tar(directory, tar_args)
+        cp = tar(tar_args)
         if cp.returncode != 0:
             self.logger.warning(
                 "Tar ball creation failed with '%s' and returncode: %d, on directory %s %s",
                 cp.stdout.decode("utf-8"),
                 cp.returncode,
                 directory,
-                "; re-trying with --warning=none" if retry else "",
+                "; re-trying with --warning=none",
             )
-            if retry:
-                tar_args.insert(2, "--warning=none")
-                return tar(directory, tar_args)
+            tar_args.insert(2, "--warning=none")
+            cp = tar(tar_args)
         return cp
 
     def _send_directory(self, directory, uri, ctx):
@@ -1356,7 +1354,7 @@ class ToolMeister:
         tar_file = parent_dir / f"{target_dir}.tar.xz"
 
         try:
-            cp = self._create_tar(directory, tar_file, retry=True)
+            cp = self._create_tar(directory, tar_file)
             if cp.returncode != 0:
                 self.logger.warning("Failed to create tarball, %s", cp.stdout)
                 # Tar ball creation failed even after suppressing all the warnings,

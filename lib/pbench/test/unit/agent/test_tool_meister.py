@@ -44,7 +44,7 @@ def mock_tar_no_warnings(monkeypatch):
     def fake_run(*args, **kwargs):
         if "--warning=none" in args[0]:
             return subprocess.CompletedProcess(
-                args, returncode=0, stdout=b"", stderr=None
+                args, returncode=0, stdout=b"No error after --warning=none", stderr=None
             )
         else:
             return subprocess.CompletedProcess(
@@ -115,12 +115,8 @@ class TestCreateTar:
         tmp_dir = agent_setup["tmp"]
 
         cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file))
-        assert cp.returncode == 1
-        assert cp.stdout == b"Some error running tar"
-
-        cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file), retry=True)
         assert cp.returncode == 0
-        assert cp.stdout == b""
+        assert cp.stdout == b"No error after --warning=none"
 
     def test_create_tar_failure(self, agent_setup, mock_tar_failure, caplog):
         """Test if we can suppress the errors raised during the tar creation"""
@@ -151,8 +147,9 @@ class TestSendDirectory:
     ):
         responses.add(responses.PUT, uri, status=code, body=text)
 
-    def fake_tar(self, returncode: int, stdout: bytes):
-        def f(directory: pathlib.Path, tar_file: pathlib.Path, retry: bool = False):
+    @staticmethod
+    def fake_tar(returncode: int, stdout: bytes):
+        def f(directory: pathlib.Path, tar_file: pathlib.Path):
             return subprocess.CompletedProcess(
                 args=[], returncode=returncode, stdout=stdout, stderr=None
             )
@@ -221,7 +218,9 @@ class TestSendDirectory:
             logger=self.logger,
         )
 
-        monkeypatch.setattr(tm, "_create_tar", self.fake_tar(1, b"Error in tarball creation"))
+        monkeypatch.setattr(
+            tm, "_create_tar", self.fake_tar(1, b"Error in tarball creation")
+        )
 
         directory = agent_setup["tmp"] / f"{TestCreateTar.tm_params['hostname']}"
         with pytest.raises(ToolMeisterError) as exc:
