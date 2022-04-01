@@ -1,20 +1,16 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import {
+  Alert,
+  AlertGroup,
+  Button,
   Card,
-  CardTitle,
   CardBody,
   CardFooter,
-  Button,
+  CardTitle,
+  Checkbox,
   Form,
   FormGroup,
   TextInput,
-  Checkbox,
-  AlertGroup,
-  Alert,
 } from "@patternfly/react-core";
-import { makeLoginRequest, setUserLoggedInState } from "actions/authActions";
 import {
   Back,
   LoginHeader,
@@ -22,6 +18,11 @@ import {
   PasswordTextInput,
 } from "./common-components";
 import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
+import React, { useCallback, useEffect, useState } from "react";
+import { makeLoginRequest, setUserLoggedInState } from "actions/authActions";
+import { useDispatch, useSelector } from "react-redux";
+
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
@@ -85,7 +86,7 @@ const LoginForm = () => {
   return (
     <Card>
       <CardTitle>
-        <Back toPage="/auth" />
+        <Back toPage="/dashboard/auth" />
         <LoginHeader title={"Login to your Pbench account"} />
         <AlertGroup isLiveRegion>
           {alerts.map(({ title, key }) => (

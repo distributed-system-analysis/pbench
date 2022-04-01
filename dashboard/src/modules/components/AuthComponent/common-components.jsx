@@ -1,26 +1,28 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
 import "./index.less";
+
 import {
+  Button,
   Card,
-  CardTitle,
   CardBody,
   CardFooter,
-  Button,
-  Title,
+  CardTitle,
   Flex,
   FlexItem,
   HelperText,
   HelperTextItem,
   TextInput,
+  Title,
 } from "@patternfly/react-core";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { CheckIcon, CloseIcon, TimesIcon } from "@patternfly/react-icons";
-import PBenchLogo from "assets/logo/pbench_logo.svg";
 import { useDispatch, useSelector } from "react-redux";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import PBenchLogo from "assets/logo/pbench_logo.svg";
+import React from "react";
+import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { movePage } from "actions/authActions";
 import { passwordConstraintsText } from "./signupFormData";
+import { useNavigate } from "react-router-dom";
 
 export const LoginHeader = (props) => {
   return <Title headingLevel="h3">{props?.title}</Title>;
@@ -88,14 +90,20 @@ export const AuthForm = () => {
       </CardTitle>
       <CardBody>
         <div className="button-wrapper">
-          <Button variant="primary" onClick={() => navigatePage("/login")}>
+          <Button
+            variant="primary"
+            onClick={() => navigatePage("/dashboard/login")}
+          >
             Pbench Credentials
           </Button>
         </div>
         <div className="account-wrapper">
           <div>
             <span>Need an account?</span>
-            <Button variant="link" onClick={() => navigatePage("/signup")}>
+            <Button
+              variant="link"
+              onClick={() => navigatePage("/dashboard/signup")}
+            >
               Sign up
             </Button>
           </div>

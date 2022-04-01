@@ -1,7 +1,12 @@
-import React, { useState } from "react";
 import "./index.less";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+
+import * as APP_ROUTES from "utils/routeConstants";
+
+import {
+  BarsIcon,
+  QuestionCircleIcon,
+  ShareSquareIcon,
+} from "@patternfly/react-icons";
 import {
   Brand,
   Button,
@@ -21,15 +26,14 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import {
-  BarsIcon,
-  ShareSquareIcon,
-  QuestionCircleIcon,
-} from "@patternfly/react-icons";
-import pbenchLogo from "assets/logo/pbench_logo.svg";
+import { NAVBAR_CLOSE, NAVBAR_OPEN } from "actions/types";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import Cookies from "js-cookie";
 import { logout } from "actions/authActions";
-import { NAVBAR_CLOSE, NAVBAR_OPEN } from "actions/types";
+import pbenchLogo from "assets/logo/pbench_logo.svg";
 
 const HeaderToolbar = () => {
   const dispatch = useDispatch();
@@ -42,7 +46,7 @@ const HeaderToolbar = () => {
   const onDropdownSelect = (event) => {
     const type = event.target.name;
     const menuOptions = {
-      profile: () => navigate("/user-profile"),
+      profile: () => navigate(APP_ROUTES.USER_PROFILE),
       logout: () => dispatch(logout()),
     };
     const action = menuOptions[type];
@@ -104,7 +108,7 @@ const HeaderToolbar = () => {
                 aria-label="Login"
                 className="header-login-button"
                 variant={ButtonVariant.plain}
-                onClick={() => navigate("/login")}
+                onClick={() => navigate("/dashboard/login")}
               >
                 Login
               </Button>

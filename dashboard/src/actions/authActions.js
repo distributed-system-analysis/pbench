@@ -1,9 +1,10 @@
-import * as TYPES from "./types";
-import API from "../utils/axiosInstance";
 import * as CONSTANTS from "../assets/constants/authConstants";
+import * as TYPES from "./types";
+
+import API from "../utils/axiosInstance";
 import Cookies from "js-cookie";
-import { uid } from "../utils/helper";
 import { constructToast } from "actions/toastActions";
+import { uid } from "../utils/helper";
 
 export const makeLoginRequest =
   (details, navigate) => async (dispatch, getState) => {
@@ -42,7 +43,7 @@ export const makeLoginRequest =
           payload: loginDetails,
         });
 
-        navigate("/");
+        navigate("/dashboard/overview");
 
         dispatch(constructToast("success", "Logged in successfully!"));
       }
@@ -105,7 +106,7 @@ export const registerUser =
         dispatch(
           constructToast("success", "Account created!", "Login to continue")
         );
-        navigate("/login");
+        navigate("/dashboard/login");
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {

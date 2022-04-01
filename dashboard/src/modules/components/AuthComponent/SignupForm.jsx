@@ -1,29 +1,30 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
+  Alert,
+  AlertGroup,
+  Button,
   Card,
-  CardTitle,
   CardBody,
   CardFooter,
-  Button,
+  CardTitle,
   Form,
   FormGroup,
   TextInput,
-  AlertGroup,
-  Alert,
 } from "@patternfly/react-core";
-import { registerUser, toggleSignupBtn } from "actions/authActions";
-import { signupFormData } from "./signupFormData";
-import { validateEmail, validatePassword } from "utils/helper.js";
-import { useDispatch, useSelector } from "react-redux";
 import {
   Back,
   LoginHeader,
+  NoLoginComponent,
   PasswordConstraints,
   PasswordTextInput,
-  NoLoginComponent,
 } from "./common-components";
 import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
+import React, { useCallback, useEffect, useState } from "react";
+import { registerUser, toggleSignupBtn } from "actions/authActions";
+import { useDispatch, useSelector } from "react-redux";
+import { validateEmail, validatePassword } from "utils/helper.js";
+
+import { signupFormData } from "./signupFormData";
+import { useNavigate } from "react-router-dom";
 
 const SignupForm = () => {
   const dispatch = useDispatch();
@@ -144,7 +145,7 @@ const SignupForm = () => {
   return (
     <Card className="signup-card">
       <CardTitle>
-        <Back toPage="/auth" />
+        <Back toPage="/dashboard/auth" />
         <LoginHeader title="Create an account" />
         <AlertGroup isLiveRegion>
           {alerts.map(({ title, key }) => (
