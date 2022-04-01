@@ -1364,7 +1364,9 @@ class ToolMeister:
                 if self._create_tar(Path("/dev/null"), tar_file) != 0:
                     # Empty tarball creation failed, so we're going to skip the PUT
                     # operation.
-                    raise ToolMeisterError("Failed to create an empty tar %s", tar_file)
+                    raise ToolMeisterError(
+                        f"Failed to create an empty tar {str(tar_file)}"
+                    )
         except ToolMeisterError:
             raise
         except Exception:
