@@ -1,5 +1,7 @@
 import * as TYPES from "./types";
 
+import { logout } from "./authActions";
+
 export const showSessionExpired = () => async (dispatch) => {
   const toast = {
     variant: "danger",

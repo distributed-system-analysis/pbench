@@ -26,6 +26,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 import { RenderPagination } from "./common-component";
+import { formatDateTime } from "utils/dateFunctions";
 
 const NewRunsComponent = () => {
   const dispatch = useDispatch();
@@ -81,13 +82,19 @@ const NewRunsComponent = () => {
   const moreActionItems = (dataset) => [
     {
       title: "Save",
-      onClick: () => dispatch(updateDataset(dataset, "save")),
+      onClick: () => dispatch(updateDataset(dataset, "save", true)),
     },
     {
-      title: dataset.metadata["dashboard.seen"] ? "Mark unread" : "Mark read",
+      title: dataset.metadata["global.dashboard.seen"]
+        ? "Mark unread"
+        : "Mark read",
       onClick: () =>
         dispatch(
-          updateDataset(dataset, "read", !dataset.metadata["dashboard.seen"])
+          updateDataset(
+            dataset,
+            "read",
+            !dataset.metadata["global.dashboard.seen"]
+          )
         ),
     },
     {
@@ -141,7 +148,7 @@ const NewRunsComponent = () => {
             {initNewRuns.map((item, rowIndex) => {
               const rowActions = moreActionItems(item);
               const isItemFavorited = !!item?.metadata?.["user.favorite"];
-              const isItemSeen = !!item?.metadata?.["dashboard.seen"];
+              const isItemSeen = !!item?.metadata?.["global.dashboard.seen"];
               return (
                 <Tbody key={rowIndex}>
                   <Tr
@@ -170,7 +177,7 @@ const NewRunsComponent = () => {
                     />
                     <Td dataLabel={columnNames.result}>{item.name}</Td>
                     <Td dataLabel={columnNames.endtime}>
-                      {item.metadata["server.deletion"]}
+                      {formatDateTime(item.metadata["server.deletion"])}
                     </Td>
                     <Td
                       favorites={{
