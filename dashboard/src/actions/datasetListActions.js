@@ -1,5 +1,5 @@
 import * as TYPES from "./types";
-import API from "../utils/api";
+import API from "../utils/axiosInstance";
 
 export const fetchPublicDatasets = () => async (dispatch, getState) => {
   try {

@@ -1,15 +1,17 @@
 import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import favicon from "./assets/logo/favicon.ico";
 import "./App.css";
-import * as APP_ROUTES from "./utils/routeConstants";
-import AuthComponent from "./modules/components/AuthComponent";
 import "@patternfly/patternfly/patternfly.css";
-import MainLayout from "modules/containers/MainLayout";
-import { useDispatch } from "react-redux";
+import * as APP_ROUTES from "./utils/routeConstants";
+import MainLayout from "./modules/containers/MainLayout";
+import AuthComponent from "./modules/components/AuthComponent";
+import ProfileComponent from "modules/components/ProfileComponent";
+import { getUserDetails } from "actions/authActions";
 import { fetchEndpoints } from "./actions/endpointAction";
 
-const App = () => {
+function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -17,13 +19,16 @@ const App = () => {
     faviconLogo?.setAttribute("href", favicon);
 
     dispatch(fetchEndpoints);
+    dispatch(getUserDetails());
   }, [dispatch]);
 
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<MainLayout />} />
+          <Route path="/" element={<MainLayout />}>
+            <Route path="user-profile" element={<ProfileComponent />} />
+          </Route>
           <Route path={APP_ROUTES.AUTH} element={<AuthComponent />} />
           <Route path={APP_ROUTES.AUTH_LOGIN} element={<AuthComponent />} />
           <Route path={APP_ROUTES.AUTH_SIGNUP} element={<AuthComponent />} />
@@ -31,6 +36,6 @@ const App = () => {
       </BrowserRouter>
     </div>
   );
-};
+}
 
 export default App;

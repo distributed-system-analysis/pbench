@@ -4,7 +4,6 @@ import "./index.less";
 import {
   ToggleGroup,
   ToggleGroupItem,
-  PageSection,
   PageSectionVariants,
 } from "@patternfly/react-core";
 import {
@@ -14,6 +13,8 @@ import {
   Th,
   Tbody,
   Td,
+  OuterScrollContainer,
+  InnerScrollContainer,
 } from "@patternfly/react-table";
 import {
   fetchPublicDatasets,
@@ -123,14 +124,14 @@ const TableWithFavorite = () => {
     localStorage.setItem("favorite_datasets", JSON.stringify(fav));
   };
 
+  const onCloseLoginHint = () => {
+    setLoginHintVisible(false);
+  };
   const datasetBreadcrumb = [
     { name: "Dashboard", link: "/" },
     { name: "Results", link: "" },
   ];
 
-  const onCloseLoginHint = () => {
-    setLoginHintVisible(false);
-  };
   return (
     <>
       {loginHintVisible && (
@@ -141,10 +142,12 @@ const TableWithFavorite = () => {
           redirect="login"
         />
       )}
-
-      <PageSection variant={PageSectionVariants.light}>
+      <div className="table-container" variant={PageSectionVariants.light}>
         <PathBreadCrumb pathList={datasetBreadcrumb} />
-        <Heading containerClass="publicDataPageTitle" headingTitle="Results" />
+        <Heading
+          containerClass="publicDataPageTitle"
+          headingTitle="Results"
+        ></Heading>
         <div className="filterContainer">
           <SearchBox
             dataArray={tableData}
@@ -180,54 +183,68 @@ const TableWithFavorite = () => {
             aria-label="see favorites button"
           />
         </ToggleGroup>
-        <TableComposable aria-label="Favoritable table" variant="compact">
-          <Thead>
-            <Tr>
-              <Th sort={getSortParams(1)}>{columnNames.name}</Th>
-              <Th sort={getSortParams(2)}>{columnNames.creationDate}</Th>
-              <Th sort={getSortParams(3)}></Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {selectedArray && selectedArray.length > 0 ? (
-              selectedArray.map((repo, rowIndex) => (
-                <Tr key={rowIndex}>
-                  <Td dataLabel={columnNames.name}>{repo.name}</Td>
-                  <Td dataLabel={columnNames.creationDate}>
-                    {repo.metadata["dataset.created"]}
-                  </Td>
-                  <Td
-                    favorites={{
-                      isFavorited: isRepoFavorited(repo),
-                      onFavorite: (_event, isFavoriting) => {
-                        markRepoFavorited(repo, isFavoriting);
-                      },
-                      rowIndex,
-                    }}
-                  />
-                </Tr>
-              ))
-            ) : (
-              <Tr>
-                <Td colSpan={8}>
-                  <EmptyTable />
-                </Td>
-              </Tr>
-            )}
-          </Tbody>
-        </TableComposable>
-        <TablePagination
-          numberOfRows={
-            isSelected === "datasetListButton"
-              ? publicData?.length
-              : favoriteRepoNames?.length
-          }
-          page={page}
-          setPage={setPage}
-          perPage={perPage}
-          setPerPage={setPerPage}
-        />
-      </PageSection>
+        <div
+          style={{
+            height: "200px",
+          }}
+        >
+          <OuterScrollContainer>
+            <InnerScrollContainer>
+              <TableComposable
+                aria-label="Favoritable table"
+                variant="compact"
+                isStickyHeader
+              >
+                <Thead>
+                  <Tr>
+                    <Th sort={getSortParams(1)}>{columnNames.name}</Th>
+                    <Th sort={getSortParams(2)}>{columnNames.creationDate}</Th>
+                    <Th sort={getSortParams(3)}></Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {selectedArray.length > 0 ? (
+                    selectedArray.map((repo, rowIndex) => (
+                      <Tr key={rowIndex}>
+                        <Td dataLabel={columnNames.name}>{repo.name}</Td>
+                        <Td dataLabel={columnNames.creationDate}>
+                          {repo.metadata["dataset.created"]}
+                        </Td>
+                        <Td
+                          favorites={{
+                            isFavorited: isRepoFavorited(repo),
+                            onFavorite: (_event, isFavoriting) => {
+                              markRepoFavorited(repo, isFavoriting);
+                            },
+                            rowIndex,
+                          }}
+                        />
+                      </Tr>
+                    ))
+                  ) : (
+                    <Tr>
+                      <Td colSpan={8}>
+                        <EmptyTable />
+                      </Td>
+                    </Tr>
+                  )}
+                </Tbody>
+              </TableComposable>
+            </InnerScrollContainer>
+          </OuterScrollContainer>
+        </div>
+      </div>
+      <TablePagination
+        numberOfControllers={
+          isSelected === "controllerListButton"
+            ? publicData.length
+            : favoriteRepoNames.length
+        }
+        page={page}
+        setPage={setPage}
+        perPage={perPage}
+        setPerPage={setPerPage}
+      />
     </>
   );
 };

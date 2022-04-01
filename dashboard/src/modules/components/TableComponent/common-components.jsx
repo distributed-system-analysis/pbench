@@ -80,6 +80,7 @@ export const SearchBox = ({
   return (
     <InputGroup className="searchInputGroup">
       <TextInput
+        aria-label="search"
         type="text"
         placeholder="Search"
         onChange={(e) => setSearchKey(e)}

@@ -33,7 +33,12 @@ const ToastComponent = () => {
                   onClose={() => removeToast(item.key)}
                 />
               }
-            />
+            >
+              {
+                item?.message && 
+                <p>{item?.message}</p>
+              }
+            </Alert>
               )
             })
           }

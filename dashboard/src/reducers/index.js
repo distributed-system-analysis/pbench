@@ -5,12 +5,14 @@ import AuthReducer from "./authReducer";
 import NavbarReducer from "./navbarReducer";
 import DatasetListReducer from "./datasetListReducer";
 import EndpointReducer from "./endpointReducer";
+import UserProfileReducer from "./userProfileReducer";
 
 export default combineReducers({
-    toastReducer: ToastReducer,
-    loading: LoadingReducer,
-    userAuth: AuthReducer,
-    navOpen:NavbarReducer,
-    datasetlist: DatasetListReducer,
-    apiEndpoint: EndpointReducer,
-})
+  toastReducer: ToastReducer,
+  loading: LoadingReducer,
+  userAuth: AuthReducer,
+  userProfile: UserProfileReducer,
+  navOpen: NavbarReducer,
+  datasetlist: DatasetListReducer,
+  apiEndpoint: EndpointReducer,
+});

@@ -1,5 +1,7 @@
 import * as TYPES from "./types";
-import API from "../utils/api";
+import API from "../utils/axiosInstance";
+import * as API_ROUTES from "../utils/apiConstants";
+import * as CONSTANTS from "../assets/constants/authConstants";
 import Cookies from "js-cookie";
 import { uid } from "../utils/helper";
 
@@ -12,13 +14,14 @@ export const makeLoginRequest =
         type: TYPES.USER_NOTION_ALERTS,
         payload: [],
       });
-      const endpoints = getState().apiEndpoint.endpoints;
-      const response = await API.post(endpoints?.api?.login, {
+      const response = await API.post(API_ROUTES.LOGIN, {
         ...details,
       });
       if (response.status === 200 && Object.keys(response.data).length > 0) {
-        const keepUser = getState().userAuth.keepLoggedIn;
-        const expiryTime = keepUser ? 7 : 0.5;
+        let keepUser = getState().userAuth.keepLoggedIn;
+        let expiryTime = keepUser
+          ? CONSTANTS.expiry_keepUser_days
+          : CONSTANTS.expiry_default_days;
         Cookies.set("isLoggedIn", true, { expires: expiryTime, secure: true });
         Cookies.set("token", response.data?.auth_token, {
           expires: expiryTime,
@@ -28,11 +31,29 @@ export const makeLoginRequest =
           expires: expiryTime,
           secure: true,
         });
+        let loginDetails = {
+          isLoggedIn: true,
+          token: response.data?.auth_token,
+          username: response.data?.username,
+        };
+        await dispatch({
+          type: TYPES.SET_LOGIN_DETAILS,
+          payload: loginDetails,
+        });
+
         navigate("/");
+        let toast = {
+          variant: "success",
+          title: "Logged in successfully",
+        };
+        dispatch({
+          type: TYPES.SHOW_TOAST,
+          payload: { ...toast },
+        });
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {
-      const alerts = getState().userAuth.alerts;
+      let alerts = getState().userAuth.alerts;
       let alert = {};
       if (error?.response) {
         alert = {
@@ -90,22 +111,17 @@ export const registerUser =
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {
-      const alerts = getState().userAuth.alerts;
-      let alert = {};
+      let alerts = getState().userAuth.alerts;
+      let amsg = {};
       document.querySelector(".signup-card").scrollTo(0, 0);
       if (error?.response) {
-        alert = {
-          title: error?.response?.data?.message,
-          key: uid(),
-        };
+        amsg = error?.response?.data?.message;
         dispatch(toggleSignupBtn(true));
       } else {
-        alert = {
-          title: error?.message,
-          key: uid(),
-        };
+        amsg = error?.message;
         dispatch({ type: TYPES.NETWORK_ERROR });
       }
+      let alert = { title: amsg, key: uid() };
       alerts.push(alert);
       dispatch({
         type: TYPES.USER_NOTION_ALERTS,
@@ -127,4 +143,27 @@ export const toggleLoginBtn = (isDisabled) => async (dispatch) => {
     type: TYPES.SET_LOGIN_BUTTON,
     payload: isDisabled,
   });
+};
+
+export const getUserDetails = () => async (dispatch) => {
+  let loginDetails = {
+    isLoggedIn: Cookies.get("isLoggedIn"),
+    token: Cookies.get("token"),
+    username: Cookies.get("username"),
+  };
+  dispatch({
+    type: TYPES.SET_LOGIN_DETAILS,
+    payload: loginDetails,
+  });
+};
+export const logout = () => async (dispatch) => {
+  dispatch({ type: TYPES.LOADING });
+  let keys = ["username", "token", "isLoggedIn"];
+  for (let key of keys) {
+    Cookies.remove(key);
+  }
+  dispatch({ type: TYPES.COMPLETED });
+  setTimeout(() => {
+    window.location.href = "login";
+  }, CONSTANTS.logout_delay_ms);
 };
