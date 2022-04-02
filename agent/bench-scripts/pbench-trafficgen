@@ -98,7 +98,7 @@ traffic_generator_def="trex-txrx" # can be either trex-txrx or moongen-txrx
 traffic_generator="${traffic_generator_def}"
 traffic_profiles=""
 if [[ -z "${trafficgen_dir}" ]]; then
-	trafficgen_dir="/opt/trafficgen"
+	trafficgen_dir="/opt/bench-trafficgen/trafficgen"
 fi
 trafficgen_version="unknown"
 trex_use_ht="n"
@@ -886,7 +886,7 @@ if [ "${postprocess_only}" == "n" ]; then
 			fi
 		fi
 	else
-		if pushd /opt >/dev/null && git clone https://github.com/atheurer/trafficgen.git; then
+		if pushd /opt >/dev/null && git clone https://github.com/perftool-incubator/bench-trafficgen.git; then
 			trafficgen_version=$(git log --max-count=1 --pretty=%h)
 			echo "trafficgen cloned"
 			popd >/dev/null
