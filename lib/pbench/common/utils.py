@@ -1,19 +1,31 @@
 """
 Utility functions common to both agent and server.
 """
+from collections import deque
 import hashlib
 import ipaddress
+from logging import Logger
 import re
+from typing import Callable, Deque, NamedTuple
 
 from functools import partial
 
 
-def md5sum(filename: str) -> (int, str):
-    """
-    md5sum - return the MD5 check-sum of a given file without reading the
-             entire file into memory.
+class Md5Result(NamedTuple):
+    length: int
+    md5_hash: str
 
-    Returns a tuple of the length and the hex digest string of the given file.
+
+def md5sum(filename: str) -> Md5Result:
+    """
+    Return the MD5 check-sum of a given file without reading the entire file
+    into memory.
+
+    Args:
+        filename    Filename to hash
+
+    Returns:
+        Md5Result tuple containing the length and the hex digest of the file.
     """
     with open(filename, mode="rb") as f:
         d = hashlib.md5()
@@ -21,7 +33,7 @@ def md5sum(filename: str) -> (int, str):
         for buf in iter(partial(f.read, 2**20), b""):
             length += len(buf)
             d.update(buf)
-    return length, d.hexdigest()
+    return Md5Result(length=length, md5_hash=d.hexdigest())
 
 
 # Derived from https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
@@ -62,3 +74,120 @@ def validate_hostname(host_name: str) -> int:
         return 1
 
     return 0
+
+
+class CleanupNotCallable(Exception):
+    """
+    Signal that caller tried to register a cleanup action with an object that
+    was not a Callable on an object.
+    """
+
+    def __init__(self, action):
+        self.action = action
+
+    def __str__(self) -> str:
+        return f"Parameter {self.action!r} ({type(self.action)} is not a Callable"
+
+
+# Following are a set of classes to perform hierarchical cleanup actions when
+# an error occurs.
+#
+# A Deque supports an ordered list of cleanup actions that will be popped and
+# executed in reverse order on demand.
+#
+# Cleanup actions are Callable objects; to queue an action requiring parameters
+# a `lambda` expression can be used.
+
+
+class CleanupAction:
+    """
+    Define a single cleanup action necessary to reverse persistent steps in an
+    operation.
+    """
+
+    def __init__(self, logger: Logger, action: Callable, name: str = None):
+        """
+        Define a cleanup action
+
+        Args:
+            logger: The active Pbench Logger object
+            action: a Callable to perform cleanup
+            name: optional printable name for debugging
+        """
+        self.action = action
+        self.logger = logger
+        self.name = name if name else repr(action)
+
+    def cleanup(self):
+        """
+        Perform a cleanup action, executing a callable associated with some
+        object (usually a Dataset or a Path) that needs cleaning.
+
+        This handles errors and reports them, but doesn't propagate failure to
+        ensure that cleanup continues as best we can.
+        """
+        try:
+            self.action()
+        except Exception:
+            # TODO: f-string used because this is shared by agent and server
+            self.logger.exception(f"Unable to {self}")
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Cleanup:
+    """
+    Maintain and process a deque of cleanup actions accumulated during a
+    sequence of steps that need to be reversed or otherwise cleaned up when
+    an error condition occurs: for example, shutting down subprocesses,
+    deleting directories or object instances.
+
+    Cleanup actions are maintained in an ordered list and will be processed
+    in reverse of the order they were registered.
+
+    For example,
+
+        cleanup = Cleanup(logger)
+        try:
+            [...]
+            file = Path(name).mkdir()
+            cleanup.add(file.unlink, "Remove file")
+            [...]
+            cleanup.add(object.delete, "Delete Object")
+            [...]
+        except Exception:
+            cleanup.cleanup()
+    """
+
+    def __init__(self, logger: Logger):
+        """
+        Define a deque on which cleanup actions will be recorded, and attach
+        a Pbench Logger object to report errors.
+
+        Args:
+            logger: Pbench Logger
+        """
+        self.logger = logger
+        self.actions: Deque[CleanupAction] = deque()
+
+    def add(self, action: Callable, name: str = None) -> None:
+        """
+        Add a new cleanup action to the front of the deque.
+
+        This registers a Callable that requires no parameters; for example
+        `dataset.delete`, or `lambda : del foo["bar"]`
+
+        Args:
+            Callable to be executed to clean up a step
+        """
+        if not callable(action):
+            raise CleanupNotCallable(action)
+        self.actions.appendleft(CleanupAction(self.logger, action, name))
+
+    def cleanup(self):
+        """
+        Perform queued cleanup actions in order from most recent to oldest.
+        """
+        for action in self.actions:
+            action.cleanup()

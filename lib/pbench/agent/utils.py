@@ -433,6 +433,18 @@ class TemplateSsh:
         popen = subprocess.Popen(args, stdout=subprocess.PIPE, universal_newlines=True)
         self.procs[host] = popen
 
+    def kill(self, host: str):
+        popen: subprocess.Popen = self.procs[host]
+        popen.kill()
+
+    def abort(self) -> None:
+        for popen in self.procs.values():
+            popen.kill()
+            try:
+                popen.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                pass
+
     def wait(self, host: str) -> Tuple[int, str, str]:
         """
         Wait for an asynchronous ssh command to complete, returning the

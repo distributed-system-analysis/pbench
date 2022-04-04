@@ -303,10 +303,14 @@ function vercmp {
 }
 
 function interrupt() {
-    # On abnormal exit, stop the tool meister declaring an interrupt occurred.
+    # Capture the shell's signal status (e.g., 130 for SIGINT). Attempt to
+    # gracefully terminate the Pbench Tool Meister session using the
+    # --interrupt option, then exit the benchmark script with the saved
+    # signal status.
+    rc=${?}
     pbench-tool-meister-stop --interrupt "${tool_group}"
     if [[ ${?} != 0 ]]; then
         error_log "[${script_name}]: failed to stop the tool meisters on interrupt."
     fi
-    return 0
+    exit ${rc}
 }
