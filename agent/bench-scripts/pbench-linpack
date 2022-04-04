@@ -177,23 +177,23 @@ for thread in ${threads//,/ }; do
 	store_and_run "$iteration_dir" "'$pbench_bin/bench-scripts/postprocess/linpack-prepare-input-file' --output-dir '$iteration_dir' --threads '$thread' --run-samples 1 --linpack-binary '$linpack_dir/$linpack_cmd'" "$benchmark-preprocess.cmd"
 	for sample in $(seq 1 $nr_samples); do
 		echo "test sample $sample of $nr_samples"
-		benchmark_results_dir="$iteration_dir/sample$sample"
+		sample_dir="$iteration_dir/sample$sample"
 		# Create the output directory expected by the postprocess script
-		mkdir -p "$benchmark_results_dir/clients/localhost/"
+		mkdir -p "$sample_dir/clients/localhost/"
 
 		## Run the benchmark and start/stop perf analysis tools
-		pbench-start-tools --group=$tool_group --dir="$benchmark_results_dir"
+		pbench-start-tools --group=$tool_group --dir="$sample_dir"
 
 		pushd "$iteration_dir" >/dev/null
 		./linpack.sh
 		popd >/dev/null
 
-		pbench-stop-tools --group=$tool_group --dir="$benchmark_results_dir"
-		pbench-send-tools --group=$tool_group --dir="$benchmark_results_dir"
+		pbench-stop-tools --group=$tool_group --dir="$sample_dir"
+		pbench-send-tools --group=$tool_group --dir="$sample_dir"
 		# Move the results to the output directory expected by the postprocess script
-		mv "$iteration_dir/"linpack.{out,meta} "$benchmark_results_dir/clients/localhost"
-		pbench-postprocess-tools --group=$tool_group --dir="$benchmark_results_dir"
-		postprocess-iteration "$benchmark_results_dir" "$benchmark_run_dir"
+		mv "$iteration_dir/"linpack.{out,meta} "$sample_dir/clients/localhost"
+		pbench-postprocess-tools --group=$tool_group --dir="$sample_dir"
+		postprocess-iteration "$sample_dir" "$benchmark_run_dir"
 	done
 	echo "Iteration $iteration complete"
 	let count++
