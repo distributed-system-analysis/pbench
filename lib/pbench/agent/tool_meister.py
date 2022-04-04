@@ -1316,14 +1316,16 @@ class ToolMeister:
         cp = tar(tar_args)
         if cp.returncode != 0:
             self.logger.warning(
-                "Tar ball creation failed with '%s' and returncode: %d, on directory %s %s",
-                cp.stdout.decode("utf-8"),
+                "Tarball creation failed with %d (stdout '%s') on %s: Re-trying now.",
                 cp.returncode,
+                cp.stdout.decode("utf-8"),
                 directory,
-                "; re-trying with --warning=none",
             )
             tar_args.insert(2, "--warning=none")
             cp = tar(tar_args)
+
+        if cp.returncode != 0:
+            self.logger.warning("Failed to create tarball, %s", cp.stdout)
         return cp
 
     def _send_directory(self, directory, uri, ctx):
@@ -1354,14 +1356,12 @@ class ToolMeister:
         tar_file = parent_dir / f"{target_dir}.tar.xz"
 
         try:
-            cp = self._create_tar(directory, tar_file)
-            if cp.returncode != 0:
-                self.logger.warning("Failed to create tarball, %s", cp.stdout)
+            if self._create_tar(directory, tar_file).returncode != 0:
                 # Tar ball creation failed even after suppressing all the warnings,
                 # we will now proceed to create an empty tar ball.
                 # TODO: it'd be better to be able to skip the PUT entirely if the
                 # tar fails and simply log a failure without TDS waiting forever.
-                if self._create_tar(Path("/dev/null"), tar_file) != 0:
+                if self._create_tar(Path("/dev/null"), tar_file).returncode != 0:
                     # Empty tarball creation failed, so we're going to skip the PUT
                     # operation.
                     raise ToolMeisterError(
@@ -1370,13 +1370,18 @@ class ToolMeister:
         except ToolMeisterError:
             raise
         except Exception:
-            self.logger.exception("Failed to create tar ball, '%s'", tar_file)
+            self.logger.exception(
+                "Exception attempting to create the tarball, '%s'", tar_file
+            )
             failures += 1
         else:
             try:
                 (_, tar_md5) = md5sum(tar_file)
             except Exception:
-                self.logger.exception("Failed to read tar ball, '%s'", tar_file)
+                self.logger.exception(
+                    "Exception on attempting to create an MD5 for the tarball, '%s'",
+                    tar_file,
+                )
                 failures += 1
             else:
                 self.logger.debug(

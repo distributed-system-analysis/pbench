@@ -127,7 +127,10 @@ class TestCreateTar:
         assert cp.returncode == 0
         assert cp.stdout == b"No error after --warning=none"
 
-    def test_create_tar_failure(self, agent_setup, mock_tar_failure, logger_fixture):
+    @pytest.mark.parametrize("logger_fixture", [logging.WARNING], indirect=True)
+    def test_create_tar_failure(
+        self, agent_setup, mock_tar_failure, caplog, logger_fixture
+    ):
         """Test if we can suppress the errors raised during the tar creation"""
         tm = ToolMeister(
             pbench_install_dir=None,
@@ -143,6 +146,10 @@ class TestCreateTar:
         cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file))
         assert cp.returncode == 1
         assert cp.stdout == b"Some error running tar command, empty tar creation failed"
+        assert (
+            f"Tarball creation failed with 1 (stdout 'Some error running tar command, empty tar creation failed') on {tmp_dir}: Re-trying now"
+            in caplog.text
+        )
 
 
 class TestSendDirectory:
@@ -209,9 +216,8 @@ class TestSendDirectory:
         failures = tm._send_directory(directory, "uri", "ctx")
         assert failures == 0
 
-    @pytest.mark.parametrize("logger_fixture", [logging.WARNING], indirect=True)
     def test_tar_create_failure(
-        self, agent_setup, mock_tar_failure, caplog, monkeypatch, logger_fixture
+        self, agent_setup, mock_tar_failure, monkeypatch, logger_fixture
     ):
         """Check if the tar creation error is properly captured in send_directory"""
         tm = ToolMeister(
@@ -233,4 +239,3 @@ class TestSendDirectory:
             failures = tm._send_directory(directory, "uri", "ctx")
             assert failures == 1
         assert f"Failed to create an empty tar {directory}.tar.xz" in str(exc.value)
-        assert "Error in tarball creation" in caplog.text
