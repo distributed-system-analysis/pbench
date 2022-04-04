@@ -184,9 +184,7 @@ for thread in ${threads//,/ }; do
 		## Run the benchmark and start/stop perf analysis tools
 		pbench-start-tools --group=$tool_group --dir="$sample_dir"
 
-		pushd "$iteration_dir" >/dev/null
-		./linpack.sh
-		popd >/dev/null
+		( cd "$iteration_dir" && ./linpack.sh )
 
 		pbench-stop-tools --group=$tool_group --dir="$sample_dir"
 		pbench-send-tools --group=$tool_group --dir="$sample_dir"
