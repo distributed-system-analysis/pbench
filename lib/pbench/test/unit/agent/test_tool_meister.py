@@ -131,7 +131,7 @@ class TestCreateTar:
     def test_create_tar_failure(
         self, agent_setup, mock_tar_failure, caplog, logger_fixture
     ):
-        """Test if we can suppress the errors raised during the tar creation"""
+        """Test tar creation failure"""
         tm = ToolMeister(
             pbench_install_dir=None,
             tmp_dir=None,
@@ -174,22 +174,37 @@ class TestSendDirectory:
     def test_tar_create_success(self, agent_setup, monkeypatch, logger_fixture):
         """This test should pass the tar creation in send directory"""
 
+        directory = agent_setup["tmp"] / f"{TestCreateTar.tm_params['hostname']}"
+        function_called = 0
+
         def fake_rmtree(directory: pathlib.Path):
-            return True
+            assert directory == agent_setup["tmp"]
+            nonlocal function_called
+            function_called += 1
+            pass
 
         monkeypatch.setattr(shutil, "rmtree", fake_rmtree)
 
-        def fake_md5(directory: str):
+        def fake_md5(tar_file: pathlib.Path):
+            assert tar_file == pathlib.Path(f"{directory}.tar.xz")
+            nonlocal function_called
+            function_called += 1
             return 10, "random_md5"
 
         monkeypatch.setattr("pbench.agent.tool_meister.md5sum", fake_md5)
 
         def fake_unlink(*args):
-            return True
+            assert args[0] == pathlib.Path(f"{directory}.tar.xz")
+            nonlocal function_called
+            function_called += 1
+            pass
 
         monkeypatch.setattr(pathlib.Path, "unlink", fake_unlink)
 
         def fake_open(*args):
+            assert args[0] == pathlib.Path(f"{directory}.tar.xz")
+            nonlocal function_called
+            function_called += 1
             return io.StringIO()
 
         monkeypatch.setattr(pathlib.Path, "open", fake_open)
@@ -206,7 +221,6 @@ class TestSendDirectory:
 
         monkeypatch.setattr(tm, "_create_tar", self.fake_tar(0, b""))
 
-        directory = agent_setup["tmp"] / f"{TestCreateTar.tm_params['hostname']}"
         url = (
             f"http://{TestCreateTar.tm_params['tds_hostname']}:{TestCreateTar.tm_params['tds_port']}/uri"
             f"/{'ctx'}/{TestCreateTar.tm_params['hostname']}"
@@ -214,6 +228,7 @@ class TestSendDirectory:
         self.add_http_mock_response(url)
 
         failures = tm._send_directory(directory, "uri", "ctx")
+        assert function_called == 4
         assert failures == 0
 
     def test_tar_create_failure(
