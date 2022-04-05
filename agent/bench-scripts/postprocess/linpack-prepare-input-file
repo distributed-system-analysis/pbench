@@ -151,14 +151,19 @@ cp -v ${linpack_binary} "${output_dir}${linpack_binary_file}"
 echo
 file "${output_dir}${linpack_binary_file}"
 echo
-echo "binary=${linpack_binary}" > "${output_dir}${linpack_metadata_file}"
+
+echo "Creating linpack script file"
+echo
+echo "#!/bin/bash" > "${output_dir}${linpack_script_file}"
+
+echo "echo binary='${linpack_binary}' > '${linpack_metadata_file}'" > "${output_dir}${linpack_script_file}"
 
 
 if [ "${use_omp}" != "y" -a "${use_omp}" != "n" ]; then
 	echo "ERROR: --use-omp must either by 'y' or 'n'!"
 	exit 5
 fi
-echo "use_omp=${use_omp}" >> "${output_dir}${linpack_metadata_file}"
+echo "echo use_omp='${use_omp}' >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
 
 num_problem_sizes=$(echo "${problem_sizes}" | wc -w)
 num_leading_dimensions=$(echo "${leading_dimensions}" | wc -w)
@@ -171,19 +176,19 @@ if [ "${num_problem_sizes}" != "${num_leading_dimensions}" -o "${num_leading_dim
 else
 	number_of_tests=${num_problem_sizes}
 fi
-echo "problem_sizes=${problem_sizes}" >> "${output_dir}${linpack_metadata_file}"
-echo "leading_dimensions=${leading_dimensions}" >> "${output_dir}${linpack_metadata_file}"
-echo "run_samples=${run_samples}" >> "${output_dir}${linpack_metadata_file}"
-echo "alignment_values=${alignment_values}" >> "${output_dir}${linpack_metadata_file}"
+echo "echo problem_sizes='${problem_sizes}' >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
+echo "echo leading_dimensions='${leading_dimensions}' >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
+echo "echo run_samples='${run_samples}' >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
+echo "echo alignment_values='${alignment_values}' >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
 
 numactl_cmd=""
 if [ -n "${numactl_args}" ]; then
 	numactl_cmd="numactl ${numactl_args}"
 fi
-echo "numactl_cmd=${numactl_cmd}" >> "${output_dir}${linpack_metadata_file}"
+echo "echo numactl_cmd='${numactl_cmd}' >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
 
-echo "lininput_header=${lininput_header}" >> "${output_dir}${linpack_metadata_file}"
-echo "lininput_subheader=${lininput_subheader}" >> "${output_dir}${linpack_metadata_file}"
+echo "echo lininput_header='${lininput_header}' >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
+echo "echo lininput_subheader='${lininput_subheader}' >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
 
 echo "${lininput_header}" > "${output_dir}${linpack_input_file}"
 echo "${lininput_subheader}" >> "${output_dir}${linpack_input_file}"
@@ -196,10 +201,6 @@ echo "${alignment_values} # alingment values (in KBytes)" >> "${output_dir}${lin
 echo "Linpack input file:"
 cat "${output_dir}${linpack_input_file}"
 echo
-
-echo "Creating linpack script file"
-echo
-echo "#!/bin/bash" > "${output_dir}${linpack_script_file}"
 
 if [ "${use_omp}" == "y" ]; then
 	echo "Enabling OMP..."
@@ -215,10 +216,10 @@ if [ "${use_omp}" == "y" ]; then
 	echo "export KMP_AFFINITY=${kmp_affinity}" >> "${output_dir}${linpack_script_file}"
 	echo
 
-	echo "kmp_affinity=${kmp_affinity}" >> "${output_dir}${linpack_metadata_file}"
+	echo "echo kmp_affinity='${kmp_affinity}' >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
 else
-	echo "kmp_affinity=" >> "${output_dir}${linpack_metadata_file}"
-	echo "threads=" >> "${output_dir}${linpack_metadata_file}"
+	echo "echo kmp_affinity= >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
+	echo "echo threads= >> '${linpack_metadata_file}'" >> "${output_dir}${linpack_script_file}"
 fi
 
 cmd="${numactl_cmd} ./${linpack_binary_file} ${linpack_input_file}"

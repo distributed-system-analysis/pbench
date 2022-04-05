@@ -254,7 +254,7 @@ for thread in ${threads//,/ }; do
 			client_result_dir="${sample_dir}/clients/${client}"
 			mkdir -p "${client_result_dir}"
 			if pbench-is-local "${client}"; then
-				cp "${iteration_dir}/"linpack.{out,meta} "${client_result_dir}"
+				mv "${iteration_dir}/"linpack.{out,meta} "${client_result_dir}"
 			else
 				scp ${scp_opts} "${client}:${iteration_dir}"/linpack.{out,meta} "${client_result_dir}"
 			fi
