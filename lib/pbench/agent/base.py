@@ -35,15 +35,22 @@ class BaseCommand(metaclass=abc.ABCMeta):
             self.pbench_run = pathlib.Path(self.config.pbench_run)
             if not self.pbench_run:
                 self.pbench_run = pathlib.Path("/var/lib/pbench-agent")
+            try:
+                self.pbench_run.mkdir(exist_ok=True)
+            except Exception as exc:
+                click.secho(
+                    f"[ERROR] unable to create pbench_run directory, '{self.pbench_run}': '{exc}'"
+                )
+                sys.exit(1)
 
         # the pbench temporary directory is always relative to the $pbench_run
         # directory
         self.pbench_tmp = self.pbench_run / "tmp"
         try:
-            self.pbench_tmp.mkdir(parents=True, exist_ok=True)
+            self.pbench_tmp.mkdir(exist_ok=True)
         except Exception as exc:
             click.secho(
-                f"[ERROR] unable to create TMP dir, '{self.pbench_tmp}': '{exc}'"
+                f"[ERROR] unable to create TMP directory, '{self.pbench_tmp}': '{exc}'"
             )
             sys.exit(1)
 
