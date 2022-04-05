@@ -226,6 +226,7 @@ echo "linpack cmd: ${cmd}"
 echo
 
 echo "exec ${cmd} | stdbuf --input=0 tee -i ${linpack_output_file}" >> "${output_dir}${linpack_script_file}"
+echo "touch linpack.finished" >> "${output_dir}${linpack_script_file}"
 chmod +x "${output_dir}${linpack_script_file}"
 
 exit 0
