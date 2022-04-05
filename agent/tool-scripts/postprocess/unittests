@@ -117,6 +117,7 @@ function evaluate_performance_results {
             <<< "Duration: $(((end_time - start_time))) seconds"
         return 1
     else
+        rmdir ${_testroot}/$1
         return 0
     fi
 }
