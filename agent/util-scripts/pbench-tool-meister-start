@@ -133,7 +133,6 @@ import sys
 import time
 
 from argparse import ArgumentParser, Namespace
-from distutils.spawn import find_executable
 from pathlib import Path
 import redis
 
@@ -639,7 +638,7 @@ port {redis_port:d}
 
         # Start the Redis Server itself
         redis_srvr = "redis-server"
-        redis_srvr_path = find_executable(redis_srvr)
+        redis_srvr_path = shutil.which(redis_srvr)
         try:
             retcode = os.spawnl(os.P_WAIT, redis_srvr_path, redis_srvr, redis_conf)
         except Exception as exc:
@@ -828,7 +827,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
         if cli_params.orchestrate == "create":
             orchestrate = True
             ssh_cmd = "ssh"
-            ssh_path = find_executable(ssh_cmd)
+            ssh_path = shutil.which(ssh_cmd)
             if ssh_path is None:
                 raise CleanupTime(
                     ReturnCode.MISSINGSSHCMD, "required ssh command not in our PATH"
