@@ -1247,3 +1247,23 @@ class TestSendDirectory:
         assert f"Failed to create an empty tar {self.directory}.tar.xz" in str(
             exc.value
         )
+
+
+def test_get_logger():
+    pass
+
+
+def test_driver():
+    pass
+
+
+def test_daemon():
+    pass
+
+
+def test_start():
+    pass
+
+
+def test_main():
+    pass
