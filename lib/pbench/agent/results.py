@@ -1,9 +1,9 @@
 import collections
 import datetime
 import os
+import shutil
 import subprocess
 import urllib.parse
-from distutils.spawn import find_executable
 from logging import Logger
 from pathlib import Path
 
@@ -73,10 +73,10 @@ class MakeResultTb:
         assert (
             config and logger
         ), f"config, '{config!r}', and/or logger, '{logger!r}', not provided"
-        self.tar_path = find_executable("tar")
+        self.tar_path = shutil.which("tar")
         if self.tar_path is None:
             raise RuntimeError("External 'tar' executable not found")
-        self.xz_path = find_executable("xz")
+        self.xz_path = shutil.which("xz")
         if self.xz_path is None:
             raise RuntimeError("External 'xz' executable not found")
         self.result_dir = self._check_result_target_dir(result_dir, "Result")

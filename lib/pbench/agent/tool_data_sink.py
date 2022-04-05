@@ -27,7 +27,6 @@ from typing import Any, Dict, List, NamedTuple, Tuple
 from bottle import Bottle, ServerAdapter, request, abort
 from configparser import DuplicateSectionError
 from daemon import DaemonContext
-from distutils.spawn import find_executable
 from jinja2 import Environment, FileSystemLoader
 import pidfile
 import redis
@@ -323,7 +322,7 @@ class PromCollector(BaseCollector):
         Prometheus collector, including how to instruct prometheus to gather
         tool data.
         """
-        self.prometheus_path = find_executable("prometheus")
+        self.prometheus_path = shutil.which("prometheus")
         if self.prometheus_path is None:
             raise ToolDataSinkError("External 'prometheus' executable not found")
 
@@ -418,15 +417,15 @@ class PcpCollector(BaseCollector):
         super().__init__(*args, **kwargs)
         self.redis_host = redis_host
         self.redis_port = redis_port
-        pmcd_wait_path = find_executable("pmcd_wait")
+        pmcd_wait_path = shutil.which("pmcd_wait")
         if pmcd_wait_path is None:
             pmcd_wait_path = self._pmcd_wait_path_def
         self.pmcd_wait_path = pmcd_wait_path
-        pmlogger_path = find_executable("pmlogger")
+        pmlogger_path = shutil.which("pmlogger")
         if pmlogger_path is None:
             pmlogger_path = self._pmlogger_path_def
         self.pmlogger_path = pmlogger_path
-        pmproxy_path = find_executable("pmproxy")
+        pmproxy_path = shutil.which("pmproxy")
         if pmproxy_path is None:
             pmproxy_path = self._pmproxy_path_def
         self.pmproxy_path = pmproxy_path
@@ -2006,12 +2005,12 @@ def start(prog: Path, parsed: Arguments):
     #     .parent   ${pbench_bin}
     pbench_bin = prog.parent.parent.parent
 
-    tar_path = find_executable("tar")
+    tar_path = shutil.which("tar")
     if tar_path is None:
         print("External 'tar' executable not found", file=sys.stderr)
         return 2
 
-    cp_path = find_executable("cp")
+    cp_path = shutil.which("cp")
     if cp_path is None:
         print("External 'cp' executable not found", file=sys.stderr)
         return 2

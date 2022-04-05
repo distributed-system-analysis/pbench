@@ -52,7 +52,6 @@ import time
 from typing import Any, Dict, List, NamedTuple
 
 from daemon import DaemonContext
-from distutils.spawn import find_executable
 from pathlib import Path
 import pidfile
 import redis
@@ -381,8 +380,8 @@ class PcpTransientTool(Tool):
         if "/usr/libexec/pcp/bin" not in os.environ["PATH"]:
             # FIXME - Shouldn't this be provided by the environment?
             os.environ["PATH"] += f"{os.pathsep}/usr/libexec/pcp/bin"
-        self.pmcd_path = find_executable("pmcd")
-        self.pmlogger_path = find_executable("pmlogger")
+        self.pmcd_path = shutil.which("pmcd")
+        self.pmlogger_path = shutil.which("pmlogger")
 
     def install(self):
         if not self.pmcd_path:
@@ -563,7 +562,7 @@ class DcgmTool(PersistentTool):
 
     def __init__(self, name, tool_opts, **kwargs):
         super().__init__(name, tool_opts, **kwargs)
-        executable = find_executable("dcgm-exporter")
+        executable = shutil.which("dcgm-exporter")
         self.args = None if executable is None else [executable]
 
     def install(self):
@@ -582,7 +581,7 @@ class NodeExporterTool(PersistentTool):
 
     def __init__(self, name, tool_opts, **kwargs):
         super().__init__(name, tool_opts, **kwargs)
-        executable = find_executable("node_exporter")
+        executable = shutil.which("node_exporter")
         self.args = None if executable is None else [executable]
 
     def install(self):
@@ -599,7 +598,7 @@ class PcpTool(PersistentTool):
 
     def __init__(self, name, tool_opts, **kwargs):
         super().__init__(name, tool_opts, **kwargs)
-        pmcd_path = find_executable("pmcd")
+        pmcd_path = shutil.which("pmcd")
         if pmcd_path is None:
             pmcd_path = self._pmcd_path_def
         executable = os.access(pmcd_path, os.X_OK)
@@ -1904,7 +1903,7 @@ def start(prog: Path, parsed: Arguments) -> int:
     """
     PROG = prog.name
 
-    tar_path = find_executable("tar")
+    tar_path = shutil.which("tar")
     if tar_path is None:
         print(f"{PROG}: External 'tar' executable not found.", file=sys.stderr)
         return 2
@@ -1930,7 +1929,7 @@ def start(prog: Path, parsed: Arguments) -> int:
         _path_list.append(str(prog.parent))
         os.environ["PATH"] = os.pathsep.join(_path_list)
 
-    sysinfo_dump = find_executable("pbench-sysinfo-dump")
+    sysinfo_dump = shutil.which("pbench-sysinfo-dump")
     if sysinfo_dump is None:
         print(
             f"{PROG}: External 'pbench-sysinfo-dump' executable not found.",
