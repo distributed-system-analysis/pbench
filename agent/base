@@ -15,6 +15,13 @@ if [[ -z "${pbench_run}" ]]; then
     if [[ -z "${pbench_run}" ]]; then
         pbench_run=/var/lib/pbench-agent
     fi
+    if [[ ! -d ${pbench_run} ]]; then
+        mkdir ${pbench_run}
+        if [[ ${?} -ne 0 ]]; then
+            echo "[ERROR] unable to create pbench_run directory, ${pbench_run}" >&2
+            exit 1
+        fi
+    fi
     export pbench_run
 else
     if [[ ! -d ${pbench_run} ]]; then
@@ -26,10 +33,12 @@ fi
 # the pbench temporary directory is always relative to the $pbench_run
 # directory
 pbench_tmp="${pbench_run}/tmp"
-mkdir -p ${pbench_tmp}
-if [[ ${?} -ne 0 ]]; then
-    echo "[ERROR] unable to create TMP directory, ${pbench_tmp}" >&2
-    exit 1
+if [[ ! -d ${pbench_tmp} ]]; then
+    mkdir ${pbench_tmp}
+    if [[ ${?} -ne 0 ]]; then
+        echo "[ERROR] unable to create TMP directory, ${pbench_tmp}" >&2
+        exit 1
+    fi
 fi
 export pbench_tmp
 
