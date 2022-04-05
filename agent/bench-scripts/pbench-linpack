@@ -35,10 +35,12 @@ orig_cmd="${*}"
 tool_group="default"
 export config=""
 sysinfo="default"
+clients="localhost"
 
 function usage {
 	printf "\tThe following options are available:\n\n"
 	printf -- "\t-C str --config=str         name of the test config\n"
+	printf -- "\t-c str[,str...] --clients=str[,str...]      a list of one or more host names (hosta,hostb,hostc) where you want ${script_name} to run\n"
 	printf -- "\t       --samples=<int>      number of samples to use per test iteration (default is ${def_nr_samples})\n"
 	printf -- "\t       --threads=int[,int]  number of threads to use (default is # local CPUs)\n"
 	printf -- "\t       --tool-group=str\n"
@@ -47,7 +49,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:h --longoptions "config:,samples:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "${@}")
+opts=$(getopt -q -o C:c:h --longoptions "config:,clients:,samples:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
 	printf -- "${script_name} ${*}\n"
 	printf -- "\n"
@@ -63,6 +65,12 @@ while true; do
 	-c|--config)
 		if [[ -n "${1}" ]]; then
 			config="${1}"
+			shift;
+		fi
+		;;
+	-c|--clients)
+		if [[ -n "${1}" ]]; then
+			clients="${1}"
 			shift;
 		fi
 		;;
@@ -201,25 +209,56 @@ for thread in ${threads//,/ }; do
 	mkdir -p "${iteration_dir}"
 	record_iteration ${count} ${thread} ${iteration}
 	echo "Starting iteration ${iteration}"
-
-	# Pre-processing: generate the linpack.input dirs (in /var/lib/pbench-agent/tmp)
+	# Pre-processing: generate the linpack.input files
 	preprocess-iteration "${iteration_dir}" "${thread}"
+	# Distribute the linpack.input files to remote clients if necessary
+	for client in ${clients//,/ }; do
+		if ! pbench-is-local "${client}"; then
+			ssh ${ssh_opts} "${client}" "mkdir -p '${iteration_dir}'"
+			scp ${scp_opts} "${iteration_dir}/"linpack* "${client}:${iteration_dir}"
+		fi
+	done
 
 	for sample in $(seq 1 ${nr_samples}); do
 		echo "test sample ${sample} of ${nr_samples}"
 		sample_dir="${iteration_dir}/sample${sample}"
-		# Create the output directory expected by the postprocess script
-		mkdir -p "${sample_dir}/clients/localhost/"
 
 		# Run the benchmark and start/stop perf analysis tools
 		pbench-start-tools --group=${tool_group} --dir="${sample_dir}"
 
-		( cd "${iteration_dir}" && ./linpack.sh )
+		for client in ${clients//,/ }; do
+			if pbench-is-local "${client}"; then
+				( cd "${iteration_dir}" && screen -dmS pbench-linpack ./linpack.sh )
+			else
+				ssh ${ssh_opts} ${client} "cd '${iteration_dir}' && screen -dmS pbench-linpack './linpack.sh'"
+			fi
+		done
+
+		# Wait for all of them to finish
+		echo "Waiting for all clients to finish pbench-linpack jobs"
+		for client in ${clients//,/ }; do
+			if pbench-is-local "${client}"; then
+				while ! [ -e "${iteration_dir}/linpack.finished" ]; do
+					sleep 1
+				done
+			else
+				ssh ${ssh_opts} ${client} "while ! [ -e '${iteration_dir}/linpack.finished' ]; do sleep 1; done"
+			fi
+			echo "Iteration finished on ${client}"
+		done
 
 		pbench-stop-tools --group=${tool_group} --dir="${sample_dir}"
 
 		# Move the results to the output directory expected by the postprocess script
-		mv "${iteration_dir}/"linpack.{out,meta} "${sample_dir}/clients/localhost"
+		for client in ${clients//,/ }; do
+			client_result_dir="${sample_dir}/clients/${client}"
+			mkdir -p "${client_result_dir}"
+			if pbench-is-local "${client}"; then
+				mv "${iteration_dir}/"linpack.{out,meta} "${client_result_dir}"
+			else
+				scp ${scp_opts} "${client}:${iteration_dir}"/linpack.{out,meta} "${client_result_dir}"
+			fi
+		done
 
 		# Have the Tool Meisters send the tool data back and post-process it
 		pbench-send-tools --group=${tool_group} --dir="${sample_dir}"
