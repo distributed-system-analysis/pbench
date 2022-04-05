@@ -1323,9 +1323,9 @@ class ToolMeister:
             )
             tar_args.insert(2, "--warning=none")
             cp = tar(tar_args)
+            if cp.returncode != 0:
+                self.logger.warning("Failed to create tarball, %s", cp.stdout)
 
-        if cp.returncode != 0:
-            self.logger.warning("Failed to create tarball, %s", cp.stdout)
         return cp
 
     def _send_directory(self, directory, uri, ctx):
