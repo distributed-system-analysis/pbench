@@ -11,7 +11,7 @@ from http import HTTPStatus
 import pytest
 import responses
 
-from pbench.agent.tool_meister import ToolMeister, ToolMeisterError, get_logger
+from pbench.agent.tool_meister import ToolMeister, ToolMeisterError
 
 tar_file = "test.tar.xz"
 
@@ -41,7 +41,7 @@ def mock_tar(monkeypatch, agent_setup):
 
 @pytest.fixture(scope="function")
 def logger_fixture(request):
-    logger = get_logger("__logger__")
+    logger = logging.getLogger(f"__logger__{request.node.name}")
     try:
         logger.setLevel(level=request.param)
     except AttributeError:
