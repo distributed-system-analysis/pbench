@@ -147,11 +147,11 @@ class TestSendDirectory:
         functions_called = []
 
         def mock_unlink(*args):
-            assert args[0] == Path(f"{TestSendDirectory.directory}.tar.xz")
+            assert args[0] == Path(f"{self.directory}.tar.xz")
             functions_called.append("mock_unlink")
 
         def mock_open(*args):
-            assert args[0] == Path(f"{TestSendDirectory.directory}.tar.xz")
+            assert args[0] == Path(f"{self.directory}.tar.xz")
             functions_called.append("mock_open")
             return io.StringIO()
 
@@ -196,7 +196,7 @@ class TestSendDirectory:
         functions_called = []
 
         def mock_unlink(*args):
-            assert args[0] == Path(f"{TestSendDirectory.directory}.tar.xz")
+            assert args[0] == Path(f"{self.directory}.tar.xz")
             functions_called.append("mock_unlink")
 
         monkeypatch.setattr(Path, "unlink", mock_unlink)
