@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Setup a fake install of linpack but without the expected executable.
+_linpack_dir=${_testtmp}/linpack
+mkdir ${_linpack_dir} || exit 1
+printf -- "#!/bin/bash\nexit 0\n" > ${_linpack_dir}/xlinpack_xeon64 || exit 1
+chmod 775 ${_linpack_dir}/xlinpack_xeon64 || exit 1
+exit 0
