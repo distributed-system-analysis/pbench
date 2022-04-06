@@ -5,10 +5,10 @@ from flask.wrappers import Request, Response
 
 from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.resources import (
-    ApiBase,
     API_OPERATION,
-    Parameter,
+    ApiBase,
     ParamType,
+    Parameter,
     Schema,
 )
 from pbench.server.database.database import Database

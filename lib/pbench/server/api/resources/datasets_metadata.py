@@ -3,14 +3,14 @@ from logging import Logger
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
-from flask_restful import abort
 
 from pbench.server import JSONOBJECT, PbenchServerConfig
 from pbench.server.api.resources import (
-    ApiBase,
+    APIAbort,
     API_OPERATION,
-    Parameter,
+    ApiBase,
     ParamType,
+    Parameter,
     Schema,
 )
 from pbench.server.database.models.datasets import (
@@ -77,9 +77,9 @@ class DatasetsMetadata(ApiBase):
         try:
             metadata = self._get_metadata(name, keys)
         except DatasetNotFound:
-            abort(HTTPStatus.BAD_REQUEST, message=f"Dataset {name} not found")
+            raise APIAbort(HTTPStatus.BAD_REQUEST, f"Dataset {name} not found")
         except MetadataError as e:
-            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+            raise APIAbort(HTTPStatus.BAD_REQUEST, str(e))
 
         return jsonify(metadata)
 
@@ -120,9 +120,8 @@ class DatasetsMetadata(ApiBase):
             dataset = Dataset.query(name=name)
         except DatasetError as e:
             self.logger.warning("Dataset {} not found: {}", name, str(e))
-            abort(
-                HTTPStatus.BAD_REQUEST,
-                message=f"Dataset {json_data['name']} not found",
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST, f"Dataset {json_data['name']} not found"
             )
 
         failures = []
@@ -133,9 +132,6 @@ class DatasetsMetadata(ApiBase):
                 self.logger.warning("Unable to update key {} = {!r}: {}", k, v, str(e))
                 failures.append(k)
         if failures:
-            abort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                message=f"Unable to update metadata keys {','.join(failures)}",
-            )
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
         results = self._get_metadata(name, list(metadata.keys()))
         return jsonify(results)

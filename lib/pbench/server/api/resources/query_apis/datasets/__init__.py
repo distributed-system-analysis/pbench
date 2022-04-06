@@ -2,10 +2,9 @@ from http import HTTPStatus
 from logging import Logger
 from typing import AnyStr, Union, List
 
-from flask_restful import abort
-
 from pbench.server import PbenchServerConfig, JSON
-from pbench.server.api.resources import Schema, SchemaError
+from pbench.server.api.resources import APIAbort, Schema, SchemaError
+
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -92,6 +91,9 @@ class RunIdBase(ElasticBase):
         object and run_id as JSON CONTEXT so that the postprocess operations
         can use it to identify the index to be searched from document index
         metadata.
+
+        Raises:
+        APIAbort: input can't be validated or normalized
         """
         run_id = client_json["run_id"]
 
@@ -99,16 +101,15 @@ class RunIdBase(ElasticBase):
         try:
             dataset = Dataset.query(md5=run_id)
         except DatasetNotFound:
-            self.logger.debug(f"Dataset with Run ID {run_id!r} not found")
-            abort(HTTPStatus.NOT_FOUND, message="Dataset not found")
-
+            raise APIAbort(
+                HTTPStatus.NOT_FOUND, f"No datasets with Run ID '{run_id!r}' found."
+            )
         owner = User.query(id=dataset.owner_id)
         if not owner:
             self.logger.error(
                 f"Dataset owner ID { dataset.owner_id!r} cannot be found in Users"
             )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Dataset owner not found")
-
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
         # We check authorization against the ownership of the dataset that
         # was selected rather than having an explicit "user"
         # JSON parameter. This will raise UnauthorizedAccess on failure.
@@ -125,15 +126,13 @@ class RunIdBase(ElasticBase):
         """
         try:
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
-        except MetadataError as e:
-            self.logger.error(f"Indices from metadata table not found {e!r}")
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+        except MetadataError as exc:
+            self.logger.error("{}", str(exc))
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         if index_map is None:
-            self.logger.error(
-                f"server.index-map not found in Metadata for a dataset {dataset!r}"
-            )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+            self.logger.error("Index map metadata has no value")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         index_keys = [key for key in index_map if root_index_name in key]
         indices = ",".join(index_keys)

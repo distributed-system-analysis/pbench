@@ -2,10 +2,9 @@ from http import HTTPStatus
 from logging import Logger
 
 from flask import Response, jsonify
-from flask_restful import abort
 
 from pbench.server import PbenchServerConfig, JSON
-from pbench.server.api.resources import Parameter, ParamType, Schema
+from pbench.server.api.resources import APIAbort, ParamType, Parameter, Schema
 from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import RunIdBase
 from pbench.server.database.models.template import TemplateNotFound
@@ -68,12 +67,6 @@ class SampleNamespace(RunIdBase):
         # Retrieve the ES indices that belong to this run_id from the metadata
         # table
         indices = self.get_index(dataset, document_index)
-        if not indices:
-            self.logger.debug(
-                f"Found no indices matching the prefix {document_index!r}"
-                f"for a dataset {dataset!r}"
-            )
-            abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
         try:
             mappings = self.get_mappings(document)
@@ -81,7 +74,7 @@ class SampleNamespace(RunIdBase):
             self.logger.exception(
                 f"Document template {document_index!r} not found in the database."
             )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Mapping not found")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         result = self.get_aggregatable_fields(mappings)
 
@@ -270,12 +263,6 @@ class SampleValues(RunIdBase):
 
         # Retrieve the ES indices that belong to this run_id
         indices = self.get_index(dataset, document_index)
-        if not indices:
-            self.logger.debug(
-                f"Found no indices matching the prefix {document_index!r}"
-                f"for a dataset {dataset!r}"
-            )
-            abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
         try:
             mappings = self.get_mappings(document)
@@ -283,7 +270,7 @@ class SampleValues(RunIdBase):
             self.logger.exception(
                 f"Document template {document_index!r} not found in the database."
             )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Mapping not found")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         # Prepare list of filters to apply for ES query
         es_filter = [{"match": {"run.id": run_id}}]
