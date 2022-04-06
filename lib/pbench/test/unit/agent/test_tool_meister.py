@@ -17,57 +17,6 @@ tar_file = "test.tar.xz"
 tmp_dir = pathlib.Path("nonexistent/tmp/dir")
 
 
-@pytest.fixture()
-def mock_tar(monkeypatch):
-    def fake_run(*args, **kwargs):
-        assert kwargs["cwd"] == tmp_dir.parent
-        assert kwargs["stdin"] is None
-        assert kwargs["stderr"] == subprocess.STDOUT
-        assert kwargs["stdout"] == subprocess.PIPE
-        c = subprocess.CompletedProcess(args, returncode=0, stdout=b"", stderr=None)
-        assert all(
-            x in c.args[0]
-            for x in [
-                "tar_path",
-                "--create",
-                "--xz",
-                "--force-local",
-                f"--file={tar_file}",
-            ]
-        )
-        return c
-
-    monkeypatch.setattr(subprocess, "run", fake_run)
-
-
-@pytest.fixture()
-def mock_tar_no_warnings(monkeypatch):
-    def fake_run(*args, **kwargs):
-        if "--warning=none" in args[0]:
-            return subprocess.CompletedProcess(
-                args, returncode=0, stdout=b"No error after --warning=none", stderr=None
-            )
-        else:
-            return subprocess.CompletedProcess(
-                args, returncode=1, stdout=b"Some error running tar", stderr=None
-            )
-
-    monkeypatch.setattr(subprocess, "run", fake_run)
-
-
-@pytest.fixture()
-def mock_tar_failure(monkeypatch):
-    def fake_run(*args, **kwargs):
-        return subprocess.CompletedProcess(
-            args,
-            returncode=1,
-            stdout=b"Some error running tar command, empty tar creation failed",
-            stderr=None,
-        )
-
-    monkeypatch.setattr(subprocess, "run", fake_run)
-
-
 class TestCreateTar:
     tm_params = {
         "benchmark_run_dir": "",
@@ -82,50 +31,85 @@ class TestCreateTar:
         "tools": [],
     }
 
-    def test_create_tar(self, mock_tar):
-        """Test create tar file"""
-        tm = ToolMeister(
+    @staticmethod
+    @pytest.fixture
+    def tool_meister():
+        return ToolMeister(
             pbench_install_dir=None,
             tmp_dir=None,
             tar_path="tar_path",
             sysinfo_dump=None,
-            params=self.tm_params,
+            params=__class__.tm_params,
             redis_server=None,
-            logger=None,
+            logger=logging.getLogger(),
         )
-        cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file))
+
+    @staticmethod
+    def test_create_tar(tool_meister, monkeypatch):
+        """Test create tar file"""
+
+        def fake_run(*args, **kwargs):
+            assert kwargs["cwd"] == tmp_dir.parent
+            assert kwargs["stdin"] is None
+            assert kwargs["stderr"] == subprocess.STDOUT
+            assert kwargs["stdout"] == subprocess.PIPE
+            c = subprocess.CompletedProcess(args, returncode=0, stdout=b"", stderr=None)
+            assert all(
+                x in c.args[0]
+                for x in [
+                    "tar_path",
+                    "--create",
+                    "--xz",
+                    "--force-local",
+                    f"--file={tar_file}",
+                ]
+            )
+            return c
+
+        monkeypatch.setattr(subprocess, "run", fake_run)
+
+        cp = tool_meister._create_tar(tmp_dir, pathlib.Path(tar_file))
         assert cp.returncode == 0
         assert cp.stdout == b""
 
-    def test_create_tar_ignore_warnings(self, mock_tar_no_warnings):
+    @staticmethod
+    def test_create_tar_ignore_warnings(tool_meister, monkeypatch):
         """Test creating tar with warning=none option specified"""
-        tm = ToolMeister(
-            pbench_install_dir=None,
-            tmp_dir=None,
-            tar_path="tar_path",
-            sysinfo_dump=None,
-            params=self.tm_params,
-            redis_server=None,
-            logger=logging.getLogger(),
-        )
 
-        cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file))
+        def fake_run(*args, **kwargs):
+            if "--warning=none" in args[0]:
+                return subprocess.CompletedProcess(
+                    args,
+                    returncode=0,
+                    stdout=b"No error after --warning=none",
+                    stderr=None,
+                )
+            else:
+                return subprocess.CompletedProcess(
+                    args, returncode=1, stdout=b"Some error running tar", stderr=None
+                )
+
+        monkeypatch.setattr(subprocess, "run", fake_run)
+
+        cp = tool_meister._create_tar(tmp_dir, pathlib.Path(tar_file))
         assert cp.returncode == 0
         assert cp.stdout == b"No error after --warning=none"
 
-    def test_create_tar_failure(self, mock_tar_failure, caplog):
+    @staticmethod
+    def test_create_tar_failure(tool_meister, monkeypatch, caplog):
         """Test tar creation failure"""
-        tm = ToolMeister(
-            pbench_install_dir=None,
-            tmp_dir=None,
-            tar_path="tar_path",
-            sysinfo_dump=None,
-            params=self.tm_params,
-            redis_server=None,
-            logger=logging.getLogger(),
-        )
 
-        cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file))
+        def fake_run(*args, **kwargs):
+            return subprocess.CompletedProcess(
+                args,
+                returncode=1,
+                stdout=b"Some error running tar command, empty tar creation failed",
+                stderr=None,
+            )
+
+        monkeypatch.setattr(subprocess, "run", fake_run)
+
+        cp = tool_meister._create_tar(tmp_dir, pathlib.Path(tar_file))
         assert cp.returncode == 1
         assert cp.stdout == b"Some error running tar command, empty tar creation failed"
         assert (
