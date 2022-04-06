@@ -149,13 +149,13 @@ class TestSendDirectory:
         responses.add(responses.PUT, uri, status=code, body=text)
 
     @staticmethod
-    def fake_tar(returncode: int, stdout: bytes):
+    def fake_create_tar(returncode: int, stdout: bytes):
         def f(directory: pathlib.Path, tar_file: pathlib.Path):
             return subprocess.CompletedProcess(
                 args=[], returncode=returncode, stdout=stdout, stderr=None
             )
 
-        TestSendDirectory.function_called.append("fake_tar")
+        TestSendDirectory.function_called.append("fake_create_tar")
         return f
 
     @staticmethod
@@ -199,7 +199,7 @@ class TestSendDirectory:
             logger=logging.getLogger(),
         )
 
-        monkeypatch.setattr(tm, "_create_tar", self.fake_tar(0, b""))
+        monkeypatch.setattr(tm, "_create_tar", self.fake_create_tar(0, b""))
 
         url = (
             f"http://{TestCreateTar.tm_params['tds_hostname']}:{TestCreateTar.tm_params['tds_port']}/uri"
@@ -209,7 +209,7 @@ class TestSendDirectory:
 
         failures = tm._send_directory(self.directory, "uri", "ctx")
         assert self.function_called == [
-            "fake_tar",
+            "fake_create_tar",
             "fake_md5",
             "fake_open",
             "fake_rmtree",
@@ -217,7 +217,7 @@ class TestSendDirectory:
         ]
         assert failures == 0
 
-    def test_tar_create_failure(self, mock_tar_failure, monkeypatch):
+    def test_tar_create_failure(self, monkeypatch):
         """Check if the tar creation error is properly captured in send_directory"""
         tm = ToolMeister(
             pbench_install_dir=None,
@@ -230,7 +230,7 @@ class TestSendDirectory:
         )
 
         monkeypatch.setattr(
-            tm, "_create_tar", self.fake_tar(1, b"Error in tarball creation")
+            tm, "_create_tar", self.fake_create_tar(1, b"Error in tarball creation")
         )
 
         with pytest.raises(ToolMeisterError) as exc:
