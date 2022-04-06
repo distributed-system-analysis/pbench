@@ -40,19 +40,6 @@ def mock_tar(monkeypatch):
     monkeypatch.setattr(subprocess, "run", fake_run)
 
 
-@pytest.fixture(scope="function")
-def logger_fixture(request):
-    marker = request.node.get_closest_marker("log_level")
-
-    # Create a logger using a test function name, that called this fixture
-    logger = logging.getLogger(f"{request.function.__name__ }")
-
-    log_level = marker.args[0] if marker else logging.ERROR
-    logger.setLevel(log_level)
-    yield logger
-    logger.setLevel(level=logging.NOTSET)
-
-
 @pytest.fixture()
 def mock_tar_no_warnings(monkeypatch):
     def fake_run(*args, **kwargs):
@@ -95,7 +82,7 @@ class TestCreateTar:
         "tools": [],
     }
 
-    def test_create_tar(self, mock_tar, logger_fixture):
+    def test_create_tar(self, mock_tar):
         """Test create tar file"""
         tm = ToolMeister(
             pbench_install_dir=None,
@@ -110,7 +97,7 @@ class TestCreateTar:
         assert cp.returncode == 0
         assert cp.stdout == b""
 
-    def test_create_tar_ignore_warnings(self, mock_tar_no_warnings, logger_fixture):
+    def test_create_tar_ignore_warnings(self, mock_tar_no_warnings):
         """Test creating tar with warning=none option specified"""
         tm = ToolMeister(
             pbench_install_dir=None,
@@ -119,15 +106,14 @@ class TestCreateTar:
             sysinfo_dump=None,
             params=self.tm_params,
             redis_server=None,
-            logger=logger_fixture,
+            logger=logging.getLogger(),
         )
 
         cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file))
         assert cp.returncode == 0
         assert cp.stdout == b"No error after --warning=none"
 
-    @pytest.mark.log_level(logging.WARNING)
-    def test_create_tar_failure(self, mock_tar_failure, caplog, logger_fixture):
+    def test_create_tar_failure(self, mock_tar_failure, caplog):
         """Test tar creation failure"""
         tm = ToolMeister(
             pbench_install_dir=None,
@@ -136,7 +122,7 @@ class TestCreateTar:
             sysinfo_dump=None,
             params=self.tm_params,
             redis_server=None,
-            logger=logger_fixture,
+            logger=logging.getLogger(),
         )
 
         cp = tm._create_tar(tmp_dir, pathlib.Path(tar_file))
@@ -149,7 +135,7 @@ class TestCreateTar:
 
 
 class TestSendDirectory:
-    """Test create_tar in send directory of tool meister"""
+    """Test ToolMeister._send_directory()'s use of ._create_tar()"""
 
     # Record all the mock functions called by a test
     function_called = []
@@ -195,7 +181,7 @@ class TestSendDirectory:
         return 10, "random_md5"
 
     @responses.activate
-    def test_tar_create_success(self, monkeypatch, logger_fixture):
+    def test_tar_create_success(self, monkeypatch):
         """This test should pass the tar creation in send directory"""
 
         monkeypatch.setattr(shutil, "rmtree", self.fake_rmtree)
@@ -210,7 +196,7 @@ class TestSendDirectory:
             sysinfo_dump=None,
             params=TestCreateTar.tm_params,
             redis_server=None,
-            logger=logger_fixture,
+            logger=logging.getLogger(),
         )
 
         monkeypatch.setattr(tm, "_create_tar", self.fake_tar(0, b""))
@@ -231,7 +217,7 @@ class TestSendDirectory:
         ]
         assert failures == 0
 
-    def test_tar_create_failure(self, mock_tar_failure, monkeypatch, logger_fixture):
+    def test_tar_create_failure(self, mock_tar_failure, monkeypatch):
         """Check if the tar creation error is properly captured in send_directory"""
         tm = ToolMeister(
             pbench_install_dir=None,
@@ -240,7 +226,7 @@ class TestSendDirectory:
             sysinfo_dump=None,
             params=TestCreateTar.tm_params,
             redis_server=None,
-            logger=logger_fixture,
+            logger=logging.getLogger(),
         )
 
         monkeypatch.setattr(
