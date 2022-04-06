@@ -579,17 +579,16 @@ install)
 	function check_required_rpm {
 		local _tpn="${1}"
 		local _tpv="${2}"
-		local _installed_rpm="$(require-rpm "${_tpn}" "${_tpv}")"
-		local rc=${?}
-		if [[ ${rc} != 0 ]]; then
-			if [[ ! -z "${_tpv}" ]]; then
-				_tpv="-${_tpv}"
-			fi
-			printf -- "%s: %s is not installed\n" "${tool}" "${_tpn}${_tpv}" >&2
+		local _installed_rpm
+		local _rc
+		_installed_rpm="$(require-rpm "${_tpn}" "${_tpv}")"
+		_rc=${?} 
+		if [[ ${_rc} != 0 ]]; then
+			printf -- "%s: %s is not installed\n" "${tool}" "${_tpn}${_tpv:+-${_tpv}}" >&2
 		else
 			printf -- "%s: %s is installed\n" "${tool}" "${_installed_rpm}"
 		fi
-		return ${rc}
+		return ${_rc}
 	}
 	if [[ ! -z "${tool_package_name}" ]]; then
 		check_required_rpm ${tool_package_name} ${tool_package_ver}
