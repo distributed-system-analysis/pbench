@@ -3,10 +3,10 @@ Tests for the Tool Meister modules.
 """
 import io
 import logging
-import pathlib
 import shutil
 import subprocess
 from http import HTTPStatus
+from pathlib import Path
 
 import pytest
 import responses
@@ -14,7 +14,7 @@ import responses
 from pbench.agent.tool_meister import ToolMeister, ToolMeisterError
 
 tar_file = "test.tar.xz"
-tmp_dir = pathlib.Path("nonexistent/tmp/dir")
+tmp_dir = Path("nonexistent/tmp/dir")
 tm_params = {
     "benchmark_run_dir": "",
     "channel_prefix": "",
@@ -49,7 +49,7 @@ class TestCreateTar:
     def test_create_tar(tool_meister, monkeypatch):
         """Test create tar file"""
 
-        def fake_run(*args, **kwargs):
+        def mock_run(*args, **kwargs):
             assert kwargs["cwd"] == tmp_dir.parent
             assert kwargs["stdin"] is None
             assert kwargs["stderr"] == subprocess.STDOUT
@@ -67,9 +67,9 @@ class TestCreateTar:
             )
             return c
 
-        monkeypatch.setattr(subprocess, "run", fake_run)
+        monkeypatch.setattr(subprocess, "run", mock_run)
 
-        cp = tool_meister._create_tar(tmp_dir, pathlib.Path(tar_file))
+        cp = tool_meister._create_tar(tmp_dir, Path(tar_file))
         assert cp.returncode == 0
         assert cp.stdout == b""
 
@@ -77,12 +77,14 @@ class TestCreateTar:
     def test_create_tar_ignore_warnings(tool_meister, monkeypatch):
         """Test creating tar with warning=none option specified"""
 
-        def fake_run(*args, **kwargs):
+        expected_std_out = b"No error after --warning=none"
+
+        def mock_run(*args, **kwargs):
             if "--warning=none" in args[0]:
                 return subprocess.CompletedProcess(
                     args,
                     returncode=0,
-                    stdout=b"No error after --warning=none",
+                    stdout=expected_std_out,
                     stderr=None,
                 )
             else:
@@ -90,82 +92,86 @@ class TestCreateTar:
                     args, returncode=1, stdout=b"Some error running tar", stderr=None
                 )
 
-        monkeypatch.setattr(subprocess, "run", fake_run)
+        monkeypatch.setattr(subprocess, "run", mock_run)
 
-        cp = tool_meister._create_tar(tmp_dir, pathlib.Path(tar_file))
+        cp = tool_meister._create_tar(tmp_dir, Path(tar_file))
         assert cp.returncode == 0
-        assert cp.stdout == b"No error after --warning=none"
+        assert cp.stdout == expected_std_out
 
     @staticmethod
     def test_create_tar_failure(tool_meister, monkeypatch, caplog):
         """Test tar creation failure"""
 
-        def fake_run(*args, **kwargs):
+        # Record number of times mock functions called by this test
+        functions_called = []
+
+        expected_std_out = b"Some error running tar command, empty tar creation failed"
+
+        def mock_run(*args, **kwargs):
+            functions_called.append("mock_run")
             return subprocess.CompletedProcess(
                 args,
                 returncode=1,
-                stdout=b"Some error running tar command, empty tar creation failed",
+                stdout=expected_std_out,
                 stderr=None,
             )
 
-        monkeypatch.setattr(subprocess, "run", fake_run)
+        monkeypatch.setattr(subprocess, "run", mock_run)
 
-        cp = tool_meister._create_tar(tmp_dir, pathlib.Path(tar_file))
+        cp = tool_meister._create_tar(tmp_dir, Path(tar_file))
         assert cp.returncode == 1
-        assert cp.stdout == b"Some error running tar command, empty tar creation failed"
-        assert (
-            "Tarball creation failed with 1 (stdout 'Some error running tar"
-            f" command, empty tar creation failed') on {tmp_dir}: Re-trying now"
-            in caplog.text
-        )
+        assert cp.stdout == expected_std_out
+        assert functions_called == ["mock_run", "mock_run"]
 
 
 class TestSendDirectory:
-    """Test ToolMeister._send_directory()'s use of ._create_tar()"""
-
-    # Record all the mock functions called by a test
-    functions_called = []
+    """Test ToolMeister._send_directory()"""
 
     directory = tmp_dir / f"{tm_params['hostname']}"
 
     @staticmethod
-    def fake_create_tar(returncode: int, stdout: bytes):
-        def f(directory: pathlib.Path, tar_file: pathlib.Path):
+    def mock_create_tar(returncode: int, stdout: bytes, functions_called: list):
+        def f(directory: Path, tar_file: Path):
+            functions_called.append("mock_create_tar")
             return subprocess.CompletedProcess(
                 args=[], returncode=returncode, stdout=stdout, stderr=None
             )
 
-        __class__.functions_called.append("fake_create_tar")
         return f
 
     @responses.activate
     def test_tar_create_success(self, tool_meister, monkeypatch):
         """This test should pass the tar creation in send directory"""
 
-        def fake_unlink(*args):
-            assert args[0] == pathlib.Path(f"{self.directory}.tar.xz")
-            self.functions_called.append("fake_unlink")
+        # Record all the mock functions called by this test
+        functions_called = []
 
-        def fake_open(*args):
-            assert args[0] == pathlib.Path(f"{self.directory}.tar.xz")
-            self.functions_called.append("fake_open")
+        def mock_unlink(*args):
+            assert args[0] == Path(f"{TestSendDirectory.directory}.tar.xz")
+            functions_called.append("mock_unlink")
+
+        def mock_open(*args):
+            assert args[0] == Path(f"{TestSendDirectory.directory}.tar.xz")
+            functions_called.append("mock_open")
             return io.StringIO()
 
-        def fake_rmtree(directory: pathlib.Path):
+        def mock_rmtree(directory: Path):
             assert directory == tmp_dir
-            self.functions_called.append("fake_rmtree")
+            functions_called.append("mock_rmtree")
 
-        def fake_md5(tar_file: pathlib.Path):
-            assert tar_file == pathlib.Path(f"{self.directory}.tar.xz")
-            self.functions_called.append("fake_md5")
+        def mock_md5(tar_file: Path):
+            assert tar_file == Path(f"{self.directory}.tar.xz")
+            functions_called.append("mock_md5")
             return 10, "random_md5"
 
-        monkeypatch.setattr(shutil, "rmtree", fake_rmtree)
-        monkeypatch.setattr("pbench.agent.tool_meister.md5sum", fake_md5)
-        monkeypatch.setattr(pathlib.Path, "unlink", fake_unlink)
-        monkeypatch.setattr(pathlib.Path, "open", fake_open)
+        monkeypatch.setattr(shutil, "rmtree", mock_rmtree)
+        monkeypatch.setattr("pbench.agent.tool_meister.md5sum", mock_md5)
+        monkeypatch.setattr(Path, "unlink", mock_unlink)
+        monkeypatch.setattr(Path, "open", mock_open)
 
-        monkeypatch.setattr(tool_meister, "_create_tar", self.fake_create_tar(0, b""))
+        monkeypatch.setattr(
+            tool_meister, "_create_tar", self.mock_create_tar(0, b"", functions_called)
+        )
 
         url = (
             f"http://{tm_params['tds_hostname']}:{tm_params['tds_port']}/uri"
@@ -174,29 +180,37 @@ class TestSendDirectory:
         responses.add(responses.PUT, url, status=HTTPStatus.OK, body="succeeded")
 
         failures = tool_meister._send_directory(self.directory, "uri", "ctx")
-        functions_called, self.functions_called = self.functions_called, []
         assert functions_called == [
-            "fake_create_tar",
-            "fake_md5",
-            "fake_open",
-            "fake_rmtree",
-            "fake_unlink",
+            "mock_create_tar",
+            "mock_md5",
+            "mock_open",
+            "mock_rmtree",
+            "mock_unlink",
         ]
         assert failures == 0
 
     def test_tar_create_failure(self, tool_meister, monkeypatch):
         """Check if the tar creation error is properly captured in send_directory"""
+
+        # Record all the mock functions called by this test
+        functions_called = []
+
+        def mock_unlink(*args):
+            assert args[0] == Path(f"{TestSendDirectory.directory}.tar.xz")
+            functions_called.append("mock_unlink")
+
+        monkeypatch.setattr(Path, "unlink", mock_unlink)
+
         monkeypatch.setattr(
             tool_meister,
             "_create_tar",
-            self.fake_create_tar(1, b"Error in tarball creation"),
+            self.mock_create_tar(1, b"Error in tarball creation", functions_called),
         )
 
         with pytest.raises(ToolMeisterError) as exc:
-            failures = tool_meister._send_directory(self.directory, "uri", "ctx")
-            assert failures == 1
-        functions_called, self.functions_called = self.functions_called, []
-        assert functions_called == ["fake_create_tar"]
+            tool_meister._send_directory(self.directory, "uri", "ctx")
+
+        assert functions_called == ["mock_create_tar", "mock_create_tar", "mock_unlink"]
         assert f"Failed to create an empty tar {self.directory}.tar.xz" in str(
             exc.value
         )
