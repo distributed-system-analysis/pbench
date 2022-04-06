@@ -154,6 +154,18 @@ if [[ -z "${scp_opts}" ]]; then
     export scp_opts
 fi
 
+if [[ -z "${PBENCH_RPM_REQUIREMENT_MODE}" ]]; then
+    PBENCH_RPM_REQUIREMENT_MODE=$(pbench-config rpm_requirement_mode pbench-agent)
+fi
+if [[ "${PBENCH_RPM_REQUIREMENT_MODE}" != "strict" && "${PBENCH_RPM_REQUIREMENT_MODE}" != "relaxed" ]]; then
+    error_log "[${script_name}] Invalid PBENCH_RPM_REQUIREMENT_MODE, '${PBENCH_RPM_REQUIREMENT_MODE}', expected 'strict' or 'relaxed'"
+    exit 1
+fi
+
+#+
+# Helper functions
+#-
+
 function is_redhat() {
     grep -q 'Red Hat' /etc/redhat-release
     return $?
@@ -179,10 +191,16 @@ function check_install_rpm {
     _rpm=$(require-rpm "${_n}" "${_v}" "${_m}")
     local rc=${?}
     if [[ ${rc} -ne 0 ]]; then
-        error_log "[${script_name}] required ${_rpm} is not installed"
-        exit ${rc}
+        if [[ "${PBENCH_RPM_REQUIREMENT_MODE}" == "strict" ]]; then
+            error_log "[${script_name}] required ${_rpm} is not installed"
+            exit ${rc}
+        else
+            warn_log "[${script_name}] required ${_rpm} is not installed"
+            log "[${script_name}] please do not report any issues until the required RPM (${_rpm}) is installed"
+        fi
+    else
+        debug_log "[${script_name}] required ${_rpm} is installed"
     fi
-    debug_log "[${script_name}] required ${_rpm} is installed"
 }
 
 # Constants
