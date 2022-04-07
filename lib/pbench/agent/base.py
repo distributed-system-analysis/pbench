@@ -41,7 +41,7 @@ class BaseCommand(metaclass=abc.ABCMeta):
                 click.secho(
                     f"[ERROR] unable to create pbench_run directory, '{self.pbench_run}': '{exc}'"
                 )
-                sys.exit(1)
+                click.get_current_context().exit(1)
 
         # the pbench temporary directory is always relative to the $pbench_run
         # directory
@@ -52,7 +52,7 @@ class BaseCommand(metaclass=abc.ABCMeta):
             click.secho(
                 f"[ERROR] unable to create TMP directory, '{self.pbench_tmp}': '{exc}'"
             )
-            sys.exit(1)
+            click.get_current_context().exit(1)
 
         # log file - N.B. not a directory
         self.pbench_log = self.config.pbench_log
@@ -66,7 +66,7 @@ class BaseCommand(metaclass=abc.ABCMeta):
             click.secho(
                 f"[ERROR] pbench installation directory, {self.pbench_install_dir}, does not exist"
             )
-            sys.exit(1)
+            click.get_current_context().exit(1)
 
         self.pbench_bspp_dir = self.pbench_install_dir / "bench-scripts" / "postprocess"
         self.pbench_lib_dir = self.pbench_install_dir / "lib"
