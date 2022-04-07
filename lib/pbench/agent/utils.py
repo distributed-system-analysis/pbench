@@ -140,11 +140,18 @@ class BaseServer:
             self._repr = f"{self.name} - {self.host}:{self.port}"
 
         self.pid_file = None
+        self.pid = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self._repr
 
-    def kill(self, ret_val: int):
+    def get_pid(self) -> int:
+        if not self.pid:
+            raw_pid = self.pid_file.read_text()
+            self.pid = int(raw_pid)
+        return self.pid
+
+    def kill(self, ret_val: int) -> int:
         """kill - attempt to KILL the running Redis server.
 
         This method is a no-op if the server instance isn't managed by us.
@@ -154,21 +161,17 @@ class BaseServer:
         assert self.pid_file is not None, f"Logic bomb!  Unexpected state: {self!r}"
 
         try:
-            raw_pid = self.pid_file.read_text()
+            pid = self.get_pid()
         except FileNotFoundError:
             return BaseReturnCode.kill_ret_code(BaseReturnCode.KILL_SUCCESS, ret_val)
+        except ValueError:
+            # Bad pid value
+            return BaseReturnCode.kill_ret_code(BaseReturnCode.KILL_BADPID, ret_val)
         except OSError:
             return BaseReturnCode.kill_ret_code(BaseReturnCode.KILL_READERR, ret_val)
         except Exception:
             # No "pid" to kill
             return BaseReturnCode.kill_ret_code(BaseReturnCode.KILL_READEXC, ret_val)
-
-        try:
-            pid = int(raw_pid)
-        except ValueError:
-            # Bad pid value
-            return BaseReturnCode.kill_ret_code(BaseReturnCode.KILL_BADPID, ret_val)
-
         pid_exists = True
         timeout = time.time() + 60
         while pid_exists:
