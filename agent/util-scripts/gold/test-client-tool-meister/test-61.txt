@@ -6,11 +6,12 @@
 "node-exporter" tool is now registered for host "remote-b.example.com", with label "blue", in group "lite"
 "dcgm" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
 "pcp" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
-pbench-tool-meister-start: Error: host: remote-a.example.com; tool: mpstat; Run-Failure-Info: mpstat: pbench-sysstat-12.0.3-1 is not installed
-pbench-tool-meister-start: Error: host: remote-b.example.com; tool: mpstat; Run-Failure-Info: mpstat: pbench-sysstat-12.0.3-1 is not installed
-pbench-tool-meister-start: Error: host: testhost.example.com; tool: mpstat; Run-Failure-Info: mpstat: pbench-sysstat-12.0.3-1 is not installed
-pbench-tool-meister-start: error TDS didn't confirm init sequence completion (None)
-ERROR - "pbench-tool-meister-start --sysinfo='block,security_mitigations,sos' 'lite'" failed to execute successfully (exit code: 21)
+[error][1900-01-01T00:00:00.000000] Tool installation checks failed
+[error][1900-01-01T00:00:00.000000] remote-a.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[error][1900-01-01T00:00:00.000000] remote-b.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[error][1900-01-01T00:00:00.000000] testhost.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[warn][1900-01-01T00:00:00.000000] Tool installation check failures encountered
+ERROR - "pbench-tool-meister-start --sysinfo='block,security_mitigations,sos' 'lite'" failed to execute successfully (exit code: 43)
 --- Finished test-61 test-client-tool-meister (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -49,22 +50,13 @@ ERROR - "pbench-tool-meister-start --sysinfo='block,security_mitigations,sos' 'l
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/dcgm
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/mpstat
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.err:
-ERROR pbench-tool-meister fetch_message -- lost connection to redis server on channel pbench-agent-cli-to-tms
 INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
-ERROR pbench-tool-meister _send_client_status -- Failed to publish client status message, '{"hostname": "remote-a.example.com", "kind": "tm", "status": "terminated"}': Error 111 connecting to localhost:17001. Connection refused.
-WARNING pbench-tool-meister driver -- RedisHandler redis_errors: 0, errors: 3, dropped: 0
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.out:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.err:
-ERROR pbench-tool-meister fetch_message -- lost connection to redis server on channel pbench-agent-cli-to-tms
 INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
-ERROR pbench-tool-meister _send_client_status -- Failed to publish client status message, '{"hostname": "remote-b.example.com", "kind": "tm", "status": "terminated"}': Error 111 connecting to localhost:17001. Connection refused.
-WARNING pbench-tool-meister driver -- RedisHandler redis_errors: 0, errors: 3, dropped: 0
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.out:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.err:
-ERROR pbench-tool-meister fetch_message -- lost connection to redis server on channel pbench-agent-cli-to-tms
 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
-ERROR pbench-tool-meister _send_client_status -- Failed to publish client status message, '{"hostname": "remote-c.example.com", "kind": "tm", "status": "terminated"}': Error 111 connecting to localhost:17001. Connection refused.
-WARNING pbench-tool-meister driver -- RedisHandler redis_errors: 0, errors: 3, dropped: 0
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.out:
 === /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat:
 --interval=42
@@ -104,6 +96,11 @@ red
 [info][1900-01-01T00:00:00.000000] "dcgm" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42 --options=forty-two"
 [info][1900-01-01T00:00:00.000000] "pcp" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
+[error][1900-01-01T00:00:00.000000] Tool installation checks failed
+[error][1900-01-01T00:00:00.000000] remote-a.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[error][1900-01-01T00:00:00.000000] remote-b.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[error][1900-01-01T00:00:00.000000] testhost.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[warn][1900-01-01T00:00:00.000000] Tool installation check failures encountered
 --- pbench.log file contents
 +++ mock-run/metadata.log file contents
 [pbench]
@@ -128,6 +125,7 @@ ssh_opts = -o BatchMode=yes -o StrictHostKeyChecking=no
 [run]
 controller = testhost.example.com
 start_run = 1900-01-01T00:00:00.000042
+end_run = 1900-01-01T00:00:00.000043
 
 [tools]
 hosts = remote-a.example.com remote-b.example.com remote-c.example.com testhost.example.com
@@ -232,15 +230,12 @@ install_check_output = mpstat: pbench-sysstat-12.0.3-1 is not installed
 +++ mock-run/tm/pbench-tool-data-sink.err file contents
 
 Bottle v#.##.## server starting up (using DataSinkWsgiServer(handler_class=<class 'pbench.agent.tool_data_sink.DataSinkWsgiServer.__init__.<locals>.DataSinkWsgiRequestHandler'>))...
-ERROR pbench-tool-data-sink fetch_message -- lost connection to redis server on channel pbench-agent-cli-from-client
 Hit Ctrl-C to quit.
 INFO pbench-tool-data-sink execute -- Tool Data Sink terminating
 INFO pbench-tool-data-sink tm_log_capture -- Running Tool Meister log capture ...
 INFO pbench-tool-data-sink web_server_run -- Bottle web server exited
 INFO pbench-tool-data-sink web_server_run -- Running Bottle web server ...
 Listening on http://localhost:8080/
-Terminating on signal 15
-lost connection to redis server on channel pbench-agent-cli-to-logging
 --- mock-run/tm/pbench-tool-data-sink.err file contents
 +++ mock-run/tm/pbench-tool-data-sink.out file contents
 --- mock-run/tm/pbench-tool-data-sink.out file contents
@@ -265,15 +260,16 @@ port 17001
 # Redis is now ready to exit, bye bye...
 --- mock-run/tm/redis.log file contents
 +++ mock-run/tm/tm-lite-testhost.example.com.err file contents
-ERROR pbench-tool-meister fetch_message -- lost connection to redis server on channel pbench-agent-cli-to-tms
 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
-ERROR pbench-tool-meister _send_client_status -- Failed to publish client status message, '{"hostname": "testhost.example.com", "kind": "tm", "status": "terminated"}': Error 111 connecting to localhost:17001. Connection refused.
-WARNING pbench-tool-meister driver -- RedisHandler redis_errors: 0, errors: 3, dropped: 0
 --- mock-run/tm/tm-lite-testhost.example.com.err file contents
 +++ mock-run/tm/tm-lite-testhost.example.com.out file contents
 --- mock-run/tm/tm-lite-testhost.example.com.out file contents
 +++ mock-run/tm/tm.logs file contents
 pbench-tool-meister-start - verify logging channel up
+remote-a.example.com INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
+remote-b.example.com INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
+remote-c.example.com INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
+testhost.example.com INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
 --- mock-run/tm/tm.logs file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/

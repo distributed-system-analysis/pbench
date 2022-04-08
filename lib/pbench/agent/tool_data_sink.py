@@ -43,7 +43,7 @@ from pbench.agent.constants import (
 )
 from pbench.agent.redis_utils import RedisChannelSubscriber, wait_for_conn_and_key
 from pbench.agent.toolmetadata import ToolMetadata
-from pbench.agent.utils import collect_local_info, check_failed_tool_init
+from pbench.agent.utils import collect_local_info
 from pbench.common import MetadataLog
 
 
@@ -1217,10 +1217,6 @@ class ToolDataSink(Bottle):
         with (mdlog_name).open("w") as fp:
             mdlog.write(fp)
 
-        # Record all the reported state from the Tool Meisters in Redis so that
-        # interested parties have access to it.
-        self.redis_server.set(tm_data_key, json.dumps(tms, sort_keys=True))
-
         return tms
 
     def _valid_data(self, data):
@@ -1262,9 +1258,8 @@ class ToolDataSink(Bottle):
             )
             self._num_tms = len(self._tm_tracking.keys())
 
-            # Tell the entity that started us that we are ready to accept
-            # requests, now that all Tool Meisters have all reported back as
-            # ready, too.
+            # Tell the entity that started us who we are, indicating we're
+            # ready, and all the TMs are ready.
             started_msg = dict(kind="ds", action="startup", status="success")
             self.logger.debug("publish %s", self._to_client_channel)
             num_present = self.redis_server.publish(

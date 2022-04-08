@@ -8,11 +8,7 @@ import time
 import ifaddr
 import pytest
 
-from pbench.agent.utils import (
-    BaseServer,
-    BaseReturnCode,
-    LocalRemoteHost,
-)
+from pbench.agent.utils import BaseServer, BaseReturnCode, LocalRemoteHost
 
 
 class OurServer(BaseServer):

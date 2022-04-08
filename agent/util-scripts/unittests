@@ -541,6 +541,7 @@ declare -A expected_status=(
     [test-58]=1
     [test-59]=1
     [test-60]=1
+    [test-61]=1
 )
 
 declare -A pre_hooks=(
