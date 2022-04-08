@@ -172,8 +172,9 @@ assert _def_orchestrate_choice in _orchestrate_choices, (
 )
 
 # Wait at most 60 seconds for the Tool Data Sink to start listening on its
-# logging sink channel.
+# logging sink channel and then to exit after terminate message is sent.
 _TDS_STARTUP_TIMEOUT = 60
+_TDS_TERMINATE_TIMEOUT = 60
 
 
 class ReturnCode(BaseReturnCode):
@@ -513,6 +514,40 @@ class ToolDataSink(BaseServer):
                     continue
                 break
         return 0 if status == "success" else 1
+
+    @staticmethod
+    def is_running(pid: int) -> bool:
+        """Is the given PID running?
+
+        See https://stackoverflow.com/questions/7653178/wait-until-a-certain-process-knowing-the-pid-end
+
+        Return True if a PID is running, else False if not.
+        """
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return False
+        return True
+
+    @staticmethod
+    def wait_for_pid(pid: int) -> bool:
+        """wait for a process to actually stop running, but eventually give up
+        to avoid a hang."""
+        running = True
+        timeout = time.time() + _TDS_STARTUP_TIMEOUT
+        while running:
+            running = __class__.is_running(pid)
+            if running:
+                if time.time() >= timeout:
+                    break
+                time.sleep(0.1)
+        return running
+
+    def shutdown_tds(self, status: int) -> None:
+        """Make sure TDS is shut down; wait for it to stop running on its own
+        and kill it if the wait times out."""
+        if self.wait_for_pid(self.get_pid()):
+            self.kill(status)
 
 
 class RedisServer(RedisServerCommon):
@@ -1095,7 +1130,8 @@ def main(_prog: str, cli_params: Namespace) -> int:
                 )
 
             recovery.add(
-                lambda: tool_data_sink.kill(ReturnCode.KEYBOARDINTERRUPT), "stop TDS"
+                lambda: tool_data_sink.shutdown_tds(ReturnCode.KEYBOARDINTERRUPT),
+                "stop TDS",
             )
 
         # We haven't yet started any remote clients; however, if we
