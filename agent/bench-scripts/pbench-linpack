@@ -132,7 +132,7 @@ function store_and_run {
 	local cmd=${2}
 	local filename=${3}
 	(
-		cd "${1}" &&
+		cd "${workdir}" &&
 		echo "${cmd}" > "${filename}" &&
 		chmod +x "${filename}" &&
 		"./${filename}" &> "${filename}.out"
@@ -197,7 +197,6 @@ trap "interrupt" INT QUIT TERM
 let count=1
 for thread in ${threads//,/ }; do
 	iteration="${count}-${thread}-threads"
-	echo ${iteration} >> ${benchmark_iterations}
 	iteration_dir="${benchmark_run_dir}/${iteration}"
 	mkdir -p "${iteration_dir}"
 	record_iteration ${count} ${thread} ${iteration}
