@@ -708,7 +708,12 @@ def terminate_no_wait(
         redis_client: Redis client
         key: TDS Redis pubsub key
     """
-    terminate_msg = {"action": "terminate", "group": group, "directory": None}
+    terminate_msg = {
+        "action": "terminate",
+        "group": group,
+        "directory": None,
+        "args": {"interrupt": False},
+    }
     try:
         ret = redis_client.publish(
             key,
