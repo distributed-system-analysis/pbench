@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Tear down the linpack install
+rm -rf ${_testtmp}/linpack
+exit 0

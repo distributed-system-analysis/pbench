@@ -508,7 +508,8 @@ Bench Script: pbench-linpack --help
 	The following options are available:
 
 	-C str --config=str         name of the test config
-	       --threads=int[,int]  number of threads to use (default is num_cpus)
+	       --samples=<int>      number of samples to use per test iteration (default is 2)
+	       --threads=int[,int]  number of threads to use (default is # local CPUs)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
 	                                available: default, none, all, ara, block, insights, kernel_config, libvirt, security_mitigations, sos, stockpile, topology
@@ -522,7 +523,8 @@ Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 	The following options are available:
 
 	-C str --config=str         name of the test config
-	       --threads=int[,int]  number of threads to use (default is num_cpus)
+	       --samples=<int>      number of samples to use per test iteration (default is 2)
+	       --threads=int[,int]  number of threads to use (default is # local CPUs)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
 	                                available: default, none, all, ara, block, insights, kernel_config, libvirt, security_mitigations, sos, stockpile, topology
@@ -536,7 +538,8 @@ pbench-linpack --bad-to-the-bone
 	The following options are available:
 
 	-C str --config=str         name of the test config
-	       --threads=int[,int]  number of threads to use (default is num_cpus)
+	       --samples=<int>      number of samples to use per test iteration (default is 2)
+	       --threads=int[,int]  number of threads to use (default is # local CPUs)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
 	                                available: default, none, all, ara, block, insights, kernel_config, libvirt, security_mitigations, sos, stockpile, topology
