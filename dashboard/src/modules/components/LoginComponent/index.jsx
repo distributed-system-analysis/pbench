@@ -1,17 +1,26 @@
-import React, { useEffect } from "react";
+import React from "react";
 import BackgroundCard from "../BackgroundComponent/index";
 import { Grid, GridItem } from "@patternfly/react-core";
-import { LoginForm, LoginRightComponent, AuthForm } from "./common-components";
+import * as cx from "classnames";
+import {
+  LoginForm,
+  LoginRightComponent,
+  AuthForm,
+  SignupForm,
+} from "./common-components";
+import { useLocation } from "react-router-dom";
+import * as AppRoutes from "../../../utils/routeConstants";
 import "./index.less";
 
 const LoginComponent = () => {
-  useEffect(() => {
+  let { pathname } = useLocation();
+  const wrapperName = pathname.includes(AppRoutes.AUTH_SIGNUP)
+    ? "signup-wrapper"
+    : "login-wrapper";
     
-  })
-  
   return (
     <BackgroundCard>
-      <div className="login-wrapper">
+      <div className={cx("main-container", wrapperName)}>
         <Grid gutter="md" className="login-page">
           <GridItem
             sm={8}
@@ -22,7 +31,13 @@ const LoginComponent = () => {
             lgOffset={1}
             className={"form"}
           >
-            <AuthForm />
+            {pathname.includes(AppRoutes.AUTH) ? (
+              <AuthForm />
+            ) : pathname.includes(AppRoutes.AUTH_LOGIN) ? (
+              <LoginForm />
+            ) : (
+              <SignupForm />
+            )}
           </GridItem>
           <GridItem
             sm={11}

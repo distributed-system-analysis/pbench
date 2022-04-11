@@ -1,7 +1,5 @@
-.login-wrapper {
+.main-container {
     position: relative;
-    top: 10%;
-
     .login-page {
         .login-footer-btn-wrapper {
             width: 100%;
@@ -20,10 +18,31 @@
         }
         .login-right-component {
             position: relative;
-            top: 15%;
         }
         .pf-c-card {
             padding: 2vh 0;
+        }
+        .signup-card {
+            height: 80%;
+            overflow: scroll;
+            padding: 0 2vh;
+
+            .contraints-container {
+                padding: 1vh;
+                .pf-c-helper-text__item-icon {
+                    margin-right: 1vw;
+                }
+                .pf-c-helper-text__item-text {
+                    color: #151515;
+                }
+            }
+            .button-wrapper {
+                margin: 1vh 0;
+            }
+            .error {
+                color: red;
+                font-size: var(--pf-global--FontSize--sm);
+            }              
         }
     }
     .auth-card {
@@ -57,5 +76,21 @@
             }
         }
     }
+    ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent; /* make scrollbar transparent */
+    }
 }
+.login-wrapper {
+    top: 10%;
+    .login-right-component {
+        top: 15%;
+    }
+}
+.signup-wrapper {
+    top: 5%;
 
+    .login-right-component {
+        top: 10%;
+    }
+}
