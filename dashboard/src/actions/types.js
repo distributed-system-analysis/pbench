@@ -6,3 +6,6 @@ export const CLEAR_TOAST = "CLEAR_TOAST";
 export const LOADING = "LOADING";
 export const COMPLETED = "COMPLETED";
 export const NETWORK_ERROR = "NETWORK_ERROR";
+
+/*USER AUTHENTICATION */
+export const KEEP_USER_LOGGED_IN = "KEEP_USER_LOGGED_IN";
