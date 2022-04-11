@@ -15,15 +15,19 @@ Meisters.
 
 import json
 import logging
+import os
 
 import redis
 
 from pbench.agent.constants import (
+    cli_tm_allowed_actions,
+    cli_tm_channel_prefix,
     tm_channel_suffix_to_client,
     tm_channel_suffix_from_client,
     api_tm_allowed_actions,
 )
 from pbench.agent.redis_utils import RedisChannelSubscriber
+from pbench.agent.utils import RedisServerCommon
 
 
 class Client:
@@ -96,7 +100,7 @@ class Client:
         else:
             self.logger = logger
 
-    def __enter__(self):
+    def __enter__(self) -> "Client":
         """On context entry, setup the connection with the Redis server."""
         if self.redis_server is None:
             self.logger.debug("constructing Redis() object")
@@ -111,7 +115,7 @@ class Client:
                     self.redis_port,
                     e,
                 )
-                return 2
+                raise
             else:
                 self.logger.debug("constructed Redis() object")
 
@@ -224,3 +228,76 @@ class Client:
                 )
                 ret_val = 1
         return ret_val
+
+
+def main(argv: list) -> int:
+    """Main program for the Tool Meister client CLI.  The command line
+    arguments are:
+
+      group - the tool group on which the actions will be taken
+
+      directory - the directory where data gathered from the actions will be
+                  stored
+
+      action - the particular action to take, can we one of "start", "stop",
+               or "send" (see `cli_tm_allowed_actions`).
+    """
+    PROG = os.path.basename(argv[0])
+    logger = logging.getLogger(PROG)
+
+    if os.environ.get("_PBENCH_TOOL_MEISTER_CLIENT_LOG_LEVEL") == "debug":
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.INFO
+    logger.setLevel(log_level)
+    sh = logging.StreamHandler()
+    sh.setLevel(log_level)
+    shf = logging.Formatter(f"{PROG}: %(message)s")
+    sh.setFormatter(shf)
+    logger.addHandler(sh)
+
+    try:
+        group = argv[1]
+    except IndexError:
+        logger.error("Missing group argument")
+        return 1
+    try:
+        directory = argv[2]
+    except IndexError:
+        logger.error("Missing directory argument")
+        return 1
+    try:
+        action = argv[3]
+    except IndexError:
+        logger.error("Missing action argument")
+        return 1
+    else:
+        if action not in cli_tm_allowed_actions:
+            logger.error(
+                "Unrecognized action, '{}', allowed actions are: {}",
+                action,
+                cli_tm_allowed_actions,
+            )
+            return 1
+        elif action == "kill":
+            # FIXME: we need to implement the gritty method of killing all the
+            # tool meisters, locally and remotely, and ensuring they are all
+            # properly shut down.
+            return 0
+
+    redis_server_env = os.environ.get("PBENCH_REDIS_SERVER", "")
+    try:
+        redis_server = RedisServerCommon(redis_server_env, "localhost")
+    except RedisServerCommon.Err as exc:
+        logger.error(str(exc))
+        return exc.return_code
+
+    with Client(
+        redis_host=redis_server.host,
+        redis_port=redis_server.port,
+        channel_prefix=cli_tm_channel_prefix,
+        logger=logger,
+    ) as client:
+        ret_val = client.publish(group, directory, action)
+
+    return ret_val
