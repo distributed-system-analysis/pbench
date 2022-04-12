@@ -245,7 +245,7 @@ def setup_logging(debug, logfile):
     return rootLogger
 
 
-def run_command(args, env=None, name=None, logger=None):
+def run_command(args, env=None, name=None):
     """Run the command defined by args and return its output"""
     try:
         output = subprocess.check_output(args=args, stderr=subprocess.STDOUT, env=env)
@@ -253,9 +253,7 @@ def run_command(args, env=None, name=None, logger=None):
             output = output.decode("utf-8")
         return output
     except subprocess.CalledProcessError as e:
-        message = "%s failed: %s" % (name, e.output)
-        logger.error(message)
-        raise RuntimeError(message)
+        raise RuntimeError("%s failed: %s" % (name, e.output))
 
 
 def _log_date():

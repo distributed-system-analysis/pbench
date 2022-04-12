@@ -19,7 +19,10 @@ class Cleanup(BaseCommand):
             "%s deprecated, will be removed in future release in favor of pbench-clear-results",
             self.name,
         )
-        run_command("pbench-clear-results")
+        try:
+            run_command("pbench-clear-results", self.logger)
+        except RuntimeError as e:
+            self.logger.error(e)
 
 
 @click.command()
