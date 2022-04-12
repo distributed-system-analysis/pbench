@@ -1,0 +1,1 @@
+--threads=1,3,5 --samples=1 --clients=a.example.com,b.example.com
