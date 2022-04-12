@@ -49,7 +49,6 @@ const SignupForm = () => {
     passwordBlockLetter: "indeterminate",
   });
 
-  const [btnDisabled, setBtnDisabled] = useState(true);
   const dispatch = useDispatch();
 
   const validateForm = useCallback(() => {
