@@ -109,10 +109,11 @@ class Test_VerifyToolGroup:
 class Test_ToolGroup:
     """Verify ToolGroup class"""
 
-    def mock_verify_tool_group(name: str, pbench_run: Path):
+    @staticmethod
+    def mock_verify_tool_group(name: str, pbench_run: str) -> Path:
         return Path("/mock/pbench-agent")
 
-    def mock_is_dir(self: Path):
+    def mock_is_dir(self: Path) -> bool:
         """Mocked directory check"""
         return True
 

@@ -19,7 +19,7 @@ class ToolGroup:
     TOOL_GROUP_PREFIX = "tools-v1"
 
     @staticmethod
-    def verify_tool_group(name, pbench_run=None):
+    def verify_tool_group(name: str, pbench_run: str = None) -> Path:
         """verify_tool_group - given a tool group name, verify it exists in the
         ${pbench_run} directory as a properly prefixed tool group directory
         name.
@@ -56,7 +56,7 @@ class ToolGroup:
             else:
                 return tg_dir
 
-    def __init__(self, name):
+    def __init__(self, name: str, pbench_run: str = None):
         """Construct a ToolGroup object from the on-disk data of the given
         tool group.
 
@@ -75,7 +75,7 @@ class ToolGroup:
 
         Raises BadToolGroup via the verify_tool_group() method on error.
         """
-        self.tg_dir = self.verify_tool_group(name)
+        self.tg_dir = ToolGroup.verify_tool_group(name, pbench_run)
         self.name = name
 
         # __trigger__
