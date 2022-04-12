@@ -7,7 +7,7 @@ import socket
 import subprocess
 import sys
 import time
-from typing import Dict, List, NamedTuple, Tuple
+from typing import Dict, List, NamedTuple
 
 from datetime import datetime
 import ifaddr
@@ -435,7 +435,7 @@ class TemplateSsh:
             except subprocess.TimeoutExpired:
                 pass
 
-    def wait(self, host: str) -> Tuple[int, str, str]:
+    def wait(self, host: str) -> Return:
         """
         Wait for an asynchronous ssh command to complete, returning the
         completion status, stdout and stderr streams as strings.
