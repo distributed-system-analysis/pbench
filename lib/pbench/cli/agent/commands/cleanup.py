@@ -19,7 +19,7 @@ class Cleanup(BaseCommand):
             "%s deprecated, will be removed in future release in favor of pbench-clear-results",
             self.name,
         )
-        run_command("pbench-clear-results")
+        run_command("pbench-clear-results", self.logger)
 
 
 @click.command()
