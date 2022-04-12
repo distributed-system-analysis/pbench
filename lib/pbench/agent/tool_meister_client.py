@@ -16,6 +16,7 @@ Meisters.
 import json
 import logging
 import os
+import sys
 
 import redis
 
@@ -230,7 +231,7 @@ class Client:
         return ret_val
 
 
-def main(argv: list) -> int:
+def main() -> int:
     """Main program for the Tool Meister client CLI.  The command line
     arguments are:
 
@@ -242,7 +243,7 @@ def main(argv: list) -> int:
       action - the particular action to take, can we one of "start", "stop",
                or "send" (see `cli_tm_allowed_actions`).
     """
-    PROG = os.path.basename(argv[0])
+    PROG = os.path.basename(sys.argv[0])
     logger = logging.getLogger(PROG)
 
     if os.environ.get("_PBENCH_TOOL_MEISTER_CLIENT_LOG_LEVEL") == "debug":
@@ -257,17 +258,17 @@ def main(argv: list) -> int:
     logger.addHandler(sh)
 
     try:
-        group = argv[1]
+        group = sys.argv[1]
     except IndexError:
         logger.error("Missing group argument")
         return 1
     try:
-        directory = argv[2]
+        directory = sys.argv[2]
     except IndexError:
         logger.error("Missing directory argument")
         return 1
     try:
-        action = argv[3]
+        action = sys.argv[3]
     except IndexError:
         logger.error("Missing action argument")
         return 1

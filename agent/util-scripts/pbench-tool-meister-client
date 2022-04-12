@@ -11,5 +11,4 @@ from pbench.agent.tool_meister_client import main
 
 
 if __name__ == "__main__":
-    status = main(sys.argv)
-    sys.exit(status)
+    sys.exit(main())

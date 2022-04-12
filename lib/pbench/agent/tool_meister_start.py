@@ -349,7 +349,6 @@ def start_tms_via_ssh(
             try:
                 exit_status = _waitpid(pid)
             except Exception:
-                exit_status = 1
                 failures += 1
                 logger.exception(
                     "failed to create a tool meister instance for host %s", host
@@ -1292,5 +1291,4 @@ def main():
         help="The tool group name of tools to be run by the Tool Meisters.",
     )
     parsed = parser.parse_args()
-    status = start(sys.argv[0], parsed)
-    sys.exit(status)
+    return start(sys.argv[0], parsed)

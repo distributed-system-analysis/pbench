@@ -303,5 +303,4 @@ def main():
         help="The tool group name of tools being run in the Tool Meisters.",
     )
     parsed = parser.parse_args()
-    status = start(sys.argv[0], parsed)
-    sys.exit(status)
+    return start(sys.argv[0], parsed)

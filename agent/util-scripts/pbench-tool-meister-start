@@ -10,4 +10,5 @@ import sys
 from pbench.agent.tool_meister_start import main
 
 
-sys.exit(main())
+if __name__ == "__main__":
+    sys.exit(main())
