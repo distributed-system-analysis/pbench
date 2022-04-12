@@ -209,7 +209,7 @@ for thread in ${threads//,/ }; do
 	mkdir -p "${iteration_dir}"
 	record_iteration ${count} ${thread} ${iteration}
 	echo "Starting iteration ${iteration}"
-	# Pre-processing: generate the linpack.input files
+	# Pre-processing: generate the linpack input files
 	preprocess-iteration "${iteration_dir}" "${thread}"
 	# Distribute the linpack input files to remote clients if necessary
 	for client in ${clients//,/ }; do
