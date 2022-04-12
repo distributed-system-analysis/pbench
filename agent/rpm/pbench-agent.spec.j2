@@ -23,16 +23,8 @@ Requires:  scl-utils, rh-python36
 Requires:  python3-pip
 %endif
 
-%if 0%{?fedora} == 0
-# NOT fedora
-%define perljsonxs pbench-perl-JSON-XS
-%else
-%define perljsonxs perl-JSON-XS
-%endif
-
-
 Requires:  bzip2, tar, xz, screen
-Requires:  perl, perl-JSON, %{perljsonxs}, perl-Time-HiRes, perl-Data-UUID
+Requires:  perl, perl-JSON, perl-JSON-XS, perl-Time-HiRes, perl-Data-UUID
 Requires:  net-tools, numactl, perf, psmisc, bc, sos, %{turbostatpkg}
 # The following are needed by UBI containers which are bare bones - most other
 # systems will probably already have them installed.
