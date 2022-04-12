@@ -54,12 +54,19 @@ https://github.com/distributed-system-analysis/pbench-dashboard.
 
 Yes, we use [Google Groups](https://groups.google.com/forum/#!forum/pbench)
 
+## How do I report and issue?
+
+Please use GitHub's [issues](
+https://github.com/distributed-system-analysis/pbench/issues/new/choose).
+
 ## Is there a place to track current and future work items?
+
 Yes, we are using GitHub [Projects](
 https://github.com/distributed-system-analysis/pbench/projects).
 Please find projects covering the [Agent](
 https://github.com/distributed-system-analysis/pbench/projects/2),
 [Server](https://github.com/distributed-system-analysis/pbench/projects/3),
+[Dashboard]()https://github.com/distributed-system-analysis/pbench/projects/1,
 and a project that is named the same as the current [milestone](
 https://github.com/distributed-system-analysis/pbench/milestones).
 

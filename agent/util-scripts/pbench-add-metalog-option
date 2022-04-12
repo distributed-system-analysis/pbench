@@ -46,10 +46,12 @@ if __name__ == "__main__":
         help="The full path and name of the target metadata.log file to modify",
     )
     parser.add_argument(
-        "section", help="The name of the section containing the option",
+        "section",
+        help="The name of the section containing the option",
     )
     parser.add_argument(
-        "option", help="The name of the option to be added or modified",
+        "option",
+        help="The name of the option to be added or modified",
     )
     parsed = parser.parse_args()
     status = main(sys.argv[0], parsed)

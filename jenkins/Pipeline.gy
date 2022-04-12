@@ -1,7 +1,10 @@
 pipeline {
     agent { label 'pbench' }
     environment {
-        EXTRA_PODMAN_SWITCHES="-e COV_REPORT_XML=yes"
+        IMAGE_ROLE="ci"
+        IMAGE_KIND="fedora"
+        IMAGE_REPO="quay.io/pbench"
+        EXTRA_PODMAN_SWITCHES="--pull=always -e COV_REPORT_XML=yes"
         NO_COLORS=0
         PY_COLORS=0
         TERM='dumb'
@@ -10,7 +13,7 @@ pipeline {
         stage('Linting & Unit Tests') {
             steps {
                 echo 'Linting, pytest-based unit tests, and legacy unit tests'
-                sh 'jenkins/run jenkins/run-unittests'
+                sh 'jenkins/run tox'
             }
         }
     }

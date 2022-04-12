@@ -1,9 +1,18 @@
 # A simple Makefile for building and pushing the various pbench-devel-*
 # container images.
+#
+# WARNING: Do not publish images layered on top of UBI images.
+#
 
 BRANCH := $(shell cat ./branch.name)
 
-all: image-fedora
+all: image-ci image-fedora
+
+push-ci:
+	buildah push localhost/pbench-ci-fedora:${BRANCH} quay.io/pbench/pbench-ci-fedora:${BRANCH}
+
+image-ci: ci.fedora.Dockerfile
+	buildah bud -f ci.fedora.Dockerfile -t localhost/pbench-ci-fedora:${BRANCH}
 
 push-fedora:
 	buildah push localhost/pbench-devel-fedora:${BRANCH} quay.io/pbench/pbench-devel-fedora:${BRANCH}

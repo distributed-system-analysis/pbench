@@ -97,17 +97,21 @@ class TestBaseServer:
         with pytest.raises(AssertionError):
             bs.kill(1)
 
-        bs = OurServer("localhost", "localhost")
         pidfile = tmp_path / "test.pid"
+
+        bs = OurServer("localhost", "localhost")
         pidfile.write_text("12345")
         bs.pid_file = pidfile
         ret = bs.kill(42)
         assert ret == 42
 
+        bs = OurServer("localhost", "localhost")
+        bs.pid_file = pidfile
         pidfile.write_text("badpid")
         ret = bs.kill(42)
         assert ret == (BaseReturnCode.KILL_BADPID * 100) + 42
 
+        bs = OurServer("localhost", "localhost")
         bs.pid_file = tmp_path / "enoent.pid"
         ret = bs.kill(42)
         assert ret == 42
@@ -119,10 +123,12 @@ class TestBaseServer:
             def read_text(self):
                 raise self._exc
 
+        bs = OurServer("localhost", "localhost")
         bs.pid_file = MockPath(OSError(13, "fake oserror"))
         ret = bs.kill(42)
         assert ret == 342
 
+        bs = OurServer("localhost", "localhost")
         bs.pid_file = MockPath(Exception("fake exception"))
         ret = bs.kill(42)
         assert ret == 142
@@ -179,8 +185,6 @@ class TestBaseServer:
                     else:
                         raise ProcessLookupError(pid)
 
-        bs.pid_file = pidfile
-
         test_cases = [
             ("1001", 42, "Kill a pid that is found, successfully"),
             ("1002", 42, "Kill a pid that is not found, successfully"),
@@ -200,6 +204,8 @@ class TestBaseServer:
             ("1006", 542, "Exception raised killing a pid w KILL"),
         ]
         for pid_text, ret_code, desc in test_cases:
+            bs = OurServer("localhost", "localhost")
+            bs.pid_file = pidfile
             pidfile.write_text(pid_text)
             mock_time = MockTime()
             mock_kill = MockKill(pid_text)

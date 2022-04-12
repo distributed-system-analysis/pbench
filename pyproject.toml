@@ -7,16 +7,44 @@ build-backend="setuptools.build_meta"
 
 [tool.black]
 skip-string-normalization = false
-exclude = '''
+include = '''
+\.pyi?$
+| ^/agent/bench-scripts/postprocess/user-benchmark-wrapper$
+| ^/agent/bench-scripts/test-bin/mock-postprocess/dbench-postprocess$
+| ^/agent/bench-scripts/test-bin/mock-postprocess/uperf-postprocess$
+| ^/agent/bench-scripts/test-bin/java$
+| ^/agent/tool-scripts/datalog/haproxy-ocp-datalog$
+| ^/agent/tool-scripts/datalog/pprof-datalog$
+| ^/agent/tool-scripts/datalog/pprof-master-n-nodes$
+| ^/agent/tool-scripts/datalog/prometheus-metrics-datalog$
+| ^/agent/tool-scripts/datalog/oc-datalog$
+| ^/agent/tool-scripts/dcgm$
+| ^/agent/tool-scripts/node-exporter$
+| ^/agent/tool-scripts/pcp-transient$
+| ^/agent/tool-scripts/pcp$
+| ^/agent/tool-scripts/postprocess/prometheus-metrics-postprocess$
+| ^/agent/util-scripts/test-bin/hostname$
+| ^/agent/util-scripts/test-bin/mock-cmd$
+| ^/agent/util-scripts/get-internal-tool$
+| ^/agent/util-scripts/pbench-add-metalog-option$
+| ^/agent/util-scripts/pbench-display-sysinfo-options$
+| ^/agent/util-scripts/pbench-tool-meister-client$
+| ^/agent/util-scripts/pbench-tool-meister-stop$
+| ^/agent/util-scripts/pbench-verify-sysinfo-options$
+| ^/agent/util-scripts/tool-meister/pbench-tool-data-sink$
+| ^/agent/util-scripts/tool-meister/pbench-tool-meister$
+| ^/agent/util-scripts/validate-hostname$
+| ^/agent/util-scripts/validate-ipaddress$
+| ^/agent/util-scripts/pbench-tool-meister-start$
+| ^/server/bin/pbench-pp-status$
+| ^/utils/fetch-curr-commit-id$
+'''
+extend-exclude = '''
 (
-fio-histo-log-pctiles.py
-| binary-search.py
-| profile-builder.py
+fio-histo-log-pctiles\.py$
+| binary-search\.py$
+| profile-builder\.py$
 | agent/stockpile
-| .git
-| .local
-| .venv
-| web-server/v0.3/demo.py
-| .eggs
+| web-server/v0\.3/demo\.py$
 )
 '''

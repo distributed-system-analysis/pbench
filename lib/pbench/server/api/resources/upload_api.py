@@ -1,17 +1,14 @@
-from collections import deque
 import datetime
 import errno
 import hashlib
 from http import HTTPStatus
-from logging import Logger
 import os
-from typing import Callable, Deque
 
 import humanize
 from flask import jsonify, request
 from flask_restful import Resource, abort
 
-from pbench.common.utils import validate_hostname
+from pbench.common.utils import validate_hostname, Cleanup
 from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import (
@@ -21,19 +18,6 @@ from pbench.server.database.models.datasets import (
     Metadata,
 )
 from pbench.server.utils import filesize_bytes
-
-
-class CleanupNotCallable(Exception):
-    """
-    Signal that caller tried to register a cleanup action with an object that
-    was not a Callable on an object.
-    """
-
-    def __init__(self, action):
-        self.action = action
-
-    def __str__(self) -> str:
-        return f"Parameter {self.action!r} ({type(self.action)} is not a Callable"
 
 
 class CleanupTime(Exception):
@@ -46,85 +30,6 @@ class CleanupTime(Exception):
     def __init__(self, status: int, message: str):
         self.status = status
         self.message = message
-
-
-class CleanupAction:
-    """
-    Define a single cleanup action necessary to reverse persistent steps in the
-    upload procedure, based on the Step ENUM associated with the action.
-    """
-
-    def __init__(self, logger: Logger, action: Callable):
-        """
-        Define a cleanup action
-
-        Args:
-            logger: The active Pbench Logger object
-            action: a Callable to perform cleanup
-        """
-        self.action = action
-        self.logger = logger
-
-    def cleanup(self):
-        """
-        Perform a cleanup action, executing a callable associated with some
-        object (usually a Dataset or a Path) that needs cleaning.
-
-        This handles errors and reports them, but doesn't propagate failure to
-        ensure that cleanup continues as best we can.
-        """
-        try:
-            self.action()
-        except Exception as e:
-            op = self.action
-            self.logger.error(
-                "Unable to {} {} {}: {}",
-                op.__name__,
-                type(op.__self__),
-                str(op.__self__),
-                e,
-            )
-
-
-class Cleanup:
-    """
-    Maintain and process a deque of cleanup actions accumulated during the
-    upload procedure. Cleanup actions will be processed in reverse of the
-    order they were registered.
-    """
-
-    def __init__(self, logger: Logger):
-        """
-        Define a deque on which cleanup actions will be recorded, and attach
-        a Pbench Logger object to report errors.
-
-        Args:
-            logger: Pbench Logger
-        """
-        self.logger = logger
-        self.actions: Deque[CleanupAction] = deque()
-
-    def add(self, action: Callable) -> None:
-        """
-        Add a new cleanup action to the front of the deque.
-
-        This is a Callable on some object, requiring no parameters; for example
-        if `dataset` is a Dataset object, `dataset.delete`, or for a Path
-        object `file` representing a directory, `file.rmdir`.
-
-        Args:
-            Callable to be executed to clean up a step
-        """
-        if not callable(action):
-            raise CleanupNotCallable(action)
-        self.actions.appendleft(CleanupAction(self.logger, action))
-
-    def cleanup(self):
-        """
-        Perform queued cleanup actions in order from most recent to oldest.
-        """
-        for action in self.actions:
-            action.cleanup()
 
 
 class Upload(Resource):

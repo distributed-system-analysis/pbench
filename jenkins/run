@@ -1,19 +1,26 @@
 #!/bin/bash
 
-# Run commands within the pbench-devel-${IMAGE_KIND} container image.
-#
-# Generally you want to run a shell, and `source jenkins/python-setup.sh` to
-# initialize a Pbench testing environment.
+# Run commands within the pbench-${IMAGE_ROLE}-${IMAGE_KIND} container image.
 #
 # Several customizing inputs can be given via environment variables:
 #
 # EXTRA_PODMAN_SWITCHES []
 # IMAGE_REPO [quay.io/pbench]
+# IMAGE_ROLE [devel] (see Makefile for options)
 # IMAGE_KIND [fedora] (see Makefile for options)
+# IMAGE [image spec you want, overrides all of the above]
 #
 # For example, run an interactive bash shell:
 #
 #     EXTRA_PODMAN_SWITCHES=-it jenkins/run bash
+#
+# Or ensure the latest image is used:
+#
+#     EXTRA_PODMAN_SWITCHES=--pull=always jenkins/run tox
+#
+# Or perhaps to check out a locally built image:
+#
+#     EXTRA_PODMAN_SWITCHES=-it IMAGE_ROLE=ci IMAGE_REPO=localhost jenkins/run bash
 #
 if [[ "$(realpath -e $(pwd)/jenkins)" != "$(realpath -e $(dirname ${0}))" ]]; then
     printf -- "ERROR - Jenkins running from an unexpected directory, %s\n" "$(pwd)" >&2
@@ -27,13 +34,9 @@ fi
 
 _branch_name="$(cat jenkins/branch.name)"
 
-if [[ -z "${IMAGE_REPO}" ]]; then
-    IMAGE_REPO="quay.io/pbench"
-fi
-
-if [[ -z "${IMAGE_KIND}" ]]; then
-    IMAGE_KIND="fedora"
-fi
+_image_repo=${IMAGE_REPO:-quay.io/pbench}
+_image_role=${IMAGE_ROLE:-devel}
+_image_kind=${IMAGE_KIND:-fedora}
 
 USER_NAME=${USER}
 HOME_DIR=/home/${USER_NAME}
@@ -48,8 +51,9 @@ if [ "${git_dir}" != "$(pwd)/.git" ]; then
     GIT_BASE_VOLUME="--volume ${git_common_dir}:${git_common_dir}:z"
 fi
 
+_image=${IMAGE:-${_image_repo}/pbench-${_image_role}-${_image_kind}:${_branch_name}}
+
 podman run \
-    --pull=always \
     --userns=keep-id \
     --volume $(pwd):${HOME_DIR}/pbench:z \
     --volume ${HOME_DIR} \
@@ -60,4 +64,4 @@ podman run \
     --ulimit nofile=65536:65536 \
     --rm \
     ${EXTRA_PODMAN_SWITCHES} \
-    ${IMAGE_REPO}/pbench-devel-${IMAGE_KIND}:${_branch_name} /bin/bash -c "${*}"
+    ${_image} jenkins/runner "${@}"
