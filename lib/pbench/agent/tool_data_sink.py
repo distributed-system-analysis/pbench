@@ -39,6 +39,7 @@ from pbench.agent.constants import (
     tm_channel_suffix_to_client,
     tm_channel_suffix_to_logging,
     tm_channel_suffix_to_tms,
+    tm_data_key,
 )
 from pbench.agent.redis_utils import RedisChannelSubscriber, wait_for_conn_and_key
 from pbench.agent.toolmetadata import ToolMetadata
@@ -1252,6 +1253,9 @@ class ToolDataSink(Bottle):
             # Record the collected information about the Tool Meisters in the
             # run directory.
             self._tm_tracking = self.record_tms(tms)
+            self.redis_server.set(
+                tm_data_key, json.dumps(self._tm_tracking, sort_keys=True)
+            )
             self._num_tms = len(self._tm_tracking.keys())
 
             # Tell the entity that started us who we are, indicating we're
