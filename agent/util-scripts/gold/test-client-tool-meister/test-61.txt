@@ -1,0 +1,285 @@
++++ Running test-61 test-client-tool-meister lite with-remotes
+"mpstat" tool is now registered for host "testhost.example.com" in group "lite"
+"dcgm" tool is now registered for host "testhost.example.com" in group "lite"
+"mpstat" tool is now registered for host "remote-a.example.com" in group "lite"
+"mpstat" tool is now registered for host "remote-b.example.com", with label "blue", in group "lite"
+"node-exporter" tool is now registered for host "remote-b.example.com", with label "blue", in group "lite"
+"dcgm" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
+"pcp" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
+[error][1900-01-01T00:00:00.000000] Tool installation checks failed
+[error][1900-01-01T00:00:00.000000] remote-a.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[error][1900-01-01T00:00:00.000000] remote-b.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[error][1900-01-01T00:00:00.000000] testhost.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[warn][1900-01-01T00:00:00.000000] Tool installation check failures encountered
+ERROR - "pbench-tool-meister-start --sysinfo='block,security_mitigations,sos' 'lite'" failed to execute successfully (exit code: 43)
+--- Finished test-61 test-client-tool-meister (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/mock-run
+/var/tmp/pbench-test-utils/pbench/mock-run/metadata.log
+/var/tmp/pbench-test-utils/pbench/mock-run/ssh_config
+/var/tmp/pbench-test-utils/pbench/mock-run/ssh_config.d
+/var/tmp/pbench-test-utils/pbench/mock-run/tm
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.err
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.err
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.err
+/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.out
+/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.err
+/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.out
+/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.err
+/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.out
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-b.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-b.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-b.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-b.example.com/node-exporter
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-c.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-c.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-c.example.com/dcgm
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-c.example.com/pcp
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/dcgm
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/mpstat
+=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.err:
+INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
+=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.out:
+=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.err:
+INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
+=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.out:
+=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.err:
+INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
+=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.out:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat:
+--interval=42
+--options=forty-two
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-b.example.com/__label__:
+blue
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-b.example.com/mpstat:
+--interval=42
+--options=forty-two
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-b.example.com/node-exporter:
+--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-c.example.com/__label__:
+red
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-c.example.com/dcgm:
+--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-c.example.com/pcp:
+--interval=42
+--options=forty-two
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/dcgm:
+--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/mpstat:
+--interval=42
+--options=forty-two
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42 --options=forty-two"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts"
+[info][1900-01-01T00:00:00.000000] "dcgm" tool is now registered for host "testhost.example.com" in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42 --options=forty-two"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "remote-a.example.com" in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42 --options=forty-two"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "remote-b.example.com", with label "blue", in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts"
+[info][1900-01-01T00:00:00.000000] "node-exporter" tool is now registered for host "remote-b.example.com", with label "blue", in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts"
+[info][1900-01-01T00:00:00.000000] "dcgm" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42 --options=forty-two"
+[info][1900-01-01T00:00:00.000000] "pcp" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
+[error][1900-01-01T00:00:00.000000] Tool installation checks failed
+[error][1900-01-01T00:00:00.000000] remote-a.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[error][1900-01-01T00:00:00.000000] remote-b.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[error][1900-01-01T00:00:00.000000] testhost.example.com: mpstat return code: 1, output: 'mpstat: pbench-sysstat-12.0.3-1 is not installed'
+[warn][1900-01-01T00:00:00.000000] Tool installation check failures encountered
+--- pbench.log file contents
++++ mock-run/metadata.log file contents
+[pbench]
+config = 
+date = 1900-01-01T00:00:00
+name = mock-run
+rpm-version = v(unknown)-g(unknown)
+script = fake-bm
+
+[controller]
+hostname = testhost.example.com
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
+ssh_opts = -o BatchMode=yes -o StrictHostKeyChecking=no
+
+[run]
+controller = testhost.example.com
+start_run = 1900-01-01T00:00:00.000042
+end_run = 1900-01-01T00:00:00.000043
+
+[tools]
+hosts = remote-a.example.com remote-b.example.com remote-c.example.com testhost.example.com
+group = lite
+trigger = None
+
+[tools/remote-a.example.com]
+label = 
+tools = mpstat
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
+rpm-version = v(unknown)-g(unknown)
+mpstat = --interval=42 --options=forty-two
+
+[tools/remote-a.example.com/mpstat]
+options = --interval=42 --options=forty-two
+install_check_status_code = 1
+install_check_output = mpstat: pbench-sysstat-12.0.3-1 is not installed
+
+[tools/remote-b.example.com]
+label = blue
+tools = mpstat,node-exporter
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
+rpm-version = v(unknown)-g(unknown)
+mpstat = --interval=42 --options=forty-two
+node-exporter = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+
+[tools/remote-b.example.com/mpstat]
+options = --interval=42 --options=forty-two
+install_check_status_code = 1
+install_check_output = mpstat: pbench-sysstat-12.0.3-1 is not installed
+
+[tools/remote-b.example.com/node-exporter]
+options = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+install_check_status_code = 0
+install_check_output = node_exporter tool properly installed
+
+[tools/remote-c.example.com]
+label = red
+tools = dcgm,pcp
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
+rpm-version = v(unknown)-g(unknown)
+dcgm = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+pcp = --interval=42 --options=forty-two
+
+[tools/remote-c.example.com/dcgm]
+options = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+install_check_status_code = 0
+install_check_output = dcgm tool (dcgm-exporter) properly installed
+
+[tools/remote-c.example.com/pcp]
+options = --interval=42 --options=forty-two
+install_check_status_code = 0
+install_check_output = pcp tool (pmcd) properly installed
+
+[tools/testhost.example.com]
+label = 
+tools = dcgm,mpstat
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
+rpm-version = v(unknown)-g(unknown)
+dcgm = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+mpstat = --interval=42 --options=forty-two
+
+[tools/testhost.example.com/dcgm]
+options = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+install_check_status_code = 0
+install_check_output = dcgm tool (dcgm-exporter) properly installed
+
+[tools/testhost.example.com/mpstat]
+options = --interval=42 --options=forty-two
+install_check_status_code = 1
+install_check_output = mpstat: pbench-sysstat-12.0.3-1 is not installed
+
+--- mock-run/metadata.log file contents
++++ mock-run/tm/pbench-tool-data-sink.err file contents
+
+Bottle v#.##.## server starting up (using DataSinkWsgiServer(handler_class=<class 'pbench.agent.tool_data_sink.DataSinkWsgiServer.__init__.<locals>.DataSinkWsgiRequestHandler'>))...
+Hit Ctrl-C to quit.
+INFO pbench-tool-data-sink execute -- Tool Data Sink terminating
+INFO pbench-tool-data-sink tm_log_capture -- Running Tool Meister log capture ...
+INFO pbench-tool-data-sink web_server_run -- Bottle web server exited
+INFO pbench-tool-data-sink web_server_run -- Running Bottle web server ...
+Listening on http://localhost:8080/
+--- mock-run/tm/pbench-tool-data-sink.err file contents
++++ mock-run/tm/pbench-tool-data-sink.out file contents
+--- mock-run/tm/pbench-tool-data-sink.out file contents
++++ mock-run/tm/redis.conf file contents
+bind localhost
+daemonize yes
+dir /var/tmp/pbench-test-utils/pbench/mock-run/tm
+save ""
+appendonly no
+dbfilename pbench-redis.rdb
+logfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
+loglevel notice
+pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis_17001.pid
+port 17001
+--- mock-run/tm/redis.conf file contents
++++ mock-run/tm/redis.log file contents
+# Configuration loaded
+# Server initialized
+* Ready to accept connections
+# User requested shutdown...
+* Removing the pid file.
+# Redis is now ready to exit, bye bye...
+--- mock-run/tm/redis.log file contents
++++ mock-run/tm/tm-lite-testhost.example.com.err file contents
+INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
+--- mock-run/tm/tm-lite-testhost.example.com.err file contents
++++ mock-run/tm/tm-lite-testhost.example.com.out file contents
+--- mock-run/tm/tm-lite-testhost.example.com.out file contents
++++ mock-run/tm/tm.logs file contents
+pbench-tool-meister-start - verify logging channel up
+remote-a.example.com INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
+remote-b.example.com INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
+remote-c.example.com INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
+testhost.example.com INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
+--- mock-run/tm/tm.logs file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-a.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-a.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-a.example.com echo ${SSH_CONNECTION}
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-b.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-b.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-b.example.com echo ${SSH_CONNECTION}
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-c.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-c.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-c.example.com echo ${SSH_CONNECTION}
+--- test-execution.log file contents
