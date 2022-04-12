@@ -41,7 +41,6 @@ The sequence of steps to execute the above behaviors is as follows:
    8. Verify all the requested Tool Meisters have reported back and that their
       tool installation checks were successful
 
-There is a specific flow of data between these various components.  This		￼
 There is a specific flow of data between these various components.  This
 command, `pbench-tool-meister-start`, waits on the "<prefix>-to-client"
 channel after starting the TDS and TMs.  The TDS is responsible for creating
