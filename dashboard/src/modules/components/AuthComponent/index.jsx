@@ -2,22 +2,33 @@ import React from "react";
 import BackgroundCard from "../BackgroundComponent/index";
 import { Grid, GridItem } from "@patternfly/react-core";
 import * as cx from "classnames";
-import {
-  LoginForm,
-  LoginRightComponent,
-  AuthForm,
-  SignupForm,
-} from "./common-components";
-import { useLocation } from "react-router-dom";
+import { LoginRightComponent, AuthForm } from "./common-components";
+import SignupForm from "./SignupForm";
+import LoginForm from "./LoginForm";
+import { useLocation, Navigate } from "react-router-dom";
 import * as AppRoutes from "../../../utils/routeConstants";
 import "./index.less";
+import Cookies from "js-cookie";
 
-const LoginComponent = () => {
+const LoginSignup = () => {
   let { pathname } = useLocation();
+  return pathname.includes(AppRoutes.AUTH_LOGIN) ? (
+    <LoginForm />
+  ) : (
+    <SignupForm />
+  );
+};
+
+const AuthComponent = () => {
+  let { pathname } = useLocation();
+  const loggedIn = Cookies.get("isLoggedIn");
+  if (loggedIn) {
+    return <Navigate to="/" />;
+  }
   const wrapperName = pathname.includes(AppRoutes.AUTH_SIGNUP)
     ? "signup-wrapper"
     : "login-wrapper";
-    
+
   return (
     <BackgroundCard>
       <div className={cx("main-container", wrapperName)}>
@@ -31,13 +42,7 @@ const LoginComponent = () => {
             lgOffset={1}
             className={"form"}
           >
-            {pathname.includes(AppRoutes.AUTH) ? (
-              <AuthForm />
-            ) : pathname.includes(AppRoutes.AUTH_LOGIN) ? (
-              <LoginForm />
-            ) : (
-              <SignupForm />
-            )}
+            {pathname.includes(AppRoutes.AUTH) ? <AuthForm /> : <LoginSignup />}
           </GridItem>
           <GridItem
             sm={11}
@@ -58,4 +63,4 @@ const LoginComponent = () => {
   );
 };
 
-export default LoginComponent;
+export default AuthComponent;
