@@ -38,7 +38,10 @@ The sequence of steps to execute the above behaviors is as follows:
       started
       - The TDS knows all the TMs that were started from the registered tools
         data structure argument given to it
+   8. Verify all the requested Tool Meisters have reported back and that their
+      tool installation checks were successful
 
+There is a specific flow of data between these various components.  This		￼
 There is a specific flow of data between these various components.  This
 command, `pbench-tool-meister-start`, waits on the "<prefix>-to-client"
 channel after starting the TDS and TMs.  The TDS is responsible for creating
@@ -144,6 +147,7 @@ from pbench.agent.constants import (
     tm_channel_suffix_to_client,
     tm_channel_suffix_from_client,
     tm_channel_suffix_to_logging,
+    tm_data_key,
 )
 from pbench.agent.redis_utils import RedisChannelSubscriber
 from pbench.agent.tool_data_sink import main as tds_main
@@ -160,6 +164,7 @@ from pbench.agent.utils import (
     LocalRemoteHost,
     RedisServerCommon,
     TemplateSsh,
+    warn_log,
 )
 from pbench.common.utils import Cleanup, validate_hostname
 
@@ -223,6 +228,8 @@ class ReturnCode(BaseReturnCode):
     INVALIDORCHESTRATE = 39
     REMOTENOTREACHABLE = 40
     KEYBOARDINTERRUPT = 41
+    INVALIDTMDATA = 42
+    TOOLINSTALLFAILURES = 43
 
 
 class CleanupTime(Exception):
@@ -514,6 +521,40 @@ class ToolDataSink(BaseServer):
                     continue
                 break
         return 0 if status == "success" else 1
+
+    @staticmethod
+    def is_running(pid: int) -> bool:
+        """Is the given PID running?
+
+        See https://stackoverflow.com/questions/7653178/wait-until-a-certain-process-knowing-the-pid-end
+
+        Return True if a PID is running, else False if not.
+        """
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return False
+        return True
+
+    @staticmethod
+    def wait_for_pid(pid: int) -> bool:
+        """wait for a process to actually stop running, but eventually give up
+        to avoid a hang."""
+        running = True
+        timeout = time.time() + _TDS_STARTUP_TIMEOUT
+        while running:
+            running = __class__.is_running(pid)
+            if running:
+                if time.time() >= timeout:
+                    break
+                time.sleep(0.1)
+        return running
+
+    def shutdown_tds(self, status: int) -> None:
+        """Make sure TDS is shut down; wait for it to stop running on its own
+        and kill it if the wait times out."""
+        if self.wait_for_pid(self.get_pid()):
+            self.kill(status)
 
 
 class RedisServer(RedisServerCommon):
@@ -1013,9 +1054,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         except Exception as exc:
             raise CleanupTime(
                 ReturnCode.REDISCHANFAILED,
-                "Unable to connect to redis server, %s: %r",
-                redis_server,
-                exc,
+                f"Unable to connect to redis server, {redis_server}: {exc}",
             )
 
         # +
@@ -1101,7 +1140,8 @@ def start(_prog: str, cli_params: Namespace) -> int:
                 )
 
             recovery.add(
-                lambda: tool_data_sink.kill(ReturnCode.KEYBOARDINTERRUPT), "stop TDS"
+                lambda: tool_data_sink.shutdown_tds(ReturnCode.KEYBOARDINTERRUPT),
+                "stop TDS",
             )
 
         # We haven't yet started any remote clients; however, if we
@@ -1167,6 +1207,39 @@ def start(_prog: str, cli_params: Namespace) -> int:
                 ReturnCode.TDSWAITFAILURE, "TDS didn't confirm init sequence completion"
             )
 
+        # +
+        # Step 8. - Verify all the Tool Meisters have reported back, and that
+        #           their tool install checks all passed.
+        # -
+        try:
+            tms = json.loads(redis_client.get(tm_data_key))
+        except Exception as exc:
+            error_log(f"Error loading operational Tool Meister data, '{exc}'")
+            raise CleanupTime(
+                ReturnCode.INVALIDTMDATA,
+                "Failed to load reported Tool Meister operational data",
+            )
+
+        tool_install_failures = {}
+        for host, tm in tms.items():
+            if not tm["failed_tools"]:
+                continue
+            tool_install_failures[host] = tm
+
+        if tool_install_failures:
+            error_log("Tool installation checks failed")
+            for host, tm in tool_install_failures.items():
+                for tool_name, (failure_code, output) in tm["installs"].items():
+                    if failure_code != 0:
+                        error_log(
+                            f"{host}: {tool_name} return code: {failure_code},"
+                            f" output: '{output}'"
+                        )
+            raise CleanupTime(
+                ReturnCode.TOOLINSTALLFAILURES,
+                "Tool installation check failures encountered",
+            )
+
         # Setup a Client API object using our existing to_client_chan object to
         # drive the following client operations ("sysinfo" [optional] and "init"
         # [required]).
@@ -1211,24 +1284,23 @@ def start(_prog: str, cli_params: Namespace) -> int:
                     )
         return ret_val
     except KeyboardInterrupt:
-        status = ReturnCode.KEYBOARDINTERRUPT
-        logger.warning("Interrupted by user")
+        warn_log("Interrupted by user")
         recovery.cleanup()
-        return status
-    except Exception as e:
-        if isinstance(e, CleanupTime):
-            cause = e.__cause__ if e.__cause__ else e.__context__
-            if e.status == ReturnCode.INITFAILED:
-                log_func = logger.exception if cause else logger.error
-                log_func("error %s", e.message)
-            else:
-                logger.warning("error %s (%s)", e.message, cause)
-            status = e.status
+        return ReturnCode.KEYBOARDINTERRUPT
+    except CleanupTime as e:
+        cause = e.__cause__ if e.__cause__ else e.__context__
+        if e.status == ReturnCode.INITFAILED:
+            log_func = logger.exception if cause else logger.error
+            log_func("error %s", e.message)
         else:
-            status = ReturnCode.INITFAILED
-            logger.exception("Unexpected exception in outer try")
+            _cause_msg = f" ({cause})" if cause else ""
+            warn_log(f"{e.message}{_cause_msg}")
         recovery.cleanup()
-        return status
+        return e.status
+    except Exception:
+        logger.exception("Unexpected exception in outer try")
+        recovery.cleanup()
+        return ReturnCode.INITFAILED
 
 
 _NAME_ = "pbench-tool-meister-start"
