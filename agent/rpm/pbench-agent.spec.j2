@@ -46,10 +46,7 @@ Requires:  python3-jinja2, python3-redis, python3-requests, python3-sh
 Requires:  python3-psutil
 %endif
 
-%if 0%{?rhel} >= 7
-%define prefixjsonxs pbench-
-%endif
-Requires:  perl, perl-Data-UUID, perl-JSON, %{?prefixjsonxs}perl-JSON-XS
+Requires:  perl, perl-Data-UUID, perl-JSON, perl-JSON-XS
 Requires:  perl-Time-HiRes
 
 Requires:  bc, bzip2, hostname, iproute, iputils, net-tools
