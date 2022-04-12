@@ -1,29 +1,11 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import favicon from './assets/logo/favicon.ico';
 import './App.css';
 import MainLayout from "./modules/containers/MainLayout/index";
 import * as AppRoutes from "./utils/routeConstants";
 import AuthComponent from './modules/components/AuthComponent';
 import '@patternfly/patternfly/patternfly.css';
-import Cookies from 'js-cookie';
-
-const AuthRoute = props => {
-  const isAuthUser = Cookies.get('isLoggedIn');
-  if (isAuthUser) return <Navigate to="/home" />;
-  else if (!isAuthUser) return <Navigate to="/auth" />;
-
-  return <Route {...props} />;
-};
-
-const GuardedRoute = ({...props}) => {
-  const loggedIn = Cookies.get('isLoggedIn');
-  if (loggedIn) {
-    return <Route {...props} />;
-  }
-  console.log('You are redirected because you are not logged in')
-  return <Navigate to="/login" />
-}
 
 function App() {  
   
