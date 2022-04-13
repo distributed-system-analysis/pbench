@@ -228,9 +228,10 @@ for thread in ${threads//,/ }; do
 
 		for client in ${clients//,/ }; do
 			if pbench-is-local "${client}"; then
+				\rm -f "${iteration_dir}/linpack.finished"
 				( cd "${iteration_dir}" && screen -dmS pbench-linpack ./linpack.sh )
 			else
-				ssh ${ssh_opts} ${client} "cd '${iteration_dir}' && screen -dmS pbench-linpack './linpack.sh'"
+				ssh ${ssh_opts} ${client} "cd '${iteration_dir}' && \rm -f linpack.finished && screen -dmS pbench-linpack './linpack.sh'"
 			fi
 		done
 
