@@ -31,8 +31,8 @@ function SearchBox({
       <TextInput
         type="text"
         placeholder="Search Controllers"
-        style={{ width: 20 }}
         onChange={(e) => setControllerValue(e)}
+        className="searchControllerInput"
       ></TextInput>
       <Button variant="control" onClick={searchController}>
         <SearchIcon />
