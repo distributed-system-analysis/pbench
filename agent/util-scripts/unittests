@@ -22,9 +22,9 @@ let res=res+${?}
 _testopt=${_testroot}/opt/pbench-agent
 mkdir ${_testopt}
 let res=res+${?}
-mkdir ${_testopt}/config ${_testopt}/templates ${_testopt}/util-scripts ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common
+mkdir ${_testopt}/config ${_testopt}/templates ${_testopt}/util-scripts ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts
 let res=res+${?}
-mkdir ${_testopt}/util-scripts/tool-meister ${_testopt}/common/lib
+mkdir ${_testopt}/util-scripts/tool-meister
 let res=res+${?}
 cat ${_tdir}/../base.ut.pre ${_tdir}/../base ${_tdir}/../base.ut.post > ${_testopt}/base
 let res=res+${?}
