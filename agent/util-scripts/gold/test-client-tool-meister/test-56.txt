@@ -584,6 +584,46 @@ scrape_configs:
     static_configs:
     - targets: ['testhost.example.com:9400']
 --- tools-lite/prometheus/prometheus.yml file contents
++++ mock-run/sysinfo/beg/blue:remote-b.example.com/contents.lis file contents
+sysinfo='block,security_mitigations,sos'
+sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'
+sysinfo_full_hostname='remote-b.example.com'
+--- mock-run/sysinfo/beg/blue:remote-b.example.com/contents.lis file contents
++++ mock-run/sysinfo/beg/red:remote-c.example.com/contents.lis file contents
+sysinfo='block,security_mitigations,sos'
+sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'
+sysinfo_full_hostname='remote-c.example.com'
+--- mock-run/sysinfo/beg/red:remote-c.example.com/contents.lis file contents
++++ mock-run/sysinfo/beg/remote-a.example.com/contents.lis file contents
+sysinfo='block,security_mitigations,sos'
+sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'
+sysinfo_full_hostname='remote-a.example.com'
+--- mock-run/sysinfo/beg/remote-a.example.com/contents.lis file contents
++++ mock-run/sysinfo/beg/testhost.example.com/contents.lis file contents
+sysinfo='block,security_mitigations,sos'
+sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'
+sysinfo_full_hostname='testhost.example.com'
+--- mock-run/sysinfo/beg/testhost.example.com/contents.lis file contents
++++ mock-run/sysinfo/end/blue:remote-b.example.com/contents.lis file contents
+sysinfo='block,security_mitigations,sos'
+sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'
+sysinfo_full_hostname='remote-b.example.com'
+--- mock-run/sysinfo/end/blue:remote-b.example.com/contents.lis file contents
++++ mock-run/sysinfo/end/red:remote-c.example.com/contents.lis file contents
+sysinfo='block,security_mitigations,sos'
+sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'
+sysinfo_full_hostname='remote-c.example.com'
+--- mock-run/sysinfo/end/red:remote-c.example.com/contents.lis file contents
++++ mock-run/sysinfo/end/remote-a.example.com/contents.lis file contents
+sysinfo='block,security_mitigations,sos'
+sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'
+sysinfo_full_hostname='remote-a.example.com'
+--- mock-run/sysinfo/end/remote-a.example.com/contents.lis file contents
++++ mock-run/sysinfo/end/testhost.example.com/contents.lis file contents
+sysinfo='block,security_mitigations,sos'
+sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'
+sysinfo_full_hostname='testhost.example.com'
+--- mock-run/sysinfo/end/testhost.example.com/contents.lis file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter

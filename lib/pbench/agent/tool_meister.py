@@ -1725,7 +1725,8 @@ class ToolMeister:
         try:
             with o_file.open("w") as ofp, e_file.open("w") as efp:
                 my_env = os.environ.copy()
-                my_env["pbench_install_dir"] = self.pbench_install_dir
+                my_env["sysinfo_install_dir"] = self.pbench_install_dir
+                my_env["sysinfo_full_hostname"] = self._params.hostname
                 cp = subprocess.run(
                     command,
                     cwd=instance_dir,

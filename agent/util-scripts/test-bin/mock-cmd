@@ -23,7 +23,12 @@ _sleep = 0
 if _prog == "pbench-sysinfo-dump":
     tgtdir = Path(sys.argv[1])
     sysinfo = sys.argv[2]
-    (tgtdir / "contents.lis").write_text(sysinfo)
+    sysinfo_install_dir = os.environ.get("sysinfo_install_dir", "")
+    sysinfo_full_hostname = os.environ.get("sysinfo_full_hostname", "")
+    (tgtdir / "contents.lis").write_text(
+        f"sysinfo={sysinfo!r}\nsysinfo_install_dir={sysinfo_install_dir!r}\n"
+        f"sysinfo_full_hostname={sysinfo_full_hostname!r}\n"
+    )
 elif _prog in _sleepers or (_prog == "prometheus" and sys.argv[1] == "run"):
     _sleep = 9999
 
