@@ -1,6 +1,24 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
+# Installation directory.
+install_dir="$(realpath -e ${sysinfo_install_dir} 2> /dev/null)"
+if [[ ${?} -ne 0 ]]; then
+	printf -- "You must provide an installation directory that exists, \"%s\" is not a real path\n" "${sysinfo_install_dir}" >&2
+	exit 1
+fi
+if [[ ! -d "${install_dir}" ]]; then
+	printf -- "You must provide an installation directory that exists, \"%s\" does not\n" "${install_dir}" >&2
+	exit 1
+fi
+
+# Ensure we have a host name to use.
+if [[ -z "${sysinfo_full_hostname}" ]]; then
+	printf -- "You must provide a FQDN host name via 'sysinfo_full_hostname'\n" >&2
+	exit 1
+fi
+
+# Target directory where data should be written.
 dir="$(realpath -e ${1} 2> /dev/null)"
 if [[ ${?} -ne 0 ]]; then
 	printf -- "You must provide a directory that exists, \"%s\" is not a real path\n" "${1}" >&2
@@ -11,13 +29,15 @@ if [[ ! -d "${dir}" ]]; then
 	exit 1
 fi
 
+# Which pieces of system information should be collected. The options
+# available are the suffixes to all the collect_* functions.
 sysinfo="${2}"
 
-if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
-	mode="${3}"
-else
-	# Force sequential mode for unit tests.
-	mode=""
+# Collection mode, serial or parallel.
+mode="${3}"
+if [[ "${mode}" != "serial" && "${mode}" != "parallel" ]]; then
+	printf -- "Invalid collection mode, \"%s\"\n" "${mode}" >&2
+	exit 1
 fi
 
 function collect_kernel_config {
@@ -115,7 +135,7 @@ function collect_sos {
 		_cksum_suffix="sha256"
 	fi
 
-	_name="pbench-${_pbench_full_hostname}"
+	_name="pbench-${sysinfo_full_hostname}"
 	_cmd="${dir}/sosreport-${_name}.cmd"
 	printf -- "%s" "${_sos_report_cmd}" > ${_cmd}
 	for mod in ${_modules}; do
@@ -146,8 +166,8 @@ function collect_sos {
 function collect_ara {
 	# collect data only when ara is installed
 	if python -c "import ara" &> /dev/null; then
-		ara_pb="${pbench_install_dir}/ansible/ara/ara.yml"
-		if [[ ! -d "${pbench_install_dir}" || ! -f ${ara_pb} ]]; then
+		ara_pb="${install_dir}/ansible/ara/ara.yml"
+		if [[ ! -d "${install_dir}" || ! -f ${ara_pb} ]]; then
 			printf -- "ERROR: ara playbook not found, '%s'\n" "${ara_pb}" >&2
 			return 1
 		fi
@@ -166,8 +186,8 @@ function collect_ara {
 }
 
 function collect_stockpile {
-	stockpile_playbook="${pbench_install_dir}/stockpile/stockpile.yml"
-	if [[ ! -d "${pbench_install_dir}" || ! -f ${stockpile_playbook} ]]; then
+	stockpile_playbook="${install_dir}/stockpile/stockpile.yml"
+	if [[ ! -d "${install_dir}" || ! -f ${stockpile_playbook} ]]; then
 		printf -- "ERROR: stockpile playbook not found, '%s'\n" "${stockpile_playbook}" >&2
 		return 1
 	fi
@@ -182,7 +202,7 @@ function collect_stockpile {
 	generate_inventory stockpile > ${INVENTORY}
 
 	stockpile_opts="stockpile_user=${USER} local_remote_user=${USER} host_remote_user=${USER} stockpile_output_path=${stockpile_output_path}"
-	stockpile_playbook="${pbench_install_dir}/stockpile/stockpile.yml"
+	stockpile_playbook="${install_dir}/stockpile/stockpile.yml"
 	echo "ansible-playbook -vv --extra-vars '"${stockpile_opts}"' -i ${INVENTORY} ${stockpile_playbook}" > ${dir}/stockpile/command
 	chmod +x ${dir}/stockpile/command
 
@@ -222,9 +242,9 @@ for item in ${sysinfo//,/ }; do
 	elif [[ "${item}" == "stockpile" ]]; then
 		:
 	elif [[ "${item}" == "insights" ]]; then
-                :
+		:
 	else
-		printf -- "bad sysinfo value, \"%s\"\n" "${item}" >&2
+		printf -- "WARNING: bad sysinfo value, \"%s\"; ignoring\n" "${item}" >&2
 		continue
 	fi
 	printf -- "collecting %s\n" "${item}"
@@ -235,6 +255,4 @@ for item in ${sysinfo//,/ }; do
 	fi
 done
 wait
-
-# FIXME - what?
-chmod -R 775 ${dir}
+exit 0

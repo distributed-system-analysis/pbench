@@ -182,7 +182,7 @@ function _dump_logs {
         fi
     done
     local bm_run_dir="$(basename "${benchmark_run_dir}")"
-    for actionlog in $(cd ${_testdir}; find "${bm_run_dir}" \( -name 'stop.log' -o -name 'postprocess.log' \) 2> /dev/null | sort); do
+    for actionlog in $(cd ${_testdir} && find "${bm_run_dir}" \( -name 'stop.log' -o -name 'postprocess.log' \) 2> /dev/null | sort); do
         echo "+++ ${actionlog} file contents" >> ${_testout}
         cat ${_testdir}/${actionlog} >> ${_testout} 2>&1
         echo "--- ${actionlog} file contents" >> ${_testout}
@@ -218,13 +218,18 @@ function _dump_logs {
             continue
         fi
         pdir=$(basename "${persist_dir}")
-        for file in $(cd ${persist_dir}; find * ! -name '*.tar.xz' \( -type f -o -type l \) 2> /dev/null | sort); do
+        for file in $(cd ${persist_dir} && find * ! -name '*.tar.xz' \( -type f -o -type l \) 2> /dev/null | sort); do
             file_dir=$(dirname "${file}")
             file_name=$(basename "${file}")
             echo "+++ ${pdir}/${file_dir}/${file_name} file contents" >> ${_testout}
             cat ${persist_dir}/${file} >> ${_testout} 2>&1
             echo "--- ${pdir}/${file_dir}/${file_name} file contents" >> ${_testout}
         done
+    done
+    for contents_lis in $(cd ${_testdir} && find */sysinfo -name contents.lis 2> /dev/null | sort); do
+        echo "+++ ${contents_lis} file contents" >> ${_testout}
+        cat ${_testdir}/${contents_lis} >> ${_testout} 2>&1
+        echo "--- ${contents_lis} file contents" >> ${_testout}
     done
     if [[ -f ${_testlog} ]]; then
         echo "+++ test-execution.log file contents" >> ${_testout}
