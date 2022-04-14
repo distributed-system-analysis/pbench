@@ -187,7 +187,7 @@ class ReturnCode(BaseReturnCode):
     """
 
     BADTOOLGROUP = 1
-    BADAGENTCONFIG = 2
+    # Removed BADAGENTCONFIG = 2
     MISSINGBENCHRUNDIR = 3
     MISSINGINSTALLDIR = 4
     EXCINSTALLDIR = 5
@@ -801,15 +801,43 @@ def start(_prog: str, cli_params: Namespace) -> int:
             ", ".join(_orchestrate_choices),
         )
         return ReturnCode.INVALIDORCHESTRATE
+    if cli_params.orchestrate == "create":
+        orchestrate = True
+    else:
+        assert (
+            cli_params.orchestrate == "existing"
+        ), f"Unexpected --orchestrate parameter, {cli_params.orchestrate!r}"
+        if cli_params.redis_server is None or cli_params.tool_data_sink is None:
+            logger.error(
+                "both --redis-server and --tool-data-sink must be specified"
+                " if --orchestrate=%s is used",
+                cli_params.orchestrate,
+            )
+            return ReturnCode.MISSINGPARAMS
+        orchestrate = False
 
     # Load and verify required and optional environment variables.
     try:
+        inst_dir = os.environ["pbench_install_dir"]
         benchmark_run_dir_val = os.environ["benchmark_run_dir"]
         hostname = os.environ["_pbench_hostname"]
         full_hostname = os.environ["_pbench_full_hostname"]
     except KeyError as exc:
         logger.error("failed to fetch required environment variable, '%s'", exc.args[0])
         return ReturnCode.MISSINGREQENVS
+    try:
+        tm_start_path = Path(inst_dir).resolve(strict=True)
+    except FileNotFoundError:
+        logger.error(
+            "Unable to determine proper installation directory, '%s' not found",
+            inst_dir,
+        )
+        return ReturnCode.MISSINGINSTALLDIR
+    except Exception as exc:
+        logger.error(
+            "Unexpected error encountered resolving installation directory, %s", exc
+        )
+        return ReturnCode.EXCINSTALLDIR
     if not full_hostname or not hostname:
         logger.error(
             "_pbench_hostname ('%s') and _pbench_full_hostname ('%s')"
@@ -840,10 +868,12 @@ def start(_prog: str, cli_params: Namespace) -> int:
             exc,
         )
         return ReturnCode.EXCBENCHRUNDIR
-    else:
+    if orchestrate:
         tm_dir = benchmark_run_dir / "tm"
         try:
             tm_dir.mkdir()
+            # All orchestration occurs using the newly created Tool Meister
+            # directory as the current working directory.
             os.chdir(tm_dir)
         except Exception as exc:
             logger.error(
@@ -870,8 +900,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
     recovery = Cleanup(logger)
 
     try:
-        if cli_params.orchestrate == "create":
-            orchestrate = True
+        if orchestrate:
             ssh_cmd = "ssh"
             ssh_path = shutil.which(ssh_cmd)
             if ssh_path is None:
@@ -957,17 +986,6 @@ def start(_prog: str, cli_params: Namespace) -> int:
                     tds_server_spec = origin
                 if not redis_server_spec:
                     redis_server_spec = origin
-        else:
-            assert (
-                cli_params.orchestrate == "existing"
-            ), f"Unexpected --orchestrate parameter, {cli_params.orchestrate!r}"
-            if cli_params.redis_server is None or cli_params.tool_data_sink is None:
-                raise CleanupTime(
-                    ReturnCode.MISSINGPARAMS,
-                    "both --redis-server and --tool-data-sink must be specified"
-                    f" if --orchestrate={cli_params.orchestrate} is used",
-                )
-            orchestrate = False
 
         # NOTE: These two assigments create server objects, but neither
         # constructor starts a server, so no cleanup action is needed at this
@@ -984,31 +1002,11 @@ def start(_prog: str, cli_params: Namespace) -> int:
 
         # Load the tool metadata
         try:
-            inst_dir = os.environ["pbench_install_dir"]
-        except KeyError:
-            raise CleanupTime(
-                ReturnCode.BADAGENTCONFIG,
-                "The required 'pbench_install_dir' environment variable appears to be missing",
-            )
-        try:
-            tm_start_path = Path(inst_dir).resolve(strict=True)
-        except FileNotFoundError:
-            raise CleanupTime(
-                ReturnCode.MISSINGINSTALLDIR,
-                f"Unable to determine proper installation directory, '{inst_dir}' not found",
-            )
+            tool_metadata = ToolMetadata(tm_start_path)
         except Exception:
             raise CleanupTime(
-                ReturnCode.EXCINSTALLDIR,
-                "Unexpected error encountered resolving installation directory",
+                ReturnCode.BADTOOLMETADATA, "failed to load tool metadata"
             )
-        else:
-            try:
-                tool_metadata = ToolMetadata(tm_start_path)
-            except Exception:
-                raise CleanupTime(
-                    ReturnCode.BADTOOLMETADATA, "failed to load tool metadata"
-                )
 
         # +
         # Step 2. - Start the Redis Server (optional)
