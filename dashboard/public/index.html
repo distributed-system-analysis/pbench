@@ -30,6 +30,16 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!-- runtime endpoints config -->
+    <script type="text/javascript">
+      fetch("/api/v1/endpoints").then((response) => {
+        if (response.ok) {
+          response.text().then((data) => {
+            window.endpoints = JSON.parse(data);
+          });
+        }
+      });
+    </script>
     <div id="root"></div>
     <!--
       This HTML file is a template.

@@ -15,7 +15,7 @@ function App() {
  
   return (
     <div className="App">
-      Pbench Dashboard
+      <b>Pbench Dashboard for {window.endpoints.identification}</b>
       <MainLayout />
     </div> 
   );
