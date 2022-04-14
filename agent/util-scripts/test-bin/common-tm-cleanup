@@ -1,4 +1,4 @@
-redis_pid_file="${benchmark_run_dir}/tm/redis_17001.pid"
+redis_pid_file="${benchmark_run_dir}/tm/redis*.pid"
 tds_pid_file="${benchmark_run_dir}/tm/pbench-tool-data-sink.pid"
 
 function _kill_pid {
@@ -10,12 +10,26 @@ function _kill_pid {
     fi
 }
 
+function _destroy_redis {
+    redis_pids=$(ps uxww | grep -E "[r]edis-server" | awk '{print $2}')
+    for pid in ${redis_pids}; do
+        openfiles=$(lsof -p ${pid} 2> /dev/null | grep -F ${_testdir})
+        if [[ -z "${openfiles}" ]]; then
+            # This redis server does not have any references to our test system
+            # directory hierarchy.
+            continue
+        fi
+        kill -KILL ${pid} 2> /dev/null
+    done
+}
+
 function _cleanup {
     _kill_pid "${redis_pid_file}"
     _kill_pid "${tds_pid_file}"
-    for tm_pid_file in ${benchmark_run_dir}/tm/tm-*.pid; do
+    for tm_pid_file in ${benchmark_run_dir}/tm/tm*.pid; do
         _kill_pid "${tm_pid_file}"
     done
+    _destroy_redis
 }
 
 trap _cleanup INT QUIT TERM EXIT
