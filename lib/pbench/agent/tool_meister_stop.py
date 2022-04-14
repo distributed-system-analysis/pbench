@@ -60,9 +60,9 @@ class RedisServer(RedisServerCommon):
     def __init__(self, spec: str, benchmark_run_dir: Path, def_host_name: str):
         super().__init__(spec, def_host_name)
         try:
-            self.pid_file = (
-                benchmark_run_dir / "tm" / f"redis_{self.def_port:d}.pid"
-            ).resolve(strict=True)
+            self.pid_file = (benchmark_run_dir / "tm" / "redis.pid").resolve(
+                strict=True
+            )
         except FileNotFoundError:
             pass
 
@@ -72,14 +72,11 @@ class RedisServer(RedisServerCommon):
 
 def graceful_shutdown(
     benchmark_run_dir: Path,
-    full_hostname: str,
-    group: str,
     redis_server: RedisServer,
     logger: logging.Logger,
 ) -> int:
-    """
-    graceful_shutdown - attempt to cleanly shut down the previously created
-    Tool Data Sink, and the Redis server.
+    """Attempt to cleanly shut down the previously created Tool Data Sink, and
+    the Redis server.
 
     The assumption/assertion here is that the tool meister "stop" command is run
     on the same node as the tool meister "start" command ran, creating the local
@@ -108,7 +105,7 @@ def graceful_shutdown(
         ret_val = 0
 
     try:
-        ltm_pid_file = benchmark_run_dir / "tm" / f"tm-{group}-{full_hostname}.pid"
+        ltm_pid_file = benchmark_run_dir / "tm" / "tm.pid"
         try:
             pid_str = ltm_pid_file.read_text()
         except FileNotFoundError:
@@ -262,9 +259,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         # previous pbench-tool-meister-start must have set up the local Tool
         # Data Sink, Tool Meister (if registered), and the Redis server.  It is
         # our responsibility to make sure these processes shut down correctly.
-        shutdown_ret_val = graceful_shutdown(
-            benchmark_run_dir, full_hostname, group, redis_server, logger
-        )
+        shutdown_ret_val = graceful_shutdown(benchmark_run_dir, redis_server, logger)
         if ret_val == 0:
             # If client termination was successful, report the status of the
             # graceful shutdown of the Tool Data Sink and the Redis server.

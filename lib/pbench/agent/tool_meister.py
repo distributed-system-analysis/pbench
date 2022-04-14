@@ -1901,10 +1901,9 @@ def daemon(
         working_dir = tmp_dir
     else:
         working_dir = Path(".")
-    param_key = parsed.key
-    pidfile_name = working_dir / f"{param_key}.pid"
-    d_out = working_dir / f"{param_key}.out"
-    d_err = working_dir / f"{param_key}.err"
+    pidfile_name = working_dir / "tm.pid"
+    d_out = working_dir / "tm.out"
+    d_err = working_dir / "tm.err"
     pfctx = pidfile.PIDFile(pidfile_name)
     with d_out.open("w") as sofp, d_err.open("w") as sefp, DaemonContext(
         stdout=sofp,

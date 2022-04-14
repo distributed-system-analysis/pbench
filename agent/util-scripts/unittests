@@ -580,7 +580,7 @@ function sort_tdslog {
 }
 
 function filter_tmerrs {
-    for lf in ${_testdir}/mock-run/tm/tm-*.err ${_testdir}/remote/*/tmp/tm-*.err; do
+    for lf in ${_testdir}/mock-run/tm/tm.err ${_testdir}/remote/*/tmp/tm.err; do
         if [[ ! -f ${lf} ]]; then
             continue
         fi
