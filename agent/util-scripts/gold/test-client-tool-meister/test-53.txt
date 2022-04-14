@@ -50,9 +50,9 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-default-testhost.example.com.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-default-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/prometheus_data.tar.xz
 /var/tmp/pbench-test-utils/pbench/pbench.log
@@ -153,7 +153,7 @@ appendonly no
 dbfilename pbench-redis.rdb
 logfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
 loglevel notice
-pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis_17001.pid
+pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.pid
 port 17001
 --- mock-run/tm/redis.conf file contents
 +++ mock-run/tm/redis.log file contents
@@ -164,7 +164,7 @@ port 17001
 * Removing the pid file.
 # Redis is now ready to exit, bye bye...
 --- mock-run/tm/redis.log file contents
-+++ mock-run/tm/tm-default-testhost.example.com.err file contents
++++ mock-run/tm/tm.err file contents
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
@@ -190,9 +190,7 @@ INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processin
 INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
 INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
 INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
---- mock-run/tm/tm-default-testhost.example.com.err file contents
-+++ mock-run/tm/tm-default-testhost.example.com.out file contents
---- mock-run/tm/tm-default-testhost.example.com.out file contents
+--- mock-run/tm/tm.err file contents
 +++ mock-run/tm/tm.logs file contents
 pbench-tool-meister-start - verify logging channel up
 testhost.example.com INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
@@ -221,6 +219,8 @@ testhost.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- 
 testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
 testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
 --- mock-run/tm/tm.logs file contents
++++ mock-run/tm/tm.out file contents
+--- mock-run/tm/tm.out file contents
 +++ tools-default/prometheus/prom.log file contents
 --- tools-default/prometheus/prom.log file contents
 +++ tools-default/prometheus/prometheus.file file contents

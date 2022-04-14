@@ -100,9 +100,9 @@ pbench-tool-meister-stop: system information not collected when --interrupt spec
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/pcp_data.tar.xz
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/prometheus_data.tar.xz
@@ -110,20 +110,20 @@ pbench-tool-meister-stop: system information not collected when --interrupt spec
 /var/tmp/pbench-test-utils/pbench/remote
 /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com
 /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp
-/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.err
-/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.out
+/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.err
+/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.out
 /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com
 /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp
-/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.err
-/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.out
+/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm.err
+/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm.out
 /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com
 /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp
-/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.err
-/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.out
+/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.err
 /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.lite.NNNNN.nnnnnnnn
 /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.lite.NNNNN.nnnnnnnn
 /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
 /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
+/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.out
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com
@@ -139,7 +139,7 @@ pbench-tool-meister-stop: system information not collected when --interrupt spec
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/dcgm
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/mpstat
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.err:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.err:
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
@@ -159,8 +159,8 @@ INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processin
 INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
 INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
 INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.out:
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.err:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.out:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm.err:
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
 INFO pbench-tool-meister start -- Started persistent tool node-exporter, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/node_exporter']
@@ -184,8 +184,8 @@ INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processin
 INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
 INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
 INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.out:
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.err:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm.out:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.err:
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
@@ -196,7 +196,7 @@ INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Persistent t
 INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Persistent tool pcp process
 WARNING pbench-tool-meister end_tools -- remote-c.example.com: unexpected temp files red:remote-c.example.com/dcgm/dcgm-exporter.file,red:remote-c.example.com/pcp/pmcd.file
 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.out:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.out:
 === /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat:
 --interval=42
 --options=forty-two
@@ -392,7 +392,7 @@ appendonly no
 dbfilename pbench-redis.rdb
 logfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
 loglevel notice
-pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis_17001.pid
+pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.pid
 port 17001
 --- mock-run/tm/redis.conf file contents
 +++ mock-run/tm/redis.log file contents
@@ -403,7 +403,7 @@ port 17001
 * Removing the pid file.
 # Redis is now ready to exit, bye bye...
 --- mock-run/tm/redis.log file contents
-+++ mock-run/tm/tm-lite-testhost.example.com.err file contents
++++ mock-run/tm/tm.err file contents
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
@@ -427,9 +427,7 @@ INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processin
 INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
 INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
 INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
---- mock-run/tm/tm-lite-testhost.example.com.err file contents
-+++ mock-run/tm/tm-lite-testhost.example.com.out file contents
---- mock-run/tm/tm-lite-testhost.example.com.out file contents
+--- mock-run/tm/tm.err file contents
 +++ mock-run/tm/tm.logs file contents
 pbench-tool-meister-start - verify logging channel up
 remote-a.example.com INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com block,security_mitigations,sos parallel
@@ -508,6 +506,8 @@ testhost.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- 
 testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
 testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
 --- mock-run/tm/tm.logs file contents
++++ mock-run/tm/tm.out file contents
+--- mock-run/tm/tm.out file contents
 +++ tools-lite/pcp/pmproxy-proc.log file contents
 --- tools-lite/pcp/pmproxy-proc.log file contents
 +++ tools-lite/pcp/pmproxy.file file contents

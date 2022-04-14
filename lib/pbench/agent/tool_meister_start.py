@@ -661,7 +661,7 @@ port {redis_port:d}
         bind_host_names = " ".join(bind_hostnames_l)
 
         # Create the Redis server pbench-specific configuration file
-        self.pid_file = tm_dir / f"redis_{self.bind_port:d}.pid"
+        self.pid_file = tm_dir / "redis.pid"
         redis_conf = tm_dir / "redis.conf"
         params = {
             "bind_host_names": bind_host_names,

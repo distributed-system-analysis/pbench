@@ -24,23 +24,23 @@ ERROR - "pbench-tool-meister-start --sysinfo='block,security_mitigations,sos' 'l
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.out
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/remote
 /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com
 /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp
-/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.err
-/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.out
+/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.err
+/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.out
 /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com
 /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp
-/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.err
-/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.out
+/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm.err
+/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm.out
 /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com
 /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp
-/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.err
-/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.out
+/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.err
+/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.out
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com
@@ -56,15 +56,15 @@ ERROR - "pbench-tool-meister-start --sysinfo='block,security_mitigations,sos' 'l
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/dcgm
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/mpstat
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.err:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.err:
 INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.out:
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.err:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm.out:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm.err:
 INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.out:
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.err:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm.out:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.err:
 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
-=== /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.out:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm.out:
 === /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat:
 --interval=42
 --options=forty-two
@@ -255,7 +255,7 @@ appendonly no
 dbfilename pbench-redis.rdb
 logfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
 loglevel notice
-pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis_17001.pid
+pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.pid
 port 17001
 --- mock-run/tm/redis.conf file contents
 +++ mock-run/tm/redis.log file contents
@@ -266,11 +266,9 @@ port 17001
 * Removing the pid file.
 # Redis is now ready to exit, bye bye...
 --- mock-run/tm/redis.log file contents
-+++ mock-run/tm/tm-lite-testhost.example.com.err file contents
++++ mock-run/tm/tm.err file contents
 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
---- mock-run/tm/tm-lite-testhost.example.com.err file contents
-+++ mock-run/tm/tm-lite-testhost.example.com.out file contents
---- mock-run/tm/tm-lite-testhost.example.com.out file contents
+--- mock-run/tm/tm.err file contents
 +++ mock-run/tm/tm.logs file contents
 pbench-tool-meister-start - verify logging channel up
 remote-a.example.com INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
@@ -278,6 +276,8 @@ remote-b.example.com INFO pbench-tool-meister __exit__ -- remote-b.example.com: 
 remote-c.example.com INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
 testhost.example.com INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
 --- mock-run/tm/tm.logs file contents
++++ mock-run/tm/tm.out file contents
+--- mock-run/tm/tm.out file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
