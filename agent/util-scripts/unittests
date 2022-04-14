@@ -150,7 +150,7 @@ function _save_tree {
 		  	  -e 's;\(tm\.[a-z-]*\)\.[0-9][0-9]*\.[a-z0-9_][a-z0-9_]*;\1.NNNNN.nnnnnnnn;g' \
         | sort >> ${_testout}
 
-    for x in $(find "${_testdir}/tools"-* "${_testdir}/tmp" -type f 2> /dev/null | sort); do
+    for x in $(find "${_testdir}/tools"-* "${_testdir}/tmp" "${_testdir}/remote" -type f 2> /dev/null | sort); do
 		y=$(echo "${x}" | sed -e 's;tmp/\([a-z-]*\)\.[0-9][0-9]*;tmp/\1.NNNNN;g' \
 		  	                  -e 's;\(tm\.[a-z-]*\)\.[0-9][0-9]*\.[a-z0-9_][a-z0-9_]*;\1.NNNNN.nnnnnnnn;g')
         echo "${y} ${x}"
@@ -580,7 +580,7 @@ function sort_tdslog {
 }
 
 function filter_tmerrs {
-    for lf in ${_testdir}/mock-run/tm/tm-*.err ${_testdir}/tmp/tm-*.err; do
+    for lf in ${_testdir}/mock-run/tm/tm-*.err ${_testdir}/remote/*/tmp/tm-*.err; do
         if [[ ! -f ${lf} ]]; then
             continue
         fi

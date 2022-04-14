@@ -293,7 +293,7 @@ def start_tms_via_ssh(
     successes = 0
     tool_meister_cmd = exec_dir / "tool-meister" / "pbench-tool-meister"
     debug_level = os.environ.get("_PBENCH_TOOL_MEISTER_LOG_LEVEL")
-    cmd = f"{tool_meister_cmd}-remote {redis_server.host} {redis_server.port} {{tm_param_key}} yes"
+    cmd = f"{tool_meister_cmd} {redis_server.host} {redis_server.port} {{tm_param_key}} yes"
     if debug_level:
         cmd += f" {debug_level}"
     template = TemplateSsh(ssh_cmd, shlex.split(ssh_opts), cmd)
