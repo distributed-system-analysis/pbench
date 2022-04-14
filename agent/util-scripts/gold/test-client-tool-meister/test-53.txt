@@ -56,6 +56,10 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/prometheus_data.tar.xz
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-default/testhost.example.com/dcgm
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-default/testhost.example.com/mpstat
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-default
@@ -242,6 +246,13 @@ scrape_configs:
     static_configs:
     - targets: ['testhost.example.com:9400']
 --- tools-default/prometheus/prometheus.yml file contents
++++ tools-v1-default/testhost.example.com/dcgm file contents
+--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+--- tools-v1-default/testhost.example.com/dcgm file contents
++++ tools-v1-default/testhost.example.com/mpstat file contents
+--interval=42
+--options=forty-two
+--- tools-v1-default/testhost.example.com/mpstat file contents
 +++ mock-run/sysinfo/beg/testhost.example.com/contents.lis file contents
 sysinfo='block,security_mitigations,sos'
 sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'

@@ -128,6 +128,20 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/pcp_data.tar.xz
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/prometheus_data.tar.xz
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/remote-a.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/remote-a.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/remote-b.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/remote-b.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/remote-b.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/remote-b.example.com/node-exporter
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/remote-c.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/remote-c.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/remote-c.example.com/dcgm
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/remote-c.example.com/pcp
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/testhost.example.com/dcgm
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-lite/testhost.example.com/mpstat
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/remote
 /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com
@@ -592,6 +606,37 @@ scrape_configs:
     static_configs:
     - targets: ['testhost.example.com:9400']
 --- tools-lite/prometheus/prometheus.yml file contents
++++ tools-v1-lite/remote-a.example.com/mpstat file contents
+--interval=42
+--options=forty-two
+--- tools-v1-lite/remote-a.example.com/mpstat file contents
++++ tools-v1-lite/remote-b.example.com/__label__ file contents
+blue
+--- tools-v1-lite/remote-b.example.com/__label__ file contents
++++ tools-v1-lite/remote-b.example.com/mpstat file contents
+--interval=42
+--options=forty-two
+--- tools-v1-lite/remote-b.example.com/mpstat file contents
++++ tools-v1-lite/remote-b.example.com/node-exporter file contents
+--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+--- tools-v1-lite/remote-b.example.com/node-exporter file contents
++++ tools-v1-lite/remote-c.example.com/__label__ file contents
+red
+--- tools-v1-lite/remote-c.example.com/__label__ file contents
++++ tools-v1-lite/remote-c.example.com/dcgm file contents
+--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+--- tools-v1-lite/remote-c.example.com/dcgm file contents
++++ tools-v1-lite/remote-c.example.com/pcp file contents
+--interval=42
+--options=forty-two
+--- tools-v1-lite/remote-c.example.com/pcp file contents
++++ tools-v1-lite/testhost.example.com/dcgm file contents
+--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+--- tools-v1-lite/testhost.example.com/dcgm file contents
++++ tools-v1-lite/testhost.example.com/mpstat file contents
+--interval=42
+--options=forty-two
+--- tools-v1-lite/testhost.example.com/mpstat file contents
 +++ mock-run/sysinfo/beg/blue:remote-b.example.com/contents.lis file contents
 sysinfo='block,security_mitigations,sos'
 sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'

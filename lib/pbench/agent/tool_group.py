@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 
 from pathlib import Path
 
@@ -154,3 +155,22 @@ class ToolGroup:
         that host.
         """
         return self.labels.get(host, "")
+
+    def archive(self, target_dir: Path):
+        """Copy the entire tool group on-disk state to the target directory.
+        No interpretation is applied.
+
+        This is intentionally a convenience layer around shutil.copytree.
+
+        For example:
+
+            obj.tg_dir = "/a/b/tools-v1-red"
+            target_dir = "/d/e/target_dir"
+
+            obj.archive(target_dir)
+
+            $ diff -r /a/b/tools-v1-red /d/e/target_dir/tools-v1-red
+            $ echo ${?}
+            0
+        """
+        shutil.copytree(str(self.tg_dir), target_dir / self.tg_dir.name, symlinks=False)
