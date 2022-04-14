@@ -728,6 +728,17 @@ class BenchmarkRunDir:
         return local_dir
 
 
+class ToolDataSinkParams(NamedTuple):
+    benchmark_run_dir: str
+    bind_hostname: str
+    port: str
+    channel_prefix: str
+    tool_group: str
+    tool_metadata: ToolMetadata
+    tool_trigger: str
+    tools: Dict[str, str]
+
+
 class ToolDataSink(Bottle):
     """ToolDataSink - sub-class of Bottle representing state for tracking data
     sent from tool meisters via an HTTP PUT method.
@@ -739,28 +750,23 @@ class ToolDataSink(Bottle):
     @staticmethod
     def fetch_params(params, pbench_run):
         try:
-            _benchmark_run_dir = params["benchmark_run_dir"]
-            bind_hostname = params["bind_hostname"]
-            port = params["port"]
-            channel_prefix = params["channel_prefix"]
-            tool_group = params["group"]
-            tool_metadata = ToolMetadata.tool_md_from_dict(params["tool_metadata"])
-            tool_trigger = params["tool_trigger"]
-            tools = params["tools"]
+            _benchmark_run_dir = BenchmarkRunDir(
+                params["benchmark_run_dir"], pbench_run
+            )
+            tdsp = ToolDataSinkParams(
+                benchmark_run_dir=_benchmark_run_dir,
+                bind_hostname=params["bind_hostname"],
+                port=params["port"],
+                channel_prefix=params["channel_prefix"],
+                tool_group=params["group"],
+                tool_metadata=ToolMetadata.tool_md_from_dict(params["tool_metadata"]),
+                tool_trigger=params["tool_trigger"],
+                tools=params["tools"],
+            )
         except KeyError as exc:
             raise ToolDataSinkError(f"Invalid parameter block, missing key {exc}")
         else:
-            benchmark_run_dir = BenchmarkRunDir(_benchmark_run_dir, pbench_run)
-            return (
-                benchmark_run_dir,
-                bind_hostname,
-                port,
-                channel_prefix,
-                tool_group,
-                tool_metadata,
-                tool_trigger,
-                tools,
-            )
+            return tdsp
 
     def __init__(
         self,
@@ -789,17 +795,7 @@ class ToolDataSink(Bottle):
         self.redis_server = redis_server
         self.redis_host = redis_host
         self.redis_port = redis_port
-        ret_val = self.fetch_params(params, pbench_run)
-        (
-            self.benchmark_run_dir,
-            self.bind_hostname,
-            self.port,
-            self.channel_prefix,
-            self.tool_group,
-            self.tool_metadata,
-            self.tool_trigger,
-            self.tools,
-        ) = ret_val
+        self.params = self.fetch_params(params, pbench_run)
         self.optional_md = optional_md
         self.logger = logger
         # Initialize internal state
@@ -811,13 +807,19 @@ class ToolDataSink(Bottle):
         self._pcp_server = None
         self._tm_tracking = None
         self._to_logging_channel = (
-            f"{self.channel_prefix}-{tm_channel_suffix_to_logging}"
+            f"{self.params.channel_prefix}-{tm_channel_suffix_to_logging}"
         )
-        self._to_tms_channel = f"{self.channel_prefix}-{tm_channel_suffix_to_tms}"
-        self._from_tms_channel = f"{self.channel_prefix}-{tm_channel_suffix_from_tms}"
-        self._to_client_channel = f"{self.channel_prefix}-{tm_channel_suffix_to_client}"
+        self._to_tms_channel = (
+            f"{self.params.channel_prefix}-{tm_channel_suffix_to_tms}"
+        )
+        self._from_tms_channel = (
+            f"{self.params.channel_prefix}-{tm_channel_suffix_from_tms}"
+        )
+        self._to_client_channel = (
+            f"{self.params.channel_prefix}-{tm_channel_suffix_to_client}"
+        )
         self._from_client_channel = (
-            f"{self.channel_prefix}-{tm_channel_suffix_from_client}"
+            f"{self.params.channel_prefix}-{tm_channel_suffix_from_client}"
         )
         self._lock = Lock()
         self._cv = Condition(lock=self._lock)
@@ -839,7 +841,7 @@ class ToolDataSink(Bottle):
             callback=self.put_document,
         )
         self._server = DataSinkWsgiServer(
-            host=self.bind_hostname, port=self.port, logger=self.logger
+            host=self.params.bind_hostname, port=self.params.port, logger=self.logger
         )
         self.web_server_thread = Thread(target=self.web_server_run)
         self.web_server_thread.start()
@@ -931,7 +933,7 @@ class ToolDataSink(Bottle):
         # logs from remote Tool Meisters.
         logger = logging.getLogger("tm_log_capture_thread")
         logger.setLevel(logging.WARNING)
-        tm_log_file = self.benchmark_run_dir.local / "tm" / "tm.logs"
+        tm_log_file = self.params.benchmark_run_dir.local / "tm" / "tm.logs"
         with tm_log_file.open("w") as fp:
             try:
                 with self._lock:
@@ -952,11 +954,11 @@ class ToolDataSink(Bottle):
         registered tool meister(s) with data and metadata.
         """
         expecting_tms = dict()
-        for tm in self.tools.keys():
+        for tm in self.params.tools.keys():
             expecting_tms[tm] = None
         assert (
             len(expecting_tms.keys()) > 0
-        ), f"what? no tools registered? {self.tools.keys()}"
+        ), f"what? no tools registered? {self.params.tools.keys()}"
         tms = dict()
         for data in self._from_tms_chan.fetch_json(self.logger):
             # We expect the payload to look like:
@@ -1002,10 +1004,10 @@ class ToolDataSink(Bottle):
                     continue
                 else:
                     assert (
-                        host in self.tools
-                    ), f"what? {host} not in {self.tools.keys()}"
+                        host in self.params.tools
+                    ), f"what? {host} not in {self.params.tools.keys()}"
                     assert "tools" not in data, f"what? {data!r}"
-                    data["tools"] = self.tools[host]
+                    data["tools"] = self.params.tools[host]
                     tms[host] = data
             if not expecting_tms:
                 # All the expected Tool Meisters have reported back to us.
@@ -1023,8 +1025,8 @@ class ToolDataSink(Bottle):
         The second thing we do is record all the data and metadata about the
         Tool Meisters in the ${benchmark_run_dir}/metadata.log file.
         """
-        persistent_tools_l = self.tool_metadata.getPersistentTools()
-        transient_tools_l = self.tool_metadata.getTransientTools()
+        persistent_tools_l = self.params.tool_metadata.getPersistentTools()
+        transient_tools_l = self.params.tool_metadata.getTransientTools()
         for host, tm in tms.items():
             assert tm["kind"] == "tm", f"what? {tm!r}"
             assert "tools" in tm, f"what? {tm!r}"
@@ -1075,7 +1077,7 @@ class ToolDataSink(Bottle):
         home = os.environ.get("HOME", "")
         if home:
             src = str(Path(home) / ".ssh" / "config")
-            dst = str(self.benchmark_run_dir.local / "ssh.config")
+            dst = str(self.params.benchmark_run_dir.local / "ssh.config")
             try:
                 shutil.copyfile(src, dst)
             except FileNotFoundError:
@@ -1085,7 +1087,7 @@ class ToolDataSink(Bottle):
         # cp -L  /etc/ssh/ssh_config   ${dir}/ > /dev/null 2>&1
         etc_ssh = Path("/etc") / "ssh"
         src = str(etc_ssh / "ssh_config")
-        dst = str(self.benchmark_run_dir.local / "ssh_config")
+        dst = str(self.params.benchmark_run_dir.local / "ssh_config")
         try:
             shutil.copyfile(src, dst)
         except FileNotFoundError:
@@ -1122,14 +1124,14 @@ class ToolDataSink(Bottle):
                 self.cp_path,
                 "-rL",
                 "/etc/ssh/ssh_config.d",
-                f"{self.benchmark_run_dir.local}/",
+                f"{self.params.benchmark_run_dir.local}/",
             ],
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
 
-        mdlog_name = self.benchmark_run_dir.local / "metadata.log"
+        mdlog_name = self.params.benchmark_run_dir.local / "metadata.log"
         mdlog = MetadataLog()
         try:
             with mdlog_name.open("r") as fp:
@@ -1142,7 +1144,7 @@ class ToolDataSink(Bottle):
         mdlog.add_section(section)
         mdlog.set(section, "config", self.optional_md["config"])
         mdlog.set(section, "date", self.optional_md["date"])
-        mdlog.set(section, "name", self.benchmark_run_dir.local.name)
+        mdlog.set(section, "name", self.params.benchmark_run_dir.local.name)
         version, seqno, sha1, hostdata = collect_local_info(self.pbench_bin)
         rpm_version = f"v{version}-{seqno}g{sha1}"
         mdlog.set(section, "rpm-version", rpm_version)
@@ -1164,9 +1166,9 @@ class ToolDataSink(Bottle):
 
         section = "tools"
         mdlog.add_section(section)
-        mdlog.set(section, "hosts", " ".join(sorted(list(self.tools.keys()))))
-        mdlog.set(section, "group", self.tool_group)
-        mdlog.set(section, "trigger", str(self.tool_trigger))
+        mdlog.set(section, "hosts", " ".join(sorted(list(self.params.tools.keys()))))
+        mdlog.set(section, "group", self.params.tool_group)
+        mdlog.set(section, "trigger", str(self.params.tool_trigger))
 
         for host, tm in sorted(tms.items()):
             section = f"tools/{host}"
@@ -1232,7 +1234,7 @@ class ToolDataSink(Bottle):
             if action not in tm_allowed_actions:
                 self.logger.warning("unrecognized action in message, %r", data)
                 return None
-            elif group != self.tool_group:
+            elif group != self.params.tool_group:
                 self.logger.warning("unrecognized tool group in message, %r", data)
                 return None
             else:
@@ -1433,7 +1435,7 @@ class ToolDataSink(Bottle):
             # the caller wants to report that it is stopping all the Tool
             # Meisters due to an interruption (SIGINT or otherwise).
             #
-            mdlog_name = self.benchmark_run_dir.local / "metadata.log"
+            mdlog_name = self.params.benchmark_run_dir.local / "metadata.log"
             mdlog = MetadataLog()
             try:
                 with (mdlog_name).open("r") as fp:
@@ -1452,7 +1454,7 @@ class ToolDataSink(Bottle):
                 if args["interrupt"]:
                     # args["interrupt"] == True ==> run / run_interrupted
                     mdlog.set(section, "run_interrupted", "true")
-                iterations = self.benchmark_run_dir.local / ".iterations"
+                iterations = self.params.benchmark_run_dir.local / ".iterations"
                 try:
                     iterations_val = iterations.read_text()
                 except FileNotFoundError:
@@ -1478,17 +1480,17 @@ class ToolDataSink(Bottle):
             return
 
         try:
-            local_dir = self.benchmark_run_dir.validate(directory_str)
-        except self.benchmark_run_dir.Prefix:
+            local_dir = self.params.benchmark_run_dir.validate(directory_str)
+        except self.params.benchmark_run_dir.Prefix:
             self.logger.error(
                 "action '%s' with invalid directory, '%s' (not a sub-directory of '%s')",
                 action,
                 directory_str,
-                self.benchmark_run_dir,
+                self.params.benchmark_run_dir,
             )
             self._send_client_status(action, "directory not a sub-dir of run directory")
             return
-        except self.benchmark_run_dir.Exists:
+        except self.params.benchmark_run_dir.Exists:
             self.logger.error(
                 "action '%s' with invalid directory, '%s' (does not exist)",
                 action,
@@ -1515,7 +1517,7 @@ class ToolDataSink(Bottle):
                     pcp_tools = []
                     persist_tools = self._tm_tracking[tm]["persistent_tools"]
                     for tool in persist_tools:
-                        tool_data = self.tool_metadata.getProperties(tool)
+                        tool_data = self.params.tool_metadata.getProperties(tool)
                         if tool_data["collector"] == "prometheus":
                             prom_tools.append(tool)
                         elif tool_data["collector"] == "pcp":
@@ -1542,10 +1544,10 @@ class ToolDataSink(Bottle):
                 if prom_tool_dict:
                     self._prom_server = PromCollector(
                         self.pbench_bin,
-                        self.benchmark_run_dir,
-                        self.tool_group,
+                        self.params.benchmark_run_dir,
+                        self.params.tool_group,
                         prom_tool_dict,
-                        self.tool_metadata,
+                        self.params.tool_metadata,
                         self.tar_path,
                         logger=self.logger,
                     )
@@ -1557,10 +1559,10 @@ class ToolDataSink(Bottle):
                     )
                     self._pcp_server = PcpCollector(
                         self.pbench_bin,
-                        self.benchmark_run_dir,
-                        self.tool_group,
+                        self.params.benchmark_run_dir,
+                        self.params.tool_group,
                         pcp_tool_dict,
-                        self.tool_metadata,
+                        self.params.tool_metadata,
                         self.tar_path,
                         redis_host=self.redis_host,
                         redis_port=self.redis_port,
