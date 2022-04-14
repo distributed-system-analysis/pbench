@@ -28,13 +28,20 @@ ERROR - "pbench-tool-meister-start --sysinfo='block,security_mitigations,sos' 'l
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
 /var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/remote
+/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com
+/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp
+/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.err
+/var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.out
+/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com
+/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp
+/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.err
+/var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.out
+/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com
+/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp
+/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.err
+/var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.out
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.err
-/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.out
-/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.err
-/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.out
-/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.err
-/var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.out
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat
@@ -49,15 +56,15 @@ ERROR - "pbench-tool-meister-start --sysinfo='block,security_mitigations,sos' 'l
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/dcgm
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/mpstat
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.err:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.err:
 INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.out:
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.err:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-a.example.com/tmp/tm-lite-remote-a.example.com.out:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.err:
 INFO pbench-tool-meister __exit__ -- remote-b.example.com: terminating
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-b.example.com.out:
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.err:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-b.example.com/tmp/tm-lite-remote-b.example.com.out:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.err:
 INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-c.example.com.out:
+=== /var/tmp/pbench-test-utils/pbench/remote/remote-c.example.com/tmp/tm-lite-remote-c.example.com.out:
 === /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat:
 --interval=42
 --options=forty-two
@@ -276,10 +283,10 @@ testhost.example.com INFO pbench-tool-meister __exit__ -- testhost.example.com: 
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-a.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-a.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-a.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister localhost 17001 tm-lite-remote-a.example.com yes
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-a.example.com echo ${SSH_CONNECTION}
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-b.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-b.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-b.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister localhost 17001 tm-lite-remote-b.example.com yes
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-b.example.com echo ${SSH_CONNECTION}
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-c.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-c.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-c.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister localhost 17001 tm-lite-remote-c.example.com yes
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-c.example.com echo ${SSH_CONNECTION}
 --- test-execution.log file contents

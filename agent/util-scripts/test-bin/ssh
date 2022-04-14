@@ -21,16 +21,46 @@ done
 remote=${1}
 shift
 
+function mkdirp {
+    # Only create the directory hierarchy of the 2nd argument under the first.
+    if [[ -d ${1}/${2} ]]; then
+        return 0
+    fi
+    (cd ${1} && mkdir -p ${2})
+    return ${?}
+}
+
 if [[ "${1}" == "hostname" && "${2}" == "-s" ]]; then
     echo "${remote}"
     exit_code=0
 elif [[ "${1}" == "echo"* ]]; then
     echo "127.0.0.1 54038 ${remote} 22"
     exit_code=0
-elif [[ "$(basename -- "${1%% *}")" == "pbench-tool-meister-remote" ]]; then
+elif [[ "$(basename -- "${1%% *}")" == "pbench-tool-meister" ]]; then
     _dir=$(dirname ${0})
-    _pbench_full_hostname="${remote}" _pbench_hostname="${remote}" _tool_bin=${_dir}/mpstat ${1} localhost "${3}" "${4}" "${5}"
-    exit_code=$?
+    # To simulate running a Tool Meister instance "remotely" we reset the
+    # environment presented to the pbench-tool-meister instance. We keep the
+    # test environment variables, PATH, HOME, etc., but we change the pbench_tmp
+    # environment variable.  This is convenient for the test system to avoid
+    # tracking down arbitrary /var/tmp usage.
+    _remote_dir="remote/${remote}/tmp"
+    mkdirp ${_testdir} ${_remote_dir}
+    _pbench_tmp=${_testdir}/${_remote_dir}
+    env -i \
+        PATH=${PATH} \
+        HOME=${HOME} \
+        PYTHONHASHSEED=${PYTHONHASHSEED} \
+        PARALLEL_TMP=${PARALLEL_TMP} \
+        _PBENCH_UNIT_TESTS=1 \
+        _PBENCH_UNIT_TEST_NAME=${_PBENCH_UNIT_TEST_NAME} \
+        _testdir=${_testdir} \
+        _testhome=${_testhome} \
+        _testlog=${_testlog} \
+        _testout=${_testout} \
+        _real_cp=${_real_cp} \
+        pbench_tmp=${_pbench_tmp} \
+        _tool_bin=${_dir}/mpstat ${1} localhost "${3}" "${4}" "${5}"
+    exit_code=${?}
 fi
 
 exit ${exit_code}

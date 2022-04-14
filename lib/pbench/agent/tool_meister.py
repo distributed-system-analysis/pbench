@@ -1999,22 +1999,20 @@ def start(prog: Path, parsed: Arguments) -> int:
         )
         return 3
 
+    tmp_dir_str = os.environ.get("pbench_tmp", "/var/tmp")
     try:
         # The temporary directory to use for capturing all tool data.
-        tmp_dir = Path(os.environ["pbench_tmp"]).resolve(strict=True)
-    except KeyError:
-        print(f"{PROG}: Missing pbench_tmp environment variable", file=sys.stderr)
-        return 4
+        tmp_dir = Path(tmp_dir_str).resolve(strict=True)
     except Exception as e:
         print(
-            f"{PROG}: Error working with pbench_tmp environment variable, '{tmp_dir}': {e}",
+            f"{PROG}: Error working with temporary directory, '{tmp_dir_str}': {e}",
             file=sys.stderr,
         )
         return 4
     else:
         if not tmp_dir.is_dir():
             print(
-                f"{PROG}: The pbench_tmp environment variable, '{tmp_dir}', does not resolve to a directory",
+                f"{PROG}: The temporary directory, '{tmp_dir_str}', does not resolve to a directory",
                 file=sys.stderr,
             )
             return 4
