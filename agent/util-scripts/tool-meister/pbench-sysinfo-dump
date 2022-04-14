@@ -225,34 +225,19 @@ function collect_insights {
 }
 
 for item in ${sysinfo//,/ }; do
-	if [[ "${item}" == "kernel_config" ]]; then
-		:
-	elif [[ "${item}" == "security_mitigations" ]]; then
-		:
-	elif [[ "${item}" == "libvirt" ]]; then
-		:
-	elif [[ "${item}" == "topology" ]]; then
-		:
-	elif [[ "${item}" == "sos" ]]; then
-		:
-	elif [[ "${item}" == "block" ]]; then
-		:
-	elif [[ "${item}" == "ara" ]]; then
-		:
-	elif [[ "${item}" == "stockpile" ]]; then
-		:
-	elif [[ "${item}" == "insights" ]]; then
-		:
-	else
+	case ${item} in
+	kernel_config|security_mitigations|libvirt|topology|sos|block|ara|stockpile|insights)
+		printf -- "collecting %s\n" "${item}"
+		if [[ "${mode}" == "parallel" ]]; then
+			collect_${item} &
+		else
+			collect_${item}
+		fi
+		;;
+	*)
 		printf -- "WARNING: bad sysinfo value, \"%s\"; ignoring\n" "${item}" >&2
-		continue
-	fi
-	printf -- "collecting %s\n" "${item}"
-	if [[ "${mode}" == "parallel" ]]; then
-		collect_${item} &
-	else
-		collect_${item}
-	fi
+		;;
+	esac
 done
 wait
 exit 0

@@ -172,7 +172,7 @@ from pbench.common.utils import Cleanup, validate_hostname
 _orchestrate_choices = ["create", "existing"]
 _def_orchestrate_choice = "create"
 assert _def_orchestrate_choice in _orchestrate_choices, (
-    f"Logic Bomb!  The default orchestrate choice, {_def_orchestrate_choice!r},"
+    f"The default orchestrate choice, {_def_orchestrate_choice!r},"
     f" is not one of the available choices, {_orchestrate_choices!r}"
 )
 
@@ -287,7 +287,7 @@ def start_tms_via_ssh(
     occur for some; this allows the user to see logs for all the individual
     failures.
     """
-    assert len(tool_group.hostnames) > 0, "Logic bomb!  No hosts to run tools"
+    assert len(tool_group.hostnames) > 0, "No hosts to run tools"
     lrh = LocalRemoteHost()
     failures = 0
     successes = 0
@@ -385,7 +385,7 @@ def start_tms_via_ssh(
 
     assert tm_count == len(tool_group.hostnames) and tm_count == (
         successes + failures
-    ), f"Logic bomb!  Number of successes ({successes}) and failures ({failures}) for TM creation don't add up (should be {tm_count})"
+    ), f"Number of successes ({successes}) and failures ({failures}) for TM creation don't add up (should be {tm_count})"
 
     if failures > 0:
         raise StartTmsErr(
@@ -423,7 +423,7 @@ class ToolDataSink(BaseServer):
             and self.port is not None
             and self.bind_host is not None
             and self.bind_port is not None
-        ), f"Logic bomb!  Unexpected state: {self!r}"
+        ), f"Unexpected state: {self!r}"
         try:
             pid = os.fork()
             if pid == 0:
@@ -592,7 +592,7 @@ port {redis_port:d}
             and self.bind_host is not None
             and self.bind_port is not None
             and self.pid_file is None
-        ), f"Logic bomb!  Unexpected state: {self!r}"
+        ), f"Unexpected state: {self!r}"
 
         try:
             bind_host_ip = socket.gethostbyname(self.bind_host)
@@ -603,7 +603,7 @@ port {redis_port:d}
         else:
             assert (
                 bind_host_ip is not None
-            ), f"Logic Bomb!  socket.gethostbyname('{self.bind_host}') returned None"
+            ), f"socket.gethostbyname('{self.bind_host}') returned None"
         try:
             host_ip = socket.gethostbyname(self.host)
         except socket.error as exc:
@@ -613,7 +613,7 @@ port {redis_port:d}
         else:
             assert (
                 host_ip is not None
-            ), f"Logic Bomb!  socket.gethostbyname('{self.host}') returned None"
+            ), f"socket.gethostbyname('{self.host}') returned None"
             # By default, to talk to the Redis server locally, use the
             # specified host name.
             self.local_host = self.host
@@ -646,7 +646,7 @@ port {redis_port:d}
                 if bind_host_ip != localhost_ip:
                     assert (
                         self.bind_host != "localhost"
-                    ), f"Logic Bomb!  self.bind_host ({self.bind_host:r}) == 'localhost'?"
+                    ), f"self.bind_host ({self.bind_host:r}) == 'localhost'?"
                     # The bind host name is not the same as "localhost" so we
                     # can add it to the list of host names the Redis server
                     # will bind to.
@@ -801,13 +801,8 @@ def start(_prog: str, cli_params: Namespace) -> int:
             ", ".join(_orchestrate_choices),
         )
         return ReturnCode.INVALIDORCHESTRATE
-    if cli_params.orchestrate == "create":
-        orchestrate = True
-    else:
-        assert (
-            cli_params.orchestrate == "existing"
-        ), f"Unexpected --orchestrate parameter, {cli_params.orchestrate!r}"
-        if cli_params.redis_server is None or cli_params.tool_data_sink is None:
+    if cli_params.orchestrate == "existing":
+        if not cli_params.redis_server or not cli_params.tool_data_sink:
             logger.error(
                 "both --redis-server and --tool-data-sink must be specified"
                 " if --orchestrate=%s is used",
@@ -815,6 +810,8 @@ def start(_prog: str, cli_params: Namespace) -> int:
             )
             return ReturnCode.MISSINGPARAMS
         orchestrate = False
+    else:
+        orchestrate = True
 
     # Load and verify required and optional environment variables.
     try:
