@@ -1,4 +1,5 @@
 import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
+import "./index.css"
 import React from "react";
 
 function AlertMessage({ message, link }) {
@@ -17,8 +18,8 @@ function AlertMessage({ message, link }) {
       }
       title={[
         `${message}`,
-        <a style={{ fontSize: "smaller", marginLeft: "10px" }}>
-          Login to create an account
+        <a className="alertHelpText">
+          Click here to create an account
         </a>,
       ]}
     ></Alert>

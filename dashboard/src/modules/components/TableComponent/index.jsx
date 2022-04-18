@@ -20,7 +20,6 @@ import {
   Tbody,
   Td,
 } from "@patternfly/react-table";
-import axios from "axios";
 import BarsIcon from "@patternfly/react-icons/dist/js/icons/bars-icon";
 import SearchBox from "../SearchComponent";
 import DatePickerWidget from "../DatePickerComponent";
@@ -31,8 +30,9 @@ import NavItems from "../NavbarComponent";
 import EmptyTable from "../EmptyStateComponent";
 import moment from "moment";
 import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
+import TablePagination from "../PaginationComponent";
 let startDate = moment(new Date(1990, 10, 4)).format("YYYY/MM/DD");
-let endDate = moment(new Date(2040, 10, 4)).format("YYYY/MM/DD");
+let endDate = moment(new Date()).format("YYYY/MM/DD");
 let controllerName = "";
 let dataArray = [];
 export const TableWithFavorite = () => {
@@ -45,8 +45,10 @@ export const TableWithFavorite = () => {
   const [activeSortDirection, setActiveSortDirection] = useState(null);
   const [favoriteRepoNames, setFavoriteRepoNames] = useState([]);
   const [publicData, setPublicData] = useState([]);
-  const [isSelected, setIsSelected] = useState("firstButton");
+  const [isSelected, setIsSelected] = useState("controllerListButton");
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [page,setPage]=useState(1);
+  const [perPage,setPerPage]=useState(10);
   const dispatch=useDispatch();
   useEffect(() => {
      dispatch(fetchPublicDatasets()).then((res) => {
@@ -60,18 +62,11 @@ export const TableWithFavorite = () => {
   }, []);
   const markRepoFavorited = (repo, isFavoriting = true) =>{
    const otherFavorites = favoriteRepoNames.filter((r) => r.name !== repo.name);
-      if (isFavoriting) saveFavorites([...otherFavorites, repo]);
-      else saveFavorites(otherFavorites);
       const newFavorite= isFavoriting ? [...otherFavorites, repo] : otherFavorites;
+      saveFavorites(newFavorite);
       setFavoriteRepoNames(newFavorite);
   }
-    // setFavoriteRepoNames((prevFavorites) => {
-    //   const otherFavorites = prevFavorites.filter((r) => r.name !== repo.name);
-    //   if (isFavoriting) saveFavorites([...otherFavorites, repo]);
-    //   else saveFavorites(otherFavorites);
-    //   return isFavoriting ? [...otherFavorites, repo] : otherFavorites;
-    // }
-
+    const selectedArray =isSelected === "controllerListButton" ? publicData.slice((page-1)*(perPage),(page*perPage)) : favoriteRepoNames.slice((page-1)*(perPage),(page*perPage));
   const onNavToggle = () => {
     setIsNavOpen(!isNavOpen);
   };
@@ -92,9 +87,9 @@ export const TableWithFavorite = () => {
     const creationDate = publicData.metadata["dataset.created"];
     return [controller, name, creationDate];
   };
-  let sortedRepositories = publicData;
+  let sortedRepositories = selectedArray;
   if (activeSortIndex !== null) {
-    sortedRepositories = publicData.sort((a, b) => {
+    sortedRepositories = selectedArray.sort((a, b) => {
       const aValue = getSortableRowValues(a)[activeSortIndex];
       const bValue = getSortableRowValues(b)[activeSortIndex];
       if (aValue === bValue) {
@@ -151,13 +146,11 @@ export const TableWithFavorite = () => {
       </Masthead>
     );
   };
-  const selectedArray =
-    isSelected === "firstButton" ? publicData : favoriteRepoNames;
   return (
     <>
       <Page header={<NavbarDrawer />} sidebar={Sidebar}>
         <AlertMessage
-          message="Want to see only metric relevant to you?"
+          message="Want to see your own data?"
           link="Login to create an account"
         />
         <PageSection variant={PageSectionVariants.light}>
@@ -181,15 +174,15 @@ export const TableWithFavorite = () => {
           <ToggleGroup aria-label="Available options with Single Selectable">
             <ToggleGroupItem
               text={`All Controllers(${publicData.length})`}
-              buttonId="firstButton"
-              isSelected={isSelected === "firstButton"}
+              buttonId="controllerListButton"
+              isSelected={isSelected === "controllerListButton"}
               onChange={handleButtonClick}
               className="controllerListButton"
             />
             <ToggleGroupItem
               text={`Favorites(${favoriteRepoNames.length})`}
-              buttonId="secondButton"
-              isSelected={isSelected === "secondButton"}
+              buttonId="favoriteListButton"
+              isSelected={isSelected === "favoriteListButton"}
               onChange={handleButtonClick}
               className="favoriteListButton"
             />
@@ -232,6 +225,7 @@ export const TableWithFavorite = () => {
               )}
             </Tbody>
           </TableComposable>
+          <TablePagination numberOfControllers={isSelected==="controllerListButton"?publicData.length:favoriteRepoNames.length} page={page} setPage={setPage} perPage={perPage} setPerPage={setPerPage}/>
         </PageSection>
       </Page>
     </>

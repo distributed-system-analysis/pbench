@@ -13,7 +13,7 @@ function PathBreadCrumb({ pathList }) {
           );
         else
           return (
-            <BreadcrumbItem to="#" key={index}>
+            <BreadcrumbItem key={index} to="#">
               {value}
             </BreadcrumbItem>
           );
