@@ -31,8 +31,8 @@ import EmptyTable from "../EmptyStateComponent";
 import moment from "moment";
 import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
 import TablePagination from "../PaginationComponent";
-let startDate = moment(new Date(1990, 10, 4)).format("YYYY/MM/DD");
-let endDate = moment(new Date()).format("YYYY/MM/DD");
+let startDate = moment(new Date(1990, 10, 4)).format("YYYY-MM-DD");
+let endDate = moment(new Date()).format("YYYY-MM-DD");
 let controllerName = "";
 let dataArray = [];
 export const TableWithFavorite = () => {
@@ -205,7 +205,7 @@ export const TableWithFavorite = () => {
                     </Td>
                     <Td dataLabel={columnNames.name}>{repo.name}</Td>
                     <Td dataLabel={columnNames.creationDate}>
-                      {repo.metadata["dataset.created"]}
+                      {moment(repo.metadata["dataset.created"]).format("YYYY-MM-DDTHH:mm")}
                     </Td>
                     <Td
                       favorites={{
