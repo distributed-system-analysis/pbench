@@ -43,8 +43,6 @@ Iteration 3-8-threads complete
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/1-2-threads/linpack.bin
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/1-2-threads/linpack.finished
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/1-2-threads/linpack.input
-/var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/1-2-threads/linpack.meta
-/var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/1-2-threads/linpack.out
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/1-2-threads/linpack.sh
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/1-2-threads/sample1
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/1-2-threads/sample1/clients
@@ -82,8 +80,6 @@ Iteration 3-8-threads complete
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/2-4-threads/linpack.bin
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/2-4-threads/linpack.finished
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/2-4-threads/linpack.input
-/var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/2-4-threads/linpack.meta
-/var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/2-4-threads/linpack.out
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/2-4-threads/linpack.sh
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/2-4-threads/sample1
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/2-4-threads/sample1/clients
@@ -121,8 +117,6 @@ Iteration 3-8-threads complete
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/3-8-threads/linpack.bin
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/3-8-threads/linpack.finished
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/3-8-threads/linpack.input
-/var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/3-8-threads/linpack.meta
-/var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/3-8-threads/linpack.out
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/3-8-threads/linpack.sh
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/3-8-threads/sample1
 /var/tmp/pbench-test-bench/pbench-agent/linpack_test-65_1900.01.01T00.00.00/3-8-threads/sample1/clients

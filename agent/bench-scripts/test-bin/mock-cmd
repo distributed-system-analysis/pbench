@@ -20,6 +20,6 @@ if [[ "${prog}" == "pbench-tool-meister-start" ]]; then
 elif [[ "${prog}" == "cat" && "${args[0]}" == "/proc/cmdline" ]]; then
     echo "intel_iommu=on"
 elif [[ "${prog}" == "screen" && "${args[2]}" == "./linpack.sh" ]]; then
-    touch ./linpack.finished ./linpack.out
+    ./linpack.sh
 fi
 exit 0
