@@ -30,7 +30,7 @@ if ($pp_mode eq 'cdm') {
     my $foo = 0;
 } else { # $pp_mode = html
     # Call the legacy post-process script, so we can build the static html reports later
-    system($ENV{'pbench_install_dir'} . "/bench-scripts/postprocess/linpack-postprocess `/bin/pwd` linpack default");
+    system($ENV{'pbench_install_dir'} . "/bench-scripts/postprocess/linpack-postprocess-sample `/bin/pwd` linpack default");
     if (defined $last_sample and $last_sample eq "1") {
         system($ENV{'pbench_install_dir'} . "/bench-scripts/postprocess/process-iteration-samples `/bin/pwd`/.. gflops 100 0 1 n n");
     }
