@@ -159,7 +159,7 @@ function preprocess-iteration {
 
 function postprocess-iteration {
 	local _cmd="${pbench_bin}/bench-scripts/postprocess/linpack-postprocess-cdm"
-	store_and_run "${1}" "'${_cmd}' '${1}' '${2}' '${tool_group}' 1 html" \
+	store_and_run "${1}" "'${_cmd}' '${1}' '${2}' '${tool_group}' ${3} html" \
 			"${benchmark}-postprocess.cmd"
 }
 
@@ -267,7 +267,8 @@ for thread in ${threads//,/ }; do
 
 		# Post-process the benchmark results after the tools so that the
 		# post-processing has that data available to it.
-		postprocess-iteration "${sample_dir}" "${benchmark_run_dir}"
+		[[ ${sample} -ne ${nr_samples} ]]; last=${?}
+		postprocess-iteration "${sample_dir}" "${benchmark_run_dir}" ${last}
 	done
 
 	echo "Iteration ${iteration} complete"
