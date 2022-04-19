@@ -116,23 +116,23 @@ verify_common_bench_script_options ${tool_group} ${sysinfo}
 
 ver="$(pbench-config version ${benchmark})"
 if [[ -z "${ver}" ]]; then
-    error_log "${script_name}: package version is missing in config file"
-    exit 1
+	error_log "${script_name}: package version is missing in config file"
+	exit 1
 fi
 if [[ -z "${linpack_dir}" ]]; then
-    linpack_dir="/usr/local/${script_name}-${ver}/benchmarks/linpack"
-    linpack_dir_kind="default"
+	linpack_dir="/usr/local/${script_name}-${ver}/benchmarks/linpack"
+	linpack_dir_kind="default"
 else
-    linpack_dir_kind="provided"
+	linpack_dir_kind="provided"
 fi
 if [[ ! -d "${linpack_dir}" ]]; then
-    error_log "${script_name}: the ${linpack_dir_kind} linpack directory, ${linpack_dir}, does not exist"
-    exit 1
+	error_log "${script_name}: the ${linpack_dir_kind} linpack directory, ${linpack_dir}, does not exist"
+	exit 1
 fi
 linpack_cmd="${linpack_dir}/xlinpack_xeon64"
 if [[ ! -x "${linpack_cmd}" ]]; then
-    error_log "${script_name}: the expected linpack command, ${linpack_cmd}, does not exist"
-    exit 1
+	error_log "${script_name}: the expected linpack command, ${linpack_cmd}, does not exist"
+	exit 1
 fi
 
 function store_and_run {
@@ -177,14 +177,14 @@ benchmark_iterations="${benchmark_run_dir}/.iterations"
 mdlog=${benchmark_run_dir}/metadata.log
 
 function record_iteration {
-    local count=${1}
-    local thread=${2}
-    local iteration=${3}
+	local count=${1}
+	local thread=${2}
+	local iteration=${3}
 
-    echo ${iteration} >> ${benchmark_iterations}
-    echo ${count} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
-    echo ${thread} | pbench-add-metalog-option ${mdlog} iterations/${iteration} threads
-    echo ${iteration} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
+	echo ${iteration} >> ${benchmark_iterations}
+	echo ${count} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
+	echo ${thread} | pbench-add-metalog-option ${mdlog} iterations/${iteration} threads
+	echo ${iteration} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
 }
 
 
