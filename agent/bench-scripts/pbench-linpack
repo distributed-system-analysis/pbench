@@ -158,7 +158,7 @@ function preprocess-iteration {
 }
 
 function postprocess-iteration {
-	local _cmd="${pbench_bin}/bench-scripts/postprocess/linpack-postprocess-cdm"
+	local _cmd="${pbench_bin}/bench-scripts/postprocess/linpack-postprocess"
 	store_and_run "${1}" "'${_cmd}' '${1}' '${2}' '${tool_group}' ${3} html" \
 			"${benchmark}-postprocess.cmd"
 }
