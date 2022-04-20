@@ -17,10 +17,10 @@ function DatePickerWidget({
   setDateRange,
 }) {
   const [fromDate, setFromDate] = useState(
-    formatDate(new Date(1990,10,4),"YYYY-MM-DD")
+    formatDate(new Date(1990,10,4))
   );
   const [toDate, setToDate] = useState(
-    formatDate(new Date(),"YYYY-MM-DD")
+    formatDate(new Date())
   );
   const toValidator = (date) =>
     isValidDate(fromDate) && date >= fromDate

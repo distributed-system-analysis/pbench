@@ -1,5 +1,5 @@
 import moment from "moment"
 
-export const formatDate=(date,type)=>{
-    return moment(date).format(type)
+export const formatDate=(date)=>{
+    return moment(date).format("YYYY-MM-DD")
 }

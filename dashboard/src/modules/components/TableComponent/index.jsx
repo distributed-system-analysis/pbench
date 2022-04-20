@@ -32,8 +32,8 @@ import moment from "moment";
 import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
 import TablePagination from "../PaginationComponent";
 import { formatDate } from "../../../utils/dateFormatter";
-let startDate = formatDate(new Date(1990,10,4),"YYYY-MM-DD");
-let endDate = formatDate(new Date(),"YYYY-MM-DD");
+let startDate = formatDate(new Date(1990,10,4));
+let endDate = formatDate(new Date());
 let controllerName = "";
 let dataArray = [];
 export const TableWithFavorite = () => {
