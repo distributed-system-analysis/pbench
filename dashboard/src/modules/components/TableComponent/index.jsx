@@ -31,8 +31,9 @@ import EmptyTable from "../EmptyStateComponent";
 import moment from "moment";
 import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
 import TablePagination from "../PaginationComponent";
-let startDate = moment(new Date(1990, 10, 4)).format("YYYY-MM-DD");
-let endDate = moment(new Date()).format("YYYY-MM-DD");
+import { formatDate } from "../../../utils/dateFormatter";
+let startDate = formatDate(new Date(1990,10,4),"YYYY-MM-DD");
+let endDate = formatDate(new Date(),"YYYY-MM-DD");
 let controllerName = "";
 let dataArray = [];
 export const TableWithFavorite = () => {
@@ -87,9 +88,8 @@ export const TableWithFavorite = () => {
     const creationDate = publicData.metadata["dataset.created"];
     return [controller, name, creationDate];
   };
-  let sortedRepositories = selectedArray;
   if (activeSortIndex !== null) {
-    sortedRepositories = selectedArray.sort((a, b) => {
+    selectedArray.sort((a, b) => {
       const aValue = getSortableRowValues(a)[activeSortIndex];
       const bValue = getSortableRowValues(b)[activeSortIndex];
       if (aValue === bValue) {

@@ -8,7 +8,7 @@ import {
   Button,
 } from "@patternfly/react-core";
 import "./index.css"
-import moment from "moment";
+import { formatDate } from "../../../utils/dateFormatter";
 
 function DatePickerWidget({
   dataArray,
@@ -17,10 +17,10 @@ function DatePickerWidget({
   setDateRange,
 }) {
   const [fromDate, setFromDate] = useState(
-    moment(new Date(1990, 10, 4)).format("YYYY-MM-DD")
+    formatDate(new Date(1990,10,4),"YYYY-MM-DD")
   );
   const [toDate, setToDate] = useState(
-    moment(new Date()).format("YYYY-MM-DD")
+    formatDate(new Date(),"YYYY-MM-DD")
   );
   const toValidator = (date) =>
     isValidDate(fromDate) && date >= fromDate
