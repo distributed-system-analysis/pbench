@@ -505,7 +505,7 @@ pbench-iozone --bad-to-the-bone
 
 Bench Script: pbench-linpack --help
 ------------
-	The following options are available:
+The following options are available:
 
 	-C str --config=str         name of the test config
 	-c str[,str...] --clients=str[,str...]      a list of one or more host names (hosta,hostb,hostc) where you want pbench-linpack to run
@@ -521,7 +521,7 @@ Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-linpack: invalid --sysinfo option ("bad")
 
-	The following options are available:
+The following options are available:
 
 	-C str --config=str         name of the test config
 	-c str[,str...] --clients=str[,str...]      a list of one or more host names (hosta,hostb,hostc) where you want pbench-linpack to run
@@ -537,7 +537,7 @@ pbench-linpack --bad-to-the-bone
 
 	unrecognized option specified
 
-	The following options are available:
+The following options are available:
 
 	-C str --config=str         name of the test config
 	-c str[,str...] --clients=str[,str...]      a list of one or more host names (hosta,hostb,hostc) where you want pbench-linpack to run

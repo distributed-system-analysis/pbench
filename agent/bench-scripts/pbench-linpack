@@ -38,7 +38,7 @@ sysinfo="default"
 clients="localhost"
 
 function usage {
-	printf "\tThe following options are available:\n\n"
+	printf -- "The following options are available:\n\n"
 	printf -- "\t-C str --config=str         name of the test config\n"
 	printf -- "\t-c str[,str...] --clients=str[,str...]      a list of one or more host names (hosta,hostb,hostc) where you want ${script_name} to run\n"
 	printf -- "\t       --samples=<int>      number of samples to use per test iteration (default is ${def_nr_samples})\n"
@@ -51,10 +51,8 @@ function usage {
 # Process options and arguments
 opts=$(getopt -q -o C:c:h --longoptions "config:,clients:,samples:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
-	printf -- "${script_name} ${*}\n"
-	printf -- "\n"
-	printf -- "\tunrecognized option specified\n\n"
-	usage
+	printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${script_name}" "${*}" >&2
+	usage >&2
 	exit 1
 fi
 eval set -- "${opts}"
@@ -62,40 +60,40 @@ while true; do
 	arg=${1}
 	shift
 	case "${arg}" in
-	-c|--config)
+	-C|--config)
 		if [[ -n "${1}" ]]; then
 			config="${1}"
-			shift;
+			shift
 		fi
 		;;
 	-c|--clients)
 		if [[ -n "${1}" ]]; then
 			clients="${1}"
-			shift;
+			shift
 		fi
 		;;
 	--samples)
 		if [[ -n "${1}" ]]; then
 			nr_samples="${1}"
-			shift;
+			shift
 		fi
 		;;
 	--threads)
 		if [[ -n "${1}" ]]; then
 			threads="${1}"
-			shift;
+			shift
 		fi
 		;;
 	--tool-group)
 		if [[ -n "${1}" ]]; then
 			tool_group="${1}"
-			shift;
+			shift
 		fi
 		;;
 	--sysinfo)
 		if [[ -n "${1}" ]]; then
 			sysinfo="${1}"
-			shift;
+			shift
 		fi
 		;;
 	-h|--help)
@@ -103,11 +101,12 @@ while true; do
 		exit 0
 		;;
 	--)
-		shift;
-		break;
+		shift
+		break
 		;;
 	*)
-		echo "what happened? [${1}]" >&2
+		printf -- "${script_name}: unrecognized command line argument, '${arg}'" >&2
+		usage >&2
 		exit 1
 		;;
 	esac
