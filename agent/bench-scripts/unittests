@@ -283,7 +283,7 @@ else
                 # Ignore somebody trying to run the "Defaults" data directory.
                 continue
             fi
-            # All all the tests in that benchmark directory
+            # Add all the tests in that benchmark directory
             for _tst in $(ls -1 ${_tdir}/tests/${_tst_arg}/*.txt); do
                 tst=$(basename "${_tst}")
                 printf -- "%s %s\n" "${tst%%.*}" "${_tst_arg}" >> ${_testroot}/tests-unsorted.lis

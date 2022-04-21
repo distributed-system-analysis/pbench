@@ -149,6 +149,15 @@ parameters to modify the test behavior:
   * `tox -- server legacy test-28 test-32`  -- run server legacy tests 28 & 32
   * `tox -- server python -v`               -- run server python tests verbosely
 
+For the `agent/bench-scripts` tests, one can run entire sub-sets of tests using
+a sub-directory name found in `agent/bench-scripts/tests`. For example:
+
+  * `tox -- agent bench-scripts pbench-fio`
+  * `tox -- agent bench-scripts pbench-uperf pbench-linpack`
+
+The first runs all the `pbench-fio` tests, while the second runs all the
+`pbench-uperf` and `pbench-linpack` tests.
+
 Finally, see the `jenkins/Pipeline.gy` file for how the unit tests are run in
 our CI jobs.
 
