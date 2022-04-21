@@ -1,6 +1,7 @@
 +++ Running test-48 pbench-run-benchmark
+WARNING: pbench-run-benchmark is deprecated and will be removed in the next release
 Unsupported benchmark uperf; please supply one of the following supported benchmark names:
-	fio linpack trafficgen
+	fio trafficgen
 --- Finished test-48 pbench-run-benchmark (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
