@@ -25,7 +25,7 @@ exits.
 A redis [1] instance is used as the communication mechanism between the
 various Tool Meisters on nodes and the benchmark driver. The redis instance is
 used both to communicate the initial data set describing the tools to use, and
-their parameteres, for each Tool Meister, as well as a pub/sub for
+their parameters, for each Tool Meister, as well as a pub/sub for
 coordinating starts and stops of all the tools.
 
 The Tool Meister is given two arguments when started: the redis server to use,
@@ -243,7 +243,7 @@ class Tool:
                 process.stdin.close()
                 process.stdout.close()
                 process.stderr.close()
-        elif sts != 0 and sts != -(signal.SIGTERM):
+        elif sts != 0 and sts != -signal.SIGTERM:
             self.logger.warning(
                 "%s tool %s%s process failed with %d",
                 self._tool_type,
@@ -534,6 +534,21 @@ class PersistentTool(Tool):
         super().__init__(name, tool_opts, **kwargs)
         self.args = None
         self.process = None
+
+    def install(self) -> InstallationResult:
+        """A bit of syntactic sugar to appease lint
+
+        lint determines that the superclass is implemented as an abstract base
+        class, even though it is not expressly defined as such, and therefore it
+        wants this class to either be defined as an abstract class or have all
+        of the base class's abstract methods overridden.  Since this class is
+        actually an abstract class as well, for which we expect subclasses to
+        provide the install() method, we either have to define this class as
+        abstract (which is inconvenient for testing purposes) or provide some
+        sort of definition for this function...so, we just have it call the base
+        class implementation explicitly instead of inheriting it.
+        """
+        return super().install()
 
     def start(self, tool_dir: Path):
         """Start the persistent tool sub-process.
@@ -893,16 +908,18 @@ class ToolMeister:
             except Exception:
                 self.logger.exception("Failed to run tool %s install check", name)
                 res = InstallationResult(returncode=-42, output="internal-error")
+            else:
+                if res.returncode == 0:
+                    # Remember the successful Tool instances
+                    self._usable_tools[name] = tool_opts
+                    if name in self.persistent_tool_names:
+                        self._persistent_tools[name] = tool
+                    else:
+                        self._transient_tools[name] = tool
+
             # Record the result of the tool installation check so it can be
             # reported back to the Tool Data Sink.
             tool_installs[name] = res
-            if res.returncode == 0:
-                # Remember the successful Tool instances
-                self._usable_tools[name] = tool_opts
-                if name in self.persistent_tool_names:
-                    self._persistent_tools[name] = tool
-                else:
-                    self._transient_tools[name] = tool
 
         started_msg = dict(
             hostname=self._params.hostname,
@@ -1324,9 +1341,13 @@ class ToolMeister:
         Returns the CompletedProcess object returned by subprocess.run.
         """
 
-        def tar(tar_args: List):
+        def tar(args: List):
+            """Encapsulate the tar command invocation
+
+            NOTE:  this uses the `directory` value from the outer scope.
+            """
             return subprocess.run(
-                tar_args,
+                args,
                 cwd=directory.parent,
                 stdin=None,
                 stdout=subprocess.PIPE,
@@ -1628,8 +1649,8 @@ class ToolMeister:
             tool_dir,
         )
         unexpected_files = []
-        for dir, _, files in os.walk(tool_dir):
-            dirpath = Path(dir).relative_to(tool_dir)
+        for dirent, _, files in os.walk(tool_dir):
+            dirpath = Path(dirent).relative_to(tool_dir)
             if files:
                 unexpected_files += map(lambda x: f"{dirpath}/{x}", files)
 
@@ -1725,7 +1746,7 @@ class ToolMeister:
         try:
             with o_file.open("w") as ofp, e_file.open("w") as efp:
                 my_env = os.environ.copy()
-                my_env["sysinfo_install_dir"] = self.pbench_install_dir
+                my_env["sysinfo_install_dir"] = str(self.pbench_install_dir)
                 my_env["sysinfo_full_hostname"] = self._params.hostname
                 cp = subprocess.run(
                     command,
@@ -1770,7 +1791,9 @@ class ToolMeister:
         return failures
 
 
-def get_logger(PROG: str, daemon: bool = False, level: str = "info") -> logging.Logger:
+def get_logger(
+    PROG: str, is_daemon: bool = False, level: str = "info"
+) -> logging.Logger:
     """Contruct a logger for a Tool Meister instance.
 
     If in the Unit Test environment, just log to console.
@@ -1786,7 +1809,7 @@ def get_logger(PROG: str, daemon: bool = False, level: str = "info") -> logging.
     logger.setLevel(log_level)
 
     unit_tests = bool(os.environ.get("_PBENCH_UNIT_TESTS"))
-    if unit_tests or not daemon:
+    if unit_tests or not is_daemon:
         sh = logging.StreamHandler()
     else:
         sh = logging.handlers.SysLogHandler()
@@ -1913,7 +1936,7 @@ def daemon(
         pidfile=pfctx,
     ):
         # We need a logger earlier than the driver now that we are daemonized.
-        logger = get_logger(PROG, daemon=True, level=parsed.level)
+        logger = get_logger(PROG, is_daemon=True, level=parsed.level)
 
         # Previously we validated the Tool Meister parameters, and in doing so
         # made sure we had proper access to the Redis server.
@@ -1952,7 +1975,7 @@ def daemon(
 def start(prog: Path, parsed: Arguments) -> int:
     """
     Start a Tool Meister instance; including logging setup, initial connection
-    to Redis(), fetching and validating operational paramters from Redis(), and
+    to Redis(), fetching and validating operational parameters from Redis(), and
     daemonization of the ToolMeister.
 
     Args:
