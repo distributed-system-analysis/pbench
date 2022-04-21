@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardTitle,
@@ -11,9 +12,9 @@ import {
   AlertGroup,
   Alert,
 } from "@patternfly/react-core";
-import { registerUser, toggleSignupBtn } from "../../../actions/authActions";
+import { registerUser, toggleSignupBtn } from "actions/authActions";
 import { signupFormData } from "./signupFormData";
-import { validateEmail, validatePassword } from "../../../utils/helper.js";
+import { validateEmail, validatePassword } from "utils/helper.js";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Back,
@@ -23,6 +24,8 @@ import {
 } from "./common-components";
 
 const SignupForm = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { alerts, isSignupBtnDisabled } = useSelector(
     (state) => state.userAuth
   );
@@ -48,8 +51,6 @@ const SignupForm = () => {
     passwordContainsNumber: "indeterminate",
     passwordBlockLetter: "indeterminate",
   });
-
-  const dispatch = useDispatch();
 
   const validateForm = useCallback(() => {
     if (
@@ -130,7 +131,7 @@ const SignupForm = () => {
       last_name: userDetails.lastName,
       username: userDetails.userName,
     };
-    dispatch(registerUser({ ...details }));
+    dispatch(registerUser({ ...details }, navigate));
   };
   return (
     <Card className="signup-card">

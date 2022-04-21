@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardTitle,
@@ -16,11 +17,13 @@ import {
 import {
   makeLoginRequest,
   setUserLoggedInState,
-} from "../../../actions/authActions";
+} from "actions/authActions";
 import { Back, LoginHeader, NoLoginComponent } from "./common-components";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const alerts = useSelector((state) => state.userAuth.alerts);
   const [details, setDetails] = useState({
     password: "",
@@ -47,7 +50,7 @@ const LoginForm = () => {
     });
   };
   const sendLoginDetails = () => {
-    dispatch(makeLoginRequest(details));
+    dispatch(makeLoginRequest(details, navigate));
   };
   const checkOkButton = useCallback(() => {
     if (details.username?.length > 0 && details.password?.length > 0) {

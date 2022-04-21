@@ -5,7 +5,7 @@ import { Alert,
     AlertActionCloseButton 
 } from '@patternfly/react-core';
 import { useDispatch, useSelector } from "react-redux";
-import { CLEAR_TOAST } from "../../../actions/types";
+import { CLEAR_TOAST } from "actions/types";
 
 const ToastComponent = () => {
 
@@ -42,4 +42,4 @@ const ToastComponent = () => {
     )
 }
 
-export default ToastComponent
+export default ToastComponent;

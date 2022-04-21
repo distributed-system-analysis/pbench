@@ -6,7 +6,6 @@ export const signupFormData = [
     name: "firstName",
     isRequired: true,
     type: "text",
-    changeHandler: "handleFirstNameInputChange",
   },
   {
     key: 2,
@@ -15,7 +14,6 @@ export const signupFormData = [
     name: "lastName",
     isRequired: false,
     type: "text",
-    changeHandler: "handleLastNameInputChange",
   },
   {
     key: 3,
@@ -24,7 +22,6 @@ export const signupFormData = [
     name: "userName",
     isRequired: true,
     type: "text",
-    changeHandler: "handleUserNameInputChange",
   },
   {
     key: 4,
@@ -33,7 +30,6 @@ export const signupFormData = [
     name: "email",
     isRequired: true,
     type: "text",
-    changeHandler: "handleEmailInputChange",
   },
   {
     key: 5,
@@ -42,7 +38,6 @@ export const signupFormData = [
     name: "password",
     isRequired: true,
     type: "password",
-    changeHandler: "handlePasswordInputChange",
   },
   {
     key: 6,
@@ -51,7 +46,6 @@ export const signupFormData = [
     name: "passwordConfirm",
     isRequired: true,
     type: "password",
-    changeHandler: "checkConfirmPassword",
   },
 ];
 
