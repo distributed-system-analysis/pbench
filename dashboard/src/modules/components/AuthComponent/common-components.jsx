@@ -16,9 +16,9 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { CheckIcon, CloseIcon, TimesIcon } from "@patternfly/react-icons";
-import PBenchLogo from "../../../assets/logo/pbench_logo.svg";
+import PBenchLogo from "assets/logo/pbench_logo.svg";
 import { useDispatch } from "react-redux";
-import { movePage } from "../../../actions/authActions";
+import { movePage } from "actions/authActions";
 import { passwordConstraintsText } from "./signupFormData";
 
 export const LoginHeader = (props) => {
@@ -154,7 +154,7 @@ export const NoLoginComponent = () => {
   };
   return (
     <div className="section">
-      Want to continue without login? Click <space />
+      Want to continue without login? Click {" "}
       <Button
         variant="link"
         className="continueBtn"

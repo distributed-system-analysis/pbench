@@ -12,6 +12,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.26.1",
     "classnames": "^2.3.1",
+    "crypto-js": "^4.1.1",
     "js-cookie": "^3.0.1",
     "less-watch-compiler": "^1.16.3",
     "patternfly": "^3.9.0",

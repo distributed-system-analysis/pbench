@@ -29,6 +29,8 @@
             height: 80%;
             overflow: scroll;
             padding: 0 2vh;
+            -ms-overflow-style: none;  
+            scrollbar-width: none;  
 
             .contraints-container {
                 padding: 1vh;
@@ -45,7 +47,10 @@
             .error {
                 color: red;
                 font-size: var(--pf-global--FontSize--sm);
-            }              
+            } 
+            ::-webkit-scrollbar {
+                display: none;
+            }             
         }
     }
     .auth-card {

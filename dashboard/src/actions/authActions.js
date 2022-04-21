@@ -2,9 +2,10 @@ import * as types from "./types";
 import API from "../utils/api";
 import * as API_ROUTES from "../utils/apiConstants";
 import Cookies from "js-cookie";
-import { uid } from "../utils/helper";
+import { uid, key } from "../utils/helper";
+var CryptoJS = require("crypto-js");
 
-export const makeLoginRequest = (details) => async (dispatch, getState) => {
+export const makeLoginRequest = (details, navigate) => async (dispatch, getState) => {
   try {
     dispatch({ type: types.LOADING });
     //empty the alerts
@@ -20,7 +21,10 @@ export const makeLoginRequest = (details) => async (dispatch, getState) => {
       let expiryTime = keepUser ? 7 : 0.5;
       Cookies.set("isLoggedIn", true, { expires: expiryTime });
       Cookies.set("token", response.data?.auth_token, { expires: expiryTime });
-      Cookies.set("username", response.data?.username, { expires: expiryTime });
+      
+      let cipher_username = CryptoJS.AES.encrypt(response.data?.username, key).toString();
+      Cookies.set("username", cipher_username.toString(), { expires: expiryTime });
+      navigate("/");
     }
     dispatch({ type: types.COMPLETED });
   } catch (error) {
@@ -64,7 +68,7 @@ export const setUserLoggedInState = (value) => async (dispatch) => {
   });
 };
 
-export const registerUser = (details) => async (dispatch, getState) => {
+export const registerUser = (details, navigate) => async (dispatch, getState) => {
   try {
     dispatch({ type: types.LOADING });
     //empty the alerts
@@ -77,12 +81,13 @@ export const registerUser = (details) => async (dispatch, getState) => {
       ...details,
     });
     if (response.status === 200 ) {
-      console.log("hi");
+      navigate("/login");
     }
     dispatch({ type: types.COMPLETED });
   } catch (error) {
     let alerts = getState().userAuth.alerts;
     let alert = {};
+    document.querySelector(".signup-card").scrollTo(0,0);
     if (error?.response) {
       alert = {
         title: error?.response?.data?.message,
