@@ -1142,22 +1142,22 @@ class ToolDataSink(Bottle):
 
         section = "pbench"
         mdlog.add_section(section)
-        mdlog.set(section, "config", self.optional_md["config"])
-        mdlog.set(section, "date", self.optional_md["date"])
+        mdlog.set(section, "config", self.optional_md.get("config", ""))
+        mdlog.set(section, "date", self.optional_md.get("date", ""))
         mdlog.set(section, "name", self.params.benchmark_run_dir.local.name)
         version, seqno, sha1, hostdata = collect_local_info(self.pbench_bin)
         rpm_version = f"v{version}-{seqno}g{sha1}"
         mdlog.set(section, "rpm-version", rpm_version)
         rpm_versions = dict()
         rpm_versions[rpm_version] = 1
-        mdlog.set(section, "script", self.optional_md["script"])
+        mdlog.set(section, "script", self.optional_md.get("script", ""))
 
         section = "controller"
         mdlog.add_section(section)
         mdlog.set(section, "hostname", self.hostname)
         for hd_key, hd_val in sorted(hostdata.items()):
             mdlog.set(section, f"hostname-{hd_key}", hd_val)
-        mdlog.set(section, "ssh_opts", self.optional_md["ssh_opts"])
+        mdlog.set(section, "ssh_opts", self.optional_md.get("ssh_opts", ""))
 
         section = "run"
         mdlog.add_section(section)
