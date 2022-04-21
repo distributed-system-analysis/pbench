@@ -247,7 +247,7 @@ fi
 
 # Create the LINPACK input file.
 printf -- "%s\n%s\n%d # number of tests\n%s # problem sizes\n%s # leading dimensions\n%s # times to run a test\n%s # alingment values (in KBytes)\n" \
-        "${header}" \
+	"${header}" \
 	"${subheader}" \
 	"${number_of_tests}" \
 	"${problem_sizes}" \
@@ -256,8 +256,13 @@ printf -- "%s\n%s\n%d # number of tests\n%s # problem sizes\n%s # leading dimens
 	"${alignment_values}" \
 	> ${linpack_input_file}
 
+# Now we can execute the final LINPACK command.
+eval ${final_cmd}
+exit_code=${?}
+
 # Create the linpack.meta file containing all the metadata used for invoking
-# LINPACK (does not include "header" or "subheader".
+# LINPACK (does not include "header" or "subheader").  This serves as the marker
+# file for its completion.
 printf -- "binary=%s\nuse_omp=%s\nthreads=%s\nkmp_affinity=%s\nnumactl_cmd=%s\nproblem_sizes=%s\nleading_dimensions=%s\nalignment_values=%s\n" \
 	"${binary}" \
 	"${use_omp}" \
@@ -268,12 +273,5 @@ printf -- "binary=%s\nuse_omp=%s\nthreads=%s\nkmp_affinity=%s\nnumactl_cmd=%s\np
 	"${leading_dimensions}" \
 	"${alignment_values}" \
 	> ${linpack_metadata_file}
-
-# Now we can execute the final LINPACK command.
-eval ${final_cmd}
-exit_code=${?}
-
-# For convenience, create a marker file once LINPACK finishes.
-touch ${output_dir}/linpack.finished
 
 exit ${exit_code}
