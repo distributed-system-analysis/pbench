@@ -466,7 +466,7 @@ def main(args):
     stats = dict()
 
     with open("sosreport_fio.txt", "w") as log, open(
-        "output_latest_fio.json", "w"
+        "pbench_fio.json", "w"
     ) as outfile:
         generator = process_results(
             es, now, session, incoming_url, pool, pbench_runs, stats
