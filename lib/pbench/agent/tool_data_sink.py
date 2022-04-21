@@ -45,6 +45,7 @@ from pbench.agent.redis_utils import RedisChannelSubscriber, wait_for_conn_and_k
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
 from pbench.common import MetadataLog
+from pbench.common.utils import canonicalize
 
 
 # Logging format string for unit tests
@@ -729,7 +730,7 @@ class BenchmarkRunDir:
 
 
 class ToolDataSinkParams(NamedTuple):
-    benchmark_run_dir: str
+    benchmark_run_dir: BenchmarkRunDir
     bind_hostname: str
     port: str
     channel_prefix: str
@@ -737,6 +738,10 @@ class ToolDataSinkParams(NamedTuple):
     tool_metadata: ToolMetadata
     tool_trigger: str
     tools: Dict[str, str]
+
+    def __str__(self) -> str:
+        """A string containing a deterministic representation of the params"""
+        return canonicalize(self)
 
 
 class ToolDataSink(Bottle):
@@ -748,13 +753,12 @@ class ToolDataSink(Bottle):
     _data_actions = frozenset(("send", "sysinfo"))
 
     @staticmethod
-    def fetch_params(params, pbench_run):
+    def fetch_params(
+        params: Dict[str, Any], benchmark_run_dir: BenchmarkRunDir
+    ) -> ToolDataSinkParams:
         try:
-            _benchmark_run_dir = BenchmarkRunDir(
-                params["benchmark_run_dir"], pbench_run
-            )
-            tdsp = ToolDataSinkParams(
-                benchmark_run_dir=_benchmark_run_dir,
+            return ToolDataSinkParams(
+                benchmark_run_dir=benchmark_run_dir,
                 bind_hostname=params["bind_hostname"],
                 port=params["port"],
                 channel_prefix=params["channel_prefix"],
@@ -765,22 +769,19 @@ class ToolDataSink(Bottle):
             )
         except KeyError as exc:
             raise ToolDataSinkError(f"Invalid parameter block, missing key {exc}")
-        else:
-            return tdsp
 
     def __init__(
         self,
-        pbench_bin,
-        pbench_run,
-        hostname,
-        tar_path,
-        cp_path,
-        redis_server,
-        redis_host,
-        redis_port,
-        params,
-        optional_md,
-        logger,
+        pbench_bin: Path,
+        hostname: str,
+        tar_path: str,
+        cp_path: str,
+        redis_server: redis.Redis,
+        redis_host: str,
+        redis_port: int,
+        tdsp: ToolDataSinkParams,
+        optional_md: Dict[str, Any],
+        logger: logging.Logger,
     ):
         """Constructor for the Tool Data Sink object - responsible for
         recording parameters, and setting up initial state.
@@ -795,7 +796,7 @@ class ToolDataSink(Bottle):
         self.redis_server = redis_server
         self.redis_host = redis_host
         self.redis_port = redis_port
-        self.params = self.fetch_params(params, pbench_run)
+        self.params = tdsp
         self.optional_md = optional_md
         self.logger = logger
         # Initialize internal state
@@ -1876,12 +1877,11 @@ def driver(
     PROG: str,
     redis_server: redis.Redis,
     parsed: Arguments,
-    pbench_bin: str,
-    pbench_run: str,
+    pbench_bin: Path,
     hostname: str,
     tar_path: str,
     cp_path: str,
-    params: Dict[str, Any],
+    tdsp: ToolDataSinkParams,
     optional_md: Dict[str, Any],
     logger: logging.Logger = None,
 ):
@@ -1889,19 +1889,18 @@ def driver(
     if logger is None:
         logger = get_logger(PROG, level=parsed.level)
 
-    logger.debug("params_key (%s): %r", parsed.key, params)
+    logger.debug("params_key (%s): %s", parsed.key, tdsp)
 
     try:
         with ToolDataSink(
             pbench_bin,
-            pbench_run,
             hostname,
             tar_path,
             cp_path,
             redis_server,
             parsed.host,
             parsed.port,
-            params,
+            tdsp,
             optional_md,
             logger,
         ) as tds_app:
@@ -1910,8 +1909,8 @@ def driver(
         if exc.errno == errno.EADDRINUSE:
             logger.error(
                 "ERROR - tool data sink failed to start, %s:%s already in use",
-                params["bind_hostname"],
-                params["port"],
+                tdsp.bind_hostname,
+                tdsp.port,
             )
             ret_val = 8
         else:
@@ -1929,12 +1928,11 @@ def daemon(
     PROG: str,
     redis_server: redis.Redis,
     parsed: Arguments,
-    pbench_bin: str,
-    pbench_run: str,
+    pbench_bin: Path,
     hostname: str,
     tar_path: str,
     cp_path: str,
-    params: Dict[str, Any],
+    tdsp: ToolDataSinkParams,
     optional_md: Dict[str, Any],
 ):
     """Daemonize a Tool Data Sink instance"""
@@ -1979,11 +1977,10 @@ def daemon(
             redis_server,
             parsed,
             pbench_bin,
-            pbench_run,
             hostname,
             tar_path,
             cp_path,
-            params,
+            tdsp,
             optional_md,
             logger=logger,
         )
@@ -2060,7 +2057,9 @@ def start(prog: Path, parsed: Arguments):
         # E.g. params = '{ "channel_prefix": "some-prefix",
         #                  "benchmark_run_dir": "/loo/goo" }'
         params = json.loads(params_str)
-        ToolDataSink.fetch_params(params, pbench_run)
+
+        benchmark_run_dir = BenchmarkRunDir(params["benchmark_run_dir"], pbench_run)
+        tdsp = ToolDataSink.fetch_params(params, benchmark_run_dir)
     except Exception as ex:
         print(
             f"Unable to fetch and decode parameter key, {parsed.key}: {ex}",
@@ -2076,11 +2075,10 @@ def start(prog: Path, parsed: Arguments):
         redis_server,
         parsed,
         pbench_bin,
-        pbench_run,
         hostname,
         tar_path,
         cp_path,
-        params,
+        tdsp,
         optional_md,
     )
     return ret_val
