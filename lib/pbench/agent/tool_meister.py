@@ -71,7 +71,7 @@ from pbench.agent.redis_utils import (
 )
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
-from pbench.common.utils import md5sum
+from pbench.common.utils import canonicalize, md5sum
 
 
 # Logging format string for unit tests
@@ -696,6 +696,10 @@ class ToolMeisterParams(NamedTuple):
     tool_metadata: ToolMetadata
     tools: Dict[str, str]
 
+    def __str__(self) -> str:
+        """A string containing a deterministic representation of the params"""
+        return canonicalize(self)
+
 
 class ToolMeister:
     """Encapsulate tool life-cycle
@@ -806,7 +810,7 @@ class ToolMeister:
         tmp_dir: Path,
         tar_path: str,
         sysinfo_dump: str,
-        params: Dict[str, Any],
+        tm_params: ToolMeisterParams,
         redis_server: redis.Redis,
         logger: logging.Logger,
     ):
@@ -825,7 +829,7 @@ class ToolMeister:
         self._tmp_dir = tmp_dir
         self.tar_path = tar_path
         self.sysinfo_dump = sysinfo_dump
-        self._params = self.fetch_params(params)
+        self._params = tm_params
         self._rs = redis_server
         self.logger = logger
         self._usable_tools = dict()
@@ -1836,7 +1840,7 @@ def driver(
     pbench_install_dir: Path,
     tmp_dir: Path,
     parsed: Arguments,
-    params: Dict[str, Any],
+    tm_params: ToolMeisterParams,
     redis_server: redis.Redis,
     logger: logging.Logger = None,
 ):
@@ -1846,10 +1850,10 @@ def driver(
 
     # Add a logging handler to send logs back to the Redis server, with each
     # log entry prepended with the given hostname parameter.
-    channel_prefix = params["channel_prefix"]
+    channel_prefix = tm_params.channel_prefix
     rh = RedisHandler(
         channel=f"{channel_prefix}-{tm_channel_suffix_to_logging}",
-        hostname=params["hostname"],
+        hostname=tm_params.hostname,
         redis_client=redis_server,
     )
     redis_fmtstr = fmtstr_ut if os.environ.get("_PBENCH_UNIT_TESTS") else fmtstr
@@ -1857,7 +1861,7 @@ def driver(
     rh.setFormatter(rhf)
     logger.addHandler(rh)
 
-    logger.debug("params_key (%s): %r", parsed.key, params)
+    logger.debug("params_key (%s): %s", parsed.key, tm_params)
 
     # FIXME: we should establish signal handlers that do the following:
     #   a. handle graceful termination (TERM, INT, QUIT)
@@ -1870,7 +1874,7 @@ def driver(
             tmp_dir,
             tar_path,
             sysinfo_dump,
-            params,
+            tm_params,
             redis_server,
             logger,
         ) as tm:
@@ -1907,7 +1911,7 @@ def daemon(
     pbench_install_dir: Path,
     tmp_dir: Path,
     parsed: Arguments,
-    params: Dict[str, Any],
+    tm_params: ToolMeisterParams,
     redis_server: redis.Redis,
 ):
     """Daemonize a Tool Meister instance"""
@@ -1920,7 +1924,7 @@ def daemon(
     sys.stderr.flush()
     sys.stdout.flush()
 
-    if params["hostname"] != params["controller"]:
+    if tm_params.hostname != tm_params.controller:
         working_dir = tmp_dir
     else:
         working_dir = Path(".")
@@ -1966,7 +1970,7 @@ def daemon(
             pbench_install_dir,
             tmp_dir,
             parsed,
-            params,
+            tm_params,
             redis_server,
             logger=logger,
         )
@@ -2052,10 +2056,7 @@ def start(prog: Path, parsed: Arguments) -> int:
         # Wait for the key to show up with a value.
         params_str = wait_for_conn_and_key(redis_server, parsed.key, PROG)
         params = json.loads(params_str)
-        # Validate the Tool Meister parameters without constructing an object
-        # just yet, as we want to make sure we can talk to the redis server
-        # before we go through the trouble of daemonizing below.
-        ToolMeister.fetch_params(params)
+        tm_params = ToolMeister.fetch_params(params)
     except Exception as exc:
         print(
             f"{PROG}: Unable to fetch and decode parameter key, '{parsed.key}': {exc}",
@@ -2071,7 +2072,7 @@ def start(prog: Path, parsed: Arguments) -> int:
         pbench_install_dir,
         tmp_dir,
         parsed,
-        params,
+        tm_params,
         redis_server,
     )
 

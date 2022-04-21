@@ -106,3 +106,6 @@ class ToolMetadata:
             except KeyError:
                 tool_prop = None
         return tool_prop
+
+    def __str__(self):
+        return str(self.getFullData())
