@@ -430,6 +430,7 @@ class PcpCollector(BaseCollector):
         if pmproxy_path is None:
             pmproxy_path = self._pmproxy_path_def
         self.pmproxy_path = pmproxy_path
+        self.run_pmproxy = None
 
     def launch(self):
         """launch - responsible for creating the configuration file for
@@ -827,6 +828,7 @@ class ToolDataSink(Bottle):
         self._tm_log_capture_thread_cv = Condition(lock=self._lock)
         self._tm_log_capture_thread_state = None
         self.tm_log_capture_thread = None
+        self._num_tms = 0
 
     def __enter__(self):
         # Setup the Bottle server route and the WSGI server instance.
@@ -1216,7 +1218,7 @@ class ToolDataSink(Bottle):
                 section, "tool_meister_version_mismatch_count", f"{rpm_versions_cnt}"
             )
 
-        with (mdlog_name).open("w") as fp:
+        with mdlog_name.open("w") as fp:
             mdlog.write(fp)
 
         return tms
@@ -1238,7 +1240,7 @@ class ToolDataSink(Bottle):
                 self.logger.warning("unrecognized tool group in message, %r", data)
                 return None
             else:
-                return (action, directory, args)
+                return action, directory, args
 
     def execute(self):
         """execute - Driver for listening to client requests and taking action on
@@ -1438,7 +1440,7 @@ class ToolDataSink(Bottle):
             mdlog_name = self.params.benchmark_run_dir.local / "metadata.log"
             mdlog = MetadataLog()
             try:
-                with (mdlog_name).open("r") as fp:
+                with mdlog_name.open("r") as fp:
                     mdlog.read_file(fp)
             except FileNotFoundError:
                 # Ignore if it doesn't exist
@@ -1471,7 +1473,7 @@ class ToolDataSink(Bottle):
                     iterations_str = ", ".join(iterations_l)
                     mdlog.set(section, "iterations", iterations_str)
                 # Write out the final meta data contents.
-                with (mdlog_name).open("w") as fp:
+                with mdlog_name.open("w") as fp:
                     mdlog.write(fp)
 
             self._from_client_chan.close()
@@ -1660,6 +1662,9 @@ class ToolDataSink(Bottle):
 
         """
         try:
+            content_length = 0
+            exp_md5 = ""
+
             with self._lock:
                 if self.action not in self._data_actions:
                     abort(400, f"Can't accept PUT requests in action '{self.action}'")
@@ -1702,7 +1707,6 @@ class ToolDataSink(Bottle):
             else:
                 if content_length > _MAX_TOOL_DATA_SIZE:
                     abort(400, "Content object too large")
-                remaining_bytes = content_length
 
             try:
                 exp_md5 = request["HTTP_MD5SUM"]
@@ -1723,6 +1727,7 @@ class ToolDataSink(Bottle):
                 total_bytes = 0
                 iostr = request["wsgi.input"]
                 h = hashlib.md5()
+                remaining_bytes = content_length
                 while remaining_bytes > 0:
                     buf = iostr.read(
                         _BUFFER_SIZE
