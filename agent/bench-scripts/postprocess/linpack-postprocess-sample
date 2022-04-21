@@ -56,7 +56,7 @@ foreach my $client_hostname_dir (@client_hostname_dirs) {
             if (open(CLIENT_OUTPUT, "$dir/clients/$client_hostname_dir/$client_data_file")) {
                 while (<CLIENT_OUTPUT>) {
                     if ($client_data_file =~ /meta$/) {
-                        if ($_ =~ /^(binary|problem_sizes|leading_dimensions|alignment_values|numactl_cmd|use_omp|kmp_affinity|threads)/) {
+                        if ($_ =~ /^(binary|use_omp|threads|kmp_affinity|numactl_cmd|problem_sizes|leading_dimensions|alignment_values)/) {
                             chomp($_);
                             my @fields = split(/=/, $_, 2);
                             $client_data{$client_hostname_dir}{$fields[0]} = $fields[1];
