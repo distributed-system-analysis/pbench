@@ -50,13 +50,14 @@ import sys
 import tempfile
 import threading
 import time
-from typing import Any, Dict, List, NamedTuple, Tuple
+from typing import Any, Dict, List, Tuple
 
 from daemon import DaemonContext
 from pathlib import Path
 import pidfile
 import redis
 
+from pbench import PbenchNamedTuple
 from pbench.agent.constants import (
     tm_allowed_actions,
     tm_channel_suffix_to_tms,
@@ -71,7 +72,7 @@ from pbench.agent.redis_utils import (
 )
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
-from pbench.common.utils import canonicalize, md5sum
+from pbench.common.utils import md5sum
 
 
 # Logging format string for unit tests
@@ -95,7 +96,7 @@ class ToolException(Exception):
     pass
 
 
-class InstallationResult(NamedTuple):
+class InstallationResult(PbenchNamedTuple):
     returncode: int
     output: str
 
@@ -669,7 +670,7 @@ class ToolMeisterError(Exception):
     pass
 
 
-class ToolMeisterParams(NamedTuple):
+class ToolMeisterParams(PbenchNamedTuple):
     benchmark_run_dir: str
     channel_prefix: str
     tds_hostname: str
@@ -680,10 +681,6 @@ class ToolMeisterParams(NamedTuple):
     label: str
     tool_metadata: ToolMetadata
     tools: Dict[str, str]
-
-    def __str__(self) -> str:
-        """A string containing a deterministic representation of the params"""
-        return canonicalize(self)
 
 
 class ToolMeister:
@@ -1802,7 +1799,7 @@ def get_logger(PROG: str, daemon: bool = False, level: str = "info") -> logging.
     return logger
 
 
-class Arguments(NamedTuple):
+class Arguments(PbenchNamedTuple):
     host: str
     port: int
     key: str

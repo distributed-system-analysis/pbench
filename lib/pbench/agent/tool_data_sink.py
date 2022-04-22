@@ -22,7 +22,7 @@ import subprocess
 import sys
 import tempfile
 from threading import Thread, Lock, Condition
-from typing import Any, Dict, List, NamedTuple, Tuple
+from typing import Any, Dict, List, Tuple
 
 from bottle import Bottle, ServerAdapter, request, abort
 from configparser import DuplicateSectionError
@@ -32,6 +32,7 @@ import pidfile
 import redis
 from wsgiref.simple_server import WSGIRequestHandler, make_server
 
+from pbench import PbenchNamedTuple
 from pbench.agent.constants import (
     tm_allowed_actions,
     tm_channel_suffix_from_client,
@@ -45,7 +46,6 @@ from pbench.agent.redis_utils import RedisChannelSubscriber, wait_for_conn_and_k
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
 from pbench.common import MetadataLog
-from pbench.common.utils import canonicalize
 
 
 # Logging format string for unit tests
@@ -729,7 +729,7 @@ class BenchmarkRunDir:
         return local_dir
 
 
-class ExternalEnvironment(NamedTuple):
+class ExternalEnvironment(PbenchNamedTuple):
     """Encapsulation of the various external environment parameters needed by
     the operation of the Tool Data Sink.
     """
@@ -742,7 +742,7 @@ class ExternalEnvironment(NamedTuple):
     tar_path: str
 
 
-class ToolDataSinkParams(NamedTuple):
+class ToolDataSinkParams(PbenchNamedTuple):
     """Encapsulation of the parameter set provided to the Tool Data Sink by
     the orchestrator.
     """
@@ -756,10 +756,6 @@ class ToolDataSinkParams(NamedTuple):
     tool_metadata: Dict[str, str]
     tool_trigger: str
     tools: Dict[str, str]
-
-    def __str__(self) -> str:
-        """A string containing a deterministic representation of the params"""
-        return canonicalize(self)
 
 
 class ToolDataSink(Bottle):
@@ -1882,7 +1878,7 @@ def get_logger(PROG: str, daemon: bool = False, level: str = "info") -> logging.
     return logger
 
 
-class Arguments(NamedTuple):
+class Arguments(PbenchNamedTuple):
     host: str
     port: int
     key: str

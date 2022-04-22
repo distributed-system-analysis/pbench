@@ -3,6 +3,7 @@ Simple module level convenience functions.
 """
 
 from configparser import ConfigParser, NoSectionError, NoOptionError
+from typing import NamedTuple
 
 from pbench.common import configtools
 from pbench.common.exceptions import BadConfig
@@ -71,3 +72,35 @@ class PbenchConfig:
 
     def get(self, *args, **kwargs):
         return self.conf.get(*args, **kwargs)
+
+
+class PbenchNamedTuple(NamedTuple):
+    """A simple extension of a NamedTuple to provide a deterministic string
+    representation.
+    """
+
+    def __str__(self):
+        """A string containing a deterministic representation of a NamedTuple
+
+        Convert the field names to dict keys, produce them in sorted order, and
+        render their object values.  For most field types, this is done in the
+        usual way by Python.  In the case of object references, use the object's
+        __str__() method if it has one other than the one inherited from the
+        fundamental "object" (that prints the object's address, which varies
+        from run to run).  For other objects, print out the object's class name.
+        If anything goes wrong, produce a default value.
+        """
+        ret_val = {}
+        for k, v in sorted(self._asdict().items()):
+            try:
+                if isinstance(
+                    v, (dict, list, tuple, str, int, float, complex, bool, type(None))
+                ):
+                    ret_val[k] = v
+                elif v.__class__.__str__ != object.__str__:
+                    ret_val[k] = str(v)
+                else:
+                    ret_val[k] = f"<{v.__class__.__name__} object>"
+            except Exception:
+                ret_val[k] = "<unexpected thing>"
+        return str(ret_val)
