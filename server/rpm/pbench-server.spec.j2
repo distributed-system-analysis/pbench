@@ -94,6 +94,9 @@ cp -a ./web-server/* %{buildroot}/%{installdir}/%{static}
 # for the npm install below
 mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 
+# The %dir directive creates this directory on install, but needs a source
+mkdir -p %{buildroot}/var/log/pbench-server/
+
 %post
 # Install python dependencies as pbench user into user's site-packages
 
@@ -179,6 +182,8 @@ fi
 %files
 
 %defattr(644, pbench, pbench, 755)
+%dir /var/log/pbench-server
+
 /%{installdir}
 %attr(755, pbench, pbench) /%{installdir}/bin
 %attr(644, pbench, pbench) /%{installdir}/bin/pbench-base.sh

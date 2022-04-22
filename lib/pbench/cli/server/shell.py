@@ -77,6 +77,10 @@ def main():
             "/run/pbench-server/gunicorn.pid",
             "--bind",
             f"{host}:{port}",
+            "--access-logfile",
+            "/var/log/pbench-server/access_log",
+            "--error-logfile",
+            "/var/log/pbench-server/error_log",
             "pbench.cli.server.shell:app()",
         ]
     )
