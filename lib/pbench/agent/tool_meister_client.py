@@ -28,6 +28,7 @@ from pbench.agent.constants import (
     api_tm_allowed_actions,
 )
 from pbench.agent.redis_utils import RedisChannelSubscriber
+from pbench.agent.tool_group import ToolGroup
 from pbench.agent.utils import RedisServerCommon
 
 
@@ -284,6 +285,19 @@ def main() -> int:
             # FIXME: we need to implement the gritty method of killing all the
             # tool meisters, locally and remotely, and ensuring they are all
             # properly shut down.
+            return 0
+
+    try:
+        # Load the tool group data
+        tool_group = ToolGroup(group)
+    except Exception:
+        logger.exception("failed to load tool group data for '%s'", group)
+        return 1
+    else:
+        if not tool_group.hostnames:
+            # If a tool group has no tools registered, then there will be no
+            # host names on which Tool Meisters would have been started, so we
+            # can safely exit.
             return 0
 
     redis_server_env = os.environ.get("PBENCH_REDIS_SERVER", "")
