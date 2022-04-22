@@ -19,11 +19,11 @@ export const makeLoginRequest = (details, navigate) => async (dispatch, getState
     if (response.status === 200 && Object.keys(response.data).length > 0) {
       let keepUser = getState().userAuth.keepLoggedIn;
       let expiryTime = keepUser ? 7 : 0.5;
-      Cookies.set("isLoggedIn", true, { expires: expiryTime });
-      Cookies.set("token", response.data?.auth_token, { expires: expiryTime });
+      Cookies.set("isLoggedIn", true, { expires: expiryTime, secure:true });
+      Cookies.set("token", response.data?.auth_token, { expires: expiryTime, secure:true });
       
       let cipher_username = CryptoJS.AES.encrypt(response.data?.username, key).toString();
-      Cookies.set("username", cipher_username.toString(), { expires: expiryTime });
+      Cookies.set("username", cipher_username, { expires: expiryTime, secure:true });
       navigate("/");
     }
     dispatch({ type: types.COMPLETED });
