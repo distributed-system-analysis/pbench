@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Remove the mocked start/stop tool scripts
+rm ${_testopt}/unittest-scripts/pbench-*-tools 
+
+# Create an empty tools directory.
+mkdir ${_testdir}/tools-v1-empty
