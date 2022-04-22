@@ -2,8 +2,7 @@ import * as types from "./types";
 import API from "../utils/api";
 import * as API_ROUTES from "../utils/apiConstants";
 import Cookies from "js-cookie";
-import { uid, key } from "../utils/helper";
-var CryptoJS = require("crypto-js");
+import { uid } from "../utils/helper";
 
 export const makeLoginRequest = (details, navigate) => async (dispatch, getState) => {
   try {
@@ -21,9 +20,7 @@ export const makeLoginRequest = (details, navigate) => async (dispatch, getState
       let expiryTime = keepUser ? 7 : 0.5;
       Cookies.set("isLoggedIn", true, { expires: expiryTime, secure:true });
       Cookies.set("token", response.data?.auth_token, { expires: expiryTime, secure:true });
-      
-      let cipher_username = CryptoJS.AES.encrypt(response.data?.username, key).toString();
-      Cookies.set("username", cipher_username, { expires: expiryTime, secure:true });
+      Cookies.set("username", response.data?.username, { expires: expiryTime, secure:true });
       navigate("/");
     }
     dispatch({ type: types.COMPLETED });

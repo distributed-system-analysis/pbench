@@ -22,4 +22,3 @@ export const validateEmail = (email) => {
   };
 };
 
-export const key = "pbench_perf";
