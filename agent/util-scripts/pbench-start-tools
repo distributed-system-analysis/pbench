@@ -105,6 +105,6 @@ else
 	fi
 fi
 
-# Tell the tool meister to take the requested action.
+# Tell the tool meister sub-system to take the requested action.
 pbench-tool-meister-client "${group}" "${tool_output_dir}" "${action}"
 exit ${?}
