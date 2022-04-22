@@ -1,1 +1,43 @@
-pbench-start-tools
+#!/bin/bash
+
+echo "${0} ${*}" >> ${_testlog}
+
+PROG="$(basename "${0}")"
+
+opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "mock-${PROG}" -- "${@}")
+if [[ ${?} -ne 0 ]]; then
+	printf -- "mock-%s: unrecognized argument, \"%s\"\n" "${PROG}" "${*}" >> ${_testlog}
+	exit 1
+fi
+eval set -- "${opts}"
+while true; do
+	opt="${1}"
+	shift
+	case "${opt}" in
+	-g|--group)
+		if [[ -n "${1}" ]]; then
+			group="${1}"
+			shift
+		fi
+		;;
+	-d|--dir)
+		if [[ -n "${1}" ]]; then
+			dir="${1}"
+			shift
+		fi
+		;;
+	--)
+		break
+		;;
+	*)
+		printf -- "mock-%s: unrecognized argument, \"%s\"\n" "${PROG}" "${opt}" >> ${_testlog}
+		exit 1
+	esac
+done
+if [[ "${PROG}" == "pbench-start-tools" ]]; then
+	mkdir -p "${dir}/tools-${group}"
+	retsts=${?}
+else
+	retsts=0
+fi
+exit ${retsts}

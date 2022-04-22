@@ -1,0 +1,61 @@
++++ Running test-03 pbench-user-benchmark
+Running bm for iteration 1-default
+--- Finished test-03 pbench-user-benchmark (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/.iterations
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default/reference-result
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default/sample1
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default/sample1/tools-empty
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default/sample1/user-benchmark.cmd
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/iteration.lis
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/metadata.log
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/user-benchmark-summary-debug.json
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/user-benchmark-summary.json
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
+/var/tmp/pbench-test-bench/pbench-agent/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+/var/tmp/pbench-test-bench/pbench-agent/tools-empty
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]started: --group=empty --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default/sample1
+[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]started: --dir /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default/sample1 --group empty
+[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]completed: 
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]completed: 
+[info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running bm for iteration 1-default
+[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --group=empty --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default/sample1
+[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
+[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]started: --group=empty --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default/sample1
+[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]completed: 
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm 
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=empty --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00 --sysinfo=default end
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=empty --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=empty --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00 end
+--- test-execution.log file contents
++++ pbench-user-benchmark_test-03_1900.01.01T00.00.00/metadata.log file contents
+[pbench]
+
+[iterations/1-default]
+iteration_number = 1
+iteration_name = 1-default
+user_script = bm
+
+--- pbench-user-benchmark_test-03_1900.01.01T00.00.00/metadata.log file contents
++++ pbench-user-benchmark_test-03_1900.01.01T00.00.00/user-benchmark-summary.json file contents
+{
+    "duration":0,
+    "duration_units":"sec"
+}
+--- pbench-user-benchmark_test-03_1900.01.01T00.00.00/user-benchmark-summary.json file contents
++++ pbench-user-benchmark_test-03_1900.01.01T00.00.00/./1-default/sample1/user-benchmark.cmd file contents
+bm 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-03_1900.01.01T00.00.00/1-default/sample1/result.txt
+--- pbench-user-benchmark_test-03_1900.01.01T00.00.00/./1-default/sample1/user-benchmark.cmd file contents
