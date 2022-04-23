@@ -27,9 +27,9 @@
 #     line 6:     2     2     2
 #     line 7:     4     4     4
 #
-# This script offers input parameters for lines 1, 2, 4 - 7, with default values
-# and then calculates the number of tests to be run from those inputs to fill in
-# line 3 of the LINPACK input file.
+# This script provides optional command line switches to override the default
+# values for lines 1, 2, 4-7; the script calculates the number of tests to be
+# run from those inputs to fill in line 3 of the LINPACK input file.
 #
 # Additionally, it offers input parameters to control the use of OpenMP during
 # the LINPACK run, along with the OMP_NUM_THREADS and KMP_AFFINITY environment
@@ -239,7 +239,7 @@ final_cmd="${omp_num_threads}${kmp_affinity}${numactl_cmd}${binary}"
 final_cmd+=" ${linpack_input_file} |"
 final_cmd+=" stdbuf --input=0 tee -i ${linpack_output_file}"
 
-# Line 1, prividing a default header
+# Line 1, providing a default header
 header=${header:-"Pbench - LINPACK Benchmark data file (${linpack_input_file})"}
 # Line 2, providing a default sub-header
 subheader=${subheader:-"Pbench LINPACK Benchmark data -- ${final_cmd}"}
