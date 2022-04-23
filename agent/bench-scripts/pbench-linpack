@@ -242,21 +242,26 @@ for thread in ${threads//,/ }; do
 		# Run the benchmark and start/stop perf analysis tools
 		pbench-start-tools --group=${tool_group} --dir="${sample_dir}"
 
+		run_it="pbench-linpack ${pbench_bin}/bench-scripts/driver/linpack"
+		run_it+=" --output-dir=${sample_dir} --binary=${linpack_cmd}"
+		run_it+=" --threads=${thread}"
+		screen_it="screen -dmS ${run_it}"
 		for client in ${clients//,/ }; do
 			if pbench-is-local "${client}"; then
-				screen -dmS pbench-linpack ${pbench_bin}/bench-scripts/driver/linpack --output-dir=${sample_dir} --binary=${linpack_cmd} --threads=${thread}
+				${screen_it}
 			else
-				ssh ${ssh_opts} ${client} "mkdir -p '${sample_dir}' && screen -dmS pbench-linpack ${pbench_bin}/bench-scripts/driver/linpack --output-dir=${sample_dir} --binary=${linpack_cmd} --threads=${thread}"
+				ssh ${ssh_opts} ${client} "mkdir -p '${sample_dir}' && ${screen_it}"
 			fi
 		done
 
 		# Wait for all of them to finish
 		echo "Waiting for all clients to finish pbench-linpack jobs"
+		run_it="${pbench_bin}/bench-scripts/driver/linpack-wait ${sample_dir}"
 		for client in ${clients//,/ }; do
 			if pbench-is-local "${client}"; then
-				${pbench_bin}/bench-scripts/driver/linpack-wait ${sample_dir}
+				${run_it}
 			else
-				ssh ${ssh_opts} ${client} "${pbench_bin}/bench-scripts/driver/linpack-wait ${sample_dir}"
+				ssh ${ssh_opts} ${client} ${run_it}
 			fi
 			echo "Sample finished on ${client}"
 		done
@@ -282,7 +287,7 @@ for thread in ${threads//,/ }; do
 
 		# Post-process the benchmark results after the tools so that the
 		# post-processing has that data available to it.
-		[[ ${sample} -ne ${nr_samples} ]]; last=${?}
+		(( last = (sample == nr_samples ? 1 : 0) ))
 		postprocess-sample "${sample_dir}" "${benchmark_run_dir}" ${last}
 	done
 
