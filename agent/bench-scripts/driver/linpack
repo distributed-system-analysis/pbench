@@ -68,9 +68,11 @@ run_trials=1
 alignment_values=4
 
 # Environment input defaults
-use_omp="y"
+use_omp_def="y"
+use_omp=""
 threads_arg=""
-kmp_affinity_args="nowarnings,compact,1,0,granularity=fine"
+kmp_affinity_args_def="nowarnings,compact,1,0,granularity=fine"
+kmp_affinity_args=""
 numactl_args=""
 
 # Output directory required.
@@ -196,10 +198,12 @@ if [[ ! -x "${binary}" ]]; then
 	printf -- "[%s] ERROR: The --binary must exist and be executable\n" "${script_name}" >&2
 	exit 2
 fi
+use_omp=${use_omp:-${use_omp_def}}
 if [[ "${use_omp}" != "y" && "${use_omp}" != "n" ]]; then
 	printf -- "[%s] ERROR: --use-omp must either be 'y' or 'n'\n" "${script_name}" >&2
 	exit 2
 fi
+
 ps_list=(${problem_sizes})
 ls_list=(${leading_dimensions})
 rt_list=(${run_trials})
@@ -207,8 +211,8 @@ av_list=(${alignment_values})
 if [[ ${#ps_list[*]} -ne ${#ls_list[*]} || \
       ${#ls_list[*]} -ne ${#rt_list[*]} || \
       ${#rt_list[*]} -ne ${#av_list[*]} ]]; then
-    printf -- "[%s] ERROR: You must have the same number of elements for --problem-sizes, --leading-dimensions, --run-trials, and --alignment-values\n" >&2
-    exit 2
+	printf -- "[%s] ERROR: You must have the same number of elements for --problem-sizes, --leading-dimensions, --run-trials, and --alignment-values\n" >&2
+	exit 2
 fi
 number_of_tests=${#ps_list[*]}
 
@@ -221,13 +225,15 @@ numactl_cmd=${numactl_args:+"numactl ${numactl_args} "}
 
 if [[ "${use_omp}" == "y" ]]; then
 	threads_arg=${threads_arg:-$(grep -c processor /proc/cpuinfo)}
+	kmp_affinity_args=${kmp_affinity_args:-${kmp_affinity_args_def}}
 
 	# N.B. - Trailing whitespace is required.
 	omp_num_threads="OMP_NUM_THREADS=${threads_arg} "
 	# N.B. - Trailing whitespace is required.
 	kmp_affinity="KMP_AFFINITY=${kmp_affinity_args} "
 else
-	# When "use OpenMP" is false, we are not going to use the "threads_arg" or "kmp_affinity_args"
+	# When "use OpenMP" is false, we are not going to use the "threads_arg" or
+	# "kmp_affinity_args" values.
 	threads_arg=""
 	kmp_affinity_args=""
 
