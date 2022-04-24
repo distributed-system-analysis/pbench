@@ -243,8 +243,7 @@ for thread in ${threads//,/ }; do
 		pbench-start-tools --group=${tool_group} --dir="${sample_dir}"
 
 		run_it="pbench-linpack ${pbench_bin}/bench-scripts/driver/linpack"
-		run_it+=" --output-dir=${sample_dir} --binary=${linpack_cmd}"
-		run_it+=" --threads=${thread}"
+		run_it+=" --output-dir=${sample_dir} --threads=${thread} ${linpack_cmd}"
 		screen_it="screen -dmS ${run_it}"
 		for client in ${clients//,/ }; do
 			if pbench-is-local "${client}"; then
