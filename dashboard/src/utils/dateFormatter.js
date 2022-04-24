@@ -1,5 +1,3 @@
-import moment from "moment"
-
 export const formatDate=(date)=>{
-    return moment(date).format("YYYY-MM-DD")
+    return date.toISOString().slice(0,10)
 }

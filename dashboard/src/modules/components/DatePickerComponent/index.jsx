@@ -4,11 +4,11 @@ import {
   InputGroupText,
   DatePicker,
   isValidDate,
-  yyyyMMddFormat,
   Button,
 } from "@patternfly/react-core";
 import "./index.css"
 import { formatDate } from "../../../utils/dateFormatter";
+import { filterData } from "../../../utils/filterDataset";
 
 function DatePickerWidget({
   dataArray,
@@ -28,11 +28,11 @@ function DatePickerWidget({
       : "To date must be less than from date";
 
   const onFromChange = (_str, date) => {
-    setFromDate(new Date(date));
+    setFromDate(date);
     if (isValidDate(date)) {
       if(date>new Date(toDate)){
       date.setDate(date.getDate() + 1);
-      setToDate(yyyyMMddFormat(date));
+      setToDate(formatDate(date));
       }
     } else {
       setToDate("");
@@ -40,14 +40,7 @@ function DatePickerWidget({
   };
 
   const filterByDate = () => {
-    let modifiedArray = [];
-    modifiedArray = dataArray.filter((data) => {
-      return (
-        new Date((data.metadata["dataset.created"]).split(":")[0])>= fromDate &&
-        new Date((data.metadata["dataset.created"]).split(":")[0])<= new Date(toDate) &&
-        data.name.includes(controllerName)
-      );
-    });
+    let modifiedArray = filterData(dataArray,fromDate,toDate,controllerName)
     setPublicData(modifiedArray);
     setDateRange(fromDate, toDate);
   };

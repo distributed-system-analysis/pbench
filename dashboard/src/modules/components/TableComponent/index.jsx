@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {useDispatch} from 'react-redux'
+import { useDispatch } from "react-redux";
 import "./index.css";
 import {
   ToggleGroup,
@@ -32,7 +32,7 @@ import moment from "moment";
 import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
 import TablePagination from "../PaginationComponent";
 import { formatDate } from "../../../utils/dateFormatter";
-let startDate = formatDate(new Date(1990,10,4));
+let startDate = formatDate(new Date(1990, 10, 4));
 let endDate = formatDate(new Date());
 let controllerName = "";
 let dataArray = [];
@@ -48,38 +48,43 @@ export const TableWithFavorite = () => {
   const [publicData, setPublicData] = useState([]);
   const [isSelected, setIsSelected] = useState("controllerListButton");
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const [page,setPage]=useState(1);
-  const [perPage,setPerPage]=useState(10);
-  const dispatch=useDispatch();
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const dispatch = useDispatch();
   useEffect(() => {
-     dispatch(fetchPublicDatasets()).then((res) => {
+    dispatch(fetchPublicDatasets())
+      .then((res) => {
         dataArray = res.data;
         setPublicData(res.data);
-        setFavoriteRepoNames(JSON.parse(localStorage.getItem("favControllers")))
+        setFavoriteRepoNames(
+          JSON.parse(localStorage.getItem("favControllers"))
+        );
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
-  const markRepoFavorited = (repo, isFavoriting = true) =>{
-   const otherFavorites = favoriteRepoNames.filter((r) => r.name !== repo.name);
-      const newFavorite= isFavoriting ? [...otherFavorites, repo] : otherFavorites;
-      saveFavorites(newFavorite);
-      setFavoriteRepoNames(newFavorite);
-  }
-    const selectedArray =isSelected === "controllerListButton" ? publicData.slice((page-1)*(perPage),(page*perPage)) : favoriteRepoNames.slice((page-1)*(perPage),(page*perPage));
+  const markRepoFavorited = (repo, isFavoriting = true) => {
+    const otherFavorites = favoriteRepoNames.filter(
+      (r) => r.name !== repo.name
+    );
+    const newFavorite = isFavoriting
+      ? [...otherFavorites, repo]
+      : otherFavorites;
+    saveFavorites(newFavorite);
+    setFavoriteRepoNames(newFavorite);
+  };
+  const selectedArray =
+    isSelected === "controllerListButton"
+      ? publicData.slice((page - 1) * perPage, page * perPage)
+      : favoriteRepoNames.slice((page - 1) * perPage, page * perPage);
   const onNavToggle = () => {
     setIsNavOpen(!isNavOpen);
   };
+
   const isRepoFavorited = (repo) => {
     for (let i = 0; i < favoriteRepoNames.length; i++) {
-      if (
-        repo.name === favoriteRepoNames[i].name &&
-        repo.controller === favoriteRepoNames[i].controller &&
-        repo.metadata["dataset.created"] ===
-          favoriteRepoNames[i].metadata["dataset.created"]
-      )
-        return true;
+      if (repo.name === favoriteRepoNames[i].name) return true;
     }
     return false;
   };
@@ -129,11 +134,7 @@ export const TableWithFavorite = () => {
     localStorage.setItem("favControllers", JSON.stringify(fav));
   };
   const Sidebar = (
-    <PageSidebar
-      nav={<NavItems />}
-      className="sidebar"
-      isNavOpen={isNavOpen}
-    />
+    <PageSidebar nav={<NavItems />} className="sidebar" isNavOpen={isNavOpen} />
   );
   const NavbarDrawer = () => {
     return (
@@ -171,7 +172,7 @@ export const TableWithFavorite = () => {
               setDateRange={setDateRange}
             />
           </div>
-          <ToggleGroup aria-label="Available options with Single Selectable">
+          <ToggleGroup aria-label="Result Selection Options">
             <ToggleGroupItem
               text={`All Controllers(${publicData.length})`}
               buttonId="controllerListButton"
@@ -205,7 +206,9 @@ export const TableWithFavorite = () => {
                     </Td>
                     <Td dataLabel={columnNames.name}>{repo.name}</Td>
                     <Td dataLabel={columnNames.creationDate}>
-                      {moment(repo.metadata["dataset.created"]).format("YYYY-MM-DDTHH:mm")}
+                      {moment(repo.metadata["dataset.created"]).format(
+                        "YYYY-MM-DDTHH:mm"
+                      )}
                     </Td>
                     <Td
                       favorites={{
@@ -225,7 +228,17 @@ export const TableWithFavorite = () => {
               )}
             </Tbody>
           </TableComposable>
-          <TablePagination numberOfControllers={isSelected==="controllerListButton"?publicData.length:favoriteRepoNames.length} page={page} setPage={setPage} perPage={perPage} setPerPage={setPerPage}/>
+          <TablePagination
+            numberOfControllers={
+              isSelected === "controllerListButton"
+                ? publicData.length
+                : favoriteRepoNames.length
+            }
+            page={page}
+            setPage={setPage}
+            perPage={perPage}
+            setPerPage={setPerPage}
+          />
         </PageSection>
       </Page>
     </>

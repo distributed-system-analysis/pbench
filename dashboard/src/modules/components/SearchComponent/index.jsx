@@ -2,6 +2,7 @@ import React,{useState} from "react";
 import "./index.css"
 import { InputGroup, TextInput, Button } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import { filterData } from "../../../utils/filterDataset";
 function SearchBox({
   dataArray,
   setPublicData,
@@ -11,14 +12,7 @@ function SearchBox({
 }) {
   const [controllerValue, setControllerValue] = useState("");
   const searchController = () => {
-    let modifiedArray = [];
-    modifiedArray = dataArray.filter((data) => {
-      return (
-        data.controller.includes(controllerValue) &&
-          new Date((data.metadata["dataset.created"]).split(":")[0])>= startDate &&
-          new Date((data.metadata["dataset.created"]).split(":")[0])<= new Date(endDate)
-      );
-    });
+    let modifiedArray = filterData(dataArray,startDate,endDate,controllerValue);
     setPublicData(modifiedArray);
     setControllerName(controllerValue);
   };
