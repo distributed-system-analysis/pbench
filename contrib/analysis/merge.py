@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import csv
 import json
 import pandas as pd
 

@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 
 import os
-import re
 import sys
 import json
 import time
 import requests
 import tarfile
-import collections
 import pandas as pd
 import logging
 import multiprocessing
