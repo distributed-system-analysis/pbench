@@ -56,8 +56,9 @@ export const TableWithFavorite = () => {
       .then((res) => {
         dataArray = res.data;
         setPublicData(res.data);
+        
         setFavoriteRepoNames(
-          JSON.parse(localStorage.getItem("favControllers"))
+          localStorage.getItem("favControllers")!==null?JSON.parse(localStorage.getItem("favControllers")):[]
         );
       })
       .catch((err) => {
