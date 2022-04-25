@@ -1,0 +1,22 @@
+#!/bin/bash
+
+function doit {
+    printf -- "\nBench Script Driver: ${1} ${2}\n++++++++++++\n"
+    ${_tdir}/driver/${1} ${2} 2>&1
+    printf -- "\n------------\n\n"
+    return ${?}
+}
+
+let failures=0
+drivers="linpack"
+for bs in ${drivers}; do
+    doit ${bs} --help
+    if [[ ${?} -ne 0 ]]; then
+        (( failures++ ))
+    fi
+    doit ${bs} --bad-to-the-bone
+    if [[ ${?} -ne 1 ]]; then
+        (( failures++ ))
+    fi
+done
+exit ${failures}

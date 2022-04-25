@@ -43,11 +43,9 @@ output_dir=""
 
 function usage() {
 	cat <<-__EOF__
-Pbench ${script_name} linpack driver
-
 Usage: ${script_name} [--problem-sizes=#[[,#]...]] [--leading-dimenions=#[[,#]...]]
-        [--run-trials=#[[,#]]...] [--alignment-values=#[[,#]...]] [--use-omp={[y]|n}]
-        [--threads=#] [--kmp-affinity=<options,>] [--numactl-args=<args,>]
+        [--run-trials=#[[,#]]...] [--alignment-values=#[[,#]...]] [--use-omp={y|n}]
+        [--threads=#] [--kmp-affinity=<options>] [--numactl-args=<args>]
         [--output-dir=<directory>] <linpack binary path>
 
 Optional output control:
@@ -74,13 +72,19 @@ Optional parameters to direct the use of OpenMP:
 Optional NUMA control parameter:
 
     --numactl-args   \`numactl\` command parameters (no default provided)
+	__EOF__
+}
+
+function help() {
+	cat <<-__EOF__
+Pbench ${script_name} linpack driver
 
 ${script_name} is responsible for transforming pbench-linpack command line inputs
 into the the linpack invocation requirements.
 
 The linpack binary expects an input file with 7 lines in it:
 
-    Line 1: Header (discarded; max 254 bytes + new line)
+    Line 1: Header (discarded LINPACK; max 254 bytes + new line)
     Line 2: Sub-Header (emitted as-is to stdout; max 254 bytes + new line)
     Line 3: Positive integer number of tests to run
     line 4: Number of equations to solve (problem size)
@@ -105,9 +109,9 @@ values for lines 1, 2, 4-7; the script calculates the number of tests to be
 run from those inputs to fill in line 3 of the LINPACK input file.
 
 Additionally, it offers input parameters to control the use of OpenMP during
-the LINPACK run, along with the OMP_NUM_THREADS and KMP_AFFINITY environment
-variables used by OpenMP, and if any NUMA controls should be applied (via
-\`numactl\`).  These parameters are provided in the default "Sub-Header".
+the LINPACK run, along with values for the OMP_NUM_THREADS and KMP_AFFINITY
+environment variables used by OpenMP, and if any NUMA controls should be applied
+(via \`numactl\`).  These parameters are displayed in the default "Sub-Header".
 
 The script generates four files:
 
@@ -118,7 +122,9 @@ The script generates four files:
 
 The script exits with 0 on success, 1 for any operational failures, and 2 for
 an invocation errors.
+
 	__EOF__
+	usage
 }
 
 # Process options and arguments
@@ -206,7 +212,7 @@ while true; do
 		fi
 		;;
 	-h|--help)
-		usage
+		help
 		exit 0
 		;;
 	--)
@@ -221,22 +227,26 @@ done
 
 binary=${1}
 if [[ -z "${binary}" ]]; then
-	printf -- "[%s] ERROR: You must specify the location of the LINPACK binary\n" "${script_name}" >&2
+	printf -- "[%s] ERROR: You must specify the location of the LINPACK binary\n\n" "${script_name}" >&2
+	usage >&2
 	exit 2
 fi
 if [[ ! -x "${binary}" ]]; then
 	printf -- "[%s] ERROR: The --binary must exist and be executable\n" "${script_name}" >&2
 	exit 2
 fi
-if [[ -z "${output_dir}" ]]; then
-	output_dir=$(pwd)
-elif [[ ! -d "${output_dir}" ]]; then
+output_dir=${output_dir:-$(pwd)}
+if [[ ! -d "${output_dir}" ]]; then
 	printf -- "[%s] ERROR: Specified --output-dir '${output_dir}' is not a directory\n" "${script_name}" >&2
 	exit 2
 fi
 use_omp=${use_omp:-${use_omp_def}}
 if [[ "${use_omp}" != "y" && "${use_omp}" != "n" ]]; then
 	printf -- "[%s] ERROR: --use-omp must either be 'y' or 'n'\n" "${script_name}" >&2
+	exit 2
+fi
+if [[ "${use_omp}" == "n" && (-n "${threads_arg}" || -n "${kmp_affinity_args}") ]]; then
+	printf -- "[%s] ERROR: --threads and --kmp-affinity not allowed with --use-omp=n\n" "${script_name}" >&2
 	exit 2
 fi
 
@@ -248,13 +258,13 @@ run_trials=${run_trials:-${run_trials_def}}
 rt_list=(${run_trials})
 alignment_values=${alignment_values:-${alignment_values_def}}
 av_list=(${alignment_values})
-if [[ ${#ps_list[*]} -ne ${#ls_list[*]} || \
-      ${#ls_list[*]} -ne ${#rt_list[*]} || \
-      ${#rt_list[*]} -ne ${#av_list[*]} ]]; then
+number_of_tests=${#ps_list[*]}
+if [[ ${#ls_list[*]} -ne ${number_of_tests} || \
+      ${#rt_list[*]} -ne ${number_of_tests} || \
+      ${#av_list[*]} -ne ${number_of_tests} ]]; then
 	printf -- "[%s] ERROR: You must have the same number of elements for --problem-sizes, --leading-dimensions, --run-trials, and --alignment-values\n" >&2
 	exit 2
 fi
-number_of_tests=${#ps_list[*]}
 
 linpack_input_file="${output_dir}/${linpack_input_file_name}"
 linpack_metadata_file="${output_dir}/${linpack_metadata_file_name}"
@@ -273,11 +283,6 @@ if [[ "${use_omp}" == "y" ]]; then
 	# N.B. - Trailing whitespace is required.
 	kmp_affinity="KMP_AFFINITY=${kmp_affinity_args} "
 else
-	# When "use OpenMP" is false, we are not going to use the "threads_arg" or
-	# "kmp_affinity_args" values.
-	threads_arg=""
-	kmp_affinity_args=""
-
 	# No environment variables to add to the command line.
 	omp_num_threads=""
 	kmp_affinity=""
@@ -289,19 +294,17 @@ final_cmd+=" stdbuf --input=0 tee -i ${linpack_output_file}"
 # Save the actual command we'll use below
 printf -- "${final_cmd}\n" > ${linpack_command_file}
 
-# Line 1, providing a default header (truncated to 254 characters)
+# Line 1, providing a default header (truncated to 254 characters below)
 header=${header:-"Pbench - LINPACK Benchmark data file (${linpack_input_file})"}
-printf -v input_header "%.254s" "${header}"
-# Line 2, providing a default sub-header (truncated to 254 characters)
+# Line 2, providing a default sub-header (truncated to 254 characters below)
 subheader=${subheader:-"Pbench - LINPACK Command: '${display_cmd}'"}
-printf -v input_subheader "%.254s" "${subheader}"
 
 # Create the LINPACK input file.  Note the comment lines are redundant but
 # provided in a spirit of consistency with the example input files provided by
 # linpack RPM.
 cat > ${linpack_input_file} <<-__EOF__
-	${input_header}
-	${input_subheader}
+	${header::254}
+	${subheader::254}
 	${number_of_tests} # number of tests
 	${problem_sizes} # problem sizes
 	${leading_dimensions} # leading dimensions
