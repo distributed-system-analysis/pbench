@@ -192,6 +192,7 @@ def fake_email_validator(monkeypatch):
     """
     Set up a mock for the email validator so we control failure modes.
     """
+
     def fake_email(value: str, **kwargs) -> ValidatedEmail:
 
         # The email validation failure case needs to see an error
