@@ -64,7 +64,7 @@ def mock_is_dir(self) -> bool:
 
 def mock_mkdir(self, parents=False, exist_ok=False) -> bool:
     """Mocked the directory creation"""
-    if self._accessor and parents == True and exist_ok == True:
+    if self._accessor and parents and exist_ok:
         return True
     return False
 
