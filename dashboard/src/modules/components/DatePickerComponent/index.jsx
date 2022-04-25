@@ -6,7 +6,7 @@ import {
   isValidDate,
   Button,
 } from "@patternfly/react-core";
-import "./index.css";
+import "./index.less";
 import { filterData } from "utils/filterDataset";
 import { dateFromUTCString } from "utils/constructDate";
 import { bumpToDate } from "utils/bumpDate";

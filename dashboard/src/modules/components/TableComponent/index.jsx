@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import "./index.css";
+import { useDispatch, useSelector } from "react-redux";
+import "./index.less";
 import {
   ToggleGroup,
   ToggleGroupItem,
@@ -15,21 +15,23 @@ import {
   Tbody,
   Td,
 } from "@patternfly/react-table";
-import SearchBox from "../SearchComponent";
-import DatePickerWidget from "../DatePickerComponent";
-import Heading from "../HeadingComponent";
-import PathBreadCrumb from "../BreadCrumbComponent";
-import EmptyTable from "../EmptyStateComponent";
-import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
+import {
+  fetchPublicDatasets,
+  updateFavoriteRepoNames,
+  updateTblData,
+} from "actions/publicControllerActions";
 import TablePagination from "../PaginationComponent";
-import MainLayout from "../../containers/MainLayout";
-import LoginAlertMessage from "../AlertComponent";
+import DatePickerWidget from "../DatePickerComponent";
+import PathBreadCrumb from "../BreadCrumbComponent";
+import { LoginHint, Heading, EmptyTable, SearchBox } from "./common-components";
 import { getTodayMidnightUTCDate } from "utils/getMidnightUTCDate";
+
 let startDate = new Date(Date.UTC(1990, 10, 4));
-let endDate = getTodayMidnightUTCDate()
+let endDate = getTodayMidnightUTCDate();
 let controllerName = "";
 let dataArray = [];
-export const TableWithFavorite = () => {
+
+const TableWithFavorite = () => {
   const columnNames = {
     controller: "Controller",
     name: "Name",
@@ -37,27 +39,23 @@ export const TableWithFavorite = () => {
   };
   const [activeSortIndex, setActiveSortIndex] = useState(null);
   const [activeSortDirection, setActiveSortDirection] = useState(null);
-  const [favoriteRepoNames, setFavoriteRepoNames] = useState([]);
-  const [publicData, setPublicData] = useState([]);
   const [isSelected, setIsSelected] = useState("controllerListButton");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
+  const [loginHintVisible, setLoginHintVisible] = useState(true);
+
   const dispatch = useDispatch();
+
   useEffect(() => {
-    dispatch(fetchPublicDatasets())
-      .then((res) => {
-        dataArray = res.data;
-        setPublicData(res.data);
-        setFavoriteRepoNames(
-          localStorage.getItem("favControllers") !== null
-            ? JSON.parse(localStorage.getItem("favControllers"))
-            : []
-        );
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+    dispatch(fetchPublicDatasets());
+  }, [dispatch]);
+
+  const { publicData, favoriteRepoNames } = useSelector(
+    (state) => state.controller
+  );
+  const setPublicData = (data) => {
+    dispatch(updateTblData(data));
+  };
   const markRepoFavorited = (repo, isFavoriting = true) => {
     const otherFavorites = favoriteRepoNames.filter(
       (r) => r.name !== repo.name
@@ -66,18 +64,19 @@ export const TableWithFavorite = () => {
       ? [...otherFavorites, repo]
       : otherFavorites;
     saveFavorites(newFavorite);
-    setFavoriteRepoNames(newFavorite);
+    dispatch(updateFavoriteRepoNames(newFavorite));
   };
   const selectedArray =
     isSelected === "controllerListButton"
-      ? publicData.slice((page - 1) * perPage, page * perPage)
-      : favoriteRepoNames.slice((page - 1) * perPage, page * perPage);
+      ? publicData?.slice((page - 1) * perPage, page * perPage)
+      : favoriteRepoNames?.slice((page - 1) * perPage, page * perPage);
 
   const isRepoFavorited = (repo) =>
     !!favoriteRepoNames.find((element) => element.name === repo.name);
-  const getSortableRowValues = (publicData) => {
-    const { controller, name } = publicData;
-    const creationDate = publicData.metadata["dataset.created"];
+
+  const getSortableRowValues = (data) => {
+    const { controller, name } = data;
+    const creationDate = data.metadata["dataset.created"];
     return [controller, name, creationDate];
   };
   if (activeSortIndex !== null) {
@@ -120,95 +119,116 @@ export const TableWithFavorite = () => {
   const saveFavorites = (fav) => {
     localStorage.setItem("favControllers", JSON.stringify(fav));
   };
+
+  const controllerBreadcrumb = [
+    { name: "Dashboard", link: "/" },
+    { name: "Controllers", link: "" },
+  ];
+
+  const onCloseLoginHint = () => {
+    setLoginHintVisible(false);
+  };
   return (
     <>
-      <MainLayout>
-        <LoginAlertMessage/>
-        <PageSection variant={PageSectionVariants.light}>
-          <PathBreadCrumb pathList={["Dashboard", "Components"]} />
-          <Heading headingTitle="Controllers"></Heading>
-          <div className="filterContainer">
-            <SearchBox
-              dataArray={dataArray}
-              setPublicData={setPublicData}
-              startDate={startDate}
-              endDate={endDate}
-              setControllerName={setControllerName}
-            />
-            <DatePickerWidget
-              dataArray={dataArray}
-              setPublicData={setPublicData}
-              controllerName={controllerName}
-              setDateRange={setDateRange}
-            />
-          </div>
-          <ToggleGroup aria-label="Result Selection Options">
-            <ToggleGroupItem
-              text={`All Controllers(${publicData.length})`}
-              buttonId="controllerListButton"
-              isSelected={isSelected === "controllerListButton"}
-              onChange={handleButtonClick}
-              className="controllerListButton"
-            />
-            <ToggleGroupItem
-              text={`Favorites(${favoriteRepoNames.length})`}
-              buttonId="favoriteListButton"
-              isSelected={isSelected === "favoriteListButton"}
-              onChange={handleButtonClick}
-              className="favoriteListButton"
-            />
-          </ToggleGroup>
-          <TableComposable aria-label="Favoritable table" variant="compact">
-            <Thead>
+      {loginHintVisible && (
+        <LoginHint
+          message="Want to see your own data?"
+          link="Login or Create an account"
+          onCloseMethod={onCloseLoginHint}
+        />
+      )}
+
+      <PageSection variant={PageSectionVariants.light}>
+        <PathBreadCrumb pathList={controllerBreadcrumb} />
+        <Heading
+          containerClass="publicDataPageTitle"
+          headingTitle="Controllers"
+        />
+        <div className="filterContainer">
+          <SearchBox
+            dataArray={dataArray}
+            setPublicData={setPublicData}
+            startDate={startDate}
+            endDate={endDate}
+            setControllerName={setControllerName}
+          />
+          <DatePickerWidget
+            dataArray={dataArray}
+            setPublicData={setPublicData}
+            controllerName={controllerName}
+            setDateRange={setDateRange}
+          />
+        </div>
+        <ToggleGroup aria-label="Result Selection Options">
+          <ToggleGroupItem
+            text={`All Controllers(${publicData?.length})`}
+            buttonId="controllerListButton"
+            isSelected={isSelected === "controllerListButton"}
+            onChange={handleButtonClick}
+            className="controllerListButton"
+          />
+          <ToggleGroupItem
+            text={`Favorites(${favoriteRepoNames?.length})`}
+            buttonId="favoriteListButton"
+            isSelected={isSelected === "favoriteListButton"}
+            onChange={handleButtonClick}
+            className="favoriteListButton"
+          />
+        </ToggleGroup>
+        <TableComposable aria-label="Favoritable table" variant="compact">
+          <Thead>
+            <Tr>
+              <Th sort={getSortParams(0)}>{columnNames.controller}</Th>
+              <Th sort={getSortParams(1)}>{columnNames.name}</Th>
+              <Th sort={getSortParams(2)}>{columnNames.creationDate}</Th>
+              <Th sort={getSortParams(3)}></Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {selectedArray && selectedArray.length > 0 ? (
+              selectedArray.map((repo, rowIndex) => (
+                <Tr key={rowIndex}>
+                  <Td dataLabel={columnNames.controller}>
+                    <div className="controller-name">{repo.controller}</div>
+                  </Td>
+                  <Td dataLabel={columnNames.name}>{repo.name}</Td>
+                  <Td dataLabel={columnNames.creationDate}>
+                    {repo.metadata["dataset.created"]}
+                  </Td>
+                  <Td
+                    favorites={{
+                      isFavorited: isRepoFavorited(repo),
+                      onFavorite: (_event, isFavoriting) => {
+                        markRepoFavorited(repo, isFavoriting);
+                      },
+                      rowIndex,
+                    }}
+                  />
+                </Tr>
+              ))
+            ) : (
               <Tr>
-                <Th sort={getSortParams(0)}>{columnNames.controller}</Th>
-                <Th sort={getSortParams(1)}>{columnNames.name}</Th>
-                <Th sort={getSortParams(2)}>{columnNames.creationDate}</Th>
-                <Th sort={getSortParams(3)}></Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {selectedArray.length > 0 ? (
-                selectedArray.map((repo, rowIndex) => (
-                  <Tr key={rowIndex}>
-                    <Td dataLabel={columnNames.controller}>
-                      <a href="#">{repo.controller}</a>
-                    </Td>
-                    <Td dataLabel={columnNames.name}>{repo.name}</Td>
-                    <Td dataLabel={columnNames.creationDate}>
-                      {repo.metadata["dataset.created"]}
-                    </Td>
-                    <Td
-                      favorites={{
-                        isFavorited: isRepoFavorited(repo),
-                        onFavorite: (_event, isFavoriting) => {
-                          markRepoFavorited(repo, isFavoriting);
-                        },
-                        rowIndex,
-                      }}
-                    />
-                  </Tr>
-                ))
-              ) : (
                 <Td colSpan={8}>
                   <EmptyTable />
                 </Td>
-              )}
-            </Tbody>
-          </TableComposable>
-          <TablePagination
-            numberOfControllers={
-              isSelected === "controllerListButton"
-                ? publicData.length
-                : favoriteRepoNames.length
-            }
-            page={page}
-            setPage={setPage}
-            perPage={perPage}
-            setPerPage={setPerPage}
-          />
-        </PageSection>
-      </MainLayout>
+              </Tr>
+            )}
+          </Tbody>
+        </TableComposable>
+        <TablePagination
+          numberOfControllers={
+            isSelected === "controllerListButton"
+              ? publicData?.length
+              : favoriteRepoNames?.length
+          }
+          page={page}
+          setPage={setPage}
+          perPage={perPage}
+          setPerPage={setPerPage}
+        />
+      </PageSection>
     </>
   );
 };
+
+export default TableWithFavorite;

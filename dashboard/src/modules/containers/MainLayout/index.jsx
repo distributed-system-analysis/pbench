@@ -2,10 +2,11 @@ import React from 'react';
 import ToastComponent from "modules/components/ToastNotificationComponent";
 import { useSelector } from "react-redux";
 import { Page, Spinner } from '@patternfly/react-core';
-import NavbarDrawer from '../../components/NavbarDrawerComponent';
-import Sidebar from '../../components/SidebarComponent';
+import NavbarDrawer from 'modules/components/NavbarDrawerComponent';
+import Sidebar from 'modules/components/SidebarComponent';
+import TableWithFavorite from "modules/components/TableComponent";
 
-const MainLayout = (props) => {
+const MainLayout = () => {
     const { alerts } = useSelector((state) => state.toastReducer);
     const isLoading = useSelector(state => state.loading.isLoading);
     return (
@@ -20,7 +21,7 @@ const MainLayout = (props) => {
             <Spinner />
         }
         <Page header={<NavbarDrawer/>} sidebar={Sidebar()}>
-           {props.children}
+          <TableWithFavorite />
         </Page>
         </>
     )

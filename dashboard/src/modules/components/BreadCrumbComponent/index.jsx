@@ -4,19 +4,16 @@ import React from "react";
 function PathBreadCrumb({ pathList }) {
   return (
     <Breadcrumb>
-      {pathList.map((value, index) => {
-        if (index === pathList.length - 1)
-          return (
-            <BreadcrumbItem key={index} to="#" isActive>
-              {value}
-            </BreadcrumbItem>
-          );
-        else
-          return (
-            <BreadcrumbItem key={index} to="#">
-              {value}
-            </BreadcrumbItem>
-          );
+      {pathList.map((path, index) => {
+        return (
+          <BreadcrumbItem
+            key={index}
+            to={path.link}
+            isActive={index === pathList.length - 1 ? true : false}
+          >
+            {path.name}
+          </BreadcrumbItem>
+        );
       })}
     </Breadcrumb>
   );
