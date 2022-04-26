@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+import datetime
 import hashlib
 from http import HTTPStatus
 import os
@@ -10,7 +11,6 @@ from stat import ST_MTIME
 import tarfile
 from typing import Dict
 
-import datetime
 from email_validator import EmailNotValidError, ValidatedEmail
 from freezegun import freeze_time
 import pytest
@@ -127,9 +127,16 @@ def server_config(on_disk_server_config, monkeypatch) -> PbenchServerConfig:
 def client(server_config, fake_email_validator):
     """A test client for the app.
 
-    NOTE: the db_session fixture does something similar, but with implicit
-    cleanup after the test, and without the Flask app setup DB tests don't
-    require.
+    Fixtures:
+        server_config: Set up a pbench-server.cfg configuration
+        fake_email_validator: Many tests use the Flask client initialized here
+            to register users, and we need that client to be bound to our
+            fake validator mock. Establishing it here makes the binding
+            universal.
+
+    NOTE: The Flask app initialization includes setting up the SQLAlchemy DB.
+    For test cases that require the DB but not a full Flask app context, use
+    the db_session fixture instead, which adds DB cleanup after the test.
     """
     app = create_app(server_config)
 
@@ -615,7 +622,7 @@ def find_template(monkeypatch, fake_mtime):
 
 
 @pytest.fixture()
-def pbench_admin_token(client, server_config, create_admin_user, fake_email_validator):
+def pbench_admin_token(client, server_config, create_admin_user):
     # Login admin user to get valid pbench token
     response = login_user(client, server_config, admin_username, generic_password)
     assert response.status_code == HTTPStatus.OK
