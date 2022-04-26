@@ -339,13 +339,6 @@ while read tst benchmark; do
         else
             _rundir=""
         fi
-    elif [[ ${benchmark} == "pbench-trafficgen" ]]; then
-        if [[ -f "${_tdir}/tests/${_tst}.cfg" ]]; then
-            _config="${tst}_$(${_real_cat} ${_tdir}/tests/${_tst}.cfg)"
-        else
-            _config="${tst}"
-        fi
-        _rundir="${bm_postfix}_${_config}_${_date_suffix}"
     elif [[ ${benchmark%%-*} == "pbench" ]]; then
         _rundir="${bm_postfix}_${tst}_${_date_suffix}"
     else

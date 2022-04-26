@@ -554,8 +554,7 @@ sub convert_samples_hash_to_array {
 				foreach my $series (@$series_list) {
 					# If the series contains timeseries data in a hash,
 					# convert the hash to a sorted array.  Some series
-					# (e.g., trafficgen PGID and Port series) contain
-					# references to the _same_ timeseries data object,
+					# contain references to the _same_ timeseries data object,
 					# such that it appears in the dataset twice:  when
 					# we encounter it in the first series, we convert
 					# the timeseries data from a hash to an array; when

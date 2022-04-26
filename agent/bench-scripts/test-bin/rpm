@@ -6,9 +6,7 @@
 # For the bench-scripts legacy unit tests each invocation of 'rpm' is expected
 # to exit with success (0).  The only invocations of 'rpm' we have at this
 # point are looking for either the 'fio', 'uperf', or 'dpdk-tools' RPMs.  For
-# those cases, we hard-code the response as if that version was installed.  For
-# the 'dpdk-tools', trafficgen does not expect a certain version, so we emit a
-# mocked one.
+# those cases, we hard-code the response as if that version was installed.
 #
 # Just in case some other RPM is searched for in the future in the unit tests,
 # we emit the same output 'rpm' would when that package is not found. 
@@ -33,9 +31,6 @@ elif [[ "${3}" == "fio" ]]; then
     rc=0
 elif [[ "${3}" == "uperf" ]]; then
     echo "1.0.7"
-    rc=0
-elif [[ "${3}" == "dpdk-tools" ]]; then
-    echo "42.0.42"
     rc=0
 else
     echo "[mock] package ${3} is not installed"
