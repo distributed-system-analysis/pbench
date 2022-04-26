@@ -85,7 +85,6 @@ bench-scripts = \
 	pbench-run-benchmark.pl \
 	pbench-run-benchmark-sample \
 	pbench-specjbb2005 \
-	pbench-trafficgen \
 	pbench-uperf \
 	pbench-uperf.md \
 	pbench-user-benchmark \
@@ -103,8 +102,6 @@ bench-postprocess = \
 	linpack-postprocess \
 	linpack-postprocess-sample \
 	process-iteration-samples \
-	trafficgen-postprocess \
-	trafficgen-postprocess-cdm \
 	uperf-postprocess \
 	user-benchmark-wrapper
 

@@ -28,7 +28,7 @@ my $script = basename($0);
 my $dir = $ARGV[0];
 my $tool_label_pattern = $ARGV[1];
 my $tool_group = $ARGV[2];
-my $benchmark_version = $ARGV[6];  # NOTE:  Not used (unlike in trafficgen and uperf).
+my $benchmark_version = $ARGV[6];  # NOTE:  Not used (unlike in uperf).
 my $benchmark_name = 'fio';
 my $line;
 my $primary_metric="iops_sec";
