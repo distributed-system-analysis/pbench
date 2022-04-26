@@ -42,9 +42,9 @@ Here is the minimum set of commands to get from 0 to a crawl:
 wget -O /etc/yum.repos.d/pbench.repo http://repohost.example.com/repo/yum.repos.d/pbench.repo
 yum install pbench-agent -y
 . /etc/profile.d/pbench-agent.sh                          # or log out and log back in
-register-tool-set
-user-benchmark -C test1 -- ./your_cmd.sh
-move-results
+pbench-register-tool-set
+pbench-user-benchmark -C test1 -- ./your_cmd.sh
+pbench-move-results
 #+END_EXAMPLE
 
 Visit the [[http://pbench.example.com/results/][Results directory]] to see the results: assuming you ran the
@@ -111,10 +111,10 @@ If you upgrade to a release later than -102, please also ensure that
 you clear out your tools and reregister them after the upgrade: the
 label handling has changed. For example:
 #+BEGIN_EXAMPLE
-clear-tools
-register-tool-set --label=ceph-server --remote=my-ceph-server
-register-tool-set --label=kvmhost --remote=my-kvmhost
-register-tool-set --label=kvmguest --remote=my-kvmguest
+pbench-clear-tools
+pbench-register-tool-set --label=ceph-server --remote=my-ceph-server
+pbench-register-tool-set --label=kvmhost --remote=my-kvmhost
+pbench-register-tool-set --label=kvmguest --remote=my-kvmguest
 #+END_EXAMPLE
 
 * First steps
@@ -124,7 +124,7 @@ usage message.
 The default set of tools for data collection can be enabled with
 
 #+BEGIN_EXAMPLE
-register-tool-set
+pbench-register-tool-set
 #+END_EXAMPLE
 
 You can then run a built-in benchmark by invoking its pbench script -
@@ -151,9 +151,9 @@ you may be able to use the =user-benchmark= script: it takes a command as argume
 starts the collection tools, invokes the command, stops the collection tools and
 postprocesses the results. So the workflow becomes:
 #+BEGIN_EXAMPLE
-register-tool-set
-user-benchmark --config=foo -- myscript.sh
-move-results
+pbench-register-tool-set
+pbench-user-benchmark --config=foo -- myscript.sh
+pbench-move-results
 #+END_EXAMPLE
 See [[*What does =--config= do?][What does =--config= do?]] for more information on that.
 
@@ -163,10 +163,10 @@ but assuming you have a script that will execute your benchmark that can be
 used with =user-benchmark=, the workflow is not much different:
 #+BEGIN_EXAMPLE
 for host in $hosts ;do
-    register-tool-set --remote=$host
+    pbench-register-tool-set --remote=$host
 done
-user-benchmark --config=foo -- myscript.sh
-move-results
+pbench-user-benchmark --config=foo -- myscript.sh
+pbench-move-results
 #+END_EXAMPLE
 Apart from having to register the collection tools on *all* the hosts, the rest
 is the same: =user-benchmark= will start the collection tools on all the hosts,
@@ -202,26 +202,26 @@ These are now specified in the config file
 
 * Available tools
 The configured default set of tools (what you would get by running
-=register-tool-set=) is:
-- sar, iostat, mpstat, pidstat, proc-vmstat, proc-interrupts, perf
+=pbench-register-tool-set=) is:
+- iostat, sar, vmstat
 
 In addition, there are tools that can be added to the default set
-with =register-tool=:
+with =pbench-register-tool=:
 - blktrace, cpuacct, dm-cache, docker, kvmstat, kvmtrace, lockstat,
   numastat, perf, porc-sched_debug, proc-vmstat, qemu-migrate, rabbit,
   strace, sysfs, systemtap, tcpdump, turbostat, virsh-migrate, vmstat
-There is a =default= group of tools (that's what =register-tool-set= uses), but
-tools can be registered in other groups using the =--group= option of =register-tool=.
-The group can then be started and stopped using =start-tools= and =stop-tools=
+There is a =default= group of tools (that's what =pbench-register-tool-set= uses), but
+tools can be registered in other groups using the =--group= option of =pbench-register-tool=.
+The group can then be started and stopped using =pbench-start-tools= and =pbench-stop-tools=
 using their =--group= option.
 
 Additional tools can be registered:
 #+BEGIN_EXAMPLE
-register-tool --name blktrace
+pbench-register-tool --name blktrace
 #+END_EXAMPLE
 or unregistered (e.g. some people prefer to run without perf):
 #+BEGIN_EXAMPLE
-unregister-tool --name perf
+pbench-unregister-tool --name perf
 #+END_EXAMPLE
 
 Note that perf is run in a "low overhead" mode with options "record -a
@@ -229,8 +229,8 @@ Note that perf is run in a "low overhead" mode with options "record -a
 unregister it and register it again with different options:
 
 #+BEGIN_EXAMPLE
-unregister --name=perf
-register-tool --name=perf -- --record-opts="record -a --freq=200"
+pbench-unregister --name=perf
+pbench-register-tool --name=perf -- --record-opts="record -a --freq=200"
 #+END_EXAMPLE
 
 Tools can be also be registered, started and stopped on remote hosts
@@ -243,13 +243,10 @@ using the collection tools and other facilities that pbench provides.  These
 are found in the =bench-scripts= directory of the pbench installation
 (=/opt/pbench-agent/bench-scripts= by default). The current set consists of
 
-- =pbench_dbench=
-- =pbench_fio=
-- =pbench_linpack=
-- =pbench_migrate=
-- =pbench_tpcc=
-- =pbench_uperf=
-- =user-benchmark= (see [[*Running pbench collection tools with an arbitrary benchmark][Running pbench collection tools with an arbitrary benchmark]] below for more on this)
+- =pbench-fio=
+- =pbench-linpack=
+- =pbench-uperf=
+- =pbench-user-benchmark= (see [[*Running pbench collection tools with an arbitrary benchmark][Running pbench collection tools with an arbitrary benchmark]] below for more on this)
 
 Note that in many of these scripts the default tool group is hard-wired: if you want them to run
 a different tool group, you need to edit the script[fn:4].

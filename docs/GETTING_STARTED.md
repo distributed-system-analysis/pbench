@@ -1,10 +1,13 @@
 # Getting Started
 
-The following is an introduction on how to use the pbench agent.
+The following is an introduction on how to use the Pbench Agent.
 
-Pbench can be used to either automate tool execution and postprocessing for
-you, or also run any of its built-in benchmark scripts.  This first test will
-run the fio benchmark.
+The Pbench Agent provides a set of convenience scripts for wrapping well-known
+benchmarks to help automate the execution of those benchmarks with tool data
+collection and benchmark data capture.
+
+We'll step through the process of using `pbench-fio`, a convenience script that
+wraps the well-known `fio` benchmark.
 
 ## Installation
 
@@ -26,91 +29,68 @@ just run, `. /opt/pbench-agent/profile` to have the path updated.
 After you are certain the path is updated, register the default set of tools:
 
 ```
-register-tool-set
+pbench-register-tool-set
 ```
 
-This command will register the default tool set, which consists of `sar`,
-`mpstat`, `iostat`, `pidstat`, `proc-vmstat`, `proc-interrupts`, and `perf`.
+This command will register the default tool set, which consists of `iostat`,
+`sar`, and `vmstat`, in the "default" tool group.
 
-When registering these tools, `pbench-agent` checks if they are installed and
-may install some of them if they are not present.  Some of these tools are
-built from source, so you may see output from fetching the source and
-compiling.  Following any installation, you should have this output:
+Following registration, you should have this output:
 
 ```
-sar tool is now registered in group default
-[debug]tool_opts: default --interval="3"
-[debug]checking to see if tool is installed...
-iostat is installed
 iostat tool is now registered in group default
 [debug]tool_opts: default --interval="3"
-[debug]checking to see if tool is installed...
-mpstat is installed
-mpstat tool is now registered in group default
+sar tool is now registered in group default
 [debug]tool_opts: default --interval="3"
-[debug]checking to see if tool is installed...
-pidstat is installed
-pidstat tool is now registered in group default
-[debug]tool_opts: default --interval="3"
-[debug]checking to see if tool is installed...
-proc-vmstat tool is now registered in group default
-[debug]tool_opts: default --interval="3"
-[debug]checking to see if tool is installed...
-proc-interrupts tool is now registered in group default
-[debug]tool_opts: default --record-opts="record -a --freq=100"
-[debug]checking to see if tool is installed...
-perf tool is now registered in group default
+vmstat tool is now registered in group default
 ```
+
+Note: a "tool set" is a name set of tools to be registered, while a "tool group"
+is the name of a registered set of tools.
 
 If at any time you are unsure which tools are registered, you can run:
 
 ```
-# list-tools
-default: perf,proc-interrupts,proc-vmstat,pidstat,mpstat,iostat,sar
+# pbench-list-tools
+default: iostat,sar,vmstat
 ```
 
-The output above shows which tools are in the "default" tool group.  And by
+The output above shows which tools are in the "default" tool group.  By
 specifying the `--with-options` switch, you get the options used for these
 tools:
 
 ```
-# list-tools --with-options
-default: perf --record-opts="record -a --freq=100",proc-interrupts --interval="3",
-proc-vmstat --interval="3",pidstat --interval="3",mpstat --interval="3",iostat --interval="3",sar --interval="3"
+# pbench-list-tools --with-options
+default: iostat --interval="3",sar --interval="3",vmstat --interval="3"
 ```
 
-In the above example, the `--interval` option is set for all tools but `perf`.
-Optioonally, you can change these individually with the register-tool command:
+In the above example, the `--interval` option is set for all tools.
+Optionally, you can change these individually with the register-tool command:
 
 ```
-# register-tool --name=pidstat -- --interval=10
+# pbench-register-tool --name=vmstat -- --interval=10
 [debug]tool_opts: --interval="10"
-[debug]checking to see if tool is installed...
-pidstat is installed
-pidstat tool is now registered in group default
+vmstat tool is now registered in group default
 ```
 
 Then run `list-tools --with-options` again to confirm:
 
 ```
-# list-tools --with-options
-default: pidstat --interval="10",perf --record-opts="record -a --freq=100",
-proc-interrupts --interval="3",proc-vmstat --interval="3",mpstat --interval="3",iostat --interval="3",sar --interval="3"
+# pbench-list-tools --with-options
+default: iostat --interval="3",sar --interval="3",vmstat --interval="30"
 ```
 
-And the interval for `pidstat` is now `10`.
-
+And the interval for `vmstat` is now `30`.
 
 ## Running a Benchmark
 
-OK, now that the tools are registered, it's time the run the benchmark. We'll
-use the `fio` benchmark for this exmaple. To run, simply type 'pbench_fio',
-the wrapper script `pbench-agent` provides for the `fio` benchmark.
+Now that the tools are registered, it's time the run the benchmark. We'll
+use the `fio` benchmark for this exmaple. To run, simply type 'pbench-fio',
+the wrapper script Pbench Agent provides for the `fio` benchmark.
 
-If this is the first time running `fio` via the `pbench-agent`, `pbench-agent`
-will attempt to download and compile `fio`.  You may see quite a bit of output
-from this.  Once `fio` is installed, `pbench-agent` will run several tests by
-default.  Output for each will look something like this:
+The `pbench-fio` script will verify that the available version of `fio` that is
+installed is supported, and then run several tests by default.  Output for each
+will look something like this:
 
 ```
 about to run fio read with 4 block size on /tmp/fio
@@ -129,8 +109,8 @@ size=896M
 -------------------------------------------
 ```
 
-Right before the `pbench_fio` script starts a `fio` job, it will call
-`start-tools`, which will produce output like this:
+Right before the `pbench-fio` script starts a `fio` job, it will call
+`pbench-start-tools`, which will produce output like this:
 
 ```
 [debug][start-tools]/opt/pbench-agent/tool-scripts/sar --start --iteration=1-read-4KiB --group=default --dir=/var/lib/pbench/fio__2014-09-11_12:54:42/1-read-4KiB/tools-default default --interval="3"
@@ -142,7 +122,7 @@ Right before the `pbench_fio` script starts a `fio` job, it will call
 [debug][start-tools]/opt/pbench-agent/tool-scripts/perf --start --iteration=1-read-4KiB --group=default --dir=/var/lib/pbench/fio__2014-09-11_12:54:42/1-read-4KiB/tools-default default --record-opts="record -a --freq=100"
 ```
 
-That is output from `start-tools` starting all of the tools that were
+That is output from `pbench-start-tools` starting all of the tools that were
 registered.
 
 Next is the output from the actual `fio` job:
@@ -183,7 +163,8 @@ Disk stats (read/write):
   sda: ios=503626/101, merge=25/55, ticks=949096/9541, in_queue=958491, util=99.49%
 ```
 
-Now that this `fio` job is complete, the `pbench_fio` script calls `stop-tools`:
+Now that this `fio` job is complete, the `pbench-fio` script calls
+`pbench-stop-tools`:
 
 ```
 [debug][stop-tools]/opt/pbench-agent/tool-scripts/sar --stop --iteration=1-read-4KiB --group=default --dir=/var/lib/pbench/fio__2014-09-11_12:54:42/1-read-4KiB/tools-default default --interval="3"
@@ -202,13 +183,11 @@ Now that this `fio` job is complete, the `pbench_fio` script calls `stop-tools`:
 waiting for PID 12934 (perf) to finish
 ```
 
-Next, `pbench_fio` calls `postprocess-tools`. This is what generates the
-`.csv` files and renders the `.html` file containing the NVD3 graphs for the
-tool data.
+Next, `pbench-fio` calls `pbench-postprocess-tools`. This is what generates the
+`.csv` files and renders the `.html` file containing the graphs for the
+processed fio result data and tool data.
 
 ```
-collecting /proc
-collecting /sys
 [debug][postprocess-tools]/opt/pbench-agent/tool-scripts/sar --postprocess --iteration=1-read-4KiB --group=default --dir=/var/lib/pbench/fio__2014-09-11_12:54:42/1-read-4KiB/tools-default default --interval="3"
 [debug][postprocess-tools]/opt/pbench-agent/tool-scripts/iostat --postprocess --iteration=1-read-4KiB --group=default --dir=/var/lib/pbench/fio__2014-09-11_12:54:42/1-read-4KiB/tools-default default --interval="3"
 [debug][postprocess-tools]/opt/pbench-agent/tool-scripts/mpstat --postprocess --iteration=1-read-4KiB --group=default --dir=/var/lib/pbench/fio__2014-09-11_12:54:42/1-read-4KiB/tools-default default --interval="3"
@@ -223,17 +202,21 @@ collecting /sys
 [debug]postprocessing proc-interrupts
 ```
 
-This will repeat for a total of 6 different `fio` jobs, then the `fio`
-benchmark will be complete.  Now that the job is complete, we want to move
-the results to the archive host.  The results are currently in
-/var/lib/pbench/fio-<date>.  To move these results, simply run:
+The above pattern is repeated for a total of 6 different `fio` jobs, then the
+`fio` benchmark will be complete.
+
+## Archiving results on the Pbench Server
+
+Now that the job is complete, we want to move the results to the pbench server.
+The results are currently in `/var/lib/pbench/fio__<date>`.  To archive these
+results, simply run:
 
 ```
-# move-results
+# pbench-move-results
 ```
 
 Once that command completes, the data should be moved to the configured
-archive host.  To view your results, use a link like this in your browser
+pbench server.  To view your results, use a link like this in your browser
 (replacing the "resultshost.example.com" with your pbench deployed web server,
 and replacing the "your-HOSTNAME" with the $(hostname -s) of the machine where
 you issued the "move-results" above):
@@ -241,23 +224,24 @@ you issued the "move-results" above):
    http://resultshost.example.com/results/<your-HOSTNAME>/?C=M;O=D
 
 Towards the top of the list, there should be a directory like
-"`fio__2014-09-11_12:54:42`".  That is your pbench `fio` job.  Click on that
+"`fio__YYYY.MM.DDTHH:MM:SS`".  That is your pbench `fio` job.  Click on that
 directory to see the results.
 
 There should be a file, `fio-summary.txt`, which will contain the results for
 all of the `fio` jobs that were run.
 
 In this same directory, there should be more sub-directories, one for each
-`fio` job.  They should have a format like "`N-[read|write]-MKiB`".  In
-pbench-speak, these are called an "iteration" and usually start with
-"1-". Under each of these you will find the details of that job/iteration:
+`fio` job.  They should have a format like "`N-[read|write]-<M>KiB`".  In
+pbench-speak, these are called an "iteration" and usually start with number
+representing the unique iteration sequence.
+
+Under each of these you will find the details of that job/iteration:
 
  * `fio.cmd`:       the actual `fio` command used
  * `fio.job`:       the job file `pbench_fio` created
  * `result.txt`:    the output from the `fio` job
  * `tool-default`:  all of the collected tool data
- * `sysinfo`:       data `pbench_fio` collected from `/sys` & `/proc`
 
 Under the `tools-default` directory, there should be text output for each tool
 as well as `.html` files, and a `csv` sub-directory containing all of the raw
-tool data.
+tool data collected for that iteration of the benchmark.
