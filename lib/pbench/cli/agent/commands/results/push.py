@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import click
 
 from pbench.agent.base import BaseCommand
@@ -37,7 +39,14 @@ class ResultsPush(BaseCommand):
 @click.argument("controller")
 @click.argument(
     "result_tb_name",
-    type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
+    type=click.Path(
+        path_type=Path,
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+        resolve_path=True,
+    ),
 )
 @pass_cli_context
 def main(

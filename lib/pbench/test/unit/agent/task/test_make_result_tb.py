@@ -119,7 +119,7 @@ class TestMakeResultTb:
         assert tarball.samefile(expected_tb), f"{tarball} {expected_tb}"
         assert tarball.exists()
         assert tarball.stat().st_size == tarball_len and tarball_len > 0
-        calc_len, calc_md5 = md5sum(str(tarball))
+        calc_len, calc_md5 = md5sum(tarball)
         assert tarball_len == calc_len
         assert calc_md5 == tarball_md5
         with tarfile.open(str(tarball), "r:xz") as tf:
