@@ -5,9 +5,9 @@ export const uid = () => {
   return head + tail;
 };
 
-export const validatePassword = (password) => {
+export const validatePassword = (password, passwordLength) => {
   return {
-    passwordLength: password.length >= 8 ? "success" : "error",
+    passwordLength: password.length >= passwordLength ? "success" : "error",
     passwordSpecialChars: /[`!@#$%^&*()_+\-=\]{};':"\\|,.<>?~]/.test(password)
       ? "success"
       : "error",

@@ -17,7 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { CheckIcon, CloseIcon, TimesIcon } from "@patternfly/react-icons";
 import PBenchLogo from "assets/logo/pbench_logo.svg";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { movePage } from "actions/authActions";
 import { passwordConstraintsText } from "./signupFormData";
 
@@ -123,6 +123,7 @@ export const PasswordConstraints = (props) => {
     success: <CheckIcon style={{ color: "green" }} />,
     error: <CloseIcon style={{ color: "red" }} />,
   };
+  const passwordLength = useSelector((state) => state.userAuth.passwordLength);
   return (
     <>
       <h4>Passwords must contain at least:</h4>
@@ -136,7 +137,10 @@ export const PasswordConstraints = (props) => {
                 variant={checkConstraints[constraint.name]}
                 icon={iconList[variant]}
               >
-                {constraint.label}
+                {
+                  constraint.name === "passwordLength" &&
+                  passwordLength
+                }{" "}{constraint.label}
               </HelperTextItem>
             </HelperText>
           );
