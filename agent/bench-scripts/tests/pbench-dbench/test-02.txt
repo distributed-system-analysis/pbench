@@ -1,5 +1,6 @@
 +++ Running test-02 pbench-dbench
 [warn][1900-01-01T00:00:00.000000] pbench-dbench is deprecated and will be removed in the next release
+WARNING: pbench-dbench is deprecated and will be removed in the next release
 Starting iteration 1-24thread (1 of 2)
 test sample 1 of 5
 client[1-127.0.0.1]node[0]threads[24]

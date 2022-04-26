@@ -16,6 +16,7 @@ Bench Script: pbench-cyclictest --help
 Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 ------------
 [warn][1900-01-01T00:00:00.000000] pbench-cyclictest is deprecated and will be removed in the next release
+WARNING: pbench-cyclictest is deprecated and will be removed in the next release
 	pbench-cyclictest: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-cyclictest: invalid --sysinfo option ("bad")
@@ -86,6 +87,7 @@ Bench Script: pbench-dbench --help
 Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 ------------
 [warn][1900-01-01T00:00:00.000000] pbench-dbench is deprecated and will be removed in the next release
+WARNING: pbench-dbench is deprecated and will be removed in the next release
 	pbench-dbench: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-dbench: invalid --sysinfo option ("bad")
@@ -462,6 +464,7 @@ Bench Script: pbench-iozone --help
 Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 ------------
 [warn][1900-01-01T00:00:00.000000] pbench-iozone is deprecated and will be removed in the next release
+WARNING: pbench-iozone is deprecated and will be removed in the next release
 	pbench-iozone: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-iozone: invalid --sysinfo option ("bad")
@@ -575,6 +578,7 @@ Bench Script: pbench-migrate --help
 Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 ------------
 [warn][1900-01-01T00:00:00.000000] pbench-migrate is deprecated and will be removed in the next release
+WARNING: pbench-migrate is deprecated and will be removed in the next release
 	pbench-migrate: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-migrate: invalid --sysinfo option ("bad")
@@ -671,6 +675,7 @@ Bench Script: pbench-netperf --help
 Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 ------------
 [warn][1900-01-01T00:00:00.000000] pbench-netperf is deprecated and will be removed in the next release
+WARNING: pbench-netperf is deprecated and will be removed in the next release
 	pbench-netperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 [error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad"
 	pbench-netperf: invalid --sysinfo option ("bad")
