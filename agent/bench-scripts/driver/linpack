@@ -219,7 +219,7 @@ while true; do
 		break
 		;;
 	*)
-		printf -- "[%s] WARNING: unrecognized parameter encountred, '%s'\n" "${script_name}" "${arg}" >&2
+		printf -- "[%s] WARNING: unrecognized parameter encountered, '%s'\n" "${script_name}" "${arg}" >&2
 		break
 		;;
 	esac
