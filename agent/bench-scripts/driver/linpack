@@ -84,7 +84,7 @@ into the the linpack invocation requirements.
 
 The linpack binary expects an input file with 7 lines in it:
 
-    Line 1: Header (discarded LINPACK; max 254 bytes + new line)
+    Line 1: Header (discarded by LINPACK; max 254 bytes + new line)
     Line 2: Sub-Header (emitted as-is to stdout; max 254 bytes + new line)
     Line 3: Positive integer number of tests to run
     line 4: Number of equations to solve (problem size)

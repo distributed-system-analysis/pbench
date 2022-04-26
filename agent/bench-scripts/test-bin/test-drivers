@@ -1,10 +1,12 @@
 #!/bin/bash
 
 function doit {
+    local ret_code
     printf -- "\nBench Script Driver: ${1} ${2}\n++++++++++++\n"
     ${_tdir}/driver/${1} ${2} 2>&1
+    ret_code=${?}
     printf -- "\n------------\n\n"
-    return ${?}
+    return ${ret_code}
 }
 
 let failures=0
@@ -15,7 +17,7 @@ for bs in ${drivers}; do
         (( failures++ ))
     fi
     doit ${bs} --bad-to-the-bone
-    if [[ ${?} -ne 1 ]]; then
+    if [[ ${?} -ne 2 ]]; then
         (( failures++ ))
     fi
 done
