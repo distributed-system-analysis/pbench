@@ -56,6 +56,7 @@ RUN \
         `#` \
         gcc \
         libpq-devel \
+        python3-devel \
         `#` \
         `# Required for pbr` \
         `#` \
