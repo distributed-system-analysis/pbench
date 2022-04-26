@@ -1,17 +1,19 @@
 from configparser import ConfigParser
 import datetime
 import hashlib
-from freezegun import freeze_time
 from http import HTTPStatus
 import os
 import uuid
 from pathlib import Path
 from posix import stat_result
-import pytest
 import shutil
 from stat import ST_MTIME
 import tarfile
 from typing import Dict
+
+from email_validator import EmailNotValidError, ValidatedEmail
+from freezegun import freeze_time
+import pytest
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
@@ -102,7 +104,7 @@ def on_disk_server_config(tmp_path_factory) -> Dict[str, Path]:
     return on_disk_config(tmp_path_factory, "server", do_setup)
 
 
-@pytest.fixture
+@pytest.fixture()
 def server_config(on_disk_server_config, monkeypatch) -> PbenchServerConfig:
     """
     Mock a pbench-server.cfg configuration as defined above.
@@ -121,13 +123,20 @@ def server_config(on_disk_server_config, monkeypatch) -> PbenchServerConfig:
     return server_config
 
 
-@pytest.fixture
-def client(server_config):
+@pytest.fixture()
+def client(server_config, fake_email_validator):
     """A test client for the app.
 
-    NOTE: the db_session fixture does something similar, but with implicit
-    cleanup after the test, and without the Flask app setup DB tests don't
-    require.
+    Fixtures:
+        server_config: Set up a pbench-server.cfg configuration
+        fake_email_validator: Many tests use the Flask client initialized here
+            to register users, and we need that client to be bound to our
+            fake validator mock. Establishing it here makes the binding
+            universal.
+
+    NOTE: The Flask app initialization includes setting up the SQLAlchemy DB.
+    For test cases that require the DB but not a full Flask app context, use
+    the db_session fixture instead, which adds DB cleanup after the test.
     """
     app = create_app(server_config)
 
@@ -139,7 +148,7 @@ def client(server_config):
     return app_client
 
 
-@pytest.fixture
+@pytest.fixture()
 def db_session(server_config):
     """
     Construct a temporary DB session for the test case that will reset on
@@ -186,7 +195,29 @@ def login_user(client, server_config, username, password):
 
 
 @pytest.fixture()
-def create_user(client) -> User:
+def fake_email_validator(monkeypatch):
+    """
+    Set up a mock for the email validator so we control failure modes.
+    """
+
+    def fake_email(value: str, **kwargs) -> ValidatedEmail:
+
+        # The email validation failure case needs to see an error
+        if "," in value:
+            raise EmailNotValidError("testing")
+
+        # Return just the part of ValidatedEmail we use
+        return ValidatedEmail(email=value)
+
+    # The SQLAlchemy model decorator binds the function oddly, so we have to
+    # reach into the module's namespace.
+    monkeypatch.setattr(
+        "pbench.server.database.models.users.validate_email", fake_email
+    )
+
+
+@pytest.fixture()
+def create_user(client, fake_email_validator) -> User:
     """
     Construct a test user and add it to the database.
 
@@ -204,8 +235,8 @@ def create_user(client) -> User:
     return user
 
 
-@pytest.fixture
-def create_admin_user(client) -> User:
+@pytest.fixture()
+def create_admin_user(client, fake_email_validator) -> User:
     """
     Construct an admin user and add it to the database.
 
@@ -590,7 +621,7 @@ def find_template(monkeypatch, fake_mtime):
         yield
 
 
-@pytest.fixture
+@pytest.fixture()
 def pbench_admin_token(client, server_config, create_admin_user):
     # Login admin user to get valid pbench token
     response = login_user(client, server_config, admin_username, generic_password)
@@ -600,8 +631,8 @@ def pbench_admin_token(client, server_config, create_admin_user):
     return data["auth_token"]
 
 
-@pytest.fixture
-def create_drb_user(client, server_config):
+@pytest.fixture()
+def create_drb_user(client, server_config, fake_email_validator):
     # Create a user
     response = register_user(
         client,
@@ -615,7 +646,7 @@ def create_drb_user(client, server_config):
     assert response.status_code == HTTPStatus.CREATED
 
 
-@pytest.fixture
+@pytest.fixture()
 def pbench_token(client, server_config, create_drb_user):
     # Login user to get valid pbench token
     response = login_user(client, server_config, "drb", generic_password)
@@ -651,7 +682,7 @@ def build_auth_header(request, server_config, pbench_token, pbench_admin_token, 
 
 
 @pytest.fixture()
-def current_user_drb(monkeypatch):
+def current_user_drb(monkeypatch, fake_email_validator):
     drb = User(
         email="drb@example.com",
         id=3,
@@ -680,7 +711,7 @@ def current_user_none(monkeypatch):
         yield None
 
 
-@pytest.fixture
+@pytest.fixture()
 def tarball(tmp_path):
     """
     Create a test tarball and MD5 file; the tarball is empty, but has a real
