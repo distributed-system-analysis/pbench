@@ -1,4 +1,4 @@
-import * as types from "./types";
+import * as TYPES from "./types";
 import API from "../utils/api";
 import * as API_ROUTES from "../utils/apiConstants";
 import Cookies from "js-cookie";
@@ -6,10 +6,10 @@ import { uid } from "../utils/helper";
 
 export const makeLoginRequest = (details, navigate) => async (dispatch, getState) => {
   try {
-    dispatch({ type: types.LOADING });
+    dispatch({ type: TYPES.LOADING });
     //empty the alerts
     dispatch({
-      type: types.USER_NOTION_ALERTS,
+      type: TYPES.USER_NOTION_ALERTS,
       payload: [],
     });
     const response = await API.post(API_ROUTES.LOGIN, {
@@ -23,7 +23,7 @@ export const makeLoginRequest = (details, navigate) => async (dispatch, getState
       Cookies.set("username", response.data?.username, { expires: expiryTime, secure:true });
       navigate("/");
     }
-    dispatch({ type: types.COMPLETED });
+    dispatch({ type: TYPES.COMPLETED });
   } catch (error) {
     let alerts = getState().userAuth.alerts;
     let alert = {};
@@ -38,21 +38,21 @@ export const makeLoginRequest = (details, navigate) => async (dispatch, getState
         title: error?.message,
         key: uid(),
       };
-      dispatch({ type: types.NETWORK_ERROR });
+      dispatch({ type: TYPES.NETWORK_ERROR });
     }
     alerts.push(alert);
     dispatch({
-      type: types.USER_NOTION_ALERTS,
+      type: TYPES.USER_NOTION_ALERTS,
       payload: alerts,
     });
-    dispatch({ type: types.COMPLETED });
+    dispatch({ type: TYPES.COMPLETED });
   }
 };
 
 export const movePage = (toPage, navigate) => async (dispatch) => {
   //empty the alerts
   dispatch({
-    type: types.USER_NOTION_ALERTS,
+    type: TYPES.USER_NOTION_ALERTS,
     payload: [],
   });
   navigate(toPage);
@@ -60,17 +60,17 @@ export const movePage = (toPage, navigate) => async (dispatch) => {
 
 export const setUserLoggedInState = (value) => async (dispatch) => {
   dispatch({
-    type: types.KEEP_USER_LOGGED_IN,
+    type: TYPES.KEEP_USER_LOGGED_IN,
     payload: value,
   });
 };
 
 export const registerUser = (details, navigate) => async (dispatch, getState) => {
   try {
-    dispatch({ type: types.LOADING });
+    dispatch({ type: TYPES.LOADING });
     //empty the alerts
     dispatch({
-      type: types.USER_NOTION_ALERTS,
+      type: TYPES.USER_NOTION_ALERTS,
       payload: [],
     });
 
@@ -80,7 +80,7 @@ export const registerUser = (details, navigate) => async (dispatch, getState) =>
     if (response.status === 200 ) {
       navigate("/login");
     }
-    dispatch({ type: types.COMPLETED });
+    dispatch({ type: TYPES.COMPLETED });
   } catch (error) {
     let alerts = getState().userAuth.alerts;
     let alert = {};
@@ -96,27 +96,27 @@ export const registerUser = (details, navigate) => async (dispatch, getState) =>
         title: error?.message,
         key: uid(),
       };
-      dispatch({ type: types.NETWORK_ERROR });
+      dispatch({ type: TYPES.NETWORK_ERROR });
     }
     alerts.push(alert);
     dispatch({
-      type: types.USER_NOTION_ALERTS,
+      type: TYPES.USER_NOTION_ALERTS,
       payload: alerts,
     });
-    dispatch({ type: types.COMPLETED });
+    dispatch({ type: TYPES.COMPLETED });
   }
 };
 
 export const toggleSignupBtn = ( isDisbaled ) => async( dispatch ) => {
   dispatch({
-    type: types.SET_SIGNUP_BUTTON,
+    type: TYPES.SET_SIGNUP_BUTTON,
     payload: isDisbaled,
   });
 }
 
 export const toggleLoginBtn = ( isDisbaled ) => async( dispatch ) => {
   dispatch({
-    type: types.SET_LOGIN_BUTTON,
+    type: TYPES.SET_LOGIN_BUTTON,
     payload: isDisbaled,
   });
 }
