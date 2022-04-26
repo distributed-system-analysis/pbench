@@ -77,10 +77,10 @@ Optional NUMA control parameter:
 
 function help() {
 	cat <<-__EOF__
-Pbench ${script_name} linpack driver
+Pbench ${script_name} driver
 
-${script_name} is responsible for transforming pbench-linpack command line inputs
-into the the linpack invocation requirements.
+${script_name} is responsible for transforming command line inputs into the
+LINPACK invocation requirements.
 
 The linpack binary expects an input file with 7 lines in it:
 
