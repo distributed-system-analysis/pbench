@@ -8,6 +8,7 @@ const initialState = {
     alerts: [],
     isLoginBtnDisabled: true,
     isSignupBtnDisabled: true,
+    passwordLength: 8,
 }
 
 const AuthReducer = (state = initialState, action = {}) => {

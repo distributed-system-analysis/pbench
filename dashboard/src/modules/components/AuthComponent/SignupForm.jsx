@@ -26,7 +26,7 @@ import {
 const SignupForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { alerts, isSignupBtnDisabled } = useSelector(
+  const { alerts, isSignupBtnDisabled, passwordLength } = useSelector(
     (state) => state.userAuth
   );
   const [userDetails, setUserDetails] = useState({
@@ -110,7 +110,7 @@ const SignupForm = () => {
         ...isEmailValid,
       });
     } else if (fieldName === "password") {
-      const validPassword = validatePassword(value);
+      const validPassword = validatePassword(value, passwordLength);
       setConstraints({
         ...constraints,
         ...validPassword,
@@ -123,7 +123,7 @@ const SignupForm = () => {
       checkPasswordError(userDetails.password, value);
     }
   };
-  const sendForRegisteration = () => {
+  const sendForRegistration = () => {
     let details = {
       email: userDetails.email,
       password: userDetails.password,
@@ -176,7 +176,7 @@ const SignupForm = () => {
             variant="primary"
             isBlock
             isDisabled={isSignupBtnDisabled}
-            onClick={sendForRegisteration}
+            onClick={sendForRegistration}
           >
             Create Account
           </Button>

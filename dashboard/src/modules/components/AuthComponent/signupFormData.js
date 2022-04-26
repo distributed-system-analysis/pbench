@@ -12,7 +12,7 @@ export const signupFormData = [
     label: "Last name",
     id: "horizontal-form-last-name",
     name: "lastName",
-    isRequired: false,
+    isRequired: true,
     type: "text",
   },
   {
@@ -52,7 +52,7 @@ export const signupFormData = [
 
 export const passwordConstraintsText = [
   {
-    label: "8 characters",
+    label: "characters",
     name: "passwordLength",
   },
   {
