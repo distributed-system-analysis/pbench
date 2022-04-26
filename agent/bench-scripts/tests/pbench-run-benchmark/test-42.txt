@@ -1,5 +1,6 @@
 +++ Running test-42 pbench-run-benchmark
-fio linpack trafficgen
+WARNING: pbench-run-benchmark is deprecated and will be removed in the next release
+fio trafficgen
 --- Finished test-42 pbench-run-benchmark (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent

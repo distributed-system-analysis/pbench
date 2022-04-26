@@ -101,13 +101,16 @@ bench-postprocess = \
 	fio-prepare-jobfile \
 	generate-benchmark-summary \
 	linpack-postprocess \
-	linpack-postprocess-cdm \
-	linpack-prepare-input-file \
+	linpack-postprocess-sample \
 	process-iteration-samples \
 	trafficgen-postprocess \
 	trafficgen-postprocess-cdm \
 	uperf-postprocess \
 	user-benchmark-wrapper
+
+bench-driver = \
+	linpack \
+	linpack-wait
 
 tool-scripts = \
 	base-tool \
@@ -278,6 +281,9 @@ install-bench-scripts: install-destdir
 	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}/postprocess
 	cd bench-scripts/postprocess; \
 	    ${COPY} ${bench-postprocess} ${BENCHDIR}/postprocess
+	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}/driver
+	cd bench-scripts/driver; \
+	    ${COPY} ${bench-driver} ${BENCHDIR}/driver
 	cd ${BENCHDIR}; \
 	    ln -sf postprocess/compare-bench-results compare-bench-results
 

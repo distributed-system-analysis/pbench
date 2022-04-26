@@ -1,0 +1,9 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+# A very simple method to wait for the linpack driver to report it has
+# finished.
+while [[ ! -e "${1}/linpack.meta" ]]; do
+	sleep 1
+done
+exit 0

@@ -19,7 +19,8 @@ if [[ "${prog}" == "pbench-tool-meister-start" ]]; then
     echo [pbench] > ${benchmark_run_dir}/metadata.log
 elif [[ "${prog}" == "cat" && "${args[0]}" == "/proc/cmdline" ]]; then
     echo "intel_iommu=on"
-elif [[ "${prog}" == "screen" && "${args[2]}" == "./linpack.sh" ]]; then
-    touch ./linpack.finished ./linpack.out
+elif [[ "${prog}" == "screen" && "${args[1]}" == "pbench-linpack" ]]; then
+    shift 2
+    eval "${@}"
 fi
 exit 0

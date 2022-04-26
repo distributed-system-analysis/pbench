@@ -40,6 +40,8 @@ my %defaults = (
 my $pp_only = 0;
 my $base_bench_dir = "";
 
+print "WARNING: pbench-run-benchmark is deprecated and will be removed in the next release\n";
+
 my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
 # The only required [positional] argument is the benchmark name; verify it now
 if (scalar @ARGV == 0) {
@@ -58,8 +60,6 @@ if (! exists($benchmarks_hash{$benchmark})) {
     printf "\t%s\n",  join(" ", @benchmarks);
     exit 1;
 }
-
-print "WARNING: pbench-run-benchmark is deprecated and will be removed in the next release\n";
 
 # The rest of the parameters are --arg=val, most of which we just pass to other scripts,
 my %params = get_params(@ARGV);
