@@ -1,0 +1,22 @@
+<svg width="640" height="640" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet">
+ <defs>
+  <path id="loZCjY5IW" d="m325,630c-171.5,0 -310,-138.5 -310,-310c0,-171.5 138.5,-310 310,-310c83.5,0 153.75,30.63 207.88,81.13c-8.44,8.11 -75.94,73.01 -84.38,81.12c-110.37,-106.5 -315.62,-26.5 -315.62,147.75c0,108.13 86.37,195.75 192.12,195.75c122.75,0 168.75,-88 176,-133.62c-11.73,0 -70.4,0 -176,0l0,-106.63c177.07,0 275.45,0 295.13,0c2.87,15.88 4.87,31.13 4.87,51.75c0,176.88 -121.12,302.75 -300,302.75z"/>
+ </defs>
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="402" width="582" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <g fill="none" id="svg_1">
+   <g id="svg_2">
+    <g id="svg_3">
+     <use id="svg_4" fill="#1bc1c9" xlink:href="#loZCjY5IW"/>
+     <g id="svg_5">
+      <use fill="#1bc1c9" id="svg_6" stroke-opacity="0" stroke="#000000" fill-opacity="0" xlink:href="#loZCjY5IW"/>
+     </g>
+    </g>
+   </g>
+  </g>
+ </g>
+</svg>
