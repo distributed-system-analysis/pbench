@@ -114,6 +114,7 @@ while true; do
 		;;
 	esac
 done
+printf -- "WARNING: ${script_name} is deprecated and will be removed in the next release\n"
 verify_common_bench_script_options $tool_group $sysinfo
 
 ## Ensure the right version of the benchmark is installed
