@@ -167,7 +167,7 @@ class TestDatasetsList:
             query_as: Query helper fixture
         """
         response = query_as(
-            {"metadata": ["xyzzy", "plugh", "dataset.owner", "dataset.access"]},
+            {"metadata": "xyzzy,plugh,dataset.owner,dataset.access"},
             "drb",
             HTTPStatus.BAD_REQUEST,
         )

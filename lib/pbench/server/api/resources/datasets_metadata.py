@@ -5,14 +5,13 @@ from flask.json import jsonify
 from flask.wrappers import Request, Response
 from flask_restful import abort
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSONOBJECT, PbenchServerConfig
 from pbench.server.api.resources import (
     ApiBase,
     API_OPERATION,
     Parameter,
     ParamType,
     Schema,
-    SchemaError,
 )
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -66,25 +65,10 @@ class DatasetsMetadata(ApiBase):
         GET. In this case, we're going to experiment with an alternative, using
         query parameters.
 
-        GET /api/v1/datasets/metadata?name=dname&metadata=dashboard.seen&metadata=server.deletion
+        GET /api/v1/datasets/metadata?name=dname&metadata=dashboard.seen,server.deletion
         """
 
-        # We missed automatic schema validation due to the lack of a JSON body;
-        # construct an equivalent JSON body now so we can run it through the
-        # validator.
-        json = {
-            "name": request.args.get("name"),
-            "metadata": request.args.getlist("metadata"),
-        }
-
-        # Normalize and validate the metadata keys we got via the HTTP query
-        # string. These don't go through JSON schema validation, so we have
-        # to do it here.
-        try:
-            new_json = self.GET_SCHEMA.validate(json)
-        except SchemaError as e:
-            abort(HTTPStatus.BAD_REQUEST, message=str(e))
-
+        new_json = self._validate_query_params(request, self.GET_SCHEMA)
         name = new_json.get("name")
         keys = new_json.get("metadata")
 
@@ -98,7 +82,7 @@ class DatasetsMetadata(ApiBase):
 
         return jsonify(metadata)
 
-    def _put(self, json_data: JSON, _) -> Response:
+    def _put(self, json_data: JSONOBJECT, _) -> Response:
         """
         Set or modify the values of client-accessible dataset metadata keys.
 
