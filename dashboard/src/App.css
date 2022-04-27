@@ -1,6 +1,7 @@
 body, html {
   padding: 0;
   margin: 0;
+  height: 100%;
 }
 
 ul > li {
@@ -8,5 +9,9 @@ ul > li {
 }
 
 #root {
+  height: 100%;
+}
+
+.App {
   height: 100%;
 }

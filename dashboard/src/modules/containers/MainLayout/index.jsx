@@ -1,6 +1,5 @@
 import React from 'react';
-import './index.less';
-import ToastComponent from "../../components/ToastNotificationComponent";
+import ToastComponent from "modules/components/ToastNotificationComponent";
 import { useSelector } from "react-redux";
 import { Spinner } from '@patternfly/react-core';
 
@@ -17,6 +16,7 @@ const MainLayout = () => {
             isLoading &&
             <Spinner />
         }
+        <div>Pbench Dashboard</div>
         </>
     )
 }
