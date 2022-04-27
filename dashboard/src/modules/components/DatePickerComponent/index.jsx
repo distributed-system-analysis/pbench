@@ -16,26 +16,20 @@ function DatePickerWidget({
   controllerName,
   setDateRange,
 }) {
-  const [fromDate, setFromDate] = useState(
-    formatDate(new Date(1990,10,4))
-  );
-  const [toDate, setToDate] = useState(
-    formatDate(new Date())
-  );
+  const [fromDate, setFromDate] = useState({});
+  const [toDate, setToDate] = useState(new Date());
   const toValidator = (date) =>
-    isValidDate(fromDate) && date >= fromDate
+    date >= fromDate
       ? ""
-      : "To date must be less than from date";
+      : "To date must be greater than or equal to from date";
 
   const onFromChange = (_str, date) => {
     setFromDate(date);
     if (isValidDate(date)) {
-      if(date>new Date(toDate)){
+      if(date>toDate){
       date.setDate(date.getDate() + 1);
-      setToDate(formatDate(date));
+      setToDate(date);
       }
-    } else {
-      setToDate("");
     }
   };
 
@@ -54,8 +48,8 @@ function DatePickerWidget({
       />
       <InputGroupText>to</InputGroupText>
       <DatePicker
-        value={toDate}
-        onChange={(date) => setToDate(date)}
+        value={formatDate(toDate)}
+        onChange={(_str,date) => setToDate(date)}
         isDisabled={!isValidDate(fromDate)}
         rangeStart={fromDate}
         validators={[toValidator]}

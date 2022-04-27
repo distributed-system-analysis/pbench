@@ -55,10 +55,11 @@ export const TableWithFavorite = () => {
     dispatch(fetchPublicDatasets())
       .then((res) => {
         dataArray = res.data;
-        setPublicData(res.data);
-        
+        setPublicData(res.data); 
         setFavoriteRepoNames(
-          localStorage.getItem("favControllers")!==null?JSON.parse(localStorage.getItem("favControllers")):[]
+          localStorage.getItem("favControllers") !== null
+            ? JSON.parse(localStorage.getItem("favControllers"))
+            : []
         );
       })
       .catch((err) => {
@@ -83,12 +84,7 @@ export const TableWithFavorite = () => {
     setIsNavOpen(!isNavOpen);
   };
 
-  const isRepoFavorited = (repo) => {
-    for (let i = 0; i < favoriteRepoNames.length; i++) {
-      if (repo.name === favoriteRepoNames[i].name) return true;
-    }
-    return false;
-  };
+  const isRepoFavorited = (repo) => !!favoriteRepoNames.find(element=>element.name===repo.name)
   const getSortableRowValues = (publicData) => {
     const { controller, name } = publicData;
     const creationDate = publicData.metadata["dataset.created"];
