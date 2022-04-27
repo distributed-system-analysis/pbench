@@ -1,8 +1,7 @@
-import pytest
-import shutil
-
 from configparser import NoOptionError, NoSectionError
 from pathlib import Path
+
+import pytest
 
 from pbench import PbenchConfig
 from pbench.agent import PbenchAgentConfig
@@ -29,7 +28,7 @@ class MockedConfigParser:
         """check the existence of `key` in config file"""
         if key not in self._sections:
             raise KeyError(key)
-        return key
+        return self._sections[key]
 
     def get(self, section: str, option: str, fallback=None) -> str:
         """returns value of the given `section` and `option`"""
@@ -64,9 +63,7 @@ def mock_is_dir(self) -> bool:
 
 def mock_mkdir(self, parents=False, exist_ok=False) -> bool:
     """Mocked the directory creation"""
-    if self._accessor and parents and exist_ok:
-        return True
-    return False
+    return self._accessor and parents and exist_ok
 
 
 class TestPbenchAgentConfig:
@@ -75,10 +72,10 @@ class TestPbenchAgentConfig:
 
     def test_bad_agent_config(self):
         """test `pbench-agent` section in config file"""
-        expected_error_msg = "BadConfig(\"'pbench-agent': []\")"
-        with pytest.raises(BadConfig) as e:
+        expected_error_msg = "'pbench-agent': []"
+        with pytest.raises(BadConfig) as exc:
             PbenchAgentConfig(self.config)
-        assert expected_error_msg in str(e)
+        assert expected_error_msg in str(exc)
 
     def test_bad_results_config(self, monkeypatch):
         """test `results` section in config file"""
@@ -89,15 +86,15 @@ class TestPbenchAgentConfig:
                     "pbench-agent": {},
                 }
 
-        expected_error_msg = "BadConfig(\"'results': /mock/pbench.cfg\")"
+        expected_error_msg = "'results': /mock/pbench.cfg"
 
         monkeypatch.setattr(PbenchConfig, "__init__", MockPbenchConfig.__init__)
         monkeypatch.setattr(
             MockedConfigParser, "__init__", Mock_MockedConfigParser.__init__
         )
-        with pytest.raises(BadConfig) as e:
+        with pytest.raises(BadConfig) as exc:
             PbenchAgentConfig(self.config)
-        assert expected_error_msg in str(e)
+        assert expected_error_msg in str(exc)
 
     def test_pbench_run_config(self, monkeypatch):
         """test `pbench_run` option in `pbench-agent` section in config file"""
@@ -109,15 +106,17 @@ class TestPbenchAgentConfig:
                     "results": {},
                 }
 
-        expected_error_msg = "BadConfig(\"No option 'pbench_run' in section: 'pbench-agent': /mock/pbench.cfg\")"
+        expected_error_msg = (
+            "No option 'pbench_run' in section: 'pbench-agent': /mock/pbench.cfg"
+        )
 
         monkeypatch.setattr(PbenchConfig, "__init__", MockPbenchConfig.__init__)
         monkeypatch.setattr(
             MockedConfigParser, "__init__", Mock_MockedConfigParser.__init__
         )
-        with pytest.raises(BadConfig) as e:
+        with pytest.raises(BadConfig) as exc:
             PbenchAgentConfig(self.config)
-        assert expected_error_msg in str(e)
+        assert expected_error_msg in str(exc)
 
     def test_pbench_log_config(self, monkeypatch):
         """test `pbench_log` option in `pbench-agent` section in config file"""
@@ -131,15 +130,17 @@ class TestPbenchAgentConfig:
                     "results": {},
                 }
 
-        expected_error_msg = "BadConfig(\"No option 'pbench_log' in section: 'pbench-agent': /mock/pbench.cfg\")"
+        expected_error_msg = (
+            "No option 'pbench_log' in section: 'pbench-agent': /mock/pbench.cfg"
+        )
 
         monkeypatch.setattr(PbenchConfig, "__init__", MockPbenchConfig.__init__)
         monkeypatch.setattr(
             MockedConfigParser, "__init__", Mock_MockedConfigParser.__init__
         )
-        with pytest.raises(BadConfig) as e:
+        with pytest.raises(BadConfig) as exc:
             PbenchAgentConfig(self.config)
-        assert expected_error_msg in str(e)
+        assert expected_error_msg in str(exc)
 
     def test_install_dir_config(self, monkeypatch):
         """test `install-dir` option in `pbench-agent` section in config file"""
@@ -154,14 +155,16 @@ class TestPbenchAgentConfig:
                     "results": {},
                 }
 
-        expected_error_msg = "BadConfig(\"No option 'install-dir' in section: 'pbench-agent': /mock/pbench.cfg\")"
+        expected_error_msg = (
+            "No option 'install-dir' in section: 'pbench-agent': /mock/pbench.cfg"
+        )
         monkeypatch.setattr(PbenchConfig, "__init__", MockPbenchConfig.__init__)
         monkeypatch.setattr(
             MockedConfigParser, "__init__", Mock_MockedConfigParser.__init__
         )
-        with pytest.raises(BadConfig) as e:
+        with pytest.raises(BadConfig) as exc:
             PbenchAgentConfig(self.config)
-        assert expected_error_msg in str(e)
+        assert expected_error_msg in str(exc)
 
     def test_install_dir_exist(self, monkeypatch):
         """Verify Installation Directory"""
@@ -177,15 +180,17 @@ class TestPbenchAgentConfig:
                     "results": {},
                 }
 
-        expected_error_msg = "BadConfig(\"pbench installation directory, '/mock/install_dir', does not exist\")"
+        expected_error_msg = (
+            "pbench installation directory, '/mock/install_dir', does not exist"
+        )
 
         monkeypatch.setattr(PbenchConfig, "__init__", MockPbenchConfig.__init__)
         monkeypatch.setattr(
             MockedConfigParser, "__init__", Mock_MockedConfigParser.__init__
         )
-        with pytest.raises(BadConfig) as e:
+        with pytest.raises(BadConfig) as exc:
             PbenchAgentConfig(self.config)
-        assert expected_error_msg in str(e)
+        assert expected_error_msg in str(exc)
 
     def test_install_dir_directory_creation(self, monkeypatch):
         """Verify creating Installation Directory"""
@@ -201,18 +206,16 @@ class TestPbenchAgentConfig:
                     "results": {},
                 }
 
-        expected_error_msg = (
-            "BadConfig(\"[Errno 2] No such file or directory: '/mock/pbench-run'\")"
-        )
+        expected_error_msg = "[Errno 2] No such file or directory: '/mock/pbench-run'"
 
         monkeypatch.setattr(PbenchConfig, "__init__", MockPbenchConfig.__init__)
         monkeypatch.setattr(
             MockedConfigParser, "__init__", Mock_MockedConfigParser.__init__
         )
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
-        with pytest.raises(BadConfig) as e:
+        with pytest.raises(BadConfig) as exc:
             PbenchAgentConfig(self.config)
-        assert expected_error_msg in str(e)
+        assert expected_error_msg in str(exc)
 
     def test_valid_PbenchAgentConfig(self, monkeypatch):
         """Verify Valid Config file"""
@@ -221,13 +224,3 @@ class TestPbenchAgentConfig:
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
         monkeypatch.setattr(Path, "mkdir", mock_mkdir)
         PbenchAgentConfig(config)
-
-
-def test_invalid_config(setup):
-    """Verify Invalid Config File"""
-    shutil.copyfile(
-        "./lib/pbench/test/unit/agent/config/pbench-agent.invalid.cfg",
-        str(setup["cfg_dir"] / "pbench-agent.invalid.cfg"),
-    )
-    with pytest.raises(BadConfig):
-        PbenchAgentConfig(setup["cfg_dir"] / "pbench-agent.invalid.cfg")
