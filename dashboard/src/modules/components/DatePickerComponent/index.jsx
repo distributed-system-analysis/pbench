@@ -26,9 +26,9 @@ function DatePickerWidget({
   const onFromChange = (_str, date) => {
     setFromDate(date);
     if (isValidDate(date)) {
-      if(date>toDate){
-      date.setDate(date.getDate() + 1);
-      setToDate(date);
+      if (date > toDate) {
+        date.setDate(date.getDate() + 1);
+        setToDate(date);
       }
     }
   };
