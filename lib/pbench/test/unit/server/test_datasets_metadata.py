@@ -79,6 +79,19 @@ class TestDatasetsMetadata:
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {"message": "Unknown URL query keys: controller"}
 
+    def test_get_bad_query_2(self, client, server_config, provide_metadata):
+        response = client.get(
+            f"{server_config.rest_uri}/datasets/metadata",
+            query_string={
+                "name": "drb",
+                "controller": "foobar",
+                "plugh": "xyzzy",
+                "metadata": ["dashboard.seen", "server.deletion", "dataset.access"],
+            },
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json == {"message": "Unknown URL query keys: controller,plugh"}
+
     def test_put_missing_json_object(self, client, server_config, pbench_token):
         """
         Test behavior when no JSON payload is given

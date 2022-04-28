@@ -4,7 +4,7 @@ from http import HTTPStatus
 import json
 from json.decoder import JSONDecodeError
 from logging import Logger
-from typing import Any, AnyStr, Callable, List, Union
+from typing import Any, Callable, List, Union
 
 from dateutil import parser as date_parser
 from flask import request
@@ -127,6 +127,20 @@ class BadQueryParam(SchemaError):
 
     def __str__(self):
         return f"Unknown URL query keys: {','.join(self.keys)}"
+
+
+class RepeatedQueryParam(SchemaError):
+    """
+    A unique URI query parameter key for which Pbench doesn't support multiple
+    values was repeated.
+    """
+
+    def __init__(self, key: str):
+        super().__init__()
+        self.key = key
+
+    def __str__(self):
+        return f"Repeated URL query key '{self.key}'"
 
 
 class ConversionError(SchemaError):
@@ -351,7 +365,7 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
     raise KeywordError(parameter, "keyword", [value])
 
 
-def convert_list(value: JSONVALUE, parameter: "Parameter") -> List[Any]:
+def convert_list(value: Union[str, List[str]], parameter: "Parameter") -> List[Any]:
     """
     Verify that the parameter value is a list and that each element
     of the list is a valid instance of the referenced element type.
@@ -435,7 +449,7 @@ class ParamType(Enum):
     STRING = ("String", convert_string)
     USER = ("User", convert_username)
 
-    def __init__(self, name: AnyStr, convert: Callable[[Any, "Parameter"], Any]):
+    def __init__(self, name: str, convert: Callable[[Any, "Parameter"], Any]):
         """
         Enum initializer: this uses a mixed-case name string in addition to the
         conversion method simply because with only the Callable value I ran
@@ -460,8 +474,8 @@ class Parameter:
         name: str,
         type: ParamType,
         *,  # Following are keyword-only
-        keywords: List[str] = None,
-        element_type: ParamType = None,
+        keywords: Union[List[str], None] = None,
+        element_type: Union[ParamType, None] = None,
         required: bool = False,
         uri_parameter: bool = False,
     ):
@@ -648,9 +662,19 @@ class ApiBase(Resource):
         parameters into a JSON object and validates them against a specified
         schema.
 
+        Note that a multi-valued query parameter can be specified *either* by
+        a comma-separated single string value *or* by a list of individual
+        values, not both.
+
         Args:
             request:    The HTTP Request object containing query parameters
             schema:     The Schema definition
+
+        Raises:
+            RepeatedQueryParam: A query parameter for which we support only one
+                value was repeated in the URL.
+            BadQueryParam: One or more unsupported query parameter keys were
+                specified.
 
         Returns:
             The resulting JSON object
@@ -663,6 +687,8 @@ class ApiBase(Resource):
                 if len(values) > 1 and schema[key].type == ParamType.LIST:
                     json[key] = values
                 else:
+                    if len(values) > 1:
+                        raise RepeatedQueryParam(key)
                     json[key] = values[0]
             else:
                 badkey.append(key)

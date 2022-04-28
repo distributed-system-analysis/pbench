@@ -174,3 +174,36 @@ class TestDatasetsList:
         assert response.json == {
             "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.*', 'dataset.access', 'dataset.created', 'dataset.owner', 'dataset.uploaded', 'server.deletion', 'user.*']"
         }
+
+    def test_get_unknown_keys(self, query_as):
+        """
+        Test case requesting non-existent query parameter keys.
+
+        Args:
+            query_as: Query helper fixture
+        """
+        response = query_as(
+            {"plugh": "xyzzy", "passages": "twisty"},
+            "drb",
+            HTTPStatus.BAD_REQUEST,
+        )
+        assert response.json == {"message": "Unknown URL query keys: passages,plugh"}
+
+    def test_get_repeat_keys(self, query_as):
+        """
+        Test case requesting repeated single-value metadata keys.
+
+        NOTE that the request package processes a list of values for a query
+        parameter by repeating the key name with each value since the HTTP
+        standard doesn't cover multiple values for a single key; so
+        "name": ["one", "two"] will appear to the API as "?name=one&name=two".
+
+        Args:
+            query_as: Query helper fixture
+        """
+        response = query_as(
+            {"name": ["one", "two"]},
+            "drb",
+            HTTPStatus.BAD_REQUEST,
+        )
+        assert response.json == {"message": "Repeated URL query key 'name'"}
