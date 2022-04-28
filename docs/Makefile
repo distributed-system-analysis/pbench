@@ -47,17 +47,18 @@ SPHINXBUILD   = sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
 
-# Build the "singlehtml" Sphinx target.  There are other supported targets
-# one could use; see `$(SPHINXBUILD) -M help` for a complete list.
-.PHONY: singlehtml
-singlehtml:
+# Build the "html" Sphinx target which is what "Read the Docs" wants.  There are
+# other supported targets one could use; see `$(SPHINXBUILD) -M help` for a
+# complete list if interested.
+.PHONY: html
+html:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
 
-.PHONY: clean veryclean
+.PHONY: clean
 clean:
-	rm -f *~ *.fdb_latexmk *.fls *.toc *.aux *.log *.out *.tex *.xdv
+	rm -f *~ *.fdb_latexmk *.fls *.toc *.aux *.log *.out *.xdv
 	rm -rf $(BUILDDIR)
 
 .PHONY: veryclean
 veryclean:	clean
-	rm -f *.html *.pdf
+	rm -f *.html *.pdf *.tex
