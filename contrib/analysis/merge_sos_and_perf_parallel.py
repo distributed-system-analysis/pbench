@@ -49,13 +49,18 @@ def es_data_gen(es, index, doc_type):
     """
     query = {"query": {"query_string": {"query": "run.script:fio"}}}
 
-    for doc in scan(es, query=query, index=index, doc_type=doc_type, scroll="1d",):
+    for doc in scan(
+        es,
+        query=query,
+        index=index,
+        doc_type=doc_type,
+        scroll="1d",
+    ):
         yield doc
 
 
 def pbench_runs_gen(es, month_gen):
-    """Yield all the pbench run documents using the given month generator.
-    """
+    """Yield all the pbench run documents using the given month generator."""
     for run_index in run_index_gen(month_gen):
         for doc in es_data_gen(es, run_index, "pbench-run"):
             yield doc
@@ -111,14 +116,14 @@ def load_pbench_runs(es, now: datetime):
         second = run["sosreports"][1]
         if first["hostname-f"] != second["hostname-f"]:
             print(f"pbench run with sosreports from different hosts: {run_id}")
-            continue 
+            continue
 
         accepted += 1
 
         run_index = _source["_index"]
 
         sosreports = dict()
-        # FIXME: Should I remove the forloop here after the above change? 
+        # FIXME: Should I remove the forloop here after the above change?
         for sosreport in run["sosreports"]:
             sosreports[os.path.split(sosreport["name"])[1]] = {
                 "hostname-s": sosreport["hostname-s"],
@@ -126,7 +131,7 @@ def load_pbench_runs(es, now: datetime):
                 "time": sosreport["name"].split("/")[2],
                 "inet": [nic["ipaddr"] for nic in sosreport["inet"]],
                 # FIXME: Key Error on inet6
-                #"inet6": [nic["ipaddr"] for nic in sosreport["inet6"]],
+                # "inet6": [nic["ipaddr"] for nic in sosreport["inet6"]],
             }
 
         pbench_runs[run_id] = dict(
@@ -167,7 +172,11 @@ def extract_clients(results_meta, es):
 
     client_names_raw = []
     for doc in scan(
-        es, query=query, index=run_index, doc_type="pbench-run-toc-entry", scroll="1m",
+        es,
+        query=query,
+        index=run_index,
+        doc_type="pbench-run-toc-entry",
+        scroll="1m",
     ):
         src = doc["_source"]
         if src["parent"] == parent_dir_name:
@@ -276,7 +285,7 @@ def transform_result(source, pbench_runs, results_seen, stats):
         stats["missing_mean"] += 1
         return None
 
-    if sample["client_hostname"] == 'all':
+    if sample["client_hostname"] == "all":
         stats["aggregate_result"] += 1
         return None
 
@@ -404,13 +413,13 @@ def process_results(es, now, session, incoming_url, pool, pbench_runs, stats):
             clientnames_map[key] = clientnames
 
         # Ignore result if 0 or more than 1 client names
-        if not clientnames: 
+        if not clientnames:
             stats["no_clients"] += 1
-            continue 
+            continue
 
         if len(clientnames) > 1:
             stats["multiple_clients"] += 1
-            continue 
+            continue
 
         result["clientnames"] = clientnames
 
@@ -465,9 +474,7 @@ def main(args):
     result_cnt = 0
     stats = dict()
 
-    with open("sosreport_fio.txt", "w") as log, open(
-        "pbench_fio.json", "w"
-    ) as outfile:
+    with open("sosreport_fio.txt", "w") as log, open("pbench_fio.json", "w") as outfile:
         generator = process_results(
             es, now, session, incoming_url, pool, pbench_runs, stats
         )
@@ -489,7 +496,8 @@ def main(args):
 
     if memprof:
         print(
-            f"Final memory profile ... {memprof.heap()}", flush=True,
+            f"Final memory profile ... {memprof.heap()}",
+            flush=True,
         )
 
     return 0
