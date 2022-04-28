@@ -30,8 +30,8 @@ def collect_lsblk(fobj):
     for line in decode_bytes(fobj.read()).splitlines()[1:]:
         parts = list(map(_strip, line.split(" ", 1)))
         if parts[0] and parts[0][0].isalpha():
-           lsblk_disks.append(parts[0])
-    data['lsblk_disks'] = lsblk_disks
+            lsblk_disks.append(parts[0])
+    data["lsblk_disks"] = lsblk_disks
     return data
 
 
@@ -49,29 +49,26 @@ def collect_lscpu(fobj):
             "Core(s)_per_socket",
             "Socket(s)",
             "Thread(s)_per_core",
-            "NUMA_node(s)"   # recommended by Peter
+            "NUMA_node(s)",  # recommended by Peter
         ]:
             data[featurename] = int(parts[1])
-        elif featurename in [
-            "L1d_cache",
-            "L1i_cache",
-            "L2_cache",
-            "L3_cache"
-        ]:
+        elif featurename in ["L1d_cache", "L1i_cache", "L2_cache", "L3_cache"]:
             if "KiB" in parts[1]:
                 data[featurename] = int(parts[1][:-4])
             elif "MiB" in parts[1]:
-                data[featurename] = int(parts[1][:-4])*1000
+                data[featurename] = int(parts[1][:-4]) * 1000
             elif "M" in parts[1]:
-                data[featurename] = int(parts[1][:-1])*1000 # do not include M for megabytes
+                data[featurename] = (
+                    int(parts[1][:-1]) * 1000
+                )  # do not include M for megabytes
             else:
-                data[featurename] = int(parts[1][:-1]) # do not include K for kilobytes
+                data[featurename] = int(parts[1][:-1])  # do not include K for kilobytes
         elif featurename == "Hypervisor_vendor":
             physical = False
     if physical:
-        data['Type'] = 'phy'
+        data["Type"] = "phy"
     else:
-        data['Type'] = 'virt'
+        data["Type"] = "virt"
     return data
 
 
@@ -92,10 +89,10 @@ def collect_uuid(fobj):
     blocks = decode_bytes(fobj.read()).split("\n\n")
     for block in blocks[:-1]:
         if block.splitlines()[1] == "System Information":
-            for line in block.splitlines()[2:]: # ignore first two lines
-                parts = list(map(_strip, line.split(':', 1)))
-                if parts[0] == 'UUID':
-                    data['UUID'] = parts[1]
+            for line in block.splitlines()[2:]:  # ignore first two lines
+                parts = list(map(_strip, line.split(":", 1)))
+                if parts[0] == "UUID":
+                    data["UUID"] = parts[1]
                     break
     return data
 
@@ -129,7 +126,7 @@ def collect_scheduler(fobj):
     line = decode_bytes(fobj.read())
     parts = list(map(_strip, line.split()))
     for part in parts:
-        if part[0] == '[' and part[-1] == ']':
+        if part[0] == "[" and part[-1] == "]":
             scheduler = part[1:-1]
     data["scheduler"] = scheduler
     return data
@@ -140,17 +137,17 @@ def extract_block_params(url, filenames):
     data = dict()
     # check if the page is accessible
     r = requests.head(url, allow_redirects=True)
-    if r.status_code == 200: # successful
+    if r.status_code == 200:  # successful
         page = requests.get(url)
         for line in page.iter_lines():
             for name in filenames:
                 if name in line.decode():
                     parts = list(map(_strip, (line.decode()).split()))
                     head, tail = os.path.split(parts[0])
-                    if tail == 'scheduler':
+                    if tail == "scheduler":
                         data[tail] = parts[1]
                     else:
-                        data[tail] = int(parts[1])    
+                        data[tail] = int(parts[1])
     return data
 
 
@@ -160,33 +157,33 @@ def collect_sosreport_data(rootdir, dirname, filenames, sos_with_runids, url_pre
 
     # find the run id associated with the sosreport
     for id in sos_with_runids:
-        if dirname in sos_with_runids[id]['sosreports'].keys():
+        if dirname in sos_with_runids[id]["sosreports"].keys():
             run_id = id
-            time = sos_with_runids[id]['sosreports'][dirname]['time']
-            host = sos_with_runids[id]['sample.client_hostname']
-            shorthost = sos_with_runids[id]['sosreports'][dirname]['hostname-s']
-            disknames = sos_with_runids[id]['disknames']
-            controller_dir = sos_with_runids[id]['controller_dir']
-            runname = sos_with_runids[id]['run.name']
+            time = sos_with_runids[id]["sosreports"][dirname]["time"]
+            host = sos_with_runids[id]["sample.client_hostname"]
+            shorthost = sos_with_runids[id]["sosreports"][dirname]["hostname-s"]
+            disknames = sos_with_runids[id]["disknames"]
+            controller_dir = sos_with_runids[id]["controller_dir"]
+            runname = sos_with_runids[id]["run.name"]
 
     # check if run_id is set, otherwise no need to process the sosreport
-    if 'run_id' not in locals(): 
-        return dict()      
+    if "run_id" not in locals():
+        return dict()
 
     try:
         with tarfile.open(os.path.join(rootdir, dirname)) as tar:
 
             # store the run.id and sosreport name in the record
-            record['run_id'] = run_id
-            record['sosreport'] = dirname
-            record['time'] = time
-            record['host'] = host
+            record["run_id"] = run_id
+            record["sosreport"] = dirname
+            record["time"] = time
+            record["host"] = host
 
             for member in tar.getmembers():
                 parts = (member.name).split("/")
                 filename = "/".join(parts[1:])
                 if filename in filenames:
-		    
+
                     f = tar.extractfile(member)
 
                     # check if all the files needed exist and are not empty
@@ -195,7 +192,8 @@ def collect_sosreport_data(rootdir, dirname, filenames, sos_with_runids, url_pre
                         sys.stderr.write(
                             "Error: Invalid sosreport:"
                             f" {dirname}:{parts[-1]}"
-                            " file not found or is empty.\n")
+                            " file not found or is empty.\n"
+                        )
                         continue
                     if parts[-1] == "meminfo":
                         record.update(collect_meminfo(f))
@@ -204,17 +202,19 @@ def collect_sosreport_data(rootdir, dirname, filenames, sos_with_runids, url_pre
                     elif parts[-1] == "lsblk":
                         record.update(collect_lsblk(f))
                         if len(record["lsblk_disks"]) == 1:
-                            record['disk'] = record["lsblk_disks"][0]
-                        elif len(list(set(disknames))) == 1 and \
-                            disknames[0] in record["lsblk_disks"]:
-                            record['disk'] = disknames[0]
-                        if 'disk' not in record.keys():
-                            record['disk'] = 'Missing'
+                            record["disk"] = record["lsblk_disks"][0]
+                        elif (
+                            len(list(set(disknames))) == 1
+                            and disknames[0] in record["lsblk_disks"]
+                        ):
+                            record["disk"] = disknames[0]
+                        if "disk" not in record.keys():
+                            record["disk"] = "Missing"
                         else:
                             # replace sdX in filenames with the disk used
                             for index, name in enumerate(filenames):
-                                filenames[index] = name.replace("sdX", record['disk'])
-                        record['lsblk_disks'] = ','.join(record['lsblk_disks'])
+                                filenames[index] = name.replace("sdX", record["disk"])
+                        record["lsblk_disks"] = ",".join(record["lsblk_disks"])
                     elif parts[-1] == "uname_-a":
                         record.update(collect_kernel_version(f))
                     elif parts[-1] == "scheduler":
@@ -226,13 +226,13 @@ def collect_sosreport_data(rootdir, dirname, filenames, sos_with_runids, url_pre
                     filesread += 1
     except Exception:
         logger.exception("Error working with sosreport %s", dirname)
- 
+
     # for cases where lsblk is empty or missing
-    if 'disk' not in record.keys():
+    if "disk" not in record.keys():
         return dict()
 
-    # Extract block parameters 
-    url = f"{url_prefix}/incoming/{controller_dir}/{runname}/sysinfo/end/{shorthost}/block-params.log" 
+    # Extract block parameters
+    url = f"{url_prefix}/incoming/{controller_dir}/{runname}/sysinfo/end/{shorthost}/block-params.log"
     diskparams = extract_block_params(url, filenames)
     record.update(diskparams)
     filesread += len(diskparams)
@@ -242,12 +242,12 @@ def collect_sosreport_data(rootdir, dirname, filenames, sos_with_runids, url_pre
 
 def main(args, logger):
     # Directory with sosreports
-    rootdir = args[1]  
+    rootdir = args[1]
 
     # Mapping between runs and sosreports
-    with open(args[2]) as json_file: 
-        sos_with_runids = json.load(json_file)  
- 
+    with open(args[2]) as json_file:
+        sos_with_runids = json.load(json_file)
+
     # URL prefix to fetch unpacked data
     url_prefix = args[3]
 
@@ -285,48 +285,62 @@ def main(args, logger):
         "sys/block/sdX/queue/rotational",
         "sys/block/sdX/queue/rq_affinity",
         "sys/block/sdX/queue/scheduler",
-        "etc/tuned/active_profile" # recommended by Peter
+        "etc/tuned/active_profile",  # recommended by Peter
     ]
 
-    # stores output from all the sosreports 
+    # stores output from all the sosreports
     result_list = []
 
     scan_start = time.time()
-    pool = multiprocessing.Pool(multiprocessing.cpu_count()-1 or 1) # no. of processes to run in parellel
+    pool = multiprocessing.Pool(
+        multiprocessing.cpu_count() - 1 or 1
+    )  # no. of processes to run in parellel
 
     scan_count = 0
     for direntry in os.scandir(rootdir):
         if direntry.name.endswith(".md5"):
             continue
-        #print(direntry.name)
+        # print(direntry.name)
         scan_count += 1
-        result_list.append(pool.apply_async(collect_sosreport_data, 
-                                            args=(rootdir, direntry.name, filenames, sos_with_runids, url_prefix, )))
+        result_list.append(
+            pool.apply_async(
+                collect_sosreport_data,
+                args=(
+                    rootdir,
+                    direntry.name,
+                    filenames,
+                    sos_with_runids,
+                    url_prefix,
+                ),
+            )
+        )
 
     pool.close()  # no more parallel work to submit
-    pool.join()   # wait for the worker processes to terminate
+    pool.join()  # wait for the worker processes to terminate
 
     database = dict()  # stores config data for all the pbench runs
 
-    for res in result_list: 
+    for res in result_list:
         record = res.get()
         if record:
-            run_id = record['run_id']
-            record.pop('run_id', None)
+            run_id = record["run_id"]
+            record.pop("run_id", None)
 
             # Use config data only from sosreports collected at the 'end' of a run
-            if run_id not in database.keys() and \
-               record['time'] == 'end' and \
-               record['Static_hostname'] in record['host']: # since -1 might be appended at the end of record[host]
+            if (
+                run_id not in database.keys()
+                and record["time"] == "end"
+                and record["Static_hostname"] in record["host"]
+            ):  # since -1 might be appended at the end of record[host]
                 database[run_id] = record
-    
-    print ("Total records: " + str(len(database)))
+
+    print("Total records: " + str(len(database)))
 
     # Find pbench runs for which we do not have sosreport information available
     for id in sos_with_runids:
         if id not in database.keys():
-            print (sos_with_runids[id])
- 
+            print(sos_with_runids[id])
+
     scan_end = time.time()
     duration = scan_end - scan_start
     scan_rate = duration / scan_count if scan_count > 0 else 0
