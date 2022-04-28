@@ -6,9 +6,10 @@ import {
   isValidDate,
   Button,
 } from "@patternfly/react-core";
-import "./index.css"
+import "./index.css";
 import { formatDate } from "../../../utils/dateFormatter";
 import { filterData } from "../../../utils/filterDataset";
+import { constructUTCDate } from "../../../utils/constructDate";
 
 function DatePickerWidget({
   dataArray,
@@ -17,7 +18,10 @@ function DatePickerWidget({
   setDateRange,
 }) {
   const [fromDate, setFromDate] = useState({});
-  const [toDate, setToDate] = useState(new Date());
+  const [toDate, setToDate] = useState(
+    constructUTCDate(new Date(formatDate(new Date())))
+  );
+  const [strDate, setStrDate] = useState(formatDate(new Date()));
   const toValidator = (date) =>
     date >= fromDate
       ? ""
@@ -29,12 +33,13 @@ function DatePickerWidget({
       if (date > toDate) {
         date.setDate(date.getDate() + 1);
         setToDate(date);
+        setStrDate(formatDate(date));
       }
     }
   };
 
   const filterByDate = () => {
-    let modifiedArray = filterData(dataArray,fromDate,toDate,controllerName)
+    let modifiedArray = filterData(dataArray, fromDate, toDate, controllerName);
     setPublicData(modifiedArray);
     setDateRange(fromDate, toDate);
   };
@@ -48,8 +53,11 @@ function DatePickerWidget({
       />
       <InputGroupText>to</InputGroupText>
       <DatePicker
-        value={formatDate(toDate)}
-        onChange={(_str,date) => setToDate(date)}
+        value={strDate}
+        onChange={(_str) => {
+          setStrDate(_str);
+          setToDate(constructUTCDate(new Date(_str)));
+        }}
         isDisabled={!isValidDate(fromDate)}
         rangeStart={fromDate}
         validators={[toValidator]}
