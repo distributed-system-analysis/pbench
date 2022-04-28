@@ -38,7 +38,7 @@ push-relnotes: RELEASE-NOTES.html
 	rsync -ave ssh $< ${dest}/doc/$<
 
 #
-# Sphinx documentation (requires `pip3 install --user -r requirements.txt`)
+# Sphinx built documentation (requires `pip3 install --user -r requirements.txt`)
 #
 
 # You can set these variables from the command line.
@@ -47,10 +47,11 @@ SPHINXBUILD   = sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+# Build the "singlehtml" Sphinx target.  There are other supported targets
+# one could use; see `$(SPHINXBUILD) -M help` for a complete list.
+.PHONY: singlehtml
 singlehtml:
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
 
 .PHONY: clean veryclean
 clean:
