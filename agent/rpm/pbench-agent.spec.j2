@@ -16,9 +16,6 @@ Requires:  ansible-core
 
 %if 0%{?rhel} == 7
 Requires:  python3, python3-pip
-# For RHEL boxen we need the python development environment in order for the
-# pip3 installs for some modules to be successful.
-Requires:  gcc python3-devel
 %endif
 
 %if 0%{?rhel} == 8
