@@ -34,6 +34,7 @@ class DatasetsMetadata(ApiBase):
             ParamType.LIST,
             element_type=ParamType.KEYWORD,
             keywords=ApiBase.METADATA,
+            string_list=",",
         ),
     )
 

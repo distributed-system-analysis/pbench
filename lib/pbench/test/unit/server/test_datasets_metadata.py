@@ -67,6 +67,26 @@ class TestDatasetsMetadata:
             "user": {"contact": "me@example.com"},
         }
 
+    def test_get3(self, client, server_config, provide_metadata):
+        response = client.get(
+            f"{server_config.rest_uri}/datasets/metadata",
+            query_string={
+                "name": "drb",
+                "metadata": [
+                    "dashboard.seen",
+                    "server.deletion,dataset.access",
+                    "user",
+                ],
+            },
+        )
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {
+            "dashboard.seen": None,
+            "server.deletion": "2022-12-25",
+            "dataset.access": "private",
+            "user": {"contact": "me@example.com"},
+        }
+
     def test_get_bad_query(self, client, server_config, provide_metadata):
         response = client.get(
             f"{server_config.rest_uri}/datasets/metadata",

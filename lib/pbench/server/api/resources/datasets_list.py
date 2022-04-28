@@ -39,6 +39,7 @@ class DatasetsList(ApiBase):
                     ParamType.LIST,
                     element_type=ParamType.KEYWORD,
                     keywords=ApiBase.METADATA,
+                    string_list=",",
                 ),
             ),
             role=API_OPERATION.READ,

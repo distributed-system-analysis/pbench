@@ -384,17 +384,22 @@ def convert_list(value: Union[str, List[str]], parameter: "Parameter") -> List[A
     Returns:
         A new list with normalized elements
     """
-    values = value
-    if type(value) is str:
-        values = value.split(",")
-    elif type(value) is not list:
+    values = None
+    if parameter.string_list:
+        if type(value) is str:
+            values = value.split(parameter.string_list)
+        elif type(value) is list:
+            values = [x for e in value for x in e.split(parameter.string_list)]
+    elif type(value) is list:
+        values = value
+    if values is None:
         raise ConversionError(value, f"List of {parameter.name}")
-    etype: "ParamType" = parameter.element_type
+    etype: Union["ParamType", None] = parameter.element_type
     retlist = []
     errlist = []
     for v in values:
         try:
-            retlist.append(etype.convert(v, parameter))
+            retlist.append(etype.convert(v, parameter) if etype else v)
         except SchemaError:
             errlist.append(v)
     if errlist:
@@ -476,6 +481,7 @@ class Parameter:
         element_type: Union[ParamType, None] = None,
         required: bool = False,
         uri_parameter: bool = False,
+        string_list: Union[str, None] = None,
     ):
         """
         Initialize a Parameter object describing a JSON parameter with its type
@@ -488,6 +494,8 @@ class Parameter:
             element_type: List element type if ParamType.LIST
             required: whether the parameter is required (defaults to False)
             uri_parameter: whether the parameter is coming from the uri
+            string_list: if a delimiter is specified, individual string values
+                will be split into lists.
         """
         self.name = name
         self.type = type
@@ -495,6 +503,7 @@ class Parameter:
         self.element_type = element_type
         self.required = required
         self.uri_parameter = uri_parameter
+        self.string_list = string_list
 
     def invalid(self, json: JSONOBJECT) -> bool:
         """
@@ -682,12 +691,12 @@ class ApiBase(Resource):
         for key in request.args.keys():
             if key in schema:
                 values = request.args.getlist(key)
-                if len(values) > 1 and schema[key].type == ParamType.LIST:
+                if len(values) == 1:
+                    json[key] = values[0]
+                elif schema[key].type == ParamType.LIST:
                     json[key] = values
                 else:
-                    if len(values) > 1:
-                        raise RepeatedQueryParam(key)
-                    json[key] = values[0]
+                    raise RepeatedQueryParam(key)
             else:
                 badkey.append(key)
 

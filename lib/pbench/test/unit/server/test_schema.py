@@ -190,12 +190,23 @@ class TestParameter:
         """
         Test the Parameter class constructor with various parameters.
         """
-        v = Parameter("test", ParamType.LIST, element_type=ParamType.KEYWORD)
+        u = Parameter("test", ParamType.LIST, element_type=ParamType.KEYWORD)
+        assert not u.required
+        assert u.name == "test"
+        assert u.type is ParamType.LIST
+        assert u.element_type is ParamType.KEYWORD
+        assert u.keywords is None
+        assert u.string_list is None
+
+        v = Parameter(
+            "test", ParamType.LIST, element_type=ParamType.KEYWORD, string_list="|"
+        )
         assert not v.required
         assert v.name == "test"
         assert v.type is ParamType.LIST
         assert v.element_type is ParamType.KEYWORD
         assert v.keywords is None
+        assert v.string_list == "|"
 
         w = Parameter("test", ParamType.KEYWORD, keywords=["a", "b", "c"])
         assert not w.required
@@ -203,6 +214,7 @@ class TestParameter:
         assert w.type is ParamType.KEYWORD
         assert w.element_type is None
         assert w.keywords == ["a", "b", "c"]
+        assert w.string_list is None
 
         x = Parameter("test", ParamType.STRING)
         assert not x.required
@@ -210,6 +222,7 @@ class TestParameter:
         assert x.type is ParamType.STRING
         assert x.element_type is None
         assert x.keywords is None
+        assert x.string_list is None
 
         y = Parameter("foo", ParamType.JSON, required=True)
         assert y.required
@@ -217,6 +230,7 @@ class TestParameter:
         assert y.type is ParamType.JSON
         assert y.element_type is None
         assert y.keywords is None
+        assert y.string_list is None
 
         z = Parameter("foo", ParamType.JSON, required=False)
         assert not z.required
@@ -224,6 +238,7 @@ class TestParameter:
         assert z.type is ParamType.JSON
         assert z.element_type is None
         assert z.keywords is None
+        assert z.string_list is None
 
     @pytest.mark.parametrize(
         "json,expected",
@@ -326,26 +341,42 @@ class TestParameter:
         assert exc.value.unrecognized == [test]
 
     @pytest.mark.parametrize(
-        "type,keys,value,expected",
+        "type,keys,value,expected,delim",
         (
-            (ParamType.STRING, None, ["yes", "no"], ["yes", "no"]),
-            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["yes", "no"]),
-            (ParamType.ACCESS, None, ["Public", "PRIVATE"], ["public", "private"]),
-            (ParamType.STRING, None, "yes,no", ["yes", "no"]),
-            (ParamType.STRING, None, "one", ["one"]),
+            (None, None, ["yes", "no"], ["yes", "no"], None),
+            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["yes", "no"], "|"),
+            (
+                ParamType.ACCESS,
+                None,
+                ["Public", "PRIVATE"],
+                ["public", "private"],
+                None,
+            ),
+            (ParamType.STRING, None, "yes,no", ["yes", "no"], ","),
+            (None, None, "one", ["one"], ";"),
             (
                 ParamType.KEYWORD,
                 ["true", "false"],
-                "True,false,TRUE",
+                "True;false;TRUE",
                 ["true", "false", "true"],
+                ";",
+            ),
+            (
+                ParamType.STRING,
+                None,
+                ["a,b,c", "yes,no", "maybe", "definitely,not"],
+                ["a", "b", "c", "yes", "no", "maybe", "definitely", "not"],
+                ",",
             ),
         ),
     )
-    def test_list_normalization(self, type, keys, value, expected):
+    def test_list_normalization(self, type, keys, value, expected, delim):
         """
         Test parameter normalization for a list parameter.
         """
-        x = Parameter("data", ParamType.LIST, keywords=keys, element_type=type)
+        x = Parameter(
+            "data", ParamType.LIST, keywords=keys, element_type=type, string_list=delim
+        )
         assert x.normalize(value) == expected
 
     @pytest.mark.parametrize(
@@ -359,6 +390,7 @@ class TestParameter:
             (ParamType.ACCESS, None, ["sauron", "PRIVATE"]),
             (ParamType.STRING, None, 1),
             (ParamType.STRING, None, {"dict": "is-not-a-list-either"}),
+            (ParamType.STRING, None, "a,b,c"),
         ),
     )
     def test_invalid_list(self, listtype, keys, value):
