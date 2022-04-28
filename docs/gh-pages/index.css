@@ -33,7 +33,7 @@ li.PbenchQueItem.lineRequired:before {
 li.PbenchQueItem::after {
    content: '';
    position: absolute;
-   background-image: url("./images/list.svg");
+   background-image: url("images/list.svg");
    background-repeat: no-repeat;
    background-size: contain;
    left: 2px;
@@ -91,15 +91,15 @@ li.PbenchQueItem::after {
  }
 
  .div1{
-   background-image: url(./images/CollectionAgent.png);
+   background-image: url(images/CollectionAgent.png);
  }
  
  .div2{
-   background-image: url(./images/BackgroundTasks.png);
+   background-image: url(images/BackgroundTasks.png);
  }
  
  .div3{
-   background-image: url(./images/WebServer.png);
+   background-image: url(images/WebServer.png);
  }
 
  .hero_header{
@@ -176,7 +176,7 @@ button.pf-c-button.pf-m-link{
 
 .landingImg{
   flex-basis: 40%;
-  background-image: url(./images/home-banner-graphic.png);
+  background-image: url(images/home-banner-graphic.png);
   background-repeat: round;
 }
 
