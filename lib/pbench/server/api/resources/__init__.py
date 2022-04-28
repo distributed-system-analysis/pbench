@@ -117,8 +117,7 @@ class MissingParameters(SchemaError):
 
 class BadQueryParam(SchemaError):
     """
-    One or more URL query parameters were specified that are not recognized by
-    the API.
+    One or more unrecognized URL query parameters were specified.
     """
 
     def __init__(self, keys: List[str]):
@@ -131,8 +130,7 @@ class BadQueryParam(SchemaError):
 
 class RepeatedQueryParam(SchemaError):
     """
-    A unique URI query parameter key for which Pbench doesn't support multiple
-    values was repeated.
+    A URL query parameter key was repeated, but Pbench supports only one value.
     """
 
     def __init__(self, key: str):
