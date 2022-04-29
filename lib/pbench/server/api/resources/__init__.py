@@ -4,7 +4,7 @@ from http import HTTPStatus
 import json
 from json.decoder import JSONDecodeError
 from logging import Logger
-from typing import Any, AnyStr, Callable, List, Union
+from typing import Any, Callable, List, Union
 
 from dateutil import parser as date_parser
 from flask import request
@@ -12,7 +12,7 @@ from flask.wrappers import Request, Response
 from flask_restful import Resource, abort
 from sqlalchemy.orm.query import Query
 
-from pbench.server import PbenchServerConfig, JSON, JSONVALUE
+from pbench.server import JSON, JSONOBJECT, JSONVALUE, PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -31,7 +31,7 @@ class UnauthorizedAccess(Exception):
 
     def __init__(
         self,
-        user: User,
+        user: Union[User, None],
         operation: "API_OPERATION",
         owner: str,
         access: str,
@@ -107,12 +107,38 @@ class MissingParameters(SchemaError):
     empty.
     """
 
-    def __init__(self, keys: List[AnyStr]):
+    def __init__(self, keys: List[str]):
         super().__init__()
         self.keys = sorted(keys)
 
     def __str__(self):
         return f"Missing required parameters: {','.join(self.keys)}"
+
+
+class BadQueryParam(SchemaError):
+    """
+    One or more unrecognized URL query parameters were specified.
+    """
+
+    def __init__(self, keys: List[str]):
+        super().__init__()
+        self.keys = sorted(keys)
+
+    def __str__(self):
+        return f"Unknown URL query keys: {','.join(self.keys)}"
+
+
+class RepeatedQueryParam(SchemaError):
+    """
+    A URL query parameter key was repeated, but Pbench supports only one value.
+    """
+
+    def __init__(self, key: str):
+        super().__init__()
+        self.key = key
+
+    def __str__(self):
+        return f"Repeated URL query key '{self.key}'"
 
 
 class ConversionError(SchemaError):
@@ -257,7 +283,7 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
     return str(user.id)
 
 
-def convert_json(value: JSON, parameter: "Parameter") -> JSON:
+def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
     """
     Validate a parameter of JSON type.
 
@@ -337,14 +363,20 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
     raise KeywordError(parameter, "keyword", [value])
 
 
-def convert_list(value: List[Any], parameter: "Parameter") -> List[Any]:
+def convert_list(value: Union[str, List[str]], parameter: "Parameter") -> List[Any]:
     """
     Verify that the parameter value is a list and that each element
     of the list is a valid instance of the referenced element type.
 
     Args:
-        value: parameter value
+        value: parameter value -- either a list or a string which is
+            split on commas into a list.
         parameter: The Parameter definition (provides list element type)
+
+    NOTE: the capability of splitting a string is primarily designed to allow
+    more conveniently listing metadata keys, especially in URL query parameters
+    as `?metadata=a,b` rather than `?metadata=a&metadata=b`, but it can be
+    used for any list where the individual elements can't contain a comma.
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -352,16 +384,27 @@ def convert_list(value: List[Any], parameter: "Parameter") -> List[Any]:
     Returns:
         A new list with normalized elements
     """
-    if type(value) is not list:
+    values = None
+    if parameter.string_list:
+        if type(value) is str:
+            values = value.split(parameter.string_list)
+        elif type(value) is list:
+            values = [x for e in value for x in e.split(parameter.string_list)]
+    elif type(value) is list:
+        values = value
+    if values is None:
         raise ConversionError(value, f"List of {parameter.name}")
-    etype: "ParamType" = parameter.element_type
-    retlist = []
+    etype: Union["ParamType", None] = parameter.element_type
     errlist = []
-    for v in value:
-        try:
-            retlist.append(etype.convert(v, parameter))
-        except SchemaError:
-            errlist.append(v)
+    if etype:
+        retlist = []
+        for v in values:
+            try:
+                retlist.append(etype.convert(v, parameter))
+            except SchemaError:
+                errlist.append(v)
+    else:
+        retlist = values  # No need for conversion
     if errlist:
         raise ListElementError(parameter, errlist)
     return retlist
@@ -412,7 +455,7 @@ class ParamType(Enum):
     STRING = ("String", convert_string)
     USER = ("User", convert_username)
 
-    def __init__(self, name: AnyStr, convert: Callable[[AnyStr], Any]):
+    def __init__(self, name: str, convert: Callable[[Any, "Parameter"], Any]):
         """
         Enum initializer: this uses a mixed-case name string in addition to the
         conversion method simply because with only the Callable value I ran
@@ -437,10 +480,11 @@ class Parameter:
         name: str,
         type: ParamType,
         *,  # Following are keyword-only
-        keywords: List[str] = None,
-        element_type: ParamType = None,
+        keywords: Union[List[str], None] = None,
+        element_type: Union[ParamType, None] = None,
         required: bool = False,
         uri_parameter: bool = False,
+        string_list: Union[str, None] = None,
     ):
         """
         Initialize a Parameter object describing a JSON parameter with its type
@@ -453,6 +497,8 @@ class Parameter:
             element_type: List element type if ParamType.LIST
             required: whether the parameter is required (defaults to False)
             uri_parameter: whether the parameter is coming from the uri
+            string_list: if a delimiter is specified, individual string values
+                will be split into lists.
         """
         self.name = name
         self.type = type
@@ -460,8 +506,9 @@ class Parameter:
         self.element_type = element_type
         self.required = required
         self.uri_parameter = uri_parameter
+        self.string_list = string_list
 
-    def invalid(self, json: JSON) -> bool:
+    def invalid(self, json: JSONOBJECT) -> bool:
         """
         Check whether the value of this parameter in the JSON document
         is invalid. A required parameter value must be non-null; a
@@ -513,7 +560,7 @@ class Schema:
         """
         self.parameters = {p.name: p for p in parameters}
 
-    def validate(self, json_data: JSON) -> JSON:
+    def validate(self, json_data: JSONOBJECT) -> JSONOBJECT:
         """
         Validate an incoming JSON document against the schema and return a new
         JSON dict with translated values.
@@ -617,6 +664,52 @@ class ApiBase(Resource):
         self.logger = logger
         self.schema = schema
         self.role = role
+
+    def _validate_query_params(self, request: Request, schema: Schema) -> JSONOBJECT:
+        """
+        When an API accepts HTTP query parameters from the URL, these aren't
+        automatically validated by the dispatcher. This method collects query
+        parameters into a JSON object and validates them against a specified
+        schema.
+
+        Note that a multi-valued query parameter can be specified *either* by
+        a comma-separated single string value *or* by a list of individual
+        values, not both.
+
+        Args:
+            request:    The HTTP Request object containing query parameters
+            schema:     The Schema definition
+
+        Raises:
+            RepeatedQueryParam: A query parameter for which we support only one
+                value was repeated in the URL.
+            BadQueryParam: One or more unsupported query parameter keys were
+                specified.
+
+        Returns:
+            The resulting JSON object
+        """
+        json = {}
+        badkey = []
+        for key in request.args.keys():
+            if key in schema:
+                values = request.args.getlist(key)
+                if schema[key].type == ParamType.LIST:
+                    json[key] = values
+                elif len(values) == 1:
+                    json[key] = values[0]
+                else:
+                    raise RepeatedQueryParam(key)
+            else:
+                badkey.append(key)
+
+        if badkey:
+            raise BadQueryParam(badkey)
+
+        # Normalize and validate the keys we got via the HTTP query string.
+        # These aren't automatically validated by the superclass, so we
+        # have to do it here.
+        return schema.validate(json)
 
     def _check_authorization(self, user: Union[str, None], access: Union[str, None]):
         """
@@ -938,17 +1031,23 @@ class ApiBase(Resource):
             payload and HTTP status.
         """
 
+        api_name = self.__class__.__name__
+
         # We don't accept or process a request payload for GET, or if no
         # parameter schema is defined
         if not self.schema or method == self._get:
-            return method(uri_parameters, request)
+            try:
+                return method(uri_parameters, request)
+            except SchemaError as e:
+                self.logger.exception("{}: SchemaError {}", api_name, e)
+                abort(e.http_status, message=str(e))
 
         try:
             json_data = request.get_json()
         except Exception as e:
             self.logger.warning(
                 "{}: Bad JSON in request, {!r}, {!r}",
-                self.__class__.__name__,
+                api_name,
                 str(e),
                 request.data,
             )
@@ -961,16 +1060,15 @@ class ApiBase(Resource):
                 json_data = uri_parameters
             new_data = self.schema.validate(json_data)
         except UnverifiedUser as e:
-            self.logger.warning("{}", str(e))
+            self.logger.warning("{}: {}", api_name, str(e))
             abort(e.http_status, message=str(e))
         except SchemaError as e:
-            self.logger.warning(
-                "{}: {} on {!r}", self.__class__.__name__, str(e), json_data
-            )
+            self.logger.warning("{}: {} on {!r}", api_name, str(e), json_data)
             abort(e.http_status, message=str(e))
         except Exception as e:
             self.logger.exception(
-                "Unexpected validation exception in {}: {}",
+                "{}: unexpected validation exception in {}: {}",
+                api_name,
                 e.__class__.__name__,
                 str(e),
             )
@@ -989,9 +1087,14 @@ class ApiBase(Resource):
             try:
                 self._check_authorization(user, access)
             except UnauthorizedAccess as e:
-                self.logger.warning("{}", e)
+                self.logger.warning("{}: {}", api_name, e)
                 abort(e.http_status, message=str(e))
-        return method(new_data, request)
+
+        try:
+            return method(new_data, request)
+        except SchemaError as e:
+            self.logger.exception("{}: SchemaError {}", api_name, e)
+            abort(e.http_status, message=str(e))
 
     def _get(self, json_data: JSON, request: Request) -> Response:
         """

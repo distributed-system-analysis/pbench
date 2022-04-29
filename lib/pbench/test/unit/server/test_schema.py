@@ -1,7 +1,7 @@
 from http import HTTPStatus
-from typing import Callable
+from typing import Callable, Union
 
-import dateutil
+from dateutil import parser as date_parser
 import pytest
 
 from pbench.server.api.resources import (
@@ -86,18 +86,20 @@ class TestParamType:
             assert isinstance(t.convert, Callable)
 
     @pytest.mark.parametrize(
-        "test",
+        "ptype,kwd,value,expected",
         (
             (ParamType.STRING, None, "x", "x"),
             (ParamType.JSON, None, {"key": "value"}, {"key": "value"}),
-            (ParamType.DATE, None, "2021-06-29", dateutil.parser.parse("2021-06-29")),
+            (ParamType.DATE, None, "2021-06-29", date_parser.parse("2021-06-29")),
             (ParamType.USER, None, "drb", "1"),
             (ParamType.ACCESS, None, "PRIVATE", "private"),
             (ParamType.JSON, ["key"], {"key": "value"}, {"key": "value"}),
             (ParamType.KEYWORD, ["Llave"], "llave", "llave"),
         ),
     )
-    def test_successful_conversions(self, client, test, monkeypatch, current_user_drb):
+    def test_successful_conversions(
+        self, client, monkeypatch, current_user_drb, ptype, kwd, value, expected
+    ):
         user = User(
             id=1,
             username="drb",
@@ -112,13 +114,12 @@ class TestParamType:
 
         monkeypatch.setattr(User, "query", ok)
 
-        ptype, kwd, value, expected = test
         param = Parameter("test", ptype, keywords=kwd)
         result = ptype.convert(value, param)
         assert result == expected
 
     @pytest.mark.parametrize(
-        "test",
+        "ptype,value",
         (
             (ParamType.STRING, {"not": "string"}),  # dict is not string
             (ParamType.JSON, (1, False)),  # tuple is not JSON
@@ -131,14 +132,13 @@ class TestParamType:
             (ParamType.ACCESS, 0),  # ACCESS must be a string
         ),
     )
-    def test_failed_conversions(self, test, current_user_drb):
+    def test_failed_conversions(self, current_user_drb, ptype, value):
         """
         Test unsuccessful parameter conversion / normalization.
 
         NOTE that we can't test LIST without the element type; we'll test that
         separately.
         """
-        ptype, value = test
         param = Parameter("test", ptype)
         with pytest.raises(ConversionError) as exc:
             ptype.convert(value, param)
@@ -172,7 +172,7 @@ class TestParamType:
         NOT_FOUND (404) when the client is authenticated.
         """
 
-        def bad(username: str) -> User:
+        def bad(username: str) -> Union[User, None]:
             return None
 
         monkeypatch.setattr(User, "query", bad)
@@ -190,12 +190,23 @@ class TestParameter:
         """
         Test the Parameter class constructor with various parameters.
         """
-        v = Parameter("test", ParamType.LIST, element_type=ParamType.KEYWORD)
+        u = Parameter("test", ParamType.LIST, element_type=ParamType.KEYWORD)
+        assert not u.required
+        assert u.name == "test"
+        assert u.type is ParamType.LIST
+        assert u.element_type is ParamType.KEYWORD
+        assert u.keywords is None
+        assert u.string_list is None
+
+        v = Parameter(
+            "test", ParamType.LIST, element_type=ParamType.KEYWORD, string_list="|"
+        )
         assert not v.required
         assert v.name == "test"
         assert v.type is ParamType.LIST
         assert v.element_type is ParamType.KEYWORD
         assert v.keywords is None
+        assert v.string_list == "|"
 
         w = Parameter("test", ParamType.KEYWORD, keywords=["a", "b", "c"])
         assert not w.required
@@ -203,6 +214,7 @@ class TestParameter:
         assert w.type is ParamType.KEYWORD
         assert w.element_type is None
         assert w.keywords == ["a", "b", "c"]
+        assert w.string_list is None
 
         x = Parameter("test", ParamType.STRING)
         assert not x.required
@@ -210,6 +222,7 @@ class TestParameter:
         assert x.type is ParamType.STRING
         assert x.element_type is None
         assert x.keywords is None
+        assert x.string_list is None
 
         y = Parameter("foo", ParamType.JSON, required=True)
         assert y.required
@@ -217,6 +230,7 @@ class TestParameter:
         assert y.type is ParamType.JSON
         assert y.element_type is None
         assert y.keywords is None
+        assert y.string_list is None
 
         z = Parameter("foo", ParamType.JSON, required=False)
         assert not z.required
@@ -224,9 +238,10 @@ class TestParameter:
         assert z.type is ParamType.JSON
         assert z.element_type is None
         assert z.keywords is None
+        assert z.string_list is None
 
     @pytest.mark.parametrize(
-        "test",
+        "json,expected",
         (
             ({"data": "yes"}, False),
             ({"data": None}, True),
@@ -234,16 +249,15 @@ class TestParameter:
             ({"foo": None, "data": "yes"}, False),
         ),
     )
-    def test_invalid_required(self, test):
+    def test_invalid_required(self, json, expected):
         """
         Test parameter validation of a `required` parameter
         """
         x = Parameter("data", ParamType.STRING, required=True)
-        json, expected = test
         assert x.invalid(json) is expected
 
     @pytest.mark.parametrize(
-        "test",
+        "json",
         (
             {"data": "yes"},
             {"data": None},
@@ -251,18 +265,17 @@ class TestParameter:
             {"foo": None},
         ),
     )
-    def test_invalid_optional(self, test):
+    def test_invalid_optional(self, json):
         """
         An optional parameter is either present or not: either is OK, and the
         value None is acceptable. (In other words, the "invalid" test isn't
         meaningful for required=False parameters, and should always succeed.)
         """
         x = Parameter("data", ParamType.STRING, required=False)
-        json = test
         assert not x.invalid(json)
 
     @pytest.mark.parametrize(
-        "test",
+        "input,expected",
         (
             ("yes", "yes"),
             ("Yes", "yes"),
@@ -271,16 +284,15 @@ class TestParameter:
             ("ME.US.HER.THEM", "me.us.her.them"),
         ),
     )
-    def test_keyword_namespace(self, test):
+    def test_keyword_namespace(self, input, expected):
         """
         Test parameter normalization for a keyword parameter.
         """
         x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "me.*"])
-        input, expected = test
         assert x.normalize(input) == expected
 
     @pytest.mark.parametrize(
-        "test",
+        "input,expected",
         (
             ("yes", "yes"),
             ("YES", "yes"),
@@ -294,12 +306,11 @@ class TestParameter:
             ("MAYBE", "maybe"),
         ),
     )
-    def test_keyword_normalization(self, test):
+    def test_keyword_normalization(self, input, expected):
         """
         Test parameter normalization for a keyword parameter.
         """
         x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "no", "maybe"])
-        input, expected = test
         assert x.normalize(input) == expected
 
     @pytest.mark.parametrize(
@@ -330,23 +341,46 @@ class TestParameter:
         assert exc.value.unrecognized == [test]
 
     @pytest.mark.parametrize(
-        "test",
+        "type,keys,value,expected,delim",
         (
-            (ParamType.STRING, None, ["yes", "no"], ["yes", "no"]),
-            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["yes", "no"]),
-            (ParamType.ACCESS, None, ["Public", "PRIVATE"], ["public", "private"]),
+            (None, None, ["yes", "no"], ["yes", "no"], None),
+            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["yes", "no"], "|"),
+            (
+                ParamType.ACCESS,
+                None,
+                ["Public", "PRIVATE"],
+                ["public", "private"],
+                None,
+            ),
+            (ParamType.STRING, None, "yes,no", ["yes", "no"], ","),
+            (None, None, "one", ["one"], ";"),
+            (
+                ParamType.KEYWORD,
+                ["true", "false"],
+                "True;false;TRUE",
+                ["true", "false", "true"],
+                ";",
+            ),
+            (
+                ParamType.STRING,
+                None,
+                ["a,b,c", "yes,no", "maybe", "definitely,not"],
+                ["a", "b", "c", "yes", "no", "maybe", "definitely", "not"],
+                ",",
+            ),
         ),
     )
-    def test_list_normalization(self, test):
+    def test_list_normalization(self, type, keys, value, expected, delim):
         """
         Test parameter normalization for a list parameter.
         """
-        type, keys, value, expected = test
-        x = Parameter("data", ParamType.LIST, keywords=keys, element_type=type)
+        x = Parameter(
+            "data", ParamType.LIST, keywords=keys, element_type=type, string_list=delim
+        )
         assert x.normalize(value) == expected
 
     @pytest.mark.parametrize(
-        "test",
+        "listtype,keys,value",
         (
             (ParamType.STRING, None, [False, 1]),
             (ParamType.KEYWORD, ["Yes", "No"], ["maybe", "nO"]),
@@ -355,15 +389,14 @@ class TestParameter:
             (ParamType.KEYWORD, ["me.*"], ["me.foo."]),
             (ParamType.ACCESS, None, ["sauron", "PRIVATE"]),
             (ParamType.STRING, None, 1),
-            (ParamType.STRING, None, "not-a-list"),
             (ParamType.STRING, None, {"dict": "is-not-a-list-either"}),
+            (ParamType.STRING, None, "a,b,c"),
         ),
     )
-    def test_invalid_list(self, test):
+    def test_invalid_list(self, listtype, keys, value):
         """
         Test parameter normalization for a list parameter.
         """
-        listtype, keys, value = test
         x = Parameter("data", ParamType.LIST, keywords=keys, element_type=listtype)
         with pytest.raises(SchemaError) as exc:
             x.normalize(value)
@@ -416,5 +449,5 @@ class TestSchema:
             "key2": {"json": True, "key": "abc"},
         }
         expected = payload.copy()
-        expected["key3"] = dateutil.parser.parse(expected["key3"])
+        expected["key3"] = date_parser.parse(expected["key3"])
         assert expected == self.schema.validate(payload)

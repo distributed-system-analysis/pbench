@@ -10,7 +10,6 @@ class TestDatasetsMetadata:
         response = client.get(
             f"{server_config.rest_uri}/datasets/metadata",
             query_string={
-                "controller": "node",
                 "name": "foobar",
                 "metadata": ["dashboard.seen", "dashboard.saved"],
             },
@@ -22,7 +21,6 @@ class TestDatasetsMetadata:
         response = client.get(
             f"{server_config.rest_uri}/datasets/metadata",
             query_string={
-                "controller": "node",
                 "name": "drb",
                 "metadata": ["xyzzy", "plugh", "dataset.owner", "dataset.access"],
             },
@@ -36,7 +34,6 @@ class TestDatasetsMetadata:
         response = client.get(
             f"{server_config.rest_uri}/datasets/metadata",
             query_string={
-                "controller": "node",
                 "name": "drb",
                 "metadata": [
                     "dashboard.seen",
@@ -58,12 +55,26 @@ class TestDatasetsMetadata:
         response = client.get(
             f"{server_config.rest_uri}/datasets/metadata",
             query_string={
-                "controller": "node",
+                "name": "drb",
+                "metadata": "dashboard.seen,server.deletion,dataset.access,user",
+            },
+        )
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {
+            "dashboard.seen": None,
+            "server.deletion": "2022-12-25",
+            "dataset.access": "private",
+            "user": {"contact": "me@example.com"},
+        }
+
+    def test_get3(self, client, server_config, provide_metadata):
+        response = client.get(
+            f"{server_config.rest_uri}/datasets/metadata",
+            query_string={
                 "name": "drb",
                 "metadata": [
                     "dashboard.seen",
-                    "server.deletion",
-                    "dataset.access",
+                    "server.deletion,dataset.access",
                     "user",
                 ],
             },
@@ -75,6 +86,31 @@ class TestDatasetsMetadata:
             "dataset.access": "private",
             "user": {"contact": "me@example.com"},
         }
+
+    def test_get_bad_query(self, client, server_config, provide_metadata):
+        response = client.get(
+            f"{server_config.rest_uri}/datasets/metadata",
+            query_string={
+                "name": "drb",
+                "controller": "foobar",
+                "metadata": "dashboard.seen,server.deletion,dataset.access,user",
+            },
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json == {"message": "Unknown URL query keys: controller"}
+
+    def test_get_bad_query_2(self, client, server_config, provide_metadata):
+        response = client.get(
+            f"{server_config.rest_uri}/datasets/metadata",
+            query_string={
+                "name": "drb",
+                "controller": "foobar",
+                "plugh": "xyzzy",
+                "metadata": ["dashboard.seen", "server.deletion", "dataset.access"],
+            },
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json == {"message": "Unknown URL query keys: controller,plugh"}
 
     def test_put_missing_json_object(self, client, server_config, pbench_token):
         """
@@ -209,14 +245,8 @@ class TestDatasetsMetadata:
         response = client.get(
             f"{server_config.rest_uri}/datasets/metadata",
             query_string={
-                "controller": "node",
                 "name": "drb",
-                "metadata": [
-                    "dashboard.seen",
-                    "dashboard.saved",
-                    "dataset.access",
-                    "user",
-                ],
+                "metadata": "dashboard.seen,dashboard.saved,dataset.access,user",
             },
         )
         assert response.status_code == HTTPStatus.OK
@@ -231,7 +261,6 @@ class TestDatasetsMetadata:
         response = client.get(
             f"{server_config.rest_uri}/datasets/metadata",
             query_string={
-                "controller": "node",
                 "name": "drb",
                 "metadata": [
                     "dashboard.seen",

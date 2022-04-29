@@ -1,9 +1,7 @@
-from http import HTTPStatus
 import logging
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
-from flask_restful import abort
 
 from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.resources import (
@@ -12,7 +10,6 @@ from pbench.server.api.resources import (
     Parameter,
     ParamType,
     Schema,
-    SchemaError,
 )
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import (
@@ -42,6 +39,7 @@ class DatasetsList(ApiBase):
                     ParamType.LIST,
                     element_type=ParamType.KEYWORD,
                     keywords=ApiBase.METADATA,
+                    string_list=",",
                 ),
             ),
             role=API_OPERATION.READ,
@@ -54,28 +52,13 @@ class DatasetsList(ApiBase):
         NOTE: This does not rely on a JSON payload to identify the dataset and
         desired metadata keys; instead we rely on URI query parameters.
 
-        GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen&metadata=server.deletion
+        GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen,server.deletion
         """
 
         # We missed automatic schema validation due to the lack of a JSON body;
         # construct an equivalent JSON body now so we can run it through the
         # validator.
-        json = {
-            key: request.args.getlist(key)
-            if self.schema[key].type == ParamType.LIST
-            else request.args.get(key)
-            for key in request.args.keys()
-            if key in self.schema
-        }
-
-        # Normalize and validate the keys we got via the HTTP query string.
-        # These aren't automatically validated by the superclass, so we
-        # have to do it here.
-        try:
-            new_json = self.schema.validate(json)
-        except SchemaError as e:
-            self.logger.warning("Schema validation error {}", e)
-            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+        new_json = self._validate_query_params(request, self.schema)
 
         # Validate the authenticated user's authorization for the combination
         # of "owner" and "access".
