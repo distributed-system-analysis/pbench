@@ -10,7 +10,6 @@ skip-string-normalization = false
 include = '''
 \.pyi?$
 | ^/agent/bench-scripts/postprocess/user-benchmark-wrapper$
-| ^/agent/bench-scripts/test-bin/mock-postprocess/dbench-postprocess$
 | ^/agent/bench-scripts/test-bin/mock-postprocess/uperf-postprocess$
 | ^/agent/bench-scripts/test-bin/java$
 | ^/agent/tool-scripts/datalog/haproxy-ocp-datalog$
@@ -42,8 +41,6 @@ include = '''
 extend-exclude = '''
 (
 fio-histo-log-pctiles\.py$
-| binary-search\.py$
-| profile-builder\.py$
 | agent/stockpile
 | web-server/v0\.3/demo\.py$
 )
