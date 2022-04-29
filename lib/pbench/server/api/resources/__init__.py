@@ -395,13 +395,16 @@ def convert_list(value: Union[str, List[str]], parameter: "Parameter") -> List[A
     if values is None:
         raise ConversionError(value, f"List of {parameter.name}")
     etype: Union["ParamType", None] = parameter.element_type
-    retlist = []
     errlist = []
-    for v in values:
-        try:
-            retlist.append(etype.convert(v, parameter) if etype else v)
-        except SchemaError:
-            errlist.append(v)
+    if etype:
+        retlist = []
+        for v in values:
+            try:
+                retlist.append(etype.convert(v, parameter))
+            except SchemaError:
+                errlist.append(v)
+    else:
+        retlist = values  # No need for conversion
     if errlist:
         raise ListElementError(parameter, errlist)
     return retlist
@@ -691,10 +694,10 @@ class ApiBase(Resource):
         for key in request.args.keys():
             if key in schema:
                 values = request.args.getlist(key)
-                if len(values) == 1:
-                    json[key] = values[0]
-                elif schema[key].type == ParamType.LIST:
+                if schema[key].type == ParamType.LIST:
                     json[key] = values
+                elif len(values) == 1:
+                    json[key] = values[0]
                 else:
                     raise RepeatedQueryParam(key)
             else:
