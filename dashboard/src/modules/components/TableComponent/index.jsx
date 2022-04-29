@@ -150,7 +150,7 @@ export const TableWithFavorite = () => {
       <Page header={<NavbarDrawer />} sidebar={Sidebar}>
         <AlertMessage
           message="Want to see your own data?"
-          link="Login to create an account"
+          link="Login to your account"
         />
         <PageSection variant={PageSectionVariants.light}>
           <PathBreadCrumb pathList={["Dashboard", "Components"]} />

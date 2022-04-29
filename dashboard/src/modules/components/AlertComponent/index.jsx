@@ -19,7 +19,7 @@ function AlertMessage({ message, link }) {
       title={[
         `${message}`,
         <a className="alertHelpText">
-          Log into your account
+          {link}
         </a>,
       ]}
     ></Alert>
