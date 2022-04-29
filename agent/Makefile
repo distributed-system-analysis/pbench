@@ -72,15 +72,10 @@ click-scripts = \
 	pbench-register-tool-trigger
 
 bench-scripts = \
-	pbench-cyclictest \
-	pbench-dbench \
 	pbench-fio \
 	pbench-fio.md \
 	pbench-gen-iterations \
-	pbench-iozone \
 	pbench-linpack \
-	pbench-migrate \
-	pbench-netperf \
 	pbench-run-benchmark \
 	pbench-run-benchmark.pl \
 	pbench-run-benchmark-sample \
@@ -93,7 +88,6 @@ bench-scripts = \
 bench-postprocess = \
 	BenchPostprocess.pm \
 	compare-bench-results \
-	dbench-postprocess \
 	fio-postprocess \
 	fio-postprocess-cdm \
 	fio-postprocess-viz.py \
