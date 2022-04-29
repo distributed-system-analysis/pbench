@@ -86,6 +86,12 @@ function verify_make_source_tree {
     # The agent and server-side sub-trees have individual ways to create the
     # source tree for a tar ball.  This function executes that step for the
     # given sub-tree.
+    #
+    # Arguments:
+    #     _major -- Name of the sub-tree to execute the "make install"
+    #
+    # Returns the exit status of the "make install" execution, or the exit
+    # status dependent command steps (e.g. make, cd, etc.). 
     local _major=${1}
     local _rc
 
@@ -97,7 +103,7 @@ function verify_make_source_tree {
     mkdir ${_dir} || return ${?}
 
     printf -- "\n\n\nVerifying %s source tree build\n\n" "${_major^}"
-    (cd ${_major}; make DESTDIR=${_dir} install)
+    (cd ${_major} && make DESTDIR=${_dir} install)
     _rc=${?}
     if [[ ${_rc} -ne 0 ]]; then
         printf -- "\n%s source tree build failed with '%s'\n\n" "${_major^}" "${_rc}"
@@ -178,6 +184,9 @@ for _major in ${major_list}; do
             (( count++ ))
             run_legacy ${_major} bin ${posargs} || rc=1
         fi
+    else
+        printf -- "Error - unrecognized major test sub-set, '%s'\n" "${_major}" >&2
+        rc=1
     fi
 done
 
