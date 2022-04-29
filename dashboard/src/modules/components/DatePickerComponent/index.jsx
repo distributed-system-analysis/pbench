@@ -28,12 +28,13 @@ function DatePickerWidget({
       : "To date must be greater than or equal to from date";
 
   const onFromChange = (_str, date) => {
-    setFromDate(date);
+    setFromDate(constructUTCDate(new Date(_str)));
     if (isValidDate(date)) {
       if (date > toDate) {
-        date.setDate(date.getDate() + 1);
-        setToDate(date);
-        setStrDate(formatDate(date));
+        let selectedDate = new Date(_str);
+        selectedDate.setDate(selectedDate.getDate() + 1);
+        setToDate(constructUTCDate(selectedDate));
+        setStrDate(formatDate(selectedDate));
       }
     }
   };
@@ -54,7 +55,7 @@ function DatePickerWidget({
       <InputGroupText>to</InputGroupText>
       <DatePicker
         value={strDate}
-        onChange={(_str) => {
+        onChange={(_str, date) => {
           setStrDate(_str);
           setToDate(constructUTCDate(new Date(_str)));
         }}

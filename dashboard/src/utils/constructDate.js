@@ -1,3 +1,4 @@
 export const constructUTCDate = (date) => {
-  return date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+  date.setUTCMinutes(date.getUTCMinutes() - date.getTimezoneOffset());
+  return date
 };
