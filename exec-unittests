@@ -82,6 +82,31 @@ function para_run_legacy {
 # Export functions for use with `parallel` below.
 export -f para_run_legacy run_legacy _time
 
+function verify_make_source_tree {
+    # The agent and server-side sub-trees have individual ways to create the
+    # source tree for a tar ball.  This function executes that step for the
+    # given sub-tree.
+    local _major=${1}
+    local _rc
+
+    if [[ ! -d ${_toxenvdir}/src ]]; then
+        mkdir ${_toxenvdir}/src || return ${?}
+    fi
+    local _dir=${_toxenvdir}/src/${_major}
+    rm -rf ${_dir}
+    mkdir ${_dir} || return ${?}
+
+    printf -- "\n\n\nVerifying %s source tree build\n\n" "${_major^}"
+    (cd ${_major}; make DESTDIR=${_dir} install)
+    _rc=${?}
+    if [[ ${_rc} -ne 0 ]]; then
+        printf -- "\n%s source tree build failed with '%s'\n\n" "${_major^}" "${_rc}"
+    else
+        printf -- "\n%s source tree build succeeded\n\n" "${_major^}"
+    fi
+    return ${_rc}
+}
+
 rc=0
 
 if [[ -n "${COV_REPORT_XML}" ]]; then
@@ -128,6 +153,9 @@ trap "rm -f ${_para_jobs_file}" EXIT INT TERM
 
 let count=0
 for _major in ${major_list}; do
+    # Verify the Agent or Server Makefile functions correctly.
+    verify_make_source_tree ${_major} || rc=1
+
     if [[ "${_major}" == "agent" ]]; then
         # The parallel program is really cool.  The usage of `parallel` is
         # internal and automated; only test code depends on this tool, and we,
@@ -150,9 +178,6 @@ for _major in ${major_list}; do
             (( count++ ))
             run_legacy ${_major} bin ${posargs} || rc=1
         fi
-    else
-        printf -- "Logic bomb!  Unrecognized major test sub-set, '%s'\n" "${_major}" >&2
-        rc=1
     fi
 done
 
