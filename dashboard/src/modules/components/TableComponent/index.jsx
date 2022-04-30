@@ -33,7 +33,7 @@ import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
 import TablePagination from "../PaginationComponent";
 import { constructUTCDate } from "../../../utils/constructDate";
 import { formatDate } from "../../../utils/dateFormatter";
-let startDate =constructUTCDate(new Date(1990, 10, 4));
+let startDate =new Date(Date.UTC(1990, 10, 4));
 let endDate = constructUTCDate(new Date(formatDate(new Date())))
 let controllerName = "";
 let dataArray = [];

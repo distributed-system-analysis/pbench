@@ -12,8 +12,7 @@ function SearchBox({
 }) {
   const [controllerValue, setControllerValue] = useState("");
   const searchController = () => {
-    let modifiedArray = filterData(dataArray,startDate,endDate,controllerValue);
-    setPublicData(modifiedArray);
+    setPublicData(filterData(dataArray, startDate, endDate, controllerValue));
     setControllerName(controllerValue);
   };
   return (

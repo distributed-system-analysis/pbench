@@ -18,17 +18,15 @@ function DatePickerWidget({
   setDateRange,
 }) {
   const [fromDate, setFromDate] = useState({});
-  const [toDate, setToDate] = useState(
-    constructUTCDate(new Date(formatDate(new Date())))
-  );
   const [strDate, setStrDate] = useState(formatDate(new Date()));
+  const [toDate, setToDate] = useState(constructUTCDate(new Date(strDate)));
   const toValidator = (date) =>
     date >= fromDate
       ? ""
       : "To date must be greater than or equal to from date";
 
   const onFromChange = (_str, date) => {
-    setFromDate(constructUTCDate(new Date(_str)));
+    setFromDate(isValidDate(date) ? constructUTCDate(new Date(_str)) : {});
     if (isValidDate(date)) {
       if (date > toDate) {
         let selectedDate = new Date(_str);
@@ -40,8 +38,7 @@ function DatePickerWidget({
   };
 
   const filterByDate = () => {
-    let modifiedArray = filterData(dataArray, fromDate, toDate, controllerName);
-    setPublicData(modifiedArray);
+    setPublicData(filterData(dataArray, fromDate, toDate, controllerName));
     setDateRange(fromDate, toDate);
   };
   return (
