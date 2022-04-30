@@ -1,10 +1,10 @@
-import dateutil
 from http import HTTPStatus
 from logging import Logger
 from pathlib import Path
 import socket
 from typing import Any
 
+from dateutil import parser as date_parser
 from freezegun.api import freeze_time
 import pytest
 
@@ -17,6 +17,7 @@ from pbench.server.database.models.datasets import (
     States,
 )
 from pbench.server.filetree import FileTree, Tarball
+from pbench.server.utils import IsoTimeHelper
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
 
@@ -130,7 +131,9 @@ class TestUpload:
                 TestUpload.tarball_deleted = self.name
 
             def get_metadata(self):
-                return {"pbench": {"date": dateutil.parser.parse("2002-05-16")}}
+                return {
+                    "pbench": {"date": IsoTimeHelper.from_string("2002-05-16").utc_time}
+                }
 
         class FakeFileTree(FileTree):
             def __init__(self, options: PbenchServerConfig, logger: Logger):
@@ -406,10 +409,12 @@ class TestUpload:
         assert dataset.controller == self.controller
         assert dataset.name == datafile.name[:-7]
         assert dataset.state == States.UPLOADED
-        assert dataset.created == dateutil.parser.parse("2002-05-16")
-        assert dataset.uploaded == dateutil.parser.parse("1970-01-01")
+        assert dataset.created == date_parser.parse("2002-05-16T00:00:00+00:00")
+        assert dataset.uploaded == date_parser.parse("1970-01-01T00:00:00+00:00")
         assert Metadata.getvalue(dataset, "dashboard") is None
-        assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-01"
+        assert (
+            Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-01T00:00:00+00:00"
+        )
         assert self.filetree_created
         assert dataset.name in self.filetree_created
 

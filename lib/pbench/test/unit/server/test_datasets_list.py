@@ -118,7 +118,7 @@ class TestDatasetsList:
                     "controller": dataset.controller,
                     "run_id": dataset.md5,
                     "metadata": {
-                        "dataset.created": f"{dataset.created:%Y-%m-%d:%H:%M}"
+                        "dataset.created": datetime.datetime.isoformat(dataset.created)
                     },
                 }
             )

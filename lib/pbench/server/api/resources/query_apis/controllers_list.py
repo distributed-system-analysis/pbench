@@ -9,6 +9,7 @@ from pbench.server.api.resources.query_apis import (
     ElasticBase,
     PostprocessError,
 )
+from pbench.server.utils import IsoTimeHelper
 
 
 class ControllersList(ElasticBase):
@@ -67,13 +68,8 @@ class ControllersList(ElasticBase):
         start = json_data.get("start")
         end = json_data.get("end")
 
-        # We need to pass string dates as part of the Elasticsearch query. The
-        # _gen_month_range constructs a set of Elasticsearch sequences index
-        # names based on the YYYY-MM granularity of those dates; for this query
-        # we also use the original dates to search for documents within those
-        # indices.
-        start_arg = f"{start:%Y-%m-%d}"
-        end_arg = f"{end:%Y-%m-%d}"
+        start_arg = IsoTimeHelper(start).iso()
+        end_arg = IsoTimeHelper(end).iso()
         self.logger.info(
             "Discover controllers for user {}, prefix {}: ({} - {})",
             user,

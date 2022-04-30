@@ -9,6 +9,7 @@ from typing import Any, List, Tuple, Union
 from sqlalchemy import Column, DateTime, Enum, event, ForeignKey, Integer, JSON, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import relationship, validates
+from sqlalchemy.types import TypeDecorator
 
 from pbench.server.database.database import Database
 from pbench.server.database.models.users import User
@@ -311,17 +312,44 @@ class States(enum.Enum):
 
 def current_time() -> datetime.datetime:
     """
-    Return the current time.
-
-    NOTE: we use this intermediary rather than binding the Column default
-    directly to datetime.datetime.now because that load-time binding defeats
-    unit test mocking. Binding it instead to this method allows a mock to
-    take effect.
+    Return the current time in UTC.
 
     Returns:
-        datetime.datetime.now()
+        Current UTC timestamp
     """
-    return datetime.datetime.now()
+    return datetime.datetime.now(datetime.timezone.utc)
+
+
+class TZDateTime(TypeDecorator):
+    """
+    SQLAlchemy protocol is that stored timestamps are naive UTC; so we use a
+    custom type decorator to ensure that our incoming and outgoing timestamps
+    are consistent by adjusting TZ before storage and enhancing with UTC TZ
+    on retrieval so that we're always working with "aware" UTC.
+    """
+
+    impl = DateTime
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        """
+        "Naive" datetime objects are treated as UTC, and "aware" datetime
+        objects are converted to UTC and made "naive" by replacing the TZ
+        for SQL storage.
+        """
+        if value is not None and not value.tzinfo:
+            value = value.astimezone(datetime.timezone.utc).replace(tzinfo=None)
+        return value
+
+    def process_result_value(self, value, dialect):
+        """
+        Retrieved datetime objects are naive, and are assumed to be UTC, so set
+        the TZ to UTC to make them "aware". This ensures that we communicate
+        the "+00:00" ISO 8601 suffix to API clients.
+        """
+        if value is not None:
+            value = value.replace(tzinfo=datetime.timezone.utc)
+        return value
 
 
 class Dataset(Database.Base):
@@ -397,18 +425,18 @@ class Dataset(Database.Base):
     md5 = Column(String(255), unique=False, nullable=True)
 
     # Time of Dataset record creation
-    uploaded = Column(DateTime, nullable=False, default=current_time)
+    uploaded = Column(TZDateTime, nullable=False, default=current_time)
 
     # Time of the data collection run (from metadata.log `date`). This is the
     # time the data was generated as opposed to the date it was imported into
     # the server ("uploaded").
-    created = Column(DateTime, nullable=True, unique=False)
+    created = Column(TZDateTime, nullable=True, unique=False)
 
     # Current state of the Dataset
     state = Column(Enum(States), unique=False, nullable=False, default=States.UPLOADING)
 
     # Timestamp when Dataset state was last changed
-    transition = Column(DateTime, nullable=False, default=current_time)
+    transition = Column(TZDateTime, nullable=False, default=current_time)
 
     # NOTE: this relationship defines a `dataset` property in `Metadata`
     # that refers to the parent `Dataset` object.
@@ -683,7 +711,7 @@ class Dataset(Database.Base):
         # TODO: this would be a good place to generate an audit log
 
         self.state = new_state
-        self.transition = datetime.datetime.now()
+        self.transition = datetime.datetime.utcnow()
         self.update()
 
     def add(self):

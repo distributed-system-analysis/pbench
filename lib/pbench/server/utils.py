@@ -1,6 +1,9 @@
+import datetime
 import os
 import shutil
 import sys
+
+from dateutil import parser as date_parser
 
 from pbench.server.database.models.datasets import Dataset, States, DatasetNotFound
 
@@ -88,3 +91,23 @@ def quarantine(dest, logger, *files):
                 'quarantine {} {!r}: "mv {} {}/" failed', dest, files, afile, dest
             )
             sys.exit(102)
+
+
+class IsoTimeHelper:
+    def __init__(self, time: datetime.datetime):
+        self.utc_time = time
+        if (
+            self.utc_time.tzinfo is None
+            or self.utc_time.tzinfo.utcoffset(self.utc_time) is None
+        ):
+            self.utc_time = self.utc_time.replace(tzinfo=datetime.timezone.utc)
+
+    @classmethod
+    def from_string(cls, time: str) -> "IsoTimeHelper":
+        return cls(date_parser.parse(time))
+
+    def iso(self) -> str:
+        return self.utc_time.isoformat()
+
+    def __str__(self) -> str:
+        return self.iso()

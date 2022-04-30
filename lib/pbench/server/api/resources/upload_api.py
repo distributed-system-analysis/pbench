@@ -17,7 +17,7 @@ from pbench.server.database.models.datasets import (
     States,
 )
 from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
-from pbench.server.utils import filesize_bytes
+from pbench.server.utils import filesize_bytes, IsoTimeHelper
 
 
 class CleanupTime(Exception):
@@ -296,7 +296,8 @@ class Upload(Resource):
             # won't be committed to the database until the "advance" operation
             # at the end.
             try:
-                dataset.created = tarball.get_metadata()["pbench"]["date"]
+                metadata = tarball.get_metadata()
+                dataset.created = metadata["pbench"]["date"]
             except Exception as exc:
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,
@@ -330,7 +331,9 @@ class Upload(Resource):
                     value=str(tarball.tarball_path),
                 )
                 Metadata.setvalue(
-                    dataset=dataset, key=Metadata.DELETION, value=f"{deletion:%Y-%m-%d}"
+                    dataset=dataset,
+                    key=Metadata.DELETION,
+                    value=IsoTimeHelper(deletion).iso(),
                 )
             except Exception as e:
                 raise CleanupTime(
