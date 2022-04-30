@@ -3,14 +3,14 @@ from logging import Logger
 from pathlib import Path
 import re
 import shutil
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
-from dateutil import parser as date_parser
 import tarfile
 
 from pbench.common import selinux
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
+from pbench.server.utils import IsoTimeHelper
 
 
 class FiletreeError(Exception):
@@ -242,7 +242,7 @@ class Tarball:
 
         return cls(destination, controller)
 
-    def extract(self, path: Path) -> str:
+    def extract(self, path: str) -> str:
         """
         Extract a file from the tarball and return it as a string
 
@@ -262,7 +262,7 @@ class Tarball:
         except Exception as exc:
             raise MetadataError(self.tarball_path, exc)
 
-    def get_metadata(self) -> JSON:
+    def get_metadata(self) -> Dict[str, Any]:
         """
         Fetch the values in metadata.log from the tarball, and return a JSON
         document organizing the metadata by section.
@@ -274,11 +274,13 @@ class Tarball:
         metadata = ConfigParser()
         metadata.read_string(data)
 
+        created = IsoTimeHelper.from_string(metadata.get("pbench", "date"))
+
         return {
             "controller": {"hostname": metadata.get("controller", "hostname")},
             "pbench": {
                 "config": metadata.get("pbench", "config"),
-                "date": date_parser.parse(metadata.get("pbench", "date"), None),
+                "date": created.utc_time,
                 "script": metadata.get("pbench", "script"),
                 "version": metadata.get("pbench", "rpm-version"),
             },

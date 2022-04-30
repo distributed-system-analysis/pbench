@@ -6,18 +6,18 @@ import os
 
 import humanize
 from flask import jsonify, request
-from flask_restful import Resource, abort
+from flask_restful import abort, Resource
 
-from pbench.common.utils import validate_hostname, Cleanup
-from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
+from pbench.common.utils import Cleanup, validate_hostname
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetDuplicate,
-    States,
     Metadata,
+    States,
 )
-from pbench.server.utils import filesize_bytes
+from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
+from pbench.server.utils import IsoTimeHelper, filesize_bytes
 
 
 class CleanupTime(Exception):
@@ -296,7 +296,8 @@ class Upload(Resource):
             # won't be committed to the database until the "advance" operation
             # at the end.
             try:
-                dataset.created = tarball.get_metadata()["pbench"]["date"]
+                metadata = tarball.get_metadata()
+                dataset.created = metadata["pbench"]["date"]
             except Exception as exc:
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,
@@ -330,7 +331,9 @@ class Upload(Resource):
                     value=str(tarball.tarball_path),
                 )
                 Metadata.setvalue(
-                    dataset=dataset, key=Metadata.DELETION, value=f"{deletion:%Y-%m-%d}"
+                    dataset=dataset,
+                    key=Metadata.DELETION,
+                    value=IsoTimeHelper(deletion).iso(),
                 )
             except Exception as e:
                 raise CleanupTime(
