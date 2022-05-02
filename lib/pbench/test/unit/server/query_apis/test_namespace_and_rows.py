@@ -25,7 +25,7 @@ class TestSamplesNamespace(Commons):
             cls_obj=SampleNamespace(client.config, client.logger),
             pbench_endpoint="/datasets/namespace/iterations",
             elastic_endpoint="/_search",
-            payload={"run_id": "random_md5_string1"},
+            payload={"name": "drb"},
             index_from_metadata="result-data-sample",
         )
 
@@ -404,7 +404,7 @@ class TestSampleValues(Commons):
             cls_obj=SampleValues(client.config, client.logger),
             pbench_endpoint="/datasets/values/iterations",
             elastic_endpoint="/_search",
-            payload={"run_id": "random_md5_string1"},
+            payload={"name": "drb"},
             index_from_metadata="result-data-sample",
         )
 

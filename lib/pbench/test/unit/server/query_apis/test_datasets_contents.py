@@ -23,7 +23,7 @@ class TestDatasetsContents(Commons):
             cls_obj=DatasetsContents(client.config, client.logger),
             pbench_endpoint="/datasets/contents",
             elastic_endpoint="/_search",
-            payload={"run_id": "random_md5_string1", "parent": "/1-default"},
+            payload={"name": "drb", "parent": "/1-default"},
             index_from_metadata="run-toc",
         )
 
@@ -464,7 +464,7 @@ class TestDatasetsContents(Commons):
         if expected_status == HTTPStatus.NOT_FOUND:
             res_json = response.json
             expected_result = {
-                "message": "No directory '/1-default' in 'random_md5_string1' contents."
+                "message": "No directory '/1-default' in 'drb' contents."
             }
             assert expected_result == res_json
 

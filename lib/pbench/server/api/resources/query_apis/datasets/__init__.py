@@ -16,10 +16,14 @@ from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 
 
-class MissingRunIdSchemaParameter(SchemaError):
+class MissingDatasetNameParameter(SchemaError):
     """
-    The subclass schema is missing the required "run_id" parameter required
+    The subclass schema is missing the required "name" parameter required
     to locate a Dataset.
+
+    NOTE: This is a development error, not a client error, and will be raised
+    when the API is initialized at server startup. Arguably, this could be an
+    `assert` since it prevents launching the server.
     """
 
     def __init__(self, subclass_name: str):
@@ -27,23 +31,22 @@ class MissingRunIdSchemaParameter(SchemaError):
         self.subclass_name = subclass_name
 
     def __str__(self) -> str:
-        return f"API {self.subclass_name} is missing schema parameter run_id"
+        return f"API {self.subclass_name} is missing schema parameter `name`"
 
 
-class RunIdBase(ElasticBase):
+class IndexMapBase(ElasticBase):
     """
     A base class for query apis that depends on Metadata for getting the
     indices.
 
     This class extends the ElasticBase class and implements a common
-    `preprocess` method based on client provided run id. The subsequent methods
-    such as 'assemble' and 'postprocess' need to be implemented by a respective
+    `preprocess` method based on client provided dataset name. The ElasticBase
+    methods 'assemble' and 'postprocess' must be implemented by the respective
     subclasses.
 
-    Note that run_id is a required schema parameter for all the
-    classes inheriting this class. Also "preprocess" provides json context
-    containing dataset and a run_id that's passed to the assemble and
-    postprocess methods.
+    Note that dataset `name` is a required schema parameter for all the classes
+    extending this class. The common "preprocess" provides json context with a
+    dataset that's passed to the assemble and postprocess methods.
     """
 
     # Mapping for client friendly ES index names and ES internal index names
@@ -78,8 +81,8 @@ class RunIdBase(ElasticBase):
     }
 
     def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
-        if "run_id" not in schema:
-            raise MissingRunIdSchemaParameter(self.__class__.__name__)
+        if "name" not in schema:
+            raise MissingDatasetNameParameter(self.__class__.__name__)
         super().__init__(config, logger, schema)
 
     def preprocess(self, client_json: JSON) -> CONTEXT:
@@ -88,36 +91,32 @@ class RunIdBase(ElasticBase):
         request is authorized for this dataset.
 
         If the user has authorization to read the dataset, return the Dataset
-        object and run_id as JSON CONTEXT so that the postprocess operations
-        can use it to identify the index to be searched from document index
-        metadata.
-
-        Raises:
-        APIAbort: input can't be validated or normalized
+        object in the JSON CONTEXT so that subclass operations can use it.
         """
-        run_id = client_json["run_id"]
+        dataset_name = client_json["name"]
 
         # Query the dataset using the given run id
         try:
-            dataset = Dataset.query(md5=run_id)
+            dataset = Dataset.query(name=dataset_name)
         except DatasetNotFound:
             raise APIAbort(
-                HTTPStatus.NOT_FOUND, f"No datasets with Run ID '{run_id!r}' found."
+                HTTPStatus.NOT_FOUND, f"Dataset {dataset_name!r} not found."
             )
         owner = User.query(id=dataset.owner_id)
         if not owner:
             self.logger.error(
-                f"Dataset owner ID { dataset.owner_id!r} cannot be found in Users"
+                "Dataset owner ID {!r} cannot be found in Users", dataset.owner_id
             )
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
-        # We check authorization against the ownership of the dataset that
-        # was selected rather than having an explicit "user"
-        # JSON parameter. This will raise UnauthorizedAccess on failure.
+
+        # We check authorization against the ownership of the dataset that was
+        # selected rather than having an explicit "user" JSON parameter. This
+        # will raise UnauthorizedAccess on failure.
         self._check_authorization(owner.username, dataset.access)
 
-        # The dataset exists, and authenticated user has enough access so continue
+        # The dataset exists, and authenticated user has access, so continue
         # the operation with the appropriate CONTEXT.
-        return {"dataset": dataset, "run_id": run_id}
+        return {"dataset": dataset}
 
     def get_index(self, dataset: Dataset, root_index_name: AnyStr) -> AnyStr:
         """
