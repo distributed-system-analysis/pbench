@@ -2,13 +2,13 @@ import copy
 import datetime
 import enum
 import os
-import re
 from pathlib import Path
+import re
 from typing import Any, List, Tuple, Union
 
-from sqlalchemy import event, Column, DateTime, Enum, ForeignKey, Integer, JSON, String
+from sqlalchemy import Column, DateTime, Enum, event, ForeignKey, Integer, JSON, String
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import relationship, validates
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from pbench.server.database.database import Database
 from pbench.server.database.models.users import User

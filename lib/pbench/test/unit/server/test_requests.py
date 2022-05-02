@@ -12,9 +12,9 @@ from pbench.server import PbenchServerConfig
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
+    Metadata,
     MetadataKeyError,
     States,
-    Metadata,
 )
 from pbench.server.filetree import FileTree, Tarball
 from pbench.test.unit.server.test_user_auth import login_user, register_user

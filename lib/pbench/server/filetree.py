@@ -9,7 +9,7 @@ from dateutil import parser as date_parser
 import tarfile
 
 from pbench.common import selinux
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
 
 

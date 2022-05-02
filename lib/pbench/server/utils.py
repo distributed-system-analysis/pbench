@@ -1,6 +1,6 @@
 import os
-import sys
 import shutil
+import sys
 
 from pbench.server.database.models.datasets import Dataset, States, DatasetNotFound
 

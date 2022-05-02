@@ -6,7 +6,7 @@ from typing import List
 from freezegun.api import freeze_time
 import pytest
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
 
 

@@ -6,17 +6,17 @@ import os
 
 import humanize
 from flask import jsonify, request
-from flask_restful import Resource, abort
+from flask_restful import abort, Resource
 
-from pbench.common.utils import validate_hostname, Cleanup
-from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
+from pbench.common.utils import Cleanup, validate_hostname
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetDuplicate,
-    States,
     Metadata,
+    States,
 )
+from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
 from pbench.server.utils import filesize_bytes
 
 
