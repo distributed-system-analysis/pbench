@@ -37,6 +37,10 @@ One Tool Meister instance is created per registered host, and then a single Tool
 
 Container images are provided for the constituent components of the Tool Meister sub-system, the Tool Meister image and the Tool Data Sink image.  The images allow for the orchestration of the Tool Meister sub-system to be handled by the user instead of automatically by the pbench-agent.
 
+### The "Tool Meister" Sub-System with No Tools
+
+While this is not a new feature of the Pbench Agent, it is worth noting that when no tools are registered, the "Tool Meister" sub-system is not deployed and the bench scripts still execute normally.
+
 
 ## All Tool Registration Handled Locally
 
@@ -63,6 +67,8 @@ A new category is introduced for Prometheus and PCP called "Persistent" tools. P
 
 When persistent tools are used, data is continuously collected from the data sources ("exporters", in the case of Prometheus, and "PMCDs", in the case of PCP) and stored local to the execution of the Tool Data Sink.
 
+Note that for transient tools, where data for the transient tool is collected locally on the host the tool is registered, the collected data is sent to the Tool Data Sink when the benchmark script deems it won't impact behavior of the benchmark itself.
+
 ### Prometheus tools: `node-exporter` and `dcgm`
 
 Two new pbench "tools" have been added, `node-exporter` and `dcgm`.  If one registers either or both of these new tools (e.g. via `pbench-register-tools --name=node-exporter`), then the Tool Meister sub-system will run the `node_exporter` code on the registered hosts, and a local instance of Prometheus to collect the data.  The collected Prometheus data is stored in the pbench result directory as a tar ball at: `${pbench_run}/<script>_<config>_YYYY.MM.DDTHH.mm.ss/tools-<group>/prometheus`.
@@ -78,6 +84,11 @@ Just like the new Prometheus based tools, you can register "PCP" as a persistent
 The PCP support also allows you to register PCP as a transient tool, where it is started and stopped around each benchmark invoked.  Use the name `pcp-transient` when registering (e.g. `pbench-register-tool --name=pcp-transient`).
 
 _**NOTE AS WELL**_: like all the other "tools" the `pbench-agent` supports, the `pcp` tools themselves need to be installed separately on the registered hosts.
+
+
+## Independence of Pbench Agent "tool" Scripts
+
+The tool scripts the Pbench Agent uses to collect data can be run independent of the rest of the Pbench Agent so that users can verify they collect data as expected.
 
 
 ## Removal of gratuitous software installation, only checks for requirements
@@ -153,6 +164,8 @@ In addition to the major changes described above for this release, the following
  * The release takes in the latest code from stockpile, including support for GPU data collection via the [Nvidia SMI](https://github.com/cloud-bulldozer/stockpile/tree/master/roles/nvidia_smi) role
 
  * The new `dcgm` tool requires Python 2, an Nvidia based install which might conflict with the Pbench Agent's Python 3 operational requirement in some cases
+
+ * Python based `click` CLI work towards "verb noun" structure
 
 
 Installation
