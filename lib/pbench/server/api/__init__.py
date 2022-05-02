@@ -34,7 +34,6 @@ from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetai
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
-from pbench.server.api.resources.query_apis.month_indices import MonthIndices
 from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
 from pbench.server.database import init_db
@@ -54,11 +53,6 @@ def register_endpoints(api, app, config):
 
     logger.info("Registering service endpoints with base URI {}", base_uri)
 
-    api.add_resource(
-        MonthIndices,
-        f"{base_uri}/controllers/months",
-        resource_class_args=(config, logger),
-    )
     api.add_resource(
         DatasetsContents,
         f"{base_uri}/datasets/contents",
