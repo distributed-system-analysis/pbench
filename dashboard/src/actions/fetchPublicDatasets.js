@@ -10,6 +10,7 @@ export const fetchPublicDatasets=()=>async(dispatch)=>{
               Accept: "application/json",
               Authorization: `Bearer`,
             }});
+            dispatch({type:types.COMPLETED})
             return response;
     } catch (error) {
         return error;        

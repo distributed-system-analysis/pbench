@@ -4,11 +4,6 @@ import "./index.css";
 import {
   ToggleGroup,
   ToggleGroupItem,
-  Page,
-  Masthead,
-  MastheadToggle,
-  PageSidebar,
-  PageToggleButton,
   PageSection,
   PageSectionVariants,
 } from "@patternfly/react-core";
@@ -20,21 +15,20 @@ import {
   Tbody,
   Td,
 } from "@patternfly/react-table";
-import BarsIcon from "@patternfly/react-icons/dist/js/icons/bars-icon";
 import SearchBox from "../SearchComponent";
 import DatePickerWidget from "../DatePickerComponent";
 import Heading from "../HeadingComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
 import AlertMessage from "../AlertComponent";
-import NavItems from "../NavbarComponent";
 import EmptyTable from "../EmptyStateComponent";
 import moment from "moment";
 import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
 import TablePagination from "../PaginationComponent";
 import { constructUTCDate } from "../../../utils/constructDate";
 import { formatDate } from "../../../utils/dateFormatter";
-let startDate =new Date(Date.UTC(1990, 10, 4));
-let endDate = constructUTCDate(new Date(formatDate(new Date())))
+import MainLayout from "../../containers/MainLayout";
+let startDate = new Date(Date.UTC(1990, 10, 4));
+let endDate = constructUTCDate(new Date(formatDate(new Date())));
 let controllerName = "";
 let dataArray = [];
 export const TableWithFavorite = () => {
@@ -48,7 +42,6 @@ export const TableWithFavorite = () => {
   const [favoriteRepoNames, setFavoriteRepoNames] = useState([]);
   const [publicData, setPublicData] = useState([]);
   const [isSelected, setIsSelected] = useState("controllerListButton");
-  const [isNavOpen, setIsNavOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const dispatch = useDispatch();
@@ -56,7 +49,7 @@ export const TableWithFavorite = () => {
     dispatch(fetchPublicDatasets())
       .then((res) => {
         dataArray = res.data;
-        setPublicData(res.data); 
+        setPublicData(res.data);
         setFavoriteRepoNames(
           localStorage.getItem("favControllers") !== null
             ? JSON.parse(localStorage.getItem("favControllers"))
@@ -81,11 +74,9 @@ export const TableWithFavorite = () => {
     isSelected === "controllerListButton"
       ? publicData.slice((page - 1) * perPage, page * perPage)
       : favoriteRepoNames.slice((page - 1) * perPage, page * perPage);
-  const onNavToggle = () => {
-    setIsNavOpen(!isNavOpen);
-  };
 
-  const isRepoFavorited = (repo) => !!favoriteRepoNames.find(element=>element.name===repo.name)
+  const isRepoFavorited = (repo) =>
+    !!favoriteRepoNames.find((element) => element.name === repo.name);
   const getSortableRowValues = (publicData) => {
     const { controller, name } = publicData;
     const creationDate = publicData.metadata["dataset.created"];
@@ -131,23 +122,9 @@ export const TableWithFavorite = () => {
   const saveFavorites = (fav) => {
     localStorage.setItem("favControllers", JSON.stringify(fav));
   };
-  const Sidebar = (
-    <PageSidebar nav={<NavItems />} className="sidebar" isNavOpen={isNavOpen} />
-  );
-  const NavbarDrawer = () => {
-    return (
-      <Masthead id="basic">
-        <MastheadToggle>
-          <PageToggleButton isNavOpen={isNavOpen} onNavToggle={onNavToggle}>
-            <BarsIcon />
-          </PageToggleButton>
-        </MastheadToggle>
-      </Masthead>
-    );
-  };
   return (
     <>
-      <Page header={<NavbarDrawer />} sidebar={Sidebar}>
+      <MainLayout>
         <AlertMessage
           message="Want to see your own data?"
           link="Login to your account"
@@ -238,7 +215,7 @@ export const TableWithFavorite = () => {
             setPerPage={setPerPage}
           />
         </PageSection>
-      </Page>
+      </MainLayout>
     </>
   );
 };
