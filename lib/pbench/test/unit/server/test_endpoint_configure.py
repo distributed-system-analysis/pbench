@@ -38,15 +38,8 @@ class TestEndpointConfig:
         uri_prefix = server_config.rest_uri
         host = "http://" + host
         uri = urljoin(host, uri_prefix)
-        prefix = server_config.get("Indexing", "index_prefix")
         expected_results = {
             "identification": f"Pbench server {server_config.COMMIT_ID}",
-            "indices": {
-                "run_index": f"{prefix}.v6.run-data.",
-                "run_toc_index": f"{prefix}.v6.run-toc.",
-                "result_index": f"{prefix}.v5.result-data-sample.",
-                "result_data_index": f"{prefix}.v5.result-data.",
-            },
             "api": {
                 # API endpoints with trailing Flask parameters are marked with
                 # a trailing "/" here; for example, /datasets/mappings/

@@ -46,7 +46,6 @@ class EndpointConfig(Resource):
         """
         self.logger = logger
         self.uri_prefix = config.rest_uri
-        self.prefix = config.get("Indexing", "index_prefix")
         self.commit_id = config.COMMIT_ID
 
     def get(self):
@@ -54,20 +53,6 @@ class EndpointConfig(Resource):
         Return server configuration information required by web clients
         including the Pbench dashboard UI. This includes:
 
-        indices: Information about the server's ES indices. (NOTE: once
-                we've removed all direct Elasticsearch queries from the
-                dashboard, these won't be necessary.)
-            result_index: The "root" index name for Pbench result data,
-                qualified by the current index version and prefix. In the
-                current ES schema, this is "v5.result-data-sample."
-            result_data_index: The "result-data" index has been broken into
-                "result-data-sample" and "result-data" indices for the
-                Elasticsearch V7 transition. In the current ES schema, this
-                is "v5.result-data."
-            run_index: The "master" run-data index root. In the current ES
-                schema, this is "v6.run-data."
-            run_toc_index: The Elasticsearch V7 index for run TOC data. In
-                the current ES schema, this is "v6.run-toc."
         identification: The Pbench server name and version
         api:    A dict of the server APIs supported; we give a name, which
                 identifies the service, and the full URI relative to the
@@ -80,16 +65,6 @@ class EndpointConfig(Resource):
                 set changes). We supplement the Flask API list with the
                 "results" API, which is currently just an Apache public_html
                 file mapping but is referenced by the dashboard code.
-
-        TODO: We need an internal mechanism to track the active versions of the
-        various Elasticsearch template documents. We're hardcoding them here and
-        in other APIs. We should consider persisting an equivalent of the
-        mapping table built in "indexer.py" for use across the server APIs.
-
-        TODO: We provide Elasticsearch index root names here, which the dashboard
-        code needs to perform the queries we've not yet replaced with server-side
-        implementations. The entire "indices" section can be removed once that is
-        resolved.
         """
         self.logger.debug(
             "Received headers: {!r}, access_route {!r}, base_url {!r}, host {!r}, host_url {!r}",
@@ -167,12 +142,6 @@ class EndpointConfig(Resource):
         try:
             endpoints = {
                 "identification": f"Pbench server {self.commit_id}",
-                "indices": {
-                    "run_index": f"{self.prefix}.v6.run-data.",
-                    "run_toc_index": f"{self.prefix}.v6.run-toc.",
-                    "result_index": f"{self.prefix}.v5.result-data-sample.",
-                    "result_data_index": f"{self.prefix}.v5.result-data.",
-                },
                 "api": apis,
             }
             response = jsonify(endpoints)
