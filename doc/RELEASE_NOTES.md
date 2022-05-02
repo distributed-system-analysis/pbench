@@ -9,6 +9,7 @@ primarily to deliver the new "Tool Meister" sub-system.  It also delivers:
  * Removal of gratuitous software installation, only checks for requirements
    * True for both tools and benchmark script requirements
    * Change to check command versions instead of RPM versions for `pbench-fio`, `pbench-linpack`, and `pbench-uperf`
+ * The `pbench-linpack` benchmark script now provides result graphs, JSON data files, and supports execution on one or more local / remote hosts
  * Required use of `--user` with `pbench-move-results`/`pbench-copy-results`
  * Latent support for new HTTP PUT method of posting tar balls
  * Removal of the dependency on the SCL (Software Collections Library)
@@ -86,6 +87,15 @@ The software required to run a particular benchmark, or a particular tool, is no
 ### Change to check command versions instead of RPM versions for `pbench-fio`, `pbench-linpack`, and `pbench-uperf`
 
 The `pbench-fio`, `pbench-linpack`, and `pbench-uperf` no longer perform version checks against RPMs for the required software to execute.  For both `pbench-fio` and `pbench-perf` the reported version string is used from the benchmark command itself.  For `pbench-linpack`, the expected installation directory name is used.
+
+
+## Enhancements to `pbench-linpack`
+
+New `--clients` argument
+
+New `linpack` driver script, can be executed stand-alone
+
+Special thanks to Lukas Doktor for his work on implementing these changes.
 
 
 ## Required Use of `--user` with `pbench-move/copy-results`
