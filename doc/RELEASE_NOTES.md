@@ -1,8 +1,6 @@
-v0.71.0-alpha.0 (Alpha)
-====
+This is a very *significant* "minor" release of the pbench-agent code base, primarily to deliver the new "Tool Meister" sub-system.
 
-This is a very *significant* "minor" release of the pbench-agent code base,
-primarily to deliver the new "Tool Meister" sub-system.  It also delivers:
+It also delivers:
 
  * Support for RHEL 9 & CentOS 9
  * Tool registration kept local to the host where registration happens
