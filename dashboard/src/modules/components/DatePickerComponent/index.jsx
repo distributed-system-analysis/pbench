@@ -18,21 +18,23 @@ function DatePickerWidget({
   setDateRange,
 }) {
   const [fromDate, setFromDate] = useState({});
-  const [strDate, setStrDate] = useState(formatDate(new Date()));
-  const [toDate, setToDate] = useState(constructUTCDate(new Date(strDate)));
+  // const [toDate,setToDate]=useState(constructUTCDate(new Date(formatDate(new Date()))))
+  const [toDate,setToDate]=useState(constructUTCDate(formatDate(new Date())))
+  const strDate=formatDate(toDate)
+  console.log(fromDate,toDate)
   const toValidator = (date) =>
     date >= fromDate
       ? ""
       : "To date must be greater than or equal to from date";
 
   const onFromChange = (_str, date) => {
-    setFromDate(isValidDate(date) ? constructUTCDate(new Date(_str)) : {});
+    const selectedDate=constructUTCDate(_str);
+    setFromDate(isValidDate(date) ? selectedDate : {});
     if (isValidDate(date)) {
       if (date > toDate) {
-        let selectedDate = new Date(_str);
-        selectedDate.setDate(selectedDate.getDate() + 1);
-        setToDate(constructUTCDate(selectedDate));
-        setStrDate(formatDate(selectedDate));
+        const selectedToDate=new Date(selectedDate)
+        selectedToDate.setUTCDate(selectedToDate.getUTCDate() + 1);
+        setToDate(selectedToDate);
       }
     }
   };
@@ -53,8 +55,7 @@ function DatePickerWidget({
       <DatePicker
         value={strDate}
         onChange={(_str, date) => {
-          setStrDate(_str);
-          setToDate(constructUTCDate(new Date(_str)));
+          setToDate(constructUTCDate(_str));
         }}
         isDisabled={!isValidDate(fromDate)}
         rangeStart={fromDate}

@@ -7,6 +7,7 @@
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@patternfly/patternfly": "^4.183.1",
     "@patternfly/react-core": "^4.198.19",
+    "@patternfly/react-table": "^4.75.2",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",

@@ -2,7 +2,7 @@ import React,{useState} from "react";
 import "./index.css"
 import { InputGroup, TextInput, Button } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import { filterData } from "../../../utils/filterDataset";
+import { filterData } from "utils/filterDataset";
 function SearchBox({
   dataArray,
   setPublicData,

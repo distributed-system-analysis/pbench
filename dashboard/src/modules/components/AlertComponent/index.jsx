@@ -1,8 +1,11 @@
 import { Alert, AlertActionCloseButton } from "@patternfly/react-core";
-import "./index.css"
+import { useNavigate } from "react-router-dom";
+import "./index.css";
 import React from "react";
+import { AUTH_LOGIN } from "utils/routeConstants";
 
 function AlertMessage({ message, link }) {
+  const navigate = useNavigate();
   return (
     <Alert
       className="alertNotification"
@@ -18,7 +21,7 @@ function AlertMessage({ message, link }) {
       }
       title={[
         `${message}`,
-        <a className="alertHelpText">
+        <a className="alertHelpText" onClick={() => navigate(`/${AUTH_LOGIN}`)}>
           {link}
         </a>,
       ]}
