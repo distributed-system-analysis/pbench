@@ -86,6 +86,15 @@ The PCP support also allows you to register PCP as a transient tool, where it is
 _**NOTE AS WELL**_: like all the other "tools" the `pbench-agent` supports, the `pcp` tools themselves need to be installed separately on the registered hosts.
 
 
+## CLI Interfaces to the Tool Meister Sub-system
+
+Two new CLI command are provided to start and stop the Tool Meister sub-system, `pbench-tool-meister-start` and `pbench-tool-meister-stop`.  These two interfaces are mostly used by the benchmark convenience scripts provided by the Pbench Agent.
+
+If you were using the `pbench-start-tools`, `pbench-stop-tools`, and `pbench-postprocess-tools` before, you must now invoke `pbench-tool-meister-start` before using the start/stop/postprocess tool interfaces.
+
+Further the `pbench-send-tools` CLI interface has been added to instruct the Tool Meister sub-system when it is time to send the collected data from transient tools to the Tool Data Sink.  The typical sequence is to "start", "stop", "send", "post-process".  Now you can "send" and "post-process" the transient tool data any time before `pbench-tool-meister-stop` is called.
+
+
 ## Independence of Pbench Agent "tool" Scripts
 
 The tool scripts the Pbench Agent uses to collect data can be run independent of the rest of the Pbench Agent so that users can verify they collect data as expected.
@@ -116,9 +125,9 @@ In preparation for the forth-coming update to the Pbench Server, where the notio
 
 ## Latent Support for New HTTP PUT Method of Posting Tar Balls
 
-In preparation for the forth-coming update to the Pbench Server, support for sending data to a Pbench Server via an HTTP PUT method has been introduced. The new command, `pbench-results-move`, provides that functionality.  A token must be generated for the given user via the new `pbench-generate-token` command.
+In preparation for the forth-coming update to the Pbench Server, support for sending data to a Pbench Server via an HTTP PUT method has been introduced. The new commands, `pbench-results-move` and `pbench-results-push`, provide that functionality.  A token must be generated for the given user via the new `pbench-generate-token` command.
 
-The new `pbench-results-move` will not work with the currently released versions of the Pbench Server (v0.69).  Please consult with a Pbench Server administrator for when the new version will be available for testing purposes, or officially released.
+The new `pbench-results-move` and `pbench-results-push` will not work with currently released versions of the Pbench Server (v0.69).  Please consult with a Pbench Server administrator for when the new version will be available for testing purposes, and/or officially released.
 
 
 ## Removal of the Use of SCL (Software Collections Library)
@@ -135,7 +144,9 @@ With the release of v0.71 support for `pbench-trafficgen` has been removed in it
 Future work on supporting benchmarks will be approached by working to have the Pbench Agent integrate with separate software packages that are dedicated to running benchmarks (unlike the Pbench Agent which only provides convenience interfaces).
 
 
-## Deprecated Bench Scripts
+## Deprecation Notices and Removals
+
+### Deprecated Bench Scripts
 
 The following `bench-scripts` have been deprecated with this release, and will be removed entirely in the next release:
 
@@ -148,24 +159,36 @@ The following `bench-scripts` have been deprecated with this release, and will b
 | `pbench-migrate`       | No replacement provided |
 | `pbench-netperf`       | Consider using `pbench-uperf` instead |
 
+### Other Deprecated Interfaces
+
+ * [_**DEPRECATED**_] The `pbench-cleanup` utility command is deprecated, and will be removed in a subsequent release (see PR #1828)
+
+### Removal of Deprecated Interfaces
+
+ * Removed the deprecated `pbench-fio --remote-only` option
+
+### Remove
+
+
+## Semi-Public CLI Additions, Changes, and Removals
+
+There are a number of Pbench Agent CLI interfaces which are primarily used internal to the Pbench Agent code base, but happen to be made available along side the other CLI interfaces.
+
+Here are a few changes you should be aware of if you rely on any of these interfaces:
+
+ * The `getconf.py` command is replaced by `pbench-config`
+ * The following interfaces have been removed entirely and folded into the operation of the Tool Meister sub-system itself
+   * `pbench-collect-sysinfo`, `pbench-metadata-log`, and `pbench-sysinfo-dump`
+
 
 ## Many, many, bug fixes and behavioral improvements
 
 In addition to the major changes described above for this release, the following significant changes for the agent are also worth calling out specifically:
 
- * The `pbench-fio` bench script now requires `fio-3.21` or later; see 5048a149
-
-   * You can find a [Fedora COPR](https://copr.fedorainfracloud.org/coprs/portante/pbench/) build of `fio-3.21-6.pbench` for EPEL 7 & 8
-
- * Removed the deprecated `pbench-fio --remote-only` option
-
- * [_**DEPRECATED**_] The `pbench-cleanup` utility command is deprecated, and will be removed in a subsequent release (see PR #1828)
-
  * The release takes in the latest code from stockpile, including support for GPU data collection via the [Nvidia SMI](https://github.com/cloud-bulldozer/stockpile/tree/master/roles/nvidia_smi) role
-
  * The new `dcgm` tool requires Python 2, an Nvidia based install which might conflict with the Pbench Agent's Python 3 operational requirement in some cases
-
  * Python based `click` CLI work towards "verb noun" structure
+   * E.g. this shows up in the latetnt `pbench-results-move` interface for the new HTTP PUT method of submitting tar balls to the Pbench Server
 
 
 Installation
