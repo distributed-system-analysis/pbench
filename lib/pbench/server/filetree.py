@@ -10,7 +10,7 @@ import tarfile
 from pbench.common import selinux
 from pbench.server import PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
-from pbench.server.utils import IsoTimeHelper
+from pbench.server.utils import UtcTimeHelper
 
 
 class FiletreeError(Exception):
@@ -274,7 +274,7 @@ class Tarball:
         metadata = ConfigParser()
         metadata.read_string(data)
 
-        created = IsoTimeHelper.from_string(metadata.get("pbench", "date"))
+        created = UtcTimeHelper.from_string(metadata.get("pbench", "date"))
 
         return {
             "controller": {"hostname": metadata.get("controller", "hostname")},

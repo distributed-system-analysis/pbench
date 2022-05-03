@@ -17,7 +17,7 @@ from pbench.server.database.models.datasets import (
     States,
 )
 from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
-from pbench.server.utils import IsoTimeHelper, filesize_bytes
+from pbench.server.utils import UtcTimeHelper, filesize_bytes
 
 
 class CleanupTime(Exception):
@@ -333,7 +333,7 @@ class Upload(Resource):
                 Metadata.setvalue(
                     dataset=dataset,
                     key=Metadata.DELETION,
-                    value=IsoTimeHelper(deletion).iso(),
+                    value=UtcTimeHelper(deletion).to_iso_string(),
                 )
             except Exception as e:
                 raise CleanupTime(

@@ -14,7 +14,7 @@ from pbench.server.api.resources.query_apis import (
     ElasticBase,
     PostprocessError,
 )
-from pbench.server.utils import IsoTimeHelper
+from pbench.server.utils import UtcTimeHelper
 
 
 class DatasetsSearch(ElasticBase):
@@ -82,8 +82,8 @@ class DatasetsSearch(ElasticBase):
         # If no fields are specified, the query will return all the fields from Elasticsearch hits
         selected_fields = json_data.get("fields", [])
 
-        start_arg = IsoTimeHelper(start).iso()
-        end_arg = IsoTimeHelper(end).iso()
+        start_arg = UtcTimeHelper(start).to_iso_string()
+        end_arg = UtcTimeHelper(end).to_iso_string()
 
         self.logger.info(
             "Search query for user {}, prefix {}: ({} - {}) on query: {}",

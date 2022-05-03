@@ -93,21 +93,47 @@ def quarantine(dest, logger, *files):
             sys.exit(102)
 
 
-class IsoTimeHelper:
+class UtcTimeHelper:
+    """
+    A helper class to work with UTC "aware" datetime objects. A "naive" object
+    (without timezone offset) will be set to UTC timezone.
+    """
+
     def __init__(self, time: datetime.datetime):
+        """
+        Capture a datetime object and; if it's "naive", set it to be UTC; if
+        it's already "aware", adjust it to UTC.
+
+        Args:
+            time:   An aware or naive datetime object
+        """
         self.utc_time = time
-        if (
-            self.utc_time.tzinfo is None
-            or self.utc_time.tzinfo.utcoffset(self.utc_time) is None
-        ):
+        if self.utc_time.utcoffset() is None:
             self.utc_time = self.utc_time.replace(tzinfo=datetime.timezone.utc)
+        else:
+            self.utc_time = self.utc_time.astimezone(datetime.timezone.utc)
 
     @classmethod
-    def from_string(cls, time: str) -> "IsoTimeHelper":
+    def from_string(cls, time: str) -> "UtcTimeHelper":
+        """
+        Alternate constructor to build an object by parsing a date-time string.
+
+        Args:
+            time:   Standard parseable date-time string
+
+        Returns:
+            UtcTimeHelper object
+        """
         return cls(date_parser.parse(time))
 
-    def iso(self) -> str:
+    def to_iso_string(self) -> str:
+        """
+        Return an ISO 8601 standard date/time string.
+        """
         return self.utc_time.isoformat()
 
     def __str__(self) -> str:
-        return self.iso()
+        """
+        Define str() to return the standard ISO time string
+        """
+        return self.to_iso_string()

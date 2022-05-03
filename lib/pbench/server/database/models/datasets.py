@@ -314,6 +314,10 @@ def current_time() -> datetime.datetime:
     """
     Return the current time in UTC.
 
+    This provides a Callable that can be specified in the SQLAlchemy Column
+    to generate an appropriate (aware UTC) datetime object when a Dataset
+    object is created.
+
     Returns:
         Current UTC timestamp
     """
@@ -337,7 +341,7 @@ class TZDateTime(TypeDecorator):
         objects are converted to UTC and made "naive" by replacing the TZ
         for SQL storage.
         """
-        if value is not None and not value.tzinfo:
+        if value is not None and value.utcoffset() is not None:
             value = value.astimezone(datetime.timezone.utc).replace(tzinfo=None)
         return value
 

@@ -1,16 +1,14 @@
 from http import HTTPStatus
-from typing import NamedTuple
-
-from email_validator import EmailNotValidError
-from flask import jsonify, make_response, request
-from flask_restful import abort, Resource
-from flask_bcrypt import check_password_hash
 import jwt
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-
-from pbench.server.api.auth import Auth
-from pbench.server.database.models.active_tokens import ActiveTokens
+from flask import request, jsonify, make_response
+from flask_restful import Resource, abort
+from flask_bcrypt import check_password_hash
+from email_validator import EmailNotValidError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from typing import NamedTuple
 from pbench.server.database.models.users import User
+from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.api.auth import Auth
 
 
 class RegisterUser(Resource):

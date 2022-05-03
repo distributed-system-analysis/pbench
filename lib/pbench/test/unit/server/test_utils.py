@@ -1,6 +1,9 @@
+import datetime
+
+from freezegun.api import freeze_time
 import pytest
 
-from pbench.server.utils import filesize_bytes
+from pbench.server.utils import UtcTimeHelper, filesize_bytes
 
 
 _sizes = [("  10  ", 10)]
@@ -35,3 +38,23 @@ class TestFilesizeBytes:
             ), f"string '{size}', improperly converted to {res}, expected {exp_val}"
         with pytest.raises(Exception):
             res = filesize_bytes("bad")
+
+
+class TestUtcTimeHelper:
+    @freeze_time("1970-01-01")
+    def test_naive(self):
+        d = UtcTimeHelper(datetime.datetime.now())
+        assert d.to_iso_string() == "1970-01-01T00:00:00+00:00"
+        assert d.utc_time.isoformat() == d.to_iso_string()
+
+    @freeze_time("2002-05-16T10:23+00:00")
+    def test_aware_utc(self):
+        d = UtcTimeHelper(datetime.datetime.now(datetime.timezone.utc))
+        assert d.to_iso_string() == "2002-05-16T10:23:00+00:00"
+
+    @freeze_time("2002-05-16T10:23-04:00")
+    def test_aware_local(self):
+        d = UtcTimeHelper(
+            datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-4)))
+        )
+        assert d.to_iso_string() == "2002-05-16T14:23:00+00:00"
