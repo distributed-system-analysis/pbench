@@ -133,6 +133,7 @@ import shutil
 import socket
 import sys
 import time
+from typing import Dict, Union
 
 from argparse import ArgumentParser, Namespace
 from distutils.spawn import find_executable
@@ -271,11 +272,9 @@ class StartTmsErr(ReturnCode.Err):
 def start_tms_via_ssh(
     exec_dir: Path,
     ssh_cmd: str,
-    ssh_path: Path,
     tool_group: ToolGroup,
     ssh_opts: str,
     redis_server: RedisServerCommon,
-    redis_client: redis.Redis,
     logger: logging.Logger,
 ) -> None:
     """Orchestrate the creation of local and remote Tool Meister instances using
@@ -296,8 +295,8 @@ def start_tms_via_ssh(
     cmd = f"{tool_meister_cmd} {redis_server.host} {redis_server.port} {{tm_param_key}} yes"
     if debug_level:
         cmd += f" {debug_level}"
-    template = TemplateSsh(ssh_cmd, shlex.split(ssh_opts), cmd)
-    tms = dict()
+    template = TemplateSsh(Path(ssh_cmd), shlex.split(ssh_opts), cmd)
+    tms: Dict[str, Union[str, int, Dict[str, str]]] = {}
     tm_count = 0
     for host in tool_group.hostnames.keys():
         tm_count += 1
@@ -412,11 +411,9 @@ class ToolDataSink(BaseServer):
     def start(
         self,
         exec_dir: Path,
-        full_hostname: str,
         tds_param_key: str,
         redis_server: RedisServerCommon,
         redis_client: redis.Redis,
-        logger: logging.Logger,
     ) -> None:
         assert (
             self.host is not None
@@ -581,7 +578,7 @@ port {redis_port:d}
         super().__init__(spec, def_host_name)
         self.pid_file = None
 
-    def start(self, tm_dir: Path, full_hostname: str, logger: logging.Logger) -> None:
+    def start(self, tm_dir: Path) -> None:
         """start_redis - configure and start a Redis server.
 
         Raises a BaseServer.Err exception if an error is encountered.
@@ -705,11 +702,11 @@ def terminate_no_wait(
     and we only check whether the message was sent.
 
     TODO: Ideally, we'd wait some reasonable time for a response from TDS and
-    then quit; we don't have that mechanism, but this means we may kill a
-    managed Redis instance before the requests propagate.
+        then quit; we don't have that mechanism, but this means we may kill a
+        managed Redis instance before the requests propagate.
 
     Args:
-        group: The tool group we're trying to terminate
+        tool_group_name: The tool group we're trying to terminate
         logger: Python Logger
         redis_client: Redis client
         key: TDS Redis pubsub key
@@ -767,6 +764,8 @@ def start(_prog: str, cli_params: Namespace) -> int:
     shf = logging.Formatter(f"{prog.name}: %(message)s")
     sh.setFormatter(shf)
     logger.addHandler(sh)
+    tm_dir = None
+    ssh_cmd = None
 
     # +
     # Step 1. - Load the tool group data for the requested tool group
@@ -1013,7 +1012,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         if orchestrate:
             logger.debug("2. starting redis server")
             try:
-                redis_server.start(tm_dir, full_hostname, logger)
+                redis_server.start(tm_dir)
             except redis_server.Err as exc:
                 raise CleanupTime(
                     exc.return_code, f"Failed to start a local Redis server: '{exc}'"
@@ -1122,12 +1121,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
             logger.debug("5. starting tool data sink")
             try:
                 tool_data_sink.start(
-                    prog.parent,
-                    full_hostname,
-                    tds_param_key,
-                    redis_server,
-                    redis_client,
-                    logger,
+                    prog.parent, tds_param_key, redis_server, redis_client
                 )
             except tool_data_sink.Err as exc:
                 raise CleanupTime(
@@ -1164,15 +1158,9 @@ def start(_prog: str, cli_params: Namespace) -> int:
 
         if orchestrate:
             try:
+                # FIXME:  Should we use ssh_path instead of ssh_cmd?
                 start_tms_via_ssh(
-                    prog.parent,
-                    ssh_cmd,
-                    Path(ssh_path),
-                    tool_group,
-                    ssh_opts,
-                    redis_server,
-                    redis_client,
-                    logger,
+                    prog.parent, ssh_cmd, tool_group, ssh_opts, redis_server, logger
                 )
             except StartTmsErr as exc:
                 raise CleanupTime(

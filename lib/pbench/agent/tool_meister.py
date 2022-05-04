@@ -663,9 +663,9 @@ class PcpTool(PersistentTool):
         if executable is None:
             return InstallationResult(returncode=1, output="pcp tool (pmcd) not found")
         # FIXME - The Tool Data Sink and Tool Meister have to agree on the
-        # exact port number to use.  We can't use the default `pmcd` port
-        # number because it might conflict with an existing `pmcd`
-        # deployment out of our control.
+        #     exact port number to use.  We can't use the default `pmcd` port
+        #     number because it might conflict with an existing `pmcd`
+        #     deployment out of our control.
         self.args = [
             executable,
             "--foreground",
@@ -1798,7 +1798,7 @@ class ToolMeister:
 def get_logger(
     logger_name: str, is_daemon: bool = False, level: str = "info"
 ) -> logging.Logger:
-    """Contruct a logger for a Tool Meister instance.
+    """Construct a logger for a Tool Meister instance.
 
     If in the Unit Test environment, just log to console.
     If in non-unit test environment:
