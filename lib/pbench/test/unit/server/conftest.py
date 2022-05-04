@@ -324,6 +324,49 @@ def attach_dataset(create_drb_user, create_user):
 
 
 @pytest.fixture()
+def more_datasets(
+    client, server_config, create_drb_user, create_admin_user, attach_dataset
+):
+    """
+    Supplement the conftest.py "attach_dataset" fixture with a few more
+    datasets so we can practice various queries. In combination with
+    attach_dataset, the resulting datasets are:
+
+        Owner   Access  Date        Name
+        ------- ------- ----------- ---------
+        drb     private 2020-02-15  drb
+        test    private 2002-05-16  test
+        drb     public  2020-02-15  fio_1
+        test    public  2002-05-16  fio_2
+
+    Args:
+        client: Provide a Flask API client
+        server_config: Provide a Pbench server configuration
+        create_drb_user: Create the "drb" user
+        create_admin_user: Create the "test_admin" user
+        attach_dataset: Provide some datasets
+    """
+    with freeze_time("1978-06-26 08:00:00"):
+        Dataset(
+            owner="drb",
+            created=datetime.datetime(2020, 2, 15),
+            uploaded=datetime.datetime(2022, 1, 1),
+            controller="node1",
+            name="fio_1",
+            access="public",
+            md5="random_md5_string3",
+        ).add()
+        Dataset(
+            owner="test",
+            created=datetime.datetime(2002, 5, 16),
+            controller="node2",
+            name="fio_2",
+            access="public",
+            md5="random_md5_string4",
+        ).add()
+
+
+@pytest.fixture()
 def provide_metadata(attach_dataset):
     """
     Create "real" metadata in the backing database, which will be accessible

@@ -3,7 +3,7 @@ import logging
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     API_OPERATION,
     ApiBase,
@@ -45,12 +45,17 @@ class DatasetsList(ApiBase):
             role=API_OPERATION.READ,
         )
 
-    def _get(self, json_data: JSON, request: Request) -> Response:
+    def _get(self, _, request: Request) -> Response:
         """
         Get a list of datasets matching a set of criteria.
 
         NOTE: This does not rely on a JSON payload to identify the dataset and
         desired metadata keys; instead we rely on URI query parameters.
+
+        Args:
+            json_data: For a GET, this contains only the Flask URI template
+                values, which aren't used here
+            request: The original Request object containing query parameters
 
         GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen,server.deletion
         """
@@ -58,11 +63,12 @@ class DatasetsList(ApiBase):
         # We missed automatic schema validation due to the lack of a JSON body;
         # construct an equivalent JSON body now so we can run it through the
         # validator.
-        new_json = self._validate_query_params(request, self.schema)
+        json = self._collect_query_params(request, self.schema)
+        new_json = self.schema.validate(json) if json else json
 
         # Validate the authenticated user's authorization for the combination
         # of "owner" and "access".
-        self._check_authorization(new_json.get("owner"), new_json.get("access"))
+        self._check_authorization(json.get("owner"), new_json.get("access"))
 
         # Build a SQLAlchemy Query object expressing all of our constraints
         query = Database.db_session.query(Dataset)
