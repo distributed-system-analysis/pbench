@@ -1,8 +1,6 @@
 from http import HTTPStatus
 from logging import Logger
 
-from flask_restful import abort
-
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     JSON,
@@ -65,14 +63,7 @@ class DatasetsContents(RunIdBase):
 
         # Retrieve the ES indices that belong to this run_id from the metadata
         # table
-
         indices = self.get_index(dataset, "run-toc")
-        if not indices:
-            self.logger.debug(
-                f"Found no indices matching the prefix run-toc"
-                f" for a dataset {dataset!r}"
-            )
-            abort(HTTPStatus.NOT_FOUND, message="Found no matching indices")
 
         return {
             "path": f"/{indices}/_search",

@@ -1,10 +1,9 @@
 from http import HTTPStatus
 from flask import jsonify
-from flask_restful import abort
 from logging import Logger
 
 from pbench.server import PbenchServerConfig, JSON
-from pbench.server.api.resources import Schema, Parameter, ParamType
+from pbench.server.api.resources import APIAbort, ParamType, Parameter, Schema
 from pbench.server.api.resources.query_apis import (
     CONTEXT,
     ElasticBase,
@@ -158,12 +157,11 @@ class DatasetsDetail(ElasticBase):
         try:
             m = self._get_metadata(src["run"]["name"], context["metadata"])
         except DatasetNotFound:
-            abort(
-                HTTPStatus.BAD_REQUEST,
-                message=f"Dataset {src['run']['name']} not found",
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST, f"Dataset {src['run']['name']} not found"
             )
         except MetadataError as e:
-            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+            raise APIAbort(HTTPStatus.BAD_REQUEST, str(e))
 
         if m:
             result["serverMetadata"] = m
