@@ -1,6 +1,4 @@
-import datetime
-
-from freezegun.api import freeze_time
+from dateutil import parser as date_parser
 import pytest
 
 from pbench.server.utils import UtcTimeHelper, filesize_bytes
@@ -41,20 +39,19 @@ class TestFilesizeBytes:
 
 
 class TestUtcTimeHelper:
-    @freeze_time("1970-01-01")
-    def test_naive(self):
-        d = UtcTimeHelper(datetime.datetime.now())
-        assert d.to_iso_string() == "1970-01-01T00:00:00+00:00"
-        assert d.utc_time.isoformat() == d.to_iso_string()
-
-    @freeze_time("2002-05-16T10:23+00:00")
-    def test_aware_utc(self):
-        d = UtcTimeHelper(datetime.datetime.now(datetime.timezone.utc))
-        assert d.to_iso_string() == "2002-05-16T10:23:00+00:00"
-
-    @freeze_time("2002-05-16T10:23-04:00")
-    def test_aware_local(self):
-        d = UtcTimeHelper(
-            datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-4)))
-        )
-        assert d.to_iso_string() == "2002-05-16T14:23:00+00:00"
+    @pytest.mark.parametrize(
+        "source,iso",
+        [
+            ("1970-01-01T00:00:00", "1970-01-01T00:00:00+00:00"),
+            ("2002-05-16T10:23+00:00", "2002-05-16T10:23:00+00:00"),
+            ("2002-05-16T10:23-04:00", "2002-05-16T14:23:00+00:00"),
+            ("2020-12-16T09:00:53+05:30", "2020-12-16T03:30:53+00:00"),
+        ],
+    )
+    def test_timehelper(self, source, iso):
+        d1 = UtcTimeHelper(date_parser.parse(source))
+        d2 = UtcTimeHelper.from_string(source)
+        assert d1.to_iso_string() == d2.to_iso_string()
+        assert d1.utc_time == d2.utc_time
+        assert d1.to_iso_string() == iso
+        assert d1.utc_time.isoformat() == d1.to_iso_string()

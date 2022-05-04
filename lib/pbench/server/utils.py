@@ -101,16 +101,16 @@ class UtcTimeHelper:
 
     def __init__(self, time: datetime.datetime):
         """
-        Capture a datetime object and; if it's "naive", set it to be UTC; if
+        Capture a datetime object: if it's "naive", set it to be UTC; if
         it's already "aware", adjust it to UTC.
 
         Args:
             time:   An aware or naive datetime object
         """
         self.utc_time = time
-        if self.utc_time.utcoffset() is None:
+        if self.utc_time.utcoffset() is None:  # naive
             self.utc_time = self.utc_time.replace(tzinfo=datetime.timezone.utc)
-        else:
+        elif self.utc_time.utcoffset():  # Not UTC
             self.utc_time = self.utc_time.astimezone(datetime.timezone.utc)
 
     @classmethod
