@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 import pytest
-from werkzeug.exceptions import InternalServerError
+from pbench.server.api.resources import APIAbort
 
 from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
@@ -764,9 +764,9 @@ class TestSampleValues(Commons):
         test = Dataset.query(name="test")
 
         # When server index_map is None we expect 500
-        with pytest.raises(InternalServerError) as exc:
+        with pytest.raises(APIAbort) as exc:
             self.cls_obj.get_index(test, self.index_from_metadata)
-        assert exc.value.code == HTTPStatus.INTERNAL_SERVER_ERROR
+        assert exc.value.http_status == HTTPStatus.INTERNAL_SERVER_ERROR
 
         Metadata.setvalue(
             dataset=test,

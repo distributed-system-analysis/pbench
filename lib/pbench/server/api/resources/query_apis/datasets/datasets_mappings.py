@@ -3,14 +3,14 @@ from logging import Logger
 
 from flask import jsonify
 from flask.wrappers import Request, Response
-from flask_restful import abort
 
 from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.resources import (
+    APIAbort,
     ApiBase,
-    Schema,
-    Parameter,
     ParamType,
+    Parameter,
+    Schema,
     SchemaError,
 )
 
@@ -99,7 +99,7 @@ class DatasetsMappings(ApiBase):
         try:
             self.schema.validate(json_data)
         except SchemaError as e:
-            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+            raise APIAbort(HTTPStatus.BAD_REQUEST, str(e))
 
         index = RunIdBase.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
         try:
@@ -120,4 +120,4 @@ class DatasetsMappings(ApiBase):
             self.logger.exception(
                 "Document template {} not found in the database.", index_name
             )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)

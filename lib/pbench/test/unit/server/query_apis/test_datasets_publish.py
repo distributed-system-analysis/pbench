@@ -159,7 +159,7 @@ class TestDatasetsPublish:
 
         # Verify the report and status
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["data"] == {"ok": 28, "failure": 3}
+        assert response.json["message"] == {"ok": 28, "failure": 3}
         assert (
             "pbench.server.api",
             ERROR,
@@ -217,4 +217,4 @@ class TestDatasetsPublish:
 
         # Verify the failure
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == "INTERNAL ERROR"
+        assert response.json["message"] == HTTPStatus.INTERNAL_SERVER_ERROR.phrase

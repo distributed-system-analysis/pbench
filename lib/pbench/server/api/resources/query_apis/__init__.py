@@ -11,12 +11,12 @@ from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 from elasticsearch import Elasticsearch, helpers, VERSION
 from flask.wrappers import Response
-from flask_restful import abort
 import requests
 
 from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
+    APIAbort,
     API_OPERATION,
     ApiBase,
     Schema,
@@ -389,14 +389,10 @@ class ElasticBase(ApiBase):
                 return "", HTTPStatus.NO_CONTENT
         except UnauthorizedAccess as e:
             self.logger.warning("{}", e)
-            abort(e.http_status, message=str(e))
+            raise APIAbort(e.http_status, str(e))
         except KeyError as e:
             self.logger.exception("{} problem in preprocess, missing {}", klasname, e)
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-        except Exception as e:
-            self.logger.exception("{} preprocess failed: {}", klasname, e)
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
         try:
             # prepare payload for Elasticsearch query
             es_request = self.assemble(json_data, context)
@@ -409,7 +405,7 @@ class ElasticBase(ApiBase):
             )
         except Exception as e:
             self.logger.exception("{} assembly failed: {}", klasname, e)
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         try:
             # perform the Elasticsearch query
@@ -428,38 +424,37 @@ class ElasticBase(ApiBase):
                 e,
                 es_request,
             )
-            abort(
+            raise APIAbort(
                 HTTPStatus.BAD_GATEWAY,
-                message=f"Elasticsearch query failure {e.response.reason} ({e.response.status_code})",
+                f"Elasticsearch query failure {e.response.reason} ({e.response.status_code})",
             )
         except requests.exceptions.ConnectionError:
             self.logger.exception(
                 "{}: connection refused during the Elasticsearch request", klasname
             )
-            abort(
-                HTTPStatus.BAD_GATEWAY,
-                message="Network problem, could not reach Elasticsearch",
+            raise APIAbort(
+                HTTPStatus.BAD_GATEWAY, "Network problem, could not reach Elasticsearch"
             )
         except requests.exceptions.Timeout:
             self.logger.exception(
                 "{}: connection timed out during the Elasticsearch request", klasname
             )
-            abort(
+            raise APIAbort(
                 HTTPStatus.GATEWAY_TIMEOUT,
-                message="Connection timed out, could reach Elasticsearch",
+                "Connection timed out, could reach Elasticsearch",
             )
         except requests.exceptions.InvalidURL:
             self.logger.exception(
                 "{}: invalid url {} during the Elasticsearch request", klasname, url
             )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
         except Exception as e:
             self.logger.exception(
                 "{}: exception {} occurred during the Elasticsearch request",
                 klasname,
                 type(e).__name__,
             )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         try:
             # postprocess Elasticsearch response
@@ -467,12 +462,11 @@ class ElasticBase(ApiBase):
         except PostprocessError as e:
             msg = f"{klasname}: the query postprocessor was unable to complete: {e}"
             self.logger.warning("{}", msg)
-            abort(e.status, message=msg, data=e.data)
+            raise APIAbort(e.status, str(e.message))
         except KeyError as e:
             self.logger.error("{}: missing Elasticsearch key {}", klasname, e)
-            abort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                message=f"Missing Elasticsearch key {e}",
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR, f"Missing Elasticsearch key {e}"
             )
         except Exception as e:
             self.logger.exception(
@@ -481,7 +475,7 @@ class ElasticBase(ApiBase):
                 json_response,
                 e,
             )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def _post(self, json_data: JSON, _) -> Response:
         """
@@ -627,14 +621,14 @@ class ElasticBulkBase(ApiBase):
         try:
             dataset = Dataset.query(name=json_data["name"])
         except DatasetNotFound as e:
-            abort(HTTPStatus.NOT_FOUND, message=str(e))
+            raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
         owner = User.query(id=dataset.owner_id)
         if not owner:
             self.logger.error(
                 "Dataset owner ID {} cannot be found in Users", dataset.owner_id
             )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Dataset owner not found")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         # For bulk Elasticsearch operations, we check authorization against the
         # ownership of a designated dataset rather than having an explicit
@@ -646,7 +640,7 @@ class ElasticBulkBase(ApiBase):
         try:
             self._check_authorization(owner.username, dataset.access)
         except UnauthorizedAccess as e:
-            abort(e.http_status, message=str(e))
+            raise APIAbort(e.http_status, str(e))
 
         # Build an Elasticsearch instance to manage the bulk update
         elastic = Elasticsearch(self.elastic_uri)
@@ -734,7 +728,7 @@ class ElasticBulkBase(ApiBase):
                 type(e).__name__,
                 report,
             )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         summary = {"ok": count - error_count, "failure": error_count}
 
@@ -747,7 +741,7 @@ class ElasticBulkBase(ApiBase):
                 klasname,
                 type(e).__name__,
             )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         # Return the summary document as the success response, or abort with an
         # internal error if we weren't 100% successful. Some elasticsearch
@@ -766,12 +760,7 @@ class ElasticBulkBase(ApiBase):
                 error_count,
                 json.dumps(report),
             )
-            abort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                message=f"{error_count:d} of {count:d} Elasticsearch document actions failed",
-                data=summary,
-            )
-
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, summary)
         self.logger.info(
             "{}:dataset {}: {} successful document actions", klasname, dataset, count
         )
