@@ -601,7 +601,7 @@ function fio_run_job() {
 			if pbench-is-local ${client}; then
 				debug_log "killing any old local fio processes and starting new a fio process for the local client"
 				killall ${benchmark} > /dev/null 2>&1
-				screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err'
+				screen -dmS fio-server bash -c "${benchmark_bin} --server=,${client_ports[${client}]} > '${benchmark_results_dir}/client-result.txt' 2> '${benchmark_results_dir}/client-result.err'"
 			else
 				debug_log "killing any old fio processes, creating directories, and starting new a fio process on remote client ${client}:${client_ports[${client}]}"
 				ssh ${ssh_opts} ${client} "killall ${benchmark} >/dev/null 2>&1; mkdir -p ${benchmark_results_dir} && cd ${benchmark_results_dir} && screen -dmS fio-server bash -c '${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err'"
