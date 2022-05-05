@@ -14,7 +14,7 @@ from pbench.server.api.resources import (
     SchemaError,
 )
 
-from pbench.server.api.resources.query_apis.datasets import RunIdBase
+from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 from pbench.server.database.models.template import Template, TemplateNotFound
 
 
@@ -74,7 +74,7 @@ class DatasetsMappings(ApiBase):
                     "dataset_view",
                     ParamType.KEYWORD,
                     required=True,
-                    keywords=list(RunIdBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                    keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
                     uri_parameter=True,
                 )
             ),
@@ -101,7 +101,7 @@ class DatasetsMappings(ApiBase):
         except SchemaError as e:
             raise APIAbort(HTTPStatus.BAD_REQUEST, str(e))
 
-        index = RunIdBase.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
+        index = IndexMapBase.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
         try:
             index_name = index["index"]
             template = Template.find(index_name)

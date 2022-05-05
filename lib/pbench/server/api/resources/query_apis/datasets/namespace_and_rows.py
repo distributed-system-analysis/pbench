@@ -6,11 +6,12 @@ from flask import Response, jsonify
 from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.resources import APIAbort, ParamType, Parameter, Schema
 from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
-from pbench.server.api.resources.query_apis.datasets import RunIdBase
+from pbench.server.api.resources.query_apis.datasets import IndexMapBase
+from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.template import TemplateNotFound
 
 
-class SampleNamespace(RunIdBase):
+class SampleNamespace(IndexMapBase):
     """
     Pbench API which returns the list of available fields in the dataset
     as well as lists of values available for each of them. These can be used
@@ -23,12 +24,12 @@ class SampleNamespace(RunIdBase):
             config,
             logger,
             Schema(
-                Parameter("run_id", ParamType.STRING, required=True),
+                Parameter("name", ParamType.STRING, required=True),
                 Parameter(
                     "dataset_view",
                     ParamType.KEYWORD,
                     required=True,
-                    keywords=list(RunIdBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                    keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
                     uri_parameter=True,
                 ),
             ),
@@ -43,28 +44,26 @@ class SampleNamespace(RunIdBase):
 
         Args:
             json_data: JSON dictionary of type-normalized parameters
-                "run_id": Dataset document ID
+                "name": Dataset name
 
         EXAMPLE:
         {
-            "run_id": "1234567890"
+            "name": "fio"
         }
         """
-        run_id = context["run_id"]
-        dataset = context["dataset"]
+        dataset: Dataset = context["dataset"]
         document = self.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
 
         document_index = document["index"]
 
         self.logger.info(
-            "Return {} namespace for dataset {}, prefix {}, run id {}",
+            "Return {} namespace for dataset {}, prefix {}",
             document_index,
             dataset,
             self.prefix,
-            run_id,
         )
 
-        # Retrieve the ES indices that belong to this run_id from the metadata
+        # Retrieve the ES indices that belong to this dataset from the metadata
         # table
         indices = self.get_index(dataset, document_index)
 
@@ -86,7 +85,7 @@ class SampleNamespace(RunIdBase):
             "kwargs": {
                 "json": {
                     "size": 0,
-                    "query": {"bool": {"filter": {"match": {"run.id": run_id}}}},
+                    "query": {"bool": {"filter": {"match": {"run.id": dataset.md5}}}},
                     "aggs": aggs,
                 },
                 "params": {"ignore_unavailable": "true"},
@@ -164,7 +163,7 @@ class SampleNamespace(RunIdBase):
             )
 
 
-class SampleValues(RunIdBase):
+class SampleValues(IndexMapBase):
     """
     Pbench ES query API that returns client supplied document sample rows after
     applying client specified filters.
@@ -179,13 +178,13 @@ class SampleValues(RunIdBase):
             logger,
             Schema(
                 Parameter("filters", ParamType.JSON, required=False),
-                Parameter("run_id", ParamType.STRING, required=True),
+                Parameter("name", ParamType.STRING, required=True),
                 Parameter("scroll_id", ParamType.STRING, required=False),
                 Parameter(
                     "dataset_view",
                     ParamType.KEYWORD,
                     required=True,
-                    keywords=list(RunIdBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                    keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
                     uri_parameter=True,
                 ),
             ),
@@ -198,10 +197,10 @@ class SampleValues(RunIdBase):
         the specified index.
 
         Note: "dataset_view" (i.e., the ES index selector) and the scroll ID
-        (if any) come from the json_data parameter, while the "run_id" and
-        "dataset" values come from the context argument. If the ES scroll id
-        is present we will ignore the filters parameter and instead construct an
-        Elasticsearch query for scrolling based on a client provided scroll id.
+        (if any) come from the json_data parameter, while dataset comes from
+        the context argument. If the ES scroll id is present we will ignore the
+        filters parameter and instead construct an Elasticsearch query for
+        scrolling based on a client provided scroll id.
 
         If a scroll_id is specified, the query will return the next page of
         results of the original query; otherwise we form a new query, either
@@ -210,9 +209,6 @@ class SampleValues(RunIdBase):
 
         Args:
             json_data:
-                "run_id": run id of a dataset that client wants to search for
-                        fetching the iteration samples.
-
                 "scroll_id": Optional Elasticsearch scroll id that the client
                              received in the result of the original query.
                              This will, if specified, be used to fetch the
@@ -224,29 +220,27 @@ class SampleValues(RunIdBase):
 
         EXAMPLES:
             {
-                "run_id": "1234567"
+                "name": "fio"
                 "filters": {"sample.name": "sample1"},
             }
             or
             {
-                "run_id": "1234567"
+                "name": "fio"
                 "scroll_id": "cmFuZG9tX3Njcm9sbF9pZF9zdHJpbmdfMg=="
             }
         """
-        run_id = context["run_id"]
-        dataset = context["dataset"]
+        dataset: Dataset = context["dataset"]
         scroll_id = json_data.get("scroll_id")
         document = self.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
 
         document_index = document["index"]
 
         self.logger.info(
-            "Return {} rows {} for dataset {}, prefix {}, run id {}",
+            "Return {} rows {} for dataset {}, prefix {}",
             document_index,
             "next page " if scroll_id else "",
             dataset,
             self.prefix,
-            run_id,
         )
 
         scroll_id = json_data.get("scroll_id")
@@ -261,7 +255,7 @@ class SampleValues(RunIdBase):
                 },
             }
 
-        # Retrieve the ES indices that belong to this run_id
+        # Retrieve the ES indices that belong to this dataset
         indices = self.get_index(dataset, document_index)
 
         try:
@@ -273,7 +267,7 @@ class SampleValues(RunIdBase):
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         # Prepare list of filters to apply for ES query
-        es_filter = [{"match": {"run.id": run_id}}]
+        es_filter = [{"match": {"run.id": dataset.md5}}]
         for filter, value in json_data.get("filters", {}).items():
             if filter in self.get_aggregatable_fields(mappings):
                 # Get all the non-text filters to apply

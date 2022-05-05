@@ -9,10 +9,10 @@ from pbench.server.api.resources import (
     ParamType,
 )
 from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
-from pbench.server.api.resources.query_apis.datasets import RunIdBase
+from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 
 
-class DatasetsContents(RunIdBase):
+class DatasetsContents(IndexMapBase):
     """
     Datasets Contents API returns the list of sub-directories and files
     present under a directory.
@@ -25,7 +25,7 @@ class DatasetsContents(RunIdBase):
             config,
             logger,
             Schema(
-                Parameter("run_id", ParamType.STRING, required=True),
+                Parameter("name", ParamType.STRING, required=True),
                 Parameter("parent", ParamType.STRING, required=True),
             ),
         )
@@ -52,12 +52,11 @@ class DatasetsContents(RunIdBase):
         """
         # Copy parent directory metadata to CONTEXT for postprocessor
         parent = context["parent"] = json_data.get("parent")
-        run_id = context["run_id"]
         dataset = context["dataset"]
 
         self.logger.info(
-            "Discover Datasets Contents run_data_id {}, directory {}",
-            dataset.md5,
+            "Discover dataset {} Contents, directory {}",
+            dataset.name,
             parent,
         )
 
@@ -81,7 +80,7 @@ class DatasetsContents(RunIdBase):
                                         ]
                                     }
                                 },
-                                {"term": {"run_data_parent": run_id}},
+                                {"term": {"run_data_parent": dataset.md5}},
                             ],
                             "must_not": {"regexp": {"directory": f"{parent}/[^/]+/.+"}},
                         }
@@ -191,7 +190,7 @@ class DatasetsContents(RunIdBase):
         if len(es_json["hits"]["hits"]) == 0:
             raise PostprocessError(
                 HTTPStatus.NOT_FOUND,
-                f"No directory '{context['parent']}' in '{context['run_id']}' contents.",
+                f"No directory '{context['parent']}' in '{context['dataset']}' contents.",
             )
 
         dir_list = []
