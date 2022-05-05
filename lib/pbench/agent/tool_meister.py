@@ -71,7 +71,7 @@ from pbench.agent.redis_utils import (
 )
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
-from pbench.common.utils import md5sum
+from pbench.common.utils import canonicalize, md5sum
 
 
 # Logging format string for unit tests
@@ -690,11 +690,15 @@ class ToolMeisterParams(NamedTuple):
     tds_hostname: str
     tds_port: str
     controller: str
-    group: str
+    tool_group: str
     hostname: str
     label: str
     tool_metadata: ToolMetadata
     tools: Dict[str, str]
+
+    def __str__(self) -> str:
+        """A string containing a deterministic representation of the params"""
+        return canonicalize(self)
 
 
 class ToolMeister:
@@ -725,7 +729,7 @@ class ToolMeister:
                           " data to the Tool Data Sink since it can access the"
                           " ${benchmark_run_dir} and ${benchmark_results_dir}"
                           " directories directly.>",
-            "group":      "<Name of the tool group from which the following"
+            "tool_group": "<Name of the tool group from which the following"
                           " tools data was pulled, passed as the"
                           " --group argument to the individual tools>",
             "hostname":   "<hostname of Tool Meister, should be same as"
@@ -777,7 +781,7 @@ class ToolMeister:
                 tds_hostname=params["tds_hostname"],
                 tds_port=params["tds_port"],
                 controller=params["controller"],
-                group=params["group"],
+                tool_group=params["tool_group"],
                 hostname=params["hostname"],
                 label=params["label"],
                 tool_metadata=ToolMetadata.tool_md_from_dict(params["tool_metadata"]),
@@ -806,7 +810,7 @@ class ToolMeister:
         tmp_dir: Path,
         tar_path: str,
         sysinfo_dump: str,
-        params: Dict[str, Any],
+        tm_params: ToolMeisterParams,
         redis_server: redis.Redis,
         logger: logging.Logger,
     ):
@@ -825,7 +829,7 @@ class ToolMeister:
         self._tmp_dir = tmp_dir
         self.tar_path = tar_path
         self.sysinfo_dump = sysinfo_dump
-        self._params = self.fetch_params(params)
+        self._params = tm_params
         self._rs = redis_server
         self.logger = logger
         self._usable_tools = dict()
@@ -977,9 +981,9 @@ class ToolMeister:
                 msg = f"unrecognized action in data of payload in message, {tmp_data!r}"
             elif (
                 tmp_data["group"] is not None
-                and tmp_data["group"] != self._params.group
+                and tmp_data["group"] != self._params.tool_group
             ):
-                msg = f"unrecognized group in data of payload in message, {tmp_data!r}"
+                msg = f"unrecognized tool group name in data of payload in message, {tmp_data!r}"
             else:
                 data = tmp_data
             if msg is not None:
@@ -1097,7 +1101,7 @@ class ToolMeister:
                 base_dir = Path(
                     tempfile.mkdtemp(
                         dir=self._tmp_dir,
-                        prefix=f"tm.{self._params.group}.{os.getpid()}.",
+                        prefix=f"tm.{self._params.tool_group}.{os.getpid()}.",
                     )
                 )
             except Exception as exc:
@@ -1444,7 +1448,7 @@ class ToolMeister:
                 self.logger.debug(
                     "%s: starting send_data group=%s, directory=%s",
                     self._params.hostname,
-                    self._params.group,
+                    self._params.tool_group,
                     self._directory,
                 )
                 headers = {"md5sum": tar_md5}
@@ -1497,7 +1501,7 @@ class ToolMeister:
                     "%s: PUT %s completed %s %s",
                     self._params.hostname,
                     uri,
-                    self._params.group,
+                    self._params.tool_group,
                     directory,
                 )
         finally:
@@ -1570,7 +1574,7 @@ class ToolMeister:
             self.logger.info(
                 "%s: send_tools (no-op) %s %s",
                 self._params.hostname,
-                self._params.group,
+                self._params.tool_group,
                 tool_dir,
             )
             # Note that we don't have a directory to send when a Tool
@@ -1645,7 +1649,7 @@ class ToolMeister:
         self.logger.debug(
             "%s: deleting persistent tool tmp directory %s %s",
             self._params.hostname,
-            self._params.group,
+            self._params.tool_group,
             tool_dir,
         )
         unexpected_files = []
@@ -1715,7 +1719,7 @@ class ToolMeister:
                 sysinfo_dir = Path(
                     tempfile.mkdtemp(
                         dir=self._tmp_dir,
-                        prefix=f"tm.{self._params.group}.{os.getpid()}.",
+                        prefix=f"tm.{self._params.tool_group}.{os.getpid()}.",
                     )
                 ).resolve(strict=True)
             except Exception:
@@ -1770,7 +1774,7 @@ class ToolMeister:
             self.logger.info(
                 "%s: sysinfo send (no-op) %s %s",
                 self._params.hostname,
-                self._params.group,
+                self._params.tool_group,
                 instance_dir,
             )
         else:
@@ -1792,7 +1796,7 @@ class ToolMeister:
 
 
 def get_logger(
-    PROG: str, is_daemon: bool = False, level: str = "info"
+    logger_name: str, is_daemon: bool = False, level: str = "info"
 ) -> logging.Logger:
     """Contruct a logger for a Tool Meister instance.
 
@@ -1801,7 +1805,7 @@ def get_logger(
        If daemonized, log to syslog and log back to Redis.
        If not daemonized, log to console AND log back to Redis
     """
-    logger = logging.getLogger(PROG)
+    logger = logging.getLogger(logger_name)
     if level == "debug":
         log_level = logging.DEBUG
     else:
@@ -1830,26 +1834,26 @@ class Arguments(NamedTuple):
 
 
 def driver(
-    PROG: str,
     tar_path: str,
     sysinfo_dump: str,
     pbench_install_dir: Path,
     tmp_dir: Path,
     parsed: Arguments,
-    params: Dict[str, Any],
+    tm_params: ToolMeisterParams,
     redis_server: redis.Redis,
+    logger_name: str,
     logger: logging.Logger = None,
 ):
     """Create and drive a Tool Meister instance"""
     if logger is None:
-        logger = get_logger(PROG, level=parsed.level)
+        logger = get_logger(logger_name, level=parsed.level)
 
     # Add a logging handler to send logs back to the Redis server, with each
     # log entry prepended with the given hostname parameter.
-    channel_prefix = params["channel_prefix"]
+    channel_prefix = tm_params.channel_prefix
     rh = RedisHandler(
         channel=f"{channel_prefix}-{tm_channel_suffix_to_logging}",
-        hostname=params["hostname"],
+        hostname=tm_params.hostname,
         redis_client=redis_server,
     )
     redis_fmtstr = fmtstr_ut if os.environ.get("_PBENCH_UNIT_TESTS") else fmtstr
@@ -1857,7 +1861,7 @@ def driver(
     rh.setFormatter(rhf)
     logger.addHandler(rh)
 
-    logger.debug("params_key (%s): %r", parsed.key, params)
+    logger.debug("params_key (%s): %s", parsed.key, tm_params)
 
     # FIXME: we should establish signal handlers that do the following:
     #   a. handle graceful termination (TERM, INT, QUIT)
@@ -1870,7 +1874,7 @@ def driver(
             tmp_dir,
             tar_path,
             sysinfo_dump,
-            params,
+            tm_params,
             redis_server,
             logger,
         ) as tm:
@@ -1901,14 +1905,14 @@ def driver(
 
 
 def daemon(
-    PROG: str,
     tar_path: str,
     sysinfo_dump: str,
     pbench_install_dir: Path,
     tmp_dir: Path,
     parsed: Arguments,
-    params: Dict[str, Any],
+    tm_params: ToolMeisterParams,
     redis_server: redis.Redis,
+    logger_name: str,
 ):
     """Daemonize a Tool Meister instance"""
     # Disconnect any Redis server object connection pools to avoid problems
@@ -1920,7 +1924,7 @@ def daemon(
     sys.stderr.flush()
     sys.stdout.flush()
 
-    if params["hostname"] != params["controller"]:
+    if tm_params.hostname != tm_params.controller:
         working_dir = tmp_dir
     else:
         working_dir = Path(".")
@@ -1936,7 +1940,7 @@ def daemon(
         pidfile=pfctx,
     ):
         # We need a logger earlier than the driver now that we are daemonized.
-        logger = get_logger(PROG, is_daemon=True, level=parsed.level)
+        logger = get_logger(logger_name, is_daemon=True, level=parsed.level)
 
         # Previously we validated the Tool Meister parameters, and in doing so
         # made sure we had proper access to the Redis server.
@@ -1960,14 +1964,14 @@ def daemon(
         else:
             logger.debug("re-constructed Redis server object")
         return driver(
-            PROG,
             tar_path,
             sysinfo_dump,
             pbench_install_dir,
             tmp_dir,
             parsed,
-            params,
+            tm_params,
             redis_server,
+            logger_name,
             logger=logger,
         )
 
@@ -1985,11 +1989,9 @@ def start(prog: Path, parsed: Arguments) -> int:
     Returns:
         integer status code (0 success, > 0 coded failure)
     """
-    PROG = prog.name
-
     tar_path = shutil.which("tar")
     if tar_path is None:
-        print(f"{PROG}: External 'tar' executable not found.", file=sys.stderr)
+        print(f"{prog.name}: External 'tar' executable not found.", file=sys.stderr)
         return 2
 
     # The Tool Meister executable is in:
@@ -2016,7 +2018,7 @@ def start(prog: Path, parsed: Arguments) -> int:
     sysinfo_dump = shutil.which("pbench-sysinfo-dump")
     if sysinfo_dump is None:
         print(
-            f"{PROG}: External 'pbench-sysinfo-dump' executable not found.",
+            f"{prog.name}: External 'pbench-sysinfo-dump' executable not found.",
             file=sys.stderr,
         )
         return 3
@@ -2027,14 +2029,14 @@ def start(prog: Path, parsed: Arguments) -> int:
         tmp_dir = Path(tmp_dir_str).resolve(strict=True)
     except Exception as e:
         print(
-            f"{PROG}: Error working with temporary directory, '{tmp_dir_str}': {e}",
+            f"{prog.name}: Error working with temporary directory, '{tmp_dir_str}': {e}",
             file=sys.stderr,
         )
         return 4
     else:
         if not tmp_dir.is_dir():
             print(
-                f"{PROG}: The temporary directory, '{tmp_dir_str}', does not resolve to a directory",
+                f"{prog.name}: The temporary directory, '{tmp_dir_str}', does not resolve to a directory",
                 file=sys.stderr,
             )
             return 4
@@ -2043,36 +2045,33 @@ def start(prog: Path, parsed: Arguments) -> int:
         redis_server = redis.Redis(host=parsed.host, port=parsed.port, db=0)
     except Exception as exc:
         print(
-            f"{PROG}: Unable to construct Redis client, {parsed.host}:{parsed.port}: {exc}",
+            f"{prog.name}: Unable to construct Redis client, {parsed.host}:{parsed.port}: {exc}",
             file=sys.stderr,
         )
         return 5
 
     try:
         # Wait for the key to show up with a value.
-        params_str = wait_for_conn_and_key(redis_server, parsed.key, PROG)
+        params_str = wait_for_conn_and_key(redis_server, parsed.key, prog.name)
         params = json.loads(params_str)
-        # Validate the Tool Meister parameters without constructing an object
-        # just yet, as we want to make sure we can talk to the redis server
-        # before we go through the trouble of daemonizing below.
-        ToolMeister.fetch_params(params)
+        tm_params = ToolMeister.fetch_params(params)
     except Exception as exc:
         print(
-            f"{PROG}: Unable to fetch and decode parameter key, '{parsed.key}': {exc}",
+            f"{prog.name}: Unable to fetch and decode parameter key, '{parsed.key}': {exc}",
             file=sys.stderr,
         )
         return 6
 
     func = daemon if parsed.daemonize else driver
     return func(
-        PROG,
         tar_path,
         sysinfo_dump,
         pbench_install_dir,
         tmp_dir,
         parsed,
-        params,
+        tm_params,
         redis_server,
+        prog.name,
     )
 
 
@@ -2091,7 +2090,6 @@ def main(argv: List[str]):
     Returns 0 on success, > 0 when an error occurs.
     """
     prog = Path(argv[0])
-    PROG = prog.name
     try:
         parsed = Arguments(
             host=argv[1],
@@ -2101,12 +2099,12 @@ def main(argv: List[str]):
             level=argv[5] if len(argv) > 5 else "info",
         )
     except (ValueError, IndexError) as e:
-        print(f"{PROG}: Invalid arguments, {argv!r}: {e}", file=sys.stderr)
+        print(f"{prog.name}: Invalid arguments, {argv!r}: {e}", file=sys.stderr)
         return 1
     else:
         if not parsed.host or not parsed.port or not parsed.key:
             print(
-                f"{PROG}: Invalid arguments, {argv!r}: must not be blank",
+                f"{prog.name}: Invalid arguments, {argv!r}: must not be blank",
                 file=sys.stderr,
             )
             return 1

@@ -244,8 +244,8 @@ def main() -> int:
       action - the particular action to take, can we one of "start", "stop",
                or "send" (see `cli_tm_allowed_actions`).
     """
-    PROG = os.path.basename(sys.argv[0])
-    logger = logging.getLogger(PROG)
+    logger_name = os.path.basename(sys.argv[0])
+    logger = logging.getLogger(logger_name)
 
     if os.environ.get("_PBENCH_TOOL_MEISTER_CLIENT_LOG_LEVEL") == "debug":
         log_level = logging.DEBUG
@@ -254,7 +254,7 @@ def main() -> int:
     logger.setLevel(log_level)
     sh = logging.StreamHandler()
     sh.setLevel(log_level)
-    shf = logging.Formatter(f"{PROG}: %(message)s")
+    shf = logging.Formatter(f"{logger_name}: %(message)s")
     sh.setFormatter(shf)
     logger.addHandler(sh)
 

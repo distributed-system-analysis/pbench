@@ -1039,7 +1039,7 @@ tm_params = {
     "tds_hostname": "test.hostname.com",
     "tds_port": 4242,
     "controller": "test.hostname.com",
-    "group": "",
+    "tool_group": "",
     "hostname": "test.hostname.com",
     "label": None,
     "tool_metadata": {"persistent": {}, "transient": {}},
@@ -1054,7 +1054,7 @@ def tool_meister():
         tmp_dir=MockedPath(),
         tar_path="tar_path",
         sysinfo_dump=None,
-        params=tm_params,
+        tm_params=ToolMeister.fetch_params(tm_params),
         redis_server=None,
         logger=logging.getLogger(),
     )

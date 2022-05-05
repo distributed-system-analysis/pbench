@@ -301,7 +301,7 @@ def start_tms_via_ssh(
     tm_count = 0
     for host in tool_group.hostnames.keys():
         tm_count += 1
-        tm_param_key = f"tm-{tool_group.group}-{host}"
+        tm_param_key = f"tm-{tool_group.name}-{host}"
         if lrh.is_local(host):
             logger.debug("6a. starting localhost tool meister")
             try:
@@ -389,7 +389,7 @@ def start_tms_via_ssh(
 
     if failures > 0:
         raise StartTmsErr(
-            "failures encountered creating tool miesters", ReturnCode.TMFAILURES
+            "failures encountered creating Tool Meisters", ReturnCode.TMFAILURES
         )
     if successes != tm_count:
         raise StartTmsErr(
@@ -695,7 +695,7 @@ port {redis_port:d}
 
 
 def terminate_no_wait(
-    group: ToolGroup, logger: logging.Logger, redis_client: redis.Redis, key: str
+    tool_group_name: str, logger: logging.Logger, redis_client: redis.Redis, key: str
 ) -> None:
     """
     Use a low-level Redis publish operation to send a "terminate" request to
@@ -716,7 +716,7 @@ def terminate_no_wait(
     """
     terminate_msg = {
         "action": "terminate",
-        "group": group,
+        "group": tool_group_name,
         "directory": None,
         "args": {"interrupt": False},
     }
@@ -755,8 +755,8 @@ def start(_prog: str, cli_params: Namespace) -> int:
 
     Return 0 on success, non-zero ReturnCode class value on failure.
     """
-    PROG = Path(_prog)
-    logger = logging.getLogger(PROG.name)
+    prog = Path(_prog)
+    logger = logging.getLogger(prog.name)
     if os.environ.get("_PBENCH_TOOL_MEISTER_START_LOG_LEVEL") == "debug":
         log_level = logging.DEBUG
     else:
@@ -764,7 +764,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
     logger.setLevel(log_level)
     sh = logging.StreamHandler()
     sh.setLevel(log_level)
-    shf = logging.Formatter(f"{PROG.name}: %(message)s")
+    shf = logging.Formatter(f"{prog.name}: %(message)s")
     sh.setFormatter(shf)
     logger.addHandler(sh)
 
@@ -773,15 +773,16 @@ def start(_prog: str, cli_params: Namespace) -> int:
     # -
 
     # Verify all the command line arguments
-    group = cli_params.tool_group
     try:
         # Load the tool group data
-        tool_group = ToolGroup(group)
+        tool_group = ToolGroup(cli_params.tool_group)
     except BadToolGroup as exc:
         logger.error(str(exc))
         return ReturnCode.BADTOOLGROUP
     except Exception:
-        logger.exception("failed to load tool group data for '%s'", group)
+        logger.exception(
+            "failed to load tool group data for '%s'", cli_params.tool_group
+        )
         return ReturnCode.TOOLGROUPEXC
     else:
         if not tool_group.hostnames:
@@ -1068,14 +1069,14 @@ def start(_prog: str, cli_params: Namespace) -> int:
                 else tool_data_sink.host,
                 tds_port=tool_data_sink.port,
                 controller=full_hostname,
-                group=group,
+                tool_group=tool_group.name,
                 hostname=host,
                 label=tool_group.get_label(host),
                 tool_metadata=tool_metadata.getFullData(),
                 tools=tools,
             )
             # Create a separate key for the Tool Meister that will be on that host
-            tm_param_key = f"tm-{group}-{host}"
+            tm_param_key = f"tm-{tool_group.name}-{host}"
             try:
                 redis_client.set(tm_param_key, json.dumps(tm, sort_keys=True))
             except Exception:
@@ -1090,13 +1091,13 @@ def start(_prog: str, cli_params: Namespace) -> int:
             )
 
         # Create the key for the Tool Data Sink
-        tds_param_key = f"tds-{group}"
+        tds_param_key = f"tds-{tool_group.name}"
         tds = dict(
             benchmark_run_dir=str(benchmark_run_dir),
             bind_hostname=tool_data_sink.bind_host,
             port=tool_data_sink.bind_port,
             channel_prefix=cli_tm_channel_prefix,
-            group=group,
+            tool_group=tool_group.name,
             tool_metadata=tool_metadata.getFullData(),
             tool_trigger=tool_group.trigger,
             tools=tool_group_data,
@@ -1121,7 +1122,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
             logger.debug("5. starting tool data sink")
             try:
                 tool_data_sink.start(
-                    PROG.parent,
+                    prog.parent,
                     full_hostname,
                     tds_param_key,
                     redis_server,
@@ -1149,7 +1150,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         # stop.
         recovery.add(
             lambda: terminate_no_wait(
-                tool_group.group,
+                tool_group.name,
                 logger,
                 redis_client,
                 f"{cli_tm_channel_prefix}-{tm_channel_suffix_from_client}",
@@ -1164,7 +1165,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         if orchestrate:
             try:
                 start_tms_via_ssh(
-                    PROG.parent,
+                    prog.parent,
                     ssh_cmd,
                     Path(ssh_path),
                     tool_group,
@@ -1176,7 +1177,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
             except StartTmsErr as exc:
                 raise CleanupTime(
                     exc.return_code,
-                    f"Failed to start all remote clients in {tool_group.group}",
+                    f"Failed to start all remote clients in {tool_group.name}",
                 )
 
         # +
@@ -1256,9 +1257,9 @@ def start(_prog: str, cli_params: Namespace) -> int:
                     info_log("Collecting system information")
                     # Collecting system information is optional, so we don't gate
                     # the success or failure of the startup on it.
-                    client.publish(group, sysinfo_path, "sysinfo", sysinfo)
+                    client.publish(tool_group.name, sysinfo_path, "sysinfo", sysinfo)
 
-            tool_dir = benchmark_run_dir / f"tools-{group}"
+            tool_dir = benchmark_run_dir / f"tools-{tool_group.name}"
             try:
                 tool_dir.mkdir(exist_ok=True)
             except Exception as exc:
@@ -1271,7 +1272,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
             else:
                 recovery.add(lambda: shutil.rmtree(tool_dir), "delete tool directory")
                 logger.debug("8. Initialize persistent tools")
-                ret_val = client.publish(group, tool_dir, "init", None)
+                ret_val = client.publish(tool_group.name, tool_dir, "init", None)
                 if ret_val != 0:
                     raise CleanupTime(
                         ReturnCode.INITFAILED, "Persistent tool initialization failed"
