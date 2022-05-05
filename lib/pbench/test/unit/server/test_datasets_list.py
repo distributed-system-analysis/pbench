@@ -6,7 +6,7 @@ from typing import List
 from freezegun.api import freeze_time
 import pytest
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
 
 
@@ -118,7 +118,7 @@ class TestDatasetsList:
                     "controller": dataset.controller,
                     "run_id": dataset.md5,
                     "metadata": {
-                        "dataset.created": f"{dataset.created:%Y-%m-%d:%H:%M}"
+                        "dataset.created": datetime.datetime.isoformat(dataset.created)
                     },
                 }
             )

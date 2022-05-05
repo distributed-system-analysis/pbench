@@ -3,7 +3,7 @@ from logging import Logger
 
 from flask import jsonify
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
     Parameter,
     ParamType,
@@ -14,6 +14,7 @@ from pbench.server.api.resources.query_apis import (
     ElasticBase,
     PostprocessError,
 )
+from pbench.server.utils import UtcTimeHelper
 
 
 class DatasetsSearch(ElasticBase):
@@ -81,11 +82,8 @@ class DatasetsSearch(ElasticBase):
         # If no fields are specified, the query will return all the fields from Elasticsearch hits
         selected_fields = json_data.get("fields", [])
 
-        # We need to pass string dates as part of the Elasticsearch query; we
-        # use the unconverted strings passed by the caller rather than the
-        # adjusted and normalized datetime objects for this.
-        start_arg = f"{start:%Y-%m-%d}"
-        end_arg = f"{end:%Y-%m-%d}"
+        start_arg = UtcTimeHelper(start).to_iso_string()
+        end_arg = UtcTimeHelper(end).to_iso_string()
 
         self.logger.info(
             "Search query for user {}, prefix {}: ({} - {}) on query: {}",

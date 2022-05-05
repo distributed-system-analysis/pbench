@@ -21,6 +21,7 @@ from pbench.server.database.models.datasets import (
     MetadataNotFound,
 )
 from pbench.server.database.models.users import User
+from pbench.server.utils import UtcTimeHelper
 
 
 class UnauthorizedAccess(Exception):
@@ -989,11 +990,11 @@ class ApiBase(Resource):
             if i == Dataset.ACCESS:
                 metadata[i] = dataset.access
             elif i == Dataset.CREATED:
-                metadata[i] = f"{dataset.created:%Y-%m-%d:%H:%M}"
+                metadata[i] = UtcTimeHelper(dataset.created).to_iso_string()
             elif i == Dataset.OWNER:
                 metadata[i] = dataset.owner.username
             elif i == Dataset.UPLOADED:
-                metadata[i] = f"{dataset.uploaded:%Y-%m-%d:%H:%M}"
+                metadata[i] = UtcTimeHelper(dataset.uploaded).to_iso_string()
             elif Metadata.is_key_path(i, Metadata.USER_METADATA):
                 try:
                     metadata[i] = Metadata.getvalue(dataset=dataset, key=i)
