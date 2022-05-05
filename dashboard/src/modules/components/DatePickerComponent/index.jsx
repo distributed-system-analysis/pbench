@@ -10,6 +10,8 @@ import "./index.css";
 import { formatDate } from "../../../utils/dateFormatter";
 import { filterData } from "../../../utils/filterDataset";
 import { constructUTCDate } from "../../../utils/constructDate";
+import bumpToDate from "utils/bumpDate";
+import addOneDay from "utils/addDay";
 
 function DatePickerWidget({
   dataArray,
@@ -18,23 +20,26 @@ function DatePickerWidget({
   setDateRange,
 }) {
   const [fromDate, setFromDate] = useState({});
-  // const [toDate,setToDate]=useState(constructUTCDate(new Date(formatDate(new Date()))))
-  const [toDate,setToDate]=useState(constructUTCDate(formatDate(new Date())))
-  const strDate=formatDate(toDate)
-  console.log(fromDate,toDate)
+  const [toDate, setToDate] = useState(
+    constructUTCDate(formatDate(new Date(bumpToDate(new Date(), 1))))
+  );
+  const [strDate, setStrDate] = useState(
+    new Date().toLocaleString("fr-CA").split(",")[0]
+  );
   const toValidator = (date) =>
     date >= fromDate
       ? ""
       : "To date must be greater than or equal to from date";
 
   const onFromChange = (_str, date) => {
-    const selectedDate=constructUTCDate(_str);
+    const selectedDate = constructUTCDate(_str);
     setFromDate(isValidDate(date) ? selectedDate : {});
     if (isValidDate(date)) {
-      if (date > toDate) {
-        const selectedToDate=new Date(selectedDate)
-        selectedToDate.setUTCDate(selectedToDate.getUTCDate() + 1);
-        setToDate(selectedToDate);
+      if (date > new Date(strDate)) {
+        setToDate(
+          constructUTCDate(formatDate(new Date(bumpToDate(new Date(_str), 2))))
+        );
+        setStrDate(addOneDay(date));
       }
     }
   };
@@ -55,7 +60,12 @@ function DatePickerWidget({
       <DatePicker
         value={strDate}
         onChange={(_str, date) => {
-          setToDate(constructUTCDate(_str));
+          setStrDate(_str);
+          setToDate(
+            constructUTCDate(
+              formatDate(new Date(bumpToDate(new Date(_str), 1)))
+            )
+          );
         }}
         isDisabled={!isValidDate(fromDate)}
         rangeStart={fromDate}
