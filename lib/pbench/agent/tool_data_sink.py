@@ -737,9 +737,10 @@ class ExternalEnvironment(NamedTuple):
 
     cp_path: str
     hostname: str
+    logger_name: str
     pbench_bin: Path
     pbench_run: str
-    PROG: str
+    prog_name: str
     tar_path: str
 
 
@@ -780,7 +781,7 @@ class ToolDataSink(Bottle):
                 channel_prefix=params["channel_prefix"],
                 optional_md=params.get("optional_md", dict()),
                 port=params["port"],
-                tool_group=params["group"],
+                tool_group=params["tool_group"],
                 tool_metadata=params["tool_metadata"],
                 tool_trigger=params["tool_trigger"],
                 tools=params["tools"],
@@ -1859,7 +1860,9 @@ class ToolDataSink(Bottle):
             abort(500, "INTERNAL ERROR")
 
 
-def get_logger(PROG: str, daemon: bool = False, level: str = "info") -> logging.Logger:
+def get_logger(
+    logger_name: str, daemon: bool = False, level: str = "info"
+) -> logging.Logger:
     """construct a logger for a Tool Meister Data Sync instance.
 
     If in the Unit Test environment, just log to console.
@@ -1867,7 +1870,7 @@ def get_logger(PROG: str, daemon: bool = False, level: str = "info") -> logging.
        If daemonized, log to syslog and log back to Redis.
        If not daemonized, log to console AND log back to Redis
     """
-    logger = logging.getLogger(PROG)
+    logger = logging.getLogger(logger_name)
     if level == "debug":
         log_level = logging.DEBUG
     else:
@@ -1878,7 +1881,7 @@ def get_logger(PROG: str, daemon: bool = False, level: str = "info") -> logging.
     if unit_tests or not daemon:
         sh = logging.StreamHandler()
     else:
-        sh = logging.FileHandler(f"{PROG}.log")
+        sh = logging.FileHandler(f"{logger_name}.log")
     sh.setLevel(log_level)
     shf = logging.Formatter(fmtstr_ut if unit_tests else fmtstr)
     sh.setFormatter(shf)
@@ -1904,7 +1907,7 @@ def driver(
 ):
     """Create and drive a Tool Data Sink instance"""
     if logger is None:
-        logger = get_logger(ext_env.PROG, level=parsed.level)
+        logger = get_logger(ext_env.logger_name, level=parsed.level)
 
     logger.debug("params_key (%s): %s", parsed.key, tdsp)
 
@@ -1952,10 +1955,10 @@ def daemon(
     sys.stderr.flush()
     sys.stdout.flush()
 
-    pidfile_name = f"{ext_env.PROG}.pid"
+    pidfile_name = f"{ext_env.prog_name}.pid"
     pfctx = pidfile.PIDFile(pidfile_name)
-    with open(f"{ext_env.PROG}.out", "w") as sofp, open(
-        f"{ext_env.PROG}.err", "w"
+    with open(f"{ext_env.prog_name}.out", "w") as sofp, open(
+        f"{ext_env.prog_name}.err", "w"
     ) as sefp, DaemonContext(
         stdout=sofp,
         stderr=sefp,
@@ -1963,7 +1966,7 @@ def daemon(
         umask=0o022,
         pidfile=pfctx,
     ):
-        logger = get_logger(ext_env.PROG, daemon=True, level=parsed.level)
+        logger = get_logger(ext_env.logger_name, daemon=True, level=parsed.level)
 
         # We have to re-open the connection to the redis server now that we
         # are "daemonized".
@@ -2001,7 +2004,6 @@ def start(prog: Path, parsed: Arguments):
         integer status code (0 success, > 0 coded failure)
     """
 
-    PROG = prog.name
     # The Tool Data Sink executable is in:
     #   ${pbench_bin}/util-scripts/tool-meister/pbench-tool-data-sink
     # So .parent at each level is:
@@ -2050,7 +2052,7 @@ def start(prog: Path, parsed: Arguments):
 
     try:
         # Wait for the parameter key value to show up.
-        params_str = wait_for_conn_and_key(redis_server, parsed.key, PROG)
+        params_str = wait_for_conn_and_key(redis_server, parsed.key, prog.name)
         # The expected parameters for this "data-sink" is what "channel" to
         # subscribe to for the tool meister operational life-cycle.  The
         # data-sink listens for the actions, sysinfo | init | start | stop |
@@ -2071,9 +2073,10 @@ def start(prog: Path, parsed: Arguments):
     ext_env = ExternalEnvironment(
         cp_path=cp_path,
         hostname=hostname,
+        logger_name=prog.name,
         pbench_bin=pbench_bin,
         pbench_run=pbench_run,
-        PROG=PROG,
+        prog_name=prog.name,
         tar_path=tar_path,
     )
 
@@ -2102,7 +2105,6 @@ def main(argv: List[str]):
     Returns 0 on success, > 0 when an error occurs.
     """
     prog = Path(argv[0])
-    PROG = prog.name
     try:
         parsed = Arguments(
             host=argv[1],
@@ -2112,12 +2114,12 @@ def main(argv: List[str]):
             level=argv[5] if len(argv) > 5 else "info",
         )
     except (ValueError, IndexError) as e:
-        print(f"{PROG}: Invalid arguments, {argv!r}: {e}", file=sys.stderr)
+        print(f"{prog.name}: Invalid arguments, {argv!r}: {e}", file=sys.stderr)
         return 1
     else:
         if not parsed.host or not parsed.port or not parsed.key:
             print(
-                f"{PROG}: Invalid arguments, {argv!r}: must not be blank",
+                f"{prog.name}: Invalid arguments, {argv!r}: must not be blank",
                 file=sys.stderr,
             )
             return 1

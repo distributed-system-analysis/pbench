@@ -1039,7 +1039,7 @@ tm_params = {
     "tds_hostname": "test.hostname.com",
     "tds_port": 4242,
     "controller": "test.hostname.com",
-    "group": "",
+    "tool_group": "",
     "hostname": "test.hostname.com",
     "label": None,
     "tool_metadata": {"persistent": {}, "transient": {}},

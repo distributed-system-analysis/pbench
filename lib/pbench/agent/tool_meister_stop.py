@@ -153,8 +153,8 @@ def start(_prog: str, cli_params: Namespace) -> int:
 
     Return 0 on success, 1 on failure.
     """
-    PROG = Path(_prog)
-    logger = logging.getLogger(PROG.name)
+    prog = Path(_prog)
+    logger = logging.getLogger(prog.name)
     if os.environ.get("_PBENCH_TOOL_MEISTER_STOP_LOG_LEVEL") == "debug":
         log_level = logging.DEBUG
     else:
@@ -162,7 +162,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
     logger.setLevel(log_level)
     sh = logging.StreamHandler()
     sh.setLevel(log_level)
-    shf = logging.Formatter(f"{PROG.name}: %(message)s")
+    shf = logging.Formatter(f"{prog.name}: %(message)s")
     sh.setFormatter(shf)
     logger.addHandler(sh)
 
