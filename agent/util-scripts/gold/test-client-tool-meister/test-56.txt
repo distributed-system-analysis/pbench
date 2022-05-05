@@ -117,6 +117,7 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com/tm-sysinfo.err
 /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com/tm-sysinfo.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/.uuid
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
@@ -662,10 +663,10 @@ sysinfo_full_hostname='testhost.example.com'
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-a.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister localhost 17001 tm-lite-remote-a.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-a.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister localhost 17001 tm-lite-remote-a.example.com 00000000-0000-0000-0000-000000000001 yes
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-a.example.com echo ${SSH_CONNECTION}
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-b.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister localhost 17001 tm-lite-remote-b.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-b.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister localhost 17001 tm-lite-remote-b.example.com 00000000-0000-0000-0000-000000000001 yes
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-b.example.com echo ${SSH_CONNECTION}
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-c.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister localhost 17001 tm-lite-remote-c.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-c.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister localhost 17001 tm-lite-remote-c.example.com 00000000-0000-0000-0000-000000000001 yes
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-c.example.com echo ${SSH_CONNECTION}
 --- test-execution.log file contents

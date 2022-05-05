@@ -5,4 +5,4 @@ _dir="$(dirname ${0})"
 source /etc/profile.d/pbench-agent.sh
 source /opt/pbench-agent/base
 # Instruct the Tool Data Sink not to daemonize.
-/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-data-sink "${REDIS_HOST}" "${REDIS_PORT}" "${PARAM_KEY}" no
+/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-data-sink "${REDIS_HOST}" "${REDIS_PORT}" "${PARAM_KEY}" "${INSTANCE_UUID}" no

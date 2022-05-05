@@ -758,6 +758,7 @@ class ToolDataSinkParams(NamedTuple):
     tool_metadata: Dict[str, str]
     tool_trigger: str
     tools: Dict[str, str]
+    instance_uuid: str
 
     def __str__(self) -> str:
         """A string containing a deterministic representation of the params"""
@@ -785,6 +786,7 @@ class ToolDataSink(Bottle):
                 tool_metadata=params["tool_metadata"],
                 tool_trigger=params["tool_trigger"],
                 tools=params["tools"],
+                instance_uuid=params["instance_uuid"],
             )
         except KeyError as exc:
             raise ToolDataSinkError(f"Invalid parameter block, missing key {exc}")
@@ -1894,6 +1896,7 @@ class Arguments(NamedTuple):
     host: str
     port: int
     key: str
+    instance_uuid: str
     daemonize: bool
     level: str
 
@@ -2069,6 +2072,14 @@ def start(prog: Path, parsed: Arguments):
             file=sys.stderr,
         )
         return 6
+    else:
+        if parsed.instance_uuid != tdsp.instance_uuid:
+            print(
+                f"Parameter block has unexpected UUID '{tdsp.instance_uuid}',"
+                f" expected '{parsed.instance_uuid}'",
+                file=sys.stderr,
+            )
+            return 6
 
     ext_env = ExternalEnvironment(
         cp_path=cp_path,
@@ -2099,8 +2110,10 @@ def main(argv: List[str]):
                 argv[2] - port number of Redis Server
                 argv[3] - name of key in Redis Server for operational
                           parameters
-                argv[4] - "yes" to run as a daemon
-                argv[5] - desired debug level
+                argv[4] - UUID string of the Tool Meister sub-system invoking
+                          this Tool Meister instance
+                argv[5] - "yes" to run as a daemon
+                argv[6] - desired debug level
 
     Returns 0 on success, > 0 when an error occurs.
     """
@@ -2110,8 +2123,9 @@ def main(argv: List[str]):
             host=argv[1],
             port=int(argv[2]),
             key=argv[3],
-            daemonize=argv[4] == "yes" if len(argv) > 4 else False,
-            level=argv[5] if len(argv) > 5 else "info",
+            instance_uuid=argv[4],
+            daemonize=argv[5] == "yes" if len(argv) > 5 else False,
+            level=argv[6] if len(argv) > 6 else "info",
         )
     except (ValueError, IndexError) as e:
         print(f"{prog.name}: Invalid arguments, {argv!r}: {e}", file=sys.stderr)
