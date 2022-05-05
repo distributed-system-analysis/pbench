@@ -634,16 +634,16 @@ def pbench_admin_token(client, server_config, create_admin_user):
 @pytest.fixture()
 def create_drb_user(client, server_config, fake_email_validator):
     # Create a user
-    response = register_user(
-        client,
-        server_config,
-        username="drb",
-        firstname="firstname",
-        lastname="lastName",
-        email="user@domain.com",
+    drb = User(
+        email="drb@example.com",
+        id=3,
         password=generic_password,
+        username="drb",
+        first_name="Authorized",
+        last_name="User",
     )
-    assert response.status_code == HTTPStatus.CREATED
+    drb.add()
+    return drb
 
 
 @pytest.fixture()
@@ -682,22 +682,14 @@ def build_auth_header(request, server_config, pbench_token, pbench_admin_token, 
 
 
 @pytest.fixture()
-def current_user_drb(monkeypatch, fake_email_validator):
-    drb = User(
-        email="drb@example.com",
-        id=3,
-        username="drb",
-        first_name="Authorized",
-        last_name="User",
-    )
-
+def current_user_drb(monkeypatch, create_drb_user, fake_email_validator):
     class FakeHTTPTokenAuth:
         def current_user(self) -> User:
-            return drb
+            return create_drb_user
 
     with monkeypatch.context() as m:
         m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
-        yield drb
+        yield create_drb_user
 
 
 @pytest.fixture()

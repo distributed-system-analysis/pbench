@@ -62,7 +62,7 @@ class DatasetsList(ApiBase):
 
         # Validate the authenticated user's authorization for the combination
         # of "owner" and "access".
-        self._check_authorization(json_data.get("owner"), new_json.get("access"))
+        self._check_authorization(new_json.get("owner"), new_json.get("access"))
 
         # Build a SQLAlchemy Query object expressing all of our constraints
         query = Database.db_session.query(Dataset)
