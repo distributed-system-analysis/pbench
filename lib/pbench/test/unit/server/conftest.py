@@ -294,6 +294,13 @@ def attach_dataset(create_drb_user, create_user):
     Create test Datasets for the authorized user ("drb") and for another user
     ("test")
 
+    The resulting datasets are:
+
+        Owner   Access  Date        Name
+        ------- ------- ----------- ---------
+        drb     private 2020-02-15  drb
+        test    private 2002-05-16  test
+
     Args:
         create_drb_user: create a "drb" user
         create_user: create a "test" user

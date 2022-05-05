@@ -679,7 +679,7 @@ class ApiBase(Resource):
         self.schema = schema
         self.role = role
 
-    def _collect_query_params(self, request: Request, schema: Schema) -> JSONOBJECT:
+    def _validate_query_params(self, request: Request, schema: Schema) -> JSONOBJECT:
         """
         When an API accepts HTTP query parameters from the URL, these aren't
         automatically validated by the dispatcher. This method collects query
@@ -719,7 +719,10 @@ class ApiBase(Resource):
         if badkey:
             raise BadQueryParam(badkey)
 
-        return json
+        # Normalize and validate the keys we got via the HTTP query string.
+        # These aren't automatically validated by the superclass, so we
+        # have to do it here.
+        return schema.validate(json)
 
     def _check_authorization(self, user_id: Union[str, None], access: Union[str, None]):
         """

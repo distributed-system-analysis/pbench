@@ -67,17 +67,14 @@ class DatasetsMetadata(ApiBase):
         query parameters.
 
         Args:
-            json_data: For a GET, this contains only the Flask URI template
-                values, which aren't used here
             request: The original Request object containing query parameters
 
         GET /api/v1/datasets/metadata?name=dname&metadata=dashboard.seen,server.deletion
         """
 
-        json = self._collect_query_params(request, self.GET_SCHEMA)
-        new_json = self.GET_SCHEMA.validate(json) if json else json
-        name = new_json.get("name")
-        keys = new_json.get("metadata")
+        json = self._validate_query_params(request, self.GET_SCHEMA)
+        name = json.get("name")
+        keys = json.get("metadata")
 
         self.logger.info("GET metadata {} for {}", keys, name)
         try:

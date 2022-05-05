@@ -5,11 +5,11 @@ from typing import Dict, List
 
 import pytest
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
 
 
-class TestDatasetsDaterange:
+class TestDatasetsDateRange:
     """
     Test the `datasets/daterange` API. We perform a variety of queries using a
     set of datasets provided by the `attach_dataset` fixture and the
@@ -64,8 +64,10 @@ class TestDatasetsDaterange:
         Returns:
             {"from": first_date, "to": last_date}
         """
-        from_time = datetime.datetime.now()
-        to_time = datetime.datetime(year=1970, month=1, day=1)
+        from_time = datetime.datetime.now(datetime.timezone.utc)
+        to_time = datetime.datetime(
+            year=1970, month=1, day=1, tzinfo=datetime.timezone.utc
+        )
         for name in sorted(name_list):
             dataset = Dataset.query(name=name)
             to_time = max(dataset.created, to_time)
@@ -83,9 +85,9 @@ class TestDatasetsDaterange:
             ("test_admin", {}, ["drb", "test", "fio_1", "fio_2"]),
         ],
     )
-    def test_dataset_list(self, query_as, login, query, results):
+    def test_dataset_daterange(self, query_as, login, query, results):
         """
-        Test the operation of `datasets/list` against our set of test
+        Test the operation of `datasets/daterange` against our set of test
         datasets.
 
         Args:
@@ -114,7 +116,7 @@ class TestDatasetsDaterange:
 
     def test_get_repeat_keys(self, query_as):
         """
-        Test case requesting repeated single-value metadata keys.
+        Test case requesting repeated single-value query param keys.
 
         NOTE that the request package processes a list of values for a query
         parameter by repeating the key name with each value since the HTTP
