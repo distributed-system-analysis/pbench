@@ -33,7 +33,7 @@ class ToolGroup:
         _pbench_run = os.environ.get("pbench_run") if pbench_run is None else pbench_run
         if not _pbench_run:
             raise BadToolGroup(
-                "Cannot validate tool group, '{group}', 'pbench_run'"
+                f"Cannot validate tool group, '{group}', 'pbench_run'"
                 " environment variable missing"
             )
 
