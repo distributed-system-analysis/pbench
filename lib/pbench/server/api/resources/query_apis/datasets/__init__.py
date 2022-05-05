@@ -23,7 +23,7 @@ class MissingDatasetNameParameter(SchemaError):
 
     NOTE: This is a development error, not a client error, and will be raised
     when the API is initialized at server startup. Arguably, this could be an
-    `assert` since it prevents launching the server.
+    assert since it prevents launching the server.
     """
 
     def __init__(self, subclass_name: str):
@@ -31,7 +31,7 @@ class MissingDatasetNameParameter(SchemaError):
         self.subclass_name = subclass_name
 
     def __str__(self) -> str:
-        return f"API {self.subclass_name} is missing schema parameter `name`"
+        return f"API {self.subclass_name} is missing schema parameter, name"
 
 
 class IndexMapBase(ElasticBase):
@@ -40,12 +40,12 @@ class IndexMapBase(ElasticBase):
     indices.
 
     This class extends the ElasticBase class and implements a common
-    `preprocess` method based on client provided dataset name. The ElasticBase
+    'preprocess' method which finds a target dataset by name. The ElasticBase
     methods 'assemble' and 'postprocess' must be implemented by the respective
     subclasses.
 
-    Note that dataset `name` is a required schema parameter for all the classes
-    extending this class. The common "preprocess" provides json context with a
+    Note that dataset 'name' is a required schema parameter for all the classes
+    extending this class. The common 'preprocess' provides json context with a
     dataset that's passed to the assemble and postprocess methods.
     """
 
@@ -99,9 +99,7 @@ class IndexMapBase(ElasticBase):
         try:
             dataset = Dataset.query(name=dataset_name)
         except DatasetNotFound:
-            raise APIAbort(
-                HTTPStatus.NOT_FOUND, f"Dataset {dataset_name!r} not found."
-            )
+            raise APIAbort(HTTPStatus.NOT_FOUND, f"Dataset {dataset_name!r} not found.")
         owner = User.query(id=dataset.owner_id)
         if not owner:
             self.logger.error(
@@ -114,7 +112,7 @@ class IndexMapBase(ElasticBase):
         # will raise UnauthorizedAccess on failure.
         self._check_authorization(owner.username, dataset.access)
 
-        # The dataset exists, and authenticated user has access, so continue
+        # The dataset exists, and the authenticated user has access, so process
         # the operation with the appropriate CONTEXT.
         return {"dataset": dataset}
 

@@ -473,13 +473,13 @@ class TestDatasetsContents(Commons):
         indices = self.cls_obj.get_index(drb, self.index_from_metadata)
         assert indices == "unit-test.v6.run-toc.2020-05"
 
-    @pytest.mark.parametrize("run_id", ("wrong", "", None))
-    def test_missing_run_id(self, client, server_config, pbench_token, run_id):
-        if run_id is None:
-            del self.payload["run_id"]
+    @pytest.mark.parametrize("name", ("wrong", "", None))
+    def test_missing_name(self, client, server_config, pbench_token, name):
+        if name is None:
+            del self.payload["name"]
             expected_status = HTTPStatus.BAD_REQUEST
         else:
-            self.payload["run_id"] = run_id
+            self.payload["name"] = name
             expected_status = HTTPStatus.NOT_FOUND
         response = client.post(
             f"{server_config.rest_uri}{self.pbench_endpoint}",
