@@ -10,7 +10,7 @@ The following options are available:
 	--options=str             options passed directly to the tool
 	--patterns=str[,str]      only collect information on process names
 	                          which match this pattern (complicated
-	                          patterns with special charaters may not
+	                          patterns with special characters may not
 	                          work) for kvm, use --patterns=qemu,vhost
 	--threads                 collect per-thread statistics
 

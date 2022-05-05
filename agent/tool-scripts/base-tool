@@ -240,7 +240,7 @@ function usage {
 		printf -- "\t--options=str             options passed directly to the tool\n"
 		printf -- "\t--patterns=str[,str]      only collect information on process names\n"
 		printf -- "\t                          which match this pattern (complicated\n"
-		printf -- "\t                          patterns with special charaters may not\n"
+		printf -- "\t                          patterns with special characters may not\n"
 		printf -- "\t                          work) for kvm, use --patterns=qemu,vhost\n"
 		printf -- "\t--threads                 collect per-thread statistics\n"
 		;;
