@@ -1888,7 +1888,7 @@ def driver(
                 logger.debug("waiting ...")
     except Exception:
         logger.exception("Unexpected error encountered")
-        ret_val = 10
+        ret_val = 8
     finally:
         if rh.errors > 0 or rh.redis_errors > 0 or rh.dropped > 0:
             logger.warning(
@@ -1956,7 +1956,7 @@ def daemon(
                 parsed.port,
                 exc,
             )
-            return 8
+            return 7
         else:
             logger.debug("re-constructed Redis server object")
         return driver(
@@ -2064,7 +2064,7 @@ def start(prog: Path, parsed: Arguments) -> int:
         return 6
 
     func = daemon if parsed.daemonize else driver
-    func(
+    return func(
         PROG,
         tar_path,
         sysinfo_dump,
