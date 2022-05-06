@@ -11,7 +11,6 @@ import { formatDate } from "../../../utils/dateFormatter";
 import { filterData } from "../../../utils/filterDataset";
 import { constructUTCDate } from "../../../utils/constructDate";
 import bumpToDate from "utils/bumpDate";
-import addOneDay from "utils/addDay";
 
 function DatePickerWidget({
   dataArray,
@@ -21,10 +20,10 @@ function DatePickerWidget({
 }) {
   const [fromDate, setFromDate] = useState({});
   const [toDate, setToDate] = useState(
-    constructUTCDate(formatDate(new Date(bumpToDate(new Date(), 1))))
+    bumpToDate(constructUTCDate(formatDate(new Date())), 1)
   );
   const [strDate, setStrDate] = useState(
-    new Date().toLocaleString("fr-CA").split(",")[0]
+    new Date().toLocaleDateString("fr-CA")
   );
   const toValidator = (date) =>
     date >= fromDate
@@ -36,10 +35,8 @@ function DatePickerWidget({
     setFromDate(isValidDate(date) ? selectedDate : {});
     if (isValidDate(date)) {
       if (date > new Date(strDate)) {
-        setToDate(
-          constructUTCDate(formatDate(new Date(bumpToDate(new Date(_str), 2))))
-        );
-        setStrDate(addOneDay(date));
+        setToDate(bumpToDate(constructUTCDate(formatDate(new Date(_str))), 1));
+        setStrDate(_str);
       }
     }
   };
@@ -62,9 +59,7 @@ function DatePickerWidget({
         onChange={(_str, date) => {
           setStrDate(_str);
           setToDate(
-            constructUTCDate(
-              formatDate(new Date(bumpToDate(new Date(_str), 1)))
-            )
+            bumpToDate(constructUTCDate(formatDate(new Date(_str))), 1)
           );
         }}
         isDisabled={!isValidDate(fromDate)}

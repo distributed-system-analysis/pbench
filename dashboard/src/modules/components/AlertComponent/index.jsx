@@ -4,7 +4,7 @@ import "./index.css";
 import React from "react";
 import { AUTH_LOGIN } from "utils/routeConstants";
 
-function AlertMessage({ message, link }) {
+function LoginAlertMessage({ message, link }) {
   const navigate = useNavigate();
   return (
     <Alert
@@ -29,4 +29,4 @@ function AlertMessage({ message, link }) {
   );
 }
 
-export default AlertMessage;
+export default LoginAlertMessage;

@@ -19,7 +19,6 @@ import SearchBox from "../SearchComponent";
 import DatePickerWidget from "../DatePickerComponent";
 import Heading from "../HeadingComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
-import AlertMessage from "../AlertComponent";
 import EmptyTable from "../EmptyStateComponent";
 import moment from "moment";
 import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
@@ -27,6 +26,7 @@ import TablePagination from "../PaginationComponent";
 import { constructUTCDate } from "../../../utils/constructDate";
 import { formatDate } from "../../../utils/dateFormatter";
 import MainLayout from "../../containers/MainLayout";
+import LoginAlertMessage from "../AlertComponent";
 let startDate = new Date(Date.UTC(1990, 10, 4));
 let endDate = constructUTCDate(new Date(formatDate(new Date())));
 let controllerName = "";
@@ -125,7 +125,7 @@ export const TableWithFavorite = () => {
   return (
     <>
       <MainLayout>
-        <AlertMessage
+        <LoginAlertMessage
           message="Want to see your own data?"
           link="Login to your account"
         />

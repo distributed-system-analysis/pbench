@@ -1,6 +1,4 @@
 const bumpToDate = (date, numberOfDays) => {
-  const bumpedDate = date.setUTCDate(date.getUTCDate() + numberOfDays);
-  return bumpedDate;
+  return date.setUTCDate(date.getUTCDate() + numberOfDays);
 };
-
 export default bumpToDate;
