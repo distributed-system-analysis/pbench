@@ -34,8 +34,8 @@ class UnauthorizedAccess(Exception):
         self,
         user: Union[User, None],
         operation: "API_OPERATION",
-        owner: str,
-        access: str,
+        owner: Union[str, None],
+        access: Union[str, None],
         http_status: int = HTTPStatus.FORBIDDEN,
     ):
         self.user = user
@@ -725,7 +725,7 @@ class ApiBase(Resource):
         # have to do it here.
         return schema.validate(json)
 
-    def _check_authorization(self, user: Union[str, None], access: Union[str, None]):
+    def _check_authorization(self, user_id: Union[str, None], access: Union[str, None]):
         """
         Check whether an API call is able to access data, based on the API's
         authorization header, the requested user, the requested access
@@ -752,8 +752,8 @@ class ApiBase(Resource):
             Any authenticated ADMIN user can update any data.
 
         Args:
-            user: The username parameter to the API, or None
-            access: The access parameter to the API, or None
+            user_id: The client's requested user ID (as a string), or None
+            access: The client's requested access parameter, or None
 
         Raises:
             UnauthorizedAccess: The user isn't authorized for the requested
@@ -765,11 +765,21 @@ class ApiBase(Resource):
                     and ACCESS.
         """
         authorized_user: User = Auth.token_auth.current_user()
+        username = "none"
+        if user_id:
+            user = User.query(id=user_id)
+            if user:
+                username = user.username
+            else:
+                self.logger.error(
+                    "Parser user ID {} not found in User database", user_id
+                )
         self.logger.debug(
-            "Authorizing {} access for {} to user {} with access {}",
+            "Authorizing {} access for {} to user {} ({}) with access {}",
             self.role,
             authorized_user,
-            user,
+            username,
+            user_id,
             access,
         )
 
@@ -794,12 +804,16 @@ class ApiBase(Resource):
                 # An unauthenticated user is never allowed to access private
                 # data nor to perform an potential mutation of data: REJECT
                 self.logger.warning(
-                    "Attempt to {} user {} data without login", self.role, user
+                    "Attempt to {} user {} data without login", self.role, username
                 )
                 raise UnauthorizedAccess(
-                    authorized_user, self.role, user, access, HTTPStatus.UNAUTHORIZED
+                    authorized_user,
+                    self.role,
+                    username,
+                    access,
+                    HTTPStatus.UNAUTHORIZED,
                 )
-            elif self.role != API_OPERATION.READ and user is None:
+            elif self.role != API_OPERATION.READ and user_id is None:
                 # No target user is specified, so we won't allow mutation of
                 # data: REJECT
                 self.logger.warning(
@@ -808,11 +822,11 @@ class ApiBase(Resource):
                     self.role,
                 )
                 raise UnauthorizedAccess(
-                    authorized_user, self.role, user, access, HTTPStatus.FORBIDDEN
+                    authorized_user, self.role, username, access, HTTPStatus.FORBIDDEN
                 )
             elif (
-                user
-                and user != authorized_user.username
+                user_id
+                and user_id != str(authorized_user.id)
                 and not authorized_user.is_admin()
             ):
                 # We are mutating data, or reading private data, so the
@@ -822,10 +836,10 @@ class ApiBase(Resource):
                     "Unauthorized attempt by {} to {} user {} data",
                     authorized_user,
                     self.role,
-                    user,
+                    username,
                 )
                 raise UnauthorizedAccess(
-                    authorized_user, self.role, user, access, HTTPStatus.FORBIDDEN
+                    authorized_user, self.role, username, access, HTTPStatus.FORBIDDEN
                 )
             else:
                 # We have determined that there is an authenticated user with
@@ -1105,7 +1119,7 @@ class ApiBase(Resource):
         # is unnecessary or that the API-specific subclass will take care of
         # that in preprocess.
         if "user" in self.schema and self.schema["user"].type is ParamType.USER:
-            user = json_data.get("user")  # original username, not user ID
+            user = new_data.get("user")  # converted user ID
             access = new_data.get("access")  # normalized access policy
             try:
                 self._check_authorization(user, access)

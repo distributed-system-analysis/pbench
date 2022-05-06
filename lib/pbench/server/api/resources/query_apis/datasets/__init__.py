@@ -13,7 +13,6 @@ from pbench.server.database.models.datasets import (
     MetadataError,
 )
 from pbench.server.database.models.template import Template
-from pbench.server.database.models.users import User
 
 
 class MissingDatasetNameParameter(SchemaError):
@@ -100,17 +99,11 @@ class IndexMapBase(ElasticBase):
             dataset = Dataset.query(name=dataset_name)
         except DatasetNotFound:
             raise APIAbort(HTTPStatus.NOT_FOUND, f"Dataset {dataset_name!r} not found.")
-        owner = User.query(id=dataset.owner_id)
-        if not owner:
-            self.logger.error(
-                "Dataset owner ID {!r} cannot be found in Users", dataset.owner_id
-            )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         # We check authorization against the ownership of the dataset that was
         # selected rather than having an explicit "user" JSON parameter. This
         # will raise UnauthorizedAccess on failure.
-        self._check_authorization(owner.username, dataset.access)
+        self._check_authorization(str(dataset.owner_id), dataset.access)
 
         # The dataset exists, and the authenticated user has access, so process
         # the operation with the appropriate CONTEXT.

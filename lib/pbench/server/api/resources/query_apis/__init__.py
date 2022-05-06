@@ -623,13 +623,6 @@ class ElasticBulkBase(ApiBase):
         except DatasetNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
-        owner = User.query(id=dataset.owner_id)
-        if not owner:
-            self.logger.error(
-                "Dataset owner ID {} cannot be found in Users", dataset.owner_id
-            )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
-
         # For bulk Elasticsearch operations, we check authorization against the
         # ownership of a designated dataset rather than having an explicit
         # "user" JSON parameter. If the subclass schema includes an "access"
@@ -638,7 +631,7 @@ class ElasticBulkBase(ApiBase):
         #
         # This will raise UnauthorizedAccess on failure.
         try:
-            self._check_authorization(owner.username, dataset.access)
+            self._check_authorization(str(dataset.owner_id), dataset.access)
         except UnauthorizedAccess as e:
             raise APIAbort(e.http_status, str(e))
 
