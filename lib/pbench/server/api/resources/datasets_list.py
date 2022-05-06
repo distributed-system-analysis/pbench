@@ -71,9 +71,7 @@ class DatasetsList(ApiBase):
         query = Database.db_session.query(Dataset)
         if "start" in json and "end" in json:
             self.logger.info("Adding start / end query")
-            query = query.filter(
-                Dataset.created.between(json["start"], json["end"])
-            )
+            query = query.filter(Dataset.created.between(json["start"], json["end"]))
         elif "start" in json:
             self.logger.info("Adding start query")
             query = query.filter(Dataset.created >= json["start"])

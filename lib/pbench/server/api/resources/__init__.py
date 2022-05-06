@@ -722,7 +722,9 @@ class ApiBase(Resource):
         # Normalize and validate the keys we got via the HTTP query string.
         # These aren't automatically validated by the superclass, so we
         # have to do it here.
-        return schema.validate(json)
+        if json:
+            return schema.validate(json)
+        return {}
 
     def _check_authorization(self, user_id: Union[str, None], access: Union[str, None]):
         """
