@@ -23,7 +23,7 @@ function DatePickerWidget({
     bumpToDate(constructUTCDate(formatDate(new Date())), 1)
   );
   const [strDate, setStrDate] = useState(
-    new Date().toLocaleDateString("fr-CA")
+    new Date().toLocaleDateString("fr-CA") //specified fr-CA locale so that date object is correctly modified to YYYY-MM-DD
   );
   const toValidator = (date) =>
     date >= fromDate
