@@ -29,6 +29,12 @@ class User(Database.Base):
     role = Column(Enum(Roles), unique=False, nullable=True)
     auth_tokens = relationship("ActiveTokens", backref="users")
 
+    # NOTE: this relationship defines a `user` property in `Metadata`
+    # that refers to the parent `User` object.
+    dataset_metadata = relationship(
+        "Metadata", back_populates="user", cascade="all, delete-orphan"
+    )
+
     def __str__(self):
         return f"User, id: {self.id}, username: {self.username}"
 

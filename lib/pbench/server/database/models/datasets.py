@@ -4,11 +4,11 @@ import enum
 import os
 from pathlib import Path
 import re
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 from sqlalchemy import Column, DateTime, Enum, event, ForeignKey, Integer, JSON, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy.orm import relationship, validates, Query
 from sqlalchemy.types import TypeDecorator
 
 from pbench.server.database.database import Database
@@ -821,6 +821,12 @@ class Metadata(Database.Base):
     # the "server" namespace, and are strictly controlled by keyword path:
     # e.g., "server.deleted", "server.archived";
     #
+    # Metadata keys within the "user" namespace allow exposure of user-specific
+    # configuration data through the Dataset metadata API; for example, a
+    # client can ask whether a specific dataset has been "favorited" by the
+    # authenticated user (TBD) and the allowable access settings (currently
+    # private and public).
+    #
     # Metadata keys intended for use by the dashboard client are in the
     # "dashboard" namespace. While these can be modified by any API client, the
     # separate namespace provides some protection against accidental
@@ -828,26 +834,9 @@ class Metadata(Database.Base):
     # namespace, allowing the dashboard to define and manage any keys it needs
     # within the "dashboard.*" hierarchy.
     #
-    # Metadata keys within the "user" namespace are reserved for general client
-    # use, although by convention a second-level key-space should be used to
-    # provide some isolation. This is an "open" namespace, allowing any API
-    # client to define new keywords such as "user.contact" or "user.me.you"
-    # and JSON subdocuments are available at any level. For example, if we've
-    # set "user.contact.email" and "user.postman.test" then retrieving "user"
-    # will return a JSON document like
-    #     {"contact": {"email": "value"}, "postman": {"test": "value"}}
-    # and retrieving "user.contact" would return
-    #     {"email": "value"}
-    #
     # The following class constants define the set of currently available
     # metadata keys, where the "open" namespaces are represented by the
     # syntax "user.*".
-
-    # DELETION timestamp for dataset based on user settings and system
-    # settings at time the dataset is created.
-    #
-    # {"server.deletion": "2021-12-25"}
-    DELETION = "server.deletion"
 
     # DASHBOARD is arbitrary data saved on behalf of the dashboard client; the
     # reserved namespace differs from "user" only in that reserving a primary
@@ -857,8 +846,8 @@ class Metadata(Database.Base):
     # {"dashboard.seen": True}
     DASHBOARD = "dashboard.*"
 
-    # USER is arbitrary data saved on behalf of the owning user, as a JSON
-    # document.
+    # USER is arbitrary data saved with the dataset on behalf of an
+    # authenticated user, as a JSON document.
     #
     # Note that the hierarchical key management in the getvalue and setvalue
     # static methods (used consistently by the API layer) allow client code
@@ -870,8 +859,23 @@ class Metadata(Database.Base):
     # the first element of the path should be validated, allowing the client
     # a completely uninterpreted namespace below that.
     #
-    # {"user.cloud": "AWS", "user.mood": "CLOUDY"}}
-    USER = "user.*"
+    # Metadata in the "user" namespace is user-specific; it will always be set
+    # and accessed using the authenticated user ID. That is, different users
+    # will see their own "user" namespace keys for any given dataset.
+    #
+    # TODO: ?? It occurs to me that we could allow "user" metadata rows without
+    # a user_id, which could act as a "default" for all users examining the
+    # dataset -- I'm not entirely sure this is a good model.
+    #
+    # {"user.favorite": True}
+    USER_NATIVE_KEY = "user"
+    USER = USER_NATIVE_KEY + ".*"
+
+    # DELETION timestamp for dataset based on user settings and system
+    # settings at time the dataset is created.
+    #
+    # {"server.deletion": "2021-12-25"}
+    DELETION = "server.deletion"
 
     # REINDEX boolean flag to indicate when a dataset should be re-indexed
     #
@@ -928,8 +932,12 @@ class Metadata(Database.Base):
     key = Column(String(255), unique=False, nullable=False, index=True)
     value = Column(JSON, unique=False, nullable=True)
     dataset_ref = Column(Integer, ForeignKey("datasets.id"), nullable=False)
+    user_ref = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     dataset = relationship("Dataset", back_populates="metadatas", single_parent=True)
+    user = relationship("User", back_populates="dataset_metadata", single_parent=True)
+
+    # __table_args__ = (UniqueConstraint("user", "key"), {})
 
     @validates("key")
     def validate_key(self, _, value: Any) -> str:
@@ -981,6 +989,19 @@ class Metadata(Database.Base):
             return meta
 
     @staticmethod
+    def get_native_key(key: str) -> str:
+        """
+        Extract the root key name
+
+        Args:
+            key:    Key path (e.g., "user.tag")
+
+        Returns:
+            native SQL key name ("user")
+        """
+        return key.lower().split(".").pop(0)
+
+    @staticmethod
     def is_key_path(key: str, valid: List[str]) -> bool:
         """
         Determine whether 'key' is a valid Metadata key path using the list
@@ -1012,7 +1033,7 @@ class Metadata(Database.Base):
         return bool(re.fullmatch(Metadata._valid_key_charset, k))
 
     @staticmethod
-    def getvalue(dataset: Dataset, key: str) -> JSON:
+    def getvalue(dataset: Dataset, key: str, user: Optional[User] = None) -> JSON:
         """
         Returns the value of the specified key, which may be a dotted
         hierarchical path (e.g., "server.deleted").
@@ -1030,6 +1051,7 @@ class Metadata(Database.Base):
         Args:
             dataset: associated dataset
             key: hierarchical key path to fetch
+            user:
 
         Returns:
             Value of the key path
@@ -1039,7 +1061,7 @@ class Metadata(Database.Base):
         keys = key.lower().split(".")
         native_key = keys.pop(0)
         try:
-            meta = Metadata.get(dataset, native_key)
+            meta = Metadata.get(dataset, native_key, user)
         except MetadataNotFound:
             return None
         value = meta.value
@@ -1057,7 +1079,9 @@ class Metadata(Database.Base):
         return value
 
     @staticmethod
-    def setvalue(dataset: Dataset, key: str, value: Any) -> "Metadata":
+    def setvalue(
+        dataset: Dataset, key: str, value: Any, user: Optional[User] = None
+    ) -> "Metadata":
         """
         Create or modify an existing metadata value. This method supports
         hierarchical dotted paths like "dashboard.seen" and should be used in
@@ -1083,7 +1107,7 @@ class Metadata(Database.Base):
         native_key = keys.pop(0)
         found = True
         try:
-            meta = Metadata.get(dataset, native_key)
+            meta = Metadata.get(dataset, native_key, user)
 
             # SQLAlchemy determines whether to perform an `update` based on the
             # Python object reference. We make a copy here to ensure that it
@@ -1120,11 +1144,19 @@ class Metadata(Database.Base):
             meta.value = meta_value
             meta.update()
         else:
-            meta = Metadata.create(dataset=dataset, key=native_key, value=meta_value)
+            meta = Metadata.create(
+                dataset=dataset, key=native_key, value=meta_value, user=user
+            )
         return meta
 
     @staticmethod
-    def get(dataset: Dataset, key: str) -> "Metadata":
+    def _query(dataset: Dataset, key: str, user: Optional[User]) -> Query:
+        return Database.db_session.query(Metadata).filter_by(
+            dataset=dataset, key=key, user=user
+        )
+
+    @staticmethod
+    def get(dataset: Dataset, key: str, user: Optional[User] = None) -> "Metadata":
         """
         Fetch a Metadata (row) from the database by key name.
 
@@ -1140,21 +1172,17 @@ class Metadata(Database.Base):
             The Metadata model object
         """
         try:
-            meta = (
-                Database.db_session.query(Metadata)
-                .filter_by(dataset=dataset, key=key)
-                .first()
-            )
-        except SQLAlchemyError as e:
+            meta = __class__._query(dataset, key, user).first()
+        except SQLAlchemyError:
             Metadata.logger.exception("Can't get {}>>{} from DB", dataset, key)
-            raise MetadataSqlError("getting", dataset, key) from e
+            raise MetadataSqlError("getting", dataset, key)
         else:
             if meta is None:
                 raise MetadataNotFound(dataset, key)
             return meta
 
     @staticmethod
-    def remove(dataset: Dataset, key: str):
+    def remove(dataset: Dataset, key: str, user: Optional[User] = None):
         """
         remove Remove a metadata key from the dataset
 
@@ -1166,9 +1194,7 @@ class Metadata(Database.Base):
             DatasetSqlError: Something went wrong
         """
         try:
-            Database.db_session.query(Metadata).filter_by(
-                dataset=dataset, key=key
-            ).delete()
+            __class__._query(dataset, key, user).delete()
             Database.db_session.commit()
         except SQLAlchemyError as e:
             Metadata.logger.exception("Can't remove {}>>{} from DB", dataset, key)
@@ -1185,7 +1211,7 @@ class Metadata(Database.Base):
             raise DatasetBadParameterType(dataset, Dataset)
 
         try:
-            Metadata.get(dataset, self.key)
+            Metadata.get(dataset, self.key, self.user)
         except MetadataNotFound:
             pass
         else:

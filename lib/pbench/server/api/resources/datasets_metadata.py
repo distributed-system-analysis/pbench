@@ -1,10 +1,12 @@
 from http import HTTPStatus
 from logging import Logger
+from typing import Optional
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
 from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
+from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
     APIAbort,
     API_OPERATION,
@@ -19,6 +21,7 @@ from pbench.server.database.models.datasets import (
     Metadata,
     MetadataError,
 )
+from pbench.server.database.models.users import User
 
 
 class DatasetsMetadata(ApiBase):
@@ -125,16 +128,35 @@ class DatasetsMetadata(ApiBase):
 
         # Validate the authenticated user's authorization for the combination
         # of "owner" and "access".
-        self._check_authorization(str(dataset.owner_id), dataset.access)
+        #
+        # Note that we allow authenticated clients to set "user.*" namespace
+        # metadata with READ access to the dataset because it doesn't affect
+        # the Dataset itself and isn't visible to other users, but we require
+        # UPDATE access for any keys outside the "user" namespace.
+        role = API_OPERATION.READ
+        if not Auth.token_auth.current_user():
+            role = API_OPERATION.UPDATE
+        else:
+            for k in metadata.keys():
+                if Metadata.get_native_key(k) != Metadata.USER_NATIVE_KEY:
+                    role = API_OPERATION.UPDATE
+        self._check_authorization(
+            str(dataset.owner_id), dataset.access, check_role=role
+        )
 
         failures = []
         for k, v in metadata.items():
+            native_key = Metadata.get_native_key(k)
+            user = None
+            if native_key == Metadata.USER_NATIVE_KEY:
+                authorized_user: Optional[User] = Auth.token_auth.current_user()
+                user = authorized_user
             try:
-                Metadata.setvalue(dataset, k, v)
+                Metadata.setvalue(key=k, value=v, dataset=dataset, user=user)
             except MetadataError as e:
                 self.logger.warning("Unable to update key {} = {!r}: {}", k, v, str(e))
                 failures.append(k)
         if failures:
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
-        results = self._get_metadata(name, list(metadata.keys()))
+        results = self._get_dataset_metadata(dataset, list(metadata.keys()))
         return jsonify(results)
