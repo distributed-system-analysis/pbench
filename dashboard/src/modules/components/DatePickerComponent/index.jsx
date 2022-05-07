@@ -7,10 +7,10 @@ import {
   Button,
 } from "@patternfly/react-core";
 import "./index.css";
-import { formatDate } from "../../../utils/dateFormatter";
 import { filterData } from "../../../utils/filterDataset";
-import { constructUTCDate } from "../../../utils/constructDate";
+import {dateFromUTCString } from "../../../utils/constructDate";
 import bumpToDate from "utils/bumpDate";
+import { getMidnightUTCDate } from "utils/getMidnightUTCDate";
 
 function DatePickerWidget({
   dataArray,
@@ -19,11 +19,9 @@ function DatePickerWidget({
   setDateRange,
 }) {
   const [fromDate, setFromDate] = useState({});
-  const [toDate, setToDate] = useState(
-    bumpToDate(constructUTCDate(formatDate(new Date())), 1)
-  );
+  const [toDate, setToDate] = useState(bumpToDate(getMidnightUTCDate(), 1));
   const [strDate, setStrDate] = useState(
-    new Date().toLocaleDateString("fr-CA") //specified fr-CA locale so that date object is correctly modified to YYYY-MM-DD
+    new Date().toLocaleDateString("fr-CA") //Return a YYYY-MM-DD string
   );
   const toValidator = (date) =>
     date >= fromDate
@@ -31,11 +29,11 @@ function DatePickerWidget({
       : "To date must be greater than or equal to from date";
 
   const onFromChange = (_str, date) => {
-    const selectedDate = constructUTCDate(_str);
+    const selectedDate = dateFromUTCString(_str);
     setFromDate(isValidDate(date) ? selectedDate : {});
     if (isValidDate(date)) {
       if (date > new Date(strDate)) {
-        setToDate(bumpToDate(constructUTCDate(formatDate(new Date(_str))), 1));
+        setToDate(bumpToDate(dateFromUTCString(_str), 1));
         setStrDate(_str);
       }
     }
@@ -58,9 +56,7 @@ function DatePickerWidget({
         value={strDate}
         onChange={(_str, date) => {
           setStrDate(_str);
-          setToDate(
-            bumpToDate(constructUTCDate(formatDate(new Date(_str))), 1)
-          );
+          setToDate(bumpToDate(dateFromUTCString(_str), 1));
         }}
         isDisabled={!isValidDate(fromDate)}
         rangeStart={fromDate}

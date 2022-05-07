@@ -1,5 +1,3 @@
-export const constructUTCDate = (strDate) => {
-  const date = new Date(strDate);
-  date.setUTCMinutes(date.getUTCMinutes() - date.getTimezoneOffset());
-  return date;
+export const dateFromUTCString = (strDate) => {
+  return new Date(strDate + "Z");
 };

@@ -20,9 +20,9 @@ function LoginAlertMessage({ message, link }) {
         />
       }
       title={[
-        `${message}`,
+        'Want to see your own data?',
         <a className="alertHelpText" onClick={() => navigate(`/${AUTH_LOGIN}`)}>
-          {link}
+          Login to your account
         </a>,
       ]}
     ></Alert>

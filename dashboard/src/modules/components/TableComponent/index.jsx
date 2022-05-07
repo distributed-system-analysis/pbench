@@ -23,12 +23,11 @@ import EmptyTable from "../EmptyStateComponent";
 import moment from "moment";
 import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
 import TablePagination from "../PaginationComponent";
-import { constructUTCDate } from "../../../utils/constructDate";
-import { formatDate } from "../../../utils/dateFormatter";
 import MainLayout from "../../containers/MainLayout";
 import LoginAlertMessage from "../AlertComponent";
+import { getMidnightUTCDate } from "utils/getMidnightUTCDate";
 let startDate = new Date(Date.UTC(1990, 10, 4));
-let endDate = constructUTCDate(new Date(formatDate(new Date())));
+let endDate = getMidnightUTCDate()
 let controllerName = "";
 let dataArray = [];
 export const TableWithFavorite = () => {
@@ -125,10 +124,7 @@ export const TableWithFavorite = () => {
   return (
     <>
       <MainLayout>
-        <LoginAlertMessage
-          message="Want to see your own data?"
-          link="Login to your account"
-        />
+        <LoginAlertMessage/>
         <PageSection variant={PageSectionVariants.light}>
           <PathBreadCrumb pathList={["Dashboard", "Components"]} />
           <Heading headingTitle="Controllers"></Heading>
