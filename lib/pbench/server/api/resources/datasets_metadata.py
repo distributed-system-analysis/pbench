@@ -4,7 +4,7 @@ from logging import Logger
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import JSONOBJECT, PbenchServerConfig
+from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
     API_OPERATION,
@@ -54,7 +54,7 @@ class DatasetsMetadata(ApiBase):
             role=API_OPERATION.UPDATE,
         )
 
-    def _get(self, _, request: Request) -> Response:
+    def _get(self, json_data: JSON, request: Request) -> Response:
         """
         Get the values of client-accessible dataset metadata keys.
 
@@ -67,6 +67,7 @@ class DatasetsMetadata(ApiBase):
         query parameters.
 
         Args:
+            json_data: Ignored because GET has no JSON payload
             request: The original Request object containing query parameters
 
         GET /api/v1/datasets/metadata?name=dname&metadata=dashboard.seen,server.deletion

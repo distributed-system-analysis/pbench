@@ -3,7 +3,7 @@ import logging
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import PbenchServerConfig
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
     API_OPERATION,
     ApiBase,
@@ -45,7 +45,7 @@ class DatasetsList(ApiBase):
             role=API_OPERATION.READ,
         )
 
-    def _get(self, _, request: Request) -> Response:
+    def _get(self, json_data: JSON, request: Request) -> Response:
         """
         Get a list of datasets matching a set of criteria.
 
@@ -53,6 +53,7 @@ class DatasetsList(ApiBase):
         desired metadata keys; instead we rely on URI query parameters.
 
         Args:
+            json_data: Ignored because GET has no JSON payload
             request: The original Request object containing query parameters
 
         GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen,server.deletion

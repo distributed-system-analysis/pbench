@@ -3,7 +3,7 @@ from flask.wrappers import Request, Response
 from logging import Logger
 from sqlalchemy import func
 
-from pbench.server import PbenchServerConfig
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
     ApiBase,
     API_OPERATION,
@@ -33,12 +33,13 @@ class DatasetsDateRange(ApiBase):
             role=API_OPERATION.READ,
         )
 
-    def _get(self, _, request: Request) -> Response:
+    def _get(self, json_data: JSON, request: Request) -> Response:
         """
         Get the date range for which datasets are available to the client based
         on authentication plus optional dataset owner and access criteria.
 
         Args:
+            json_data: Ignored because GET has no JSON payload
             request: The original Request object containing query parameters
 
         GET /api/v1/datasets/daterange?owner=user&access=public
