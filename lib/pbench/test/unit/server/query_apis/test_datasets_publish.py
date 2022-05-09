@@ -159,7 +159,7 @@ class TestDatasetsPublish:
 
         # Verify the report and status
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == {"ok": 28, "failure": 3}
+        assert response.json["message"] == "Failed to update 3 out of 31 documents"
         assert (
             "pbench.server.api",
             ERROR,

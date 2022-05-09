@@ -10,6 +10,7 @@ from urllib.parse import urljoin
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 from elasticsearch import Elasticsearch, helpers, VERSION
+from flask import jsonify
 from flask.wrappers import Response
 import requests
 
@@ -753,8 +754,11 @@ class ElasticBulkBase(ApiBase):
                 error_count,
                 json.dumps(report),
             )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, summary)
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failed to update {error_count} out of {count} documents",
+            )
         self.logger.info(
             "{}:dataset {}: {} successful document actions", klasname, dataset, count
         )
-        return summary
+        return jsonify(summary)
