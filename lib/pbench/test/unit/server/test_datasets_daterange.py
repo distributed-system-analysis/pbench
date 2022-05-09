@@ -1,7 +1,7 @@
 import datetime
 from http import HTTPStatus
 import requests
-from typing import List
+from typing import Dict, List
 
 import pytest
 
@@ -9,9 +9,9 @@ from pbench.server import JSON, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
 
 
-class TestDatasetsList:
+class TestDatasetsDateRange:
     """
-    Test the `datasets/list` API. We perform a variety of queries using a
+    Test the `datasets/daterange` API. We perform a variety of queries using a
     set of datasets provided by the `attach_dataset` fixture and the
     `more_datasets` fixture.
     """
@@ -34,7 +34,7 @@ class TestDatasetsList:
         ) -> requests.Response:
             token = self.token(client, server_config, username)
             response = client.get(
-                f"{server_config.rest_uri}/datasets/list",
+                f"{server_config.rest_uri}/datasets/daterange",
                 headers={"authorization": f"bearer {token}"},
                 query_string=payload,
             )
@@ -53,55 +53,41 @@ class TestDatasetsList:
         assert data["auth_token"]
         return data["auth_token"]
 
-    def get_results(self, name_list: List[str]) -> JSON:
+    def get_results(self, name_list: List[str]) -> Dict[str, datetime.datetime]:
         """
-        Translate a list of names into a list of expected results of the
-        abbreviated form returned by `datasets/list`: name, controller,
-        run_id, and metadata.
+        Use a list of "expected results" to determine the earliest and the
+        latest creation date of the set of datasets.
 
         Args:
             name_list: List of dataset names
 
         Returns:
-            JSON list of dataset values
+            {"from": first_date, "to": last_date}
         """
-        list: List[JSON] = []
+        from_time = datetime.datetime.now(datetime.timezone.utc)
+        to_time = datetime.datetime(
+            year=1970, month=1, day=1, tzinfo=datetime.timezone.utc
+        )
         for name in sorted(name_list):
             dataset = Dataset.query(name=name)
-            list.append(
-                {
-                    "name": dataset.name,
-                    "controller": dataset.controller,
-                    "run_id": dataset.md5,
-                    "metadata": {
-                        "dataset.created": datetime.datetime.isoformat(dataset.created)
-                    },
-                }
-            )
-        return list
+            to_time = max(dataset.created, to_time)
+            from_time = min(dataset.created, from_time)
+        return {"from": from_time.isoformat(), "to": to_time.isoformat()}
 
     @pytest.mark.parametrize(
         "login,query,results",
         [
-            ("drb", {"name": "fio"}, ["fio_1", "fio_2"]),
             ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
-            ("drb", {"controller": "foobar"}, []),
-            ("drb", {"name": "drb"}, ["drb"]),
-            ("test", {"name": "drb"}, []),
-            ("test_admin", {"name": "drb"}, ["drb"]),
-            ("drb", {"controller": "node"}, ["drb"]),
+            ("drb", {"access": "public"}, ["drb", "fio_2"]),
+            ("test_admin", {"owner": "drb"}, ["drb"]),
             ("drb", {}, ["drb", "fio_1", "fio_2"]),
             ("test", {}, ["test", "fio_1", "fio_2"]),
             ("test_admin", {}, ["drb", "test", "fio_1", "fio_2"]),
-            ("drb", {"start": "2000-01-01", "end": "2005-12-31"}, ["fio_2"]),
-            ("drb", {"start": "2005-01-01"}, ["drb", "fio_1"]),
-            ("drb", {"end": "2020-09-01"}, ["drb", "fio_1", "fio_2"]),
-            ("drb", {"end": "1970-09-01"}, []),
         ],
     )
-    def test_dataset_list(self, query_as, login, query, results):
+    def test_dataset_daterange(self, query_as, login, query, results):
         """
-        Test the operation of `datasets/list` against our set of test
+        Test the operation of `datasets/daterange` against our set of test
         datasets.
 
         Args:
@@ -111,25 +97,8 @@ class TestDatasetsList:
                 automatically supplemented with a metadata request term)
             results: A list of the dataset names we expect to be returned
         """
-        query.update({"metadata": ["dataset.created"]})
         result = query_as(query, login, HTTPStatus.OK)
         assert result.json == self.get_results(results)
-
-    def test_get_bad_keys(self, query_as):
-        """
-        Test case requesting non-existent metadata keys.
-
-        Args:
-            query_as: Query helper fixture
-        """
-        response = query_as(
-            {"metadata": "xyzzy,plugh,dataset.owner,dataset.access"},
-            "drb",
-            HTTPStatus.BAD_REQUEST,
-        )
-        assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.*', 'dataset.access', 'dataset.created', 'dataset.owner', 'dataset.uploaded', 'server.deletion', 'user.*']"
-        }
 
     def test_get_unknown_keys(self, query_as):
         """
@@ -147,7 +116,7 @@ class TestDatasetsList:
 
     def test_get_repeat_keys(self, query_as):
         """
-        Test case requesting repeated single-value metadata keys.
+        Test case requesting repeated single-value query param keys.
 
         NOTE that the request package processes a list of values for a query
         parameter by repeating the key name with each value since the HTTP
@@ -158,8 +127,8 @@ class TestDatasetsList:
             query_as: Query helper fixture
         """
         response = query_as(
-            {"name": ["one", "two"]},
+            {"owner": ["one", "two"]},
             "drb",
             HTTPStatus.BAD_REQUEST,
         )
-        assert response.json == {"message": "Repeated URL query key 'name'"}
+        assert response.json == {"message": "Repeated URL query key 'owner'"}

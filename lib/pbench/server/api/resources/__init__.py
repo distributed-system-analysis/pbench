@@ -652,7 +652,7 @@ class ApiBase(Resource):
         self,
         config: PbenchServerConfig,
         logger: Logger,
-        schema: Schema,
+        schema: Union[Schema, None],
         *,  # following parameters are keyword-only
         role: API_OPERATION = API_OPERATION.READ,
     ):
@@ -683,8 +683,7 @@ class ApiBase(Resource):
         """
         When an API accepts HTTP query parameters from the URL, these aren't
         automatically validated by the dispatcher. This method collects query
-        parameters into a JSON object and validates them against a specified
-        schema.
+        parameters into a JSON object which can be validated against a Schema.
 
         Note that a multi-valued query parameter can be specified *either* by
         a comma-separated single string value *or* by a list of individual
@@ -723,7 +722,9 @@ class ApiBase(Resource):
         # Normalize and validate the keys we got via the HTTP query string.
         # These aren't automatically validated by the superclass, so we
         # have to do it here.
-        return schema.validate(json)
+        if json:
+            return schema.validate(json)
+        return {}
 
     def _check_authorization(self, user_id: Union[str, None], access: Union[str, None]):
         """
@@ -904,7 +905,7 @@ class ApiBase(Resource):
 
         Args:
             JSON query parameters containing keys:
-                "owner": Pbench username to restrict search to datasets owned by
+                "owner": Pbench user ID to restrict search to datasets owned by
                     a specific user.
                 "access": Access category, "public" or "private" to restrict
                     search to datasets with a specific access category.

@@ -3,7 +3,7 @@ import logging
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
     API_OPERATION,
     ApiBase,
@@ -52,38 +52,40 @@ class DatasetsList(ApiBase):
         NOTE: This does not rely on a JSON payload to identify the dataset and
         desired metadata keys; instead we rely on URI query parameters.
 
+        Args:
+            json_data: Ignored because GET has no JSON payload
+            request: The original Request object containing query parameters
+
         GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen,server.deletion
         """
 
         # We missed automatic schema validation due to the lack of a JSON body;
         # construct an equivalent JSON body now so we can run it through the
         # validator.
-        new_json = self._validate_query_params(request, self.schema)
+        json = self._validate_query_params(request, self.schema)
 
         # Validate the authenticated user's authorization for the combination
         # of "owner" and "access".
-        self._check_authorization(new_json.get("owner"), new_json.get("access"))
+        self._check_authorization(json.get("owner"), json.get("access"))
 
         # Build a SQLAlchemy Query object expressing all of our constraints
         query = Database.db_session.query(Dataset)
-        if "start" in new_json and "end" in new_json:
+        if "start" in json and "end" in json:
             self.logger.info("Adding start / end query")
-            query = query.filter(
-                Dataset.created.between(new_json["start"], new_json["end"])
-            )
-        elif "start" in new_json:
+            query = query.filter(Dataset.created.between(json["start"], json["end"]))
+        elif "start" in json:
             self.logger.info("Adding start query")
-            query = query.filter(Dataset.created >= new_json["start"])
-        elif "end" in new_json:
+            query = query.filter(Dataset.created >= json["start"])
+        elif "end" in json:
             self.logger.info("Adding end query")
-            query = query.filter(Dataset.created <= new_json["end"])
-        if "name" in new_json:
+            query = query.filter(Dataset.created <= json["end"])
+        if "name" in json:
             self.logger.info("Adding name query")
-            query = query.filter(Dataset.name.contains(new_json["name"]))
-        if "controller" in new_json:
+            query = query.filter(Dataset.name.contains(json["name"]))
+        if "controller" in json:
             self.logger.info("Adding controller query")
-            query = query.filter(Dataset.controller == new_json["controller"])
-        query = self._build_sql_query(new_json, query)
+            query = query.filter(Dataset.controller == json["controller"])
+        query = self._build_sql_query(json, query)
 
         # Useful for debugging, but verbose: this displays the fully expanded
         # SQL `SELECT` statement.
@@ -97,7 +99,7 @@ class DatasetsList(ApiBase):
         # consistent and reproducible output to compare.
         results = query.order_by(Dataset.name).all()
 
-        keys = new_json.get("metadata")
+        keys = json.get("metadata")
 
         response = []
         for dataset in results:

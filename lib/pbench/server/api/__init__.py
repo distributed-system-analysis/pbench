@@ -15,6 +15,7 @@ from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
+from pbench.server.api.resources.datasets_daterange import DatasetsDateRange
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
@@ -56,6 +57,11 @@ def register_endpoints(api, app, config):
     api.add_resource(
         DatasetsContents,
         f"{base_uri}/datasets/contents",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        DatasetsDateRange,
+        f"{base_uri}/datasets/daterange",
         resource_class_args=(config, logger),
     )
     api.add_resource(
