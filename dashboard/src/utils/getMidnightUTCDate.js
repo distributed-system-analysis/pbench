@@ -1,4 +1,4 @@
-export const getMidnightUTCDate = () => {
+export const getTodayMidnightUTCDate = () => {
   const midnightUTC = new Date();
   midnightUTC.setUTCHours(0);
   midnightUTC.setUTCMinutes(0);

@@ -20,14 +20,13 @@ import DatePickerWidget from "../DatePickerComponent";
 import Heading from "../HeadingComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
 import EmptyTable from "../EmptyStateComponent";
-import moment from "moment";
 import { fetchPublicDatasets } from "../../../actions/fetchPublicDatasets";
 import TablePagination from "../PaginationComponent";
 import MainLayout from "../../containers/MainLayout";
 import LoginAlertMessage from "../AlertComponent";
-import { getMidnightUTCDate } from "utils/getMidnightUTCDate";
+import { getTodayMidnightUTCDate } from "utils/getMidnightUTCDate";
 let startDate = new Date(Date.UTC(1990, 10, 4));
-let endDate = getMidnightUTCDate()
+let endDate = getTodayMidnightUTCDate()
 let controllerName = "";
 let dataArray = [];
 export const TableWithFavorite = () => {
@@ -177,9 +176,7 @@ export const TableWithFavorite = () => {
                     </Td>
                     <Td dataLabel={columnNames.name}>{repo.name}</Td>
                     <Td dataLabel={columnNames.creationDate}>
-                      {moment(repo.metadata["dataset.created"]).format(
-                        "YYYY-MM-DDTHH:mm"
-                      )}
+                      {repo.metadata["dataset.created"]}
                     </Td>
                     <Td
                       favorites={{

@@ -4,7 +4,7 @@ import "./index.css";
 import React from "react";
 import { AUTH_LOGIN } from "utils/routeConstants";
 
-function LoginAlertMessage({ message, link }) {
+function LoginAlertMessage() {
   const navigate = useNavigate();
   return (
     <Alert
