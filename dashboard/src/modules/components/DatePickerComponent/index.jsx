@@ -8,8 +8,8 @@ import {
 } from "@patternfly/react-core";
 import "./index.css";
 import { filterData } from "utils/filterDataset";
-import {dateFromUTCString } from "utils/constructDate";
-import {bumpToDate} from "utils/bumpDate";
+import { dateFromUTCString } from "utils/constructDate";
+import { bumpToDate } from "utils/bumpDate";
 import { getTodayMidnightUTCDate } from "utils/getMidnightUTCDate";
 
 function DatePickerWidget({
@@ -19,7 +19,9 @@ function DatePickerWidget({
   setDateRange,
 }) {
   const [fromDate, setFromDate] = useState({});
-  const [toDate, setToDate] = useState(bumpToDate(getTodayMidnightUTCDate(), 1));
+  const [toDate, setToDate] = useState(
+    bumpToDate(getTodayMidnightUTCDate(), 1)
+  );
   const [strDate, setStrDate] = useState(
     new Date().toLocaleDateString("fr-CA") //Return a YYYY-MM-DD string
   );
