@@ -9,7 +9,7 @@ import {
 import "./index.css";
 import { filterData } from "utils/filterDataset";
 import {dateFromUTCString } from "utils/constructDate";
-import bumpToDate from "utils/bumpDate";
+import {bumpToDate} from "utils/bumpDate";
 import { getTodayMidnightUTCDate } from "utils/getMidnightUTCDate";
 
 function DatePickerWidget({
