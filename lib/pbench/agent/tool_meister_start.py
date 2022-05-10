@@ -304,7 +304,7 @@ def start_tms_via_ssh(
     cmd = f"{tool_meister_cmd} {redis_server.host} {redis_server.port} {{tm_param_key}} yes"
     if debug_level:
         cmd += f" {debug_level}"
-    template = TemplateSsh(Path(ssh_cmd), shlex.split(ssh_opts), cmd)
+    template = TemplateSsh(ssh_cmd, shlex.split(ssh_opts), cmd)
     tms: Dict[str, Union[str, int, Dict[str, str]]] = {}
     tm_count = 0
     for host in tool_group.hostnames.keys():
@@ -909,9 +909,8 @@ def start(_prog: str, cli_params: Namespace) -> int:
 
     try:
         if orchestrate:
-            ssh_cmd = "ssh"
-            ssh_path = shutil.which(ssh_cmd)
-            if ssh_path is None:
+            ssh_cmd = shutil.which("ssh")
+            if ssh_cmd is None:
                 raise CleanupTime(
                     ReturnCode.MISSINGSSHCMD, "required ssh command not in our PATH"
                 )
@@ -926,7 +925,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
             origin_ip = set()
             any_remote = False
             template = TemplateSsh(
-                Path(ssh_path), shlex.split(ssh_opts), "echo ${SSH_CONNECTION}"
+                ssh_cmd, shlex.split(ssh_opts), "echo ${SSH_CONNECTION}"
             )
             recovery.add(template.abort, "stop TM clients")
 
@@ -995,7 +994,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
                 if not redis_server_spec:
                     redis_server_spec = origin
 
-        # NOTE: These two assigments create server objects, but neither
+        # NOTE: These two assignments create server objects, but neither
         # constructor starts a server, so no cleanup action is needed at this
         # time.
         try:
@@ -1169,7 +1168,6 @@ def start(_prog: str, cli_params: Namespace) -> int:
 
         if orchestrate:
             try:
-                # FIXME:  Should we use ssh_path instead of ssh_cmd?
                 start_tms_via_ssh(
                     prog.parent, ssh_cmd, tool_group, ssh_opts, redis_server, logger
                 )
