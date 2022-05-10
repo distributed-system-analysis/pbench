@@ -32,10 +32,26 @@ class TestDatasetsList:
         def query_api(
             payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
-            token = self.token(client, server_config, username)
+            """
+            Encapsulate an HTTP GET operation with proper authentication, and
+            check the return status.
+
+            Args:
+                payload:            Query parameter dict
+                username:           Username to authenticate (None to skip
+                                    authentication)
+                expected_status:    Expected HTTP status
+
+            Return:
+                HTTP Response object
+            """
+            headers = None
+            if username:
+                token = self.token(client, server_config, username)
+                headers = {"authorization": f"bearer {token}"}
             response = client.get(
                 f"{server_config.rest_uri}/datasets/list",
-                headers={"authorization": f"bearer {token}"},
+                headers=headers,
                 query_string=payload,
             )
             assert response.status_code == expected_status
@@ -114,6 +130,20 @@ class TestDatasetsList:
         query.update({"metadata": ["dataset.created"]})
         result = query_as(query, login, HTTPStatus.OK)
         assert result.json == self.get_results(results)
+
+    def test_unauth_dataset_list(self, query_as):
+        """
+        Test the operation of `datasets/list` when the client doesn't have
+        access to all of the requested datasets.
+
+        Args:
+            query_as: A fixture to provide a helper that executes the API call
+            login: The username as which to perform a query
+            query: A JSON representation of the query parameters (these will be
+                automatically supplemented with a metadata request term)
+            results: A list of the dataset names we expect to be returned
+        """
+        query_as({"access": "private"}, None, HTTPStatus.UNAUTHORIZED)
 
     def test_get_bad_keys(self, query_as):
         """

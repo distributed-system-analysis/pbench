@@ -24,7 +24,23 @@ from pbench.server.database.models.users import User
 from pbench.server.utils import UtcTimeHelper
 
 
-class UnauthorizedAccess(Exception):
+class APIAbort(Exception):
+    """
+    Used to report an error and abort if there is a failure in processing of API request.
+    """
+
+    def __init__(self, http_status: int, message: str = None):
+        self.http_status = http_status
+        self.message = message if message else HTTPStatus(http_status).phrase
+
+    def __repr__(self) -> str:
+        return f"API error {self.http_status} : {str(self)}"
+
+    def __str__(self) -> str:
+        return self.message
+
+
+class UnauthorizedAccess(APIAbort):
     """
     The user is not authorized for the requested operation on the specified
     resource.
@@ -38,23 +54,23 @@ class UnauthorizedAccess(Exception):
         access: Union[str, None],
         http_status: int = HTTPStatus.FORBIDDEN,
     ):
+        super().__init__(http_status=http_status)
         self.user = user
         self.operation = operation
         self.owner = owner
         self.access = access
-        self.http_status = http_status
 
     def __str__(self) -> str:
         return f"{'User ' + self.user.username if self.user else 'Unauthenticated client'} is not authorized to {self.operation.name} a resource owned by {self.owner} with {self.access} access"
 
 
-class SchemaError(TypeError):
+class SchemaError(APIAbort):
     """
     Generic base class for errors in processing a JSON schema.
     """
 
     def __init__(self, http_status: int = HTTPStatus.BAD_REQUEST):
-        self.http_status = http_status
+        super().__init__(http_status=http_status)
 
     def __str__(self) -> str:
         return "Generic schema validation error"
@@ -220,19 +236,6 @@ class ListElementError(SchemaError):
             else self.parameter.element_type.friendly
         )
         return f"Unrecognized list value{'s' if len(self.bad) > 1 else ''} {self.bad!r} given for parameter {self.parameter.name}; expected {expected}"
-
-
-class APIAbort(Exception):
-    """
-    Used to report an error and abort if there is a failure in processing of API request.
-    """
-
-    def __init__(self, http_status: int, message: str = None):
-        self.http_status = http_status
-        self.message = message if message else HTTPStatus(http_status).phrase
-
-    def __str__(self) -> str:
-        return f"API error {self.http_status} : {self.message}"
 
 
 def convert_date(value: str, _) -> datetime:
@@ -1067,12 +1070,9 @@ class ApiBase(Resource):
         if not self.schema or method == self._get:
             try:
                 return method(uri_parameters, request)
-            except SchemaError as e:
-                self.logger.exception("{}: SchemaError {}", api_name, e)
-                abort(e.http_status, message=str(e))
             except APIAbort as e:
-                self.logger.exception("{} {}", self.__class__.__name__, e)
-                abort(e.http_status, message=e.message)
+                self.logger.exception("{} {}", api_name, e)
+                abort(e.http_status, message=str(e))
             except Exception as e:
                 self.logger.exception("{} API error: {}", self.__class__.__name__, e)
                 abort(
@@ -1097,10 +1097,7 @@ class ApiBase(Resource):
             else:
                 json_data = uri_parameters
             new_data = self.schema.validate(json_data)
-        except UnverifiedUser as e:
-            self.logger.warning("{}: {}", api_name, str(e))
-            abort(e.http_status, message=str(e))
-        except SchemaError as e:
+        except APIAbort as e:
             self.logger.warning("{}: {} on {!r}", api_name, str(e), json_data)
             abort(e.http_status, message=str(e))
         except Exception as e:
@@ -1130,12 +1127,9 @@ class ApiBase(Resource):
 
         try:
             return method(new_data, request)
-        except SchemaError as e:
-            self.logger.exception("{}: SchemaError {}", api_name, e)
-            abort(e.http_status, message=str(e))
         except APIAbort as e:
-            self.logger.exception("{} {}", self.__class__.__name__, e)
-            abort(e.http_status, message=e.message)
+            self.logger.exception("{} {}", api_name, e)
+            abort(e.http_status, message=str(e))
         except Exception as e:
             self.logger.exception("{} API error: {}", self.__class__.__name__, e)
             abort(
