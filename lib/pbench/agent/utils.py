@@ -1,7 +1,6 @@
 import ipaddress
 import logging
 import os
-from pathlib import Path
 import signal
 import socket
 import subprocess
@@ -221,16 +220,16 @@ def setup_logging(debug, logfile):
     level = logging.DEBUG if debug else logging.INFO
     fmt = "%(message)s"
 
-    rootLogger = logging.getLogger()
+    root_logger = logging.getLogger()
     # cause all messages to be processed when the logger is the root logger
     # or delegation to the parent when the logger is a non-root logger
     # see https://docs.python.org/3/library/logging.html
-    rootLogger.setLevel(logging.NOTSET)
+    root_logger.setLevel(logging.NOTSET)
 
     streamhandler = logging.StreamHandler()
     streamhandler.setLevel(level)
     streamhandler.setFormatter(logging.Formatter(fmt))
-    rootLogger.addHandler(streamhandler)
+    root_logger.addHandler(streamhandler)
 
     if logfile:
         if not os.environ.get("_PBENCH_UNIT_TESTS"):
@@ -240,13 +239,13 @@ def setup_logging(debug, logfile):
         filehandler = logging.FileHandler(logfile)
         filehandler.setLevel(logging.NOTSET)
         filehandler.setFormatter(logging.Formatter(fmt))
-        rootLogger.addHandler(filehandler)
+        root_logger.addHandler(filehandler)
 
-    return rootLogger
+    return root_logger
 
 
 def _log_date():
-    """_log_data - helper function to mimick previous bash code behaviors
+    """helper function to mimic previous bash code behaviors
 
     Returns an ISO format date string of the current time.  If running in
     a unit test environment, returns a fixed date string.
@@ -259,13 +258,13 @@ def _log_date():
 
 
 def _pbench_log(message):
-    """_pbench_log - helper function for logging to the ${pbench_log} file."""
+    """helper function for logging to the ${pbench_log} file."""
     with open(os.environ["pbench_log"], "a+") as fp:
         print(message, file=fp)
 
 
 def warn_log(msg):
-    """warn_log - mimick previous bash behavior of writing warning logs to
+    """mimic previous bash behavior of writing warning logs to
     both stderr and the ${pbench_log} file.
     """
     message = f"[warn][{_log_date()}] {msg}"
@@ -274,7 +273,7 @@ def warn_log(msg):
 
 
 def error_log(msg):
-    """error_log - mimick previous bash behavior of writing error logs to
+    """mimic previous bash behavior of writing error logs to
     both stderr and the ${pbench_log} file.
     """
     message = f"[error][{_log_date()}] {msg}"
@@ -283,7 +282,7 @@ def error_log(msg):
 
 
 def info_log(msg):
-    """info_log - mimick previous bash behavior of writing info logs to
+    """mimic previous bash behavior of writing info logs to
     the ${pbench_log} file.
     """
     message = f"[info][{_log_date()}] {msg}"
@@ -383,7 +382,7 @@ def collect_local_info(pbench_bin):
         )
         hostdata[arg] = cp.stdout.strip() if cp.stdout is not None else ""
 
-    return (version, seqno, sha1, hostdata)
+    return version, seqno, sha1, hostdata
 
 
 class TemplateSsh:
@@ -397,12 +396,12 @@ class TemplateSsh:
         stdout: str
         stderr: str
 
-    def __init__(self, ssh_cmd: Path, ssh_args: List[str], cmd: str):
+    def __init__(self, ssh_cmd: str, ssh_args: List[str], cmd: str):
         """
         Create an SSH template object
 
         Args:
-            ssh_cmd: Path to the ssh command
+            ssh_cmd: file path of the ssh command
             ssh_args: A partial argv representing ssh command options
             cmd: A templated string representing a remote command to be executed
         """
