@@ -280,11 +280,9 @@ class StartTmsErr(ReturnCode.Err):
 def start_tms_via_ssh(
     exec_dir: Path,
     ssh_cmd: str,
-    ssh_path: Path,
     tool_group: ToolGroup,
     ssh_opts: str,
     redis_server: RedisServerCommon,
-    redis_client: redis.Redis,
     logger: logging.Logger,
 ) -> None:
     """Orchestrate the creation of local and remote Tool Meister instances using
@@ -421,11 +419,9 @@ class ToolDataSink(BaseServer):
     def start(
         self,
         exec_dir: Path,
-        full_hostname: str,
         tds_param_key: str,
         redis_server: RedisServerCommon,
         redis_client: redis.Redis,
-        logger: logging.Logger,
     ) -> None:
         assert (
             self.host is not None
@@ -1132,12 +1128,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
             logger.debug("5. starting tool data sink")
             try:
                 tool_data_sink.start(
-                    PROG.parent,
-                    full_hostname,
-                    tds_param_key,
-                    redis_server,
-                    redis_client,
-                    logger,
+                    PROG.parent, tds_param_key, redis_server, redis_client
                 )
             except tool_data_sink.Err as exc:
                 raise CleanupTime(
@@ -1175,14 +1166,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         if orchestrate:
             try:
                 start_tms_via_ssh(
-                    PROG.parent,
-                    ssh_cmd,
-                    Path(ssh_path),
-                    tool_group,
-                    ssh_opts,
-                    redis_server,
-                    redis_client,
-                    logger,
+                    PROG.parent, ssh_cmd, tool_group, ssh_opts, redis_server, logger
                 )
             except StartTmsErr as exc:
                 raise CleanupTime(
