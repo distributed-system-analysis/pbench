@@ -598,7 +598,7 @@ function fio_run_job() {
 
 	if [ -n "${clients}" ]; then
 		for client in "${client_names[@]}"; do
-			local bash_c_cmd="${benchmark_bin} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err"
+			local bash_c_cmd="'${benchmark_bin}' --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err"
 			local screen_it="screen -L -Logfile fio-server.screen.log -dmS fio-server bash -c ${bash_c_cmd}"
 			if pbench-is-local ${client}; then
 				debug_log "killing any old local fio processes and starting new a fio process for the local client"
