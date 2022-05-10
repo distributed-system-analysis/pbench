@@ -254,10 +254,19 @@ def _waitpid(pid: int) -> int:
     Raises an exception if the final exit PID is different from the given PID.
     """
     exit_pid, _exit_status = os.waitpid(pid, 0)
-    if pid != exit_pid:
-        raise Exception(f"Logic bomb!  exit pid, {exit_pid}, does not match pid, {pid}")
-    exit_status = os.WEXITSTATUS(_exit_status)
-    return exit_status
+    assert pid == exit_pid, f"os.waitpid() returned pid {exit_pid}; expected {pid}"
+    if os.WIFEXITED(_exit_status):
+        return os.WEXITSTATUS(_exit_status)
+    elif os.WIFSIGNALED(_exit_status):
+        raise StartTmsErr(
+            f"child process killed by signal {os.WTERMSIG(_exit_status)}",
+            ReturnCode.TDSWAITFAILURE,
+        )
+    else:
+        raise StartTmsErr(
+            f"wait for child process returned unexpectedly, status = {_exit_status}",
+            ReturnCode.TDSWAITFAILURE,
+        )
 
 
 class StartTmsErr(ReturnCode.Err):
@@ -449,9 +458,9 @@ class ToolDataSink(BaseServer):
                 # Wait for the child to finish daemonizing itself.
                 retcode = _waitpid(pid)
                 if retcode != 0:
-                    logger.error(
-                        "failed to create pbench data sink, daemonized; return code: %d",
-                        retcode,
+                    raise self.Err(
+                        f"failed to create pbench data sink, daemonized; return code: {retcode}",
+                        ReturnCode.TDSWAITFAILURE,
                     )
 
         except Exception:
@@ -490,7 +499,9 @@ class ToolDataSink(BaseServer):
         if pid_file.exists():
             self.pid_file = pid_file
         else:
-            logger.error("TDS daemonization didn't create %s", pid_file)
+            raise self.Err(
+                f"TDS daemonization didn't create {pid_file}", ReturnCode.TDSWAITFAILURE
+            )
 
     @staticmethod
     def wait(chan: RedisChannelSubscriber, logger: logging.Logger) -> int:
