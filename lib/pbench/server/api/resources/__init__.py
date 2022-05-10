@@ -729,7 +729,12 @@ class ApiBase(Resource):
             return schema.validate(json)
         return {}
 
-    def _check_authorization(self, user_id: Union[str, None], access: Union[str, None]):
+    def _check_authorization(
+        self,
+        user_id: Union[str, None],
+        access: Union[str, None],
+        check_role: API_OPERATION = None,
+    ):
         """
         Check whether an API call is able to access data, based on the API's
         authorization header, the requested user, the requested access
@@ -758,6 +763,7 @@ class ApiBase(Resource):
         Args:
             user_id: The client's requested user ID (as a string), or None
             access: The client's requested access parameter, or None
+            check_role: Override self.role for access check
 
         Raises:
             UnauthorizedAccess: The user isn't authorized for the requested
@@ -768,6 +774,7 @@ class ApiBase(Resource):
                     rights to the specified combination of API ROLE, USER,
                     and ACCESS.
         """
+        role = check_role if check_role else self.role
         authorized_user: User = Auth.token_auth.current_user()
         username = "none"
         if user_id:
@@ -780,7 +787,7 @@ class ApiBase(Resource):
                 )
         self.logger.debug(
             "Authorizing {} access for {} to user {} ({}) with access {}",
-            self.role,
+            role,
             authorized_user,
             username,
             user_id,
@@ -798,7 +805,7 @@ class ApiBase(Resource):
         #    authenticated client.
         # 4) An authenticated client cannot mutate data owned by a different
         #    user, nor READ private data owned by another user.
-        if self.role == API_OPERATION.READ and access == Dataset.PUBLIC_ACCESS:
+        if role == API_OPERATION.READ and access == Dataset.PUBLIC_ACCESS:
             # We are reading public data: this is always allowed.
             pass
         else:
@@ -808,16 +815,16 @@ class ApiBase(Resource):
                 # An unauthenticated user is never allowed to access private
                 # data nor to perform an potential mutation of data: REJECT
                 self.logger.warning(
-                    "Attempt to {} user {} data without login", self.role, username
+                    "Attempt to {} user {} data without login", role, username
                 )
                 raise UnauthorizedAccess(
                     authorized_user,
-                    self.role,
+                    role,
                     username,
                     access,
                     HTTPStatus.UNAUTHORIZED,
                 )
-            elif self.role != API_OPERATION.READ and user_id is None:
+            elif role != API_OPERATION.READ and user_id is None:
                 # No target user is specified, so we won't allow mutation of
                 # data: REJECT
                 self.logger.warning(
@@ -826,7 +833,7 @@ class ApiBase(Resource):
                     self.role,
                 )
                 raise UnauthorizedAccess(
-                    authorized_user, self.role, username, access, HTTPStatus.FORBIDDEN
+                    authorized_user, role, username, access, HTTPStatus.FORBIDDEN
                 )
             elif (
                 user_id
@@ -839,11 +846,11 @@ class ApiBase(Resource):
                 self.logger.warning(
                     "Unauthorized attempt by {} to {} user {} data",
                     authorized_user,
-                    self.role,
+                    role,
                     username,
                 )
                 raise UnauthorizedAccess(
-                    authorized_user, self.role, username, access, HTTPStatus.FORBIDDEN
+                    authorized_user, role, username, access, HTTPStatus.FORBIDDEN
                 )
             else:
                 # We have determined that there is an authenticated user with
@@ -1074,7 +1081,7 @@ class ApiBase(Resource):
                 self.logger.exception("{} {}", api_name, e)
                 abort(e.http_status, message=str(e))
             except Exception as e:
-                self.logger.exception("{} API error: {}", self.__class__.__name__, e)
+                self.logger.exception("{} API error: {}", api_name, e)
                 abort(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
@@ -1131,7 +1138,7 @@ class ApiBase(Resource):
             self.logger.exception("{} {}", api_name, e)
             abort(e.http_status, message=str(e))
         except Exception as e:
-            self.logger.exception("{} API error: {}", self.__class__.__name__, e)
+            self.logger.exception("{} API error: {}", api_name, e)
             abort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
                 message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,

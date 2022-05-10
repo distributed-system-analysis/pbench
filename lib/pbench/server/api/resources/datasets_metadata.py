@@ -77,9 +77,20 @@ class DatasetsMetadata(ApiBase):
         name = json.get("name")
         keys = json.get("metadata")
 
-        self.logger.info("GET metadata {} for {}", keys, name)
         try:
-            metadata = self._get_metadata(name, keys)
+            dataset = Dataset.query(name=name)
+        except DatasetError as e:
+            self.logger.warning("Dataset {!r} not found: {}", name, str(e))
+            raise APIAbort(HTTPStatus.BAD_REQUEST, f"Dataset {name!r} not found")
+
+        # Validate the authenticated user's authorization for the combination
+        # of "owner" and "access".
+        self._check_authorization(
+            str(dataset.owner_id), dataset.access, check_role=API_OPERATION.READ
+        )
+
+        try:
+            metadata = self._get_dataset_metadata(dataset, keys)
         except DatasetNotFound:
             raise APIAbort(HTTPStatus.BAD_REQUEST, f"Dataset {name} not found")
         except MetadataError as e:
@@ -120,13 +131,14 @@ class DatasetsMetadata(ApiBase):
         metadata = json_data["metadata"]
 
         try:
-            self.logger.info("PUT with {}", repr(json_data))
             dataset = Dataset.query(name=name)
         except DatasetError as e:
-            self.logger.warning("Dataset {} not found: {}", name, str(e))
-            raise APIAbort(
-                HTTPStatus.BAD_REQUEST, f"Dataset {json_data['name']} not found"
-            )
+            self.logger.warning("Dataset {!r} not found: {}", name, str(e))
+            raise APIAbort(HTTPStatus.BAD_REQUEST, f"Dataset {name!r} not found")
+
+        # Validate the authenticated user's authorization for the combination
+        # of "owner" and "access".
+        self._check_authorization(str(dataset.owner_id), dataset.access)
 
         failures = []
         for k, v in metadata.items():
