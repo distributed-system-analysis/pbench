@@ -94,3 +94,10 @@ iteration_name = 3-warehouses:23
 user_script = specjbb2005
 
 --- specjbb2005_test-57_1900.01.01T00.00.00/metadata.log file contents
++++ specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb.props file contents
+input.jvm_instances=2
+input.measurement_seconds=30
+input.starting_number_warehouses=13
+input.increment_number_warehouses=5
+input.ending_number_warehouses=23
+--- specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb.props file contents

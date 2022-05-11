@@ -160,6 +160,7 @@ function _dump_logs {
     if [[ ! -z "${rundir}" ]]; then
         _dump_file ${rundir} metadata.log
         _dump_file ${rundir} user-benchmark-summary.json
+        _dump_file ${rundir} SPECjbb.props
         (
         if cd ${_testdir}/${rundir} > /dev/null 2>&1 ;then
             for f in $(find . -name '*.cmd' 2> /dev/null | sort); do

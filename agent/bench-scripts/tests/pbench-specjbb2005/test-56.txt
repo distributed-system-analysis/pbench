@@ -181,3 +181,10 @@ iteration_name = 8-warehouses:8
 user_script = specjbb2005
 
 --- specjbb2005_test-56_1900.01.01T00.00.00/metadata.log file contents
++++ specjbb2005_test-56_1900.01.01T00.00.00/SPECjbb.props file contents
+input.jvm_instances=1
+input.measurement_seconds=30
+input.starting_number_warehouses=1
+input.increment_number_warehouses=1
+input.ending_number_warehouses=8
+--- specjbb2005_test-56_1900.01.01T00.00.00/SPECjbb.props file contents

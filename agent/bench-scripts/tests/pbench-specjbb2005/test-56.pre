@@ -13,7 +13,7 @@ printf "input.jvm_instances=_replace_\n" >> ${_dir}/SPECjbb.props
 printf "input.measurement_seconds=_replace_\n" >> ${_dir}/SPECjbb.props
 printf "input.starting_number_warehouses=_replace_\n" >> ${_dir}/SPECjbb.props
 printf "input.increment_number_warehouses=_replace_\n" >> ${_dir}/SPECjbb.props
-printf "input.ending_number_warehouses=_replace_\n" >> ${_dir}/SPECjbb.props
+printf "#input.ending_number_warehouses=_replace_\n" >> ${_dir}/SPECjbb.props
 # 3. a properties file for the configuration of SPECjbb, the contents of which
 #    is ignored, but its presence is expected
 touch ${_dir}/SPECjbb_config.props || exit 1
