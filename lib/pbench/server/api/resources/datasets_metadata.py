@@ -16,7 +16,6 @@ from pbench.server.api.resources import (
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetError,
-    DatasetNotFound,
     Metadata,
     MetadataError,
 )
@@ -79,8 +78,7 @@ class DatasetsMetadata(ApiBase):
 
         try:
             dataset = Dataset.query(name=name)
-        except DatasetError as e:
-            self.logger.warning("Dataset {!r} not found: {}", name, str(e))
+        except DatasetError:
             raise APIAbort(HTTPStatus.BAD_REQUEST, f"Dataset {name!r} not found")
 
         # Validate the authenticated user's authorization for the combination
@@ -91,8 +89,6 @@ class DatasetsMetadata(ApiBase):
 
         try:
             metadata = self._get_dataset_metadata(dataset, keys)
-        except DatasetNotFound:
-            raise APIAbort(HTTPStatus.BAD_REQUEST, f"Dataset {name} not found")
         except MetadataError as e:
             raise APIAbort(HTTPStatus.BAD_REQUEST, str(e))
 
