@@ -365,13 +365,13 @@ for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 	if [ $? -ne 0 ]; then
 		error_log "missing test${i} raw results in ${specjbb_results}/SPECjbb.raw"
 	fi
+	pbench-send-tools --group=${tool_group} --dir=${benchmark_run_dir}/${iteration}-default/${sample}
 	new_iteration_name="${iteration}-warehouses:${i}"
 	mv ${iteration}-default ${new_iteration_name}
 	if [ $? -ne 0 ]; then
 		error_log "unable to move ${iteration}-default directory hierarchy to ${new_iteration_name}, skipping tools post-processing"
 	else
 		record_iteration ${iteration} ${new_iteration_name} ${benchmark}
-		pbench-send-tools --group=${tool_group} --dir=${benchmark_run_dir}/${new_iteration_name}/${sample}
 		pbench-postprocess-tools --group=${tool_group} --dir=${benchmark_run_dir}/${new_iteration_name}/${sample}
 		ln -s ${sample} ${benchmark_run_dir}/${new_iteration_name}/reference-result
 	fi
