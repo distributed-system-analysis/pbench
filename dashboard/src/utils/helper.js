@@ -21,4 +21,3 @@ export const validateEmail = (email) => {
     email: !/\S+@\S+\.\S+/.test(email) ? "Enter a valid Email" : "",
   };
 };
-

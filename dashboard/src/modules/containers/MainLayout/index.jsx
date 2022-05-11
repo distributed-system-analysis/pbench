@@ -1,13 +1,16 @@
 import React from 'react';
 import ToastComponent from "modules/components/ToastNotificationComponent";
 import { useSelector } from "react-redux";
-import { Spinner } from '@patternfly/react-core';
+import { Page, Spinner } from '@patternfly/react-core';
+import NavbarDrawer from '../../components/NavbarDrawerComponent';
+import Sidebar from '../../components/SidebarComponent';
 
-const MainLayout = () => {
+const MainLayout = (props) => {
     const { alerts } = useSelector((state) => state.toastReducer);
     const isLoading = useSelector(state => state.loading.isLoading);
     return (
         <>
+        
         {
             alerts && alerts.length > 0 &&
             <ToastComponent />
@@ -16,7 +19,9 @@ const MainLayout = () => {
             isLoading &&
             <Spinner />
         }
-        <div>Pbench Dashboard</div>
+        <Page header={<NavbarDrawer/>} sidebar={Sidebar()}>
+           {props.children}
+        </Page>
         </>
     )
 }
