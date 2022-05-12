@@ -144,7 +144,8 @@ class IndexMapBase(ElasticBase):
                 self.get_aggregatable_fields(v, f"{prefix}{f}.", result)
         return result
 
-    def get_mappings(self, document: JSON) -> JSON:
+    @staticmethod
+    def get_mappings(document: JSON) -> JSON:
         """
         Utility function to return ES mappings by querying the Template
         database against a given index.
