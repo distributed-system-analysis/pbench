@@ -985,7 +985,9 @@ class ToolMeister:
                 tmp_data["group"] is not None
                 and tmp_data["group"] != self._params.tool_group
             ):
-                msg = f"unrecognized tool group name in data of payload in message, got {tmp_data!r} != exp {self._params.tool_group}"
+                msg = "unexpected tool group name in data of payload: "
+                msg += f"expected {self._params.tool_group!r}; "
+                msg += f"got {tmp_data['group']!r}"
             else:
                 data = tmp_data
             if msg is not None:
