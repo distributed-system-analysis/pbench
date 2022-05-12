@@ -872,7 +872,7 @@ class Metadata(Database.Base):
     USER = USER_NATIVE_KEY + ".*"
 
     # DELETION timestamp for dataset based on user settings and system
-    # settings at time the dataset is created.
+    # settings when the dataset is created.
     #
     # {"server.deletion": "2021-12-25"}
     DELETION = "server.deletion"
@@ -936,8 +936,6 @@ class Metadata(Database.Base):
 
     dataset = relationship("Dataset", back_populates="metadatas", single_parent=True)
     user = relationship("User", back_populates="dataset_metadata", single_parent=True)
-
-    # __table_args__ = (UniqueConstraint("user", "key"), {})
 
     @validates("key")
     def validate_key(self, _, value: Any) -> str:

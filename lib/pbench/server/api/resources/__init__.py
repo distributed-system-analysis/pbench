@@ -1027,7 +1027,6 @@ class ApiBase(Resource):
                     authorized_user: Optional[User] = Auth.token_auth.current_user()
                     user = authorized_user
                 try:
-                    self.logger.info("Accessing {!r} ({!r}) as {}", i, native_key, user)
                     metadata[i] = Metadata.getvalue(dataset=dataset, key=i, user=user)
                 except MetadataNotFound:
                     metadata[i] = None
