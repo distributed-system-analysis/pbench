@@ -11,6 +11,7 @@ import shutil
 import signal
 import subprocess
 from typing import Any, List, NamedTuple, Tuple
+import uuid
 
 from pbench.agent.tool_meister import (
     log_raw_io_output,
@@ -1033,6 +1034,7 @@ class TestPersistentTool:
 
 tar_file = "test.tar.xz"
 tmp_dir = Path("nonexistent/tmp/dir")
+instance_uuid = str(uuid.uuid4())
 tm_params = {
     "benchmark_run_dir": "",
     "channel_prefix": "",
@@ -1044,6 +1046,7 @@ tm_params = {
     "label": None,
     "tool_metadata": {"persistent": {}, "transient": {}},
     "tools": [],
+    "instance_uuid": instance_uuid,
 }
 
 

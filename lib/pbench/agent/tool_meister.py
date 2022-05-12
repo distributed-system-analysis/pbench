@@ -695,6 +695,7 @@ class ToolMeisterParams(NamedTuple):
     label: str
     tool_metadata: ToolMetadata
     tools: Dict[str, str]
+    instance_uuid: str
 
     def __str__(self) -> str:
         """A string containing a deterministic representation of the params"""
@@ -786,6 +787,7 @@ class ToolMeister:
                 label=params["label"],
                 tool_metadata=ToolMetadata.tool_md_from_dict(params["tool_metadata"]),
                 tools=params["tools"],
+                instance_uuid=params["instance_uuid"],
             )
         except KeyError as exc:
             raise ToolMeisterError(f"Invalid parameter block, missing key {exc}")
@@ -983,7 +985,9 @@ class ToolMeister:
                 tmp_data["group"] is not None
                 and tmp_data["group"] != self._params.tool_group
             ):
-                msg = f"unrecognized tool group name in data of payload in message, {tmp_data!r}"
+                msg = "unexpected tool group name in data of payload: "
+                msg += f"expected {self._params.tool_group!r}; "
+                msg += f"got {tmp_data['group']!r}"
             else:
                 data = tmp_data
             if msg is not None:
@@ -1829,6 +1833,7 @@ class Arguments(NamedTuple):
     host: str
     port: int
     key: str
+    instance_uuid: str
     daemonize: bool
     level: str
 
@@ -2061,6 +2066,15 @@ def start(prog: Path, parsed: Arguments) -> int:
             file=sys.stderr,
         )
         return 6
+    else:
+        # A valid parameter block must contain the expected UUID string.
+        if parsed.instance_uuid != tm_params.instance_uuid:
+            print(
+                f"{prog.name}: Parameter block has unexpected UUID '{tm_params.instance_uuid}',"
+                f" expected '{parsed.instance_uuid}'",
+                file=sys.stderr,
+            )
+            return 7
 
     func = daemon if parsed.daemonize else driver
     return func(
@@ -2084,8 +2098,10 @@ def main(argv: List[str]):
                 argv[2] - port number of Redis Server
                 argv[3] - name of key in Redis Server for operational
                           parameters
-                argv[4] - "yes" to run as a daemon
-                argv[5] - desired debug level
+                argv[4] - UUID string of the Tool Meister sub-system invoking
+                          this Tool Meister instance
+                argv[5] - "yes" to run as a daemon
+                argv[6] - desired debug level
 
     Returns 0 on success, > 0 when an error occurs.
     """
@@ -2095,8 +2111,9 @@ def main(argv: List[str]):
             host=argv[1],
             port=int(argv[2]),
             key=argv[3],
-            daemonize=argv[4] == "yes" if len(argv) > 4 else False,
-            level=argv[5] if len(argv) > 5 else "info",
+            instance_uuid=argv[4],
+            daemonize=argv[5] == "yes" if len(argv) > 5 else False,
+            level=argv[6] if len(argv) > 6 else "info",
         )
     except (ValueError, IndexError) as e:
         print(f"{prog.name}: Invalid arguments, {argv!r}: {e}", file=sys.stderr)

@@ -134,6 +134,7 @@ import socket
 import sys
 import time
 from typing import Dict, Union
+import uuid
 
 from argparse import ArgumentParser, Namespace
 from distutils.spawn import find_executable
@@ -230,6 +231,7 @@ class ReturnCode(BaseReturnCode):
     KEYBOARDINTERRUPT = 41
     INVALIDTMDATA = 42
     TOOLINSTALLFAILURES = 43
+    EXCCREATEUUID = 44
 
 
 class CleanupTime(Exception):
@@ -284,6 +286,7 @@ def start_tms_via_ssh(
     tool_group: ToolGroup,
     ssh_opts: str,
     redis_server: RedisServerCommon,
+    instance_uuid: str,
     logger: logging.Logger,
 ) -> None:
     """Orchestrate the creation of local and remote Tool Meister instances using
@@ -301,7 +304,7 @@ def start_tms_via_ssh(
     successes = 0
     tool_meister_cmd = exec_dir / "tool-meister" / "pbench-tool-meister"
     debug_level = os.environ.get("_PBENCH_TOOL_MEISTER_LOG_LEVEL")
-    cmd = f"{tool_meister_cmd} {redis_server.host} {redis_server.port} {{tm_param_key}} yes"
+    cmd = f"{tool_meister_cmd} {redis_server.host} {redis_server.port} {{tm_param_key}} {instance_uuid} yes"
     if debug_level:
         cmd += f" {debug_level}"
     template = TemplateSsh(ssh_cmd, shlex.split(ssh_opts), cmd)
@@ -326,6 +329,7 @@ def start_tms_via_ssh(
                             redis_server.local_host,
                             str(redis_server.port),
                             tm_param_key,
+                            instance_uuid,
                             "yes",  # Yes, daemonize yourself TM ...
                             debug_level,
                         ]
@@ -371,7 +375,7 @@ def start_tms_via_ssh(
                 if exit_status != 0:
                     failures += 1
                     logger.error(
-                        "failed to start tool meister on remote host '%s'"
+                        "failed to start tool meister on local host host '%s'"
                         " (pid %d), exit status: %d",
                         host,
                         pid,
@@ -421,6 +425,7 @@ class ToolDataSink(BaseServer):
         self,
         exec_dir: Path,
         tds_param_key: str,
+        instance_uuid: str,
         redis_server: RedisServerCommon,
         redis_client: redis.Redis,
     ) -> None:
@@ -444,6 +449,7 @@ class ToolDataSink(BaseServer):
                         redis_server.local_host,
                         str(redis_server.port),
                         tds_param_key,
+                        instance_uuid,
                         "yes",  # Request tool-data-sink daemonize itself
                         os.environ.get("_PBENCH_TOOL_DATA_SINK_LOG_LEVEL", "info"),
                     ]
@@ -890,6 +896,17 @@ def start(_prog: str, cli_params: Namespace) -> int:
                 exc,
             )
             return ReturnCode.EXCCREATETMDIR
+        uuid_file = tm_dir / ".uuid"
+        instance_uuid = str(uuid.uuid4())
+        try:
+            uuid_file.write_text(instance_uuid)
+        except Exception as exc:
+            logger.error(
+                "failed to create a UUID in '%s': %s",
+                uuid_file,
+                exc,
+            )
+            return ReturnCode.EXCCREATEUUID
 
     # See if anybody told us to use certain options with SSH commands.
     ssh_opts = os.environ.get("ssh_opts", "")
@@ -1083,6 +1100,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
                 label=tool_group.get_label(host),
                 tool_metadata=tool_metadata.getFullData(),
                 tools=tools,
+                instance_uuid=instance_uuid,
             )
             # Create a separate key for the Tool Meister that will be on that host
             tm_param_key = f"tm-{tool_group.name}-{host}"
@@ -1110,6 +1128,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
             tool_metadata=tool_metadata.getFullData(),
             tool_trigger=tool_group.trigger,
             tools=tool_group_data,
+            instance_uuid=instance_uuid,
             # The following are optional
             optional_md=optional_md,
         )
@@ -1131,7 +1150,11 @@ def start(_prog: str, cli_params: Namespace) -> int:
             logger.debug("5. starting tool data sink")
             try:
                 tool_data_sink.start(
-                    prog.parent, tds_param_key, redis_server, redis_client
+                    prog.parent,
+                    tds_param_key,
+                    instance_uuid,
+                    redis_server,
+                    redis_client,
                 )
             except tool_data_sink.Err as exc:
                 raise CleanupTime(
@@ -1169,7 +1192,13 @@ def start(_prog: str, cli_params: Namespace) -> int:
         if orchestrate:
             try:
                 start_tms_via_ssh(
-                    prog.parent, ssh_cmd, tool_group, ssh_opts, redis_server, logger
+                    prog.parent,
+                    ssh_cmd,
+                    tool_group,
+                    ssh_opts,
+                    redis_server,
+                    instance_uuid,
+                    logger,
                 )
             except StartTmsErr as exc:
                 raise CleanupTime(

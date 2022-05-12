@@ -22,7 +22,7 @@ let res=res+${?}
 _testopt=${_testroot}/opt/pbench-agent
 mkdir ${_testopt}
 let res=res+${?}
-mkdir ${_testopt}/config ${_testopt}/templates ${_testopt}/util-scripts ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts
+mkdir ${_testopt}/config ${_testopt}/templates ${_testopt}/util-scripts ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/unittest-lib
 let res=res+${?}
 mkdir ${_testopt}/util-scripts/tool-meister
 let res=res+${?}
@@ -63,6 +63,8 @@ cp ${_tdir}/../tool-scripts/postprocess/*-postprocess-cdm ${_testopt}/tool-scrip
 let res=res+${?}
 cp -rL ${_tdir}/../lib/* ${_testopt}/lib/
 let res=res+${?}
+cp -rL ${_tdir}/test-lib/* ${_testopt}/unittest-lib/
+let res=res+${?}
 cp -rL ${_tdir}/test-bin/* ${_testopt}/unittest-scripts/
 let res=res+${?}
 
@@ -97,6 +99,7 @@ PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
 PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
 # Allows us to intercept scp, ssh, rsync, etc.
 export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/tool-scripts:${PATH}
+export PYTHONPATH=${_testopt}/unittest-lib:${PYTHONPATH}
 
 # Fixed timestamp output
 export _PBENCH_UNIT_TESTS=1
