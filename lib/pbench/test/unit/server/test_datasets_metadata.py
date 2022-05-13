@@ -218,7 +218,9 @@ class TestDatasetsMetadata:
         Note that Pbench will silently ignore any additional keys that are
         specified but not required.
         """
-        response = client.put(f"{server_config.rest_uri}/datasets/metadata/drb")
+        response = client.put(
+            f"{server_config.rest_uri}/datasets/metadata/drb", json={}
+        )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Missing required parameters: metadata"
 
