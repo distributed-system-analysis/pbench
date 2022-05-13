@@ -203,8 +203,7 @@ class TestDatasetsMetadata:
         )
         assert response.json == {"message": "Unknown URL query keys: controller,plugh"}
 
-    @pytest.mark.parametrize(
-        "uri", ("/datasets/metadata/", "/datasets/metadata"))
+    @pytest.mark.parametrize("uri", ("/datasets/metadata/", "/datasets/metadata"))
     def test_put_missing_uri_param(self, client, server_config, pbench_token, uri):
         """
         Test behavior when no dataset name is given on the URI. (NOTE that
