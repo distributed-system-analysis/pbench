@@ -113,9 +113,6 @@ class DatasetsMappings(ApiBase):
 
             # construct response object
             return jsonify(result)
-        except TemplateNotFound:
-            self.logger.exception(
-                "Document template for index {} not found in the database",
-                index["index"],
-            )
+        except TemplateNotFound as e:
+            self.logger.exception(str(e))
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
