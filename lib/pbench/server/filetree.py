@@ -81,31 +81,6 @@ class Tarball:
     dataset.
     """
 
-    @staticmethod
-    def stem(path: Union[str, Path]) -> str:
-        """
-        The Path.stem() removes a single suffix, so our standard "a.tar.xz"
-        returns "a.tar" instead of "a". We could double-stem, but instead
-        this just checks for the expected 7 character suffix and strips it.
-
-        If the path does not end in ".tar.xz" then the full path.name is
-        returned.
-
-        Args:
-            path: A file path that might be a Pbench tarball
-
-        Raises:
-            BadFilename: the path name does not end in TARBALL_SUFFIX
-
-        Returns:
-            The stripped "stem" of the dataset
-        """
-        p = Path(path)
-        if Dataset.is_tarball(p):
-            return p.name[: -len(Dataset.TARBALL_SUFFIX)]
-        else:
-            raise BadFilename(p)
-
     def __init__(self, path: Path, controller: "Controller"):
         """
         Construct a `Tarball` object instance representing a tarball found on
@@ -116,7 +91,7 @@ class Tarball:
                 configured ARCHIVE directory for a controller.
             controller: The associated Controller object
         """
-        self.name = self.stem(path)
+        self.name = Dataset.stem(path)
         self.controller = controller
         self.logger = controller.logger
         self.tarball_path = path
@@ -171,7 +146,7 @@ class Tarball:
         """
 
         # Validate the tarball suffix and extract the dataset name
-        name = Tarball.stem(tarball)
+        name = Dataset.stem(tarball)
 
         # NOTE: with_suffix replaces only the final suffix, .xz, not the full
         # standard .tar.xz
@@ -852,7 +827,7 @@ class FileTree:
         for dir in self.archive_root.iterdir():
             if dir.is_dir():
                 for file in dir.glob(f"*{Dataset.TARBALL_SUFFIX}"):
-                    name = Tarball.stem(file)
+                    name = Dataset.stem(file)
                     if name == dataset:
                         self._add_controller(dir)
                         return self.datasets[dataset]
@@ -893,7 +868,7 @@ class FileTree:
         """
         if not dataset.is_file():
             raise BadFilename(dataset)
-        name = Tarball.stem(dataset)
+        name = Dataset.stem(dataset)
         if name in self.datasets:
             raise DuplicateDataset(name)
         if controller_name in self.controllers:

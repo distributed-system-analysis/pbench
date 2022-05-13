@@ -16,7 +16,7 @@ from pbench.server.database.models.datasets import (
     Metadata,
     States,
 )
-from pbench.server.filetree import DatasetNotFound, FileTree, Tarball
+from pbench.server.filetree import DatasetNotFound, FileTree
 from pbench.server.utils import UtcTimeHelper, filesize_bytes
 
 
@@ -149,17 +149,15 @@ class Upload(Resource):
             try:
                 dataset = Dataset(
                     owner=username,
-                    controller=controller,
-                    path=tar_full_path,
+                    name=Dataset.stem(tar_full_path),
                     md5=md5sum,
                 )
                 dataset.add()
             except DatasetDuplicate:
-                dataset_name = Tarball.stem(tar_full_path)
+                dataset_name = Dataset.stem(tar_full_path)
                 self.logger.info(
-                    "Dataset already exists, user = {}, ctrl = {!a}, file = {!a}",
+                    "Dataset already exists, user = {}, file = {!a}",
                     username,
-                    controller,
                     dataset_name,
                 )
                 try:
@@ -168,7 +166,6 @@ class Upload(Resource):
                     self.logger.error(
                         "Duplicate dataset {}:{}:{} not found",
                         username,
-                        controller,
                         dataset_name,
                     )
                     raise CleanupTime(

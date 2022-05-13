@@ -15,7 +15,7 @@ from pbench.server.database.models.datasets import (
     MetadataKeyError,
     States,
 )
-from pbench.server.filetree import FileTree, Tarball
+from pbench.server.filetree import FileTree
 from pbench.server.utils import UtcTimeHelper
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
@@ -124,7 +124,7 @@ class TestUpload:
         class FakeTarball:
             def __init__(self, path: Path):
                 self.tarball_path = path
-                self.name = Tarball.stem(path)
+                self.name = Dataset.stem(path)
 
             def delete(self):
                 TestUpload.tarball_deleted = self.name
@@ -377,7 +377,7 @@ class TestUpload:
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
 
         with pytest.raises(DatasetNotFound):
-            Dataset.attach(path=datafile)
+            Dataset.attach(name=Dataset.stem(datafile))
         assert self.filetree_created
         assert self.filetree_create_path
         assert not self.filetree_create_path.exists()
@@ -402,10 +402,9 @@ class TestUpload:
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
 
-        dataset = Dataset.query(name=Tarball.stem(datafile))
+        dataset = Dataset.query(name=Dataset.stem(datafile))
         assert dataset is not None
         assert dataset.md5 == md5
-        assert dataset.controller == self.controller
         assert dataset.name == datafile.name[:-7]
         assert dataset.state == States.UPLOADED
         assert dataset.created.isoformat() == "2002-05-16T00:00:00+00:00"
@@ -535,9 +534,9 @@ class TestUpload:
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
 
         with pytest.raises(DatasetNotFound):
-            Dataset.attach(path=datafile)
+            Dataset.attach(name=Dataset.stem(datafile))
         assert self.filetree_created
         assert self.filetree_create_path
         assert not self.filetree_create_path.exists()
         assert not Path(str(self.filetree_create_path) + ".md5").exists()
-        assert self.tarball_deleted == Tarball.stem(datafile)
+        assert self.tarball_deleted == Dataset.stem(datafile)

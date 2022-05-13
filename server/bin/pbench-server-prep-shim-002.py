@@ -155,9 +155,7 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors):
         # the arbitrary "pbench" user. This will go away when we drop this
         # component entirely in favor of PUT.
         try:
-            dataset = Dataset.create(
-                controller=controller, path=resultname, owner="pbench"
-            )
+            dataset = Dataset.create(name=Dataset.stem(resultname), owner="pbench")
         except DatasetError as e:
             logger.error(
                 "Unable to create dataset {}>{}: {}", controller, resultname, str(e)

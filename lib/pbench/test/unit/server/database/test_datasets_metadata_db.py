@@ -19,7 +19,7 @@ class TestMetadata:
     def test_metadata(self, db_session, create_user):
         """Various tests on Metadata keys"""
         # See if we can create a metadata row
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         assert ds.metadatas == []
         m = Metadata.create(key="dashboard", value=True, dataset=ds)
         assert m is not None
@@ -33,7 +33,7 @@ class TestMetadata:
         assert m.dataset_ref == m1.dataset_ref
 
         # Check the str()
-        assert "test(1)|frodo|fio>>dashboard" == str(m)
+        assert "test(1)|fio>>dashboard" == str(m)
 
         # Try to get a metadata key that doesn't exist
         with pytest.raises(MetadataNotFound) as exc:
@@ -94,7 +94,7 @@ class TestMetadata:
 
     def test_metadata_remove(self, db_session, create_user):
         """Test that we can remove a Metadata key"""
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         assert ds.metadatas == []
         m = Metadata(key="dashboard", value="TRUE")
         m.add(ds)
@@ -113,7 +113,7 @@ class TestMetadata:
 
 class TestMetadataNamespace:
     def test_get_bad_syntax(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         with pytest.raises(MetadataBadKey) as exc:
             Metadata.getvalue(ds, "dashboard..foo")
         assert exc.type == MetadataBadKey
@@ -179,7 +179,7 @@ class TestMetadataNamespace:
         assert metadata is None
 
     def test_set_bad_syntax(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         with pytest.raises(MetadataBadKey) as exc:
             Metadata.setvalue(ds, "dashboard.foo.", "irrelevant")
         assert exc.type == MetadataBadKey
@@ -187,7 +187,7 @@ class TestMetadataNamespace:
         assert str(exc.value) == "Metadata key 'dashboard.foo.' is not supported"
 
     def test_set_bad_characters(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         with pytest.raises(MetadataBadKey) as exc:
             Metadata.setvalue(ds, "dashboard.*!foo", "irrelevant")
         assert exc.type == MetadataBadKey
@@ -195,12 +195,12 @@ class TestMetadataNamespace:
         assert str(exc.value) == "Metadata key 'dashboard.*!foo' is not supported"
 
     def test_get_novalue(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         assert Metadata.getvalue(ds, "dashboard.email") is None
         assert Metadata.getvalue(ds, "dashboard") is None
 
     def test_get_bad_path(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         Metadata.setvalue(ds, "dashboard.contact", "hello")
         with pytest.raises(MetadataBadStructure) as exc:
             Metadata.getvalue(ds, "dashboard.contact.email")
@@ -213,7 +213,7 @@ class TestMetadataNamespace:
         )
 
     def test_set_bad_path(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         Metadata.setvalue(ds, "dashboard.contact", "hello")
         with pytest.raises(MetadataBadStructure) as exc:
             Metadata.setvalue(ds, "dashboard.contact.email", "me@example.com")
@@ -234,7 +234,7 @@ class TestMetadataNamespace:
         }
 
     def test_get_inner_path(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         Metadata.setvalue(
             ds,
             "dashboard.contact",
@@ -248,7 +248,7 @@ class TestMetadataNamespace:
         }
 
     def test_delete_with_metadata(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         Metadata.setvalue(
             ds,
             "dashboard.contact",

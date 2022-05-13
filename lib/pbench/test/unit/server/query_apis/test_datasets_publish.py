@@ -19,7 +19,7 @@ class TestDatasetsPublish:
     constructor and `post` service.
     """
 
-    PAYLOAD = {"controller": "node", "name": "drb", "access": "public"}
+    PAYLOAD = {"name": "drb", "access": "public"}
 
     def fake_elastic(self, monkeypatch, map: JSON, partial_fail: bool):
         """
@@ -163,7 +163,7 @@ class TestDatasetsPublish:
         assert (
             "pbench.server.api",
             ERROR,
-            'DatasetsPublish:dataset drb(3)|node|drb: 28 successful document actions and 3 failures: {"Just kidding": {"unit-test.v6.run-data.2021-06": 1, "unit-test.v6.run-toc.2021-06": 1, "unit-test.v5.result-data-sample.2021-06": 1}, "ok": {"unit-test.v6.run-toc.2021-06": 9, "unit-test.v5.result-data-sample.2021-06": 19}}',
+            'DatasetsPublish:dataset drb(3)|drb: 28 successful document actions and 3 failures: {"Just kidding": {"unit-test.v6.run-data.2021-06": 1, "unit-test.v6.run-toc.2021-06": 1, "unit-test.v5.result-data-sample.2021-06": 1}, "ok": {"unit-test.v6.run-toc.2021-06": 9, "unit-test.v5.result-data-sample.2021-06": 19}}',
         ) in caplog.record_tuples
 
         # Verify that the Dataset access didn't change
