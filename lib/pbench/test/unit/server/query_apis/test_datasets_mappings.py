@@ -1,20 +1,5 @@
 from http import HTTPStatus
 
-import pytest
-from sqlalchemy.exc import DatabaseError
-
-from pbench.server.database.models.template import Template
-
-
-@pytest.fixture()
-def database_error(monkeypatch):
-    def raise_db_error(name: str):
-        raise DatabaseError("DB Error")
-
-    with monkeypatch.context() as m:
-        m.setattr(Template, "find", raise_db_error)
-        yield
-
 
 class TestDatasetsMappings:
     """
@@ -48,7 +33,6 @@ class TestDatasetsMappings:
                     "tar-ball-creation-timestamp",
                     "toc-prefix",
                 ],
-                "authorization": ["access", "owner"],
                 "host_tools_info": [
                     "hostname",
                     "hostname-f",
@@ -120,7 +104,7 @@ class TestDatasetsMappings:
                 == "Unrecognized keyword ['bad_data_object_view'] given for parameter dataset_view; allowed keywords are ['contents', 'iterations', 'summary', 'timeseries']"
             )
 
-    def test_with_db_error(self, client, server_config, database_error):
+    def test_with_db_error(self, client, server_config):
         """
         Check the index mappings API if there is an error connecting to sql database.
         """

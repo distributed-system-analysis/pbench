@@ -55,7 +55,7 @@ class TemplateNotFound(TemplateError):
         self.name = name
 
     def __str__(self) -> str:
-        return f"No template {self.name!r}"
+        return f"Document template for index {self.name!r} not found in the database"
 
 
 class TemplateDuplicate(TemplateError):

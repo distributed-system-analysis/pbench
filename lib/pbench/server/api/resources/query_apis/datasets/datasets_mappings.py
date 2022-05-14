@@ -15,7 +15,7 @@ from pbench.server.api.resources import (
 )
 
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
-from pbench.server.database.models.template import Template, TemplateNotFound
+from pbench.server.database.models.template import TemplateNotFound
 
 
 class DatasetsMappings(ApiBase):
@@ -103,10 +103,7 @@ class DatasetsMappings(ApiBase):
 
         index = IndexMapBase.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
         try:
-            index_name = index["index"]
-            template = Template.find(index_name)
-            mappings = template.mappings
-
+            mappings = IndexMapBase.get_mappings(index)
             result = {}
             for property in mappings["properties"]:
                 if "properties" in mappings["properties"][property]:
@@ -116,8 +113,6 @@ class DatasetsMappings(ApiBase):
 
             # construct response object
             return jsonify(result)
-        except TemplateNotFound:
-            self.logger.exception(
-                "Document template {} not found in the database.", index_name
-            )
+        except TemplateNotFound as e:
+            self.logger.exception(str(e))
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
