@@ -1,12 +1,9 @@
 from http import HTTPStatus
-import itertools
 
 import pytest
 import requests
 
 from pbench.server import JSON, PbenchServerConfig
-from pbench.server.api.resources import ParamType
-from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
 
 
 class TestDatasetsMetadata:
@@ -24,11 +21,11 @@ class TestDatasetsMetadata:
         """
 
         def query_api(
-            payload: JSON, username: str, expected_status: HTTPStatus
+            dataset: str, payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
             token = self.token(client, server_config, username)
             response = client.get(
-                f"{server_config.rest_uri}/datasets/metadata",
+                f"{server_config.rest_uri}/datasets/metadata/{dataset}",
                 headers={"authorization": f"bearer {token}"},
                 query_string=payload,
             )
@@ -58,11 +55,11 @@ class TestDatasetsMetadata:
         """
 
         def query_api(
-            payload: JSON, username: str, expected_status: HTTPStatus
+            dataset: str, payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
             token = self.token(client, server_config, username)
             response = client.put(
-                f"{server_config.rest_uri}/datasets/metadata",
+                f"{server_config.rest_uri}/datasets/metadata/{dataset}",
                 headers={"authorization": f"bearer {token}"},
                 json=payload,
             )
@@ -90,10 +87,8 @@ class TestDatasetsMetadata:
 
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as(
-            {
-                "name": "foobar",
-                "metadata": ["dashboard.seen", "dashboard.saved"],
-            },
+            "foobar",
+            {"metadata": ["dashboard.seen", "dashboard.saved"]},
             "drb",
             HTTPStatus.BAD_REQUEST,
         )
@@ -101,10 +96,8 @@ class TestDatasetsMetadata:
 
     def test_get_bad_keys(self, query_get_as):
         response = query_get_as(
-            {
-                "name": "drb",
-                "metadata": ["xyzzy", "plugh", "dataset.owner", "dataset.access"],
-            },
+            "drb",
+            {"metadata": ["xyzzy", "plugh", "dataset.owner", "dataset.access"]},
             "drb",
             HTTPStatus.BAD_REQUEST,
         )
@@ -114,14 +107,14 @@ class TestDatasetsMetadata:
 
     def test_get1(self, query_get_as):
         response = query_get_as(
+            "drb",
             {
-                "name": "drb",
                 "metadata": [
                     "dashboard.seen",
                     "server.deletion",
                     "dataset.access",
                     "user.contact",
-                ],
+                ]
             },
             "drb",
             HTTPStatus.OK,
@@ -135,10 +128,8 @@ class TestDatasetsMetadata:
 
     def test_get2(self, query_get_as):
         response = query_get_as(
-            {
-                "name": "drb",
-                "metadata": "dashboard.seen,server.deletion,dataset.access,user",
-            },
+            "drb",
+            {"metadata": "dashboard.seen,server.deletion,dataset.access,user"},
             "drb",
             HTTPStatus.OK,
         )
@@ -151,13 +142,13 @@ class TestDatasetsMetadata:
 
     def test_get3(self, query_get_as):
         response = query_get_as(
+            "drb",
             {
-                "name": "drb",
                 "metadata": [
                     "dashboard.seen",
                     "server.deletion,dataset.access",
                     "user",
-                ],
+                ]
             },
             "drb",
             HTTPStatus.OK,
@@ -171,13 +162,13 @@ class TestDatasetsMetadata:
 
     def test_get_unauth(self, query_get_as):
         response = query_get_as(
+            "drb",
             {
-                "name": "drb",
                 "metadata": [
                     "dashboard.seen",
                     "server.deletion,dataset.access",
                     "user",
-                ],
+                ]
             },
             "test",
             HTTPStatus.FORBIDDEN,
@@ -189,8 +180,8 @@ class TestDatasetsMetadata:
 
     def test_get_bad_query(self, query_get_as):
         response = query_get_as(
+            "drb",
             {
-                "name": "drb",
                 "controller": "foobar",
                 "metadata": "dashboard.seen,server.deletion,dataset.access,user",
             },
@@ -201,8 +192,8 @@ class TestDatasetsMetadata:
 
     def test_get_bad_query_2(self, query_get_as):
         response = query_get_as(
+            "drb",
             {
-                "name": "drb",
                 "controller": "foobar",
                 "plugh": "xyzzy",
                 "metadata": ["dashboard.seen", "server.deletion", "dataset.access"],
@@ -212,96 +203,41 @@ class TestDatasetsMetadata:
         )
         assert response.json == {"message": "Unknown URL query keys: controller,plugh"}
 
-    def test_put_missing_json_object(self, client, server_config, pbench_token):
+    @pytest.mark.parametrize("uri", ("/datasets/metadata/", "/datasets/metadata"))
+    def test_put_missing_uri_param(self, client, server_config, pbench_token, uri):
         """
-        Test behavior when no JSON payload is given
+        Test behavior when no dataset name is given on the URI. (NOTE that
+        Flask automatically handles this with a NOT_FOUND response.)
         """
-        response = client.put(f"{server_config.rest_uri}/datasets/metadata")
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == "Invalid request payload"
+        response = client.put(f"{server_config.rest_uri}{uri}")
+        assert response.status_code == HTTPStatus.NOT_FOUND
 
-    def test_put_missing_keys(self, client, server_config, pbench_token):
+    def test_put_missing_key(self, client, server_config, pbench_token):
         """
         Test behavior when JSON payload does not contain all required keys.
 
         Note that Pbench will silently ignore any additional keys that are
         specified but not required.
-
-        TODO: This is mostly copied from commons.py; ideally these would be
-        refactored into a common "superclass" analagous to ApiBase as Commons
-        is to ElasticBase.
         """
-        classobject = DatasetsMetadata(client.config, client.logger)
-
-        def missing_key_helper(keys):
-            response = client.post(
-                f"{server_config.rest_uri}/datasets/metadata",
-                json=keys,
-            )
-            assert response.status_code == HTTPStatus.BAD_REQUEST
-            missing = sorted(set(required_keys) - set(keys))
-            assert (
-                response.json.get("message")
-                == f"Missing required parameters: {','.join(missing)}"
-            )
-
-        parameter_items = classobject.schema.parameters.items()
-
-        required_keys = [
-            key for key, parameter in parameter_items if parameter.required
-        ]
-
-        all_combinations = []
-        for r in range(1, len(parameter_items) + 1):
-            for item in itertools.combinations(parameter_items, r):
-                tmp_req_keys = [key for key, parameter in item if parameter.required]
-                if tmp_req_keys != required_keys:
-                    all_combinations.append(item)
-
-        for items in all_combinations:
-            keys = {}
-            for key, parameter in items:
-                if parameter.type is ParamType.ACCESS:
-                    keys[key] = "public"
-                elif parameter.type is ParamType.DATE:
-                    keys[key] = "2020"
-                elif parameter.type is ParamType.LIST:
-                    keys[key] = []
-                elif parameter.type is ParamType.KEYWORD:
-                    keys[key] = parameter.keywords[0]
-                else:
-                    keys[key] = "foobar"
-
-            missing_key_helper(keys)
-
-        # Test in case all of the required keys are missing and some
-        # random non-existent key is present in the payload
-        if required_keys:
-            missing_key_helper({"notakey": None})
+        response = client.put(
+            f"{server_config.rest_uri}/datasets/metadata/drb", json={}
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json.get("message") == "Missing required parameters: metadata"
 
     def test_put_no_dataset(self, client, server_config, attach_dataset):
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata",
-            json={
-                "controller": "node",
-                "name": "foobar",
-                "metadata": {"dashboard.seen": True, "dashboard.saved": False},
-            },
+            f"{server_config.rest_uri}/datasets/metadata/foobar",
+            json={"metadata": {"dashboard.seen": True, "dashboard.saved": False}},
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {"message": "Dataset 'foobar' not found"}
 
     def test_put_bad_keys(self, client, server_config, attach_dataset):
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata",
+            f"{server_config.rest_uri}/datasets/metadata/drb",
             json={
-                "controller": "node",
-                "name": "drb",
-                "metadata": {
-                    "xyzzy": "private",
-                    "what": "sup",
-                    "dashboard.saved": True,
-                },
+                "metadata": {"xyzzy": "private", "what": "sup", "dashboard.saved": True}
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -311,12 +247,8 @@ class TestDatasetsMetadata:
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata",
-            json={
-                "controller": "node",
-                "name": "drb",
-                "metadata": {"dataset.access": "private"},
-            },
+            f"{server_config.rest_uri}/datasets/metadata/drb",
+            json={"metadata": {"dataset.access": "private"}},
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
@@ -325,10 +257,8 @@ class TestDatasetsMetadata:
 
     def test_put_nowrite(self, query_get_as, query_put_as):
         response = query_put_as(
-            {
-                "name": "fio_1",
-                "metadata": {"dashboard.seen": False, "dashboard.saved": True},
-            },
+            "fio_1",
+            {"metadata": {"dashboard.seen": False, "dashboard.saved": True}},
             "test",
             HTTPStatus.FORBIDDEN,
         )
@@ -339,19 +269,15 @@ class TestDatasetsMetadata:
 
     def test_put(self, query_get_as, query_put_as):
         response = query_put_as(
-            {
-                "name": "drb",
-                "metadata": {"dashboard.seen": False, "dashboard.saved": True},
-            },
+            "drb",
+            {"metadata": {"dashboard.seen": False, "dashboard.saved": True}},
             "drb",
             HTTPStatus.OK,
         )
         assert response.json == {"dashboard.saved": True, "dashboard.seen": False}
         response = query_get_as(
-            {
-                "name": "drb",
-                "metadata": "dashboard,dataset.access",
-            },
+            "drb",
+            {"metadata": "dashboard,dataset.access"},
             "drb",
             HTTPStatus.OK,
         )
@@ -362,10 +288,8 @@ class TestDatasetsMetadata:
 
         # Try a second GET, returning "dashboard" fields separately:
         response = query_get_as(
-            {
-                "name": "drb",
-                "metadata": ["dashboard.seen", "dashboard.saved", "dataset.access"],
-            },
+            "drb",
+            {"metadata": ["dashboard.seen", "dashboard.saved", "dataset.access"]},
             "drb",
             HTTPStatus.OK,
         )

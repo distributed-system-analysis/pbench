@@ -27,7 +27,6 @@ class DatasetsMetadata(ApiBase):
     """
 
     GET_SCHEMA = Schema(
-        Parameter("name", ParamType.STRING, required=True),
         Parameter(
             "metadata",
             ParamType.LIST,
@@ -42,7 +41,7 @@ class DatasetsMetadata(ApiBase):
             config,
             logger,
             Schema(
-                Parameter("name", ParamType.STRING, required=True),
+                Parameter("dataset", ParamType.STRING, required=True),
                 Parameter(
                     "metadata",
                     ParamType.JSON,
@@ -57,23 +56,15 @@ class DatasetsMetadata(ApiBase):
         """
         Get the values of client-accessible dataset metadata keys.
 
-        NOTE: This does not rely on a JSON payload to identify the dataset and
-        desired metadata keys. While in theory there's no restriction on
-        passing a request payload to GET, the venerable (obsolete) Javascript
-        requests package doesn't support it, and Elasticsearch allows POST as
-        well as GET for queries because many clients can't support a payload on
-        GET. In this case, we're going to experiment with an alternative, using
-        query parameters.
-
         Args:
-            json_data: Ignored because GET has no JSON payload
+            json_data: Flask's URI parameter dictionary with dataset name
             request: The original Request object containing query parameters
 
         GET /api/v1/datasets/metadata?name=dname&metadata=dashboard.seen,server.deletion
         """
 
+        name = json_data.get("dataset")
         json = self._validate_query_params(request, self.GET_SCHEMA)
-        name = json.get("name")
         keys = json.get("metadata")
 
         try:
@@ -123,7 +114,7 @@ class DatasetsMetadata(ApiBase):
             "user": {"cloud": "AWS", "contact": "json.carter@mars.org}
         ]
         """
-        name = json_data["name"]
+        name = json_data["dataset"]
         metadata = json_data["metadata"]
 
         try:
