@@ -70,16 +70,6 @@ _PCP_RPMS = \
 	pcp-system-tools \
 	pcp-zeroconf
 
-# These are the lists of Prometheus RPMs -- the packages are the same, but they
-# have different names in the different distributions -- so we have two lists
-# keyed by the distro name.
-_centos_PROMETHEUS_RPMS = \
-    node_exporter \
-    prometheus2
-_fedora_PROMETHEUS_RPMS = \
-    golang-github-prometheus-node-exporter \
-    golang-github-prometheus
-
 # The list of RPMs which provide the various tools we offer.
 # Not intended to be overridden with an environment variable.
 # Please keep the lists sorted.
@@ -96,7 +86,7 @@ _TOOL_RPMS = \
 	${_PCP_RPMS} \
 	perf \
 	procps-ng \
-	${_${DIST_NAME}_PROMETHEUS_RPMS} \
+	${_PROMETHEUS_RPMS} \
 	strace \
 	tcpdump \
 	trace-cmd
@@ -153,6 +143,15 @@ $(_DISTROS:%=%-tm): %-tm: pkgmgr-clean %-tool-meister-tagged
 # for DIST_NAME and DIST_VERSION, respectively.
 %: DIST_NAME = $(wordlist 1, 1, $(subst -, ,$*))
 %: DIST_VERSION = $(wordlist 2, 2, $(subst -, ,$*))
+
+# These are the lists of Prometheus RPMs -- the packages are the same, but they
+# have different names in the different distributions
+fedora-% centos-9-%: _PROMETHEUS_RPMS = \
+    golang-github-prometheus-node-exporter \
+    golang-github-prometheus
+centos-7-% centos-8-%: _PROMETHEUS_RPMS = \
+    node_exporter \
+    prometheus2
 
 
 # Tagging targets
@@ -212,11 +211,13 @@ $(_TAG_TYPES:%=push-%): push-%: $(_DEFAULT_DISTROS:%=%-push-%)
 %-tools-tagged: %-tools %-tags.lis
 	./apply-tags pbench-agent-tools-$* $*-tags.lis
 
-# Add an additional dependency for centos-%-tools targets (this .repo file is
-# not required on Fedora).
-$(_ALL_centos_VERSIONS:%=%-tools): centos-%-tools: centos-%-prometheus.repo
+# CentOS 7 & 8 (but not 9) require an additional .repo file for Prometheus for
+# the tools container; analogously, they as well as Fedora require an additional
+# .repo file for PCP.
+centos-7-tools centos-8-tools: centos-%-tools: centos-%-prometheus.repo
+$(_ALL_fedora_VERSIONS:%=%-tools) centos-7-tools centos-8-tools: %-tools: %-pcp.repo
 
-%-tools: %-base-tagged %-tools.Dockerfile %-pcp.repo %-tags.lis
+%-tools: %-base-tagged %-tools.Dockerfile %-tags.lis
 	./build-image tools $* $*-tags.lis
 
 %-tools.Dockerfile: Dockerfile.layered.j2 %-tags.lis
