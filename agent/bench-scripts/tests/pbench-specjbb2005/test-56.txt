@@ -81,7 +81,6 @@ Timing Measurement ended
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-56_1900.01.01T00.00.00/8-warehouses:8/sample1/SPECjbb.raw
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-56_1900.01.01T00.00.00/8-warehouses:8/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-56_1900.01.01T00.00.00/SPECjbb.props
-/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-56_1900.01.01T00.00.00/SPECjbb.props.sed
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-56_1900.01.01T00.00.00/SPECjbb_config.props
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-56_1900.01.01T00.00.00/jvm-1-worker.txt
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-56_1900.01.01T00.00.00/metadata.log
@@ -182,6 +181,11 @@ user_script = specjbb2005
 
 --- specjbb2005_test-56_1900.01.01T00.00.00/metadata.log file contents
 +++ specjbb2005_test-56_1900.01.01T00.00.00/SPECjbb.props file contents
+input.jvm_instances=_bad_
+input.measurement_seconds=_bad_
+input.starting_number_warehouses=_bad_
+input.increment_number_warehouses=_bad_
+#input.ending_number_warehouses=_bad_
 input.jvm_instances=1
 input.measurement_seconds=30
 input.starting_number_warehouses=1
