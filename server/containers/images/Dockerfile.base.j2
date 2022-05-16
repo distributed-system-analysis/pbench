@@ -10,6 +10,9 @@ RUN \
 {% if distro_image.startswith('centos') %}
     {{ pkgmgr }} install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ distro_image.split(':', 1)[1] }}.noarch.rpm && \
 {% endif %}
-    {{ pkgmgr }} install -y {% if distro_image == 'centos:8' %}--enablerepo PowerTools {% endif %}--enablerepo copr-pbench pbench-server && \
+    {{ pkgmgr }} install -y \
+        {% if distro_image == 'centos:8' %}--enablerepo PowerTools {% endif %} \
+        {% if distro_image == 'centos:9' %}--enablerepo crb {% endif %} \
+        --enablerepo copr-pbench pbench-server && \
     {{ pkgmgr }} -y clean all && \
     rm -rf /var/cache/yum
