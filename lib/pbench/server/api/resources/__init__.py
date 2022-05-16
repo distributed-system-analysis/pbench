@@ -1022,10 +1022,9 @@ class ApiBase(Resource):
                 metadata[i] = UtcTimeHelper(dataset.uploaded).to_iso_string()
             elif Metadata.is_key_path(i, Metadata.USER_METADATA):
                 native_key = Metadata.get_native_key(i)
-                user = None
+                user: Optional[User] = None
                 if native_key == Metadata.USER_NATIVE_KEY:
-                    authorized_user: Optional[User] = Auth.token_auth.current_user()
-                    user = authorized_user
+                    user = Auth.token_auth.current_user()
                 try:
                     metadata[i] = Metadata.getvalue(dataset=dataset, key=i, user=user)
                 except MetadataNotFound:

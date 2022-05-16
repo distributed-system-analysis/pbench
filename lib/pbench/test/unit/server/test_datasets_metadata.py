@@ -117,7 +117,6 @@ class TestDatasetsMetadata:
         response = query_get_as(
             "drb",
             {
-                "name": "drb",
                 "metadata": ["dashboard.seen", "server.deletion", "dataset.access"],
             },
             "drb",
@@ -133,7 +132,6 @@ class TestDatasetsMetadata:
         response = query_get_as(
             "drb",
             {
-                "name": "drb",
                 "metadata": "dashboard.seen,server.deletion,dataset.access",
             },
             "drb",
@@ -185,8 +183,8 @@ class TestDatasetsMetadata:
 
     def test_get_unauth(self, query_get_as):
         response = query_get_as(
+            "drb",
             {
-                "name": "drb",
                 "metadata": [
                     "dashboard.seen",
                     "server.deletion,dataset.access",
@@ -292,10 +290,8 @@ class TestDatasetsMetadata:
 
     def test_put_noauth(self, query_get_as, query_put_as):
         response = query_put_as(
-            {
-                "name": "fio_1",
-                "metadata": {"dashboard.seen": False, "dashboard.saved": True},
-            },
+            "fio_1",
+            {"metadata": {"dashboard.seen": False, "dashboard.saved": True}},
             None,
             HTTPStatus.UNAUTHORIZED,
         )
@@ -313,10 +309,7 @@ class TestDatasetsMetadata:
         )
         assert response.json == {"dashboard.saved": True, "dashboard.seen": False}
         response = query_get_as(
-            "drb",
-            {"metadata": "dashboard,dataset.access"},
-            "drb",
-            HTTPStatus.OK,
+            "drb", {"metadata": "dashboard,dataset.access"}, "drb", HTTPStatus.OK
         )
         assert response.json == {
             "dashboard": {"contact": "me@example.com", "saved": True, "seen": False},
@@ -338,32 +331,29 @@ class TestDatasetsMetadata:
 
     def test_put_user(self, query_get_as, query_put_as):
         response = query_put_as(
-            {"name": "fio_1", "metadata": {"user.favorite": True, "user.tag": "AWS"}},
+            "fio_1",
+            {"metadata": {"user.favorite": True, "user.tag": "AWS"}},
             "drb",
             HTTPStatus.OK,
         )
         assert response.json == {"user.favorite": True, "user.tag": "AWS"}
         response = query_put_as(
-            {"name": "fio_1", "metadata": {"user.favorite": False, "user.tag": "RHEL"}},
+            "fio_1",
+            {"metadata": {"user.favorite": False, "user.tag": "RHEL"}},
             "test",
             HTTPStatus.OK,
         )
         assert response.json == {"user.favorite": False, "user.tag": "RHEL"}
         response = query_put_as(
-            {"name": "fio_1", "metadata": {"user.favorite": False, "user.tag": "BAD"}},
+            "fio_1",
+            {"metadata": {"user.favorite": False, "user.tag": "BAD"}},
             None,
             HTTPStatus.UNAUTHORIZED,
         )
 
-        response = query_get_as(
-            {"name": "fio_1", "metadata": "user"}, "drb", HTTPStatus.OK
-        )
+        response = query_get_as("fio_1", {"metadata": "user"}, "drb", HTTPStatus.OK)
         assert response.json == {"user": {"favorite": True, "tag": "AWS"}}
-        response = query_get_as(
-            {"name": "fio_1", "metadata": "user"}, "test", HTTPStatus.OK
-        )
+        response = query_get_as("fio_1", {"metadata": "user"}, "test", HTTPStatus.OK)
         assert response.json == {"user": {"favorite": False, "tag": "RHEL"}}
-        response = query_get_as(
-            {"name": "fio_1", "metadata": "user"}, None, HTTPStatus.OK
-        )
+        response = query_get_as("fio_1", {"metadata": "user"}, None, HTTPStatus.OK)
         assert response.json == {"user": None}

@@ -97,10 +97,7 @@ class DatasetsMetadata(ApiBase):
             "name": "datasetname",
             "metadata": [
                 "dashboard.seen": True,
-                "user": {
-                    "cloud": "AWS",
-                    "contact": "john.carter@mars.org"
-                }
+                "user": {"favorite": True}
             ]
         }
 
@@ -114,7 +111,7 @@ class DatasetsMetadata(ApiBase):
 
         [
             "dashboard.seen": True,
-            "user": {"cloud": "AWS", "contact": "json.carter@mars.org}
+            "user": {"favorite": False}
         ]
         """
         name = json_data["dataset"]
@@ -129,10 +126,20 @@ class DatasetsMetadata(ApiBase):
         # Validate the authenticated user's authorization for the combination
         # of "owner" and "access".
         #
-        # Note that we allow authenticated clients to set "user.*" namespace
-        # metadata with READ access to the dataset because it doesn't affect
-        # the Dataset itself and isn't visible to other users, but we require
-        # UPDATE access for any keys outside the "user" namespace.
+        # The "unusual" part here is that we make a special case for
+        # authenticated that are not the owner of the data: we want to allow
+        # them UPDATE access to PUBLIC datasets (to which they naturally have
+        # READ access) as long as they're only trying to modify a "user."
+        # metadata key:
+        #
+        # * We want to validate authorized non-owners for READ access if
+        #   they're only trying to modify "user." keys;
+        # * We want to validate unauthorized users for UPDATE because they have
+        #   READ access to "public" datasets but still can't write even "user."
+        #   metadata;
+        # * We want to validate authorized users for UPDATE if they're trying
+        #   to set anything other than a "user." key because only the owner can
+        #   do that...
         role = API_OPERATION.READ
         if not Auth.token_auth.current_user():
             role = API_OPERATION.UPDATE
@@ -147,10 +154,9 @@ class DatasetsMetadata(ApiBase):
         failures = []
         for k, v in metadata.items():
             native_key = Metadata.get_native_key(k)
-            user = None
+            user: Optional[User] = None
             if native_key == Metadata.USER_NATIVE_KEY:
-                authorized_user: Optional[User] = Auth.token_auth.current_user()
-                user = authorized_user
+                user = Auth.token_auth.current_user()
             try:
                 Metadata.setvalue(key=k, value=v, dataset=dataset, user=user)
             except MetadataError as e:

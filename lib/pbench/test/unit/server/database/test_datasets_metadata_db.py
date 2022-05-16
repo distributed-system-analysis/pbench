@@ -1,4 +1,6 @@
 import pytest
+from sqlalchemy import or_
+
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -158,9 +160,21 @@ class TestMetadataNamespace:
         assert ds.metadatas == []
 
         # Peek under the carpet to look for orphaned metadata objects linked
-        # to the Dataset
+        # to the Dataset or User
         metadata = (
             Database.db_session.query(Metadata).filter_by(dataset_ref=ds.id).first()
+        )
+        assert metadata is None
+        metadata = (
+            Database.db_session.query(Metadata)
+            .filter(
+                or_(
+                    Metadata.user_ref == create_drb_user.id,
+                    Metadata.user_ref == create_user.id,
+                    Metadata.user_ref is None,
+                )
+            )
+            .first()
         )
         assert metadata is None
 
@@ -259,6 +273,13 @@ class TestMetadataNamespace:
         assert metadata is None
 
     def test_setgetvalue_user(self, db_session, create_user, create_drb_user):
+        """
+        Verify that we can set and read independent values of "user." namespace
+        keys across two separate users plus a "non-owned" version (user None)
+        which is not supported by the current higher level access through the
+        server APIs. (In other words, the "user" SQL column can be None, as we
+        use this column only for the "user" key value.)
+        """
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
         Metadata.setvalue(dataset=ds, key="user.contact", value="Barney")
         Metadata.setvalue(

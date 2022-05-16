@@ -821,51 +821,34 @@ class Metadata(Database.Base):
     # the "server" namespace, and are strictly controlled by keyword path:
     # e.g., "server.deleted", "server.archived";
     #
-    # Metadata keys within the "user" namespace allow exposure of user-specific
-    # configuration data through the Dataset metadata API; for example, a
-    # client can ask whether a specific dataset has been "favorited" by the
-    # authenticated user (TBD) and the allowable access settings (currently
-    # private and public).
-    #
-    # Metadata keys intended for use by the dashboard client are in the
-    # "dashboard" namespace. While these can be modified by any API client, the
-    # separate namespace provides some protection against accidental
-    # modifications that might break dashboard semantics. This is an "open"
-    # namespace, allowing the dashboard to define and manage any keys it needs
-    # within the "dashboard.*" hierarchy.
+    # The "dashboard" and "user" namespaces can be written by an authenticated
+    # client to track external metadata. The difference is that "dashboard" key
+    # values are visible to all clients with READ access to the dataset, while
+    # the "user" namespace is visible only to clients authenticated to the user
+    # that wrote the data. That is, "dashboard.seen" is a global dashboard
+    # metadata property visible to all users, while "user.favorite" is visible
+    # only to the specific user that wrote the value; each authenticated user
+    # may have its own unique "user.favorite" value.
     #
     # The following class constants define the set of currently available
     # metadata keys, where the "open" namespaces are represented by the
-    # syntax "user.*".
+    # syntax "dashboard.*" and "user.*" which allow clients to control the
+    # key names using a "dotted path" notation like "dashboard.seen" or
+    # "dashboard.contact.email".
 
-    # DASHBOARD is arbitrary data saved on behalf of the dashboard client; the
-    # reserved namespace differs from "user" only in that reserving a primary
-    # key for the "well known" dashboard client offers some protection against
-    # key name collisions.
+    # DASHBOARD is arbitrary data saved on behalf of the dashboard client as a
+    # JSON document. Writing these keys requires ownership of the referenced
+    # dataset, and the data is visible to all clients with READ access to the
+    # dataset.
     #
     # {"dashboard.seen": True}
     DASHBOARD = "dashboard.*"
 
     # USER is arbitrary data saved with the dataset on behalf of an
-    # authenticated user, as a JSON document.
-    #
-    # Note that the hierarchical key management in the getvalue and setvalue
-    # static methods (used consistently by the API layer) allow client code
-    # to interact with these either as a complete JSON document ("user") or
-    # as a full dotted key path ("user.contact.name.first") or at any JSON
-    # layer between.
-    #
-    # API keyword validation uses the trailing ".*" here to indicate that only
-    # the first element of the path should be validated, allowing the client
-    # a completely uninterpreted namespace below that.
-    #
-    # Metadata in the "user" namespace is user-specific; it will always be set
-    # and accessed using the authenticated user ID. That is, different users
-    # will see their own "user" namespace keys for any given dataset.
-    #
-    # TODO: ?? It occurs to me that we could allow "user" metadata rows without
-    # a user_id, which could act as a "default" for all users examining the
-    # dataset -- I'm not entirely sure this is a good model.
+    # authenticated user, as a JSON document. Writing these keys requires READ
+    # access to the referenced dataset, and are visible only to clients that
+    # are authenticated as the user which set them. Each user can have its own
+    # unique value for these keys, for example "user.favorite".
     #
     # {"user.favorite": True}
     USER_NATIVE_KEY = "user"
@@ -997,7 +980,7 @@ class Metadata(Database.Base):
         Returns:
             native SQL key name ("user")
         """
-        return key.lower().split(".").pop(0)
+        return key.lower().split(".")[0]
 
     @staticmethod
     def is_key_path(key: str, valid: List[str]) -> bool:
@@ -1007,7 +990,7 @@ class Metadata(Database.Base):
         valid. If the key is a dotted path and the first element plus a
         trailing ".*" is in the list, then this is an open key namespace where
         any subsequent path is acceptable: e.g., "user.*" allows "user", or
-        "user.contact", "user.contact.name", etc.
+        "user.favorite", "user.notes.status", etc.
 
         Args:
             key: metadata key path
@@ -1040,16 +1023,28 @@ class Metadata(Database.Base):
         level Metadata object. The full JSON value of a top level key can be
         acquired directly using `Metadata.get(dataset, key)`
 
-        E.g., for "user.contact.name" with the dataset's Metadata value for the
-        "user" key as {"contact": {"name": "Dave", "email": "d@example.com"}},
-        this would return "Dave", whereas Metadata.get(dataset, "user") would
-        return the entire user key JSON, such as
-        {"user" {"contact": {"name": "Dave", "email": "d@example.com}}}
+        For example, if the metadata database has
+
+            "dashboard": {
+                    "contact": {
+                        "name": "dave",
+                        "email": "d@example.com"
+                    }
+                }
+
+        then Metadata.get(dataset, "dashboard.contact.name") would return
+
+            "Dave"
+
+        whereas Metadata.get(dataset, "dashboard") would return the entire user
+        key JSON, such as
+
+            {"dashboard" {"contact": {"name": "Dave", "email": "d@example.com}}}
 
         Args:
             dataset: associated dataset
             key: hierarchical key path to fetch
-            user:
+            user: User-specific key value (used only for "user." namespace)
 
         Returns:
             Value of the key path
@@ -1171,9 +1166,9 @@ class Metadata(Database.Base):
         """
         try:
             meta = __class__._query(dataset, key, user).first()
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             Metadata.logger.exception("Can't get {}>>{} from DB", dataset, key)
-            raise MetadataSqlError("getting", dataset, key)
+            raise MetadataSqlError("getting", dataset, key) from e
         else:
             if meta is None:
                 raise MetadataNotFound(dataset, key)
