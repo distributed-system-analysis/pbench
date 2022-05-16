@@ -81,10 +81,9 @@ def quarantine(dest, logger, *files):
         try:
             # If the file we're moving is a tarball, update the dataset
             # state. (If it's the associated MD5 file, skip that.)
-            if str(afile).endswith(".tar.xz"):
+            if Dataset.is_tarball(afile):
                 try:
-                    ds_name = os.path.basename(afile)[: -len(".tar.xz")]
-                    Dataset.attach(name=ds_name, state=States.QUARANTINED)
+                    Dataset.attach(name=Dataset.stem(afile), state=States.QUARANTINED)
                 except DatasetNotFound:
                     logger.exception("quarantine dataset {} not found", afile)
             shutil.move(afile, os.path.join(dest, os.path.basename(afile)))
