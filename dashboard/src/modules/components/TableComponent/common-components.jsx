@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Alert,
   AlertActionCloseButton,
@@ -15,7 +16,7 @@ import {
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import "./index.less";
-import React, { useState } from "react";
+import { filterData } from "utils/filterDataset";
 
 export const LoginHint = (props) => {
   const { message, link, onCloseMethod } = props;
@@ -69,22 +70,12 @@ export const SearchBox = ({
 })=> {
   const [controllerValue, setControllerValue] = useState("");
   const searchController = () => {
-    let modifiedArray = [];
-    modifiedArray = dataArray.filter((data) => {
-      return (
-        data.controller.includes(controllerValue) &&
-        new Date(data.metadata["dataset.created"].split(":")[0]) >= startDate &&
-        new Date(data.metadata["dataset.created"].split(":")[0]) <=
-          new Date(endDate)
-      );
-    });
-    setPublicData(modifiedArray);
+    setPublicData(filterData(dataArray, startDate, endDate, controllerValue));
     setControllerName(controllerValue);
   };
   return (
     <InputGroup className="searchInputGroup">
       <TextInput
-        id="tableSearch"
         type="text"
         placeholder="Search Controllers"
         onChange={(e) => setControllerValue(e)}
