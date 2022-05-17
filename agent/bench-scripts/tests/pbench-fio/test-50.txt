@@ -1,5 +1,7 @@
-+++ Running test-03 pbench-fio
---- Finished test-03 pbench-fio (status=0)
++++ Running test-50 pbench-fio
+[error][1900-01-01T00:00:00.000000] wrong version installed: found fio-bad, expected fio-3.21 (gte)
+[error][1900-01-01T00:00:00.000000] pre-check(s) failed, exiting
+--- Finished test-50 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
@@ -11,8 +13,11 @@
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] local_pre_check(devs="/tmp/fio", ver="3.19", match="gte")
-[debug][1900-01-01T00:00:00.000000] found fio-3.42
+[debug][1900-01-01T00:00:00.000000] fio_pre_check(targets="/tmp/fio", clients="", ver="3.21", match="gte")
+[debug][1900-01-01T00:00:00.000000] Running pre-check locally
+[debug][1900-01-01T00:00:00.000000] local_pre_check(devs="", ver="3.21", match="gte")
+[error][1900-01-01T00:00:00.000000] wrong version installed: found fio-bad, expected fio-3.21 (gte)
+[error][1900-01-01T00:00:00.000000] pre-check(s) failed, exiting
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --version
