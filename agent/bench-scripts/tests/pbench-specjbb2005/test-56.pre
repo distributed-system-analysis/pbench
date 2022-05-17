@@ -9,11 +9,11 @@ _dir="${_testtmp}/specjbb2005"
 mkdir ${_dir} || exit 1
 touch ${_dir}/SPECjbb.props || exit 1
 # 2. a properties file containing the 5 properties that will be replaced
-printf "input.jvm_instances=_replace_\n" >> ${_dir}/SPECjbb.props
-printf "input.measurement_seconds=_replace_\n" >> ${_dir}/SPECjbb.props
-printf "input.starting_number_warehouses=_replace_\n" >> ${_dir}/SPECjbb.props
-printf "input.increment_number_warehouses=_replace_\n" >> ${_dir}/SPECjbb.props
-printf "input.ending_number_warehouses=_replace_\n" >> ${_dir}/SPECjbb.props
+printf "input.jvm_instances=_bad_\n" >> ${_dir}/SPECjbb.props
+printf "input.measurement_seconds=_bad_\n" >> ${_dir}/SPECjbb.props
+printf "input.starting_number_warehouses=_bad_\n" >> ${_dir}/SPECjbb.props
+printf "input.increment_number_warehouses=_bad_\n" >> ${_dir}/SPECjbb.props
+printf "#input.ending_number_warehouses=_bad_\n" >> ${_dir}/SPECjbb.props
 # 3. a properties file for the configuration of SPECjbb, the contents of which
 #    is ignored, but its presence is expected
 touch ${_dir}/SPECjbb_config.props || exit 1
