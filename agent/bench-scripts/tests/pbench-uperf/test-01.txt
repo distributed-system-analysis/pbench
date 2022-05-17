@@ -326,3 +326,39 @@ iteration_name = 2-tcp_stream-64B-1i
 +++ uperf_test-01_1900.01.01T00.00.00/pbench-uperf.cmd file contents
 pbench-uperf --config=test-01 --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2 --servers=s1,s2,s3 --clients=c1,c2,c3 --server-node=0,-1,2 --client-node=1,-1,3
 --- uperf_test-01_1900.01.01T00.00.00/pbench-uperf.cmd file contents
++++ uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c1-server::s1:20010--client_start.sh file contents
+numactl --cpunodebind=1 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -m /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c1-server::s1:20010--test_config.xml -R -a -i 1  -P 20010 >/var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2/client::c1-server::s1:20010--client_output.txt 2>&1"
+--- uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c1-server::s1:20010--client_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c1-server::s1:20010--server_start.sh file contents
+numactl --cpunodebind=0 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -s -P 20010 > /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2/client::c1-server::s1:20010--server.log 2>&1"
+--- uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c1-server::s1:20010--server_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c2-server::s2:20020--client_start.sh file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -m /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c2-server::s2:20020--test_config.xml -R -a -i 1  -P 20020 >/var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2/client::c2-server::s2:20020--client_output.txt 2>&1
+--- uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c2-server::s2:20020--client_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c2-server::s2:20020--server_start.sh file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -s -P 20020 > /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2/client::c2-server::s2:20020--server.log 2>&1
+--- uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c2-server::s2:20020--server_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c3-server::s3:20030--client_start.sh file contents
+numactl --cpunodebind=3 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -m /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c3-server::s3:20030--test_config.xml -R -a -i 1  -P 20030 >/var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2/client::c3-server::s3:20030--client_output.txt 2>&1"
+--- uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c3-server::s3:20030--client_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c3-server::s3:20030--server_start.sh file contents
+numactl --cpunodebind=2 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -s -P 20030 > /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2/client::c3-server::s3:20030--server.log 2>&1"
+--- uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/client::c3-server::s3:20030--server_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c1-server::s1:20010--client_start.sh file contents
+numactl --cpunodebind=1 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -m /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c1-server::s1:20010--test_config.xml -R -a -i 1  -P 20010 >/var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2/client::c1-server::s1:20010--client_output.txt 2>&1"
+--- uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c1-server::s1:20010--client_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c1-server::s1:20010--server_start.sh file contents
+numactl --cpunodebind=0 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -s -P 20010 > /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2/client::c1-server::s1:20010--server.log 2>&1"
+--- uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c1-server::s1:20010--server_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c2-server::s2:20020--client_start.sh file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -m /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c2-server::s2:20020--test_config.xml -R -a -i 1  -P 20020 >/var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2/client::c2-server::s2:20020--client_output.txt 2>&1
+--- uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c2-server::s2:20020--client_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c2-server::s2:20020--server_start.sh file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -s -P 20020 > /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2/client::c2-server::s2:20020--server.log 2>&1
+--- uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c2-server::s2:20020--server_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c3-server::s3:20030--client_start.sh file contents
+numactl --cpunodebind=3 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -m /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c3-server::s3:20030--test_config.xml -R -a -i 1  -P 20030 >/var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2/client::c3-server::s3:20030--client_output.txt 2>&1"
+--- uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c3-server::s3:20030--client_start.sh file contents
++++ uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c3-server::s3:20030--server_start.sh file contents
+numactl --cpunodebind=2 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -v -s -P 20030 > /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2/client::c3-server::s3:20030--server.log 2>&1"
+--- uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/client::c3-server::s3:20030--server_start.sh file contents

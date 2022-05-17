@@ -14,5 +14,5 @@
 [debug][1900-01-01T00:00:00.000000] found uperf-1.0.42
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm -V
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -V
 --- test-execution.log file contents

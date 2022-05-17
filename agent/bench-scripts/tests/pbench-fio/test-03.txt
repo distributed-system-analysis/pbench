@@ -15,5 +15,5 @@
 [debug][1900-01-01T00:00:00.000000] found fio-3.42
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --version
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --version
 --- test-execution.log file contents

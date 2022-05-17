@@ -71,6 +71,10 @@ RUN \
         `# Base command used by CI unit test jobs` \
         `#` \
         tox \
+        `#` \
+        `# Required for pbench-fio and pbench-uperf` \
+        `#` \
+        which \
     && \
     `#` \
     `# Save space in the container image.` \
