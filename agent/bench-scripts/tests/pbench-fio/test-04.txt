@@ -517,152 +517,152 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] Running pre-check locally
 [debug][1900-01-01T00:00:00.000000] local_pre_check(devs="", ver="3.21", match="gte")
 [debug][1900-01-01T00:00:00.000000] found fio-3.42
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
@@ -706,37 +706,37 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB readwrite_IOPS 5 0 6 y y
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB readwrite_IOPS 5 0 6 y y
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB readwrite_IOPS 5 0 6 y y
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --version
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --version
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3
@@ -913,31 +913,31 @@ iteration_name = 6-randrw-1024KiB
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/process-iteration-samples.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB" "readwrite_IOPS" "5" "0" "6" "y" "y"
@@ -946,31 +946,31 @@ iteration_name = 6-randrw-1024KiB
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/process-iteration-samples.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB" "readwrite_IOPS" "5" "0" "6" "y" "y"
@@ -979,31 +979,31 @@ iteration_name = 6-randrw-1024KiB
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/process-iteration-samples.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB" "readwrite_IOPS" "5" "0" "6" "y" "y"
@@ -1012,31 +1012,31 @@ iteration_name = 6-randrw-1024KiB
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/process-iteration-samples.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB" "readwrite_IOPS" "5" "0" "6" "y" "y"
@@ -1045,31 +1045,31 @@ iteration_name = 6-randrw-1024KiB
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/process-iteration-samples.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB" "readwrite_IOPS" "5" "0" "6" "y" "y"
@@ -1078,31 +1078,31 @@ iteration_name = 6-randrw-1024KiB
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5/fio-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5" "fio-" "default"
 --- fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5/fio-postprocess.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/fio.job
 --- fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5/fio.cmd file contents
 +++ fio_test-04_1900.01.01T00.00.00/generate-benchmark-summary.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary "fio" "--config=test-04 --test-types=rw,randrw --ramptime=61" "/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00"

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "$0 $*" >> $_testlog
+
+# Mock uperf command behaviors.
+if [[ "${1}" == "-V" ]]; then 
+	echo "Uperf Version ${_BM_UPERF_VER:-1.0.42}"
+	echo "... garbage to be ignored ..."
+	exit 0
+fi
+
+exit ${_BM_UPERF_STS:-0}

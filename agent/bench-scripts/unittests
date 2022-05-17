@@ -105,7 +105,6 @@ function _run {
     printf -- "#!/bin/bash\n\n" > ${_testroot}/run.cmd
     printf -- "export _tst_benchmark=%s\n" "${tscrpt%% *}" >> ${_testroot}/run.cmd
     printf -- "export _PBENCH_AGENT_CONFIG=%s/config/pbench-agent.cfg\n" "${_testopt}" >> ${_testroot}/run.cmd
-    printf -- "export benchmark_bin=%s/unittest-scripts/bm\n\n" "${_testopt}" >> ${_testroot}/run.cmd
     printf -- "export PERL_HASH_SEED=0\n" "${_testopt}" >> ${_testroot}/run.cmd
 
     if [[ -e "${env_file}" ]]; then
@@ -167,6 +166,9 @@ function _dump_logs {
                 _dump_file ${rundir} ${f:2}
             done
             for f in $(find . -name results.html 2> /dev/null | sort); do
+                _dump_file ${rundir} ${f:2}
+            done
+            for f in $(find . -name '*--client_start.sh' -o -name '*--server_start.sh' 2> /dev/null | sort); do
                 _dump_file ${rundir} ${f:2}
             done
         fi
@@ -304,6 +306,16 @@ else
         fi
     done
     mv ${_testroot}/tests-unsorted.lis ${_testroot}/tests.lis
+fi
+
+if [[ ! -z "${_PBENCH_LEGACY_UNITTESTS_LIST}" ]]; then
+    # List the tests we are going to run without running them.  This is helpful
+    # when adding a new test to either use an unused test number or add another
+    # one.
+    cat ${_testroot}/tests.lis
+    # We empty list once displayed so that the execution loop below becomes a
+    # "no-op" and exits cleanly. 
+    > ${_testroot}/tests.lis
 fi
 
 export _date_suffix="1900.01.01T00.00.00"

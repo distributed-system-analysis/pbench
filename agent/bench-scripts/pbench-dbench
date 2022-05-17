@@ -24,7 +24,7 @@ warn_log "${script_name} is deprecated and will be removed in the next release"
 benchmark_rpm=$script_name
 export benchmark="dbench"
 if [[ -z "${benchmark_bin}" ]]; then
-	benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
+	benchmark_bin="$(command -v "${benchmark}")"
 	if [[ -z "${benchmark_bin}" ]]; then
 		error_log "[${script_name}] ${benchmark} executable not found on PATH=${PATH}"
 		exit 1

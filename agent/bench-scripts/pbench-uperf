@@ -25,13 +25,6 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 export benchmark="uperf"
-if [[ -z "${benchmark_bin}" ]]; then
-	benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
-	if [[ -z "${benchmark_bin}" ]]; then
-		error_log "${script_name}: ${benchmark} executable not found on PATH=${PATH}"
-		exit 1
-	fi
-fi
 
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
@@ -204,7 +197,13 @@ function local_pre_check {
 	local _ver="${1}"
 	local _match="${2}"
 
-	local ver_installed=$(${benchmark_bin} -V | awk 'NR==1 {print $3}')
+	local _stdout
+	_stdout=$(${benchmark} -V 2>&1)
+	if [[ ${?} -ne 0 ]]; then
+		error_log "${script_name}: ${benchmark} failed reporting version: '${_stdout}'"
+		return 1
+	fi
+	local ver_installed=$(awk 'NR==1 {print $3}' <<< ${_stdout})
 	vercmp "${benchmark}" "${_match}" "${_ver}" "${ver_installed}"
 	return ${?}
 }
@@ -458,6 +457,11 @@ if [[ "${postprocess_only}" != "y" ]]; then
 		# At least one client or server is a local host, so perform the
 		# pre-check.
 		local_pre_check "${ver}" "${match}"
+		res=${?}
+		if [[ ${res} -ne 0 ]]; then
+			error_log "[${script_name}] The local pre-check failed"
+			exit ${res}
+		fi
 	fi
 
 	let err_cnt=0
@@ -484,7 +488,7 @@ if [[ "${postprocess_only}" != "y" ]]; then
 		fi
 	done
 	if [[ ${err_cnt} -gt 0 ]]; then
-		error_log "The following pre-checks on clients and servers failed:"
+		error_log "[${script_name}] The following pre-checks on clients and servers failed:"
 		error_log "    clients: ${err_clients}"
 		error_log "    servers: ${err_servers}"
 		exit 1
@@ -626,7 +630,7 @@ for protocol in ${protocols//,/ }; do
 										# vsock protocol requires socket-type to be specified
 										vsock_extra_opts=" -S vsock"
 									fi
-									benchmark_server_cmd="${benchmark_bin} -v -s -P ${server_port}${vsock_extra_opts} > ${server_log} 2>&1"
+									benchmark_server_cmd="${benchmark} -v -s -P ${server_port}${vsock_extra_opts} > ${server_log} 2>&1"
 									# adjust server command for NUMA binding
 									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
 									if [ ! -z "$server_node" ]; then
@@ -643,7 +647,7 @@ for protocol in ${protocols//,/ }; do
 									if [ "$log_response_times" == "y" ]; then
 										resp_opt=" -X $benchmark_results_dir/$uperf_identifier--response-times.txt"
 									fi
-									benchmark_client_cmd="${benchmark_bin} -v -m $xml_file -R -a -i 1 ${resp_opt}${vsock_extra_opts} -P $server_port >$result_file 2>&1"
+									benchmark_client_cmd="${benchmark} -v -m $xml_file -R -a -i 1 ${resp_opt}${vsock_extra_opts} -P $server_port >$result_file 2>&1"
 									# adjust client command for NUMA binding
 									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
 									if [ ! -z "$client_node" ]; then

@@ -1,0 +1,18 @@
++++ Running test-39 pbench-uperf
+[error][1900-01-01T00:00:00.000000] pbench-uperf: uperf failed reporting version: '/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-uperf: line 201: uperf: command not found'
+[error][1900-01-01T00:00:00.000000] [pbench-uperf] The local pre-check failed
+--- Finished test-39 pbench-uperf (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
+--- pbench tree state
++++ pbench.log file contents
+[error][1900-01-01T00:00:00.000000] pbench-uperf: uperf failed reporting version: '/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-uperf: line 201: uperf: command not found'
+[error][1900-01-01T00:00:00.000000] [pbench-uperf] The local pre-check failed
+--- pbench.log file contents
