@@ -93,11 +93,11 @@ fio job failed, status code 42
 [debug][1900-01-01T00:00:00.000000] Running pre-check locally
 [debug][1900-01-01T00:00:00.000000] local_pre_check(devs="", ver="3.21", match="gte")
 [debug][1900-01-01T00:00:00.000000] found fio-3.42
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] failed: fio_run_job "1-read-4kKiB" "/var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/sample1" "/var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/fio.job" "/var/tmp" ""
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/fio.job ]
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] failed: fio_run_job "2-write-4kKiB" "/var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/sample1" "/var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/fio.job" "/var/tmp" ""
@@ -135,10 +135,10 @@ iteration_name = 2-write-4kKiB
 
 --- fio_test-55_1900.01.01T00.00.00/metadata.log file contents
 +++ fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/sample1/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/fio.job
 --- fio_test-55_1900.01.01T00.00.00/1-read-4kKiB/sample1/fio.cmd file contents
 +++ fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/sample1/fio.cmd file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/fio.job
+fio  --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/fio.job
 --- fio_test-55_1900.01.01T00.00.00/2-write-4kKiB/sample1/fio.cmd file contents
 +++ fio_test-55_1900.01.01T00.00.00/generate-benchmark-summary.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary "fio" "--config=test-55 -d /var/tmp --test-type=read,write --block-size=4k --samples=2" "/var/tmp/pbench-test-bench/pbench-agent/fio_test-55_1900.01.01T00.00.00"
