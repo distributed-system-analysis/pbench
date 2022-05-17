@@ -1,0 +1,18 @@
+#!/bin/bash
+
+args=( "${@}" )
+lastidx=$((${#args[@]} - 1))
+# avoid "bad array subscript" error
+if [[ "${lastidx}" -lt 0 ]] ;then
+    exit 0
+fi
+last=${args[${lastidx}]}
+
+stdout=$(/usr/bin/which ${last} 2> /dev/null)
+res=${?}
+if [[ ${res} -eq 0 ]]; then
+    echo ${stdout}
+else
+    echo "which: no ${last} in (\$PATH)" >&2
+fi
+exit ${res}
