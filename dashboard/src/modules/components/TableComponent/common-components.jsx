@@ -66,21 +66,23 @@ export const SearchBox = ({
   setPublicData,
   startDate,
   endDate,
-  setControllerName,
+  setDatasetName,
 })=> {
-  const [controllerValue, setControllerValue] = useState("");
-  const searchController = () => {
-    setPublicData(filterData(dataArray, startDate, endDate, controllerValue));
-    setControllerName(controllerValue);
+
+  const [searchKey, setSearchKey] = useState("");
+  
+  const search = () => {
+    setPublicData(filterData(dataArray, startDate, endDate, searchKey));
+    setDatasetName(searchKey);
   };
   return (
     <InputGroup className="searchInputGroup">
       <TextInput
         type="text"
-        placeholder="Search Controllers"
-        onChange={(e) => setControllerValue(e)}
+        placeholder="Search"
+        onChange={(e) => setSearchKey(e)}
       ></TextInput>
-      <Button variant="control" onClick={searchController}>
+      <Button variant="control" onClick={search}>
         <SearchIcon />
       </Button>
     </InputGroup>

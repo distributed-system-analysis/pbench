@@ -19,27 +19,27 @@ import {
   fetchPublicDatasets,
   updateFavoriteRepoNames,
   updateTblData,
-} from "actions/publicControllerActions";
+  getFavoritedDatasets,
+} from "actions/datasetListActions";
 import TablePagination from "../PaginationComponent";
 import DatePickerWidget from "../DatePickerComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
 import { LoginHint, Heading, EmptyTable, SearchBox } from "./common-components";
-import { getTodayMidnightUTCDate } from "utils/getMidnightUTCDate";
+import { getTodayMidnightUTCDate } from "utils/dateFunctions";
 
 let startDate = new Date(Date.UTC(1990, 10, 4));
 let endDate = getTodayMidnightUTCDate();
-let controllerName = "";
+let datasetName = "";
 let dataArray = [];
 
 const TableWithFavorite = () => {
   const columnNames = {
-    controller: "Controller",
     name: "Name",
     creationDate: "Created On",
   };
   const [activeSortIndex, setActiveSortIndex] = useState(null);
   const [activeSortDirection, setActiveSortDirection] = useState(null);
-  const [isSelected, setIsSelected] = useState("controllerListButton");
+  const [isSelected, setIsSelected] = useState("datasetListButton");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [loginHintVisible, setLoginHintVisible] = useState(true);
@@ -48,10 +48,11 @@ const TableWithFavorite = () => {
 
   useEffect(() => {
     dispatch(fetchPublicDatasets());
+    dispatch(getFavoritedDatasets());
   }, [dispatch]);
 
   const { publicData, favoriteRepoNames } = useSelector(
-    (state) => state.controller
+    (state) => state.datasetlist
   );
   const setPublicData = (data) => {
     dispatch(updateTblData(data));
@@ -67,7 +68,7 @@ const TableWithFavorite = () => {
     dispatch(updateFavoriteRepoNames(newFavorite));
   };
   const selectedArray =
-    isSelected === "controllerListButton"
+    isSelected === "datasetListButton"
       ? publicData?.slice((page - 1) * perPage, page * perPage)
       : favoriteRepoNames?.slice((page - 1) * perPage, page * perPage);
 
@@ -109,20 +110,20 @@ const TableWithFavorite = () => {
     const id = event.currentTarget.id;
     setIsSelected(id);
   };
-  const setControllerName = (controllerNameValue) => {
-    controllerName = controllerNameValue;
+  const setDatasetName = (datasetNameValue) => {
+    datasetName = datasetNameValue;
   };
   const setDateRange = (startDateValue, endDateValue) => {
     startDate = startDateValue;
     endDate = endDateValue;
   };
   const saveFavorites = (fav) => {
-    localStorage.setItem("favControllers", JSON.stringify(fav));
+    localStorage.setItem("favorite_datasets", JSON.stringify(fav));
   };
 
-  const controllerBreadcrumb = [
+  const datasetBreadcrumb = [
     { name: "Dashboard", link: "/" },
-    { name: "Controllers", link: "" },
+    { name: "Results", link: "" },
   ];
 
   const onCloseLoginHint = () => {
@@ -139,10 +140,10 @@ const TableWithFavorite = () => {
       )}
 
       <PageSection variant={PageSectionVariants.light}>
-        <PathBreadCrumb pathList={controllerBreadcrumb} />
+        <PathBreadCrumb pathList={datasetBreadcrumb} />
         <Heading
           containerClass="publicDataPageTitle"
-          headingTitle="Controllers"
+          headingTitle="Results"
         />
         <div className="filterContainer">
           <SearchBox
@@ -150,22 +151,22 @@ const TableWithFavorite = () => {
             setPublicData={setPublicData}
             startDate={startDate}
             endDate={endDate}
-            setControllerName={setControllerName}
+            setDatasetName={setDatasetName}
           />
           <DatePickerWidget
             dataArray={dataArray}
             setPublicData={setPublicData}
-            controllerName={controllerName}
+            datasetName={datasetName}
             setDateRange={setDateRange}
           />
         </div>
         <ToggleGroup aria-label="Result Selection Options">
           <ToggleGroupItem
-            text={`All Controllers(${publicData?.length})`}
-            buttonId="controllerListButton"
-            isSelected={isSelected === "controllerListButton"}
+            text={`All Results(${publicData?.length})`}
+            buttonId="datasetListButton"
+            isSelected={isSelected === "datasetListButton"}
             onChange={handleButtonClick}
-            className="controllerListButton"
+            className="datasetListButton"
           />
           <ToggleGroupItem
             text={`Favorites(${favoriteRepoNames?.length})`}
@@ -178,7 +179,6 @@ const TableWithFavorite = () => {
         <TableComposable aria-label="Favoritable table" variant="compact">
           <Thead>
             <Tr>
-              <Th sort={getSortParams(0)}>{columnNames.controller}</Th>
               <Th sort={getSortParams(1)}>{columnNames.name}</Th>
               <Th sort={getSortParams(2)}>{columnNames.creationDate}</Th>
               <Th sort={getSortParams(3)}></Th>
@@ -188,9 +188,6 @@ const TableWithFavorite = () => {
             {selectedArray && selectedArray.length > 0 ? (
               selectedArray.map((repo, rowIndex) => (
                 <Tr key={rowIndex}>
-                  <Td dataLabel={columnNames.controller}>
-                    <div className="controller-name">{repo.controller}</div>
-                  </Td>
                   <Td dataLabel={columnNames.name}>{repo.name}</Td>
                   <Td dataLabel={columnNames.creationDate}>
                     {repo.metadata["dataset.created"]}
@@ -216,8 +213,8 @@ const TableWithFavorite = () => {
           </Tbody>
         </TableComposable>
         <TablePagination
-          numberOfControllers={
-            isSelected === "controllerListButton"
+          numberOfRows={
+            isSelected === "datasetListButton"
               ? publicData?.length
               : favoriteRepoNames?.length
           }

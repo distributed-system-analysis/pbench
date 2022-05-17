@@ -8,14 +8,16 @@ import {
 } from "@patternfly/react-core";
 import "./index.less";
 import { filterData } from "utils/filterDataset";
-import { dateFromUTCString } from "utils/constructDate";
-import { bumpToDate } from "utils/bumpDate";
-import { getTodayMidnightUTCDate } from "utils/getMidnightUTCDate";
+import {
+  bumpToDate,
+  dateFromUTCString,
+  getTodayMidnightUTCDate,
+} from "utils/dateFunctions";
 
 function DatePickerWidget({
   dataArray,
   setPublicData,
-  controllerName,
+  datasetName,
   setDateRange,
 }) {
   const [fromDate, setFromDate] = useState({});
@@ -42,7 +44,7 @@ function DatePickerWidget({
   };
 
   const filterByDate = () => {
-    setPublicData(filterData(dataArray, fromDate, toDate, controllerName));
+    setPublicData(filterData(dataArray, fromDate, toDate, datasetName));
     setDateRange(fromDate, toDate);
   };
   return (

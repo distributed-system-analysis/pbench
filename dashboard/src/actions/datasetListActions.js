@@ -9,7 +9,7 @@ export const fetchPublicDatasets = () => async (dispatch) => {
     );
     if (response.status === 200 && response.data) {
       dispatch({
-        type: "GET_PUBLIC_CONTROLLERS",
+        type: "GET_PUBLIC_DATASETS",
         payload: response?.data,
       });
     }
@@ -19,27 +19,26 @@ export const fetchPublicDatasets = () => async (dispatch) => {
   }
 };
 
-export const getFavoritedContollers = () => async (dispatch) => {
-  let controllers = [];
-  controllers = localStorage.getItem("favControllers")
-    ? localStorage.getItem("favControllers")
-    : [];
+export const getFavoritedDatasets = () => async (dispatch) => {
+  let fav_datasets = [];
+  let fav_datasets_text = localStorage.getItem("favorite_datasets");
+  fav_datasets = fav_datasets_text ? JSON.parse(fav_datasets_text) : [];
   dispatch({
-    type: TYPES.FAVORITED_CONTROLLERS,
-    payload: [...controllers],
+    type: TYPES.FAVORITED_DATASETS,
+    payload: [...fav_datasets],
   });
 };
 
 export const updateFavoriteRepoNames = (favorites) => async (dispatch) => {
-    dispatch({
-        type: TYPES.FAVORITED_CONTROLLERS,
-        payload: [...favorites]
-    })
+  dispatch({
+    type: TYPES.FAVORITED_DATASETS,
+    payload: [...favorites],
+  });
 };
 
 export const updateTblData = (data) => async (dispatch) => {
   dispatch({
-    type: TYPES.UPDATE_PUBLIC_CONTROLLERS,
-    payload: [...data]
-})
-}
+    type: TYPES.UPDATE_PUBLIC_DATASETS,
+    payload: [...data],
+  });
+};
