@@ -3,7 +3,7 @@ import datetime
 import enum
 from pathlib import Path
 import re
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Union
 
 from sqlalchemy import Column, DateTime, Enum, event, ForeignKey, Integer, JSON, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError

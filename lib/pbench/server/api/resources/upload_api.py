@@ -164,7 +164,7 @@ class Upload(Resource):
                     duplicate = Dataset.query(name=dataset_name)
                 except DatasetNotFound:
                     self.logger.error(
-                        "Duplicate dataset {}:{}:{} not found",
+                        "Duplicate dataset {}:{} not found",
                         username,
                         dataset_name,
                     )

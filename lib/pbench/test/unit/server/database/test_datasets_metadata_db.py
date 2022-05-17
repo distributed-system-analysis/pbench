@@ -123,7 +123,7 @@ class TestMetadataNamespace:
     def test_user_metadata(self, db_session, create_user, create_drb_user):
         """Various tests on user-mapped Metadata keys"""
         # See if we can create a metadata row
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         assert ds.metadatas == []
         t = Metadata.create(key="user", value=True, dataset=ds, user=create_user)
         assert t is not None
@@ -209,7 +209,7 @@ class TestMetadataNamespace:
         assert exc.value.element == "contact"
         assert (
             str(exc.value)
-            == "Key 'contact' value for 'dashboard.contact.email' in test(1)|frodo|fio is not a JSON object"
+            == "Key 'contact' value for 'dashboard.contact.email' in test(1)|fio is not a JSON object"
         )
 
     def test_set_bad_path(self, db_session, create_user):
@@ -222,11 +222,11 @@ class TestMetadataNamespace:
         assert exc.value.element == "contact"
         assert (
             str(exc.value)
-            == "Key 'contact' value for 'dashboard.contact.email' in test(1)|frodo|fio is not a JSON object"
+            == "Key 'contact' value for 'dashboard.contact.email' in test(1)|fio is not a JSON object"
         )
 
     def test_get_outer_path(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         Metadata.setvalue(ds, "dashboard.value.hello.english", "hello")
         Metadata.setvalue(ds, "dashboard.value.hello.espanol", "hola")
         assert Metadata.getvalue(ds, "dashboard.value") == {
@@ -280,7 +280,7 @@ class TestMetadataNamespace:
         server APIs. (In other words, the "user" SQL column can be None, as we
         use this column only for the "user" key value.)
         """
-        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        ds = Dataset.create(owner=create_user.username, name="fio")
         Metadata.setvalue(dataset=ds, key="user.contact", value="Barney")
         Metadata.setvalue(
             dataset=ds, key="user.contact", value="Fred", user=create_user
