@@ -1,10 +1,12 @@
 from http import HTTPStatus
 from logging import Logger
+from typing import Optional
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
 from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
+from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
     APIAbort,
     API_OPERATION,
@@ -19,6 +21,7 @@ from pbench.server.database.models.datasets import (
     Metadata,
     MetadataError,
 )
+from pbench.server.database.models.users import User
 
 
 class DatasetsMetadata(ApiBase):
@@ -94,10 +97,7 @@ class DatasetsMetadata(ApiBase):
             "name": "datasetname",
             "metadata": [
                 "dashboard.seen": True,
-                "user": {
-                    "cloud": "AWS",
-                    "contact": "john.carter@mars.org"
-                }
+                "user": {"favorite": True}
             ]
         }
 
@@ -111,7 +111,7 @@ class DatasetsMetadata(ApiBase):
 
         [
             "dashboard.seen": True,
-            "user": {"cloud": "AWS", "contact": "json.carter@mars.org}
+            "user": {"favorite": False}
         ]
         """
         name = json_data["dataset"]
@@ -125,16 +125,44 @@ class DatasetsMetadata(ApiBase):
 
         # Validate the authenticated user's authorization for the combination
         # of "owner" and "access".
-        self._check_authorization(str(dataset.owner_id), dataset.access)
+        #
+        # The "unusual" part here is that we make a special case for
+        # authenticated that are not the owner of the data: we want to allow
+        # them UPDATE access to PUBLIC datasets (to which they naturally have
+        # READ access) as long as they're only trying to modify a "user."
+        # metadata key:
+        #
+        # * We want to validate authorized non-owners for READ access if
+        #   they're only trying to modify "user." keys;
+        # * We want to validate unauthorized users for UPDATE because they have
+        #   READ access to "public" datasets but still can't write even "user."
+        #   metadata;
+        # * We want to validate authorized users for UPDATE if they're trying
+        #   to set anything other than a "user." key because only the owner can
+        #   do that...
+        role = API_OPERATION.READ
+        if not Auth.token_auth.current_user():
+            role = API_OPERATION.UPDATE
+        else:
+            for k in metadata.keys():
+                if Metadata.get_native_key(k) != Metadata.USER_NATIVE_KEY:
+                    role = API_OPERATION.UPDATE
+        self._check_authorization(
+            str(dataset.owner_id), dataset.access, check_role=role
+        )
 
         failures = []
         for k, v in metadata.items():
+            native_key = Metadata.get_native_key(k)
+            user: Optional[User] = None
+            if native_key == Metadata.USER_NATIVE_KEY:
+                user = Auth.token_auth.current_user()
             try:
-                Metadata.setvalue(dataset, k, v)
+                Metadata.setvalue(key=k, value=v, dataset=dataset, user=user)
             except MetadataError as e:
                 self.logger.warning("Unable to update key {} = {!r}: {}", k, v, str(e))
                 failures.append(k)
         if failures:
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
-        results = self._get_metadata(name, list(metadata.keys()))
+        results = self._get_dataset_metadata(dataset, list(metadata.keys()))
         return jsonify(results)

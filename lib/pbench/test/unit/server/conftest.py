@@ -386,7 +386,7 @@ def provide_metadata(attach_dataset):
     """
     drb = Dataset.query(name="drb")
     test = Dataset.query(name="test")
-    Metadata.setvalue(dataset=drb, key="user.contact", value="me@example.com")
+    Metadata.setvalue(dataset=drb, key="dashboard.contact", value="me@example.com")
     Metadata.setvalue(dataset=drb, key=Metadata.DELETION, value="2022-12-25")
     Metadata.setvalue(
         dataset=drb,
@@ -397,7 +397,7 @@ def provide_metadata(attach_dataset):
             "unit-test.v6.run-toc.2020-05": ["random_md5_string1"],
         },
     )
-    Metadata.setvalue(dataset=test, key="user.contact", value="you@example.com")
+    Metadata.setvalue(dataset=test, key="dashboard.contact", value="you@example.com")
     Metadata.setvalue(dataset=test, key=Metadata.DELETION, value="2023-01-25")
 
 
