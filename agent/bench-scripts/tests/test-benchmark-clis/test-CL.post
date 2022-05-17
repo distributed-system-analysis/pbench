@@ -1,0 +1,5 @@
+#!/bin/bash
+dir=${_testopt}/unittest-scripts
+for i in fio uperf; do 
+    mv ${dir}/${i}.not-found ${dir}/${i}
+done
