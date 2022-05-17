@@ -23,20 +23,24 @@ class TestDatasetsMetadata:
         def query_api(
             dataset: str, payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
-            token = self.token(client, server_config, username)
+            headers = None
+            if username:
+                token = self.token(client, server_config, username)
+                headers = {"authorization": f"bearer {token}"}
             response = client.get(
                 f"{server_config.rest_uri}/datasets/metadata/{dataset}",
-                headers={"authorization": f"bearer {token}"},
+                headers=headers,
                 query_string=payload,
             )
             assert response.status_code == expected_status
 
             # We need to log out to avoid "duplicate auth token" errors on the
             # "put" test which does a PUT followed by two GETs.
-            client.post(
-                f"{server_config.rest_uri}/logout",
-                headers={"authorization": f"bearer {token}"},
-            )
+            if username:
+                client.post(
+                    f"{server_config.rest_uri}/logout",
+                    headers={"authorization": f"bearer {token}"},
+                )
             return response
 
         return query_api
@@ -57,20 +61,24 @@ class TestDatasetsMetadata:
         def query_api(
             dataset: str, payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
-            token = self.token(client, server_config, username)
+            headers = None
+            if username:
+                token = self.token(client, server_config, username)
+                headers = {"authorization": f"bearer {token}"}
             response = client.put(
                 f"{server_config.rest_uri}/datasets/metadata/{dataset}",
-                headers={"authorization": f"bearer {token}"},
+                headers=headers,
                 json=payload,
             )
             assert response.status_code == expected_status
 
             # We need to log out to avoid "duplicate auth token" errors on the
             # test case which does a PUT followed by two GETs.
-            client.post(
-                f"{server_config.rest_uri}/logout",
-                headers={"authorization": f"bearer {token}"},
-            )
+            if username:
+                client.post(
+                    f"{server_config.rest_uri}/logout",
+                    headers={"authorization": f"bearer {token}"},
+                )
             return response
 
         return query_api
@@ -109,12 +117,7 @@ class TestDatasetsMetadata:
         response = query_get_as(
             "drb",
             {
-                "metadata": [
-                    "dashboard.seen",
-                    "server.deletion",
-                    "dataset.access",
-                    "user.contact",
-                ]
+                "metadata": ["dashboard.seen", "server.deletion", "dataset.access"],
             },
             "drb",
             HTTPStatus.OK,
@@ -123,13 +126,14 @@ class TestDatasetsMetadata:
             "dashboard.seen": None,
             "server.deletion": "2022-12-25",
             "dataset.access": "private",
-            "user.contact": "me@example.com",
         }
 
     def test_get2(self, query_get_as):
         response = query_get_as(
             "drb",
-            {"metadata": "dashboard.seen,server.deletion,dataset.access,user"},
+            {
+                "metadata": "dashboard.seen,server.deletion,dataset.access",
+            },
             "drb",
             HTTPStatus.OK,
         )
@@ -137,7 +141,6 @@ class TestDatasetsMetadata:
             "dashboard.seen": None,
             "server.deletion": "2022-12-25",
             "dataset.access": "private",
-            "user": {"contact": "me@example.com"},
         }
 
     def test_get3(self, query_get_as):
@@ -147,8 +150,8 @@ class TestDatasetsMetadata:
                 "metadata": [
                     "dashboard.seen",
                     "server.deletion,dataset.access",
-                    "user",
-                ]
+                    "user.favorite",
+                ],
             },
             "drb",
             HTTPStatus.OK,
@@ -157,10 +160,10 @@ class TestDatasetsMetadata:
             "dashboard.seen": None,
             "server.deletion": "2022-12-25",
             "dataset.access": "private",
-            "user": {"contact": "me@example.com"},
+            "user.favorite": None,
         }
 
-    def test_get_unauth(self, query_get_as):
+    def test_get_private_noauth(self, query_get_as):
         response = query_get_as(
             "drb",
             {
@@ -178,12 +181,30 @@ class TestDatasetsMetadata:
             == "User test is not authorized to READ a resource owned by drb with private access"
         )
 
+    def test_get_unauth(self, query_get_as):
+        response = query_get_as(
+            "drb",
+            {
+                "metadata": [
+                    "dashboard.seen",
+                    "server.deletion,dataset.access",
+                    "user",
+                ],
+            },
+            None,
+            HTTPStatus.UNAUTHORIZED,
+        )
+        assert (
+            response.json["message"]
+            == "Unauthenticated client is not authorized to READ a resource owned by drb with private access"
+        )
+
     def test_get_bad_query(self, query_get_as):
         response = query_get_as(
             "drb",
             {
                 "controller": "foobar",
-                "metadata": "dashboard.seen,server.deletion,dataset.access,user",
+                "metadata": "dashboard.seen,server.deletion,dataset.access",
             },
             "drb",
             HTTPStatus.BAD_REQUEST,
@@ -267,6 +288,18 @@ class TestDatasetsMetadata:
             == "User test is not authorized to UPDATE a resource owned by drb with public access"
         )
 
+    def test_put_noauth(self, query_get_as, query_put_as):
+        response = query_put_as(
+            "fio_1",
+            {"metadata": {"dashboard.seen": False, "dashboard.saved": True}},
+            None,
+            HTTPStatus.UNAUTHORIZED,
+        )
+        assert (
+            response.json["message"]
+            == "Unauthenticated client is not authorized to UPDATE a resource owned by drb with public access"
+        )
+
     def test_put(self, query_get_as, query_put_as):
         response = query_put_as(
             "drb",
@@ -276,13 +309,10 @@ class TestDatasetsMetadata:
         )
         assert response.json == {"dashboard.saved": True, "dashboard.seen": False}
         response = query_get_as(
-            "drb",
-            {"metadata": "dashboard,dataset.access"},
-            "drb",
-            HTTPStatus.OK,
+            "drb", {"metadata": "dashboard,dataset.access"}, "drb", HTTPStatus.OK
         )
         assert response.json == {
-            "dashboard": {"saved": True, "seen": False},
+            "dashboard": {"contact": "me@example.com", "saved": True, "seen": False},
             "dataset.access": "private",
         }
 
@@ -298,3 +328,32 @@ class TestDatasetsMetadata:
             "dashboard.seen": False,
             "dataset.access": "private",
         }
+
+    def test_put_user(self, query_get_as, query_put_as):
+        response = query_put_as(
+            "fio_1",
+            {"metadata": {"user.favorite": True, "user.tag": "AWS"}},
+            "drb",
+            HTTPStatus.OK,
+        )
+        assert response.json == {"user.favorite": True, "user.tag": "AWS"}
+        response = query_put_as(
+            "fio_1",
+            {"metadata": {"user.favorite": False, "user.tag": "RHEL"}},
+            "test",
+            HTTPStatus.OK,
+        )
+        assert response.json == {"user.favorite": False, "user.tag": "RHEL"}
+        response = query_put_as(
+            "fio_1",
+            {"metadata": {"user.favorite": False, "user.tag": "BAD"}},
+            None,
+            HTTPStatus.UNAUTHORIZED,
+        )
+
+        response = query_get_as("fio_1", {"metadata": "user"}, "drb", HTTPStatus.OK)
+        assert response.json == {"user": {"favorite": True, "tag": "AWS"}}
+        response = query_get_as("fio_1", {"metadata": "user"}, "test", HTTPStatus.OK)
+        assert response.json == {"user": {"favorite": False, "tag": "RHEL"}}
+        response = query_get_as("fio_1", {"metadata": "user"}, None, HTTPStatus.OK)
+        assert response.json == {"user": None}
