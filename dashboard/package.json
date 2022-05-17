@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@patternfly/patternfly": "^4.183.1",
@@ -13,9 +14,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.26.1",
     "classnames": "^2.3.1",
-    "crypto-js": "^4.1.1",
     "js-cookie": "^3.0.1",
-    "less-watch-compiler": "^1.16.3",
     "patternfly": "^3.9.0",
     "react": "^17.0.2",
     "react-bootstrap": "^2.1.2",
@@ -23,7 +22,7 @@
     "react-redux": "^7.2.6",
     "react-router": "^6.3.0",
     "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.0",
+    "react-scripts": "^5.0.1",
     "redux": "^4.1.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.4.1",
@@ -34,8 +33,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "react-scripts test"
   },
   "eslintConfig": {
     "extends": [
@@ -56,9 +54,11 @@
     ]
   },
   "devDependencies": {
+    "concurrently": "^7.2.0",
     "css-loader": "^6.7.1",
     "less": "^4.1.2",
     "less-loader": "^10.2.0",
+    "less-watch-compiler": "^1.16.3",
     "style-loader": "^3.3.1"
   }
 }
