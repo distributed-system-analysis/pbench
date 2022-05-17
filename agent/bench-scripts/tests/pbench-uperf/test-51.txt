@@ -1,5 +1,7 @@
-+++ Running test-58 pbench-uperf
---- Finished test-58 pbench-uperf (status=0)
++++ Running test-51 pbench-uperf
+[error][1900-01-01T00:00:00.000000] wrong version installed: found uperf-bad, expected uperf-1.0.7 (gte)
+[error][1900-01-01T00:00:00.000000] [pbench-uperf] The local pre-check failed
+--- Finished test-51 pbench-uperf (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
@@ -11,7 +13,8 @@
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] found uperf-1.0.42
+[error][1900-01-01T00:00:00.000000] wrong version installed: found uperf-bad, expected uperf-1.0.7 (gte)
+[error][1900-01-01T00:00:00.000000] [pbench-uperf] The local pre-check failed
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/uperf -V

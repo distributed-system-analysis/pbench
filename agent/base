@@ -291,12 +291,6 @@ function generate_inventory {
     done
 }
 
-function resolve_benchmark_bin {
-    # Encapsulation of method for resolving the actual benchmark
-    # binary.
-    which --skip-alias --skip-functions "${1}"
-}
-
 function vercmp {
     # Compare two package versions via `rpmdev-vercmp`.
     local _package="${1}"
@@ -304,7 +298,11 @@ function vercmp {
     local _exp_ver="${3}"
     local _ins_ver="${4}"
 
-    local _stderr=$(rpmdev-vercmp "${_ins_ver}" "${_exp_ver}" 2>&1 > /dev/null)
+    # Note we declare `_stderr` local without an initializer because the return
+    # code of rpmdev-vercmp would be overwritten by the return code of the
+    # "local" declaration.
+    local _stderr
+    _stderr=$(rpmdev-vercmp "${_ins_ver}" "${_exp_ver}" 2>&1 > /dev/null)
     local _res=${?}
     if [[ ${_res} -ne 0 && ${_res} -ne 11 && ${_res} -ne 12 ]]; then
         error_log "rpmdev-vercmp - ${_stderr}"
