@@ -5,7 +5,7 @@ import './App.css';
 import * as APP_ROUTES from "./utils/routeConstants";
 import AuthComponent from './modules/components/AuthComponent';
 import '@patternfly/patternfly/patternfly.css';
-import { TableWithFavorite } from 'modules/components/TableComponent';
+import MainLayout  from 'modules/containers/MainLayout';
 
 function App() {  
   useEffect(() => {
@@ -17,7 +17,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<TableWithFavorite />} />           
+          <Route path="/" element={<MainLayout />} />           
           <Route path={APP_ROUTES.AUTH} element={<AuthComponent />} />
           <Route path={APP_ROUTES.AUTH_LOGIN} element={<AuthComponent />} />
           <Route path={APP_ROUTES.AUTH_SIGNUP} element={<AuthComponent />} />            

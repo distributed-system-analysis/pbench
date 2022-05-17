@@ -2,7 +2,7 @@ import { Pagination, PaginationVariant } from "@patternfly/react-core";
 import React from "react";
 
 function TablePagination({
-  numberOfControllers,
+  numberOfRows,
   page,
   setPage,
   perPage,
@@ -16,7 +16,7 @@ function TablePagination({
   };
   return (
     <Pagination
-      itemCount={numberOfControllers}
+      itemCount={numberOfRows}
       widgetId="pagination-options-menu-bottom"
       variant={PaginationVariant.bottom}
       page={page}

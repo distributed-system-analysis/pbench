@@ -1,11 +1,10 @@
-export const filterData = (dataArray, startDate, endDate, controllerValue) => {
-  let res = dataArray.filter((data) => {
+export const filterData = (dataArray, startDate, endDate, searchKey) => {
+  return dataArray.filter((data) => {
     let datasetDate = new Date(data.metadata["dataset.created"]);
     return (
-      data.controller.includes(controllerValue) &&
+      data.name.includes(searchKey) &&
       datasetDate >= startDate &&
       datasetDate <= endDate
     );
   });
-  return res;
 };
