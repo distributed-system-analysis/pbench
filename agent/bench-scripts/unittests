@@ -306,6 +306,12 @@ else
     mv ${_testroot}/tests-unsorted.lis ${_testroot}/tests.lis
 fi
 
+if [[ ! -z "${_PBENCH_LEGACY_UNITTESTS_LIST}" ]]; then
+    cat ${_testroot}/tests.lis
+    rm ${_testroot}/tests.lis
+    touch ${_testroot}/tests.lis
+fi
+
 export _date_suffix="1900.01.01T00.00.00"
 let errs=0
 
