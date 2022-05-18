@@ -159,6 +159,7 @@ function usage {
 }
 
 function fio_process_options() {
+	local opts
 	opts=$(getopt -q -o b:c:d:hj:r:s:t: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,pre-check,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:,unique-ports" -n "getopt.sh" -- "$@")
 	if [ $? -ne 0 ]; then
 		printf -- "${script_name} $*\n"
@@ -168,6 +169,7 @@ function fio_process_options() {
 		exit 1
 	fi
 	eval set -- "$opts"
+	local arg
 	while true; do
 		arg="${1}"
 		shift
