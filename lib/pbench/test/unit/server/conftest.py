@@ -22,7 +22,6 @@ from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
-from pbench.server.filetree import Tarball
 from pbench.test import on_disk_config
 from pbench.test.unit.server.headertypes import HeaderTypes
 
@@ -315,7 +314,6 @@ def attach_dataset(create_drb_user, create_user):
             owner="drb",
             created=datetime.datetime(2020, 2, 15),
             uploaded=datetime.datetime(2022, 1, 1),
-            controller="node",
             name="drb",
             access="private",
             md5="random_md5_string1",
@@ -323,7 +321,6 @@ def attach_dataset(create_drb_user, create_user):
         Dataset(
             owner="test",
             created=datetime.datetime(2002, 5, 16),
-            controller="node",
             name="test",
             access="private",
             md5="random_md5_string2",
@@ -358,7 +355,6 @@ def more_datasets(
             owner="drb",
             created=datetime.datetime(2020, 2, 15),
             uploaded=datetime.datetime(2022, 1, 1),
-            controller="node1",
             name="fio_1",
             access="public",
             md5="random_md5_string3",
@@ -366,7 +362,6 @@ def more_datasets(
         Dataset(
             owner="test",
             created=datetime.datetime(2002, 5, 16),
-            controller="node2",
             name="fio_2",
             access="public",
             md5="random_md5_string4",
@@ -772,7 +767,7 @@ def tarball(tmp_path):
     with metadata_file.open("w") as meta_fp:
         metadata.write(meta_fp)
     with tarfile.open(datafile, "w:xz") as tar:
-        tar.add(str(metadata_file), arcname=f"{Tarball.stem(filename)}/metadata.log")
+        tar.add(str(metadata_file), arcname=f"{Dataset.stem(filename)}/metadata.log")
     md5 = hashlib.md5()
     md5.update(datafile.read_bytes())
     md5file = tmp_path / (filename + ".md5")

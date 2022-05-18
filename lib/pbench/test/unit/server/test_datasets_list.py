@@ -87,7 +87,6 @@ class TestDatasetsList:
             list.append(
                 {
                     "name": dataset.name,
-                    "controller": dataset.controller,
                     "run_id": dataset.md5,
                     "metadata": {
                         "dataset.created": datetime.datetime.isoformat(dataset.created)
@@ -101,11 +100,9 @@ class TestDatasetsList:
         [
             ("drb", {"name": "fio"}, ["fio_1", "fio_2"]),
             ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
-            ("drb", {"controller": "foobar"}, []),
             ("drb", {"name": "drb"}, ["drb"]),
             ("test", {"name": "drb"}, []),
             ("test_admin", {"name": "drb"}, ["drb"]),
-            ("drb", {"controller": "node"}, ["drb"]),
             ("drb", {}, ["drb", "fio_1", "fio_2"]),
             ("test", {}, ["test", "fio_1", "fio_2"]),
             ("test_admin", {}, ["drb", "test", "fio_1", "fio_2"]),

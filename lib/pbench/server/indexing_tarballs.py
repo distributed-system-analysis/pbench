@@ -329,7 +329,7 @@ class Index:
 
                             try:
                                 dataset = Dataset.attach(
-                                    path=path, state=States.INDEXING
+                                    name=Dataset.stem(path), state=States.INDEXING
                                 )
                             except DatasetNotFound:
                                 idxctx.logger.warn(

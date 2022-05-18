@@ -1,10 +1,9 @@
 import copy
 import datetime
 import enum
-import os
 from pathlib import Path
 import re
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Union
 
 from sqlalchemy import Column, DateTime, Enum, event, ForeignKey, Integer, JSON, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -24,13 +23,25 @@ class DatasetError(Exception):
     pass
 
 
+class DatasetBadName(DatasetError):
+    """
+    Specified filename does not follow Pbench tarball naming rules.
+    """
+
+    def __init__(self, name: Path):
+        self.name: str = str(name)
+
+    def __str__(self) -> str:
+        return f"File name {self.name!r} does not end in {Dataset.TARBALL_SUFFIX!r}"
+
+
 class DatasetSqlError(DatasetError):
     """
     SQLAlchemy errors reported through Dataset operations.
 
-    The exception will identify the controller and name of the target dataset,
-    along with the operation being attempted; the __cause__ will specify the
-    original SQLAlchemy exception.
+    The exception will identify the name of the target dataset, along with the
+    operation being attempted; the __cause__ will specify the original
+    SQLAlchemy exception.
     """
 
     def __init__(self, operation: str, **kwargs):
@@ -46,12 +57,11 @@ class DatasetDuplicate(DatasetError):
     Attempt to create a Dataset that already exists.
     """
 
-    def __init__(self, controller: str, name: str):
-        self.controller = controller
+    def __init__(self, name: str):
         self.name = name
 
     def __str__(self):
-        return f"Duplicate dataset {self.controller}|{self.name}"
+        return f"Duplicate dataset {self.name!r}"
 
 
 class DatasetNotFound(DatasetError):
@@ -98,8 +108,8 @@ class DatasetTerminalStateViolation(DatasetTransitionError):
     An attempt was made to change the state of a dataset currently in a
     terminal state.
 
-    The error text will identify the dataset by controller and name, and both
-    the current and requested new states.
+    The error text will identify the dataset by name, and both the current and
+    requested new states.
     """
 
     def __init__(self, dataset: "Dataset", requested_state: "States"):
@@ -115,8 +125,8 @@ class DatasetBadStateTransition(DatasetTransitionError):
     An attempt was made to advance a dataset to a new state that's not
     reachable from the current state.
 
-    The error text will identify the dataset by controller and name, and both
-    the current and requested new states.
+    The error text will identify the dataset by name, and both the current and
+    requested new states.
     """
 
     def __init__(self, dataset: "Dataset", requested_state: "States"):
@@ -364,7 +374,6 @@ class Dataset(Database.Base):
         id          Generated unique ID of table row
         owner       Owning username of the dataset
         access      Dataset is "private" to owner, or "public"
-        controller  Name of controller node
         name        Base name of dataset (tarball)
         md5         The dataset MD5 hash (Elasticsearch ID)
         created     Tarball metadata timestamp (set during PUT)
@@ -415,9 +424,6 @@ class Dataset(Database.Base):
     # Access policy for Dataset (public or private)
     access = Column(String(255), unique=False, nullable=False, default="private")
 
-    # Host name of the system that collected the data
-    controller = Column(String(255), unique=False, nullable=False)
-
     # FIXME:
     # Ideally, `md5` would not be `nullable`, but allowing it means that
     # pbench-server-prep-shim-002 utility can construct a Dataset object
@@ -466,6 +472,31 @@ class Dataset(Database.Base):
             True if path ends with the supported suffix, False if not
         """
         return str(path).endswith(Dataset.TARBALL_SUFFIX)
+
+    @staticmethod
+    def stem(path: Union[str, Path]) -> str:
+        """
+        The Path.stem() removes a single suffix, so our standard "a.tar.xz"
+        returns "a.tar" instead of "a". We could double-stem, but instead
+        this just checks for the expected 7 character suffix and strips it.
+
+        If the path does not end in ".tar.xz" then the full path.name is
+        returned.
+
+        Args:
+            path: A file path that might be a Pbench tarball
+
+        Raises:
+            BadFilename: the path name does not end in TARBALL_SUFFIX
+
+        Returns:
+            The stripped "stem" of the dataset
+        """
+        p = Path(path)
+        if __class__.is_tarball(p):
+            return p.name[: -len(Dataset.TARBALL_SUFFIX)]
+        else:
+            raise DatasetBadName(p)
 
     @validates("state")
     def validate_state(self, key: str, value: Any) -> States:
@@ -533,55 +564,6 @@ class Dataset(Database.Base):
         raise DatasetBadParameterType(value, "access keyword")
 
     @staticmethod
-    def _render_path(patharg=None, controllerarg=None, namearg=None) -> Tuple[str, str]:
-        """
-        Process a `path` string and convert it into `controller` and/or `name`
-        strings.
-
-        This pre-processes the controller and name before they are presented to
-        a query or constructor. If the calling context has only the full file
-        path of a dataset, this can extract both "controller" and "name" from
-        the path. It can also be used to construct either "controller" or
-        "name", as it will fill in either or both if not already present in
-        the dict.
-
-        If the path is a symlink (e.g., a "TO-BACKUP" or other Pbench command
-        link, most likely when a dataset is quarantined due to some consistency
-        check failure), this code will follow the link in order to construct a
-        controller name from the original path without needing to make any
-        possibly fragile assumptions regarding the structure of the symlink
-        name.
-
-        Args:
-            patharg: A tarball file path from which the controller (host)
-                name, the tarball dataset name (basename minus extension),
-                or both will be derived.
-            controllerarg: The controller name (hostname) of the dataset;
-                this is retained if specified, or will be constructed
-                from "path" if not present.
-            namearg: The dataset name (file path stem);
-                this is retained if specified, or will be constructed from
-                "path" if not present
-
-        Returns:
-            A tuple of (controller, name) based on the three arguments
-        """
-        controller_result = controllerarg
-        name_result = namearg
-
-        if patharg:
-            path = Path(patharg)
-            if path.is_symlink():
-                path = Path(os.path.realpath(path))
-            if not name_result:
-                name_result = path.name
-                if Dataset.is_tarball(name_result):
-                    name_result = name_result[: -len(Dataset.TARBALL_SUFFIX)]
-            if not controller_result:
-                controller_result = path.parent.name
-        return controller_result, name_result
-
-    @staticmethod
     def create(**kwargs) -> "Dataset":
         """
         A simple factory method to construct a new Dataset object and
@@ -590,15 +572,7 @@ class Dataset(Database.Base):
         Args:
             kwargs (dict):
                 "owner": The owner of the dataset; defaults to None.
-                "path": A tarball file path from which the controller (host)
-                    name, the tarball dataset name (basename minus extension),
-                    or both will be derived.
-                "controller": The controller name (hostname) of the dataset;
-                    this is retained if specified, or will be constructed
-                    from "path" if not present.
-                "name": The dataset name (file path stem);
-                    this is retained if specified, or will be constructed from
-                    "path" if not present.
+                "name": The dataset name (file path stem).
                 "state": The initial state of the new dataset.
 
         Returns:
@@ -608,18 +582,14 @@ class Dataset(Database.Base):
             dataset = Dataset(**kwargs)
             dataset.add()
         except Exception:
-            Dataset.logger.exception(
-                "Failed create: {}|{}", kwargs.get("controller"), kwargs.get("name")
-            )
+            Dataset.logger.exception("Failed create: {}", kwargs.get("name"))
             raise
         return dataset
 
     @staticmethod
-    def attach(path=None, name=None, state=None) -> "Dataset":
+    def attach(name=None, state=None) -> "Dataset":
         """
-        Attempt to find dataset for the specified dataset name, or using a
-        specified file path (see _render_path and the path_init event listener
-        for details).
+        Attempt to find dataset for the specified dataset name.
 
         If state is specified, attach will attempt to advance the dataset to
         that state.
@@ -628,12 +598,7 @@ class Dataset(Database.Base):
         using a full path, use Dataset.query instead.
 
         Args:
-            "path": A tarball file path from which the controller (host)
-                name, the tarball dataset name (basename minus extension),
-                or both will be derived.
-            "name": The dataset name (file path stem);
-                this is retained if specified, or will be constructed from
-                "path" if not present.
+            "name": The dataset name (file path stem).
             "state": The desired state to advance the dataset.
 
         Raises:
@@ -649,12 +614,11 @@ class Dataset(Database.Base):
             Dataset: a dataset object in the desired state (if specified)
         """
         # Make sure we have a name if only path was specified
-        _, name = Dataset._render_path(patharg=path, namearg=name)
         dataset = Dataset.query(name=name)
 
         if dataset is None:
             Dataset.logger.warning("Dataset {} not found", name)
-            raise DatasetNotFound(path=path, name=name)
+            raise DatasetNotFound(name=name)
         elif state:
             dataset.advance(state)
         return dataset
@@ -682,7 +646,7 @@ class Dataset(Database.Base):
         Returns:
             string: Representation of the dataset
         """
-        return f"{self.owner.username}({self.owner_id})|{self.controller}|{self.name}"
+        return f"{self.owner.username}({self.owner_id})|{self.name}"
 
     def advance(self, new_state: States):
         """
@@ -726,15 +690,13 @@ class Dataset(Database.Base):
             Database.db_session.add(self)
             Database.db_session.commit()
         except IntegrityError as e:
-            Dataset.logger.warning(
-                "Duplicate dataset {}|{}: {}", self.controller, self.name, e
-            )
+            Dataset.logger.warning("Duplicate dataset {}: {}", self.name, e)
             Database.db_session.rollback()
-            raise DatasetDuplicate(self.controller, self.name) from None
+            raise DatasetDuplicate(self.name) from None
         except Exception:
             self.logger.exception("Can't add {} to DB", str(self))
             Database.db_session.rollback()
-            raise DatasetSqlError("adding", controller=self.controller, name=self.name)
+            raise DatasetSqlError("adding", name=self.name)
 
     def update(self):
         """
@@ -746,9 +708,7 @@ class Dataset(Database.Base):
         except Exception:
             self.logger.error("Can't update {} in DB", str(self))
             Database.db_session.rollback()
-            raise DatasetSqlError(
-                "updating", controller=self.controller, name=self.name
-            )
+            raise DatasetSqlError("updating", name=self.name)
 
     def delete(self):
         """
@@ -760,33 +720,6 @@ class Dataset(Database.Base):
         except Exception:
             Database.db_session.rollback()
             raise
-
-
-@event.listens_for(Dataset, "init")
-def path_init(target, args, kwargs):
-    """
-    Listen for an init event on a Dataset to process a path before the
-    SQLAlchemy constructor sees it.
-
-    We want the constructor to see both "controller" and "name" parameters in
-    the kwargs representing the initial SQL column values. This listener allows
-    us to provide those values by specifying a file path, which is processed
-    into controller and name using the internal _render_path() helper.
-
-    We will remove "path" from kwargs so that SQLAlchemy doesn't see it. (This
-    is an explicitly allowed side effect of the listener architecture.)
-    """
-    if "path" in kwargs:
-        controller, name = Dataset._render_path(
-            patharg=kwargs.get("path"),
-            controllerarg=kwargs.get("controller"),
-            namearg=kwargs.get("name"),
-        )
-        if "controller" not in kwargs:
-            kwargs["controller"] = controller
-        if "name" not in kwargs:
-            kwargs["name"] = name
-        del kwargs["path"]
 
 
 class Metadata(Database.Base):

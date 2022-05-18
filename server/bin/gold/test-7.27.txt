@@ -882,5 +882,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-test|ctlrA|pbench-user-benchmark_test-metadata_2021.12.02T10.39.24|INDEXED| server = {"reindex": false, "index-map": {"pbench-unittests.v6.run-data.2021-12": ["9acf6cbb9a4ffa149780b1c9b15a8731"], "pbench-unittests.v6.run-toc.2021-12": ["958e6977ea7158d979d9b5f592619dbf", "019acc767922823f4ae5856b9b976976", "a8f731082ea21c084de375ee09e31b60", "55d196bcac123473c59fad9b24a392dd", "fc5145708a4c3b89aa31fd6696d0f79e", "a588b2360f2a22c1b1c2081c7b24221b", "2d7c45272435ff1c3d9e659c922e2584", "3dddda18e81161bb70d083f66457bfdb", "09c8a865511fd81ac8fea67de5860cff", "57c07ab8bf30de530dd748f17bdac723"]}}
+test|pbench-user-benchmark_test-metadata_2021.12.02T10.39.24|INDEXED| server = {"reindex": false, "index-map": {"pbench-unittests.v6.run-data.2021-12": ["9acf6cbb9a4ffa149780b1c9b15a8731"], "pbench-unittests.v6.run-toc.2021-12": ["958e6977ea7158d979d9b5f592619dbf", "019acc767922823f4ae5856b9b976976", "a8f731082ea21c084de375ee09e31b60", "55d196bcac123473c59fad9b24a392dd", "fc5145708a4c3b89aa31fd6696d0f79e", "a588b2360f2a22c1b1c2081c7b24221b", "2d7c45272435ff1c3d9e659c922e2584", "3dddda18e81161bb70d083f66457bfdb", "09c8a865511fd81ac8fea67de5860cff", "57c07ab8bf30de530dd748f17bdac723"]}}
 --- SqliteDB Datasets

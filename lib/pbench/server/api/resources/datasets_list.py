@@ -31,7 +31,6 @@ class DatasetsList(ApiBase):
                 Parameter("name", ParamType.STRING),
                 Parameter("owner", ParamType.USER),
                 Parameter("access", ParamType.ACCESS),
-                Parameter("controller", ParamType.STRING),
                 Parameter("start", ParamType.DATE),
                 Parameter("end", ParamType.DATE),
                 Parameter(
@@ -82,9 +81,6 @@ class DatasetsList(ApiBase):
         if "name" in json:
             self.logger.info("Adding name query")
             query = query.filter(Dataset.name.contains(json["name"]))
-        if "controller" in json:
-            self.logger.info("Adding controller query")
-            query = query.filter(Dataset.controller == json["controller"])
         query = self._build_sql_query(json, query)
 
         # Useful for debugging, but verbose: this displays the fully expanded
@@ -105,7 +101,6 @@ class DatasetsList(ApiBase):
         for dataset in results:
             d = {
                 "name": dataset.name,
-                "controller": dataset.controller,
                 "run_id": dataset.md5,
             }
             try:

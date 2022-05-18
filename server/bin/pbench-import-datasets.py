@@ -117,7 +117,7 @@ class Import:
             if self.options.verify:
                 print(f"Processing {tarball} from {link} -> state {state}")
             try:
-                args["path"] = tarball
+                args["name"] = Dataset.stem(tarball)
                 try:
                     dataset = Dataset.attach(**args)
                     if self.options.verify:

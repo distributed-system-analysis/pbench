@@ -5,16 +5,16 @@ import shutil
 import pytest
 
 from pbench.common.logger import get_pbench_logger
+from pbench.server.database.models.datasets import Dataset, DatasetBadName
 from pbench.server.filetree import (
     BadFilename,
     DatasetNotFound,
     DuplicateDataset,
     FileTree,
-    Tarball,
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_logger(server_config):
     """
     Construct a Pbench Logger object
@@ -131,14 +131,14 @@ class TestFileTree:
         """
 
         source_tarball, source_md5, md5 = tarball
-        dataset_name = Tarball.stem(source_tarball)
+        dataset_name = Dataset.stem(source_tarball)
         tree = FileTree(server_config, make_logger)
 
         # Attempting to create a dataset from the md5 file should result in
         # a bad filename error
-        with pytest.raises(BadFilename) as exc:
+        with pytest.raises(DatasetBadName) as exc:
             tree.create("ABC", source_md5)
-        assert exc.value.path == str(source_md5)
+        assert exc.value.name == str(source_md5)
 
         tree.create("ABC", source_tarball)
 
@@ -177,7 +177,7 @@ class TestFileTree:
         # a duplicate dataset error
         with pytest.raises(DuplicateDataset) as exc:
             tree.create("ABC", source_tarball)
-        assert exc.value.dataset == Tarball.stem(source_tarball)
+        assert exc.value.dataset == Dataset.stem(source_tarball)
 
     def test_find(self, selinux_enabled, server_config, make_logger, tarball):
         """
@@ -186,7 +186,7 @@ class TestFileTree:
         """
 
         source_tarball, source_md5, md5 = tarball
-        dataset_name = Tarball.stem(source_tarball)
+        dataset_name = Dataset.stem(source_tarball)
         tree = FileTree(server_config, make_logger)
         tree.create("ABC", source_tarball)
 
