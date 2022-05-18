@@ -1,0 +1,78 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    import.sh: |
+      #!/bin/bash
+      cd /tmp 
+      
+      # import model
+      echo "*** importing ssd-mobilenet"
+      wget https://zenodo.org/record/4735652/files/ssd_mobilenet_v1_coco_2018_01_28.onnx
+
+      # import dataset
+      echo "*** importing coco dataset"
+      mkdir data; cd data
+      wget http://images.cocodataset.org/zips/val2017.zip
+      wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+      unzip a*
+      unzip v*
+      rm *zip
+      # upscale dataset
+      echo "*** upscaling dataset"
+      cd /tmp/inference/tools/up*
+      python upscale_coco.py --inputs /tmp/data/ --outputs /tmp/data/coco300 --size 300 300 --format png
+      cd /tmp/data
+      rm -rf an* val*
+      # export data and model dir
+      echo "*** setting data and model dir"
+      export DATA_DIR=/tmp/data/coco300
+      export MODEL_DIR=/tmp
+      # run script
+      echo "*** running script"
+      cd /tmp/inference/vision/classification_and_detection
+      bash run_local.sh onnxruntime ssd-mobilenet cpu
+
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: null
+    name:  test-script
+kind: List
+metadata: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pbench-ubi-pod
+  labels:
+    name: pbench-ubi-pod
+  namespace: default 
+spec:
+  containers:
+    - name: pbench-inf-ubi
+      image: "quay.io/ahalwai/inference-cpu-ubi"
+      imagePullPolicy: "Always"
+      securityContext:
+          runAsUser: 0
+      resources:
+          requests:
+              cpu: 100m
+      command:
+      - /bin/bash
+      - -c
+      - |
+        ls /tmp
+        echo "executing import.sh"
+        bash /tmp/import.sh
+      volumeMounts:
+        - mountPath: /tmp/import.sh
+          subPath: import.sh
+          name: test-script
+  volumes:
+    - name: test-script
+      configMap:
+          name: test-script
+          defaultMode: 0777
+  restartPolicy: "Never"
+  imagePullSecrets:
+    - name: ahalwai-inf-pull-secret

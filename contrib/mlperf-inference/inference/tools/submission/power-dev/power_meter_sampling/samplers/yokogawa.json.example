@@ -1,0 +1,5 @@
+{
+    "meter_ip": "8.8.4.4",
+    "titles": ["Power1", "Power2", "Power3"],
+    "elements": ["1", "2", "3"]
+}

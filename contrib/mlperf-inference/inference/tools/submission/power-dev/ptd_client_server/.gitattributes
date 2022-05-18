@@ -1,0 +1,2 @@
+# Disable git's CRLF conversion on Windows which may wreck checksum computation
+*.py -text

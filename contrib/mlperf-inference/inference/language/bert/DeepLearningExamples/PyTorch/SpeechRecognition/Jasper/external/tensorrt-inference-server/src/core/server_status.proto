@@ -1,0 +1,443 @@
+// Copyright (c) 2018, NVIDIA CORPORATION. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//  * Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//  * Neither the name of NVIDIA CORPORATION nor the names of its
+//    contributors may be used to endorse or promote products derived
+//    from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+syntax = "proto3";
+
+package nvidia.inferenceserver;
+
+//@@.. cpp:namespace:: nvidia::inferenceserver
+
+import "model_config.proto";
+
+//@@
+//@@.. cpp:var:: message StatDuration
+//@@
+//@@   Statistic collecting a duration metric.
+//@@
+message StatDuration
+{
+  //@@  .. cpp:var:: uint64 count
+  //@@
+  //@@     Cumulative number of times this metric occurred.
+  //@@
+  uint64 count = 1;
+
+  //@@  .. cpp:var:: uint64 total_time_ns
+  //@@
+  //@@     Total collected duration of this metric in nanoseconds.
+  //@@
+  uint64 total_time_ns = 2;
+}
+
+//@@
+//@@.. cpp:var:: message StatusRequestStats
+//@@
+//@@   Statistics collected for Status requests.
+//@@
+message StatusRequestStats
+{
+  //@@  .. cpp:var:: StatDuration success
+  //@@
+  //@@     Total time required to handle successful Status requests, not
+  //@@     including HTTP or gRPC endpoint termination time.
+  //@@
+  StatDuration success = 1;
+}
+
+//@@
+//@@.. cpp:var:: message HealthRequestStats
+//@@
+//@@   Statistics collected for Health requests.
+//@@
+message HealthRequestStats
+{
+  //@@  .. cpp:var:: StatDuration success
+  //@@
+  //@@     Total time required to handle successful Health requests, not
+  //@@     including HTTP or gRPC endpoint termination time.
+  //@@
+  StatDuration success = 1;
+}
+
+//@@
+//@@.. cpp:var:: message ModelControlRequestStats
+//@@
+//@@   Statistics collected for ModelControl requests.
+//@@
+message ModelControlRequestStats
+{
+  //@@  .. cpp:var:: StatDuration success
+  //@@
+  //@@     Total time required to handle successful ModelControl requests, not
+  //@@     including HTTP or gRPC endpoint termination time.
+  //@@
+  StatDuration success = 1;
+}
+
+//@@
+//@@.. cpp:var:: message SharedMemoryControlRequestStats
+//@@
+//@@   Statistics collected for SharedMemoryControl requests.
+//@@
+message SharedMemoryControlRequestStats
+{
+  //@@  .. cpp:var:: StatDuration success
+  //@@
+  //@@     Total time required to handle successful SharedMemoryControl
+  //@@     requests, not including HTTP or gRPC endpoint termination time.
+  //@@
+  StatDuration success = 1;
+}
+
+//@@
+//@@.. cpp:var:: message InferRequestStats
+//@@
+//@@   Statistics collected for Infer requests.
+//@@
+message InferRequestStats
+{
+  //@@  .. cpp:var:: StatDuration success
+  //@@
+  //@@     Total time required to handle successful Infer requests, not
+  //@@     including HTTP or GRPC endpoint handling time.
+  //@@
+  StatDuration success = 1;
+
+  //@@  .. cpp:var:: StatDuration failed
+  //@@
+  //@@     Total time required to handle failed Infer requests, not
+  //@@     including HTTP or GRPC endpoint handling time.
+  //@@
+  StatDuration failed = 2;
+
+  //@@  .. cpp:var:: StatDuration compute
+  //@@
+  //@@     Time required to run inferencing for an inference request;
+  //@@     including time copying input tensors to GPU memory, time
+  //@@     executing the model, and time copying output tensors from GPU
+  //@@     memory.
+  //@@
+  StatDuration compute = 3;
+
+  //@@  .. cpp:var:: StatDuration queue
+  //@@
+  //@@     Time an inference request waits in scheduling queue for an
+  //@@     available model instance.
+  //@@
+  StatDuration queue = 4;
+}
+
+//@@
+//@@.. cpp:enum:: ModelReadyState
+//@@
+//@@   Readiness status for models.
+//@@
+enum ModelReadyState {
+  //@@  .. cpp:enumerator:: ModelReadyState::MODEL_UNKNOWN = 0
+  //@@
+  //@@     The model is in an unknown state. The model is not available for
+  //@@     inferencing.
+  //@@
+  MODEL_UNKNOWN = 0;
+
+  //@@  .. cpp:enumerator:: ModelReadyState::MODEL_READY = 1
+  //@@
+  //@@     The model is ready and available for inferencing.
+  //@@
+  MODEL_READY = 1;
+
+  //@@  .. cpp:enumerator:: ModelReadyState::MODEL_UNAVAILABLE = 2
+  //@@
+  //@@     The model is unavailable, indicating that the model failed to
+  //@@     load or has been implicitly or explicitly unloaded. The model is
+  //@@     not available for inferencing.
+  //@@
+  MODEL_UNAVAILABLE = 2;
+
+  //@@  .. cpp:enumerator:: ModelReadyState::MODEL_LOADING = 3
+  //@@
+  //@@     The model is being loaded by the inference server. The model is
+  //@@     not available for inferencing.
+  //@@
+  MODEL_LOADING = 3;
+
+  //@@  .. cpp:enumerator:: ModelReadyState::MODEL_UNLOADING = 4
+  //@@
+  //@@     The model is being unloaded by the inference server. The model is
+  //@@     not available for inferencing.
+  //@@
+  MODEL_UNLOADING = 4;
+}
+
+//@@
+//@@.. cpp:var:: message ModelVersionStatus
+//@@
+//@@   Status for a version of a model.
+//@@
+message ModelVersionStatus
+{
+  //@@  .. cpp:var:: ModelReadyState ready_statue
+  //@@
+  //@@     Current readiness state for the model.
+  //@@
+  ModelReadyState ready_state = 1;
+
+  //@@  .. cpp:var:: map<uint32, InferRequestStats> infer_stats
+  //@@
+  //@@     Inference statistics for the model, as a map from batch size
+  //@@     to the statistics. A batch size will not occur in the map
+  //@@     unless there has been at least one inference request of
+  //@@     that batch size.
+  //@@
+  map<uint32, InferRequestStats> infer_stats = 2;
+
+  //@@  .. cpp:var:: uint64 model_execution_count
+  //@@
+  //@@     Cumulative number of model executions performed for the
+  //@@     model. A single model execution performs inferencing for
+  //@@     the entire request batch and can perform inferencing for multiple
+  //@@     requests if dynamic batching is enabled.
+  //@@
+  uint64 model_execution_count = 3;
+
+  //@@  .. cpp:var:: uint64 model_inference_count
+  //@@
+  //@@     Cumulative number of model inferences performed for the
+  //@@     model. Each inference in a batched request is counted as
+  //@@     an individual inference.
+  //@@
+  uint64 model_inference_count = 4;
+}
+
+//@@
+//@@.. cpp:var:: message ModelStatus
+//@@
+//@@   Status for a model.
+//@@
+message ModelStatus
+{
+  //@@  .. cpp:var:: ModelConfig config
+  //@@
+  //@@     The configuration for the model.
+  //@@
+  ModelConfig config = 1;
+
+  //@@  .. cpp:var:: map<int64, ModelVersionStatus> version_status
+  //@@
+  //@@     Duration statistics for each version of the model, as a map
+  //@@     from version to the status. A version will not occur in the map
+  //@@     unless there has been at least one inference request of
+  //@@     that model version. A version of -1 indicates the status is
+  //@@     for requests for which the version could not be determined.
+  //@@
+  map<int64, ModelVersionStatus> version_status = 2;
+}
+
+//@@
+//@@.. cpp:enum:: ServerReadyState
+//@@
+//@@   Readiness status for the inference server.
+//@@
+enum ServerReadyState {
+  //@@  .. cpp:enumerator:: ServerReadyState::SERVER_INVALID = 0
+  //@@
+  //@@     The server is in an invalid state and will likely not
+  //@@     response correctly to any requests.
+  //@@
+  SERVER_INVALID = 0;
+
+  //@@  .. cpp:enumerator:: ServerReadyState::SERVER_INITIALIZING = 1
+  //@@
+  //@@     The server is initializing.
+  //@@
+  SERVER_INITIALIZING = 1;
+
+  //@@  .. cpp:enumerator:: ServerReadyState::SERVER_READY = 2
+  //@@
+  //@@     The server is ready and accepting requests.
+  //@@
+  SERVER_READY = 2;
+
+  //@@  .. cpp:enumerator:: ServerReadyState::SERVER_EXITING = 3
+  //@@
+  //@@     The server is exiting and will not respond to requests.
+  //@@
+  SERVER_EXITING = 3;
+
+  //@@  .. cpp:enumerator:: ServerReadyState::SERVER_FAILED_TO_INITIALIZE = 10
+  //@@
+  //@@     The server did not initialize correctly. Most requests will fail.
+  //@@
+  SERVER_FAILED_TO_INITIALIZE = 10;
+}
+
+//@@.. cpp:var:: message SharedMemoryRegion
+//@@
+//@@   The meta-data for the shared memory region registered in the inference
+//@@   server.
+//@@
+message SharedMemoryRegion
+{
+  //@@
+  //@@  .. cpp:var:: string name
+  //@@
+  //@@     The name for this shared memory region.
+  //@@
+  string name = 1;
+
+  message SystemSharedMemory
+  {
+    //@@  .. cpp:var:: string shared_memory_key
+    //@@
+    //@@     The name of the shared memory region that holds the input data
+    //@@     (or where the output data should be written).
+    //@@
+    string shared_memory_key = 1;
+
+    //@@  .. cpp:var:: uint64 offset
+    //@@
+    //@@     This is the offset of the shared memory block from the start
+    //@@     of the shared memory region.
+    //@@     start = offset, end = offset + byte_size;
+    //@@
+    uint64 offset = 2;
+  }
+
+  message CudaSharedMemory
+  {
+    //@@  .. cpp:var:: int64 device_id
+    //@@
+    //@@     The GPU device ID on which the cudaIPC handle was created.
+    //@@
+    int64 device_id = 1;
+  }
+
+  //@@  .. cpp:var:: oneof shared_memory_types
+  //@@
+  //@@     Types of shared memory identifiers
+  //@@
+  oneof shared_memory_types
+  {
+    //@@
+    //@@  .. cpp:var:: SystemSharedMemory system_shared_memory
+    //@@
+    //@@     The status of this system shared memory region.
+    //@@
+    SystemSharedMemory system_shared_memory = 2;
+
+    //@@
+    //@@  .. cpp:var:: CudaSharedMemory cuda_shared_memory
+    //@@
+    //@@     The status of this CUDA shared memory region.
+    //@@
+    CudaSharedMemory cuda_shared_memory = 3;
+  }
+
+
+  //@@  .. cpp:var:: uint64 byte_size
+  //@@
+  //@@     Size of the shared memory block, in bytes.
+  //@@
+  uint64 byte_size = 5;
+}
+
+//@@
+//@@.. cpp:var:: message ServerStatus
+//@@
+//@@   Status for the inference server.
+//@@
+message ServerStatus
+{
+  //@@  .. cpp:var:: string id
+  //@@
+  //@@     The server's ID.
+  //@@
+  string id = 1;
+
+  //@@  .. cpp:var:: string version
+  //@@
+  //@@     The server's version.
+  //@@
+  string version = 2;
+
+  //@@  .. cpp:var:: ServerReadyState ready_state
+  //@@
+  //@@     Current readiness state for the server.
+  //@@
+  ServerReadyState ready_state = 7;
+
+  //@@  .. cpp:var:: uint64 uptime_ns
+  //@@
+  //@@     Server uptime in nanoseconds.
+  //@@
+  uint64 uptime_ns = 3;
+
+  //@@  .. cpp:var:: map<string, ModelStatus> model_status
+  //@@
+  //@@     Status for each model, as a map from model name to the
+  //@@     status.
+  //@@
+  map<string, ModelStatus> model_status = 4;
+
+  //@@  .. cpp:var:: StatusRequestStats status_stats
+  //@@
+  //@@     Statistics for Status requests.
+  //@@
+  StatusRequestStats status_stats = 5;
+
+  //@@  .. cpp:var:: HealthRequestStats health_stats
+  //@@
+  //@@     Statistics for Health requests.
+  //@@
+  HealthRequestStats health_stats = 8;
+
+  //@@  .. cpp:var:: ModelControlRequestStats model_control_stats
+  //@@
+  //@@     Statistics for ModelControl requests.
+  //@@
+  ModelControlRequestStats model_control_stats = 9;
+
+  //@@  .. cpp:var:: SharedMemoryControlRequestStats shm_control_stats
+  //@@
+  //@@     Statistics for SharedMemoryControl requests.
+  //@@
+  SharedMemoryControlRequestStats shm_control_stats = 10;
+}
+
+//@@
+//@@.. cpp:var:: message SharedMemoryStatus
+//@@
+//@@   Shared memory status for the inference server.
+//@@
+message SharedMemoryStatus
+{
+  //@@
+  //@@  .. cpp:var:: SharedMemoryRegion shared_memory_region
+  //@@
+  //@@     The list of active/registered shared memory regions.
+  //@@
+  repeated SharedMemoryRegion shared_memory_region = 2;
+}

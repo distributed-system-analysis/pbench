@@ -1,0 +1,52 @@
+name: Check Python for ptd_client_server
+on:
+  push:
+    paths:
+    - 'ptd_client_server/**'
+    - '.github/workflows/python_ptd_client_server.yaml'
+  pull_request:
+    paths:
+    - 'ptd_client_server/**'
+    - '.github/workflows/python_ptd_client_server.yaml'
+jobs:
+  check:
+    name: Check Python
+    runs-on: "${{ matrix.on }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+        on: [ubuntu-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install CI dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8 mypy==0.790 psutil pytest
+
+    - name: Lint with flake8
+      shell: bash
+      run: |
+        ./ptd_client_server/ci.sh flake8
+
+    - name: Check code formatting with black
+      shell: bash
+      run: |
+        ./ptd_client_server/ci.sh black
+
+    - name: Check typing with mypy
+      shell: bash
+      run: |
+        ./ptd_client_server/ci.sh mypy
+
+    - name: Run unit tests wit pytest
+      shell: bash
+      run: |
+        ./ptd_client_server/ci.sh pytest

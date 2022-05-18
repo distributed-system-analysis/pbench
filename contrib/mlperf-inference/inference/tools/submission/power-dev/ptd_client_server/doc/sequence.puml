@@ -1,0 +1,111 @@
+# Sequence diargam in PlantUML format
+# This file is used to generate sequence.png
+
+@startuml
+
+skinparam responseMessageBelowArrow true
+
+participant "Client\n//on SUT//" as Client
+participant "Server\n//on Director//" as Server
+participant "PTDaemon\n//on Director//" as PTDaemon
+
+Client -> Server: mlcommons/power client v2
+Client <-- Server: mlcommons/power server v2
+
+group Optional: --stop-server
+    Client -> Server: stop
+    Server -> Server: enable "stop" flag
+    Client <-- Server: OK
+end
+
+rnote over Client
+    NTP sync
+endnote
+
+Client -> Server: new,{label},{client_uuid}\n//e.g. new,mylabel,3a88739f-…//
+Client <-- Server: OK {id},{server_uuid}\n//e.g OK 2020-12-21_20-02…// \n//…-14_mylabel,0cfedefd-…//
+
+Client -> Server: time
+Client <-- Server: OK 1608580934.312
+
+group Stage: Ranging
+    rnote over Client
+        NTP sync
+    endnote
+
+    Client -> Server: session,{id},start,ranging
+    Server ->o PTDaemon: run PTDaemon.exe\n(or reuse if already started)
+    rnote over Server
+        NTP sync
+    endnote
+    Server -> PTDaemon: SR,V,Auto\nSR,A,Auto
+    Server -> PTDaemon: Go,1000,0,{id}_ranging
+    
+    activate PTDaemon
+    Client <-- Server: OK
+    
+    rnote over Client
+        RunWorkload
+    endnote
+    
+    Client -> Server: session,{id},stop,ranging
+    Server -> PTDaemon: Stop
+    deactivate PTDaemon
+    Server -> Server: Store partial PTDaemon logs
+    Client <-- Server: OK
+    
+    group Optional: --send-logs
+        Client -> Server: session,{id},upload,ranging\n//Upload .zip file//
+        Server -> Server: Store loadgen logs
+        Client <-- Server: OK
+    end
+end
+
+group Stage: Testing
+    rnote over Client
+        NTP sync
+    endnote
+
+    Client -> Server: session,{id},start,testing
+    rnote over Server
+        NTP sync
+    endnote
+    Server -> PTDaemon: SR,V,{maxAmps}\nSR,A,{maxVolts}
+    Server -> PTDaemon: Go,1000,0,{id}_testing
+    
+    activate PTDaemon
+    Client <-- Server: OK
+    
+    rnote over Client
+        RunWorkload
+    endnote
+    
+    Client -> Server: session,{id},stop,testing
+    Server -> PTDaemon: Stop
+    deactivate PTDaemon
+    Server -> Server: Store partial PTDaemon logs
+    Client <-- Server: OK
+    
+    group Optional: --send-logs
+        Client -> Server: session,{id},upload,testing\n//Upload .zip file//
+        Server -> Server: Store loadgen logs
+        Client <-- Server: OK
+    end
+end
+
+Client -> Server: session,{id},upload,client.log
+Server -> Server: Store client.log
+Client <-- Server: OK
+
+Client -> Server: session,{id},upload,client.json
+Server -> Server: Store client.json
+Client <-- Server: OK
+
+Client -> Server: session,{id},done
+Client <-- Server: OK
+
+Client ->x Server: disconnect
+
+Server ->x Server: exit if "stop" flag enabled
+
+@enduml

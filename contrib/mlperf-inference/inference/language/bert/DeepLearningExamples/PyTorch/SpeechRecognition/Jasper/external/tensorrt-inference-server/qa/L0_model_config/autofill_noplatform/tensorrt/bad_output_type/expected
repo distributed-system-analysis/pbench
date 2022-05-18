@@ -1,0 +1,1 @@
+unexpected datatype TYPE_FP32 for inference output 'OUTPUT1', expecting TYPE_INT8

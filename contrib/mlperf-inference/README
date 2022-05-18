@@ -1,0 +1,28 @@
+Inference: Main directory containing scripts to run the bencmarks
+pbench-ubi-pod: Yaml files used to run one benchmark in an OpenShift pod
+ahalwai-inf-secret: Pull secret to pull quay.io/ahalwai/inference-cpu-ubi: image used to run benchmarks in a ubi8 based container
+
+Benchmarks are run in a container with either an ubuntu base image or a ubi8 base image. Each benchmark needs a model and a dataset to run.
+I use (to import the necessary models and dataset, check https://github.com/mlcommons/inference/tree/master/vision/classification_and_detection):
+	model: ssd-mobilenet 
+	dataset: coco dataset
+ 
+
+How to run benchmarks locally:
+1. Build the Dockerfile (ubi8 base image) *check IMPORTANT
+2. From inside the container: set the path to model and dataset
+	2.a export MODEL_DIR=<path to model>
+	2.b export DATA_DIR=<path to dataset>
+3. Run "cd <path to inference directory>/vision/classification_and_detection"
+4. ./run_local.sh <framework> <model> <cpu/gpu>
+	4.a framework focus: onnxruntime
+	4.b model focus: ssd-mobilenet
+
+How to run benchmarks on an OpenShift pod:
+1. oc apply -f ahalwai-inf-secret.yaml
+2. oc apply -f pbench-ubi-pod.yaml (change namespace if needed)
+3. Check pod logs for output
+4. Done :)
+
+*** IMPORTANT ***
+Since mlcommons/inference is going through constant changes, I recommend to pull the prebuilt image -- quay.io/ahalwai/inference-cpu-ubi
