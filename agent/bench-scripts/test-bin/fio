@@ -17,7 +17,7 @@ if [[ "${1%%=*}" == "--client" ]]; then
 		fi
 	done
 elif [[ "${1}" == "--version" ]]; then 
-	echo "fio-3.42"
+	echo "fio-${_BM_FIO_VER:-3.42}"
 fi
 
-exit ${_BM_EXIT_STS:-0}
+exit ${_BM_FIO_STS:-0}
