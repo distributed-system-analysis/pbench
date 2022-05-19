@@ -527,8 +527,7 @@ function fio_pre_check() {
 	fi
 	if [[ ${do_local_pre_check} -eq 1 ]]; then
 		debug_log "Running pre-check locally"
-		local_pre_check "${devs}" "${ver}" "${match}"
-		rc=${?}
+		local_pre_check "${devs}" "${ver}" "${match}" || rc=${?}
 	fi
 	if [[ ${rc} -ne 0 ]]; then
 		error_log "pre-check(s) failed, exiting"
