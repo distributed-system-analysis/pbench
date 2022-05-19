@@ -5,7 +5,7 @@ echo "$0 $*" >> $_testlog
 # Mock fio command behaviors.
 if [[ "${1%%=*}" == "--client" ]]; then 
 	client_file=${1##*=}
-	for line in $(cat ${client_file}); do
+	for line in $(< ${client_file}); do
 		ip_name="${line%%,*}"
 		client="${ip_name#*:}"
 		if [[ "${client%%.*}" == "hist" ]]; then 
