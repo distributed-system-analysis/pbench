@@ -351,6 +351,26 @@ def convert_string(value: str, _) -> str:
     return value
 
 
+def convert_int(value: int, _) -> int:
+    """
+    Verify that the parameter value is a int (e.g., not a JSON dict, or a
+    string), and return it.
+
+    Args:
+        value: parameter value
+        _: The Parameter definition (not used)
+
+    Raises:
+        ConversionError: input can't be validated or normalized
+
+    Returns:
+        the input value
+    """
+    if type(value) is not int:
+        raise ConversionError(value, int.__name__)
+    return value
+
+
 def convert_keyword(value: str, parameter: "Parameter") -> str:
     """
     Verify that the parameter value is a string and a member of the
@@ -470,6 +490,7 @@ class ParamType(Enum):
     KEYWORD = ("Keyword", convert_keyword)
     LIST = ("List", convert_list)
     STRING = ("String", convert_string)
+    INT = ("Int", convert_int)
     USER = ("User", convert_username)
 
     def __init__(self, name: str, convert: Callable[[Any, "Parameter"], Any]):

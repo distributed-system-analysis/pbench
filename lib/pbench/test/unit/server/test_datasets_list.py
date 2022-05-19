@@ -93,7 +93,7 @@ class TestDatasetsList:
                     },
                 }
             )
-        return list
+        return {"results": list}
 
     @pytest.mark.parametrize(
         "login,query,results",

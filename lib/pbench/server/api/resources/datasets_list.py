@@ -1,7 +1,9 @@
 import logging
+from urllib.parse import urlencode
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
+from sqlalchemy.orm import Query
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -23,6 +25,8 @@ class DatasetsList(ApiBase):
     API class to list datasets based on PostgreSQL metadata
     """
 
+    PAGE_LIMIT = 20
+
     def __init__(self, config: PbenchServerConfig, logger: logging.Logger):
         super().__init__(
             config,
@@ -33,6 +37,7 @@ class DatasetsList(ApiBase):
                 Parameter("access", ParamType.ACCESS),
                 Parameter("start", ParamType.DATE),
                 Parameter("end", ParamType.DATE),
+                Parameter("page_no", ParamType.INT),
                 Parameter(
                     "metadata",
                     ParamType.LIST,
@@ -43,6 +48,38 @@ class DatasetsList(ApiBase):
             ),
             role=API_OPERATION.READ,
         )
+
+    def get_paginated_obj(self, query: Query, json: JSON, url: str, page_limit: int):
+        """
+        Helper function to return a slice of dataset according to the page limit and
+        a page number and a json object containing next page url.
+        TODO: There are multiple ways to optimize the functionality
+            1. Use of caching mechanism to temporarily store the queried datasets
+            instead of querying the database with every page request.
+            2. Use of unique pointers to store the last returned row and then use
+            this pointer in subsequent page request instead of initial start to
+            narrow down the result.
+        """
+        paginated_result = {}
+        total_count = query.count()
+        if total_count > page_limit:
+            if "page_no" in json:
+                items = (
+                    query.order_by(Dataset.name)
+                    .limit(page_limit)
+                    .offset((json["page_no"] - 1) * page_limit)
+                    .all()
+                )
+                json["page_no"] += 1
+            else:
+                # This is the first page
+                items = query.limit(page_limit).all()
+                json["page_no"] = 1
+            paginated_result["next_url"] = url.rsplit("?", 1)[0] + "?" + urlencode(json)
+            paginated_result["total"] = total_count
+        else:
+            items = query.order_by(Dataset.name).all()
+        return items, paginated_result
 
     def _get(self, json_data: JSON, request: Request) -> Response:
         """
@@ -93,12 +130,14 @@ class DatasetsList(ApiBase):
 
         # Execute the filtered query, sorted by dataset name so we have a
         # consistent and reproducible output to compare.
-        results = query.order_by(Dataset.name).all()
+        datasets, paginated_result = self.get_paginated_obj(
+            query=query, json=json, url=request.url, page_limit=__class__.PAGE_LIMIT
+        )
 
         keys = json.get("metadata")
 
         response = []
-        for dataset in results:
+        for dataset in datasets:
             d = {
                 "name": dataset.name,
                 "run_id": dataset.md5,
@@ -110,5 +149,6 @@ class DatasetsList(ApiBase):
                     "Error getting metadata {} for dataset {}: {}", keys, dataset, e
                 )
             response.append(d)
+        paginated_result["results"] = response
 
-        return jsonify(response)
+        return jsonify(paginated_result)
