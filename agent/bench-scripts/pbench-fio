@@ -470,9 +470,9 @@ function local_pre_check() {
 
 	debug_log "local_pre_check(devs=\"${devs}\", ver=\"${ver}\", match=\"${match}\")"
 
-	resolve_benchmark_bin_err="$(resolve_benchmark_bin "${benchmark}" 2>&1)"
+	resolve_benchmark_bin "${benchmark}" > /dev/null 2>&1
 	if [[ ${?} -ne 0 ]]; then
-		error_log "[${script_name}] ${benchmark} executable not found, '${resolve_benchmark_bin_err}'"
+		error_log "[${script_name}] ${benchmark} executable not found"
 		exit 1
 	fi
 
