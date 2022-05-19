@@ -454,7 +454,7 @@ class TestSchema:
     )
 
     def test_bad_payload(self):
-        with pytest.raises(InvalidRequestPayload):
+        with pytest.raises(MissingParameters):
             self.schema.validate(None)
 
     def test_missing_required(self):

@@ -4,14 +4,18 @@ from logging import Logger
 from flask import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
+    API_AUTHORIZATION,
+    API_METHOD,
+    API_OPERATION,
     APIAbort,
     ApiBase,
+    ApiParams,
+    ApiSchema,
     ParamType,
     Parameter,
     Schema,
-    SchemaError,
 )
 
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
@@ -69,18 +73,23 @@ class DatasetsMappings(ApiBase):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter(
-                    "dataset_view",
-                    ParamType.KEYWORD,
-                    required=True,
-                    keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
-                    uri_parameter=True,
-                )
+            ApiSchema(
+                API_METHOD.GET,
+                API_OPERATION.READ,
+                uri_schema=Schema(
+                    Parameter(
+                        "dataset_view",
+                        ParamType.KEYWORD,
+                        required=True,
+                        keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                        uri_parameter=True,
+                    )
+                ),
+                authorization=API_AUTHORIZATION.NONE,
             ),
         )
 
-    def _get(self, json_data: JSON, request: Request) -> Response:
+    def _get(self, params: ApiParams, request: Request) -> Response:
         """
         Return mapping properties of the document specified by the dataset view
         specified in the URI parameter (supported dataset views are defined in
@@ -93,15 +102,8 @@ class DatasetsMappings(ApiBase):
 
         The mappings are retrieved by querying the template database.
         """
-        # Normalize and validate the dataset view we got via URI string. These
-        # don't go through JSON schema validation, so we have
-        # to do it here.
-        try:
-            self.schema.validate(json_data)
-        except SchemaError as e:
-            raise APIAbort(HTTPStatus.BAD_REQUEST, str(e))
 
-        index = IndexMapBase.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
+        index = IndexMapBase.ES_INTERNAL_INDEX_NAMES[params.uri["dataset_view"]]
         try:
             mappings = IndexMapBase.get_mappings(index)
             result = {}

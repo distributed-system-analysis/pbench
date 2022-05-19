@@ -5,19 +5,21 @@ from typing import Optional
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
+from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
+    API_AUTHORIZATION,
+    API_METHOD,
     APIAbort,
     API_OPERATION,
     ApiBase,
+    ApiParams,
+    ApiSchema,
     ParamType,
     Parameter,
     Schema,
 )
 from pbench.server.database.models.datasets import (
-    Dataset,
-    DatasetError,
     Metadata,
     MetadataError,
 )
@@ -29,59 +31,54 @@ class DatasetsMetadata(ApiBase):
     API class to retrieve and mutate Dataset metadata.
     """
 
-    GET_SCHEMA = Schema(
-        Parameter(
-            "metadata",
-            ParamType.LIST,
-            element_type=ParamType.KEYWORD,
-            keywords=Metadata.METADATA_KEYS,
-            key_path=True,
-            string_list=",",
-        ),
-    )
-
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter("dataset", ParamType.STRING, required=True),
-                Parameter(
-                    "metadata",
-                    ParamType.JSON,
-                    keywords=Metadata.USER_UPDATEABLE_METADATA,
-                    required=True,
-                    key_path=True,
+            ApiSchema(
+                API_METHOD.PUT,
+                API_OPERATION.UPDATE,
+                uri_schema=Schema(Parameter("dataset", ParamType.DATASET, required=True)),
+                body_schema=Schema(
+                    Parameter(
+                        "metadata",
+                        ParamType.JSON,
+                        keywords=Metadata.USER_UPDATEABLE_METADATA,
+                        required=True,
+                    )
                 ),
+                authorization=API_AUTHORIZATION.NONE,
             ),
-            role=API_OPERATION.UPDATE,
+            ApiSchema(
+                API_METHOD.GET,
+                API_OPERATION.READ,
+                uri_schema=Schema(Parameter("dataset", ParamType.DATASET, required=True)),
+                query_schema=Schema(
+                    Parameter(
+                        "metadata",
+                        ParamType.LIST,
+                        element_type=ParamType.KEYWORD,
+                        keywords=ApiBase.METADATA,
+                        string_list=",",
+                    )
+                ),
+                authorization=API_AUTHORIZATION.DATASET,
+            ),
         )
 
-    def _get(self, json_data: JSON, request: Request) -> Response:
+    def _get(self, params: ApiParams, request: Request) -> Response:
         """
         Get the values of client-accessible dataset metadata keys.
 
         Args:
-            json_data: Flask's URI parameter dictionary with dataset name
+            params: API parameters
             request: The original Request object containing query parameters
 
         GET /api/v1/datasets/metadata?name=dname&metadata=dashboard.seen,server.deletion
         """
 
-        name = json_data.get("dataset")
-        json = self._validate_query_params(request, self.GET_SCHEMA)
-        keys = json.get("metadata")
-
-        try:
-            dataset = Dataset.query(name=name)
-        except DatasetError:
-            raise APIAbort(HTTPStatus.BAD_REQUEST, f"Dataset {name!r} not found")
-
-        # Validate the authenticated user's authorization for the combination
-        # of "owner" and "access".
-        self._check_authorization(
-            str(dataset.owner_id), dataset.access, check_role=API_OPERATION.READ
-        )
+        dataset = params.uri["dataset"]
+        keys = params.query.get("metadata")
 
         try:
             metadata = self._get_dataset_metadata(dataset, keys)
@@ -90,7 +87,7 @@ class DatasetsMetadata(ApiBase):
 
         return jsonify(metadata)
 
-    def _put(self, json_data: JSONOBJECT, _) -> Response:
+    def _put(self, params: ApiParams, _) -> Response:
         """
         Set or modify the values of client-accessible dataset metadata keys.
 
@@ -116,14 +113,9 @@ class DatasetsMetadata(ApiBase):
             "user": {"favorite": False}
         ]
         """
-        name = json_data["dataset"]
-        metadata = json_data["metadata"]
 
-        try:
-            dataset = Dataset.query(name=name)
-        except DatasetError as e:
-            self.logger.warning("Dataset {!r} not found: {}", name, str(e))
-            raise APIAbort(HTTPStatus.BAD_REQUEST, f"Dataset {name!r} not found")
+        dataset = params.uri["dataset"]
+        metadata = params.body["metadata"]
 
         # Validate the authenticated user's authorization for the combination
         # of "owner" and "access".
@@ -149,9 +141,7 @@ class DatasetsMetadata(ApiBase):
             for k in metadata.keys():
                 if Metadata.get_native_key(k) != Metadata.USER:
                     role = API_OPERATION.UPDATE
-        self._check_authorization(
-            str(dataset.owner_id), dataset.access, check_role=role
-        )
+        self._check_authorization(str(dataset.owner_id), dataset.access, role)
 
         failures = []
         for k, v in metadata.items():

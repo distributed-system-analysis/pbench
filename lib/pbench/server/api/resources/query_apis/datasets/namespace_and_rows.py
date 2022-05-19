@@ -1,10 +1,21 @@
 from http import HTTPStatus
 from logging import Logger
 
-from flask import Response, jsonify
+from flask import jsonify
+from flask.wrappers import Response
 
 from pbench.server import PbenchServerConfig, JSON
-from pbench.server.api.resources import APIAbort, ParamType, Parameter, Schema
+from pbench.server.api.resources import (
+    API_AUTHORIZATION,
+    API_METHOD,
+    API_OPERATION,
+    APIAbort,
+    ApiParams,
+    ApiSchema,
+    ParamType,
+    Parameter,
+    Schema,
+)
 from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 from pbench.server.database.models.datasets import Dataset
@@ -23,19 +34,24 @@ class SampleNamespace(IndexMapBase):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter("name", ParamType.STRING, required=True),
-                Parameter(
-                    "dataset_view",
-                    ParamType.KEYWORD,
-                    required=True,
-                    keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
-                    uri_parameter=True,
+            ApiSchema(
+                API_METHOD.POST,
+                API_OPERATION.READ,
+                uri_schema=Schema(
+                    Parameter(
+                        "dataset_view",
+                        ParamType.KEYWORD,
+                        required=True,
+                        keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                        uri_parameter=True,
+                    )
                 ),
+                body_schema=Schema(Parameter("name", ParamType.DATASET, required=True)),
+                authorization=API_AUTHORIZATION.DATASET,
             ),
         )
 
-    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
         """
         Construct an Elasticsearch query which returns a list of values which
         appear in each of the keyword fields in the WHITELIST_AGGS_FIELDS
@@ -52,7 +68,7 @@ class SampleNamespace(IndexMapBase):
         }
         """
         dataset: Dataset = context["dataset"]
-        document = self.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
+        document = self.ES_INTERNAL_INDEX_NAMES[params.uri["dataset_view"]]
 
         document_index = document["index"]
 
@@ -176,21 +192,28 @@ class SampleValues(IndexMapBase):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter("filters", ParamType.JSON, required=False),
-                Parameter("name", ParamType.STRING, required=True),
-                Parameter("scroll_id", ParamType.STRING, required=False),
-                Parameter(
-                    "dataset_view",
-                    ParamType.KEYWORD,
-                    required=True,
-                    keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
-                    uri_parameter=True,
+            ApiSchema(
+                API_METHOD.POST,
+                API_OPERATION.READ,
+                uri_schema=Schema(
+                    Parameter(
+                        "dataset_view",
+                        ParamType.KEYWORD,
+                        required=True,
+                        keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
+                        uri_parameter=True,
+                    )
                 ),
+                body_schema=Schema(
+                    Parameter("filters", ParamType.JSON, required=False),
+                    Parameter("name", ParamType.DATASET, required=True),
+                    Parameter("scroll_id", ParamType.STRING, required=False),
+                ),
+                authorization=API_AUTHORIZATION.DATASET,
             ),
         )
 
-    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
         """
         Construct an Elasticsearch query which returns a list of data values
         from a selected set of documents that belong to the given run id in
@@ -230,8 +253,8 @@ class SampleValues(IndexMapBase):
             }
         """
         dataset: Dataset = context["dataset"]
-        scroll_id = json_data.get("scroll_id")
-        document = self.ES_INTERNAL_INDEX_NAMES[json_data["dataset_view"]]
+        scroll_id = params.body.get("scroll_id")
+        document = self.ES_INTERNAL_INDEX_NAMES[params.uri["dataset_view"]]
 
         document_index = document["index"]
 
@@ -243,7 +266,6 @@ class SampleValues(IndexMapBase):
             self.prefix,
         )
 
-        scroll_id = json_data.get("scroll_id")
         if scroll_id:
             return {
                 "path": "/_search/scroll",
@@ -268,7 +290,7 @@ class SampleValues(IndexMapBase):
 
         # Prepare list of filters to apply for ES query
         es_filter = [{"match": {"run.id": dataset.md5}}]
-        for filter, value in json_data.get("filters", {}).items():
+        for filter, value in params.body.get("filters", {}).items():
             if filter in self.get_aggregatable_fields(mappings):
                 # Get all the non-text filters to apply
                 es_filter.append({"match": {filter: value}})

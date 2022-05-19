@@ -49,9 +49,7 @@ class TestElasticsearch:
             headers={"Authorization": "Bearer " + pbench_token},
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == "Invalid request payload"
-        assert len(caplog.records) == 1
-        assert caplog.records[0].levelname == "WARNING"
+        assert response.json.get("message") == "Missing required parameters: indices"
 
     @staticmethod
     def test_empty_url_path(client, caplog, server_config, pbench_token):
@@ -62,8 +60,6 @@ class TestElasticsearch:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Missing required parameters: indices"
-        assert len(caplog.records) == 1
-        assert caplog.records[0].levelname == "WARNING"
 
     @staticmethod
     def test_bad_request(client, caplog, server_config, requests_mock, pbench_token):

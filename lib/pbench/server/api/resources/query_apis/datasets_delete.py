@@ -3,7 +3,11 @@ from typing import Iterator
 
 from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.resources import (
+    API_AUTHORIZATION,
+    API_METHOD,
     API_OPERATION,
+    ApiParams,
+    ApiSchema,
     Schema,
     Parameter,
     ParamType,
@@ -29,18 +33,22 @@ class DatasetsDelete(ElasticBulkBase):
         super().__init__(
             config,
             logger,
-            Schema(Parameter("name", ParamType.STRING, required=True)),
+            ApiSchema(
+                API_METHOD.POST,
+                API_OPERATION.DELETE,
+                body_schema=Schema(Parameter("name", ParamType.DATASET, required=True)),
+                authorization=API_AUTHORIZATION.DATASET,
+            ),
             action="delete",
-            role=API_OPERATION.DELETE,
         )
 
-    def generate_actions(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
+    def generate_actions(self, params: ApiParams, dataset: Dataset) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk delete actions driven by the
         dataset document map.
 
         Args:
-            json_data: the client's JSON payload
+            params: API parameters
             dataset: the Dataset object
 
         Returns:
@@ -57,7 +65,7 @@ class DatasetsDelete(ElasticBulkBase):
             for id in ids:
                 yield {"_op_type": self.action, "_index": index, "_id": id}
 
-    def complete(self, dataset: Dataset, json_data: JSON, summary: JSON) -> None:
+    def complete(self, dataset: Dataset, params: ApiParams, summary: JSON) -> None:
         """
         Complete the delete operation by deleting files (both the tarball, MD5
         file, and unpacked tarball contents) from the file system, and then
@@ -68,7 +76,7 @@ class DatasetsDelete(ElasticBulkBase):
 
         Args:
             dataset: Dataset object
-            json_data: client JSON payload
+            params: API parameters
             summary: summary of the bulk operation
                 ok: count of successful updates
                 failure: count of failures

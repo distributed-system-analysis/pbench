@@ -3,7 +3,11 @@ from typing import Iterator
 
 from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.resources import (
+    API_AUTHORIZATION,
+    API_METHOD,
     API_OPERATION,
+    ApiParams,
+    ApiSchema,
     Schema,
     Parameter,
     ParamType,
@@ -23,28 +27,31 @@ class DatasetsPublish(ElasticBulkBase):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter("name", ParamType.STRING, required=True),
-                Parameter("access", ParamType.ACCESS, required=True),
+            ApiSchema(
+                API_METHOD.POST,
+                API_OPERATION.UPDATE,
+                body_schema=Schema(
+                    Parameter("name", ParamType.DATASET, required=True),
+                    Parameter("access", ParamType.ACCESS, required=True),
+                ),
+                authorization=API_AUTHORIZATION.DATASET,
             ),
             action="update",
-            role=API_OPERATION.UPDATE,
         )
 
-    def generate_actions(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
+    def generate_actions(self, params: ApiParams, dataset: Dataset) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk update actions driven by the
         dataset document map.
 
         Args:
-            json_data: Type-normalized client JSON input
-                access: The desired access level of the dataset
+            params: API parameters
             dataset: the Dataset object
 
         Returns:
             A generator for Elasticsearch bulk update actions
         """
-        access = json_data["access"]
+        access = params.body["access"]
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
 
         self.logger.info("Starting publish operation for dataset {}", dataset)
@@ -65,7 +72,7 @@ class DatasetsPublish(ElasticBulkBase):
                     "doc": {"authorization": {"access": access}},
                 }
 
-    def complete(self, dataset: Dataset, json_data: JSON, summary: JSON) -> None:
+    def complete(self, dataset: Dataset, params: ApiParams, summary: JSON) -> None:
         """
         Complete the publish operation by updating the access of the Dataset
         object.
@@ -75,12 +82,11 @@ class DatasetsPublish(ElasticBulkBase):
 
         Args:
             dataset: Dataset object
-            json_data: client JSON payload
-                access: new dataset access setting
+            params: API parameters
             summary: summary of the bulk operation
                 ok: count of successful updates
                 failure: count of failures
         """
         if summary["failure"] == 0:
-            dataset.access = json_data["access"]
+            dataset.access = params.body["access"]
             dataset.update()

@@ -4,12 +4,13 @@ import pytest
 
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
+    API_METHOD,
     ApiBase,
     API_OPERATION,
-    Schema,
+    ApiSchema,
     UnauthorizedAccess,
 )
-from pbench.server.database.models.users import User
+from pbench.server.database.models.users import Roles, User
 
 
 class TestAuthorization:
@@ -25,7 +26,7 @@ class TestAuthorization:
 
     @pytest.fixture()
     def apibase(self, client) -> ApiBase:
-        return ApiBase(client.config, client.logger, Schema())
+        return ApiBase(client.config, client.logger, ApiSchema(API_METHOD.GET, API_OPERATION.READ))
 
     @pytest.fixture()
     def current_user_admin(self, monkeypatch):
@@ -62,9 +63,8 @@ class TestAuthorization:
     def test_allowed_admin(
         self, apibase, server_config, create_drb_user, current_user_admin, ask
     ):
-        apibase.role = ask["role"]
         user = self.get_user_id(ask["user"])
-        apibase._check_authorization(user, ask["access"])
+        apibase._check_authorization(user, ask["access"], ask["role"])
 
     @pytest.mark.parametrize(
         "ask",
@@ -76,11 +76,10 @@ class TestAuthorization:
         ],
     )
     def test_disallowed_admin(self, apibase, server_config, current_user_admin, ask):
-        apibase.role = ask["role"]
         user = self.get_user_id(ask["user"])
         access = ask["access"]
         with pytest.raises(UnauthorizedAccess) as exc:
-            apibase._check_authorization(user, access)
+            apibase._check_authorization(user, access, ask["role"])
         assert exc.value.owner == (ask["user"] if ask["user"] else "none")
         assert exc.value.user == current_user_admin
 
@@ -107,9 +106,8 @@ class TestAuthorization:
         current_user_drb,
         ask,
     ):
-        apibase.role = ask["role"]
         user = self.get_user_id(ask["user"])
-        apibase._check_authorization(user, ask["access"])
+        apibase._check_authorization(user, ask["access"], ask["role"])
 
     @pytest.mark.parametrize(
         "ask",
@@ -128,11 +126,10 @@ class TestAuthorization:
     def test_disallowed_auth(
         self, apibase, server_config, create_user, current_user_drb, ask
     ):
-        apibase.role = ask["role"]
         user = self.get_user_id(ask["user"])
         access = ask["access"]
         with pytest.raises(UnauthorizedAccess) as exc:
-            apibase._check_authorization(user, access)
+            apibase._check_authorization(user, access, ask["role"])
         assert exc.value.owner == (ask["user"] if ask["user"] else "none")
         assert exc.value.user == current_user_drb
 
@@ -153,9 +150,8 @@ class TestAuthorization:
         current_user_none,
         ask,
     ):
-        apibase.role = ask["role"]
         user = self.get_user_id(ask["user"])
-        apibase._check_authorization(user, ask["access"])
+        apibase._check_authorization(user, ask["access"], ask["role"])
 
     @pytest.mark.parametrize(
         "ask",
@@ -170,10 +166,9 @@ class TestAuthorization:
     def test_disallowed_noauth(
         self, apibase, server_config, create_user, current_user_none, ask
     ):
-        apibase.role = ask["role"]
         user = self.get_user_id(ask["user"])
         access = ask["access"]
         with pytest.raises(UnauthorizedAccess) as exc:
-            apibase._check_authorization(user, access)
+            apibase._check_authorization(user, access, ask["role"])
         assert exc.value.owner == (ask["user"] if ask["user"] else "none")
         assert exc.value.user is None
