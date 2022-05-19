@@ -10,6 +10,7 @@ linpack_input_file_name="linpack.input"
 linpack_metadata_file_name="linpack.meta"
 linpack_output_file_name="linpack.out"
 linpack_command_file_name="linpack.cmd"
+linpack_pid_file_name="linpack.pid"
 
 binary=""
 
@@ -38,7 +39,7 @@ kmp_affinity_args_def="nowarnings,compact,1,0,granularity=fine"
 kmp_affinity_args=""
 numactl_args=""
 
-# Output directory required.
+# Output directory, defaults to the current working directory if not provided.
 output_dir=""
 
 # By default we don't perform only a pre-check.
@@ -237,9 +238,13 @@ if [[ -z "${ver}" ]]; then
 	usage >&2
 	exit 2
 fi
-binary="/usr/local/pbench-linpack-${ver}/benchmarks/linpack/xlinpack_xeon64"
+
+# Installation directory, optional 2nd argument, defaults to /usr/local.
+install_prefix_dir=${2:-"/usr/local"}
+
+binary="${install_prefix_dir}/pbench-linpack-${ver}/benchmarks/linpack/xlinpack_xeon64"
 if [[ ! -x "${binary}" ]]; then
-	printf -- "[%s] ERROR: The --binary must exist and be executable\n" "${script_name}" >&2
+	printf -- "[%s] ERROR: The --binary, '${binary}', must exist and be executable\n" "${script_name}" >&2
 	exit 2
 fi
 
@@ -282,6 +287,7 @@ linpack_input_file="${output_dir}/${linpack_input_file_name}"
 linpack_metadata_file="${output_dir}/${linpack_metadata_file_name}"
 linpack_output_file="${output_dir}/${linpack_output_file_name}"
 linpack_command_file="${output_dir}/${linpack_command_file_name}"
+linpack_pid_file="${output_dir}/${linpack_pid_file_name}"
 
 # N.B. - Trailing whitespace is required.
 numactl_cmd=${numactl_args:+"numactl ${numactl_args} "}
@@ -323,6 +329,9 @@ cat > ${linpack_input_file} <<-__EOF__
 	${run_trials} # times to run a test
 	${alignment_values} # alingment values (in KBytes)
 	__EOF__
+
+# Declare ourselves to anybody waiting.
+echo "$$" > ${linpack_pid_file}
 
 # Now we can execute the final LINPACK command.
 source ${linpack_command_file}

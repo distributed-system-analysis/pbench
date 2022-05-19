@@ -118,7 +118,10 @@ done
 verify_common_bench_script_options ${tool_group} ${sysinfo}
 
 function pre_check {
-	${pbench_bin}/bench-scripts/driver/linpack --pre-check ${ver}
+	local ver=${1}
+	local install_prefix_arg=${2}
+
+	${pbench_bin}/bench-scripts/driver/linpack --pre-check ${ver} ${install_prefix_arg}
 	return ${?}
 }
 
@@ -139,13 +142,13 @@ fi
 let not_found=0
 for client in ${clients//,/ }; do
 	if pbench-is-local "${client}"; then
-		pre_check ${linpack_ver}
+		pre_check ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}
 		if [[ ${?} -ne 0 ]]; then
 			error_log "${script_name}: linpack not installed locally"
 			(( not_found++ ))
 		fi
 	else
-		ssh ${ssh_opts} ${client} ${script_name} --pre-check ${linpack_ver}
+		ssh ${ssh_opts} ${client} ${script_name} --pre-check ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}
 		if [[ ${?} -ne 0 ]]; then
 			error_log "${script_name}: linpack not installed on client ${client}"
 			(( not_found++ ))
@@ -265,7 +268,8 @@ for thread in ${threads//,/ }; do
 		pbench-start-tools --group=${tool_group} --dir="${sample_dir}"
 
 		run_it="pbench-linpack ${pbench_bin}/bench-scripts/driver/linpack"
-		run_it+=" --output-dir=${sample_dir} --threads=${thread} ${linpack_ver}"
+		run_it+=" --output-dir=${sample_dir} --threads=${thread}"
+		run_it+=" ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}"
 		screen_it="screen -dmS ${run_it}"
 		for client in ${clients//,/ }; do
 			if pbench-is-local "${client}"; then
