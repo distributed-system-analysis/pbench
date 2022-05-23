@@ -18,6 +18,7 @@ if [[ "${1%%=*}" == "--client" ]]; then
 	done
 elif [[ "${1}" == "--version" ]]; then 
 	echo "fio-${_BM_FIO_VER:-3.42}"
+	exit 0
 fi
 
 exit ${_BM_FIO_STS:-0}
