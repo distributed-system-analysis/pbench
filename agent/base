@@ -291,14 +291,6 @@ function generate_inventory {
     done
 }
 
-function resolve_benchmark_bin {
-    # Encapsulation of method for resolving the actual benchmark
-    # binary ignoring `bash` aliases and functions.
-    unalias "${1}" > /dev/null 2>&1
-    unset -f "${1}" > /dev/null 2>&1
-    command -v "${1}"
-}
-
 function vercmp {
     # Compare two package versions via `rpmdev-vercmp`.
     local _package="${1}"

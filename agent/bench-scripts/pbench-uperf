@@ -197,13 +197,13 @@ function local_pre_check {
 	local _ver="${1}"
 	local _match="${2}"
 
-	resolve_benchmark_bin "${benchmark}" > /dev/null 2>&1
+	local _stdout
+	_stdout=$(${benchmark} -V 2>&1)
 	if [[ ${?} -ne 0 ]]; then
-		error_log "${script_name}: ${benchmark} executable not found"
-		exit 1
+		error_log "${script_name}: ${benchmark} failed reporting version: '${_stdout}'"
+		return 1
 	fi
-
-	local ver_installed=$(${benchmark} -V | awk 'NR==1 {print $3}')
+	local ver_installed=$(awk 'NR==1 {print $3}' <<< ${_stdout})
 	vercmp "${benchmark}" "${_match}" "${_ver}" "${ver_installed}"
 	return ${?}
 }
