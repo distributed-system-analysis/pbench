@@ -51,7 +51,7 @@ an invocation errors.
 Usage: linpack [--problem-sizes=#[[,#]...]] [--leading-dimenions=#[[,#]...]]
         [--run-trials=#[[,#]]...] [--alignment-values=#[[,#]...]] [--use-omp={y|n}]
         [--threads=#] [--kmp-affinity=<options>] [--numactl-args=<args>]
-        [--output-dir=<directory>] <linpack binary path>
+        [--output-dir=<directory>] <linpack version number installed>
 
 Optional output control:
 
@@ -90,7 +90,7 @@ linpack --bad-to-the-bone
 Usage: linpack [--problem-sizes=#[[,#]...]] [--leading-dimenions=#[[,#]...]]
         [--run-trials=#[[,#]]...] [--alignment-values=#[[,#]...]] [--use-omp={y|n}]
         [--threads=#] [--kmp-affinity=<options>] [--numactl-args=<args>]
-        [--output-dir=<directory>] <linpack binary path>
+        [--output-dir=<directory>] <linpack version number installed>
 
 Optional output control:
 

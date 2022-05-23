@@ -42,8 +42,8 @@ numactl_args=""
 # Output directory, defaults to the current working directory if not provided.
 output_dir=""
 
-# By default we don't perform only a pre-check.
-pre_check=0
+# By default we do not perform pre-checks unless requested explicitly.
+pre_check_only=0
 
 function usage() {
 	cat <<-__EOF__
@@ -132,7 +132,7 @@ an invocation errors.
 }
 
 # Process options and arguments
-opts=$(getopt -q -o h --longoptions "header:,subheader:,problem-sizes:,leading-dimensions:,alignment-values:,run-trials:,threads:,use-omp:,kmp-affinity:,numactl-args:,output-dir:,pre-check,help" -n "${script_name}" -- "${@}")
+opts=$(getopt -q -o h --longoptions "header:,subheader:,problem-sizes:,leading-dimensions:,alignment-values:,run-trials:,threads:,use-omp:,kmp-affinity:,numactl-args:,output-dir:,pre-check-only,help" -n "${script_name}" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
 	printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${script_name}" "${*}" >&2
 	usage >&2
@@ -215,8 +215,8 @@ while true; do
 			shift
 		fi
 		;;
-	--pre-check)
-		pre_check=1
+	--pre-check-only)
+		pre_check_only=1
 		;;
 	-h|--help)
 		help
@@ -248,7 +248,7 @@ if [[ ! -x "${binary}" ]]; then
 	exit 2
 fi
 
-if [[ ${pre_check} -ne 0 ]]; then
+if [[ ${pre_check_only} -ne 0 ]]; then
 	exit 0
 fi
 

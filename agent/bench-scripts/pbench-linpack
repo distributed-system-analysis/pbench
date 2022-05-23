@@ -118,6 +118,9 @@ done
 verify_common_bench_script_options ${tool_group} ${sysinfo}
 
 function pre_check {
+	# Invoke the linpack driver to perform a pre-check that it will be able to
+	# execute the benchmark. The expected version is the first argument, and the
+	# second is the expected directory prefix for the linpack installation.
 	local ver=${1}
 	local install_prefix_arg=${2}
 
@@ -127,7 +130,8 @@ function pre_check {
 
 if [[ ${do_pre_check} -ne 0 ]]; then
 	# We have been invoked remotely to check for the expected version of
-	# linpack installed.
+	# linpack installed.  The remote invocation has provided the arguments to
+	# pass to the pre-check function (see --pre-check invocation below).
 	pre_check ${@}
 	exit ${?}
 fi
