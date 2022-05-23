@@ -699,6 +699,7 @@ class ApiBase(Resource):
         and describe a distinct Schema for each HTTP method.
         """
         super().__init__()
+        self.config = config
         self.logger = logger
         self.schema = schema
         self.role = role
@@ -734,7 +735,10 @@ class ApiBase(Resource):
                 if schema[key].type == ParamType.LIST:
                     json[key] = values
                 elif len(values) == 1:
-                    json[key] = values[0]
+                    if schema[key].type == ParamType.INT:
+                        json[key] = int(values[0])
+                    else:
+                        json[key] = values[0]
                 else:
                     raise RepeatedQueryParam(key)
             else:
