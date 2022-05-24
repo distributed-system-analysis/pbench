@@ -11,7 +11,15 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 export benchmark="fio"
+benchmark_rpm=${benchmark}
 export benchmark_run_dir=""
+resolve_benchmark_bin_out="$(resolve_benchmark_bin "${benchmark}" 2>&1)"
+if [[ ${?} -ne 0 ]]; then
+	error_log "[${script_name}] ${benchmark} executable not found, '${resolve_benchmark_bin_out}'"
+	exit 1
+else
+	benchmark_bin=${resolve_benchmark_bin_out}
+fi
 
 job_file="${script_path}/templates/fio.job"
 
@@ -468,15 +476,9 @@ function local_pre_check() {
 
 	debug_log "local_pre_check(devs=\"${devs}\", ver=\"${ver}\", match=\"${match}\")"
 
-	resolve_benchmark_bin_err="$(resolve_benchmark_bin "${benchmark}" 2>&1)"
-	if [[ ${?} -ne 0 ]]; then
-		error_log "[${script_name}] ${benchmark} executable not found, '${resolve_benchmark_bin_err}'"
-		exit 1
-	fi
-
 	# First check for the supported version of fio in use.
 
-	local _stdout=$(${benchmark} --version)
+	local _stdout=$(${benchmark_bin} --version)
 	local ver_installed=${_stdout##*-}
 
 	vercmp "${benchmark}" "${match}" "${ver}" "${ver_installed}"
@@ -595,7 +597,7 @@ function fio_run_job() {
 
 	if [ -n "${clients}" ]; then
 		for client in "${client_names[@]}"; do
-			local bash_c_cmd="${benchmark} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err"
+			local bash_c_cmd="'${benchmark_bin}' --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err"
 			local screen_it="screen -L -Logfile fio-server.screen.log -dmS fio-server bash -c ${bash_c_cmd}"
 			if pbench-is-local ${client}; then
 				debug_log "killing any old local fio processes and starting new a fio process for the local client"
@@ -650,9 +652,9 @@ function fio_run_job() {
 	pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
 	# create a command file and keep it with the results for debugging later, or user can run outside of pbench
-	echo "$benchmark $client_opts $bench_opts" >$benchmark_results_dir/fio.cmd
+	echo "$benchmark_bin $client_opts $bench_opts" >$benchmark_results_dir/fio.cmd
 	chmod +x $benchmark_results_dir/fio.cmd
-	debug_log "$benchmark: Going to run [$benchmark $bench_opts $client_opts]"
+	debug_log "$benchmark: Going to run [$benchmark_bin $bench_opts $client_opts]"
 	pushd $benchmark_results_dir >/dev/null
 	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/fio-result.txt
 	local _fio_exit_code=$?
@@ -893,7 +895,6 @@ function fio_run_benchmark() {
 }
 
 fio_process_options "$@"
-
 if [ "$postprocess_only" = "n" ]; then
 	ver="$(pbench-config version ${benchmark})"
 	if [[ -z "${ver}" ]]; then
