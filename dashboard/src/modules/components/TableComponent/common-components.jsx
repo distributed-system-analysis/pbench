@@ -79,10 +79,10 @@ export const SearchBox = ({
     <InputGroup className="searchInputGroup">
       <TextInput
         type="text"
-        placeholder="Search"
+        placeholder="Search Dataset"
         onChange={(e) => setSearchKey(e)}
       ></TextInput>
-      <Button variant="control" onClick={search}>
+      <Button variant="control" onClick={search} aria-label="searchButton">
         <SearchIcon />
       </Button>
     </InputGroup>

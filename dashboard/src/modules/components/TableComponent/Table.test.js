@@ -21,7 +21,7 @@ jest.mock("utils/api", () => {
 test("Page heading is displayed on initial load", async () => {
   render(<AppWrapper />);
   await screen.findByText("pbench_user_benchmark1");
-  const heading = screen.getByRole("heading", { name: /results/i });
+  const heading = screen.getByRole("heading", { name: 'Results' });
   expect(heading).toBeInTheDocument();
 });
 test("data from API is displayed on initial load", async () => {
@@ -43,12 +43,12 @@ test("row is favorited after clicking on favorite icon", async () => {
   render(<AppWrapper />);
   await screen.findByText("pbench_user_benchmark1");
   const starBtn = screen.getAllByRole("button", {
-    name: /not starred/i,
+    name: 'Not starred',
   });
   fireEvent.click(starBtn[0]);
   fireEvent.click(starBtn[1]);
   const favoriteBtn = screen.getByRole("button", {
-    name: /see favorites button/i,
+    name: 'see favorites button',
   });
   fireEvent.click(favoriteBtn);
   const datasetNameOne = screen.queryByText("pbench_user_benchmark1");
@@ -65,10 +65,10 @@ test("row is favorited after clicking on favorite icon", async () => {
 test("data is filtered based on value in search box", async () => {
   render(<AppWrapper />);
   await screen.findByText("pbench_user_benchmark1");
-  const searchBox = screen.getByPlaceholderText(/search dataset/i);
+  const searchBox = screen.getByPlaceholderText('Search Dataset');
   fireEvent.change(searchBox, { target: { value: "pbench_user_benchmark2" } });
   const searchBtn = screen.getByRole("button", {
-    name: /searchButton/i,
+    name: 'searchButton',
   });
   fireEvent.click(searchBtn);
   const datasetNameTwo = screen.queryByText("pbench_user_benchmark2");

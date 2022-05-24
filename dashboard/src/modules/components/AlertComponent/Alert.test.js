@@ -11,13 +11,13 @@ const AppWrapper = () => {
 };
 test("Alert message is displayed on initial load", () => {
   render(<AppWrapper />);
-  const alert = screen.getByText(/want to see your own data/i);
+  const alert = screen.getByText('Want to see your own data?');
   expect(alert).toBeInTheDocument();
 });
 
 test("Alert message is closed on clicking close button", () => {
   render(<AppWrapper />);
-  const alert = screen.getByText(/want to see your own data/i);
+  const alert = screen.getByText('Want to see your own data?');
   const closeButton = screen.getByRole("button", {
     name: /close info alert/i,
   });

@@ -21,10 +21,10 @@ jest.mock("utils/api", () => {
 test("data is filtered based on date range selected from date picker", async () => {
   render(<AppWrapper />);
   await screen.findByText("pbench_user_benchmark1");
-  const datePickerInput = screen.getAllByPlaceholderText(/yyyy-mm-dd/i);
+  const datePickerInput = screen.getAllByPlaceholderText('YYYY-MM-DD');
   fireEvent.change(datePickerInput[0], { target: { value: "2022-02-16" } });
   fireEvent.change(datePickerInput[1], { target: { value: "2022-02-20" } });
-  const updateBtn = screen.getByRole("button", { name: /update/i });
+  const updateBtn = screen.getByRole("button", { name: 'Update'});
   fireEvent.click(updateBtn);
   const datasetNameOne = screen.queryByText("pbench_user_benchmark1");
   const datasetNameTwo = screen.queryByText("pbench_user_benchmark2");
