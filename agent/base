@@ -293,10 +293,8 @@ function generate_inventory {
 
 function resolve_benchmark_bin {
     # Encapsulation of method for resolving the actual benchmark
-    # binary ignoring `bash` aliases and functions.
-    unalias "${1}" > /dev/null 2>&1
-    unset -f "${1}" > /dev/null 2>&1
-    command -v "${1}"
+    # binary.
+    which --skip-alias --skip-functions "${1}"
 }
 
 function vercmp {

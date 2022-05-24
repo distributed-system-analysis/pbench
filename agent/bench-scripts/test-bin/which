@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Mock the operation of `which` so that the value of `PATH` is never emitted
+# during the test runs, thus avoiding it landing in a gold file.
+
+if [[ $# -eq 0 ]] ;then
+    echo "$0 requires at least one argument" >&2
+    exit 255
+fi
+args=( "${@}" )
+last=${args[-1]}
+
+stdout=$(/usr/bin/which ${last} 2> /dev/null)
+res=${?}
+if [[ ${res} -eq 0 ]]; then
+    echo ${stdout}
+else
+    echo "which: no ${last} in (\$PATH)" >&2
+fi
+exit ${res}
