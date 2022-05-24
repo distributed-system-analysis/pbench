@@ -37,7 +37,7 @@ class GenerateToken(BaseCommand):
         except JSONDecodeError:
             payload = {"message": response.text}
 
-        if response.ok:
+        if response.ok and "auth_token" in payload:
             click.echo(payload["auth_token"])
             return 0
 
