@@ -4,7 +4,7 @@ from http import HTTPStatus
 import json
 from json.decoder import JSONDecodeError
 from logging import Logger
-from typing import Any, Callable, List, Union
+from typing import Any, Callable, List, Optional, Union
 
 from dateutil import parser as date_parser
 from flask import request
@@ -1021,8 +1021,12 @@ class ApiBase(Resource):
             elif i == Dataset.UPLOADED:
                 metadata[i] = UtcTimeHelper(dataset.uploaded).to_iso_string()
             elif Metadata.is_key_path(i, Metadata.USER_METADATA):
+                native_key = Metadata.get_native_key(i)
+                user: Optional[User] = None
+                if native_key == Metadata.USER_NATIVE_KEY:
+                    user = Auth.token_auth.current_user()
                 try:
-                    metadata[i] = Metadata.getvalue(dataset=dataset, key=i)
+                    metadata[i] = Metadata.getvalue(dataset=dataset, key=i, user=user)
                 except MetadataNotFound:
                     metadata[i] = None
             else:

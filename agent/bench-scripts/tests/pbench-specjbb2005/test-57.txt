@@ -36,7 +36,6 @@ Timing Measurement ended
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-warehouses:23/sample1/SPECjbb.raw
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-warehouses:23/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb.props
-/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb.props.sed
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb_config.props
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/jvm-1-worker.txt
 /var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/jvm-2-worker.txt
@@ -62,9 +61,9 @@ Timing Measurement ended
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-warehouses:13/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-warehouses:18/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-warehouses:23/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-warehouses:13/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-warehouses:18/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-warehouses:23/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-default/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-default/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-default/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-default/sample1
@@ -94,3 +93,15 @@ iteration_name = 3-warehouses:23
 user_script = specjbb2005
 
 --- specjbb2005_test-57_1900.01.01T00.00.00/metadata.log file contents
++++ specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb.props file contents
+input.jvm_instances=_bad_
+input.measurement_seconds=_bad_
+input.starting_number_warehouses=_bad_
+input.increment_number_warehouses=_bad_
+#input.ending_number_warehouses=_bad_
+input.jvm_instances=2
+input.measurement_seconds=30
+input.starting_number_warehouses=13
+input.increment_number_warehouses=5
+input.ending_number_warehouses=23
+--- specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb.props file contents

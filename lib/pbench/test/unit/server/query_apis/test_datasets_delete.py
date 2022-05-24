@@ -182,11 +182,11 @@ class TestDatasetsDelete:
         assert (
             "pbench.server.api",
             ERROR,
-            'DatasetsDelete:dataset drb(3)|node|drb: 28 successful document actions and 3 failures: {"Just kidding": {"unit-test.v6.run-data.2021-06": 1, "unit-test.v6.run-toc.2021-06": 1, "unit-test.v5.result-data-sample.2021-06": 1}, "ok": {"unit-test.v6.run-toc.2021-06": 9, "unit-test.v5.result-data-sample.2021-06": 19}}',
+            'DatasetsDelete:dataset drb(3)|drb: 28 successful document actions and 3 failures: {"Just kidding": {"unit-test.v6.run-data.2021-06": 1, "unit-test.v6.run-toc.2021-06": 1, "unit-test.v5.result-data-sample.2021-06": 1}, "ok": {"unit-test.v6.run-toc.2021-06": 9, "unit-test.v5.result-data-sample.2021-06": 19}}',
         ) in caplog.record_tuples
 
         # Verify that the Dataset still exists
-        Dataset.query(controller="node", name="drb")
+        Dataset.query(name="drb")
 
     def test_no_dataset(
         self, client, get_document_map, monkeypatch, pbench_token, server_config

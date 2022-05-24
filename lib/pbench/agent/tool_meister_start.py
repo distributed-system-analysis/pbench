@@ -1084,6 +1084,14 @@ def start(_prog: str, cli_params: Namespace) -> int:
         # -
 
         logger.debug("4. push tool group data and metadata")
+
+        # First we copy the entire directory hierarchy to the benchmark run
+        # directory. We do this as part of the start-up since we don't want to
+        # rely on the Tool Data Sink for recording the processed version of
+        # this data in the metadata.log file.  We need to have this on hand to
+        # determine what the inputs were to the start operation.
+        tool_group.archive(benchmark_run_dir)
+
         tool_group_data = dict()
         for host, params in tool_group.hostnames.items():
             tools = tool_group.get_tools(host)

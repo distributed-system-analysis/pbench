@@ -193,7 +193,7 @@ function _dump_logs {
     # Be quiet if there's no database, or if the `dataset` table hasn't been
     # created.
     db=${_test_db}
-    select='select (select users.username from users where users.id = datasets.owner_id),controller,name,state,(select " " || key || " = " || value from dataset_metadata where dataset_ref = datasets.id) from datasets order by (select users.username from users where users.id = datasets.owner_id),controller,name asc'
+    select='select (select users.username from users where users.id = datasets.owner_id),name,state,(select " " || key || " = " || value from dataset_metadata where dataset_ref = datasets.id) from datasets order by (select users.username from users where users.id = datasets.owner_id),name asc'
     sqlite3 ${db} "${select}" > ${_testdir_local}/db 2>/dev/null
     if [[ -s ${_testdir_local}/db ]]; then
         echo "+++ SqliteDB Datasets" >> ${_testout}
@@ -458,12 +458,12 @@ function _setup_state {
     done
 
     if [[ -f ${_state_db} ]]; then
-        local controller
+        local controller  # Ignored: we no longer need this
         local name
         local state
         local user
         while read -r controller name state user; do
-            pbench-state-manager --create=${user} --controller=${controller} --name=${name} --state=${state}
+            pbench-state-manager --create=${user} --name=${name} --state=${state}
         done < ${_state_db}
     fi
 }

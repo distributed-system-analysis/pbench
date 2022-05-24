@@ -62,6 +62,7 @@ def filesize_bytes(size):
 
 def quarantine(dest, logger, *files):
     """Quarantine problematic tarballs.
+
     Errors here are fatal but we log an error message to help diagnose
     problems.
     """
@@ -80,9 +81,9 @@ def quarantine(dest, logger, *files):
         try:
             # If the file we're moving is a tarball, update the dataset
             # state. (If it's the associated MD5 file, skip that.)
-            if str(afile).endswith(".tar.xz"):
+            if Dataset.is_tarball(afile):
                 try:
-                    Dataset.attach(path=afile, state=States.QUARANTINED)
+                    Dataset.attach(name=Dataset.stem(afile), state=States.QUARANTINED)
                 except DatasetNotFound:
                     logger.exception("quarantine dataset {} not found", afile)
             shutil.move(afile, os.path.join(dest, os.path.basename(afile)))

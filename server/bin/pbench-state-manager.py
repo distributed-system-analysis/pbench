@@ -52,15 +52,9 @@ def main(options):
         if options.create:
             args["owner"] = options.create
 
-        # The create operation requires both controller and name, whether
-        # explicitly or via path resolution. Attach, however, wants only
-        # path or name, so don't copy a controller parameter unless this is
-        # a create operation.
-        if options.controller and options.create:
-            args["controller"] = options.controller
         if options.path:
-            args["path"] = options.path
-        if options.name:
+            args["name"] = Dataset.stem(options.path)
+        elif options.name:
             args["name"] = options.name
         if options.md5:
             args["md5"] = options.md5
@@ -78,13 +72,6 @@ def main(options):
         if "path" not in args and "name" not in args:
             print(
                 f"{_NAME_}: Either --path or --name must be specified",
-                file=sys.stderr,
-            )
-            return 2
-
-        if options.create and "path" not in args and "controller" not in args:
-            print(
-                f"{_NAME_}: Either --path or both --controller and --name must be specified for create",
                 file=sys.stderr,
             )
             return 2
@@ -124,11 +111,6 @@ if __name__ == "__main__":
         "--path",
         dest="path",
         help="Specify a tarball filename (from which controller and name will be derived)",
-    )
-    parser.add_argument(
-        "--controller",
-        dest="controller",
-        help="Specify controller name (agent host name)",
     )
     parser.add_argument(
         "--name",

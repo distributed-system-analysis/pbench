@@ -50,6 +50,10 @@ pbench-tool-meister-stop: waiting for tool-data-sink (#####) to exit
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-mygroup
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-mygroup/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-mygroup/testhost.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-mygroup/testhost.example.com/perf
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-mygroup
@@ -272,6 +276,12 @@ testhost.example.com 0027 DEBUG pbench-tool-meister _send_client_status -- publi
 --- mock-run/tm/tm.logs file contents
 +++ mock-run/tm/tm.out file contents
 --- mock-run/tm/tm.out file contents
++++ tools-v1-mygroup/testhost.example.com/mpstat file contents
+--- tools-v1-mygroup/testhost.example.com/mpstat file contents
++++ tools-v1-mygroup/testhost.example.com/perf file contents
+--record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions"
+--report-opts="-I -g"
+--- tools-v1-mygroup/testhost.example.com/perf file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n perf

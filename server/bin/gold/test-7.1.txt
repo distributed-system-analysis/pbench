@@ -328,5 +328,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-john|controller|test_7.1_1970.01.01T00.00.00|QUARANTINED| server = {"reindex": false}
+john|test_7.1_1970.01.01T00.00.00|QUARANTINED| server = {"reindex": false}
 --- SqliteDB Datasets

@@ -1,14 +1,13 @@
 import copy
 import datetime
 import enum
-import os
 from pathlib import Path
 import re
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Optional, Union
 
 from sqlalchemy import Column, DateTime, Enum, event, ForeignKey, Integer, JSON, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy.orm import relationship, validates, Query
 from sqlalchemy.types import TypeDecorator
 
 from pbench.server.database.database import Database
@@ -24,13 +23,25 @@ class DatasetError(Exception):
     pass
 
 
+class DatasetBadName(DatasetError):
+    """
+    Specified filename does not follow Pbench tarball naming rules.
+    """
+
+    def __init__(self, name: Path):
+        self.name: str = str(name)
+
+    def __str__(self) -> str:
+        return f"File name {self.name!r} does not end in {Dataset.TARBALL_SUFFIX!r}"
+
+
 class DatasetSqlError(DatasetError):
     """
     SQLAlchemy errors reported through Dataset operations.
 
-    The exception will identify the controller and name of the target dataset,
-    along with the operation being attempted; the __cause__ will specify the
-    original SQLAlchemy exception.
+    The exception will identify the name of the target dataset, along with the
+    operation being attempted; the __cause__ will specify the original
+    SQLAlchemy exception.
     """
 
     def __init__(self, operation: str, **kwargs):
@@ -46,12 +57,11 @@ class DatasetDuplicate(DatasetError):
     Attempt to create a Dataset that already exists.
     """
 
-    def __init__(self, controller: str, name: str):
-        self.controller = controller
+    def __init__(self, name: str):
         self.name = name
 
     def __str__(self):
-        return f"Duplicate dataset {self.controller}|{self.name}"
+        return f"Duplicate dataset {self.name!r}"
 
 
 class DatasetNotFound(DatasetError):
@@ -98,8 +108,8 @@ class DatasetTerminalStateViolation(DatasetTransitionError):
     An attempt was made to change the state of a dataset currently in a
     terminal state.
 
-    The error text will identify the dataset by controller and name, and both
-    the current and requested new states.
+    The error text will identify the dataset by name, and both the current and
+    requested new states.
     """
 
     def __init__(self, dataset: "Dataset", requested_state: "States"):
@@ -115,8 +125,8 @@ class DatasetBadStateTransition(DatasetTransitionError):
     An attempt was made to advance a dataset to a new state that's not
     reachable from the current state.
 
-    The error text will identify the dataset by controller and name, and both
-    the current and requested new states.
+    The error text will identify the dataset by name, and both the current and
+    requested new states.
     """
 
     def __init__(self, dataset: "Dataset", requested_state: "States"):
@@ -364,7 +374,6 @@ class Dataset(Database.Base):
         id          Generated unique ID of table row
         owner       Owning username of the dataset
         access      Dataset is "private" to owner, or "public"
-        controller  Name of controller node
         name        Base name of dataset (tarball)
         md5         The dataset MD5 hash (Elasticsearch ID)
         created     Tarball metadata timestamp (set during PUT)
@@ -415,9 +424,6 @@ class Dataset(Database.Base):
     # Access policy for Dataset (public or private)
     access = Column(String(255), unique=False, nullable=False, default="private")
 
-    # Host name of the system that collected the data
-    controller = Column(String(255), unique=False, nullable=False)
-
     # FIXME:
     # Ideally, `md5` would not be `nullable`, but allowing it means that
     # pbench-server-prep-shim-002 utility can construct a Dataset object
@@ -466,6 +472,31 @@ class Dataset(Database.Base):
             True if path ends with the supported suffix, False if not
         """
         return str(path).endswith(Dataset.TARBALL_SUFFIX)
+
+    @staticmethod
+    def stem(path: Union[str, Path]) -> str:
+        """
+        The Path.stem() removes a single suffix, so our standard "a.tar.xz"
+        returns "a.tar" instead of "a". We could double-stem, but instead
+        this just checks for the expected 7 character suffix and strips it.
+
+        If the path does not end in ".tar.xz" then the full path.name is
+        returned.
+
+        Args:
+            path: A file path that might be a Pbench tarball
+
+        Raises:
+            BadFilename: the path name does not end in TARBALL_SUFFIX
+
+        Returns:
+            The stripped "stem" of the dataset
+        """
+        p = Path(path)
+        if __class__.is_tarball(p):
+            return p.name[: -len(Dataset.TARBALL_SUFFIX)]
+        else:
+            raise DatasetBadName(p)
 
     @validates("state")
     def validate_state(self, key: str, value: Any) -> States:
@@ -533,55 +564,6 @@ class Dataset(Database.Base):
         raise DatasetBadParameterType(value, "access keyword")
 
     @staticmethod
-    def _render_path(patharg=None, controllerarg=None, namearg=None) -> Tuple[str, str]:
-        """
-        Process a `path` string and convert it into `controller` and/or `name`
-        strings.
-
-        This pre-processes the controller and name before they are presented to
-        a query or constructor. If the calling context has only the full file
-        path of a dataset, this can extract both "controller" and "name" from
-        the path. It can also be used to construct either "controller" or
-        "name", as it will fill in either or both if not already present in
-        the dict.
-
-        If the path is a symlink (e.g., a "TO-BACKUP" or other Pbench command
-        link, most likely when a dataset is quarantined due to some consistency
-        check failure), this code will follow the link in order to construct a
-        controller name from the original path without needing to make any
-        possibly fragile assumptions regarding the structure of the symlink
-        name.
-
-        Args:
-            patharg: A tarball file path from which the controller (host)
-                name, the tarball dataset name (basename minus extension),
-                or both will be derived.
-            controllerarg: The controller name (hostname) of the dataset;
-                this is retained if specified, or will be constructed
-                from "path" if not present.
-            namearg: The dataset name (file path stem);
-                this is retained if specified, or will be constructed from
-                "path" if not present
-
-        Returns:
-            A tuple of (controller, name) based on the three arguments
-        """
-        controller_result = controllerarg
-        name_result = namearg
-
-        if patharg:
-            path = Path(patharg)
-            if path.is_symlink():
-                path = Path(os.path.realpath(path))
-            if not name_result:
-                name_result = path.name
-                if Dataset.is_tarball(name_result):
-                    name_result = name_result[: -len(Dataset.TARBALL_SUFFIX)]
-            if not controller_result:
-                controller_result = path.parent.name
-        return controller_result, name_result
-
-    @staticmethod
     def create(**kwargs) -> "Dataset":
         """
         A simple factory method to construct a new Dataset object and
@@ -590,15 +572,7 @@ class Dataset(Database.Base):
         Args:
             kwargs (dict):
                 "owner": The owner of the dataset; defaults to None.
-                "path": A tarball file path from which the controller (host)
-                    name, the tarball dataset name (basename minus extension),
-                    or both will be derived.
-                "controller": The controller name (hostname) of the dataset;
-                    this is retained if specified, or will be constructed
-                    from "path" if not present.
-                "name": The dataset name (file path stem);
-                    this is retained if specified, or will be constructed from
-                    "path" if not present.
+                "name": The dataset name (file path stem).
                 "state": The initial state of the new dataset.
 
         Returns:
@@ -608,18 +582,14 @@ class Dataset(Database.Base):
             dataset = Dataset(**kwargs)
             dataset.add()
         except Exception:
-            Dataset.logger.exception(
-                "Failed create: {}|{}", kwargs.get("controller"), kwargs.get("name")
-            )
+            Dataset.logger.exception("Failed create: {}", kwargs.get("name"))
             raise
         return dataset
 
     @staticmethod
-    def attach(path=None, name=None, state=None) -> "Dataset":
+    def attach(name=None, state=None) -> "Dataset":
         """
-        Attempt to find dataset for the specified dataset name, or using a
-        specified file path (see _render_path and the path_init event listener
-        for details).
+        Attempt to find dataset for the specified dataset name.
 
         If state is specified, attach will attempt to advance the dataset to
         that state.
@@ -628,12 +598,7 @@ class Dataset(Database.Base):
         using a full path, use Dataset.query instead.
 
         Args:
-            "path": A tarball file path from which the controller (host)
-                name, the tarball dataset name (basename minus extension),
-                or both will be derived.
-            "name": The dataset name (file path stem);
-                this is retained if specified, or will be constructed from
-                "path" if not present.
+            "name": The dataset name (file path stem).
             "state": The desired state to advance the dataset.
 
         Raises:
@@ -649,12 +614,11 @@ class Dataset(Database.Base):
             Dataset: a dataset object in the desired state (if specified)
         """
         # Make sure we have a name if only path was specified
-        _, name = Dataset._render_path(patharg=path, namearg=name)
         dataset = Dataset.query(name=name)
 
         if dataset is None:
             Dataset.logger.warning("Dataset {} not found", name)
-            raise DatasetNotFound(path=path, name=name)
+            raise DatasetNotFound(name=name)
         elif state:
             dataset.advance(state)
         return dataset
@@ -682,7 +646,7 @@ class Dataset(Database.Base):
         Returns:
             string: Representation of the dataset
         """
-        return f"{self.owner.username}({self.owner_id})|{self.controller}|{self.name}"
+        return f"{self.owner.username}({self.owner_id})|{self.name}"
 
     def advance(self, new_state: States):
         """
@@ -726,15 +690,13 @@ class Dataset(Database.Base):
             Database.db_session.add(self)
             Database.db_session.commit()
         except IntegrityError as e:
-            Dataset.logger.warning(
-                "Duplicate dataset {}|{}: {}", self.controller, self.name, e
-            )
+            Dataset.logger.warning("Duplicate dataset {}: {}", self.name, e)
             Database.db_session.rollback()
-            raise DatasetDuplicate(self.controller, self.name) from None
+            raise DatasetDuplicate(self.name) from None
         except Exception:
             self.logger.exception("Can't add {} to DB", str(self))
             Database.db_session.rollback()
-            raise DatasetSqlError("adding", controller=self.controller, name=self.name)
+            raise DatasetSqlError("adding", name=self.name)
 
     def update(self):
         """
@@ -746,9 +708,7 @@ class Dataset(Database.Base):
         except Exception:
             self.logger.error("Can't update {} in DB", str(self))
             Database.db_session.rollback()
-            raise DatasetSqlError(
-                "updating", controller=self.controller, name=self.name
-            )
+            raise DatasetSqlError("updating", name=self.name)
 
     def delete(self):
         """
@@ -760,33 +720,6 @@ class Dataset(Database.Base):
         except Exception:
             Database.db_session.rollback()
             raise
-
-
-@event.listens_for(Dataset, "init")
-def path_init(target, args, kwargs):
-    """
-    Listen for an init event on a Dataset to process a path before the
-    SQLAlchemy constructor sees it.
-
-    We want the constructor to see both "controller" and "name" parameters in
-    the kwargs representing the initial SQL column values. This listener allows
-    us to provide those values by specifying a file path, which is processed
-    into controller and name using the internal _render_path() helper.
-
-    We will remove "path" from kwargs so that SQLAlchemy doesn't see it. (This
-    is an explicitly allowed side effect of the listener architecture.)
-    """
-    if "path" in kwargs:
-        controller, name = Dataset._render_path(
-            patharg=kwargs.get("path"),
-            controllerarg=kwargs.get("controller"),
-            namearg=kwargs.get("name"),
-        )
-        if "controller" not in kwargs:
-            kwargs["controller"] = controller
-        if "name" not in kwargs:
-            kwargs["name"] = name
-        del kwargs["path"]
 
 
 class Metadata(Database.Base):
@@ -821,57 +754,44 @@ class Metadata(Database.Base):
     # the "server" namespace, and are strictly controlled by keyword path:
     # e.g., "server.deleted", "server.archived";
     #
-    # Metadata keys intended for use by the dashboard client are in the
-    # "dashboard" namespace. While these can be modified by any API client, the
-    # separate namespace provides some protection against accidental
-    # modifications that might break dashboard semantics. This is an "open"
-    # namespace, allowing the dashboard to define and manage any keys it needs
-    # within the "dashboard.*" hierarchy.
-    #
-    # Metadata keys within the "user" namespace are reserved for general client
-    # use, although by convention a second-level key-space should be used to
-    # provide some isolation. This is an "open" namespace, allowing any API
-    # client to define new keywords such as "user.contact" or "user.me.you"
-    # and JSON subdocuments are available at any level. For example, if we've
-    # set "user.contact.email" and "user.postman.test" then retrieving "user"
-    # will return a JSON document like
-    #     {"contact": {"email": "value"}, "postman": {"test": "value"}}
-    # and retrieving "user.contact" would return
-    #     {"email": "value"}
+    # The "dashboard" and "user" namespaces can be written by an authenticated
+    # client to track external metadata. The difference is that "dashboard" key
+    # values are visible to all clients with READ access to the dataset, while
+    # the "user" namespace is visible only to clients authenticated to the user
+    # that wrote the data. That is, "dashboard.seen" is a global dashboard
+    # metadata property visible to all users, while "user.favorite" is visible
+    # only to the specific user that wrote the value; each authenticated user
+    # may have its own unique "user.favorite" value.
     #
     # The following class constants define the set of currently available
     # metadata keys, where the "open" namespaces are represented by the
-    # syntax "user.*".
+    # syntax "dashboard.*" and "user.*" which allow clients to control the
+    # key names using a "dotted path" notation like "dashboard.seen" or
+    # "dashboard.contact.email".
 
-    # DELETION timestamp for dataset based on user settings and system
-    # settings at time the dataset is created.
-    #
-    # {"server.deletion": "2021-12-25"}
-    DELETION = "server.deletion"
-
-    # DASHBOARD is arbitrary data saved on behalf of the dashboard client; the
-    # reserved namespace differs from "user" only in that reserving a primary
-    # key for the "well known" dashboard client offers some protection against
-    # key name collisions.
+    # DASHBOARD is arbitrary data saved on behalf of the dashboard client as a
+    # JSON document. Writing these keys requires ownership of the referenced
+    # dataset, and the data is visible to all clients with READ access to the
+    # dataset.
     #
     # {"dashboard.seen": True}
     DASHBOARD = "dashboard.*"
 
-    # USER is arbitrary data saved on behalf of the owning user, as a JSON
-    # document.
+    # USER is arbitrary data saved with the dataset on behalf of an
+    # authenticated user, as a JSON document. Writing these keys requires READ
+    # access to the referenced dataset, and are visible only to clients that
+    # are authenticated as the user which set them. Each user can have its own
+    # unique value for these keys, for example "user.favorite".
     #
-    # Note that the hierarchical key management in the getvalue and setvalue
-    # static methods (used consistently by the API layer) allow client code
-    # to interact with these either as a complete JSON document ("user") or
-    # as a full dotted key path ("user.contact.name.first") or at any JSON
-    # layer between.
+    # {"user.favorite": True}
+    USER_NATIVE_KEY = "user"
+    USER = USER_NATIVE_KEY + ".*"
+
+    # DELETION timestamp for dataset based on user settings and system
+    # settings when the dataset is created.
     #
-    # API keyword validation uses the trailing ".*" here to indicate that only
-    # the first element of the path should be validated, allowing the client
-    # a completely uninterpreted namespace below that.
-    #
-    # {"user.cloud": "AWS", "user.mood": "CLOUDY"}}
-    USER = "user.*"
+    # {"server.deletion": "2021-12-25"}
+    DELETION = "server.deletion"
 
     # REINDEX boolean flag to indicate when a dataset should be re-indexed
     #
@@ -928,8 +848,10 @@ class Metadata(Database.Base):
     key = Column(String(255), unique=False, nullable=False, index=True)
     value = Column(JSON, unique=False, nullable=True)
     dataset_ref = Column(Integer, ForeignKey("datasets.id"), nullable=False)
+    user_ref = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     dataset = relationship("Dataset", back_populates="metadatas", single_parent=True)
+    user = relationship("User", back_populates="dataset_metadata", single_parent=True)
 
     @validates("key")
     def validate_key(self, _, value: Any) -> str:
@@ -981,6 +903,19 @@ class Metadata(Database.Base):
             return meta
 
     @staticmethod
+    def get_native_key(key: str) -> str:
+        """
+        Extract the root key name
+
+        Args:
+            key:    Key path (e.g., "user.tag")
+
+        Returns:
+            native SQL key name ("user")
+        """
+        return key.lower().split(".")[0]
+
+    @staticmethod
     def is_key_path(key: str, valid: List[str]) -> bool:
         """
         Determine whether 'key' is a valid Metadata key path using the list
@@ -988,7 +923,7 @@ class Metadata(Database.Base):
         valid. If the key is a dotted path and the first element plus a
         trailing ".*" is in the list, then this is an open key namespace where
         any subsequent path is acceptable: e.g., "user.*" allows "user", or
-        "user.contact", "user.contact.name", etc.
+        "user.favorite", "user.notes.status", etc.
 
         Args:
             key: metadata key path
@@ -1012,7 +947,7 @@ class Metadata(Database.Base):
         return bool(re.fullmatch(Metadata._valid_key_charset, k))
 
     @staticmethod
-    def getvalue(dataset: Dataset, key: str) -> JSON:
+    def getvalue(dataset: Dataset, key: str, user: Optional[User] = None) -> JSON:
         """
         Returns the value of the specified key, which may be a dotted
         hierarchical path (e.g., "server.deleted").
@@ -1021,15 +956,28 @@ class Metadata(Database.Base):
         level Metadata object. The full JSON value of a top level key can be
         acquired directly using `Metadata.get(dataset, key)`
 
-        E.g., for "user.contact.name" with the dataset's Metadata value for the
-        "user" key as {"contact": {"name": "Dave", "email": "d@example.com"}},
-        this would return "Dave", whereas Metadata.get(dataset, "user") would
-        return the entire user key JSON, such as
-        {"user" {"contact": {"name": "Dave", "email": "d@example.com}}}
+        For example, if the metadata database has
+
+            "dashboard": {
+                    "contact": {
+                        "name": "dave",
+                        "email": "d@example.com"
+                    }
+                }
+
+        then Metadata.get(dataset, "dashboard.contact.name") would return
+
+            "Dave"
+
+        whereas Metadata.get(dataset, "dashboard") would return the entire user
+        key JSON, such as
+
+            {"dashboard" {"contact": {"name": "Dave", "email": "d@example.com}}}
 
         Args:
             dataset: associated dataset
             key: hierarchical key path to fetch
+            user: User-specific key value (used only for "user." namespace)
 
         Returns:
             Value of the key path
@@ -1039,7 +987,7 @@ class Metadata(Database.Base):
         keys = key.lower().split(".")
         native_key = keys.pop(0)
         try:
-            meta = Metadata.get(dataset, native_key)
+            meta = Metadata.get(dataset, native_key, user)
         except MetadataNotFound:
             return None
         value = meta.value
@@ -1057,7 +1005,9 @@ class Metadata(Database.Base):
         return value
 
     @staticmethod
-    def setvalue(dataset: Dataset, key: str, value: Any) -> "Metadata":
+    def setvalue(
+        dataset: Dataset, key: str, value: Any, user: Optional[User] = None
+    ) -> "Metadata":
         """
         Create or modify an existing metadata value. This method supports
         hierarchical dotted paths like "dashboard.seen" and should be used in
@@ -1083,7 +1033,7 @@ class Metadata(Database.Base):
         native_key = keys.pop(0)
         found = True
         try:
-            meta = Metadata.get(dataset, native_key)
+            meta = Metadata.get(dataset, native_key, user)
 
             # SQLAlchemy determines whether to perform an `update` based on the
             # Python object reference. We make a copy here to ensure that it
@@ -1120,11 +1070,19 @@ class Metadata(Database.Base):
             meta.value = meta_value
             meta.update()
         else:
-            meta = Metadata.create(dataset=dataset, key=native_key, value=meta_value)
+            meta = Metadata.create(
+                dataset=dataset, key=native_key, value=meta_value, user=user
+            )
         return meta
 
     @staticmethod
-    def get(dataset: Dataset, key: str) -> "Metadata":
+    def _query(dataset: Dataset, key: str, user: Optional[User]) -> Query:
+        return Database.db_session.query(Metadata).filter_by(
+            dataset=dataset, key=key, user=user
+        )
+
+    @staticmethod
+    def get(dataset: Dataset, key: str, user: Optional[User] = None) -> "Metadata":
         """
         Fetch a Metadata (row) from the database by key name.
 
@@ -1140,11 +1098,7 @@ class Metadata(Database.Base):
             The Metadata model object
         """
         try:
-            meta = (
-                Database.db_session.query(Metadata)
-                .filter_by(dataset=dataset, key=key)
-                .first()
-            )
+            meta = __class__._query(dataset, key, user).first()
         except SQLAlchemyError as e:
             Metadata.logger.exception("Can't get {}>>{} from DB", dataset, key)
             raise MetadataSqlError("getting", dataset, key) from e
@@ -1154,7 +1108,7 @@ class Metadata(Database.Base):
             return meta
 
     @staticmethod
-    def remove(dataset: Dataset, key: str):
+    def remove(dataset: Dataset, key: str, user: Optional[User] = None):
         """
         remove Remove a metadata key from the dataset
 
@@ -1166,9 +1120,7 @@ class Metadata(Database.Base):
             DatasetSqlError: Something went wrong
         """
         try:
-            Database.db_session.query(Metadata).filter_by(
-                dataset=dataset, key=key
-            ).delete()
+            __class__._query(dataset, key, user).delete()
             Database.db_session.commit()
         except SQLAlchemyError as e:
             Metadata.logger.exception("Can't remove {}>>{} from DB", dataset, key)
@@ -1185,7 +1137,7 @@ class Metadata(Database.Base):
             raise DatasetBadParameterType(dataset, Dataset)
 
         try:
-            Metadata.get(dataset, self.key)
+            Metadata.get(dataset, self.key, self.user)
         except MetadataNotFound:
             pass
         else:

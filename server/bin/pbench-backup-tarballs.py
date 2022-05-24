@@ -366,7 +366,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         controller_path = tar.parent
         controller = controller_path.name
         try:
-            dataset = Dataset.attach(path=resultname)
+            dataset = Dataset.attach(name=Dataset.stem(resultname))
         except DatasetError as e:
             logger.warning("Trouble tracking {}:{}: {}", controller, resultname, str(e))
             dataset = None
