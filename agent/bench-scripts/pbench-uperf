@@ -25,12 +25,12 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 export benchmark="uperf"
-resolve_benchmark_bin_out="$(resolve_benchmark_bin "${benchmark}" 2>&1)"
-if [[ ${?} -ne 0 ]]; then
-	error_log "${script_name}: ${benchmark} executable not found, '${resolve_benchmark_bin_out}'"
-	exit 1
-else
-	benchmark_bin=${resolve_benchmark_bin_out}
+if [[ -z "${benchmark_bin}" ]]; then
+	benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
+	if [[ -z "${benchmark_bin}" ]]; then
+		error_log "${script_name}: ${benchmark} executable not found on PATH=${PATH}"
+		exit 1
+	fi
 fi
 
 # Every bench-script follows a similar sequence:

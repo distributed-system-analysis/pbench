@@ -33,7 +33,7 @@ pbench-postprocess-tools: WARNING: No tools are registered
 [info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running bm for iteration 1-default
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm 
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start empty
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default empty
 --- test-execution.log file contents
