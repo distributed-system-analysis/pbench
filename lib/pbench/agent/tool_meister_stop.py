@@ -65,6 +65,10 @@ class RedisServer(RedisServerCommon):
             )
         except FileNotFoundError:
             pass
+        else:
+            # Since this Redis server is locally managed, communication to it
+            # will always be through the "localhost" interface.
+            self.host = "localhost"
 
     def locally_managed(self) -> bool:
         return self.pid_file is not None
