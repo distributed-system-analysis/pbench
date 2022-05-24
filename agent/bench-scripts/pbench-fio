@@ -470,14 +470,15 @@ function local_pre_check() {
 
 	debug_log "local_pre_check(devs=\"${devs}\", ver=\"${ver}\", match=\"${match}\")"
 
-	# First check for the supported version of fio in use.
-
-	local _stdout
-	_stdout=$(${benchmark} --version 2>&1)
+	resolve_benchmark_bin "${benchmark}" > /dev/null 2>&1
 	if [[ ${?} -ne 0 ]]; then
-		error_log "[${script_name}] ${benchmark} failed reporting its version: '${_stdout}'"
+		error_log "[${script_name}] ${benchmark} executable not found"
 		exit 1
 	fi
+
+	# First check for the supported version of fio in use.
+
+	local _stdout=$(${benchmark} --version)
 	local ver_installed=${_stdout##*-}
 
 	vercmp "${benchmark}" "${match}" "${ver}" "${ver_installed}"
