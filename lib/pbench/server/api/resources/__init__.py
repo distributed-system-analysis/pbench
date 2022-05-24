@@ -351,10 +351,10 @@ def convert_string(value: str, _) -> str:
     return value
 
 
-def convert_int(value: int, _) -> int:
+def convert_int(value: Union[int, str], _) -> int:
     """
-    Verify that the parameter value is a int (e.g., not a JSON dict, or a
-    string), and return it.
+    Verify that the parameter value is either int or string and
+    if string then convert it to an int.
 
     Args:
         value: parameter value
@@ -366,7 +366,12 @@ def convert_int(value: int, _) -> int:
     Returns:
         the input value
     """
-    if type(value) is not int:
+    if type(value) in [str, int]:
+        try:
+            value = int(value)
+        except ValueError:
+            raise ConversionError(value, int.__name__)
+    else:
         raise ConversionError(value, int.__name__)
     return value
 
@@ -486,11 +491,11 @@ class ParamType(Enum):
 
     ACCESS = ("Access", convert_access)
     DATE = ("Date", convert_date)
+    INTEGER = ("Int", convert_int)
     JSON = ("Json", convert_json)
     KEYWORD = ("Keyword", convert_keyword)
     LIST = ("List", convert_list)
     STRING = ("String", convert_string)
-    INT = ("Int", convert_int)
     USER = ("User", convert_username)
 
     def __init__(self, name: str, convert: Callable[[Any, "Parameter"], Any]):
@@ -735,10 +740,7 @@ class ApiBase(Resource):
                 if schema[key].type == ParamType.LIST:
                     json[key] = values
                 elif len(values) == 1:
-                    if schema[key].type == ParamType.INT:
-                        json[key] = int(values[0])
-                    else:
-                        json[key] = values[0]
+                    json[key] = values[0]
                 else:
                     raise RepeatedQueryParam(key)
             else:

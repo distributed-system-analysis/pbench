@@ -1,4 +1,5 @@
 import logging
+from typing import Dict, List, Tuple
 from urllib.parse import urlencode, urlparse
 
 from flask.json import jsonify
@@ -35,8 +36,8 @@ class DatasetsList(ApiBase):
                 Parameter("access", ParamType.ACCESS),
                 Parameter("start", ParamType.DATE),
                 Parameter("end", ParamType.DATE),
-                Parameter("page_no", ParamType.INT),
-                Parameter("page_limit", ParamType.INT),
+                Parameter("offset", ParamType.INTEGER),
+                Parameter("limit", ParamType.INTEGER),
                 Parameter(
                     "metadata",
                     ParamType.LIST,
@@ -48,35 +49,43 @@ class DatasetsList(ApiBase):
             role=API_OPERATION.READ,
         )
 
-    def get_paginated_obj(self, query: Query, json: JSON, url: str):
+    def get_paginated_obj(
+        self, query: Query, json: JSON, url: str
+    ) -> Tuple[List, Dict[str, str]]:
         """
-        Helper function to return a paginated object containing slice of dataset
-        (constructed according to the page limit and a page number), next page url,
-        and total items count.
-        TODO: There are multiple ways to optimize the functionality
-            1. Use of caching mechanism to temporarily store the queried datasets
-            instead of querying the database with every page request.
-            2. Use of unique pointers to store the last returned row and then use
-            this pointer in subsequent page request instead of initial start to
+        Helper function to return a slice of datasets (constructed according to the
+        user specified limit and an offset number) and a paginated object containing next page
+        url and total items count.
+        E.g. specifying the following limit and offset values will result in the corresponding
+        dataset slice:
+        "limit": 10, "offset": 20 -> dataset[20: 30]
+        "limit": 10 -> dataset[0: 10]
+        "offset": 20 -> dataset[20: total_items_count]
+        TODO: We may need to optimize the pagination
+            e.g Use of unique pointers to record the last returned row and then use
+            this pointer in subsequent page request instead of an initial start to
             narrow down the result.
         """
         paginated_result = {}
         total_count = query.count()
-        page_limit = json.get(
-            "page_limit", int(self.config.server_config.get("page_limit"))
-        )
-        page_no = json.get("page_no", 1)
-        items = (
-            query.order_by(Dataset.name)
-            .limit(page_limit)
-            .offset((page_no - 1) * page_limit)
-            .all()
-        )
-        json["page_no"] = page_no + 1
-        parsed_url = urlparse(url)
-        if len(items) < page_limit:
+        query = query.order_by(Dataset.name)
+
+        # Get the user specified limit, otherwise return all the items
+        limit = json.get("limit", total_count + 1)
+        query = query.limit(limit)
+
+        # Shift the query search by user specified offset value,
+        # otherwise return the batch of result starting from the
+        # first queried item.
+        offset = json.get("offset", 0)
+        items = query.offset(offset).all()
+
+        n = len(items)
+        if n < limit:
             next_url = ""
         else:
+            json["offset"] = offset + n
+            parsed_url = urlparse(url)
             next_url = (
                 parsed_url.scheme
                 + "://"

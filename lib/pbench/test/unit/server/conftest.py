@@ -31,7 +31,6 @@ default-host = pbench.example.com
 
 [pbench-server]
 pbench-top-dir = {TMP}/srv/pbench
-page_limit = 20
 
 [Postgres]
 db_uri = sqlite:///:memory:

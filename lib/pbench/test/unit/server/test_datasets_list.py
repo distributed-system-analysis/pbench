@@ -85,13 +85,9 @@ class TestDatasetsList:
             Paginated JSON object containing list of dataset values
         """
         list: List[JSON] = []
-        page_limit = query.get(
-            "page_limit", int(server_config.server_config.get("page_limit"))
-        )
-        page_no = query.get("page_no", 1)
-        paginated_name_list = name_list[
-            (page_no - 1) * page_limit : page_no * page_limit
-        ]
+        limit = query.get("limit", len(name_list) + 1)
+        offset = query.get("offset", 0)
+        paginated_name_list = name_list[offset : (offset + 1) * limit]
         for name in sorted(paginated_name_list):
             dataset = Dataset.query(name=name)
             list.append(
@@ -103,8 +99,8 @@ class TestDatasetsList:
                     },
                 }
             )
-        query["page_no"] = page_no + 1
-        if len(paginated_name_list) < page_limit:
+        query["offset"] = offset + len(paginated_name_list)
+        if len(paginated_name_list) < limit:
             next_url = ""
         else:
             next_url = (
@@ -118,10 +114,10 @@ class TestDatasetsList:
         "login,query,results",
         [
             ("drb", {"name": "fio"}, ["fio_1", "fio_2"]),
-            ("drb", {"name": "fio", "page_limit": 1}, ["fio_1", "fio_2"]),
-            ("drb", {"name": "fio", "page_limit": 1, "page_no": 2}, ["fio_1", "fio_2"]),
-            ("drb", {"name": "fio", "page_no": 1}, ["fio_1", "fio_2"]),
-            ("drb", {"name": "fio", "page_no": 2}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "limit": 1}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "limit": 1, "offset": 2}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "offset": 1}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "offset": 2}, ["fio_1", "fio_2"]),
             ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
             ("drb", {"name": "drb"}, ["drb"]),
             ("test", {"name": "drb"}, []),
