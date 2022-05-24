@@ -1,5 +1,5 @@
 +++ Running test-22 pbench-fio
-[error][1900-01-01T00:00:00.000000] [pbench-fio] fio failed reporting its version: '/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio: line 476: fio: command not found'
+[error][1900-01-01T00:00:00.000000] [pbench-fio] fio executable not found
 --- Finished test-22 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
@@ -15,5 +15,5 @@
 [debug][1900-01-01T00:00:00.000000] fio_pre_check(targets="/tmp/fio", clients="", ver="3.21", match="gte")
 [debug][1900-01-01T00:00:00.000000] Running pre-check locally
 [debug][1900-01-01T00:00:00.000000] local_pre_check(devs="", ver="3.21", match="gte")
-[error][1900-01-01T00:00:00.000000] [pbench-fio] fio failed reporting its version: '/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio: line 476: fio: command not found'
+[error][1900-01-01T00:00:00.000000] [pbench-fio] fio executable not found
 --- pbench.log file contents
