@@ -643,14 +643,16 @@ class ElasticBulkBase(ApiBase):
         """
         klasname = self.__class__.__name__
 
-        dataset = self.schemas.get_param_by_type(
+        dataset_param = self.schemas.get_param_by_type(
             API_METHOD.POST, ParamType.DATASET, params
         )
 
         # Since the constructor validated that a DATASET parameter was define
         # and required, a failure here is unexpected.
-        if not dataset or not dataset.value:
+        if not dataset_param or not dataset_param.value:
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        dataset = dataset_param.value
 
         # Build an Elasticsearch instance to manage the bulk update
         elastic = Elasticsearch(self.elastic_uri)

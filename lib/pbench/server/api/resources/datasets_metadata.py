@@ -38,7 +38,9 @@ class DatasetsMetadata(ApiBase):
             ApiSchema(
                 API_METHOD.PUT,
                 API_OPERATION.UPDATE,
-                uri_schema=Schema(Parameter("dataset", ParamType.DATASET, required=True)),
+                uri_schema=Schema(
+                    Parameter("dataset", ParamType.DATASET, required=True)
+                ),
                 body_schema=Schema(
                     Parameter(
                         "metadata",
@@ -52,7 +54,9 @@ class DatasetsMetadata(ApiBase):
             ApiSchema(
                 API_METHOD.GET,
                 API_OPERATION.READ,
-                uri_schema=Schema(Parameter("dataset", ParamType.DATASET, required=True)),
+                uri_schema=Schema(
+                    Parameter("dataset", ParamType.DATASET, required=True)
+                ),
                 query_schema=Schema(
                     Parameter(
                         "metadata",

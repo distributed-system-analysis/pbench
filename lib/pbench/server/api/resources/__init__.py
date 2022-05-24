@@ -194,7 +194,7 @@ class DatasetConversionError(SchemaError):
             value: The value we tried to convert
             kwargs: Optional SchemaError parameters
         """
-        super().__init__(**kwargs)
+        super().__init__(http_status=HTTPStatus.NOT_FOUND, **kwargs)
         self.value = value
 
     def __str__(self):
@@ -581,7 +581,6 @@ class Parameter:
         keywords: Union[List[str], None] = None,
         element_type: Union[ParamType, None] = None,
         required: bool = False,
-        uri_parameter: bool = False,
         key_path: bool = False,
         string_list: Union[str, None] = None,
     ):
@@ -595,7 +594,6 @@ class Parameter:
             keywords: List of keywords for ParamType.KEYWORD
             element_type: List element type if ParamType.LIST
             required: whether the parameter is required (defaults to False)
-            uri_parameter: whether the parameter is coming from the uri
             key_path: keyword value can be a dotted path where only the first
                 element matches the keyword list.
             string_list: if a delimiter is specified, individual string values
@@ -606,7 +604,6 @@ class Parameter:
         self.keywords = [k.lower() for k in keywords] if keywords else None
         self.element_type = element_type
         self.required = required
-        self.uri_parameter = uri_parameter
         self.key_path = key_path
         self.string_list = string_list
 
@@ -745,7 +742,9 @@ class Schema:
     ) -> Optional[ParamSet]:
         for n, p in self.parameters.items():
             if p.type is dtype:
-                return ParamSet(parameter=p, value=params.get(p.name) if params else None)
+                return ParamSet(
+                    parameter=p, value=params.get(p.name) if params else None
+                )
         return None
 
     def __contains__(self, key):
@@ -785,11 +784,15 @@ class ApiSchema:
         self, dtype: ParamType, params: Optional[ApiParams]
     ) -> Optional[ParamSet]:
         if self.body_schema:
-            p = self.body_schema.get_param_by_type(dtype, params.body if params else None)
+            p = self.body_schema.get_param_by_type(
+                dtype, params.body if params else None
+            )
             if p:
                 return p
         if self.query_schema:
-            p = self.query_schema.get_param_by_type(dtype, params.query if params else None)
+            p = self.query_schema.get_param_by_type(
+                dtype, params.query if params else None
+            )
             if p:
                 return p
         if self.uri_schema:
@@ -841,7 +844,9 @@ class ApiSchema:
             ds = self.get_param_by_type(ParamType.DATASET, params)
             if ds:
                 return ApiAuthorization(
-                    user=str(ds.value.owner_id), access=ds.value.access, role=self.operation
+                    user=str(ds.value.owner_id),
+                    access=ds.value.access,
+                    role=self.operation,
                 )
             return None
         if self.authorization == API_AUTHORIZATION.USER_ACCESS:
@@ -1382,7 +1387,12 @@ class ApiBase(Resource):
         # is required by the API.
         auth_params = self.schemas.authorize(method, params)
         if auth_params:
-            self.logger.info("Authorizing with {}:{}, {}", auth_params.user, auth_params.access, auth_params.role)
+            self.logger.info(
+                "Authorizing with {}:{}, {}",
+                auth_params.user,
+                auth_params.access,
+                auth_params.role,
+            )
             try:
                 self._check_authorization(
                     auth_params.user, auth_params.access, auth_params.role

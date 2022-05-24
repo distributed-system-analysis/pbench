@@ -6,7 +6,6 @@ from pbench.server.api.resources import (
     API_AUTHORIZATION,
     API_METHOD,
     API_OPERATION,
-    ApiParams,
     ApiSchema,
     Schema,
     Parameter,
@@ -39,19 +38,19 @@ class DatasetsPublish(ElasticBulkBase):
             action="update",
         )
 
-    def generate_actions(self, params: ApiParams, dataset: Dataset) -> Iterator[dict]:
+    def generate_actions(self, params: JSON, dataset: Dataset) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk update actions driven by the
         dataset document map.
 
         Args:
-            params: API parameters
+            params: API request body parameters
             dataset: the Dataset object
 
         Returns:
             A generator for Elasticsearch bulk update actions
         """
-        access = params.body["access"]
+        access = params["access"]
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
 
         self.logger.info("Starting publish operation for dataset {}", dataset)
@@ -72,7 +71,7 @@ class DatasetsPublish(ElasticBulkBase):
                     "doc": {"authorization": {"access": access}},
                 }
 
-    def complete(self, dataset: Dataset, params: ApiParams, summary: JSON) -> None:
+    def complete(self, dataset: Dataset, params: JSON, summary: JSON) -> None:
         """
         Complete the publish operation by updating the access of the Dataset
         object.
@@ -88,5 +87,5 @@ class DatasetsPublish(ElasticBulkBase):
                 failure: count of failures
         """
         if summary["failure"] == 0:
-            dataset.access = params.body["access"]
+            dataset.access = params["access"]
             dataset.update()

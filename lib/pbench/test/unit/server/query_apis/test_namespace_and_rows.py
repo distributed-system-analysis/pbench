@@ -29,7 +29,9 @@ class TestSamplesNamespace(Commons):
             index_from_metadata="result-data-sample",
         )
 
-    def test_with_no_index_document(self, client, server_config):
+    def test_with_no_index_document(
+        self, client, server_config, pbench_token, attach_dataset
+    ):
         """
         Check the Namespace API when no index name is provided
         """
@@ -38,7 +40,9 @@ class TestSamplesNamespace(Commons):
         response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
-    def test_with_incorrect_index_document(self, client, server_config, pbench_token):
+    def test_with_incorrect_index_document(
+        self, client, server_config, pbench_token, attach_dataset
+    ):
         """
         Check the Namespace API when an incorrect index name is provided.
         currently we only support iterations (result-data-samples) and

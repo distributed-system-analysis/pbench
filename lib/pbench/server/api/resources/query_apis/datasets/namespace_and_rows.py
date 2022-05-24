@@ -43,7 +43,6 @@ class SampleNamespace(IndexMapBase):
                         ParamType.KEYWORD,
                         required=True,
                         keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
-                        uri_parameter=True,
                     )
                 ),
                 body_schema=Schema(Parameter("name", ParamType.DATASET, required=True)),
@@ -201,7 +200,6 @@ class SampleValues(IndexMapBase):
                         ParamType.KEYWORD,
                         required=True,
                         keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
-                        uri_parameter=True,
                     )
                 ),
                 body_schema=Schema(

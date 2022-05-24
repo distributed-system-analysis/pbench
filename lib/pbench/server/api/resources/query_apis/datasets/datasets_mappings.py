@@ -82,7 +82,6 @@ class DatasetsMappings(ApiBase):
                         ParamType.KEYWORD,
                         required=True,
                         keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
-                        uri_parameter=True,
                     )
                 ),
                 authorization=API_AUTHORIZATION.NONE,

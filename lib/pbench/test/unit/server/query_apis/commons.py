@@ -1,6 +1,6 @@
 import itertools
 from http import HTTPStatus
-from typing import AnyStr, Type
+from typing import AnyStr
 
 import pytest
 import requests
@@ -8,8 +8,7 @@ from dateutil import parser as date_parser
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 from pbench.server import JSON
-from pbench.server.api.resources import (API_METHOD, ApiParams, ParamType,
-                                         SchemaError)
+from pbench.server.api.resources import API_METHOD, ApiParams, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.test.unit.server.headertypes import HeaderTypes
@@ -164,7 +163,9 @@ class Commons:
         """
         # The pbench_token fixture logs in as user "drb"
         # Trying to access the data belong to the user "pp"
-        user = self.cls_obj.schemas.get_param_by_type(API_METHOD.POST, ParamType.USER, None)
+        user = self.cls_obj.schemas.get_param_by_type(
+            API_METHOD.POST, ParamType.USER, None
+        )
         if not user:
             pytest.skip("skipping " + self.test_bad_user_name.__name__)
         self.payload[user.parameter.name] = "pp"
@@ -194,7 +195,9 @@ class Commons:
         either form will fail with "authorization required", which a UI may
         redirect to a login page.
         """
-        userp = self.cls_obj.schemas.get_param_by_type(API_METHOD.POST, ParamType.USER, None)
+        userp = self.cls_obj.schemas.get_param_by_type(
+            API_METHOD.POST, ParamType.USER, None
+        )
         if not userp:
             pytest.skip(
                 "skipping " + self.test_accessing_user_data_with_invalid_token.__name__
@@ -218,8 +221,10 @@ class Commons:
         Test behavior when no JSON payload is given
         """
         with pytest.raises(SchemaError) as exc:
-            self.cls_obj.schemas.validate(API_METHOD.POST, ApiParams(uri=None, query=None, body={}))
-        assert str(exc.value) == "Missing required parameters: end,start"
+            self.cls_obj.schemas.validate(
+                API_METHOD.POST, ApiParams(uri=None, query=None, body={})
+            )
+        assert str(exc.value).startswith("Missing required parameters: ")
 
     def test_malformed_payload(self, client, server_config, pbench_token):
         """
@@ -257,22 +262,18 @@ class Commons:
                 == f"Missing required parameters: {','.join(missing)}"
             )
 
-        parameter_items = self.cls_obj.schemas[API_METHOD.POST].body_schema.parameters.items()
+        parameter_items = self.cls_obj.schemas[
+            API_METHOD.POST
+        ].body_schema.parameters.items()
 
         required_keys = [
-            key
-            for key, parameter in parameter_items
-            if parameter.required and not parameter.uri_parameter
+            key for key, parameter in parameter_items if parameter.required
         ]
 
         all_combinations = []
         for r in range(1, len(parameter_items) + 1):
             for item in itertools.combinations(parameter_items, r):
-                tmp_req_keys = [
-                    key
-                    for key, parameter in item
-                    if parameter.required and not parameter.uri_parameter
-                ]
+                tmp_req_keys = [key for key, parameter in item if parameter.required]
                 if tmp_req_keys != required_keys:
                     all_combinations.append(item)
 
@@ -297,7 +298,9 @@ class Commons:
         """
         Test behavior when a bad date string is given
         """
-        for key, p in self.cls_obj.schemas[API_METHOD.POST].body_schema.parameters.items():
+        for key, p in self.cls_obj.schemas[
+            API_METHOD.POST
+        ].body_schema.parameters.items():
             # Modify date/time key in the payload to make it look invalid
             if p.type == ParamType.DATE and key in self.payload:
                 original_date_value = self.payload[key]

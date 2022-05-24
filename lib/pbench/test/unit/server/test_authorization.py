@@ -10,7 +10,7 @@ from pbench.server.api.resources import (
     ApiSchema,
     UnauthorizedAccess,
 )
-from pbench.server.database.models.users import Roles, User
+from pbench.server.database.models.users import User
 
 
 class TestAuthorization:
@@ -26,7 +26,9 @@ class TestAuthorization:
 
     @pytest.fixture()
     def apibase(self, client) -> ApiBase:
-        return ApiBase(client.config, client.logger, ApiSchema(API_METHOD.GET, API_OPERATION.READ))
+        return ApiBase(
+            client.config, client.logger, ApiSchema(API_METHOD.GET, API_OPERATION.READ)
+        )
 
     @pytest.fixture()
     def current_user_admin(self, monkeypatch):

@@ -1,8 +1,9 @@
+from typing import Optional
 import pytest
 
 from pbench.server import JSON
 from pbench.server.api.auth import Auth
-from pbench.server.api.resources import Schema
+from pbench.server.api.resources import API_METHOD, API_OPERATION, ApiSchema
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.users import User
 
@@ -15,7 +16,9 @@ USER_ID = "20"  # This is arbitrary, but can't match either fixture
 class TestQueryBuilder:
     @pytest.fixture()
     def elasticbase(self, client) -> ElasticBase:
-        return ElasticBase(client.config, client.logger, Schema())
+        return ElasticBase(
+            client.config, client.logger, ApiSchema(API_METHOD.POST, API_OPERATION.READ)
+        )
 
     @pytest.fixture()
     def current_user_admin(self, monkeypatch):
@@ -37,7 +40,7 @@ class TestQueryBuilder:
             yield admin_user
 
     @staticmethod
-    def assemble(term: JSON, expect: JSON) -> JSON:
+    def assemble(term: JSON, user: Optional[str], access: Optional[str]) -> JSON:
         """
         Create full Elasticsearch user/access query terms from the abbreviated
         "expect" format.
@@ -52,35 +55,35 @@ class TestQueryBuilder:
             Full expected JSON query "filter"
         """
         filter = [term]
-        if "access" in expect:
-            filter.append({"term": {"authorization.access": expect["access"]}})
-        if "user" in expect:
-            filter.append({"term": {"authorization.owner": expect["user"]}})
+        if access:
+            filter.append({"term": {"authorization.access": access}})
+        if user:
+            filter.append({"term": {"authorization.owner": user}})
         return filter
 
     @pytest.mark.parametrize(
-        "ask",
+        "user,access",
         [
-            {},
-            {"access": "public"},
-            {"access": "private"},
-            {"user": USER_ID},
-            {"user": USER_ID, "access": "private"},
-            {"user": USER_ID, "access": "private"},
-            {"user": ADMIN_ID},
-            {"user": ADMIN_ID, "access": "private"},
-            {"user": ADMIN_ID, "access": "public"},
+            (None, None),
+            (None, "public"),
+            (None, "private"),
+            (USER_ID, None),
+            (USER_ID, "private"),
+            (USER_ID, "private"),
+            (ADMIN_ID, None),
+            (ADMIN_ID, "private"),
+            (ADMIN_ID, "public"),
         ],
     )
-    def test_admin(self, elasticbase, server_config, current_user_admin, ask):
+    def test_admin(self, elasticbase, server_config, current_user_admin, user, access):
         """
         Test the query builder when we have an authenticated admin user; all of
         these build query terms matching the input terms since we impose no
         additional constraints on queries.
         """
         term = {"term": {"icecream": "ginger"}}
-        query = elasticbase._build_elasticsearch_query(ask, [term])
-        filter = self.assemble(term, ask)
+        query = elasticbase._build_elasticsearch_query(user, access, [term])
+        filter = self.assemble(term, user, access)
         assert query == {"bool": {"filter": filter}}
 
     @pytest.mark.parametrize(
@@ -116,8 +119,10 @@ class TestQueryBuilder:
         than building the unique disjunction syntax here
         """
         term = {"term": {"icecream": "ginger"}}
-        query = elasticbase._build_elasticsearch_query(ask, [term])
-        filter = self.assemble(term, expect)
+        query = elasticbase._build_elasticsearch_query(
+            ask.get("user"), ask.get("access"), [term]
+        )
+        filter = self.assemble(term, expect.get("user"), expect.get("access"))
         assert query == {"bool": {"filter": filter}}
 
     @pytest.mark.parametrize(
@@ -142,8 +147,10 @@ class TestQueryBuilder:
         Test the query builder when we have an unauthenticated client.
         """
         term = {"term": {"icecream": "ginger"}}
-        query = elasticbase._build_elasticsearch_query(ask, [term])
-        filter = self.assemble(term, expect)
+        query = elasticbase._build_elasticsearch_query(
+            ask.get("user"), ask.get("access"), [term]
+        )
+        filter = self.assemble(term, expect.get("user"), expect.get("access"))
         assert query == {"bool": {"filter": filter}}
 
     def test_neither_auth(self, elasticbase, server_config, current_user_drb):
@@ -155,7 +162,7 @@ class TestQueryBuilder:
         """
         id = str(current_user_drb.id)
         query: JSON = elasticbase._build_elasticsearch_query(
-            {}, [{"term": {"icecream": "vanilla"}}]
+            None, None, [{"term": {"icecream": "vanilla"}}]
         )
         assert query == {
             "bool": {

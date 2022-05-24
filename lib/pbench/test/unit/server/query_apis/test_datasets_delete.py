@@ -205,7 +205,7 @@ class TestDatasetsDelete:
 
         # Verify the report and status
         assert response.status_code == HTTPStatus.NOT_FOUND
-        assert response.json["message"] == "No dataset name=badwolf"
+        assert response.json["message"] == "Dataset 'badwolf' not found"
 
     def test_exception(
         self, attach_dataset, client, monkeypatch, pbench_token, server_config
