@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@patternfly/patternfly": "^4.183.1",
@@ -13,7 +14,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.26.1",
     "classnames": "^2.3.1",
-    "crypto-js": "^4.1.1",
+    "customize-cra": "^1.0.0",
     "js-cookie": "^3.0.1",
     "babel-jest": "^27.5.1",
     "gulp": "^4.0.2",
@@ -21,23 +22,25 @@
     "less-watch-compiler": "^1.16.3",
     "patternfly": "^3.9.0",
     "react": "^17.0.2",
+    "react-app-rewired": "^2.2.1",
     "react-bootstrap": "^2.1.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.6",
     "react-router": "^6.3.0",
     "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.0",
+    "react-scripts": "^5.0.0",
     "redux": "^4.1.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.4.1",
     "rsuite": "^5.6.2",
+    "serve": "^13.0.2",
     "validator": "^13.7.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -59,9 +62,8 @@
     ]
   },
   "devDependencies": {
-    "css-loader": "^6.7.1",
+    "customize-cra-less-loader": "^2.0.0",
     "less": "^4.1.2",
-    "less-loader": "^10.2.0",
-    "style-loader": "^3.3.1"
+    "less-loader": "^11.0.0"
   }
 }
