@@ -1,5 +1,7 @@
 +++ Running test-22 pbench-fio
-[error][1900-01-01T00:00:00.000000] [pbench-fio] fio executable not found, 'which: no fio in ($PATH)'
+which: no fio in (/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/util-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts:/var/tmp/pportant/tox/py/bin:/home/pportant/.local/bin:/home/pportant/bin:/opt/dell/srvadmin/bin:/opt/dell/srvadmin/sbin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin)
+[error][1900-01-01T00:00:00.000000] [pbench-fio] fio executable not found on PATH=/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/util-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts:/var/tmp/pportant/tox/py/bin:/home/pportant/.local/bin:/home/pportant/bin:/opt/dell/srvadmin/bin:/opt/dell/srvadmin/sbin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin
+[error][1900-01-01T00:00:00.000000] pre-check(s) failed, exiting
 --- Finished test-22 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
@@ -15,5 +17,6 @@
 [debug][1900-01-01T00:00:00.000000] fio_pre_check(targets="/tmp/fio", clients="", ver="3.21", match="gte")
 [debug][1900-01-01T00:00:00.000000] Running pre-check locally
 [debug][1900-01-01T00:00:00.000000] local_pre_check(devs="", ver="3.21", match="gte")
-[error][1900-01-01T00:00:00.000000] [pbench-fio] fio executable not found, 'which: no fio in ($PATH)'
+[error][1900-01-01T00:00:00.000000] [pbench-fio] fio executable not found on PATH=/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/util-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts:/var/tmp/pportant/tox/py/bin:/home/pportant/.local/bin:/home/pportant/bin:/opt/dell/srvadmin/bin:/opt/dell/srvadmin/sbin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin
+[error][1900-01-01T00:00:00.000000] pre-check(s) failed, exiting
 --- pbench.log file contents

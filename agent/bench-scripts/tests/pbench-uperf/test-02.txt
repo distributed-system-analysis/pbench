@@ -1,5 +1,7 @@
 +++ Running test-02 pbench-uperf
-[error][1900-01-01T00:00:00.000000] pbench-uperf: uperf executable not found, 'which: no uperf in ($PATH)'
+which: no uperf in (/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/util-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts:/var/tmp/pportant/tox/py/bin:/home/pportant/.local/bin:/home/pportant/bin:/opt/dell/srvadmin/bin:/opt/dell/srvadmin/sbin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin)
+[error][1900-01-01T00:00:00.000000] pbench-uperf: uperf executable not found on PATH=/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/util-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts:/var/tmp/pportant/tox/py/bin:/home/pportant/.local/bin:/home/pportant/bin:/opt/dell/srvadmin/bin:/opt/dell/srvadmin/sbin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin
+[error][1900-01-01T00:00:00.000000] [pbench-uperf] The local pre-check failed
 --- Finished test-02 pbench-uperf (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
@@ -12,5 +14,6 @@
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[error][1900-01-01T00:00:00.000000] pbench-uperf: uperf executable not found, 'which: no uperf in ($PATH)'
+[error][1900-01-01T00:00:00.000000] pbench-uperf: uperf executable not found on PATH=/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/util-scripts:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts:/var/tmp/pportant/tox/py/bin:/home/pportant/.local/bin:/home/pportant/bin:/opt/dell/srvadmin/bin:/opt/dell/srvadmin/sbin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin
+[error][1900-01-01T00:00:00.000000] [pbench-uperf] The local pre-check failed
 --- pbench.log file contents
