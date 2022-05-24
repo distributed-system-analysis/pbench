@@ -1,5 +1,7 @@
 """pbench-generate-token"""
 
+from json import JSONDecodeError
+
 import click
 import requests
 
@@ -30,7 +32,11 @@ class GenerateToken(BaseCommand):
         except requests.exceptions.ConnectionError as exc:
             raise RuntimeError(f"Cannot connect to '{uri}'") from exc
 
-        payload = response.json()
+        try:
+            payload = response.json()
+        except JSONDecodeError:
+            payload = {"message": response.text}
+
         if response.ok:
             click.echo(payload["auth_token"])
             return 0
