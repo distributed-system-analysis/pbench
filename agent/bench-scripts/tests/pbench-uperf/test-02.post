@@ -1,3 +1,0 @@
-#!/bin/bash
-dir=${_testopt}/unittest-scripts
-mv ${dir}/uperf.not-found ${dir}/uperf
