@@ -27,7 +27,10 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 export benchmark="linpack"
 
 # Defaults
-do_pre_check=0
+
+# By default, pbench-linpack always runs a pre-check. The pre-check operation
+# invokes itself remotely to ONLY run the pre-check and exit.
+pre_check_only=0
 def_threads=$(cat /proc/cpuinfo | grep processor | wc -l)
 threads=${def_threads}
 def_nr_samples=2
@@ -50,7 +53,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:h --longoptions "config:,clients:,help,pre-check,samples:,sysinfo:,threads:,tool-group:" -n "getopt.sh" -- "${@}")
+opts=$(getopt -q -o C:c:h --longoptions "config:,clients:,help,pre-check-only,samples:,sysinfo:,threads:,tool-group:" -n "getopt.sh" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
 	printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${script_name}" "${*}" >&2
 	usage >&2
@@ -73,8 +76,8 @@ while true; do
 			shift
 		fi
 		;;
-	--pre-check)
-		do_pre_check=1
+	--pre-check-only)
+		pre_check_only=1
 		;;
 	--samples)
 		if [[ -n "${1}" ]]; then
@@ -124,14 +127,14 @@ function pre_check {
 	local ver=${1}
 	local install_prefix_arg=${2}
 
-	${pbench_bin}/bench-scripts/driver/linpack --pre-check ${ver} ${install_prefix_arg}
+	${pbench_bin}/bench-scripts/driver/linpack --pre-check-only ${ver} ${install_prefix_arg}
 	return ${?}
 }
 
-if [[ ${do_pre_check} -ne 0 ]]; then
+if [[ ${pre_check_only} -ne 0 ]]; then
 	# We have been invoked remotely to check for the expected version of
 	# linpack installed.  The remote invocation has provided the arguments to
-	# pass to the pre-check function (see --pre-check invocation below).
+	# pass to the pre-check function (see --pre-check-only invocation below).
 	pre_check ${@}
 	exit ${?}
 fi
@@ -152,7 +155,7 @@ for client in ${clients//,/ }; do
 			(( not_found++ ))
 		fi
 	else
-		ssh ${ssh_opts} ${client} ${script_name} --pre-check ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}
+		ssh ${ssh_opts} ${client} ${script_name} --pre-check-only ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}
 		if [[ ${?} -ne 0 ]]; then
 			error_log "${script_name}: linpack not installed on client ${client}"
 			(( not_found++ ))
