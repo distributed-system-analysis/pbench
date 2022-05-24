@@ -1,3 +1,0 @@
-#!/bin/bash
-dir=${_testopt}/unittest-scripts
-mv ${dir}/fio.not-found ${dir}/fio

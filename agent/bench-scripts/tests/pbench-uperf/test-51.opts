@@ -1,1 +1,0 @@
---test-types=maerts --message-sizes=128 --instances=1 --protocols=udp --runtime=42 --samples=1
