@@ -95,13 +95,15 @@ class TestParamType:
     @pytest.mark.parametrize(
         "ptype,kwd,value,expected",
         (
-            (ParamType.STRING, None, "x", "x"),
-            (ParamType.JSON, None, {"key": "value"}, {"key": "value"}),
-            (ParamType.DATE, None, "2021-06-29", date_parser.parse("2021-06-29")),
-            (ParamType.USER, None, "drb", "1"),
             (ParamType.ACCESS, None, "PRIVATE", "private"),
+            (ParamType.DATE, None, "2021-06-29", date_parser.parse("2021-06-29")),
+            (ParamType.INT, None, "1", 1),
+            (ParamType.INT, None, 1, 1),
+            (ParamType.JSON, None, {"key": "value"}, {"key": "value"}),
             (ParamType.JSON, ["key"], {"key": "value"}, {"key": "value"}),
             (ParamType.KEYWORD, ["Llave"], "llave", "llave"),
+            (ParamType.STRING, None, "x", "x"),
+            (ParamType.USER, None, "drb", "1"),
         ),
     )
     def test_successful_conversions(
@@ -128,15 +130,16 @@ class TestParamType:
     @pytest.mark.parametrize(
         "ptype,value",
         (
-            (ParamType.STRING, {"not": "string"}),  # dict is not string
-            (ParamType.JSON, (1, False)),  # tuple is not JSON
+            (ParamType.ACCESS, ["foobar"]),  # ACCESS is "public" or "private"
+            (ParamType.ACCESS, 0),  # ACCESS must be a string
             (ParamType.DATE, "2021-06-45"),  # few months have 45 days
             (ParamType.DATE, "notadate"),  # not valid date string
             (ParamType.DATE, 1),  # not a string representing a date
+            (ParamType.INT, "a"),  # can not convert to an int
+            (ParamType.JSON, (1, False)),  # tuple is not JSON
+            (ParamType.STRING, {"not": "string"}),  # dict is not string
             (ParamType.USER, False),  # not a user string
             (ParamType.USER, "xyzzy"),  # not a defined username
-            (ParamType.ACCESS, ["foobar"]),  # ACCESS is "public" or "private"
-            (ParamType.ACCESS, 0),  # ACCESS must be a string
         ),
     )
     def test_failed_conversions(self, current_user_drb, ptype, value):

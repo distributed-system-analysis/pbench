@@ -491,7 +491,7 @@ class ParamType(Enum):
 
     ACCESS = ("Access", convert_access)
     DATE = ("Date", convert_date)
-    INTEGER = ("Int", convert_int)
+    INT = ("Int", convert_int)
     JSON = ("Json", convert_json)
     KEYWORD = ("Keyword", convert_keyword)
     LIST = ("List", convert_list)

@@ -36,8 +36,8 @@ class DatasetsList(ApiBase):
                 Parameter("access", ParamType.ACCESS),
                 Parameter("start", ParamType.DATE),
                 Parameter("end", ParamType.DATE),
-                Parameter("offset", ParamType.INTEGER),
-                Parameter("limit", ParamType.INTEGER),
+                Parameter("offset", ParamType.INT),
+                Parameter("limit", ParamType.INT),
                 Parameter(
                     "metadata",
                     ParamType.LIST,
