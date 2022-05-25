@@ -6,10 +6,11 @@ export const uid = () => {
 };
 
 /**
- * Check if password entered by user is valid or not
+ * Determine whether the specified password meets the requirements for a valid password
+ * Requirements include length, presence of upper-case letters, digits, and special characters
  * @function
- * @param {string} password - Entered email
- * @param {number} passwordLength - Length of Password
+ * @param {string} password - Entered password
+ * @param {number} passwordLength - Minimum required length of password
  * @returns {boolean} - true if the password is valid, false otherwise
  */
 export const validatePassword = (password, passwordLength) => {

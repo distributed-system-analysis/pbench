@@ -1,5 +1,5 @@
 /**
- * Filter the List of Datasets based on Date Range or Dataset Name or both
+ * Filter the List of Datasets based on Date Range and Dataset Name
  * @function
  * @param {Array} dataArray - Array of Datasets
  * @param {Date} startDate - Start Date selected from Date Picker

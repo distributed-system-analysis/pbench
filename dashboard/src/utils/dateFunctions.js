@@ -1,5 +1,5 @@
 /**
- * Bump Todate ahead by specified number of days
+ * Bump the supplied date ahead by specified number of days
  * @function
  * @param {Date} date - Date to be bumped
  * @param {number} numberOfDays - Number of days the date is to be bumped
@@ -10,7 +10,7 @@ export const bumpToDate = (date, numberOfDays) => {
 };
 
 /**
- * Takes a string date and convert it into UTC Date object.
+ * Convert a date string into UTC Date object
  * Date should not contain timezone related information,else + "Z" will result in an error
  * @function
  * @param {string} strDate - Date in string format
@@ -21,9 +21,9 @@ export const dateFromUTCString = (strDate) => {
 };
 
 /**
- * Return Date object set to midnight UTC
+ * Return a Date object representing the current day, UTC, with the time set to midnight
  * @function
- * @returns {Date} - UTC Date set to Midnight
+ * @returns {Date} - current UTC Date with the time set to Midnight
  */
 export const getTodayMidnightUTCDate = () => {
   const midnightUTC = new Date();
