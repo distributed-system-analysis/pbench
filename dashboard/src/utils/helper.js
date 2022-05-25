@@ -10,7 +10,7 @@ export const uid = () => {
  * @function
  * @param {string} password - Entered email
  * @param {number} passwordLength - Length of Password
- * @returns {boolean} - Password valid or not
+ * @returns {boolean} - Password valid or not,true if the password is valid,false otherwise
  */
 export const validatePassword = (password, passwordLength) => {
   return {
@@ -27,7 +27,7 @@ export const validatePassword = (password, passwordLength) => {
  * Check if email entered by user is valid or not
  * @function
  * @param {string} email - Entered email
- * @returns {boolean} - Email Valid or not
+ * @returns {boolean} - Email Valid or not,true if the email is valid,false otherwise
  */
 export const validateEmail = (email) => {
   return {
