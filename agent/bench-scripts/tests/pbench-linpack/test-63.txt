@@ -1,5 +1,6 @@
 +++ Running test-63 pbench-linpack
-[error][1900-01-01T00:00:00.000000] pbench-linpack: the default linpack directory, /usr/local/pbench-linpack-11.1.3/benchmarks/linpack, does not exist
+[linpack] ERROR: The --binary, '/usr/local/pbench-linpack-11.1.3/benchmarks/linpack/xlinpack_xeon64', must exist and be executable
+[error][1900-01-01T00:00:00.000000] pbench-linpack: linpack not installed locally
 --- Finished test-63 pbench-linpack (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
@@ -12,5 +13,5 @@
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[error][1900-01-01T00:00:00.000000] pbench-linpack: the default linpack directory, /usr/local/pbench-linpack-11.1.3/benchmarks/linpack, does not exist
+[error][1900-01-01T00:00:00.000000] pbench-linpack: linpack not installed locally
 --- pbench.log file contents
