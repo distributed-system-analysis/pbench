@@ -1346,16 +1346,20 @@ class ApiBase(Resource):
             body_params = None
             query_params = None
 
-            try:
-                body_params = request.get_json()
-            except Exception as e:
-                self.logger.warning(
-                    "{}: Bad JSON in request, {!r}, {!r}",
-                    api_name,
-                    str(e),
-                    request.data,
-                )
-                abort(HTTPStatus.BAD_REQUEST, message="Invalid request payload")
+            # If there's a JSON payload, parse it, and fail if parsing fails.
+            # If there's no payload and the API requires JSON body parameters,
+            # then the schema validation will diagnose later.
+            if request.data and request.mimetype == "application/json":
+                try:
+                    body_params = request.get_json()
+                except Exception as e:
+                    self.logger.warning(
+                        "{}: Bad JSON in request, {!r}, {!r}",
+                        api_name,
+                        str(e),
+                        request.data,
+                    )
+                    abort(HTTPStatus.BAD_REQUEST, message="Invalid request payload")
 
             try:
                 if self.schemas[method].query_schema:
