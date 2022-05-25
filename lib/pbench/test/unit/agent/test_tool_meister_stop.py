@@ -20,7 +20,7 @@ class TestRedisServer:
         rs = RedisServer("", rundir, "notme.example.com")
         assert (
             rs.locally_managed()
-        ), "Populated run directory did not result in a 'locally managed' RedisServer instance"
+        ), "RedisServer incorrectly inferred a non-locally managed instance from a run directory with a 'tm/redis.pid' file"
         assert (
             rs.host == "localhost"
         ), f"Expected 'RedisServer.host' to be 'localhost', got '{rs.host}'"
@@ -34,7 +34,7 @@ class TestRedisServer:
         rs = RedisServer(f"{rs_host}:4343", rundir, "notme.example.com")
         assert (
             not rs.locally_managed()
-        ), "Empty run directory still resulting in a 'locally managed' RedisServer instance"
+        ), "RedisServer incorrectly inferred a locally managed instance from an empty run directory"
         assert (
             rs.host == "redis.example.com"
         ), f"Expected 'RedisServer.host' to be '{rs_host}', got '{rs.host}'"
