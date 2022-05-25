@@ -3,7 +3,30 @@
 
 # A very simple method to wait for the linpack driver to report it has
 # finished.
-while [[ ! -e "${1}/linpack.meta" ]]; do
+
+if [[ ! -d "${1}" ]]; then
+	printf -- "linpack-wait: target directory, '${1}', does not exist!\n" >&2
+	exit 1
+fi
+
+# Wait for the linpack pid file to show up.
+let cnt=60
+while [[ ${cnt} -gt 0 && -d "${1}" && ! -e "${1}/linpack.pid" ]]; do
+	sleep 1
+	(( cnt-- ))
+done
+if [[ ! -d "${1}" ]]; then
+	printf -- "linpack-wait: target directory, '${1}', no longer exists!\n" >&2
+	exit 1
+fi
+if [[ ! -e "${1}/linpack.pid" ]]; then
+	printf -- "linpack-wait: linpack pid file, '${1}/linpack.pid', failed to show up\n" >&2
+	exit 1
+fi
+
+# At this point, we wait for the linpack process to stop running.
+pid=$(< "${1}/linpack.pid")
+while [[ -d /proc/${pid} ]]; do
 	sleep 1
 done
 exit 0
