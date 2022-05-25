@@ -65,6 +65,11 @@ class RedisServer(RedisServerCommon):
             )
         except FileNotFoundError:
             pass
+        else:
+            # The redis.pid file exists in the "tm" directory, which means this
+            # Redis server is locally managed.  Communication with it will
+            # always be through the "localhost" interface.
+            self.host = "localhost"
 
     def locally_managed(self) -> bool:
         return self.pid_file is not None
@@ -286,7 +291,7 @@ def main():
     parser.add_argument(
         "--redis-server",
         dest="redis_server",
-        default=os.environ.get("PBENCH_REDIS_SERVER", None),
+        default=os.environ.get("PBENCH_REDIS_SERVER", ""),
         help=(
             "Use an existing Redis server specified by <hostname>:<port>;"
             " implies the use of an existing Tool Data Sink and Tool Meisters"
