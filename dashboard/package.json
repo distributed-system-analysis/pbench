@@ -13,12 +13,12 @@
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.26.1",
+    "babel-jest": "^27.5.1",
     "classnames": "^2.3.1",
     "customize-cra": "^1.0.0",
-    "js-cookie": "^3.0.1",
-    "babel-jest": "^27.5.1",
     "gulp": "^4.0.2",
     "jest": "^27.5.1",
+    "js-cookie": "^3.0.1",
     "less-watch-compiler": "^1.16.3",
     "patternfly": "^3.9.0",
     "react": "^17.0.2",
@@ -41,7 +41,8 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "doc":"jsdoc -c jsdoc.json"
   },
   "eslintConfig": {
     "extends": [
@@ -63,6 +64,7 @@
   },
   "devDependencies": {
     "customize-cra-less-loader": "^2.0.0",
+    "jsdoc": "^3.6.10",
     "less": "^4.1.2",
     "less-loader": "^11.0.0"
   }

@@ -5,6 +5,13 @@ export const uid = () => {
   return head + tail;
 };
 
+/**
+ * Check if password entered by user is valid or not
+ * @function
+ * @param {string} password - Entered email
+ * @param {number} passwordLength - Length of Password
+ * @returns {boolean} - Password valid or not
+ */
 export const validatePassword = (password, passwordLength) => {
   return {
     passwordLength: password.length >= passwordLength ? "success" : "error",
@@ -16,6 +23,12 @@ export const validatePassword = (password, passwordLength) => {
   };
 };
 
+/**
+ * Check if email entered by user is valid or not
+ * @function
+ * @param {string} email - Entered email
+ * @returns {boolean} - Email Valid or not
+ */
 export const validateEmail = (email) => {
   return {
     email: !/\S+@\S+\.\S+/.test(email) ? "Enter a valid Email" : "",
