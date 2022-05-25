@@ -28,8 +28,9 @@ export benchmark="linpack"
 
 # Defaults
 
-# By default, pbench-linpack always runs a pre-check. The pre-check operation
-# invokes itself remotely to ONLY run the pre-check and exit.
+# This script always runs a pre-check. When non-local clients are used, as part
+# of the pre-check operation, it invokes itself remotely to ONLY run a local
+# pre-check and exit.
 pre_check_only=0
 def_threads=$(cat /proc/cpuinfo | grep processor | wc -l)
 threads=${def_threads}

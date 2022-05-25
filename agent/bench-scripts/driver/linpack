@@ -42,8 +42,8 @@ numactl_args=""
 # Output directory, defaults to the current working directory if not provided.
 output_dir=""
 
-# By default the linpack driver always perform pre-checks. When requested, the
-# driver will only run the pre-check and exit.
+# The linpack driver always perform pre-checks. When requested, the driver will
+# only run the pre-check and exit.
 pre_check_only=0
 
 function usage() {
