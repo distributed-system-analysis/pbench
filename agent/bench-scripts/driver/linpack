@@ -10,6 +10,7 @@ linpack_input_file_name="linpack.input"
 linpack_metadata_file_name="linpack.meta"
 linpack_output_file_name="linpack.out"
 linpack_command_file_name="linpack.cmd"
+linpack_pid_file_name="linpack.pid"
 
 binary=""
 
@@ -38,15 +39,19 @@ kmp_affinity_args_def="nowarnings,compact,1,0,granularity=fine"
 kmp_affinity_args=""
 numactl_args=""
 
-# Output directory required.
+# Output directory, defaults to the current working directory if not provided.
 output_dir=""
+
+# The linpack driver always performs pre-checks. When requested, the driver will
+# only run the pre-check and exit.
+pre_check_only=0
 
 function usage() {
 	cat <<-__EOF__
 Usage: ${script_name} [--problem-sizes=#[[,#]...]] [--leading-dimenions=#[[,#]...]]
         [--run-trials=#[[,#]]...] [--alignment-values=#[[,#]...]] [--use-omp={y|n}]
         [--threads=#] [--kmp-affinity=<options>] [--numactl-args=<args>]
-        [--output-dir=<directory>] <linpack binary path>
+        [--output-dir=<directory>] <linpack version number installed>
 
 Optional output control:
 
@@ -128,7 +133,7 @@ an invocation errors.
 }
 
 # Process options and arguments
-opts=$(getopt -q -o h --longoptions "header:,subheader:,problem-sizes:,leading-dimensions:,alignment-values:,run-trials:,threads:,use-omp:,kmp-affinity:,numactl-args:,output-dir:,help" -n "${script_name}" -- "${@}")
+opts=$(getopt -q -o h --longoptions "header:,subheader:,problem-sizes:,leading-dimensions:,alignment-values:,run-trials:,threads:,use-omp:,kmp-affinity:,numactl-args:,output-dir:,pre-check-only,help" -n "${script_name}" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
 	printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${script_name}" "${*}" >&2
 	usage >&2
@@ -211,6 +216,9 @@ while true; do
 			shift
 		fi
 		;;
+	--pre-check-only)
+		pre_check_only=1
+		;;
 	-h|--help)
 		help
 		exit 0
@@ -225,16 +233,26 @@ while true; do
 	esac
 done
 
-binary=${1}
-if [[ -z "${binary}" ]]; then
-	printf -- "[%s] ERROR: You must specify the location of the LINPACK binary\n\n" "${script_name}" >&2
+ver=${1}
+if [[ -z "${ver}" ]]; then
+	printf -- "[%s] ERROR: You must specify the version of the LINPACK binary\n\n" "${script_name}" >&2
 	usage >&2
 	exit 2
 fi
+
+# Installation directory, optional 2nd argument, defaults to /usr/local.
+install_prefix_dir=${2:-"/usr/local"}
+
+binary="${install_prefix_dir}/pbench-linpack-${ver}/benchmarks/linpack/xlinpack_xeon64"
 if [[ ! -x "${binary}" ]]; then
-	printf -- "[%s] ERROR: The --binary must exist and be executable\n" "${script_name}" >&2
+	printf -- "[%s] ERROR: The --binary, '${binary}', must exist and be executable\n" "${script_name}" >&2
 	exit 2
 fi
+
+if [[ ${pre_check_only} -ne 0 ]]; then
+	exit 0
+fi
+
 output_dir=${output_dir:-$(pwd)}
 if [[ ! -d "${output_dir}" ]]; then
 	printf -- "[%s] ERROR: Specified --output-dir '${output_dir}' is not a directory\n" "${script_name}" >&2
@@ -270,6 +288,7 @@ linpack_input_file="${output_dir}/${linpack_input_file_name}"
 linpack_metadata_file="${output_dir}/${linpack_metadata_file_name}"
 linpack_output_file="${output_dir}/${linpack_output_file_name}"
 linpack_command_file="${output_dir}/${linpack_command_file_name}"
+linpack_pid_file="${output_dir}/${linpack_pid_file_name}"
 
 # N.B. - Trailing whitespace is required.
 numactl_cmd=${numactl_args:+"numactl ${numactl_args} "}
@@ -311,6 +330,9 @@ cat > ${linpack_input_file} <<-__EOF__
 	${run_trials} # times to run a test
 	${alignment_values} # alingment values (in KBytes)
 	__EOF__
+
+# Declare ourselves to anybody waiting.
+echo "$$" > ${linpack_pid_file}
 
 # Now we can execute the final LINPACK command.
 source ${linpack_command_file}

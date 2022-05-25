@@ -27,6 +27,11 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 export benchmark="linpack"
 
 # Defaults
+
+# This script always runs a pre-check. When non-local clients are used, as part
+# of the pre-check operation, it invokes itself remotely to ONLY run a local
+# pre-check and exit.
+pre_check_only=0
 def_threads=$(cat /proc/cpuinfo | grep processor | wc -l)
 threads=${def_threads}
 def_nr_samples=2
@@ -49,7 +54,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:h --longoptions "config:,clients:,samples:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "${@}")
+opts=$(getopt -q -o C:c:h --longoptions "config:,clients:,help,pre-check-only,samples:,sysinfo:,threads:,tool-group:" -n "getopt.sh" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
 	printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${script_name}" "${*}" >&2
 	usage >&2
@@ -72,9 +77,18 @@ while true; do
 			shift
 		fi
 		;;
+	--pre-check-only)
+		pre_check_only=1
+		;;
 	--samples)
 		if [[ -n "${1}" ]]; then
 			nr_samples="${1}"
+			shift
+		fi
+		;;
+	--sysinfo)
+		if [[ -n "${1}" ]]; then
+			sysinfo="${1}"
 			shift
 		fi
 		;;
@@ -87,12 +101,6 @@ while true; do
 	--tool-group)
 		if [[ -n "${1}" ]]; then
 			tool_group="${1}"
-			shift
-		fi
-		;;
-	--sysinfo)
-		if [[ -n "${1}" ]]; then
-			sysinfo="${1}"
 			shift
 		fi
 		;;
@@ -113,24 +121,49 @@ while true; do
 done
 verify_common_bench_script_options ${tool_group} ${sysinfo}
 
-ver="$(pbench-config version ${benchmark})"
-if [[ -z "${ver}" ]]; then
+function pre_check {
+	# Invoke the linpack driver to perform a pre-check that it will be able to
+	# execute the benchmark. The expected version is the first argument, and the
+	# second is the expected directory prefix for the linpack installation.
+	local ver=${1}
+	local install_prefix_arg=${2}
+
+	${pbench_bin}/bench-scripts/driver/linpack --pre-check-only ${ver} ${install_prefix_arg}
+	return ${?}
+}
+
+if [[ ${pre_check_only} -ne 0 ]]; then
+	# We have been invoked remotely to check for the expected version of
+	# linpack installed.  The remote invocation has provided the arguments to
+	# pass to the pre-check function (see --pre-check-only invocation below).
+	pre_check ${@}
+	exit ${?}
+fi
+
+linpack_ver="$(pbench-config version ${benchmark})"
+if [[ -z "${linpack_ver}" ]]; then
 	error_log "${script_name}: package version is missing in config file"
 	exit 1
 fi
-if [[ -z "${linpack_dir}" ]]; then
-	linpack_dir="/usr/local/${script_name}-${ver}/benchmarks/linpack"
-	linpack_dir_kind="default"
-else
-	linpack_dir_kind="provided"
-fi
-if [[ ! -d "${linpack_dir}" ]]; then
-	error_log "${script_name}: the ${linpack_dir_kind} linpack directory, ${linpack_dir}, does not exist"
-	exit 1
-fi
-linpack_cmd="${linpack_dir}/xlinpack_xeon64"
-if [[ ! -x "${linpack_cmd}" ]]; then
-	error_log "${script_name}: the expected linpack command, ${linpack_cmd}, does not exist"
+
+# Run the pre-check.
+let not_found=0
+for client in ${clients//,/ }; do
+	if pbench-is-local "${client}"; then
+		pre_check ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}
+		if [[ ${?} -ne 0 ]]; then
+			error_log "${script_name}: linpack not installed locally"
+			(( not_found++ ))
+		fi
+	else
+		ssh ${ssh_opts} ${client} ${script_name} --pre-check-only ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}
+		if [[ ${?} -ne 0 ]]; then
+			error_log "${script_name}: linpack not installed on client ${client}"
+			(( not_found++ ))
+		fi
+	fi
+done
+if [[ ${not_found} -gt 0 ]]; then
 	exit 1
 fi
 
@@ -243,7 +276,8 @@ for thread in ${threads//,/ }; do
 		pbench-start-tools --group=${tool_group} --dir="${sample_dir}"
 
 		run_it="pbench-linpack ${pbench_bin}/bench-scripts/driver/linpack"
-		run_it+=" --output-dir=${sample_dir} --threads=${thread} ${linpack_cmd}"
+		run_it+=" --output-dir=${sample_dir} --threads=${thread}"
+		run_it+=" ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}"
 		screen_it="screen -dmS ${run_it}"
 		for client in ${clients//,/ }; do
 			if pbench-is-local "${client}"; then
