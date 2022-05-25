@@ -38,11 +38,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
+    "doc": "jsdoc -c jsdoc.json",
     "eject": "react-scripts eject",
-    "doc": "jsdoc -c jsdoc.json"
+    "start": "react-app-rewired start",
+    "test": "react-app-rewired test"
   },
   "eslintConfig": {
     "extends": [
