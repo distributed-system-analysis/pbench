@@ -740,6 +740,20 @@ class Schema:
     def get_param_by_type(
         self, dtype: ParamType, params: Optional[JSONOBJECT]
     ) -> Optional[ParamSet]:
+        """
+        Find a parameter of the desired type.
+
+        Search the schema for a parameter of the specified type, returning the
+        parameter definition and the assigned value for that parameter.
+
+        Args
+            method: The API method to be authorized
+            dtype:  The desired datatype (e.g., DATASET or USER)
+            params: The API parameter set
+
+        Returns:
+            The parameter and its value, or None if not found
+        """
         for n, p in self.parameters.items():
             if p.type is dtype:
                 return ParamSet(
@@ -773,6 +787,22 @@ class ApiSchema:
         *,
         authorization: API_AUTHORIZATION = API_AUTHORIZATION.NONE,
     ):
+        """
+        Construct an ApiSchema encapsulating a set of schema objects separating
+        URI parameters from query parameters from JSON body parameters that
+        apply to a particular HTTP method.
+
+        Args:
+            method: API method
+            operation:  CRUD operation code
+            body_schema:    Definition of parameters received through a JSON
+                            body.
+            query_schema:   Definition of parameters received through query
+                            parameters.
+            uri_schema:     Definition of parameters received through Flask URI
+                            templates.
+            authorization:  How to authorize access to this API method
+        """
         self.method = method
         self.operation = operation
         self.body_schema = body_schema
@@ -783,6 +813,21 @@ class ApiSchema:
     def get_param_by_type(
         self, dtype: ParamType, params: Optional[ApiParams]
     ) -> Optional[ParamSet]:
+        """
+        Find a parameter of the desired type.
+
+        This is a wrapper around the ApiSchema method to encapsulate searching
+        across the URI parameter schema, the query parameter schema, and the
+        JSON body schema for the desired type.
+
+        Args
+            method: The API method to be authorized
+            dtype:  The desired datatype (e.g., DATASET or USER)
+            params: The API parameter set
+
+        Returns:
+            The parameter and its value, or None if not found
+        """
         if self.body_schema:
             p = self.body_schema.get_param_by_type(
                 dtype, params.body if params else None
@@ -802,6 +847,16 @@ class ApiSchema:
         return None
 
     def validate(self, params: ApiParams) -> ApiParams:
+        """
+        Validate API parameters against each of the appropriate schemas,
+        separated as URI parameters, query parameters, and JSON payload.
+
+        Args
+            params:   The API parameter set
+
+        Returns:
+            Converted and validated API parameter set
+        """
         body: Optional[JSONOBJECT] = None
         query: Optional[JSONOBJECT] = None
         uri: Optional[JSONOBJECT] = None
@@ -820,8 +875,8 @@ class ApiSchema:
 
     def authorize(self, params: ApiParams) -> Optional[ApiAuthorization]:
         """
-        Using the API schema's designated authorization source, validate access
-        for the API.
+        Using the API schema's designated authorization source, provide the
+        necessary information for the caller to authorize access.
 
         AUTHORIZATION.DATASET: Used when the API wants to authorize access to a
             specific dataset, using the dataset owner and access property. The
@@ -860,6 +915,13 @@ class ApiSchema:
 
 class ApiSchemaSet:
     def __init__(self, *schemas: ApiSchema):
+        """
+        Construct a dict of schemas accessable by API method
+
+        Args:
+            schemas:    A list of schemas for each HTTP method supported by an
+                        API class.
+        """
         self.schemas: Dict[API_METHOD, ApiSchema] = {s.method: s for s in schemas}
 
     def __getitem__(self, key: API_METHOD):
@@ -874,6 +936,20 @@ class ApiSchemaSet:
     def get_param_by_type(
         self, method: API_METHOD, dtype: ParamType, params: Optional[ApiParams]
     ) -> Optional[ParamSet]:
+        """
+        Find a parameter of the desired type.
+
+        This is a wrapper around the ApiSchema method to encapsulate selecting
+        the proper schema.
+
+        Args
+            method: The API method to be authorized
+            dtype:  The desired datatype (e.g., DATASET or USER)
+            params: The API parameter set
+
+        Returns:
+            The parameter and its value, or None if not found
+        """
         return self.schemas[method].get_param_by_type(dtype, params)
 
     def validate(self, method: API_METHOD, args: ApiParams) -> ApiParams:
@@ -900,6 +976,20 @@ class ApiSchemaSet:
     def authorize(
         self, method: API_METHOD, args: ApiParams
     ) -> Optional[ApiAuthorization]:
+        """
+        Determine how API validation should deal with client authorization for
+        the selected API schema.
+
+        This is a wrapper around the ApiSchema method to encapsulate selecting
+        the proper schema.
+
+        Args
+            method: The API method to be authorized
+            args:   The API parameter set
+
+        Returns:
+            Advice to the caller on how to authorize client API access
+        """
         if method in self.schemas:
             return self.schemas[method].authorize(args)
         else:
@@ -998,7 +1088,7 @@ class ApiBase(Resource):
         If there is no current authenticated client, only READ operations on
         public data will be allowed.
 
-        for OPERATION.READ:
+        for API_OPERATION.READ:
 
             Any call, with or without an authenticated user token, can access
             public data.
@@ -1007,7 +1097,7 @@ class ApiBase(Resource):
 
             Any authenticated ADMIN user can access any private data.
 
-        for OPERATION.UPDATE, OPERATION.DELETE:
+        for API_OPERATION.UPDATE, API_OPERATION.DELETE:
 
             An authenticated user is required.
 
@@ -1386,9 +1476,9 @@ class ApiBase(Resource):
         # Automatically authorize the operation only if the API schema for the
         # active HTTP method has authorization enabled, using the selected
         # parameters. Automatic authorization can be disabled by selecting
-        # AUTHORIZATION.NONE for a particular method's schema where either no
-        # authorization is required, or a specialized authorization mechanism
-        # is required by the API.
+        # API_AUTHORIZATION.NONE for a particular method's schema where either
+        # no authorization is required, or a specialized authorization
+        # mechanism is required by the API.
         auth_params = self.schemas.authorize(method, params)
         if auth_params:
             self.logger.info(
