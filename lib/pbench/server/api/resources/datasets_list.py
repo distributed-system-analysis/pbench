@@ -88,9 +88,7 @@ class DatasetsList(ApiBase):
             else:
                 json["offset"] = offset + n
                 parsed_url = urlparse(url)
-                next_url = parsed_url._replace(
-                    query=urlencode(parse_qs(parsed_url.query) | json)
-                ).geturl()
+                next_url = parsed_url._replace(query=urlencode(json)).geturl()
         else:
             items = query.all()
             next_url = ""
