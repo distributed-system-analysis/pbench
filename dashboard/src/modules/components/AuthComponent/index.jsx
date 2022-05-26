@@ -11,7 +11,7 @@ import "./index.less";
 import Cookies from "js-cookie";
 
 const LoginSignup = () => {
-  let { pathname } = useLocation();
+  const { pathname } = useLocation();
   return pathname.includes(AppRoutes.AUTH_LOGIN) ? (
     <LoginForm />
   ) : (
@@ -20,7 +20,7 @@ const LoginSignup = () => {
 };
 
 const AuthComponent = () => {
-  let { pathname } = useLocation();
+  const { pathname } = useLocation();
   const loggedIn = Cookies.get("isLoggedIn");
   if (loggedIn) {
     return <Navigate to="/" />;

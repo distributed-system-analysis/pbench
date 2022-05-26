@@ -22,7 +22,7 @@ import { movePage } from "actions/authActions";
 import { passwordConstraintsText } from "./signupFormData";
 
 export const LoginHeader = (props) => {
-  return <Title headingLevel="h3">{props.title}</Title>;
+  return <Title headingLevel="h3">{props?.title}</Title>;
 };
 export const Back = (props) => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ export const Back = (props) => {
       variant="link"
       icon={<FontAwesomeIcon icon={faAngleLeft} />}
       className={"back-button"}
-      onClick={() => navigatePage(props.toPage)}
+      onClick={() => navigatePage(props?.toPage)}
       style={{ padding: "0 0 20px 5px" }}
     >
       Back
@@ -129,18 +129,16 @@ export const PasswordConstraints = (props) => {
       <h4>Passwords must contain at least:</h4>
       <div className="contraints-container">
         {passwordConstraintsText.map((constraint, index) => {
-          let variant = checkConstraints[constraint.name];
+          const variant = checkConstraints[constraint.name];
           return (
             <HelperText key={index}>
               <HelperTextItem
                 name={constraint.name}
-                variant={checkConstraints[constraint.name]}
+                variant={variant}
                 icon={iconList[variant]}
               >
-                {
-                  constraint.name === "passwordLength" &&
-                  passwordLength
-                }{" "}{constraint.label}
+                {constraint.name === "passwordLength" && passwordLength}{" "}
+                {constraint.label}
               </HelperTextItem>
             </HelperText>
           );
@@ -158,7 +156,7 @@ export const NoLoginComponent = () => {
   };
   return (
     <div className="section">
-      Want to continue without login? Click {" "}
+      Want to continue without login? Click{" "}
       <Button
         variant="link"
         className="continueBtn"
@@ -169,4 +167,3 @@ export const NoLoginComponent = () => {
     </div>
   );
 };
- 

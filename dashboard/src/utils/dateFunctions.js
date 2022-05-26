@@ -3,7 +3,7 @@
  * @function
  * @param {Date} date - Date to be bumped
  * @param {number} numberOfDays - Number of days the date is to be bumped
- * @returns {Date} - New Bumped date
+ * @return {Date} - New Bumped date
  */
 export const bumpToDate = (date, numberOfDays) => {
   return date.setUTCDate(date.getUTCDate() + numberOfDays);
@@ -14,7 +14,7 @@ export const bumpToDate = (date, numberOfDays) => {
  * Date should not contain timezone related information,else + "Z" will result in an error
  * @function
  * @param {string} strDate - Date in string format
- * @returns {Date} - UTC Date object
+ * @return {Date} - UTC Date object
  */
 export const dateFromUTCString = (strDate) => {
   return new Date(strDate + "Z");
@@ -23,7 +23,7 @@ export const dateFromUTCString = (strDate) => {
 /**
  * Return a Date object representing the current day, UTC, with the time set to midnight
  * @function
- * @returns {Date} - current UTC Date with the time set to Midnight
+ * @return {Date} - current UTC Date with the time set to Midnight
  */
 export const getTodayMidnightUTCDate = () => {
   const midnightUTC = new Date();

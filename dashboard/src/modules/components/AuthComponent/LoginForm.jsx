@@ -14,10 +14,7 @@ import {
   AlertGroup,
   Alert,
 } from "@patternfly/react-core";
-import {
-  makeLoginRequest,
-  setUserLoggedInState,
-} from "actions/authActions";
+import { makeLoginRequest, setUserLoggedInState } from "actions/authActions";
 import { Back, LoginHeader, NoLoginComponent } from "./common-components";
 
 const LoginForm = () => {
@@ -30,6 +27,7 @@ const LoginForm = () => {
     username: "",
   });
   const [btnDisabled, setBtnDisabled] = useState(true);
+  const { endpoints } = useSelector((state) => state.apiEndpoint);
   const isLoading = useSelector((state) => state.loading.isLoading);
   const primaryLoadingProps = {};
   if (isLoading) {
@@ -53,12 +51,16 @@ const LoginForm = () => {
     dispatch(makeLoginRequest(details, navigate));
   };
   const checkOkButton = useCallback(() => {
-    if (details.username?.length > 0 && details.password?.length > 0) {
+    if (
+      details.username?.length > 0 &&
+      details.password?.length > 0 &&
+      Object.keys(endpoints).length > 0
+    ) {
       setBtnDisabled(false);
     } else {
       setBtnDisabled(true);
     }
-  }, [details]);
+  }, [details, endpoints]);
 
   const keepUser = useSelector((state) => state.userAuth.keepLoggedIn);
   const checkBoxChangeHander = (value) => {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Nav, NavItem, NavList } from "@patternfly/react-core";
 
-function NavItems() {
+const NavItems = () => {
   const [activeItem, setActiveItem] = useState("grp-1_itm-1");
   const onSelect = (result) => {
     setActiveItem(result.itemId);
@@ -36,6 +36,6 @@ function NavItems() {
       </NavList>
     </Nav>
   );
-}
+};
 
 export default NavItems;

@@ -1,13 +1,13 @@
 import { Pagination, PaginationVariant } from "@patternfly/react-core";
 import React from "react";
 
-function TablePagination({
+const TablePagination = ({
   numberOfRows,
   page,
   setPage,
   perPage,
   setPerPage,
-}) {
+}) => {
   const onSetPage = (_event, pageNumber) => {
     setPage(pageNumber);
   };
@@ -25,6 +25,6 @@ function TablePagination({
       onPerPageSelect={onPerPageSelect}
     ></Pagination>
   );
-}
+};
 
 export default TablePagination;

@@ -26,6 +26,7 @@ import {
 const SignupForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { alerts, isSignupBtnDisabled, passwordLength } = useSelector(
     (state) => state.userAuth
   );
@@ -81,12 +82,12 @@ const SignupForm = () => {
   }, [constraints, errors, userDetails]);
 
   useEffect(() => {
-    if (validateForm()) {
+    if (validateForm() && Object.keys(endpoints).length > 0) {
       dispatch(toggleSignupBtn(false));
     } else {
       dispatch(toggleSignupBtn(true));
     }
-  }, [validateForm, userDetails, dispatch]);
+  }, [validateForm, userDetails, dispatch, endpoints]);
 
   const checkPasswordError = (password, cnfPassword) => {
     if (password !== cnfPassword) {
@@ -124,7 +125,7 @@ const SignupForm = () => {
     }
   };
   const sendForRegistration = () => {
-    let details = {
+    const details = {
       email: userDetails.email,
       password: userDetails.password,
       first_name: userDetails.firstName,

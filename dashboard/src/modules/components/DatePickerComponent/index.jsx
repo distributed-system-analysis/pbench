@@ -14,18 +14,18 @@ import {
   getTodayMidnightUTCDate,
 } from "utils/dateFunctions";
 
-function DatePickerWidget({
+const DatePickerWidget = ({
   dataArray,
   setPublicData,
   datasetName,
   setDateRange,
-}) {
+}) => {
   const [fromDate, setFromDate] = useState({});
   const [toDate, setToDate] = useState(
     bumpToDate(getTodayMidnightUTCDate(), 1)
   );
   const [strDate, setStrDate] = useState(
-    new Date().toLocaleDateString("fr-CA") //Return a YYYY-MM-DD string
+    new Date().toLocaleDateString("fr-CA") // Return a YYYY-MM-DD string
   );
   const toValidator = (date) =>
     date >= fromDate
@@ -58,7 +58,7 @@ function DatePickerWidget({
       <InputGroupText>to</InputGroupText>
       <DatePicker
         value={strDate}
-        onChange={(_str, date) => {
+        onChange={(_str, _date) => {
           setStrDate(_str);
           setToDate(bumpToDate(dateFromUTCString(_str), 1));
         }}
@@ -73,6 +73,6 @@ function DatePickerWidget({
       </Button>
     </InputGroup>
   );
-}
+};
 
 export default DatePickerWidget;

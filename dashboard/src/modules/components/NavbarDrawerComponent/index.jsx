@@ -7,7 +7,8 @@ import {
 import BarsIcon from "@patternfly/react-icons/dist/js/icons/bars-icon";
 import { useDispatch, useSelector } from "react-redux";
 import { NAVBAR_CLOSE, NAVBAR_OPEN } from "../../../actions/types";
-function NavbarDrawer() {
+
+const NavbarDrawer = () => {
   const isNavOpen = useSelector((state) => state.navOpen.isNavOpen);
   const dispatch = useDispatch();
   const onNavToggle = () => {
@@ -25,6 +26,6 @@ function NavbarDrawer() {
       </MastheadToggle>
     </Masthead>
   );
-}
+};
 
 export default NavbarDrawer;
