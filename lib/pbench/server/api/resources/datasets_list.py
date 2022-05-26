@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, List, Tuple
-from urllib.parse import urlencode, urlparse
+from urllib.parse import parse_qs, urlencode, urlparse
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
@@ -56,11 +56,13 @@ class DatasetsList(ApiBase):
         Helper function to return a slice of datasets (constructed according to the
         user specified limit and an offset number) and a paginated object containing next page
         url and total items count.
+
         E.g. specifying the following limit and offset values will result in the corresponding
         dataset slice:
         "limit": 10, "offset": 20 -> dataset[20: 30]
         "limit": 10 -> dataset[0: 10]
         "offset": 20 -> dataset[20: total_items_count]
+
         TODO: We may need to optimize the pagination
             e.g Use of unique pointers to record the last returned row and then use
             this pointer in subsequent page request instead of an initial start to
@@ -70,30 +72,29 @@ class DatasetsList(ApiBase):
         total_count = query.count()
         query = query.order_by(Dataset.name)
 
-        # Get the user specified limit, otherwise return all the items
-        limit = json.get("limit", total_count + 1)
-        query = query.limit(limit)
-
         # Shift the query search by user specified offset value,
-        # otherwise return the batch of result starting from the
+        # otherwise return the batch of results starting from the
         # first queried item.
         offset = json.get("offset", 0)
-        items = query.offset(offset).all()
+        query = query.offset(offset)
 
-        n = len(items)
-        if n < limit:
-            next_url = ""
+        # Get the user specified limit, otherwise return all the items
+        limit = json.get("limit")
+        if limit:
+            items = query.limit(limit).all()
+            n = len(items)
+            if n < limit:
+                next_url = ""
+            else:
+                json["offset"] = offset + n
+                parsed_url = urlparse(url)
+                next_url = parsed_url._replace(
+                    query=urlencode(parse_qs(parsed_url.query) | json)
+                ).geturl()
         else:
-            json["offset"] = offset + n
-            parsed_url = urlparse(url)
-            next_url = (
-                parsed_url.scheme
-                + "://"
-                + parsed_url.netloc
-                + parsed_url.path
-                + "?"
-                + urlencode(json)
-            )
+            items = query.all()
+            next_url = ""
+
         paginated_result["next_url"] = next_url
         paginated_result["total"] = total_count
         return items, paginated_result

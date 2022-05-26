@@ -366,14 +366,14 @@ def convert_int(value: Union[int, str], _) -> int:
     Returns:
         the input value
     """
-    if type(value) in [str, int]:
+    if type(value) is int:
+        return value
+    elif type(value) is str:
         try:
-            value = int(value)
+            return int(value)
         except ValueError:
-            raise ConversionError(value, int.__name__)
-    else:
-        raise ConversionError(value, int.__name__)
-    return value
+            pass
+    raise ConversionError(value, int.__name__)
 
 
 def convert_keyword(value: str, parameter: "Parameter") -> str:

@@ -85,9 +85,23 @@ class TestDatasetsList:
             Paginated JSON object containing list of dataset values
         """
         list: List[JSON] = []
-        limit = query.get("limit", len(name_list) + 1)
         offset = query.get("offset", 0)
-        paginated_name_list = name_list[offset : (offset + 1) * limit]
+        limit = query.get("limit")
+
+        if limit:
+            paginated_name_list = name_list[offset : offset + limit]
+            if len(paginated_name_list) < limit:
+                next_url = ""
+            else:
+                query["offset"] = offset + len(paginated_name_list)
+                next_url = (
+                    f"http://localhost{server_config.rest_uri}/datasets/list?"
+                    + urlencode(query)
+                )
+        else:
+            paginated_name_list = name_list[offset:]
+            next_url = ""
+
         for name in sorted(paginated_name_list):
             dataset = Dataset.query(name=name)
             list.append(
@@ -98,15 +112,6 @@ class TestDatasetsList:
                         "dataset.created": datetime.datetime.isoformat(dataset.created)
                     },
                 }
-            )
-        query["offset"] = offset + len(paginated_name_list)
-        if len(paginated_name_list) < limit:
-            next_url = ""
-        else:
-            next_url = (
-                f"http://localhost{server_config.rest_uri}/datasets/list"
-                + "?"
-                + urlencode(query)
             )
         return {"next_url": next_url, "results": list, "total": len(name_list)}
 
