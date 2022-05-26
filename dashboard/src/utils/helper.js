@@ -5,6 +5,14 @@ export const uid = () => {
   return head + tail;
 };
 
+/**
+ * Determine whether the specified password meets the requirements for a valid password
+ * Requirements include length, presence of upper-case letters, digits, and special characters
+ * @function
+ * @param {string} password - Entered password
+ * @param {number} passwordLength - Minimum required length of password
+ * @returns {boolean} - true if the password is valid, false otherwise
+ */
 export const validatePassword = (password, passwordLength) => {
   return {
     passwordLength: password.length >= passwordLength ? "success" : "error",
@@ -16,6 +24,12 @@ export const validatePassword = (password, passwordLength) => {
   };
 };
 
+/**
+ * Check if email entered by user is valid or not
+ * @function
+ * @param {string} email - Entered email
+ * @returns {boolean} - true if the email is valid, false otherwise
+ */
 export const validateEmail = (email) => {
   return {
     email: !/\S+@\S+\.\S+/.test(email) ? "Enter a valid Email" : "",
