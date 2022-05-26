@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, List, Tuple
-from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.parse import urlencode, urlparse
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
