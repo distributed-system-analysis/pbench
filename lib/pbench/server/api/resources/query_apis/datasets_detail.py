@@ -43,7 +43,7 @@ class DatasetsDetail(ElasticBase):
 
         {
             "user": "username",
-            "dataset_name": "dataset-name",
+            "name": "dataset-name",
             "start": "start-time",
             "end": "end-time",
             "metadata": ["seen", "saved"]
@@ -56,7 +56,7 @@ class DatasetsDetail(ElasticBase):
                 data. If "user": None is specified, then only public datasets
                 will be returned.
 
-            "dataset_name" is the name of a Pbench agent dataset (tarball).
+            "name" is the name of a Pbench agent dataset (tarball).
 
             "start" and "end" are time strings representing a set of Elasticsearch
                 run document indices in which the dataset will be found.
@@ -69,7 +69,7 @@ class DatasetsDetail(ElasticBase):
             requested set of metadata to the postprocess method.
         """
         user = json_data.get("user")
-        dataset_name = json_data.get("dataset_name")
+        dataset_name = json_data.get("name")
         start = json_data.get("start")
         end = json_data.get("end")
 
