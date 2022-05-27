@@ -38,9 +38,7 @@ class DatasetsDetail(ElasticBase):
                 API_METHOD.POST,
                 API_OPERATION.READ,
                 uri_schema=Schema(
-                    Parameter(
-                        "dataset", ParamType.STRING, required=True
-                    )
+                    Parameter("dataset", ParamType.STRING, required=True)
                 ),
                 body_schema=Schema(
                     Parameter("user", ParamType.USER, required=False),
@@ -62,33 +60,37 @@ class DatasetsDetail(ElasticBase):
         Get details for a specific Pbench dataset which is either owned
         by a specified username, or has been made publicly accessible.
 
+        POST /datasets/detail/<dataset>
         {
             "user": "username",
-            "dataset": "dataset-name",
             "start": "start-time",
             "end": "end-time",
             "metadata": ["seen", "saved"]
         }
 
-        params: JSON dictionary of type-normalized key-value pairs
-            user: specifies the owner of the data to be searched; it need not
-                necessarily be the user represented by the session token
-                header, assuming the session user is authorized to view "user"s
-                data. If "user": None is specified, then only public datasets
-                will be returned.
+        params: API parameter set
 
-            "dataset" is the name of a Pbench agent dataset (tarball).
+            URI parameters:
+                "dataset" is the name of a Pbench agent dataset (tarball).
 
-            "start" and "end" are time strings representing a set of Elasticsearch
-                run document indices in which the dataset will be found.
+            JSON body parameters:
+                user: specifies the owner of the data to be searched; it need not
+                    necessarily be the user represented by the session token
+                    header, assuming the session user is authorized to view "user"s
+                    data. If "user": None is specified, then only public datasets
+                    will be returned.
 
-            "metadata" specifies the set of Dataset metadata properties the
-                caller needs to see. (If not specified, no metadata will be
-                returned.)
+                "start" and "end" are time strings representing a set of Elasticsearch
+                    run document indices in which the dataset will be found.
+
+                "metadata" specifies the set of Dataset metadata properties the
+                    caller needs to see. (If not specified, no metadata will be
+                    returned.)
 
         context: Context passed from preprocess method: used to propagate the
             requested set of metadata to the postprocess method.
         """
+        dataset = params.uri.get("dataset")
         user = params.body.get("user")
         access = params.body.get("access")
         start = params.body.get("start")
@@ -112,7 +114,7 @@ class DatasetsDetail(ElasticBase):
                 "params": {"ignore_unavailable": "true"},
                 "json": {
                     "query": self._build_elasticsearch_query(
-                        json_data, [{"term": {"run.name": dataset}}]
+                        user, access, [{"term": {"run.name": dataset}}]
                     ),
                     "sort": "_index",
                 },
