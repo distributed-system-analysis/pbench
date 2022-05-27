@@ -136,6 +136,7 @@ const TableWithFavorite = () => {
           message="Want to see your own data?"
           link="Login or Create an account"
           onCloseMethod={onCloseLoginHint}
+          redirect="login"
         />
       )}
 
