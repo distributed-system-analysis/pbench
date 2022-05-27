@@ -152,12 +152,14 @@ const TableWithFavorite = () => {
             startDate={startDate}
             endDate={endDate}
             setDatasetName={setDatasetName}
+            aria-label="search box"
           />
           <DatePickerWidget
             dataArray={dataArray}
             setPublicData={setPublicData}
             datasetName={datasetName}
             setDateRange={setDateRange}
+            aria-label="date picker"
           />
         </div>
         <ToggleGroup aria-label="Result Selection Options">
@@ -167,6 +169,7 @@ const TableWithFavorite = () => {
             isSelected={isSelected === "datasetListButton"}
             onChange={handleButtonClick}
             className="datasetListButton"
+            aria-label="see dataset button"
           />
           <ToggleGroupItem
             text={`Favorites(${favoriteRepoNames?.length})`}
@@ -174,6 +177,7 @@ const TableWithFavorite = () => {
             isSelected={isSelected === "favoriteListButton"}
             onChange={handleButtonClick}
             className="favoriteListButton"
+            aria-label="see favorites button"
           />
         </ToggleGroup>
         <TableComposable aria-label="Favoritable table" variant="compact">

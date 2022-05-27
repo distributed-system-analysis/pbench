@@ -82,7 +82,7 @@ export const SearchBox = ({
         placeholder="Search"
         onChange={(e) => setSearchKey(e)}
       ></TextInput>
-      <Button variant="control" onClick={search}>
+      <Button variant="control" onClick={search} aria-label="searchButton">
         <SearchIcon />
       </Button>
     </InputGroup>
