@@ -81,16 +81,16 @@ class DatasetsList(ApiBase):
         # Get the user specified limit, otherwise return all the items
         limit = json.get("limit")
         if limit:
-            items = query.limit(limit).all()
-            n = len(items)
-            if n < limit:
-                next_url = ""
-            else:
-                json["offset"] = offset + n
-                parsed_url = urlparse(url)
-                next_url = parsed_url._replace(query=urlencode(json)).geturl()
+            query = query.limit(limit)
+
+        items = query.all()
+
+        next_offset = offset + len(items)
+        if next_offset < total_count:
+            json["offset"] = next_offset
+            parsed_url = urlparse(url)
+            next_url = parsed_url._replace(query=urlencode(json)).geturl()
         else:
-            items = query.all()
             next_url = ""
 
         paginated_result["next_url"] = next_url

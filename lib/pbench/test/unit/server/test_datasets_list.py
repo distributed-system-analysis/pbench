@@ -89,11 +89,12 @@ class TestDatasetsList:
         limit = query.get("limit")
 
         if limit:
-            paginated_name_list = name_list[offset : offset + limit]
-            if len(paginated_name_list) < limit:
+            next_offset = offset + limit
+            paginated_name_list = name_list[offset:next_offset]
+            if next_offset >= len(name_list):
                 next_url = ""
             else:
-                query["offset"] = offset + len(paginated_name_list)
+                query["offset"] = next_offset
                 next_url = (
                     f"http://localhost{server_config.rest_uri}/datasets/list?"
                     + urlencode(query)

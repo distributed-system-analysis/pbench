@@ -354,7 +354,7 @@ class TestParameter:
         "type,keys,value,expected,delim",
         (
             (None, None, ["yes", "no"], ["yes", "no"], None),
-            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["yes", "no"], "|"),
+            (None, None, "one", ["one"], ";"),
             (
                 ParamType.ACCESS,
                 None,
@@ -362,8 +362,21 @@ class TestParameter:
                 ["public", "private"],
                 None,
             ),
-            (ParamType.STRING, None, "yes,no", ["yes", "no"], ","),
-            (None, None, "one", ["one"], ";"),
+            (
+                ParamType.INT,
+                None,
+                ["1,2,3"],
+                [1, 2, 3],
+                ",",
+            ),
+            (
+                ParamType.INT,
+                None,
+                ["1", "2", "3"],
+                [1, 2, 3],
+                None,
+            ),
+            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["yes", "no"], "|"),
             (
                 ParamType.KEYWORD,
                 ["true", "false"],
@@ -371,6 +384,7 @@ class TestParameter:
                 ["true", "false", "true"],
                 ";",
             ),
+            (ParamType.STRING, None, "yes,no", ["yes", "no"], ","),
             (
                 ParamType.STRING,
                 None,
@@ -392,12 +406,14 @@ class TestParameter:
     @pytest.mark.parametrize(
         "listtype,keys,value",
         (
-            (ParamType.STRING, None, [False, 1]),
+            (ParamType.ACCESS, None, ["sauron", "PRIVATE"]),
+            (ParamType.INT, None, ["a", "b"]),
+            (ParamType.INT, None, {"dict": "is-not-a-list-either"}),
             (ParamType.KEYWORD, ["Yes", "No"], ["maybe", "nO"]),
             (ParamType.KEYWORD, ["me.*"], ["me."]),
             (ParamType.KEYWORD, ["me.*"], ["me..foo"]),
             (ParamType.KEYWORD, ["me.*"], ["me.foo."]),
-            (ParamType.ACCESS, None, ["sauron", "PRIVATE"]),
+            (ParamType.STRING, None, [False, 1]),
             (ParamType.STRING, None, 1),
             (ParamType.STRING, None, {"dict": "is-not-a-list-either"}),
             (ParamType.STRING, None, "a,b,c"),
