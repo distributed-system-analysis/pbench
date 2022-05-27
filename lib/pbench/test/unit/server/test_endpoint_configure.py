@@ -48,7 +48,7 @@ class TestEndpointConfig:
                 "datasets_contents": f"{uri}/datasets/contents",
                 "datasets_daterange": f"{uri}/datasets/daterange",
                 "datasets_delete": f"{uri}/datasets/delete",
-                "datasets_detail": f"{uri}/datasets/detail",
+                "datasets_detail": f"{uri}/datasets/detail/",
                 "datasets_list": f"{uri}/datasets/list",
                 "datasets_mappings": f"{uri}/datasets/mappings/",
                 "datasets_metadata": f"{uri}/datasets/metadata/",

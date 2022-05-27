@@ -24,7 +24,9 @@ class DatasetsDetail(ElasticBase):
             Schema(
                 Parameter("user", ParamType.USER, required=False),
                 Parameter("access", ParamType.ACCESS, required=False),
-                Parameter("name", ParamType.STRING, required=True),
+                Parameter(
+                    "dataset", ParamType.STRING, required=True, uri_parameter=True
+                ),
                 Parameter("start", ParamType.DATE, required=True),
                 Parameter("end", ParamType.DATE, required=True),
                 Parameter(
@@ -43,7 +45,7 @@ class DatasetsDetail(ElasticBase):
 
         {
             "user": "username",
-            "name": "dataset-name",
+            "dataset": "dataset-name",
             "start": "start-time",
             "end": "end-time",
             "metadata": ["seen", "saved"]
@@ -56,7 +58,7 @@ class DatasetsDetail(ElasticBase):
                 data. If "user": None is specified, then only public datasets
                 will be returned.
 
-            "name" is the name of a Pbench agent dataset (tarball).
+            "dataset" is the name of a Pbench agent dataset (tarball).
 
             "start" and "end" are time strings representing a set of Elasticsearch
                 run document indices in which the dataset will be found.
@@ -69,7 +71,7 @@ class DatasetsDetail(ElasticBase):
             requested set of metadata to the postprocess method.
         """
         user = json_data.get("user")
-        name = json_data.get("name")
+        dataset = json_data.get("dataset")
         start = json_data.get("start")
         end = json_data.get("end")
 
@@ -77,7 +79,7 @@ class DatasetsDetail(ElasticBase):
         context["metadata"] = json_data.get("metadata")
         self.logger.info(
             "Return dataset {} for user {}, prefix {}: ({} - {})",
-            name,
+            dataset,
             user,
             self.prefix,
             start,
@@ -91,7 +93,7 @@ class DatasetsDetail(ElasticBase):
                 "params": {"ignore_unavailable": "true"},
                 "json": {
                     "query": self._build_elasticsearch_query(
-                        json_data, [{"term": {"run.name": name}}]
+                        json_data, [{"term": {"run.name": dataset}}]
                     ),
                     "sort": "_index",
                 },

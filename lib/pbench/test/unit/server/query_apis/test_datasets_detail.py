@@ -19,12 +19,11 @@ class TestDatasetsDetail(Commons):
     def _setup(self, client):
         super()._setup(
             cls_obj=DatasetsDetail(client.config, client.logger),
-            pbench_endpoint="/datasets/detail",
+            pbench_endpoint="/datasets/detail/fio",
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
                 "user": "drb",
                 "access": "private",
-                "name": "fio",
                 "start": "2020-08",
                 "end": "2020-10",
             },
@@ -43,10 +42,10 @@ class TestDatasetsDetail(Commons):
         The test will run once with each parameter supplied from the local parameterization,
         and, for each of those, three times with different values of the build_auth_header fixture.
         """
+        dataset_name = "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13"
         payload = {
             "user": user,
             "access": "private",
-            "name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
             "start": "2020-08",
             "end": "2020-10",
         }
@@ -130,8 +129,8 @@ class TestDatasetsDetail(Commons):
             payload, build_auth_header["header_param"]
         )
         response = query_api(
-            "/datasets/detail",
-            "/_search?ignore_unavailable=true",
+            f"/datasets/detail/{dataset_name}",
+            self.elastic_endpoint,
             payload,
             index,
             expected_status,
@@ -197,9 +196,9 @@ class TestDatasetsDetail(Commons):
         focus on the PostgreSQL dataset metadata... but necessarily has to
         borrow much of the setup.
         """
+        dataset_name = "drb"
         payload = {
             "user": "drb",
-            "name": "drb",
             "start": "2020-08",
             "end": "2020-10",
             "metadata": ["dashboard.seen", "server.deletion"],
@@ -272,8 +271,8 @@ class TestDatasetsDetail(Commons):
         )
 
         response = query_api(
-            "/datasets/detail",
-            "/_search?ignore_unavailable=true",
+            f"/datasets/detail/{dataset_name}",
+            self.elastic_endpoint,
             payload,
             index,
             HTTPStatus.OK,
@@ -351,8 +350,8 @@ class TestDatasetsDetail(Commons):
             server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
         response = query_api(
-            "/datasets/detail",
-            "/_search?ignore_unavailable=true",
+            f"{self.pbench_endpoint}",
+            self.elastic_endpoint,
             self.payload,
             index,
             expected_status,
@@ -380,8 +379,8 @@ class TestDatasetsDetail(Commons):
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
         response = query_api(
-            "/datasets/detail",
-            "/_search?ignore_unavailable=true",
+            f"{self.pbench_endpoint}",
+            self.elastic_endpoint,
             self.payload,
             index,
             HTTPStatus.BAD_REQUEST,
