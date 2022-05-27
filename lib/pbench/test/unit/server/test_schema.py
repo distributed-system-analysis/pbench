@@ -86,7 +86,7 @@ class TestParamType:
         Check basic consistency of the ParamType ENUM
         """
         assert (
-            len(ParamType.__members__) == 7
+            len(ParamType.__members__) == 8
         ), "Number of ParamType ENUM values has changed; confirm test coverage!"
         for n, t in ParamType.__members__.items():
             assert str(t) == t.friendly.upper()
@@ -95,13 +95,15 @@ class TestParamType:
     @pytest.mark.parametrize(
         "ptype,kwd,value,expected",
         (
-            (ParamType.STRING, None, "x", "x"),
-            (ParamType.JSON, None, {"key": "value"}, {"key": "value"}),
-            (ParamType.DATE, None, "2021-06-29", date_parser.parse("2021-06-29")),
-            (ParamType.USER, None, "drb", "1"),
             (ParamType.ACCESS, None, "PRIVATE", "private"),
+            (ParamType.DATE, None, "2021-06-29", date_parser.parse("2021-06-29")),
+            (ParamType.INT, None, "1", 1),
+            (ParamType.INT, None, 1, 1),
+            (ParamType.JSON, None, {"key": "value"}, {"key": "value"}),
             (ParamType.JSON, ["key"], {"key": "value"}, {"key": "value"}),
             (ParamType.KEYWORD, ["Llave"], "llave", "llave"),
+            (ParamType.STRING, None, "x", "x"),
+            (ParamType.USER, None, "drb", "1"),
         ),
     )
     def test_successful_conversions(
@@ -128,15 +130,16 @@ class TestParamType:
     @pytest.mark.parametrize(
         "ptype,value",
         (
-            (ParamType.STRING, {"not": "string"}),  # dict is not string
-            (ParamType.JSON, (1, False)),  # tuple is not JSON
+            (ParamType.ACCESS, ["foobar"]),  # ACCESS is "public" or "private"
+            (ParamType.ACCESS, 0),  # ACCESS must be a string
             (ParamType.DATE, "2021-06-45"),  # few months have 45 days
             (ParamType.DATE, "notadate"),  # not valid date string
             (ParamType.DATE, 1),  # not a string representing a date
+            (ParamType.INT, "a"),  # can not convert to an int
+            (ParamType.JSON, (1, False)),  # tuple is not JSON
+            (ParamType.STRING, {"not": "string"}),  # dict is not string
             (ParamType.USER, False),  # not a user string
             (ParamType.USER, "xyzzy"),  # not a defined username
-            (ParamType.ACCESS, ["foobar"]),  # ACCESS is "public" or "private"
-            (ParamType.ACCESS, 0),  # ACCESS must be a string
         ),
     )
     def test_failed_conversions(self, current_user_drb, ptype, value):
@@ -351,7 +354,7 @@ class TestParameter:
         "type,keys,value,expected,delim",
         (
             (None, None, ["yes", "no"], ["yes", "no"], None),
-            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["yes", "no"], "|"),
+            (None, None, "one", ["one"], ";"),
             (
                 ParamType.ACCESS,
                 None,
@@ -359,8 +362,21 @@ class TestParameter:
                 ["public", "private"],
                 None,
             ),
-            (ParamType.STRING, None, "yes,no", ["yes", "no"], ","),
-            (None, None, "one", ["one"], ";"),
+            (
+                ParamType.INT,
+                None,
+                ["1,2,3"],
+                [1, 2, 3],
+                ",",
+            ),
+            (
+                ParamType.INT,
+                None,
+                ["1", "2", "3"],
+                [1, 2, 3],
+                None,
+            ),
+            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["yes", "no"], "|"),
             (
                 ParamType.KEYWORD,
                 ["true", "false"],
@@ -368,6 +384,7 @@ class TestParameter:
                 ["true", "false", "true"],
                 ";",
             ),
+            (ParamType.STRING, None, "yes,no", ["yes", "no"], ","),
             (
                 ParamType.STRING,
                 None,
@@ -389,12 +406,14 @@ class TestParameter:
     @pytest.mark.parametrize(
         "listtype,keys,value",
         (
-            (ParamType.STRING, None, [False, 1]),
+            (ParamType.ACCESS, None, ["sauron", "PRIVATE"]),
+            (ParamType.INT, None, ["a", "b"]),
+            (ParamType.INT, None, {"dict": "is-not-a-list-either"}),
             (ParamType.KEYWORD, ["Yes", "No"], ["maybe", "nO"]),
             (ParamType.KEYWORD, ["me.*"], ["me."]),
             (ParamType.KEYWORD, ["me.*"], ["me..foo"]),
             (ParamType.KEYWORD, ["me.*"], ["me.foo."]),
-            (ParamType.ACCESS, None, ["sauron", "PRIVATE"]),
+            (ParamType.STRING, None, [False, 1]),
             (ParamType.STRING, None, 1),
             (ParamType.STRING, None, {"dict": "is-not-a-list-either"}),
             (ParamType.STRING, None, "a,b,c"),

@@ -351,6 +351,31 @@ def convert_string(value: str, _) -> str:
     return value
 
 
+def convert_int(value: Union[int, str], _) -> int:
+    """
+    Verify that the parameter value is either int or string and
+    if string then convert it to an int.
+
+    Args:
+        value: parameter value
+        _: The Parameter definition (not used)
+
+    Raises:
+        ConversionError: input can't be validated or normalized
+
+    Returns:
+        the input value
+    """
+    if type(value) is int:
+        return value
+    elif type(value) is str:
+        try:
+            return int(value)
+        except ValueError:
+            pass
+    raise ConversionError(value, int.__name__)
+
+
 def convert_keyword(value: str, parameter: "Parameter") -> str:
     """
     Verify that the parameter value is a string and a member of the
@@ -466,6 +491,7 @@ class ParamType(Enum):
 
     ACCESS = ("Access", convert_access)
     DATE = ("Date", convert_date)
+    INT = ("Int", convert_int)
     JSON = ("Json", convert_json)
     KEYWORD = ("Keyword", convert_keyword)
     LIST = ("List", convert_list)
@@ -678,6 +704,7 @@ class ApiBase(Resource):
         and describe a distinct Schema for each HTTP method.
         """
         super().__init__()
+        self.config = config
         self.logger = logger
         self.schema = schema
         self.role = role

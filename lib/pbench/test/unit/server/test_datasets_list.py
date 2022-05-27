@@ -1,9 +1,10 @@
 import datetime
 from http import HTTPStatus
-import requests
 from typing import List
+from urllib.parse import urlencode
 
 import pytest
+import requests
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
@@ -69,7 +70,7 @@ class TestDatasetsList:
         assert data["auth_token"]
         return data["auth_token"]
 
-    def get_results(self, name_list: List[str]) -> JSON:
+    def get_results(self, name_list: List[str], query: JSON, server_config) -> JSON:
         """
         Translate a list of names into a list of expected results of the
         abbreviated form returned by `datasets/list`: name, controller,
@@ -77,12 +78,32 @@ class TestDatasetsList:
 
         Args:
             name_list: List of dataset names
+            query: A JSON representation of the query parameters
+            server_config: Pbench config fixture
 
         Returns:
-            JSON list of dataset values
+            Paginated JSON object containing list of dataset values
         """
         list: List[JSON] = []
-        for name in sorted(name_list):
+        offset = query.get("offset", 0)
+        limit = query.get("limit")
+
+        if limit:
+            next_offset = offset + limit
+            paginated_name_list = name_list[offset:next_offset]
+            if next_offset >= len(name_list):
+                next_url = ""
+            else:
+                query["offset"] = next_offset
+                next_url = (
+                    f"http://localhost{server_config.rest_uri}/datasets/list?"
+                    + urlencode(query)
+                )
+        else:
+            paginated_name_list = name_list[offset:]
+            next_url = ""
+
+        for name in sorted(paginated_name_list):
             dataset = Dataset.query(name=name)
             list.append(
                 {
@@ -93,12 +114,16 @@ class TestDatasetsList:
                     },
                 }
             )
-        return list
+        return {"next_url": next_url, "results": list, "total": len(name_list)}
 
     @pytest.mark.parametrize(
         "login,query,results",
         [
             ("drb", {"name": "fio"}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "limit": 1}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "limit": 1, "offset": 2}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "offset": 1}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "offset": 2}, ["fio_1", "fio_2"]),
             ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
             ("drb", {"name": "drb"}, ["drb"]),
             ("test", {"name": "drb"}, []),
@@ -112,7 +137,7 @@ class TestDatasetsList:
             ("drb", {"end": "1970-09-01"}, []),
         ],
     )
-    def test_dataset_list(self, query_as, login, query, results):
+    def test_dataset_list(self, query_as, login, query, results, server_config):
         """
         Test the operation of `datasets/list` against our set of test
         datasets.
@@ -126,7 +151,7 @@ class TestDatasetsList:
         """
         query.update({"metadata": ["dataset.created"]})
         result = query_as(query, login, HTTPStatus.OK)
-        assert result.json == self.get_results(results)
+        assert result.json == self.get_results(results, query, server_config)
 
     def test_unauth_dataset_list(self, query_as):
         """
