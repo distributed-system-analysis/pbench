@@ -156,6 +156,8 @@ class TestInternalMetadata:
             "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
             "unit-test.v6.run-toc.2020-05": ["random_md5_string1"],
         }
+        metadata = Metadata.getvalue(ds, "server.webbwantsthistest")
+        assert metadata is None
 
 
 class TestMetadataNamespace:

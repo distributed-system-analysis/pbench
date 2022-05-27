@@ -322,12 +322,11 @@ def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
             if parameter.keywords:
                 bad = []
                 for k in value.keys():
-                    if parameter.keywords:
-                        if parameter.key_path:
-                            if not Metadata.is_key_path(k, parameter.keywords):
-                                bad.append(k)
-                        elif k not in parameter.keywords:
+                    if parameter.key_path:
+                        if not Metadata.is_key_path(k, parameter.keywords):
                             bad.append(k)
+                    elif k not in parameter.keywords:
+                        bad.append(k)
                 if bad:
                     raise KeywordError(
                         parameter, f"JSON key{'s' if len(bad) > 1 else ''}", bad

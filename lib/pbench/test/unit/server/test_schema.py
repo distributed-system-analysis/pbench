@@ -414,8 +414,8 @@ class TestParameter:
         "listtype,keys,path,value",
         (
             (ParamType.ACCESS, None, False, ["sauron", "PRIVATE"]),
-            (ParamType.INT, None, ["a", "b"]),
-            (ParamType.INT, None, {"dict": "is-not-a-list-either"}),
+            (ParamType.INT, None, False, ["a", "b"]),
+            (ParamType.INT, None, False, {"dict": "is-not-a-list-either"}),
             (ParamType.KEYWORD, ["Yes", "No"], False, ["maybe", "nO"]),
             (ParamType.KEYWORD, ["me"], True, ["me."]),
             (ParamType.KEYWORD, ["me"], True, ["me..foo"]),

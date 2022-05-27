@@ -789,7 +789,7 @@ class Metadata(Database.Base):
     DASHBOARD = "dashboard"
 
     # DATASET is a "virtual" key namespace representing the columns of the
-    # Dataset SQL table. Through Dataset.as_json() we allow the colums to be
+    # Dataset SQL table. Through Dataset.as_dict() we allow the columns to be
     # accessed as a normal metadata key namespace.
     #
     # {"dataset.created": "3000-03-30T03:30:30.303030+00:00"}
