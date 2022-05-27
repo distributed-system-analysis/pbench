@@ -17,6 +17,7 @@ from pbench.server.api.resources import (
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import (
     Dataset,
+    Metadata,
     MetadataError,
 )
 
@@ -42,7 +43,8 @@ class DatasetsList(ApiBase):
                     "metadata",
                     ParamType.LIST,
                     element_type=ParamType.KEYWORD,
-                    keywords=ApiBase.METADATA,
+                    keywords=Metadata.METADATA_KEYS,
+                    key_path=True,
                     string_list=",",
                 ),
             ),

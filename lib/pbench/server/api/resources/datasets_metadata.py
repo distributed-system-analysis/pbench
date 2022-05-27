@@ -34,7 +34,8 @@ class DatasetsMetadata(ApiBase):
             "metadata",
             ParamType.LIST,
             element_type=ParamType.KEYWORD,
-            keywords=ApiBase.METADATA,
+            keywords=Metadata.METADATA_KEYS,
+            key_path=True,
             string_list=",",
         ),
     )
@@ -50,6 +51,7 @@ class DatasetsMetadata(ApiBase):
                     ParamType.JSON,
                     keywords=Metadata.USER_UPDATEABLE_METADATA,
                     required=True,
+                    key_path=True,
                 ),
             ),
             role=API_OPERATION.UPDATE,
@@ -145,7 +147,7 @@ class DatasetsMetadata(ApiBase):
             role = API_OPERATION.UPDATE
         else:
             for k in metadata.keys():
-                if Metadata.get_native_key(k) != Metadata.USER_NATIVE_KEY:
+                if Metadata.get_native_key(k) != Metadata.USER:
                     role = API_OPERATION.UPDATE
         self._check_authorization(
             str(dataset.owner_id), dataset.access, check_role=role
@@ -155,7 +157,7 @@ class DatasetsMetadata(ApiBase):
         for k, v in metadata.items():
             native_key = Metadata.get_native_key(k)
             user: Optional[User] = None
-            if native_key == Metadata.USER_NATIVE_KEY:
+            if native_key == Metadata.USER:
                 user = Auth.token_auth.current_user()
             try:
                 Metadata.setvalue(key=k, value=v, dataset=dataset, user=user)

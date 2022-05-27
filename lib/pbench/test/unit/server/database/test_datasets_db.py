@@ -1,4 +1,7 @@
+from datetime import datetime
+from freezegun.api import freeze_time
 import pytest
+
 from pbench.server.database.models.datasets import (
     Dataset,
     States,
@@ -23,8 +26,9 @@ class TestDatasets:
     def test_construct(self, db_session, create_user):
         """Test dataset contructor"""
         user = create_user
-        ds = Dataset(owner=user.username, name="fio")
-        ds.add()
+        with freeze_time("1970-01-01"):
+            ds = Dataset(owner=user.username, name="fio")
+            ds.add()
         assert ds.owner == user
         assert ds.name == "fio"
         assert ds.state == States.UPLOADING
@@ -39,6 +43,15 @@ class TestDatasets:
         assert ds.uploaded <= ds.transition
         assert ds.id is not None
         assert "test(1)|fio" == str(ds)
+        assert ds.as_dict() == {
+            "access": "private",
+            "created": None,
+            "name": "fio",
+            "owner": "test",
+            "state": "Uploading",
+            "transition": "1970-01-01T00:00:00+00:00",
+            "uploaded": "1970-01-01T00:00:00+00:00",
+        }
 
     def test_dataset_survives_user(self, db_session, create_user):
         """The Dataset isn't automatically removed when the referenced
@@ -95,11 +108,23 @@ class TestDatasets:
 
     def test_advanced_good(self, db_session, create_user):
         """Test advancing the state of a dataset"""
-        ds = Dataset(owner=create_user.username, name="fio")
-        ds.add()
-        ds.advance(States.UPLOADED)
+        with freeze_time("2525-05-25T15:15"):
+            ds = Dataset(owner=create_user.username, name="fio")
+            ds.created = datetime(2020, 1, 25, 23, 14)
+            ds.add()
+        with freeze_time("2525-08-25T15:25"):
+            ds.advance(States.UPLOADED)
         assert ds.state == States.UPLOADED
         assert ds.uploaded <= ds.transition
+        assert ds.as_dict() == {
+            "access": "private",
+            "created": "2020-01-25T23:14:00+00:00",
+            "name": "fio",
+            "owner": "test",
+            "state": "Uploaded",
+            "transition": "2525-08-25T15:25:00+00:00",
+            "uploaded": "2525-05-25T15:15:00+00:00",
+        }
 
     def test_advanced_bad_state(self, db_session, create_user):
         """Test with a non-States state value"""

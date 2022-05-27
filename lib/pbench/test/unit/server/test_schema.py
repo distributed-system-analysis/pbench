@@ -298,7 +298,7 @@ class TestParameter:
         """
         Test parameter normalization for a keyword parameter.
         """
-        x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "me.*"])
+        x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "me"], key_path=True)
         assert x.normalize(input) == expected
 
     @pytest.mark.parametrize(
@@ -386,6 +386,13 @@ class TestParameter:
             ),
             (ParamType.STRING, None, "yes,no", ["yes", "no"], ","),
             (
+                ParamType.KEYWORD,
+                None,
+                "True+false+BLUE",
+                ["true", "false", "blue"],
+                "+",
+            ),
+            (
                 ParamType.STRING,
                 None,
                 ["a,b,c", "yes,no", "maybe", "definitely,not"],
@@ -404,26 +411,28 @@ class TestParameter:
         assert x.normalize(value) == expected
 
     @pytest.mark.parametrize(
-        "listtype,keys,value",
+        "listtype,keys,path,value",
         (
-            (ParamType.ACCESS, None, ["sauron", "PRIVATE"]),
+            (ParamType.ACCESS, None, False, ["sauron", "PRIVATE"]),
             (ParamType.INT, None, ["a", "b"]),
             (ParamType.INT, None, {"dict": "is-not-a-list-either"}),
-            (ParamType.KEYWORD, ["Yes", "No"], ["maybe", "nO"]),
-            (ParamType.KEYWORD, ["me.*"], ["me."]),
-            (ParamType.KEYWORD, ["me.*"], ["me..foo"]),
-            (ParamType.KEYWORD, ["me.*"], ["me.foo."]),
-            (ParamType.STRING, None, [False, 1]),
-            (ParamType.STRING, None, 1),
-            (ParamType.STRING, None, {"dict": "is-not-a-list-either"}),
-            (ParamType.STRING, None, "a,b,c"),
+            (ParamType.KEYWORD, ["Yes", "No"], False, ["maybe", "nO"]),
+            (ParamType.KEYWORD, ["me"], True, ["me."]),
+            (ParamType.KEYWORD, ["me"], True, ["me..foo"]),
+            (ParamType.KEYWORD, ["me"], True, ["me.foo."]),
+            (ParamType.STRING, None, False, 1),
+            (ParamType.STRING, None, False, {"dict": "is-not-a-list-either"}),
+            (ParamType.STRING, None, False, "a,b,c"),
+            (ParamType.STRING, None, False, [False, 1]),
         ),
     )
-    def test_invalid_list(self, listtype, keys, value):
+    def test_invalid_list(self, listtype, keys, path, value):
         """
         Test parameter normalization for a list parameter.
         """
-        x = Parameter("data", ParamType.LIST, keywords=keys, element_type=listtype)
+        x = Parameter(
+            "data", ParamType.LIST, keywords=keys, element_type=listtype, key_path=path
+        )
         with pytest.raises(SchemaError) as exc:
             x.normalize(value)
         if type(value) is list:

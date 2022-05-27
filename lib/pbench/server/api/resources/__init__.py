@@ -21,7 +21,6 @@ from pbench.server.database.models.datasets import (
     MetadataNotFound,
 )
 from pbench.server.database.models.users import User
-from pbench.server.utils import UtcTimeHelper
 
 
 class APIAbort(Exception):
@@ -209,7 +208,8 @@ class KeywordError(SchemaError):
         self.keywords = sorted(keywords if keywords else parameter.keywords)
 
     def __str__(self):
-        return f"Unrecognized {self.expected_type} {self.unrecognized!r} given for parameter {self.parameter.name}; allowed keywords are {self.keywords!r}"
+        key = "keywords" if not self.parameter.key_path else "namespaces"
+        return f"Unrecognized {self.expected_type} {self.unrecognized!r} given for parameter {self.parameter.name}; allowed {key} are {self.keywords!r}"
 
 
 class ListElementError(SchemaError):
@@ -302,7 +302,10 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
 
 def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
     """
-    Validate a parameter of JSON type.
+    Validate a parameter of JSON type. If the Parameter object defines a list
+    of keywords, the JSON key values are validated against that list. If the
+    Parameter key_path attribute is set, then only the first element of a
+    dotted path (e.g., "user" for "user.contact.email") is validated.
 
     Args:
         value: JSON dict
@@ -319,8 +322,12 @@ def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
             if parameter.keywords:
                 bad = []
                 for k in value.keys():
-                    if not Metadata.is_key_path(k, parameter.keywords):
-                        bad.append(k)
+                    if parameter.keywords:
+                        if parameter.key_path:
+                            if not Metadata.is_key_path(k, parameter.keywords):
+                                bad.append(k)
+                        elif k not in parameter.keywords:
+                            bad.append(k)
                 if bad:
                     raise KeywordError(
                         parameter, f"JSON key{'s' if len(bad) > 1 else ''}", bad
@@ -380,12 +387,13 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
     """
     Verify that the parameter value is a string and a member of the
     `valid` list. The match is case-blind and will return the lowercased
-    version of the input keyword.
+    version of the input keyword. If there are no keywords defined, the
+    input is lowercased and returned without validation.
 
-    Keyword matching recognizes a special sort of keyword that roots a
-    user-defined "open" secondary namespace controlled by the caller, signaled
-    by the ".*" suffix on the keyword: e.g., a keyword of "user.*" will match
-    input of "user", "user.contact" and "user.cloud.name".
+    Keyword matching recognizes a "path" keyword where validation occurs only
+    on the first element of a dotted path (e.g., "user.contact.email" matches
+    against "user"). This is signaled by the key_path attribute of the
+    Parameter object.
 
     Args:
         value: parameter value
@@ -397,10 +405,15 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
     Returns:
         the input value
     """
+
     if type(value) is not str:
         raise ConversionError(value, str.__name__)
     input = value.lower()
-    if Metadata.is_key_path(input, parameter.keywords):
+    if not parameter.keywords:
+        return input
+    elif parameter.key_path and Metadata.is_key_path(input, parameter.keywords):
+        return input
+    elif input in parameter.keywords:
         return input
     raise KeywordError(parameter, "keyword", [value])
 
@@ -527,6 +540,7 @@ class Parameter:
         element_type: Union[ParamType, None] = None,
         required: bool = False,
         uri_parameter: bool = False,
+        key_path: bool = False,
         string_list: Union[str, None] = None,
     ):
         """
@@ -540,6 +554,8 @@ class Parameter:
             element_type: List element type if ParamType.LIST
             required: whether the parameter is required (defaults to False)
             uri_parameter: whether the parameter is coming from the uri
+            key_path: keyword value can be a dotted path where only the first
+                element matches the keyword list.
             string_list: if a delimiter is specified, individual string values
                 will be split into lists.
         """
@@ -549,6 +565,7 @@ class Parameter:
         self.element_type = element_type
         self.required = required
         self.uri_parameter = uri_parameter
+        self.key_path = key_path
         self.string_list = string_list
 
     def invalid(self, json: JSONOBJECT) -> bool:
@@ -668,14 +685,6 @@ class ApiBase(Resource):
     PUT, and DELETE HTTP operations by overriding the abstract _get, _post,
     _put, and _delete methods.
     """
-
-    # We treat some Dataset object attributes as user-accessible metadata for
-    # the purposes of these APIs even though they're represented as columns on
-    # the main SQL table.
-    METADATA = sorted(
-        Metadata.USER_METADATA
-        + [Dataset.ACCESS, Dataset.CREATED, Dataset.OWNER, Dataset.UPLOADED]
-    )
 
     def __init__(
         self,
@@ -1039,18 +1048,10 @@ class ApiBase(Resource):
 
         metadata = {}
         for i in requested_items:
-            if i == Dataset.ACCESS:
-                metadata[i] = dataset.access
-            elif i == Dataset.CREATED:
-                metadata[i] = UtcTimeHelper(dataset.created).to_iso_string()
-            elif i == Dataset.OWNER:
-                metadata[i] = dataset.owner.username
-            elif i == Dataset.UPLOADED:
-                metadata[i] = UtcTimeHelper(dataset.uploaded).to_iso_string()
-            elif Metadata.is_key_path(i, Metadata.USER_METADATA):
+            if Metadata.is_key_path(i, Metadata.METADATA_KEYS):
                 native_key = Metadata.get_native_key(i)
                 user: Optional[User] = None
-                if native_key == Metadata.USER_NATIVE_KEY:
+                if native_key == Metadata.USER:
                     user = Auth.token_auth.current_user()
                 try:
                     metadata[i] = Metadata.getvalue(dataset=dataset, key=i, user=user)
