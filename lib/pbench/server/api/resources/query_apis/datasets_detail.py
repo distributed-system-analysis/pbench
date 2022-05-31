@@ -9,7 +9,11 @@ from pbench.server.api.resources.query_apis import (
     ElasticBase,
     PostprocessError,
 )
-from pbench.server.database.models.datasets import DatasetNotFound, MetadataError
+from pbench.server.database.models.datasets import (
+    DatasetNotFound,
+    Metadata,
+    MetadataError,
+)
 
 
 class DatasetsDetail(ElasticBase):
@@ -33,7 +37,9 @@ class DatasetsDetail(ElasticBase):
                     "metadata",
                     ParamType.LIST,
                     element_type=ParamType.KEYWORD,
-                    keywords=ElasticBase.METADATA,
+                    keywords=Metadata.METADATA_KEYS,
+                    key_path=True,
+                    string_list=",",
                 ),
             ),
         )

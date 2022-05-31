@@ -3,7 +3,7 @@ import datetime
 import enum
 from pathlib import Path
 import re
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from sqlalchemy import Column, DateTime, Enum, event, ForeignKey, Integer, JSON, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -639,6 +639,28 @@ class Dataset(Database.Base):
 
         return dataset
 
+    def as_dict(self) -> Dict[str, Any]:
+        """
+        Return a dict representing the extended public view of the dataset,
+        including non-private primary SQL columns and the `metadata.log` data
+        from the metadata table.
+
+        This mapping provides the basis of the "dataset.*" metadata namespace
+        for the API.
+
+        Returns
+            Dictionary representation of the DB object
+        """
+        return {
+            "access": self.access,
+            "created": self.created.isoformat() if self.created else None,
+            "name": self.name,
+            "owner": self.owner.username,
+            "state": str(self.state),
+            "transition": self.transition.isoformat(),
+            "uploaded": self.uploaded.isoformat(),
+        }
+
     def __str__(self) -> str:
         """
         Return a string representation of the dataset
@@ -735,11 +757,6 @@ class Metadata(Database.Base):
 
     __tablename__ = "dataset_metadata"
 
-    # "Native" keys are the value of the PostgreSQL "key" column in the SQL
-    # table. We support hierarchical nested keys of the form "server.indexed",
-    # but the first element of any nested key path must be one of these:
-    NATIVE_KEYS = ["dashboard", "server", "user"]
-
     # +++ Standard Metadata keys:
     #
     # Metadata accessible through the API comes from both the parent Dataset
@@ -762,12 +779,6 @@ class Metadata(Database.Base):
     # metadata property visible to all users, while "user.favorite" is visible
     # only to the specific user that wrote the value; each authenticated user
     # may have its own unique "user.favorite" value.
-    #
-    # The following class constants define the set of currently available
-    # metadata keys, where the "open" namespaces are represented by the
-    # syntax "dashboard.*" and "user.*" which allow clients to control the
-    # key names using a "dotted path" notation like "dashboard.seen" or
-    # "dashboard.contact.email".
 
     # DASHBOARD is arbitrary data saved on behalf of the dashboard client as a
     # JSON document. Writing these keys requires ownership of the referenced
@@ -775,7 +786,21 @@ class Metadata(Database.Base):
     # dataset.
     #
     # {"dashboard.seen": True}
-    DASHBOARD = "dashboard.*"
+    DASHBOARD = "dashboard"
+
+    # DATASET is a "virtual" key namespace representing the columns of the
+    # Dataset SQL table. Through Dataset.as_dict() we allow the columns to be
+    # accessed as a normal metadata key namespace.
+    #
+    # {"dataset.created": "3000-03-30T03:30:30.303030+00:00"}
+    DATASET = "dataset"
+
+    # SERVER is an internally maintained key namespace for additional metadata
+    # relating to the server's management of datasets. The information here is
+    # accessible to callers, but can't be changed.
+    #
+    # {"server.deletion": "3030-03-30T03:30:30.303030+00:00"}
+    SERVER = "server"
 
     # USER is arbitrary data saved with the dataset on behalf of an
     # authenticated user, as a JSON document. Writing these keys requires READ
@@ -784,8 +809,12 @@ class Metadata(Database.Base):
     # unique value for these keys, for example "user.favorite".
     #
     # {"user.favorite": True}
-    USER_NATIVE_KEY = "user"
-    USER = USER_NATIVE_KEY + ".*"
+    USER = "user"
+
+    # "Native" keys are the value of the PostgreSQL "key" column in the SQL
+    # table. We support hierarchical nested keys of the form "server.indexed",
+    # but the first element of any nested key path must be one of these:
+    NATIVE_KEYS = [DASHBOARD, SERVER, USER]
 
     # DELETION timestamp for dataset based on user settings and system
     # settings when the dataset is created.
@@ -829,13 +858,7 @@ class Metadata(Database.Base):
     USER_UPDATEABLE_METADATA = [DASHBOARD, USER]
 
     # Metadata keys that are accessible to clients
-    USER_METADATA = USER_UPDATEABLE_METADATA + [DELETION]
-
-    # Metadata keys that are for internal use only
-    INTERNAL_METADATA = [REINDEX, ARCHIVED, TARBALL_PATH, INDEX_MAP]
-
-    # All supported Metadata keys
-    METADATA_KEYS = USER_METADATA + INTERNAL_METADATA
+    METADATA_KEYS = sorted(USER_UPDATEABLE_METADATA + [DATASET, SERVER])
 
     # NOTE: the ECMA JSON specification allows JSON "names" (keys) to be any
     # string, though most implementations and schemas enforce or recommend
@@ -919,11 +942,18 @@ class Metadata(Database.Base):
     def is_key_path(key: str, valid: List[str]) -> bool:
         """
         Determine whether 'key' is a valid Metadata key path using the list
-        specified in 'valid'. If the specified key is in the list, then it's
-        valid. If the key is a dotted path and the first element plus a
-        trailing ".*" is in the list, then this is an open key namespace where
-        any subsequent path is acceptable: e.g., "user.*" allows "user", or
-        "user.favorite", "user.notes.status", etc.
+        specified in 'valid'. If the "native" key (first element of a dotted
+        path) is in the list, then it's valid.
+
+        NOTE: we only validate the "native" key of the path. The "dashboard"
+        and "user" namespaces are completely open for any subsidiary keys the
+        caller desires. The "dataset" and "server" namespaces are internally
+        defined by Pbench, and can't be modified by the client, however a query
+        for a metadata key that's not defined will simply return None. This
+        seems preferable to building a complicated multi-level keyword path
+        validator and provides a degree of version independence. (That is, if
+        we add "server.nextgenkey" a query for that key on a previous server
+        version will return None rather than failing in validation.)
 
         Args:
             key: metadata key path
@@ -940,8 +970,8 @@ class Metadata(Database.Base):
         # Disallow ".." and trailing "."
         if "" in path:
             return False
-        # Check for open namespace match
-        if path[0] + ".*" not in valid:
+        # Check for namespace match
+        if path[0] not in valid:
             return False
         # Check that all open namespace keys are valid symbols
         return bool(re.fullmatch(Metadata._valid_key_charset, k))
@@ -986,11 +1016,14 @@ class Metadata(Database.Base):
             raise MetadataBadKey(key)
         keys = key.lower().split(".")
         native_key = keys.pop(0)
-        try:
-            meta = Metadata.get(dataset, native_key, user)
-        except MetadataNotFound:
-            return None
-        value = meta.value
+        if native_key == "dataset":
+            value = dataset.as_dict()
+        else:
+            try:
+                meta = Metadata.get(dataset, native_key, user)
+            except MetadataNotFound:
+                return None
+            value = meta.value
         name = native_key
         for i in keys:
             # If we have a nested key, and the `value` at this level isn't

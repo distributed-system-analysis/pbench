@@ -15,7 +15,7 @@ from pbench.server.database.models.datasets import (
 )
 
 
-class TestMetadata:
+class TestGetSetMetadata:
     def test_metadata(self, db_session, create_user):
         """Various tests on Metadata keys"""
         # See if we can create a metadata row
@@ -109,6 +109,55 @@ class TestMetadata:
 
         Metadata.remove(ds, "dashboard")
         assert ds.metadatas == []
+
+
+class TestInternalMetadata:
+    def test_dataset_full(self, provide_metadata):
+        ds = Dataset.query(name="drb")
+        metadata = Metadata.getvalue(ds, "dataset")
+        assert metadata == {
+            "access": "private",
+            "created": "2020-02-15T00:00:00+00:00",
+            "name": "drb",
+            "owner": "drb",
+            "state": "Uploading",
+            "transition": "1970-01-01T00:42:00+00:00",
+            "uploaded": "2022-01-01T00:00:00+00:00",
+        }
+
+    def test_dataset_keys(self, provide_metadata):
+        ds = Dataset.query(name="drb")
+        metadata = Metadata.getvalue(ds, "dataset.state")
+        assert metadata == "Uploading"
+        metadata = Metadata.getvalue(ds, "dataset.transition")
+        assert metadata == "1970-01-01T00:42:00+00:00"
+        metadata = Metadata.getvalue(ds, "dataset.nosuchkey")
+        assert metadata is None
+
+    def test_server_full(self, provide_metadata):
+        ds = Dataset.query(name="drb")
+        metadata = Metadata.getvalue(ds, "server")
+        assert metadata == {
+            "deletion": "2022-12-25",
+            "index-map": {
+                "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
+                "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
+                "unit-test.v6.run-toc.2020-05": ["random_md5_string1"],
+            },
+        }
+
+    def test_server_keys(self, provide_metadata):
+        ds = Dataset.query(name="drb")
+        metadata = Metadata.getvalue(ds, "server.deletion")
+        assert metadata == "2022-12-25"
+        metadata = Metadata.getvalue(ds, "server.index-map")
+        assert metadata == {
+            "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
+            "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
+            "unit-test.v6.run-toc.2020-05": ["random_md5_string1"],
+        }
+        metadata = Metadata.getvalue(ds, "server.webbwantsthistest")
+        assert metadata is None
 
 
 class TestMetadataNamespace:

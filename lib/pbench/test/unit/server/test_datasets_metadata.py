@@ -110,21 +110,28 @@ class TestDatasetsMetadata:
             HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.*', 'dataset.access', 'dataset.created', 'dataset.owner', 'dataset.uploaded', 'server.deletion', 'user.*']"
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard', 'dataset', 'server', 'user']"
         }
 
     def test_get1(self, query_get_as):
         response = query_get_as(
             "drb",
             {
-                "metadata": ["dashboard.seen", "server.deletion", "dataset.access"],
+                "metadata": ["dashboard.seen", "server", "dataset.access"],
             },
             "drb",
             HTTPStatus.OK,
         )
         assert response.json == {
             "dashboard.seen": None,
-            "server.deletion": "2022-12-25",
+            "server": {
+                "deletion": "2022-12-25",
+                "index-map": {
+                    "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
+                    "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
+                    "unit-test.v6.run-toc.2020-05": ["random_md5_string1"],
+                },
+            },
             "dataset.access": "private",
         }
 
@@ -132,7 +139,7 @@ class TestDatasetsMetadata:
         response = query_get_as(
             "drb",
             {
-                "metadata": "dashboard.seen,server.deletion,dataset.access",
+                "metadata": "dashboard.seen,server.deletion,dataset",
             },
             "drb",
             HTTPStatus.OK,
@@ -140,7 +147,15 @@ class TestDatasetsMetadata:
         assert response.json == {
             "dashboard.seen": None,
             "server.deletion": "2022-12-25",
-            "dataset.access": "private",
+            "dataset": {
+                "access": "private",
+                "created": "2020-02-15T00:00:00+00:00",
+                "name": "drb",
+                "owner": "drb",
+                "state": "Uploading",
+                "transition": "1970-01-01T00:42:00+00:00",
+                "uploaded": "2022-01-01T00:00:00+00:00",
+            },
         }
 
     def test_get3(self, query_get_as):
@@ -263,7 +278,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed keywords are ['dashboard.*', 'user.*']"
+            "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed namespaces are ['dashboard', 'user']"
         }
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
@@ -273,7 +288,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON key ['dataset.access'] given for parameter metadata; allowed keywords are ['dashboard.*', 'user.*']"
+            "message": "Unrecognized JSON key ['dataset.access'] given for parameter metadata; allowed namespaces are ['dashboard', 'user']"
         }
 
     def test_put_nowrite(self, query_get_as, query_put_as):
