@@ -647,7 +647,7 @@ class ElasticBulkBase(ApiBase):
             API_METHOD.POST, ParamType.DATASET, params
         )
 
-        # Since the constructor validated that a DATASET parameter was define
+        # Since the constructor validated that a DATASET parameter was defined
         # and required, a failure here is unexpected.
         if not dataset_param or not dataset_param.value:
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from enum import Enum
+from enum import auto, Enum
 from http import HTTPStatus
 import json
 from json.decoder import JSONDecodeError
@@ -648,10 +648,11 @@ class ParamSet(NamedTuple):
 
 
 class API_METHOD(Enum):
-    GET = 1
-    PUT = 2
-    POST = 3
-    DELETE = 4
+    DELETE = auto()
+    GET = auto()
+    HEAD = auto()
+    POST = auto()
+    PUT = auto()
 
 
 class API_OPERATION(Enum):
@@ -666,16 +667,16 @@ class API_OPERATION(Enum):
     NOTE: only READ and UPDATE are currently used by Pbench queries.
     """
 
-    CREATE = 1
-    READ = 2
-    UPDATE = 3
-    DELETE = 4
+    CREATE = auto()
+    READ = auto()
+    UPDATE = auto()
+    DELETE = auto()
 
 
 class API_AUTHORIZATION(Enum):
-    NONE = 1
-    DATASET = 2
-    USER_ACCESS = 4
+    NONE = auto()
+    DATASET = auto()
+    USER_ACCESS = auto()
 
 
 class ApiParams(NamedTuple):
@@ -743,11 +744,11 @@ class Schema:
         """
         Find a parameter of the desired type.
 
-        Search the schema for a parameter of the specified type, returning the
-        parameter definition and the assigned value for that parameter.
+        Search the schema for the first Parameter of the desired type,
+        returning the parameter definition and the assigned value for that
+        parameter.
 
         Args
-            method: The API method to be authorized
             dtype:  The desired datatype (e.g., DATASET or USER)
             params: The API parameter set
 
@@ -816,12 +817,12 @@ class ApiSchema:
         """
         Find a parameter of the desired type.
 
-        This is a wrapper around the ApiSchema method to encapsulate searching
-        across the URI parameter schema, the query parameter schema, and the
-        JSON body schema for the desired type.
+        This is a wrapper around the Schema method to encapsulate searching
+        across the URI parameter schema, then the query parameter schema, and
+        finally the JSON body schema for the first occurrence of a Parameter
+        of the desired type.
 
         Args
-            method: The API method to be authorized
             dtype:  The desired datatype (e.g., DATASET or USER)
             params: The API parameter set
 
@@ -868,9 +869,6 @@ class ApiSchema:
         if self.uri_schema:
             uri = self.uri_schema.validate(params.uri)
 
-        # I'm thinking that if we can identify ParamType.DATASET, we can just
-        # use that to authorize. Failing that, look for USER and ACCESS?
-
         return ApiParams(body=body, query=query, uri=uri)
 
     def authorize(self, params: ApiParams) -> Optional[ApiAuthorization]:
@@ -893,8 +891,6 @@ class ApiSchema:
         Returns
             The values for username and access policy to use for authorization.
         """
-        if self.authorization == API_AUTHORIZATION.NONE:
-            return
         if self.authorization == API_AUTHORIZATION.DATASET:
             ds = self.get_param_by_type(ParamType.DATASET, params)
             if ds:
@@ -904,7 +900,7 @@ class ApiSchema:
                     role=self.operation,
                 )
             return None
-        if self.authorization == API_AUTHORIZATION.USER_ACCESS:
+        elif self.authorization == API_AUTHORIZATION.USER_ACCESS:
             user = self.get_param_by_type(ParamType.USER, params)
             access = self.get_param_by_type(ParamType.ACCESS, params)
             return ApiAuthorization(
@@ -937,10 +933,11 @@ class ApiSchemaSet:
         self, method: API_METHOD, dtype: ParamType, params: Optional[ApiParams]
     ) -> Optional[ParamSet]:
         """
-        Find a parameter of the desired type.
+        Find the first relevant parameter of the desired type.
 
-        This is a wrapper around the ApiSchema method to encapsulate selecting
-        the proper schema.
+        This uses the "method" parameter to select the appropriate ApiSchema
+        for the active API, and then searches for the first Parameter of the
+        specified type defined for that API method.
 
         Args
             method: The API method to be authorized
@@ -988,7 +985,7 @@ class ApiSchemaSet:
             args:   The API parameter set
 
         Returns:
-            Advice to the caller on how to authorize client API access
+            The values for username and access policy to use for authorization.
         """
         if method in self.schemas:
             return self.schemas[method].authorize(args)
@@ -1025,8 +1022,9 @@ class ApiBase(Resource):
         Args:
             config: server configuration
             logger: logger object
-            schemas: A set of ApiSchema objects for various HTTP methods the
-                    API module supports. For example, for GET, PUT, and DELETE.
+            schemas: ApiSchema objects to provide parameter validation for for
+                    various HTTP methods the API module supports. For example,
+                    for GET, PUT, and DELETE.
         """
         super().__init__()
         self.config = config
@@ -1443,13 +1441,10 @@ class ApiBase(Resource):
                 try:
                     body_params = request.get_json()
                 except Exception as e:
-                    self.logger.warning(
-                        "{}: Bad JSON in request, {!r}, {!r}",
-                        api_name,
-                        str(e),
-                        request.data,
+                    abort(
+                        HTTPStatus.BAD_REQUEST,
+                        message=f"Invalid request payload: {str(e)!r}",
                     )
-                    abort(HTTPStatus.BAD_REQUEST, message="Invalid request payload")
 
             try:
                 if self.schemas[method].query_schema:
@@ -1495,7 +1490,11 @@ class ApiBase(Resource):
                 self.logger.warning("{}: {}", api_name, e)
                 abort(e.http_status, message=str(e))
             except Exception as e:
-                self.logger.exception("Duh, {}", e)
+                self.logger.exception("{}: {}", api_name, e)
+                abort(
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
+                )
 
         try:
             return execute(params, request)

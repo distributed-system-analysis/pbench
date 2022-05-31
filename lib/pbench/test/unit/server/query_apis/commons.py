@@ -239,7 +239,10 @@ class Commons:
             data='{"x":0]',
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == "Invalid request payload"
+        assert (
+            response.json.get("message")
+            == "Invalid request payload: '400 Bad Request: The browser (or proxy) sent a request that this server could not understand.'"
+        )
 
     def test_missing_keys(self, client, server_config, pbench_token):
         """

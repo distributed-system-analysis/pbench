@@ -110,18 +110,17 @@ class IndexMapBase(ElasticBase):
 
     def preprocess(self, params: ApiParams) -> CONTEXT:
         """
-        Query the Dataset associated with this run id, and determine whether the
-        request is authorized for this dataset.
+        Identify the Dataset on which we're operating, and return it in the
+        CONTEXT for the Elasticsearch assembly and postprocessing.
 
-        If the user has authorization to read the dataset, return the Dataset
-        object in the JSON CONTEXT so that subclass operations can use it.
+        Note that the class constructor validated that the API is authorized
+        using the Dataset ownership/access, so validation and authorization has
+        already taken place.
         """
         _, dataset = self.schemas.get_param_by_type(
             API_METHOD.POST, ParamType.DATASET, params
         )
 
-        # The dataset exists, and the authenticated user has access, so process
-        # the operation with the appropriate CONTEXT.
         return {"dataset": dataset}
 
     def get_index(self, dataset: Dataset, root_index_name: AnyStr) -> AnyStr:
