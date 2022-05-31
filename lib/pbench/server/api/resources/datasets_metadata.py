@@ -47,6 +47,7 @@ class DatasetsMetadata(ApiBase):
                         ParamType.JSON,
                         keywords=Metadata.USER_UPDATEABLE_METADATA,
                         required=True,
+                        key_path=True,
                     )
                 ),
                 authorization=API_AUTHORIZATION.NONE,
@@ -62,7 +63,8 @@ class DatasetsMetadata(ApiBase):
                         "metadata",
                         ParamType.LIST,
                         element_type=ParamType.KEYWORD,
-                        keywords=ApiBase.METADATA,
+                        keywords=Metadata.METADATA_KEYS,
+                        key_path=True,
                         string_list=",",
                     )
                 ),

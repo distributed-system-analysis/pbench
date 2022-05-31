@@ -1007,14 +1007,6 @@ class ApiBase(Resource):
     _put, and _delete methods.
     """
 
-    # We treat some Dataset object attributes as user-accessible metadata for
-    # the purposes of these APIs even though they're represented as columns on
-    # the main SQL table.
-    METADATA = sorted(
-        Metadata.USER_METADATA
-        + [Dataset.ACCESS, Dataset.CREATED, Dataset.OWNER, Dataset.UPLOADED]
-    )
-
     def __init__(self, config: PbenchServerConfig, logger: Logger, *schemas: ApiSchema):
         """
         Base class constructor.
