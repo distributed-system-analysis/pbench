@@ -571,7 +571,7 @@ class ElasticBulkBase(ApiBase):
         dset = self.schemas.get_param_by_type(
             API_METHOD.POST,
             ParamType.DATASET,
-            ApiParams(body=None, query=None, uri=None),
+            ApiParams(),
         )
         if not dset or not dset.parameter.required:
             raise MissingBulkSchemaParameters(
@@ -643,16 +643,11 @@ class ElasticBulkBase(ApiBase):
         """
         klasname = self.__class__.__name__
 
-        dataset_param = self.schemas.get_param_by_type(
+        # Our schema requires a valid dataset and uses it to authorize access;
+        # therefore the unconditional dereference is assumed safe.
+        dataset = self.schemas.get_param_by_type(
             API_METHOD.POST, ParamType.DATASET, params
-        )
-
-        # Since the constructor validated that a DATASET parameter was defined
-        # and required, a failure here is unexpected.
-        if not dataset_param or not dataset_param.value:
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
-
-        dataset = dataset_param.value
+        ).value
 
         # Build an Elasticsearch instance to manage the bulk update
         elastic = Elasticsearch(self.elastic_uri)

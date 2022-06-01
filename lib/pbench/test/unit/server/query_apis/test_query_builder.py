@@ -42,14 +42,13 @@ class TestQueryBuilder:
     @staticmethod
     def assemble(term: JSON, user: Optional[str], access: Optional[str]) -> JSON:
         """
-        Create full Elasticsearch user/access query terms from the abbreviated
-        "expect" format.
+        Create full Elasticsearch user/access query terms from the user and
+        access parameters.
 
         Args:
             term: The basic Elasticsearch query
-            expect: Abbreviated expected user/access terms
-                "user": specified to create an "authorization.user" term
-                "access": speified to create an "authorization.access" term
+            user: specified to create an "authorization.user" term
+            access: speified to create an "authorization.access" term
 
         Returns:
             Full expected JSON query "filter"
@@ -69,7 +68,7 @@ class TestQueryBuilder:
             (None, "private"),
             (USER_ID, None),
             (USER_ID, "private"),
-            (USER_ID, "private"),
+            (USER_ID, "public"),
             (ADMIN_ID, None),
             (ADMIN_ID, "private"),
             (ADMIN_ID, "public"),

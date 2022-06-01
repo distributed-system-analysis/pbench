@@ -97,7 +97,7 @@ class IndexMapBase(ElasticBase):
         dset = self.schemas.get_param_by_type(
             API_METHOD.POST,
             ParamType.DATASET,
-            ApiParams(body=None, query=None, uri=None),
+            ApiParams(),
         )
         if not dset or not dset.parameter.required:
             raise MissingDatasetNameParameter(

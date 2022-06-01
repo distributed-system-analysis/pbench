@@ -674,18 +674,43 @@ class API_OPERATION(Enum):
 
 
 class API_AUTHORIZATION(Enum):
+    """
+    Defines the mechanism by which ApiBase infrastructure will automatically
+    authorize the client for the API method:
+
+        NONE:           No authorization is necessary, or the API has special
+                        requirements and will authorize for itself
+        DATASET:        The client is authorized against the owner and access
+                        of the referenced dataset.
+        USER_ACCESS:    The client is authorized against the USER and ACCESS
+                        type parameters, which must each appear only once in
+                        the various schema for the HTTP method used.
+    """
+
     NONE = auto()
     DATASET = auto()
     USER_ACCESS = auto()
 
 
 class ApiParams(NamedTuple):
-    body: Optional[JSONOBJECT]
-    query: Optional[JSONOBJECT]
-    uri: Optional[JSONOBJECT]
+    """
+    Collect the JSON description of parameters to an API provides via the three
+    defined sources: the Flask URI template parameters, HTTP query parameters,
+    and the JSON request body.
+    """
+
+    body: Optional[JSONOBJECT] = None
+    query: Optional[JSONOBJECT] = None
+    uri: Optional[JSONOBJECT] = None
 
 
 class ApiAuthorization(NamedTuple):
+    """
+    Bundle the information required to authorize client access to a specific
+    resource, based on the resource owner ID, the resource access setting, and
+    the desired access role.
+    """
+
     user: Optional[str]
     access: Optional[str]
     role: API_OPERATION
@@ -748,6 +773,11 @@ class Schema:
         returning the parameter definition and the assigned value for that
         parameter.
 
+        NOTE: Generally it is not helpful to search for "ordinary" parameter
+        types such as STRING, KEYWORD, INT. This is intended to find unique
+        security-related parameter types including DATASET, USER, and ACCESS
+        which are unique within a schema.
+
         Args
             dtype:  The desired datatype (e.g., DATASET or USER)
             params: The API parameter set
@@ -802,7 +832,11 @@ class ApiSchema:
                             parameters.
             uri_schema:     Definition of parameters received through Flask URI
                             templates.
-            authorization:  How to authorize access to this API method
+            authorization:  How to authorize access to this API method; the
+                            authorization process triggers on a specific type
+                            of parameter, DATASET or USER, which must appear in
+                            exactly one of the three schema defined for this
+                            HTTP method.
         """
         self.method = method
         self.operation = operation
@@ -821,6 +855,12 @@ class ApiSchema:
         across the URI parameter schema, then the query parameter schema, and
         finally the JSON body schema for the first occurrence of a Parameter
         of the desired type.
+
+        NOTE: Generally it is not helpful to search for "ordinary" parameter
+        types such as STRING, KEYWORD, INT. This is intended to find unique
+        security-related parameter types including DATASET, USER, and ACCESS
+        which are unique across the set of schemas defined for an HTTP method,
+        and principally used for automatic authorization.
 
         Args
             dtype:  The desired datatype (e.g., DATASET or USER)
@@ -939,6 +979,12 @@ class ApiSchemaSet:
         for the active API, and then searches for the first Parameter of the
         specified type defined for that API method.
 
+        NOTE: Generally it is not helpful to search for "ordinary" parameter
+        types such as STRING, KEYWORD, INT. This is intended to find unique
+        security-related parameter types including DATASET, USER, and ACCESS
+        which are unique across the set of schemas defined for an HTTP method,
+        and principally used for automatic authorization.
+
         Args
             method: The API method to be authorized
             dtype:  The desired datatype (e.g., DATASET or USER)
@@ -1014,7 +1060,7 @@ class ApiBase(Resource):
         Args:
             config: server configuration
             logger: logger object
-            schemas: ApiSchema objects to provide parameter validation for for
+            schemas: ApiSchema objects to provide parameter validation for the
                     various HTTP methods the API module supports. For example,
                     for GET, PUT, and DELETE.
         """
