@@ -21,9 +21,9 @@ class TestDatasetsContents(Commons):
     def _setup(self, client):
         super()._setup(
             cls_obj=DatasetsContents(client.config, client.logger),
-            pbench_endpoint="/datasets/contents",
+            pbench_endpoint="/datasets/contents/drb",
             elastic_endpoint="/_search",
-            payload={"name": "drb", "parent": "/1-default"},
+            payload={"parent": "/1-default"},
             index_from_metadata="run-toc",
         )
 
@@ -473,16 +473,12 @@ class TestDatasetsContents(Commons):
         indices = self.cls_obj.get_index(drb, self.index_from_metadata)
         assert indices == "unit-test.v6.run-toc.2020-05"
 
-    @pytest.mark.parametrize("name", ("wrong", "", None))
+    @pytest.mark.parametrize("name", ("wrong", ""))
     def test_missing_name(self, client, server_config, pbench_token, name):
-        if name is None:
-            del self.payload["name"]
-            expected_status = HTTPStatus.BAD_REQUEST
-        else:
-            self.payload["name"] = name
-            expected_status = HTTPStatus.NOT_FOUND
+        expected_status = HTTPStatus.NOT_FOUND
+        incorrect_endpoint = self.pbench_endpoint.rsplit("/", 1)[0] + "/" + name
         response = client.post(
-            f"{server_config.rest_uri}{self.pbench_endpoint}",
+            incorrect_endpoint,
             headers={"Authorization": "Bearer " + pbench_token},
             json=self.payload,
         )
