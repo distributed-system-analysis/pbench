@@ -53,7 +53,7 @@ class TestEndpointConfig:
                 "datasets_mappings": f"{uri}/datasets/mappings/",
                 "datasets_metadata": f"{uri}/datasets/metadata/",
                 "datasets_namespace": f"{uri}/datasets/namespace/",
-                "datasets_publish": f"{uri}/datasets/publish",
+                "datasets_publish": f"{uri}/datasets/publish/",
                 "datasets_search": f"{uri}/datasets/search",
                 "datasets_values": f"{uri}/datasets/values/",
                 "elasticsearch": f"{uri}/elasticsearch",

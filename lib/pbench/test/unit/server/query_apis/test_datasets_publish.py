@@ -19,7 +19,7 @@ class TestDatasetsPublish:
     constructor and `post` service.
     """
 
-    PAYLOAD = {"name": "drb", "access": "public"}
+    PAYLOAD = {"access": "public"}
 
     def fake_elastic(self, monkeypatch, map: JSON, partial_fail: bool):
         """
@@ -113,8 +113,6 @@ class TestDatasetsPublish:
         user (managed by the build_auth_header fixture).
         """
         self.fake_elastic(monkeypatch, get_document_map, False)
-        payload = self.PAYLOAD.copy()
-        payload["name"] = owner
 
         is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
         if not HeaderTypes.is_valid(build_auth_header["header_param"]):
@@ -125,9 +123,9 @@ class TestDatasetsPublish:
             expected_status = HTTPStatus.OK
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish",
+            f"{server_config.rest_uri}/datasets/publish/{owner}",
             headers=build_auth_header["header"],
-            json=payload,
+            json=self.PAYLOAD,
         )
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
@@ -152,7 +150,7 @@ class TestDatasetsPublish:
         self.fake_elastic(monkeypatch, get_document_map, True)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish",
+            f"{server_config.rest_uri}/datasets/publish/drb",
             headers={"authorization": f"Bearer {pbench_token}"},
             json=self.PAYLOAD,
         )
@@ -176,13 +174,11 @@ class TestDatasetsPublish:
         """
         Check the publish API if the dataset doesn't exist.
         """
-        payload = self.PAYLOAD.copy()
-        payload["name"] = "badwolf"
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish",
+            f"{server_config.rest_uri}/datasets/publish/badwolf",
             headers={"authorization": f"Bearer {pbench_token}"},
-            json=payload,
+            json=self.PAYLOAD,
         )
 
         # Verify the report and status
@@ -210,7 +206,7 @@ class TestDatasetsPublish:
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish",
+            f"{server_config.rest_uri}/datasets/publish/drb",
             headers={"authorization": f"Bearer {pbench_token}"},
             json=self.PAYLOAD,
         )

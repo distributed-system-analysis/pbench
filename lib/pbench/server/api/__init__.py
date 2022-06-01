@@ -101,7 +101,7 @@ def register_endpoints(api, app, config):
     )
     api.add_resource(
         DatasetsPublish,
-        f"{base_uri}/datasets/publish",
+        f"{base_uri}/datasets/publish/<string:dataset>",
         resource_class_args=(config, logger),
     )
     api.add_resource(
