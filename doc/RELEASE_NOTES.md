@@ -2,21 +2,23 @@ This is a very *significant* "minor" release of the pbench-agent code base, prim
 
 It also delivers:
 
- * Support for RHEL 9 & CentOS 9
+ * Support for RHEL 9 & CentOS Stream 9
  * Tool registration kept local to the host where registration happens
  * Support of Prometheus and PCP tool data collection
- * The default tool set has been reduced to `iostat`, `sar`, & `vmstat` tools
+ * Independence of Pbench Agent "tool" Scripts
+ * Reduction of the default tool set to `iostat`, `sar`, & `vmstat` tools
  * Removal of gratuitous manipulation of networking firewalls
  * Removal of gratuitous software installation, only checks for requirements
-   * True for both tools and benchmark script requirements
+   * True for both tools and benchmark convenience script requirements
    * Change to check command versions instead of RPM versions for `pbench-fio`, `pbench-linpack`, and `pbench-uperf`
- * The `pbench-linpack` benchmark script now provides result graphs, JSON data files, and supports execution on one or more local / remote hosts
+ * The `pbench-linpack` benchmark convenience script now provides result graphs, JSON data files, and supports execution on one or more local / remote hosts
  * Required use of `--user` with `pbench-move-results`/`pbench-copy-results`
  * Support for the new HTTP PUT method of posting tar balls
  * Removal of the dependency on the SCL (Software Collections Library)
- * Support for `pbench-trafficgen` benchmark script dropped entirely
+ * Dropped support for the `pbench-trafficgen` benchmark convenience script
  * Deprecation announcements for unused benchmark convenience scripts:
    * `pbench-run-benchmark`, `pbench-cyclictest`, `pbench-dbench`, `pbench-iozone`, `pbench-migrate`, and `pbench-netperf`
+ * Semi-Public CLI Additions, Changes, and Removals
  * Many, many, bug fixes and behavioral improvements
 
 You can review the [**Full ChangeLog**](https://github.com/distributed-system-analysis/pbench/compare/b0.69-bp...v0.71.0-alpha.0) on GitHub (all 550+ commits, tags `b0.69-bp` to `v0.71.0-alpha.0`), or read a summary with relevant details below.
@@ -29,28 +31,29 @@ Note that work on the `v0.71` release started in earnest with the `v0.69.3-agent
 Installation
 ====
 
-There are no other installation changes in this release: see the [Getting Started Guide](https://distributed-system-analysis.github.io/pbench/start.html) for how to install or update.
+There are no installation changes in this release: see the [Getting Started Guide](https://distributed-system-analysis.github.io/pbench/gh-pages/start.html) for how to install or update.
 
 After installation or update, you should have version `0.71.0-XXgXXXXXXXXX` of the `pbench-agent` RPM installed.
 
-RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/portante/pbench/), covering Fedora 35, 36, EPEL 7, 8, 9.
+RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench-test/), covering Fedora 34, 35, 36, EPEL 7, 8, 9, and CentOS Stream 8 & 9.
 
-There are Ansible [playbooks](https://galaxy.ansible.com/pbench/agent) available via Ansible Galaxy to install the `pbench-agent`, and the pieces needed (key and configuration files) to be able to send results to a server.  To use the RPMs provided above via COPR with the [playbooks](https://galaxy.ansible.com/pbench/agent), an inventory file needs to include the `fedoraproject_username` variable set to `portante`, for example:
+There are Ansible [playbooks](https://galaxy.ansible.com/pbench/agent) available via Ansible Galaxy to install the `pbench-agent`, and the pieces needed (key and configuration files) to be able to send results to a Pbench Server.  To use the RPMs provided above via COPR with the playbooks, your inventory file needs to include the `fedoraproject_username` variable set to `ndokos`, for example:
 
 ```
 ...
 
 [servers:vars]
-fedoraproject_username: portante
+fedoraproject_username = ndokos
+pbench_repo_name = pbench-test
 
 ...
 ```
 
 Alternatively, one can specify `fedoraproject_username` on the command line, rather than having it specified in the inventory file:
 
-    ansible-playbook -i <inventory> <playbook> -e '{fedoraproject_username: portante}'
+    ansible-playbook -i <inventory> <playbook> -e '{fedoraproject_username: ndokos}' -e '{pbench_repo_name: pbench-test}'
 
-_**NOTE WELL**_: If the inventory file also has a definition for `pbench_repo_url_prefix` (which was standard practice before `fedoraproject_username` was introduced), it needs to be deleted, otherwise it will override the default repo URL and the `fedoraproject_username` change is not going to take effect.
+_**NOTE WELL**_: If the inventory file also has a definition for `pbench_repo_url_prefix` (which was standard practice before `fedoraproject_username` was introduced), it needs to be deleted, otherwise it will override the default repo URL and the `fedoraproject_username` change will not take effect.
 
 While we don't include installation instructions for the new `node-exporter` and `dcgm` tools in the published documentation, you can find a manual installation procedure for the Prometheus "node_exporter" and references to the Nvidia "DCGM" documentation in the [`agent/tool-scripts/README`](https://github.com/distributed-system-analysis/pbench/blob/v0.71.0-alpha.0/agent/tool-scripts/README.md).
 
@@ -60,18 +63,18 @@ Container images built using the above RPMs are available in the [Pbench](https:
 Summary of Changes
 ====
 
-## Support for RHEL 9 & CentOS 9
+## Support for RHEL 9 & CentOS Stream 9
 
-Support for RHEL & CentOS 9 is provided in this release.  Note that since RHEL 9 has not been GA'd yet there might still be some changes that will have to be made to support it.
+Support for RHEL & CentOS Stream 9 is provided in this release.
 
 
 ## The New "Tool Meister" Sub-System
 
 The "Tool Meister" sub-system (introduced by PR #1248) is the major piece of functionality delivered with the release of `v0.71` of the pbench-agent.
 
-This is a significant change, where the pbench-agent first orchestrates the instantiation of a "Tool Meister" process on all hosts registered with tools, using a Redis instance to coordinate their operation, and the new "Tool Data Sink" process handles the collection of data into the pbench run directory hierarchy.  This effectively eliminates all remote SSH operations for individual tools except one per host to orchestrate the creation of the Tool Meister instance.
+This is a significant change, where the pbench-agent first orchestrates the instantiation of a "Tool Meister" process on all hosts registered with tools, using a Redis instance to coordinate their operation, and the new "Tool Data Sink" process handles the collection of data into the pbench run directory hierarchy.  This effectively eliminates all remote SSH operations for individual tools except the initial one per host to create each Tool Meister instance.
 
-One Tool Meister instance is created per registered host, and then a single Tool Data Sink instance is created on the host where the benchmark script is run.  The Tool Data Sink is responsible for collecting and storing locally all data sent to it from the deployed Tool Meister instances.
+One Tool Meister instance is created per registered host, and then a single Tool Data Sink instance is created on the host where the benchmark convenience script is run.  The Tool Meister instances are responsible for running the registered tools for that host, collecting the data generated as appropriate. The Tool Data Sink is responsible for collecting and storing locally all data sent to it from the deployed Tool Meister instances.
 
 ### User Orchestration of "Tool Meister" Sub-System
 
@@ -84,62 +87,51 @@ While this is not a new feature of the Pbench Agent, it is worth noting that whe
 
 ## All Tool Registration Handled Locally
 
-Along with the new "Tool Meister" sub-system comes another subtle, but significant, change to how tools are registered.
+Along with the new "Tool Meister" sub-system comes a subtle, but significant, change to how tools are registered.
 
-With the v0.71 release, the record of which tools are registered on which hosts is kept local to the host on which `pbench-register-tool` or `pbench-register-tool-set` are invoked.
+Prior to v0.71, tool registration for remote hosts was recorded locally, _and also_ remotely via ssh.
 
-Prior to v0.71, tool registration for remote hosts was recorded locally, and remotely via ssh.
+With v0.71, tools are recorded only locally when they are registered and the validation of remote hosts is deferred until the workload is run. During its initialization, the Tool Meister sub-system now reports when registered tools are not present on registered hosts, and, if a tool is not installed, an error message will be displayed, and the "bench-script" will exit with a failure code.
 
 The registered tools are recorded in a local directory off of the "pbench_run" directory, by default `/var/lib/pbench-agent/tools-v1-<name>`, where `<name>` is the name of the Tool Group under which the tools were registered.
 
-The process of registering tools on local or remote hosts no longer validates that those tools are available during tool registration.  The Tool Meister sub-system now reports when registered tools are not present on registered hosts before beginning a benchmark run.  An error message will be displayed, and the particular "bench-script" will exit with a failure code.
+The process of registering tools on local or remote hosts no longer validates that those tools are available during tool registration.  The Tool Meister sub-system now reports when registered tools are not present on registered hosts before beginning a benchmark workload.  An error message will be displayed, and the particular "bench-script" will exit with a failure code.
 
-All tools registered prior to installing `v0.71.0-alpha` must be re-registered; tools registered locally or remotely on a host with v0.69 or earlier of the `pbench-agent` will be ignored.
+All tools registered prior to installing `v0.71` must be re-registered; tools registered locally or remotely on a host with v0.69 or earlier of the `pbench-agent` will be ignored.
 
 
 ## New Support for Prometheus and PCP-based Tools
 
 The new "Tool Meister" sub-system enables support of Prometheus and PCP-based tools for data collection.
 
-The existing tools supported prior to the v0.71 release can be categorized as "Transient" tools.  By _transient_ we mean that a given tool is started and stopped immediately around the execution of a benchmark workload.  For example, when using `pbench-fio -b 4,16,32 -t read,write`, the transient tools are started immediately before each `fio` job is executed, and stopped immediately following its completion, for each of the 6 (six) `fio` jobs that would be run.
+The existing tools supported prior to the v0.71 release can be categorized as "Transient" tools.  By _transient_ we mean that a given tool is started immediately before and stopped immediately after the execution of a benchmark workload.  For example, when using `pbench-fio -b 4,16,32 -t read,write`, the transient tools are started immediately before each `fio` job is executed, and stopped immediately following its completion, for each of the six `fio` jobs that would be run.
 
-A new category is introduced for Prometheus and PCP called "Persistent" tools. Persistent are started once at the beginning of a benchmark script, stopped at its end.  Using the previous `pbench-fio` example, persistent tools would be started before any of the 6 (six) `pbench-fio` jobs begin, and would be stopped once all six end.
+A new category is introduced for Prometheus and PCP called "Persistent" tools. _Persistent_ tools are started once at the beginning of a benchmark convenience script and stopped at its end.  Using the previous `pbench-fio` example, persistent tools would be started before any of the six `pbench-fio` jobs begin and would be stopped once all six end.
 
 When persistent tools are used, data is continuously collected from the data sources ("exporters", in the case of Prometheus, and "PMCDs", in the case of PCP) and stored local to the execution of the Tool Data Sink.
 
-Note that for transient tools, where data for the transient tool is collected locally on the host the tool is registered, the collected data is sent to the Tool Data Sink when the benchmark script deems it won't impact behavior of the benchmark itself.
+Note that for transient tools, where data for the transient tool is collected locally on the host the tool is registered, the collected data is _usually_ sent to the Tool Data Sink when the benchmark workload finishes, though in some cases the data won't be sent until the very end to avoid impacting the behavior of the benchmark workload (e.g. `pbench-specjbb2005`).
 
 ### Prometheus tools: `node-exporter` and `dcgm`
 
-Two new pbench "tools" have been added, `node-exporter` and `dcgm`.  If one registers either or both of these new tools (e.g. via `pbench-register-tools --name=node-exporter`), then the Tool Meister sub-system will run the `node_exporter` code on the registered hosts, and a local instance of Prometheus to collect the data.  The collected Prometheus data is stored in the pbench result directory as a tar ball at: `${pbench_run}/<script>_<config>_YYYY.MM.DDTHH.mm.ss/tools-<group>/prometheus`.
+Two new pbench "tools" have been added, `node-exporter` and `dcgm`.  If either or both of these new tools is registered (e.g. via `pbench-register-tool --name=node-exporter --remotes=a.example.com`), then the Tool Meister sub-system will run the `node_exporter` code on the hosts (in this case, `a.example.com`) and a local instance of Prometheus to collect the data.  The collected Prometheus data is stored in the pbench result directory as a tar ball at: `${pbench_run}/<script>_<config>_YYYY.MM.DDTHH.mm.ss/tools-<group>/prometheus`.
 
 For the duration of the run, the Prometheus instance is available on `localhost:9090` if one desires to review the metrics being collected live.
 
 _**NOTE WELL**_: like all the other "tools" the `pbench-agent` supports, the `node-exporter` and `dcgm` tools themselves need to be installed separately on the registered hosts.
 
-The new `dcgm` tool requires Python 2, an Nvidia based install which might conflict with the Pbench Agent's Python 3 operational requirement in some cases.
-
 ### The PCP tool
 
-Just like the new Prometheus based tools, you can register "PCP" as a persistent tool using: `pbench-register-tool --name=pcp`.  This will cause each Tool Meister on the hosts for which PCP is registered to start a PMCD instance, and the Tool Data Sink will run `pmlogger` processes for each of hosts to collect the data at the requested interval.
+Just like the new Prometheus based tools, you can register "PCP" as a persistent tool using: `pbench-register-tool --name=pcp --remotes=a.example.com`.  This will cause each Tool Meister on the hosts for which PCP is registered to start a `pmcd` instance, and the Tool Data Sink will run `pmlogger` processes for each of those hosts to collect the data at the requested interval.
 
-The PCP support also allows you to register PCP as a transient tool, where it is started and stopped around each benchmark invoked.  Use the name `pcp-transient` when registering (e.g. `pbench-register-tool --name=pcp-transient`).
+The new PCP support also allows you to register PCP as a transient tool, where it is started and stopped around each benchmark workload invocation.  The Tool Meister instance will also run the `pmlogger` process alongside the `pmcd` process to have the data collected locally, and will send the collected data to the Tool Data Sink instance when requested.  Use the name `pcp-transient` when registering (e.g. `pbench-register-tool --name=pcp-transient`).
 
 _**NOTE AS WELL**_: like all the other "tools" the `pbench-agent` supports, the `pcp` tools themselves need to be installed separately on the registered hosts.
 
 
-## CLI Interfaces to the Tool Meister Sub-system
-
-Two new CLI command are provided to start and stop the Tool Meister sub-system, `pbench-tool-meister-start` and `pbench-tool-meister-stop`.  These two interfaces are mostly used by the benchmark convenience scripts provided by the Pbench Agent.
-
-If you were using the `pbench-start-tools`, `pbench-stop-tools`, and `pbench-postprocess-tools` before, you must now invoke `pbench-tool-meister-start` before using the start/stop/postprocess tool interfaces.
-
-Further the `pbench-send-tools` CLI interface has been added to instruct the Tool Meister sub-system when it is time to send the collected data from transient tools to the Tool Data Sink.  The typical sequence is to "start", "stop", "send", "post-process".  Now you can "send" and "post-process" the transient tool data any time before `pbench-tool-meister-stop` is called.
-
-
 ## Independence of Pbench Agent "tool" Scripts
 
-The tool scripts the Pbench Agent uses to collect data can be run independent of the rest of the Pbench Agent so that users can verify they collect data as expected.
+The tool scripts the Pbench Agent uses to collect data can be run independently of the rest of the Pbench Agent so that users can verify they collect data as expected.
 
 
 ## Default Tool Set Reduced to `iostat`, `sar`, & `vmstat` Tools
@@ -154,44 +146,46 @@ Along with this change, 3 new named tool sets have also be added:
  * `medium`: ${light}, `iostat`, `sar` (this is the new default tool set)
  * `heavy`: ${medium}, `perf`, `pidstat`, `proc-interrupts`, `proc-vmstat`, `turbostat`
 
+Users are not required to ues the pre-defined tool sets.  A user should be able to register whatever tools they like, or create their own tool sets by following the pattern of the provided named tool sets.
+
 
 ## Removal of Gratuitous Manipulation of Networking Firewalls
 
 The manipulation of `firewalld` to open a port for the operation of `fio` by `pbench-fio` has been removed.  The user of `pbench-fio` must have already ensured that the ports specified for each client are open.  If using the default port (as configured in a `/opt/pbench-agent/config/pbench-agent.cfg` file), then the user should ensure that port (default is `8765`) is open.  If using the `--unique-ports` option, then the user should ensure that the range of ports for the number of clients are open (e.g. for `pbench-fio --clients=hosta,hostb,hostc`, port 8765 on `hosta`, port 8766 on `hostb`, and port 8767 on `hostc`).
 
-Similarly, `pbench-uperf` no longer stops the host `firewalld` service before attempting to drive a `uperf` run.  The user should either stop the `firewalld`, or open the ports used by uperf in `firewalld` (starting port is 20,000, then incremented by 10 for every server specified).
+Similarly, `pbench-uperf` no longer stops the host `firewalld` service before attempting to drive a `uperf` run.  The user should either stop the `firewalld` or open the ports used by `uperf` in `firewalld` (starting port is 20,000, then incremented by 10 for every server specified).
 
-Finally, the Ansible Galaxy collection provided for installing the Pbench Agent provide roles for manipulating `firewalld` to enable the operation of the Tool Meister Sub-System, but those roles are not used by default.  The user must deliberately use those roles so that they no fire wall manipulation occurs without their consent.
+Finally, the Pbench Agent Ansible Galaxy collection provides roles for manipulating `firewalld` to enable the operation of the Tool Meister Sub-System, but those roles are not used by default.  The user must deliberately use those roles so that no fire wall manipulation occurs without their consent.
 
 
 ## Removal of Gratuitous Software Installation
 
-The software required to run a particular benchmark, or a particular tool, is no longer gratuitously installed during the execution of a benchmark, or during tool registration.  If a benchmark or tool requires a certain version of software to be present, those checks will be performed and reported to the user as an error if the requirements are not met.
+The software required to run a particular benchmark, or a particular tool, is no longer gratuitously installed during the execution of a benchmark, or during tool registration.  If a benchmark convenience script or tool requires a certain version of software to be present, those checks will be performed and reported to the user as an error if the requirements are not met.
 
 ### Change to check command versions instead of RPM versions for `pbench-fio`, `pbench-linpack`, and `pbench-uperf`
 
-The `pbench-fio`, `pbench-linpack`, and `pbench-uperf` no longer perform version checks against RPMs for the required software to execute.  For both `pbench-fio` and `pbench-perf` the reported version string is used from the benchmark command itself.  For `pbench-linpack`, the expected installation directory name is used.
+The `pbench-fio`, `pbench-linpack`, and `pbench-uperf` no longer perform version checks against RPMs for the required software to execute.  For both `pbench-fio` and `pbench-perf` the reported version string is used from the benchmark workload command itself.  For `pbench-linpack`, the expected installation directory name is used.
 
 
 ## Enhancements to `pbench-linpack`
 
-New `--clients` argument
+A new `--clients` argument has been added.
 
-New `linpack` driver script, can be executed stand-alone
+A new `linpack` driver script, which can be executed stand-alone, is now used.
 
 Special thanks to Lukas Doktor for his work on implementing these changes.
 
 
 ## Required Use of `--user` with `pbench-move/copy-results`
 
-In preparation for the forth-coming update to the Pbench Server, where the notion of a user is introduced and all result data tar balls are tracked per-user, the `pbench-move-results` and `pbench-copy-results` commands now require that the `--user` switch be provided.  This will help facilitate migrating data into the new version of the Pbench Server.
+In preparation for the forthcoming update to the Pbench Server, where the notion of a user is introduced and all result data tar balls are tracked per-user, the `pbench-move-results` and `pbench-copy-results` commands now require that the `--user` switch be provided.  This will help facilitate migrating data into the new version of the Pbench Server.
 
 
 ## Support for the New HTTP PUT Method of Posting Tar Balls
 
-In preparation for the forth-coming update to the Pbench Server, support for sending data to a Pbench Server via an HTTP PUT method has been introduced. The new commands, `pbench-results-move` and `pbench-results-push`, provide that functionality.  A token must be generated for the given user via the new `pbench-generate-token` command.
+In preparation for the forthcoming update to the Pbench Server, support for sending data to a Pbench Server via an HTTP PUT method has been introduced. The new commands, `pbench-results-move` and `pbench-results-push`, provide that functionality.  A token must be generated for the given user via the new `pbench-generate-token` command.
 
-The new `pbench-results-move` and `pbench-results-push` will not work with currently released versions of the Pbench Server (v0.69).  Please consult with a Pbench Server administrator for when the new version will be available for testing purposes, and/or officially released.
+The new `pbench-results-move` and `pbench-results-push` will not work with currently released versions of the Pbench Server (v0.69).  Please consult with a Pbench Server administrator for when the new version will be available for testing purposes and/or officially released.
 
 
 ## Removal of the Use of SCL (Software Collections Library)
@@ -203,16 +197,16 @@ As such, the minimum supported version of RHEL and CentOS is 7.9.
 
 ## Support for `pbench-trafficgen` dropped entirely
 
-With the release of v0.71 support for `pbench-trafficgen` has been removed in its entirety. The ability to support the behavior of that benchmark is too difficult given the implementation of `pbench-trafficgen` and `pbench-run-benchmark`'s trafficgen support.
+With the release of v0.71, support for `pbench-trafficgen` has been removed in its entirety. It is too difficult to support the behavior of that benchmark workload given the implementation of `pbench-trafficgen` and `pbench-run-benchmark`'s trafficgen support.
 
-Future work on supporting benchmarks will be approached by working to have the Pbench Agent integrate with separate software packages that are dedicated to running benchmarks (unlike the Pbench Agent which only provides convenience interfaces).
+Future work on supporting benchmark workloads will be approached by working to have the Pbench Agent integrate with separate software packages that are dedicated to running benchmarks (unlike the Pbench Agent which only provides convenience interfaces).
 
 
 ## Deprecation Notices and Removals
 
 ### Deprecated Bench Scripts
 
-The following `bench-scripts` have been deprecated with this release, and will be removed entirely in the next release:
+The following `bench-scripts` have been deprecated with this release and will be removed entirely in the next release:
 
 | Bench Script | Comments |
 | ------------ | -------- |
@@ -225,18 +219,16 @@ The following `bench-scripts` have been deprecated with this release, and will b
 
 ### Other Deprecated Interfaces
 
- * [_**DEPRECATED**_] The `pbench-cleanup` utility command is deprecated, and will be removed in a subsequent release (see PR #1828)
+ * The `pbench-cleanup` utility command is deprecated and will be removed in a subsequent release (see PR #1828)
 
 ### Removal of Deprecated Interfaces
 
  * Removed the deprecated `pbench-fio --remote-only` option
 
-### Remove
-
 
 ## Semi-Public CLI Additions, Changes, and Removals
 
-There are a number of Pbench Agent CLI interfaces which are primarily used internal to the Pbench Agent code base, but happen to be made available along side the other CLI interfaces.
+There are a number of Pbench Agent CLI interfaces which are primarily used internal to the Pbench Agent code base, but happen to be made available alongside the other CLI interfaces.
 
 Here are a few changes you should be aware of if you rely on any of these interfaces:
 
