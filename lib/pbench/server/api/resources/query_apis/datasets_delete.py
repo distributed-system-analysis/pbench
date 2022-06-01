@@ -36,7 +36,9 @@ class DatasetsDelete(ElasticBulkBase):
             ApiSchema(
                 API_METHOD.POST,
                 API_OPERATION.DELETE,
-                body_schema=Schema(Parameter("name", ParamType.DATASET, required=True)),
+                uri_schema=Schema(
+                    Parameter("dataset", ParamType.DATASET, required=True)
+                ),
                 authorization=API_AUTHORIZATION.DATASET,
             ),
             action="delete",

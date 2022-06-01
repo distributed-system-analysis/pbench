@@ -66,7 +66,7 @@ def register_endpoints(api, app, config):
     )
     api.add_resource(
         DatasetsDelete,
-        f"{base_uri}/datasets/delete",
+        f"{base_uri}/datasets/delete/<string:dataset>",
         resource_class_args=(config, logger),
     )
     api.add_resource(
