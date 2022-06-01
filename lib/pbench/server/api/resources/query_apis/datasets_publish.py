@@ -29,8 +29,10 @@ class DatasetsPublish(ElasticBulkBase):
             ApiSchema(
                 API_METHOD.POST,
                 API_OPERATION.UPDATE,
+                uri_schema=Schema(
+                    Parameter("dataset", ParamType.DATASET, required=True)
+                ),
                 body_schema=Schema(
-                    Parameter("name", ParamType.DATASET, required=True),
                     Parameter("access", ParamType.ACCESS, required=True),
                 ),
                 authorization=API_AUTHORIZATION.DATASET,
