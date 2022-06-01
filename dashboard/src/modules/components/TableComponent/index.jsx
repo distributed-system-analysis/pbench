@@ -26,11 +26,11 @@ import DatePickerWidget from "../DatePickerComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
 import { LoginHint, Heading, EmptyTable, SearchBox } from "./common-components";
 import { getTodayMidnightUTCDate } from "utils/dateFunctions";
+import { bumpToDate } from "utils/dateFunctions";
 
 let startDate = new Date(Date.UTC(1990, 10, 4));
-let endDate = getTodayMidnightUTCDate();
+let endDate = bumpToDate(getTodayMidnightUTCDate(), 1);
 let datasetName = "";
-let dataArray = [];
 
 const TableWithFavorite = () => {
   const columnNames = {
@@ -51,7 +51,7 @@ const TableWithFavorite = () => {
     dispatch(getFavoritedDatasets());
   }, [dispatch]);
 
-  const { publicData, favoriteRepoNames } = useSelector(
+  const { publicData, favoriteRepoNames, tableData } = useSelector(
     (state) => state.datasetlist
   );
   const setPublicData = (data) => {
@@ -136,18 +136,16 @@ const TableWithFavorite = () => {
           message="Want to see your own data?"
           link="Login or Create an account"
           onCloseMethod={onCloseLoginHint}
+          redirect="login"
         />
       )}
 
       <PageSection variant={PageSectionVariants.light}>
         <PathBreadCrumb pathList={datasetBreadcrumb} />
-        <Heading
-          containerClass="publicDataPageTitle"
-          headingTitle="Results"
-        />
+        <Heading containerClass="publicDataPageTitle" headingTitle="Results" />
         <div className="filterContainer">
           <SearchBox
-            dataArray={dataArray}
+            dataArray={tableData}
             setPublicData={setPublicData}
             startDate={startDate}
             endDate={endDate}
@@ -155,7 +153,7 @@ const TableWithFavorite = () => {
             aria-label="search box"
           />
           <DatePickerWidget
-            dataArray={dataArray}
+            dataArray={tableData}
             setPublicData={setPublicData}
             datasetName={datasetName}
             setDateRange={setDateRange}

@@ -17,9 +17,11 @@ import {
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import "./index.less";
 import { filterData } from "utils/filterDataset";
+import { useNavigate } from "react-router";
 
 export const LoginHint = (props) => {
-  const { message, link, onCloseMethod } = props;
+  const navigate = useNavigate();
+  const { message, link, onCloseMethod, redirect } = props;
   return (
     <Alert
       className="alertNotification"
@@ -32,6 +34,7 @@ export const LoginHint = (props) => {
           variant="link"
           key="login-hint-button"
           className="alertHelpText"
+          onClick={() => navigate(`/${redirect}`)}
         >
           {link}
         </Button>,
@@ -67,10 +70,9 @@ export const SearchBox = ({
   startDate,
   endDate,
   setDatasetName,
-})=> {
-
+}) => {
   const [searchKey, setSearchKey] = useState("");
-  
+
   const search = () => {
     setPublicData(filterData(dataArray, startDate, endDate, searchKey));
     setDatasetName(searchKey);
@@ -87,4 +89,4 @@ export const SearchBox = ({
       </Button>
     </InputGroup>
   );
-}
+};

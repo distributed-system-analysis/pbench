@@ -10,7 +10,7 @@ import MainLayout  from 'modules/containers/MainLayout';
 function App() {  
   useEffect(() => {
     const faviconLogo = document.getElementById("favicon");
-    faviconLogo.setAttribute("href", favicon);
+    faviconLogo?.setAttribute("href", favicon);
   }, []);
 
   return (
