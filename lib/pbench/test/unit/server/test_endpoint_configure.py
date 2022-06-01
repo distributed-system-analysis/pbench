@@ -45,7 +45,7 @@ class TestEndpointConfig:
                 # a trailing "/" here; for example, /datasets/mappings/
                 # corresponds to /datasets/mappings/<string:dataset_view>";
                 # see endpoint_configure.py for more detail.
-                "datasets_contents": f"{uri}/datasets/contents",
+                "datasets_contents": f"{uri}/datasets/contents/",
                 "datasets_daterange": f"{uri}/datasets/daterange",
                 "datasets_delete": f"{uri}/datasets/delete/",
                 "datasets_detail": f"{uri}/datasets/detail/",

@@ -56,7 +56,7 @@ def register_endpoints(api, app, config):
 
     api.add_resource(
         DatasetsContents,
-        f"{base_uri}/datasets/contents",
+        f"{base_uri}/datasets/contents/<string:dataset>",
         resource_class_args=(config, logger),
     )
     api.add_resource(

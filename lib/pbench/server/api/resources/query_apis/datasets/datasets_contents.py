@@ -32,8 +32,10 @@ class DatasetsContents(IndexMapBase):
             ApiSchema(
                 API_METHOD.POST,
                 API_OPERATION.READ,
+                uri_schema=Schema(
+                    Parameter("dataset", ParamType.DATASET, required=True)
+                ),
                 body_schema=Schema(
-                    Parameter("name", ParamType.DATASET, required=True),
                     Parameter("parent", ParamType.STRING, required=True),
                 ),
                 authorization=API_AUTHORIZATION.DATASET,
@@ -53,7 +55,6 @@ class DatasetsContents(IndexMapBase):
 
         EXAMPLE:
         {
-            "dataset": <dataset reference>
             "parent": '/1-default'
         }
         """
