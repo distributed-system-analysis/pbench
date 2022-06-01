@@ -264,6 +264,18 @@ You can review the [**Full ChangeLog**](https://github.com/distributed-system-an
 What follows is an edited list of commits, newest to oldest, containing all commits which landed in the v0.71 release.  Note that of the 550+ commits, many of them are for the Pbench Server or Pbench Dashboard and are not considered for these release notes.
 
  * 005aa3f67 'Release Notes for `v0.71.0`'
+ * 9d90a97cc 'Ensure use of `localhost` when stopping Redis'
+ * acae28ba5 'Add local and remote pre-check for linpack'
+ * afba7d5bc 'Stop resolving benchmark binary location'
+ * 36263d0ee 'Handle response payloads which are not JSON in generate_token.py (#2862)'
+ * 0a9d5ea4d 'Tweak container builds for CentOS 9'
+ * 11f959b73 'Correct `pbench-specjbb2005` use of `-send-tools`'
+ * 1675b63d8 '`pbench-specjbb2005` now handles commented props'
+ * a46078d95 'Fix pbench-fio local fio-server execution'
+ * e32b10e40 'Fix Tool Meister instance exit code handling'
+ * 7c3f06522 'Add missing `f` letter for f-string'
+ * 82b1ddfcb 'Correct spelling in `pidstat` tool help text'
+ * 8c5cd16bc 'Backport quick fixes for v0.71 (#2829)'
  * e04e0aa09 'Backport testing of source tree builds'
  * 2035ccf1f 'b0.71 backport: Delete the spurious pbench3-devel RPM dependency'
  * b9a001e3e 'Use HTTPS for D3 loads (back-port)'
