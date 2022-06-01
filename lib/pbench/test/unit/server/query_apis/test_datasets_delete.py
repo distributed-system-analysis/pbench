@@ -20,7 +20,6 @@ class TestDatasetsDelete:
     constructor and `post` service.
     """
 
-    PAYLOAD = {"name": "drb"}
     tarball_deleted = None
 
     def fake_elastic(self, monkeypatch, map: JSON, partial_fail: bool):
@@ -124,8 +123,6 @@ class TestDatasetsDelete:
         """
         self.fake_elastic(monkeypatch, get_document_map, False)
         self.fake_filetree(monkeypatch)
-        payload = self.PAYLOAD.copy()
-        payload["name"] = owner
 
         is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
         if not HeaderTypes.is_valid(build_auth_header["header_param"]):
@@ -136,9 +133,8 @@ class TestDatasetsDelete:
             expected_status = HTTPStatus.OK
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete",
+            f"{server_config.rest_uri}/datasets/delete/{owner}",
             headers=build_auth_header["header"],
-            json=payload,
         )
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
@@ -171,9 +167,8 @@ class TestDatasetsDelete:
         self.fake_filetree(monkeypatch)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete",
+            f"{server_config.rest_uri}/datasets/delete/drb",
             headers={"authorization": f"Bearer {pbench_token}"},
-            json=self.PAYLOAD,
         )
 
         # Verify the report and status
@@ -194,13 +189,9 @@ class TestDatasetsDelete:
         """
         Check the delete API if the dataset doesn't exist.
         """
-        payload = self.PAYLOAD.copy()
-        payload["name"] = "badwolf"
-
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete",
+            f"{server_config.rest_uri}/datasets/delete/badwolf",
             headers={"authorization": f"Bearer {pbench_token}"},
-            json=payload,
         )
 
         # Verify the report and status
@@ -228,9 +219,8 @@ class TestDatasetsDelete:
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete",
+            f"{server_config.rest_uri}/datasets/delete/drb",
             headers={"authorization": f"Bearer {pbench_token}"},
-            json=self.PAYLOAD,
         )
 
         # Verify the failure
