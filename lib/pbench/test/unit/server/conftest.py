@@ -394,6 +394,32 @@ def provide_metadata(attach_dataset):
     )
     Metadata.setvalue(dataset=test, key="dashboard.contact", value="you@example.com")
     Metadata.setvalue(dataset=test, key=Metadata.DELETION, value="2023-01-25")
+    Metadata.create(
+        dataset=drb,
+        key=Metadata.METALOG,
+        value={
+            "pbench": {
+                "date": "2020-02-15T00:00:00",
+                "config": "test1",
+                "script": "unit-test",
+                "name": "drb",
+            },
+            "run": {"controller": "node1.example.com"},
+        },
+    )
+    Metadata.create(
+        dataset=test,
+        key=Metadata.METALOG,
+        value={
+            "pbench": {
+                "date": "2002-05-16T00:00:00",
+                "config": "test2",
+                "script": "unit-test",
+                "name": "test",
+            },
+            "run": {"controller": "node2.example.com"},
+        },
+    )
 
 
 @pytest.fixture()

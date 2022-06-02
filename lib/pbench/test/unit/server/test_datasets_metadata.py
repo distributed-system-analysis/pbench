@@ -155,6 +155,15 @@ class TestDatasetsMetadata:
                 "state": "Uploading",
                 "transition": "1970-01-01T00:42:00+00:00",
                 "uploaded": "2022-01-01T00:00:00+00:00",
+                "metalog": {
+                    "pbench": {
+                        "config": "test1",
+                        "date": "2020-02-15T00:00:00",
+                        "name": "drb",
+                        "script": "unit-test",
+                    },
+                    "run": {"controller": "node1.example.com"},
+                },
             },
         }
 

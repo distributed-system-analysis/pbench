@@ -3,14 +3,13 @@ from logging import Logger
 from pathlib import Path
 import re
 import shutil
-from typing import Any, Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import tarfile
 
 from pbench.common import selinux
-from pbench.server import PbenchServerConfig
+from pbench.server import JSONOBJECT, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
-from pbench.server.utils import UtcTimeHelper
 
 
 class FiletreeError(Exception):
@@ -92,13 +91,14 @@ class Tarball:
             controller: The associated Controller object
         """
         self.name = Dataset.stem(path)
-        self.controller = controller
-        self.logger = controller.logger
-        self.tarball_path = path
-        self.unpacked: Path = None
-        self.results_link: Path = None
-        self.md5_path = path.with_suffix(".xz.md5")
-        self.controller_name = controller.name
+        self.controller: Controller = controller
+        self.logger: Logger = controller.logger
+        self.tarball_path: Path = path
+        self.unpacked: Optional[Path] = None
+        self.results_link: Optional[Path] = None
+        self.md5_path: Path = path.with_suffix(".xz.md5")
+        self.controller_name: str = controller.name
+        self.metadata: Optional[JSONOBJECT] = None
 
     def record_unpacked(self, directory: Path):
         """
@@ -237,30 +237,28 @@ class Tarball:
         except Exception as exc:
             raise MetadataError(self.tarball_path, exc)
 
-    def get_metadata(self) -> Dict[str, Any]:
+    def get_metadata(self) -> Optional[JSONOBJECT]:
         """
         Fetch the values in metadata.log from the tarball, and return a JSON
         document organizing the metadata by section.
 
+        The information is unpacked and processed once, and cached.
+
         Returns:
-            A JSON representation of `metadata.log`
+            A parsed ConfigParser of `metadata.log`
         """
-        data = self.extract(f"{self.name}/metadata.log")
-        metadata = ConfigParser()
-        metadata.read_string(data)
-
-        created = UtcTimeHelper.from_string(metadata.get("pbench", "date"))
-
-        return {
-            "controller": {"hostname": metadata.get("controller", "hostname")},
-            "pbench": {
-                "config": metadata.get("pbench", "config"),
-                "date": created.utc_time,
-                "script": metadata.get("pbench", "script"),
-                "version": metadata.get("pbench", "rpm-version"),
-            },
-            "run": {"controller": metadata.get("run", "controller")},
-        }
+        if not self.metadata:
+            try:
+                data = self.extract(f"{self.name}/metadata.log")
+                metadata = ConfigParser()
+                metadata.read_string(data)
+                self.metadata = {
+                    s: dict(metadata.items(s)) for s in metadata.sections()
+                }
+            except Exception as e:
+                self.logger.exception("{} metadata extraction: {}", self.name, e)
+                pass
+        return self.metadata
 
     def unpack(self, incoming: Path, results: Path):
         """
