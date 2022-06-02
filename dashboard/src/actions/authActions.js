@@ -20,8 +20,8 @@ export const makeLoginRequest =
       if (response.status === 200 && Object.keys(response.data).length > 0) {
         let keepUser = getState().userAuth.keepLoggedIn;
         let expiryTime = keepUser
-          ? CONSTANTS.expiry_keepUser_days
-          : CONSTANTS.expiry_default_days;
+          ? CONSTANTS.EXPIRY_KEEPUSER_DAYS
+          : CONSTANTS.EXPIRY_DEFAULT_DAYS;
         Cookies.set("isLoggedIn", true, { expires: expiryTime, secure: true });
         Cookies.set("token", response.data?.auth_token, {
           expires: expiryTime,
@@ -165,5 +165,5 @@ export const logout = () => async (dispatch) => {
   dispatch({ type: TYPES.COMPLETED });
   setTimeout(() => {
     window.location.href = "login";
-  }, CONSTANTS.logout_delay_ms);
+  }, CONSTANTS.LOGOUT_DELAY_MS);
 };

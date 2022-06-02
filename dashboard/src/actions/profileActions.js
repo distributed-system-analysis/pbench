@@ -28,12 +28,12 @@ export const getProfileDetails = () => async (dispatch, getState) => {
 
 export const updateUserDetails =
   (value, fieldName) => async (dispatch, getState) => {
-    let userDetails = { ...getState().userProfile.userDetails };
-    let updatedUserDetails = { ...getState().userProfile.updatedUserDetails };
+    const userDetails = { ...getState().userProfile.userDetails };
+    const updatedUserDetails = { ...getState().userProfile.updatedUserDetails };
 
     userDetails[fieldName] = value;
     updatedUserDetails[fieldName] = value;
-    let payload = {
+    const payload = {
       userDetails,
       updatedUserDetails,
     };

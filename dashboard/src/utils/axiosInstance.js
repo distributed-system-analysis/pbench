@@ -6,15 +6,13 @@ import store from "store/store";
 
 const { dispatch } = store;
 
-let token = Cookies.get("token");
-
 const axiosInstance = axios.create({
   baseURL: LOCAL_BASE_URL,
   responseType: "json",
 });
 
 axiosInstance.interceptors.request.use(async (req) => {
-  token = Cookies.get("token");
+  const token = Cookies.get("token");
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;
   }

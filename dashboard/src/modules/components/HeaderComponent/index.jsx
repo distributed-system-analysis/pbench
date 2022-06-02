@@ -42,14 +42,14 @@ const HeaderToolbar = () => {
   const onDropdownSelect = (event) => {
     const type = event.target.name;
     const menuOptions = {
-      profile: function () {
-        return navigate("/user-profile");
-      },
-      logout: function () {
-        return dispatch(logout());
-      },
+      profile: () => navigate("/user-profile"),
+      logout: () => dispatch(logout()),
     };
-    return menuOptions[type]() ?? setIsDropdownOpen(false);
+    let action = menuOptions[type];
+    if (action) {
+      action();
+    }
+    setIsDropdownOpen(false);
   };
   const onDropdownToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
