@@ -1,7 +1,7 @@
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core";
 import React from "react";
 
-function PathBreadCrumb({ pathList }) {
+const PathBreadCrumb = ({ pathList }) => {
   return (
     <Breadcrumb>
       {pathList.map((path, index) => {
@@ -17,6 +17,6 @@ function PathBreadCrumb({ pathList }) {
       })}
     </Breadcrumb>
   );
-}
+};
 
 export default PathBreadCrumb;

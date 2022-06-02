@@ -25,8 +25,7 @@ import TablePagination from "../PaginationComponent";
 import DatePickerWidget from "../DatePickerComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
 import { LoginHint, Heading, EmptyTable, SearchBox } from "./common-components";
-import { getTodayMidnightUTCDate } from "utils/dateFunctions";
-import { bumpToDate } from "utils/dateFunctions";
+import { getTodayMidnightUTCDate, bumpToDate } from "utils/dateFunctions";
 
 let startDate = new Date(Date.UTC(1990, 10, 4));
 let endDate = bumpToDate(getTodayMidnightUTCDate(), 1);
@@ -37,6 +36,7 @@ const TableWithFavorite = () => {
     name: "Name",
     creationDate: "Created On",
   };
+  const { endpoints } = useSelector((state) => state.apiEndpoint);
   const [activeSortIndex, setActiveSortIndex] = useState(null);
   const [activeSortDirection, setActiveSortDirection] = useState(null);
   const [isSelected, setIsSelected] = useState("datasetListButton");
@@ -47,9 +47,11 @@ const TableWithFavorite = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchPublicDatasets());
-    dispatch(getFavoritedDatasets());
-  }, [dispatch]);
+    if (Object.keys(endpoints).length > 0) {
+      dispatch(fetchPublicDatasets());
+      dispatch(getFavoritedDatasets());
+    }
+  }, [dispatch, endpoints]);
 
   const { publicData, favoriteRepoNames, tableData } = useSelector(
     (state) => state.datasetlist

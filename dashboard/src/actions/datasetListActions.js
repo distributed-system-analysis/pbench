@@ -1,11 +1,12 @@
 import * as TYPES from "./types";
 import API from "../utils/api";
 
-export const fetchPublicDatasets = () => async (dispatch) => {
+export const fetchPublicDatasets = () => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
+    const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(
-      "api/v1/datasets/list?metadata=dataset.created&access=public"
+      `${endpoints?.api?.datasets_list}?metadata=dataset.created&access=public`
     );
     if (response.status === 200 && response.data) {
       dispatch({
@@ -20,12 +21,11 @@ export const fetchPublicDatasets = () => async (dispatch) => {
 };
 
 export const getFavoritedDatasets = () => async (dispatch) => {
-  let fav_datasets = [];
-  let fav_datasets_text = localStorage.getItem("favorite_datasets");
-  fav_datasets = fav_datasets_text ? JSON.parse(fav_datasets_text) : [];
+  const favDatasetsText = localStorage.getItem("favorite_datasets");
+  const favDatasets = favDatasetsText ? JSON.parse(favDatasetsText) : [];
   dispatch({
     type: TYPES.FAVORITED_DATASETS,
-    payload: [...fav_datasets],
+    payload: favDatasets,
   });
 };
 
