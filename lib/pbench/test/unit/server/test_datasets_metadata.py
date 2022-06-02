@@ -98,7 +98,7 @@ class TestDatasetsMetadata:
             "foobar",
             {"metadata": ["dashboard.seen", "dashboard.saved"]},
             "drb",
-            HTTPStatus.BAD_REQUEST,
+            HTTPStatus.NOT_FOUND,
         )
         assert response.json == {"message": "Dataset 'foobar' not found"}
 
@@ -266,7 +266,7 @@ class TestDatasetsMetadata:
             f"{server_config.rest_uri}/datasets/metadata/foobar",
             json={"metadata": {"dashboard.seen": True, "dashboard.saved": False}},
         )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json == {"message": "Dataset 'foobar' not found"}
 
     def test_put_bad_keys(self, client, server_config, attach_dataset):

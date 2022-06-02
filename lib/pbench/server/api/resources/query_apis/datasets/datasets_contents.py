@@ -3,7 +3,12 @@ from logging import Logger
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
+    API_AUTHORIZATION,
+    API_METHOD,
+    API_OPERATION,
     JSON,
+    ApiParams,
+    ApiSchema,
     Schema,
     Parameter,
     ParamType,
@@ -24,13 +29,18 @@ class DatasetsContents(IndexMapBase):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter("name", ParamType.STRING, required=True),
-                Parameter("parent", ParamType.STRING, required=True),
+            ApiSchema(
+                API_METHOD.POST,
+                API_OPERATION.READ,
+                body_schema=Schema(
+                    Parameter("name", ParamType.DATASET, required=True),
+                    Parameter("parent", ParamType.STRING, required=True),
+                ),
+                authorization=API_AUTHORIZATION.DATASET,
             ),
         )
 
-    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
         """
         Construct a pbench Elasticsearch query for getting a list of
         documents which contains the user provided parent with files
@@ -38,20 +48,17 @@ class DatasetsContents(IndexMapBase):
         that belong to the given run id.
 
         Args:
-            json_data: JSON dictionary of type-normalized parameters,
-                    we pull 'parent' key value from it.
-            context: propagate the requested set of metadata to other
-                    methods, it includes "run_id" which is Dataset
-                    document ID And the target "parent" directory value.
+            params: API parameters
+            context: propagate the dataset and the "parent" directory value.
 
         EXAMPLE:
         {
-            "run_id": "1234567890"
+            "dataset": <dataset reference>
             "parent": '/1-default'
         }
         """
         # Copy parent directory metadata to CONTEXT for postprocessor
-        parent = context["parent"] = json_data.get("parent")
+        parent = context["parent"] = params.body.get("parent")
         dataset = context["dataset"]
 
         self.logger.info(

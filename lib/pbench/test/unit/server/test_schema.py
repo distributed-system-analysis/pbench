@@ -86,7 +86,7 @@ class TestParamType:
         Check basic consistency of the ParamType ENUM
         """
         assert (
-            len(ParamType.__members__) == 8
+            len(ParamType.__members__) == 9
         ), "Number of ParamType ENUM values has changed; confirm test coverage!"
         for n, t in ParamType.__members__.items():
             assert str(t) == t.friendly.upper()
@@ -362,20 +362,9 @@ class TestParameter:
                 ["public", "private"],
                 None,
             ),
-            (
-                ParamType.INT,
-                None,
-                ["1,2,3"],
-                [1, 2, 3],
-                ",",
-            ),
-            (
-                ParamType.INT,
-                None,
-                ["1", "2", "3"],
-                [1, 2, 3],
-                None,
-            ),
+            (ParamType.INT, None, ["1,2,3"], [1, 2, 3], ","),
+            (ParamType.INT, None, ["1", "2", "3"], [1, 2, 3], None),
+            (ParamType.INT, None, [1, 2, 3], [1, 2, 3], None),
             (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["yes", "no"], "|"),
             (
                 ParamType.KEYWORD,
@@ -454,7 +443,7 @@ class TestSchema:
     )
 
     def test_bad_payload(self):
-        with pytest.raises(InvalidRequestPayload):
+        with pytest.raises(MissingParameters):
             self.schema.validate(None)
 
     def test_missing_required(self):

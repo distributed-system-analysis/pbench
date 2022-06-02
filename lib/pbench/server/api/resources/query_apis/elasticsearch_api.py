@@ -1,7 +1,15 @@
 from logging import Logger
 
 from pbench.server import PbenchServerConfig, JSON
-from pbench.server.api.resources import Schema, Parameter, ParamType
+from pbench.server.api.resources import (
+    API_METHOD,
+    API_OPERATION,
+    ApiParams,
+    ApiSchema,
+    Schema,
+    Parameter,
+    ParamType,
+)
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 
 
@@ -12,12 +20,13 @@ class Elasticsearch(ElasticBase):
         """
         __init__ Configure the Elasticsearch passthrough class
 
-        NOTE: there are three "expected" JSON input parameters, but only two of
-        these are required and therefore appear in the schema.
-
-        TODO: the schema could be extended to include both the type and a
-        "required" flag; is that worthwhile? This would allow automatic type
-        check/conversion of optional parameters, which would be cleaner.
+        NOTE: This API is obsolescent. We've talked about retaining it as a
+        potentially "privileged" mechanism to gain direct access to the
+        Elasticsearch backend, but this isn't defined. We should likely
+        delete it, or at least remove it from the API routing, until then;
+        for now I've given it the minimum coat of paint to build under the
+        new schema infrastructure rather than tackling those issues at the
+        same time.
 
         Args:
             config: Pbench configuration object
@@ -26,19 +35,23 @@ class Elasticsearch(ElasticBase):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter("indices", ParamType.STRING, required=True),
-                Parameter("payload", ParamType.JSON),
-                Parameter("params", ParamType.JSON),
+            ApiSchema(
+                API_METHOD.POST,
+                API_OPERATION.UPDATE,
+                body_schema=Schema(
+                    Parameter("indices", ParamType.STRING, required=True),
+                    Parameter("payload", ParamType.JSON),
+                    Parameter("params", ParamType.JSON),
+                ),
             ),
         )
 
-    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
         return {
-            "path": json_data["indices"],
+            "path": params.body["indices"],
             "kwargs": {
-                "json": json_data.get("payload"),
-                "params": json_data.get("params"),
+                "json": params.body.get("payload"),
+                "params": params.body.get("params"),
             },
         }
 

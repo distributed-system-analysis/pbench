@@ -3,12 +3,19 @@ from logging import Logger
 from typing import AnyStr, Union, List
 
 from pbench.server import PbenchServerConfig, JSON
-from pbench.server.api.resources import APIAbort, Schema, SchemaError
+from pbench.server.api.resources import (
+    API_AUTHORIZATION,
+    API_METHOD,
+    APIAbort,
+    ApiParams,
+    ApiSchema,
+    ParamType,
+    SchemaError,
+)
 
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 from pbench.server.database.models.datasets import (
     Dataset,
-    DatasetNotFound,
     Metadata,
     MetadataError,
 )
@@ -25,12 +32,13 @@ class MissingDatasetNameParameter(SchemaError):
     assert since it prevents launching the server.
     """
 
-    def __init__(self, subclass_name: str):
+    def __init__(self, subclass_name: str, message: str):
         super().__init__()
         self.subclass_name = subclass_name
+        self.message = message
 
     def __str__(self) -> str:
-        return f"API {self.subclass_name} is missing schema parameter, name"
+        return f"API {self.subclass_name} is {self.message}"
 
 
 class IndexMapBase(ElasticBase):
@@ -79,34 +87,40 @@ class IndexMapBase(ElasticBase):
         "contents": {"index": "run-toc", "whitelist": ["directory", "files"]},
     }
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
-        if "name" not in schema:
-            raise MissingDatasetNameParameter(self.__class__.__name__)
-        super().__init__(config, logger, schema)
+    def __init__(self, config: PbenchServerConfig, logger: Logger, *schemas: ApiSchema):
+        super().__init__(config, logger, *schemas)
 
-    def preprocess(self, client_json: JSON) -> CONTEXT:
+        api_name = self.__class__.__name__
+
+        if not schemas:
+            raise MissingDatasetNameParameter(api_name, "no schema provided")
+        dset = self.schemas.get_param_by_type(
+            API_METHOD.POST,
+            ParamType.DATASET,
+            ApiParams(),
+        )
+        if not dset or not dset.parameter.required:
+            raise MissingDatasetNameParameter(
+                api_name, "dataset parameter is not defined or not required"
+            )
+        if self.schemas[API_METHOD.POST].authorization != API_AUTHORIZATION.DATASET:
+            raise MissingDatasetNameParameter(
+                api_name, "schema authorization is not by dataset"
+            )
+
+    def preprocess(self, params: ApiParams) -> CONTEXT:
         """
-        Query the Dataset associated with this run id, and determine whether the
-        request is authorized for this dataset.
+        Identify the Dataset on which we're operating, and return it in the
+        CONTEXT for the Elasticsearch assembly and postprocessing.
 
-        If the user has authorization to read the dataset, return the Dataset
-        object in the JSON CONTEXT so that subclass operations can use it.
+        Note that the class constructor validated that the API is authorized
+        using the Dataset ownership/access, so validation and authorization has
+        already taken place.
         """
-        dataset_name = client_json["name"]
+        _, dataset = self.schemas.get_param_by_type(
+            API_METHOD.POST, ParamType.DATASET, params
+        )
 
-        # Query the dataset using the given run id
-        try:
-            dataset = Dataset.query(name=dataset_name)
-        except DatasetNotFound:
-            raise APIAbort(HTTPStatus.NOT_FOUND, f"Dataset {dataset_name!r} not found.")
-
-        # We check authorization against the ownership of the dataset that was
-        # selected rather than having an explicit "user" JSON parameter. This
-        # will raise UnauthorizedAccess on failure.
-        self._check_authorization(str(dataset.owner_id), dataset.access)
-
-        # The dataset exists, and the authenticated user has access, so process
-        # the operation with the appropriate CONTEXT.
         return {"dataset": dataset}
 
     def get_index(self, dataset: Dataset, root_index_name: AnyStr) -> AnyStr:

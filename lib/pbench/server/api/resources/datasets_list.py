@@ -8,18 +8,18 @@ from sqlalchemy.orm import Query
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
+    API_AUTHORIZATION,
+    API_METHOD,
     API_OPERATION,
     ApiBase,
+    ApiParams,
+    ApiSchema,
     ParamType,
     Parameter,
     Schema,
 )
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import (
-    Dataset,
-    Metadata,
-    MetadataError,
-)
+from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
 
 
 class DatasetsList(ApiBase):
@@ -31,24 +31,28 @@ class DatasetsList(ApiBase):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter("name", ParamType.STRING),
-                Parameter("owner", ParamType.USER),
-                Parameter("access", ParamType.ACCESS),
-                Parameter("start", ParamType.DATE),
-                Parameter("end", ParamType.DATE),
-                Parameter("offset", ParamType.INT),
-                Parameter("limit", ParamType.INT),
-                Parameter(
-                    "metadata",
-                    ParamType.LIST,
-                    element_type=ParamType.KEYWORD,
-                    keywords=Metadata.METADATA_KEYS,
-                    key_path=True,
-                    string_list=",",
+            ApiSchema(
+                API_METHOD.GET,
+                API_OPERATION.READ,
+                query_schema=Schema(
+                    Parameter("name", ParamType.STRING),
+                    Parameter("owner", ParamType.USER),
+                    Parameter("access", ParamType.ACCESS),
+                    Parameter("start", ParamType.DATE),
+                    Parameter("end", ParamType.DATE),
+                    Parameter("offset", ParamType.INT),
+                    Parameter("limit", ParamType.INT),
+                    Parameter(
+                        "metadata",
+                        ParamType.LIST,
+                        element_type=ParamType.KEYWORD,
+                        keywords=Metadata.METADATA_KEYS,
+                        key_path=True,
+                        string_list=",",
+                    ),
                 ),
+                authorization=API_AUTHORIZATION.USER_ACCESS,
             ),
-            role=API_OPERATION.READ,
         )
 
     def get_paginated_obj(
@@ -99,7 +103,7 @@ class DatasetsList(ApiBase):
         paginated_result["total"] = total_count
         return items, paginated_result
 
-    def _get(self, json_data: JSON, request: Request) -> Response:
+    def _get(self, params: ApiParams, request: Request) -> Response:
         """
         Get a list of datasets matching a set of criteria.
 
@@ -107,20 +111,12 @@ class DatasetsList(ApiBase):
         desired metadata keys; instead we rely on URI query parameters.
 
         Args:
-            json_data: Ignored because GET has no JSON payload
-            request: The original Request object containing query parameters
+            params: API parameters
+            request: The original Request object
 
         GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen,server.deletion
         """
-
-        # We missed automatic schema validation due to the lack of a JSON body;
-        # construct an equivalent JSON body now so we can run it through the
-        # validator.
-        json = self._validate_query_params(request, self.schema)
-
-        # Validate the authenticated user's authorization for the combination
-        # of "owner" and "access".
-        self._check_authorization(json.get("owner"), json.get("access"))
+        json = params.query
 
         # Build a SQLAlchemy Query object expressing all of our constraints
         query = Database.db_session.query(Dataset)
@@ -136,7 +132,7 @@ class DatasetsList(ApiBase):
         if "name" in json:
             self.logger.info("Adding name query")
             query = query.filter(Dataset.name.contains(json["name"]))
-        query = self._build_sql_query(json, query)
+        query = self._build_sql_query(json.get("owner"), json.get("access"), query)
 
         # Useful for debugging, but verbose: this displays the fully expanded
         # SQL `SELECT` statement.
@@ -167,6 +163,6 @@ class DatasetsList(ApiBase):
                     "Error getting metadata {} for dataset {}: {}", keys, dataset, e
                 )
             response.append(d)
-        paginated_result["results"] = response
 
+        paginated_result["results"] = response
         return jsonify(paginated_result)

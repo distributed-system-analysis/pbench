@@ -3,7 +3,16 @@ from flask import jsonify
 from logging import Logger
 
 from pbench.server import PbenchServerConfig, JSON
-from pbench.server.api.resources import APIAbort, ParamType, Parameter, Schema
+from pbench.server.api.resources import (
+    API_METHOD,
+    API_OPERATION,
+    APIAbort,
+    ApiParams,
+    ApiSchema,
+    ParamType,
+    Parameter,
+    Schema,
+)
 from pbench.server.api.resources.query_apis import (
     CONTEXT,
     ElasticBase,
@@ -25,64 +34,72 @@ class DatasetsDetail(ElasticBase):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter("user", ParamType.USER, required=False),
-                Parameter("access", ParamType.ACCESS, required=False),
-                Parameter(
-                    "dataset", ParamType.STRING, required=True, uri_parameter=True
+            ApiSchema(
+                API_METHOD.POST,
+                API_OPERATION.READ,
+                uri_schema=Schema(
+                    Parameter("dataset", ParamType.STRING, required=True)
                 ),
-                Parameter("start", ParamType.DATE, required=True),
-                Parameter("end", ParamType.DATE, required=True),
-                Parameter(
-                    "metadata",
-                    ParamType.LIST,
-                    element_type=ParamType.KEYWORD,
-                    keywords=Metadata.METADATA_KEYS,
-                    key_path=True,
-                    string_list=",",
+                body_schema=Schema(
+                    Parameter("user", ParamType.USER, required=False),
+                    Parameter("access", ParamType.ACCESS, required=False),
+                    Parameter("start", ParamType.DATE, required=True),
+                    Parameter("end", ParamType.DATE, required=True),
+                    Parameter(
+                        "metadata",
+                        ParamType.LIST,
+                        element_type=ParamType.KEYWORD,
+                        keywords=Metadata.METADATA_KEYS,
+                        key_path=True,
+                        string_list=",",
+                    ),
                 ),
             ),
         )
 
-    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
         """
         Get details for a specific Pbench dataset which is either owned
         by a specified username, or has been made publicly accessible.
 
+        POST /datasets/detail/<dataset>
         {
             "user": "username",
-            "dataset": "dataset-name",
             "start": "start-time",
             "end": "end-time",
             "metadata": ["seen", "saved"]
         }
 
-        json_data: JSON dictionary of type-normalized key-value pairs
-            user: specifies the owner of the data to be searched; it need not
-                necessarily be the user represented by the session token
-                header, assuming the session user is authorized to view "user"s
-                data. If "user": None is specified, then only public datasets
-                will be returned.
+        params: API parameter set
 
-            "dataset" is the name of a Pbench agent dataset (tarball).
+            URI parameters:
+                "dataset" is the name of a Pbench agent dataset (tarball).
 
-            "start" and "end" are time strings representing a set of Elasticsearch
-                run document indices in which the dataset will be found.
+            JSON body parameters:
+                user: specifies the owner of the data to be searched; it need not
+                    necessarily be the user represented by the session token
+                    header, assuming the session user is authorized to view "user"s
+                    data. If "user": None is specified, then only public datasets
+                    will be returned.
 
-            "metadata" specifies the set of Dataset metadata properties the
-                caller needs to see. (If not specified, no metadata will be
-                returned.)
+                "start" and "end" are time strings representing a set of Elasticsearch
+                    run document indices in which the dataset will be found.
+
+                "metadata" specifies the set of Dataset metadata properties the
+                    caller needs to see. (If not specified, no metadata will be
+                    returned.)
 
         context: Context passed from preprocess method: used to propagate the
             requested set of metadata to the postprocess method.
         """
-        user = json_data.get("user")
-        dataset = json_data.get("dataset")
-        start = json_data.get("start")
-        end = json_data.get("end")
+        dataset = params.uri.get("dataset")
+        user = params.body.get("user")
+        access = params.body.get("access")
+        start = params.body.get("start")
+        end = params.body.get("end")
 
         # Copy client's metadata request to CONTEXT for postprocessor
-        context["metadata"] = json_data.get("metadata")
+        context["metadata"] = params.body.get("metadata")
         self.logger.info(
             "Return dataset {} for user {}, prefix {}: ({} - {})",
             dataset,
@@ -99,7 +116,7 @@ class DatasetsDetail(ElasticBase):
                 "params": {"ignore_unavailable": "true"},
                 "json": {
                     "query": self._build_elasticsearch_query(
-                        json_data, [{"term": {"run.name": dataset}}]
+                        user, access, [{"term": {"run.name": dataset}}]
                     ),
                     "sort": "_index",
                 },

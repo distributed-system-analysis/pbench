@@ -4,7 +4,7 @@ from http import HTTPStatus
 import json
 from logging import Logger
 import re
-from typing import Any, Callable, Dict, Iterator, List
+from typing import Any, Callable, Dict, Iterator, List, Optional
 from urllib.parse import urljoin
 
 from dateutil import rrule
@@ -17,14 +17,17 @@ import requests
 from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
+    API_AUTHORIZATION,
+    API_METHOD,
     APIAbort,
-    API_OPERATION,
     ApiBase,
-    Schema,
+    ApiSchema,
+    ParamType,
+    ApiParams,
     SchemaError,
     UnauthorizedAccess,
 )
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 
@@ -35,16 +38,17 @@ CONTEXT = Dict[str, Any]
 
 class MissingBulkSchemaParameters(SchemaError):
     """
-    The subclass schema is missing the required "controller" or dataset "name"
-    parameters required to locate a Dataset.
+    The subclass schema is missing required schema elements to locate and
+    authorize access to a dataset.
     """
 
-    def __init__(self, subclass_name: str):
+    def __init__(self, subclass_name: str, message: str):
         super().__init__()
         self.subclass_name = subclass_name
+        self.message = message
 
     def __str__(self) -> str:
-        return f"API {self.subclass_name} is missing schema parameters controller and/or name"
+        return f"API {self.subclass_name} is {self.message}"
 
 
 class PostprocessError(Exception):
@@ -84,9 +88,7 @@ class ElasticBase(ApiBase):
         self,
         config: PbenchServerConfig,
         logger: Logger,
-        schema: Schema,
-        *,  # following parameters are keyword-only
-        role: API_OPERATION = API_OPERATION.READ,
+        *schemas: ApiSchema,
     ):
         """
         Base class constructor.
@@ -94,18 +96,21 @@ class ElasticBase(ApiBase):
         Args:
             config: server configuration
             logger: logger object
-            schema: API schema: for example,
-                    Schema(
-                        Parameter("user", ParamType.USER, required=True),
-                        Parameter("start", ParamType.DATE)
-                    )
-            role: specify the API role, defaulting to READ
-
-        NOTE: each class currently only supports one HTTP method, so we can
-        describe only one set of parameters. If we ever need to change this,
-        we can add a level and describe distinct parameters for each method.
+            schemas: List of API schemas: for example,
+                ApiSchema(
+                    ApiSchema.METHOD.GET,
+                    ApiSchema.OPERATION.READ,
+                    query_schema=Schema(Parameter("start", ParamType.DATE)),
+                    uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
+                ),
+                ApiSchema(
+                    ApiSchema.METHOD.POST,
+                    ApiSchema.OPERATION.UPDATE,
+                    body_schema=Schema(Parameter("start", ParamType.DATE)),
+                    uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
+                )
         """
-        super().__init__(config, logger, schema, role=role)
+        super().__init__(config, logger, *schemas)
         self.prefix = config.get("Indexing", "index_prefix")
         host = config.get("elasticsearch", "host")
         port = config.get("elasticsearch", "port")
@@ -116,7 +121,9 @@ class ElasticBase(ApiBase):
         # authentication and http vs https for example.
         self.es_url = f"http://{host}:{port}"
 
-    def _build_elasticsearch_query(self, parameters: JSON, terms: List[JSON]) -> JSON:
+    def _build_elasticsearch_query(
+        self, user: Optional[str], access: Optional[str], terms: List[JSON]
+    ) -> JSON:
         """
         Generate the "query" parameter for an Elasticsearch _search request
         payload.
@@ -176,11 +183,10 @@ class ElasticBase(ApiBase):
                 access:public
 
         Args:
-            JSON query parameters containing keys:
-                "user": Pbench username to restrict search to datasets owned by
-                    a specific user.
-                "access": Access category, "public" or "private" to restrict
-                    search to datasets with a specific access category.
+            user: Pbench username to restrict search to datasets owned by
+                a specific user.
+            access: Access category, "public" or "private" to restrict
+                search to datasets with a specific access category.
             terms: A list of JSON objects describing the Elasticsearch "terms"
                 that must be matched for the query. (These are assumed to be
                 AND clauses.)
@@ -189,8 +195,6 @@ class ElasticBase(ApiBase):
             An assembled Elasticsearch "query" mode that includes the necessary
             user/access terms.
         """
-        user = parameters.get("user")
-        access = parameters.get("access")
         authorized_user: User = Auth.token_auth.current_user()
         authorized_id = str(authorized_user.id) if authorized_user else None
         is_admin = authorized_user.is_admin() if authorized_user else False
@@ -299,7 +303,7 @@ class ElasticBase(ApiBase):
             )
         return indices
 
-    def preprocess(self, client_json: JSON) -> CONTEXT:
+    def preprocess(self, params: ApiParams) -> CONTEXT:
         """
         Given the client Request payload, perform any preprocessing activities
         necessary prior to constructing an Elasticsearch query.
@@ -314,7 +318,7 @@ class ElasticBase(ApiBase):
         additional context to "postprocess" if necessary.
 
         Args:
-            client_json: Request JSON payload
+            params: Type-normalized client parameters
 
         Raises:
             Any errors in the postprocess method shall be reported by
@@ -326,14 +330,14 @@ class ElasticBase(ApiBase):
         """
         return {}
 
-    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
         """
         Assemble the Elasticsearch parameters.
 
         This is an abstract method that must be implemented by a subclass.
 
         Args:
-            json_data: Input JSON payload, processed by type conversion
+            params: Type-normalized client parameters
             context: CONTEXT dict returned by preprocess method
 
         Raises:
@@ -371,20 +375,20 @@ class ElasticBase(ApiBase):
         """
         raise NotImplementedError()
 
-    def _call(self, method: Callable, json_data: JSON):
+    def _call(self, method: Callable, params: ApiParams):
         """
         Perform the requested call to Elasticsearch, and handle any exceptions.
 
         Args:
-            method: Any requests HTTP method (e.g., requests.post)
-            json_data: Type-normalized client JSON input
+            method: requests package callable (e.g., requests.get)
+            params: Type-normalized client parameters
 
         Returns:
             Postprocessed JSON body to return to client
         """
         klasname = self.__class__.__name__
         try:
-            context = self.preprocess(json_data)
+            context = self.preprocess(params)
             self.logger.debug("PREPROCESS returns {}", context)
             if context is None:
                 return "", HTTPStatus.NO_CONTENT
@@ -396,7 +400,7 @@ class ElasticBase(ApiBase):
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
         try:
             # prepare payload for Elasticsearch query
-            es_request = self.assemble(json_data, context)
+            es_request = self.assemble(params, context)
             path = es_request.get("path")
             url = urljoin(self.es_url, path)
             self.logger.info(
@@ -478,7 +482,7 @@ class ElasticBase(ApiBase):
             )
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    def _post(self, json_data: JSON, _) -> Response:
+    def _post(self, params: ApiParams, _) -> Response:
         """
         Handle a Pbench server POST operation that will involve a call to the
         server's configured Elasticsearch instance. The assembly and
@@ -487,7 +491,7 @@ class ElasticBase(ApiBase):
         we rely on the ApiBase superclass to provide basic JSON parameter
         validation and normalization.
         """
-        return self._call(requests.post, json_data)
+        return self._call(requests.post, params)
 
     def _get(self, json_data: JSON, _) -> Response:
         """
@@ -516,34 +520,38 @@ class ElasticBulkBase(ApiBase):
         self,
         config: PbenchServerConfig,
         logger: Logger,
-        schema: Schema,
-        *,  # following parameters are keyword-only
-        action: str = None,
-        role: API_OPERATION = API_OPERATION.UPDATE,
+        *schemas: ApiSchema,
+        action: Optional[str] = None,
     ):
         """
         Base class constructor.
 
         This method assumes and requires that a dataset will be located using
-        the controller and dataset name, so "controller" and "name" string-type
-        parameters must be defined in the subclass schema.
+        the dataset name, so a ParamType.DATASET parameter must be defined
+        in the subclass schema.
 
         Args:
             config: server configuration
             logger: logger object
-            schema: API schema: for example,
-                    Schema(
-                        Parameter("controller", ParamType.STRING, required=True),
-                        Parameter("name", ParamType.STRING, required=True),
-                        ...
-                    )
-            action: the Elasticsearch bulk operation action ("update",
-                "delete", etc.)
-            role: specify the API role, defaulting to UPDATE
+            schemas: List of API schemas: for example,
+                ApiSchema(
+                    ApiSchema.METHOD.GET,
+                    ApiSchema.OPERATION.READ,
+                    query_schema=Schema(Parameter("start", ParamType.DATE)),
+                    uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
+                ),
+                ApiSchema(
+                    ApiSchema.METHOD.POST,
+                    ApiSchema.OPERATION.UPDATE,
+                    body_schema=Schema(Parameter("start", ParamType.DATE)),
+                    uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
+                )
         """
-        super().__init__(config, logger, schema, role=role)
+        super().__init__(config, logger, *schemas)
         host = config.get("elasticsearch", "host")
         port = config.get("elasticsearch", "port")
+
+        api_name = self.__class__.__name__
 
         # TODO: For future flexibility, we should consider reading this entire
         # Elasticsearch URI from the config file as we do for PostgreSQL rather
@@ -553,10 +561,28 @@ class ElasticBulkBase(ApiBase):
         self.action = action
         self.config = config
 
-        if "name" not in schema:
-            raise MissingBulkSchemaParameters(self.__class__.__name__)
+        # Look for a parameter of type DATASET. It may be defined in any of the
+        # three schemas (uri, query parameter, or request body), and we don't
+        # care how it's named. That parameter must be required, since instances
+        # of this base class operate on a specific dataset, and the schema
+        # authorization mechanism must be set to use the DATASET.
+        if not schemas:
+            raise MissingBulkSchemaParameters(api_name, "no schema provided")
+        dset = self.schemas.get_param_by_type(
+            API_METHOD.POST,
+            ParamType.DATASET,
+            ApiParams(),
+        )
+        if not dset or not dset.parameter.required:
+            raise MissingBulkSchemaParameters(
+                api_name, "dataset parameter is not defined or not required"
+            )
+        if self.schemas[API_METHOD.POST].authorization != API_AUTHORIZATION.DATASET:
+            raise MissingBulkSchemaParameters(
+                api_name, "schema authorization is not by dataset"
+            )
 
-    def generate_actions(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
+    def generate_actions(self, params: ApiParams, dataset: Dataset) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk operation actions driven by the
         dataset document map. For example:
@@ -571,8 +597,7 @@ class ElasticBulkBase(ApiBase):
         This is an abstract method that must be implemented by a subclass.
 
         Args:
-            json_data: The original query JSON parameters based on the subclass
-                schema.
+            params: Type-normalized client parameters
             dataset: The associated Dataset object
 
         Returns:
@@ -580,7 +605,7 @@ class ElasticBulkBase(ApiBase):
         """
         raise NotImplementedError()
 
-    def complete(self, dataset: Dataset, json_data: JSON, summary: JSON) -> None:
+    def complete(self, dataset: Dataset, params: ApiParams, summary: JSON) -> None:
         """
         Complete a bulk Elasticsearch operation, perhaps by modifying the
         source Dataset resource.
@@ -590,28 +615,27 @@ class ElasticBulkBase(ApiBase):
 
         Args:
             dataset: The associated Dataset object.
-            json_data: The original query JSON parameters based on the subclass
-                schema.
+            params: Type-normalized client parameters
             summary: The summary document of the operation:
                 ok      Count of successful actions
                 failure Count of failing actions
         """
         pass
 
-    def _post(self, json_data: JSON, _) -> Response:
+    def _post(self, params: ApiParams, _) -> Response:
         """
         Perform the requested POST operation, and handle any exceptions.
 
         This is called by the ApiBase post() method through its dispatch
         method, which provides parameter validation.
 
-        NOTE: This method relies on the "controller" and "name" JSON parameters
-        being part of the API Schema defined by any subclass that extends this
-        base class. (This is checked by the constructor.)
+        NOTE: This method relies on a ParamType.DATASET parameter being part of
+        the POST API Schema defined by any subclass that extends this base
+        class, and the POST schema must select DATASET authorization.
+        (This is checked by the constructor.)
 
         Args:
-            json_data: Type-normalized client JSON input
-                name: Dataset name
+            params: Type-normalized client parameters
             _: Original incoming Request object (not used)
 
         Returns:
@@ -619,22 +643,11 @@ class ElasticBulkBase(ApiBase):
         """
         klasname = self.__class__.__name__
 
-        try:
-            dataset = Dataset.query(name=json_data["name"])
-        except DatasetNotFound as e:
-            raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
-
-        # For bulk Elasticsearch operations, we check authorization against the
-        # ownership of a designated dataset rather than having an explicit
-        # "user" JSON parameter. If the subclass schema includes an "access"
-        # parameter, validate authorization against that value, otherwise use
-        # the current dataset access value.
-        #
-        # This will raise UnauthorizedAccess on failure.
-        try:
-            self._check_authorization(str(dataset.owner_id), dataset.access)
-        except UnauthorizedAccess as e:
-            raise APIAbort(e.http_status, str(e))
+        # Our schema requires a valid dataset and uses it to authorize access;
+        # therefore the unconditional dereference is assumed safe.
+        dataset = self.schemas.get_param_by_type(
+            API_METHOD.POST, ParamType.DATASET, params
+        ).value
 
         # Build an Elasticsearch instance to manage the bulk update
         elastic = Elasticsearch(self.elastic_uri)
@@ -671,7 +684,7 @@ class ElasticBulkBase(ApiBase):
             # Pass the bulk command generator to the helper
             results = helpers.streaming_bulk(
                 elastic,
-                self.generate_actions(json_data, dataset),
+                self.generate_actions(params.body, dataset),
                 raise_on_exception=False,
                 raise_on_error=False,
             )
@@ -728,7 +741,7 @@ class ElasticBulkBase(ApiBase):
 
         # Let the subclass complete the operation
         try:
-            self.complete(dataset, json_data, summary)
+            self.complete(dataset, params.body, summary)
         except Exception as e:
             self.logger.exception(
                 "{}: exception {} occurred during bulk operation completion",

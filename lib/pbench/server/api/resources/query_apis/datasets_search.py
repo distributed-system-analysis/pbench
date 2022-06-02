@@ -5,6 +5,10 @@ from flask import jsonify
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
+    API_METHOD,
+    API_OPERATION,
+    ApiParams,
+    ApiSchema,
     Parameter,
     ParamType,
     Schema,
@@ -27,21 +31,25 @@ class DatasetsSearch(ElasticBase):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter("user", ParamType.USER, required=False),
-                Parameter("start", ParamType.DATE, required=True),
-                Parameter("end", ParamType.DATE, required=True),
-                Parameter("search_term", ParamType.STRING, required=False),
-                Parameter(
-                    "fields",
-                    ParamType.LIST,
-                    element_type=ParamType.STRING,
-                    required=False,
+            ApiSchema(
+                API_METHOD.POST,
+                API_OPERATION.READ,
+                body_schema=Schema(
+                    Parameter("user", ParamType.USER, required=False),
+                    Parameter("start", ParamType.DATE, required=True),
+                    Parameter("end", ParamType.DATE, required=True),
+                    Parameter("search_term", ParamType.STRING, required=False),
+                    Parameter(
+                        "fields",
+                        ParamType.LIST,
+                        element_type=ParamType.STRING,
+                        required=False,
+                    ),
                 ),
             ),
         )
 
-    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
         """
         Construct a pbench search query based on a pattern matching given "search_term" parameter
         within a specified date range and which are either owned by a specified username,
@@ -55,7 +63,7 @@ class DatasetsSearch(ElasticBase):
             "fields": list(interested run document fields returned from IndexMapping API)
         }
 
-        json_data: JSON dictionary of type-normalized parameters
+        params: JSON dictionaries of type-normalized parameters
             user: specifies the owner of the data to be searched; it need not
                 necessarily be the user represented by the session token
                 header, assuming the session user is authorized to view "user"s
@@ -73,14 +81,15 @@ class DatasetsSearch(ElasticBase):
                     The fields controls what fields are returned by the query, and it has no effect
                     on which fields are searched.
         """
-        user = json_data.get("user")
-        start = json_data.get("start")
-        end = json_data.get("end")
+        user = params.body.get("user")
+        access = params.body.get("access")
+        start = params.body.get("start")
+        end = params.body.get("end")
 
         # If the search_term parameter is not specified we will return all the Elasticsearch hits
-        search_term = json_data.get("search_term", "")
+        search_term = params.body.get("search_term", "")
         # If no fields are specified, the query will return all the fields from Elasticsearch hits
-        selected_fields = json_data.get("fields", [])
+        selected_fields = params.body.get("fields", [])
 
         start_arg = UtcTimeHelper(start).to_iso_string()
         end_arg = UtcTimeHelper(end).to_iso_string()
@@ -101,7 +110,8 @@ class DatasetsSearch(ElasticBase):
             "kwargs": {
                 "json": {
                     "query": self._build_elasticsearch_query(
-                        json_data,
+                        user,
+                        access,
                         [
                             {
                                 "range": {
