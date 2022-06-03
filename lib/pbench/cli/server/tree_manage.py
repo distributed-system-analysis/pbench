@@ -41,16 +41,21 @@ def print_tree(tree: FileTree):
 @pass_cli_context
 @common_options
 @click.option(
-    "--display", default=False, is_flag=True, help="Display the full tree on completion"
+    "--display",
+    "-d",
+    default=False,
+    is_flag=True,
+    help="Display the full tree on completion",
 )
 @click.option(
     "--full-discovery",
+    "-f",
     default=False,
     is_flag=True,
-    help="Fully discovery file tree before performing requested operation",
+    help="Fully discover the file tree before performing requested operation",
 )
 @click.option(
-    "--verify", default=False, is_flag=True, help="Show extra status messages"
+    "--verify", "-v", default=False, is_flag=True, help="Show extra status messages"
 )
 def tree_manage(context: CliContext, display: bool, full_discovery: bool, verify: bool):
     """
