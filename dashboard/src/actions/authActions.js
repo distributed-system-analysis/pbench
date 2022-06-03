@@ -1,6 +1,5 @@
 import * as TYPES from "./types";
 import API from "../utils/axiosInstance";
-import * as API_ROUTES from "../utils/apiConstants";
 import * as CONSTANTS from "../assets/constants/authConstants";
 import Cookies from "js-cookie";
 import { uid } from "../utils/helper";
@@ -14,12 +13,13 @@ export const makeLoginRequest =
         type: TYPES.USER_NOTION_ALERTS,
         payload: [],
       });
-      const response = await API.post(API_ROUTES.LOGIN, {
+      const endpoints = getState().apiEndpoint.endpoints;
+      const response = await API.post(endpoints?.api?.login, {
         ...details,
       });
       if (response.status === 200 && Object.keys(response.data).length > 0) {
-        let keepUser = getState().userAuth.keepLoggedIn;
-        let expiryTime = keepUser
+        const keepUser = getState().userAuth.keepLoggedIn;
+        const expiryTime = keepUser
           ? CONSTANTS.EXPIRY_KEEPUSER_DAYS
           : CONSTANTS.EXPIRY_DEFAULT_DAYS;
         Cookies.set("isLoggedIn", true, { expires: expiryTime, secure: true });
@@ -31,7 +31,7 @@ export const makeLoginRequest =
           expires: expiryTime,
           secure: true,
         });
-        let loginDetails = {
+        const loginDetails = {
           isLoggedIn: true,
           token: response.data?.auth_token,
           username: response.data?.username,
@@ -42,7 +42,7 @@ export const makeLoginRequest =
         });
 
         navigate("/");
-        let toast = {
+        const toast = {
           variant: "success",
           title: "Logged in successfully",
         };
@@ -53,7 +53,7 @@ export const makeLoginRequest =
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {
-      let alerts = getState().userAuth.alerts;
+      const alerts = getState().userAuth.alerts;
       let alert = {};
       if (error?.response) {
         alert = {
@@ -111,7 +111,7 @@ export const registerUser =
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {
-      let alerts = getState().userAuth.alerts;
+      const alerts = getState().userAuth.alerts;
       let amsg = {};
       document.querySelector(".signup-card").scrollTo(0, 0);
       if (error?.response) {
@@ -121,7 +121,7 @@ export const registerUser =
         amsg = error?.message;
         dispatch({ type: TYPES.NETWORK_ERROR });
       }
-      let alert = { title: amsg, key: uid() };
+      const alert = { title: amsg, key: uid() };
       alerts.push(alert);
       dispatch({
         type: TYPES.USER_NOTION_ALERTS,
@@ -146,7 +146,7 @@ export const toggleLoginBtn = (isDisabled) => async (dispatch) => {
 };
 
 export const getUserDetails = () => async (dispatch) => {
-  let loginDetails = {
+  const loginDetails = {
     isLoggedIn: Cookies.get("isLoggedIn"),
     token: Cookies.get("token"),
     username: Cookies.get("username"),
@@ -158,8 +158,8 @@ export const getUserDetails = () => async (dispatch) => {
 };
 export const logout = () => async (dispatch) => {
   dispatch({ type: TYPES.LOADING });
-  let keys = ["username", "token", "isLoggedIn"];
-  for (let key of keys) {
+  const keys = ["username", "token", "isLoggedIn"];
+  for (const key of keys) {
     Cookies.remove(key);
   }
   dispatch({ type: TYPES.COMPLETED });

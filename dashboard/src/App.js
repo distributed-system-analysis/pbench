@@ -11,7 +11,7 @@ import ProfileComponent from "modules/components/ProfileComponent";
 import { getUserDetails } from "actions/authActions";
 import { fetchEndpoints } from "./actions/endpointAction";
 
-function App() {
+const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -36,6 +36,6 @@ function App() {
       </BrowserRouter>
     </div>
   );
-}
+};
 
 export default App;

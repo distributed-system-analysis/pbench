@@ -45,7 +45,7 @@ const HeaderToolbar = () => {
       profile: () => navigate("/user-profile"),
       logout: () => dispatch(logout()),
     };
-    let action = menuOptions[type];
+    const action = menuOptions[type];
     if (action) {
       action();
     }

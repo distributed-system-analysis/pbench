@@ -22,11 +22,11 @@ const ToastReducer = (state = initialState, action = {}) => {
   }
 };
 
-function setValue(state, action) {
+const setValue = (state, action) => {
   const { type, payload } = action;
   switch (type) {
     case SHOW_TOAST: {
-      let obj = {
+      const obj = {
         variant: payload.variant,
         title: payload.title,
         message: payload?.message,
@@ -36,13 +36,13 @@ function setValue(state, action) {
       return state;
     }
     case CLEAR_TOAST: {
-      let activeAlert = state.filter((item) => item.key !== payload);
+      const activeAlert = state.filter((item) => item.key !== payload);
       state = [...activeAlert];
       return state;
     }
     default:
       return state;
   }
-}
+};
 
 export default ToastReducer;

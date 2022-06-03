@@ -30,6 +30,8 @@ const ProfileComponent = () => {
 
   const user = useSelector((state) => state.userProfile.userDetails);
   const loginDetails = useSelector((state) => state.userAuth.loginDetails);
+  const { endpoints } = useSelector((state) => state.apiEndpoint);
+
   const isUserDetailsUpdated = useSelector(
     (state) => state.userProfile.isUserDetailsUpdated
   );
@@ -45,10 +47,10 @@ const ProfileComponent = () => {
     setEditView(false);
   };
   useEffect(() => {
-    if (loginDetails?.username) {
+    if (loginDetails?.username && Object.keys(endpoints).length > 0) {
       dispatch(getProfileDetails());
     }
-  }, [dispatch, loginDetails?.username]);
+  }, [dispatch, loginDetails?.username, endpoints]);
 
   const formatDate = (date) => {
     const registerDate = new Date(date);

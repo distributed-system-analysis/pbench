@@ -1,14 +1,15 @@
 import * as TYPES from "./types";
 import API from "../utils/axiosInstance";
-import * as API_ROUTES from "../utils/apiConstants";
 import { showFailureToast, constructToast } from "./toastActions";
 
 export const getProfileDetails = () => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
-    const username = getState().userAuth.loginDetails.username;
 
-    const response = await API.get(`${API_ROUTES.GET_USER}/${username}`);
+    const username = getState().userAuth.loginDetails.username;
+    const endpoints = getState().apiEndpoint.endpoints;
+
+    const response = await API.get(`${endpoints?.api?.user}/${username}`);
 
     if (response.status === 200 && Object.keys(response.data).length > 0) {
       dispatch({
@@ -48,8 +49,10 @@ export const sendForUpdate = () => async (dispatch, getState) => {
     dispatch({ type: TYPES.LOADING });
 
     const username = getState().userAuth.loginDetails.username;
+    const endpoints = getState().apiEndpoint.endpoints;
+
     if (username) {
-      const response = await API.put(`${API_ROUTES.GET_USER}/${username}`, {
+      const response = await API.put(`${endpoints?.api?.user}/${username}`, {
         ...getState().userProfile.updatedUserDetails,
       });
       if (response.status === 200) {

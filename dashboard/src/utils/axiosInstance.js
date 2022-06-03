@@ -1,5 +1,4 @@
 import axios from "axios";
-import { LOCAL_BASE_URL } from "./apiConstants";
 import Cookies from "js-cookie";
 import { showSessionExpired } from "actions/toastActions";
 import store from "store/store";
@@ -7,7 +6,6 @@ import store from "store/store";
 const { dispatch } = store;
 
 const axiosInstance = axios.create({
-  baseURL: LOCAL_BASE_URL,
   responseType: "json",
 });
 
