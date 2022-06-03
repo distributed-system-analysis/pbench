@@ -291,9 +291,9 @@ class Upload(Resource):
             #
             # NOTE: The full metadata.log (as a JSON object with section names
             # as the top level key) will be stored as a Metadata key using the
-            # name "dataset". For retrieval, the "dataset" key represents a
-            # JSON mapping of the Dataset SQL object, but will be enhanced with
-            # the parsed metadata.log values as well. (IS THIS TOO CONFUSING?)
+            # reserved internal key "metalog". For retrieval, the "dataset" key
+            # provides a JSON mapping of the Dataset SQL object, enhanced with
+            # the dataset's "metalog" Metadata key value.
             #
             # NOTE: we're setting the Dataset "created" timestamp here, but it
             # won't be committed to the database until the "advance" operation

@@ -257,7 +257,6 @@ class Tarball:
                 }
             except Exception as e:
                 self.logger.exception("{} metadata extraction: {}", self.name, e)
-                pass
         return self.metadata
 
     def unpack(self, incoming: Path, results: Path):

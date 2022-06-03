@@ -645,7 +645,7 @@ class Dataset(Database.Base):
         including non-private primary SQL columns and the `metadata.log` data
         from the metadata table.
 
-        This mapping provides the basis of the "dataset.*" metadata namespace
+        This mapping provides the basis of the "dataset" metadata namespace
         for the API.
 
         Returns
