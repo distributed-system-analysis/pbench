@@ -44,10 +44,13 @@ install-dirs:
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/pbench
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/pbench/cli
 
+# NOTE: we deliberately use `/usr/bin/python3` to make sure that when this is
+# invoked inside a python virtualenv the pip installation won't uninstall the
+# existing pbench module, breaking the environment.
 install-python3-setup: install-bin install-lib
 	mkdir -p ${DESTDIR}/python3
 	${COPY} requirements.txt ${DESTDIR}
-	(cd ..; SKIP_GENERATE_AUTHORS=1 SKIP_WRITE_GIT_CHANGELOG=1 python3 setup.py install --prefix=${DESTDIR}/python3)
+	(cd ..; /usr/bin/python3 -m pip install --prefix=${DESTDIR}/python3 -e .)
 	${COPY} $(addprefix ${DESTDIR}/python3/bin/, pbench-config pbench-server ${click-scripts}) ${BINDIR}/
 	${RM} -r ${DESTDIR}/python3
 	${COPY} ../lib/pbench ${LIBDIR}/
