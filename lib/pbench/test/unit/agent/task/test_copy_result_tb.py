@@ -48,13 +48,13 @@ class TestCopyResults:
             f"http://pbench.example.com/api/v1/upload/{bad_tarball}",
             status=HTTPStatus.OK,
         )
-        expected_error_message = (
-            f"FileNotFoundError: Tar ball '{bad_tarball}' does not exist"
-        )
+        expected_error_message = f"Tar ball '{bad_tarball}' does not exist"
         caplog.set_level(logging.ERROR, logger=self.logger.name)
-        with pytest.raises(FileNotFoundError) as e:
+        with pytest.raises(FileNotFoundError) as excinfo:
             crt = CopyResultTb(
                 "controller", bad_tarball, 0, "ignoremd5", self.config, self.logger
             )
             crt.copy_result_tb("token")
-        assert str(e).endswith(expected_error_message)
+        assert str(excinfo.value).endswith(
+            expected_error_message
+        ), f"expected='...{expected_error_message}', found='{str(excinfo.value)}'"

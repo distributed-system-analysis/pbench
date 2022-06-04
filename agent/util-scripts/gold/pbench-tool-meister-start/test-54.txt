@@ -8,7 +8,7 @@ positional arguments:
   tool_group            The tool group name of tools to be run by the Tool
                         Meisters.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --sysinfo SYSINFO     The list of system information items to be collected.
   --orchestrate {create,existing}

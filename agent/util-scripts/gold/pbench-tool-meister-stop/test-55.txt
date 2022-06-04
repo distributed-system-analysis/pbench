@@ -7,7 +7,7 @@ positional arguments:
   tool_group            The tool group name of tools being run in the Tool
                         Meisters.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --sysinfo SYSINFO     The list of system information items to be collected.
   --interrupt           Whether or not the stop operation is in response to an
