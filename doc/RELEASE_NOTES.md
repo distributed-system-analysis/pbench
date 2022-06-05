@@ -33,9 +33,9 @@ Installation
 
 There are no installation changes in this release: see the [Getting Started Guide](https://distributed-system-analysis.github.io/pbench/gh-pages/start.html) for how to install or update.
 
-After installation or update, you should have version `0.71.0-XXgXXXXXXXXX` of the `pbench-agent` RPM installed.
+After installation or update, you should have version `0.71.0-2g9d90a97cc` of the `pbench-agent` RPM installed.
 
-RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench-test/), covering Fedora 34, 35, 36, EPEL 7, 8, 9, and CentOS Stream 8 & 9.
+RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench-test/), covering Fedora 34, 35, & 36 (`x86_64` only), EPEL 7, 8, & 9 (`x86_64` and `aarch64`), and CentOS Stream 8 & 9 (`x86_64` and `aarch64`).
 
 There are Ansible [playbooks](https://galaxy.ansible.com/pbench/agent) available via Ansible Galaxy to install the `pbench-agent`, and the pieces needed (key and configuration files) to be able to send results to a Pbench Server.  To use the RPMs provided above via COPR with the playbooks, your inventory file needs to include the `fedoraproject_username` variable set to `ndokos`, for example:
 
@@ -57,7 +57,7 @@ _**NOTE WELL**_: If the inventory file also has a definition for `pbench_repo_ur
 
 While we don't include installation instructions for the new `node-exporter` and `dcgm` tools in the published documentation, you can find a manual installation procedure for the Prometheus "node_exporter" and references to the Nvidia "DCGM" documentation in the [`agent/tool-scripts/README`](https://github.com/distributed-system-analysis/pbench/blob/v0.71.0-beta.0/agent/tool-scripts/README.md).
 
-Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `beta`, `v0.71.0-XX`, and `XXXXXXXXX`.
+Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `beta`, `v0.71.0-2`, and `9d90a97cc`.
 
 
 Summary of Changes
@@ -74,9 +74,9 @@ The "Tool Meister" sub-system (introduced by PR #1248) is the major piece of fun
 
 This is a significant change, where the pbench-agent first orchestrates the instantiation of a "Tool Meister" process on all hosts registered with tools, using a Redis instance to coordinate their operation, and the new "Tool Data Sink" process handles the collection of data into the pbench run directory hierarchy.  This effectively eliminates all remote SSH operations for individual tools except the initial one per host to create each Tool Meister instance.
 
-One Tool Meister instance is created per registered host, and then a single Tool Data Sink instance is created on the host where the benchmark convenience script is run.  The Tool Meister instances are responsible for running the registered tools for that host, collecting the data generated as appropriate. The Tool Data Sink is responsible for collecting and storing locally all data sent to it from the deployed Tool Meister instances.
+One Tool Meister instance is created per registered host, and then a single Tool Data Sink instance is created on the host where the benchmark convenience script is run.  The Tool Meister instances are responsible for running the registered tools on their respective host, collecting the data generated as appropriate. The Tool Data Sink is responsible for collecting and storing locally all data sent to it from the deployed Tool Meister User.
 
-### User Orchestration of "Tool Meister" Sub-System
+### instances Orchestration of "Tool Meister" Sub-System
 
 Container images are provided for the constituent components of the Tool Meister sub-system, the Tool Meister image and the Tool Data Sink image.  The images allow for the orchestration of the Tool Meister sub-system to be handled by the user instead of automatically by the pbench-agent.
 
@@ -94,8 +94,6 @@ Prior to v0.71, tool registration for remote hosts was recorded locally, _and al
 With v0.71, tools are recorded only locally when they are registered and the validation of remote hosts is deferred until the workload is run. During its initialization, the Tool Meister sub-system now reports when registered tools are not present on registered hosts, and, if a tool is not installed, an error message will be displayed, and the "bench-script" will exit with a failure code.
 
 The registered tools are recorded in a local directory off of the "pbench_run" directory, by default `/var/lib/pbench-agent/tools-v1-<name>`, where `<name>` is the name of the Tool Group under which the tools were registered.
-
-The process of registering tools on local or remote hosts no longer validates that those tools are available during tool registration.  The Tool Meister sub-system now reports when registered tools are not present on registered hosts before beginning a benchmark workload.  An error message will be displayed, and the particular "bench-script" will exit with a failure code.
 
 All tools registered prior to installing `v0.71` must be re-registered; tools registered locally or remotely on a host with v0.69 or earlier of the `pbench-agent` will be ignored.
 
@@ -138,7 +136,7 @@ The tool scripts the Pbench Agent uses to collect data can be run independently 
 
 The default tool set registered using `pbench-register-tool-set` is now only three tools: `iostat`, `sar`, and `vmstat`.  Prior to this release the default tool set included some very heavy-weight tools like `pidstat`, `proc-interrupts`, and `perf` (`perf record`).
 
-The default tool set from v0.69 is preserved in a new tool set named, `legacy`, and can be loaded via `pbench-register-tool-set --toolset=legacy`.
+The default tool set from v0.69 is preserved in a new tool set named `legacy`, and can be loaded via `pbench-register-tool-set --toolset=legacy`.
 
 Along with this change, 3 new named tool sets have also be added:
 
@@ -146,7 +144,7 @@ Along with this change, 3 new named tool sets have also be added:
  * `medium`: ${light}, `iostat`, `sar` (this is the new default tool set)
  * `heavy`: ${medium}, `perf`, `pidstat`, `proc-interrupts`, `proc-vmstat`, `turbostat`
 
-Users are not required to ues the pre-defined tool sets.  A user should be able to register whatever tools they like, or create their own tool sets by following the pattern of the provided named tool sets.
+Users are not required to use the pre-defined tool sets.  A user is able to register whatever tools they like, or create their own individually named tool sets by following the pattern of the provided default tool sets.
 
 
 ## Removal of Gratuitous Manipulation of Networking Firewalls
@@ -160,16 +158,16 @@ Finally, the Pbench Agent Ansible Galaxy collection provides roles for manipulat
 
 ## Removal of Gratuitous Software Installation
 
-The software required to run a particular benchmark, or a particular tool, is no longer gratuitously installed during the execution of a benchmark, or during tool registration.  If a benchmark convenience script or tool requires a certain version of software to be present, those checks will be performed and reported to the user as an error if the requirements are not met.
+The software required to run a particular benchmark workload, or a particular tool, is no longer gratuitously installed during the execution of the workload, or during tool registration.  If a benchmark convenience script or tool requires a certain version of software to be present, those checks will be performed and reported to the user as an error if the requirements are not met.
 
 ### Change to check command versions instead of RPM versions for `pbench-fio`, `pbench-linpack`, and `pbench-uperf`
 
-The `pbench-fio`, `pbench-linpack`, and `pbench-uperf` no longer perform version checks against RPMs for the required software to execute.  For both `pbench-fio` and `pbench-perf` the reported version string is used from the benchmark workload command itself.  For `pbench-linpack`, the expected installation directory name is used.
+The `pbench-fio`, `pbench-linpack`, and `pbench-uperf` benchmark workload convenience scripts no longer perform version checks against RPMs for the required software to execute.  For both `pbench-fio` and `pbench-perf` the reported version string is used from the benchmark workload command itself.  For `pbench-linpack`, the expected installation directory name is used.
 
 
 ## Enhancements to `pbench-linpack`
 
-A new `--clients` argument has been added.
+A new `--clients` argument has been added, given the user the ability to specify one or more hosts on which to execute linpack concurrently.
 
 A new `linpack` driver script, which can be executed stand-alone, is now used.
 
@@ -178,7 +176,7 @@ Special thanks to Lukas Doktor for his work on implementing these changes.
 
 ## Required Use of `--user` with `pbench-move/copy-results`
 
-In preparation for the forthcoming update to the Pbench Server, where the notion of a user is introduced and all result data tar balls are tracked per-user, the `pbench-move-results` and `pbench-copy-results` commands now require that the `--user` switch be provided.  This will help facilitate migrating data into the new version of the Pbench Server.
+In preparation for the forthcoming update to the Pbench Server, where the notion of a user is introduced and all result data tar balls are tracked per-user, the `pbench-move-results` and `pbench-copy-results` commands now require that the `--user` switch be provided.  This will help facilitate migrating data into the new version of the Pbench Server.  Users should choose a consistent value for `--user` and it should correspond to a favored user name they expect to select for the new server (e.g. an email address).
 
 
 ## Support for the New HTTP PUT Method of Posting Tar Balls
@@ -206,10 +204,10 @@ Future work on supporting benchmark workloads will be approached by working to h
 
 ### Deprecated Bench Scripts
 
-The following `bench-scripts` have been deprecated with this release and will be removed entirely in the next release:
+The following benchmark workload convenience scripts have been deprecated with this release and will be removed entirely in the next release:
 
-| Bench Script | Comments |
-| ------------ | -------- |
+| Benchmark Workload Convenience Script | Comments |
+| ------------------------------------- | -------- |
 | `pbench-run-benchmark` | This interface was never completed, and only duplicates existing functionality |
 | `pbench-cyclictest`    | No replacement provided |
 | `pbench-dbench`        | No replacement provided |
