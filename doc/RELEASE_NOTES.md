@@ -74,9 +74,9 @@ The "Tool Meister" sub-system (introduced by PR #1248) is the major piece of fun
 
 This is a significant change, where the pbench-agent first orchestrates the instantiation of a "Tool Meister" process on all hosts registered with tools, using a Redis instance to coordinate their operation, and the new "Tool Data Sink" process handles the collection of data into the pbench run directory hierarchy.  This effectively eliminates all remote SSH operations for individual tools except the initial one per host to create each Tool Meister instance.
 
-One Tool Meister instance is created per registered host, and then a single Tool Data Sink instance is created on the host where the benchmark convenience script is run.  The Tool Meister instances are responsible for running the registered tools on their respective host, collecting the data generated as appropriate. The Tool Data Sink is responsible for collecting and storing locally all data sent to it from the deployed Tool Meister User.
+One Tool Meister instance is created per registered host, and then a single Tool Data Sink instance is created on the host where the benchmark convenience script is run.  The Tool Meister instances are responsible for running the registered tools on their respective host, collecting the data generated as appropriate. The Tool Data Sink is responsible for collecting and storing locally all data sent to it from the deployed Tool Meister instances.
 
-### User Controlled Orchestration of "Tool Meister" Sub-System via Container Images
+### User-Controlled Orchestration of "Tool Meister" Sub-System via Container Images
 
 Container images are provided for the constituent components of the Tool Meister sub-system, the Tool Meister image and the Tool Data Sink image.  The images allow for the orchestration of the Tool Meister sub-system to be handled by the user instead of automatically by the pbench-agent.
 
@@ -144,7 +144,7 @@ Along with this change, 3 new named tool sets have also be added:
  * `medium`: ${light}, `iostat`, `sar` (this is the new default tool set)
  * `heavy`: ${medium}, `perf`, `pidstat`, `proc-interrupts`, `proc-vmstat`, `turbostat`
 
-Users are not required to use the pre-defined tool sets.  A user is able to register whatever tools they like, or create their own individually named tool sets in `/opt/pbench-agent/config/pbench-agent.cfg` by following the pattern of the provided default tool sets (see `/opt/pbench-agent/config/pbench-agent-default.cfg` -- we don't support modifications to this file).
+Users are not required to use the pre-defined tool sets: a user may register whatever tools they like; or, a user may define a custom, named tool set in `/opt/pbench-agent/config/pbench-agent.cfg` (follow the pattern of the default tool set definitions in `/opt/pbench-agent/config/pbench-agent-default.cfg` -- note, we don't support modifications to the defaults configuration file).
 
 
 ## Removal of Gratuitous Manipulation of Networking Firewalls
