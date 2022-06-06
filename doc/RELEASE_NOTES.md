@@ -76,7 +76,7 @@ This is a significant change, where the pbench-agent first orchestrates the inst
 
 One Tool Meister instance is created per registered host, and then a single Tool Data Sink instance is created on the host where the benchmark convenience script is run.  The Tool Meister instances are responsible for running the registered tools on their respective host, collecting the data generated as appropriate. The Tool Data Sink is responsible for collecting and storing locally all data sent to it from the deployed Tool Meister User.
 
-### instances Orchestration of "Tool Meister" Sub-System
+### User Controlled Orchestration of "Tool Meister" Sub-System via Container Images
 
 Container images are provided for the constituent components of the Tool Meister sub-system, the Tool Meister image and the Tool Data Sink image.  The images allow for the orchestration of the Tool Meister sub-system to be handled by the user instead of automatically by the pbench-agent.
 
@@ -144,7 +144,7 @@ Along with this change, 3 new named tool sets have also be added:
  * `medium`: ${light}, `iostat`, `sar` (this is the new default tool set)
  * `heavy`: ${medium}, `perf`, `pidstat`, `proc-interrupts`, `proc-vmstat`, `turbostat`
 
-Users are not required to use the pre-defined tool sets.  A user is able to register whatever tools they like, or create their own individually named tool sets by following the pattern of the provided default tool sets.
+Users are not required to use the pre-defined tool sets.  A user is able to register whatever tools they like, or create their own individually named tool sets in `/opt/pbench-agent/config/pbench-agent.cfg` by following the pattern of the provided default tool sets (see `/opt/pbench-agent/config/pbench-agent-default.cfg` -- we don't support modifications to this file).
 
 
 ## Removal of Gratuitous Manipulation of Networking Firewalls
@@ -156,9 +156,11 @@ Similarly, `pbench-uperf` no longer stops the host `firewalld` service before at
 Finally, the Pbench Agent Ansible Galaxy collection provides roles for manipulating `firewalld` to enable the operation of the Tool Meister Sub-System, but those roles are not used by default.  The user must deliberately use those roles so that no fire wall manipulation occurs without their consent.
 
 
-## Removal of Gratuitous Software Installation
+## Removal of Automatic Software Installation
 
-The software required to run a particular benchmark workload, or a particular tool, is no longer gratuitously installed during the execution of the workload, or during tool registration.  If a benchmark convenience script or tool requires a certain version of software to be present, those checks will be performed and reported to the user as an error if the requirements are not met.
+The Pbench Agent provides software to collect data and meta-data from benchmark workloads and requested tools, and it also provides convenience scripts for running some benchmark worloads.  It is explicitly not a software provisioning system.
+
+As such, the software required to run a particular benchmark workload, or a particular tool, is no longer automatically installed during the execution of the workload, or during tool registration.  If a benchmark convenience script or tool requires a certain version of software to be present, those checks will be performed and reported to the user as an error if the requirements are not met.
 
 ### Change to check command versions instead of RPM versions for `pbench-fio`, `pbench-linpack`, and `pbench-uperf`
 
