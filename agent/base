@@ -180,29 +180,6 @@ function get_redhat_version() {
     cat /etc/redhat-release | awk '{ print $7 }'
 }
 
-function check_install_rpm {
-    local _n="${1}"
-    local _v="${2}"
-    local _m="${3}"
-    # Note we declare `_rpm` local without an initializer because the return
-    # code of require-rpm would be overwritten by the return code of the "local"
-    # declaration.
-    local _rpm
-    _rpm=$(require-rpm "${_n}" "${_v}" "${_m}")
-    local rc=${?}
-    if [[ ${rc} -ne 0 ]]; then
-        if [[ "${PBENCH_RPM_REQUIREMENT_MODE}" == "strict" ]]; then
-            error_log "[${script_name}] required ${_rpm} is not installed"
-            exit ${rc}
-        else
-            warn_log "[${script_name}] required ${_rpm} is not installed"
-            log "[${script_name}] please do not report any issues until the required RPM (${_rpm}) is installed"
-        fi
-    else
-        debug_log "[${script_name}] required ${_rpm} is installed"
-    fi
-}
-
 # Constants
 tools_group_prefix="tools-v1-"
 
