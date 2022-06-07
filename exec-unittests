@@ -103,12 +103,14 @@ function verify_make_source_tree {
     mkdir ${_dir} || return ${?}
 
     printf -- "\n\n\nVerifying %s source tree build\n\n" "${_major^}"
-    (cd ${_major} && make DESTDIR=${_dir} install)
+    (cd ${_major} && make DESTDIR=${_dir} install > ${_dir}.log 2>&1)
     _rc=${?}
     if [[ ${_rc} -ne 0 ]]; then
+        cat ${_dir}.log
         printf -- "\n%s source tree build failed with '%s'\n\n" "${_major^}" "${_rc}"
     else
         printf -- "\n%s source tree build succeeded\n\n" "${_major^}"
+        rm -rf ${_dir} ${_dir}.log
     fi
     return ${_rc}
 }
