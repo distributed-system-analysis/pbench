@@ -1,4 +1,5 @@
 +++ Running test-11.09 pbench-register-tool-set --remotes=one.example.com,two.example.com,three.example.com --labels=labelOne,labelTwo,labelThree
+[warn][1900-01-01T00:00:00.000000] pbench-register-tool-set: the 'default' tool set is deprecated and will be removed in the Pbench Agent v1.0 future release, please use a named tool set argument from one of: heavy, legacy, light, medium
 "mpstat" tool is now registered for host "one.example.com", with label "labelOne", in group "default"
 "mpstat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
 "mpstat" tool is now registered for host "three.example.com", with label "labelThree", in group "default"
@@ -67,6 +68,7 @@ labelTwo
 --interval=3
 --- pbench tree state
 +++ pbench.log file contents
+[warn][1900-01-01T00:00:00.000000] pbench-register-tool-set: the 'default' tool set is deprecated and will be removed in the Pbench Agent v1.0 future release, please use a named tool set argument from one of: heavy, legacy, light, medium
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "one.example.com", with label "labelOne", in group "default"
 [info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
