@@ -1,4 +1,5 @@
 +++ Running test-11.03 pbench-register-tool-set 
+[warn][1900-01-01T00:00:00.000000] pbench-register-tool-set: the 'default' tool set is deprecated and will be removed in the Pbench Agent v1.0 future release, please use a named tool set argument from one of: heavy, legacy, light, medium
 "mpstat" tool is now registered for host "testhost.example.com" in group "default"
 "iostat" tool is now registered for host "testhost.example.com" in group "default"
 "pidstat" tool is now registered for host "testhost.example.com" in group "default"
@@ -28,6 +29,7 @@
 --interval=10
 --- pbench tree state
 +++ pbench.log file contents
+[warn][1900-01-01T00:00:00.000000] pbench-register-tool-set: the 'default' tool set is deprecated and will be removed in the Pbench Agent v1.0 future release, please use a named tool set argument from one of: heavy, legacy, light, medium
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=10"
 [info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "default"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=10"
