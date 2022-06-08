@@ -380,7 +380,6 @@ def provide_metadata(attach_dataset):
     confusion.)
     """
     drb = Dataset.query(name="drb")
-    test = Dataset.query(name="test")
     Metadata.setvalue(dataset=drb, key="dashboard.contact", value="me@example.com")
     Metadata.setvalue(dataset=drb, key=Metadata.DELETION, value="2022-12-25")
     Metadata.setvalue(
@@ -406,6 +405,7 @@ def provide_metadata(attach_dataset):
         },
     )
 
+    test = Dataset.query(name="test")
     Metadata.setvalue(dataset=test, key="dashboard.contact", value="you@example.com")
     Metadata.setvalue(dataset=test, key=Metadata.DELETION, value="2023-01-25")
     Metadata.create(
