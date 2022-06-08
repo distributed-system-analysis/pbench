@@ -22,7 +22,7 @@ This release also delivers:
  * Semi-Public CLI Additions, Changes, and Removals
  * Many, many, bug fixes and behavioral improvements
 
-You can review the [**Full ChangeLog**](https://github.com/distributed-system-analysis/pbench/compare/b0.69-bp...v0.71.0-beta.0) on GitHub (all 560+ commits, tags `b0.69-bp` to `v0.71.0-beta.0`), or read a summary with relevant details below.
+You can review the [**Full ChangeLog**](https://github.com/distributed-system-analysis/pbench/compare/b0.69-bp...v0.71.0) on GitHub (all 560+ commits, tags `b0.69-bp` to `v0.71.0`), or read a summary with relevant details below.
 
 We did not bump the "major" release version number with these changes because we still don't consider all the necessary functionality in place for such a major version bump.
 
@@ -56,9 +56,9 @@ Alternatively, one can specify `fedoraproject_username` on the command line, rat
 
 _**NOTE WELL**_: If the inventory file also has a definition for `pbench_repo_url_prefix` (which was standard practice before `fedoraproject_username` was introduced), it needs to be deleted, otherwise it will override the default repo URL and the `fedoraproject_username` change will not take effect.
 
-While we don't include installation instructions for the new `node-exporter` and `dcgm` tools in the published documentation, you can find a manual installation procedure for the Prometheus "node_exporter" and references to the Nvidia "DCGM" documentation in the [`agent/tool-scripts/README`](https://github.com/distributed-system-analysis/pbench/blob/v0.71.0-beta.0/agent/tool-scripts/README.md).
+While we don't include installation instructions for the new `node-exporter` and `dcgm` tools in the published documentation, you can find a manual installation procedure for the Prometheus "node_exporter" and references to the Nvidia "DCGM" documentation in the [`agent/tool-scripts/README`](https://github.com/distributed-system-analysis/pbench/blob/v0.71.0/agent/tool-scripts/README.md).
 
-Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `beta`, `v0.71.0-2`, and `9d90a97cc`.
+Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `latest`, `v0.71.0-4`, and `XXXXXXXXX`.
 
 
 Summary of Changes
@@ -263,11 +263,13 @@ ChangeLog
 
 ## What's Changed
 
-You can review the [**Full ChangeLog**](https://github.com/distributed-system-analysis/pbench/compare/b0.69-bp...v0.71.0-beta.0) on GitHub (all 560+ commits, tags `b0.69-bp` to `v0.71.0-beta.0`).
+You can review the [**Full ChangeLog**](https://github.com/distributed-system-analysis/pbench/compare/b0.69-bp...v0.71.0) on GitHub (all 560+ commits, tags `b0.69-bp` to `v0.71.0`).
 
 What follows is an edited list of commits, newest to oldest, containing all commits which landed in the v0.71 release.  Note that of the 550+ commits, many of them are for the Pbench Server or Pbench Dashboard and are not considered for these release notes.
 
- * 005aa3f67 'Release Notes for `v0.71.0`'
+ * 0b7f55850 'Restore default tool set and deprecate (BP) (#2888)'
+ * d699b2556 'Release Notes for `v0.71.0`'
+ * f74a6629f 'Add numactl to agent dependencies - backport to b0.71 (#2881)'
  * 9d90a97cc 'Ensure use of `localhost` when stopping Redis'
  * acae28ba5 'Add local and remote pre-check for linpack'
  * afba7d5bc 'Stop resolving benchmark binary location'
