@@ -1,12 +1,13 @@
 This is a very *significant* "minor" release of the pbench-agent code base, primarily to deliver the new "Tool Meister" sub-system.
 
-It also delivers:
+_*NOTE WELL*_: The notion of a "default" tool set is being deprecated and will be removed in the upcoming Pbench Agent v1.0 release, along with the addition of a few named tool sets.  See below.
+
+This release also delivers:
 
  * Support for RHEL 9 & CentOS Stream 9
  * Tool registration kept local to the host where registration happens
  * Support of Prometheus and PCP tool data collection
  * Independence of Pbench Agent "tool" Scripts
- * Reduction of the default tool set to `iostat`, `sar`, & `vmstat` tools
  * Removal of gratuitous manipulation of networking firewalls
  * Removal of gratuitous software installation, only checks for requirements
    * True for both tools and benchmark convenience script requirements
@@ -62,6 +63,24 @@ Container images built using the above RPMs are available in the [Pbench](https:
 
 Summary of Changes
 ====
+
+## Default Tool Set is _*Deprecated*_; Named tool sets introduced
+
+The notion of a "default" tool set is being deprecated and will be removed in the upcoming Pbench Agent v1.0 release.  In preparation for this deprecation, we have added additional named tool sets for users to consider replacing the "default" tool set.
+
+This deprecation announcement is to address the very heavy-weight tools employed by the "default" tool set, including `pidstat`, `proc-interrupts`, and `perf` (aka `perf record`).
+
+The four named tool sets added are:
+
+ * `legacy`:  `iostat`, `mpstat`, `perf`, `pidstat`, `proc-interrupts`, `proc-vmstat`, `sar`, `turbostat` (the current "default" tool set)
+ * `light`: `vmstat`
+ * `medium`: `${light}`, `iostat`, `sar` (this _will be_ the new default tool set Pbench Agent v1.0)
+ * `heavy`: `${medium}`, `perf`, `pidstat`, `proc-interrupts`, `proc-vmstat`, `turbostat`
+
+Users are not required to use the pre-defined tool sets: a user may register whatever tools they like; or, a user may define a custom, named tool set in `/opt/pbench-agent/config/pbench-agent.cfg` (follow the pattern of the default tool set definitions in `/opt/pbench-agent/config/pbench-agent-default.cfg` -- note, we don't support modifications to the defaults configuration file).
+
+In addition to the "default" tool set deprecation, the `--toolset` option is also deprecated and will be removed with the Pbench Agent v1.0 release.  This is due to the fact that a tool set name will also be required going forward with the v1.0 release.
+
 
 ## Support for RHEL 9 & CentOS Stream 9
 
@@ -130,21 +149,6 @@ _**NOTE AS WELL**_: like all the other "tools" the `pbench-agent` supports, the 
 ## Independence of Pbench Agent "tool" Scripts
 
 The tool scripts the Pbench Agent uses to collect data can be run independently of the rest of the Pbench Agent so that users can verify they collect data as expected.
-
-
-## Default Tool Set Reduced to `iostat`, `sar`, & `vmstat` Tools
-
-The default tool set registered using `pbench-register-tool-set` is now only three tools: `iostat`, `sar`, and `vmstat`.  Prior to this release the default tool set included some very heavy-weight tools like `pidstat`, `proc-interrupts`, and `perf` (`perf record`).
-
-The default tool set from v0.69 is preserved in a new tool set named `legacy`, and can be loaded via `pbench-register-tool-set --toolset=legacy`.
-
-Along with this change, 3 new named tool sets have also be added:
-
- * `light`: `vmstat`
- * `medium`: ${light}, `iostat`, `sar` (this is the new default tool set)
- * `heavy`: ${medium}, `perf`, `pidstat`, `proc-interrupts`, `proc-vmstat`, `turbostat`
-
-Users are not required to use the pre-defined tool sets: a user may register whatever tools they like; or, a user may define a custom, named tool set in `/opt/pbench-agent/config/pbench-agent.cfg` (follow the pattern of the default tool set definitions in `/opt/pbench-agent/config/pbench-agent-default.cfg` -- note, we don't support modifications to the defaults configuration file).
 
 
 ## Removal of Gratuitous Manipulation of Networking Firewalls
