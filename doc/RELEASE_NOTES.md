@@ -77,7 +77,7 @@ The four named tool sets added are:
  * `medium`: `${light}`, `iostat`, `sar` (this _will be_ the new default tool set Pbench Agent v1.0)
  * `heavy`: `${medium}`, `perf`, `pidstat`, `proc-interrupts`, `proc-vmstat`, `turbostat`
 
-Users are not required to use the pre-defined tool sets: a user may register whatever tools they like; or, a user may define a custom, named tool set in `/opt/pbench-agent/config/pbench-agent.cfg` (follow the pattern of the default tool set definitions in `/opt/pbench-agent/config/pbench-agent-default.cfg` -- note, we don't support modifications to the defaults configuration file).
+Users are not required to use the pre-defined tool sets: a user may register whatever tools they like; or, a user may define a custom, named tool set in `/opt/pbench-agent/config/pbench-agent.cfg` (follow the pattern of the default tool set definitions in `/opt/pbench-agent/config/pbench-agent-default.cfg` -- note, we don't support modifications to the default configuration file).
 
 In addition to the "default" tool set deprecation, the `--toolset` option is also deprecated and will be removed with the Pbench Agent v1.0 release.  This is due to the fact that a tool set name will also be required going forward with the v1.0 release.
 
