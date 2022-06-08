@@ -1,4 +1,5 @@
 +++ Running test-11.10 pbench-register-tool-set --toolset=other
+[warn][1900-01-01T00:00:00.000000] pbench-register-tool-set: the '--toolset' option is deprecated and will be removed in the Pbench Agent v1.0 future release, please use an argument value to specify the tool set name.
 "pidstat" tool is now registered for host "testhost.example.com" in group "default"
 "sar" tool is now registered for host "testhost.example.com" in group "default"
 --- Finished test-11.10 pbench-register-tool-set (status=0)
@@ -16,6 +17,7 @@
 --interval=3
 --- pbench tree state
 +++ pbench.log file contents
+[warn][1900-01-01T00:00:00.000000] pbench-register-tool-set: the '--toolset' option is deprecated and will be removed in the Pbench Agent v1.0 future release, please use an argument value to specify the tool set name.
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=30"
 [info][1900-01-01T00:00:00.000000] "pidstat" tool is now registered for host "testhost.example.com" in group "default"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
