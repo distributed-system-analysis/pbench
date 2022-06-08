@@ -392,8 +392,6 @@ def provide_metadata(attach_dataset):
             "unit-test.v6.run-toc.2020-05": ["random_md5_string1"],
         },
     )
-    Metadata.setvalue(dataset=test, key="dashboard.contact", value="you@example.com")
-    Metadata.setvalue(dataset=test, key=Metadata.DELETION, value="2023-01-25")
     Metadata.create(
         dataset=drb,
         key=Metadata.METALOG,
@@ -407,6 +405,9 @@ def provide_metadata(attach_dataset):
             "run": {"controller": "node1.example.com"},
         },
     )
+
+    Metadata.setvalue(dataset=test, key="dashboard.contact", value="you@example.com")
+    Metadata.setvalue(dataset=test, key=Metadata.DELETION, value="2023-01-25")
     Metadata.create(
         dataset=test,
         key=Metadata.METALOG,

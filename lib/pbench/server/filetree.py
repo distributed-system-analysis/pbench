@@ -237,7 +237,7 @@ class Tarball:
         except Exception as exc:
             raise MetadataError(self.tarball_path, exc)
 
-    def get_metadata(self) -> Optional[JSONOBJECT]:
+    def get_metadata(self) -> JSONOBJECT:
         """
         Fetch the values in metadata.log from the tarball, and return a JSON
         document organizing the metadata by section.
@@ -245,18 +245,13 @@ class Tarball:
         The information is unpacked and processed once, and cached.
 
         Returns:
-            A parsed ConfigParser of `metadata.log`
+            A JSON representation of the dataset `metadata.log`
         """
         if not self.metadata:
-            try:
-                data = self.extract(f"{self.name}/metadata.log")
-                metadata = ConfigParser()
-                metadata.read_string(data)
-                self.metadata = {
-                    s: dict(metadata.items(s)) for s in metadata.sections()
-                }
-            except Exception as e:
-                self.logger.exception("{} metadata extraction: {}", self.name, e)
+            data = self.extract(f"{self.name}/metadata.log")
+            metadata = ConfigParser()
+            metadata.read_string(data)
+            self.metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
         return self.metadata
 
     def unpack(self, incoming: Path, results: Path):

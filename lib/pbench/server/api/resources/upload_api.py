@@ -286,8 +286,9 @@ class Upload(Resource):
             # Now that we have the tarball, extract the dataset timestamp from
             # the metadata.log file.
             #
-            # If this fails, the metadata.log is missing or corrupt and we'll
-            # abort the upload with an erorr.
+            # If the metadata.log is missing or corrupt, or doesn't contain the
+            # "date" property in the "pbench" section, the resulting exception
+            # will cause the upload to fail with an error.
             #
             # NOTE: The full metadata.log (as a JSON object with section names
             # as the top level key) will be stored as a Metadata key using the
