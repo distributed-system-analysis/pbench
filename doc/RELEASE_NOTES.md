@@ -2,7 +2,7 @@ This is a very *significant* "minor" release of the pbench-agent code base, prim
 
 _*NOTE WELL*_:
 
- * The notion of a "default" tool set is being deprecated and will be removed in the upcoming Pbench Agent v1.0 release.  To replace it, the Pbench Agent is introducing the addition of a few named tool sets.  See "Default Tool Set is _*Deprecated*_; Named tool sets introduced" below.
+ * The notion of a "default" tool set is being deprecated and will be removed in the upcoming Pbench Agent v1.0 release.  To replace it, the Pbench Agent is introducing a few named tool sets.  See "Default Tool Set is _*Deprecated*_; Named tool sets introduced" below.
  * All tools registered prior to installing `v0.71` must be re-registered; tools registered locally, or remotely, on a host with v0.69 or earlier version of the `pbench-agent` will be ignored.  See "Tool registration kept local to the host where registration happens" below.
 
 This release also delivers:
