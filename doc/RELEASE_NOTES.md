@@ -1,11 +1,13 @@
 This is a very *significant* "minor" release of the pbench-agent code base, primarily to deliver the new "Tool Meister" sub-system.
 
-_*NOTE WELL*_: The notion of a "default" tool set is being deprecated and will be removed in the upcoming Pbench Agent v1.0 release, along with the addition of a few named tool sets.  See below.
+_*NOTE WELL*_:
+
+ * The notion of a "default" tool set is being deprecated and will be removed in the upcoming Pbench Agent v1.0 release, along with the addition of a few named tool sets.  See "Default Tool Set is _*Deprecated*_; Named tool sets introduced" below.
+ * All tools registered prior to installing `v0.71` must be re-registered; tools registered locally, or remotely, on a host with v0.69 or earlier version of the `pbench-agent` will be ignored.  See "Tool registration kept local to the host where registration happens" below.
 
 This release also delivers:
 
  * Support for RHEL 9 & CentOS Stream 9
- * Tool registration kept local to the host where registration happens
  * Support of Prometheus and PCP tool data collection
  * Independence of Pbench Agent "tool" Scripts
  * Removal of gratuitous manipulation of networking firewalls
@@ -34,9 +36,9 @@ Installation
 
 There are no installation changes in this release: see the [Getting Started Guide](https://distributed-system-analysis.github.io/pbench/gh-pages/start.html) for how to install or update.
 
-After installation or update, you should have version `0.71.0-2g9d90a97cc` of the `pbench-agent` RPM installed.
+After installation or update, you should have version `0.71.0-3g0b7f55850` of the `pbench-agent` RPM installed.
 
-RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench-test/), covering Fedora 34, 35, & 36 (`x86_64` only), EPEL 7, 8, & 9 (`x86_64` and `aarch64`), and CentOS Stream 8 & 9 (`x86_64` and `aarch64`).
+RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench/), covering Fedora 34, 35, & 36 (`x86_64` only), EPEL 7, 8, & 9 (`x86_64` and `aarch64`), and CentOS Stream 8 & 9 (`x86_64` and `aarch64`).
 
 There are Ansible [playbooks](https://galaxy.ansible.com/pbench/agent) available via Ansible Galaxy to install the `pbench-agent`, and the pieces needed (key and configuration files) to be able to send results to a Pbench Server.  To use the RPMs provided above via COPR with the playbooks, your inventory file needs to include the `fedoraproject_username` variable set to `ndokos`, for example:
 
@@ -58,7 +60,7 @@ _**NOTE WELL**_: If the inventory file also has a definition for `pbench_repo_ur
 
 While we don't include installation instructions for the new `node-exporter` and `dcgm` tools in the published documentation, you can find a manual installation procedure for the Prometheus "node_exporter" and references to the Nvidia "DCGM" documentation in the [`agent/tool-scripts/README`](https://github.com/distributed-system-analysis/pbench/blob/v0.71.0/agent/tool-scripts/README.md).
 
-Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `latest`, `v0.71.0-4`, and `XXXXXXXXX`.
+Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `latest`, `v0.71.0`, and `0b7f55850`.
 
 
 Summary of Changes
@@ -104,7 +106,7 @@ Container images are provided for the constituent components of the Tool Meister
 While this is not a new feature of the Pbench Agent, it is worth noting that when no tools are registered, the "Tool Meister" sub-system is not deployed and the bench scripts still execute normally.
 
 
-## All Tool Registration Handled Locally
+## Tool registration kept local to the host where registration happens
 
 Along with the new "Tool Meister" sub-system comes a subtle, but significant, change to how tools are registered.
 
@@ -114,7 +116,7 @@ With v0.71, tools are recorded only locally when they are registered and the val
 
 The registered tools are recorded in a local directory off of the "pbench_run" directory, by default `/var/lib/pbench-agent/tools-v1-<name>`, where `<name>` is the name of the Tool Group under which the tools were registered.
 
-All tools registered prior to installing `v0.71` must be re-registered; tools registered locally or remotely on a host with v0.69 or earlier of the `pbench-agent` will be ignored.
+All tools registered prior to installing `v0.71` must be re-registered; tools registered locally or remotely on a host with v0.69 or earlier version of the `pbench-agent` will be ignored.
 
 
 ## New Support for Prometheus and PCP-based Tools
