@@ -2,7 +2,7 @@ This is a very *significant* "minor" release of the pbench-agent code base, prim
 
 _*NOTE WELL*_:
 
- * The notion of a "default" tool set is being deprecated and will be removed in the upcoming Pbench Agent v1.0 release, along with the addition of a few named tool sets.  See "Default Tool Set is _*Deprecated*_; Named tool sets introduced" below.
+ * The notion of a "default" tool set is being deprecated and will be removed in the upcoming Pbench Agent v1.0 release.  To replace it, the Pbench Agent is introducing the addition of a few named tool sets.  See "Default Tool Set is _*Deprecated*_; Named tool sets introduced" below.
  * All tools registered prior to installing `v0.71` must be re-registered; tools registered locally, or remotely, on a host with v0.69 or earlier version of the `pbench-agent` will be ignored.  See "Tool registration kept local to the host where registration happens" below.
 
 This release also delivers:
@@ -82,6 +82,8 @@ The four named tool sets added are:
 Users are not required to use the pre-defined tool sets: a user may register whatever tools they like; or, a user may define a custom, named tool set in `/opt/pbench-agent/config/pbench-agent.cfg` (follow the pattern of the default tool set definitions in `/opt/pbench-agent/config/pbench-agent-default.cfg` -- note, we don't support modifications to the default configuration file).
 
 In addition to the "default" tool set deprecation, the `--toolset` option is also deprecated and will be removed with the Pbench Agent v1.0 release.  This is due to the fact that a tool set name will also be required going forward with the v1.0 release.
+
+As a reminder, if you are using the "default" tool set, you need to ensure the `pbench-sysstat`, `perf`, and `kernel-tools` (which provides `turbostat`) RPMs are installed.
 
 
 ## Support for RHEL 9 & CentOS Stream 9
