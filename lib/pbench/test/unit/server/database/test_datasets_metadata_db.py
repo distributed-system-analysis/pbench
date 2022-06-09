@@ -123,6 +123,15 @@ class TestInternalMetadata:
             "state": "Uploading",
             "transition": "1970-01-01T00:42:00+00:00",
             "uploaded": "2022-01-01T00:00:00+00:00",
+            "metalog": {
+                "pbench": {
+                    "config": "test1",
+                    "date": "2020-02-15T00:00:00",
+                    "name": "drb",
+                    "script": "unit-test",
+                },
+                "run": {"controller": "node1.example.com"},
+            },
         }
 
     def test_dataset_keys(self, provide_metadata):
@@ -131,6 +140,10 @@ class TestInternalMetadata:
         assert metadata == "Uploading"
         metadata = Metadata.getvalue(ds, "dataset.transition")
         assert metadata == "1970-01-01T00:42:00+00:00"
+        metadata = Metadata.getvalue(ds, "dataset.metalog.run")
+        assert metadata == {"controller": "node1.example.com"}
+        metadata = Metadata.getvalue(ds, "dataset.metalog.pbench.name")
+        assert metadata == "drb"
         metadata = Metadata.getvalue(ds, "dataset.nosuchkey")
         assert metadata is None
 

@@ -16,7 +16,6 @@ from pbench.server.database.models.datasets import (
     States,
 )
 from pbench.server.filetree import FileTree
-from pbench.server.utils import UtcTimeHelper
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
 
@@ -126,9 +125,7 @@ class TestUpload:
                 TestUpload.tarball_deleted = self.name
 
             def get_metadata(self):
-                return {
-                    "pbench": {"date": UtcTimeHelper.from_string("2002-05-16").utc_time}
-                }
+                return {"pbench": {"date": "2002-05-16T00:00:00"}}
 
         class FakeFileTree(FileTree):
             def __init__(self, options: PbenchServerConfig, logger: Logger):

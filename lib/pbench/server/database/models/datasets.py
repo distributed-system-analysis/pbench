@@ -645,12 +645,16 @@ class Dataset(Database.Base):
         including non-private primary SQL columns and the `metadata.log` data
         from the metadata table.
 
-        This mapping provides the basis of the "dataset.*" metadata namespace
+        This mapping provides the basis of the "dataset" metadata namespace
         for the API.
 
         Returns
             Dictionary representation of the DB object
         """
+        try:
+            metadata_log = Metadata.get(self, Metadata.METALOG).value
+        except MetadataNotFound:
+            metadata_log = None
         return {
             "access": self.access,
             "created": self.created.isoformat() if self.created else None,
@@ -659,6 +663,7 @@ class Dataset(Database.Base):
             "state": str(self.state),
             "transition": self.transition.isoformat(),
             "uploaded": self.uploaded.isoformat(),
+            Metadata.METALOG: metadata_log,
         }
 
     def __str__(self) -> str:
@@ -813,8 +818,11 @@ class Metadata(Database.Base):
 
     # "Native" keys are the value of the PostgreSQL "key" column in the SQL
     # table. We support hierarchical nested keys of the form "server.indexed",
-    # but the first element of any nested key path must be one of these:
-    NATIVE_KEYS = [DASHBOARD, SERVER, USER]
+    # but the first element of any nested key path must be one of these. The
+    # METALOG key is special, representing the Metadata table portion of the
+    # DATASET
+    METALOG = "metalog"
+    NATIVE_KEYS = [DASHBOARD, METALOG, SERVER, USER]
 
     # DELETION timestamp for dataset based on user settings and system
     # settings when the dataset is created.

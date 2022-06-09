@@ -286,15 +286,25 @@ class Upload(Resource):
             # Now that we have the tarball, extract the dataset timestamp from
             # the metadata.log file.
             #
-            # If this fails, the metadata.log is missing or corrupt and we'll
-            # abort the upload with an erorr.
+            # If the metadata.log is missing or corrupt, or doesn't contain the
+            # "date" property in the "pbench" section, the resulting exception
+            # will cause the upload to fail with an error.
+            #
+            # NOTE: The full metadata.log (as a JSON object with section names
+            # as the top level key) will be stored as a Metadata key using the
+            # reserved internal key "metalog". For retrieval, the "dataset" key
+            # provides a JSON mapping of the Dataset SQL object, enhanced with
+            # the dataset's "metalog" Metadata key value.
             #
             # NOTE: we're setting the Dataset "created" timestamp here, but it
             # won't be committed to the database until the "advance" operation
             # at the end.
             try:
                 metadata = tarball.get_metadata()
-                dataset.created = metadata["pbench"]["date"]
+                dataset.created = UtcTimeHelper.from_string(
+                    metadata["pbench"]["date"]
+                ).utc_time
+                Metadata.create(dataset=dataset, key=Metadata.METALOG, value=metadata)
             except Exception as exc:
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,

@@ -51,6 +51,7 @@ class TestDatasets:
             "state": "Uploading",
             "transition": "1970-01-01T00:00:00+00:00",
             "uploaded": "1970-01-01T00:00:00+00:00",
+            "metalog": None,
         }
 
     def test_dataset_survives_user(self, db_session, create_user):
@@ -63,6 +64,31 @@ class TestDatasets:
         User.delete(username=user.username)
         ds1 = Dataset.query(name="fio")
         assert ds1 == ds
+
+    def test_dataset_metadata_log(self, db_session, create_user, provide_metadata):
+        """
+        Test that `as_dict` provides the mocked metadata.log contents along
+        with the Dataset object.
+        """
+        ds1 = Dataset.query(name="drb")
+        assert ds1.as_dict() == {
+            "access": "private",
+            "created": "2020-02-15T00:00:00+00:00",
+            "name": "drb",
+            "owner": "drb",
+            "state": "Uploading",
+            "transition": "1970-01-01T00:42:00+00:00",
+            "uploaded": "2022-01-01T00:00:00+00:00",
+            "metalog": {
+                "pbench": {
+                    "config": "test1",
+                    "date": "2020-02-15T00:00:00",
+                    "name": "drb",
+                    "script": "unit-test",
+                },
+                "run": {"controller": "node1.example.com"},
+            },
+        }
 
     def test_construct_bad_owner(self, db_session):
         """Test with a non-existent username"""
@@ -124,6 +150,7 @@ class TestDatasets:
             "state": "Uploaded",
             "transition": "2525-08-25T15:25:00+00:00",
             "uploaded": "2525-05-25T15:15:00+00:00",
+            "metalog": None,
         }
 
     def test_advanced_bad_state(self, db_session, create_user):
