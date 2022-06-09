@@ -256,13 +256,11 @@ class Tarball:
 
         return cls(destination, controller)
 
-    @staticmethod
-    def extract(tarball: Path, path: str) -> str:
+    def extract(self, path: str) -> str:
         """
-        Extract a file from a tarball and return it as a string
+        Extract a file from the dataset's tarball and return it as a string
 
         Args:
-            tarball: a dataset tarball
             path: relative path within the tarball of a file
 
         Raises:
@@ -272,9 +270,11 @@ class Tarball:
             The named file as a string
         """
         try:
-            return tarfile.open(tarball, "r:*").extractfile(path).read().decode()
+            return (
+                tarfile.open(self.tarball_path, "r:*").extractfile(path).read().decode()
+            )
         except Exception as exc:
-            raise MetadataError(tarball, exc)
+            raise MetadataError(self.tarball_path, exc)
 
     def get_metadata(self) -> JSONOBJECT:
         """
