@@ -61,15 +61,23 @@ def main(options):
         if options.create:
             args["owner"] = options.create
 
-        if options.path:
-            if not options.md5:
-                args["resource_id"] = md5sum(options.path).md5_hash
-            if options.create and not options.name:
-                args["name"] = Dataset.stem(options.path)
-        elif options.name and options.create:
-            args["name"] = options.name
+            if not (options.path or options.name):
+                print(
+                    f"{_NAME_}: Either --path or --name must be specified with --create",
+                    file=sys.stderr,
+                )
+                return 2
+
         if options.md5:
             args["resource_id"] = options.md5
+        elif options.path:
+            args["resource_id"] = md5sum(options.path).md5_hash
+
+        if options.create:
+            if options.name:
+                args["name"] = options.name
+            else:
+                args["name"] = Dataset.stem(options.path)
 
         if options.state:
             try:
@@ -92,11 +100,6 @@ def main(options):
         logger.exception(
             "Failed to {} {}", "create" if options.create else "attach", args
         )
-        try:
-            dup = Dataset.query(resource_id=args["resource_id"])
-            logger.error("Found dup for {} : {}", args, dup.as_dict())
-        except Exception as d:
-            logger.error("Checking {}: {}", args["resource_id"], str(d))
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1
     else:

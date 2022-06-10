@@ -424,8 +424,8 @@ class Dataset(Database.Base):
     # Access policy for Dataset (public or private)
     access = Column(String(255), unique=False, nullable=False, default="private")
 
-    # This is the MD5 hash of the dataset tarball, which we use at the single
-    # definitive dataset resource ID throughout the Pbench server.
+    # This is the MD5 hash of the dataset tarball, which we use as the unique
+    # dataset resource ID throughout the Pbench server.
     resource_id = Column(String(255), unique=True, nullable=False)
 
     # Time of Dataset record creation
@@ -585,7 +585,7 @@ class Dataset(Database.Base):
     @staticmethod
     def attach(resource_id: str, state: Optional[States] = None) -> "Dataset":
         """
-        Attempt to find dataset for the specified dataset resource ID.
+        Attempt to find the dataset with the specified dataset resource ID.
 
         If state is specified, attach will attempt to advance the dataset to
         that state.
