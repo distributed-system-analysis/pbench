@@ -1,11 +1,13 @@
 This is a very *significant* "minor" release of the pbench-agent code base, primarily to deliver the new "Tool Meister" sub-system.
 
-_*NOTE WELL*_: The notion of a "default" tool set is being deprecated and will be removed in the upcoming Pbench Agent v1.0 release, along with the addition of a few named tool sets.  See below.
+_*NOTE WELL*_:
+
+ * The notion of a "default" tool set is being deprecated and will be removed in the upcoming Pbench Agent v1.0 release.  To replace it, the Pbench Agent is introducing a few named tool sets.  See "Default Tool Set is _*Deprecated*_; Named tool sets introduced" below.
+ * All tools registered prior to installing `v0.71` must be re-registered; tools registered locally, or remotely, on a host with v0.69 or earlier version of the `pbench-agent` will be ignored.  See "Tool registration kept local to the host where registration happens" below.
 
 This release also delivers:
 
  * Support for RHEL 9 & CentOS Stream 9
- * Tool registration kept local to the host where registration happens
  * Support of Prometheus and PCP tool data collection
  * Independence of Pbench Agent "tool" Scripts
  * Removal of gratuitous manipulation of networking firewalls
@@ -22,7 +24,7 @@ This release also delivers:
  * Semi-Public CLI Additions, Changes, and Removals
  * Many, many, bug fixes and behavioral improvements
 
-You can review the [**Full ChangeLog**](https://github.com/distributed-system-analysis/pbench/compare/b0.69-bp...v0.71.0-beta.0) on GitHub (all 560+ commits, tags `b0.69-bp` to `v0.71.0-beta.0`), or read a summary with relevant details below.
+You can review the [**Full ChangeLog**](https://github.com/distributed-system-analysis/pbench/compare/b0.69-bp...v0.71.0) on GitHub (all 560+ commits, tags `b0.69-bp` to `v0.71.0`), or read a summary with relevant details below.
 
 We did not bump the "major" release version number with these changes because we still don't consider all the necessary functionality in place for such a major version bump.
 
@@ -34,9 +36,9 @@ Installation
 
 There are no installation changes in this release: see the [Getting Started Guide](https://distributed-system-analysis.github.io/pbench/gh-pages/start.html) for how to install or update.
 
-After installation or update, you should have version `0.71.0-2g9d90a97cc` of the `pbench-agent` RPM installed.
+After installation or update, you should have version `0.71.0-3g0b7f55850` of the `pbench-agent` RPM installed.
 
-RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench-test/), covering Fedora 34, 35, & 36 (`x86_64` only), EPEL 7, 8, & 9 (`x86_64` and `aarch64`), and CentOS Stream 8 & 9 (`x86_64` and `aarch64`).
+RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench/), covering Fedora 34, 35, & 36 (`x86_64` only), EPEL 7, 8, & 9 (`x86_64` and `aarch64`), and CentOS Stream 8 & 9 (`x86_64` and `aarch64`).
 
 There are Ansible [playbooks](https://galaxy.ansible.com/pbench/agent) available via Ansible Galaxy to install the `pbench-agent`, and the pieces needed (key and configuration files) to be able to send results to a Pbench Server.  To use the RPMs provided above via COPR with the playbooks, your inventory file needs to include the `fedoraproject_username` variable set to `ndokos`, for example:
 
@@ -56,9 +58,9 @@ Alternatively, one can specify `fedoraproject_username` on the command line, rat
 
 _**NOTE WELL**_: If the inventory file also has a definition for `pbench_repo_url_prefix` (which was standard practice before `fedoraproject_username` was introduced), it needs to be deleted, otherwise it will override the default repo URL and the `fedoraproject_username` change will not take effect.
 
-While we don't include installation instructions for the new `node-exporter` and `dcgm` tools in the published documentation, you can find a manual installation procedure for the Prometheus "node_exporter" and references to the Nvidia "DCGM" documentation in the [`agent/tool-scripts/README`](https://github.com/distributed-system-analysis/pbench/blob/v0.71.0-beta.0/agent/tool-scripts/README.md).
+While we don't include installation instructions for the new `node-exporter` and `dcgm` tools in the published documentation, you can find a manual installation procedure for the Prometheus "node_exporter" and references to the Nvidia "DCGM" documentation in the [`agent/tool-scripts/README`](https://github.com/distributed-system-analysis/pbench/blob/v0.71.0/agent/tool-scripts/README.md).
 
-Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `beta`, `v0.71.0-2`, and `9d90a97cc`.
+Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `latest`, `v0.71.0`, and `0b7f55850`.
 
 
 Summary of Changes
@@ -80,6 +82,8 @@ The four named tool sets added are:
 Users are not required to use the pre-defined tool sets: a user may register whatever tools they like; or, a user may define a custom, named tool set in `/opt/pbench-agent/config/pbench-agent.cfg` (follow the pattern of the default tool set definitions in `/opt/pbench-agent/config/pbench-agent-default.cfg` -- note, we don't support modifications to the default configuration file).
 
 In addition to the "default" tool set deprecation, the `--toolset` option is also deprecated and will be removed with the Pbench Agent v1.0 release.  This is due to the fact that a tool set name will also be required going forward with the v1.0 release.
+
+As a reminder, if you are using the "default" tool set, you need to ensure the `pbench-sysstat`, `perf`, and `kernel-tools` (which provides `turbostat`) RPMs are installed.
 
 
 ## Support for RHEL 9 & CentOS Stream 9
@@ -104,7 +108,7 @@ Container images are provided for the constituent components of the Tool Meister
 While this is not a new feature of the Pbench Agent, it is worth noting that when no tools are registered, the "Tool Meister" sub-system is not deployed and the bench scripts still execute normally.
 
 
-## All Tool Registration Handled Locally
+## Tool registration kept local to the host where registration happens
 
 Along with the new "Tool Meister" sub-system comes a subtle, but significant, change to how tools are registered.
 
@@ -114,7 +118,7 @@ With v0.71, tools are recorded only locally when they are registered and the val
 
 The registered tools are recorded in a local directory off of the "pbench_run" directory, by default `/var/lib/pbench-agent/tools-v1-<name>`, where `<name>` is the name of the Tool Group under which the tools were registered.
 
-All tools registered prior to installing `v0.71` must be re-registered; tools registered locally or remotely on a host with v0.69 or earlier of the `pbench-agent` will be ignored.
+All tools registered prior to installing `v0.71` must be re-registered; tools registered locally or remotely on a host with v0.69 or earlier version of the `pbench-agent` will be ignored.
 
 
 ## New Support for Prometheus and PCP-based Tools
@@ -263,11 +267,13 @@ ChangeLog
 
 ## What's Changed
 
-You can review the [**Full ChangeLog**](https://github.com/distributed-system-analysis/pbench/compare/b0.69-bp...v0.71.0-beta.0) on GitHub (all 560+ commits, tags `b0.69-bp` to `v0.71.0-beta.0`).
+You can review the [**Full ChangeLog**](https://github.com/distributed-system-analysis/pbench/compare/b0.69-bp...v0.71.0) on GitHub (all 560+ commits, tags `b0.69-bp` to `v0.71.0`).
 
 What follows is an edited list of commits, newest to oldest, containing all commits which landed in the v0.71 release.  Note that of the 550+ commits, many of them are for the Pbench Server or Pbench Dashboard and are not considered for these release notes.
 
- * 005aa3f67 'Release Notes for `v0.71.0`'
+ * 0b7f55850 'Restore default tool set and deprecate (BP) (#2888)'
+ * d699b2556 'Release Notes for `v0.71.0`'
+ * f74a6629f 'Add numactl to agent dependencies - backport to b0.71 (#2881)'
  * 9d90a97cc 'Ensure use of `localhost` when stopping Redis'
  * acae28ba5 'Add local and remote pre-check for linpack'
  * afba7d5bc 'Stop resolving benchmark binary location'
