@@ -4,6 +4,7 @@ import pytest
 import requests
 
 from pbench.server import JSON, PbenchServerConfig
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
 class TestDatasetsMetadata:
@@ -21,9 +22,13 @@ class TestDatasetsMetadata:
         """
 
         def query_api(
-            dataset: str, payload: JSON, username: str, expected_status: HTTPStatus
+            ds_name: str, payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
             headers = None
+            try:
+                dataset = Dataset.query(name=ds_name).resource_id
+            except DatasetNotFound:
+                dataset = ds_name  # Allow passing deliberately bad value
             if username:
                 token = self.token(client, server_config, username)
                 headers = {"authorization": f"bearer {token}"}
@@ -59,9 +64,13 @@ class TestDatasetsMetadata:
         """
 
         def query_api(
-            dataset: str, payload: JSON, username: str, expected_status: HTTPStatus
+            ds_name: str, payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
             headers = None
+            try:
+                dataset = Dataset.query(name=ds_name).resource_id
+            except DatasetNotFound:
+                dataset = ds_name  # Allow passing deliberately bad value
             if username:
                 token = self.token(client, server_config, username)
                 headers = {"authorization": f"bearer {token}"}

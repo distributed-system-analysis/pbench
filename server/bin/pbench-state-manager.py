@@ -18,6 +18,7 @@ from argparse import ArgumentParser
 
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
+from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
 from pbench.server.database.models.datasets import Dataset, States
@@ -49,15 +50,27 @@ def main(options):
         init_db(config, logger)
 
         args = {}
+
+        if not (options.path or options.md5):
+            print(
+                f"{_NAME_}: Either --path or --md5 must be specified",
+                file=sys.stderr,
+            )
+            return 2
+
         if options.create:
             args["owner"] = options.create
 
         if options.path:
-            args["name"] = Dataset.stem(options.path)
-        elif options.name:
+            if not options.md5:
+                args["resource_id"] = md5sum(options.path).md5_hash
+            if options.create and not options.name:
+                args["name"] = Dataset.stem(options.path)
+        elif options.name and options.create:
             args["name"] = options.name
         if options.md5:
-            args["md5"] = options.md5
+            args["resource_id"] = options.md5
+
         if options.state:
             try:
                 new_state = States[options.state.upper()]
@@ -69,13 +82,6 @@ def main(options):
                 return 2
             args["state"] = new_state
 
-        if "path" not in args and "name" not in args:
-            print(
-                f"{_NAME_}: Either --path or --name must be specified",
-                file=sys.stderr,
-            )
-            return 2
-
         # Either create a new dataset or attach to an existing dataset
         doit = Dataset.create if options.create else Dataset.attach
 
@@ -83,7 +89,14 @@ def main(options):
         doit(**args)
     except Exception as e:
         # Stringify any exception and report it; then fail
-        logger.exception("Failed")
+        logger.exception(
+            "Failed to {} {}", "create" if options.create else "attach", args
+        )
+        try:
+            dup = Dataset.query(resource_id=args["resource_id"])
+            logger.error("Found dup for {} : {}", args, dup.as_dict())
+        except Exception as d:
+            logger.error("Checking {}: {}", args["resource_id"], str(d))
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1
     else:

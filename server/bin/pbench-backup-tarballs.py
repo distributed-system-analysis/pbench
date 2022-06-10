@@ -15,7 +15,7 @@ from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
 from pbench.server.report import Report
 from pbench.server.s3backup import S3Config, Status, NoSuchKey
-from pbench.server.utils import rename_tb_link, quarantine
+from pbench.server.utils import get_tarball_md5, rename_tb_link, quarantine
 from pbench.server.database.models.datasets import (
     Dataset,
     Metadata,
@@ -366,7 +366,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         controller_path = tar.parent
         controller = controller_path.name
         try:
-            dataset = Dataset.attach(name=Dataset.stem(resultname))
+            dataset = Dataset.attach(resource_id=get_tarball_md5(tar))
         except DatasetError as e:
             logger.warning("Trouble tracking {}:{}: {}", controller, resultname, str(e))
             dataset = None

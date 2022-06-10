@@ -100,7 +100,9 @@ class SampleNamespace(IndexMapBase):
             "kwargs": {
                 "json": {
                     "size": 0,
-                    "query": {"bool": {"filter": {"match": {"run.id": dataset.md5}}}},
+                    "query": {
+                        "bool": {"filter": {"match": {"run.id": dataset.resource_id}}}
+                    },
                     "aggs": aggs,
                 },
                 "params": {"ignore_unavailable": "true"},
@@ -287,7 +289,7 @@ class SampleValues(IndexMapBase):
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         # Prepare list of filters to apply for ES query
-        es_filter = [{"match": {"run.id": dataset.md5}}]
+        es_filter = [{"match": {"run.id": dataset.resource_id}}]
         for filter, value in params.body.get("filters", {}).items():
             if filter in self.get_aggregatable_fields(mappings):
                 # Get all the non-text filters to apply

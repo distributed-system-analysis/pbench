@@ -154,7 +154,7 @@ class DatasetsList(ApiBase):
         for dataset in datasets:
             d = {
                 "name": dataset.name,
-                "run_id": dataset.md5,
+                "resource_id": dataset.resource_id,
             }
             try:
                 d["metadata"] = self._get_dataset_metadata(dataset, keys)

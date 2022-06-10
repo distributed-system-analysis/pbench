@@ -463,7 +463,13 @@ function _setup_state {
         local state
         local user
         while read -r controller name state user; do
-            pbench-state-manager --create=${user} --name=${name} --state=${state}
+            tarball=$(find ${_testdir} -type f -name ${name}.tar.xz)
+            pbench-state-manager --create=${user} --path=${tarball} --state=${state}
+            if [[ ${?} -gt 0 ]]; then
+                echo "ERROR: unable to create ${tarball} dataset" >&2
+                find ${_testdir} -type f -name ${name}.tar.xz >&2
+                exit 1
+            fi
         done < ${_state_db}
     fi
 }

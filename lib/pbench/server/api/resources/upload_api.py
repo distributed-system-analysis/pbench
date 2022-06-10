@@ -150,7 +150,7 @@ class Upload(Resource):
                 dataset = Dataset(
                     owner=username,
                     name=Dataset.stem(tar_full_path),
-                    md5=md5sum,
+                    resource_id=md5sum,
                 )
                 dataset.add()
             except DatasetDuplicate:
@@ -161,7 +161,7 @@ class Upload(Resource):
                     dataset_name,
                 )
                 try:
-                    duplicate = Dataset.query(name=dataset_name)
+                    Dataset.query(resource_id=md5sum)
                 except DatasetNotFound:
                     self.logger.error(
                         "Duplicate dataset {}:{} not found",
@@ -172,15 +172,9 @@ class Upload(Resource):
                         HTTPStatus.INTERNAL_SERVER_ERROR, "INTERNAL ERROR"
                     )
                 else:
-                    if duplicate.md5 == md5sum:
-                        response = jsonify(dict(message="Dataset already exists"))
-                        response.status_code = HTTPStatus.OK
-                        return response
-                    else:
-                        raise CleanupTime(
-                            HTTPStatus.CONFLICT,
-                            f"Duplicate dataset has different MD5 ({duplicate.md5} != {md5sum})",
-                        )
+                    response = jsonify(dict(message="Dataset already exists"))
+                    response.status_code = HTTPStatus.OK
+                    return response
             except CleanupTime:
                 raise  # Propagate a CleanupTime exception to the outer block
             except Exception:

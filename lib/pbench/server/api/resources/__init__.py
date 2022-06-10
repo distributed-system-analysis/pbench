@@ -324,10 +324,10 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
 
 def convert_dataset(value: str, _) -> Dataset:
     """
-    Convert a dataset name string to a Dataset object reference.
+    Convert a dataset resource ID string to a Dataset object reference.
 
     Args:
-        value: String representation of dataset name
+        value: String representation of dataset resource ID
         _: The Parameter definition (not used)
 
     Raises:
@@ -337,7 +337,7 @@ def convert_dataset(value: str, _) -> Dataset:
         Dataset
     """
     try:
-        return Dataset.query(name=value)
+        return Dataset.query(resource_id=value)
     except DatasetNotFound as e:
         raise DatasetConversionError(value) from e
 
@@ -1406,25 +1406,6 @@ class ApiBase(Resource):
                 raise MetadataBadKey(i)
 
         return metadata
-
-    def _get_metadata(self, name: str, requested_items: List[str]) -> JSON:
-        """
-        Get requested metadata about a specific Dataset and return a JSON
-        fragment that can be added to other data about the Dataset.
-
-        This supports strict Metadata key/value items associated with the
-        Dataset as well as selected columns from the Dataset model.
-
-        Args:
-            name: Dataset run name
-            requested_items: List of metadata key names
-
-        Returns:
-            JSON object (Python dict) containing a key-value pair for each
-            requested metadata key present on the dataset.
-        """
-        dataset: Dataset = Dataset.query(name=name)
-        return self._get_dataset_metadata(dataset, requested_items)
 
     def _dispatch(
         self,

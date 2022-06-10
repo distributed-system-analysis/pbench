@@ -68,9 +68,6 @@ declare -A cmds=(
     # check that all scripts run normally if everything is there, using a
     # separate unpack directory from the incoming directory
     [test-5.1]="_run_allscripts"
-    # check that all scripts process tar balls, using a separate unpack
-    # directory from the incoming directory
-    [test-5.2]="_run_allscripts"
 
     # backup tests
     # check for normal operation

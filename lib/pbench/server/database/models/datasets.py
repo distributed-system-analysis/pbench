@@ -413,7 +413,7 @@ class Dataset(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # Dataset name
-    name = Column(String(255), unique=True, nullable=False)
+    name = Column(String(255), unique=False, nullable=False)
 
     # ID of the owning user
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -424,15 +424,9 @@ class Dataset(Database.Base):
     # Access policy for Dataset (public or private)
     access = Column(String(255), unique=False, nullable=False, default="private")
 
-    # FIXME:
-    # Ideally, `md5` would not be `nullable`, but allowing it means that
-    # pbench-server-prep-shim-002 utility can construct a Dataset object
-    # before accessing and checking the MD5 (in order to ensure that we
-    # always have a Dataset before deciding to `quarantine` a dataset.)
-    #
-    # This could be improved when we drop `pbench-server-prep-shim-002`
-    # as server `PUT` does not have the same problem.
-    md5 = Column(String(255), unique=False, nullable=True)
+    # This is the MD5 hash of the dataset tarball, which we use at the single
+    # definitive dataset resource ID throughout the Pbench server.
+    resource_id = Column(String(255), unique=True, nullable=False)
 
     # Time of Dataset record creation
     uploaded = Column(TZDateTime, nullable=False, default=current_time)
@@ -571,9 +565,11 @@ class Dataset(Database.Base):
 
         Args:
             kwargs (dict):
-                "owner": The owner of the dataset; defaults to None.
-                "name": The dataset name (file path stem).
-                "state": The initial state of the new dataset.
+                access: The dataset access policy
+                name: The dataset name (file path stem).
+                owner: The owner of the dataset; defaults to None.
+                resource_id: The tarball MD5
+                state: The initial state of the new dataset.
 
         Returns:
             A new Dataset object initialized with the keyword parameters.
@@ -587,19 +583,19 @@ class Dataset(Database.Base):
         return dataset
 
     @staticmethod
-    def attach(name=None, state=None) -> "Dataset":
+    def attach(resource_id: str, state: Optional[States] = None) -> "Dataset":
         """
-        Attempt to find dataset for the specified dataset name.
+        Attempt to find dataset for the specified dataset resource ID.
 
         If state is specified, attach will attempt to advance the dataset to
         that state.
 
-        NOTE: Unless you need to advance the state of the dataset, or query
-        using a full path, use Dataset.query instead.
+        NOTE: Unless you need to advance the state of the dataset, use
+        Dataset.query instead.
 
         Args:
-            "name": The dataset name (file path stem).
-            "state": The desired state to advance the dataset.
+            resource_id: The dataset resource ID.
+            state: The desired state to advance the dataset.
 
         Raises:
             DatasetSqlError: problem interacting with Database
@@ -613,12 +609,11 @@ class Dataset(Database.Base):
         Returns:
             Dataset: a dataset object in the desired state (if specified)
         """
-        # Make sure we have a name if only path was specified
-        dataset = Dataset.query(name=name)
+        dataset = Dataset.query(resource_id=resource_id)
 
         if dataset is None:
-            Dataset.logger.warning("Dataset {} not found", name)
-            raise DatasetNotFound(name=name)
+            Dataset.logger.warning("Dataset {} not found", resource_id)
+            raise DatasetNotFound(resource_id=resource_id)
         elif state:
             dataset.advance(state)
         return dataset

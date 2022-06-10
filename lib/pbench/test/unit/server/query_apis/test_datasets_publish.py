@@ -122,8 +122,10 @@ class TestDatasetsPublish:
         else:
             expected_status = HTTPStatus.OK
 
+        ds = Dataset.query(name=owner)
+
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish/{owner}",
+            f"{server_config.rest_uri}/datasets/publish/{ds.resource_id}",
             headers=build_auth_header["header"],
             json=self.PAYLOAD,
         )
@@ -150,7 +152,7 @@ class TestDatasetsPublish:
         self.fake_elastic(monkeypatch, get_document_map, True)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish/drb",
+            f"{server_config.rest_uri}/datasets/publish/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_token}"},
             json=self.PAYLOAD,
         )
@@ -206,7 +208,7 @@ class TestDatasetsPublish:
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish/drb",
+            f"{server_config.rest_uri}/datasets/publish/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_token}"},
             json=self.PAYLOAD,
         )

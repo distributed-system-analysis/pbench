@@ -13,13 +13,14 @@ from pbench.server.database.models.datasets import (
     MetadataMissingKeyValue,
     MetadataDuplicateKey,
 )
+from pbench.server.database.models.users import User
 
 
 class TestGetSetMetadata:
-    def test_metadata(self, db_session, create_user):
+    def test_metadata(self, attach_dataset):
         """Various tests on Metadata keys"""
         # See if we can create a metadata row
-        ds = Dataset.create(owner=create_user.username, name="fio")
+        ds = Dataset.query(name="drb")
         assert ds.metadatas == []
         m = Metadata.create(key="dashboard", value=True, dataset=ds)
         assert m is not None
@@ -33,7 +34,7 @@ class TestGetSetMetadata:
         assert m.dataset_ref == m1.dataset_ref
 
         # Check the str()
-        assert "test(1)|fio>>dashboard" == str(m)
+        assert "drb(3)|drb>>dashboard" == str(m)
 
         # Try to get a metadata key that doesn't exist
         with pytest.raises(MetadataNotFound) as exc:
@@ -92,9 +93,9 @@ class TestGetSetMetadata:
         assert exc.value.key == "dashboard"
         assert ds.metadatas == []
 
-    def test_metadata_remove(self, db_session, create_user):
+    def test_metadata_remove(self, attach_dataset):
         """Test that we can remove a Metadata key"""
-        ds = Dataset.create(owner=create_user.username, name="fio")
+        ds = Dataset.query(name="test")
         assert ds.metadatas == []
         m = Metadata(key="dashboard", value="TRUE")
         m.add(ds)
@@ -174,51 +175,55 @@ class TestInternalMetadata:
 
 
 class TestMetadataNamespace:
-    def test_get_bad_syntax(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, name="fio")
+    def test_get_bad_syntax(self, attach_dataset):
+        ds = Dataset.query(name="drb")
         with pytest.raises(MetadataBadKey) as exc:
             Metadata.getvalue(ds, "dashboard..foo")
         assert exc.type == MetadataBadKey
         assert exc.value.key == "dashboard..foo"
         assert str(exc.value) == "Metadata key 'dashboard..foo' is not supported"
 
-    def test_user_metadata(self, db_session, create_user, create_drb_user):
+    def test_user_metadata(self, attach_dataset):
         """Various tests on user-mapped Metadata keys"""
         # See if we can create a metadata row
-        ds = Dataset.create(owner=create_user.username, name="fio")
+        ds = Dataset.query(name="drb")
+        user1 = User.query(username="drb")
         assert ds.metadatas == []
-        t = Metadata.create(key="user", value=True, dataset=ds, user=create_user)
+        t = Metadata.create(key="user", value=True, dataset=ds, user=user1)
         assert t is not None
         assert ds.metadatas == [t]
-        assert create_user.dataset_metadata == [t]
+        assert user1.dataset_metadata == [t]
 
-        d = Metadata.create(key="user", value=False, dataset=ds, user=create_drb_user)
+        user2 = User.query(username="test")
+        d = Metadata.create(key="user", value=False, dataset=ds, user=user2)
         assert d is not None
         assert ds.metadatas == [t, d]
-        assert create_user.dataset_metadata == [t]
-        assert create_drb_user.dataset_metadata == [d]
+        assert user1.dataset_metadata == [t]
+        assert user2.dataset_metadata == [d]
 
         g = Metadata.create(key="user", value="text", dataset=ds)
         assert g is not None
         assert ds.metadatas == [t, d, g]
-        assert create_user.dataset_metadata == [t]
-        assert create_drb_user.dataset_metadata == [d]
+        assert user1.dataset_metadata == [t]
+        assert user2.dataset_metadata == [d]
 
         assert Metadata.get(key="user", dataset=ds).value == "text"
-        assert Metadata.get(key="user", dataset=ds, user=create_user).value is True
-        assert Metadata.get(key="user", dataset=ds, user=create_drb_user).value is False
+        assert Metadata.get(key="user", dataset=ds, user=user1).value is True
+        assert Metadata.get(key="user", dataset=ds, user=user2).value is False
 
-        Metadata.remove(key="user", dataset=ds, user=create_drb_user)
-        assert create_drb_user.dataset_metadata == []
-        assert create_user.dataset_metadata == [t]
-        assert ds.metadatas == [t, g]
+        Metadata.remove(key="user", dataset=ds, user=user1)
+        assert user1.dataset_metadata == []
+        assert user2.dataset_metadata == [d]
+        assert ds.metadatas == [d, g]
 
         Metadata.remove(key="user", dataset=ds)
-        assert create_user.dataset_metadata == [t]
-        assert ds.metadatas == [t]
+        assert user1.dataset_metadata == []
+        assert user2.dataset_metadata == [d]
+        assert ds.metadatas == [d]
 
-        Metadata.remove(key="user", dataset=ds, user=create_user)
-        assert create_user.dataset_metadata == []
+        Metadata.remove(key="user", dataset=ds, user=user2)
+        assert user1.dataset_metadata == []
+        assert user2.dataset_metadata == []
         assert ds.metadatas == []
 
         # Peek under the carpet to look for orphaned metadata objects linked
@@ -231,8 +236,8 @@ class TestMetadataNamespace:
             Database.db_session.query(Metadata)
             .filter(
                 or_(
-                    Metadata.user_ref == create_drb_user.id,
-                    Metadata.user_ref == create_user.id,
+                    Metadata.user_ref == user1.id,
+                    Metadata.user_ref == user2.id,
                     Metadata.user_ref is None,
                 )
             )
@@ -240,29 +245,29 @@ class TestMetadataNamespace:
         )
         assert metadata is None
 
-    def test_set_bad_syntax(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, name="fio")
+    def test_set_bad_syntax(self, attach_dataset):
+        ds = Dataset.query(name="drb")
         with pytest.raises(MetadataBadKey) as exc:
             Metadata.setvalue(ds, "dashboard.foo.", "irrelevant")
         assert exc.type == MetadataBadKey
         assert exc.value.key == "dashboard.foo."
         assert str(exc.value) == "Metadata key 'dashboard.foo.' is not supported"
 
-    def test_set_bad_characters(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, name="fio")
+    def test_set_bad_characters(self, attach_dataset):
+        ds = Dataset.query(name="drb")
         with pytest.raises(MetadataBadKey) as exc:
             Metadata.setvalue(ds, "dashboard.*!foo", "irrelevant")
         assert exc.type == MetadataBadKey
         assert exc.value.key == "dashboard.*!foo"
         assert str(exc.value) == "Metadata key 'dashboard.*!foo' is not supported"
 
-    def test_get_novalue(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, name="fio")
+    def test_get_novalue(self, attach_dataset):
+        ds = Dataset.query(name="drb")
         assert Metadata.getvalue(ds, "dashboard.email") is None
         assert Metadata.getvalue(ds, "dashboard") is None
 
-    def test_get_bad_path(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, name="fio")
+    def test_get_bad_path(self, attach_dataset):
+        ds = Dataset.query(name="drb")
         Metadata.setvalue(ds, "dashboard.contact", "hello")
         with pytest.raises(MetadataBadStructure) as exc:
             Metadata.getvalue(ds, "dashboard.contact.email")
@@ -271,11 +276,11 @@ class TestMetadataNamespace:
         assert exc.value.element == "contact"
         assert (
             str(exc.value)
-            == "Key 'contact' value for 'dashboard.contact.email' in test(1)|fio is not a JSON object"
+            == "Key 'contact' value for 'dashboard.contact.email' in drb(3)|drb is not a JSON object"
         )
 
-    def test_set_bad_path(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, name="fio")
+    def test_set_bad_path(self, attach_dataset):
+        ds = Dataset.query(name="drb")
         Metadata.setvalue(ds, "dashboard.contact", "hello")
         with pytest.raises(MetadataBadStructure) as exc:
             Metadata.setvalue(ds, "dashboard.contact.email", "me@example.com")
@@ -284,19 +289,19 @@ class TestMetadataNamespace:
         assert exc.value.element == "contact"
         assert (
             str(exc.value)
-            == "Key 'contact' value for 'dashboard.contact.email' in test(1)|fio is not a JSON object"
+            == "Key 'contact' value for 'dashboard.contact.email' in drb(3)|drb is not a JSON object"
         )
 
-    def test_get_outer_path(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, name="fio")
+    def test_get_outer_path(self, attach_dataset):
+        ds = Dataset.query(name="drb")
         Metadata.setvalue(ds, "dashboard.value.hello.english", "hello")
         Metadata.setvalue(ds, "dashboard.value.hello.espanol", "hola")
         assert Metadata.getvalue(ds, "dashboard.value") == {
             "hello": {"english": "hello", "espanol": "hola"}
         }
 
-    def test_get_inner_path(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, name="fio")
+    def test_get_inner_path(self, attach_dataset):
+        ds = Dataset.query(name="drb")
         Metadata.setvalue(
             ds,
             "dashboard.contact",
@@ -309,8 +314,8 @@ class TestMetadataNamespace:
             "last": "Name",
         }
 
-    def test_delete_with_metadata(self, db_session, create_user):
-        ds = Dataset.create(owner=create_user.username, name="fio")
+    def test_delete_with_metadata(self, attach_dataset):
+        ds = Dataset.query(name="drb")
         Metadata.setvalue(
             ds,
             "dashboard.contact",
@@ -334,7 +339,7 @@ class TestMetadataNamespace:
         metadata = Database.db_session.query(Metadata).filter_by(dataset_ref=id).first()
         assert metadata is None
 
-    def test_setgetvalue_user(self, db_session, create_user, create_drb_user):
+    def test_setgetvalue_user(self, attach_dataset):
         """
         Verify that we can set and read independent values of "user." namespace
         keys across two separate users plus a "non-owned" version (user None)
@@ -342,21 +347,19 @@ class TestMetadataNamespace:
         server APIs. (In other words, the "user" SQL column can be None, as we
         use this column only for the "user" key value.)
         """
-        ds = Dataset.create(owner=create_user.username, name="fio")
+        ds = Dataset.query(name="drb")
+        user1 = User.query(username="drb")
+        user2 = User.query(username="test")
         Metadata.setvalue(dataset=ds, key="user.contact", value="Barney")
-        Metadata.setvalue(
-            dataset=ds, key="user.contact", value="Fred", user=create_user
-        )
-        Metadata.setvalue(
-            dataset=ds, key="user.contact", value="Wilma", user=create_drb_user
-        )
+        Metadata.setvalue(dataset=ds, key="user.contact", value="Fred", user=user2)
+        Metadata.setvalue(dataset=ds, key="user.contact", value="Wilma", user=user1)
 
         assert Metadata.getvalue(dataset=ds, user=None, key="user") == {
             "contact": "Barney"
         }
-        assert Metadata.getvalue(dataset=ds, user=create_user, key="user") == {
+        assert Metadata.getvalue(dataset=ds, user=user2, key="user") == {
             "contact": "Fred"
         }
-        assert Metadata.getvalue(dataset=ds, user=create_drb_user, key="user") == {
+        assert Metadata.getvalue(dataset=ds, user=user1, key="user") == {
             "contact": "Wilma"
         }

@@ -27,12 +27,12 @@ class TestDatasets:
         """Test dataset contructor"""
         user = create_user
         with freeze_time("1970-01-01"):
-            ds = Dataset(owner=user.username, name="fio")
+            ds = Dataset(owner=user.username, name="fio", resource_id="f00b0ad")
             ds.add()
         assert ds.owner == user
         assert ds.name == "fio"
         assert ds.state == States.UPLOADING
-        assert ds.md5 is None
+        assert ds.resource_id == "f00b0ad"
 
         # The "uploaded" and "transition" timestamps will be set automatically
         # to the current time, and should initially be identical. The
@@ -59,10 +59,10 @@ class TestDatasets:
         user is removed.
         """
         user = create_user
-        ds = Dataset(owner=user.username, name="fio")
+        ds = Dataset(owner=user.username, name="fio", resource_id="deadbeef")
         ds.add()
         User.delete(username=user.username)
-        ds1 = Dataset.query(name="fio")
+        ds1 = Dataset.query(resource_id="deadbeef")
         assert ds1 == ds
 
     def test_dataset_metadata_log(self, db_session, create_user, provide_metadata):
@@ -98,18 +98,28 @@ class TestDatasets:
     def test_construct_bad_state(self, db_session, create_user):
         """Test with a non-States state value"""
         with pytest.raises(DatasetBadParameterType):
-            Dataset(owner=create_user.username, name="fio", state="notStates")
+            Dataset(
+                owner=create_user.username,
+                name="fio",
+                resource_id="d00d",
+                state="notStates",
+            )
 
     def test_attach_exists(self, db_session, create_user):
         """Test that we can attach to a dataset"""
-        ds1 = Dataset(owner=create_user.username, name="fio", state=States.INDEXING)
+        ds1 = Dataset(
+            owner=create_user.username,
+            name="fio",
+            resource_id="bib",
+            state=States.INDEXING,
+        )
         ds1.add()
 
-        ds2 = Dataset.attach(name="fio", state=States.INDEXED)
+        ds2 = Dataset.attach(resource_id=ds1.resource_id, state=States.INDEXED)
         assert ds2.owner == ds1.owner
         assert ds2.name == ds1.name
         assert ds2.state == States.INDEXED
-        assert ds2.md5 is ds1.md5
+        assert ds2.resource_id is ds1.resource_id
         assert ds2.id is ds1.id
 
     def test_attach_none(self, db_session):
@@ -117,11 +127,16 @@ class TestDatasets:
         does not exist.
         """
         with pytest.raises(DatasetNotFound):
-            Dataset.attach(name="venus", state=States.UPLOADING)
+            Dataset.attach(resource_id="xyzzy", state=States.UPLOADING)
 
     def test_query_name(self, db_session, create_user):
         """Test that we can find a dataset by name alone"""
-        ds1 = Dataset(owner=create_user.username, name="fio", state=States.INDEXING)
+        ds1 = Dataset(
+            owner=create_user.username,
+            resource_id="deed1e",
+            name="fio",
+            state=States.INDEXING,
+        )
         ds1.add()
 
         ds2 = Dataset.query(name="fio")
@@ -129,13 +144,13 @@ class TestDatasets:
         assert ds2.owner == ds1.owner
         assert ds2.name == ds1.name
         assert ds2.state == ds1.state
-        assert ds2.md5 == ds1.md5
+        assert ds2.resource_id == ds1.resource_id
         assert ds2.id == ds1.id
 
     def test_advanced_good(self, db_session, create_user):
         """Test advancing the state of a dataset"""
         with freeze_time("2525-05-25T15:15"):
-            ds = Dataset(owner=create_user.username, name="fio")
+            ds = Dataset(owner=create_user.username, name="fio", resource_id="beefeed")
             ds.created = datetime(2020, 1, 25, 23, 14)
             ds.add()
         with freeze_time("2525-08-25T15:25"):
@@ -155,7 +170,7 @@ class TestDatasets:
 
     def test_advanced_bad_state(self, db_session, create_user):
         """Test with a non-States state value"""
-        ds = Dataset(owner=create_user.username, name="fio")
+        ds = Dataset(owner=create_user.username, name="fio", resource_id="feebeed")
         ds.add()
         with pytest.raises(DatasetBadParameterType):
             ds.advance("notStates")
@@ -164,14 +179,19 @@ class TestDatasets:
         """Test that we can't advance to a state that's not a
         successor to the initial state.
         """
-        ds = Dataset(owner=create_user.username, name="fio")
+        ds = Dataset(owner=create_user.username, name="fio", resource_id="debead")
         ds.add()
         with pytest.raises(DatasetBadStateTransition):
             ds.advance(States.EXPIRED)
 
     def test_advanced_terminal(self, db_session, create_user):
         """Test that we can't advance from a terminal state"""
-        ds = Dataset(owner=create_user.username, name="fio", state=States.EXPIRED)
+        ds = Dataset(
+            owner=create_user.username,
+            name="fio",
+            resource_id="beadde",
+            state=States.EXPIRED,
+        )
         ds.add()
         with pytest.raises(DatasetTerminalStateViolation):
             ds.advance(States.UPLOADING)
@@ -180,7 +200,7 @@ class TestDatasets:
         """Advance a dataset through the entire lifecycle using the state
         transition dict.
         """
-        ds = Dataset(owner=create_user.username, name="fio")
+        ds = Dataset(owner=create_user.username, name="fio", resource_id="beaddee")
         ds.add()
         assert ds.state == States.UPLOADING
         beenthere = [ds.state]
@@ -206,15 +226,16 @@ class TestDatasets:
         ds1 = Dataset(
             owner=create_user.username,
             name="foobar",
+            resource_id="f00dea7",
             state=States.INDEXING,
         )
         ds1.add()
 
         # we can find it
-        ds2 = Dataset.attach(name="foobar", state=States.INDEXED)
+        ds2 = Dataset.query(resource_id=ds1.resource_id)
         assert ds2.name == ds1.name
 
         ds2.delete()
 
         with pytest.raises(DatasetNotFound):
-            Dataset.query(name="foobar")
+            Dataset.query(resource_id=ds1.resource_id)
