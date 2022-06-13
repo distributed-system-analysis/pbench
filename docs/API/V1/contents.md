@@ -1,6 +1,6 @@
 # `GET /api/v1/datasets/contents/<dataset><path>`
 
-This API returns an `application/json` document describing the contents of the referenced relative `<path>` within the `<dataset>` tarball representation.
+This API returns an `application/json` document describing a `<path>` within the `<dataset>` tarball representation.
 
 ## URI parameters
 
@@ -8,7 +8,7 @@ This API returns an `application/json` document describing the contents of the r
 The resource ID of a Pbench dataset on the server.
 
 `<path>`    string \
-The relative resource path of an item in the dataset inventory, as captured by the Pbench agent packaging; for example, `/` for the root, or `/1-default/` for the default first iteration directory.
+The path of an item in the dataset inventory, as captured by the Pbench agent packaging; for example, `/` for the root, or `/1-default/` for the default first iteration directory.
 
 ## Request headers
 
@@ -23,7 +23,7 @@ The return is a serialized JSON object with information about the named file.
 ## Response status
 
 `401`   **UNAUTHORIZED** \
-The client did not provide an authentication token and there is no public dataset with the name `<dataset>`.
+The client did not provide an authentication token and there is no public dataset with the resource ID `<dataset>`.
 
 `403`   **FORBIDDEN** \
 The named `<dataset>` is not public and the authenticated user lacks authorization to read it.
@@ -33,25 +33,23 @@ Either the `<dataset>` or the relative `<path>` within the dataset does not exis
 
 ## Response body
 
-This returns an `application/json` response body describing the target of `<path>`, in terms of "file" and "directory" JSON objects.
+This API returns an `application/json` response body consisting of a JSON object which describes the target `<path>`, in terms of lists of "file" and "directory" JSON objects (as described below).
 
-When the target is a directory, the response object contains a list of subdirectories and a list of files; if the target is a file (either a regular file or a symlink) it returns the file object for that path.
-
-When the target directory contains symlinks, the symlinks will be reported either in the `"file"` list (if the target of the symlink is a file) or in the `"directory"` list (if the target of the symlink is a directory).
+When the target is a directory, the response object contains a list of subdirectories and a list of files; if the target is a file it returns the file object for that path.
 
 ### Directory
 
-When the `<path>` refers to a directory within the dataset representation, Pbench returns a JSON object with a list of subdirectory objects and a list of file objects.
+When the `<path>` refers to a directory within the dataset representation, Pbench returns a JSON object containing a list of subdirectory objects (`directories`) and a list of file objects (`files`).
 
 #### Directory object
 
-The directory object gives the name of the directory, and a URI that can be used with a subsequent `GET` operation to get directory data about that nested path.
+The directory object gives the name of the directory, and a URI that can be used with a subsequent `GET` operation to get directory data for that nested path.
 
 #### File object
 
-The file object gives the name of the file and a URI that can be used with a subsequent `GET` operation to return the buffered byte stream of that file.
+The file object gives the name of the file and a URI that can be used with a subsequent `GET` operation to return the raw byte stream of that file.
 
-Note that soft links within the dataset representation will result in a URI returning a linked file's byte stream or a linked directory's [directory object](Directory object).
+Note that symlinks within the dataset representation will result in a URI returning the linked file's byte stream or the linked directory's [directory object](#directory-object).
 
 #### Example
 
@@ -92,7 +90,7 @@ Note that soft links within the dataset representation will result in a URI retu
 
 ### File
 
-When the specified path is a leaf file (regular file or symlink), the response body is an `application/json` formatted "file object" as described above, including the name and filesystem metadata. The URI is provided which can be used to `GET` the file bytestream. (Assuming the file is a regular file or a symlink to a regular file.)
+When the specified path is a leaf file (regular file or symlink), the response body is an `application/json` formatted [file object](#file-object), including the name and filesystem metadata. A URI is provided which can be used to `GET` the file's contents as a raw byte stream.
 
 #### Example
 

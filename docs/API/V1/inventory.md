@@ -1,14 +1,14 @@
 # `GET /api/v1/datasets/inventory/<dataset><path>`
 
-This API returns an `application/octet-stream` document containing the raw byte stream of a regular file (or soft link to a regular file) at the relative `<path>` within the `<dataset>` tarball representation.
+This API returns an `application/octet-stream` document containing the raw byte stream of a regular file at the `<path>` within the `<dataset>` tarball representation.
 
 ## URI parameters
 
-`<dataset>` string
+`<dataset>` string \
 The resource ID of a Pbench dataset on the server.
 
-`<path>`    string
-The relative resource path of an item in the dataset inventory, as captured by the Pbench agent packaging; for example, `/metadata.log` for the dataset metadata, or `/1-default/sample1/result.txt` for the default first iteration results.
+`<path>`    string \
+The resource path of an item in the dataset inventory, as captured by the Pbench Agent packaging; for example, `/metadata.log` for the dataset metadata, or `/1-default/sample1/result.txt` for the default first iteration results.
 
 ## Request headers
 
@@ -32,8 +32,8 @@ The named `<dataset>` is not public and the authenticated user lacks authorizati
 Either the `<dataset>` or the relative `<path>` within the dataset does not exist
 
 `415` **UNSUPPORTED MEDIA TYPE** \
-The `<path>` refers to a directory. Use `/api/v1/dataset/contents/<dataset><path>` to acquire a JSON response document describing the directory contents.
+The `<path>` refers to a directory. Use `/api/v1/dataset/contents/<dataset><path>` to request a JSON response document describing the directory contents.
 
 ## Response body
 
-The raw byte stream of the regular file will be returned.
+The raw byte stream of the file will be returned.

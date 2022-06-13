@@ -1,6 +1,6 @@
 # `GET /api/v1/datasets/list`
 
-This API returns an `application/json` document describing the set of datasets accessible to the authenticated client. (Or, for an unauthenticated client, all datasets with access "public".)
+This API returns an `application/json` document describing the set of datasets accessible to the client. (An unauthenticated client can only access "public" datasets.)
 
 The list of datasets may be further filtered by "owner", "access", "name" substring, or by creation date range using the query parameters.
 
