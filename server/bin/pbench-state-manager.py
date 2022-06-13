@@ -51,7 +51,11 @@ def main(options):
 
         args = {}
 
-        if not (options.path or options.md5):
+        if options.md5:
+            args["resource_id"] = options.md5
+        elif options.path:
+            args["resource_id"] = md5sum(options.path).md5_hash
+        else:
             print(
                 f"{_NAME_}: Either --path or --md5 must be specified",
                 file=sys.stderr,
@@ -60,24 +64,16 @@ def main(options):
 
         if options.create:
             args["owner"] = options.create
-
-            if not (options.path or options.name):
+            if options.name:
+                args["name"] = options.name
+            elif options.path:
+                args["name"] = Dataset.stem(options.path)
+            else:
                 print(
                     f"{_NAME_}: Either --path or --name must be specified with --create",
                     file=sys.stderr,
                 )
                 return 2
-
-        if options.md5:
-            args["resource_id"] = options.md5
-        elif options.path:
-            args["resource_id"] = md5sum(options.path).md5_hash
-
-        if options.create:
-            if options.name:
-                args["name"] = options.name
-            else:
-                args["name"] = Dataset.stem(options.path)
 
         if options.state:
             try:
