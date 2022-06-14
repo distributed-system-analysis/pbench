@@ -3,28 +3,28 @@ import "./index.less";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Toolbar,
+  Brand,
+  Button,
+  ButtonVariant,
+  Dropdown,
+  DropdownGroup,
+  DropdownItem,
+  DropdownToggle,
   Masthead,
+  MastheadBrand,
+  MastheadContent,
+  MastheadMain,
   MastheadToggle,
   PageToggleButton,
-  MastheadMain,
-  MastheadBrand,
-  Brand,
-  MastheadContent,
+  Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Button,
-  ButtonVariant,
-  DropdownGroup,
-  DropdownItem,
-  Dropdown,
-  DropdownToggle,
 } from "@patternfly/react-core";
 import {
   BarsIcon,
-  QuestionCircleIcon,
   ShareSquareIcon,
+  QuestionCircleIcon,
 } from "@patternfly/react-icons";
 import pbenchLogo from "assets/logo/pbench_logo.svg";
 import Cookies from "js-cookie";
@@ -121,10 +121,7 @@ const HeaderComponent = () => {
   const isNavOpen = useSelector((state) => state.navOpen.isNavOpen);
 
   const onNavToggle = () => {
-    const navAction = isNavOpen
-      ? { type: NAVBAR_CLOSE }
-      : { type: NAVBAR_OPEN };
-    dispatch(navAction);
+    dispatch({ type: isNavOpen ? NAVBAR_CLOSE : NAVBAR_OPEN });
   };
 
   return (

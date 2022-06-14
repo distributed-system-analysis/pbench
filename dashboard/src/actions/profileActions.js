@@ -62,13 +62,10 @@ export const sendForUpdate = () => async (dispatch, getState) => {
           payload: response?.data,
         });
         dispatch({ type: TYPES.RESET_DATA });
-        dispatch({ type: TYPES.COMPLETED });
-        return false;
       } else {
         dispatch(showFailureToast());
-        dispatch({ type: TYPES.COMPLETED });
-        return false;
       }
+      dispatch({ type: TYPES.COMPLETED });
     }
   } catch (error) {
     dispatch(constructToast("danger", error?.response?.data?.message));

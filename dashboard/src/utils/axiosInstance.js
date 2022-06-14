@@ -5,9 +5,7 @@ import store from "store/store";
 
 const { dispatch } = store;
 
-const axiosInstance = axios.create({
-  responseType: "json",
-});
+const axiosInstance = axios.create({ responseType: "json" });
 
 axiosInstance.interceptors.request.use(async (req) => {
   const token = Cookies.get("token");

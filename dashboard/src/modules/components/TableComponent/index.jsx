@@ -183,11 +183,7 @@ const TableWithFavorite = () => {
             aria-label="see favorites button"
           />
         </ToggleGroup>
-        <div
-          style={{
-            height: "200px",
-          }}
-        >
+        <div className="table-scroll-container">
           <OuterScrollContainer>
             <InnerScrollContainer>
               <TableComposable

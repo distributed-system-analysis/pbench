@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  TextContent,
-  Text,
-  TextVariants,
+  Button,
+  Card,
+  CardBody,
   Grid,
   GridItem,
-  Card,
   Level,
   LevelItem,
-  Button,
+  Text,
+  TextContent,
   TextInput,
-  CardBody,
+  TextVariants,
   isValidDate,
 } from "@patternfly/react-core";
-import { UserAltIcon, PencilAltIcon, KeyIcon } from "@patternfly/react-icons";
+import { KeyIcon, PencilAltIcon, UserAltIcon } from "@patternfly/react-icons";
 import "./index.less";
 import avatar from "assets/images/avatar.jpg";
 import {
   getProfileDetails,
-  updateUserDetails,
-  sendForUpdate,
   resetUserDetails,
+  sendForUpdate,
+  updateUserDetails,
 } from "actions/profileActions";
 
 const ProfileComponent = () => {
