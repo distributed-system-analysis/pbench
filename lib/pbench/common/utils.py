@@ -7,7 +7,7 @@ import ipaddress
 from logging import Logger
 from pathlib import Path
 import re
-from typing import Callable, Deque, NamedTuple
+from typing import Callable, Deque, NamedTuple, Union
 
 from functools import partial
 
@@ -17,7 +17,7 @@ class Md5Result(NamedTuple):
     md5_hash: str
 
 
-def md5sum(filename: Path) -> Md5Result:
+def md5sum(filename: Union[Path, str]) -> Md5Result:
     """
     Return the MD5 check-sum of a given file without reading the entire file
     into memory.

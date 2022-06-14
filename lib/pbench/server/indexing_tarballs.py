@@ -29,7 +29,7 @@ from pbench.server.indexer import (
     VERSION,
 )
 from pbench.server.report import Report
-from pbench.server.utils import rename_tb_link, quarantine
+from pbench.server.utils import get_tarball_md5, rename_tb_link, quarantine
 
 
 class SigIntException(Exception):
@@ -329,7 +329,8 @@ class Index:
 
                             try:
                                 dataset = Dataset.attach(
-                                    name=Dataset.stem(path), state=States.INDEXING
+                                    resource_id=get_tarball_md5(path),
+                                    state=States.INDEXING,
                                 )
                             except DatasetNotFound:
                                 idxctx.logger.warn(

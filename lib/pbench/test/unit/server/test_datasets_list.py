@@ -108,7 +108,7 @@ class TestDatasetsList:
             list.append(
                 {
                     "name": dataset.name,
-                    "run_id": dataset.md5,
+                    "resource_id": dataset.resource_id,
                     "metadata": {
                         "dataset.created": datetime.datetime.isoformat(dataset.created)
                     },

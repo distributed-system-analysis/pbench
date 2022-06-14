@@ -21,7 +21,7 @@ class TestDatasetsContents(Commons):
     def _setup(self, client):
         super()._setup(
             cls_obj=DatasetsContents(client.config, client.logger),
-            pbench_endpoint="/datasets/contents/drb",
+            pbench_endpoint="/datasets/contents/random_md5_string1",
             elastic_endpoint="/_search",
             payload={"parent": "/1-default"},
             index_from_metadata="run-toc",
@@ -40,7 +40,9 @@ class TestDatasetsContents(Commons):
         """
         Check the Contents API when an incorrect index name is provided.
         """
-        incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-1]) + "/test"
+        incorrect_endpoint = (
+            "/".join(self.pbench_endpoint.split("/")[:-1]) + "/random_md5_string2"
+        )
         response = client.post(
             f"{server_config.rest_uri}{incorrect_endpoint}",
             headers={"Authorization": "Bearer " + pbench_token},

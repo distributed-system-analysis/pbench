@@ -19,6 +19,7 @@ from pbench.server.api.resources.query_apis import (
     PostprocessError,
 )
 from pbench.server.database.models.datasets import (
+    Dataset,
     DatasetNotFound,
     Metadata,
     MetadataError,
@@ -180,10 +181,11 @@ class DatasetsDetail(ElasticBase):
         }
 
         try:
-            m = self._get_metadata(src["run"]["name"], context["metadata"])
+            dataset = Dataset.query(resource_id=(src["run"]["id"]))
+            m = self._get_dataset_metadata(dataset, context["metadata"])
         except DatasetNotFound:
             raise APIAbort(
-                HTTPStatus.BAD_REQUEST, f"Dataset {src['run']['name']} not found"
+                HTTPStatus.BAD_REQUEST, f"Dataset {src['run']['id']} not found"
             )
         except MetadataError as e:
             raise APIAbort(HTTPStatus.BAD_REQUEST, str(e))

@@ -18,6 +18,7 @@ from argparse import ArgumentParser
 
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
+from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
 from pbench.server.database.models.datasets import Dataset, States
@@ -49,15 +50,31 @@ def main(options):
         init_db(config, logger)
 
         args = {}
+
+        if options.md5:
+            args["resource_id"] = options.md5
+        elif options.path:
+            args["resource_id"] = md5sum(options.path).md5_hash
+        else:
+            print(
+                f"{_NAME_}: Either --path or --md5 must be specified",
+                file=sys.stderr,
+            )
+            return 2
+
         if options.create:
             args["owner"] = options.create
+            if options.name:
+                args["name"] = options.name
+            elif options.path:
+                args["name"] = Dataset.stem(options.path)
+            else:
+                print(
+                    f"{_NAME_}: Either --path or --name must be specified with --create",
+                    file=sys.stderr,
+                )
+                return 2
 
-        if options.path:
-            args["name"] = Dataset.stem(options.path)
-        elif options.name:
-            args["name"] = options.name
-        if options.md5:
-            args["md5"] = options.md5
         if options.state:
             try:
                 new_state = States[options.state.upper()]
@@ -69,13 +86,6 @@ def main(options):
                 return 2
             args["state"] = new_state
 
-        if "path" not in args and "name" not in args:
-            print(
-                f"{_NAME_}: Either --path or --name must be specified",
-                file=sys.stderr,
-            )
-            return 2
-
         # Either create a new dataset or attach to an existing dataset
         doit = Dataset.create if options.create else Dataset.attach
 
@@ -83,7 +93,9 @@ def main(options):
         doit(**args)
     except Exception as e:
         # Stringify any exception and report it; then fail
-        logger.exception("Failed")
+        logger.exception(
+            "Failed to {} {}", "create" if options.create else "attach", args
+        )
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1
     else:

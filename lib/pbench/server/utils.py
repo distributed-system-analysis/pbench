@@ -1,10 +1,13 @@
 import datetime
 import os
+from pathlib import Path
 import shutil
 import sys
+from typing import Union
 
 from dateutil import parser as date_parser
 
+from pbench.common.utils import md5sum
 from pbench.server.database.models.datasets import Dataset, States, DatasetNotFound
 
 
@@ -60,6 +63,25 @@ def filesize_bytes(size):
         return num * factor
 
 
+def get_tarball_md5(tarball: Union[Path, str]) -> str:
+    """
+    Convenience method to locate the MD5 file associated with a dataset
+    tarball and read the embedded MD5 hash.
+
+    If the MD5 file isn't present, hash the tarball to compute the MD5. NOTE:
+    this shouldn't ever be necessary as a successful upload PUT will always
+    result in an MD5 file. This fallback covers several legacy testing cases
+    that are otherwise problematic.
+
+    Args:
+        tarball: Path or string filepath to a tarball file
+    """
+    md5_file = Path(f"{str(tarball)}.md5")
+    if md5_file.is_file():
+        return md5_file.read_text().split()[0]
+    return md5sum(tarball).md5_hash
+
+
 def quarantine(dest, logger, *files):
     """Quarantine problematic tarballs.
 
@@ -82,8 +104,9 @@ def quarantine(dest, logger, *files):
             # If the file we're moving is a tarball, update the dataset
             # state. (If it's the associated MD5 file, skip that.)
             if Dataset.is_tarball(afile):
+                id = get_tarball_md5(afile)
                 try:
-                    Dataset.attach(name=Dataset.stem(afile), state=States.QUARANTINED)
+                    Dataset.attach(resource_id=id, state=States.QUARANTINED)
                 except DatasetNotFound:
                     logger.exception("quarantine dataset {} not found", afile)
             shutil.move(afile, os.path.join(dest, os.path.basename(afile)))

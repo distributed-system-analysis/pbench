@@ -88,7 +88,7 @@ class DatasetsContents(IndexMapBase):
                                         ]
                                     }
                                 },
-                                {"term": {"run_data_parent": dataset.md5}},
+                                {"term": {"run_data_parent": dataset.resource_id}},
                             ],
                             "must_not": {"regexp": {"directory": f"{parent}/[^/]+/.+"}},
                         }

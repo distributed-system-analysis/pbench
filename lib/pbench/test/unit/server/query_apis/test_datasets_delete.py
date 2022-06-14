@@ -132,8 +132,10 @@ class TestDatasetsDelete:
         else:
             expected_status = HTTPStatus.OK
 
+        ds = Dataset.query(name=owner)
+
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/{owner}",
+            f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
             headers=build_auth_header["header"],
         )
         assert response.status_code == expected_status
@@ -167,7 +169,7 @@ class TestDatasetsDelete:
         self.fake_filetree(monkeypatch)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/drb",
+            f"{server_config.rest_uri}/datasets/delete/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_token}"},
         )
 
@@ -219,7 +221,7 @@ class TestDatasetsDelete:
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/drb",
+            f"{server_config.rest_uri}/datasets/delete/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_token}"},
         )
 

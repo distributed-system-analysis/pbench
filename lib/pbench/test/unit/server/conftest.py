@@ -316,14 +316,14 @@ def attach_dataset(create_drb_user, create_user):
             uploaded=datetime.datetime(2022, 1, 1),
             name="drb",
             access="private",
-            md5="random_md5_string1",
+            resource_id="random_md5_string1",
         ).add()
         Dataset(
             owner="test",
             created=datetime.datetime(2002, 5, 16),
             name="test",
             access="private",
-            md5="random_md5_string2",
+            resource_id="random_md5_string2",
         ).add()
 
 
@@ -357,14 +357,14 @@ def more_datasets(
             uploaded=datetime.datetime(2022, 1, 1),
             name="fio_1",
             access="public",
-            md5="random_md5_string3",
+            resource_id="random_md5_string3",
         ).add()
         Dataset(
             owner="test",
             created=datetime.datetime(2002, 5, 16),
             name="fio_2",
             access="public",
-            md5="random_md5_string4",
+            resource_id="random_md5_string4",
         ).add()
 
 

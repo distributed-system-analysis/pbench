@@ -370,7 +370,7 @@ class TestUpload:
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
 
         with pytest.raises(DatasetNotFound):
-            Dataset.attach(name=Dataset.stem(datafile))
+            Dataset.query(resource_id=md5)
         assert self.filetree_created
         assert self.filetree_create_path
         assert not self.filetree_create_path.exists()
@@ -395,9 +395,9 @@ class TestUpload:
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
 
-        dataset = Dataset.query(name=Dataset.stem(datafile))
+        dataset = Dataset.query(resource_id=md5)
         assert dataset is not None
-        assert dataset.md5 == md5
+        assert dataset.resource_id == md5
         assert dataset.name == datafile.name[:-7]
         assert dataset.state == States.UPLOADED
         assert dataset.created.isoformat() == "2002-05-16T00:00:00+00:00"
@@ -450,52 +450,6 @@ class TestUpload:
         # We didn't get far enough to create a FileTree
         assert TestUpload.filetree_created is None
 
-    def test_upload_duplicate_diff_md5(
-        self,
-        client,
-        caplog,
-        server_config,
-        setup_ctrl,
-        pbench_token,
-        tarball,
-    ):
-        datafile, _, md5 = tarball
-        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
-            response = client.put(
-                self.gen_uri(server_config, datafile.name),
-                data=data_fp,
-                headers=self.gen_headers(pbench_token, md5),
-            )
-
-        assert response.status_code == HTTPStatus.CREATED, repr(response)
-
-        # Reset manually since we upload twice in this test
-        TestUpload.filetree_created = None
-
-        OTHER_MD5 = "NOT_THE_MD5_YOURE_LOOKING_FOR"
-        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
-            response = client.put(
-                self.gen_uri(server_config, datafile.name),
-                data=data_fp,
-                headers={
-                    "Authorization": "Bearer " + pbench_token,
-                    "controller": self.controller,
-                    "Content-MD5": OTHER_MD5,
-                },
-            )
-
-        assert response.status_code == HTTPStatus.CONFLICT, repr(response)
-        assert (
-            response.json.get("message")
-            == f"Duplicate dataset has different MD5 ({md5} != {OTHER_MD5})"
-        )
-
-        for record in caplog.records:
-            assert record.levelname in ["WARNING", "DEBUG", "INFO"]
-
-        # We didn't get far enough to create a FileTree
-        assert TestUpload.filetree_created is None
-
     def test_upload_metadata_error(
         self,
         client,
@@ -527,7 +481,7 @@ class TestUpload:
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
 
         with pytest.raises(DatasetNotFound):
-            Dataset.attach(name=Dataset.stem(datafile))
+            Dataset.query(resource_id=md5)
         assert self.filetree_created
         assert self.filetree_create_path
         assert not self.filetree_create_path.exists()
