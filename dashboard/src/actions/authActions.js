@@ -48,7 +48,7 @@ export const makeLoginRequest =
         };
         dispatch({
           type: TYPES.SHOW_TOAST,
-          payload: { ...toast },
+          payload: toast,
         });
       }
       dispatch({ type: TYPES.COMPLETED });

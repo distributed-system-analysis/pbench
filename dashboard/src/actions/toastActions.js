@@ -9,7 +9,7 @@ export const showSessionExpired = () => async (dispatch) => {
   };
   dispatch({
     type: TYPES.SHOW_TOAST,
-    payload: { ...toast },
+    payload: toast,
   });
   dispatch(logout());
 };
@@ -22,7 +22,7 @@ export const showFailureToast = () => async (dispatch) => {
   };
   dispatch({
     type: TYPES.SHOW_TOAST,
-    payload: { ...toast },
+    payload: toast,
   });
 };
 
