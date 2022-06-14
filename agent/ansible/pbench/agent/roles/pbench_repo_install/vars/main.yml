@@ -1,5 +1,5 @@
 ---
-distro: "{{ 'centos-stream' if ansible_distribution_major_version == '9'
+distro: "{{ 'centos-stream' if ansible_distribution == 'CentOS' and ansible_distribution_major_version > '7'
           else
             'epel' if ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
           else
