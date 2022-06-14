@@ -39,6 +39,11 @@ Requires:  python3, python3-pip
 # RPMs for modules in requirements.txt
 Requires:  python3-bottle, python3-cffi, python3-click, python3-daemon
 Requires:  python3-jinja2, python3-redis, python3-requests, python3-sh
+
+%if 0%{?fedora} >= 36
+Requires: python3-ifaddr
+%endif
+
 # RPMs for module dependencies
 Requires:  python3-psutil
 %endif
