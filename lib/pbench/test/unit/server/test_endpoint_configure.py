@@ -45,6 +45,7 @@ class TestEndpointConfig:
                 "datasets_daterange": f"{uri}/datasets/daterange",
                 "datasets_delete": f"{uri}/datasets/delete",
                 "datasets_detail": f"{uri}/datasets/detail",
+                "datasets_inventory": f"{uri}/datasets/inventory",
                 "datasets_list": f"{uri}/datasets/list",
                 "datasets_mappings": f"{uri}/datasets/mappings",
                 "datasets_metadata": f"{uri}/datasets/metadata",
@@ -77,6 +78,13 @@ class TestEndpointConfig:
                 "datasets_detail": {
                     "template": f"{uri}/datasets/detail/{{dataset}}",
                     "params": {"dataset": {"type": "string"}},
+                },
+                "datasets_inventory": {
+                    "template": f"{uri}/datasets/inventory/{{dataset}}/{{path}}",
+                    "params": [
+                        {"name": "dataset", "type": "string"},
+                        {"name": "path", "type": "path"}
+                    ]
                 },
                 "datasets_list": {"template": f"{uri}/datasets/list", "params": {}},
                 "datasets_mappings": {
