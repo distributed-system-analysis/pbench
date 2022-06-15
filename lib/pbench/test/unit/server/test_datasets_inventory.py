@@ -3,7 +3,7 @@ from http import HTTPStatus
 import pytest
 import requests
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.filetree import FileTree
 from pathlib import Path

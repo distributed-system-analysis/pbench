@@ -6,7 +6,7 @@ from flask.wrappers import Request, Response
 from flask import send_file
 
 import os
-from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
+from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
     API_AUTHORIZATION,
