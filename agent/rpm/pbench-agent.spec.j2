@@ -8,16 +8,22 @@ URL:            https://github.com/distributed-system-analysis/pbench
 Source0:        pbench-agent-%{version}.tar.gz
 Buildarch:      noarch
 
-%if 0%{?rhel} < 9
-Requires:  ansible
-%else
+# EPEL provides ansible (a curated set of roles with a dependency on ansible-core)
+# on RHEL 8 and RHEL9. Only CentOS-Stream seems to not have an ansible package
+# available.
+
+%if 0%{?centos} >= 8
 Requires:  ansible-core
+%else
+Requires:  ansible
 %endif
+
 
 %if 0%{?rhel} == 7
 Requires:  python3, python3-pip
 %endif
 
+# This condition will be true on a CentOS-Stream-8 system as well
 %if 0%{?rhel} == 8
 Requires:  python36, python3-pip
 # RPMs for modules in requirements.txt
@@ -26,6 +32,7 @@ Requires:  python3-cffi, python3-click, python3-requests
 Requires:  python3-docutils, python3-psutil
 %endif
 
+# This condition will be true on a CentOS-Stream-9 system as well
 %if 0%{?rhel} == 9
 Requires:  python3-pip
 # RPMs for modules in requirements.txt
@@ -33,6 +40,7 @@ Requires:  python3-cffi, python3-requests
 # RPMs for module dependencies
 Requires:  python3-docutils, python3-psutil
 %endif
+
 
 %if 0%{?fedora} != 0
 Requires:  python3, python3-pip
