@@ -8,6 +8,7 @@ import * as APP_ROUTES from "./utils/routeConstants";
 import MainLayout from "./modules/containers/MainLayout";
 import AuthComponent from "./modules/components/AuthComponent";
 import ProfileComponent from "modules/components/ProfileComponent";
+import TableWithFavorite from "modules/components/TableComponent";
 import { getUserDetails } from "actions/authActions";
 import { fetchEndpoints } from "./actions/endpointAction";
 
@@ -27,6 +28,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainLayout />}>
+            <Route index element={<TableWithFavorite />} />
             <Route path="user-profile" element={<ProfileComponent />} />
           </Route>
           <Route path={APP_ROUTES.AUTH} element={<AuthComponent />} />
