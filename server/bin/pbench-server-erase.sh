@@ -9,7 +9,14 @@
 # 3. Delete the ARCHIVE, INCOMING, and RESULTS file system trees
 #
 # NOTE: The Pbench server should be *stopped* previously as root, and this
-# script should be run under `su --login pbench`.
+# script should be run under `su --login pbench`. For example:
+#
+# systemctl stop pbench-server
+# su --login pbench
+# export _PBENCH_SERVER_CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
+# pbench-server-erase.sh
+# exit  # (back to root account)
+# systemctl start pbench-server
 
 es_host=$(pbench-config host elasticsearch)
 es_port=$(pbench-config port elasticsearch)
