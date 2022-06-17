@@ -386,6 +386,7 @@ declare -A tools=(
     [test-11.15]="pbench-register-tool-set"
     [test-11.16]="pbench-register-tool-set"
     [test-11.17]="pbench-register-tool-set"
+    [test-11.18]="pbench-register-tool-set"
     [test-17]="test-tm-start-bad-group"
     [test-18]="test-tm-stop-bad-group"
     [test-19]="test-tool-trigger"
@@ -472,7 +473,7 @@ declare -A options=(
     [test-11.15]="--remotes=@non-existent-file"
     [test-11.16]="--remotes=@${_testdir}/tmp/good-remote-file"
     [test-11.17]="--remotes=@${_testdir}/tmp/empty-remote-file"
-
+    [test-11.18]="light"
     # pbench-move-results
     [test-20]="--help"
     # pbench-move-results - no args, nothing to do
