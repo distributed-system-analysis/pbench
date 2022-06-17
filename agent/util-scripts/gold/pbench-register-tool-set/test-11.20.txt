@@ -1,0 +1,17 @@
++++ Running test-11.20 pbench-register-tool-set --group=foo light
+"vmstat" tool is now registered for host "testhost.example.com" in group "foo"
+--- Finished test-11.20 pbench-register-tool-set (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-foo
+/var/tmp/pbench-test-utils/pbench/tools-v1-foo/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-foo/testhost.example.com/vmstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-foo/testhost.example.com/vmstat:
+--interval=3
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "vmstat" tool is now registered for host "testhost.example.com" in group "foo"
+--- pbench.log file contents
