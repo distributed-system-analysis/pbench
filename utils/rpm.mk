@@ -41,7 +41,7 @@ srpm: spec patches tarball
 .PHONY: spec
 spec: rpm-dirs ${prog}.spec.j2
 	if [ -e ./seqno ] ;then expr ${seqno} + 1 > ./seqno ;fi
-	jinja2 ${prog}.spec.j2 -D version=${VERSION} -D gdist=g${sha1} -D seqno=${seqno} > ${RPMSPEC}/${prog}.spec
+	jinja2 ${prog}.spec.j2 targets.json -D version=${VERSION} -D gdist=g${sha1} -D seqno=${seqno} > ${RPMSPEC}/${prog}.spec
 	cp ${PBENCHTOP}/utils/rpmlint ${RPMSPEC}/pbench-common.rpmlintrc
 	XDG_CONFIG_HOME=${PBENCHTOP}/utils rpmlint ${RPMSPEC}/${prog}.spec
 
