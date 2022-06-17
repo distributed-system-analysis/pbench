@@ -71,7 +71,27 @@ RUN \
         `# Base command used by CI unit test jobs` \
         `#` \
         tox \
-    && \
+        `#` \
+        `# Required for running various linters` \
+        `#` \
+        black \
+        npm \
+        python3-flake8 \
+        `#` \
+        `# Required for building RPMs` \
+        `#` \
+        python3-jinja2-cli \
+        rpmlint \
+        http://hdn.corp.redhat.com/rhel8-csb/RPMS/noarch/redhat-internal-cert-install-0.1-25.el7.noarch.rpm \
+        `#` \
+        `# Required for building containers` \
+        `#` \
+        buildah \
+        copr-cli \
+        podman \
+        && \
+    python3 -m pip install --upgrade pip \
+        && \
     `#` \
     `# Save space in the container image.` \
     `#` \
