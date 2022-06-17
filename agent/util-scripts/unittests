@@ -387,6 +387,11 @@ declare -A tools=(
     [test-11.16]="pbench-register-tool-set"
     [test-11.17]="pbench-register-tool-set"
     [test-11.18]="pbench-register-tool-set"
+    [test-11.19]="pbench-register-tool-set"
+    [test-11.20]="pbench-register-tool-set"
+    [test-11.21]="pbench-register-tool-set"
+    [test-11.22]="pbench-register-tool-set"
+    [test-11.23]="pbench-register-tool-set"
     [test-17]="test-tm-start-bad-group"
     [test-18]="test-tm-stop-bad-group"
     [test-19]="test-tool-trigger"
@@ -474,6 +479,11 @@ declare -A options=(
     [test-11.16]="--remotes=@${_testdir}/tmp/good-remote-file"
     [test-11.17]="--remotes=@${_testdir}/tmp/empty-remote-file"
     [test-11.18]="light"
+    [test-11.19]="-- light"
+    [test-11.20]="--group=foo light"
+    [test-11.21]="--group=foo -- light"
+    [test-11.22]="--group=foo nonexistenttoolset"
+    [test-11.23]=" -- --group=foo light"
     # pbench-move-results
     [test-20]="--help"
     # pbench-move-results - no args, nothing to do
@@ -534,6 +544,8 @@ declare -A expected_status=(
     [test-11.11]=1
     [test-11.15]=1
     [test-11.17]=1
+    [test-11.22]=1
+    [test-11.23]=1
     [test-17]=1
     [test-18]=1
     [test-22]=1
