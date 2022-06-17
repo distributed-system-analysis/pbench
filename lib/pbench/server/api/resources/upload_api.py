@@ -13,10 +13,11 @@ from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetDuplicate,
+    DatasetNotFound,
     Metadata,
     States,
 )
-from pbench.server.filetree import DatasetNotFound, FileTree
+from pbench.server.filetree import FileTree
 from pbench.server.utils import UtcTimeHelper, filesize_bytes
 
 
