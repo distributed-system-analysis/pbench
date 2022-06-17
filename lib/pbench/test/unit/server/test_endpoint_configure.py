@@ -41,10 +41,6 @@ class TestEndpointConfig:
         expected_results = {
             "identification": f"Pbench server {server_config.COMMIT_ID}",
             "api": {
-                # API endpoints with trailing Flask parameters are marked with
-                # a trailing "/" here; for example, /datasets/mappings/
-                # corresponds to /datasets/mappings/<string:dataset_view>";
-                # see endpoint_configure.py for more detail.
                 "datasets_contents": f"{uri}/datasets/contents/",
                 "datasets_daterange": f"{uri}/datasets/daterange",
                 "datasets_delete": f"{uri}/datasets/delete/",
@@ -62,9 +58,62 @@ class TestEndpointConfig:
                 "login": f"{uri}/login",
                 "logout": f"{uri}/logout",
                 "register": f"{uri}/register",
-                "results": f"{host}/results",
                 "upload": f"{uri}/upload/",
                 "user": f"{uri}/user/",
+            },
+            "uri": {
+                "datasets_contents": {
+                    "template": f"{uri}/datasets/contents/{{dataset}}",
+                    "params": [{"name": "dataset", "type": "string"}],
+                },
+                "datasets_daterange": {
+                    "template": f"{uri}/datasets/daterange",
+                    "params": [],
+                },
+                "datasets_delete": {
+                    "template": f"{uri}/datasets/delete/{{dataset}}",
+                    "params": [{"name": "dataset", "type": "string"}],
+                },
+                "datasets_detail": {
+                    "template": f"{uri}/datasets/detail/{{dataset}}",
+                    "params": [{"name": "dataset", "type": "string"}],
+                },
+                "datasets_list": {"template": f"{uri}/datasets/list", "params": []},
+                "datasets_mappings": {
+                    "template": f"{uri}/datasets/mappings/{{dataset_view}}",
+                    "params": [{"name": "dataset_view", "type": "string"}],
+                },
+                "datasets_metadata": {
+                    "template": f"{uri}/datasets/metadata/{{dataset}}",
+                    "params": [{"name": "dataset", "type": "string"}],
+                },
+                "datasets_namespace": {
+                    "template": f"{uri}/datasets/namespace/{{dataset_view}}",
+                    "params": [{"name": "dataset_view", "type": "string"}],
+                },
+                "datasets_publish": {
+                    "template": f"{uri}/datasets/publish/{{dataset}}",
+                    "params": [{"name": "dataset", "type": "string"}],
+                },
+                "datasets_search": {"template": f"{uri}/datasets/search", "params": []},
+                "datasets_values": {
+                    "template": f"{uri}/datasets/values/{{dataset_view}}",
+                    "params": [{"name": "dataset_view", "type": "string"}],
+                },
+                "elasticsearch": {"template": f"{uri}/elasticsearch", "params": []},
+                "endpoints": {"template": f"{uri}/endpoints", "params": []},
+                "graphql": {"template": f"{uri}/graphql", "params": []},
+                "login": {"template": f"{uri}/login", "params": []},
+                "logout": {"template": f"{uri}/logout", "params": []},
+                "register": {"template": f"{uri}/register", "params": []},
+                "upload": {
+                    "template": f"{uri}/upload/{{filename}}",
+                    "params": [{"name": "filename", "type": "string"}],
+                },
+                "user": {
+                    "template": f"{uri}/user/{{target_username}}",
+                    "params": [{"name": "target_username", "type": "string"}],
+                },
             },
         }
 
