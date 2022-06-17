@@ -33,7 +33,7 @@ tar_nonref_data="y"
 postprocess_only="n"
 nr_samples=5
 maxstddevpct=5 # maximum allowable standard deviation in percent
-max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
+max_failures=6 # after N failed attempts to hit below ${maxstddevpct}, move on to the next test
 supported_test_types="read,write,rw,randread,randwrite,randrw"
 test_types="read,randread"		# default is -non- destructive
 pre_check="n"
@@ -595,22 +595,19 @@ function fio_run_job() {
 
 	if [ -n "${clients}" ]; then
 		for client in "${client_names[@]}"; do
-			local bash_c_cmd="${benchmark} --server=,${client_ports[${client}]} > client-result.txt 2> client-result.err"
-			local screen_it="screen -L -Logfile fio-server.screen.log -dmS fio-server bash -c ${bash_c_cmd}"
 			if pbench-is-local ${client}; then
-				debug_log "killing any old local fio processes and starting new a fio process for the local client"
-				killall ${benchmark} > /dev/null 2>&1
-				(cd ${benchmark_results_dir} && ${screen_it})
+				debug_log "killing any old local ${benchmark} processes and starting new a ${benchmark} process for the local client"
+				${script_path}/driver/${benchmark}-client ${benchmark_results_dir} ${client_ports[${client}]}
 			else
-				debug_log "killing any old fio processes, creating directories, and starting new a fio process on remote client ${client}:${client_ports[${client}]}"
-				ssh ${ssh_opts} ${client} "killall ${benchmark} > /dev/null 2>&1; mkdir -p ${benchmark_results_dir} && cd ${benchmark_results_dir} && ${screen_it}"
+				debug_log "killing any old ${benchmark} processes, creating directories, and starting new a ${benchmark} process on remote client ${client}:${client_ports[${client}]}"
+				ssh ${ssh_opts} ${client} "mkdir -p ${benchmark_results_dir} && ${script_path}/driver/${benchmark}-client ${benchmark_results_dir} ${client_ports[${client}]}"
 			fi
 		done
-		debug_log "waiting for fio process(server) to start on the remote clients"
+		debug_log "waiting for all ${benchmark} client processes to start on the specified clients"
 		for client in "${client_names[@]}"; do
 			timeout --kill-after=1 60 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' "${client}" "${client_ports[${client}]}"
 			if [[ $? -eq 124 ]]; then
-				error_log "fio process took more than 60 seconds to start in client ${client}, failing"
+				error_log "${benchmark} process took more than 60 seconds to start in client ${client}, failing"
 				exit 1
 			fi
 		done
