@@ -47,13 +47,21 @@
     "eject": "react-scripts eject",
     "server": "node server",
     "start": "react-app-rewired start",
-    "test": "react-app-rewired test"
+    "test": "react-scripts test"
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
+    ]
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!@patternfly)/"
     ]
   },
   "browserslist": {
