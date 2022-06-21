@@ -71,9 +71,9 @@ class EndpointConfig(Resource):
         underscores.
 
         The "api" object contains a key for each API name, where the value is a
-        simplified URI omitting URI parameters. We append a single trailing "/"
-        to signal that the API includes URI parameters that must be provided.
-        With a single URI parameter, the value can be appended to this string.
+        simplified URI omitting URI parameters. The client must either know the
+        require parameters and order, and connect them to the "api" value
+        separated by slash characters, or refer to the "uri" templates.
 
         E.g, "/api/v1/controllers/list" yields:
 
@@ -81,7 +81,7 @@ class EndpointConfig(Resource):
 
         while "/api/v1/users/<string:username>" yields:
 
-            "users": "http://host/api/v1/users/"
+            "users": "http://host/api/v1/users"
 
         For URIs with multiple parameters, or embedded parameters, it
         may be easier to work with the template string in the "uri" object. The
@@ -149,24 +149,17 @@ class EndpointConfig(Resource):
             # not in our API.
             if url.startswith(self.uri_prefix):
                 simplified = self.param_template.sub(r"/{\g<name>}", url)
-                template: Dict[str, Any] = {"template": urljoin(host, simplified)}
-                params = []
-                for match in self.param_template.finditer(url):
-                    params.append(
-                        {"name": match.group("name"), "type": match.group("type")}
-                    )
-                template["params"] = params
+                matches = self.param_template.finditer(url)
+                template: Dict[str, Any] = {
+                    "template": urljoin(host, simplified),
+                    "params": {
+                        match.group("name"): {"type": match.group("type")}
+                        for match in matches
+                    },
+                }
                 url = self.param_template.sub("", url)
                 path = url[len(self.uri_prefix) + 1 :]
                 path = path.replace("/", "_")
-
-                # Terminate the base URL with a slash if there were parameters
-                # removed. The client can just append a single parameter value.
-                # If there are two parameters, it'll have to add the separating
-                # "/" or use the template string: for example, with
-                # template.replace('{name1}', value1)
-                if params:
-                    url += "/"
                 apis[path] = urljoin(host, url)
                 templates[path] = template
 
