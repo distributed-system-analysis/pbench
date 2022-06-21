@@ -100,6 +100,7 @@ bench-postprocess = \
 	user-benchmark-wrapper
 
 bench-driver = \
+	fio-client \
 	linpack \
 	linpack-wait
 
