@@ -105,8 +105,12 @@ class TestDatasetsAccess:
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: True)
 
-        response = query_get_as("fio_2", "test", HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "1-default")
-        assert response.json == {"message": "The specified path does not refers to a regular file"}
+        response = query_get_as(
+            "fio_2", "test", HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "1-default"
+        )
+        assert response.json == {
+            "message": "The specified path does not refers to a regular file"
+        }
 
     def test_not_a_file(self, query_get_as, monkeypatch):
         monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
@@ -115,7 +119,6 @@ class TestDatasetsAccess:
 
         response = query_get_as("fio_2", "test", HTTPStatus.NOT_FOUND, "1-default")
         assert response.json == {"message": "File is not present in the given path"}
-
 
     def test_dataset_in_given_path(self, query_get_as, monkeypatch):
         monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
