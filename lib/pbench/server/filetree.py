@@ -737,8 +737,8 @@ class FileTree:
         NOTE: both _discover_unpacked() and _discover_results() rely on the
         results of _discover_archive(), which must run first.
 
-        Full discovery is not required before adding or deleting a dataset, or
-        attempting to locate a dataset with find_dataset().
+        Full discovery is not required in order to find, create, or delete a
+        specific dataset.
         """
         self._discover_controllers()
 
@@ -885,7 +885,7 @@ class FileTree:
 
         Args:
             controller: associated controller name
-            tarball: dataset tarball path
+            tarfile: dataset tarball path
 
         Returns
             Tarball object
