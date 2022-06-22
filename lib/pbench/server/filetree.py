@@ -484,6 +484,7 @@ class Controller:
             elif file.is_file() and Dataset.is_tarball(file):
                 tarball = Tarball(file, self)
                 self.tarballs[tarball.name] = tarball
+                self.datasets[tarball.resource_id] = tarball
                 if tarball.check_unpacked(self.incoming):
                     tarball.check_results(self.results)
 
@@ -755,7 +756,7 @@ class FileTree:
         """
         return dataset_id in self.datasets
 
-    def __getitem__(self, dataset: str) -> Tarball:
+    def __getitem__(self, dataset_id: str) -> Tarball:
         """
         Direct access to a dataset Tarball object by dataset ID (MD5).
 
@@ -818,7 +819,7 @@ class FileTree:
             if file.is_dir() and file.name != FileTree.TEMPORARY:
                 self._add_controller(file)
 
-    def find_dataset(self, dataset: str) -> Tarball:
+    def find_dataset(self, dataset_id: str) -> Tarball:
         """
         Given the resource ID of a dataset, search the ARCHIVE tree for a
         controller with a matching dataset results MD5 value. This will build

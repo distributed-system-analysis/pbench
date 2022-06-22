@@ -218,7 +218,7 @@ class TestFileTree:
         controller = tarball.controller
 
         assert tree.controllers == {controller.name: controller}
-        assert tree.datasets == {tarball.name: tarball}
+        assert tree.datasets == {md5: tarball}
 
         # It hasn't been unpacked
         assert tarball.unpacked is None
@@ -234,7 +234,7 @@ class TestFileTree:
         assert exc.value.tarball == "foobar"
 
         # Unpack the dataset, creating INCOMING and RESULTS links
-        tree.unpack(dataset_name)
+        tree.unpack(md5)
         assert tarball.unpacked == controller.incoming / tarball.name
         assert tarball.results_link == controller.results / tarball.name
 
@@ -315,8 +315,8 @@ class TestFileTree:
         assert results_link.is_symlink()
         assert results_link.samefile(incoming_dir)
 
-        assert tree.datasets[dataset_name].unpacked == incoming_dir
-        assert tree.datasets[dataset_name].results_link == results_link
+        assert tree.datasets[md5].unpacked == incoming_dir
+        assert tree.datasets[md5].results_link == results_link
 
         # Re-discover, with all the files in place, and compare
         newtree = FileTree(server_config, make_logger)
