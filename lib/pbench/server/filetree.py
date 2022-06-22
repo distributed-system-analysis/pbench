@@ -100,23 +100,39 @@ class Tarball:
         self.controller_name: str = controller.name
         self.metadata: Optional[JSONOBJECT] = None
 
-    def record_unpacked(self, directory: Path):
+    def check_unpacked(self, incoming: Path) -> bool:
         """
-        Record that an unpacked tarball directory was found for this dataset.
+        Determine whether a tarball in the ARCHIVE tree has been unpacked into
+        the INCOMING tree and if so record the link.
 
-        Args:
-            directory: The unpacked INCOMING tree directory for the dataset
-        """
-        self.unpacked = directory
+        Args
+            result:   The controller's RESULTS directory
 
-    def record_results(self, link: Path):
+        Return
+            True if an unpacked directory was discovered
         """
-        Record that a results directory link was found for this dataset.
+        dir = incoming / self.name
+        if dir.is_dir():
+            self.unpacked = dir
+            return True
+        return False
 
-        Args:
-            link: The symlink in the results tree to the incoming directory
+    def check_results(self, result: Path) -> bool:
         """
-        self.results_link = link
+        Determine whether a tarball in the ARCHIVE tree has a RESULTS tree link
+        to an unpacked INCOMING tree and if so record the link.
+
+        Args
+            result:   The controller's RESULTS directory
+
+        Return
+            True if a results link was discovered
+        """
+        dir = result / self.name
+        if dir.is_symlink():
+            self.results_link = dir
+            return True
+        return False
 
     # Most of the "operational" methods below this point should be called only
     # through Controller and/or FileTree methods, in order to properly manage
@@ -422,7 +438,8 @@ class Controller:
     def _discover_tarballs(self):
         """
         Discover the tarballs and state directories within the ARCHIVE tree's
-        controller directory.
+        controller directory. Check for an unpacked tarball in the INCOMING
+        tree and if that's present also check for a RESULTS tree link.
         """
         for file in self.path.iterdir():
             if self.is_statedir(file):
@@ -430,28 +447,8 @@ class Controller:
             elif file.is_file() and Dataset.is_tarball(file):
                 tarball = Tarball(file, self)
                 self.tarballs[tarball.name] = tarball
-
-    def check_incoming(self):
-        """
-        Discover whether the INCOMING directory tree has an unpacked copy of
-        the dataset's tarball.
-        """
-        for file in self.incoming.iterdir():
-            if file.is_dir():
-                dataset = file.name
-                if dataset in self.tarballs:
-                    self.tarballs[dataset].record_unpacked(file)
-
-    def check_results(self):
-        """
-        Discover whether the RESULTS directory tree has a link to the unpacked
-        INCOMING directory.
-        """
-        for file in self.results.iterdir():
-            if file.is_symlink():
-                dataset = file.name
-                if dataset in self.tarballs:
-                    self.tarballs[dataset].record_results(file)
+                if tarball.check_unpacked(self.incoming):
+                    tarball.check_results(self.results)
 
     @classmethod
     def create(
@@ -681,9 +678,7 @@ class FileTree:
 
         Full discovery is not required before adding or deleting a dataset
         """
-        self._discover_archive()
-        self._discover_unpacked()
-        self._discover_results()
+        self._discover_controllers()
 
     def __contains__(self, dataset: str) -> bool:
         """
@@ -698,7 +693,7 @@ class FileTree:
         """
         return dataset in self.datasets
 
-    def __getitem__(self, dataset: str) -> Dataset:
+    def __getitem__(self, dataset: str) -> Tarball:
         """
         Direct access to a dataset Tarball object by name.
 
@@ -750,7 +745,7 @@ class FileTree:
         self.controllers[controller.name] = controller
         self.datasets.update(controller.tarballs)
 
-    def _discover_archive(self):
+    def _discover_controllers(self):
         """
         Build a representation of the ARCHIVE tree, recording controllers (top
         level directories), the tarballs and MD5 files that represent datasets,
@@ -759,33 +754,6 @@ class FileTree:
         for file in self.archive_root.iterdir():
             if file.is_dir() and file.name != FileTree.TEMPORARY:
                 self._add_controller(file)
-
-    def _discover_unpacked(self):
-        """
-        Build a representation of the "INCOMING" unpacked dataset tree,
-        recording controllers (top level directories), the unpacked trees that
-        represent datasets, and the expected links back to the ARCHIVE tree.
-        """
-        for file in self.incoming_root.iterdir():
-            if file.is_dir():
-                name = file.name
-                if name in self.controllers:
-                    self.controllers[name].check_incoming()
-
-    def _discover_results(self):
-        """
-        Build a representation of the "RESULTS" dataset tree, recording the
-        controllers (top level directories), and the expected links back into
-        the INCOMING tree.
-
-        NOTE: subclass and remove for block store? I don't think this has any
-        real meaning in our block store model...
-        """
-        for file in self.results_root.iterdir():
-            if file.is_dir():
-                name = file.name
-                if name in self.controllers:
-                    self.controllers[name].check_results()
 
     def find_dataset(self, dataset: str) -> Tarball:
         """
