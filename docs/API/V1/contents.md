@@ -1,4 +1,4 @@
-# `GET /api/v1/datasets/contents/<dataset><path>`
+# `GET /api/v1/datasets/contents/<dataset>/<path>`
 
 This API returns an `application/json` document describing a file or the
 content of a directory at a specified `<path>` within the `<dataset>` tarball
@@ -11,8 +11,11 @@ The resource ID of a dataset on the Pbench Server.
 
 `<path>`    string \
 The path of an item in the dataset inventory, as captured by the Pbench Agent
-packaging; for example, `/` for the root, or `/1-default/` for the default
-first iteration directory.
+packaging. Note that the `/` separating the two parameters serves to mark the
+relative root directory of the tarball. For example
+`/api/v1/datasets/contents/<dataset>/` represents the root, and
+`/api/v1/datasets/contents/<dataset>/1-default/` represents the default first
+iteration directory.
 
 ## Request headers
 
@@ -53,21 +56,23 @@ response object is described in [File object](#file-object).
 
 When the `<path>` refers to a directory within the dataset representation,
 Pbench returns a JSON object with two list fields:
-* `directories` is a list of [subdirectory objects](#subirectory-object), and
-* `files` is a list of [file objects](#file-object)
+* `"directories"` is a list of [subdirectory objects](#subdirectory-object), and
+* `"files"` is a list of [file objects](#file-object)
 
 ```json
 {
     "directories": [
         {
             "name": "1-iter1",
-            "uri": "http://hostname/api/v1/datasets/contents/<id><path>/1-iter1"
+            "type": "dir",
+            "uri": "http://hostname/api/v1/datasets/contents/<id>/1-iter1"
         },
         {
             "sysinfo",
-            "uri": "http://hostname/api/v1/datasets/contents/<id><path>/sysinfo"
-        }
-        [...]
+            "type": "dir",
+            "uri": "http://hostname/api/v1/datasets/contents/<id>/sysinfo"
+        },
+        ...
     ],
     "files": [
         {
@@ -76,7 +81,7 @@ Pbench returns a JSON object with two list fields:
         "size": 24,
         "mode": "0o644",
         "type": "reg",
-        "uri": "http://hostname/api/v1/datasets/inventory/<id><path>/.iterations"
+        "uri": "http://hostname/api/v1/datasets/inventory/<id>/.iterations"
         },
         {
         "name": "iteration.lis",
@@ -84,21 +89,21 @@ Pbench returns a JSON object with two list fields:
         "size": 18,
         "mode": "0o644",
         "type": "reg",
-        "uri": "http://hostname/api/v1/datasets/inventory/<id><path>/iteration.lis"
+        "uri": "http://hostname/api/v1/datasets/inventory/<id>/iteration.lis"
         },
-        [...]
+        ...
     ]
 }
 ```
 
-#### Subirectory object
+#### Subdirectory object
 
 The subdirectory object gives the name of the directory, the type of the entry,
 and a URI that can be used with a subsequent `GET` operation to return a
 [directory object](#directory-object) for that nested path.
 
 When a directory contains a symlink to a directory, that subdirectory name will
-appear in the `directories` list, but will be designated with a `type` of
+appear in the `"directories"` list, but will be designated with a `type` of
 `sym` instead of `dir`.
 
 The `type` codes are:
@@ -113,7 +118,7 @@ The `type` codes are:
 }
 ```
 
-#### File object
+### File object
 
 The file object gives the name of the file, file system information about that
 file, and a URI that can be used with a subsequent `GET` operation to return
@@ -137,6 +142,6 @@ URI returning the linked file's byte stream.
     "size": 18,
     "mode": "0o644",
     "type": "reg",
-    "uri": "http://hostname/api/v1/datasets/inventory/<id>><path>"
+    "uri": "http://hostname/api/v1/datasets/inventory/<id>/<path>"
 }
 ```

@@ -95,7 +95,7 @@ This value will be used to reference the dataset in most other APIs.
 * `name`: The resource name given to the dataset. While this has an initial
 default value related to the benchmark script, date, and user configuration
 parameters, this value can be changed by the owner of the dataset and is for
-display purposes and must not be assumed unique or definitive.
+display purposes and must not be assumed to be unique or definitive.
 * `metadata`: If additional metadata was requested, it will appear as a nested
 JSON object in this field.
 

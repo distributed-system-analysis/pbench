@@ -47,8 +47,8 @@ For example, given the following hypothetical `user` JSON value:
 }
 ```
 
-requesting the metadata `user` (e.g., with `datasets/list?metadata=user`) would
-return the entire JSON value. In addition:
+requesting the metadata `user` (e.g., with `/api/v1/datasets/list?metadata=user`)
+would return the entire JSON value. In addition:
 * `project` would return `["OCP", "customer"]`
 * `user.tracker.examined` would return `"2022-05-15"`
 * `user.analysis` would return `{"cpu": "high", "memory": "nominal"}`
@@ -61,12 +61,13 @@ There are currently four metadata namespaces.
 * The `dashboard` namespace allows an authenticated client to define an
 arbitrary nested set of JSON objects associated with a specific dataset
 owned by the authenticated user.
-* The `user` namespace is similar; except that where metadata in the
-`dashboard` namespace can only be modified by the owner of the dataset, and is
-visible to all clients with read access to the dataset, any authenticated user
-can set arbitrary values in the `user` namespace and those values are visible
-only to the same authenticated user. Other users may set different values for
-the same `user` namespace keys on the dataset, or completely different keys.
+* The `user` namespace is similar to `dashboard` in structure. The difference
+is that where metadata in the `dashboard` namespace can only be modified by the
+owner of the dataset and is visible to all clients with read access to the
+dataset, any authenticated user can set arbitrary values in the `user`
+namespace and those values are visible only to the user who set them. Other
+users may set different values for the same `user` namespace keys on the
+dataset, or may use completely different keys.
 
 ### Dataset namespace
 
@@ -75,8 +76,13 @@ Pbench Agent, including the full contents of a `metadata.log` file created
 while gathering results and during dataset packaging.
 
 This namespace includes the resource name, which can be modified by the owner
-of the dataset. All other data in this namespace is controlled by the server
-and cannot be changed by the client.
+of the dataset. All other key values in this namespace are controlled by the
+server and cannot be changed by the client.
+
+The `metadata.log` data is represented under the key `dataset.metalog` and can
+be queried as part of the entire dataset using the `dataset` key, as a discrete
+subset using `dataset.metalog` or in specific subsets like
+`dataset.metalog.pbench`.
 
 ### Server namespace
 
@@ -86,7 +92,7 @@ Most of this is not of much use to external clients, but can be observed.
 
 The exception is `server.deletion`, which is a time after which the Pbench
 Server may choose to delete the dataset. This is computed when a dataset is
-received based on user profile preferances and server configuration; but it can
+received based on user profile preferences and server configuration; but it can
 be modified by the owner of the dataset, as long as the new timestamp remains
 within the maximum allowed server data retention period.
 
@@ -94,7 +100,7 @@ within the maximum allowed server data retention period.
 
 The server will never modify or directly interpret values in this namespace. An
 authenticated client representing the owner of a dataset can set any keys
-within this namespace to any valid JSON values (string, integer, boolean, list,
+within this namespace to any valid JSON values (string, number, boolean, list,
 or nested objects) for retrieval later. All clients with read access to the
 dataset will see the same values.
 
@@ -103,10 +109,13 @@ the selected datasets for [datasets/list](V1/list.md).
 
 ### User namespace
 
-This is treated almost exactly like the `dashboard` namespace, except that the
-values stored here are specific to the authenticated user. Each authenticated
-client may set distinct values for the same keys, and will be able to retrieve
-those values later. A client authenticated for some other user will see a
-completely different set of values. An unauthenticated client can neither set
-nor retrieve any `user` namespace values; such a client will always see the
-`user` namespace as empty.
+The server will never modify or directly interpret values in this namespace. An
+authenticated client representing the owner of a dataset can set any keys
+within this namespace to any valid JSON values (string, number, boolean, list,
+or nested objects) for retrieval later. Each authenticated client may set
+distinct values for the same keys, or use completely different keys, and can
+retrieve those values later. A client authenticated for another user has
+its own comletely unique `user` namespace.
+
+An unauthenticated client can neither set nor retrieve any `user` namespace
+values; such a client will always see the `user` namespace as empty.
