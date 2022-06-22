@@ -16,6 +16,12 @@ pipeline {
                 sh 'jenkins/run tox'
             }
         }
+        stage('Agent Python3.6 Check') {
+            steps {
+                echo 'Verify agent side works with Python 3.6'
+                sh 'jenkins/run tox -e py36 -- agent'
+            }
+        }
     }
     post {
         success {
