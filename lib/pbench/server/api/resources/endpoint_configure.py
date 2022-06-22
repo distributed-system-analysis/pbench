@@ -72,7 +72,7 @@ class EndpointConfig(Resource):
 
         The "api" object contains a key for each API name, where the value is a
         simplified URI omitting URI parameters. The client must either know the
-        require parameters and order, and connect them to the "api" value
+        required parameters and order, and connect them to the "api" value
         separated by slash characters, or refer to the "uri" templates.
 
         E.g, "/api/v1/controllers/list" yields:
@@ -83,15 +83,15 @@ class EndpointConfig(Resource):
 
             "users": "http://host/api/v1/users"
 
-        For URIs with multiple parameters, or embedded parameters, it
-        may be easier to work with the template string in the "uri" object. The
-        value of each API name key in the "uri" object is a minimal "schema"
-        object defining the template string and parameters for the API. The
-        "uri" value for the "users" API, for example, will look like
+        For URIs with multiple parameters, or embedded parameters, it may be
+        easier to work with the template string in the "uri" object. The value
+        of each API name key in the "uri" object is a minimal "schema" object
+        defining the template string and parameters for the API. The "uri"
+        value for the "users" API, for example, will be
 
             {
                 "template": "http://host/api/v1/users/{target_username}",
-                "params": [{"name": "target_username", "type": "string"}]
+                "params": {"target_username": {"type": "string"}}
             }
 
         The template can be resolved in Python with:
