@@ -8,8 +8,9 @@ from pathlib import Path
 import pytest
 import requests
 
-from _typeshed.wsgi import WSGIEnvironment
-from flask.wrappers import Response
+if t.TYPE_CHECKING:
+    from _typeshed.wsgi import WSGIEnvironment
+    from flask.wrappers import Response
 
 from pbench.server import PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
