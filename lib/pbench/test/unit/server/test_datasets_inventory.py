@@ -1,13 +1,16 @@
 from http import HTTPStatus
+import os
+import werkzeug.utils
+import typing as t
+from datetime import datetime
+from pathlib import Path
 
 import pytest
 import requests
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources.datasets_inventory import DatasetsInventory
-from pbench.server.filetree import FileTree
-from pathlib import Path
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server.filetree import FileTree
 
 
 class TestDatasetsAccess:
@@ -29,20 +32,18 @@ class TestDatasetsAccess:
         ) -> requests.Response:
             headers = None
             try:
-                dataset = Dataset.query(name=dataset).resource_id
+                dataset_id = Dataset.query(name=dataset).resource_id
             except DatasetNotFound:
-                dataset = dataset  # Allow passing deliberately bad value
+                dataset_id = dataset  # Allow passing deliberately bad value
             if username:
                 token = self.token(client, server_config, username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
-                f"{server_config.rest_uri}/datasets/inventory/{dataset}/{path}",
+                f"{server_config.rest_uri}/datasets/inventory/{dataset_id}/{path}",
                 headers=headers,
             )
             assert response.status_code == expected_status
 
-            # We need to log out to avoid "duplicate auth token" errors on the
-            # "put" test which does a PUT followed by two GETs.
             if username:
                 client.post(
                     f"{server_config.rest_uri}/logout",
@@ -62,38 +63,64 @@ class TestDatasetsAccess:
         assert data["auth_token"]
         return data["auth_token"]
 
-    def mock_find_inventory(self, dataset):
-        return "/dataset1/"
-
-    def mock_send_file(self, file_path):
+    def mock_send_file(
+        self,
+        path_or_file: t.Union[os.PathLike, str, t.IO[bytes]],
+        environ: "WSGIEnvironment",
+        mimetype: t.Optional[str] = None,
+        as_attachment: bool = False,
+        download_name: t.Optional[str] = None,
+        conditional: bool = True,
+        etag: t.Union[bool, str] = True,
+        last_modified: t.Optional[t.Union[datetime, int, float]] = None,
+        max_age: t.Optional[
+            t.Union[int, t.Callable[[t.Optional[str]], t.Optional[int]]]
+        ] = None,
+        use_x_sendfile: bool = False,
+        response_class: t.Optional[t.Type["Response"]] = None,
+        _root_path: t.Optional[t.Union[os.PathLike, str]] = None,
+    ):
         return {"status": "OK"}
 
-    def test_get_no_dataset(self, query_get_as):
-        with pytest.raises(Exception) as exc:
-            response = query_get_as(
-                "foobar", "drb", HTTPStatus.BAD_REQUEST, "metadata.log"
-            )
-            assert response.json == {"message": "Dataset 'foobar' not found"}
+    def mock_find_dataset(self, dataset):
+        class Tarball(object):
+            unpacked = "/dataset1/"
 
-    def test_dataset_not_present(self, query_get_as):
+        return Tarball
+
+    def test_get_no_dataset(self, query_get_as):
+        response = query_get_as(
+            "nonexistent-dataset", "drb", HTTPStatus.NOT_FOUND, "metadata.log"
+        )
+        assert response.json == {"message": "Dataset 'nonexistent-dataset' not found"}
+
+    def test_dataset_not_present(self, query_get_as, monkeypatch):
         response = query_get_as("fio_2", "test", HTTPStatus.NOT_FOUND, "metadata.log")
         assert response.json == {
             "message": "The dataset named 'fio_2' is not present in the file tree"
         }
 
-    def test_not_a_file(self, query_get_as, monkeypatch):
-        monkeypatch.setattr(FileTree, "find_inventory", self.mock_find_inventory)
+    def test_path_is_directory(self, query_get_as, monkeypatch):
+        monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Path, "is_file", lambda self: False)
-        response = query_get_as("fio_2", "test", HTTPStatus.NOT_FOUND, "1-default")
+        monkeypatch.setattr(Path, "exists", lambda self: True)
 
+        response = query_get_as("fio_2", "test", HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "1-default")
+        assert response.json == {"message": "The specified path does not refers to a regular file"}
+
+    def test_not_a_file(self, query_get_as, monkeypatch):
+        monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
+        monkeypatch.setattr(Path, "is_file", lambda self: False)
+        monkeypatch.setattr(Path, "exists", lambda self: False)
+
+        response = query_get_as("fio_2", "test", HTTPStatus.NOT_FOUND, "1-default")
         assert response.json == {"message": "File is not present in the given path"}
 
-    def test_dataset_in_given_path(self, query_get_as, monkeypatch):
 
-        monkeypatch.setattr(FileTree, "find_inventory", self.mock_find_inventory)
+    def test_dataset_in_given_path(self, query_get_as, monkeypatch):
+        monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Path, "is_file", lambda self: True)
-        monkeypatch.setattr(DatasetsInventory, "return_send_file", self.mock_send_file)
+        monkeypatch.setattr(werkzeug.utils, "send_file", self.mock_send_file)
 
         response = query_get_as("fio_1", "drb", HTTPStatus.OK, "1-default/default.csv")
-        print(response)
         assert response.status_code == HTTPStatus.OK
