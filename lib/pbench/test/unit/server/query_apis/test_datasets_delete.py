@@ -98,8 +98,8 @@ class TestDatasetsDelete:
         def fake_constructor(self, options: PbenchServerConfig, logger: Logger):
             pass
 
-        def fake_delete(self, name: str) -> None:
-            TestDatasetsDelete.tarball_deleted = name
+        def fake_delete(self, dataset_id: str) -> None:
+            TestDatasetsDelete.tarball_deleted = dataset_id
 
         TestDatasetsDelete.tarball_deleted = None
         monkeypatch.setattr(FileTree, "__init__", fake_constructor)
@@ -141,7 +141,7 @@ class TestDatasetsDelete:
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
             assert response.json == {"ok": 31, "failure": 0}
-            assert TestDatasetsDelete.tarball_deleted == owner
+            assert TestDatasetsDelete.tarball_deleted == ds.resource_id
 
             # On success, the Dataset should be gone
             with pytest.raises(DatasetNotFound):

@@ -88,6 +88,6 @@ class DatasetsDelete(ElasticBulkBase):
         if summary["failure"] == 0:
             self.logger.info("Deleting dataset {} file system representation", dataset)
             file_tree = FileTree(self.config, self.logger)
-            file_tree.delete(dataset.name)
+            file_tree.delete(dataset.resource_id)
             self.logger.info("Deleting dataset {} PostgreSQL representation", dataset)
             dataset.delete()
