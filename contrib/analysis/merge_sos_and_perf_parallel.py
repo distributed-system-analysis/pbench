@@ -3,6 +3,7 @@
 import json
 import multiprocessing
 import os
+from socket import timeout
 import requests
 import sys
 import time
@@ -55,6 +56,7 @@ def es_data_gen(es, index, doc_type):
         index=index,
         doc_type=doc_type,
         scroll="1d",
+        request_timeout = 3600, # to prevent timeout errors (3600 is arbitrary)
     ):
         yield doc
 
@@ -177,6 +179,7 @@ def extract_clients(results_meta, es):
         index=run_index,
         doc_type="pbench-run-toc-entry",
         scroll="1m",
+        request_timeout = 3600, # to prevent timeout errors (3600 is arbitrary)
     ):
         src = doc["_source"]
         if src["parent"] == parent_dir_name:
@@ -329,43 +332,38 @@ def transform_result(source, pbench_runs, results_seen, stats):
     result["controller_dir"] = pbench_run["controller_dir"]
     result["sosreports"] = pbench_run["sosreports"]
 
-    # optional workload parameters
-    try:
-        result["benchmark.filename"] = ", ".join(
-            set((benchmark["filename"].split(",")))
-        )
-    except KeyError:
-        result["benchmark.filename"] = "/tmp/fio"
-    try:
-        result["benchmark.iodepth"] = benchmark["iodepth"]
-    except KeyError:
-        result["benchmark.iodepth"] = "32"
-    try:
-        result["benchmark.size"] = ", ".join(set((benchmark["size"].split(","))))
-    except KeyError:
-        result["benchmark.size"] = "4096M"
-    try:
-        result["benchmark.numjobs"] = ", ".join(set((benchmark["numjobs"].split(","))))
-    except KeyError:
-        result["benchmark.numjobs"] = "1"
-    try:
-        result["benchmark.ramp_time"] = benchmark["ramp_time"]
-    except KeyError:
-        result["benchmark.ramp_time"] = "none"
-    try:
-        result["benchmark.runtime"] = benchmark["runtime"]
-    except KeyError:
-        result["benchmark.runtime"] = "none"
-    try:
-        result["benchmark.sync"] = benchmark["sync"]
-    except KeyError:
-        result["benchmark.sync"] = "none"
-    try:
-        result["benchmark.time_based"] = benchmark["time_based"]
-    except KeyError:
-        result["benchmark.time_based"] = "none"
+    # optional workload parameters and their defaults
+    optional_workload_params_defaults = {
+        "filename" : "/tmp/fio",
+        "iodepth" : "32",
+        "size" : "4096M",
+        "numjobs" : "1",
+        "ramp_time" : "none",
+        "runtime" : "none",
+        "sync" : "none",
+        "time_based" : "none"
+    }
+
+    params_to_setify = {"filename": 1, "size": 1, "numjobs": 1}
+
+    for opt_param in optional_workload_params_defaults.keys():
+        try:
+            if opt_param in params_to_setify:
+                result[f"benchmark.{opt_param}"] = sentence_setify(benchmark[opt_param])
+            else:
+                result[f"benchmark.{opt_param}"] = benchmark[opt_param]
+        except KeyError:
+            result[f"benchmark.{opt_param}"] = optional_workload_params_defaults[opt_param]
 
     return result
+
+def sentence_setify(sentence):
+    '''
+    input: string
+    Splits input by ", " gets rid of duplicates and rejoins unique
+    items into original format. Effectively removes duplicates in input.
+    '''
+    return ", ".join(set((sentence.split(", "))))
 
 
 def process_results(es, now, session, incoming_url, pool, pbench_runs, stats):
@@ -460,7 +458,7 @@ def main(args):
     ncpus = multiprocessing.cpu_count() - 1 if concurrency == 0 else concurrency
     pool = multiprocessing.Pool(ncpus) if ncpus != 1 else None
 
-    es = Elasticsearch([f"{es_host}:{es_port}"])
+    es = Elasticsearch([f"{es_host}:{es_port}"], timeout = 60) # to prevent read timeout errors (60 is arbitrary)
 
     session = requests.Session()
     ua = session.headers["User-Agent"]
