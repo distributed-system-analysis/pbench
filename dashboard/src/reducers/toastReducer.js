@@ -29,6 +29,7 @@ const setValue = (state, action) => {
       const obj = {
         variant: payload.variant,
         title: payload.title,
+        message: payload?.message,
         key: uid(),
       };
       state.push(obj);
@@ -43,4 +44,5 @@ const setValue = (state, action) => {
       return state;
   }
 };
+
 export default ToastReducer;

@@ -1,7 +1,8 @@
 import { KEEP_USER_LOGGED_IN,
     USER_NOTION_ALERTS,
     SET_SIGNUP_BUTTON,
-    SET_LOGIN_BUTTON} from "../actions/types";
+    SET_LOGIN_BUTTON,
+    SET_LOGIN_DETAILS, } from "../actions/types";
 
 const initialState = {
     keepLoggedIn : false,
@@ -9,6 +10,7 @@ const initialState = {
     isLoginBtnDisabled: true,
     isSignupBtnDisabled: true,
     passwordLength: 8,
+    loginDetails: {}
 }
 
 const AuthReducer = (state = initialState, action = {}) => {
@@ -33,6 +35,11 @@ const AuthReducer = (state = initialState, action = {}) => {
             return {
                 ...state,
                 isSignupBtnDisabled: payload
+            }
+        case SET_LOGIN_DETAILS:
+            return {
+                ...state,
+                loginDetails: {...payload}
             }
         default:
             return state;

@@ -5,7 +5,9 @@ import * as cx from "classnames";
 import { LoginRightComponent, AuthForm } from "./common-components";
 import SignupForm from "./SignupForm";
 import LoginForm from "./LoginForm";
+import ToastComponent from "modules/components/ToastNotificationComponent";
 import { useLocation, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import * as AppRoutes from "utils/routeConstants";
 import "./index.less";
 import Cookies from "js-cookie";
@@ -22,6 +24,8 @@ const LoginSignup = () => {
 const AuthComponent = () => {
   const { pathname } = useLocation();
   const loggedIn = Cookies.get("isLoggedIn");
+  const { alerts } = useSelector((state) => state.toastReducer);
+
   if (loggedIn) {
     return <Navigate to="/" />;
   }
@@ -32,6 +36,7 @@ const AuthComponent = () => {
   return (
     <BackgroundCard>
       <div className={cx("main-container", wrapperName)}>
+        {alerts && alerts.length > 0 && <ToastComponent />}
         <Grid gutter="md" className="login-page">
           <GridItem
             sm={8}

@@ -1,5 +1,5 @@
 import * as TYPES from "./types";
-import API from "../utils/api";
+import API from "../utils/axiosInstance";
 
 export const fetchPublicDatasets = () => async (dispatch, getState) => {
   try {
@@ -11,7 +11,7 @@ export const fetchPublicDatasets = () => async (dispatch, getState) => {
     if (response.status === 200 && response.data) {
       dispatch({
         type: "GET_PUBLIC_DATASETS",
-        payload: response?.data,
+        payload: response?.data?.results,
       });
     }
     dispatch({ type: TYPES.COMPLETED });

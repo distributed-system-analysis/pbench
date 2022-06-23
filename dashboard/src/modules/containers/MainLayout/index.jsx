@@ -1,20 +1,32 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 import ToastComponent from "modules/components/ToastNotificationComponent";
 import { useSelector } from "react-redux";
-import { Page, Spinner } from "@patternfly/react-core";
-import NavbarDrawer from "modules/components/NavbarDrawerComponent";
+import HeaderComponent from "modules/components/HeaderComponent";
+import {
+  Spinner,
+  Page,
+  PageSection,
+  PageSectionVariants,
+} from "@patternfly/react-core";
 import Sidebar from "modules/components/SidebarComponent";
-import TableWithFavorite from "modules/components/TableComponent";
+import "./index.less";
 
 const MainLayout = () => {
   const { alerts } = useSelector((state) => state.toastReducer);
   const isLoading = useSelector((state) => state.loading.isLoading);
+
   return (
     <>
       {alerts && alerts.length > 0 && <ToastComponent />}
-      {isLoading && <Spinner />}
-      <Page header={<NavbarDrawer />} sidebar={<Sidebar />}>
-        <TableWithFavorite />
+      <Page header={<HeaderComponent />} sidebar={<Sidebar />}>
+        <PageSection
+          variant={PageSectionVariants.light}
+          padding={{ default: "noPadding" }}
+        >
+          {isLoading && <Spinner className="spinner" />}
+          <Outlet />
+        </PageSection>
       </Page>
     </>
   );
