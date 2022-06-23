@@ -41,30 +41,79 @@ class TestEndpointConfig:
         expected_results = {
             "identification": f"Pbench server {server_config.COMMIT_ID}",
             "api": {
-                # API endpoints with trailing Flask parameters are marked with
-                # a trailing "/" here; for example, /datasets/mappings/
-                # corresponds to /datasets/mappings/<string:dataset_view>";
-                # see endpoint_configure.py for more detail.
-                "datasets_contents": f"{uri}/datasets/contents/",
+                "datasets_contents": f"{uri}/datasets/contents",
                 "datasets_daterange": f"{uri}/datasets/daterange",
-                "datasets_delete": f"{uri}/datasets/delete/",
-                "datasets_detail": f"{uri}/datasets/detail/",
+                "datasets_delete": f"{uri}/datasets/delete",
+                "datasets_detail": f"{uri}/datasets/detail",
                 "datasets_list": f"{uri}/datasets/list",
-                "datasets_mappings": f"{uri}/datasets/mappings/",
-                "datasets_metadata": f"{uri}/datasets/metadata/",
-                "datasets_namespace": f"{uri}/datasets/namespace/",
-                "datasets_publish": f"{uri}/datasets/publish/",
+                "datasets_mappings": f"{uri}/datasets/mappings",
+                "datasets_metadata": f"{uri}/datasets/metadata",
+                "datasets_namespace": f"{uri}/datasets/namespace",
+                "datasets_publish": f"{uri}/datasets/publish",
                 "datasets_search": f"{uri}/datasets/search",
-                "datasets_values": f"{uri}/datasets/values/",
+                "datasets_values": f"{uri}/datasets/values",
                 "elasticsearch": f"{uri}/elasticsearch",
                 "endpoints": f"{uri}/endpoints",
                 "graphql": f"{uri}/graphql",
                 "login": f"{uri}/login",
                 "logout": f"{uri}/logout",
                 "register": f"{uri}/register",
-                "results": f"{host}/results",
-                "upload": f"{uri}/upload/",
-                "user": f"{uri}/user/",
+                "upload": f"{uri}/upload",
+                "user": f"{uri}/user",
+            },
+            "uri": {
+                "datasets_contents": {
+                    "template": f"{uri}/datasets/contents/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
+                },
+                "datasets_daterange": {
+                    "template": f"{uri}/datasets/daterange",
+                    "params": {},
+                },
+                "datasets_delete": {
+                    "template": f"{uri}/datasets/delete/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
+                },
+                "datasets_detail": {
+                    "template": f"{uri}/datasets/detail/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
+                },
+                "datasets_list": {"template": f"{uri}/datasets/list", "params": {}},
+                "datasets_mappings": {
+                    "template": f"{uri}/datasets/mappings/{{dataset_view}}",
+                    "params": {"dataset_view": {"type": "string"}},
+                },
+                "datasets_metadata": {
+                    "template": f"{uri}/datasets/metadata/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
+                },
+                "datasets_namespace": {
+                    "template": f"{uri}/datasets/namespace/{{dataset_view}}",
+                    "params": {"dataset_view": {"type": "string"}},
+                },
+                "datasets_publish": {
+                    "template": f"{uri}/datasets/publish/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
+                },
+                "datasets_search": {"template": f"{uri}/datasets/search", "params": {}},
+                "datasets_values": {
+                    "template": f"{uri}/datasets/values/{{dataset_view}}",
+                    "params": {"dataset_view": {"type": "string"}},
+                },
+                "elasticsearch": {"template": f"{uri}/elasticsearch", "params": {}},
+                "endpoints": {"template": f"{uri}/endpoints", "params": {}},
+                "graphql": {"template": f"{uri}/graphql", "params": {}},
+                "login": {"template": f"{uri}/login", "params": {}},
+                "logout": {"template": f"{uri}/logout", "params": {}},
+                "register": {"template": f"{uri}/register", "params": {}},
+                "upload": {
+                    "template": f"{uri}/upload/{{filename}}",
+                    "params": {"filename": {"type": "string"}},
+                },
+                "user": {
+                    "template": f"{uri}/user/{{target_username}}",
+                    "params": {"target_username": {"type": "string"}},
+                },
             },
         }
 
