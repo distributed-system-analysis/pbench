@@ -211,6 +211,16 @@ class TestFileTree:
         assert dataset_name in tree
         assert "foobar" not in tree
 
+        # There should be nothing else in the tree
+        controller = tarball.controller
+
+        assert tree.controllers == {controller.name: controller}
+        assert tree.datasets == {tarball.name: tarball}
+
+        # It hasn't been unpacked
+        assert tarball.unpacked is None
+        assert tarball.results_link is None
+
         # Try to find a dataset that doesn't exist
         with pytest.raises(DatasetNotFound) as exc:
             tree.find_dataset("foobar")
@@ -220,6 +230,11 @@ class TestFileTree:
         )
         assert exc.value.dataset == "foobar"
 
+        # Unpack the dataset, creating INCOMING and RESULTS links
+        tree.unpack(dataset_name)
+        assert tarball.unpacked == controller.incoming / tarball.name
+        assert tarball.results_link == controller.results / tarball.name
+
         # We should be able to find the tarball even in a new file tree
         # that hasn't been fully discovered.
         new = FileTree(server_config, make_logger)
@@ -228,6 +243,12 @@ class TestFileTree:
         tarball = new.find_dataset(dataset_name)
         assert tarball
         assert tarball.name == dataset_name
+
+        # We should have discovered the INCOMING and RESULTS data automagically
+        assert tarball.unpacked == controller.incoming / tarball.name
+        assert tarball.results_link == controller.results / tarball.name
+
+        # We should have just one controller and one tarball
         assert list(new.controllers) == ["ABC"]
         assert list(new.datasets) == [dataset_name]
 
@@ -287,6 +308,9 @@ class TestFileTree:
         assert incoming_dir.is_dir()
         assert results_link.is_symlink()
         assert results_link.samefile(incoming_dir)
+
+        assert tree.datasets[dataset_name].unpacked == incoming_dir
+        assert tree.datasets[dataset_name].results_link == results_link
 
         # Re-discover, with all the files in place, and compare
         newtree = FileTree(server_config, make_logger)
