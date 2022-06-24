@@ -3,7 +3,6 @@
 import json
 import multiprocessing
 import os
-from socket import timeout
 import requests
 import sys
 import time
