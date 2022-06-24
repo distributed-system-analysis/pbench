@@ -26,9 +26,11 @@ class Database:
 
     @staticmethod
     def init_db(server_config, logger):
-        # Attach the logger to the base class for models to find
+        # Attach the logger and server config object to the base class for
+        # database models to find
         if logger and not hasattr(Database.Base, "logger"):
             Database.Base.logger = logger
+            Database.Base.config = server_config
 
         # WARNING:
         # Make sure all the models are imported before this function gets called

@@ -45,6 +45,10 @@ class PbenchServerConfig(PbenchConfig):
     for the pbench server environment.
     """
 
+    # Define a fallback default for dataset maximum retention, which we expect
+    # to be defined in pbench-server-default.cfg.
+    MAXIMUM_RETENTION_DAYS = 3650
+
     def __init__(self, cfg_name):
         super().__init__(cfg_name)
 
@@ -160,6 +164,24 @@ class PbenchServerConfig(PbenchConfig):
     @property
     def rest_uri(self):
         return self._get_conf("pbench-server", "rest_uri")
+
+    @property
+    def max_retention_period(self) -> timedelta:
+        """
+        Produce a timedelta representing the number of days the server allows
+        a dataset to be retained.
+
+        Returns
+            delta time representing retention period
+        """
+        try:
+            retention_days = int(
+                self._get_conf("pbench-server", "maximum-dataset-retention-days")
+            )
+        except (NoOptionError, NoSectionError):
+            retention_days = self.MAXIMUM_RETENTION_DAYS
+
+        return timedelta(days=retention_days)
 
     def _get_conf(self, section, option):
         """
