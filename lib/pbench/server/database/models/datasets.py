@@ -203,6 +203,26 @@ class MetadataBadStructure(MetadataError):
         return f"Key {self.element!r} value for {self.key!r} in {self.dataset} is not a JSON object"
 
 
+class MetadataBadValue(MetadataError):
+    """
+    An unsupported value was specified for a special metadata key
+
+    The error text will identify the metadata key that was specified and the
+    actual and expected value type.
+    """
+
+    def __init__(self, dataset: "Dataset", key: str, value: str, expected: str):
+        super().__init__(dataset, key)
+        self.value = value
+        self.expected = expected
+
+    def __str__(self) -> str:
+        return (
+            f"Metadata key {self.key!r} value {self.value!r} for dataset "
+            f"{self.dataset} must be a {self.expected}"
+        )
+
+
 class MetadataKeyError(DatasetError):
     """
     A base class for metadata key errors in the context of Metadata errors
@@ -235,24 +255,6 @@ class MetadataBadKey(MetadataKeyError):
 
     def __str__(self) -> str:
         return f"Metadata key {self.key!r} is not supported"
-
-
-class MetadataBadValue(MetadataError):
-    """
-    An unsupported value was specified for a special metadata key
-
-    The error text will identify the metadata key that was specified and the
-    actual and expected value type.
-    """
-
-    def __init__(self, dataset: "Dataset", key: str, value: str, expected: str):
-        self.name = dataset.name
-        self.key = key
-        self.value = value
-        self.expected = expected
-
-    def __str__(self) -> str:
-        return f"Metadata key {self.key!r} value {self.value!r} for dataset {self.name!r} must be a {self.expected}"
 
 
 class MetadataProtectedKey(MetadataKeyError):
@@ -1166,7 +1168,7 @@ class Metadata(Database.Base):
             meta.value = meta_value
             meta.update()
         else:
-            meta = Metadata.create(
+            Metadata.create(
                 dataset=dataset, key=native_key, value=meta_value, user=user
             )
 

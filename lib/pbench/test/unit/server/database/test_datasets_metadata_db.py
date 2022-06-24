@@ -384,7 +384,7 @@ class TestMetadataNamespace:
             Metadata.setvalue(ds, "dataset.name", "")
         assert (
             str(exc.value)
-            == "Metadata key 'dataset.name' value '' for dataset 'drb' must be a string"
+            == "Metadata key 'dataset.name' value '' for dataset drb(3)|drb must be a string"
         )
         assert Metadata.getvalue(ds, "dataset.name") == name
 
@@ -401,11 +401,11 @@ class TestMetadataNamespace:
         [
             (
                 "Not a date",
-                "Metadata key 'server.deletion' value 'Not a date' for dataset 'drb' must be a date/time",
+                "Metadata key 'server.deletion' value 'Not a date' for dataset drb(3)|drb must be a date/time",
             ),
             (
                 "2040-12-25",
-                "Metadata key 'server.deletion' value '2040-12-25' for dataset 'drb' must be a date/time before 2031-12-30",
+                "Metadata key 'server.deletion' value '2040-12-25' for dataset drb(3)|drb must be a date/time before 2031-12-30",
             ),
         ],
     )
