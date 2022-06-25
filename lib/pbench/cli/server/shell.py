@@ -1,4 +1,3 @@
-#!/bin/env python3
 from logging import Logger
 import os
 from pathlib import Path

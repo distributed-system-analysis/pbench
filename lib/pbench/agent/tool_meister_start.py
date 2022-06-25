@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- mode: python -*-
 
 """pbench-tool-meister-start - start the execution of the Tool Meister
