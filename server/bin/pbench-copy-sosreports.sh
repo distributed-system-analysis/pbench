@@ -28,7 +28,7 @@
 
 # - this script runs as a cron job, recommended to run once an hour.
 
-# - tarballs and md5 sums are uploaded by move/copy-results to
+# - tarballs and md5/sha256 sums are uploaded by move/copy-results to
 #    $ARCHIVE/$(hostname -s) area.
 # - move/copy-results also makes a symlink to each tarball it uploads
 #    in $ARCHIVE/$(hostname -s)/TODO.
@@ -109,31 +109,35 @@ for result in $list ;do
     # was located at different places in the hierarchy.
     sosreports=$(find $incoming/sysinfo $incoming/*/sysinfo $incoming/*/*/sysinfo -name 'sosreport*.tar.xz' 2>/dev/null)
     src=""
-    for x in $sosreports ;do
+    for x in ${sosreports}; do
         # sosreport should be RO
-        chmod 444 $x
-        if [ ! -f $x.md5 ] ;then
-            log_error "$TS: FAILED: no MD5 file found for $x"
-            nerrs=$nerrs+1
+        chmod 444 ${x}
+        if [[ -f ${x}.md5 ]]; then
+            suffix="md5"
+        elif [[ -f ${x}.sha256 ]]; then
+            suffix="sha256"
+        else
+            log_error "${TS}: FAILED: no MD5 or SHA256 file found for ${x}"
+            nerrs=${nerrs}+1
             continue
         fi
-        chmod 444 $x.md5
-        md5=$(md5sum $x)
-        md5=${md5%% *}
-        if [ "$md5" != $(cat $x.md5) ] ;then
-            log_error "$TS: FAILED: MD5 does not match for  $x"
-            nerrs=$nerrs+1
+        chmod 444 ${x}.${suffix}
+        val=$(${suffix}sum ${x})
+        val=${val%% *}
+        if [[ "${val}" != $(cat ${x}.${suffix}) ]]; then
+            log_error "${TS}: FAILED: ${suffix^^} does not match for ${x}"
+            nerrs=${nerrs}+1
             continue
         fi
         # copy them to a temp dir
-        cp "$x" "$x".md5 $TMPDIR/
-        sts=$?
-        if [[ $sts -ne 0 ]] ;then
-            log_error "$TS: FAILED: cp "$x" "$x".md5 $TMPDIR/ - code $sts"
-            nerrs=$nerrs+1
+        cp "${x}" "${x}".${suffix} ${TMPDIR}/
+        sts=${?}
+        if [[ ${sts} -ne 0 ]]; then
+            log_error "${TS}: FAILED: cp "${x}" "${x}".${suffix} ${TMPDIR}/ - code ${sts}"
+            nerrs=${nerrs}+1
             continue
         fi
-        nsr=$nsr+1
+        nsr=${nsr}+1
     done
 
     if [[  $nsr == 0 ]] ;then
