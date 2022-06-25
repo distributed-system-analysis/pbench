@@ -12,8 +12,7 @@ COPY ./{{ pbench_repo_file }} /etc/yum.repos.d/pbench.repo
 # ... and finally, ensure the proper pbench-agent environment variables are set up.
 RUN \
 {% if is_centos_8 %}
-    {{ pkgmgr }} module -y enable python36 && \
-    {{ pkgmgr }} module -y disable python38 && \
+    {{ pkgmgr }} module -y enable python39 && \
 {% endif %}
 {% if image_name == 'centos' %}
     {{ pkgmgr }} install -y --setopt=tsflags=nodocs https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ image_rev }}.noarch.rpm && \
