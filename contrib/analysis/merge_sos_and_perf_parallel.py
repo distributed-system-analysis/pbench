@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import json
 import multiprocessing
 import os
@@ -76,7 +77,7 @@ def pbench_result_data_samples_gen(es, month_gen):
             yield doc
 
 
-def load_pbench_runs(es, now: datetime):
+def load_pbench_runs(es, now: datetime, record_limit):
     """Load all the pbench run data, sub-setting to contain only the fields we
     require.
 
@@ -97,7 +98,6 @@ def load_pbench_runs(es, now: datetime):
 
     for _source in pbench_runs_gen(es, _month_gen(now)):
         recs += 1
-
         run = _source["_source"]
         run_id = run["@metadata"]["md5"]
         if "controller_dir" not in run["@metadata"]:
@@ -141,6 +141,9 @@ def load_pbench_runs(es, now: datetime):
             controller_dir=run["@metadata"]["controller_dir"],
             sosreports=sosreports,
         )
+
+        if accepted >= record_limit:
+            break
 
     print(
         f"Stats for pbench runs: accepted {accepted:n} records of"
@@ -413,27 +416,11 @@ def process_results(es, now, session, incoming_url, pool, pbench_runs, stats):
 
 
 def main(args):
-    # Number of CPUs to use (where 0 = n CPUs)
-    concurrency = int(args[1])
 
-    es_host = args[2]
-    es_port = args[3]
+    incoming_url = f"{args.url_prefix}/incoming/"
 
-    # URL prefix to fetch unpacked data
-    url_prefix = args[4]
-    incoming_url = f"{url_prefix}/incoming/"
-
-    # If requested, profile memory usage
-    try:
-        profile_arg = int(args[5])
-    except (IndexError, ValueError):
-        profile = False
-    else:
-        profile = profile_arg != 0
-
-    if profile:
+    if args.profile_memory_usage:
         from guppy import hpy
-
         memprof = hpy()
     else:
         memprof = None
@@ -443,11 +430,11 @@ def main(args):
 
     # We create the multiprocessing pool first to avoid forking a sub-process
     # with lots of memory allocated.
-    ncpus = multiprocessing.cpu_count() - 1 if concurrency == 0 else concurrency
+    ncpus = multiprocessing.cpu_count() - 1 if args.cpu_n == 0 else args.cpu_n
     pool = multiprocessing.Pool(ncpus) if ncpus != 1 else None
 
     es = Elasticsearch(
-        [f"{es_host}:{es_port}"], timeout=60
+        [f"{args.es_host}:{args.es_port}"], timeout=60
     )  # to prevent read timeout errors (60 is arbitrary)
 
     session = requests.Session()
@@ -457,7 +444,7 @@ def main(args):
     scan_start = time.time()
     now = datetime.utcfromtimestamp(scan_start)
 
-    pbench_runs = load_pbench_runs(es, now)
+    pbench_runs = load_pbench_runs(es, now, args.record_limit)
 
     result_cnt = 0
     stats = dict()
@@ -490,7 +477,20 @@ def main(args):
 
     return 0
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description= "Host and Server Information")
+    parser.add_argument("es_host", action="store", type=str, help="Elasticsearch host name")
+    parser.add_argument("es_port", action="store", type=int, help="Elasticsearch port number")
+    parser.add_argument("url_prefix", action="store", type=str, help="Pbench server url prefix to extract host and disk names")
+    # parser.add_argument("sosreport_host_server", action="store" ,dest="sos_host", type=str, help="Sosreport host server to access sosreport info")
+    parser.add_argument("--cpu", action='store', dest="cpu_n", type=int, default=1, help="Number of CPUs to be used")
+    parser.add_argument("--limit", action='store', dest="record_limit", type=int, default=10, help="Number of desired acceptable results for processing")
+    # TODO: need to figure out how to allow both limiting and non-limiting options with argparse. But suppose would never want to limit in real use case.
+    parser.add_argument("--profile", action='store_true', dest="profile_memory_usage", help="Want memory usage profile")
+    args = parser.parse_args()
+    return args
 
 # point of entry
 if __name__ == "__main__":
-    status = main(sys.argv)
+    args = parse_arguments()
+    status = main(args)
