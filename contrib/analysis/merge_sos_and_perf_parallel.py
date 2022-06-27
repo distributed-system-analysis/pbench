@@ -331,37 +331,23 @@ def transform_result(source, pbench_runs, results_seen, stats):
     result["controller_dir"] = pbench_run["controller_dir"]
     result["sosreports"] = pbench_run["sosreports"]
 
-    # optional workload parameters and their defaults
-    optional_workload_params_defaults = {
-        "filename" : "/tmp/fio",
-        "iodepth" : "32",
-        "size" : "4096M",
-        "numjobs" : "1",
-        "ramp_time" : "none",
-        "runtime" : "none",
-        "sync" : "none",
-        "time_based" : "none"
-    }
+    # optional workload parameters accounting for defaults if not found
 
-    params_to_setify = {"filename": 1, "size": 1, "numjobs": 1}
-
-    for opt_param in optional_workload_params_defaults.keys():
-        try:
-            if opt_param in params_to_setify:
-                result[f"benchmark.{opt_param}"] = sentence_setify(benchmark[opt_param])
-            else:
-                result[f"benchmark.{opt_param}"] = benchmark[opt_param]
-        except KeyError:
-            result[f"benchmark.{opt_param}"] = optional_workload_params_defaults[opt_param]
+    result["benchmark.filename"] = sentence_setify(benchmark.get("filename", "/tmp/fio"))
+    result["benchmark.iodepth"] = benchmark.get("iodepth", "32")
+    result["benchmark.size"] = sentence_setify(benchmark.get("size", "4096M"))
+    result["benchmark.numjobs"] = sentence_setify(benchmark.get("numjobs", "1"))
+    result["benchmark.ramp_time"] = benchmark.get("ramp_time", "none")
+    result["benchmark.runtime"] = benchmark.get("runtime", "none")
+    result["benchmark.sync"] = benchmark.get("sync", "none")
+    result["benchmark.time_based"] = benchmark.get("time_based", "none")
 
     return result
 
-def sentence_setify(sentence):
-    '''
-    input: string
-    Splits input by ", " gets rid of duplicates and rejoins unique
+def sentence_setify(sentence : str) -> str:
+    """Splits input by ", " gets rid of duplicates and rejoins unique
     items into original format. Effectively removes duplicates in input.
-    '''
+    """
     return ", ".join(set((sentence.split(", "))))
 
 
@@ -419,6 +405,8 @@ def process_results(es, now, session, incoming_url, pool, pbench_runs, stats):
             continue
 
         result["clientnames"] = clientnames
+        print("result")
+        print(result)
 
         yield result
 
