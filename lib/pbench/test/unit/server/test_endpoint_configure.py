@@ -83,8 +83,8 @@ class TestEndpointConfig:
                     "template": f"{uri}/datasets/inventory/{{dataset}}/{{path}}",
                     "params": [
                         {"name": "dataset", "type": "string"},
-                        {"name": "path", "type": "path"}
-                    ]
+                        {"name": "path", "type": "path"},
+                    ],
                 },
                 "datasets_list": {"template": f"{uri}/datasets/list", "params": {}},
                 "datasets_mappings": {

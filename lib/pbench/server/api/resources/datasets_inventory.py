@@ -18,7 +18,7 @@ from pbench.server.api.resources import (
     Parameter,
     Schema,
 )
-from pbench.server.filetree import DatasetNotFound, FileTree
+from pbench.server.filetree import TarballNotFound, FileTree
 
 
 class DatasetsInventory(ApiBase):
@@ -46,10 +46,10 @@ class DatasetsInventory(ApiBase):
         This function returns the contents of the requested file as a byte stream.
 
         Args:
-            params: API parameters and it contains dataset and the path.
+            ApiParams includes the uri parameters, which provide the dataset and path.
 
         Raises:
-            UNSUPPORTED_MEDIA_TYPE error if the requested path isn't a file
+            APIAbort, reporting either "NOT_FOUND" or "UNSUPPORTED_MEDIA_TYPE"
 
 
         GET /api/v1/datasets/inventory/{dataset}/{path}
@@ -62,17 +62,19 @@ class DatasetsInventory(ApiBase):
             file_tree = FileTree(self.config, self.logger)
             tarball = file_tree.find_dataset(dataset.name)
             dataset_location = tarball.unpacked
-        except DatasetNotFound as e:
+        except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
+        if dataset_location is None:
+            raise APIAbort(HTTPStatus.NOT_FOUND, "The dataset is not unpacked")
         file_path = dataset_location / Path(path)
         if file_path.is_file():
             return send_file(file_path)
         elif file_path.exists():
             raise APIAbort(
                 HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
-                "The specified path does not refers to a regular file",
+                "The specified path does not refer to a regular file",
             )
         else:
             raise APIAbort(
-                HTTPStatus.NOT_FOUND, "File is not present in the given path"
+                HTTPStatus.NOT_FOUND, "The specified path does not refer to a file"
             )
