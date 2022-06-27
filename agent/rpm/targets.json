@@ -1,7 +1,0 @@
-{
-    "targets": {
-        "python3": "0%{?rhel} != 8",
-        "python39": "0%{?rhel} == 8"
-    }
-}
-
