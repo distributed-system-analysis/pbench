@@ -19,10 +19,12 @@ Buildarch:      noarch
 Requires:  python39
 # This is used by the shebang processor
 %define __python3 /usr/bin/python3.9
+%define __python_name python39
 
 %else
 
 Requires:  python3
+%define __python_name python3
 
 %endif
 
@@ -34,7 +36,7 @@ Requires:  python3
 
 # RPMs for modules in requirements.txt
 Requires: python3-pip, python3-requests
-#RPMS for module dependencies
+# RPMS for module dependencies
 Requires: python3-psutil
 
 # RHEL7 also does not define __python3 - we need it for installing
@@ -43,18 +45,10 @@ Requires: python3-psutil
 
 %else
 
-{# Jinja2 template for python dependencies - see the targets.json file for the input data #}
-{%for tname, tcond in targets.items() -%}
-
-%if {{ tcond }}
 # RPMs for modules in requirements.txt
-Requires: {{ tname }}-pip, {{ tname }}-cffi, {{ tname }}-requests
-#RPMS for module dependencies
-Requires: {{ tname }}-psutil
-%endif
-
-{% endfor %}
-{# end of template #}
+Requires: %{__python_name}-pip, %{__python_name}-cffi, %{__python_name}-requests
+# RPMS for module dependencies
+Requires: %{__python_name}-psutil
 
 %endif
 
