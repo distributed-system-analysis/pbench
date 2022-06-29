@@ -87,11 +87,17 @@ class TestPbenchConfig:
         assert config.TZ == "UTC"
 
     @pytest.mark.parametrize(
-        "config_value, expected_error_msg",
+        "config_value, error_type, expected_error_msg",
         [
             (
                 {"logging": {"logger_type": "hostport"}},
+                BadConfig,
                 "No option 'logger_host' in section: 'logging'",
+            ),
+            (
+                {"logging": {"logger_type": "hostport", "logger_host": ""}},
+                ValueError,
+                "ValueError('logger_host', 'logging')",
             ),
             (
                 {
@@ -100,27 +106,8 @@ class TestPbenchConfig:
                         "logger_host": "logger.example.com",
                     }
                 },
+                BadConfig,
                 "No option 'logger_port' in section: 'logging'",
-            ),
-        ],
-    )
-    def test_logger_hostport_BadConfig(
-        self, config_value, expected_error_msg, monkeypatch
-    ):
-        """Show that PbenchConfig raises 'BadConfig' when the
-        configuration does not contain required option."""
-
-        self.logger_test_setup(monkeypatch, config_value)
-        with pytest.raises(BadConfig) as exc:
-            PbenchConfig("pbench.cfg")
-        assert expected_error_msg in str(exc.value)
-
-    @pytest.mark.parametrize(
-        "config_value, expected_error_msg",
-        [
-            (
-                {"logging": {"logger_type": "hostport", "logger_host": ""}},
-                "ValueError('logger_host', 'logging')",
             ),
             (
                 {
@@ -130,18 +117,20 @@ class TestPbenchConfig:
                         "logger_port": "",
                     }
                 },
+                ValueError,
                 "ValueError('logger_port', 'logging')",
             ),
         ],
     )
-    def test_logger_hostport_ValueError(
-        self, config_value, expected_error_msg, monkeypatch
+    def test_bad_logger_hostport(
+        self, config_value, error_type, expected_error_msg, monkeypatch
     ):
-        """Show that PbenchConfig raises 'ValueError' when the
-        option contains an empty value."""
+        """Shows that PbenchConfig raises 'BadConfig' and 'ValueError' when
+        the configuration does not contain required option or an empty
+        value respectively."""
 
         self.logger_test_setup(monkeypatch, config_value)
-        with pytest.raises(ValueError) as exc:
+        with pytest.raises(error_type) as exc:
             PbenchConfig("pbench.cfg")
         assert expected_error_msg in str(exc)
 
