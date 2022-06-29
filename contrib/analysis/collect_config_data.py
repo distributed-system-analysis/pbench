@@ -321,7 +321,7 @@ def main(args, logger):
     database = dict()  # stores config data for all the pbench runs
 
     for res in result_list:
-        
+
         record = res.get()
         if record:
             run_id = record["run_id"]
