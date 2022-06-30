@@ -118,7 +118,6 @@ while true; do
 		;;
 	esac
 done
-verify_common_bench_script_options ${tool_group} ${sysinfo}
 
 function pre_check {
 	# Invoke the linpack driver to perform a pre-check that it will be able to
@@ -138,6 +137,8 @@ if [[ ${pre_check_only} -ne 0 ]]; then
 	pre_check ${@}
 	exit ${?}
 fi
+
+verify_common_bench_script_options ${tool_group} ${sysinfo}
 
 linpack_ver="$(pbench-config version ${benchmark})"
 if [[ -z "${linpack_ver}" ]]; then
