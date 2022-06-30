@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from logging import Logger
-from pathlib import Path
 
 from flask import send_file
 from flask.wrappers import Response
@@ -58,15 +57,15 @@ class DatasetsInventory(ApiBase):
         dataset = params.uri["dataset"]
         path = params.uri["path"]
 
+        file_tree = FileTree(self.config, self.logger)
         try:
-            file_tree = FileTree(self.config, self.logger)
             tarball = file_tree.find_dataset(dataset.name)
-            dataset_location = tarball.unpacked
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
+        dataset_location = tarball.unpacked
         if dataset_location is None:
             raise APIAbort(HTTPStatus.NOT_FOUND, "The dataset is not unpacked")
-        file_path = dataset_location / Path(path)
+        file_path = dataset_location / path
         if file_path.is_file():
             return send_file(file_path)
         elif file_path.exists():
