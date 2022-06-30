@@ -272,6 +272,18 @@ You can review the [**Full ChangeLog**](https://github.com/distributed-system-an
 
 What follows is an edited list of commits, newest to oldest, containing all commits which landed in the v0.71 release.  Note that of the 550+ commits, many of them are for the Pbench Server or Pbench Dashboard and are not considered for these release notes.
 
+ * 3074688c2 'Avoid verify_common_bench_script_options in linpack pre-check (#2929) (#2930)'
+ * 1c924215d 'Fix pbench-linpack options handling bug - backport to b0.71'
+ * 8c029b843 'Configure "python" token -  backport to b0.71 (#2927)'
+ * a90f64af0 'Default to Python 3.9 for unit tests'
+ * d0a3c0703 'Ensure `fio` arguments are used with `bash -c`'
+ * 2e3ce3557 'Add `ifaddr` RPM dependency for Fedora 36'
+ * 3bf79eeec 'Add more tests for `pbench-register-tool-set`'
+ * 070fbc1d7 'Work around for rpmlint incompatibilities'
+ * d4f7ccd8a 'Fix CentOS-Stream-8 repo'
+ * f79bd8ff6 'Fix pbench-register-tool-set argument handling (b0.71)'
+ * 133c2c3aa 'CentOS-Stream-8/9 dependency fixes - backport to b0.71 (#2896)'
+ * 51ef4c9bc 'Small updates to the `v0.71.0` Release Notes'
  * 0b7f55850 'Restore default tool set and deprecate (BP) (#2888)'
  * d699b2556 'Release Notes for `v0.71.0`'
  * f74a6629f 'Add numactl to agent dependencies - backport to b0.71 (#2881)'
