@@ -77,12 +77,19 @@ export const SearchBox = ({
     setPublicData(filterData(dataArray, startDate, endDate, searchKey));
     setDatasetName(searchKey);
   };
+  const handleKeyPress = (e) => {
+    const key = e.key;
+    if (key === "Enter") {
+      search();
+    }
+  };
   return (
     <InputGroup className="searchInputGroup">
       <TextInput
         aria-label="search"
         type="text"
         placeholder="Search"
+        onKeyPress={(e) => handleKeyPress(e)}
         onChange={(e) => setSearchKey(e)}
       ></TextInput>
       <Button variant="control" onClick={search} aria-label="searchButton">

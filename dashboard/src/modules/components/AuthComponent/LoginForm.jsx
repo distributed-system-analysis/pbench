@@ -16,6 +16,7 @@ import {
 } from "@patternfly/react-core";
 import { makeLoginRequest, setUserLoggedInState } from "actions/authActions";
 import { Back, LoginHeader, NoLoginComponent } from "./common-components";
+import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
@@ -27,8 +28,11 @@ const LoginForm = () => {
     username: "",
   });
   const [btnDisabled, setBtnDisabled] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const isLoading = useSelector((state) => state.loading.isLoading);
+
   const primaryLoadingProps = {};
   if (isLoading) {
     primaryLoadingProps.spinnerAriaValueText = "Loading";
@@ -66,6 +70,9 @@ const LoginForm = () => {
   const checkBoxChangeHander = (value) => {
     dispatch(setUserLoggedInState(value));
   };
+  const onShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
   useEffect(() => {
     checkOkButton();
   }, [checkOkButton, details]);
@@ -83,7 +90,7 @@ const LoginForm = () => {
       </CardTitle>
       <CardBody>
         <Form>
-          <FormGroup label="Email address" isRequired fieldId="username">
+          <FormGroup label="Username" isRequired fieldId="username">
             <TextInput
               isRequired
               type="text"
@@ -94,14 +101,21 @@ const LoginForm = () => {
             />
           </FormGroup>
           <FormGroup label="Password" isRequired fieldId="password">
-            <TextInput
-              isRequired
-              type="password"
-              id="password"
-              name="password"
-              value={details.password}
-              onChange={handlePasswordChange}
-            />
+            <div className="password-holder">
+              <TextInput
+                isRequired
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={details.password}
+                onChange={handlePasswordChange}
+              />
+              <Button
+                variant="control"
+                onClick={onShowPassword}
+                icon={showPassword ? <EyeIcon /> : <EyeSlashIcon />}
+              ></Button>
+            </div>
           </FormGroup>
           <Checkbox
             label="Keep me logged in"
