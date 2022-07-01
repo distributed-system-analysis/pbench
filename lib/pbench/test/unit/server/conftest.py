@@ -789,12 +789,7 @@ def tarball(tmp_path):
     datafile = tmp_path / filename
     metadata = ConfigParser()
     metadata.add_section("pbench")
-    metadata.add_section("run")
-    metadata.set("pbench", "config", "test-config")
     metadata.set("pbench", "date", "2002-05-16")
-    metadata.set("pbench", "script", "test-script")
-    metadata.set("pbench", "rpm-version", "")
-    metadata.set("run", "controller", "test")
     metadata_file = tmp_path / "metadata.log"
     with metadata_file.open("w") as meta_fp:
         metadata.write(meta_fp)

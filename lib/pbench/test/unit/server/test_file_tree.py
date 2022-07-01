@@ -174,7 +174,6 @@ class TestFileTree:
         controller = tree.archive_root / "ABC"
         controller.mkdir()
         (controller / source_tarball.name).write_text("Send in the clones")
-        (controller / f"{source_tarball.name}.md5").write_text("notanmd5 notmyname")
 
         # Attempting to create a dataset from the md5 file should result in
         # a duplicate dataset error

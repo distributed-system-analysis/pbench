@@ -116,8 +116,7 @@ class Tarball:
         # Record the path of the companion MD5 file
         self.md5_path: Path = path.with_suffix(".xz.md5")
 
-        # Record the resource ID and the name of the containing controller
-        self.md5 = self.md5_path.read_text().split()[0]
+        # Record the name of the containing controller
         self.controller_name: str = controller.name
 
         # Cache results metadata when it's been processed
