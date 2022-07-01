@@ -30,14 +30,14 @@ We did not bump the "major" release version number with these changes because we
 
 Note that work on the `v0.71` release started in earnest with the `v0.69.3-agent` release (tagged as `b0.69-bp`).  A number of bug fixes and behaviors from the `v0.71` work have already been back-ported and delivered in the various `v0.69.*` releases since then.  These release notes will highlight only the behavioral changes that have not been back-ported previously.
 
-This release supports RHEL 7.9, RHEL 8.6, RHEL 9, CentOS-Stream 8, CentOS-Stream 9 and Fedora 35. For various reasons, it does *NOT* support RHEL 8.x for x < 6 (ansible vs. ansible-core dependency problem), RHEL 9.1 (missing repos) or Fedora 36 (python-3.10 problems). If you need support for any of these, please talk to us: we will do our best to accommodate you in some way, but there is no guarantee.
+This release supports RHEL 7.9, RHEL 8.6, RHEL 9, CentOS-Stream 8, CentOS-Stream 9 and Fedora 35. For various reasons, it does *NOT* support earlier versions of RHEL 8 (ansible vs. ansible-core dependency problem), RHEL 9.1 (missing repos) or Fedora 36 (python-3.10 problems). If you need support for any of these, please talk to us: we will do our best to accommodate you in some way, but there is no guarantee.
 
 Installation
 ====
 
 There are no installation changes in this release: see the [Getting Started Guide](https://distributed-system-analysis.github.io/pbench/gh-pages/start.html) for how to install or update.
 
-After installation or update, you should have version `0.71.0-3g0b7f55850` of the `pbench-agent` RPM installed.
+After installation or update, you should have version `0.71.0-3g85910732a` of the `pbench-agent` RPM installed.
 
 RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench/), covering Fedora 35, & 36 (`x86_64` only), EPEL 7, 8, & 9 (`x86_64` and `aarch64`), and CentOS Stream 8 & 9 (`x86_64` and `aarch64`), but please note there are problems with some distros as described above.
 
@@ -272,6 +272,7 @@ You can review the [**Full ChangeLog**](https://github.com/distributed-system-an
 
 What follows is an edited list of commits, newest to oldest, containing all commits which landed in the v0.71 release.  Note that of the 550+ commits, many of them are for the Pbench Server or Pbench Dashboard and are not considered for these release notes.
 
+ * 85910732a 'Fix dockerfile (#2932)'
  * 3074688c2 'Avoid verify_common_bench_script_options in linpack pre-check (#2929) (#2930)'
  * 1c924215d 'Fix pbench-linpack options handling bug - backport to b0.71'
  * 8c029b843 'Configure "python" token -  backport to b0.71 (#2927)'
