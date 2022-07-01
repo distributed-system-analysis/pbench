@@ -43,14 +43,8 @@ export const makeLoginRequest =
         });
 
         navigate("/");
-        const toast = {
-          variant: "success",
-          title: "Logged in successfully",
-        };
-        dispatch({
-          type: TYPES.SHOW_TOAST,
-          payload: toast,
-        });
+
+        dispatch(constructToast("success", "Logged in successfully!"));
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {

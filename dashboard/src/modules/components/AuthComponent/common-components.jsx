@@ -12,6 +12,7 @@ import {
   FlexItem,
   HelperText,
   HelperTextItem,
+  TextInput,
 } from "@patternfly/react-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
@@ -165,5 +166,20 @@ export const NoLoginComponent = () => {
         here
       </Button>
     </div>
+  );
+};
+
+export const PasswordTextInput = (props) => {
+  const { isRequired, id, name, onChangeMethod, value, isShowPassword } = props;
+  return (
+    <TextInput
+      isRequired={isRequired}
+      type={isShowPassword ? "text" : "password"}
+      id={id}
+      aria-describedby="horizontal-form-name-helper"
+      name={name}
+      value={value}
+      onChange={(val) => onChangeMethod(val, name)}
+    />
   );
 };

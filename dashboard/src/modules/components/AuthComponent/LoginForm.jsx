@@ -15,7 +15,12 @@ import {
   Alert,
 } from "@patternfly/react-core";
 import { makeLoginRequest, setUserLoggedInState } from "actions/authActions";
-import { Back, LoginHeader, NoLoginComponent } from "./common-components";
+import {
+  Back,
+  LoginHeader,
+  NoLoginComponent,
+  PasswordTextInput,
+} from "./common-components";
 import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
 
 const LoginForm = () => {
@@ -102,18 +107,18 @@ const LoginForm = () => {
           </FormGroup>
           <FormGroup label="Password" isRequired fieldId="password">
             <div className="password-holder">
-              <TextInput
+              <PasswordTextInput
                 isRequired
-                type={showPassword ? "text" : "password"}
+                isShowPassword={showPassword}
                 id="password"
                 name="password"
                 value={details.password}
-                onChange={handlePasswordChange}
+                onChangeMethod={handlePasswordChange}
               />
               <Button
                 variant="control"
                 onClick={onShowPassword}
-                icon={showPassword ? <EyeIcon /> : <EyeSlashIcon />}
+                icon={showPassword ? <EyeSlashIcon /> : <EyeIcon />}
               ></Button>
             </div>
           </FormGroup>

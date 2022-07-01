@@ -20,6 +20,7 @@ import {
   Back,
   LoginHeader,
   PasswordConstraints,
+  PasswordTextInput,
   NoLoginComponent,
 } from "./common-components";
 import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
@@ -162,24 +163,33 @@ const SignupForm = () => {
                 fieldId={formItem.id}
               >
                 <div className="password-holder">
-                  <TextInput
-                    isRequired={formItem.isRequired}
-                    type={
-                      formItem.name === "password" && !showPassword
-                        ? formItem.type
-                        : "text"
-                    }
-                    id={formItem.id}
-                    aria-describedby="horizontal-form-name-helper"
-                    name={formItem.name}
-                    value={userDetails[formItem.name]}
-                    onChange={(val) => changeHandler(val, formItem.name)}
-                  />
+                  {formItem.name === "password" ? (
+                    <PasswordTextInput
+                      isRequired={formItem.isRequired}
+                      isShowPassword={showPassword}
+                      id={formItem.id}
+                      name={formItem.name}
+                      value={userDetails[formItem.name]}
+                      onChangeMethod={(val) =>
+                        changeHandler(val, formItem.name)
+                      }
+                    />
+                  ) : (
+                    <TextInput
+                      isRequired={formItem.isRequired}
+                      type={formItem.type}
+                      id={formItem.id}
+                      aria-describedby="horizontal-form-name-helper"
+                      name={formItem.name}
+                      value={userDetails[formItem.name]}
+                      onChange={(val) => changeHandler(val, formItem.name)}
+                    />
+                  )}
                   {formItem.name === "password" && (
                     <Button
                       variant="control"
                       onClick={onShowPassword}
-                      icon={showPassword ? <EyeIcon /> : <EyeSlashIcon />}
+                      icon={showPassword ? <EyeSlashIcon /> : <EyeIcon />}
                     ></Button>
                   )}
                 </div>
