@@ -899,6 +899,13 @@ class Metadata(Database.Base):
     # by a period.
     _valid_key_charset = re.compile(r"[a-z0-9_.-]+")
 
+    # Dataset name size limits
+    MIN_NAME_LEN = 1
+    MAX_NAME_LEN = 32
+
+    # 1 day as a delta time
+    ONE_DAY = datetime.timedelta(days=1)
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(255), unique=False, nullable=False, index=True)
     value = Column(JSON, unique=False, nullable=True)
@@ -1083,12 +1090,12 @@ class Metadata(Database.Base):
 
         We handle two keys specially:
 
-            dataset.name:   This is the primary resource name of a dataset, and
-                can be modified by the dataset's owner
-            server.deletion: This is the expected automatic deletion date of
-                the dataset, and can be modified so long as the new value is a
-                valid date and falls within the maximum server retention period
-                from the dataset's upload timestamp.
+            dataset.name: The primary resource name of a dataset, which can be
+                modified by the dataset's owner.
+            server.deletion: The expected automatic deletion date of the
+                dataset. It can be modified by the owner so long as the new
+                value is a valid date that falls within the maximum server
+                retention period from the dataset's upload timestamp.
 
         Args:
             dataset: Associated Dataset
@@ -1103,30 +1110,43 @@ class Metadata(Database.Base):
 
         # Setting the dataset name is a direct modification to the Dataset SQL
         # column, so do that first and exit without touching the Metadata
-        # table.
+        # table. We require a UTF-8 encoded string of 1 to 32 characters.
         #
         # If we're setting the reserved "server.deletion" key, then we must
-        # be able to parse the string as a date/time, and we fail otherwise.
+        # be able to parse the string as a date/time, and we fail otherwise. We
+        # store only the UTC date, as we don't guarantee that deletion will
+        # occur at any specific time of day.
+        #
         # For any other key value, there's no required format.
         if key == __class__.DATASET_NAME:
-            if value:
-                dataset.name = str(value)
-                dataset.update()
-            else:
-                raise MetadataBadValue(dataset, key, value, "string")
+            if (
+                type(value) is not str
+                or len(value) > __class__.MAX_NAME_LEN
+                or len(value) < __class__.MIN_NAME_LEN
+            ):
+                raise MetadataBadValue(dataset, key, value, "UTF-8 string")
+
+            try:
+                value.encode("utf-8", errors="strict")
+            except UnicodeDecodeError as u:
+                raise MetadataBadValue(dataset, key, value, "UTF-8 string") from u
+
+            dataset.name = value
+            dataset.update()
             return
         elif key == __class__.DELETION:
             try:
                 target = date_parser.parse(value).astimezone(datetime.timezone.utc)
-                v = target.isoformat()
-                maximum = dataset.uploaded + __class__.config.max_retention_period
-            except date_parser.ParserError:
-                raise MetadataBadValue(dataset, key, value, "date/time")
+            except date_parser.ParserError as p:
+                raise MetadataBadValue(dataset, key, value, "date/time") from p
 
+            maximum = dataset.uploaded + __class__.config.max_retention_period
             if target > maximum:
                 raise MetadataBadValue(
                     dataset, key, value, f"date/time before {maximum:%Y-%m-%d}"
                 )
+            target += __class__.ONE_DAY
+            v = f"{target:%Y-%m-%d}"
         else:
             v = value
 

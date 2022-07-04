@@ -323,7 +323,7 @@ class TestDatasetsDetail(Commons):
             },
             "serverMetadata": {
                 "dashboard.seen": None,
-                "server.deletion": "2022-12-25T04:00:00+00:00",
+                "server.deletion": "2022-12-26",
             },
         }
         assert expected == res_json

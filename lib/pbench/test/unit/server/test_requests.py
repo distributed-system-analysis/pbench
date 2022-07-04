@@ -403,9 +403,7 @@ class TestUpload:
         assert dataset.created.isoformat() == "2002-05-16T00:00:00+00:00"
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
         assert Metadata.getvalue(dataset, "dashboard") is None
-        assert (
-            Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-01T00:00:00+00:00"
-        )
+        assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-02"
         assert self.filetree_created
         assert dataset.name in self.filetree_created
 

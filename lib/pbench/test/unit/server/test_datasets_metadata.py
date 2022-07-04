@@ -134,7 +134,7 @@ class TestDatasetsMetadata:
         assert response.json == {
             "dashboard.seen": None,
             "server": {
-                "deletion": "2022-12-25T04:00:00+00:00",
+                "deletion": "2022-12-26",
                 "index-map": {
                     "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
                     "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
@@ -155,7 +155,7 @@ class TestDatasetsMetadata:
         )
         assert response.json == {
             "dashboard.seen": None,
-            "server.deletion": "2022-12-25T04:00:00+00:00",
+            "server.deletion": "2022-12-26",
             "dataset": {
                 "access": "private",
                 "created": "2020-02-15T00:00:00+00:00",
@@ -191,7 +191,7 @@ class TestDatasetsMetadata:
         )
         assert response.json == {
             "dashboard.seen": None,
-            "server.deletion": "2022-12-25T04:00:00+00:00",
+            "server.deletion": "2022-12-26",
             "dataset.access": "private",
             "user.favorite": None,
         }
