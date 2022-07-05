@@ -90,7 +90,7 @@ class TestUpload:
     filetree_create_path = None
     tarball_deleted = None
 
-    @pytest.fixture()
+    @pytest.fixture
     def setup_ctrl(self):
         self.controller = socket.gethostname()
         yield

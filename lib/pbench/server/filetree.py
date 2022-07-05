@@ -257,7 +257,7 @@ class Tarball:
 
     def extract(self, path: str) -> str:
         """
-        Extract a file from the dataset's tarball and return it as a string
+        Extract a file from the tarball and return it as a string
 
         Args:
             path: relative path within the tarball of a file
