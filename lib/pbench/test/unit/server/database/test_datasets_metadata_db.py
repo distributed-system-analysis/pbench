@@ -367,7 +367,13 @@ class TestMetadataNamespace:
 
     @pytest.mark.parametrize(
         "value",
-        ["Symbols like $ and _ and @", "MY_DATA", "123456", "Shift to the left"],
+        [
+            "Symbols like $ and _ and @",
+            "MY_DATA",
+            "123456",
+            "La palabra año incluye unicode",
+            "Shift to the left",
+        ],
     )
     def test_mutable_dataset(self, attach_dataset, value):
         """
@@ -379,7 +385,7 @@ class TestMetadataNamespace:
 
     @pytest.mark.parametrize(
         "value",
-        ["", b"\xe8", "This is a really long name that exceeds the maximum length"],
+        ["", True, 1, "This is a really long name that exceeds the maximum length"],
     )
     def test_mutable_dataset_bad(self, attach_dataset, value):
         """
@@ -391,7 +397,7 @@ class TestMetadataNamespace:
             Metadata.setvalue(ds, "dataset.name", value)
         assert (
             str(exc.value)
-            == f"Metadata key 'dataset.name' value {value!r} for dataset drb(3)|drb must be a UTF-8 string"
+            == f"Metadata key 'dataset.name' value {value!r} for dataset drb(3)|drb must be a UTF-8 string of 1 to 32 characters"
         )
         assert Metadata.getvalue(ds, "dataset.name") == name
 

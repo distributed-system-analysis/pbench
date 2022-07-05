@@ -1124,7 +1124,9 @@ class Metadata(Database.Base):
                 or len(value) > __class__.MAX_NAME_LEN
                 or len(value) < __class__.MIN_NAME_LEN
             ):
-                raise MetadataBadValue(dataset, key, value, "UTF-8 string")
+                raise MetadataBadValue(
+                    dataset, key, value, "UTF-8 string of 1 to 32 characters"
+                )
 
             try:
                 value.encode("utf-8", errors="strict")
