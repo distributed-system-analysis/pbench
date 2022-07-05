@@ -490,7 +490,9 @@ class PbenchCombinedDataCollection:
 
     """
 
-    def __init__(self, incoming_url: str, session: Session, es: Elasticsearch) -> None:
+    def __init__(
+        self, incoming_url: str, session: Session, es: Elasticsearch, record_limit: int
+    ) -> None:
         """This initializes all the class attributes specified above
 
         Creates all other attributes, but stores the parameters
@@ -537,6 +539,7 @@ class PbenchCombinedDataCollection:
         self.result_temp_id = 0
         self.diskhost_map = dict()
         self.clientnames_map = dict()
+        self.record_limit = record_limit
 
     def __str__(self) -> str:
         """Specifies how to print object
@@ -678,7 +681,7 @@ class PbenchCombinedDataCollection:
         result_diagnostic = dict()
         invalid = False
 
-        # create run_diagnostic data for all checks
+        # create result_diagnostic data for all checks
         for check in self.diagnostic_checks["result"]:
             check.diagnostic(doc)
             diagnostic_update, issue = check.get_vals()
@@ -756,6 +759,83 @@ class PbenchCombinedDataCollection:
 
     # TODO: Maybe add sosreports from here. But will determine this once moved on
     #      from merge_sos_and_perf_parallel.py file
+
+    def es_data_gen(self, es: Elasticsearch, index: str, doc_type: str):
+        """Yield documents where the `run.script` field is "fio" for the given index
+        and document type.
+
+        Parameters
+        ----------
+        es : Elasticsearch
+            Elasticsearch object where data is stored
+        index : str
+            index name
+        doc_type : str
+            document type
+
+        Yields
+        -------
+        doc : json
+            json data representing doc and its contents
+
+        """
+        # specifically for fio run scripts. Can be more general if interested in other scripts.
+        query = {"query": {"query_string": {"query": "run.script:fio"}}}
+
+        for doc in scan(
+            es,
+            query=query,
+            index=index,
+            doc_type=doc_type,
+            scroll="1d",
+            request_timeout=3600,  # to prevent timeout errors (3600 is arbitrary)
+        ):
+            yield doc
+
+    def collect_data(
+        self,
+        month: str,
+    ) -> None:
+        """Collects all run and result data for a given month and stores it inside itself.
+
+        Given a month, gets the run_index and result_index names for the month specified.
+        Loops over every doc in the run_index that is of type 'pbench-run', and
+        adds it to pbench_data. Checks if valid record_limit is met and stops
+        going through more run data. Then loops over all result docs in the month
+        of type 'pbench-result-data-sample' and adds it to pbench_data.
+
+        #NOTE: Need to still go through all result data for the month to ensure we
+            retrive all result data associated with the runs added, since we
+            don't know more specifically the associations within the index, this
+            is the best we can do so far.
+
+        #NOTE: Since only within months do the processing of run and result need to
+            be sequential, we can process multiple months in parallel,
+            hopefully reducing time taken overall.
+
+        Parameters
+        ----------
+        month : str
+            Month Year string stored in YYYY-MM format
+
+        Returns
+        -------
+        None
+
+        """
+        run_index = f"dsa-pbench.v4.run.{month}"
+        result_index = f"dsa-pbench.v4.result-data.{month}-*"
+
+        for run_doc in self.es_data_gen(self.es, run_index, "pbench-run"):
+            self.add_run(run_doc)
+            if self.record_limit != -1:
+                if self.trackers["run"]["valid"] >= self.record_limit:
+                    break
+
+        for result_doc in self.es_data_gen(
+            self.es, result_index, "pbench-result-data-sample"
+        ):
+            self.add_result(result_doc)
 
 
 class DiagnosticCheck(ABC):
