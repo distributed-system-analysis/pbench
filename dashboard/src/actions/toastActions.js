@@ -26,11 +26,9 @@ export const showFailureToast = () => async (dispatch) => {
   });
 };
 
-export const constructToast =
-  (variant, title, message = "") =>
-  async (dispatch) => {
-    dispatch({
-      type: TYPES.SHOW_TOAST,
-      payload: { variant, title, message },
-    });
+export const constructToast = (variant, title, message = "") => {
+  return {
+    type: TYPES.SHOW_TOAST,
+    payload: { variant, title, message },
   };
+};

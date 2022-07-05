@@ -3,6 +3,7 @@ import API from "../utils/axiosInstance";
 import * as CONSTANTS from "../assets/constants/authConstants";
 import Cookies from "js-cookie";
 import { uid } from "../utils/helper";
+import { constructToast } from "actions/toastActions";
 
 export const makeLoginRequest =
   (details, navigate) => async (dispatch, getState) => {
@@ -42,14 +43,8 @@ export const makeLoginRequest =
         });
 
         navigate("/");
-        const toast = {
-          variant: "success",
-          title: "Logged in successfully",
-        };
-        dispatch({
-          type: TYPES.SHOW_TOAST,
-          payload: toast,
-        });
+
+        dispatch(constructToast("success", "Logged in successfully!"));
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {
@@ -106,7 +101,10 @@ export const registerUser =
       const response = await API.post(endpoints?.api?.register, {
         ...details,
       });
-      if (response.status === 200) {
+      if (response.status === 201) {
+        dispatch(
+          constructToast("success", "Account created!", "Login to continue")
+        );
         navigate("/login");
       }
       dispatch({ type: TYPES.COMPLETED });
@@ -164,6 +162,6 @@ export const logout = () => async (dispatch) => {
   }
   dispatch({ type: TYPES.COMPLETED });
   setTimeout(() => {
-    window.location.href = "login";
+    window.location.href = "auth";
   }, CONSTANTS.LOGOUT_DELAY_MS);
 };

@@ -20,8 +20,10 @@ import {
   Back,
   LoginHeader,
   PasswordConstraints,
+  PasswordTextInput,
   NoLoginComponent,
 } from "./common-components";
+import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
 
 const SignupForm = () => {
   const dispatch = useDispatch();
@@ -30,6 +32,7 @@ const SignupForm = () => {
   const { alerts, isSignupBtnDisabled, passwordLength } = useSelector(
     (state) => state.userAuth
   );
+  const [showPassword, setShowPassword] = useState(false);
   const [userDetails, setUserDetails] = useState({
     firstName: "",
     lastName: "",
@@ -80,6 +83,10 @@ const SignupForm = () => {
     // we have covered all of the edge cases.
     return true;
   }, [constraints, errors, userDetails]);
+
+  const onShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   useEffect(() => {
     if (validateForm() && Object.keys(endpoints).length > 0) {
@@ -155,15 +162,37 @@ const SignupForm = () => {
                 isRequired={formItem.isRequired}
                 fieldId={formItem.id}
               >
-                <TextInput
-                  isRequired={formItem.isRequired}
-                  type={formItem.type}
-                  id={formItem.id}
-                  aria-describedby="horizontal-form-name-helper"
-                  name={formItem.name}
-                  value={userDetails[formItem.name]}
-                  onChange={(val) => changeHandler(val, formItem.name)}
-                />
+                <div className="password-holder">
+                  {formItem.name === "password" ? (
+                    <PasswordTextInput
+                      isRequired={formItem.isRequired}
+                      isShowPassword={showPassword}
+                      id={formItem.id}
+                      name={formItem.name}
+                      value={userDetails[formItem.name]}
+                      onChangeMethod={(val) =>
+                        changeHandler(val, formItem.name)
+                      }
+                    />
+                  ) : (
+                    <TextInput
+                      isRequired={formItem.isRequired}
+                      type={formItem.type}
+                      id={formItem.id}
+                      aria-describedby="horizontal-form-name-helper"
+                      name={formItem.name}
+                      value={userDetails[formItem.name]}
+                      onChange={(val) => changeHandler(val, formItem.name)}
+                    />
+                  )}
+                  {formItem.name === "password" && (
+                    <Button
+                      variant="control"
+                      onClick={onShowPassword}
+                      icon={showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                    ></Button>
+                  )}
+                </div>
                 <p className="error">{errors[formItem.name]}</p>
               </FormGroup>
             );

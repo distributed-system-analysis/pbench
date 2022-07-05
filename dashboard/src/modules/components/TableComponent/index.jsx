@@ -142,7 +142,7 @@ const TableWithFavorite = () => {
               message="Want to see your own data?"
               link="Login or Create an account"
               onCloseMethod={onCloseLoginHint}
-              redirect="login"
+              redirect="auth"
             />
           )}
           <div className="table-container" variant={PageSectionVariants.light}>
@@ -196,11 +196,11 @@ const TableWithFavorite = () => {
                   >
                     <Thead>
                       <Tr>
-                        <Th sort={getSortParams(1)}>{columnNames.name}</Th>
-                        <Th sort={getSortParams(2)}>
+                        <Th sort={getSortParams(0)}>{columnNames.name}</Th>
+                        <Th sort={getSortParams(1)}>
                           {columnNames.creationDate}
                         </Th>
-                        <Th sort={getSortParams(3)}></Th>
+                        <Th sort={getSortParams(2)}></Th>
                       </Tr>
                     </Thead>
                     <Tbody>
