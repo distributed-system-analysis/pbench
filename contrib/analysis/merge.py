@@ -39,10 +39,10 @@ def main(args):
     thr_df = df[df["sample.measurement_type"] == "throughput"]
 
     # Covert dataframes to csv files
-    slat_df.to_csv(r"latency_slat.csv", sep=";", mode="a")
-    clat_df.to_csv(r"latency_clat.csv", sep=";", mode="a")
-    lat_df.to_csv(r"latency_lat.csv", sep=";", mode="a")
-    thr_df.to_csv(r"throughput_iops_sec.csv", sep=";", mode="a")
+    slat_df.to_csv(r"latency_slat.csv", sep=";", mode="w")
+    clat_df.to_csv(r"latency_clat.csv", sep=";", mode="w")
+    lat_df.to_csv(r"latency_lat.csv", sep=";", mode="w")
+    thr_df.to_csv(r"throughput_iops_sec.csv", sep=";", mode="w")
 
     return 0
 

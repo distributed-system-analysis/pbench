@@ -321,6 +321,7 @@ def main(args, logger):
     database = dict()  # stores config data for all the pbench runs
 
     for res in result_list:
+
         record = res.get()
         if record:
             run_id = record["run_id"]
@@ -361,7 +362,7 @@ def main(args, logger):
     print(df.nunique())
 
     # Covert dataframe to a csv file
-    df.to_csv(r"config.csv", sep=";", mode="a")
+    df.to_csv(r"config.csv", sep=";", mode="w")
 
     return 0
 
