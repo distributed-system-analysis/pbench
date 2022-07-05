@@ -1,8 +1,8 @@
-# Pbench server V1 API documentation
+# Pbench Server V1 API documentation
 
 The documents in this set describe the APIs supported by the Pbench 1.0 server.
 
-## Discovering the Pbench server API
+## Discovering the Pbench Server API
 
 Once you know the hostname of a Pbench Server, you can ask for the API
 configuration using the [endpoints](endpoints.md) API. This will report the
@@ -62,7 +62,8 @@ policy.
 
 It may sometimes be convenient to know the date range of those datasets in
 advance, for example to initialize a date picker. You can do this by calling
-the [daterange](daterange.md) API; 
+the [daterange](daterange.md) API to determine the range of dataset creation
+dates accessible to the authenticated client.
 
 ## Discovering dataset details
 

@@ -67,11 +67,11 @@ owner of the dataset and is visible to all clients with read access to the
 dataset, any authenticated user can set arbitrary values in the `user`
 namespace and those values are visible only to the user who set them. Other
 users may set different values for the same `user` namespace keys on the
-dataset, or may use completely different keys.
+dataset or may use completely different keys.
 
 ### Dataset namespace
 
-This defines the dataset resource, and contains metadata recieved from the
+This defines the dataset resource, and contains metadata received from the
 Pbench Agent, including the full contents of a `metadata.log` file created
 while gathering results and during dataset packaging.
 

@@ -112,7 +112,7 @@ might return:
     {
         "name": "the dataset I created for fun",
         "resource_id": "8322d8043755ccd33dc6d7091d1f9ff9",
-        "metadata": {"user.favorite": null}
+        "metadata": {"user.favorite": false}
     }
 ]
 ```
