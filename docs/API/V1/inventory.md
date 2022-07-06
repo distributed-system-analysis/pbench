@@ -28,11 +28,11 @@ The return is a raw byte stream representing the contents of the named file.
 ## Response status
 
 `401`   **UNAUTHORIZED** \
-The client did not provide an authentication token and there is no public
+The client did not provide an authentication token, and there is no public
 dataset with the name `<dataset>`.
 
 `403`   **FORBIDDEN** \
-The named `<dataset>` is not public and the authenticated user lacks
+The named `<dataset>` is not public, and the authenticated user lacks
 authorization to read it.
 
 `404`   **NOT FOUND** \
@@ -46,4 +46,5 @@ describing the directory contents.
 
 ## Response body
 
-The raw byte stream of the file will be returned.
+The `application/octet-stream` response body is the raw byte stream contents of
+the specified file.

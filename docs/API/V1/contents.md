@@ -31,11 +31,11 @@ The return is a serialized JSON object with information about the named file.
 ## Response status
 
 `401`   **UNAUTHORIZED** \
-The client did not provide an authentication token and there is no public
+The client did not provide an authentication token, and there is no public
 dataset with the resource ID `<dataset>`.
 
 `403`   **FORBIDDEN** \
-The named `<dataset>` is not public and the authenticated user lacks
+The named `<dataset>` is not public, and the authenticated user lacks
 authorization to read it.
 
 `404`   **NOT FOUND** \
@@ -44,9 +44,8 @@ exist.
 
 ## Response body
 
-This API returns an `application/json` response body consisting of a JSON
-object describing the file or directory at a target `<path>` within a dataset
-tarball.
+The `application/json` response body consists of a JSON object describing the
+file or directory at a target `<path>` within a dataset tarball.
 
 When the `<path>` refers to a directory, the response object is described in
 [Directory object](#directory-object); when the `<path>` refers to a file, the

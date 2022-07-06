@@ -1,6 +1,6 @@
 # Pbench Server V1 API documentation
 
-The documents in this set describe the APIs supported by the Pbench 1.0 server.
+The documents in this set describe the APIs supported by the Pbench 1.0 Server.
 
 ## Discovering the Pbench Server API
 

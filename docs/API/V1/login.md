@@ -1,5 +1,6 @@
 # `POST /api/v1/login`
 
-Describe the Pbench Server V1 API to authenticate a user.
+This API generates an HTTP authentication token for a registered Pbench Server
+user.
 
 __TBD__

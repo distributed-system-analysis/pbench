@@ -47,8 +47,8 @@ would have been selected by the other query terms. This can be used with
 with a paginated display or to limit data transfer requirements.
 
 `owner` string \
-The `username` property of a registered user. Only datasets owned by that user
-will be included in the list.
+Select only datasets owned by the specified username. Unless the username
+matches the authenticated user, only "public" datasets can be selected.
 
 `start` date/time \
 Select only datasets created on or after the specified time. Time should be
@@ -73,11 +73,11 @@ datasets.
 ## Response status
 
 `401`   **UNAUTHORIZED** \
-The client did not provide an authentication token and there is no public
+The client did not provide an authentication token, and there is no public
 dataset with the name `<dataset>`.
 
 `403`   **FORBIDDEN** \
-The named `<dataset>` is not public and the authenticated user lacks
+The named `<dataset>` is not public, and the authenticated user lacks
 authorization to read it.
 
 `404`   **NOT FOUND** \
@@ -86,8 +86,8 @@ exist.
 
 ## Response body
 
-This returns an `application/json` response body containing a list of objects
-which describe the datasets selected by the specified query criteria.
+The `application/json` response body contains a list of objects which describe
+the datasets selected by the specified query criteria.
 
 Each of these objects contains the following fields:
 * `resource_id`: The internal unique ID of the dataset within the Pbench Server.

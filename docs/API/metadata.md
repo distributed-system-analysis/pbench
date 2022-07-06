@@ -1,7 +1,7 @@
 ## Dataset metadata
 
 A dataset is referenced by a formal resource ID, and also has a resource name
-for convenience. The Pbench server also maintains metadata about each dataset,
+for convenience. The Pbench Server also maintains metadata about each dataset,
 which can help with searching and analysis. Some metadata is modifyable by an
 authenticated user, while other metadata is maintained internally by the server
 and can't be changed. Authenticated users can also add any additional metadata
@@ -18,7 +18,7 @@ username associated with the token given to the Pbench Agent
 `metadata.log` file inside the dataset tarball. These are all accessible
 under the `dataset` metadata key namespace.
 
-The Pbench server will also calculate a default deletion date for the dataset
+The Pbench Server will also calculate a default deletion date for the dataset
 based on the owner's retention policy and the server administrator's retention
 policy along with some other internal management context. The expected deletion
 date is accessible under the `server` metadata key namespace.
@@ -69,6 +69,9 @@ namespace and those values are visible only to the user who set them. Other
 users may set different values for the same `user` namespace keys on the
 dataset or may use completely different keys.
 
+All of these namespaces are tied to a particular dataset resource ID, and cease
+to exist if the associated dataset is deleted.
+
 ### Dataset namespace
 
 This defines the dataset resource, and contains metadata received from the
@@ -90,7 +93,7 @@ This defines internal Pbench Server management state related to a dataset
 that's not inherent to the representation of the user's performance metrics.
 Most of this is not of much use to external clients, but can be observed.
 
-The exception is `server.deletion`, which is a time after which the Pbench
+The exception is `server.deletion`, which is a date after which the Pbench
 Server may choose to delete the dataset. This is computed when a dataset is
 received based on user profile preferences and server configuration; but it can
 be modified by the owner of the dataset, as long as the new timestamp remains
