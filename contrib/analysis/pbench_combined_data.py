@@ -589,7 +589,7 @@ class PbenchCombinedDataCollection:
     def print_report(self) -> None:
         """Print tracker information"""
         print(
-            f"---------------\n"
+            "---------------\n"
             + "Trackers: \n"
             + str(self.trackers)
             + "\n---------------\n"
@@ -608,7 +608,7 @@ class PbenchCombinedDataCollection:
         """
         # checks if directory exists, if not creates it
         csv_folder_path = os.getcwd() + "/csv_emits"
-        if os.path.exists(csv_folder_path) == False:
+        if os.path.exists(csv_folder_path) is False:
             os.makedirs(csv_folder_path)
 
         # TODO: trackers should probably not be emitted, and if they are each type
