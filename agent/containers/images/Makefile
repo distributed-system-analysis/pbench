@@ -110,15 +110,16 @@ _ADV_TMPL = _ALL_${d}_VERSIONS := $(foreach v,${_NUMBERS},${d}-${v}) # template 
 $(foreach d,${_ALL_DISTRO_NAMES},$(eval $(call _ADV_TMPL, ${d})))  # set _ALL_centos_VERSIONS, etc.
 _DISTROS := $(foreach d,${_ALL_DISTRO_NAMES},${_ALL_${d}_VERSIONS})
 
-# By default we only build images for the following distributions.  (At the time
-# of this writing, centos-9 has no support in packagecloud.io, so it is omitted.)
-_DEFAULT_DISTROS = centos-8 fedora-34 fedora-35
+# By default we only build images for the following distributions.
+_DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35
 
-# By default we won't build the Tool Data Sink and Tool Meister images
+# By default we build the Tool Data Sink and Tool Meister images as well.
 all: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
 
+# Convenience target to only build the Tool Data Sink images.
 tds: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
 
+# Convenience target to only build the Tool Meister images.
 tm: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
 
 #+
