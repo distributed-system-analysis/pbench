@@ -1,6 +1,6 @@
 {% set is_centos_8 = true if image_name == 'centos' and image_rev == '8' else false %}
 {% set is_centos_9 = true if image_name == 'centos' and image_rev == '9' else false %}
-{% set image_tag = 'stream' + image_rev if image_name == 'centos' else image_rev %}
+{% set image_tag = 'stream' + image_rev if image_name == 'centos' and image_rev != '7' else image_rev %}
 # {{ distro_name }} pbench-agent base image
 FROM {{ image_repo }}/{{ image_name }}:{{ image_tag }}
 
