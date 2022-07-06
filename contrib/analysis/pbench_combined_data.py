@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
 import os
+import pandas
 
 from requests import Session
 from typing import Tuple
@@ -561,8 +562,54 @@ class PbenchCombinedDataCollection:
             # "Diagnostic Checks Used: \n" + str(self.diagnostic_checks) + "\n" +
             + "Trackers: \n"
             + str(self.trackers)
-            + "---------------\n"
+            + "\n---------------\n"
         )
+    
+    def print_report(self) -> None:
+        """Print tracker information"""
+        print(f"---------------\n"
+            + "Trackers: \n"
+            + str(self.trackers)
+            + "\n---------------\n"
+            )
+    
+    def emit_csv(self) -> None:
+        """Creates a folder for csv files, and writes data collected to files
+        
+        Writes valid,invalid data collected, trackers info collected, and diskhost
+        and client names collected to separate csv files in the folder.
+
+        Returns
+        -------
+        None
+        
+        """
+        # checks if directory exists, if not creates it
+        csv_folder_path = os.getcwd() + "/csv_emits"
+        if os.path.exists(csv_folder_path) == False:
+            os.makedirs(csv_folder_path)
+
+        # TODO: trackers should probably not be emitted, and if they are each type
+        #       should get its own file, since structure gets messed up in csv
+
+        # TODO: valid and invalid data store PbenchCombinedData objects as values,
+        #       so csv has nothing useful. Should have them be converted into dict
+        #       with the useful information before conversion to csv
+        
+        # convert all dicts to pandas dataframes and then to csv files
+        valid_df = pandas.DataFrame(self.run_id_to_data_valid.values(), index = self.run_id_to_data_valid.keys())
+        invalid_df = pandas.DataFrame(self.invalid.values(), index = self.invalid.keys())
+        trackers_df = pandas.DataFrame(self.trackers.values(), index = self.trackers.keys())
+        diskhost_df = pandas.DataFrame(self.diskhost_map.values(), index = self.diskhost_map.keys())
+        clientname_df = pandas.DataFrame(self.clientnames_map.values(), index = self.clientnames_map.keys())
+
+        # writes to csv in w+ mode meaning overwrite if exists and create if doesn't
+        # also specifies path to csv file such that in directory from above.
+        valid_df.to_csv(csv_folder_path + "/valid_data.csv", sep=";", mode="w+")
+        invalid_df.to_csv(csv_folder_path + "/invalid_data.csv", sep=";", mode="w+")
+        trackers_df.to_csv(csv_folder_path + "/trackers_report.csv", sep=";", mode="w+")
+        diskhost_df.to_csv(csv_folder_path + "/diskhost_names.csv", sep=";", mode="w+")
+        clientname_df.to_csv(csv_folder_path + "/client_names.csv", sep=";", mode="w+")
 
     def trackers_initialization(self) -> None:
         """Initializes all diagnostic tracker values to 0.
