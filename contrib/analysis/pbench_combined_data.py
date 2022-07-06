@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 import os
 import pandas
+import sys
+from pathos.pools import ProcessPool
+from pathos.helpers import cpu_count
 
 from requests import Session
 from typing import Tuple
@@ -488,11 +491,25 @@ class PbenchCombinedDataCollection:
             maps run id and iteration name to tuple of disk and host names
     clientnames_map: dict
             map from run_id to list of client names
+    record_limit : int
+        Number of valid run records and associated result data to process
+    pool : pathos.pools.ProcessPool
+        ProcessPool with the number of CPUs to use passed in for parallelization
+    pool_results : list[PbenchCombinedDataCollection]
+        list to store results returned from each worker process in pool
+        when completed.
+    ncpus : int
+        Number of CPUs to use for processing.
 
     """
 
     def __init__(
-        self, incoming_url: str, session: Session, es: Elasticsearch, record_limit: int
+        self,
+        incoming_url: str,
+        session: Session,
+        es: Elasticsearch,
+        record_limit: int,
+        cpu_n: int,
     ) -> None:
         """This initializes all the class attributes specified above
 
@@ -507,6 +524,10 @@ class PbenchCombinedDataCollection:
             A session to make request to url (used for fio extraction)
         es : Elasticsearch
             Elasticsearch object where data is stored (used for clientname extraction)
+        record_limit : int
+            Number of valid run records and associated result data to process
+        cpu_n : int
+            NUmber of CPUs to use
 
         """
 
@@ -525,7 +546,7 @@ class PbenchCombinedDataCollection:
             "client_side": dict(),
         }
         self.diagnostic_checks = {
-            "run": [ControllerDirRunCheck(), SosreportRunCheck()],
+            "run": [PrelimCheck1(self.es), ControllerDirRunCheck(), SosreportRunCheck()],
             # TODO: need to fix order of these result checks to match the original
             "result": [
                 SeenResultCheck(self.results_seen),
@@ -541,6 +562,9 @@ class PbenchCombinedDataCollection:
         self.diskhost_map = dict()
         self.clientnames_map = dict()
         self.record_limit = record_limit
+        self.ncpus = cpu_count() - 1 if cpu_n == 0 else cpu_n
+        self.pool = ProcessPool(self.ncpus)
+        self.pool_results = []
 
     def __str__(self) -> str:
         """Specifies how to print object
@@ -564,29 +588,30 @@ class PbenchCombinedDataCollection:
             + str(self.trackers)
             + "\n---------------\n"
         )
-    
+
     def print_report(self) -> None:
         """Print tracker information"""
-        print(f"---------------\n"
+        print(
+            "---------------\n"
             + "Trackers: \n"
             + str(self.trackers)
             + "\n---------------\n"
-            )
-    
+        )
+
     def emit_csv(self) -> None:
         """Creates a folder for csv files, and writes data collected to files
-        
+
         Writes valid,invalid data collected, trackers info collected, and diskhost
         and client names collected to separate csv files in the folder.
 
         Returns
         -------
         None
-        
+
         """
         # checks if directory exists, if not creates it
         csv_folder_path = os.getcwd() + "/csv_emits"
-        if os.path.exists(csv_folder_path) == False:
+        if os.path.exists(csv_folder_path) is False:
             os.makedirs(csv_folder_path)
 
         # TODO: trackers should probably not be emitted, and if they are each type
@@ -595,13 +620,21 @@ class PbenchCombinedDataCollection:
         # TODO: valid and invalid data store PbenchCombinedData objects as values,
         #       so csv has nothing useful. Should have them be converted into dict
         #       with the useful information before conversion to csv
-        
+
         # convert all dicts to pandas dataframes and then to csv files
-        valid_df = pandas.DataFrame(self.run_id_to_data_valid.values(), index = self.run_id_to_data_valid.keys())
-        invalid_df = pandas.DataFrame(self.invalid.values(), index = self.invalid.keys())
-        trackers_df = pandas.DataFrame(self.trackers.values(), index = self.trackers.keys())
-        diskhost_df = pandas.DataFrame(self.diskhost_map.values(), index = self.diskhost_map.keys())
-        clientname_df = pandas.DataFrame(self.clientnames_map.values(), index = self.clientnames_map.keys())
+        valid_df = pandas.DataFrame(
+            self.run_id_to_data_valid.values(), index=self.run_id_to_data_valid.keys()
+        )
+        invalid_df = pandas.DataFrame(self.invalid.values(), index=self.invalid.keys())
+        trackers_df = pandas.DataFrame(
+            self.trackers.values(), index=self.trackers.keys()
+        )
+        diskhost_df = pandas.DataFrame(
+            self.diskhost_map.values(), index=self.diskhost_map.keys()
+        )
+        clientname_df = pandas.DataFrame(
+            self.clientnames_map.values(), index=self.clientnames_map.keys()
+        )
 
         # writes to csv in w+ mode meaning overwrite if exists and create if doesn't
         # also specifies path to csv file such that in directory from above.
@@ -867,11 +900,23 @@ class PbenchCombinedDataCollection:
 
         Returns
         -------
-        None
+        self : PbenchCombinedDataCollection
+            returns the current object which has been updated with the new info from this process
+
+        #NOTE: Could instead return just the updated dicts and merge them with the
+               Collection object in the main process.
+
+        #FIXME: If main process collection not initially empty, since main process object used as a
+               base for all other processes to then update separately, initial data and counts will
+               be repeated. Could make sure to create a new Collection object in the method?
 
         """
+        print(f"starting {month}...")
         run_index = f"dsa-pbench.v4.run.{month}"
         result_index = f"dsa-pbench.v4.result-data.{month}-*"
+
+        # run prelim check for all docs in month to determine valid run ids for check
+        self.diagnostic_checks["run"][0].add_month(month)
 
         for run_doc in self.es_data_gen(self.es, run_index, "pbench-run"):
             self.add_run(run_doc)
@@ -883,6 +928,142 @@ class PbenchCombinedDataCollection:
             self.es, result_index, "pbench-result-data-sample"
         ):
             self.add_result(result_doc)
+        print(f"finishing {month}...")
+        self.print_report()
+        return self
+
+    # FIXME: Doesn't work.
+    def wait_for_pool(self) -> None:
+        """Waits for all processes in pool to finish
+
+        Blocks termination until all results retrieved. When
+        result retrieved, combines data. When all processes
+        finished calls join to cleanup worker processes. Resets
+        pool_results to empty list.
+
+        Returns
+        -------
+        None
+
+        """
+        for result in self.pool_results:
+            self.combine_data(result.get())
+            if self.record_limit != -1:
+                if self.trackers["run"]["valid"] >= self.record_limit:
+                    break
+        self.pool.join()
+        self.pool_results = []
+
+    # FIXME: Works but is to be used in conjunction wit wait_for_pool
+    #       want to keep checking completed processes and results and
+    #       continuously update main collection, so if record limit achieved
+    #       all other threads terminated.
+    def add_month(self, month: str) -> None:
+        """Starts async call to collect data for month
+
+        Async call to collect data for the month provided,
+        and adds result object to pool_results.
+
+        Parameters
+        ----------
+        month : str
+            The month to collect all the data for
+
+        Returns
+        -------
+        None
+
+        """
+        self.pool_results.append(self.pool.amap(self.collect_data, [month]))
+
+    def add_months(self, months: list[str]) -> None:
+        """Starts blocking call to collect data for months
+
+        Blocking call to collect data for the months provided,
+        and adds result objects to pool_results. It then goes
+        through the results and combines each result's data with
+        the Collection object in the main process.Makes sure to
+        close and join pool.
+
+        Parameters
+        ----------
+        months : list[str]
+            List of months to collect all the data for
+
+        Returns
+        -------
+        None
+
+        """
+        self.pool.restart(True)
+        self.pool_results.extend(self.pool.map(self.collect_data, months))
+        for result in self.pool_results:
+            self.combine_data(result)
+            if self.record_limit != -1:
+                if self.trackers["run"]["valid"] >= self.record_limit:
+                    break
+        self.pool_results = []
+        self.pool.close()
+        self.pool.join()
+
+    def merge_dicts(self, dicts: list[dict]) -> None:
+        """Merges dicts together and returns 1 dict
+
+        Given a list of dicts where values are ints,
+        merges the dicts together where common keys have
+        their value set to the sum of the values of the key
+        in each of the dicts.
+
+        Parameters
+        ----------
+        dicts : list[dict]
+            List of dictionaries with int values to merge
+
+        Returns
+        -------
+        merged_dict : dict
+            Merged dictionary where values for common keys are
+            the sum of the values in the initial list of dicts.
+
+        """
+        ret = defaultdict(int)
+        for d in dicts:
+            for k, v in d.items():
+                ret[k] += v
+        return dict(ret)
+
+    def combine_data(self, other) -> None:
+        """Given another PCDCollection object combines the data
+
+        Given another PbenchCombinedDataCollection Object, it updates
+        all the internal dictionaries with the data in the other object.
+
+        Paramters
+        ---------
+        other : PbenchCombinedDataCollection
+            Other collection object whose data is to be combined into
+            the current object
+
+        Returns
+        -------
+        None
+
+        """
+        self.run_id_to_data_valid.update(other.run_id_to_data_valid)
+        for type in self.invalid:
+            self.invalid[type].update(other.invalid[type])
+        self.results_seen.update(other.results_seen)
+        for type in self.trackers:
+            self.trackers[type] = self.merge_dicts(
+                [self.trackers[type], other.trackers[type]]
+            )
+        self.result_temp_id = (
+            other.result_temp_id
+        )  # this is an issue becuase if parallel different processes will use same id
+        # can also do this in parallel since they both just require run and result data can maybe do an async call on them
+        # for more parallelism
+        self.diskhost_map.update(other.diskhost_map)
+        self.clientnames_map.update(other.clientnames_map)
 
 
 class DiagnosticCheck(ABC):
@@ -982,6 +1163,139 @@ class DiagnosticCheck(ABC):
             A tuple of the diagnostic_return and issues attributes
         """
         return self.diagnostic_return, self.issues
+
+class PrelimCheck1(DiagnosticCheck):
+    _diagnostic_names = ["non_1_client", "run_not_in_result"]
+
+    def __init__(self, es : Elasticsearch):
+        """Initialization function
+
+        Attributes
+        ----------
+        run_id_valid_status : dict
+            Map from run_id to boolean 
+            True if valid, False if not.
+
+        """
+        self.run_id_valid_status = dict()
+        self.es = es
+        self.query = {
+            "query": {
+                "filtered": {
+                "query": {
+                    "query_string": {
+                    "analyze_wildcard": True,
+                    "query": "run.script:fio"
+                    }
+                }
+                }
+            },
+            "size": 0,
+            "aggs": {
+                "2": {
+                "terms": {
+                    "field": "run.id",
+                    "size": 0
+                },
+                "aggs": {
+                    "3": {
+                    "terms": {
+                        "field": "iteration.name",
+                        "size": 0
+                    },
+                    "aggs": {
+                        "4": {
+                        "terms": {
+                            "field": "sample.name",
+                            "size": 0
+                        },
+                        "aggs": {
+                            "5": {
+                            "terms": {
+                                "field": "sample.measurement_type",
+                                "size": 0
+                            },
+                            "aggs": {
+                                "6": {
+                                "terms": {
+                                    "field": "sample.measurement_title",
+                                    "size": 0
+                                },
+                                "aggs": {
+                                    "7": {
+                                    "terms": {
+                                        "field": "sample.measurement_idx",
+                                        "size": 0
+                                    }
+                                    }
+                                }
+                                }
+                            }
+                            }
+                        }
+                        }
+                    }
+                    }
+                }
+                }
+            }
+        }
+
+    
+    def add_month(self, month):
+        result_index = f"dsa-pbench.v4.result-data.{month}-*"
+        resp = self.es.search(index = result_index, body = self.query)
+        # print("---------------\n")
+        # print("\nRESPONSE:\n")
+        # print(json.dumps(resp))
+        # print("\n---------------\n")
+        for run in resp["aggregations"]["2"]["buckets"]:
+            # print(run)
+            print(run["key"])
+            # print("run:\n")
+            # print(run)
+            # print("\n")
+            # print(run)
+            # break
+            break_run = False
+            # TODO: Factor into routine that takes in run, returns False at 1205 otherwise returns true
+            for iteration_name in run["3"]["buckets"]:
+                print(iteration_name["key"])
+                for sample_name in iteration_name["4"]["buckets"]:
+                    print(sample_name["key"])
+                    for measurement_type in sample_name["5"]["buckets"]:
+                        print(measurement_type["key"])
+                        for measurement_title in measurement_type["6"]["buckets"]:
+                            print(measurement_title["key"])
+                            if len(measurement_title["7"]["buckets"]) > 2:
+                                self.run_id_valid_status[run["key"]] = False
+                                # print(measurement_title["7"]["buckets"])
+                                sys.exit(1)
+                                break_run = True
+                        if break_run is True:
+                            break
+                    if break_run is True:
+                        break
+                if break_run is True:
+                    break
+            if break_run is False:
+                self.run_id_valid_status[run["key"]] = True
+            sys.exit(1)
+
+    @property
+    def diagnostic_names(self):
+        return self._diagnostic_names
+
+    def diagnostic(self, doc):
+        super().diagnostic(doc)
+        valid = self.run_id_valid_status.get(doc["_source"]["run"]["id"], None)
+        if  valid == None:
+            self.diagnostic_return["run_not_in_result"] = True
+            self.issues = True
+        else:
+            if valid is False:
+                self.diagnostic_return["non_1_client"] = True
+                self.issues = True
 
 
 class ControllerDirRunCheck(DiagnosticCheck):
