@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 import os
 import pandas
+import json
+import sys
 from pathos.pools import ProcessPool
 from pathos.helpers import cpu_count
 
@@ -545,7 +547,7 @@ class PbenchCombinedDataCollection:
             "client_side": dict(),
         }
         self.diagnostic_checks = {
-            "run": [ControllerDirRunCheck(), SosreportRunCheck()],
+            "run": [PrelimCheck1(self.es), ControllerDirRunCheck(), SosreportRunCheck()],
             # TODO: need to fix order of these result checks to match the original
             "result": [
                 SeenResultCheck(self.results_seen),
@@ -914,6 +916,9 @@ class PbenchCombinedDataCollection:
         run_index = f"dsa-pbench.v4.run.{month}"
         result_index = f"dsa-pbench.v4.result-data.{month}-*"
 
+        # run prelim check for all docs in month to determine valid run ids for check
+        self.diagnostic_checks["run"][0].add_month(month)
+
         for run_doc in self.es_data_gen(self.es, run_index, "pbench-run"):
             self.add_run(run_doc)
             if self.record_limit != -1:
@@ -1159,6 +1164,139 @@ class DiagnosticCheck(ABC):
             A tuple of the diagnostic_return and issues attributes
         """
         return self.diagnostic_return, self.issues
+
+class PrelimCheck1(DiagnosticCheck):
+    _diagnostic_names = ["non_1_client", "run_not_in_result"]
+
+    def __init__(self, es : Elasticsearch):
+        """Initialization function
+
+        Attributes
+        ----------
+        run_id_valid_status : dict
+            Map from run_id to boolean 
+            True if valid, False if not.
+
+        """
+        self.run_id_valid_status = dict()
+        self.es = es
+        self.query = {
+            "query": {
+                "filtered": {
+                "query": {
+                    "query_string": {
+                    "analyze_wildcard": True,
+                    "query": "run.script:fio"
+                    }
+                }
+                }
+            },
+            "size": 0,
+            "aggs": {
+                "2": {
+                "terms": {
+                    "field": "run.id",
+                    "size": 0
+                },
+                "aggs": {
+                    "3": {
+                    "terms": {
+                        "field": "iteration.name",
+                        "size": 0
+                    },
+                    "aggs": {
+                        "4": {
+                        "terms": {
+                            "field": "sample.name",
+                            "size": 0
+                        },
+                        "aggs": {
+                            "5": {
+                            "terms": {
+                                "field": "sample.measurement_type",
+                                "size": 0
+                            },
+                            "aggs": {
+                                "6": {
+                                "terms": {
+                                    "field": "sample.measurement_title",
+                                    "size": 0
+                                },
+                                "aggs": {
+                                    "7": {
+                                    "terms": {
+                                        "field": "sample.measurement_idx",
+                                        "size": 0
+                                    }
+                                    }
+                                }
+                                }
+                            }
+                            }
+                        }
+                        }
+                    }
+                    }
+                }
+                }
+            }
+        }
+
+    
+    def add_month(self, month):
+        result_index = f"dsa-pbench.v4.result-data.{month}-*"
+        resp = self.es.search(index = result_index, body = self.query)
+        # print("---------------\n")
+        # print("\nRESPONSE:\n")
+        # print(json.dumps(resp))
+        # print("\n---------------\n")
+        for run in resp["aggregations"]["2"]["buckets"]:
+            # print(run)
+            print(run["key"])
+            # print("run:\n")
+            # print(run)
+            # print("\n")
+            # print(run)
+            # break
+            break_run = False
+            # TODO: Factor into routine that takes in run, returns False at 1205 otherwise returns true
+            for iteration_name in run["3"]["buckets"]:
+                print(iteration_name["key"])
+                for sample_name in iteration_name["4"]["buckets"]:
+                    print(sample_name["key"])
+                    for measurement_type in sample_name["5"]["buckets"]:
+                        print(measurement_type["key"])
+                        for measurement_title in measurement_type["6"]["buckets"]:
+                            print(measurement_title["key"])
+                            if len(measurement_title["7"]["buckets"]) > 2:
+                                self.run_id_valid_status[run["key"]] = False
+                                # print(measurement_title["7"]["buckets"])
+                                sys.exit(1)
+                                break_run = True
+                        if break_run is True:
+                            break
+                    if break_run is True:
+                        break
+                if break_run is True:
+                    break
+            if break_run is False:
+                self.run_id_valid_status[run["key"]] = True
+            sys.exit(1)
+
+    @property
+    def diagnostic_names(self):
+        return self._diagnostic_names
+
+    def diagnostic(self, doc):
+        super().diagnostic(doc)
+        valid = self.run_id_valid_status.get(doc["_source"]["run"]["id"], None)
+        if  valid == None:
+            self.diagnostic_return["run_not_in_result"] = True
+            self.issues = True
+        else:
+            if valid is False:
+                self.diagnostic_return["non_1_client"] = True
+                self.issues = True
 
 
 class ControllerDirRunCheck(DiagnosticCheck):
