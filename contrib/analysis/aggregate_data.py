@@ -139,7 +139,7 @@ def parse_arguments() -> argparse.ArgumentParser:
         action="store",
         dest="cpu_n",
         type=int,
-        default=1,
+        default=0,
         help="Number of CPUs to be used",
     )
     parser.add_argument(

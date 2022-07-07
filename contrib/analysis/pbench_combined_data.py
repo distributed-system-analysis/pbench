@@ -497,6 +497,8 @@ class PbenchCombinedDataCollection:
     pool_results : list[PbenchCombinedDataCollection]
         list to store results returned from each worker process in pool
         when completed.
+    ncpus : int
+        Number of CPUs to use for processing.
 
     """
 
@@ -559,8 +561,8 @@ class PbenchCombinedDataCollection:
         self.diskhost_map = dict()
         self.clientnames_map = dict()
         self.record_limit = record_limit
-        ncpus = cpu_count() - 1 if cpu_n == 0 else cpu_n
-        self.pool = ProcessPool(ncpus) if ncpus != 1 else None
+        self.ncpus = cpu_count() - 1 if cpu_n == 0 else cpu_n
+        self.pool = ProcessPool(self.ncpus)
         self.pool_results = []
 
     def __str__(self) -> str:
