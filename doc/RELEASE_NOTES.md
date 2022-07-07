@@ -39,7 +39,7 @@ There are no installation changes in this release: see the [Getting Started Guid
 
 After installation or update, you should have version `0.71.0-3g85910732a` of the `pbench-agent` RPM installed.
 
-RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench/), covering Fedora 35, & 36 (`x86_64` only), EPEL 7, 8, & 9 (`x86_64` and `aarch64`), and CentOS Stream 8 & 9 (`x86_64` and `aarch64`), but please note there are problems with some distros as described above.
+RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/ndokos/pbench/), covering Fedora 35 (`x86_64` only), EPEL 7, 8, & 9 (`x86_64` and `aarch64`), and CentOS Stream 8 & 9 (`x86_64` and `aarch64`), but please note there are problems with some distros as described above.
 
 There are Ansible [playbooks](https://galaxy.ansible.com/pbench/agent) available via Ansible Galaxy to install the `pbench-agent`, and the pieces needed (key and configuration files) to be able to send results to a Pbench Server.  To use the RPMs provided above via COPR with the playbooks, your inventory file needs to include the `fedoraproject_username` variable set to `ndokos`, for example:
 
