@@ -25,15 +25,20 @@ E.g., `authorization: bearer <token>`
 `content-type: application/octet-stream` \
 The return is a raw byte stream representing the contents of the named file.
 
+## Resource access
+
+* `READ` access to the `<dataset>` resource
+
+See [Access model](../access_model.md)
+
 ## Response status
 
 `401`   **UNAUTHORIZED** \
-The client did not provide an authentication token, and there is no public
-dataset with the name `<dataset>`.
+The client is not authenticated and does not have READ access to the specified
+dataset.
 
 `403`   **FORBIDDEN** \
-The named `<dataset>` is not public, and the authenticated user lacks
-authorization to read it.
+The authenticated client does not have READ access to the specified dataset.
 
 `404`   **NOT FOUND** \
 Either the `<dataset>` or the relative `<path>` within the dataset does not

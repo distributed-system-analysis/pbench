@@ -70,19 +70,22 @@ and only `public` access datasets will be selected.
 The return is a serialized JSON object with information about the selected
 datasets.
 
+## Resource access
+
+* Only `<dataset>` resources selected by the filter to which the authenticated
+user has READ access will be returned.
+
+See [Access model](../access_model.md)
+
 ## Response status
 
 `401`   **UNAUTHORIZED** \
-The client did not provide an authentication token, and there is no public
-dataset with the name `<dataset>`.
+The client did not provide an authentication token but asked to filter datasets
+by `owner` or `access=private`.
 
 `403`   **FORBIDDEN** \
-The named `<dataset>` is not public, and the authenticated user lacks
-authorization to read it.
-
-`404`   **NOT FOUND** \
-Either the `<dataset>` or the relative `<path>` within the dataset does not
-exist.
+The client asked to filter `access=private` datasets for an `owner` for which
+the client does not have READ access.
 
 ## Response body
 

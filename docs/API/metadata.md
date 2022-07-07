@@ -120,5 +120,11 @@ distinct values for the same keys, or use completely different keys, and can
 retrieve those values later. A client authenticated for another user has
 its own comletely unique `user` namespace.
 
+The `user` metadata namespace behaves as a user-specific sub-resource under the
+dataset. Any authenticated client has UPDATE and DELETE access to this private
+sub-resource as long as the client has READ access to the dataset. See
+[Access model](./access_model.md) for general information about the Pbench
+Server access controls.
+
 An unauthenticated client can neither set nor retrieve any `user` namespace
 values; such a client will always see the `user` namespace as empty.
