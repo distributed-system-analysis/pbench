@@ -30,7 +30,7 @@ The return is a serialized JSON object with information about the named file.
 
 ## Resource access
 
-* `READ` access to the `<dataset>` resource
+* Requires `READ` access to the `<dataset>` resource
 
 See [Access model](../access_model.md)
 

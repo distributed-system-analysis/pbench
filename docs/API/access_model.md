@@ -27,9 +27,11 @@ all server data, including
 - All user profiles
 - Server configuration settings
 
-The `ADMIN` role can be assigned to a user by another user with the `ADMIN`
-role through the [user](V1/user.md) API. The server management CLI (described
-elsewhere) must be used to assign the `ADMIN` role to the first user.
+A user with the `ADMIN` role can use the [user](V1/user.md) (profile) API to
+assign the `ADMIN` role to other users. On installation of the Pbench Server
+there are no users with `ADMIN` role, so the server management CLI (described
+elsewhere) must be used to create an administrator account or assign the `ADMIN`
+role to some user.
 
 ## Groups
 

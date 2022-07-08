@@ -27,7 +27,7 @@ The return is a raw byte stream representing the contents of the named file.
 
 ## Resource access
 
-* `READ` access to the `<dataset>` resource
+* Requires `READ` access to the `<dataset>` resource
 
 See [Access model](../access_model.md)
 
