@@ -1,0 +1,136 @@
+#!/usr/bin/env python3
+
+import calendar
+from datetime import datetime
+from dateutil import rrule
+from dateutil.relativedelta import relativedelta
+from elasticsearch1 import Elasticsearch
+import sys
+import time
+
+
+query = {
+    "query": {
+        "filtered": {
+            "query": {
+                "query_string": {"analyze_wildcard": True, "query": "run.script:fio"}
+            }
+        }
+    },
+    "size": 0,
+    "aggs": {
+        "2": {
+            "terms": {"field": "run.id", "size": 0},
+            "aggs": {
+                "3": {
+                    "terms": {"field": "iteration.name", "size": 0},
+                    "aggs": {
+                        "4": {
+                            "terms": {"field": "sample.name", "size": 0},
+                            "aggs": {
+                                "5": {
+                                    "terms": {
+                                        "field": "sample.measurement_type",
+                                        "size": 0,
+                                    },
+                                    "aggs": {
+                                        "6": {
+                                            "terms": {
+                                                "field": "sample.measurement_title",
+                                                "size": 0,
+                                            },
+                                            "aggs": {
+                                                "7": {
+                                                    "terms": {
+                                                        "field": "sample.client_hostname",
+                                                        "size": 0,
+                                                    }
+                                                }
+                                            },
+                                        }
+                                    },
+                                }
+                            },
+                        }
+                    },
+                }
+            },
+        }
+    },
+}
+
+
+def _month_gen(end_time: datetime, start_months_prior: int) -> str:
+    """Generate YYYY-MM stings for months specified.
+
+    For all months inclusive, generate YYYY-MM strings ending at the
+    month of the end_time, and starting from start_months_prior months before
+    the end_time.
+
+    Parameters
+    ----------
+    end_time : datetime
+        The time for the last month desired
+    start_months_prior : int
+        Number of months before the end_time to start
+        string generation.
+
+    Yields
+    ------
+    month_str : str
+        month string in the YYYY-MM format
+
+    """
+    start = end_time - relativedelta(months=start_months_prior)
+    first_month = start.replace(day=1)
+    last_month = end_time + relativedelta(day=31)
+    rev_months = sorted(rrule.rrule(rrule.MONTHLY, dtstart=first_month, until=last_month), reverse=True)
+    for m in rev_months:
+        yield f"{m.year:04}-{m.month:02}"
+
+
+def _good_result_agg(res_agg):
+    for iteration_name in res_agg["3"]["buckets"]:
+        in_key = iteration_name["key"]
+        for sample_name in iteration_name["4"]["buckets"]:
+            sn_key = sample_name["key"]
+            for measurement_type in sample_name["5"]["buckets"]:
+                mt_key = measurement_type["key"]
+                for measurement_title in measurement_type["6"]["buckets"]:
+                    mi_key = measurement_title["key"]
+                    if len(measurement_title["7"]["buckets"]) > 2:
+                        ch_keys = ""
+                        for client_hostname in measurement_title["7"]["buckets"]:
+                            ch_key = client_hostname["key"]
+                            ch_keys = f"{ch_keys}, {ch_key}"
+                        print("\t\t\t", in_key, sn_key, mt_key, mi_key, " --- 2 or more hostnames --- ", ch_keys)
+                        return False
+    return True
+
+
+es = Elasticsearch([sys.argv[1]], timeout=60)
+
+total = 0
+good = 0
+scan_start = time.time()
+end_time = datetime.utcfromtimestamp(scan_start)
+for month in _month_gen(end_time, 12):
+    print(month)
+    _year, _month = month.split("-")
+    _num_days = calendar.monthrange(int(_year), int(_month))[1]
+    for _day in range(_num_days, 0, -1):
+        result_index = f"dsa-pbench.v4.result-data.{month}-{_day:02d}"
+        try:
+            resp = es.search(index=result_index, body=query)
+        except Exception:
+            pass
+        else:
+            print(f"\t{result_index}")
+            for res_agg in resp["aggregations"]["2"]["buckets"]:
+                run_id = res_agg["key"]
+                print(f"\t\t{run_id}")
+                total += 1
+                if _good_result_agg(res_agg):
+                    good += 1
+
+print(f"Total: {total}  Good: {good}")
