@@ -1,7 +1,0 @@
----
-distro: "{{ 'epel' if ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
-          else
-            'fedora' if ansible_distribution == 'Fedora'
-          else
-            '' }}"
-distrodir: "{{ distro }}-{{ ansible_distribution_major_version }}-$basearch"
