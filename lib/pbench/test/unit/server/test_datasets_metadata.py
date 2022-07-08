@@ -134,7 +134,7 @@ class TestDatasetsMetadata:
         assert response.json == {
             "dashboard.seen": None,
             "server": {
-                "deletion": "2022-12-25",
+                "deletion": "2022-12-26",
                 "index-map": {
                     "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
                     "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
@@ -155,7 +155,7 @@ class TestDatasetsMetadata:
         )
         assert response.json == {
             "dashboard.seen": None,
-            "server.deletion": "2022-12-25",
+            "server.deletion": "2022-12-26",
             "dataset": {
                 "access": "private",
                 "created": "2020-02-15T00:00:00+00:00",
@@ -191,7 +191,7 @@ class TestDatasetsMetadata:
         )
         assert response.json == {
             "dashboard.seen": None,
-            "server.deletion": "2022-12-25",
+            "server.deletion": "2022-12-26",
             "dataset.access": "private",
             "user.favorite": None,
         }
@@ -296,7 +296,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed namespaces are ['dashboard', 'user']"
+            "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed namespaces are ['dashboard', 'dataset.name', 'server.deletion', 'user']"
         }
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
@@ -306,7 +306,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON key ['dataset.access'] given for parameter metadata; allowed namespaces are ['dashboard', 'user']"
+            "message": "Unrecognized JSON key ['dataset.access'] given for parameter metadata; allowed namespaces are ['dashboard', 'dataset.name', 'server.deletion', 'user']"
         }
 
     def test_put_nowrite(self, query_get_as, query_put_as):

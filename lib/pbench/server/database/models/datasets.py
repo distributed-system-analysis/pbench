@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional, Union
 
+from dateutil import parser as date_parser
 from sqlalchemy import Column, DateTime, Enum, event, ForeignKey, Integer, JSON, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import relationship, validates, Query
@@ -200,6 +201,26 @@ class MetadataBadStructure(MetadataError):
 
     def __str__(self) -> str:
         return f"Key {self.element!r} value for {self.key!r} in {self.dataset} is not a JSON object"
+
+
+class MetadataBadValue(MetadataError):
+    """
+    An unsupported value was specified for a special metadata key
+
+    The error text will identify the metadata key that was specified and the
+    actual and expected value type.
+    """
+
+    def __init__(self, dataset: "Dataset", key: str, value: str, expected: str):
+        super().__init__(dataset, key)
+        self.value = value
+        self.expected = expected
+
+    def __str__(self) -> str:
+        return (
+            f"Metadata key {self.key!r} value {self.value!r} for dataset "
+            f"{self.dataset} must be a {self.expected}"
+        )
 
 
 class MetadataKeyError(DatasetError):
@@ -795,6 +816,11 @@ class Metadata(Database.Base):
     # {"dataset.created": "3000-03-30T03:30:30.303030+00:00"}
     DATASET = "dataset"
 
+    # The Dataset name column can be modified by the owner
+    #
+    # {"dataset.name": "my name string"}
+    DATASET_NAME = f"{DATASET}.name"
+
     # SERVER is an internally maintained key namespace for additional metadata
     # relating to the server's management of datasets. The information here is
     # accessible to callers, but can't be changed.
@@ -858,10 +884,13 @@ class Metadata(Database.Base):
     # --- Standard Metadata keys
 
     # Metadata keys that clients can update
-    USER_UPDATEABLE_METADATA = [DASHBOARD, USER]
+    #
+    # NOTE: the entire "dashboard" and "user" namespaces are writable, but only
+    # specific keys in the "dataset" and "server" namespaces can be modified.
+    USER_UPDATEABLE_METADATA = [DASHBOARD, DATASET_NAME, DELETION, USER]
 
-    # Metadata keys that are accessible to clients
-    METADATA_KEYS = sorted(USER_UPDATEABLE_METADATA + [DATASET, SERVER])
+    # Metadata keys that clients can read
+    METADATA_KEYS = sorted([DASHBOARD, DATASET, SERVER, USER])
 
     # NOTE: the ECMA JSON specification allows JSON "names" (keys) to be any
     # string, though most implementations and schemas enforce or recommend
@@ -869,6 +898,13 @@ class Metadata(Database.Base):
     # lowercase letters, numbers, underscore, and hyphen, with keys separated
     # by a period.
     _valid_key_charset = re.compile(r"[a-z0-9_.-]+")
+
+    # Dataset name size limits
+    MIN_NAME_LEN = 1
+    MAX_NAME_LEN = 32
+
+    # 1 day as a delta time
+    ONE_DAY = datetime.timedelta(days=1)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(255), unique=False, nullable=False, index=True)
@@ -1041,9 +1077,7 @@ class Metadata(Database.Base):
         return value
 
     @staticmethod
-    def setvalue(
-        dataset: Dataset, key: str, value: Any, user: Optional[User] = None
-    ) -> "Metadata":
+    def setvalue(dataset: Dataset, key: str, value: Any, user: Optional[User] = None):
         """
         Create or modify an existing metadata value. This method supports
         hierarchical dotted paths like "dashboard.seen" and should be used in
@@ -1054,20 +1088,73 @@ class Metadata(Database.Base):
         "a.b.c" a value of "bar", and then query "a", you'll get back
         "a": {"b": {"c": "bar"}}}
 
+        We handle two keys specially:
+
+            dataset.name: The primary resource name of a dataset, which can be
+                modified by the dataset's owner.
+            server.deletion: The expected automatic deletion date of the
+                dataset. It can be modified by the owner so long as the new
+                value is a valid date that falls within the maximum server
+                retention period from the dataset's upload timestamp.
+
         Args:
             dataset: Associated Dataset
             key: Lookup key (including hierarchical dotted paths)
             value: Value to be assigned to the specified key
-
-        Returns:
-            A Metadata object representing the new database row with the
-            properly assigned value.
         """
         if not Metadata.is_key_path(key, Metadata.METADATA_KEYS):
             raise MetadataBadKey(key)
         keys = key.lower().split(".")
         native_key = keys.pop(0)
         found = True
+
+        # Setting the dataset name is a direct modification to the Dataset SQL
+        # column, so do that first and exit without touching the Metadata
+        # table. We require a UTF-8 encoded string of 1 to 32 characters.
+        #
+        # If we're setting the reserved "server.deletion" key, then we must
+        # be able to parse the string as a date/time, and we fail otherwise. We
+        # store only the UTC date, as we don't guarantee that deletion will
+        # occur at any specific time of day.
+        #
+        # For any other key value, there's no required format.
+        if key == __class__.DATASET_NAME:
+            if (
+                type(value) is not str
+                or len(value) > __class__.MAX_NAME_LEN
+                or len(value) < __class__.MIN_NAME_LEN
+            ):
+                raise MetadataBadValue(
+                    dataset,
+                    key,
+                    value,
+                    f"UTF-8 string of {__class__.MIN_NAME_LEN} to {__class__.MAX_NAME_LEN} characters",
+                )
+
+            try:
+                value.encode("utf-8", errors="strict")
+            except UnicodeDecodeError as u:
+                raise MetadataBadValue(dataset, key, value, "UTF-8 string") from u
+
+            dataset.name = value
+            dataset.update()
+            return
+        elif key == __class__.DELETION:
+            try:
+                target = date_parser.parse(value).astimezone(datetime.timezone.utc)
+            except date_parser.ParserError as p:
+                raise MetadataBadValue(dataset, key, value, "date/time") from p
+
+            maximum = dataset.uploaded + __class__.config.max_retention_period
+            if target > maximum:
+                raise MetadataBadValue(
+                    dataset, key, value, f"date/time before {maximum:%Y-%m-%d}"
+                )
+            target += __class__.ONE_DAY
+            v = f"{target:%Y-%m-%d}"
+        else:
+            v = value
+
         try:
             meta = Metadata.get(dataset, native_key, user)
 
@@ -1080,7 +1167,7 @@ class Metadata(Database.Base):
             meta_value = {}
 
         if not keys:
-            meta_value = value
+            meta_value = v
         else:
             walker = meta_value
             name = native_key
@@ -1095,7 +1182,7 @@ class Metadata(Database.Base):
                 # If we've reached the final key, assign the value in this
                 # dict; otherwise continue descending.
                 if i == len(keys) - 1:
-                    walker[inner_key] = value
+                    walker[inner_key] = v
                 else:
                     if inner_key not in walker:
                         walker[inner_key] = {}
@@ -1106,10 +1193,9 @@ class Metadata(Database.Base):
             meta.value = meta_value
             meta.update()
         else:
-            meta = Metadata.create(
+            Metadata.create(
                 dataset=dataset, key=native_key, value=meta_value, user=user
             )
-        return meta
 
     @staticmethod
     def _query(dataset: Dataset, key: str, user: Optional[User]) -> Query:

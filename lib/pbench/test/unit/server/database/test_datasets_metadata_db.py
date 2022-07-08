@@ -8,6 +8,7 @@ from pbench.server.database.models.datasets import (
     Metadata,
     DatasetBadParameterType,
     MetadataBadStructure,
+    MetadataBadValue,
     MetadataNotFound,
     MetadataBadKey,
     MetadataMissingKeyValue,
@@ -152,7 +153,7 @@ class TestInternalMetadata:
         ds = Dataset.query(name="drb")
         metadata = Metadata.getvalue(ds, "server")
         assert metadata == {
-            "deletion": "2022-12-25",
+            "deletion": "2022-12-26",
             "index-map": {
                 "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
                 "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
@@ -163,7 +164,7 @@ class TestInternalMetadata:
     def test_server_keys(self, provide_metadata):
         ds = Dataset.query(name="drb")
         metadata = Metadata.getvalue(ds, "server.deletion")
-        assert metadata == "2022-12-25"
+        assert metadata == "2022-12-26"
         metadata = Metadata.getvalue(ds, "server.index-map")
         assert metadata == {
             "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
@@ -363,3 +364,74 @@ class TestMetadataNamespace:
         assert Metadata.getvalue(dataset=ds, user=user1, key="user") == {
             "contact": "Wilma"
         }
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "Symbols like $ and _ and @",
+            "MY_DATA",
+            "123456",
+            "La palabra año incluye unicode",
+            "Shift to the left",
+        ],
+    )
+    def test_mutable_dataset(self, attach_dataset, value):
+        """
+        Try setting a few valid names.
+        """
+        ds = Dataset.query(name="drb")
+        Metadata.setvalue(ds, "dataset.name", value)
+        assert Metadata.getvalue(ds, "dataset")["name"] == value
+
+    @pytest.mark.parametrize(
+        "value",
+        ["", True, 1, "This is a really long name that exceeds the maximum length"],
+    )
+    def test_mutable_dataset_bad(self, attach_dataset, value):
+        """
+        Test the reaction to a "bad" string name.
+        """
+        ds = Dataset.query(name="drb")
+        name = ds.name
+        with pytest.raises(MetadataBadValue) as exc:
+            Metadata.setvalue(ds, "dataset.name", value)
+        assert (
+            str(exc.value)
+            == f"Metadata key 'dataset.name' value {value!r} for dataset drb(3)|drb must be a UTF-8 string of 1 to 32 characters"
+        )
+        assert Metadata.getvalue(ds, "dataset.name") == name
+
+    def test_mutable_server(self, server_config, attach_dataset):
+        """
+        Set the dataset deletion time to a valid date/time string
+        """
+        ds = Dataset.query(name="drb")
+        Metadata.setvalue(ds, "server.deletion", "1979-12-29 08:00-04:00")
+        assert Metadata.getvalue(ds, "server.deletion") == "1979-12-30"
+
+    @pytest.mark.parametrize(
+        "value,message",
+        [
+            (
+                "Not a date",
+                "Metadata key 'server.deletion' value 'Not a date' for dataset drb(3)|drb must be a date/time",
+            ),
+            (
+                "2040-12-25",
+                "Metadata key 'server.deletion' value '2040-12-25' for dataset drb(3)|drb must be a date/time before 2031-12-30",
+            ),
+        ],
+    )
+    def test_mutable_server_bad(self, server_config, attach_dataset, value, message):
+        """
+        Try out some invalid deletion time values.
+
+        The value must be a valid date/time string, and it must be within the
+        server's maximum retention threshold from the dataset's upload time.
+        """
+        ds = Dataset.query(name="drb")
+        deletion = Metadata.getvalue(ds, "server.deletion")
+        with pytest.raises(MetadataBadValue) as exc:
+            Metadata.setvalue(ds, "server.deletion", value)
+        assert str(exc.value) == message
+        assert Metadata.getvalue(ds, "server.deletion") == deletion
