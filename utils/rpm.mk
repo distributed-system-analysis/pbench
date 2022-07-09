@@ -27,6 +27,7 @@ include ${PBENCHTOP}/utils/utils.mk
 
 prog = pbench-${component}
 VERSION := $(shell cat ${PBENCHTOP}/${component}/VERSION)
+MAJORMINOR := $(shell grep -oE '[0-9]+\.[0-9]+' ${PBENCHTOP}/${component}/VERSION)
 TBDIR = ${TMPDIR}/${prog}-${VERSION}
 
 # If we are building for a distro, use a distro-specific suffix on the build and
@@ -116,7 +117,7 @@ endif
 COPR_TARGETS = copr copr-test
 .PHONY: ${COPR_TARGETS}
 ${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
-	copr-cli build ${CHROOTS} $(_copr_user)/$(subst copr,pbench,$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
+	copr-cli build ${CHROOTS} $(_copr_user)/$(subst copr,pbench-$(MAJORMINOR),$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
 
 # Determine the present working directory relative to ${PBENCHTOP} so that we
 # can find it inside the container, where the source tree might be in a
