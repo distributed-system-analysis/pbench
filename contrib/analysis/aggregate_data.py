@@ -11,19 +11,18 @@ from pbench_combined_data import PbenchCombinedDataCollection
 from elasticsearch1 import Elasticsearch
 
 
-def _month_gen(end_time: datetime, start_months_prior: int) -> str:
+def _year_month_gen(end_time: datetime, start_months_prior: int) -> str:
     """Generate YYYY-MM stings for months specified.
 
-    For all months inclusive, generate YYYY-MM strings ending at the
-    month of the end_time, and starting from start_months_prior months before
-    the end_time.
+    For all months inclusive, generate YYYY-MM strings starting at the
+    month of the end_time, and ending start_months_prior before the end_time.
 
     Parameters
     ----------
     end_time : datetime
         The time for the last month desired
     start_months_prior : int
-        Number of months before the end_time to start
+        Number of months before the end_time to end
         string generation.
 
     Yields
@@ -35,8 +34,11 @@ def _month_gen(end_time: datetime, start_months_prior: int) -> str:
     start = end_time - relativedelta(months=start_months_prior)
     first_month = start.replace(day=1)
     last_month = end_time + relativedelta(day=31)
-    for m in rrule.rrule(rrule.MONTHLY, dtstart=first_month, until=last_month):
-        yield f"{m.year:04}-{m.month:02}"
+    reverse_months = sorted(
+        rrule.rrule(rrule.MONTHLY, dtstart=first_month, until=last_month), reverse=True
+    )
+    for date in reverse_months:
+        yield f"{date.year:04}-{date.month:02}"
 
 
 def main(parser: argparse.ArgumentParser) -> None:
@@ -84,9 +86,11 @@ def main(parser: argparse.ArgumentParser) -> None:
     scan_start = time.time()
     end_time = datetime.utcfromtimestamp(scan_start)
 
-    # FIXME: For using 1 cpu, the processes merge data in between the function calls
-    #        so double mergings are happening, and the value is off.
-    pbench_data.add_months(_month_gen(end_time, args.start_months_prior))
+    # FIXME: Doesn't work for default of no multiprocessing and only 1 cpu
+    #        because pool becomes none in initialization.
+    # pbench_data.add_months2(_year_month_gen(end_time, args.start_months_prior))
+
+    pbench_data.sync_add_months(_year_month_gen(end_time, args.start_months_prior))
 
     # FIXME: This doesn't work as expected
     # for month in _month_gen(end_time, args.start_months_prior):
