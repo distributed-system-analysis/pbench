@@ -15,6 +15,7 @@ TMPDIR = /tmp/opt
 
 prog = pbench-${component}
 VERSION := $(file < ${PBENCHTOP}/${component}/VERSION)
+MAJORMINOR := $(shell grep -oE '[0-9]+\.[0-9]+' ${PBENCHTOP}/${component}/VERSION)
 TBDIR = ${TMPDIR}/${prog}-${VERSION}
 
 RPMDIRS = BUILD BUILDROOT SPECS SOURCES SRPMS RPMS
@@ -79,7 +80,7 @@ endif
 COPR_TARGETS = copr copr-test
 .PHONY: ${COPR_TARGETS}
 ${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
-	copr-cli build ${CHROOTS} $(_copr_user)/$(subst copr,pbench,$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
+	copr-cli build ${CHROOTS} $(_copr_user)/$(subst copr,pbench-$(MAJORMINOR),$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
 
 .PHONY: distclean
 distclean:
