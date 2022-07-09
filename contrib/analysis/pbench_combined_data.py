@@ -547,7 +547,7 @@ class PbenchCombinedDataCollection:
             "client_side": dict(),
         }
         self.diagnostic_checks = {
-            "run": [PrelimCheck1(self.es), ControllerDirRunCheck(), SosreportRunCheck()],
+            "run": [ClientCount(self.es), ControllerDirRunCheck(), SosreportRunCheck()],
             # TODO: need to fix order of these result checks to match the original
             "result": [
                 SeenResultCheck(self.results_seen),
@@ -917,6 +917,7 @@ class PbenchCombinedDataCollection:
         result_index = f"dsa-pbench.v4.result-data.{month}-*"
 
         # run prelim check for all docs in month to determine valid run ids for check
+
         self.diagnostic_checks["run"][0].add_month(month)
 
         for run_doc in self.es_data_gen(self.es, run_index, "pbench-run"):
@@ -1165,7 +1166,7 @@ class DiagnosticCheck(ABC):
         """
         return self.diagnostic_return, self.issues
 
-class PrelimCheck1(DiagnosticCheck):
+class ClientCount(DiagnosticCheck):
     _diagnostic_names = ["non_1_client", "run_not_in_result"]
 
     def __init__(self, es : Elasticsearch):
@@ -1241,7 +1242,20 @@ class PrelimCheck1(DiagnosticCheck):
                 }
             }
         }
+    
 
+    def measurement_idx_check(self, run):
+        for iteration_name in run["3"]["buckets"]:
+            # print(iteration_name["key"])
+            for sample_name in iteration_name["4"]["buckets"]:
+                # print(sample_name["key"])
+                for measurement_type in sample_name["5"]["buckets"]:
+                    # print(measurement_type["key"])
+                    for measurement_title in measurement_type["6"]["buckets"]:
+                        # print(measurement_title["key"])
+                        if len(measurement_title["7"]["buckets"]) > 2:
+                            return False
+        return True
     
     def add_month(self, month):
         result_index = f"dsa-pbench.v4.result-data.{month}-*"
@@ -1251,37 +1265,9 @@ class PrelimCheck1(DiagnosticCheck):
         # print(json.dumps(resp))
         # print("\n---------------\n")
         for run in resp["aggregations"]["2"]["buckets"]:
-            # print(run)
-            print(run["key"])
-            # print("run:\n")
-            # print(run)
-            # print("\n")
-            # print(run)
-            # break
-            break_run = False
-            # TODO: Factor into routine that takes in run, returns False at 1205 otherwise returns true
-            for iteration_name in run["3"]["buckets"]:
-                print(iteration_name["key"])
-                for sample_name in iteration_name["4"]["buckets"]:
-                    print(sample_name["key"])
-                    for measurement_type in sample_name["5"]["buckets"]:
-                        print(measurement_type["key"])
-                        for measurement_title in measurement_type["6"]["buckets"]:
-                            print(measurement_title["key"])
-                            if len(measurement_title["7"]["buckets"]) > 2:
-                                self.run_id_valid_status[run["key"]] = False
-                                # print(measurement_title["7"]["buckets"])
-                                sys.exit(1)
-                                break_run = True
-                        if break_run is True:
-                            break
-                    if break_run is True:
-                        break
-                if break_run is True:
-                    break
-            if break_run is False:
-                self.run_id_valid_status[run["key"]] = True
-            sys.exit(1)
+            print("run: " + run["key"])
+            run_status = self.measurement_idx_check(run)
+            self.run_id_valid_status[run["key"]] = run_status
 
     @property
     def diagnostic_names(self):
