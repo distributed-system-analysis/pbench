@@ -45,7 +45,7 @@ URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${COPR_USER}
 # the final repo name would be "pbench-test".
 TEST =
 _TEST_SUFFIX = $(if $(TEST),-$(TEST),"")
-_PBENCH_REPO_NAME = pbench${_TEST_SUFFIX}
+_PBENCH_REPO_NAME = pbench-$(shell grep -oE '[0-9]+\.[0-9]+' ${_PBENCH_TOP}/agent/VERSION)${_TEST_SUFFIX}
 
 # By default we use the pbench Quay.io organization for the image
 # repository.  You can override this default using an environment
