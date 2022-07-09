@@ -2,10 +2,12 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 import os
 import pandas
-import json
-import sys
+import calendar
 from pathos.pools import ProcessPool
 from pathos.helpers import cpu_count
+from datetime import datetime
+from dateutil import rrule
+from dateutil.relativedelta import relativedelta
 
 from requests import Session
 from typing import Tuple
@@ -1184,63 +1186,51 @@ class ClientCount(DiagnosticCheck):
         self.query = {
             "query": {
                 "filtered": {
-                "query": {
-                    "query_string": {
-                    "analyze_wildcard": True,
-                    "query": "run.script:fio"
+                    "query": {
+                        "query_string": {"analyze_wildcard": True, "query": "run.script:fio"}
                     }
-                }
                 }
             },
             "size": 0,
             "aggs": {
                 "2": {
-                "terms": {
-                    "field": "run.id",
-                    "size": 0
-                },
-                "aggs": {
-                    "3": {
-                    "terms": {
-                        "field": "iteration.name",
-                        "size": 0
-                    },
+                    "terms": {"field": "run.id", "size": 0},
                     "aggs": {
-                        "4": {
-                        "terms": {
-                            "field": "sample.name",
-                            "size": 0
-                        },
-                        "aggs": {
-                            "5": {
-                            "terms": {
-                                "field": "sample.measurement_type",
-                                "size": 0
-                            },
+                        "3": {
+                            "terms": {"field": "iteration.name", "size": 0},
                             "aggs": {
-                                "6": {
-                                "terms": {
-                                    "field": "sample.measurement_title",
-                                    "size": 0
-                                },
-                                "aggs": {
-                                    "7": {
-                                    "terms": {
-                                        "field": "sample.measurement_idx",
-                                        "size": 0
-                                    }
-                                    }
+                                "4": {
+                                    "terms": {"field": "sample.name", "size": 0},
+                                    "aggs": {
+                                        "5": {
+                                            "terms": {
+                                                "field": "sample.measurement_type",
+                                                "size": 0,
+                                            },
+                                            "aggs": {
+                                                "6": {
+                                                    "terms": {
+                                                        "field": "sample.measurement_title",
+                                                        "size": 0,
+                                                    },
+                                                    "aggs": {
+                                                        "7": {
+                                                            "terms": {
+                                                                "field": "sample.client_hostname",
+                                                                "size": 0,
+                                                            }
+                                                        }
+                                                    },
+                                                }
+                                            },
+                                        }
+                                    },
                                 }
-                                }
-                            }
-                            }
+                            },
                         }
-                        }
-                    }
-                    }
+                    },
                 }
-                }
-            }
+            },
         }
     
 
@@ -1257,17 +1247,30 @@ class ClientCount(DiagnosticCheck):
                             return False
         return True
     
+
+    def gen_month_indices(self, month):
+        valid_indices = []
+        year_comp, month_comp = month.split("-")
+        num_days = calendar.monthrange(int(year_comp), int(month_comp))[1]
+        for day in range(num_days, 0, -1):
+            result_index = f"dsa-pbench.v4.result-data.{month}-{day:02d}"
+            if self.es.indices.exists(result_index):
+                valid_indices.append(result_index)
+        return valid_indices
+
+    
     def add_month(self, month):
-        result_index = f"dsa-pbench.v4.result-data.{month}-*"
-        resp = self.es.search(index = result_index, body = self.query)
-        # print("---------------\n")
-        # print("\nRESPONSE:\n")
-        # print(json.dumps(resp))
-        # print("\n---------------\n")
-        for run in resp["aggregations"]["2"]["buckets"]:
-            print("run: " + run["key"])
-            run_status = self.measurement_idx_check(run)
-            self.run_id_valid_status[run["key"]] = run_status
+        valid_indices = self.gen_month_indices(month)
+        for result_index in valid_indices:
+            resp = self.es.search(index = result_index, body = self.query)
+            # print("---------------\n")
+            # print("\nRESPONSE:\n")
+            # print(json.dumps(resp))
+            # print("\n---------------\n")
+            for run in resp["aggregations"]["2"]["buckets"]:
+                # print("run: " + run["key"])
+                run_status = self.measurement_idx_check(run)
+                self.run_id_valid_status[run["key"]] = run_status
 
     @property
     def diagnostic_names(self):
