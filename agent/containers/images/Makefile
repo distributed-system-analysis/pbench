@@ -157,12 +157,12 @@ centos-7-% centos-8-%: _PROMETHEUS_RPMS = \
 
 # Tagging targets
 #
-# Available tags values are "latest", "alpha", "beta", "major", and "major-minor"
+# Available tags values are "latest", "alpha", "beta", "ci", "major", and "major-minor".
 # "major" produces a tag of "v<Major>-latest", and "major-minor" produces a tag
 # of "v<Major>.<Minor>-latest".
 #
 # See the `tagit` script for details.
-_TAG_TYPES = latest alpha beta major major-minor
+_TAG_TYPES = latest alpha beta ci major major-minor
 $(_TAG_TYPES:%=tag-%): tag-%: $(_DEFAULT_DISTROS:%=%-tag-%)
 
 

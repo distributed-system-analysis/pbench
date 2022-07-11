@@ -17,6 +17,9 @@ prog = pbench-${component}
 VERSION := $(file < ${PBENCHTOP}/${component}/VERSION)
 TBDIR = ${TMPDIR}/${prog}-${VERSION}
 
+# This can be overridden by specifying it on the command line.
+COPR_CONFIG = ${HOME}/.config/copr
+
 RPMDIRS = BUILD BUILDROOT SPECS SOURCES SRPMS RPMS
 
 RPMSRC = ${HOME}/rpmbuild/SOURCES
@@ -76,10 +79,10 @@ else
 _copr_user = ${USER}
 endif
 
-COPR_TARGETS = copr copr-test
+COPR_TARGETS = copr copr-test copr-ci
 .PHONY: ${COPR_TARGETS}
 ${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(version)-$(seqno)$(sha1).src.rpm
-	copr-cli build ${CHROOTS} $(_copr_user)/$(subst copr,pbench,$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
+	copr-cli --config ${COPR_CONFIG} build ${CHROOTS} $(_copr_user)/$(subst copr,pbench,$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
 
 .PHONY: distclean
 distclean:

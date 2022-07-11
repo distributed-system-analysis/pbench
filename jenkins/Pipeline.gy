@@ -1,24 +1,33 @@
 pipeline {
     agent { label 'pbench' }
     environment {
-        IMAGE_ROLE="ci"
+        // COPR_CONFIG=credentials('cce995d4-0bfc-44d8-b4fb-cf5641a56639')  // External COPR
+        COPR_CONFIG=credentials('6fe4042e-8e9e-43d4-b0cf-909459c8c6fb')     // Internal COPR
+        EXTRA_PODMAN_SWITCHES="--pull=always -e=COV_REPORT_XML=yes -e=PODMAN*"
         IMAGE_KIND="fedora"
         IMAGE_REPO="quay.io/pbench"
-        EXTRA_PODMAN_SWITCHES="--pull=always -e COV_REPORT_XML=yes"
+        IMAGE_ROLE="ci"
         NO_COLORS=0
+        PODMAN=credentials('87ad2797-02eb-464f-989f-8ab78d63cdf3')
         PY_COLORS=0
         TERM='dumb'
     }
     stages {
         stage('Linting & Unit Tests') {
             steps {
+                // If we don't have a sequence number file left over from a
+                // previous run, then create one.
+                sh 'if [[ ! -e agent/rpm/seqno ]] ; then echo "1" > agent/rpm/seqno ; fi'
+                sh 'if [[ ! -e server/rpm/seqno ]] ; then echo "1" > server/rpm/seqno ; fi'
+
                 // If there is somehow a symlink left over from a previous run's
                 // Cobertura processing, remove it, because it seems to confuse
                 // the coverage data collection.
                 sh 'rm -fv pbench'
 
-                echo 'Linting, pytest-based unit tests, and legacy unit tests'
-                sh 'jenkins/run tox'
+                // Run the "build" (lint, unit tests, RPM builds, etc.) in a
+                // container.
+                sh 'jenkins/run ./build.sh'
             }
         }
         stage('Agent Python3.6 Check') {

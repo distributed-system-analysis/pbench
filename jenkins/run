@@ -51,12 +51,18 @@ if [ "${git_dir}" != "$(pwd)/.git" ]; then
     GIT_BASE_VOLUME="--volume ${git_common_dir}:${git_common_dir}:z"
 fi
 
+if [[ -n ${COPR_CONFIG} ]]; then
+    COPR_CONFIG_VOLUME="--volume ${COPR_CONFIG}:${HOME_DIR}/.config/copr:z"
+fi
+
 _image=${IMAGE:-${_image_repo}/pbench-${_image_role}-${_image_kind}:${_branch_name}}
 
 podman run \
     --userns=keep-id \
-    --volume $(pwd):${HOME_DIR}/pbench:z \
     --volume ${HOME_DIR} \
+    --volume ${HOME_DIR}/.config \
+    ${COPR_CONFIG_VOLUME} \
+    --volume $(pwd):${HOME_DIR}/pbench:z \
     ${GIT_BASE_VOLUME} \
     -w ${HOME_DIR}/pbench \
     --env HOME=${HOME_DIR} \
