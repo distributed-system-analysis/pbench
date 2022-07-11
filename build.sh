@@ -60,8 +60,8 @@ export PATH=${HOME}/.local/bin:${PATH}
 python3 -m pip install --user -r lint-requirements.txt
 
 # If this script is run in a container and the user in the container doesn't
-# match the owner of the Git checkout, then Git objects; these config settings
-# prevent the complaints.
+# match the owner of the Git checkout, then Git issues an error; these config
+# settings avoid the problem.
 GITTOP=$(git rev-parse --show-toplevel 2>&1 | head -n 1)
 if [[ ${GITTOP} =~ "fatal: unsafe repository ('/home/root/pbench'" ]] ; then
 	git config --global --add safe.directory /home/root/pbench
