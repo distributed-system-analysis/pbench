@@ -106,7 +106,7 @@ python3 -m pip install --upgrade pip 2>&1 > /%{installdir}/pip3-install.log
 # The newly installed pip3 should be able to deal with the following.
 # N.B. We redirect both stdout and stderr into the log here but append the output to
 # the already existing file.
-(su pbench -c "python3 -m pip --no-cache-dir install --user --no-warn-script-location -r /%{installdir}/requirements.txt" 2>&1) >> /%{installdir}/pip3-install.log
+su pbench -c "python3 -m pip --no-cache-dir install --user --no-warn-script-location -r /%{installdir}/requirements.txt" >> /%{installdir}/pip3-install.log 2>&1
 
 # The `site` package is Python magic; it runs automatically when Python starts,
 # and builds `sys.path`.
