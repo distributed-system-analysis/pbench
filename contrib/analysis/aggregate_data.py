@@ -86,7 +86,7 @@ def main(parser: argparse.ArgumentParser) -> None:
 
     # FIXME: Doesn't work for default of no multiprocessing and only 1 cpu
     #        because pool becomes none in initialization.
-    pbench_data.add_months(_year_month_gen(end_time, args.start_months_prior))
+    pbench_data.add_months2(_year_month_gen(end_time, args.start_months_prior))
 
     # FIXME: This doesn't work as expected
     # for month in _month_gen(end_time, args.start_months_prior):

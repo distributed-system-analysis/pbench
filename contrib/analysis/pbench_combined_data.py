@@ -5,9 +5,7 @@ import pandas
 import calendar
 from pathos.pools import ProcessPool
 from pathos.helpers import cpu_count
-from datetime import datetime
-from dateutil import rrule
-from dateutil.relativedelta import relativedelta
+import asyncio
 
 from requests import Session
 from typing import Tuple
@@ -934,7 +932,72 @@ class PbenchCombinedDataCollection:
             self.add_result(result_doc)
         print(f"finishing {month}...")
         self.print_report()
-        return self
+        # return self
+    
+    async def async_collect_data(self,
+        month: str,
+    ) -> None:
+        """Collects all run and result data for a given month and stores it inside itself.
+
+        Given a month, gets the run_index and result_index names for the month specified.
+        Loops over every doc in the run_index that is of type 'pbench-run', and
+        adds it to pbench_data. Checks if valid record_limit is met and stops
+        going through more run data. Then loops over all result docs in the month
+        of type 'pbench-result-data-sample' and adds it to pbench_data.
+
+        #NOTE: Need to still go through all result data for the month to ensure we
+            retrive all result data associated with the runs added, since we
+            don't know more specifically the associations within the index, this
+            is the best we can do so far.
+
+        #NOTE: Since only within months do the processing of run and result need to
+            be sequential, we can process multiple months in parallel,
+            hopefully reducing time taken overall.
+
+        Parameters
+        ----------
+        month : str
+            Month Year string stored in YYYY-MM format
+
+        Returns
+        -------
+        self : PbenchCombinedDataCollection
+            returns the current object which has been updated with the new info from this process
+
+        #NOTE: Could instead return just the updated dicts and merge them with the
+               Collection object in the main process.
+
+        #FIXME: If main process collection not initially empty, since main process object used as a
+               base for all other processes to then update separately, initial data and counts will
+               be repeated. Could make sure to create a new Collection object in the method?
+
+        """
+        new_collection = PbenchCombinedDataCollection(self.incoming_url, self.session, self.es, self.record_limit, self.ncpus)
+        print(f"async starting {month}...")
+        run_index = f"dsa-pbench.v4.run.{month}"
+        result_index = f"dsa-pbench.v4.result-data.{month}-*"
+
+        # run prelim check for all docs in month to determine valid run ids for check
+
+        new_collection.diagnostic_checks["run"][0].add_month(month)
+
+        for run_doc in self.es_data_gen(self.es, run_index, "pbench-run"):
+            new_collection.add_run(run_doc)
+            if self.record_limit != -1:
+                if self.trackers["run"]["valid"] + new_collection.trackers["run"]["valid"] >= self.record_limit:
+                    break
+
+        for result_doc in self.es_data_gen(
+            self.es, result_index, "pbench-result-data-sample"
+        ):
+            new_collection.add_result(result_doc)
+        print(f"async finishing {month}...")
+        new_collection.print_report()
+        self.combine_data(new_collection)
+        print("Updated self: \n")
+        self.print_report()
+        # return new_collection
+
 
     # FIXME: Doesn't work.
     def wait_for_pool(self) -> None:
@@ -980,6 +1043,30 @@ class PbenchCombinedDataCollection:
         """
         self.pool_results.append(self.pool.amap(self.collect_data, [month]))
 
+    def sync_add_months(self, months: list[str]) -> None:
+        for month in months:
+            self.collect_data(month)
+            if self.record_limit != -1:
+                if self.trackers["run"]["valid"] >= self.record_limit:
+                    break
+    
+    async def async_add_months(self, months : list[str]):
+        months_in_progress = [asyncio.create_task(self.async_collect_data(month)) for month in months]
+        for completed_month in asyncio.as_completed(months_in_progress):
+            self.combine_data(await completed_month)
+            print("NEW MAIN: \n")
+            self.print_report()
+            if self.record_limit != -1:
+                if self.trackers["run"]["valid"] >= self.record_limit:
+                    break
+    
+    def add_months2(self, months : list[str]) -> None:
+        if self.ncpus == 1:
+            self.sync_add_months(months)
+        else:
+            asyncio.run(self.async_add_months(months))
+
+
     def add_months(self, months: list[str]) -> None:
         """Starts blocking call to collect data for months
 
@@ -999,6 +1086,12 @@ class PbenchCombinedDataCollection:
         None
 
         """
+        # if self.ncpus == 1:
+        #     for month in months:
+        #         self.collect_data(month)
+        # else:
+            
+
         self.pool.restart(True)
         self.pool_results.extend(self.pool.map(self.collect_data, months))
         for result in self.pool_results:
