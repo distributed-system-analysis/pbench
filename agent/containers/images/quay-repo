@@ -11,7 +11,6 @@ Returns 0 on success
 Returns 1 on failure (
 """
 
-import json
 import os
 from pathlib import Path
 import requests
@@ -74,16 +73,10 @@ def create(session, repo):
         "description": "",
         "repo_kind": "image",
     }
-    payload = json.dumps(body)
-    mod_headers = headers.copy()
-    mod_headers["Content-Type"] = "application/json"
-
-    response = session.post(
-        url, headers=mod_headers, data=payload, allow_redirects=False
-    )
+    response = session.post(url, json=body, allow_redirects=False)
     if response.status_code != 201:
         print(
-            f"[{prog}] ERROR - 'POST {url}', with body '{payload}', failed"
+            f"[{prog}] ERROR - 'POST {url}', with body {body!r}, failed"
             f" with {response.status_code}, '{response.text}'",
             file=sys.stderr,
         )
@@ -93,15 +86,10 @@ def create(session, repo):
 def add_core(session, repo):
     url = f"https://quay.io/api/v1/repository/pbench/{repo}/permissions/team/core"
     body = {"role": "admin"}
-    payload = json.dumps(body)
-    mod_headers = headers.copy()
-    mod_headers["Content-Type"] = "application/json"
-    response = session.put(
-        url, headers=mod_headers, data=payload, allow_redirects=False
-    )
+    response = session.put(url, json=body, allow_redirects=False)
     if response.status_code != 200:
         print(
-            f"[{prog}] ERROR - 'PUT {url}', with body '{payload}', failed"
+            f"[{prog}] ERROR - 'PUT {url}', with body {body!r}, failed"
             f" with {response.status_code}, '{response.text}'",
             file=sys.stderr,
         )
@@ -111,15 +99,10 @@ def add_core(session, repo):
 def make_public(session, repo):
     url = f"https://quay.io/api/v1/repository/pbench/{repo}/changevisibility"
     body = {"visibility": "public"}
-    payload = json.dumps(body)
-    mod_headers = headers.copy()
-    mod_headers["Content-Type"] = "application/json"
-    response = session.post(
-        url, headers=mod_headers, data=payload, allow_redirects=False
-    )
+    response = session.post(url, json=body, allow_redirects=False)
     if response.status_code != 200:
         print(
-            f"[{prog}] ERROR - 'POST {url}', with body '{payload}', failed"
+            f"[{prog}] ERROR - 'POST {url}', with body {body!r}, failed"
             f" with {response.status_code}, '{response.text}'",
             file=sys.stderr,
         )
