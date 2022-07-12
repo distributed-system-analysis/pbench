@@ -131,7 +131,10 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
     for _major in ${major_list}; do
         _pytest_majors="${_pytest_majors} pbench.test.unit.${_major}"
         if [[ "${_major}" == "agent" ]]; then
-            _pytest_majors="${_pytest_majors} pbench.test.functional"
+            # TODO: real functional tests require a deployed instance. Current
+            # agent "functional" tests are mocked Click tests rather than true
+            # "functional" tests.
+            _pytest_majors="${_pytest_majors} pbench.test.functional.agent"
         fi
     done
 

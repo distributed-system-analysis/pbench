@@ -5,7 +5,7 @@ import pytest
 from pbench.client import Pbench
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="module")
 def pbench():
     """
     Used by Pbench Server functional tests to connect to a server.
