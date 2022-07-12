@@ -7,11 +7,12 @@ import time
 from datetime import datetime
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
+from sos_collection import SosCollection
 from pbench_combined_data import PbenchCombinedDataCollection
 from elasticsearch1 import Elasticsearch
 
 
-def _year_month_gen(end_time: datetime, start_months_prior: int) -> str:
+def _year_month_gen(end_time: datetime, start_months_prior: int, end_months_prior: int) -> str:
     """Generate YYYY-MM stings for months specified.
 
     For all months inclusive, generate YYYY-MM strings starting at the
@@ -33,7 +34,7 @@ def _year_month_gen(end_time: datetime, start_months_prior: int) -> str:
     """
     start = end_time - relativedelta(months=start_months_prior)
     first_month = start.replace(day=1)
-    last_month = end_time + relativedelta(day=31)
+    last_month = end_time + relativedelta(day=31) - relativedelta(months = end_months_prior)
     reverse_months = sorted(rrule.rrule(rrule.MONTHLY, dtstart=first_month, until=last_month), reverse=True)
     for date in reverse_months:
         yield f"{date.year:04}-{date.month:02}"
@@ -88,7 +89,7 @@ def main(parser: argparse.ArgumentParser) -> None:
     #        because pool becomes none in initialization.
     # pbench_data.add_months2(_year_month_gen(end_time, args.start_months_prior))
 
-    pbench_data.sync_add_months(_year_month_gen(end_time, args.start_months_prior))
+    pbench_data.sync_add_months(_year_month_gen(end_time, args.start_months_prior, args.end_months_prior))
 
     # FIXME: This doesn't work as expected
     # for month in _month_gen(end_time, args.start_months_prior):
@@ -96,6 +97,11 @@ def main(parser: argparse.ArgumentParser) -> None:
     # pbench_data.wait_for_pool()
     # res = pbench_data.kibana_query_results_for_runs(_month_gen(end_time, args.start_months_prior))
     # print(res)
+
+    sos_collection = SosCollection(args.url_prefix, args.cpu_n, args.sos_host_server)
+    for id in pbench_data.run_id_to_data_valid:
+        sos_collection.process_sos(pbench_data.run_id_to_data_valid[id])
+        break
     
     scan_end = time.time()
     duration = scan_end - scan_start
@@ -137,7 +143,7 @@ def parse_arguments() -> argparse.ArgumentParser:
         type=str,
         help="Pbench server url prefix to extract host and disk names",
     )
-    # parser.add_argument("sosreport_host_server", action="store" ,dest="sos_host", type=str, help="Sosreport host server to access sosreport info")
+    parser.add_argument("sos_host_server", action="store", type=str, help="Sosreport host server to access sosreport info")
     parser.add_argument(
         "--cpu",
         action="store",
@@ -161,12 +167,20 @@ def parse_arguments() -> argparse.ArgumentParser:
         help="Want memory usage profile",
     )
     parser.add_argument(
-        "--months",
+        "--months_s",
         action="store",
         dest="start_months_prior",
         type=int,
         default=12,  # default to 12 months worth of data
-        help="Number of months prior to now for which to collect data",
+        help="Number of months prior to now at which to start data collection",
+    )
+    parser.add_argument(
+        "--months_e",
+        action="store",
+        dest="end_months_prior",
+        type=int,
+        default=11,  # setting so have usable data for testing
+        help="Number of months prior to now at which to end data collection",
     )
     return parser
 
