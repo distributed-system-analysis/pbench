@@ -1,6 +1,6 @@
 import * as TYPES from "./types";
 import API from "../utils/axiosInstance";
-
+import { constructToast } from "./toastActions";
 export const getDatasets = () => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
@@ -179,7 +179,7 @@ export const setSelectedRuns = (rows) => async (dispatch) => {
 export const updateMultipleDataset = (method) => async (dispatch, getState) => {
   const selectedRuns = getState().overview.selectedRuns;
   let toastMsg = "";
-  if (selectedRuns > 0) {
+  if (selectedRuns.length > 0) {
     if (method === "delete") {
       selectedRuns.forEach((item) => {
         dispatch(deleteDataset(item));

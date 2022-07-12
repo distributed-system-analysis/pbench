@@ -119,14 +119,14 @@ const NewRunsComponent = () => {
             <Thead>
               <Tr>
                 <Th width={2} />
-                <Td
+                <Th
                   width={2}
                   select={{
                     onSelect: (_event, isSelecting) =>
                       selectAllRuns(isSelecting),
                     isSelected: areAllRunsSelected,
                   }}
-                ></Td>
+                ></Th>
                 <Th width={35}>{columnNames.result}</Th>
                 <Th width={25}>{columnNames.endtime}</Th>
                 <Th width={20}></Th>
