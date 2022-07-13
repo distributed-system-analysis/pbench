@@ -9,6 +9,7 @@ import asyncio
 
 from requests import Session
 from typing import Tuple
+from sos_collection import SosCollection
 from elasticsearch1 import Elasticsearch
 from elasticsearch1.helpers import scan
 
@@ -506,7 +507,8 @@ class PbenchCombinedDataCollection:
 
     def __init__(
         self,
-        incoming_url: str,
+        url_prefix: str,
+        sos_host_server: str,
         session: Session,
         es: Elasticsearch,
         record_limit: int,
@@ -519,7 +521,7 @@ class PbenchCombinedDataCollection:
 
         Parameters
         ----------
-        incoming_url : str
+        url_prefix : str
             pbench server url prefix to fetch unpacked data (used for fio extraction)
         session : Session
             A session to make request to url (used for fio extraction)
@@ -538,7 +540,9 @@ class PbenchCombinedDataCollection:
         # implementation for now
         self.results_seen = dict()
         self.es = es
-        self.incoming_url = incoming_url
+        self.url_prefix = url_prefix
+        self.sos_host_server = sos_host_server
+        self.incoming_url = f"{self.url_prefix}/incoming/"
         self.session = session
         self.trackers = {
             "run": dict(),
@@ -566,6 +570,9 @@ class PbenchCombinedDataCollection:
         self.ncpus = cpu_count() - 1 if cpu_n == 0 else cpu_n
         self.pool = ProcessPool(self.ncpus)
         self.pool_results = []
+        self.sos_collection = SosCollection(
+            self.url_prefix, cpu_n, self.sos_host_server
+        )
 
     def __str__(self) -> str:
         """Specifies how to print object
@@ -644,6 +651,9 @@ class PbenchCombinedDataCollection:
         trackers_df.to_csv(csv_folder_path + "/trackers_report.csv", sep=";", mode="w+")
         diskhost_df.to_csv(csv_folder_path + "/diskhost_names.csv", sep=";", mode="w+")
         clientname_df.to_csv(csv_folder_path + "/client_names.csv", sep=";", mode="w+")
+
+    def extract_sos_data(self, combined_data: PbenchCombinedData):
+        self.sos_collection.process_sos(combined_data)
 
     def trackers_initialization(self) -> None:
         """Initializes all diagnostic tracker values to 0.
@@ -817,6 +827,8 @@ class PbenchCombinedDataCollection:
             self.update_diagnostic_trackers(
                 associated_run.data["diagnostics"]["client_side"], "client_side"
             )
+            self.extract_sos_data(associated_run)
+            print(associated_run)
             # NOTE: though host and disk names may be marked invalid, a valid output
             #       is always given in those cases, so we will effectively always have
             #       valid hostdisk names. However client_names marked as invalid will
@@ -933,7 +945,7 @@ class PbenchCombinedDataCollection:
         print(f"finishing {month}...")
         self.print_report()
         # return self
-    
+
     # async def async_collect_data(self,
     #     month: str,
     # ) -> None:
@@ -998,7 +1010,6 @@ class PbenchCombinedDataCollection:
     #     self.print_report()
     #     # return new_collection
 
-
     # FIXME: Doesn't work.
     # def wait_for_pool(self) -> None:
     #     """Waits for all processes in pool to finish
@@ -1049,7 +1060,7 @@ class PbenchCombinedDataCollection:
             if self.record_limit != -1:
                 if self.trackers["run"]["valid"] >= self.record_limit:
                     break
-    
+
     # async def async_add_months(self, months : list[str]):
     #     months_in_progress = [asyncio.create_task(self.async_collect_data(month)) for month in months]
     #     for completed_month in asyncio.as_completed(months_in_progress):
@@ -1059,13 +1070,12 @@ class PbenchCombinedDataCollection:
     #         if self.record_limit != -1:
     #             if self.trackers["run"]["valid"] >= self.record_limit:
     #                 break
-    
+
     # def add_months2(self, months : list[str]) -> None:
     #     if self.ncpus == 1:
     #         self.sync_add_months(months)
     #     else:
     #         asyncio.run(self.async_add_months(months))
-
 
     # def add_months(self, months: list[str]) -> None:
     #     """Starts blocking call to collect data for months
@@ -1090,7 +1100,6 @@ class PbenchCombinedDataCollection:
     #     #     for month in months:
     #     #         self.collect_data(month)
     #     # else:
-            
 
     #     self.pool.restart(True)
     #     self.pool_results.extend(self.pool.map(self.collect_data, months))
@@ -1261,16 +1270,17 @@ class DiagnosticCheck(ABC):
         """
         return self.diagnostic_return, self.issues
 
+
 class ClientCount(DiagnosticCheck):
     _diagnostic_names = ["non_1_client", "run_not_in_result"]
 
-    def __init__(self, es : Elasticsearch):
+    def __init__(self, es: Elasticsearch):
         """Initialization function
 
         Attributes
         ----------
         run_id_valid_status : dict
-            Map from run_id to boolean 
+            Map from run_id to boolean
             True if valid, False if not.
 
         """
@@ -1280,7 +1290,10 @@ class ClientCount(DiagnosticCheck):
             "query": {
                 "filtered": {
                     "query": {
-                        "query_string": {"analyze_wildcard": True, "query": "run.script:fio"}
+                        "query_string": {
+                            "analyze_wildcard": True,
+                            "query": "run.script:fio",
+                        }
                     }
                 }
             },
@@ -1325,7 +1338,6 @@ class ClientCount(DiagnosticCheck):
                 }
             },
         }
-    
 
     def measurement_idx_check(self, run):
         for iteration_name in run["3"]["buckets"]:
@@ -1339,7 +1351,6 @@ class ClientCount(DiagnosticCheck):
                         if len(measurement_title["7"]["buckets"]) > 2:
                             return False
         return True
-    
 
     def gen_month_indices(self, month):
         valid_indices = []
@@ -1351,11 +1362,10 @@ class ClientCount(DiagnosticCheck):
                 valid_indices.append(result_index)
         return valid_indices
 
-    
     def add_month(self, month):
         valid_indices = self.gen_month_indices(month)
         for result_index in valid_indices:
-            resp = self.es.search(index = result_index, body = self.query)
+            resp = self.es.search(index=result_index, body=self.query)
             # print("---------------\n")
             # print("\nRESPONSE:\n")
             # print(json.dumps(resp))
@@ -1372,7 +1382,7 @@ class ClientCount(DiagnosticCheck):
     def diagnostic(self, doc):
         super().diagnostic(doc)
         valid = self.run_id_valid_status.get(doc["_source"]["run"]["id"], None)
-        if  valid == None:
+        if valid == None:
             self.diagnostic_return["run_not_in_result"] = True
             self.issues = True
         else:
