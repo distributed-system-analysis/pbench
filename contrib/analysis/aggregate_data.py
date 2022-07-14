@@ -119,7 +119,8 @@ def main(parser: argparse.ArgumentParser) -> None:
     duration = scan_end - scan_start
 
     pbench_data.print_report()
-    pbench_data.emit_csv()
+    pbench_data.print_timings()
+    # pbench_data.emit_csv()
     print(f"--- merging run and result data took {duration:0.2f} seconds", flush=True)
 
     if memprof:
@@ -196,7 +197,7 @@ def parse_arguments() -> argparse.ArgumentParser:
         action="store",
         dest="end_months_prior",
         type=int,
-        default=12,  # setting so have usable data for testing
+        default=0,  # setting so have usable data for testing
         help="Number of months prior to now at which to end data collection",
     )
     return parser

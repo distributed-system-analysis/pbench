@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from http import client
 import os
 import pandas
 import calendar
 from pathos.pools import ProcessPool
 from pathos.helpers import cpu_count
 import asyncio
+import time
 
 from requests import Session
 from typing import Tuple
@@ -452,6 +454,8 @@ class PbenchCombinedData:
         self.data_check(client_names, "client_side")
         if self.data["diagnostics"]["client_side"]["valid"] is True:
             self.data["clientnames"] = client_names
+    
+    # def add_sos_data(self, )
 
 
 class PbenchCombinedDataCollection:
@@ -573,6 +577,8 @@ class PbenchCombinedDataCollection:
         self.sos_collection = SosCollection(
             self.url_prefix, cpu_n, self.sos_host_server
         )
+        self.timings = {"run_data_time": 0, "result_data_time": 0, "diskhost_time": 0, "clientname_time": 0,
+                        "sos_collection_time": 0, "prelim_time": 0, "month_total": 0, "month_run": 0, "month_result": 0, "result_total": 0}
 
     def __str__(self) -> str:
         """Specifies how to print object
@@ -604,6 +610,13 @@ class PbenchCombinedDataCollection:
             + "Trackers: \n"
             + str(self.trackers)
             + "\n---------------\n"
+        )
+    
+    def print_timings(self) -> None:
+        print(
+            "----------------\n"
+            + str(self.timings)
+            + "-----------------\n"
         )
 
     def emit_csv(self) -> None:
@@ -653,7 +666,7 @@ class PbenchCombinedDataCollection:
         clientname_df.to_csv(csv_folder_path + "/client_names.csv", sep=";", mode="w+")
 
     def extract_sos_data(self, combined_data: PbenchCombinedData):
-        self.sos_collection.process_sos(combined_data)
+        self.sos_collection.sync_process_sos(combined_data)
 
     def trackers_initialization(self) -> None:
         """Initializes all diagnostic tracker values to 0.
@@ -726,7 +739,6 @@ class PbenchCombinedDataCollection:
         None
 
         """
-
         new_run = PbenchCombinedData(self.diagnostic_checks)
         new_run.add_run_data(doc)
         self.update_diagnostic_trackers(new_run.data["diagnostics"]["run"], "run")
@@ -810,25 +822,34 @@ class PbenchCombinedDataCollection:
         None
 
         """
-
+        result_total_start = time.time()
+        result_start = time.time()
         result_diagnostic_return = self.result_screening_check(doc)
         self.update_diagnostic_trackers(result_diagnostic_return, "result")
         if result_diagnostic_return["valid"] is True:
             associated_run_id = doc["_source"]["run"]["id"]
             associated_run = self.run_id_to_data_valid[associated_run_id]
             associated_run.add_result_data(doc, result_diagnostic_return)
+            result_end = time.time()
+            self.timings["result_data_time"] += result_end - result_start
             associated_run.add_host_and_disk_names(
                 self.diskhost_map, self.incoming_url, self.session
             )
             self.update_diagnostic_trackers(
                 associated_run.data["diagnostics"]["fio_extraction"], "fio_extraction"
             )
+            diskhost_end = time.time()
+            self.timings["diskhost_time"] += diskhost_end - result_end
             associated_run.add_client_names(self.clientnames_map, self.es)
             self.update_diagnostic_trackers(
                 associated_run.data["diagnostics"]["client_side"], "client_side"
             )
+            clientname_end = time.time()
+            self.timings["clientname_time"] += clientname_end - diskhost_end
             self.extract_sos_data(associated_run)
-            print(associated_run)
+            sos_end = time.time()
+            self.timings["sos_collection_time"] += sos_end - clientname_end
+            # print(associated_run)
             # NOTE: though host and disk names may be marked invalid, a valid output
             #       is always given in those cases, so we will effectively always have
             #       valid hostdisk names. However client_names marked as invalid will
@@ -849,6 +870,12 @@ class PbenchCombinedDataCollection:
                     "missing_so_temo_id_" + str(self.result_temp_id)
                 ] = doc
                 self.result_temp_id += 1
+            result_end2 = time.time()
+            self.timings["result_data_time"] += result_end2 - result_start
+    
+        result_total_end = time.time()
+        self.timings["result_total"] += result_total_end - result_total_start
+    
 
     # TODO: Maybe add sosreports from here. But will determine this once moved on
     #      from merge_sos_and_perf_parallel.py file
@@ -929,21 +956,32 @@ class PbenchCombinedDataCollection:
         result_index = f"dsa-pbench.v4.result-data.{month}-*"
 
         # run prelim check for all docs in month to determine valid run ids for check
-
+        prelim_start = time.time()
         self.diagnostic_checks["run"][0].add_month(month)
+        prelim_end = time.time()
+        self.timings["prelim_time"] += prelim_end - prelim_start
 
+        month_run_start = time.time()
         for run_doc in self.es_data_gen(self.es, run_index, "pbench-run"):
+            run_start = time.time()
             self.add_run(run_doc)
+            run_end = time.time()
+            self.timings["run_data_time"] += run_end - run_start
             if self.record_limit != -1:
                 if self.trackers["run"]["valid"] >= self.record_limit:
                     break
+        month_run_end = time.time()
+        self.timings["month_run"] += month_run_end - month_run_start
 
+        month_result_start = time.time()
         for result_doc in self.es_data_gen(
             self.es, result_index, "pbench-result-data-sample"
         ):
             self.add_result(result_doc)
-        print(f"finishing {month}...")
-        self.print_report()
+        month_result_end = time.time()
+        self.timings["month_result"] += month_result_end - month_result_start
+        # print(f"finishing {month}...")
+        # self.print_report()
         # return self
 
     # async def async_collect_data(self,
@@ -1056,7 +1094,11 @@ class PbenchCombinedDataCollection:
 
     def sync_add_months(self, months: list[str]) -> None:
         for month in months:
+            month_start = time.time()
             self.collect_data(month)
+            month_end = time.time()
+            self.timings[month] = month_end - month_start
+            self.timings["month_total"] += self.timings[month]
             if self.record_limit != -1:
                 if self.trackers["run"]["valid"] >= self.record_limit:
                     break

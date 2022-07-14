@@ -250,6 +250,12 @@ class SosCollection:
             "sys/block/sdX/queue/scheduler",
             "etc/tuned/active_profile",  # recommended by Peter
         ]
+    
+    def sort_and_unique1(filename):
+        with open(filename, "r") as f:
+            lines = set(f)
+        return lines
+
 
     def sos_folder_exist(self):
         self.sos_folder_path = os.getcwd() + "/sosreports_new"
@@ -283,10 +289,10 @@ class SosCollection:
     def delete_sos_tar_from_local(self, local_path: str):
         os.remove(local_path)
 
-    def process_sos(self, combined_data):
-        print(self.sftp_client.getcwd())
+    def sync_process_sos(self, combined_data):
+        # print(self.sftp_client.getcwd())
         for sosreport in combined_data.data["sosreports"]:
-            print(sosreport)
+            # print(sosreport)
             # if haven't seen sosreport before extract its data and
             # store it in seen dict
             if self.seen_sos.get(sosreport, None) == None:
@@ -296,4 +302,18 @@ class SosCollection:
             combined_data.data["sosreports"][sosreport][
                 "extracted_sos"
             ] = self.seen_sos[sosreport]
-        print(combined_data.data)
+        # print(combined_data.data)
+    
+    def async_process_sos(self, combined_data):
+        for sosreport in combined_data.data["sosreports"]:
+            # print(sosreport)
+            # if haven't seen sosreport before extract its data and
+            # store it in seen dict
+            if self.seen_sos.get(sosreport, None) == None:
+                extracted_sos_data = self.extract_sos_data(sosreport, combined_data)
+                self.seen_sos[sosreport] = extracted_sos_data
+            # else already extracted and stored
+            combined_data.data["sosreports"][sosreport][
+                "extracted_sos"
+            ] = self.seen_sos[sosreport]
+        # print(combined_data.data)
