@@ -20,6 +20,10 @@ import {
   setSelectedRuns,
 } from "actions/overviewActions";
 import { RenderPagination } from "./common-component";
+import {
+  START_PAGE_NUMBER,
+  ROWS_PER_PAGE,
+} from "assets/constants/overviewConstants";
 
 const NewRunsComponent = () => {
   const dispatch = useDispatch();
@@ -28,8 +32,8 @@ const NewRunsComponent = () => {
   );
   const loginDetails = useSelector((state) => state.userAuth.loginDetails);
 
-  const [perPage, setPerPage] = useState(5);
-  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(ROWS_PER_PAGE);
+  const [page, setPage] = useState(START_PAGE_NUMBER);
 
   const onSetPage = (_evt, newPage, _perPage, startIdx, endIdx) => {
     setPage(newPage);
@@ -53,15 +57,15 @@ const NewRunsComponent = () => {
 
   /* Selecting */
   const areAllRunsSelected =
-    newRuns?.length > 0 && newRuns?.length === selectedRuns?.length;
+    newRuns?.length > 0 && newRuns.length === selectedRuns?.length;
   const selectAllRuns = (isSelecting) => {
-    dispatch(setSelectedRuns(isSelecting ? newRuns.map((r) => r) : []));
+    dispatch(setSelectedRuns(isSelecting ? [...newRuns] : []));
   };
-  const onSelectRuns = (repo, __rowIndex, isSelecting) => {
+  const onSelectRuns = (runs, _rowIndex, isSelecting) => {
     const otherSelectedRuns = selectedRuns.filter(
-      (r) => r.resource_id !== repo.resource_id
+      (r) => r.resource_id !== runs.resource_id
     );
-    const c = isSelecting ? [...otherSelectedRuns, repo] : otherSelectedRuns;
+    const c = isSelecting ? [...otherSelectedRuns, runs] : otherSelectedRuns;
     dispatch(setSelectedRuns(c));
   };
   const isRowSelected = (run) =>
@@ -99,17 +103,15 @@ const NewRunsComponent = () => {
     },
   ];
 
-  const [expandedRepoNames, setExpandedRepoNames] = React.useState([]);
-  const setRepoExpanded = (repo, isExpanding = true) =>
-    setExpandedRepoNames((prevExpanded) => {
-      const otherExpandedRepoNames = prevExpanded.filter(
-        (r) => r !== repo.name
-      );
+  const [expandedRunNames, setExpandedRunNames] = React.useState([]);
+  const setRunExpanded = (run, isExpanding = true) =>
+    setExpandedRunNames((prevExpanded) => {
+      const otherExpandedRunNames = prevExpanded.filter((r) => r !== run.name);
       return isExpanding
-        ? [...otherExpandedRepoNames, repo.name]
-        : otherExpandedRepoNames;
+        ? [...otherExpandedRunNames, run.name]
+        : otherExpandedRunNames;
     });
-  const isRepoExpanded = (run) => expandedRepoNames.includes(run.name);
+  const isRunExpanded = (run) => expandedRunNames.includes(run.name);
 
   return (
     <div className="newruns-table-container">
@@ -149,9 +151,9 @@ const NewRunsComponent = () => {
                         item.metadata
                           ? {
                               rowIndex,
-                              isExpanded: isRepoExpanded(item),
+                              isExpanded: isRunExpanded(item),
                               onToggle: () =>
-                                setRepoExpanded(item, !isRepoExpanded(item)),
+                                setRunExpanded(item, !isRunExpanded(item)),
                             }
                           : undefined
                       }
@@ -189,7 +191,7 @@ const NewRunsComponent = () => {
                     </Td>
                   </Tr>
                   {item.metadata ? (
-                    <Tr isExpanded={isRepoExpanded(item)}>
+                    <Tr isExpanded={isRunExpanded(item)}>
                       <Td />
                       <Td />
                       <Td>

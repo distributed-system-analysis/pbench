@@ -18,14 +18,11 @@ export const getDatasets = () => async (dispatch, getState) => {
 
     params.append("owner", username);
 
-    const request = {
-      params: params,
-    };
     const endpoints = getState().apiEndpoint.endpoints;
     const defaultPerPage = getState().overview.defaultPerPage;
 
     const response = await API.get(endpoints?.api?.datasets_list, {
-      ...request,
+      params: params,
     });
 
     if (response.status === 200) {
@@ -57,31 +54,28 @@ export const getDatasets = () => async (dispatch, getState) => {
         });
       }
     }
-    dispatch({ type: TYPES.COMPLETED });
   } catch (error) {
     dispatch(constructToast("danger", error?.response?.data?.message));
     dispatch({ type: TYPES.NETWORK_ERROR });
-    dispatch({ type: TYPES.COMPLETED });
   }
+  dispatch({ type: TYPES.COMPLETED });
 };
 
 export const updateDataset =
   (dataset, actionType, updateAction) => async (dispatch, getState) => {
     try {
-      dispatch({ type: TYPES.LOADING });
       const actions = {
         save: "dashboard.saved",
         read: "dashboard.seen",
         favorite: "user.favorite",
       };
+      dispatch({ type: TYPES.LOADING });
       const savedRuns = getState().overview.savedRuns;
       const newRuns = getState().overview.newRuns;
+      const initNewRuns = getState().overview.initNewRuns;
+
       const method = actions[actionType];
-      const metadata = { [method]: updateAction };
-      const params = {
-        name: dataset.name,
-        metadata,
-      };
+
       const dataIndex = newRuns.findIndex(
         (item) => item.resource_id === dataset.resource_id
       );
@@ -89,7 +83,7 @@ export const updateDataset =
       const response = await API.put(
         `${endpoints?.api?.datasets_metadata}/${dataset.resource_id}`,
         {
-          ...params,
+          metadata: { [method]: updateAction },
         }
       );
       if (response.status === 200) {
@@ -98,24 +92,24 @@ export const updateDataset =
           const filteredNewRuns = newRuns.filter(
             (item) => item.resource_id !== dataset.resource_id
           );
+          const filteredInitRuns = initNewRuns.filter(
+            (item) => item.resource_id !== dataset.resource_id
+          );
           dispatch({
             type: TYPES.SAVED_RUNS,
             payload: savedRuns,
           });
           dispatch({
+            type: TYPES.INIT_NEW_RUNS,
+            payload: filteredInitRuns,
+          });
+          dispatch({
             type: TYPES.NEW_RUNS,
             payload: filteredNewRuns,
           });
-        } else if (actionType === "read") {
-          newRuns[dataIndex].metadata["dashboard.seen"] =
-            response.data["dashboard.seen"];
-          dispatch({
-            type: TYPES.NEW_RUNS,
-            payload: newRuns,
-          });
-        } else if (actionType === "favorite") {
-          newRuns[dataIndex].metadata["user.favorite"] =
-            response.data["user.favorite"];
+        } else {
+          newRuns[dataIndex].metadata[actions[actionType]] =
+            response.data[actions[actionType]];
           dispatch({
             type: TYPES.NEW_RUNS,
             payload: newRuns,
@@ -124,12 +118,11 @@ export const updateDataset =
       } else {
         dispatch(constructToast("danger", response?.data?.message));
       }
-      dispatch({ type: TYPES.COMPLETED });
     } catch (error) {
       dispatch(constructToast("danger", error?.response?.data?.message));
       dispatch({ type: TYPES.NETWORK_ERROR });
-      dispatch({ type: TYPES.COMPLETED });
     }
+    dispatch({ type: TYPES.COMPLETED });
   };
 
 export const deleteDataset = (dataset) => async (dispatch, getState) => {
@@ -137,12 +130,8 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
     const datasets = getState().overview.newRuns;
-    const params = { name: dataset.name };
     const response = await API.post(
-      `${endpoints?.api?.datasets_delete}/${dataset.resource_id}`,
-      {
-        ...params,
-      }
+      `${endpoints?.api?.datasets_delete}/${dataset.resource_id}`
     );
     if (response.status === 200) {
       const result = datasets.filter(
@@ -162,39 +151,39 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
   }
 };
 
-export const setRows = (rows) => async (dispatch) => {
-  dispatch({
+export const setRows = (rows) => {
+  return {
     type: TYPES.INIT_NEW_RUNS,
     payload: rows,
-  });
+  };
 };
 
-export const setSelectedRuns = (rows) => async (dispatch) => {
-  dispatch({
+export const setSelectedRuns = (rows) => {
+  return {
     type: TYPES.SELECTED_NEW_RUNS,
     payload: rows,
-  });
+  };
 };
 
-export const updateMultipleDataset = (method) => async (dispatch, getState) => {
-  const selectedRuns = getState().overview.selectedRuns;
-  let toastMsg = "";
-  if (selectedRuns.length > 0) {
-    if (method === "delete") {
-      selectedRuns.forEach((item) => {
-        dispatch(deleteDataset(item));
-      });
-      toastMsg = "Deleted!";
+export const updateMultipleDataset =
+  (method, value) => async (dispatch, getState) => {
+    const selectedRuns = getState().overview.selectedRuns;
+
+    if (selectedRuns.length > 0) {
+      selectedRuns.forEach((item) =>
+        method === "delete"
+          ? dispatch(deleteDataset(item))
+          : dispatch(updateDataset(item, method, value))
+      );
+      const toastMsg =
+        method === "delete"
+          ? "Deleted!"
+          : method === "save"
+          ? "Saved!"
+          : "Updated!";
+      dispatch(constructToast("success", toastMsg));
+      dispatch(setSelectedRuns([]));
     } else {
-      selectedRuns.forEach((item) => {
-        dispatch(updateDataset(item, method, true));
-      });
-      toastMsg = method === "save" ? "Saved!" : "Updated!";
+      dispatch(constructToast("warning", "Select dataset(s) for update"));
     }
-
-    dispatch(constructToast("success", toastMsg));
-    dispatch(setSelectedRuns([]));
-  } else {
-    dispatch(constructToast("warning", "Select dataset(s) for update"));
-  }
-};
+  };

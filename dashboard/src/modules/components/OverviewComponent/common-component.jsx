@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./index.less";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   TextContent,
   TextVariants,
@@ -12,7 +12,7 @@ import {
   Pagination,
 } from "@patternfly/react-core";
 import { RedoIcon, CaretDownIcon } from "@patternfly/react-icons";
-import { updateMultipleDataset } from "actions/overviewActions";
+import { updateMultipleDataset, getDatasets } from "actions/overviewActions";
 
 export const Heading = (props) => {
   return (
@@ -44,30 +44,45 @@ export const NoExpiringRuns = () => {
 export const NewRunsHeading = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
+  const { endpoints } = useSelector((state) => state.apiEndpoint);
 
   const actions = [
     {
       name: "Save",
       key: "save",
+      value: true,
     },
     {
       name: "Mark read",
       key: "read",
+      value: true,
+    },
+    {
+      name: "Mark unread",
+      key: "read",
+      value: false,
     },
     {
       name: " Mark favorited",
       key: "favorite",
+      value: true,
+    },
+    {
+      name: " Mark unfavorited",
+      key: "favorite",
+      value: false,
     },
     {
       name: "Delete",
       key: "delete",
+      value: true,
     },
   ];
   const dropdownItems = actions.map((item) => {
     return (
       <DropdownItem
         key={item.key}
-        onClick={() => dispatch(updateMultipleDataset(item.key))}
+        onClick={() => dispatch(updateMultipleDataset(item.key, item.value))}
       >
         {item.name}
       </DropdownItem>
@@ -84,7 +99,12 @@ export const NewRunsHeading = () => {
     <div className="newruns-heading-container">
       <Heading title="New and unmanaged runs" />
       <div>
-        <Button variant="link" icon={<RedoIcon />}>
+        <Button
+          variant="link"
+          disabled={Object.keys(endpoints).length <= 0}
+          icon={<RedoIcon />}
+          onClick={() => dispatch(getDatasets())}
+        >
           Refresh results
         </Button>
         <Dropdown
