@@ -1,29 +1,31 @@
-import React, { useState } from "react";
 import "./index.less";
-import { useDispatch, useSelector } from "react-redux";
+
 import {
-  TableComposable,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  Td,
-  InnerScrollContainer,
-  OuterScrollContainer,
   ActionsColumn,
   ExpandableRowContent,
+  InnerScrollContainer,
+  OuterScrollContainer,
+  TableComposable,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
 } from "@patternfly/react-table";
 import {
+  ROWS_PER_PAGE,
+  START_PAGE_NUMBER,
+} from "assets/constants/overviewConstants";
+import React, { useState } from "react";
+import {
   deleteDataset,
-  updateDataset,
   setRows,
   setSelectedRuns,
+  updateDataset,
 } from "actions/overviewActions";
+import { useDispatch, useSelector } from "react-redux";
+
 import { RenderPagination } from "./common-component";
-import {
-  START_PAGE_NUMBER,
-  ROWS_PER_PAGE,
-} from "assets/constants/overviewConstants";
 
 const NewRunsComponent = () => {
   const dispatch = useDispatch();
@@ -117,7 +119,7 @@ const NewRunsComponent = () => {
     <div className="newruns-table-container">
       <OuterScrollContainer>
         <InnerScrollContainer>
-          <TableComposable isStickyHeader>
+          <TableComposable isStickyHeader variant={"compact"}>
             <Thead>
               <Tr>
                 <Th width={2} />

@@ -1,18 +1,19 @@
-import React, { useState } from "react";
 import "./index.less";
-import { useDispatch, useSelector } from "react-redux";
+
 import {
-  TextContent,
-  TextVariants,
-  Text,
   Button,
   Dropdown,
-  DropdownToggle,
   DropdownItem,
+  DropdownToggle,
   Pagination,
+  Text,
+  TextContent,
+  TextVariants,
 } from "@patternfly/react-core";
-import { RedoIcon, CaretDownIcon } from "@patternfly/react-icons";
-import { updateMultipleDataset, getDatasets } from "actions/overviewActions";
+import { CaretDownIcon, RedoIcon } from "@patternfly/react-icons";
+import React, { useState } from "react";
+import { getDatasets, updateMultipleDataset } from "actions/overviewActions";
+import { useDispatch, useSelector } from "react-redux";
 
 export const Heading = (props) => {
   return (
@@ -41,43 +42,44 @@ export const NoExpiringRuns = () => {
   );
 };
 
+const actions = [
+  {
+    name: "Save",
+    key: "save",
+    value: true,
+  },
+  {
+    name: "Mark read",
+    key: "read",
+    value: true,
+  },
+  {
+    name: "Mark unread",
+    key: "read",
+    value: false,
+  },
+  {
+    name: " Mark favorited",
+    key: "favorite",
+    value: true,
+  },
+  {
+    name: " Mark unfavorited",
+    key: "favorite",
+    value: false,
+  },
+  {
+    name: "Delete",
+    key: "delete",
+    value: true,
+  },
+];
+
 export const NewRunsHeading = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
 
-  const actions = [
-    {
-      name: "Save",
-      key: "save",
-      value: true,
-    },
-    {
-      name: "Mark read",
-      key: "read",
-      value: true,
-    },
-    {
-      name: "Mark unread",
-      key: "read",
-      value: false,
-    },
-    {
-      name: " Mark favorited",
-      key: "favorite",
-      value: true,
-    },
-    {
-      name: " Mark unfavorited",
-      key: "favorite",
-      value: false,
-    },
-    {
-      name: "Delete",
-      key: "delete",
-      value: true,
-    },
-  ];
   const dropdownItems = actions.map((item) => {
     return (
       <DropdownItem

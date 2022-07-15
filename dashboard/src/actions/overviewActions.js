@@ -1,6 +1,8 @@
 import * as TYPES from "./types";
+
 import API from "../utils/axiosInstance";
 import { constructToast } from "./toastActions";
+
 export const getDatasets = () => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
@@ -63,12 +65,12 @@ export const getDatasets = () => async (dispatch, getState) => {
 
 export const updateDataset =
   (dataset, actionType, updateAction) => async (dispatch, getState) => {
+    const actions = {
+      save: "dashboard.saved",
+      read: "dashboard.seen",
+      favorite: "user.favorite",
+    };
     try {
-      const actions = {
-        save: "dashboard.saved",
-        read: "dashboard.seen",
-        favorite: "user.favorite",
-      };
       dispatch({ type: TYPES.LOADING });
       const savedRuns = getState().overview.savedRuns;
       const newRuns = getState().overview.newRuns;
@@ -129,14 +131,24 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
-    const datasets = getState().overview.newRuns;
     const response = await API.post(
       `${endpoints?.api?.datasets_delete}/${dataset.resource_id}`
     );
     if (response.status === 200) {
+      const datasets = getState().overview.newRuns;
+      const initNewRuns = getState().overview.initNewRuns;
       const result = datasets.filter(
         (item) => item.resource_id !== dataset.resource_id
       );
+      const filteredInitRuns = initNewRuns.filter(
+        (item) => item.resource_id !== dataset.resource_id
+      );
+      // dispatch is awaited else toast message will appear before the UI updated
+      await dispatch({
+        type: TYPES.INIT_NEW_RUNS,
+        payload: filteredInitRuns,
+      });
+
       await dispatch({
         type: TYPES.NEW_RUNS,
         payload: result,

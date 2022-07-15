@@ -1,15 +1,17 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import "./index.less";
+
+import { Grid, GridItem } from "@patternfly/react-core";
 import {
   Heading,
-  Separator,
-  NoExpiringRuns,
   NewRunsHeading,
+  NoExpiringRuns,
+  Separator,
 } from "./common-component";
-import { Grid, GridItem } from "@patternfly/react-core";
-import { getDatasets } from "actions/overviewActions";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import NewRunsComponent from "./NewRunsComponent";
+import { getDatasets } from "actions/overviewActions";
 
 const OverviewComponent = () => {
   const dispatch = useDispatch();
