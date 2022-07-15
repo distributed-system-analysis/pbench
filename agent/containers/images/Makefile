@@ -178,6 +178,12 @@ $(_TAG_TYPES:%=push-%): push-%: $(_DEFAULT_DISTROS:%=%-push-%)
 
 
 #+
+# Ensure repos exist with correct visibility and permissions.
+#-
+repofix: $(_DEFAULT_DISTROS:%=%-repofix)
+
+
+#+
 # Build targets
 #-
 
@@ -254,6 +260,13 @@ $(foreach tagtype,${_TAG_TYPES},$(eval $(call _PUSH_RULE,${tagtype})))  # Define
 
 %-push: %-tags.lis
 	./push ${IMAGE_REPO} $*
+
+#+
+# Invoke quay-repo to force visibility and permission change
+#-
+
+%-repofix:
+	./repo-fix $*
 
 #+
 # Tag local images for the given distribution.
