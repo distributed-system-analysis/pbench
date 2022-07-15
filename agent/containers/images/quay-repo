@@ -8,7 +8,7 @@ If the repository does not exist, it is created with visibility public, and
 the core team added as admins.
 
 Returns 0 on success
-Returns 1 on failure (
+Returns 1 on failure
 """
 
 import os
@@ -50,7 +50,7 @@ session.headers.update(headers)
 
 def exists(session, repo):
     url = f"https://quay.io/api/v1/repository/pbench/{repo}"
-    response = session.head(url, allow_redirects=False)
+    response = session.head(url)
     if response.status_code == 404:
         return False
     elif response.status_code == 200:
@@ -73,7 +73,7 @@ def create(session, repo):
         "description": "",
         "repo_kind": "image",
     }
-    response = session.post(url, json=body, allow_redirects=False)
+    response = session.post(url, json=body)
     if response.status_code != 201:
         print(
             f"[{prog}] ERROR - 'POST {url}', with body {body!r}, failed"
@@ -86,7 +86,7 @@ def create(session, repo):
 def add_core(session, repo):
     url = f"https://quay.io/api/v1/repository/pbench/{repo}/permissions/team/core"
     body = {"role": "admin"}
-    response = session.put(url, json=body, allow_redirects=False)
+    response = session.put(url, json=body)
     if response.status_code != 200:
         print(
             f"[{prog}] ERROR - 'PUT {url}', with body {body!r}, failed"
@@ -99,7 +99,7 @@ def add_core(session, repo):
 def make_public(session, repo):
     url = f"https://quay.io/api/v1/repository/pbench/{repo}/changevisibility"
     body = {"visibility": "public"}
-    response = session.post(url, json=body, allow_redirects=False)
+    response = session.post(url, json=body)
     if response.status_code != 200:
         print(
             f"[{prog}] ERROR - 'POST {url}', with body {body!r}, failed"
