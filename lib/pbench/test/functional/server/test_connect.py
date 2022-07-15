@@ -32,12 +32,14 @@ class TestConnect:
         assert pbench.session is None
         assert pbench.endpoints is None
 
-    def test_endpoints(self, pbench_server_client: PbenchServerClient):
+    def test_connect(self, pbench_server_client: PbenchServerClient):
         """
         Verify that we can retrieve the Pbench Server endpoints through the
         client "connect" API, and that the expected APIs are described.
         """
         assert pbench_server_client.session
+        assert "aCCept" in pbench_server_client.session.headers
+        assert pbench_server_client.session.headers["Accept"] == "application/json"
         endpoints = pbench_server_client.endpoints
         assert endpoints
         assert "api" in endpoints

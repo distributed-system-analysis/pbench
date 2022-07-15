@@ -6,6 +6,11 @@ from requests import HTTPError
 from pbench.client import PbenchServerClient
 
 
+USERNAME1 = "functional"
+USERNAME2 = "nonfunctional"
+PASSWORD = "tests"
+
+
 class TestUser:
     """
     Pbench Server functional tests for basic "user" operations.
@@ -15,31 +20,42 @@ class TestUser:
     had a known Administrative user (e.g., admin/admin).
     """
 
-    USERNAME = "functional"
-    PASSWORD = "tests"
-
     def test_login_fail(self, pbench_server_client: PbenchServerClient):
         """
         Trying to log in to a non-existent user should fail.
 
         NOTE: This will fail if "nouser" exists.
         """
-        with pytest.raises(HTTPError, match=r"UNAUTHORIZED for url: http://.*?/api/v1/login"):
+        with pytest.raises(
+            HTTPError, match=r"UNAUTHORIZED for url: http://.*?/api/v1/login"
+        ):
             pbench_server_client.login("nouser", "nopassword")
 
-    def test_register(self, pbench_server_client: PbenchServerClient):
+    @pytest.mark.parametrize(
+        "json",
+        [
+            {
+                "username": USERNAME1,
+                "first_name": "Test",
+                "last_name": "Account",
+                "password": PASSWORD,
+                "email": f"{USERNAME1}@example.com",
+            },
+            {
+                "username": USERNAME2,
+                "first_name": "Tester",
+                "last_name": "Accountant",
+                "password": PASSWORD,
+                "email": f"{USERNAME2}@example.com",
+            },
+        ],
+    )
+    def test_register(self, pbench_server_client: PbenchServerClient, json):
         """
         Test that we can register a new user.
 
         NOTE: This will fail if the username already exists.
         """
-        json = {
-            "username": self.USERNAME,
-            "first_name": "Test",
-            "last_name": "Account",
-            "password": self.PASSWORD,
-            "email": f"{self.USERNAME}@example.com",
-        }
         response = pbench_server_client.post("register", json=json)
         assert response.status_code == HTTPStatus.CREATED
 
@@ -48,21 +64,25 @@ class TestUser:
         Test that an attempt to register an existing user fails.
         """
         json = {
-            "username": self.USERNAME,
+            "username": USERNAME1,
             "first_name": "Repeat",
             "last_name": "Redux",
-            "password": self.PASSWORD,
-            "email": f"{self.USERNAME}@example.com",
+            "password": PASSWORD,
+            "email": f"{USERNAME1}@example.com",
         }
-        with pytest.raises(HTTPError, match=r"FORBIDDEN for url: http://.*?/api/v1/register"):
+        with pytest.raises(
+            HTTPError, match=r"FORBIDDEN for url: http://.*?/api/v1/register"
+        ):
             pbench_server_client.post("register", json=json)
 
     def test_profile_noauth(self, pbench_server_client: PbenchServerClient):
         """
         Test that we can't access a user profile without authentication.
         """
-        with pytest.raises(HTTPError, match=r"UNAUTHORIZED for url: http://.*?/api/v1/user/functional"):
-            pbench_server_client.get("user", {"target_username": self.USERNAME})
+        with pytest.raises(
+            HTTPError, match=r"UNAUTHORIZED for url: http://.*?/api/v1/user/functional"
+        ):
+            pbench_server_client.get("user", {"target_username": USERNAME1})
 
     def test_login(self, pbench_server_client: PbenchServerClient):
         """
@@ -73,8 +93,31 @@ class TestUser:
         does run tests within a single class in order. Is it worth taking on
         another dependency to make this explicit?
         """
-        pbench_server_client.login(self.USERNAME, self.PASSWORD)
+        pbench_server_client.login(USERNAME1, PASSWORD)
         assert pbench_server_client.auth_token
+
+    def test_profile_bad_auth(self, pbench_server_client: PbenchServerClient):
+        """
+        Test that we can't access a user profile with an invalid authentication
+        token.
+        """
+        with pytest.raises(
+            HTTPError, match=r"UNAUTHORIZED for url: http://.*?/api/v1/user/functional"
+        ):
+            pbench_server_client.get(
+                "user",
+                {"target_username": USERNAME1},
+                headers={"Authorization": "Bearer tokens"},
+            )
+
+    def test_profile_not_self(self, pbench_server_client: PbenchServerClient):
+        """
+        Test that we can't access another user's profile.
+        """
+        with pytest.raises(
+            HTTPError, match=r"FORBIDDEN for url: http://.*?/api/v1/user/nonfunctional"
+        ):
+            pbench_server_client.get("user", {"target_username": USERNAME2})
 
     def test_profile(self, pbench_server_client: PbenchServerClient):
         """
@@ -82,8 +125,8 @@ class TestUser:
 
         NOTE: This assumes test cases will be run in order.
         """
-        response = pbench_server_client.get("user", {"target_username": self.USERNAME})
-        assert response.json()["username"] == self.USERNAME
+        response = pbench_server_client.get("user", {"target_username": USERNAME1})
+        assert response.json()["username"] == USERNAME1
 
     def test_update(self, pbench_server_client: PbenchServerClient):
         """
@@ -91,7 +134,7 @@ class TestUser:
 
         NOTE: This assumes test cases will be run in order.
         """
-        response = pbench_server_client.get("user", {"target_username": self.USERNAME})
+        response = pbench_server_client.get("user", {"target_username": USERNAME1})
         user = response.json()
         assert user["first_name"] != "Mycroft"
         user["first_name"] = "Mycroft"
@@ -104,10 +147,12 @@ class TestUser:
         payload = user.copy()
         del payload["registered_on"]
 
-        response = pbench_server_client.put("user", {"target_username": self.USERNAME}, json=payload)
+        response = pbench_server_client.put(
+            "user", {"target_username": USERNAME1}, json=payload
+        )
         put_response = response.json()
 
-        response = pbench_server_client.get("user", {"target_username": self.USERNAME})
+        response = pbench_server_client.get("user", {"target_username": USERNAME1})
         updated = response.json()
         assert user == updated
         assert put_response == user
@@ -118,4 +163,20 @@ class TestUser:
 
         NOTE: This assumes test cases will be run in order.
         """
-        pbench_server_client.delete("user", {"target_username": self.USERNAME})
+        pbench_server_client.delete("user", {"target_username": USERNAME1})
+
+    def test_logout(self, pbench_server_client: PbenchServerClient):
+        """
+        Test that we can log out from our session.
+
+        NOTE: This assumes test cases will be run in order.
+        """
+        pbench_server_client.logout()
+        assert pbench_server_client.auth_token is None
+
+    def test_cleanup_user2(self, pbench_server_client: PbenchServerClient):
+        """
+        Remove the second test user to make the test idempotent.
+        """
+        pbench_server_client.login(USERNAME2, PASSWORD)
+        pbench_server_client.delete("user", {"target_username": USERNAME2})
