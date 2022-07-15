@@ -1,3 +1,6 @@
+from pbench.client import PbenchServerClient
+
+
 class TestConnect:
 
     EXPECTED = (
@@ -23,17 +26,24 @@ class TestConnect:
         "user",
     )
 
-    def test_endpoints(self, pbench):
+    def test_construct(self):
+        pbench = PbenchServerClient("10.1.100.2")
+        assert pbench.host == "10.1.100.2"
+        assert pbench.session is None
+        assert pbench.endpoints is None
+
+    def test_endpoints(self, pbench_server_client: PbenchServerClient):
         """
         Verify that we can retrieve the Pbench Server endpoints through the
         client "connect" API, and that the expected APIs are described.
         """
-        endpoints = pbench.endpoints
+        assert pbench_server_client.session
+        endpoints = pbench_server_client.endpoints
         assert endpoints
         assert "api" in endpoints
+        assert "identification" in endpoints
+        assert "uri" in endpoints
         for a in endpoints["api"].keys():
             assert a in self.EXPECTED
         for a in endpoints["uri"].keys():
             assert a in self.EXPECTED
-        assert "identification" in endpoints
-        assert "uri" in endpoints

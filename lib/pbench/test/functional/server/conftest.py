@@ -2,11 +2,11 @@ import os
 
 import pytest
 
-from pbench.client import Pbench
+from pbench.client import PbenchServerClient
 
 
 @pytest.fixture(scope="module")
-def pbench():
+def pbench_server_client():
     """
     Used by Pbench Server functional tests to connect to a server.
 
@@ -17,7 +17,7 @@ def pbench():
     assert (
         host
     ), "Pbench Server functional tests require that PBENCH_SERVER be set to the hostname of a server"
-    pbench = Pbench(host)
-    assert pbench, f"Unable to connect to Pbench Server {host}"
-    pbench.connect()
-    return pbench
+    pbench_client = PbenchServerClient(host)
+    assert pbench_client, f"Unable to connect to Pbench Server {host}"
+    pbench_client.connect({"accept": "application/json"})
+    return pbench_client
