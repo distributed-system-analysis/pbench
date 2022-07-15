@@ -1,0 +1,9 @@
+#!/bin/bash
+
+_dir=$(dirname "${0}")
+
+distro="${1}"
+
+for image in base tools tool-meister tool-data-sink workloads all; do
+    ${_dir}/quay-repo pbench-agent-${image}-${distro} force
+done
