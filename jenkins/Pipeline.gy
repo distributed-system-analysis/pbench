@@ -17,8 +17,8 @@ pipeline {
                 // the coverage data collection.
                 sh 'rm -fv pbench'
 
-                echo 'Linting, pytest-based unit tests, and legacy unit tests'
-                sh 'jenkins/run tox'
+                // Run the "build" (lint, unit tests, etc.) in a container.
+                sh 'jenkins/run ./build.sh'
             }
         }
         stage('Agent Python3.6 Check') {

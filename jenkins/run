@@ -55,8 +55,9 @@ _image=${IMAGE:-${_image_repo}/pbench-${_image_role}-${_image_kind}:${_branch_na
 
 podman run \
     --userns=keep-id \
-    --volume $(pwd):${HOME_DIR}/pbench:z \
     --volume ${HOME_DIR} \
+    --volume ${HOME_DIR}/.config \
+    --volume $(pwd):${HOME_DIR}/pbench:z \
     ${GIT_BASE_VOLUME} \
     -w ${HOME_DIR}/pbench \
     --env HOME=${HOME_DIR} \
