@@ -1,9 +1,13 @@
 ---
-distro: "{{ 'centos-stream' if ansible_distribution == 'CentOS' and ansible_distribution_major_version > '7'
-          else
-            'epel' if ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
-          else
-            'fedora' if ansible_distribution == 'Fedora'
-          else
-            '' }}"
-distrodir: "{{ distro }}-{{ ansible_distribution_major_version }}-$basearch"
+# Map distribution name to COPR chroot
+copr_chroots:
+  RedHat: epel
+  Fedora: fedora
+  CentOS: centos-stream
+  Rocky: epel
+
+# CentOS 7 is an exception
+copr_distro: "{{ 'epel' if ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+                 else
+                     copr_chroots[ansible_distribution] }}"
+distrodir: "{{ copr_distro }}-{{ ansible_distribution_major_version }}-$basearch"
