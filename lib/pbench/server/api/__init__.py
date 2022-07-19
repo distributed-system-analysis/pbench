@@ -36,6 +36,7 @@ from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetai
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
+from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
 from pbench.server.database import init_db
@@ -163,6 +164,12 @@ def register_endpoints(api, app, config):
         RegisterUser,
         f"{base_uri}/register",
         endpoint="register",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        ServerConfiguration,
+        f"{base_uri}/server/configuration",
+        f"{base_uri}/server/configuration/<string:key>",
         resource_class_args=(config, logger),
     )
     api.add_resource(

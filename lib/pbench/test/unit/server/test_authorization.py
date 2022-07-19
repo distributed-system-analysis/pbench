@@ -4,7 +4,9 @@ import pytest
 
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
+    API_AUTHORIZATION,
     API_METHOD,
+    ApiAuthorization,
     ApiBase,
     API_OPERATION,
     ApiSchema,
@@ -66,7 +68,11 @@ class TestAuthorization:
         self, apibase, server_config, create_drb_user, current_user_admin, ask
     ):
         user = self.get_user_id(ask["user"])
-        apibase._check_authorization(user, ask["access"], ask["role"])
+        apibase._check_authorization(
+            ApiAuthorization(
+                API_AUTHORIZATION.USER_ACCESS, ask["role"], user, ask["access"]
+            )
+        )
 
     @pytest.mark.parametrize(
         "ask",
@@ -81,7 +87,11 @@ class TestAuthorization:
         user = self.get_user_id(ask["user"])
         access = ask["access"]
         with pytest.raises(UnauthorizedAccess) as exc:
-            apibase._check_authorization(user, access, ask["role"])
+            apibase._check_authorization(
+                ApiAuthorization(
+                    API_AUTHORIZATION.USER_ACCESS, ask["role"], user, access
+                )
+            )
         assert exc.value.owner == (ask["user"] if ask["user"] else "none")
         assert exc.value.user == current_user_admin
 
@@ -109,7 +119,11 @@ class TestAuthorization:
         ask,
     ):
         user = self.get_user_id(ask["user"])
-        apibase._check_authorization(user, ask["access"], ask["role"])
+        apibase._check_authorization(
+            ApiAuthorization(
+                API_AUTHORIZATION.USER_ACCESS, ask["role"], user, ask["access"]
+            )
+        )
 
     @pytest.mark.parametrize(
         "ask",
@@ -131,7 +145,11 @@ class TestAuthorization:
         user = self.get_user_id(ask["user"])
         access = ask["access"]
         with pytest.raises(UnauthorizedAccess) as exc:
-            apibase._check_authorization(user, access, ask["role"])
+            apibase._check_authorization(
+                ApiAuthorization(
+                    API_AUTHORIZATION.USER_ACCESS, ask["role"], user, access
+                )
+            )
         assert exc.value.owner == (ask["user"] if ask["user"] else "none")
         assert exc.value.user == current_user_drb
 
@@ -153,7 +171,11 @@ class TestAuthorization:
         ask,
     ):
         user = self.get_user_id(ask["user"])
-        apibase._check_authorization(user, ask["access"], ask["role"])
+        apibase._check_authorization(
+            ApiAuthorization(
+                API_AUTHORIZATION.USER_ACCESS, ask["role"], user, ask["access"]
+            )
+        )
 
     @pytest.mark.parametrize(
         "ask",
@@ -171,6 +193,35 @@ class TestAuthorization:
         user = self.get_user_id(ask["user"])
         access = ask["access"]
         with pytest.raises(UnauthorizedAccess) as exc:
-            apibase._check_authorization(user, access, ask["role"])
+            apibase._check_authorization(
+                ApiAuthorization(
+                    API_AUTHORIZATION.USER_ACCESS, ask["role"], user, access
+                )
+            )
         assert exc.value.owner == (ask["user"] if ask["user"] else "none")
         assert exc.value.user is None
+
+    def test_admin_unauth(self, apibase, server_config, current_user_none):
+        with pytest.raises(UnauthorizedAccess) as exc:
+            apibase._check_authorization(
+                ApiAuthorization(API_AUTHORIZATION.ADMIN, API_OPERATION.CREATE)
+            )
+        assert (
+            str(exc.value)
+            == "Unauthenticated client is not authorized to CREATE a server administrative resource"
+        )
+
+    def test_admin_user(self, apibase, server_config, current_user_drb):
+        with pytest.raises(UnauthorizedAccess) as exc:
+            apibase._check_authorization(
+                ApiAuthorization(API_AUTHORIZATION.ADMIN, API_OPERATION.CREATE)
+            )
+        assert (
+            str(exc.value)
+            == "User drb is not authorized to CREATE a server administrative resource"
+        )
+
+    def test_admin_admin(self, apibase, server_config, current_user_admin):
+        apibase._check_authorization(
+            ApiAuthorization(API_AUTHORIZATION.ADMIN, API_OPERATION.CREATE)
+        )

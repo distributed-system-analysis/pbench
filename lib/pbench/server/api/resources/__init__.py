@@ -21,6 +21,7 @@ from pbench.server.database.models.datasets import (
     MetadataBadKey,
     MetadataNotFound,
 )
+from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
 
 
@@ -62,6 +63,24 @@ class UnauthorizedAccess(APIAbort):
 
     def __str__(self) -> str:
         return f"{'User ' + self.user.username if self.user else 'Unauthenticated client'} is not authorized to {self.operation.name} a resource owned by {self.owner} with {self.access} access"
+
+
+class UnauthorizedAdminAccess(UnauthorizedAccess):
+    """
+    A refinement of the Unauthorized exception where ADMIN access is required
+    as we can't describe a resource owner and access.
+    """
+
+    def __init__(
+        self,
+        user: Union[User, None],
+        operation: "API_OPERATION",
+        http_status: int = HTTPStatus.FORBIDDEN,
+    ):
+        super().__init__(user, operation, None, None, http_status=http_status)
+
+    def __str__(self) -> str:
+        return f"{'User ' + self.user.username if self.user else 'Unauthenticated client'} is not authorized to {self.operation.name} a server administrative resource"
 
 
 class SchemaError(APIAbort):
@@ -685,11 +704,13 @@ class API_AUTHORIZATION(Enum):
         USER_ACCESS:    The client is authorized against the USER and ACCESS
                         type parameters, which must each appear only once in
                         the various schema for the HTTP method used.
+        ADMIN:          The client's authenticated user has administrator role.
     """
 
     NONE = auto()
     DATASET = auto()
     USER_ACCESS = auto()
+    ADMIN = auto()
 
 
 class ApiParams(NamedTuple):
@@ -711,9 +732,10 @@ class ApiAuthorization(NamedTuple):
     the desired access role.
     """
 
-    user: Optional[str]
-    access: Optional[str]
+    type: API_AUTHORIZATION
     role: API_OPERATION
+    user: Optional[str] = None
+    access: Optional[str] = None
 
 
 class Schema:
@@ -931,10 +953,13 @@ class ApiSchema:
         Returns
             The values for username and access policy to use for authorization.
         """
-        if self.authorization == API_AUTHORIZATION.DATASET:
+        if self.authorization == API_AUTHORIZATION.ADMIN:
+            return ApiAuthorization(type=self.authorization, role=self.operation)
+        elif self.authorization == API_AUTHORIZATION.DATASET:
             ds = self.get_param_by_type(ParamType.DATASET, params)
             if ds:
                 return ApiAuthorization(
+                    type=self.authorization,
                     user=str(ds.value.owner_id),
                     access=ds.value.access,
                     role=self.operation,
@@ -944,7 +969,10 @@ class ApiSchema:
             user = self.get_param_by_type(ParamType.USER, params)
             access = self.get_param_by_type(ParamType.ACCESS, params)
             return ApiAuthorization(
-                user=user.value, access=access.value, role=self.operation
+                type=self.authorization,
+                user=user.value,
+                access=access.value,
+                role=self.operation,
             )
         return None
 
@@ -955,8 +983,8 @@ class ApiSchemaSet:
         Construct a dict of schemas accessable by API method
 
         Args:
-            schemas:    A list of schemas for each HTTP method supported by an
-                        API class.
+            schemas: A list of schemas for each HTTP method supported by an
+                API class.
         """
         self.schemas: Dict[API_METHOD, ApiSchema] = {s.method: s for s in schemas}
 
@@ -1053,7 +1081,13 @@ class ApiBase(Resource):
     _put, and _delete methods.
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger, *schemas: ApiSchema):
+    def __init__(
+        self,
+        config: PbenchServerConfig,
+        logger: Logger,
+        *schemas: ApiSchema,
+        always_enabled: bool = False,
+    ):
         """
         Base class constructor.
 
@@ -1061,13 +1095,17 @@ class ApiBase(Resource):
             config: server configuration
             logger: logger object
             schemas: ApiSchema objects to provide parameter validation for the
-                    various HTTP methods the API module supports. For example,
-                    for GET, PUT, and DELETE.
+                various HTTP methods the API module supports. For example, for
+                GET, PUT, and DELETE.
+            always_enabled: Most APIs are disabled when the server state is not
+                enabled. A few, like endpoints and the config APIs, must always
+                be usable.
         """
         super().__init__()
         self.config = config
         self.logger = logger
         self.schemas = ApiSchemaSet(*schemas)
+        self.always_enabled = always_enabled
 
     def _gather_query_params(self, request: Request, schema: Schema) -> JSONOBJECT:
         """
@@ -1110,12 +1148,7 @@ class ApiBase(Resource):
 
         return json
 
-    def _check_authorization(
-        self,
-        user_id: Optional[str],
-        access: Optional[str],
-        role: API_OPERATION,
-    ):
+    def _check_authorization(self, mode: ApiAuthorization):
         """
         Check whether an API call is able to access data, based on the API's
         authorization header, the requested user, the requested access
@@ -1142,9 +1175,7 @@ class ApiBase(Resource):
             Any authenticated ADMIN user can update/delete any data.
 
         Args:
-            user_id: The client's requested user ID (as a string), or None
-            access: The client's requested access parameter, or None
-            check_role: Override self.role for access check
+            ApiAuthorization object with type, role, and user information
 
         Raises:
             UnauthorizedAccess: The user isn't authorized for the requested
@@ -1155,6 +1186,8 @@ class ApiBase(Resource):
                     rights to the specified combination of API ROLE, USER,
                     and ACCESS.
         """
+        user_id = mode.user
+        role = mode.role
         authorized_user: User = Auth.token_auth.current_user()
         username = "none"
         if user_id:
@@ -1165,13 +1198,35 @@ class ApiBase(Resource):
                 self.logger.error(
                     "Parser user ID {} not found in User database", user_id
                 )
+
+        # The ADMIN authorization doesn't involve a target resource owner or
+        # access, so take care of that first as a special case. If there is
+        # an authenticated user, and that user holds ADMIN access rights, the
+        # check passes. Otherwise raise an "admin access" failure.
+        if mode.type == API_AUTHORIZATION.ADMIN:
+            self.logger.debug(
+                "Authorizing {} access for {} to an administrative resource",
+                role,
+                authorized_user,
+            )
+            if not authorized_user:
+                raise UnauthorizedAdminAccess(
+                    authorized_user, role, http_status=HTTPStatus.UNAUTHORIZED
+                )
+            if not authorized_user.is_admin():
+                raise UnauthorizedAdminAccess(authorized_user, role)
+            return
+
+        access = mode.access
+
         self.logger.debug(
-            "Authorizing {} access for {} to user {} ({}) with access {}",
+            "Authorizing {} access for {} to user {} ({}) with access {} using {}",
             role,
             authorized_user,
             username,
             user_id,
-            access,
+            mode.access,
+            mode.type,
         )
 
         # Accept or reject the described operation according to the following
@@ -1435,6 +1490,13 @@ class ApiBase(Resource):
 
         self.logger.info("In {} {}", method, api_name)
 
+        if not self.always_enabled:
+            disabled = ServerConfig.get_disabled(
+                readonly=(self.schemas[method].operation == API_OPERATION.READ)
+            )
+            if disabled:
+                abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
+
         if method is API_METHOD.GET:
             execute = self._get
         elif method is API_METHOD.PUT:
@@ -1495,16 +1557,8 @@ class ApiBase(Resource):
         # mechanism is required by the API.
         auth_params = self.schemas.authorize(method, params)
         if auth_params:
-            self.logger.info(
-                "Authorizing with {}:{}, {}",
-                auth_params.user,
-                auth_params.access,
-                auth_params.role,
-            )
             try:
-                self._check_authorization(
-                    auth_params.user, auth_params.access, auth_params.role
-                )
+                self._check_authorization(auth_params)
             except UnauthorizedAccess as e:
                 self.logger.warning("{}: {}", api_name, e)
                 abort(e.http_status, message=str(e))

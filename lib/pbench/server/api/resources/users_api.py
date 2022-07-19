@@ -6,6 +6,7 @@ from flask_bcrypt import check_password_hash
 from email_validator import EmailNotValidError
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from typing import NamedTuple
+from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.api.auth import Auth
@@ -45,6 +46,10 @@ class RegisterUser(Resource):
                     }
         To get the auth token user has to perform the login action
         """
+        disabled = ServerConfig.get_disabled()
+        if disabled:
+            abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
+
         # get the post data
         user_data = request.get_json()
         if not user_data:
@@ -377,6 +382,10 @@ class UserAPI(Resource):
                         "message": "failure message"
                     }
         """
+        disabled = ServerConfig.get_disabled(readonly=True)
+        if disabled:
+            abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
+
         result = self.get_valid_target_user(target_username, "GET")
         if not result.target_user:
             abort(result.http_status, message=result.http_message)
@@ -416,6 +425,10 @@ class UserAPI(Resource):
                         "message": "failure message"
                     }
         """
+        disabled = ServerConfig.get_disabled()
+        if disabled:
+            abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
+
         user_payload = request.get_json()
         if not user_payload:
             self.logger.warning("Invalid json object: {}", request.url)
@@ -487,6 +500,10 @@ class UserAPI(Resource):
                         "message": "failure message"
                     }
         """
+        disabled = ServerConfig.get_disabled()
+        if disabled:
+            abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
+
         result = self.get_valid_target_user(target_username, "DELETE")
         if not result.target_user:
             abort(result.http_status, message=result.http_message)
