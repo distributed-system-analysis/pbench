@@ -77,7 +77,7 @@ def main(parser: argparse.ArgumentParser) -> None:
         print(f"Initial memory profile ... {memprof.heap()}", flush=True)
 
     es = Elasticsearch(
-        [f"{args.es_host}:{args.es_port}"], timeout=60
+        [f"{args.es_host}:{args.es_port}"], timeout=200
     )  # to prevent read timeout errors (60 is arbitrary)
 
     session = requests.Session()
@@ -95,31 +95,17 @@ def main(parser: argparse.ArgumentParser) -> None:
     scan_start = time.time()
     end_time = datetime.utcfromtimestamp(scan_start)
 
-    # FIXME: Doesn't work for default of no multiprocessing and only 1 cpu
-    #        because pool becomes none in initialization.
-    # pbench_data.add_months2(_year_month_gen(end_time, args.start_months_prior))
+    # pbench_data.sync_add_months(
+    #     _year_month_gen(end_time, args.start_months_prior, args.end_months_prior)
+    # )
 
-    pbench_data.sync_add_months(
-        _year_month_gen(end_time, args.start_months_prior, args.end_months_prior)
-    )
-
-    # FIXME: This doesn't work as expected
-    # for month in _month_gen(end_time, args.start_months_prior):
-    #     pbench_data.add_month(month)
-    # pbench_data.wait_for_pool()
-    # res = pbench_data.kibana_query_results_for_runs(_month_gen(end_time, args.start_months_prior))
-    # print(res)
-
-    # sos_collection = SosCollection(args.url_prefix, args.cpu_n, args.sos_host_server)
-    # for id in pbench_data.run_id_to_data_valid:
-    #     sos_collection.process_sos(pbench_data.run_id_to_data_valid[id])
-    #     break
+    pbench_data.aggregate_data(_year_month_gen(end_time,args.start_months_prior, args.end_months_prior))
 
     scan_end = time.time()
     duration = scan_end - scan_start
 
     pbench_data.print_report()
-    pbench_data.print_timings()
+    # pbench_data.print_timings()
     # pbench_data.emit_csv()
     print(f"--- merging run and result data took {duration:0.2f} seconds", flush=True)
 

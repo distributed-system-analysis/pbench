@@ -8,8 +8,10 @@ import requests
 
 
 class SosReport:
-    def __init__(self, sosreport_path: str, combined_data, filenames: list[str]):
+    def __init__(self):
         self.data = dict()
+
+    def add_sos_data(self, sosreport_path: str, combined_data: dict, filenames: list[str]):
         self.data = self.extract_and_process(sosreport_path, combined_data, filenames)
 
     def __str__(self):
@@ -147,61 +149,61 @@ class SosReport:
         return data
 
     def extract_and_process(
-        self, sosreport_path: str, combined_data, filenames: list[str]
+        self, sosreport_path: str, combined_data: dict, filenames: list[str]
     ):
         data = dict()
-        disknames = combined_data.data["disknames"]
-        try:
-            with tarfile.open(sosreport_path) as tar:
+        disknames = combined_data["disknames"]
+        # try:
+        with tarfile.open(sosreport_path) as tar:
 
-                for member in tar.getmembers():
-                    parts = (member.name).split("/")
-                    filename = "/".join(parts[1:])
-                    if filename in filenames:
+            for member in tar.getmembers():
+                parts = (member.name).split("/")
+                filename = "/".join(parts[1:])
+                if filename in filenames:
 
-                        f = tar.extractfile(member)
+                    f = tar.extractfile(member)
 
-                        # check if all the files needed exist and are not empty
-                        if f is None or member.size == 0:
-                            isvalid = False
-                            sys.stderr.write(
-                                "Error: Invalid sosreport:"
-                                f" {sosreport_path}:{parts[-1]}"
-                                " file not found or is empty.\n"
-                            )
-                            continue
-                        if parts[-1] == "meminfo":
-                            data.update(self.collect_meminfo(f))
-                        elif parts[-1] == "lscpu":
-                            data.update(self.collect_lscpu(f))
-                        elif parts[-1] == "lsblk":
-                            data.update(self.collect_lsblk(f))
-                            if len(data["lsblk_disks"]) == 1:
-                                data["disk"] = data["lsblk_disks"][0]
-                            elif (
-                                len(list(set(disknames))) == 1
-                                and disknames[0] in data["lsblk_disks"]
-                            ):
-                                data["disk"] = disknames[0]
-                            if "disk" not in data.keys():
-                                data["disk"] = "Missing"
-                            else:
-                                # replace sdX in filenames with the disk used
-                                for index, name in enumerate(filenames):
-                                    filenames[index] = name.replace("sdX", data["disk"])
-                            data["lsblk_disks"] = ",".join(data["lsblk_disks"])
-                        elif parts[-1] == "uname_-a":
-                            data.update(self.collect_kernel_version(f))
-                        elif parts[-1] == "scheduler":
-                            data.update(self.collect_scheduler(f))
-                        elif parts[-1] == "active_profile":
-                            data["active_profile"] = self.collect_tuned_profile(f)
+                    # check if all the files needed exist and are not empty
+                    if f is None or member.size == 0:
+                        isvalid = False
+                        sys.stderr.write(
+                            "Error: Invalid sosreport:"
+                            f" {sosreport_path}:{parts[-1]}"
+                            " file not found or is empty.\n"
+                        )
+                        continue
+                    if parts[-1] == "meminfo":
+                        data.update(self.collect_meminfo(f))
+                    elif parts[-1] == "lscpu":
+                        data.update(self.collect_lscpu(f))
+                    elif parts[-1] == "lsblk":
+                        data.update(self.collect_lsblk(f))
+                        if len(data["lsblk_disks"]) == 1:
+                            data["disk"] = data["lsblk_disks"][0]
+                        elif (
+                            len(list(set(disknames))) == 1
+                            and disknames[0] in data["lsblk_disks"]
+                        ):
+                            data["disk"] = disknames[0]
+                        if "disk" not in data.keys():
+                            data["disk"] = "Missing"
                         else:
-                            data[parts[-1]] = self.collect_single_value(f)
-                        # filesread += 1
-        except Exception:
-            print(f"Error working with {sosreport_path}")
-            # logger.exception("Error working with sosreport %s", dirname)
+                            # replace sdX in filenames with the disk used
+                            for index, name in enumerate(filenames):
+                                filenames[index] = name.replace("sdX", data["disk"])
+                        data["lsblk_disks"] = ",".join(data["lsblk_disks"])
+                    elif parts[-1] == "uname_-a":
+                        data.update(self.collect_kernel_version(f))
+                    elif parts[-1] == "scheduler":
+                        data.update(self.collect_scheduler(f))
+                    elif parts[-1] == "active_profile":
+                        data["active_profile"] = self.collect_tuned_profile(f)
+                    else:
+                        data[parts[-1]] = self.collect_single_value(f)
+                    # filesread += 1
+        # except Exception as e:
+        #     print(f"Error working with {sosreport_path} - {type(e)}: {e}")
+        #     # logger.exception("Error working with sosreport %s", dirname)
         return data
 
 
@@ -209,10 +211,13 @@ class SosCollection:
     def __init__(self, url_prefix: str, cpu_n: int, sos_host_server: str) -> None:
         self.url_prefix = url_prefix
         self.ncpus = cpu_count() - 1 if cpu_n == 0 else cpu_n
-        self.pool = ProcessPool(self.ncpus)
+        # self.pool = ProcessPool(self.ncpus)
         self.host = sos_host_server
-        self.ssh_client, self.sftp_client = self.client_setup(self.host)
-        self.seen_sos = dict()
+        # self.ssh_client, self.sftp_client = self.client_setup(self.host)
+        self.seen_sos_valid = dict()
+        self.seen_sos_invalid = dict()
+        self.download_retry_attempts = 3
+        self.extraction_retry_attempts = 3
         self.sos_folder_exist()
         self.filenames = [
             "proc/meminfo",
@@ -260,6 +265,7 @@ class SosCollection:
     def sos_folder_exist(self):
         self.sos_folder_path = os.getcwd() + "/sosreports_new"
         if os.path.exists(self.sos_folder_path) is False:
+            # print("folder doesn't exist")
             os.makedirs(self.sos_folder_path)
 
     def client_setup(self, host: str):
@@ -270,50 +276,67 @@ class SosCollection:
         sftp_client.chdir("VoS/archive")
         return ssh_client, sftp_client
 
-    def run_local_command(self):
-        pass
+    def extract_sos_data(self, sosreport: str, combined_data: dict):
+        download_attempt = 1
+        extraction_attempt = 1
+        info = {"download_unsuccessful": False, "extraction_unsuccessful": False, "extracted_data": dict()}
+        while download_attempt <= self.download_retry_attempts:
+            try:
+                local_path = self.copy_sos_from_server(sosreport)
+                break
+            except Exception as e:
+                print(f"Failed to download on attempt {download_attempt}: {type(e)}")
+                download_attempt += 1
 
-    def extract_sos_data(self, sosreport: str, combined_data):
-        local_path = self.copy_sos_from_server(sosreport)
+        sos_data = SosReport()
+        if download_attempt > self.download_retry_attempts:
+            info["download_unsuccessful"] = True
+            return info
+        else:
+            print(f"download {sosreport} successful")
+            while extraction_attempt <= self.extraction_retry_attempts:
+                try:
+                    sos_data.add_sos_data(local_path, combined_data, self.filenames)
+                    info["extracted_data"] = sos_data.data
+                    # self.cleanup_sos_tar(local_path)
+                    break
+                except Exception as e:
+                    print(f"Failed to extract on attempt {extraction_attempt}: {type(e)}")
+                    extraction_attempt += 1
 
-        sos_data = SosReport(local_path, combined_data, self.filenames)
-        self.delete_sos_tar_from_local(local_path)
-        return sos_data
+            if extraction_attempt > self.extraction_retry_attempts:
+                info["extraction_unsuccessful"] = True
+            else:
+                print(f"extraction {sosreport} unsuccesful")
+            return info
+
+            
 
     def copy_sos_from_server(self, sosreport: str):
-        remote_path = self.sftp_client.getcwd() + "/" + sosreport
+        ssh_client, sftp_client = self.client_setup(self.host)
+        remote_path = sftp_client.getcwd() + "/" + sosreport
         local_path = self.sos_folder_path + "/" + sosreport
-        self.sftp_client.get(remote_path, local_path)
+        print("local: " + local_path)
+        sftp_client.get(remote_path, local_path)
+        ssh_client.close()
+        sftp_client.close()
         return local_path
 
-    def delete_sos_tar_from_local(self, local_path: str):
+    def cleanup_sos_tar(self, local_path: str):
         os.remove(local_path)
 
-    def sync_process_sos(self, combined_data):
-        # print(self.sftp_client.getcwd())
-        for sosreport in combined_data.data["sosreports"]:
-            # print(sosreport)
-            # if haven't seen sosreport before extract its data and
-            # store it in seen dict
-            if self.seen_sos.get(sosreport, None) == None:
-                extracted_sos_data = self.extract_sos_data(sosreport, combined_data)
-                self.seen_sos[sosreport] = extracted_sos_data
-            # else already extracted and stored
-            combined_data.data["sosreports"][sosreport][
-                "extracted_sos"
-            ] = self.seen_sos[sosreport]
-        # print(combined_data.data)
-    
-    def async_process_sos(self, combined_data):
-        for sosreport in combined_data.data["sosreports"]:
-            # print(sosreport)
-            # if haven't seen sosreport before extract its data and
-            # store it in seen dict
-            if self.seen_sos.get(sosreport, None) == None:
-                extracted_sos_data = self.extract_sos_data(sosreport, combined_data)
-                self.seen_sos[sosreport] = extracted_sos_data
-            # else already extracted and stored
-            combined_data.data["sosreports"][sosreport][
-                "extracted_sos"
-            ] = self.seen_sos[sosreport]
-        # print(combined_data.data)
+    def sync_process_sos(self, combined_data: dict):
+        for sosreport in combined_data["sosreports"]:
+            if self.seen_sos_valid.get(sosreport, None) == None:
+                if self.seen_sos_invalid.get(sosreport, None) == None:
+                    extracted_sos_data = self.extract_sos_data(sosreport, combined_data)
+                    if extracted_sos_data["download_unsuccessful"] is True or extracted_sos_data["extraction_unsuccessful"] is True:
+                        self.seen_sos_invalid[sosreport] = extracted_sos_data
+                    else:
+                        self.seen_sos_valid[sosreport] = extracted_sos_data
+                else:
+                    combined_data["sosreports"][sosreport]["extracted_sos"] = self.seen_sos_invalid[sosreport]
+            else:
+                combined_data["sosreports"][sosreport][
+                    "extracted_sos"
+                ] = self.seen_sos_valid[sosreport]
