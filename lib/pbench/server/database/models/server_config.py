@@ -114,9 +114,11 @@ def validate_lifetime(key: str, value: JSONVALUE) -> JSONVALUE:
     return days
 
 
-# Formal "state" syntax is a JSON object with boolean "enabled" key and a
-# "message" string describing why the server isn't enabled. The "message" is
-# required only if the "enable" flag is false. For example,
+# Formal "state" syntax is a JSON object with a "status" key designating the
+# current server status ("enabled", "disabled", or "readonly" to allow read
+# access but not modification of resources), and a "message" string
+# describing why the server isn't enabled. The "message" is required only if
+# the "status" isn't "enabled". For example,
 #
 # {"status": "enabled"}
 #
@@ -187,8 +189,7 @@ class ServerConfigOptions(Enum):
         for x in cls:
             if k == x.key:
                 return x
-        else:
-            raise ServerConfigBadKey(k)
+        raise ServerConfigBadKey(k)
 
     @staticmethod
     def validate(key: str, value: JSONVALUE) -> JSONVALUE:
