@@ -63,29 +63,34 @@ export const getDatasets = () => async (dispatch, getState) => {
   dispatch({ type: TYPES.COMPLETED });
 };
 
+const metaDataActions = {
+  save: "dashboard.saved",
+  read: "dashboard.seen",
+  favorite: "user.favorite",
+};
+/**
+ * Filter the List of Datasets based on Date Range and Dataset Name
+ * @function
+ * @param {Object} dataset - Dataset which is being updated
+ * @param {string} actionType - Action (save, read, favorite) being performed
+ * @param {string} actionValue - Value to be updated (true/ false)
+ * @return {Object} - dispatch the action and update the state
+ */
 export const updateDataset =
-  (dataset, actionType, updateAction) => async (dispatch, getState) => {
-    const actions = {
-      save: "dashboard.saved",
-      read: "dashboard.seen",
-      favorite: "user.favorite",
-    };
+  (dataset, actionType, actionValue) => async (dispatch, getState) => {
     try {
       dispatch({ type: TYPES.LOADING });
       const savedRuns = getState().overview.savedRuns;
       const newRuns = getState().overview.newRuns;
       const initNewRuns = getState().overview.initNewRuns;
 
-      const method = actions[actionType];
+      const method = metaDataActions[actionType];
 
-      const dataIndex = newRuns.findIndex(
-        (item) => item.resource_id === dataset.resource_id
-      );
       const endpoints = getState().apiEndpoint.endpoints;
       const response = await API.put(
         `${endpoints?.api?.datasets_metadata}/${dataset.resource_id}`,
         {
-          metadata: { [method]: updateAction },
+          metadata: { [method]: actionValue },
         }
       );
       if (response.status === 200) {
@@ -110,8 +115,11 @@ export const updateDataset =
             payload: filteredNewRuns,
           });
         } else {
-          newRuns[dataIndex].metadata[actions[actionType]] =
-            response.data[actions[actionType]];
+          const dataIndex = newRuns.findIndex(
+            (item) => item.resource_id === dataset.resource_id
+          );
+          newRuns[dataIndex].metadata[metaDataActions[actionType]] =
+            response.data[metaDataActions[actionType]];
           dispatch({
             type: TYPES.NEW_RUNS,
             payload: newRuns,
@@ -155,12 +163,11 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
       });
       dispatch(constructToast("success", "Deleted!"));
     }
-    dispatch({ type: TYPES.COMPLETED });
   } catch (error) {
     dispatch(constructToast("danger", error?.response?.data?.message));
     dispatch({ type: TYPES.NETWORK_ERROR });
-    dispatch({ type: TYPES.COMPLETED });
   }
+  dispatch({ type: TYPES.COMPLETED });
 };
 
 export const setRows = (rows) => {
