@@ -35,11 +35,11 @@ class CleanupTime(Exception):
 
 class Upload(Resource):
     """
-    Upload a dataset from an agent. This API accepts a tarball, controller
-    name, and MD5 value from a client. After validation, it creates a new
-    Dataset DB row describing the dataset, along with some metadata, and it
-    creates a pair of files (tarball and MD5 file) within the designated
-    controller directory under the configured ARCHIVE file tree.
+    Upload a dataset from an agent. This API accepts a tarball,and MD5
+    value from a client. After validation, it creates a new Dataset DB
+    row describing the dataset, along with some metadata, and it creates
+    a pair of files (tarball and MD5 file) within the configured ARCHIVE
+    file tree.
     """
 
     CHUNK_SIZE = 65536
@@ -269,11 +269,6 @@ class Upload(Resource):
 
             # From this point, failure will remove the tarball from the file
             # tree.
-            #
-            # NOTE: the Tarball.delete method won't clean up empty controller
-            # directories. This isn't ideal, but we don't want to deal with the
-            # potential synchronization issues and it'll become irrelevant with
-            # the switch to object store. For now we ignore it.
             recovery.add(tarball.delete)
 
             # Now that we have the tarball, extract the dataset timestamp from
