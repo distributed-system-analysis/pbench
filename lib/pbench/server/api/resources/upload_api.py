@@ -8,7 +8,7 @@ import humanize
 from flask import jsonify, request
 from flask_restful import abort, Resource
 
-from pbench.common.utils import Cleanup, validate_hostname
+from pbench.common.utils import Cleanup
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -72,7 +72,7 @@ class Upload(Resource):
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR, "Error verifying username"
                 )
-
+            """
             controller = request.headers.get("controller")
             if not controller:
                 raise CleanupTime(
@@ -81,8 +81,8 @@ class Upload(Resource):
 
             if validate_hostname(controller) != 0:
                 raise CleanupTime(HTTPStatus.BAD_REQUEST, "Invalid 'controller' header")
-
-            self.logger.info("Uploading {} on controller {}", filename, controller)
+            """
+            self.logger.info("Uploading {}", filename)
 
             if os.path.basename(filename) != filename:
                 raise CleanupTime(
@@ -139,8 +139,7 @@ class Upload(Resource):
             bytes_received = 0
 
             self.logger.info(
-                "PUT uploading {}:{} for user {} to {}",
-                controller,
+                "PUT uploading :{} for user {} to {}",
                 filename,
                 username,
                 tar_full_path,
@@ -187,10 +186,9 @@ class Upload(Resource):
             recovery.add(dataset.delete)
 
             self.logger.info(
-                "Uploading file {!a} (user = {}, ctrl = {!a}) to {}",
+                "Uploading file {!a} (user = {}) to {}",
                 filename,
                 username,
-                controller,
                 dataset,
             )
 
@@ -262,7 +260,7 @@ class Upload(Resource):
 
             # Move the files to their final location
             try:
-                tarball = file_tree.create(controller, tar_full_path)
+                tarball = file_tree.create(tar_full_path)
             except Exception:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -358,14 +356,11 @@ class Upload(Resource):
                 cause = e.__cause__ if e.__cause__ else e.__context__
                 if e.status == HTTPStatus.INTERNAL_SERVER_ERROR:
                     log_func = self.logger.exception if cause else self.logger.error
-                    log_func(
-                        "{}:{}:{} error {}", username, controller, filename, e.message
-                    )
+                    log_func("{}:{} error {}", username, filename, e.message)
                 else:
                     self.logger.warning(
-                        "{}:{}:{} error {} ({})",
+                        "{}:{} error {} ({})",
                         username,
-                        controller,
                         filename,
                         e.message,
                         cause,
