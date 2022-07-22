@@ -105,7 +105,7 @@ class TestDatasetsMetadata:
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as(
             "foobar",
-            {"metadata": ["dashboard.seen", "dashboard.saved"]},
+            {"metadata": ["global.seen", "global.saved"]},
             "drb",
             HTTPStatus.NOT_FOUND,
         )
@@ -119,20 +119,20 @@ class TestDatasetsMetadata:
             HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard', 'dataset', 'server', 'user']"
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dataset', 'global', 'server', 'user']"
         }
 
     def test_get1(self, query_get_as):
         response = query_get_as(
             "drb",
             {
-                "metadata": ["dashboard.seen", "server", "dataset.access"],
+                "metadata": ["global.seen", "server", "dataset.access"],
             },
             "drb",
             HTTPStatus.OK,
         )
         assert response.json == {
-            "dashboard.seen": None,
+            "global.seen": None,
             "server": {
                 "deletion": "2022-12-26",
                 "index-map": {
@@ -148,13 +148,13 @@ class TestDatasetsMetadata:
         response = query_get_as(
             "drb",
             {
-                "metadata": "dashboard.seen,server.deletion,dataset",
+                "metadata": "global.seen,server.deletion,dataset",
             },
             "drb",
             HTTPStatus.OK,
         )
         assert response.json == {
-            "dashboard.seen": None,
+            "global.seen": None,
             "server.deletion": "2022-12-26",
             "dataset": {
                 "access": "private",
@@ -181,7 +181,7 @@ class TestDatasetsMetadata:
             "drb",
             {
                 "metadata": [
-                    "dashboard.seen",
+                    "global.seen",
                     "server.deletion,dataset.access",
                     "user.favorite",
                 ],
@@ -190,7 +190,7 @@ class TestDatasetsMetadata:
             HTTPStatus.OK,
         )
         assert response.json == {
-            "dashboard.seen": None,
+            "global.seen": None,
             "server.deletion": "2022-12-26",
             "dataset.access": "private",
             "user.favorite": None,
@@ -201,7 +201,7 @@ class TestDatasetsMetadata:
             "drb",
             {
                 "metadata": [
-                    "dashboard.seen",
+                    "global.seen",
                     "server.deletion,dataset.access",
                     "user",
                 ]
@@ -219,7 +219,7 @@ class TestDatasetsMetadata:
             "drb",
             {
                 "metadata": [
-                    "dashboard.seen",
+                    "global.seen",
                     "server.deletion,dataset.access",
                     "user",
                 ],
@@ -237,7 +237,7 @@ class TestDatasetsMetadata:
             "drb",
             {
                 "controller": "foobar",
-                "metadata": "dashboard.seen,server.deletion,dataset.access",
+                "metadata": "global.seen,server.deletion,dataset.access",
             },
             "drb",
             HTTPStatus.BAD_REQUEST,
@@ -250,7 +250,7 @@ class TestDatasetsMetadata:
             {
                 "controller": "foobar",
                 "plugh": "xyzzy",
-                "metadata": ["dashboard.seen", "server.deletion", "dataset.access"],
+                "metadata": ["global.seen", "server.deletion", "dataset.access"],
             },
             "drb",
             HTTPStatus.BAD_REQUEST,
@@ -282,7 +282,7 @@ class TestDatasetsMetadata:
     def test_put_no_dataset(self, client, server_config, attach_dataset):
         response = client.put(
             f"{server_config.rest_uri}/datasets/metadata/foobar",
-            json={"metadata": {"dashboard.seen": True, "dashboard.saved": False}},
+            json={"metadata": {"global.seen": True, "global.saved": False}},
         )
         assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json == {"message": "Dataset 'foobar' not found"}
@@ -291,12 +291,12 @@ class TestDatasetsMetadata:
         response = client.put(
             f"{server_config.rest_uri}/datasets/metadata/drb",
             json={
-                "metadata": {"xyzzy": "private", "what": "sup", "dashboard.saved": True}
+                "metadata": {"xyzzy": "private", "what": "sup", "global.saved": True}
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed namespaces are ['dashboard', 'dataset.name', 'server.deletion', 'user']"
+            "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed namespaces are ['dataset.name', 'global', 'server.deletion', 'user']"
         }
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
@@ -306,13 +306,13 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON key ['dataset.access'] given for parameter metadata; allowed namespaces are ['dashboard', 'dataset.name', 'server.deletion', 'user']"
+            "message": "Unrecognized JSON key ['dataset.access'] given for parameter metadata; allowed namespaces are ['dataset.name', 'global', 'server.deletion', 'user']"
         }
 
     def test_put_nowrite(self, query_get_as, query_put_as):
         response = query_put_as(
             "fio_1",
-            {"metadata": {"dashboard.seen": False, "dashboard.saved": True}},
+            {"metadata": {"global.seen": False, "global.saved": True}},
             "test",
             HTTPStatus.FORBIDDEN,
         )
@@ -324,7 +324,7 @@ class TestDatasetsMetadata:
     def test_put_noauth(self, query_get_as, query_put_as):
         response = query_put_as(
             "fio_1",
-            {"metadata": {"dashboard.seen": False, "dashboard.saved": True}},
+            {"metadata": {"global.seen": False, "global.saved": True}},
             None,
             HTTPStatus.UNAUTHORIZED,
         )
@@ -402,29 +402,29 @@ class TestDatasetsMetadata:
     def test_put(self, query_get_as, query_put_as):
         response = query_put_as(
             "drb",
-            {"metadata": {"dashboard.seen": False, "dashboard.saved": True}},
+            {"metadata": {"global.seen": False, "global.saved": True}},
             "drb",
             HTTPStatus.OK,
         )
-        assert response.json == {"dashboard.saved": True, "dashboard.seen": False}
+        assert response.json == {"global.saved": True, "global.seen": False}
         response = query_get_as(
-            "drb", {"metadata": "dashboard,dataset.access"}, "drb", HTTPStatus.OK
+            "drb", {"metadata": "global,dataset.access"}, "drb", HTTPStatus.OK
         )
         assert response.json == {
-            "dashboard": {"contact": "me@example.com", "saved": True, "seen": False},
+            "global": {"contact": "me@example.com", "saved": True, "seen": False},
             "dataset.access": "private",
         }
 
-        # Try a second GET, returning "dashboard" fields separately:
+        # Try a second GET, returning "global" fields separately:
         response = query_get_as(
             "drb",
-            {"metadata": ["dashboard.seen", "dashboard.saved", "dataset.access"]},
+            {"metadata": ["global.seen", "global.saved", "dataset.access"]},
             "drb",
             HTTPStatus.OK,
         )
         assert response.json == {
-            "dashboard.saved": True,
-            "dashboard.seen": False,
+            "global.saved": True,
+            "global.seen": False,
             "dataset.access": "private",
         }
 

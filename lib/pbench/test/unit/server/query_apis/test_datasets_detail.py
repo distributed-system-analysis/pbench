@@ -201,7 +201,7 @@ class TestDatasetsDetail(Commons):
             "user": "drb",
             "start": "2020-08",
             "end": "2020-10",
-            "metadata": ["dashboard.seen", "server.deletion"],
+            "metadata": ["global.seen", "server.deletion"],
         }
 
         response_payload = {
@@ -322,7 +322,7 @@ class TestDatasetsDetail(Commons):
                 "toolsgroup": "default",
             },
             "serverMetadata": {
-                "dashboard.seen": None,
+                "global.seen": None,
                 "server.deletion": "2022-12-26",
             },
         }
