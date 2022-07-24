@@ -7,6 +7,7 @@ import DatasetListReducer from "./datasetListReducer";
 import EndpointReducer from "./endpointReducer";
 import UserProfileReducer from "./userProfileReducer";
 import OverviewReducer from "./overviewReducer";
+import TableOfContentReducer from "./tableOfContentReducer";
 
 export default combineReducers({
   toastReducer: ToastReducer,
@@ -17,4 +18,5 @@ export default combineReducers({
   datasetlist: DatasetListReducer,
   apiEndpoint: EndpointReducer,
   overview: OverviewReducer,
+  tableOfContent:TableOfContentReducer
 });

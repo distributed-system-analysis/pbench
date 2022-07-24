@@ -1,5 +1,5 @@
-import React from "react";
-
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router";
 import "./index.less";
 import {
   Menu,
@@ -16,7 +16,7 @@ import {
   DropdownItem,
   BadgeToggle,
   Page,
-  // Checkbox
+  Spinner,
 } from "@patternfly/react-core";
 import {
   TableComposable,
@@ -28,14 +28,21 @@ import {
 } from "@patternfly/react-table";
 import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
 import FolderIcon from "@patternfly/react-icons/dist/esm/icons/folder-icon";
-import { useState } from "react";
-import { useEffect } from "react";
-import { useParams } from "react-router";
-import axios from "axios";
 import NavbarDrawer from "../NavbarDrawerComponent";
 import Sidebar from "../SidebarComponent";
+import TablePagination from "../PaginationComponent";
+import { SearchTOC } from "./common-components";
+import { EmptyTable } from "../TableComponent/common-components";
+import { fetchTOC } from "actions/tableOfContentActions";
+import { useDispatch, useSelector } from "react-redux";
+import { updateTableData } from "actions/tableOfContentActions";
+import { updateSearchSpace } from "actions/tableOfContentActions";
+import { updateStack } from "actions/tableOfContentActions";
+import { updateCurrData } from "actions/tableOfContentActions";
+import { updateTOCLoader } from "actions/tableOfContentActions";
 
-// let param = "";
+let datasetName = "";
+console.log(datasetName);
 const TableOfContent = () => {
   const [menuDrilledIn, setMenuDrilledIn] = useState([]);
   const [drilldownPath, setDrillDownPath] = useState([]);
@@ -43,33 +50,35 @@ const TableOfContent = () => {
   const [activeMenu, setActiveMenu] = useState("rootMenu");
   const [breadCrumb, setBreadCrumb] = useState(undefined);
   const [activeFile, setActiveFile] = useState(-1);
-  const [currData, setCurrData] = useState([]);
-  const [tableData, setTableData] = useState([]);
   const [breadCrumbLabels, setBreadCrumbLabels] = useState([]);
-  const [stack, setStack] = useState([]);
-  const [pathList, setPathList] = useState(new Set());
-  const [param,setParam]=useState("")
-  let count = 0;
-  let count2 = 0;
-  // const [withMaxMenuHeight,setWithMaxMenuHeight]=useState(false)
-  const [contentData, setContentData] = useState([]);
+  const [param, setParam] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(5);
   const params = useParams();
-  console.log("start");
+  const dispatch = useDispatch();
+  let dirCount = 0;
+  let fileCount = 0;
   useEffect(() => {
-    axios
-      .post(`http://10.1.170.201/api/v1/datasets/contents/${params["*"]}`, {
-        parent: "/",
-      })
-      .then((res) => {
-        setStack([...stack, res.data]);
-        setTableData(res.data);
-        setContentData(res.data);
-      })
-      .catch((err) => console.log(err));
+    dispatch(fetchTOC(params["*"], "/", false));
   }, []);
- console.log("here",breadCrumbLabels)
-  const onToggle = (isOpen, key,moreBreadCrumbs) => {
-    console.log(moreBreadCrumbs)
+  const { stack, searchSpace, tableData, contentData, currData, isLoading } =
+    useSelector((state) => state.tableOfContent);
+  const setTableData = (data) => {
+    dispatch(updateTableData(data));
+  };
+  const setSearchSpace = (data) => {
+    dispatch(updateSearchSpace(data));
+  };
+  const setStack = (data) => {
+    dispatch(updateStack(data));
+  };
+  const setCurrData = (data) => {
+    dispatch(updateCurrData(data));
+  };
+  const setIsLoading = (data) => {
+    dispatch(updateTOCLoader(data));
+  };
+  const onToggle = (isOpen, key, moreBreadCrumbs) => {
     switch (key) {
       case "app":
         setBreadCrumb(appGroupingBreadcrumb(isOpen, moreBreadCrumbs));
@@ -79,10 +88,9 @@ const TableOfContent = () => {
     }
   };
 
-  // const onToggleMaxMenuHeight = checked => {
-  //   setWithMaxMenuHeight(checked);
-  // };
-
+  const visibleTableFiles = tableData
+    ? tableData.slice((page - 1) * perPage, page * perPage)
+    : [];
   const drillOut = (toMenuId, fromPathId, breadcrumb) => {
     const indexOfMenuId = menuDrilledIn.indexOf(toMenuId);
     const menuDrilledInSansLast = menuDrilledIn.slice(0, indexOfMenuId);
@@ -103,44 +111,44 @@ const TableOfContent = () => {
     setDrillDownPath([...drilldownPath, pathId]);
     setActiveMenu(toMenuId);
   };
+  const setDatasetName = (datasetNameValue) => {
+    datasetName = datasetNameValue;
+  };
   const getDropDown = (moreBreadCrumbs) => {
-    console.log("OOOOOOOOOO");
-    console.log(breadCrumbLabels);
-    console.log(moreBreadCrumbs);
-    const dropDownArray = moreBreadCrumbs
-      .map((label, index) => {
-        // if (index >= 0 && index < breadCrumbLabels.length)
-        if(index>=0&&index!=moreBreadCrumbs.length-1){
-          return (
-            <DropdownItem
-              key="dropdown-start"
-              component="button"
-              icon={<AngleLeftIcon />}
-              onClick={() => {
-                stack.length = index + 2;
-                setStack(stack);
-                const x = breadCrumbLabels.slice(0, index + 1);
-                // breadCrumbLabels=x;
-                // console.log(x)
-                // setCurrPath(stack.slice(0,index).join("/"));
-                // console.log(stack.slice(0,index).join("/"));
-                // console.log(path)
-                // console.log(currPath)
-                console.log(x);
-                const newParam=param.split("/");
-                //  console.log(newParam.slice(0,index+1).join("/"))
-                setParam(newParam.slice(0,index+1).join("/"))
-                setBreadCrumbLabels(x);
-                setCurrData(stack[index + 1]);
-                setTableData(stack[index + 1]);
-                setBreadCrumb(appGroupingBreadcrumb(false, x));
-              }}
-            >
-              {label}
-            </DropdownItem>
-          );}
-      });
-      dropDownArray.pop();
+    const dropDownArray = moreBreadCrumbs.map((label, index) => {
+      if (index >= 0 && index != moreBreadCrumbs.length - 1) {
+        return (
+          <DropdownItem
+            key="dropdown-start"
+            component="button"
+            icon={<AngleLeftIcon />}
+            onClick={() => {
+              stack.length = index + 2;
+              setStack(stack);
+              const updatedBreadCrumbLabels = breadCrumbLabels.slice(
+                0,
+                index + 1
+              );
+              const newParam = param.split("/");
+              setParam(newParam.slice(0, index + 1).join("/"));
+              setBreadCrumbLabels(updatedBreadCrumbLabels);
+              setCurrData(stack[index + 1]);
+              setTableData(stack[index + 1].files);
+              setSearchSpace(stack[index + 1].files);
+              if (updatedBreadCrumbLabels.length === 1) {
+                setBreadCrumb(initialBreadcrumb(updatedBreadCrumbLabels));
+              } else if (updatedBreadCrumbLabels.length > 1)
+                setBreadCrumb(
+                  appGroupingBreadcrumb(false, updatedBreadCrumbLabels)
+                );
+            }}
+          >
+            {label}
+          </DropdownItem>
+        );
+      }
+    });
+    dropDownArray.pop();
     return dropDownArray;
   };
   const initialBreadcrumb = (initial) => (
@@ -150,22 +158,24 @@ const TableOfContent = () => {
         onClick={() => {
           drillOut("rootMenu", "group:start_rollout", null);
           stack.length = 1;
+          initial = [];
           setStack(stack);
-          console.log(stack);
-          setTableData(stack[0]);
-          // setTableData(stack[stack.length-1])
+          setParam("");
+          setTableData(stack[0].files);
+          setBreadCrumbLabels([]);
+          setBreadCrumb(initialBreadcrumb(initial));
+          setSearchSpace(stack[0].files);
         }}
       >
-        Rooti
+        Root
       </BreadcrumbItem>
-      <BreadcrumbHeading component="button">{initial[0]}</BreadcrumbHeading>
+      <BreadcrumbHeading component="button">
+        {initial.length > 0 ? initial[0] : ""}
+      </BreadcrumbHeading>
     </Breadcrumb>
   );
 
   const appGroupingBreadcrumb = (isOpen, moreBreadCrumbs) => {
-    {
-      console.log(moreBreadCrumbs);
-    }
     return (
       <Breadcrumb>
         <BreadcrumbItem
@@ -173,9 +183,13 @@ const TableOfContent = () => {
           onClick={() => {
             drillOut("rootMenu", "group:start_rollout", null);
             stack.length = 1;
+            moreBreadCrumbs = [];
             setStack(stack);
-            console.log(stack);
-            setTableData(stack[0]);
+            setTableData(stack[0].files);
+            setSearchSpace(stack[0].files);
+            setBreadCrumb(initialBreadcrumb([]));
+            setParam("");
+            setBreadCrumbLabels([]);
           }}
         >
           Root
@@ -185,7 +199,7 @@ const TableOfContent = () => {
             toggle={
               <BadgeToggle
                 id="toggle-id"
-                onToggle={(open) => onToggle(open, "app",moreBreadCrumbs)}
+                onToggle={(open) => onToggle(open, "app", moreBreadCrumbs)}
               >
                 {moreBreadCrumbs.length - 1}
               </BadgeToggle>
@@ -200,77 +214,15 @@ const TableOfContent = () => {
       </Breadcrumb>
     );
   };
-
-  // const labelsBreadcrumb = (isOpen) => (
-  //   <Breadcrumb>
-  //     <BreadcrumbItem
-  //       component="button"
-  //       onClick={() => drillOut("rootMenu", "group:start_rollout", null)}
-  //     >
-  //       Root
-  //     </BreadcrumbItem>
-  //     <BreadcrumbItem isDropdown>
-  //       <Dropdown
-  //         toggle={
-  //           <BadgeToggle
-  //             id="toggle-id"
-  //             onToggle={(open) => onToggle(open, "label")}
-  //           >
-  //             1
-  //           </BadgeToggle>
-  //         }
-  //         isOpen={isOpen}
-  //         dropdownItems={[
-  //           <DropdownItem
-  //             key="dropdown-start"
-  //             component="button"
-  //             icon={<AngleLeftIcon />}
-  //             onClick={() =>
-  //               drillOut(
-  //                 "drilldownMenuStart",
-  //                 "group:labels_start",
-  //                 startRolloutBreadcrumb
-  //               )
-  //             }
-  //           >
-  //             Start rollout
-  //           </DropdownItem>,
-  //         ]}
-  //       />
-  //     </BreadcrumbItem>
-  //     <BreadcrumbHeading component="button">Labels</BreadcrumbHeading>
-  //   </Breadcrumb>
-  // );
-
   const getSubFolderData = (data) => {
-    console.log(data);
-    axios
-      .post(`http://10.1.170.201/api/v1/datasets/contents/${params["*"]}`, {
-        parent: `/${data}`,
-      })
-      .then((res) => {
-        setTableData(res.data);
-        setStack([...stack, res.data]);
-        setCurrData(res.data);
-        setPathList(pathList.add(data));
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    dispatch(fetchTOC(params["*"], `/${data}`, true));
   };
   return (
     <>
-      {/* <Checkbox
-          label="Set max menu height"
-          isChecked={withMaxMenuHeight}
-          onChange={onToggleMaxMenuHeight}
-          aria-label="Set max menu height checkbox"
-          id="toggle-max-menu-height"
-          name="toggle-max-menu-height"
-        /> */}
       <Page header={<NavbarDrawer />} sidebar={<Sidebar />}>
         <div className="toc">
           <br />
+
           <Menu
             id="rootMenu"
             containsDrilldown
@@ -287,123 +239,178 @@ const TableOfContent = () => {
                 <Divider component="li" />
               </>
             )}
-            <MenuContent>
-              {/* menuHeight={`${menuHeights[activeMenu]}px`} maxMenuHeight={withMaxMenuHeight ? '100px' : 'auto'} */}
+            {isLoading ? (
+              <Spinner className="spinner"></Spinner>
+            ) : (
+              <MenuContent>
+                <MenuList>
+                  {contentData?.directories?.map((data, index) => {
+                    return (
+                      <MenuItem
+                        itemId="group:start_rollout"
+                        id="d_down_parent"
+                        key={index}
+                        direction="down"
+                        onClick={() => {
+                          breadCrumbLabels.push(data);
+                          setBreadCrumbLabels(breadCrumbLabels);
+                          setBreadCrumb(initialBreadcrumb(breadCrumbLabels));
+                          const dirPath = param.concat(data);
+                          setParam(dirPath);
+                          setIsLoading(true);
+                          getSubFolderData(dirPath);
+                        }}
+                        drilldownMenu={
+                          <DrilldownMenu id="drilldownMenuStart">
+                            {currData?.directories?.map((data, index) => {
+                              if (dirCount < currData.directories.length) {
+                                dirCount = dirCount + 1;
+                                return (
+                                  <MenuItem
+                                    itemId="dir_info"
+                                    id="d_down"
+                                    key={index}
+                                    direction="down"
+                                    onClick={() => {
+                                      breadCrumbLabels.push(data);
+                                      setBreadCrumbLabels(breadCrumbLabels);
+                                      setBreadCrumb(
+                                        appGroupingBreadcrumb(
+                                          false,
+                                          breadCrumbLabels
+                                        )
+                                      );
+                                      const dirPath = param.concat("/", data);
+                                      setParam(dirPath);
+                                      setIsLoading(true);
+                                      getSubFolderData(dirPath);
+                                    }}
+                                  >
+                                    <FolderIcon />
+                                    {data}
+                                  </MenuItem>
+                                );
+                              }
+                            })}
 
-              <MenuList>
-                {contentData?.directories?.map((data, index) => {
-                  return (
-                    <MenuItem
-                      itemId="group:start_rollout"
-                      id="d_down_parent"
-                      key={index}
-                      direction="down"
-                      onClick={() => {
-                        console.log("hhhh")
-                        breadCrumbLabels.push(data);
-                        setBreadCrumbLabels(breadCrumbLabels);
-                        setBreadCrumb(initialBreadcrumb(breadCrumbLabels));
-                        if (param.length === 0) {
-                          const x = param.concat(data);
-                          setParam(x);
-                          getSubFolderData(x);
-                        } else {
-                          const x = param.concat("/", data);
-                          param = x;
+                            {currData?.files?.map((data, index) => {
+                              if (fileCount < currData.files.length) {
+                                fileCount = fileCount + 1;
+                                return (
+                                  <MenuItem
+                                    key={index}
+                                    onClick={() => {
+                                      if (index >= page * perPage) {
+                                        setPage(page + 1);
+                                        setActiveFile(index);
+                                      } else if (index < (page - 1) * perPage) {
+                                        setPage(page - 1);
+                                        setActiveFile(index);
+                                      } else {
+                                        setActiveFile(index);
+                                      }
+                                    }}
+                                  >
+                                    {data.name}
+                                  </MenuItem>
+                                );
+                              }
+                            })}
+                          </DrilldownMenu>
                         }
-                        console.log(param);
-                        // getSubFolderData(x);
-                      }}
-                      drilldownMenu={
-                        <DrilldownMenu id="drilldownMenuStart">
-                          {currData?.directories?.map((data, index) => {
-                            if (count < currData.directories.length) {
-                              count = count + 1;
-                              return (
-                                <MenuItem
-                                  itemId="dir_info"
-                                  id="d_down"
-                                  key={index}
-                                  direction="down"
-                                  onClick={() => {
-                                    breadCrumbLabels.push(data);
-                                    console.log("iiiiii")
-                                    setBreadCrumbLabels(breadCrumbLabels);
-                                    setBreadCrumb(
-                                      appGroupingBreadcrumb(
-                                        false,
-                                        breadCrumbLabels
-                                      )
-                                    );
-                                    const x = param.concat("/", data);
-                                    setParam(x);
-                                    console.log(param);
-                                    getSubFolderData(x);
-                                  }}
-                                >
-                                  <FolderIcon />
-                                  {data}
-                                </MenuItem>
-                              );
-                            }
-                          })}
-
-                          {currData?.files?.map((data, index) => {
-                            if (count2 < currData.files.length) {
-                              count2 = count2 + 1;
-                              return (
-                                <MenuItem
-                                  key={index}
-                                  onClick={() => setActiveFile(index)}
-                                >
-                                  {data.name}
-                                </MenuItem>
-                              );
-                            }
-                          })}
-                        </DrilldownMenu>
-                      }
-                    >
-                      <FolderIcon />
-                      {data}
-                    </MenuItem>
-                  );
-                })}
-                {contentData?.files?.map((data, index) => {
-                  return (
-                    <MenuItem key={index} onClick={() => setActiveFile(index)}>
-                      {data.name}
-                    </MenuItem>
-                  );
-                })}
-              </MenuList>
-            </MenuContent>
+                      >
+                        <FolderIcon />
+                        {data}
+                      </MenuItem>
+                    );
+                  })}
+                  {contentData?.files?.map((data, index) => {
+                    return (
+                      <MenuItem
+                        key={index}
+                        onClick={() => {
+                          if (index >= page * perPage) {
+                            setPage(page + 1);
+                            setActiveFile(index);
+                          } else if (index < (page - 1) * perPage) {
+                            setPage(page - 1);
+                            setActiveFile(index);
+                          } else {
+                            setActiveFile(index);
+                          }
+                        }}
+                      >
+                        {data.name}
+                      </MenuItem>
+                    );
+                  })}
+                </MenuList>
+              </MenuContent>
+            )}
           </Menu>
-          <TableComposable aria-label="Simple table" variant="compact">
-            <Thead>
-              <Tr>
-                <Th>name</Th>
-                <Th>mtime</Th>
-                <Th>size</Th>
-                <Th>mode</Th>
-                <Th>type</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {tableData?.files?.map((file, index) => (
-                <Tr
-                  key={file.name}
-                  className={activeFile === index ? "active" : ""}
-                >
-                  <Td dataLabel={file.name}>{file.name}</Td>
-                  <Td dataLabel={file.mtime}>{file.mtime}</Td>
-                  <Td dataLabel={file.size}>{file.size}</Td>
-                  <Td dataLabel={file.mode}>{file.mode}</Td>
-                  <Td dataLabel={file.type}>{file.type}</Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </TableComposable>
+          <div className="tableTOC">
+            <div className="searchTOCContainer">
+              <SearchTOC
+                dataArray={searchSpace}
+                setTableData={setTableData}
+                setDatasetName={setDatasetName}
+              ></SearchTOC>
+            </div>
+            <TableComposable
+              aria-label="Simple table"
+              variant="compact"
+              className="tocBody"
+            >
+              {isLoading ? (
+                <Spinner className="spinner"></Spinner>
+              ) : (
+                <>
+                  <Thead>
+                    <Tr>
+                      <Th>name</Th>
+                      <Th>mtime</Th>
+                      <Th>size</Th>
+                      <Th>mode</Th>
+                      <Th>type</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {visibleTableFiles.length > 0 ? (
+                      visibleTableFiles?.map((file, index) => (
+                        <Tr
+                          key={file.name}
+                          className={
+                            activeFile === index + (page - 1) * perPage
+                              ? "active"
+                              : ""
+                          }
+                        >
+                          <Td dataLabel={file.name}>{file.name}</Td>
+                          <Td dataLabel={file.mtime}>{file.mtime}</Td>
+                          <Td dataLabel={file.size}>{file.size}</Td>
+                          <Td dataLabel={file.mode}>{file.mode}</Td>
+                          <Td dataLabel={file.type}>{file.type}</Td>
+                        </Tr>
+                      ))
+                    ) : (
+                      <Tr>
+                        <Td colSpan={8}>
+                          <EmptyTable />
+                        </Td>
+                      </Tr>
+                    )}
+                  </Tbody>
+                </>
+              )}
+            </TableComposable>
+            <TablePagination
+              numberOfRows={tableData.length}
+              page={page}
+              setPage={setPage}
+              perPage={perPage}
+              setPerPage={setPerPage}
+            />
+          </div>
         </div>
       </Page>
     </>

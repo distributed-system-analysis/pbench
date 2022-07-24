@@ -27,6 +27,7 @@ import DatePickerWidget from "../DatePickerComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
 import { LoginHint, Heading, EmptyTable, SearchBox } from "./common-components";
 import { getTodayMidnightUTCDate, bumpToDate } from "utils/dateFunctions";
+import { useNavigate } from "react-router";
 
 let startDate = new Date(Date.UTC(1990, 10, 4));
 let endDate = bumpToDate(getTodayMidnightUTCDate(), 1);
@@ -45,6 +46,7 @@ const TableWithFavorite = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [loginHintVisible, setLoginHintVisible] = useState(true);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -207,7 +209,14 @@ const TableWithFavorite = () => {
                       {selectedArray.length > 0 ? (
                         selectedArray.map((repo, rowIndex) => (
                           <Tr key={rowIndex}>
-                            <Td dataLabel={columnNames.name}>{repo.name}</Td>
+                            <Td
+                              dataLabel={columnNames.name}
+                              onClick={() =>
+                                navigate(`/toc/${repo.resource_id}`)
+                              }
+                            >
+                              {repo.name}
+                            </Td>
                             <Td dataLabel={columnNames.creationDate}>
                               {repo.metadata["dataset.created"]}
                             </Td>
@@ -235,10 +244,12 @@ const TableWithFavorite = () => {
               </OuterScrollContainer>
             </div>
           </div>
+          {console.log(tableData.length)}
+          {console.log(favoriteRepoNames.length)}
           <TablePagination
-            numberOfControllers={
-              isSelected === "controllerListButton"
-                ? publicData.length
+            numberOfRows={
+              isSelected === "datasetListButton"
+                ? tableData.length
                 : favoriteRepoNames.length
             }
             page={page}
