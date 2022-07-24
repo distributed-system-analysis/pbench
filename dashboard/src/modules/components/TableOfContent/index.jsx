@@ -41,8 +41,6 @@ import { updateStack } from "actions/tableOfContentActions";
 import { updateCurrData } from "actions/tableOfContentActions";
 import { updateTOCLoader } from "actions/tableOfContentActions";
 
-let datasetName = "";
-console.log(datasetName);
 const TableOfContent = () => {
   const [menuDrilledIn, setMenuDrilledIn] = useState([]);
   const [drilldownPath, setDrillDownPath] = useState([]);
@@ -110,9 +108,6 @@ const TableOfContent = () => {
     setMenuDrilledIn([...menuDrilledIn, fromMenuId]);
     setDrillDownPath([...drilldownPath, pathId]);
     setActiveMenu(toMenuId);
-  };
-  const setDatasetName = (datasetNameValue) => {
-    datasetName = datasetNameValue;
   };
   const getDropDown = (moreBreadCrumbs) => {
     const dropDownArray = moreBreadCrumbs.map((label, index) => {
@@ -353,7 +348,6 @@ const TableOfContent = () => {
               <SearchTOC
                 dataArray={searchSpace}
                 setTableData={setTableData}
-                setDatasetName={setDatasetName}
               ></SearchTOC>
             </div>
             <TableComposable

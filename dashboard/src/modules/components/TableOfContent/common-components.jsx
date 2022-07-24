@@ -9,10 +9,9 @@ const filterTOC = (dataArray, searchKey) => {
   return x;
 };
 
-export const SearchTOC = ({ dataArray, setTableData, setDatasetName }) => {
+export const SearchTOC = ({ dataArray, setTableData}) => {
   const search = (searchKey) => {
     setTableData(filterTOC(dataArray, searchKey));
-    setDatasetName(searchKey);
   };
   return (
     <InputGroup className="searchInputGroup">
