@@ -69,7 +69,7 @@ const metaDataActions = {
   favorite: "user.favorite",
 };
 /**
- * Filter the List of Datasets based on Date Range and Dataset Name
+ * Function which return a thunk to be passed to a Redux dispatch() call
  * @function
  * @param {Object} dataset - Dataset which is being updated
  * @param {string} actionType - Action (save, read, favorite) being performed
