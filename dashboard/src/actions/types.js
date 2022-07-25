@@ -34,7 +34,7 @@ export const RESET_DATA = "RESET_DATA";
 export const SET_USER_DETAILS = "SET_USER_DETAILS";
 
 /* DASHBOARD OVERVIEW */
-export const GET_PRIVATE_DATASET = "GET_PRIVATE_DATASET";
+export const USER_RUNS = "USER_RUNS";
 export const SAVED_RUNS = "SAVED_RUNS";
 export const NEW_RUNS = "NEW_RUNS";
 export const INIT_NEW_RUNS = "INIT_NEW_RUNS";

@@ -7,7 +7,7 @@ export const getDatasets = () => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
 
-    const username = await getState().userAuth.loginDetails.username;
+    const username = getState().userAuth.loginDetails.username;
 
     const params = new URLSearchParams();
     params.append("metadata", "dataset.created");
@@ -31,7 +31,7 @@ export const getDatasets = () => async (dispatch, getState) => {
       if (response?.data?.results?.length > 0) {
         const data = response.data.results;
         dispatch({
-          type: TYPES.GET_PRIVATE_DATASET,
+          type: TYPES.USER_RUNS,
           payload: data,
         });
 
@@ -76,6 +76,7 @@ const metaDataActions = {
  * @param {string} actionValue - Value to be updated (true/ false)
  * @return {Object} - dispatch the action and update the state
  */
+
 export const updateDataset =
   (dataset, actionType, actionValue) => async (dispatch, getState) => {
     try {
@@ -151,13 +152,13 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
       const filteredInitRuns = initNewRuns.filter(
         (item) => item.resource_id !== dataset.resource_id
       );
-      // dispatch is awaited else toast message will appear before the UI updated
-      await dispatch({
+
+      dispatch({
         type: TYPES.INIT_NEW_RUNS,
         payload: filteredInitRuns,
       });
 
-      await dispatch({
+      dispatch({
         type: TYPES.NEW_RUNS,
         payload: result,
       });
@@ -185,7 +186,7 @@ export const setSelectedRuns = (rows) => {
 };
 
 export const updateMultipleDataset =
-  (method, value) => async (dispatch, getState) => {
+  (method, value) => (dispatch, getState) => {
     const selectedRuns = getState().overview.selectedRuns;
 
     if (selectedRuns.length > 0) {

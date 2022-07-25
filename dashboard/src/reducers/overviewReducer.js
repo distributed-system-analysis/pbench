@@ -12,30 +12,30 @@ const initialState = {
 const OverviewReducer = (state = initialState, action = {}) => {
   const { type, payload } = action;
   switch (type) {
-    case TYPES.GET_PRIVATE_DATASET:
+    case TYPES.USER_RUNS:
       return {
         ...state,
-        datasets: [...payload],
+        datasets: payload,
       };
     case TYPES.SAVED_RUNS:
       return {
         ...state,
-        savedRuns: [...payload],
+        savedRuns: payload,
       };
     case TYPES.NEW_RUNS:
       return {
         ...state,
-        newRuns: [...payload],
+        newRuns: payload,
       };
     case TYPES.INIT_NEW_RUNS:
       return {
         ...state,
-        initNewRuns: [...payload],
+        initNewRuns: payload,
       };
     case TYPES.SELECTED_NEW_RUNS:
       return {
         ...state,
-        selectedRuns: [...payload],
+        selectedRuns: payload,
       };
     default:
       return state;
