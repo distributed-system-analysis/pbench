@@ -800,7 +800,7 @@ class Metadata(Database.Base):
     # objects accessible at any level by a dotted key path. For example, for a
     # value of "global": {"favorite": true, "mine": {"contact": "me"}}, the
     # value of key path "global" is the entire object, "global.favorite" is
-    # true, "global.mine" is {"contact": "me"}, and "global.mind.contact" is
+    # true, "global.mine" is {"contact": "me"}, and "global.mine.contact" is
     # "me".
 
     # GLOBAL provides an open metadata namespace allowing a client which is
