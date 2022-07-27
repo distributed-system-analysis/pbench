@@ -42,6 +42,7 @@ class TestEndpointConfig:
             "identification": f"Pbench server {server_config.COMMIT_ID}",
             "api": {
                 "datasets_contents": f"{uri}/datasets/contents",
+                "datasets_contents_": f"{uri}/datasets/contents/",
                 "datasets_daterange": f"{uri}/datasets/daterange",
                 "datasets_delete": f"{uri}/datasets/delete",
                 "datasets_detail": f"{uri}/datasets/detail",
@@ -64,7 +65,11 @@ class TestEndpointConfig:
             },
             "uri": {
                 "datasets_contents": {
-                    "template": f"{uri}/datasets/contents/{{dataset}}",
+                    "template": f"{uri}/datasets/contents/{{dataset}}/{{path}}",
+                    "params": {"dataset": {"type": "string"}, "path": {"type": "path"}},
+                },
+                'datasets_contents_': {
+                   "template": f"{uri}/datasets/contents/{{dataset}}/",
                     "params": {"dataset": {"type": "string"}},
                 },
                 "datasets_daterange": {

@@ -6,7 +6,7 @@ from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
     DatasetsContents,
 )
 from pbench.server.database.models.datasets import Dataset
-from pbench.test.unit.server.query_apis.commons import Commons
+from pbench.test.unit.server.query_apis.commons_get import Commons
 
 
 class TestDatasetsContents(Commons):
@@ -14,14 +14,14 @@ class TestDatasetsContents(Commons):
     Unit testing for DatasetsContents class.
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
-    constructor and `post` service.
+    constructor and `get` service.
     """
 
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
             cls_obj=DatasetsContents(client.config, client.logger),
-            pbench_endpoint="/datasets/contents/random_md5_string1",
+            pbench_endpoint="/datasets/contents/random_md5_string1/1-default",
             elastic_endpoint="/_search",
             payload={"parent": "/1-default"},
             index_from_metadata="run-toc",
@@ -32,7 +32,7 @@ class TestDatasetsContents(Commons):
         Check the DatasetsContents API when no index name is provided
         """
         # remove the last component of the pbench_endpoint
-        incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-1])
+        incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-2])
         response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
@@ -43,7 +43,7 @@ class TestDatasetsContents(Commons):
         incorrect_endpoint = (
             "/".join(self.pbench_endpoint.split("/")[:-1]) + "/random_md5_string2"
         )
-        response = client.post(
+        response = client.get(
             f"{server_config.rest_uri}{incorrect_endpoint}",
             headers={"Authorization": "Bearer " + pbench_token},
             json=self.payload,
@@ -53,7 +53,7 @@ class TestDatasetsContents(Commons):
     def test_query(
         self,
         server_config,
-        query_api,
+        query_api_get,
         pbench_token,
         build_auth_header,
         find_template,
@@ -144,7 +144,7 @@ class TestDatasetsContents(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        response = query_api(
+        response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
             self.payload,
@@ -174,7 +174,7 @@ class TestDatasetsContents(Commons):
     def test_subdirectory_query(
         self,
         server_config,
-        query_api,
+        query_api_get,
         pbench_token,
         build_auth_header,
         find_template,
@@ -255,7 +255,7 @@ class TestDatasetsContents(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        response = query_api(
+        response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
             self.payload,
@@ -273,7 +273,7 @@ class TestDatasetsContents(Commons):
     def test_files_query(
         self,
         server_config,
-        query_api,
+        query_api_get,
         pbench_token,
         build_auth_header,
         find_template,
@@ -328,7 +328,7 @@ class TestDatasetsContents(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        response = query_api(
+        response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
             self.payload,
@@ -357,7 +357,7 @@ class TestDatasetsContents(Commons):
     def test_no_subdirectory_no_files_query(
         self,
         server_config,
-        query_api,
+        query_api_get,
         pbench_token,
         build_auth_header,
         find_template,
@@ -403,7 +403,7 @@ class TestDatasetsContents(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        response = query_api(
+        response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
             self.payload,
@@ -421,7 +421,7 @@ class TestDatasetsContents(Commons):
     def test_empty_query(
         self,
         server_config,
-        query_api,
+        query_api_get,
         pbench_token,
         build_auth_header,
         find_template,
@@ -451,7 +451,7 @@ class TestDatasetsContents(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        response = query_api(
+        response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
             self.payload,
@@ -479,7 +479,7 @@ class TestDatasetsContents(Commons):
     def test_missing_name(self, client, server_config, pbench_token, name):
         expected_status = HTTPStatus.NOT_FOUND
         incorrect_endpoint = self.pbench_endpoint.rsplit("/", 1)[0] + "/" + name
-        response = client.post(
+        response = client.get(
             incorrect_endpoint,
             headers={"Authorization": "Bearer " + pbench_token},
             json=self.payload,

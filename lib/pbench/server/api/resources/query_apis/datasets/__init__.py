@@ -5,7 +5,6 @@ from typing import AnyStr, Union, List
 from pbench.server import PbenchServerConfig, JSON
 from pbench.server.api.resources import (
     API_AUTHORIZATION,
-    API_METHOD,
     APIAbort,
     ApiParams,
     ApiSchema,
@@ -91,11 +90,12 @@ class IndexMapBase(ElasticBase):
         super().__init__(config, logger, *schemas)
 
         api_name = self.__class__.__name__
+        self.method = schemas[0].method
 
         if not schemas:
             raise MissingDatasetNameParameter(api_name, "no schema provided")
         dset = self.schemas.get_param_by_type(
-            API_METHOD.POST,
+            self.method,
             ParamType.DATASET,
             ApiParams(),
         )
@@ -103,7 +103,7 @@ class IndexMapBase(ElasticBase):
             raise MissingDatasetNameParameter(
                 api_name, "dataset parameter is not defined or not required"
             )
-        if self.schemas[API_METHOD.POST].authorization != API_AUTHORIZATION.DATASET:
+        if self.schemas[self.method].authorization != API_AUTHORIZATION.DATASET:
             raise MissingDatasetNameParameter(
                 api_name, "schema authorization is not by dataset"
             )
@@ -117,8 +117,9 @@ class IndexMapBase(ElasticBase):
         using the Dataset ownership/access, so validation and authorization has
         already taken place.
         """
+
         _, dataset = self.schemas.get_param_by_type(
-            API_METHOD.POST, ParamType.DATASET, params
+            self.method, ParamType.DATASET, params
         )
 
         return {"dataset": dataset}

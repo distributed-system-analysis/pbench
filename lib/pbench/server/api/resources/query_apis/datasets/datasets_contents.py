@@ -30,13 +30,11 @@ class DatasetsContents(IndexMapBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.POST,
+                API_METHOD.GET,
                 API_OPERATION.READ,
                 uri_schema=Schema(
-                    Parameter("dataset", ParamType.DATASET, required=True)
-                ),
-                body_schema=Schema(
-                    Parameter("parent", ParamType.STRING, required=True),
+                    Parameter("dataset", ParamType.DATASET, required=True),
+                    Parameter("path", ParamType.STRING, required=False),
                 ),
                 authorization=API_AUTHORIZATION.DATASET,
             ),
@@ -59,7 +57,11 @@ class DatasetsContents(IndexMapBase):
         }
         """
         # Copy parent directory metadata to CONTEXT for postprocessor
-        parent = context["parent"] = params.body.get("parent")
+        try:
+            parent = context["parent"] = "/" + params.uri["path"]
+        except KeyError:
+            parent = context["parent"] = "/"
+
         dataset = context["dataset"]
 
         self.logger.info(

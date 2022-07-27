@@ -493,13 +493,13 @@ class ElasticBase(ApiBase):
         """
         return self._call(requests.post, params)
 
-    def _get(self, json_data: JSON, _) -> Response:
+    def _get(self, params: ApiParams, _) -> Response:
         """
         Handle a GET operation involving a call to the server's Elasticsearch
         instance. The post-processing of the Elasticsearch query is handled
         the subclasses through their postprocess() methods.
         """
-        return self._call(requests.get, None)
+        return self._call(requests.get, params)
 
 
 class ElasticBulkBase(ApiBase):
