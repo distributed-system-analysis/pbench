@@ -68,8 +68,8 @@ class TestEndpointConfig:
                     "template": f"{uri}/datasets/contents/{{dataset}}/{{path}}",
                     "params": {"dataset": {"type": "string"}, "path": {"type": "path"}},
                 },
-                'datasets_contents_': {
-                   "template": f"{uri}/datasets/contents/{{dataset}}/",
+                "datasets_contents_": {
+                    "template": f"{uri}/datasets/contents/{{dataset}}/",
                     "params": {"dataset": {"type": "string"}},
                 },
                 "datasets_daterange": {

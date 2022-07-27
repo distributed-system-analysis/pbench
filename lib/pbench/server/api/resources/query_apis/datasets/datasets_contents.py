@@ -48,13 +48,8 @@ class DatasetsContents(IndexMapBase):
         that belong to the given run id.
 
         Args:
-            params: API parameters
+            params: ApiParams includes the uri parameters, which provide the dataset and path.
             context: propagate the dataset and the "parent" directory value.
-
-        EXAMPLE:
-        {
-            "parent": '/1-default'
-        }
         """
         # Copy parent directory metadata to CONTEXT for postprocessor
         try:

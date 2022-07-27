@@ -20,7 +20,7 @@ class Commons:
 
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
-    constructor and `post` service.
+    constructor and `get` service.
     """
 
     # Declare the common empty search response payload that subclass can use.
