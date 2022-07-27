@@ -68,10 +68,11 @@ RUN \
         parallel \
         time \
         `#` \
-        `# Base command used by CI unit test jobs` \
+        `# Commands for running unit test jobs` \
         `#` \
+        npm \
         tox \
-    && \
+        && \
     `#` \
     `# Save space in the container image.` \
     `#` \
