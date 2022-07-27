@@ -1,4 +1,3 @@
-import itertools
 from http import HTTPStatus
 from typing import AnyStr
 
