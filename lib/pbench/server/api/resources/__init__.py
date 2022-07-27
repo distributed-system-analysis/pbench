@@ -77,7 +77,13 @@ class UnauthorizedAdminAccess(UnauthorizedAccess):
         operation: "API_OPERATION",
         http_status: int = HTTPStatus.FORBIDDEN,
     ):
-        super().__init__(user, operation, None, None, http_status=http_status)
+        super().__init__(
+            user=user,
+            operation=operation,
+            owner=None,
+            access=None,
+            http_status=http_status,
+        )
 
     def __str__(self) -> str:
         return f"{'User ' + self.user.username if self.user else 'Unauthenticated client'} is not authorized to {self.operation.name} a server administrative resource"
@@ -953,9 +959,7 @@ class ApiSchema:
         Returns
             The values for username and access policy to use for authorization.
         """
-        if self.authorization == API_AUTHORIZATION.ADMIN:
-            return ApiAuthorization(type=self.authorization, role=self.operation)
-        elif self.authorization == API_AUTHORIZATION.DATASET:
+        if self.authorization == API_AUTHORIZATION.DATASET:
             ds = self.get_param_by_type(ParamType.DATASET, params)
             if ds:
                 return ApiAuthorization(
@@ -974,6 +978,8 @@ class ApiSchema:
                 access=access.value,
                 role=self.operation,
             )
+        elif self.authorization == API_AUTHORIZATION.ADMIN:
+            return ApiAuthorization(type=self.authorization, role=self.operation)
         return None
 
 

@@ -19,17 +19,16 @@ class TestServerConfig:
     def test_construct(self, db_session):
         """Test server config parameter constructor"""
         config = ServerConfig(key="dataset-lifetime", value="2")
-        config.add()
         assert config.key == "dataset-lifetime"
         assert config.value == "2"
-        assert "dataset-lifetime: '2'" == str(config)
+        assert str(config) == "dataset-lifetime: '2'"
 
     def test_create(self, db_session):
         """Test server config parameter creation"""
         config = ServerConfig.create(key="dataset-lifetime", value="2")
         assert config.key == "dataset-lifetime"
         assert config.value == "2"
-        assert "dataset-lifetime: '2'" == str(config)
+        assert str(config) == "dataset-lifetime: '2'"
 
     def test_construct_duplicate(self, db_session):
         """Test server config parameter constructor"""

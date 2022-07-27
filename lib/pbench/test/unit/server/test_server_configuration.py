@@ -19,7 +19,7 @@ class TestServerConfiguration:
         def query_api(
             key: str, expected_status: HTTPStatus = HTTPStatus.OK
         ) -> requests.Response:
-            k = f"/{key}" if key else ""
+            k = "" if key is None else f"/{key}"
             response = client.get(f"{server_config.rest_uri}/server/configuration{k}")
             assert response.status_code == expected_status
             return response
@@ -65,20 +65,31 @@ class TestServerConfiguration:
         response = query_get("dataset-lifetime")
         assert response.json == {"dataset-lifetime": "3650"}
 
-    def test_get_all(self, query_get):
-        response = query_get(None, HTTPStatus.OK)
+    @pytest.mark.parametrize("key", (None, ""))
+    def test_get_all(self, query_get, key):
+        """
+        We use a triple Flask mapping so that both /server/configuration and
+        /server/configuration/ should be mapped to "get all"; test that both
+        work.
+        """
+        response = query_get(key)
         assert response.json == {
             "dataset-lifetime": "3650",
             "server-state": {"status": "enabled"},
             "server-banner": None,
         }
 
-    def test_put_missing_key(self, query_put):
+    def test_put_missing_value(self, query_put):
         """
         Test behavior when JSON payload does not contain all required keys.
         """
-        response = query_put(json={}, key=None, expected_status=HTTPStatus.BAD_REQUEST)
-        assert response.json.get("message") == "Missing required parameters: config"
+        response = query_put(
+            key="dataset-lifetime", expected_status=HTTPStatus.BAD_REQUEST
+        )
+        assert (
+            response.json.get("message")
+            == "No value found for key system configuration key 'dataset-lifetime'"
+        )
 
     def test_put_bad_key(self, query_put):
         response = query_put(key="fookey", expected_status=HTTPStatus.BAD_REQUEST)
@@ -89,11 +100,11 @@ class TestServerConfiguration:
     def test_put_bad_keys(self, query_put):
         response = query_put(
             key=None,
-            json={"config": {"fookey": "bar"}},
+            json={"fookey": "bar"},
             expected_status=HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {
-            "message": "Unrecognized JSON key ['fookey'] given for parameter config; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized configuration parameters ['fookey'] specified: valid parameters are ['dataset-lifetime', 'server-banner', 'server-state']"
         }
 
     @pytest.mark.parametrize(
@@ -112,6 +123,18 @@ class TestServerConfiguration:
         assert (
             f"Unsupported value for configuration key '{key}'"
             in response.json["message"]
+        )
+
+    def test_put_redundant_value(self, query_put):
+        response = query_put(
+            key="dataset-lifetime",
+            query_string={"value": "2"},
+            json={"value": "5", "dataset-lifetime": "4"},
+            expected_status=HTTPStatus.BAD_REQUEST,
+        )
+        assert (
+            response.json["message"]
+            == "Redundant parameters specified in the JSON request body: ['dataset-lifetime', 'value']"
         )
 
     def test_put_param(self, query_put):
@@ -147,20 +170,16 @@ class TestServerConfiguration:
     def test_put_config(self, query_get, query_put):
         response = query_put(
             key=None,
-            expected_status=HTTPStatus.OK,
             json={
-                "config": {
-                    "dataset-lifetime": "2",
-                    "server-state": {"status": "enabled"},
-                }
+                "dataset-lifetime": "2",
+                "server-state": {"status": "enabled"},
             },
         )
         assert response.json == {
             "dataset-lifetime": "2",
             "server-state": {"status": "enabled"},
-            "server-banner": None,
         }
-        response = query_get({}, HTTPStatus.OK)
+        response = query_get(None)
         assert response.json == {
             "dataset-lifetime": "2",
             "server-state": {"status": "enabled"},
@@ -170,7 +189,6 @@ class TestServerConfiguration:
     def test_disable_api(self, server_config, client, query_put, create_drb_user):
         query_put(
             key="server-state",
-            expected_status=HTTPStatus.OK,
             json={
                 "value": {
                     "status": "disabled",
@@ -192,7 +210,6 @@ class TestServerConfiguration:
     ):
         query_put(
             key="server-state",
-            expected_status=HTTPStatus.OK,
             json={
                 "value": {
                     "status": "readonly",

@@ -1,12 +1,11 @@
-from enum import Enum
 import re
-from typing import Callable, Optional
+from typing import Optional
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.sql.sqltypes import JSON
-from pbench.server import JSONOBJECT, JSONVALUE
 
+from pbench.server import JSONOBJECT, JSONVALUE
 from pbench.server.database.database import Database
 
 
@@ -23,9 +22,8 @@ class ServerConfigSqlError(ServerConfigError):
     """
     SQLAlchemy errors reported through ServerConfig operations.
 
-    The exception will identify the base name of the Elasticsearch index,
-    along with the operation being attempted; the __cause__ will specify the
-    original SQLAlchemy exception.
+    The exception will identify the operation being performed and the config
+    key; the cause will specify the original SQLAlchemy exception.
     """
 
     def __init__(self, operation: str, name: str, cause: str):
@@ -101,7 +99,7 @@ class ServerConfigBadValue(ServerConfigError):
 # external package we have no standard way to parse or format timedelta
 # strings. Additionally for "lifetime" we don't care about fractional days,
 # so we simpify by accepting "D[[ ]day[s]]".
-_TIMEDELTA_FORMAT = re.compile(r"(?P<days>\d{1,9})(?:\s*day(?:s)?)?")
+_TIMEDELTA_FORMAT = re.compile(r"(?P<days>\d{1,9})(?:\s*days?)?")
 
 
 def validate_lifetime(key: str, value: JSONVALUE) -> JSONVALUE:
@@ -172,29 +170,24 @@ def validate_server_banner(key: str, value: JSONVALUE) -> JSONVALUE:
     return value
 
 
-class ServerConfigOptions(Enum):
-    MAXIMUM_DATASET_LIFETIME = ("dataset-lifetime", validate_lifetime)
-    SERVER_BANNER = ("server-banner", validate_server_banner)
-    SERVER_STATE = ("server-state", validate_server_state)
+OPTION_DATASET_LIFETIME = "dataset-lifetime"
+OPTION_SERVER_BANNER = "server-banner"
+OPTION_SERVER_STATE = "server-state"
 
-    def __init__(self, key: str, validator: Callable[[str, JSONVALUE], JSONVALUE]):
-        self.key = key
-        self.validator = validator
-
-    @classmethod
-    def lookup(cls, key: str) -> "ServerConfigOptions":
-        if not key:
-            raise ServerConfigMissingKey()
-        k = key.lower()
-        for x in cls:
-            if k == x.key:
-                return x
-        raise ServerConfigBadKey(k)
-
-    @staticmethod
-    def validate(key: str, value: JSONVALUE) -> JSONVALUE:
-        option = ServerConfigOptions.lookup(key)
-        return option.validator(key, value)
+SERVER_CONFIGURATION_OPTIONS = {
+    OPTION_DATASET_LIFETIME: {
+        "validator": validate_lifetime,
+        "default": lambda: str(ServerConfig.config.max_retention_period),
+    },
+    OPTION_SERVER_BANNER: {
+        "validator": validate_server_banner,
+        "default": lambda: None,
+    },
+    OPTION_SERVER_STATE: {
+        "validator": validate_server_state,
+        "default": lambda: {STATE_STATUS_KEY: STATE_STATUS_KEYWORD_ENABLED},
+    },
+}
 
 
 class ServerConfig(Database.Base):
@@ -208,7 +201,7 @@ class ServerConfig(Database.Base):
         value   Configuration key value
     """
 
-    KEYS = sorted([s.key for s in ServerConfigOptions])
+    KEYS = sorted([s for s in SERVER_CONFIGURATION_OPTIONS.keys()])
 
     __tablename__ = "serverconfig"
 
@@ -218,12 +211,25 @@ class ServerConfig(Database.Base):
 
     @staticmethod
     def _default(key: str) -> JSONVALUE:
-        if key == ServerConfigOptions.MAXIMUM_DATASET_LIFETIME.key:
-            return str(__class__.config.max_retention_period)
-        elif key == ServerConfigOptions.SERVER_STATE.key:
-            return {STATE_STATUS_KEY: STATE_STATUS_KEYWORD_ENABLED}
-        else:
-            return None
+        try:
+            config = SERVER_CONFIGURATION_OPTIONS[key]
+        except KeyError:
+            if key:
+                raise ServerConfigBadKey(key)
+            else:
+                raise ServerConfigMissingKey()
+        return config["default"]()
+
+    @staticmethod
+    def _validate(key: str, value: JSONVALUE) -> JSONVALUE:
+        try:
+            config = SERVER_CONFIGURATION_OPTIONS[key]
+        except KeyError:
+            if key:
+                raise ServerConfigBadKey(key)
+            else:
+                raise ServerConfigMissingKey()
+        return config["validator"](key, value)
 
     @staticmethod
     def create(key: str, value: JSONVALUE) -> "ServerConfig":
@@ -240,7 +246,7 @@ class ServerConfig(Database.Base):
             to the database.
         """
 
-        v = ServerConfigOptions.validate(key, value)
+        v = __class__._validate(key, value)
         config = ServerConfig(key=key, value=v)
         config.add()
         return config
@@ -248,15 +254,15 @@ class ServerConfig(Database.Base):
     @staticmethod
     def get(key: str, use_default: bool = True) -> "ServerConfig":
         """
-        Return a ServerConfig object with the specified key name. For
-        example, SererConfig.get("max-lifetime").
+        Return a ServerConfig object with the specified configuration key
+        setting. For example, ServerConfig.get("dataset-lifetime").
 
-        If the key has no definition, a default value will optionally
+        If the setting has no definition, a default value will optionally
         be provided.
 
         Args:
-            key: Base index name
-            use_default: If the DB value is None, subsitute a default
+            key: System configuration setting name
+            use_default: If the DB value is None, return a default
 
         Raises:
             ServerConfigSqlError: problem interacting with Database
@@ -276,20 +282,16 @@ class ServerConfig(Database.Base):
     def set(key: str, value: JSONVALUE) -> "ServerConfig":
         """
         Update a ServerConfig key with the specified value. For
-        example, SererConfig.set("max-lifetime").
+        example, ServerConfig.set("dataset-lifetime").
 
         Args:
-            key: Base index name
-
-        Raises:
-            ServerConfigSqlError: problem interacting with Database
-            ServerConfigNotFound: the specified template doesn't exist
+            key: Configuration setting name
 
         Returns:
             ServerConfig object with the specified key name
         """
 
-        v = ServerConfigOptions.validate(key, value)
+        v = __class__._validate(key, value)
         config = __class__.get(key, use_default=False)
         if config:
             config.value = v
@@ -313,7 +315,7 @@ class ServerConfig(Database.Base):
             requested access, the entire JSON value is returned and should be
             reported to a caller.
         """
-        state = __class__.get(key=ServerConfigOptions.SERVER_STATE.key)
+        state = __class__.get(key=OPTION_SERVER_STATE)
         if state:
             value = state.value
             status = value[STATE_STATUS_KEY]
@@ -367,11 +369,10 @@ class ServerConfig(Database.Base):
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
-        except IntegrityError as e:
-            Database.db_session.rollback()
-            raise self._decode(e)
         except Exception as e:
             Database.db_session.rollback()
+            if isinstance(e, IntegrityError):
+                raise self._decode(e)
             raise ServerConfigSqlError("adding", self.key, str(e))
 
     def update(self):
@@ -381,9 +382,8 @@ class ServerConfig(Database.Base):
         """
         try:
             Database.db_session.commit()
-        except IntegrityError as e:
-            Database.db_session.rollback()
-            raise self._decode(e)
         except Exception as e:
             Database.db_session.rollback()
+            if isinstance(e, IntegrityError):
+                raise self._decode(e)
             raise ServerConfigSqlError("updating", self.key, str(e))

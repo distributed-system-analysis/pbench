@@ -170,6 +170,7 @@ def register_endpoints(api, app, config):
         ServerConfiguration,
         f"{base_uri}/server/configuration",
         f"{base_uri}/server/configuration/<string:key>",
+        strict_slashes=False,
         resource_class_args=(config, logger),
     )
     api.add_resource(
