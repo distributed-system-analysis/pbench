@@ -68,9 +68,9 @@ class TestServerConfiguration:
     @pytest.mark.parametrize("key", (None, ""))
     def test_get_all(self, query_get, key):
         """
-        We use a triple Flask mapping so that both /server/configuration and
-        /server/configuration/ should be mapped to "get all"; test that both
-        work.
+        We use a trailing-slash-insensitive URI mapping so that both
+        /server/configuration and /server/configuration/ should be mapped to
+        "get all"; test that both paths work.
         """
         response = query_get(key)
         assert response.json == {
