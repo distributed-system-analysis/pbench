@@ -68,7 +68,6 @@ const HeaderToolbar = () => {
       </DropdownItem>
     </DropdownGroup>,
   ];
-
   return (
     <Toolbar id="toolbar" isFullHeight isStatic>
       <ToolbarContent>
