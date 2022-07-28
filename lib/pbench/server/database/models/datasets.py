@@ -1144,15 +1144,6 @@ class Metadata(Database.Base):
         "a.b.c" a value of "bar", and then query "a", you'll get back
         "a": {"b": {"c": "bar"}}}
 
-        We handle two keys specially:
-
-            dataset.name: The primary resource name of a dataset, which can be
-                modified by the dataset's owner.
-            server.deletion: The expected automatic deletion date of the
-                dataset. It can be modified by the owner so long as the new
-                value is a valid date that falls within the maximum server
-                retention period from the dataset's upload timestamp.
-
         Args:
             dataset: Associated Dataset
             key: Lookup key (including hierarchical dotted paths)
@@ -1163,11 +1154,11 @@ class Metadata(Database.Base):
         keys = key.lower().split(".")
         native_key = keys.pop(0)
         found = True
+        v = __class__.validate(dataset, key, value)
 
         # Setting the dataset name is a direct modification to the Dataset SQL
         # column, so do that first and exit without touching the Metadata
         # table.
-        v = __class__.validate(dataset, key, value)
         if key == __class__.DATASET_NAME:
             dataset.name = v
             dataset.update()
