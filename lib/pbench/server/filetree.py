@@ -190,8 +190,6 @@ class Tarball:
         # standard .tar.xz
         md5_source = tarball.with_suffix(".xz.md5")
 
-        print("path == ", state_dir.path)
-
         # If either expected destination file exists, something is wrong
         if (state_dir.path / tarball.name).exists():
             raise DuplicateTarball(name)
@@ -769,18 +767,14 @@ class FileTree:
 
     def _clean_empties(self):
         """
-        Remove empty state directories from the RESULTS and INCOMING
-        trees. If there are no remaining tarballs in the ARCHIVE
-        directory, remove all empty state subdirectories.
+        Remove all empty state sub-directories if there are no
+        remaining tarballs in the ARCHIVE directory.
         """
-        self.delete_if_empty(self.options.RESULTS)
-        self.delete_if_empty(self.options.INCOMING)
         archive = self.options.ARCHIVE
         if archive.exists() and not any(archive.glob(f"*{Dataset.TARBALL_SUFFIX}")):
             for file in archive.iterdir():
                 if StateDIRS.is_statedir(file):
                     self.delete_if_empty(file)
-            self.delete_if_empty(archive)
 
     def _add_tarball(self, directory: Path) -> None:
         """
@@ -907,7 +901,7 @@ class FileTree:
         tarball = self.find_dataset(dataset_id)
         state_dir = tarball.state_dir
         state_dir.uncache(dataset_id)
-        # self._clean_empties()
+        self._clean_empties()
 
     def delete(self, dataset_id: str):
         """
@@ -921,4 +915,4 @@ class FileTree:
         tarball.state_dir.delete(dataset_id)
         del self.datasets[dataset_id]
         del self.tarballs[name]
-        # self._clean_empties()
+        self._clean_empties()
