@@ -146,8 +146,8 @@ STATE_STATUS_KEYWORDS = [
 def validate_server_state(key: str, value: JSONVALUE) -> JSONVALUE:
     try:
         status = value[STATE_STATUS_KEY].lower()
-    except (KeyError, SyntaxError, TypeError):
-        raise ServerConfigBadValue(key, value)
+    except (KeyError, SyntaxError, TypeError) as e:
+        raise ServerConfigBadValue(key, value) from e
     if status not in STATE_STATUS_KEYWORDS:
         raise ServerConfigBadValue(key, value)
 
@@ -213,22 +213,22 @@ class ServerConfig(Database.Base):
     def _default(key: str) -> JSONVALUE:
         try:
             config = SERVER_CONFIGURATION_OPTIONS[key]
-        except KeyError:
+        except KeyError as e:
             if key:
-                raise ServerConfigBadKey(key)
+                raise ServerConfigBadKey(key) from e
             else:
-                raise ServerConfigMissingKey()
+                raise ServerConfigMissingKey() from e
         return config["default"]()
 
     @staticmethod
     def _validate(key: str, value: JSONVALUE) -> JSONVALUE:
         try:
             config = SERVER_CONFIGURATION_OPTIONS[key]
-        except KeyError:
+        except KeyError as e:
             if key:
-                raise ServerConfigBadKey(key)
+                raise ServerConfigBadKey(key) from e
             else:
-                raise ServerConfigMissingKey()
+                raise ServerConfigMissingKey() from e
         return config["validator"](key, value)
 
     @staticmethod
@@ -275,7 +275,7 @@ class ServerConfig(Database.Base):
             if config is None and use_default:
                 config = ServerConfig(key=key, value=__class__._default(key))
         except SQLAlchemyError as e:
-            raise ServerConfigSqlError("finding", key, str(e))
+            raise ServerConfigSqlError("finding", key, str(e)) from e
         return config
 
     @staticmethod
@@ -372,8 +372,8 @@ class ServerConfig(Database.Base):
         except Exception as e:
             Database.db_session.rollback()
             if isinstance(e, IntegrityError):
-                raise self._decode(e)
-            raise ServerConfigSqlError("adding", self.key, str(e))
+                raise self._decode(e) from e
+            raise ServerConfigSqlError("adding", self.key, str(e)) from e
 
     def update(self):
         """
@@ -385,5 +385,5 @@ class ServerConfig(Database.Base):
         except Exception as e:
             Database.db_session.rollback()
             if isinstance(e, IntegrityError):
-                raise self._decode(e)
-            raise ServerConfigSqlError("updating", self.key, str(e))
+                raise self._decode(e) from e
+            raise ServerConfigSqlError("updating", self.key, str(e)) from e
