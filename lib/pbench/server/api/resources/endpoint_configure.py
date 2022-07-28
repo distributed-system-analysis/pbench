@@ -158,10 +158,19 @@ class EndpointConfig(Resource):
                     },
                 }
                 url = self.param_template.sub("", url)
-                path = url[len(self.uri_prefix) + 1 :]
-                path = path.replace("/", "_")
-                apis[path] = urljoin(host, url)
-                templates[path] = template
+                path = rule.endpoint
+
+                # We have some URI endpoints that repeat a basic URI pattern.
+                # The "primary" may have several URI parameters; the others
+                # have fewer parameters (e.g., "/x/{p}" and "/x" or
+                # "/x/{p}/{n}" and "/x/{p}" and "/x") and won't capture all
+                # the information we want. So we only keep the variant with the
+                # highest parameter count.
+                if path not in templates or (
+                    len(template["params"]) > len(templates[path]["params"])
+                ):
+                    apis[path] = urljoin(host, url)
+                    templates[path] = template
 
         try:
             endpoints = {
