@@ -82,17 +82,17 @@ class Tarball:
     database representations of a dataset.
     """
 
-    def __init__(self, path: Path, controller: "Controller"):
+    def __init__(self, path: Path, state_dir: "StateDIRS"):
         """
-        Construct a `Tarball` object instance representing a the file system
+        Construct a `Tarball` object instance representing the file system
         artifacts of a dataset.
 
         Args:
             path: The file path to a discovered tarball (.tar.xz file) in the
-                configured ARCHIVE directory for a controller.
-            controller: The associated Controller object
+                configured ARCHIVE directory.
+            state_dir: The associated StateDIR object
         """
-        self.logger: Logger = controller.logger
+        self.logger: Logger = state_dir.logger
 
         # Record the root filename of the tarball
         self.name: str = Dataset.stem(path)
@@ -101,8 +101,8 @@ class Tarball:
         # logic
         self.resource_id: str = get_tarball_md5(path)
 
-        # Record a backlink to the containing controller object
-        self.controller: Controller = controller
+        # Record a backlink to the containing StateDIR object
+        self.state_dir: StateDIRS = state_dir
 
         # Record the path of the tarball file
         self.tarball_path: Path = path
@@ -116,8 +116,8 @@ class Tarball:
         # Record the path of the companion MD5 file
         self.md5_path: Path = path.with_suffix(".xz.md5")
 
-        # Record the name of the containing controller
-        self.controller_name: str = controller.name
+        # Record the name of the containing state dir
+        self.state_dir_name: str = state_dir.name
 
         # Cache results metadata when it's been processed
         self.metadata: Optional[JSONOBJECT] = None
@@ -128,7 +128,7 @@ class Tarball:
         the INCOMING tree and if so record the link.
 
         Args
-            result:   The controller's RESULTS directory
+            result:   The RESULTS directory
 
         Return
             True if an unpacked directory was discovered
@@ -145,7 +145,7 @@ class Tarball:
         to an unpacked INCOMING tree and if so record the link.
 
         Args
-            result:   The controller's RESULTS directory
+            result:   The RESULTS directory
 
         Return
             True if a results link was discovered
@@ -157,16 +157,16 @@ class Tarball:
         return False
 
     # Most of the "operational" methods below this point should be called only
-    # through Controller and/or FileTree methods, in order to properly manage
+    # through StateDIRS and/or FileTree methods, in order to properly manage
     # aspects of the file tree structure outside the scope of the Tarball.
     #
     # create
     #   Alternate constructor to create a Tarball object and move an incoming
-    #   tarball and md5 into the proper controller directory.
+    #   tarball and md5 into the proper State directory.
     #
     # unpack
     #   Unpack the ARCHIVE tarball file into a new directory under the
-    #   controller directory in the INCOMING directory tree.
+    #   INCOMING directory tree.
     #
     # uncache
     #   Remove the unpacked directory tree under INCOMING when no longer needed.
@@ -176,7 +176,7 @@ class Tarball:
     #   unpacked directory tree.
 
     @classmethod
-    def create(cls, tarball: Path, controller: "Controller") -> "Tarball":
+    def create(cls, tarball: Path, state_dir: "StateDIRS") -> "Tarball":
         """
         This is an alternate constructor to move an incoming tarball into the
         proper place along with the md5 companion file. It returns the new
@@ -190,34 +190,36 @@ class Tarball:
         # standard .tar.xz
         md5_source = tarball.with_suffix(".xz.md5")
 
+        print("path == ", state_dir.path)
+
         # If either expected destination file exists, something is wrong
-        if (controller.path / tarball.name).exists():
+        if (state_dir.path / tarball.name).exists():
             raise DuplicateTarball(name)
-        if (controller.path / md5_source.name).exists():
+        if (state_dir.path / md5_source.name).exists():
             raise DuplicateTarball(name)
 
         # Copy the MD5 file first; only if that succeeds, copy the tarball
         # itself.
         try:
-            md5_destination = Path(shutil.copy2(md5_source, controller.path))
+            md5_destination = Path(shutil.copy2(md5_source, state_dir.path))
         except Exception as e:
-            controller.logger.error(
+            state_dir.logger.error(
                 "ERROR copying dataset {} ({}) MD5: {}", name, tarball, e
             )
             raise
 
         try:
-            destination = Path(shutil.copy2(tarball, controller.path))
+            destination = Path(shutil.copy2(tarball, state_dir.path))
         except Exception as e:
             try:
                 md5_destination.unlink()
             except Exception as e:
-                controller.logger.error(
+                state_dir.logger.error(
                     "Unable to recover by removing {} MD5 after tarball copy failure: {}",
                     name,
                     e,
                 )
-            controller.logger.error(
+            state_dir.logger.error(
                 "ERROR copying dataset {} tarball {}: {}", name, tarball, e
             )
             raise
@@ -229,7 +231,7 @@ class Tarball:
                 selinux.restorecon(md5_destination)
         except Exception as e:
             # log it but do not abort
-            controller.logger.error("Unable to set SELINUX context for {}: {}", name, e)
+            state_dir.logger.error("Unable to set SELINUX context for {}: {}", name, e)
 
         # To get the new tarball into the server pipeline, we start with a
         # symlink in the TODO state directory.
@@ -240,9 +242,9 @@ class Tarball:
         # this point, and there's no place to report the error aside from the
         # log.
         try:
-            controller.link(destination, "TODO")
+            state_dir.link(destination, "TODO")
         except Exception as e:
-            controller.logger.error(
+            state_dir.logger.error(
                 "Failed to link dataset {} into TODO state directory: {}", name, e
             )
 
@@ -251,9 +253,9 @@ class Tarball:
             tarball.unlink()
             md5_source.unlink()
         except Exception as e:
-            controller.logger.error("Error removing incoming dataset {}: {}", name, e)
+            state_dir.logger.error("Error removing incoming dataset {}: {}", name, e)
 
-        return cls(destination, controller)
+        return cls(destination, state_dir)
 
     def extract(self, path: str) -> str:
         """
@@ -295,17 +297,16 @@ class Tarball:
     def unpack(self, incoming: Path, results: Path):
         """
         Unpack a tarball into the INCOMING directory tree; this assumes that
-        the INCOMING controller directory already exists, which should be
-        ensured by calling this indirectly through the Controller class unpack
-        method.
+        the INCOMING directory already exists, which should be ensured by
+        calling this indirectly through the StateDIRS class unpack method.
 
         TODO: This is a prototype for testing, and doesn't actually unpack
         the tarball as we're going to be relying on the current unpack pipeline
         command for some time.
 
         Args:
-            incoming: Controller's directory in the INCOMING tree
-            results: Controller's directory in the RESULTS tree
+            incoming: The INCOMING tree
+            results: The RESULTS tree
         """
         self.logger.warning("Tarball unpack is not yet implemented")
         unpacked = incoming / self.name
@@ -318,7 +319,7 @@ class Tarball:
     def uncache(self):
         """
         Remove the unpacked tarball directory and all contents. The caller
-        is responsible for removing empty controller directories.
+        is responsible for removing empty directories.
         """
         if self.unpacked:
             try:
@@ -359,17 +360,15 @@ class Tarball:
             self.tarball_path = None
 
 
-class Controller:
+class StateDIRS:
     """
-    Record the existence of a "controller" in the ARCHIVE directory tree: this
-    only means that a directory was found within the root ARCHIVE directory. A
-    controller with no data will be ignored in most contexts, but the audit
-    report generator will flag it.
+    Record the existence of a "State Directories" in the ARCHIVE directory tree:
+    this only means that a directory was found within the root ARCHIVE directory.
     """
 
-    # List of the state directories under controller in which we record the
-    # "state" of tarballs via symlinks. The FileTree package can discover,
-    # validate, and report on these.
+    # List of the state directories in which we record the "state" of tarballs
+    # via symlinks. The FileTree package can discover, validate, and report on
+    # these.
     STATE_DIRS = [
         "BACKED-UP",
         "BACKUP-FAILED",
@@ -400,6 +399,10 @@ class Controller:
         NOTE: rmdir technically will fail if the directory isn't empty, but
         this feels safer.
 
+        NOTE: currently avoiding deleting empty state directories, as
+        there is going to be only a single version of states available
+        now, rather than being under each controller.
+
         Any exceptions raised will be propagated.
 
         Args:
@@ -426,57 +429,57 @@ class Controller:
         if not directory.is_dir():
             return False
         name = directory.name
-        for state in Controller.STATE_DIRS:
+        for state in StateDIRS.STATE_DIRS:
             if re.fullmatch(state, name):
                 return True
         return False
 
     def __init__(self, path: Path, incoming: Path, results: Path, logger: Logger):
         """
-        Manage the representation of a controller on disk, which is a set of
+        Manage the representation of a `States` on disk, which is a set of
         directories; one each in the ARCHIVE, INCOMING, and RESULTS trees.
 
-        In this context, the path parameter refers to a controller directory
-        within the configured ARCHIVE tree; "incoming" and "results" refer to
-        the configured base directories of INCOMING and RESULTS trees,
-        respectively. There need not be any files or directories related to
-        this controller within those trees at this time.
+        In this context, the path parameter refers to the configured ARCHIVE
+        tree; "incoming" and "results" refer to the configured base directories
+        of INCOMING and RESULTS trees, respectively. There need not be any
+        files or directories related to this tarball within those trees at this
+        time.
 
         Args:
-            path: Controller ARCHIVE directory path
+            path: ARCHIVE directory path
             incoming: The root of the INCOMING tree
             results: The root of the RESULTS tree
             logger: Logger object
         """
         self.logger = logger
 
-        # The controller file system (directory) name
+        # The archive file system (directory) name
         self.name = path.name
 
-        # The full controller path in the ARCHIVE tree
+        # The full ARCHIVE path
         self.path = path
 
-        # The set of state directories associated with the controller
+        # The set of state directories associated with the tarballs
         self.state_dirs: Dict[str, Path] = {}
 
-        # Provide a mapping from Tarball file name to object
+        # Provide a mapping from Tarball file name to object (which object?)
         self.tarballs: Dict[str, Tarball] = {}
 
         # Provide a mapping from Dataset resource ID to object
         self.datasets: Dict[str, Tarball] = {}
 
         # The directory where the tarball will be unpacked
-        self.incoming: Path = incoming / self.name
+        self.incoming: Path = incoming
 
         # A path that will link to the unpacked tarball
-        self.results: Path = results / self.name
+        self.results: Path = results
         self._discover_tarballs()
 
     def _discover_tarballs(self):
         """
         Discover the tarballs and state directories within the ARCHIVE tree's
-        controller directory. Check for an unpacked tarball in the INCOMING
-        tree and if that's present also check for a RESULTS tree link.
+        directory. Check for an unpacked tarball in the INCOMING tree and if
+        that's present also check for a RESULTS tree link.
         """
         for file in self.path.iterdir():
             if self.is_statedir(file):
@@ -489,25 +492,23 @@ class Controller:
                     tarball.check_results(self.results)
 
     @classmethod
-    def create(
-        cls, name: str, options: PbenchServerConfig, logger: Logger
-    ) -> "Controller":
+    def create(cls, options: PbenchServerConfig, logger: Logger) -> "StateDIRS":
         """
-        Create a new controller directory under the ARCHIVE tree if one doesn't
-        already exist, and return a Controller object.
+        Create a new ARCHIVE tree directory if one doesn't
+        already exist, and return a StateDIRS object.
 
         Returns:
-            Controller object
+            StateDIRS object
         """
-        controller_dir = options.ARCHIVE / name
-        controller_dir.mkdir(exist_ok=True, mode=0o755)
-        (controller_dir / "TODO").mkdir(exist_ok=True)
-        return cls(controller_dir, options.INCOMING, options.RESULTS, logger)
+        archive_dir = options.ARCHIVE
+        archive_dir.mkdir(exist_ok=True, mode=0o755)
+        (archive_dir / "TODO").mkdir(exist_ok=True)
+        return cls(archive_dir, options.INCOMING, options.RESULTS, logger)
 
     def create_tarball(self, tarfile: Path) -> Tarball:
         """
-        Create a new dataset tarball object under the controller, link it to
-        the controller, and return the new Tarball object.
+        Create a new dataset tarball object under the ARCHIVE tree, link
+        it to the state directory, and return the new Tarball object.
 
         Args:
             tarfile: Path to source tarball file
@@ -522,7 +523,7 @@ class Controller:
 
     def link(self, tarfile: Path, state: str):
         """
-        Create a state link within the controller sub-tree.
+        Create a state link within the expected state directory.
 
         Args:
             tarball: Tarball path
@@ -532,7 +533,7 @@ class Controller:
 
     def unpack(self, dataset_id: str):
         """
-        Unpack a tarball into the INCOMING tree. Create the INCOMING controller
+        Unpack a tarball into the INCOMING tree. Create the INCOMING
         directory if necessary, along with the RESULTS tree link.
 
         NOTE: This does not not preserve the 0.69 --prefix and --user behaviors
@@ -558,14 +559,13 @@ class Controller:
         """
         tarball = self.datasets[dataset_id]
         tarball.uncache()
-        self.delete_if_empty(self.results)
-        self.delete_if_empty(self.incoming)
+        # self.delete_if_empty(self.results)
+        # self.delete_if_empty(self.incoming)
 
     def delete(self, dataset_id: str):
         """
-        Delete a dataset tarball and remove it from the controller. This will
-        also remove any links to the dataset tarball from the controller's
-        state directories.
+        Delete a dataset tarball and remove any links to the dataset
+        tarball from the state directories.
 
         Args:
             dataset_id: Resource ID of dataset to delete
@@ -573,7 +573,7 @@ class Controller:
         tarball = self.datasets[dataset_id]
         name = tarball.name
         for file in self.path.iterdir():
-            if Controller.is_statedir(file):
+            if StateDIRS.is_statedir(file):
                 for link in file.iterdir():
                     if link.samefile(tarball.tarball_path):
                         link.unlink()
@@ -600,8 +600,7 @@ class FileTree:
         This directory is linked from /var/www/html/pbench-tarballs for Apache
         access.
 
-        A directory is created under this root for each controller name used by
-        a dataset. Within each ARCHIVE controller directory you'll find:
+        Within ARCHIVE directory you'll find:
 
             A set of Pbench Agent dataset results, each comprising a ".tar.xz"
             tar archive (conventionally referred to as a "tarball") and a
@@ -609,7 +608,7 @@ class FileTree:
 
             A set of "state" directories (TODO, etc.) which are used by the
             server tool chain to track the progression of datasets. Each will
-            contain absolute symlinks to a tarball within the controller
+            contain absolute symlinks to a tarball within the state
             directory. There are many, but the main ones are
 
                 TODO indicates an action for the dispatcher, including when a
@@ -622,7 +621,7 @@ class FileTree:
                 TO-INDEX-TOOLS indicates a tarball that's had its basic content
                 indexed but needs extended tools data indexed. (We don't
                 routinely do tool indexing, so this will generally have links
-                for each tarball in the controller, which are created but then
+                for each tarball in the state dirs, which are created but then
                 ignored.)
 
     INCOMING
@@ -634,8 +633,8 @@ class FileTree:
 
         It's also linked from /var/www/html/incoming.
 
-        Like the ARCHIVE tree, it will contain a directory for each controller;
-        but a controller has a subdirectory for each dataset result, with the
+        Like the ARCHIVE tree, it will contain a directory for each state
+        directory; and a subdirectory for each dataset result, with the
         root name of the tarball (without the trailing `.tar.xz`), that
         contains the unpacked contents of the tarball.
 
@@ -670,7 +669,7 @@ class FileTree:
     """
 
     # The FileTree class provides a definition of a directory at the same level
-    # as "controller" directories, where `PUT` will temporarily store uploaded
+    # as "ARCHIVE" directory, where `PUT` will temporarily store uploaded
     # tarballs and generated MD5 files.
     #
     # Placing this within the ARCHIVE tree ensures that we can rename files to
@@ -718,9 +717,6 @@ class FileTree:
         # Record the root RESULTS directory path
         self.results_root: Path = self.options.RESULTS
 
-        # Construct an index to refer to discovered controllers
-        self.controllers: Dict[str, Controller] = {}
-
         # Construct an index to refer to discovered results tarballs
         # by root tarball name
         self.tarballs: Dict[str, Tarball] = {}
@@ -741,7 +737,7 @@ class FileTree:
         Full discovery is not required in order to find, create, or delete a
         specific dataset.
         """
-        self._discover_controllers()
+        self._discover_tarballs()
 
     def __contains__(self, dataset_id: str) -> bool:
         """
@@ -771,63 +767,52 @@ class FileTree:
         except KeyError:
             raise TarballNotFound(dataset_id) from None
 
-    def _clean_empties(self, controller: str):
+    def _clean_empties(self):
         """
-        Remove empty controller directories from the RESULTS and INCOMING
-        trees. If there are no remaining tarballs in the ARCHIVE controller
-        directory, remove all empty state subdirectories; and, if the
-        controller directory is now empty remove it as well.
-
-        Args:
-            controller: Name of the controller to clean up
+        Remove empty state directories from the RESULTS and INCOMING
+        trees. If there are no remaining tarballs in the ARCHIVE
+        directory, remove all empty state subdirectories.
         """
-        results = self.options.RESULTS / controller
-        self.delete_if_empty(results)
-        incoming = self.options.INCOMING / controller
-        self.delete_if_empty(incoming)
-        archive = self.options.ARCHIVE / controller
+        self.delete_if_empty(self.options.RESULTS)
+        self.delete_if_empty(self.options.INCOMING)
+        archive = self.options.ARCHIVE
         if archive.exists() and not any(archive.glob(f"*{Dataset.TARBALL_SUFFIX}")):
             for file in archive.iterdir():
-                if Controller.is_statedir(file):
+                if StateDIRS.is_statedir(file):
                     self.delete_if_empty(file)
             self.delete_if_empty(archive)
-            del self.controllers[controller]
 
-    def _add_controller(self, directory: Path) -> None:
+    def _add_tarball(self, directory: Path) -> None:
         """
-        Create a new Controller object, add it to the set of known controllers,
-        and append the discovered datasets (tarballs) to the list of known
-        datasets (by internal dataset ID) and tarballs (by tarball base name).
+        Create a new StateDIRS object and append the discovered datasets
+        (tarballs) to the list of known datasets (by internal dataset ID)
+        and tarballs (by tarball base name).
 
         Args:
-            directory: A controller directory within the ARCHIVE tree
+            directory: the ARCHIVE tree
         """
-        controller = Controller(
+        state_dir = StateDIRS(
             directory, self.options.INCOMING, self.options.RESULTS, self.logger
         )
-        self.controllers[controller.name] = controller
-        self.tarballs.update(controller.tarballs)
-        self.datasets.update(controller.datasets)
+        self.tarballs.update(state_dir.tarballs)
+        self.datasets.update(state_dir.datasets)
 
-    def _discover_controllers(self):
+    def _discover_tarballs(self):
         """
-        Build a representation of the ARCHIVE tree, recording controllers (top
-        level directories), the tarballs and MD5 files that represent datasets,
-        and the server chain "state" directories.
+        Build a representation of the ARCHIVE tree, recording the tarballs and
+        MD5 files that represent datasets, and the server chain "state" directories.
         """
-        for file in self.archive_root.iterdir():
-            if file.is_dir() and file.name != FileTree.TEMPORARY:
-                self._add_controller(file)
+        self._add_tarball(self.archive_root)
 
     def find_dataset(self, dataset_id: str) -> Tarball:
         """
         Given the resource ID of a dataset, search the ARCHIVE tree for a
-        controller with a matching dataset results MD5 value. This will build
-        the Controller and Tarball object for that dataset if they do not
+        a matching dataset results MD5 value. This will build
+        the Tarball object for that dataset if they do not
         already exist.
 
-        FIXME: This builds the entire Controller, which will discover all
-        datasets within the controller. This could be streamlined... however
+        FIXME: This builds the entire Tree, which will discover all
+        datasets within the states. This could be streamlined... however
         for create and delete, we need to know the state link directories.
 
         This allows a targeted minimal entry for mutation without discovering
@@ -847,29 +832,28 @@ class FileTree:
         if dataset_id in self.datasets:
             return self.datasets[dataset_id]
 
-        # The dataset isn't already known; so search for it in the ARCHIVE tree
-        # and (if found) discover the controller containing that dataset.
+        # The dataset isn't already known; so search for it in the ARCHIVE tree.
         for dir in self.archive_root.iterdir():
             if dir.is_dir() and dir.name != self.TEMPORARY:
                 for file in dir.glob(f"*{Dataset.TARBALL_SUFFIX}"):
                     md5 = get_tarball_md5(file)
                     if md5 == dataset_id:
-                        self._add_controller(dir)
+                        self._add_tarball(dir)
                         return self.datasets[dataset_id]
         raise TarballNotFound(dataset_id)
 
-    # These are wrappers for controller and tarball operations which need to be
-    # aware of higher-level constructs in the Pbench Server file tree such as
+    # These are wrappers for tarball operations which need to be aware of
+    # higher-level constructs in the Pbench Server file tree such as
     # the ARCHIVE, INCOMING, and RESULTS directory branches. These will manage
     # the higher level environment surrounding the encapsulated class methods.
     #
     # create
     #   Alternate constructor to create a Tarball object and move an incoming
-    #   tarball and md5 into the proper controller directory.
+    #   tarball and md5 into the proper state directory.
     #
     # unpack
     #   Unpack the ARCHIVE tarball file into a new directory under the
-    #   controller directory in the INCOMING directory tree.
+    #   the INCOMING directory tree.
     #
     # uncache
     #   Remove the unpacked directory tree under INCOMING when no longer needed.
@@ -878,14 +862,13 @@ class FileTree:
     #   Remove the tarball and MD5 file from ARCHIVE after uncaching the
     #   unpacked directory tree.
 
-    def create(self, controller_name: str, tarfile: Path) -> Tarball:
+    def create(self, tarfile: Path) -> Tarball:
         """
         Move a dataset tarball and companion MD5 file into the specified
-        controller directory. The controller directory and links will be
-        created if necessary.
+        state directory. The directory and links will be created if
+        necessary.
 
         Args:
-            controller: associated controller name
             tarfile: dataset tarball path
 
         Returns
@@ -896,12 +879,9 @@ class FileTree:
         name = Dataset.stem(tarfile)
         if name in self.tarballs:
             raise DuplicateTarball(name)
-        if controller_name in self.controllers:
-            controller = self.controllers[controller_name]
         else:
-            controller = Controller.create(controller_name, self.options, self.logger)
-            self.controllers[controller_name] = controller
-        tarball = controller.create_tarball(tarfile)
+            state_dir = StateDIRS.create(self.options, self.logger)
+        tarball = state_dir.create_tarball(tarfile)
         self.tarballs[tarball.name] = tarball
         self.datasets[tarball.resource_id] = tarball
         return tarball
@@ -909,13 +889,13 @@ class FileTree:
     def unpack(self, dataset_id: str):
         """
         Unpack a tarball into the INCOMING tree, creating the INCOMING
-        controller directory if necessary.
+        state directory if necessary.
 
         Args:
             dataset_id: Dataset resource ID
         """
         tarball = self.find_dataset(dataset_id)
-        tarball.controller.unpack(dataset_id)
+        tarball.state_dir.unpack(dataset_id)
 
     def uncache(self, dataset_id: str):
         """
@@ -925,9 +905,9 @@ class FileTree:
             dataset_id: Dataset resource ID to "uncache"
         """
         tarball = self.find_dataset(dataset_id)
-        controller = tarball.controller
-        controller.uncache(dataset_id)
-        self._clean_empties(controller.name)
+        state_dir = tarball.state_dir
+        state_dir.uncache(dataset_id)
+        # self._clean_empties()
 
     def delete(self, dataset_id: str):
         """
@@ -938,7 +918,7 @@ class FileTree:
         """
         tarball = self.find_dataset(dataset_id)
         name = tarball.name
-        tarball.controller.delete(dataset_id)
+        tarball.state_dir.delete(dataset_id)
         del self.datasets[dataset_id]
         del self.tarballs[name]
-        self._clean_empties(tarball.controller_name)
+        # self._clean_empties()

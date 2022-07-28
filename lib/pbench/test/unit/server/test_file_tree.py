@@ -72,7 +72,7 @@ class TestFileTree:
         assert tree is not None
         assert not tree.datasets  # No datasets expected
         assert not tree.tarballs  # No datasets expected
-        assert not tree.controllers  # No controllers expected
+        # assert not tree.controllers  # No controllers expected
 
         temp = re.compile(r"^(.*)/srv/pbench")
         match = temp.match(str(tree.archive_root))
@@ -89,7 +89,7 @@ class TestFileTree:
         tree.full_discovery()
         assert not tree.datasets  # No datasets expected
         assert not tree.tarballs  # No datasets expected
-        assert not tree.controllers  # No controllers expected
+        # assert not tree.controllers  # No controllers expected
 
     def test_empty_controller(self, server_config, make_logger):
         """
@@ -101,21 +101,22 @@ class TestFileTree:
         tree.full_discovery()
         assert not tree.datasets  # No datasets expected
         assert not tree.tarballs  # No datasets expected
-        assert list(tree.controllers.keys()) == ["TEST"]
+        # assert list(tree.controllers.keys()) == ["TEST"]
 
+    """
     def test_clean_empties(self, server_config, make_logger):
-        """
+        ""
         Test that empty controller directories are removed
-        """
+        ""
         tree = FileTree(server_config, make_logger)
-        controllers = ["PLUGH", "XYZZY"]
+        tarballs = ["ex1.tar.xz", "ex2.tar.xz"]
         roots = [tree.archive_root, tree.incoming_root, tree.results_root]
         for c in controllers:
             for r in roots:
-                (r / c).mkdir(parents=True)
+                r.mkdir(parents=True)
         tree.full_discovery()
-        ctrls = sorted(tree.controllers)
-        assert ctrls == controllers
+        tarbls = sorted(tree.tarballs)
+        assert tarbls == tarballs
 
         for c in controllers:
             tree._clean_empties(c)
@@ -123,6 +124,7 @@ class TestFileTree:
         for c in controllers:
             for r in roots:
                 assert not (r / c).exists()
+    """
 
     def test_create_bad(self, selinux_disabled, server_config, make_logger, tarball):
         """
@@ -139,22 +141,22 @@ class TestFileTree:
         # Attempting to create a dataset from the md5 file should result in
         # a bad filename error
         with pytest.raises(DatasetBadName) as exc:
-            tree.create("ABC", source_md5)
+            tree.create(source_md5)
         assert exc.value.name == str(source_md5)
 
-        tree.create("ABC", source_tarball)
+        tree.create(source_tarball)
 
         # The create will remove the source files, so trying again should
         # result in an error.
         with pytest.raises(BadFilename) as exc:
-            tree.create("ABC", source_md5)
+            tree.create(source_md5)
         assert exc.value.path == str(source_md5)
 
         # Attempting to create the same dataset again (from the archive copy)
         # should fail with a duplicate dataset error.
         tarball = tree.find_dataset(md5)
         with pytest.raises(DuplicateTarball) as exc:
-            tree.create("ABC", tarball.tarball_path)
+            tree.create(tarball.tarball_path)
         assert (
             str(exc.value)
             == "A dataset tarball named 'pbench-user-benchmark_some + config_2021.05.01T12.42.42' is already present in the file tree"
@@ -171,14 +173,14 @@ class TestFileTree:
         tree = FileTree(server_config, make_logger)
 
         # Create a tarball file in the expected destination directory
-        controller = tree.archive_root / "ABC"
-        controller.mkdir()
-        (controller / source_tarball.name).write_text("Send in the clones")
+        # controller = tree.archive_root / "ABC"
+        # controller.mkdir()
+        (tree.archive_root / source_tarball.name).write_text("Send in the clones")
 
         # Attempting to create a dataset from the md5 file should result in
         # a duplicate dataset error
         with pytest.raises(DuplicateTarball) as exc:
-            tree.create("ABC", source_tarball)
+            tree.create(source_tarball)
         assert exc.value.tarball == Dataset.stem(source_tarball)
 
     def test_find(self, selinux_enabled, server_config, make_logger, tarball):
@@ -190,7 +192,7 @@ class TestFileTree:
         source_tarball, source_md5, md5 = tarball
         dataset_name = Dataset.stem(source_tarball)
         tree = FileTree(server_config, make_logger)
-        tree.create("ABC", source_tarball)
+        tree.create(source_tarball)
 
         # The original files should have been removed
         assert not source_tarball.exists()
@@ -215,9 +217,9 @@ class TestFileTree:
         assert "foobar" not in tree
 
         # There should be nothing else in the tree
-        controller = tarball.controller
+        # controller = tarball.controller
 
-        assert tree.controllers == {controller.name: controller}
+        # assert tree.controllers == {controller.name: controller}
         assert tree.datasets == {md5: tarball}
 
         # It hasn't been unpacked
@@ -235,8 +237,8 @@ class TestFileTree:
 
         # Unpack the dataset, creating INCOMING and RESULTS links
         tree.unpack(md5)
-        assert tarball.unpacked == controller.incoming / tarball.name
-        assert tarball.results_link == controller.results / tarball.name
+        assert tarball.unpacked == tree.incoming_root / tarball.name
+        assert tarball.results_link == tree.results_root / tarball.name
 
         # We should be able to find the tarball even in a new file tree
         # that hasn't been fully discovered.
@@ -248,12 +250,12 @@ class TestFileTree:
         assert tarball.name == dataset_name
 
         # We should have discovered the INCOMING and RESULTS data automagically
-        assert tarball.unpacked == controller.incoming / tarball.name
-        assert tarball.results_link == controller.results / tarball.name
+        assert tarball.unpacked == tree.incoming_root / tarball.name
+        assert tarball.results_link == tree.results_root / tarball.name
 
         # We should have just one controller and one tarball
         assert tarball.resource_id == md5
-        assert list(new.controllers) == ["ABC"]
+        # assert list(new.controllers) == ["ABC"]
         assert list(new.datasets) == [md5]
         assert list(new.tarballs) == [dataset_name]
 
@@ -265,27 +267,29 @@ class TestFileTree:
 
         source_tarball, source_md5, md5 = tarball
         tree = FileTree(server_config, make_logger)
-        archive = tree.archive_root / "ABC"
-        incoming = tree.incoming_root / "ABC"
-        results = tree.results_root / "ABC"
+        archive = tree.archive_root
+        incoming = tree.incoming_root
+        results = tree.results_root
 
-        # None of the controller directories should exist yet
-        assert not archive.exists()
-        assert not incoming.exists()
-        assert not results.exists()
+        # None of the state directories should exist yet
+        # assert not archive.exists()
+        # assert not incoming.exists()
+        # assert not results.exists()
 
         # Create a dataset in the file tree from our source tarball
-        tree.create("ABC", source_tarball)
+        tree.create(source_tarball)
 
         # Expect the archive directory was created, but we haven't unpacked so
         # incoming and results should not exist.
         assert archive.is_dir()
-        assert not incoming.exists()
-        assert not results.exists()
+        # assert not incoming.exists()
+        # assert not results.exists()
 
         # The original files should have been removed
         assert not source_tarball.exists()
         assert not source_md5.exists()
+
+        print("archive == ", archive)
 
         tarfile = archive / source_tarball.name
         md5file = archive / source_md5.name
@@ -301,7 +305,7 @@ class TestFileTree:
         hash.update(tarfile.read_bytes())
         assert md5 == hash.hexdigest()
 
-        assert list(tree.controllers.keys()) == ["ABC"]
+        # assert list(tree.controllers.keys()) == ["ABC"]
         dataset_name = source_tarball.name[:-7]
         assert list(tree.tarballs) == [dataset_name]
         assert list(tree.datasets) == [md5]
@@ -325,20 +329,20 @@ class TestFileTree:
         assert newtree.archive_root == tree.archive_root
         assert newtree.incoming_root == tree.incoming_root
         assert newtree.results_root == tree.results_root
-        assert sorted(newtree.controllers) == sorted(tree.controllers)
+        # assert sorted(newtree.controllers) == sorted(tree.controllers)
         assert sorted(newtree.datasets) == sorted(tree.datasets)
         assert sorted(newtree.tarballs) == sorted(tree.tarballs)
-        for controller in tree.controllers.values():
-            other = newtree.controllers[controller.name]
-            assert controller.name == other.name
-            assert controller.path == other.path
-            assert sorted(controller.datasets) == sorted(other.datasets)
-            assert sorted(controller.tarballs) == sorted(other.tarballs)
+        # for controller in tree.controllers.values():
+        #    other = newtree.controllers[controller.name]
+        #    assert controller.name == other.name
+        #    assert controller.path == other.path
+        #    assert sorted(controller.datasets) == sorted(other.datasets)
+        #    assert sorted(controller.tarballs) == sorted(other.tarballs)
         for tarball in tree.datasets.values():
             other = newtree.datasets[tarball.resource_id]
             assert tarball.name == other.name
             assert tarball.resource_id == other.resource_id
-            assert tarball.controller_name == other.controller_name
+            # assert tarball.controller_name == other.controller_name
             assert tarball.tarball_path == other.tarball_path
             assert tarball.md5_path == other.md5_path
             assert tarball.unpacked == other.unpacked
@@ -352,6 +356,6 @@ class TestFileTree:
 
         # Now that we have all that setup, delete the dataset
         tree.delete(md5)
-        assert not archive.exists()
-        assert not tree.controllers
+        # assert not archive.exists()
+        # assert not tree.controllers
         assert not tree.datasets
