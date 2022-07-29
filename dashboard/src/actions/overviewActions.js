@@ -3,6 +3,14 @@ import * as TYPES from "./types";
 import API from "../utils/axiosInstance";
 import { constructToast } from "./toastActions";
 
+const DATASET_ACCESS = "dataset.access"
+const DATASET_CREATED = "dataset.created"
+const DATASET_OWNER = "dataset.owner"
+const DASHBOARD_SAVED = "global.dashboard.saved"
+const DASHBOARD_SEEN = "global.dashboard.seen"
+const SERVER_DELETION = "server.deletion"
+const USER_FAVORITE = "user.dashboard.favorite"
+
 export const getDatasets = () => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
@@ -10,13 +18,13 @@ export const getDatasets = () => async (dispatch, getState) => {
     const username = getState().userAuth.loginDetails.username;
 
     const params = new URLSearchParams();
-    params.append("metadata", "dataset.created");
-    params.append("metadata", "dataset.owner");
-    params.append("metadata", "dataset.access");
-    params.append("metadata", "server.deletion");
-    params.append("metadata", "dashboard.saved");
-    params.append("metadata", "dashboard.seen");
-    params.append("metadata", "user.favorite");
+    params.append("metadata", DATASET_CREATED);
+    params.append("metadata", DATASET_OWNER);
+    params.append("metadata", DATASET_ACCESS);
+    params.append("metadata", SERVER_DELETION);
+    params.append("metadata", DASHBOARD_SAVED);
+    params.append("metadata", DASHBOARD_SEEN);
+    params.append("metadata", USER_FAVORITE);
 
     params.append("owner", username);
 
@@ -36,10 +44,10 @@ export const getDatasets = () => async (dispatch, getState) => {
         });
 
         const savedRuns = data.filter(
-          (item) => item.metadata["dashboard.saved"]
+          (item) => item.metadata[DASHBOARD_SAVED]
         );
         const newRuns = data.filter(
-          (item) => !item.metadata["dashboard.saved"]
+          (item) => !item.metadata[DASHBOARD_SAVED]
         );
 
         dispatch({
@@ -64,9 +72,9 @@ export const getDatasets = () => async (dispatch, getState) => {
 };
 
 const metaDataActions = {
-  save: "dashboard.saved",
-  read: "dashboard.seen",
-  favorite: "user.favorite",
+  save: DASHBOARD_SAVED,
+  read: DASHBOARD_SEEN,
+  favorite: USER_FAVORITE,
 };
 /**
  * Function which return a thunk to be passed to a Redux dispatch() call
