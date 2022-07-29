@@ -60,7 +60,7 @@ const TableOfContent = () => {
   useEffect(() => {
     if (Object.keys(endpoints).length > 0)
       dispatch(fetchTOC(params["dataset_id"], "/", false));
-  }, [dispatch, endpoints]);
+  }, [dispatch, endpoints,params]);
   const { stack, searchSpace, tableData, contentData, currData, isLoading } =
     useSelector((state) => state.tableOfContent);
   const setTableData = (data) => {
