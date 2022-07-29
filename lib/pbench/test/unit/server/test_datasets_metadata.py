@@ -341,7 +341,7 @@ class TestDatasetsMetadata:
         """
         put = query_put_as(
             "drb",
-            {"metadata": {"dashboard.c": 1, "dataset.name": 1, "dashboard.test": "A"}},
+            {"metadata": {"global.dashboard.c": 1, "dataset.name": 1, "global.dashboard.test": "A"}},
             "drb",
             HTTPStatus.BAD_REQUEST,
         )
@@ -353,14 +353,14 @@ class TestDatasetsMetadata:
         # verify that the values didn't change
         get = query_get_as(
             "drb",
-            {"metadata": "dashboard.c,dataset.name,dashboard.test"},
+            {"metadata": "global.dashboard.c,dataset.name,global.dashboard.test"},
             "drb",
             HTTPStatus.OK,
         )
         assert get.json == {
             "dataset.name": "drb",
-            "dashboard.test": None,
-            "dashboard.c": None,
+            "global.dashboard.test": None,
+            "global.dashboard.c": None,
         }
 
     def test_put_invalid_deletion(self, query_get_as, query_put_as):
@@ -375,7 +375,7 @@ class TestDatasetsMetadata:
                 "metadata": {
                     "user.one": 2,
                     "server.deletion": "1800-25-55",
-                    "user.test": "B",
+                    "user.dashboard.test": "B",
                 }
             },
             "drb",
@@ -389,13 +389,13 @@ class TestDatasetsMetadata:
         # verify that the values didn't change
         get = query_get_as(
             "drb",
-            {"metadata": "server.deletion,user.test,user.one"},
+            {"metadata": "server.deletion,user.dashboard.test,user.one"},
             "drb",
             HTTPStatus.OK,
         )
         assert get.json == {
             "server.deletion": "2022-12-26",
-            "user.test": None,
+            "user.dashboard.test": None,
             "user.one": None,
         }
 
