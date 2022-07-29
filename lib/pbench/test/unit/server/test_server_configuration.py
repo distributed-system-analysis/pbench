@@ -1,13 +1,10 @@
 from http import HTTPStatus
 import logging
-from nis import match
 
 import pytest
 import requests
 from pbench.server.api.resources import APIAbort, ApiParams
 from pbench.server.api.resources.server_configuration import ServerConfiguration
-
-from pbench.server.database.models.server_config import ServerConfig
 
 
 class TestServerConfiguration:

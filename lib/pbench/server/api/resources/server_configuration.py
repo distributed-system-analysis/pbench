@@ -126,7 +126,10 @@ class ServerConfiguration(ApiBase):
         except KeyError:
             # This "isn't possible" given the Flask mapping rules, but try
             # to report it gracefully instead of letting the KeyError fly.
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, f"Found URI parameters {sorted(params.uri)} not including 'key'")
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Found URI parameters {sorted(params.uri)} not including 'key'",
+            )
 
         # If we have a key in the URL, then we need a "value" for it, which
         # we can take either from a query parameter or from the JSON

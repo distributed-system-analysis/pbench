@@ -49,6 +49,12 @@ The `<path>` refers to a directory. Use
 `/api/v1/dataset/contents/<dataset><path>` to request a JSON response document
 describing the directory contents.
 
+`503`   **SERVICE UNAVAILABLE** \
+The server has been disabled using the `server-state` server configuration
+setting in the [server configuration](./server_config.md) API. The response
+body is an `application/json` document describing the current server state,
+a message, and optional JSON data provided by the system administrator.
+
 ## Response body
 
 The `application/octet-stream` response body is the raw byte stream contents of

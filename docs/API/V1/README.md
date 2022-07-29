@@ -8,6 +8,14 @@ Once you know the hostname of a Pbench Server, you can ask for the API
 configuration using the [endpoints](endpoints.md) API. This will report the
 server's version and a list of all API end points supported by the server.
 
+## Pbench Server configuration settings
+
+Some aspects of Pbench Server operation can be controlled by a user holding the
+`ADMIN` [role](../access_model.md) through the
+[server configuration](./server_config.md) API, including disabling the Pbench
+Server API while the server is undergoing maintenance, and setting a banner
+message accessible to clients.
+
 ## Pbench Server resources
 
 ### Datasets
