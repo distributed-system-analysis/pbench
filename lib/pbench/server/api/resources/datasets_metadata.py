@@ -21,6 +21,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.database.models.datasets import (
     Metadata,
+    MetadataBadValue,
     MetadataError,
 )
 from pbench.server.database.models.users import User
@@ -149,7 +150,22 @@ class DatasetsMetadata(ApiBase):
                     role = API_OPERATION.UPDATE
         self._check_authorization(str(dataset.owner_id), dataset.access, role)
 
+        # Validate the metadata key values in a separate pass so that we can
+        # fail before committing any changes to the database.
         failures = []
+        for k, v in metadata.items():
+            try:
+                Metadata.validate(dataset=dataset, key=k, value=v)
+            except MetadataBadValue as e:
+                failures.append(str(e))
+
+        if failures:
+            raise APIAbort(HTTPStatus.BAD_REQUEST, ", ".join(failures))
+
+        # Now update the metadata, which may occur in multiple SQL operations
+        # across namespaces. Make a best attempt to update all even if we
+        # encounter an unexpected error.
+        fail = False
         for k, v in metadata.items():
             native_key = Metadata.get_native_key(k)
             user: Optional[User] = None
@@ -159,8 +175,9 @@ class DatasetsMetadata(ApiBase):
                 Metadata.setvalue(key=k, value=v, dataset=dataset, user=user)
             except MetadataError as e:
                 self.logger.warning("Unable to update key {} = {!r}: {}", k, v, str(e))
-                failures.append(k)
-        if failures:
+                fail = True
+
+        if fail:
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
         results = self._get_dataset_metadata(dataset, list(metadata.keys()))
         return jsonify(results)

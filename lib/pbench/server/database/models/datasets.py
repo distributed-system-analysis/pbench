@@ -1077,47 +1077,26 @@ class Metadata(Database.Base):
         return value
 
     @staticmethod
-    def setvalue(dataset: Dataset, key: str, value: Any, user: Optional[User] = None):
+    def validate(dataset: Dataset, key: str, value: Any) -> Any:
         """
-        Create or modify an existing metadata value. This method supports
-        hierarchical dotted paths like "dashboard.seen" and should be used in
-        most contexts where client-visible metadata paths are used.
+        Validate a key value. We have two special cases:
 
-        This will create a nested JSON structure (represented as a Python dict)
-        as necessary as it descends the hierarchy. For example, if you assign
-        "a.b.c" a value of "bar", and then query "a", you'll get back
-        "a": {"b": {"c": "bar"}}}
+        1) For 'dataset.name', we require a UTF-8 encoded string of 1 to 32
+           characters.
+        2) For 'server.deletion', the string must be an ISO date/time string,
+           and we fail otherwise. We store only the UTC date, as we don't
+           guarantee that deletion will occur at any specific time of day.
 
-        We handle two keys specially:
-
-            dataset.name: The primary resource name of a dataset, which can be
-                modified by the dataset's owner.
-            server.deletion: The expected automatic deletion date of the
-                dataset. It can be modified by the owner so long as the new
-                value is a valid date that falls within the maximum server
-                retention period from the dataset's upload timestamp.
+        For any other key value, there's no required format.
 
         Args:
             dataset: Associated Dataset
             key: Lookup key (including hierarchical dotted paths)
             value: Value to be assigned to the specified key
-        """
-        if not Metadata.is_key_path(key, Metadata.METADATA_KEYS):
-            raise MetadataBadKey(key)
-        keys = key.lower().split(".")
-        native_key = keys.pop(0)
-        found = True
 
-        # Setting the dataset name is a direct modification to the Dataset SQL
-        # column, so do that first and exit without touching the Metadata
-        # table. We require a UTF-8 encoded string of 1 to 32 characters.
-        #
-        # If we're setting the reserved "server.deletion" key, then we must
-        # be able to parse the string as a date/time, and we fail otherwise. We
-        # store only the UTC date, as we don't guarantee that deletion will
-        # occur at any specific time of day.
-        #
-        # For any other key value, there's no required format.
+        Returns:
+            A validated (and possibly altered) key value
+        """
         if key == __class__.DATASET_NAME:
             if (
                 type(value) is not str
@@ -1136,9 +1115,7 @@ class Metadata(Database.Base):
             except UnicodeDecodeError as u:
                 raise MetadataBadValue(dataset, key, value, "UTF-8 string") from u
 
-            dataset.name = value
-            dataset.update()
-            return
+            return value
         elif key == __class__.DELETION:
             try:
                 target = date_parser.parse(value).astimezone(datetime.timezone.utc)
@@ -1151,9 +1128,41 @@ class Metadata(Database.Base):
                     dataset, key, value, f"date/time before {maximum:%Y-%m-%d}"
                 )
             target += __class__.ONE_DAY
-            v = f"{target:%Y-%m-%d}"
+            return f"{target:%Y-%m-%d}"
         else:
-            v = value
+            return value
+
+    @staticmethod
+    def setvalue(dataset: Dataset, key: str, value: Any, user: Optional[User] = None):
+        """
+        Create or modify an existing metadata value. This method supports
+        hierarchical dotted paths like "dashboard.seen" and should be used in
+        most contexts where client-visible metadata paths are used.
+
+        This will create a nested JSON structure (represented as a Python dict)
+        as necessary as it descends the hierarchy. For example, if you assign
+        "a.b.c" a value of "bar", and then query "a", you'll get back
+        "a": {"b": {"c": "bar"}}}
+
+        Args:
+            dataset: Associated Dataset
+            key: Lookup key (including hierarchical dotted paths)
+            value: Value to be assigned to the specified key
+        """
+        if not Metadata.is_key_path(key, Metadata.METADATA_KEYS):
+            raise MetadataBadKey(key)
+        keys = key.lower().split(".")
+        native_key = keys.pop(0)
+        found = True
+        v = __class__.validate(dataset, key, value)
+
+        # Setting the dataset name is a direct modification to the Dataset SQL
+        # column, so do that first and exit without touching the Metadata
+        # table.
+        if key == __class__.DATASET_NAME:
+            dataset.name = v
+            dataset.update()
+            return
 
         try:
             meta = Metadata.get(dataset, native_key, user)

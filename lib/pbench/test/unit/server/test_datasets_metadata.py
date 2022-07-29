@@ -333,6 +333,72 @@ class TestDatasetsMetadata:
             == "Unauthenticated client is not authorized to UPDATE a resource owned by drb with public access"
         )
 
+    def test_put_invalid_name(self, query_get_as, query_put_as):
+        """
+        Test that invalid special values for dataset.name are detected before
+        any metadata is changed and that we fail with BAD_REQUEST rather than
+        with an internal error.
+        """
+        put = query_put_as(
+            "drb",
+            {"metadata": {"dashboard.c": 1, "dataset.name": 1, "dashboard.test": "A"}},
+            "drb",
+            HTTPStatus.BAD_REQUEST,
+        )
+        assert (
+            put.json["message"]
+            == "Metadata key 'dataset.name' value 1 for dataset drb(3)|drb must be a UTF-8 string of 1 to 32 characters"
+        )
+
+        # verify that the values didn't change
+        get = query_get_as(
+            "drb",
+            {"metadata": "dashboard.c,dataset.name,dashboard.test"},
+            "drb",
+            HTTPStatus.OK,
+        )
+        assert get.json == {
+            "dataset.name": "drb",
+            "dashboard.test": None,
+            "dashboard.c": None,
+        }
+
+    def test_put_invalid_deletion(self, query_get_as, query_put_as):
+        """
+        Test that invalid special values for server.deletion are detected
+        before any metadata is changed and that we fail with BAD_REQUEST rather
+        than with an internal error.
+        """
+        put = query_put_as(
+            "drb",
+            {
+                "metadata": {
+                    "user.one": 2,
+                    "server.deletion": "1800-25-55",
+                    "user.test": "B",
+                }
+            },
+            "drb",
+            HTTPStatus.BAD_REQUEST,
+        )
+        assert (
+            put.json["message"]
+            == "Metadata key 'server.deletion' value '1800-25-55' for dataset drb(3)|drb must be a date/time"
+        )
+
+        # verify that the values didn't change
+        get = query_get_as(
+            "drb",
+            {"metadata": "server.deletion,user.test,user.one"},
+            "drb",
+            HTTPStatus.OK,
+        )
+        assert get.json == {
+            "server.deletion": "2022-12-26",
+            "user.test": None,
+            "user.one": None,
+        }
+
     def test_put(self, query_get_as, query_put_as):
         response = query_put_as(
             "drb",
