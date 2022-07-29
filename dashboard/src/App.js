@@ -61,7 +61,7 @@ const App = () => {
           <Route path={APP_ROUTES.AUTH} element={<AuthComponent />} />
           <Route path={APP_ROUTES.AUTH_LOGIN} element={<AuthComponent />} />
           <Route path={APP_ROUTES.AUTH_SIGNUP} element={<AuthComponent />} />
-          <Route path="/toc/*" element={<TableOfContent />} />
+          <Route path={APP_ROUTES.TABLE_OF_CONTENT} element={<TableOfContent />} />
         </Routes>
       </BrowserRouter>
     </div>

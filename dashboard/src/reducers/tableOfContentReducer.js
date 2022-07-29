@@ -1,11 +1,12 @@
-import { UPDATE_SEARCH_SPACE } from "actions/types";
-import { UPDATE_CURR_DATA } from "actions/types";
-import { UPDATE_TOC_LOADING } from "actions/types";
-import { UPDATE_STACK } from "actions/types";
-import { UPDATE_TABLE_DATA } from "actions/types";
-import { GET_SUB_DIR_DATA } from "actions/types";
-
-import { GET_TOC_DATA } from "actions/types";
+import {
+  GET_SUB_DIR_DATA,
+  GET_TOC_DATA,
+  UPDATE_CURR_DATA,
+  UPDATE_SEARCH_SPACE,
+  UPDATE_STACK,
+  UPDATE_TABLE_DATA,
+  UPDATE_TOC_LOADING,
+} from "actions/types";
 
 const initialState = {
   stack: [],
@@ -52,10 +53,9 @@ const TableOfContentReducer = (state = initialState, action = {}) => {
       };
 
     case UPDATE_STACK:
-      return {
-        ...state,
-        stack: payload,
-      };
+      const newState = { ...state };
+      newState.stack.length = payload;
+      return newState;
 
     case UPDATE_CURR_DATA:
       return {

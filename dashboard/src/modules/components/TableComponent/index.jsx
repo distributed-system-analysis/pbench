@@ -28,6 +28,7 @@ import PathBreadCrumb from "../BreadCrumbComponent";
 import { LoginHint, Heading, EmptyTable, SearchBox } from "./common-components";
 import { getTodayMidnightUTCDate, bumpToDate } from "utils/dateFunctions";
 import { useNavigate } from "react-router";
+import { TOC } from "assets/constants/navigationConstants";
 
 let startDate = new Date(Date.UTC(1990, 10, 4));
 let endDate = bumpToDate(getTodayMidnightUTCDate(), 1);
@@ -212,7 +213,7 @@ const TableWithFavorite = () => {
                             <Td
                               dataLabel={columnNames.name}
                               onClick={() =>
-                                navigate(`/toc/${repo.resource_id}`)
+                                navigate(`${TOC}/${repo.resource_id}`)
                               }
                             >
                               {repo.name}
@@ -244,8 +245,6 @@ const TableWithFavorite = () => {
               </OuterScrollContainer>
             </div>
           </div>
-          {console.log(tableData.length)}
-          {console.log(favoriteRepoNames.length)}
           <TablePagination
             numberOfRows={
               isSelected === "datasetListButton"

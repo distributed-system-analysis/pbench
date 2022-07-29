@@ -2,29 +2,29 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import "./index.less";
 import {
-  Menu,
-  MenuContent,
-  MenuList,
-  MenuItem,
-  Divider,
+  BadgeToggle,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbHeading,
+  Divider,
   DrilldownMenu,
-  MenuBreadcrumb,
   Dropdown,
   DropdownItem,
-  BadgeToggle,
+  Menu,
+  MenuBreadcrumb,
+  MenuContent,
+  MenuItem,
+  MenuList,
   Page,
   Spinner,
 } from "@patternfly/react-core";
 import {
   TableComposable,
-  Thead,
-  Tr,
-  Th,
   Tbody,
   Td,
+  Th,
+  Thead,
+  Tr,
 } from "@patternfly/react-table";
 import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
 import FolderIcon from "@patternfly/react-icons/dist/esm/icons/folder-icon";
@@ -40,25 +40,27 @@ import { updateSearchSpace } from "actions/tableOfContentActions";
 import { updateStack } from "actions/tableOfContentActions";
 import { updateCurrData } from "actions/tableOfContentActions";
 import { updateTOCLoader } from "actions/tableOfContentActions";
+import { DEFAULT_PER_PAGE } from "assets/constants/paginationConstants";
 
 const TableOfContent = () => {
+  const { endpoints } = useSelector((state) => state.apiEndpoint);
   const [menuDrilledIn, setMenuDrilledIn] = useState([]);
   const [drilldownPath, setDrillDownPath] = useState([]);
-  const [menuHeights, setMenuHeights] = useState({});
   const [activeMenu, setActiveMenu] = useState("rootMenu");
   const [breadCrumb, setBreadCrumb] = useState(undefined);
   const [activeFile, setActiveFile] = useState(-1);
   const [breadCrumbLabels, setBreadCrumbLabels] = useState([]);
   const [param, setParam] = useState("");
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(5);
+  const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
   const params = useParams();
   const dispatch = useDispatch();
   let dirCount = 0;
   let fileCount = 0;
   useEffect(() => {
-    dispatch(fetchTOC(params["*"], "/", false));
-  }, []);
+    if (Object.keys(endpoints).length > 0)
+      dispatch(fetchTOC(params["dataset_id"], "/", false));
+  }, [dispatch, endpoints]);
   const { stack, searchSpace, tableData, contentData, currData, isLoading } =
     useSelector((state) => state.tableOfContent);
   const setTableData = (data) => {
@@ -67,8 +69,8 @@ const TableOfContent = () => {
   const setSearchSpace = (data) => {
     dispatch(updateSearchSpace(data));
   };
-  const setStack = (data) => {
-    dispatch(updateStack(data));
+  const setStack = (length) => {
+    dispatch(updateStack(length));
   };
   const setCurrData = (data) => {
     dispatch(updateCurrData(data));
@@ -77,12 +79,8 @@ const TableOfContent = () => {
     dispatch(updateTOCLoader(data));
   };
   const onToggle = (isOpen, key, moreBreadCrumbs) => {
-    switch (key) {
-      case "app":
-        setBreadCrumb(appGroupingBreadcrumb(isOpen, moreBreadCrumbs));
-        break;
-      default:
-        break;
+    if (key === "app") {
+      setBreadCrumb(appGroupingBreadcrumb(isOpen, moreBreadCrumbs));
     }
   };
 
@@ -99,11 +97,6 @@ const TableOfContent = () => {
     setActiveMenu(toMenuId);
     setBreadCrumb(breadCrumb);
   };
-  const setHeight = (menuId, height) => {
-    if (!menuHeights[menuId]) {
-      setMenuHeights({ ...menuHeights, [menuId]: height });
-    }
-  };
   const drillIn = (fromMenuId, toMenuId, pathId) => {
     setMenuDrilledIn([...menuDrilledIn, fromMenuId]);
     setDrillDownPath([...drilldownPath, pathId]);
@@ -111,15 +104,14 @@ const TableOfContent = () => {
   };
   const getDropDown = (moreBreadCrumbs) => {
     const dropDownArray = moreBreadCrumbs.map((label, index) => {
-      if (index >= 0 && index != moreBreadCrumbs.length - 1) {
+      if (index < moreBreadCrumbs.length - 1) {
         return (
           <DropdownItem
             key="dropdown-start"
             component="button"
             icon={<AngleLeftIcon />}
             onClick={() => {
-              stack.length = index + 2;
-              setStack(stack);
+              setStack(index + 2);
               const updatedBreadCrumbLabels = breadCrumbLabels.slice(
                 0,
                 index + 1
@@ -151,15 +143,7 @@ const TableOfContent = () => {
       <BreadcrumbItem
         component="button"
         onClick={() => {
-          drillOut("rootMenu", "group:start_rollout", null);
-          stack.length = 1;
-          initial = [];
-          setStack(stack);
-          setParam("");
-          setTableData(stack[0].files);
-          setBreadCrumbLabels([]);
-          setBreadCrumb(initialBreadcrumb(initial));
-          setSearchSpace(stack[0].files);
+          getMyBreadCrumbClick();
         }}
       >
         Root
@@ -176,15 +160,7 @@ const TableOfContent = () => {
         <BreadcrumbItem
           component="button"
           onClick={() => {
-            drillOut("rootMenu", "group:start_rollout", null);
-            stack.length = 1;
-            moreBreadCrumbs = [];
-            setStack(stack);
-            setTableData(stack[0].files);
-            setSearchSpace(stack[0].files);
-            setBreadCrumb(initialBreadcrumb([]));
-            setParam("");
-            setBreadCrumbLabels([]);
+            getMyBreadCrumbClick();
           }}
         >
           Root
@@ -209,8 +185,55 @@ const TableOfContent = () => {
       </Breadcrumb>
     );
   };
+  const getMyBreadCrumbClick = () => {
+    drillOut("rootMenu", "group:start_rollout", null);
+    setStack(1);
+    setTableData(stack[0].files);
+    setSearchSpace(stack[0].files);
+    setBreadCrumb(initialBreadcrumb([]));
+    setParam("");
+    setBreadCrumbLabels([]);
+  };
   const getSubFolderData = (data) => {
-    dispatch(fetchTOC(params["*"], `/${data}`, true));
+    dispatch(fetchTOC(params["dataset_id"], `/${data}`, true));
+  };
+  const attachBreadCrumbs = (data, firstHierarchyLevel) => {
+    breadCrumbLabels.push(data);
+    setBreadCrumbLabels(breadCrumbLabels);
+    setBreadCrumb(
+      firstHierarchyLevel
+        ? initialBreadcrumb(breadCrumbLabels)
+        : appGroupingBreadcrumb(false, breadCrumbLabels)
+    );
+    const dirPath = param.concat(`${firstHierarchyLevel ? "" : "/"}`, data);
+    setParam(dirPath);
+    setIsLoading(true);
+    getSubFolderData(dirPath);
+  };
+  const updateHighlightedRow = (index) => {
+    if (index >= page * perPage) {
+      setPage(
+        page +
+          Math.ceil(
+            (index -
+              (activeFile === -1
+                ? perPage - 1
+                : Math.floor(activeFile / perPage) * perPage + perPage - 1)) /
+              perPage
+          )
+      );
+      setActiveFile(index);
+    } else if (index < (page - 1) * perPage) {
+      setPage(
+        page -
+          Math.ceil(
+            (Math.floor(activeFile / perPage) * perPage - index) / perPage
+          )
+      );
+      setActiveFile(index);
+    } else {
+      setActiveFile(index);
+    }
   };
   return (
     <>
@@ -226,7 +249,6 @@ const TableOfContent = () => {
             activeMenu={activeMenu}
             onDrillIn={drillIn}
             onDrillOut={drillOut}
-            onGetMenuHeight={setHeight}
           >
             {breadCrumb && (
               <>
@@ -247,13 +269,7 @@ const TableOfContent = () => {
                         key={index}
                         direction="down"
                         onClick={() => {
-                          breadCrumbLabels.push(data);
-                          setBreadCrumbLabels(breadCrumbLabels);
-                          setBreadCrumb(initialBreadcrumb(breadCrumbLabels));
-                          const dirPath = param.concat(data);
-                          setParam(dirPath);
-                          setIsLoading(true);
-                          getSubFolderData(dirPath);
+                          attachBreadCrumbs(data, true);
                         }}
                         drilldownMenu={
                           <DrilldownMenu id="drilldownMenuStart">
@@ -267,18 +283,7 @@ const TableOfContent = () => {
                                     key={index}
                                     direction="down"
                                     onClick={() => {
-                                      breadCrumbLabels.push(data);
-                                      setBreadCrumbLabels(breadCrumbLabels);
-                                      setBreadCrumb(
-                                        appGroupingBreadcrumb(
-                                          false,
-                                          breadCrumbLabels
-                                        )
-                                      );
-                                      const dirPath = param.concat("/", data);
-                                      setParam(dirPath);
-                                      setIsLoading(true);
-                                      getSubFolderData(dirPath);
+                                      attachBreadCrumbs(data, false);
                                     }}
                                   >
                                     <FolderIcon />
@@ -295,15 +300,7 @@ const TableOfContent = () => {
                                   <MenuItem
                                     key={index}
                                     onClick={() => {
-                                      if (index >= page * perPage) {
-                                        setPage(page + 1);
-                                        setActiveFile(index);
-                                      } else if (index < (page - 1) * perPage) {
-                                        setPage(page - 1);
-                                        setActiveFile(index);
-                                      } else {
-                                        setActiveFile(index);
-                                      }
+                                      updateHighlightedRow(index);
                                     }}
                                   >
                                     {data.name}
@@ -324,15 +321,7 @@ const TableOfContent = () => {
                       <MenuItem
                         key={index}
                         onClick={() => {
-                          if (index >= page * perPage) {
-                            setPage(page + 1);
-                            setActiveFile(index);
-                          } else if (index < (page - 1) * perPage) {
-                            setPage(page - 1);
-                            setActiveFile(index);
-                          } else {
-                            setActiveFile(index);
-                          }
+                          updateHighlightedRow(index);
                         }}
                       >
                         {data.name}

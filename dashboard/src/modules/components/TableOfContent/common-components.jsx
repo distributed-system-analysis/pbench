@@ -9,7 +9,7 @@ const filterTOC = (dataArray, searchKey) => {
   return x;
 };
 
-export const SearchTOC = ({ dataArray, setTableData}) => {
+export const SearchTOC = ({ dataArray, setTableData }) => {
   const search = (searchKey) => {
     setTableData(filterTOC(dataArray, searchKey));
   };
