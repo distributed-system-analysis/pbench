@@ -341,7 +341,13 @@ class TestDatasetsMetadata:
         """
         put = query_put_as(
             "drb",
-            {"metadata": {"global.dashboard.c": 1, "dataset.name": 1, "global.dashboard.test": "A"}},
+            {
+                "metadata": {
+                    "global.dashboard.c": 1,
+                    "dataset.name": 1,
+                    "global.dashboard.test": "A",
+                }
+            },
             "drb",
             HTTPStatus.BAD_REQUEST,
         )
