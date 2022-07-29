@@ -102,7 +102,8 @@ display purposes and must not be assumed to be unique or definitive.
 * `metadata`: If additional metadata was requested, it will appear as a nested
 JSON object in this field.
 
-For example, the query `GET http://host/api/v1/datasets/list?metadata=user.favorite`
+For example, the query
+`GET http://host/api/v1/datasets/list?metadata=user.dashboard.favorite`
 might return:
 
 ```json
@@ -110,12 +111,12 @@ might return:
     {
         "name": "pbench-fio_config_2022-06-29:00:00:00",
         "resource_id": "07f0a9cb817e258a54dbf3444abcd3aa",
-        "metadata": {"user.favorite": true}
+        "metadata": {"user.dashboard.favorite": true}
     },
     {
         "name": "the dataset I created for fun",
         "resource_id": "8322d8043755ccd33dc6d7091d1f9ff9",
-        "metadata": {"user.favorite": false}
+        "metadata": {"user.dashboard.favorite": false}
     }
 ]
 ```

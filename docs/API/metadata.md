@@ -104,13 +104,19 @@ received based on user profile preferences and server configuration; but it can
 be modified by the owner of the dataset, as long as the new timestamp remains
 within the maximum allowed server data retention period.
 
-### Dashboard namespace
+### Global namespace
 
 The server will never modify or directly interpret values in this namespace. An
 authenticated client representing the owner of a dataset can set any keys
 within this namespace to any valid JSON values (string, number, boolean, list,
 or nested objects) for retrieval later. All clients with read access to the
 dataset will see the same values.
+
+The recommended best practice is to assign a project sub-key that will be unique
+and avoid collisions between distinct clients. The Pbench Dashboard project,
+for example, will store all client metadata under the `global.dashboard`
+sub-namespace, for example `global.dashboard.seen`. A hypothetical client named
+"clienta" might use `global.clienta`, for example `global.clienta.configuration`.
 
 __NOTE__: The server will in the future be able to use these values to filter
 the selected datasets for [datasets/list](V1/list.md).
@@ -130,6 +136,12 @@ dataset. Any authenticated client has UPDATE and DELETE access to this private
 sub-resource as long as the client has READ access to the dataset. See
 [Access model](./access_model.md) for general information about the Pbench
 Server access controls.
+
+The recommended best practice is to assign a project sub-key that will be unique
+and avoid collisions between distinct clients. The Pbench Dashboard project,
+for example, will store all client metadata under the `user.dashboard`
+sub-namespace, for example `user.dashboard.favorite`. A hypothetical client
+named "clienta" might use `user.clienta`, for example `user.clienta.configuration`.
 
 An unauthenticated client can neither set nor retrieve any `user` namespace
 values; such a client will always see the `user` namespace as empty.
