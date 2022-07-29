@@ -1,7 +1,13 @@
 from http import HTTPStatus
+import logging
+from nis import match
 
 import pytest
 import requests
+from pbench.server.api.resources import APIAbort, ApiParams
+from pbench.server.api.resources.server_configuration import ServerConfiguration
+
+from pbench.server.database.models.server_config import ServerConfig
 
 
 class TestServerConfiguration:
@@ -78,6 +84,16 @@ class TestServerConfiguration:
             "server-state": {"status": "enabled"},
             "server-banner": None,
         }
+
+    def test_put_bad_uri_key(self, server_config):
+        """
+        A shape of things to come: one true unit test to confirm proper
+        handling of a condition that ought to be impossible through Flask
+        routing.
+        """
+        put = ServerConfiguration(server_config, logging.getLogger("test"))
+        with pytest.raises(APIAbort, match=r"Found URI parameters \['foo', 'plugh'\]"):
+            put._put_key(ApiParams(uri={"plugh": "xyzzy", "foo": "bar"}))
 
     def test_put_missing_value(self, query_put):
         """

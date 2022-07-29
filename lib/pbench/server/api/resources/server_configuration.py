@@ -98,7 +98,7 @@ class ServerConfiguration(ApiBase):
         except ServerConfigError as e:
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, str(e)) from e
 
-    def put_key(self, params: ApiParams) -> Response:
+    def _put_key(self, params: ApiParams) -> Response:
         """
         Implement the PUT operation when a system configuration setting key is
         specified on the URI as /system/configuration/{key}.
@@ -121,38 +121,43 @@ class ServerConfiguration(ApiBase):
             HTTP Response object
         """
 
-        key = params.uri.get("key")
-        if key:
-            # If we have a key in the URL, then we need a "value" for it, which
-            # we can take either from a query parameter or from the JSON
-            # request payload.
-            value = params.query.get("value")
-            if value:
-                # If we got the value from the query parameter, complain about
-                # any JSON request body keys
-                if params.body:
-                    raise APIAbort(
-                        HTTPStatus.BAD_REQUEST,
-                        "Redundant parameters specified in the JSON request body: "
-                        f"{sorted(params.body.keys())!r}",
-                    )
-            else:
-                value = params.body.get("value")
-                if not value:
-                    raise APIAbort(
-                        HTTPStatus.BAD_REQUEST,
-                        f"No value found for key system configuration key {key!r}",
-                    )
+        try:
+            key = params.uri["key"]
+        except KeyError:
+            # This "isn't possible" given the Flask mapping rules, but try
+            # to report it gracefully instead of letting the KeyError fly.
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, f"Found URI parameters {sorted(params.uri)} not including 'key'")
 
-            try:
-                ServerConfig.set(key=key, value=value)
-                return jsonify({key: value})
-            except ServerConfigBadValue as e:
-                raise APIAbort(HTTPStatus.BAD_REQUEST, str(e)) from e
-            except ServerConfigError as e:
-                raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, str(e)) from e
+        # If we have a key in the URL, then we need a "value" for it, which
+        # we can take either from a query parameter or from the JSON
+        # request payload.
+        value = params.query.get("value")
+        if value:
+            # If we got the value from the query parameter, complain about
+            # any JSON request body keys
+            if params.body:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST,
+                    "Redundant parameters specified in the JSON request body: "
+                    f"{sorted(params.body.keys())!r}",
+                )
+        else:
+            value = params.body.get("value")
+            if not value:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST,
+                    f"No value found for key system configuration key {key!r}",
+                )
 
-    def put_body(self, params: ApiParams) -> Response:
+        try:
+            ServerConfig.set(key=key, value=value)
+        except ServerConfigBadValue as e:
+            raise APIAbort(HTTPStatus.BAD_REQUEST, str(e)) from e
+        except ServerConfigError as e:
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, str(e)) from e
+        return jsonify({key: value})
+
+    def _put_body(self, params: ApiParams) -> Response:
         """
         Allow setting the value of multiple system configuration settings with
         a single PUT by specifying a JSON request body with key/value pairs.
@@ -218,6 +223,6 @@ class ServerConfiguration(ApiBase):
         """
 
         if params.uri:
-            return self.put_key(params)
+            return self._put_key(params)
         else:
-            return self.put_body(params)
+            return self._put_body(params)
