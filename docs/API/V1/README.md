@@ -13,7 +13,7 @@ server's version and a list of all API end points supported by the server.
 Some aspects of Pbench Server operation can be controlled by a user holding the
 `ADMIN` [role](../access_model.md) through the
 [server configuration](./server_config.md) API, including disabling the Pbench
-Server API while the server is undergoing maintenance, and setting a banner
+Server API while the server is undergoing maintenance and setting a banner
 message accessible to clients.
 
 ## Pbench Server resources

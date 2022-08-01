@@ -67,8 +67,8 @@ class UnauthorizedAccess(APIAbort):
 
 class UnauthorizedAdminAccess(UnauthorizedAccess):
     """
-    A refinement of the Unauthorized exception where ADMIN access is required
-    as we can't describe a resource owner and access.
+    A refinement of the UnauthorizedAccess exception where ADMIN access is
+    required and we have no associated resource owner and access.
     """
 
     def __init__(

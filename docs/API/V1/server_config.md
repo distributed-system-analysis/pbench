@@ -1,6 +1,6 @@
 # `GET /api/v1/server/configuration[/][{key}]`
 
-This API returns an `application/json` document describing the the Pbench Server
+This API returns an `application/json` document describing the Pbench Server
 configuration settings. When the `{key}` parameter is specified, the API will
 return the specific named server configuration setting. When `{key}` is omitted,
 all server configuration settings will be returned.
@@ -32,10 +32,6 @@ is unknown.
 The `application/json` response body is a JSON document containing the requested
 server configuration setting key and value or, if no `{key}` was specified, all
 supported server configuration settings.
-
-When you use [PUT](#put-apiv1serverconfigurationkey) to modify one or more server
-configuration settings, the response body will look the same, showing the new
-value of each modified server configuration setting.
 
 ### Examples
 
@@ -71,16 +67,19 @@ request body can be used to modify multiple configuration settings at once.
 `value`    string \
 When a single configuration setting is specified with `{key}` in the URI, you
 can specify a string value for the parameter using this query parameter without
-an `application/json` request body. You cannot specify complex JSON configuration
-settings this way. For example, `PUT /api/v1/server/configuration/key?value=1`.
+an `application/json` request body. For example,
+`PUT /api/v1/server/configuration/key?value=1`.
+
+You cannot specify complex JSON configuration settings this way. Instead, use
+the `value` field in the `application/json` request body.
 
 ## Request body
 
-When specifying a non-string value for a server configuration setting, or when
+When specifying a complex JSON value for a server configuration setting, or when
 specifying multiple configuration settings, the data to be set is specified in
 an `application/json` request body.
 
-You can specify a single `{key}` value on the URI and then specify the value
+You can specify a single `{key}` in the URI and then specify the value
 using a `value` field in the `application/json` request body instead of using
 the `value` query parameter. You can do this even if the value is a simple
 string, although it's more useful when you need to specify a JSON object value.
@@ -95,8 +94,8 @@ PUT /api/v1/server/configuration/server-state
 
 If you omit the `{key}` value from the URI, specify all configuration settings
 you wish to change in the `application/json` request body. You can specify a
-single server configuration setting, or all server configuration settings at
-once. For example,
+single server configuration setting, or any group of server configuration
+settings at once. For example,
 
 ```
 PUT /api/v1/server/configuration/
@@ -108,15 +107,15 @@ PUT /api/v1/server/configuration/
 
 ## Request headers
 
-`authorization: bearer` token [_optional_] \
+`authorization: bearer` token \
 *Bearer* schema authorization is required to change any server configuration
 settings. The authenticated user must have `ADMIN` role.
 
 ## Response headers
 
 `content-type: application/json` \
-The return is a serialized JSON object with information about the selected
-datasets.
+The response body is a serialized JSON object with information about the selected
+server configuration settings.
 
 ## Response status
 
@@ -129,9 +128,33 @@ role.
 
 ## Response body
 
-Just as in [GET](#get-apiv1serverconfigurationkey), the `application/json`
-response body will be a JSON object showing the current (new) value of the
-modified server configuration settings.
+The `application/json` response body for `PUT` is exactly the same as for
+[`GET`](#response-body) when the same server configuration settings are
+requested, showing only the server configuration settings that were changed
+in the `PUT`.
+
+```
+PUT /api/v1/server/configuration/dataset-lifetime?value=4
+
+RESPONSE={
+    "dataset-lifetime": "4"
+}
+```
+
+or 
+
+```
+PUT /api/v1/server/configuration
+REQUEST={
+    "dataset-lifetime": "4 days",
+    "server-state": {"status": "enabled"}
+}
+
+RESPONSE={
+    "dataset-lifetime": "4",
+    "server-state": {"status": "enabled"}
+}
+```
 
 ## Server configuration settings
 
@@ -160,18 +183,28 @@ are equivalent.
 
 This server configuration setting allows a server administrator to set an
 informational message that can be retrieved and displayed by any client, for
-example as a banner on a UI. The value s a JSON object, containing at least
+example as a banner on a UI. The value is a JSON object, containing at least
 a `message` field.
 
-Any additional JSON data may be provided, and will be returned uninterpreted
-when a client requests it with `GET /api/v1/server/configuration/server-banner`.
+Any additional JSON data may be provided. The server will store the entire
+JSON object and return it when a client requests it with
+`GET /api/v1/server/configuration/server-banner`. The server will not interpret
+any information in this JSON object.
 
-For example,
+For example, the following are examples of valid banners:
 
 ```
 {
     "server-banner": {
-        "message": "The server will be down for 2 hours on Monday, July 41st",
+        "message": "I have nothing to say"
+    }
+}
+```
+
+```
+{
+    "server-banner": {
+        "message": "The server will be down for 2 hours on Monday, July 31",
         "contact": {
             "email": "admin@pbench.example.com",
             "phone": "(555) 555-5555",
@@ -180,7 +213,7 @@ For example,
         "statistics": {
             "datasets": 50000,
             "hours-up": 2.3,
-            "users": 26.4
+            "users": 26
         }
     }
 }
@@ -200,54 +233,29 @@ The operating status of the server.
 * `enabled`: Normal operation.
 * `disabled`: Most server API endpoints will fail with the **503** (service
 unavailable) HTTP status. However a few endpoints are always allowed:
+  * [endpoints](./endpoints.md) for server configuration information;
   * [login](./login.md) because only an authenticated user with `ADMIN` role
     can modify server configuration settings;
   * [logout](./logout.md) for consistency;
-  * [endpoints](./endpoints.md) for server configuration information;
   * [server_configuration](./server_config.md) to allow re-enabling the server
     or modifying the banner.
 * `readonly`: The server will respond to `GET` requests for information, but will return **503** (service unavailable) for any attempt to modify server state. (With the same exceptions as listed above for `disabled`.)
 
 **`message`** \
 A message to explain downtime. This is required when the `status` is `disabled`
-or `readonly` and optional otherwise. Note that a `message` when the `status`
-is `enabled` won't normally be seen, unless a client asks for the `server-state`
-configuration setting. The `server-banner` configuration setting is generally
-more appropriate under normal operating conditions.
+or `readonly` and optional otherwise.
 
-When the `status` is `disabled` or `readonly`, and an API call fails with **503**
-(service unavailable), the full JSON object will be returned as the
-`application/json` error response body. A `message` key in an error response is
-a standard convention, and many clients will display this as an explanation for
-the failure. The client also has access to any additional information provided
-in the `server-state` JSON object including the `status`.
+When the server status is `disabled`, or when it's `readonly` and a client
+tries to modify some data through the API, the server will fail the request
+with a `503` (service unavailable) error, and return the full `server-state`
+JSON object as the `application/json` error response body. The `message` key in
+an error response is a standard convention, and many clients will display this
+as an explanation for the failure. The client will also have access to any
+additional information provided in the `server-state` JSON object.
 
-## Response body
-
-The `application/json` response body for `PUT` is exactly the same as for
-[`GET`](#response-body) when the same server configuration settings are
-requested, showing only the server configuration settings that were changed
-in the `PUT`.
-
-```
-PUT /api/v1/server/configuration/dataset-lifetime?value=4
-
-{
-    "dataset-lifetime": "4"
-}
-```
-
-or 
-
-```
-PUT /api/v1/server/configuration
-{
-    "dataset-lifetime": "4 days",
-    "server-state": {"status": "enabled"}
-}
-
-{
-    "dataset-lifetime": "4",
-    "server-state": {"status": "enabled"}
-}
-```
+Note that you can set a `message` when the `status` is `enabled` but it won't
+be reported to a client unless a client asks for the `server-state`
+configuration setting. The `server-state` message is intended to explain server
+downtime when an API call fails. The `server-banner` configuration setting
+is generally more appropriate to provide client information under normal
+operating conditions.
