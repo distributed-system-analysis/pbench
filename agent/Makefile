@@ -254,10 +254,17 @@ install-lib:
 # NOTE: we deliberately use `/usr/bin/python3` to make sure that when this is
 # invoked inside a python virtualenv the pip installation won't uninstall the
 # existing pbench module, breaking the environment.
+#
+# During the Python installation, it's going to test to see if the installation
+# directory is on the PYTHONPATH (which it is not...), so put it on the path,
+# just for the installation, based on our prefix and the version of Python.
+# For some reason, this only seems to be a problem on RHEL platforms prior to 9.
+pver = $(shell /usr/bin/python3 --version | sed -En -e 's/^Python (3\.[^.]+).*$$/python\1/p')
 install-python3-setup: install-util-scripts install-lib
 	${COPY} requirements.txt ${DESTDIR}
 	mkdir -p ${DESTDIR}/python3
-	(cd ..; /usr/bin/python3 -m pip install --prefix=${DESTDIR}/python3 -e .)
+	cd .. && PYTHONPATH=${DESTDIR}/python3/lib/${pver}/site-packages \
+	  /usr/bin/python3 -m pip install --prefix=${DESTDIR}/python3 -e .
 	${COPY} $(addprefix ${DESTDIR}/python3/bin/, ${click-scripts}) ${UTILDIR}/
 	rm -rf ${DESTDIR}/python3
 	${COPY} ../lib/pbench ${LIBDIR}/
