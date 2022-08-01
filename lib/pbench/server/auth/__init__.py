@@ -181,7 +181,7 @@ class KeycloakOpenID:
         The introspected JWT token contains the claims specified in https://tools.ietf.org/html/rfc7662
         :param token: token value to introspect
         :param key: client public key
-        :param audience: jwt token audience/client
+        :param audience: jwt token audience/client, who this token was intended for
         :param algorithms: Algorithm with which this JWT token was encoded
         """
         return jwt.decode(
