@@ -18,6 +18,6 @@ def pbench_server_client():
         host
     ), "Pbench Server functional tests require that PBENCH_SERVER be set to the hostname of a server"
     pbench_client = PbenchServerClient(host)
-    assert pbench_client, f"Unable to connect to Pbench Server {host}"
     pbench_client.connect({"accept": "application/json"})
+    assert pbench_client.endpoints
     return pbench_client

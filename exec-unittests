@@ -12,17 +12,17 @@ fi
 shift
 
 # The first argument will be which major sub-system to run tests for: the
-# agent side or the server side of the source tree.
+# agent code, the functional test client code, or the server code.
 
 major="${1}"
 shift
-major_list="agent server"
+major_list="agent client server"
 if [[ -n "${major}" ]]; then
-    if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "both" ]]; then
-        printf -- "Expected major sub-system to be either 'agent', 'server', or 'both', got '%s'\n" "${major}" >&2
+    if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "client" && "${major}" != "all" ]]; then
+        printf -- "Expected major sub-system to be either 'agent', 'server', or 'all', got '%s'\n" "${major}" >&2
         exit 2
     fi
-    if [[ "${major}" != "both" ]]; then
+    if [[ "${major}" != "all" ]]; then
         major_list="${major}"
     fi
 fi
@@ -165,7 +165,9 @@ trap "rm -f ${_para_jobs_file}" EXIT INT TERM
 let count=0
 for _major in ${major_list}; do
     # Verify the Agent or Server Makefile functions correctly.
-    verify_make_source_tree ${_major} || rc=1
+    if [[ "${_major}" == "agent" || "${_major}" == "server" ]]; then
+        verify_make_source_tree ${_major} || rc=1
+    fi
 
     if [[ "${_major}" == "agent" ]]; then
         # The parallel program is really cool.  The usage of `parallel` is
@@ -189,7 +191,7 @@ for _major in ${major_list}; do
             (( count++ ))
             run_legacy ${_major} bin ${posargs} || rc=1
         fi
-    else
+    elif [[ "${_major}" != "client" ]]; then
         printf -- "Error - unrecognized major test sub-set, '%s'\n" "${_major}" >&2
         rc=1
     fi

@@ -27,7 +27,8 @@ class TestUser:
         NOTE: This will fail if "nouser" exists.
         """
         with pytest.raises(
-            HTTPError, match=r"UNAUTHORIZED for url: http://.*?/api/v1/login"
+            HTTPError,
+            match=f"UNAUTHORIZED for url: {pbench_server_client.scheme}://.*?/api/v1/login",
         ):
             pbench_server_client.login("nouser", "nopassword")
 
@@ -71,7 +72,8 @@ class TestUser:
             "email": f"{USERNAME1}@example.com",
         }
         with pytest.raises(
-            HTTPError, match=r"FORBIDDEN for url: http://.*?/api/v1/register"
+            HTTPError,
+            match=f"FORBIDDEN for url: {pbench_server_client.scheme}://.*?/api/v1/register",
         ):
             pbench_server_client.post("register", json=json)
 
@@ -80,7 +82,8 @@ class TestUser:
         Test that we can't access a user profile without authentication.
         """
         with pytest.raises(
-            HTTPError, match=r"UNAUTHORIZED for url: http://.*?/api/v1/user/functional"
+            HTTPError,
+            match=f"UNAUTHORIZED for {pbench_server_client.scheme}: http://.*?/api/v1/user/{USERNAME1}",
         ):
             pbench_server_client.get("user", {"target_username": USERNAME1})
 
@@ -102,12 +105,13 @@ class TestUser:
         token.
         """
         with pytest.raises(
-            HTTPError, match=r"UNAUTHORIZED for url: http://.*?/api/v1/user/functional"
+            HTTPError,
+            match=f"UNAUTHORIZED for url: {pbench_server_client.scheme}://.*?/api/v1/user/{USERNAME1}",
         ):
             pbench_server_client.get(
                 "user",
                 {"target_username": USERNAME1},
-                headers={"Authorization": "Bearer tokens"},
+                headers={"Authorization": "Bearer of bad tokens"},
             )
 
     def test_profile_not_self(self, pbench_server_client: PbenchServerClient):
@@ -115,7 +119,8 @@ class TestUser:
         Test that we can't access another user's profile.
         """
         with pytest.raises(
-            HTTPError, match=r"FORBIDDEN for url: http://.*?/api/v1/user/nonfunctional"
+            HTTPError,
+            match=f"FORBIDDEN for url: {pbench_server_client.scheme}://.*?/api/v1/user/{USERNAME2}",
         ):
             pbench_server_client.get("user", {"target_username": USERNAME2})
 
@@ -157,12 +162,38 @@ class TestUser:
         assert user == updated
         assert put_response == user
 
+    def test_delete_other(self, pbench_server_client: PbenchServerClient):
+        """
+        Test that we can't delete another user.
+
+        NOTE: This assumes test cases will be run in order.
+        """
+        with pytest.raises(
+            HTTPError,
+            match=f"FORBIDDEN for url: {pbench_server_client.scheme}://.*?/api/v1/user/{USERNAME2}",
+        ):
+            pbench_server_client.delete("user", {"target_username": USERNAME2})
+
+    def test_delete_nologin(self, pbench_server_client: PbenchServerClient):
+        """
+        Test that we can't delete a user profile when not logged in.
+
+        NOTE: This assumes test cases will be run in order.
+        """
+        pbench_server_client.logout()
+        with pytest.raises(
+            HTTPError,
+            match=f"FORBIDDEN for url: {pbench_server_client.scheme}://.*?/api/v1/user/{USERNAME1}",
+        ):
+            pbench_server_client.delete("user", {"target_username": USERNAME1})
+
     def test_delete(self, pbench_server_client: PbenchServerClient):
         """
         Test that we can delete our own user profile once logged in.
 
         NOTE: This assumes test cases will be run in order.
         """
+        pbench_server_client.login(USERNAME1, PASSWORD)
         pbench_server_client.delete("user", {"target_username": USERNAME1})
 
     def test_logout(self, pbench_server_client: PbenchServerClient):

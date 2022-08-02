@@ -33,6 +33,8 @@ class IncorrectParameterCount(PbenchClientError):
 
 
 class PbenchServerClient:
+    DEFAULT_SCHEME = "http"
+
     def __init__(self, host: str):
         """
         Create a Pbench Server client object.
@@ -43,13 +45,23 @@ class PbenchServerClient:
         Args:
             host: Pbench Server hostname
         """
-        self.host = host
-        self.username = None
-        self.auth_token = None
-        self.session = None
+        self.host: str = host
+        url_parts = parse.urlsplit(host)
+        if url_parts.scheme:
+            self.scheme = url_parts.scheme
+            url = self.host
+        else:
+            self.scheme = self.DEFAULT_SCHEME
+            url = f"{self.scheme}://{self.host}"
+        self.url = url
+        self.username: Optional[str] = None
+        self.auth_token: Optional[str] = None
+        self.session: Optional[requests.Session] = None
         self.endpoints: Optional[JSONOBJECT] = None
 
-    def _headers(self, user_headers: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    def _headers(
+        self, user_headers: Optional[Dict[str, str]] = None
+    ) -> CaseInsensitiveDict:
         """
         Create an HTTP request headers dictionary.
 
@@ -64,11 +76,13 @@ class PbenchServerClient:
             user_headers: Addition request headers
 
         Returns:
-            Header dictionary
+            Case-insensitive header dictionary
         """
-        headers = CaseInsensitiveDict(user_headers) if user_headers else {}
-        if self.auth_token and "authorization" not in headers:
+        headers = CaseInsensitiveDict()
+        if self.auth_token:
             headers["authorization"] = f"Bearer {self.auth_token}"
+        if user_headers:
+            headers.update(user_headers)
         return headers
 
     def _uri(self, api: str, uri_params: Optional[JSONOBJECT] = None) -> str:
@@ -261,14 +275,9 @@ class PbenchServerClient:
         operations.
 
         Args:
-            headers: A dict of case insensitive default HTTP headers
+            headers: A dict of default HTTP headers
         """
-        url_parts = parse.urlsplit(self.host)
-        if url_parts.scheme:
-            url = self.host
-        else:
-            url = f"http://{self.host}"
-        url = parse.urljoin(url, "api/v1/endpoints")
+        url = parse.urljoin(self.url, "api/v1/endpoints")
         self.session = requests.Session()
         if headers:
             self.session.headers.update(headers)
