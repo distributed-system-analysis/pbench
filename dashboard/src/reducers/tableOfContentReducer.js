@@ -21,23 +21,15 @@ const TableOfContentReducer = (state = initialState, action = {}) => {
   const { type, payload } = action;
   switch (type) {
     case GET_TOC_DATA:
-      return {
-        ...state,
-        stack: [payload],
-        searchSpace: payload.files,
-        tableData: payload.files,
-        contentData: payload,
-        isLoading: false,
-      };
-
     case GET_SUB_DIR_DATA:
       return {
         ...state,
-        stack: [...state.stack, payload],
+        stack: type === GET_TOC_DATA ? [payload] : [...state.stack, payload],
         searchSpace: payload.files,
         tableData: payload.files,
-        currData: payload,
+        currData: type === GET_TOC_DATA ? state.currData : payload,
         isLoading: false,
+        contentData: type === GET_TOC_DATA ? payload : state.contentData,
       };
 
     case UPDATE_TABLE_DATA:

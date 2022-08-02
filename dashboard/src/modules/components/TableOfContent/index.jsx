@@ -48,7 +48,7 @@ const TableOfContent = () => {
   const [drilldownPath, setDrillDownPath] = useState([]);
   const [activeMenu, setActiveMenu] = useState("rootMenu");
   const [breadCrumb, setBreadCrumb] = useState(undefined);
-  const [activeFile, setActiveFile] = useState(-1);
+  const [activeFile, setActiveFile] = useState(undefined);
   const [breadCrumbLabels, setBreadCrumbLabels] = useState([]);
   const [param, setParam] = useState("");
   const [page, setPage] = useState(1);
@@ -60,7 +60,7 @@ const TableOfContent = () => {
   useEffect(() => {
     if (Object.keys(endpoints).length > 0)
       dispatch(fetchTOC(params["dataset_id"], "/", false));
-  }, [dispatch, endpoints,params]);
+  }, [dispatch, endpoints, params]);
   const { stack, searchSpace, tableData, contentData, currData, isLoading } =
     useSelector((state) => state.tableOfContent);
   const setTableData = (data) => {
@@ -140,12 +140,7 @@ const TableOfContent = () => {
   };
   const initialBreadcrumb = (initial) => (
     <Breadcrumb>
-      <BreadcrumbItem
-        component="button"
-        onClick={() => {
-          getMyBreadCrumbClick();
-        }}
-      >
+      <BreadcrumbItem component="button" onClick={getMyBreadCrumbClick}>
         Root
       </BreadcrumbItem>
       <BreadcrumbHeading component="button">
@@ -157,12 +152,7 @@ const TableOfContent = () => {
   const appGroupingBreadcrumb = (isOpen, moreBreadCrumbs) => {
     return (
       <Breadcrumb>
-        <BreadcrumbItem
-          component="button"
-          onClick={() => {
-            getMyBreadCrumbClick();
-          }}
-        >
+        <BreadcrumbItem component="button" onClick={getMyBreadCrumbClick}>
           Root
         </BreadcrumbItem>
         <BreadcrumbItem isDropdown>
@@ -211,29 +201,11 @@ const TableOfContent = () => {
     getSubFolderData(dirPath);
   };
   const updateHighlightedRow = (index) => {
-    if (index >= page * perPage) {
-      setPage(
-        page +
-          Math.ceil(
-            (index -
-              (activeFile === -1
-                ? perPage - 1
-                : Math.floor(activeFile / perPage) * perPage + perPage - 1)) /
-              perPage
-          )
-      );
-      setActiveFile(index);
-    } else if (index < (page - 1) * perPage) {
-      setPage(
-        page -
-          Math.ceil(
-            (Math.floor(activeFile / perPage) * perPage - index) / perPage
-          )
-      );
-      setActiveFile(index);
-    } else {
-      setActiveFile(index);
+    const newPage = Math.floor(index / perPage);
+    if (newPage + 1 != page) {
+      setPage(newPage + 1);
     }
+    setActiveFile(index);
   };
   return (
     <>
