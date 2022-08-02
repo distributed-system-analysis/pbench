@@ -112,9 +112,9 @@ within this namespace to any valid JSON values (string, number, boolean, list,
 or nested objects) for retrieval later. All clients with read access to the
 dataset will see the same values.
 
-The recommended best practice is to assign a project sub-key that will be unique
-and avoid collisions between distinct clients. The Pbench Dashboard project,
-for example, will store all client metadata under the `global.dashboard`
+The recommended best practice is to select a project sub-key that will be unique
+and minimize the risk of collisions between various clients. The Pbench Dashboard
+project, for example, will store all client metadata under the `global.dashboard`
 sub-namespace, for example `global.dashboard.seen`. A hypothetical client named
 "clienta" might use `global.clienta`, for example `global.clienta.configuration`.
 
@@ -137,9 +137,9 @@ sub-resource as long as the client has READ access to the dataset. See
 [Access model](./access_model.md) for general information about the Pbench
 Server access controls.
 
-The recommended best practice is to assign a project sub-key that will be unique
-and avoid collisions between distinct clients. The Pbench Dashboard project,
-for example, will store all client metadata under the `user.dashboard`
+The recommended best practice is to select a project sub-key that will be unique
+to minimize the risk of collisions between various clients. The Pbench Dashboard
+project, for example, will store all client metadata under the `user.dashboard`
 sub-namespace, for example `user.dashboard.favorite`. A hypothetical client
 named "clienta" might use `user.clienta`, for example `user.clienta.configuration`.
 
