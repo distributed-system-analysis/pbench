@@ -71,14 +71,14 @@ fi
 
 log_info $TS
 
-# Find all the links in all the $ARCHIVE/<controller>/$linksrc
+# Find all the links in all the $ARCHIVE/$linksrc
 # directories, emitting a list of their full paths with the size
 # in bytes of the file the link points to, and then sort them so
 # that we process the smallest tar balls first.
 list=$tmp/list
 > ${list}.unsorted
 # First we find all the $linksrc directories
-for linksrc_dir in $(find $ARCHIVE/ -maxdepth 2 -type d -name $linksrc); do
+for linksrc_dir in $(find $ARCHIVE/ -maxdepth 1 -type d -name $linksrc); do
     # Find all the links in a given $linksrc directory that are
     # links to actual files (bad links are not emitted!).
     find -L $linksrc_dir -type f -name '*.tar.xz' -printf "%p\n" 2>/dev/null >> ${list}.unsorted
@@ -107,10 +107,8 @@ while read tarball ;do
         log_exit "$TS: FATAL - unexpected \$linksrc for $tarball" 57
     fi
 
-    controller_path=$(dirname $linksrc_path)
-    controller=$(basename $controller_path)
-    if [ "$ARCHIVE" != "$(dirname $controller_path)" ]; then
-        # The controller's parent is not $ARCHIVE!
+    if [ "$ARCHIVE" != "$(dirname $linksrc_path)" ]; then
+        # The state directory's parent is not $ARCHIVE!
         log_exit "$TS: FATAL - unexpected archive directory for $tarball" 57
     fi
 
@@ -118,7 +116,7 @@ while read tarball ;do
     if [ -z "$link" ] ;then
         log_error "$TS: symlink target for $tarball does not exist" "${mail_content}"
         let nerrs+=1
-        quarantine ${controller_path}/_QUARANTINED/BAD-LINK ${tarball}
+        quarantine ${linksrc_path}/_QUARANTINED/BAD-LINK ${tarball}
         continue
     fi
 
@@ -129,7 +127,7 @@ while read tarball ;do
     # producing the error
     if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
         let ndups+=1
-        quarantine ${controller_path}/_QUARANTINED/DUPLICATES ${link} ${link}.md5 ${controller_path}/.prefix/${resultname}.prefix
+        quarantine ${linksrc_path}/_QUARANTINED/DUPLICATES ${link} ${link}.md5 ${linksrc_path}/.prefix/${resultname}.prefix
         rm -f ${tarball}
         status=$?
         if [ $status -ne 0 ] ;then
@@ -139,21 +137,21 @@ while read tarball ;do
     fi
 
     # make sure that all the relevant state directories exist
-    mk_dirs $controller
+    mk_dirs $tb_linksrc
     status=$?
     if [ $status -ne 0 ] ;then
-        log_error "$TS: Creation of $controller processing directories failed for $tarball: code $status" "${mail_content}"
+        log_error "$TS: Creation of $tb_linksrc processing directories failed for $tarball: code $status" "${mail_content}"
         let nerrs+=1
         continue
     fi
 
-    pushd ${controller_path} > /dev/null 2>&4
+    pushd ${linksrc_path} > /dev/null 2>&4
     md5sum --check ${resultname}.tar.xz.md5
     sts=$?
     popd >/dev/null 2>&4
     if [ $sts -ne 0 ] ;then
         log_error "$TS: MD5 check of ${link} failed for ${tarball}" "${mail_content}"
-        quarantine ${controller_path}/_QUARANTINED/BAD-MD5 ${link} ${link}.md5 ${controller_path}/.prefix/${resultname}.prefix
+        quarantine ${linksrc_path}/_QUARANTINED/BAD-MD5 ${link} ${link}.md5 ${linksrc_path}/.prefix/${resultname}.prefix
         rm -f ${tarball}
         status=$?
         if [ $status -ne 0 ] ;then
@@ -168,7 +166,7 @@ while read tarball ;do
     let toterr=0
     let totsuc=0
     for state in $linkdestlist ;do
-        ln -sf $link ${controller_path}/${state}/
+        ln -sf $link ${ARCHIVE}/${state}
         status=$?
         if [ $status -eq 0 ] ;then
             let totsuc+=1
@@ -200,10 +198,10 @@ while read tarball ;do
         if [ $toterr -gt 0 ]; then
             # We have had some errors while processing this tar ball, so
             # count this as a partial success.
-            log_info "$TS: $controller/$resultname: success (partial)"
+            log_info "$TS: $tb_linksrc/$resultname: success (partial)"
             let npartialsucc+=1
         else
-            log_info "$TS: $controller/$resultname: success"
+            log_info "$TS: $tb_linksrc/$resultname: success"
         fi
     fi
 done < $list
