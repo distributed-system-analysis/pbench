@@ -52,6 +52,8 @@ logging_level = DEBUG
 [Indexing]
 index_prefix = unit-test
 
+[keycloak]
+server_url = http://pbench.example.com/
 
 ###########################################################################
 # The rest will come from the default config file.

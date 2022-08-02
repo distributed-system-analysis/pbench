@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 from pbench.server.auth.auth_provider_urls import (
+    URL_ADMIN_CLIENT,
     URL_ADMIN_CLIENT_ALL_SESSIONS,
     URL_ADMIN_CLIENT_ROLE_MEMBERS,
     URL_ADMIN_CLIENT_ROLES,
@@ -52,7 +53,21 @@ class Admin(KeycloakOpenID):
         keys = self._get(URL_ADMIN_KEYS.format(**params_path), data=None).json()
         return keys
 
-    def get_client_all_sessions(self, client_id: str, realm_name: str) -> List[Dict]:
+    def get_client(self, client_name: str, realm: str = None) -> Dict:
+        """
+        Returns a keycloak client representation
+        https://www.keycloak.org/docs-api/18.0/rest-api/index.html#_clientrepresentation
+        :param client_name: name of the keycloak client
+        :param realm: optional realm name
+        :return:
+        """
+        params_path = {
+            "realm-name": realm if realm else self.user_realm,
+            "id": client_name,
+        }
+        return self._get(URL_ADMIN_CLIENT.format(**params_path)).json()
+
+    def get_client_all_sessions(self, client_id: str, realm: str = None) -> List[Dict]:
         """
         Get sessions associated with the client.
         http://www.keycloak.org/docs-api/18.0/rest-api/index.html#_usersessionrepresentation
@@ -67,16 +82,17 @@ class Admin(KeycloakOpenID):
         'clients': {'d98aa03e-a258-446b-8ebd-9d91116a8d8f': 'account-console'}}]
         """
         params_path = {
-            "realm-name": realm_name if realm_name else self.user_realm,
-            "id": client_id if client_id else self.client_id,
+            "realm-name": realm if realm else self.user_realm,
+            "id": client_id,
         }
         sessions = self._get(URL_ADMIN_CLIENT_ALL_SESSIONS.format(**params_path)).json()
         return sessions
 
-    def get_all_user_sessions(self, user_id: str) -> List[Dict]:
+    def get_all_user_sessions(self, user_id: str, realm: str = None) -> List[Dict]:
         """
         Get all the sessions associated with the user.
         :param user_id: id of the user, not the username
+        :param realm: optional realm id
         https://www.keycloak.org/docs-api/18.0/rest-api/index.html#_usersessionrepresentation
         :return: UserSessionRepresentation
         e.g:
@@ -88,7 +104,7 @@ class Admin(KeycloakOpenID):
         'lastAccess': 1659394065000,
         'clients': {'d98aa03e-a258-446b-8ebd-9d91116a8d8f': 'account-console'}}]
         """
-        params_path = {"realm-name": self.realm_name, "id": user_id}
+        params_path = {"realm-name": realm if realm else self.realm_name, "id": user_id}
         return self._get(URL_ADMIN_GET_SESSIONS.format(**params_path)).json()
 
     def get_all_users(self, realm_name: str = None, params=None) -> List:
