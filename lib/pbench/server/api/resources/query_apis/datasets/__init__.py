@@ -90,10 +90,11 @@ class IndexMapBase(ElasticBase):
         super().__init__(config, logger, *schemas)
 
         api_name = self.__class__.__name__
-        self.method = schemas[0].method
 
-        if not schemas:
+        if len(schemas) != 1:
             raise MissingDatasetNameParameter(api_name, "no schema provided")
+
+        self.method = schemas[0].method
         dset = self.schemas.get_param_by_type(
             self.method,
             ParamType.DATASET,

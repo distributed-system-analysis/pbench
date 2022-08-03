@@ -23,7 +23,6 @@ class TestDatasetsContents(Commons):
             cls_obj=DatasetsContents(client.config, client.logger),
             pbench_endpoint="/datasets/contents/random_md5_string1/1-default",
             elastic_endpoint="/_search",
-            payload={},
             index_from_metadata="run-toc",
         )
 
@@ -31,7 +30,7 @@ class TestDatasetsContents(Commons):
         """
         Check the DatasetsContents API when no index name is provided
         """
-        # remove the last component of the pbench_endpoint
+        # remove the last two component of the pbench_endpoint
         incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-2])
         response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}")
         assert response.status_code == HTTPStatus.NOT_FOUND
@@ -46,7 +45,6 @@ class TestDatasetsContents(Commons):
         response = client.get(
             f"{server_config.rest_uri}{incorrect_endpoint}",
             headers={"Authorization": "Bearer " + pbench_token},
-            json=self.payload,
         )
         assert response.status_code == HTTPStatus.NOT_FOUND
 
@@ -147,7 +145,6 @@ class TestDatasetsContents(Commons):
         response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
             index,
             expected_status,
             json=response_payload,
@@ -258,7 +255,6 @@ class TestDatasetsContents(Commons):
         response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
             index,
             expected_status,
             json=response_payload,
@@ -331,7 +327,6 @@ class TestDatasetsContents(Commons):
         response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
             index,
             expected_status,
             json=response_payload,
@@ -406,7 +401,6 @@ class TestDatasetsContents(Commons):
         response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
             index,
             expected_status,
             json=response_payload,
@@ -454,7 +448,6 @@ class TestDatasetsContents(Commons):
         response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
             index,
             expected_status
             if expected_status != HTTPStatus.OK
@@ -482,6 +475,5 @@ class TestDatasetsContents(Commons):
         response = client.get(
             incorrect_endpoint,
             headers={"Authorization": "Bearer " + pbench_token},
-            json=self.payload,
         )
         assert response.status_code == expected_status

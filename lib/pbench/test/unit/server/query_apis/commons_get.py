@@ -1,11 +1,12 @@
 from http import HTTPStatus
 from typing import AnyStr
 
-import pytest
-import requests
 from dateutil import parser as date_parser
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
+import pytest
+import requests
+
 from pbench.server import JSON
 from pbench.server.api.resources import API_METHOD, ApiParams, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase
@@ -83,7 +84,7 @@ class Commons:
 
     def date_range(self, start: AnyStr, end: AnyStr) -> list:
         """
-        Builds list of range of dates between start and end
+        Builds list of ranges of dates between start and end
         It expects the date to look like YYYY-MM
         """
         date_range = []
@@ -161,7 +162,7 @@ class Commons:
         Test behavior when authenticated user specifies a non-existent user.
         """
         # The pbench_token fixture logs in as user "drb"
-        # Trying to access the data belong to the user "pp"
+        # Trying to access the data belonging to the user "pp"
         user = self.cls_obj.schemas.get_param_by_type(
             API_METHOD.GET, ParamType.USER, None
         )
@@ -183,7 +184,7 @@ class Commons:
         self, client, server_config, pbench_token, user
     ):
         """
-        Test behavior when expired authentication token is provided.
+        Test behavior when an expired authentication token is provided.
 
         TODO: This actually tests behavior with no client authentication, as
         Flask-HTTPTokenAuth hides the validation failure because our query
@@ -252,19 +253,17 @@ class Commons:
         ].uri_schema.parameters.items():
             # Modify date/time key in the payload to make it look invalid
             if p.type == ParamType.DATE and key in self.payload:
-                original_date_value = self.payload[key]
-                self.payload[key] = "2020-19"
+                my_payload = {k: "2020-19" if k == key else v for k, v in self.payload.items()}
                 response = client.get(
                     server_config.rest_uri + self.pbench_endpoint,
                     headers={"Authorization": "Bearer " + pbench_token},
-                    json=self.payload,
+                    json=my_payload,
                 )
                 assert response.status_code == HTTPStatus.BAD_REQUEST
                 assert (
                     response.json.get("message")
                     == "Value '2020-19' (str) cannot be parsed as a date/time string"
                 )
-                self.payload[key] = original_date_value
 
     def test_empty_query(
         self,
@@ -291,14 +290,12 @@ class Commons:
         response = query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
             index,
             expected_status,
             headers=build_auth_header["header"],
             status=HTTPStatus.OK,
             json=self.empty_es_response_payload,
         )
-        assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
             assert response.json == []
 
@@ -347,7 +344,6 @@ class Commons:
         query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
             index,
             exceptions["status"],
             body=exceptions["exception"],
@@ -382,7 +378,6 @@ class Commons:
         query_api_get(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
             index,
             HTTPStatus.BAD_GATEWAY,
             status=errors,
