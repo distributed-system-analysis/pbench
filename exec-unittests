@@ -19,7 +19,7 @@ shift
 major_list="agent client server"
 if [[ -n "${major}" ]]; then
     if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "client" && "${major}" != "all" ]]; then
-        printf -- "Expected major sub-system to be either 'agent', 'server', or 'all', got '%s'\n" "${major}" >&2
+        printf -- "Expected major sub-system to be 'agent', 'client', 'server', or 'all', got '%s'\n" "${major}" >&2
         exit 2
     fi
     if [[ "${major}" != "all" ]]; then

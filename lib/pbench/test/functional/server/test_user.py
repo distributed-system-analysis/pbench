@@ -83,7 +83,7 @@ class TestUser:
         """
         with pytest.raises(
             HTTPError,
-            match=f"UNAUTHORIZED for {pbench_server_client.scheme}: http://.*?/api/v1/user/{USERNAME1}",
+            match=f"UNAUTHORIZED for url: {pbench_server_client.scheme}://.*?/api/v1/user/{USERNAME1}",
         ):
             pbench_server_client.get("user", {"target_username": USERNAME1})
 
@@ -183,7 +183,7 @@ class TestUser:
         pbench_server_client.logout()
         with pytest.raises(
             HTTPError,
-            match=f"FORBIDDEN for url: {pbench_server_client.scheme}://.*?/api/v1/user/{USERNAME1}",
+            match=f"UNAUTHORIZED for url: {pbench_server_client.scheme}://.*?/api/v1/user/{USERNAME1}",
         ):
             pbench_server_client.delete("user", {"target_username": USERNAME1})
 
