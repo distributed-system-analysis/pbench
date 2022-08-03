@@ -253,7 +253,9 @@ class Commons:
         ].uri_schema.parameters.items():
             # Modify date/time key in the payload to make it look invalid
             if p.type == ParamType.DATE and key in self.payload:
-                my_payload = {k: "2020-19" if k == key else v for k, v in self.payload.items()}
+                my_payload = {
+                    k: "2020-19" if k == key else v for k, v in self.payload.items()
+                }
                 response = client.get(
                     server_config.rest_uri + self.pbench_endpoint,
                     headers={"Authorization": "Bearer " + pbench_token},
