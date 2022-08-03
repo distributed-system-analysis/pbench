@@ -792,22 +792,23 @@ class Metadata(Database.Base):
     # the "server" namespace, and are strictly controlled by keyword path:
     # e.g., "server.deleted", "server.archived";
     #
-    # The "dashboard" and "user" namespaces can be written by an authenticated
-    # client to track external metadata. The difference is that "dashboard" key
+    # The "global" and "user" namespaces can be written by an authenticated
+    # client to track external metadata. The difference is that "global" key
     # values are visible to all clients with READ access to the dataset, while
     # the "user" namespace is visible only to clients authenticated to the user
-    # that wrote the data. That is, "dashboard.seen" is a global dashboard
-    # metadata property visible to all users, while "user.favorite" is visible
-    # only to the specific user that wrote the value; each authenticated user
-    # may have its own unique "user.favorite" value.
+    # that wrote the data. Both are represented as arbitrarily nested JSON
+    # objects accessible at any level by a dotted key path. For example, for a
+    # value of "global": {"favorite": true, "mine": {"contact": "me"}}, the
+    # value of key path "global" is the entire object, "global.favorite" is
+    # true, "global.mine" is {"contact": "me"}, and "global.mine.contact" is
+    # "me".
 
-    # DASHBOARD is arbitrary data saved on behalf of the dashboard client as a
-    # JSON document. Writing these keys requires ownership of the referenced
-    # dataset, and the data is visible to all clients with READ access to the
-    # dataset.
+    # GLOBAL provides an open metadata namespace allowing a client which is
+    # authenticated as the owner of the dataset to define arbitrary metadata
+    # accessible to all users.
     #
-    # {"dashboard.seen": True}
-    DASHBOARD = "dashboard"
+    # {"global.dashboard.seen": True}
+    GLOBAL = "global"
 
     # DATASET is a "virtual" key namespace representing the columns of the
     # Dataset SQL table. Through Dataset.as_dict() we allow the columns to be
@@ -828,13 +829,15 @@ class Metadata(Database.Base):
     # {"server.deletion": "3030-03-30T03:30:30.303030+00:00"}
     SERVER = "server"
 
-    # USER is arbitrary data saved with the dataset on behalf of an
-    # authenticated user, as a JSON document. Writing these keys requires READ
-    # access to the referenced dataset, and are visible only to clients that
-    # are authenticated as the user which set them. Each user can have its own
-    # unique value for these keys, for example "user.favorite".
+    # USER provides an open metadata namespace allowing a client which is
+    # authenticated to define arbitrary metadata accessible only to that
+    # authenticated user. Writing 'user' keys requires only READ access to the
+    # referenced dataset, but the value set is visible only to clients that are
+    # authenticated as the user which set them. Each user can have its own
+    # unique value for these keys, for example "user.favorite". Unauthenticated
+    # clients can neither set nor read metadata in the USER namespace.
     #
-    # {"user.favorite": True}
+    # {"user.dashboard.favorite": True}
     USER = "user"
 
     # "Native" keys are the value of the PostgreSQL "key" column in the SQL
@@ -843,7 +846,7 @@ class Metadata(Database.Base):
     # METALOG key is special, representing the Metadata table portion of the
     # DATASET
     METALOG = "metalog"
-    NATIVE_KEYS = [DASHBOARD, METALOG, SERVER, USER]
+    NATIVE_KEYS = [GLOBAL, METALOG, SERVER, USER]
 
     # DELETION timestamp for dataset based on user settings and system
     # settings when the dataset is created.
@@ -885,12 +888,12 @@ class Metadata(Database.Base):
 
     # Metadata keys that clients can update
     #
-    # NOTE: the entire "dashboard" and "user" namespaces are writable, but only
+    # NOTE: the entire "global" and "user" namespaces are writable, but only
     # specific keys in the "dataset" and "server" namespaces can be modified.
-    USER_UPDATEABLE_METADATA = [DASHBOARD, DATASET_NAME, DELETION, USER]
+    USER_UPDATEABLE_METADATA = [DATASET_NAME, DELETION, GLOBAL, USER]
 
     # Metadata keys that clients can read
-    METADATA_KEYS = sorted([DASHBOARD, DATASET, SERVER, USER])
+    METADATA_KEYS = sorted([DATASET, GLOBAL, SERVER, USER])
 
     # NOTE: the ECMA JSON specification allows JSON "names" (keys) to be any
     # string, though most implementations and schemas enforce or recommend
@@ -939,8 +942,8 @@ class Metadata(Database.Base):
         for the referenced Dataset.
 
         NOTE: use this only for raw first-level Metadata keys, not dotted
-        paths like "dashboard.seen", which will fail key validation. Instead,
-        use the higher-level `set` helper.
+        paths like "global.seen", which will fail key validation. Instead,
+        use the higher-level `setvalue` helper.
 
         Args:
             dataset: Associated Dataset
@@ -984,7 +987,7 @@ class Metadata(Database.Base):
         specified in 'valid'. If the "native" key (first element of a dotted
         path) is in the list, then it's valid.
 
-        NOTE: we only validate the "native" key of the path. The "dashboard"
+        NOTE: we only validate the "native" key of the path. The "global"
         and "user" namespaces are completely open for any subsidiary keys the
         caller desires. The "dataset" and "server" namespaces are internally
         defined by Pbench, and can't be modified by the client, however a query
@@ -1027,21 +1030,21 @@ class Metadata(Database.Base):
 
         For example, if the metadata database has
 
-            "dashboard": {
+            "global": {
                     "contact": {
                         "name": "dave",
                         "email": "d@example.com"
                     }
                 }
 
-        then Metadata.get(dataset, "dashboard.contact.name") would return
+        then Metadata.get(dataset, "global.contact.name") would return
 
             "Dave"
 
-        whereas Metadata.get(dataset, "dashboard") would return the entire user
+        whereas Metadata.get(dataset, "global") would return the entire user
         key JSON, such as
 
-            {"dashboard" {"contact": {"name": "Dave", "email": "d@example.com}}}
+            {"global" {"contact": {"name": "Dave", "email": "d@example.com}}}
 
         Args:
             dataset: associated dataset
@@ -1079,7 +1082,9 @@ class Metadata(Database.Base):
     @staticmethod
     def validate(dataset: Dataset, key: str, value: Any) -> Any:
         """
-        Validate a key value. We have two special cases:
+        Create or modify an existing metadata value. This method supports
+        hierarchical dotted paths like "global.seen" and should be used in
+        most contexts where client-visible metadata paths are used.
 
         1) For 'dataset.name', we require a UTF-8 encoded string of 1 to 32
            characters.

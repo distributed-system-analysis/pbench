@@ -81,7 +81,7 @@ class DatasetsMetadata(ApiBase):
             params: API parameters
             request: The original Request object containing query parameters
 
-        GET /api/v1/datasets/metadata?name=dname&metadata=dashboard.seen,server.deletion
+        GET /api/v1/datasets/metadata?name=dname&metadata=global.seen,server.deletion
         """
 
         dataset = params.uri["dataset"]
@@ -102,7 +102,7 @@ class DatasetsMetadata(ApiBase):
         {
             "name": "datasetname",
             "metadata": [
-                "dashboard.seen": True,
+                "global.seen": True,
                 "user": {"favorite": True}
             ]
         }
@@ -116,7 +116,7 @@ class DatasetsMetadata(ApiBase):
         e.g., for the above query,
 
         [
-            "dashboard.seen": True,
+            "global.seen": True,
             "user": {"favorite": False}
         ]
         """
