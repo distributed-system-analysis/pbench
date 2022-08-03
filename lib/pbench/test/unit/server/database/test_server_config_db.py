@@ -101,9 +101,11 @@ class FakeQuery:
             The query so filters can be chained
         """
         for s in self.selected:
-            if "key" in kwargs and s.key != kwargs["key"]:
+            if "id" in kwargs and s.id != kwargs["id"]:
                 self.selected.remove(s)
-            if "value" in kwargs and s.key != kwargs["value"]:
+            elif "key" in kwargs and s.key != kwargs["key"]:
+                self.selected.remove(s)
+            elif "value" in kwargs and s.value != kwargs["value"]:
                 self.selected.remove(s)
         return self
 
@@ -166,15 +168,13 @@ class FakeSession:
         if self.raise_on_commit:
             raise self.raise_on_commit
         for k in self.known:
-            if self.committed[k].value != self.known[k].value:
-                self.committed[k].value = self.known[k].value
+            self.committed[k].value = self.known[k].value
         for a in self.added:
             a.id = self.id
             self.id += 1
             self.known[a.id] = a
             self.committed[a.id] = FakeRow(id=a.id, key=a.key, value=a.value)
         self.added = []
-        self.deleted = []
 
     def rollback(self):
         """
@@ -183,33 +183,44 @@ class FakeSession:
         """
         self.rolledback += 1
 
+        # Clear the proxy state by removing any new objects that weren't yet
+        # committed, and "rolling back" any proxy values that were updated
+        # from the committed values.
+        self.added = []
+        for k in self.committed:
+            self.known[k].value = self.committed[k].value
+
 
 class TestServerConfig:
     session = None
 
-    def check_session(self, added=[], queries=0, committed=[], rolledback=0):
+    def check_session(self, queries=0, committed: List[FakeRow] = [], rolledback=0):
         """
         Encapsulate the common checks we want to make after running test cases.
 
         Args:
-            added: A list of object proxies we expect to have been added (but
-                not yet committed)
             queries: A count of queries we expect to have been made
-            committed: A set of objects we expect to have been committed
+            committed: A list of FakeRow objects we expect to have been
+                committed
             rolledback: True if we expect rollback to have been called
         """
         session = self.session
         assert session
+
+        # Check the number of queries we've created
         assert len(session.queries) == queries
-        assert len(session.added) == len(added)
-        xlated = [
-            a
-            for a in session.added
-            for k in added
-            if a.key == k.key and a.value == k.value
-        ]
-        assert session.added == xlated
+
+        # 'added' is an internal "dirty" list between 'add' and 'commit' or
+        # 'rollback'. We test that 'commit' moves elements to the committed
+        # state and 'rollback' clears the list. We don't ever expect to see
+        # anything on this list.
+        assert not session.added
+
+        # Check that the 'committed' list (which stands in for the actual DB
+        # table) contains the expected rows.
         assert sorted(list(session.committed.values())) == sorted(committed)
+
+        # Check whether we've rolled back a transaction due to failure.
         assert session.rolledback == rolledback
 
     @pytest.fixture(autouse=True, scope="function")
@@ -218,10 +229,8 @@ class TestServerConfig:
         Fixture to mock a DB session for testing.
 
         We patch the SQLAlchemy db_session to our fake session. We also store a
-        server configuration object on the Database.Base. (TODO: I was unable
-        to monkeypatch this due to the odd context of our base object
-        modifications during DB initialization; this is "unsatisfying" but
-        shouldn't be a problem)
+        server configuration object directly on the Database.Base (normally
+        done during DB initialization) because that can't be monkeypatched.
         """
         self.session = FakeSession()
         with monkeypatch.context() as m:
@@ -262,7 +271,6 @@ class TestServerConfig:
         assert str(e).find("dataset-lifetime") != -1
         self.check_session(
             committed=[FakeRow(id=1, key="dataset-lifetime", value="1")],
-            added=[FakeRow(id=None, key="dataset-lifetime", value="2")],
             rolledback=1,
         )
 
@@ -274,7 +282,6 @@ class TestServerConfig:
         with pytest.raises(ServerConfigNullKey):
             ServerConfig.create(key="dataset-lifetime", value=2)
         self.check_session(
-            added=[FakeRow(id=None, key="dataset-lifetime", value="2")],
             rolledback=1,
         )
 

@@ -133,24 +133,31 @@ The `application/json` response body for `PUT` is exactly the same as for
 requested, showing only the server configuration settings that were changed
 in the `PUT`.
 
+_This request:_
 ```
 PUT /api/v1/server/configuration/dataset-lifetime?value=4
+```
 
-RESPONSE={
+_returns this response:_
+```
+{
     "dataset-lifetime": "4"
 }
 ```
 
-or 
 
+_And this request:_
 ```
 PUT /api/v1/server/configuration
-REQUEST={
+{
     "dataset-lifetime": "4 days",
     "server-state": {"status": "enabled"}
 }
+```
 
-RESPONSE={
+_returns this response:_
+```
+{
     "dataset-lifetime": "4",
     "server-state": {"status": "enabled"}
 }
@@ -196,7 +203,7 @@ For example, the following are examples of valid banners:
 ```
 {
     "server-banner": {
-        "message": "I have nothing to say"
+        "message": "Have a Happy Pbench Day"
     }
 }
 ```
@@ -223,7 +230,7 @@ For example, the following are examples of valid banners:
 
 This server configuration setting allows a server administrator to control
 the operating state of the server remotely. As for
-[`server-banner`](#server-banner), the value is a JSON object, and any JSON
+[`server-banner`](#server-banner), the value is a JSON object and any JSON
 fields passed in to the server will be returned to a client, however the
 following fields have special meaning:
 
@@ -247,11 +254,11 @@ or `readonly` and optional otherwise.
 
 When the server status is `disabled`, or when it's `readonly` and a client
 tries to modify some data through the API, the server will fail the request
-with a `503` (service unavailable) error, and return the full `server-state`
-JSON object as the `application/json` error response body. The `message` key in
-an error response is a standard convention, and many clients will display this
-as an explanation for the failure. The client will also have access to any
-additional information provided in the `server-state` JSON object.
+with a `503` (service unavailable) error. It will return an `application/json`
+error response payload containing the full `server-state` JSON object. The
+`message` key in an error response is a standard convention, and many clients
+will display this as an explanation for the failure. The client will also have
+access to any additional information provided in the `server-state` JSON object.
 
 Note that you can set a `message` when the `status` is `enabled` but it won't
 be reported to a client unless a client asks for the `server-state`
