@@ -10,6 +10,8 @@ from pbench.server.auth.keycloak_admin import Admin
 class TestKeycloakAdminUserSessionManagement:
     USER_ID = "12345"
     USERNAME = "test"
+    REALM = "test_realm"
+    ADMIN_TOKEN = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJDeXVpZDFYU2F3"
 
     @staticmethod
     def test_help():
@@ -18,9 +20,8 @@ class TestKeycloakAdminUserSessionManagement:
         assert result.exit_code == 0, result.stderr
         assert str(result.stdout).startswith("Usage:")
 
-    @staticmethod
     @responses.activate
-    def test_get_all_user_sessions_with_user_id(caplog, server_config):
+    def test_get_all_user_sessions_with_user_id(self, caplog, server_config):
         responses.add(
             responses.GET,
             "http://pbench.example.com/admin/realms/test_realm/users/12345/sessions",
@@ -37,13 +38,21 @@ class TestKeycloakAdminUserSessionManagement:
 
         result = runner.invoke(
             get_user_sessions,
-            args=["--user_id", "12345", "--realm", "test_realm"],
+            args=[
+                "--user_id",
+                self.USER_ID,
+                "--realm",
+                self.REALM,
+                "--admin_token",
+                self.ADMIN_TOKEN,
+            ],
         )
         assert result.exit_code == 0, result.stderr
 
-    @staticmethod
     @responses.activate
-    def test_get_all_user_sessions_with_username(monkeypatch, caplog, server_config):
+    def test_get_all_user_sessions_with_username(
+        self, monkeypatch, caplog, server_config
+    ):
         responses.add(
             responses.GET,
             "http://pbench.example.com/admin/realms/test_realm/users/12345/sessions",
@@ -65,19 +74,25 @@ class TestKeycloakAdminUserSessionManagement:
 
         result = runner.invoke(
             get_user_sessions,
-            args=["--username", "test", "--realm", "test_realm"],
+            args=[
+                "--username",
+                self.USERNAME,
+                "--realm",
+                self.REALM,
+                "--admin_token",
+                self.ADMIN_TOKEN,
+            ],
         )
         assert result.exit_code == 0, result.stderr
 
-    @staticmethod
     @responses.activate
-    def test_get_all_user_sessions_without_user(caplog, server_config):
+    def test_get_all_user_sessions_without_user(self, caplog, server_config):
         runner = CliRunner(mix_stderr=False)
         caplog.set_level(logging.INFO)
 
         result = runner.invoke(
             get_user_sessions,
-            args=["--realm", "test_realm"],
+            args=["--realm", "test_realm", "--admin_token", self.ADMIN_TOKEN],
         )
         assert result.exit_code == 1, (
             result.stderr == "Either username or user_id is required"

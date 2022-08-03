@@ -1,9 +1,11 @@
 from http import HTTPStatus
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 from urllib.parse import urljoin
 
+import logging
 import jwt
 import requests
+from requests.structures import CaseInsensitiveDict
 
 from pbench.server import JSON
 from pbench.server.auth.auth_provider_urls import (
@@ -33,10 +35,10 @@ class KeycloakOpenID:
         server_url: str,
         realm_name: str,
         client_id: str,
-        logger,
+        logger: logging.Logger,
         client_secret_key: str = None,
         verify: bool = True,
-        headers: Dict = None,
+        headers: Optional[Dict[str, str]] = None,
         timeout: int = 60,
     ):
         self.server_url = server_url
@@ -44,7 +46,7 @@ class KeycloakOpenID:
         self.client_secret_key = client_secret_key
         self.realm_name = realm_name
         self.logger = logger
-        self.headers = headers if headers is not None else dict()
+        self.headers = headers if headers is not None else CaseInsensitiveDict()
         self.verify = verify
         self.timeout = timeout
         self.connection = requests.session()
@@ -67,7 +69,7 @@ class KeycloakOpenID:
         """Remove a specific header parameter.
         :param key: Key of the header parameters.
         """
-        self.headers.pop(key, None)
+        del self.headers[key]
 
     def get_well_known(self) -> JSON:
         """Returns the well-known configuration endpoints as a JSON.
@@ -188,14 +190,15 @@ class KeycloakOpenID:
             token, key, algorithms=algorithms, audience=audience, **kwargs
         )
 
-    def get_userinfo(self, token: str) -> JSON:
+    def get_userinfo(self, token: str = None) -> JSON:
         """
         The userinfo endpoint returns standard claims about the authenticated user,
         and is protected by a bearer token.
         http://openid.net/specs/openid-connect-core-1_0.html#UserInfo
         """
 
-        self.add_header_param("Authorization", f"Bearer {token}")
+        if token:
+            self.add_header_param("Authorization", f"Bearer {token}")
         params_path = {"realm-name": self.realm_name}
 
         return self._get(URL_USERINFO.format(**params_path)).json()

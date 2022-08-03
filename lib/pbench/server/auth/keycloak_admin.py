@@ -1,24 +1,12 @@
 from typing import Dict, List
+from http import HTTPStatus
 
-from pbench.server.auth.auth_provider_urls import (
-    URL_ADMIN_CLIENT,
-    URL_ADMIN_CLIENT_ALL_SESSIONS,
-    URL_ADMIN_CLIENT_ROLE_MEMBERS,
-    URL_ADMIN_CLIENT_ROLES,
-    URL_ADMIN_GET_SESSIONS,
-    URL_ADMIN_KEYS,
-    URL_ADMIN_REALM_ROLES,
-    URL_ADMIN_REALM_ROLES_MEMBERS,
-    URL_ADMIN_USER,
-    URL_ADMIN_USER_CLIENT_ROLES,
-    URL_ADMIN_USER_REALM_ROLES,
-    URL_ADMIN_USERS,
-)
-from pbench.server.auth.keycloak_openid import KeycloakOpenID
+import pbench.server.auth.auth_provider_urls as auth_urls
+from pbench.server.auth import KeycloakOpenID
 
 
 class Admin(KeycloakOpenID):
-    def __int__(
+    def __init__(
         self,
         server_url: str,
         realm_name: str,
@@ -30,7 +18,7 @@ class Admin(KeycloakOpenID):
         timeout: int = 60,
         user_realm: str = None,
     ):
-        super().__int__(
+        super().__init__(
             server_url,
             realm_name,
             client_id,
@@ -50,7 +38,9 @@ class Admin(KeycloakOpenID):
         :return: keys list
         """
         params_path = {"realm-name": realm_name if realm_name else self.user_realm}
-        keys = self._get(URL_ADMIN_KEYS.format(**params_path), data=None).json()
+        keys = self._get(
+            auth_urls.URL_ADMIN_KEYS.format(**params_path), data=None
+        ).json()
         return keys
 
     def get_client(self, client_name: str, realm: str = None) -> Dict:
@@ -65,7 +55,7 @@ class Admin(KeycloakOpenID):
             "realm-name": realm if realm else self.user_realm,
             "id": client_name,
         }
-        return self._get(URL_ADMIN_CLIENT.format(**params_path)).json()
+        return self._get(auth_urls.URL_ADMIN_CLIENT.format(**params_path)).json()
 
     def get_client_all_sessions(self, client_id: str, realm: str = None) -> List[Dict]:
         """
@@ -85,7 +75,9 @@ class Admin(KeycloakOpenID):
             "realm-name": realm if realm else self.user_realm,
             "id": client_id,
         }
-        sessions = self._get(URL_ADMIN_CLIENT_ALL_SESSIONS.format(**params_path)).json()
+        sessions = self._get(
+            auth_urls.URL_ADMIN_CLIENT_ALL_SESSIONS.format(**params_path)
+        ).json()
         return sessions
 
     def get_all_user_sessions(self, user_id: str, realm: str = None) -> List[Dict]:
@@ -105,9 +97,54 @@ class Admin(KeycloakOpenID):
         'clients': {'d98aa03e-a258-446b-8ebd-9d91116a8d8f': 'account-console'}}]
         """
         params_path = {"realm-name": realm if realm else self.realm_name, "id": user_id}
-        return self._get(URL_ADMIN_GET_SESSIONS.format(**params_path)).json()
+        return self._get(auth_urls.URL_ADMIN_GET_SESSIONS.format(**params_path)).json()
 
-    def get_all_users(self, realm_name: str = None, params=None) -> List:
+    def get_client_sessions_count(self, client_id: str, realm_name: str = None) -> Dict:
+        """
+        Get all sessions count for the given client
+        :param client_id: id of the client (not client-id)
+        :param realm_name: optional realm name
+        :return: { "count": number }
+        """
+        params_path = {
+            "realm-name": realm_name if realm_name else self.user_realm,
+            "id": client_id,
+        }
+        return self._get(
+            auth_urls.URL_ADMIN_CLIENT_SESSIONS_COUNT.format(**params_path)
+        ).json()
+
+    def logout_user_sessions(self, user_id: str, realm_name: str = None) -> HTTPStatus:
+        """
+        log the user out of all the sessions
+        :param user_id: id of the user
+        :param realm_name: optional realm name
+        :return:
+        """
+        params_path = {
+            "realm-name": realm_name if realm_name else self.user_realm,
+            "id": user_id,
+        }
+        return HTTPStatus(
+            self._post(
+                auth_urls.URL_ADMIN_USER_LOGOUT.format(**params_path), data=""
+            ).status_code
+        )
+
+    def realm_all_sessions_logout(self, realm_name: str = None) -> HTTPStatus:
+        """
+        Logout all the sessions under the given realm
+        :param realm_name:
+        :return:
+        """
+        params_path = {"realm-name": realm_name if realm_name else self.user_realm}
+        return HTTPStatus(
+            self._post(
+                auth_urls.URL_ADMIN_REALM_SESSIONS_LOGOUT.format(**params_path), data={}
+            ).status_code
+        )
+
+    def get_all_users(self, realm_name: str = None, params: Dict = None) -> List[Dict]:
         """
         Get all the users.
         Return a list of users, filtered according to query parameters
@@ -118,7 +155,22 @@ class Admin(KeycloakOpenID):
         """
         params = params or {}
         params_path = {"realm_name": realm_name if realm_name else self.user_realm}
-        return self._get(URL_ADMIN_USERS.format(**params_path), **params).json()
+        return self._get(
+            auth_urls.URL_ADMIN_USERS.format(**params_path), **params
+        ).json()
+
+    def count_users(self, realm_name: str = None, params: Dict = None) -> Dict:
+        """
+        Count all the users for the given realm
+        :param realm_name:
+        :param params: Any filtering params to apply
+        :return:{ "count": number }
+        """
+        params = params or {}
+        params_path = {"realm_name": realm_name if realm_name else self.user_realm}
+        return self._get(
+            auth_urls.URL_ADMIN_USERS_COUNT.format(**params_path), **params
+        ).json()
 
     def get_user(self, user_id: str, realm: str = None) -> Dict:
         """
@@ -128,7 +180,7 @@ class Admin(KeycloakOpenID):
         :return: UserRepresentation
         """
         params_path = {"realm-name": realm if realm else self.user_realm, "id": user_id}
-        return self._get(URL_ADMIN_USER.format(**params_path)).json()
+        return self._get(auth_urls.URL_ADMIN_USER.format(**params_path)).json()
 
     def get_user_id(self, username: str):
         """
@@ -161,7 +213,36 @@ class Admin(KeycloakOpenID):
                 return self.get_user(user_id, self.user_realm)
 
         self.add_header_param(key="Content-Type", value="application/json")
-        return self._post(URL_ADMIN_USERS.format(**params_path), data=payload).json()
+        return self._post(
+            auth_urls.URL_ADMIN_USERS.format(**params_path), data=payload
+        ).json()
+
+    def delete_user(self, user_id: str) -> HTTPStatus:
+        """
+        Delete the given user entry
+        :param user_id: id of the user
+        :return:
+        """
+        params_path = {"realm-name": self.user_realm, "id": user_id}
+        return HTTPStatus(
+            self._delete(auth_urls.URL_ADMIN_USER.format(**params_path)).status_code
+        )
+
+    def update_user(self, user_id: str, payload: Dict) -> HTTPStatus:
+        """
+        Update the given user with payload data
+        https://www.keycloak.org/docs-api/18.0/rest-api/index.html#_userrepresentation
+        :param user_id: id of the user
+        :param payload: UserRepresentation
+        :return:
+        """
+        params_path = {"realm-name": self.realm_name, "id": user_id}
+        self.add_header_param(key="Content-Type", value="application/json")
+        return HTTPStatus(
+            self._put(
+                auth_urls.URL_ADMIN_USER.format(**params_path), data=payload
+            ).status_code
+        )
 
     def realm_client_roles(self, realm: str = None, client_id: str = None) -> Dict:
         """
@@ -174,13 +255,17 @@ class Admin(KeycloakOpenID):
         """
         if not client_id:
             params_path = {"realm-name": realm if realm else self.user_realm}
-            return self._get(URL_ADMIN_REALM_ROLES.format(**params_path)).json()
+            return self._get(
+                auth_urls.URL_ADMIN_REALM_ROLES.format(**params_path)
+            ).json()
         else:
             params_path = {
                 "realm-name": realm if realm else self.user_realm,
                 "client_id": client_id,
             }
-            return self._get(URL_ADMIN_CLIENT_ROLES.format(**params_path)).json()
+            return self._get(
+                auth_urls.URL_ADMIN_CLIENT_ROLES.format(**params_path)
+            ).json()
 
     def get_realm_client_role_members(
         self,
@@ -205,7 +290,7 @@ class Admin(KeycloakOpenID):
                 "role-name": role_name,
             }
             return self._get(
-                URL_ADMIN_REALM_ROLES_MEMBERS.format(**params_path), **params
+                auth_urls.URL_ADMIN_REALM_ROLES_MEMBERS.format(**params_path), **params
             ).json()
         else:
             params_path = {
@@ -214,7 +299,7 @@ class Admin(KeycloakOpenID):
                 "role-name": role_name,
             }
             return self._get(
-                URL_ADMIN_CLIENT_ROLE_MEMBERS.format(**params_path), **params
+                auth_urls.URL_ADMIN_CLIENT_ROLE_MEMBERS.format(**params_path), **params
             ).json()
 
     def get_user_realm_client_roles(
@@ -232,11 +317,15 @@ class Admin(KeycloakOpenID):
                 "realm-name": realm if realm else self.user_realm,
                 "id": user_id,
             }
-            return self._get(URL_ADMIN_USER_REALM_ROLES.format(**params_path)).json()
+            return self._get(
+                auth_urls.URL_ADMIN_USER_REALM_ROLES.format(**params_path)
+            ).json()
         else:
             params_path = {
                 "realm-name": realm if realm else self.user_realm,
                 "id": user_id,
                 "client_id": client_id,
             }
-            return self._get(URL_ADMIN_USER_CLIENT_ROLES.format(**params_path)).json()
+            return self._get(
+                auth_urls.URL_ADMIN_USER_CLIENT_ROLES.format(**params_path)
+            ).json()

@@ -37,8 +37,13 @@ def user_command_cli(context):
     required=False,
     help="Keycloak realm name",
 )
+@click.option(
+    "--admin_token",
+    required=True,
+    help="Keycloak realm name",
+)
 @common_options
-def get_user_sessions(context, user_id, username, realm):
+def get_user_sessions(context, user_id, username, realm, admin_token):
     try:
         logger = logging.getLogger(__name__)
         config = PbenchServerConfig(context.config)
@@ -47,6 +52,7 @@ def get_user_sessions(context, user_id, username, realm):
             realm_name="Master",
             client_id="admin-cli",
             logger=logger,
+            headers={"Authorization": f"Bearer {admin_token}"},
         )
         if user_id:
             all_user_sessions = keycloak_admin.get_all_user_sessions(
@@ -92,8 +98,13 @@ def get_user_sessions(context, user_id, username, realm):
     required=False,
     help="Keycloak realm name",
 )
+@click.option(
+    "--admin_token",
+    required=True,
+    help="Keycloak realm name",
+)
 @common_options
-def get_client_sessions(context, client_id, client_name, realm):
+def get_client_sessions(context, client_id, client_name, realm, admin_token):
     try:
         logger = logging.getLogger(__name__)
         config = PbenchServerConfig(context.config)
@@ -102,6 +113,7 @@ def get_client_sessions(context, client_id, client_name, realm):
             realm_name="Master",
             client_id="admin-cli",
             logger=logger,
+            headers={"Authorization": f"Bearer {admin_token}"},
         )
         if client_id:
             all_client_sessions = keycloak_admin.get_client_all_sessions(
@@ -116,6 +128,46 @@ def get_client_sessions(context, client_id, client_name, realm):
             click.echo("Either client name or client_id is required", err=True)
             click.get_current_context().exit(1)
         click.echo(all_client_sessions)
+        rv = 0
+    except BadConfig as exc:
+        rv = 2
+        click.echo(exc, err=True)
+    except KeycloakConnectionError as exc:
+        rv = 3
+        click.echo(exc, err=True)
+    except Exception as exc:
+        rv = 1
+        click.echo(exc, err=True)
+
+    click.get_current_context().exit(rv)
+
+
+@user_command_cli.command()
+@pass_cli_context
+@click.option(
+    "--realm",
+    required=True,
+    help="Keycloak realm name",
+)
+@click.option(
+    "--admin_token",
+    required=True,
+    help="Keycloak realm name",
+)
+@common_options
+def logout_all_realm_sessions(context, realm, admin_token):
+    try:
+        logger = logging.getLogger(__name__)
+        config = PbenchServerConfig(context.config)
+        keycloak_admin = Admin(
+            server_url=config.get("keycloak", "server_url"),
+            realm_name="Master",
+            client_id="admin-cli",
+            logger=logger,
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        status = keycloak_admin.realm_all_sessions_logout(realm_name=realm)
+        click.echo(status)
         rv = 0
     except BadConfig as exc:
         rv = 2
