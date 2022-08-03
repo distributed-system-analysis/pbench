@@ -270,9 +270,7 @@ class TestServerConfig:
     def test_construct_duplicate(self):
         """Test server config parameter constructor"""
         ServerConfig.create(key="dataset-lifetime", value=1)
-        self.check_session(
-            committed=[FakeRow(id=1, key="dataset-lifetime", value="1")]
-        )
+        self.check_session(committed=[FakeRow(id=1, key="dataset-lifetime", value="1")])
         with pytest.raises(ServerConfigDuplicate) as e:
             self.session.raise_on_commit = IntegrityError(
                 statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
@@ -280,8 +278,7 @@ class TestServerConfig:
             ServerConfig.create(key="dataset-lifetime", value=2)
         assert str(e).find("dataset-lifetime") != -1
         self.check_session(
-            committed=[FakeRow(id=1, key="dataset-lifetime", value="1")],
-            rolledback=1
+            committed=[FakeRow(id=1, key="dataset-lifetime", value="1")], rolledback=1
         )
 
     def test_construct_null(self):
@@ -307,9 +304,7 @@ class TestServerConfig:
     def test_update(self):
         """Test that we can update an existing configuration setting"""
         config = ServerConfig.create(key="dataset-lifetime", value="2")
-        self.check_session(
-            committed=[FakeRow(id=1, key="dataset-lifetime", value="2")]
-        )
+        self.check_session(committed=[FakeRow(id=1, key="dataset-lifetime", value="2")])
         config.value = "5"
         config.update()
         self.check_session(committed=[FakeRow(id=1, key="dataset-lifetime", value="5")])
