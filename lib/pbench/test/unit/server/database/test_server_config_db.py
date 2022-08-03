@@ -123,7 +123,12 @@ class FakeSession:
 
     def __init__(self):
         """
-        Initialize the context of the session
+        Initialize the context of the session.
+
+        NOTE: 'raise_on_commit' can be set by a caller to cause an exception
+        during the next commit operation. The exception should generally be
+        a subclass of the SQLAlchemy IntegrityError. This is a "one shot" and
+        will be reset when the exception is raised.
         """
         self.id = 1
         self.added: List[ServerConfig] = []
@@ -166,7 +171,9 @@ class FakeSession:
         proxy objects have changed, and record any new "added" objects.
         """
         if self.raise_on_commit:
-            raise self.raise_on_commit
+            exc = self.raise_on_commit
+            self.raise_on_commit = None
+            raise exc
         for k in self.known:
             self.committed[k].value = self.known[k].value
         for a in self.added:
@@ -263,23 +270,26 @@ class TestServerConfig:
     def test_construct_duplicate(self):
         """Test server config parameter constructor"""
         ServerConfig.create(key="dataset-lifetime", value=1)
-        self.session.raise_on_commit = IntegrityError(
-            statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
+        self.check_session(
+            committed=[FakeRow(id=1, key="dataset-lifetime", value="1")]
         )
         with pytest.raises(ServerConfigDuplicate) as e:
+            self.session.raise_on_commit = IntegrityError(
+                statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
+            )
             ServerConfig.create(key="dataset-lifetime", value=2)
         assert str(e).find("dataset-lifetime") != -1
         self.check_session(
             committed=[FakeRow(id=1, key="dataset-lifetime", value="1")],
-            rolledback=1,
+            rolledback=1
         )
 
     def test_construct_null(self):
         """Test server config parameter constructor"""
-        self.session.raise_on_commit = IntegrityError(
-            statement="", params="", orig=FakeDBOrig("NOT NULL constraint")
-        )
         with pytest.raises(ServerConfigNullKey):
+            self.session.raise_on_commit = IntegrityError(
+                statement="", params="", orig=FakeDBOrig("NOT NULL constraint")
+            )
             ServerConfig.create(key="dataset-lifetime", value=2)
         self.check_session(
             rolledback=1,
@@ -297,6 +307,9 @@ class TestServerConfig:
     def test_update(self):
         """Test that we can update an existing configuration setting"""
         config = ServerConfig.create(key="dataset-lifetime", value="2")
+        self.check_session(
+            committed=[FakeRow(id=1, key="dataset-lifetime", value="2")]
+        )
         config.value = "5"
         config.update()
         self.check_session(committed=[FakeRow(id=1, key="dataset-lifetime", value="5")])

@@ -114,8 +114,8 @@ settings. The authenticated user must have `ADMIN` role.
 ## Response headers
 
 `content-type: application/json` \
-The response body is a serialized JSON object with information about the selected
-server configuration settings.
+The response body is a serialized JSON object with the selected server
+configuration settings.
 
 ## Response status
 
@@ -230,8 +230,8 @@ For example, the following are examples of valid banners:
 
 This server configuration setting allows a server administrator to control
 the operating state of the server remotely. As for
-[`server-banner`](#server-banner), the value is a JSON object and any JSON
-fields passed in to the server will be returned to a client, however the
+[`server-banner`](#server-banner), the value is a JSON object, and any JSON
+fields passed in to the server will be returned to a client. The
 following fields have special meaning:
 
 **`status`** \
