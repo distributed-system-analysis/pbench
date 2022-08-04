@@ -14,6 +14,9 @@
 #  push-rpmbuild-all:  pushes all the default RPM build containers to the registry
 #
 
+# Include definition of _DISTROS
+include ../utils/utils.mk
+
 # Default list of distributions for which to build containers in which to build RPMs
 RPMBUILD_BASEIMAGE_DEFAULTS = \
 	rhel-9 rhel-8 rhel-7 \
@@ -46,18 +49,6 @@ RPMBUILD_PACKAGES = git make python3-jinja2 python3-pip rpmlint rpm-build
 PKGMGR = dnf
 
 BRANCH := $(shell cat ./branch.name)
-
-# Compose lists of potential distro-version strings with versions 0-99
-# (e.g., `_ALL_centos_VERSIONS` including "centos-7", "centos-8", "centos-9",
-# `_ALL_fedora_VERSIONS` including "fedora-32", "fedora-33", and "fedora-34",
-# and `_DISTROS` concatenating the contents of all the lists) which will be
-# used to drive pattern matching on distro-based target rules.
-_DIGITS := 0 1 2 3 4 5 6 7 8 9
-_NUMBERS := $(patsubst 0%,%,$(foreach tens,${_DIGITS},$(foreach ones,${_DIGITS},${tens}${ones})))
-_ALL_DISTRO_NAMES := centos fedora rhel
-_ADV_TMPL = _ALL_${d}_VERSIONS := $(foreach v,${_NUMBERS},${d}-${v}) # template for setting version lists
-$(foreach d,${_ALL_DISTRO_NAMES},$(eval $(call _ADV_TMPL, ${d})))  # set _ALL_centos_VERSIONS, etc.
-_DISTROS := $(foreach d,${_ALL_DISTRO_NAMES},${_ALL_${d}_VERSIONS})
 
 # For any given target, extract the distribution name and version from the last
 # two fields, e.g., image-rpmbuild-rhel-7 would yield values "rhel" and "7" for
