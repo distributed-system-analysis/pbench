@@ -28,6 +28,9 @@
 #     all-dockerfiles:  build all default distro ".repo" and ".Dockerfile" files
 #
 
+# Include definition of _DISTROS
+include ../utils/utils.mk
+
 # By default we only build images for x86_64 architectures.
 _ARCH = x86_64
 
@@ -97,18 +100,6 @@ _WORKLOAD_RPMS = fio uperf
 
 # Not intended to be overridden with an environment variable.
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
-
-# Compose lists of potential distro-version strings with versions 0-99
-# (e.g., `_ALL_centos_VERSIONS` including "centos-7", "centos-8", "centos-9",
-# `_ALL_fedora_VERSIONS` including "fedora-32", "fedora-33", and "fedora-34",
-# and `_DISTROS` concatenating the contents of all the lists) which will be
-# used to drive pattern matching on distro-based target rules.
-_DIGITS := 0 1 2 3 4 5 6 7 8 9
-_NUMBERS := $(patsubst 0%,%,$(foreach tens,${_DIGITS},$(foreach ones,${_DIGITS},${tens}${ones})))
-_ALL_DISTRO_NAMES := centos fedora
-_ADV_TMPL = _ALL_${d}_VERSIONS := $(foreach v,${_NUMBERS},${d}-${v}) # template for setting version lists
-$(foreach d,${_ALL_DISTRO_NAMES},$(eval $(call _ADV_TMPL, ${d})))  # set _ALL_centos_VERSIONS, etc.
-_DISTROS := $(foreach d,${_ALL_DISTRO_NAMES},${_ALL_${d}_VERSIONS})
 
 # By default we only build images for the following distributions.
 _DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35
