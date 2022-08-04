@@ -443,11 +443,8 @@ class MockS3Connector(Connector):
         barray = Body.read()
         md5 = hashlib.md5(barray).hexdigest()
         if s3_contentMD5(md5) == ContentMD5:
-            test_controller = Key.split("/")[0]
             try:
-                os.mkdir(
-                    "{}/{}/{}".format(self.path, self.bucket_name, test_controller)
-                )
+                os.mkdir("{}/{}".format(self.path, self.bucket_name))
             except FileExistsError:
                 # directory already exists, ignore
                 pass
@@ -468,9 +465,8 @@ class MockS3Connector(Connector):
     ):
         if not self.path:
             return Status.FAIL
-        test_controller = Key.split("/")[0]
         try:
-            os.mkdir("{}/{}/{}".format(self.path, self.bucket_name, test_controller))
+            os.mkdir("{}/{}".format(self.path, self.bucket_name))
         except FileExistsError:
             # directory already exists, ignore
             pass

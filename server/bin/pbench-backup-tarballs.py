@@ -114,8 +114,6 @@ def sanity_check(lb_obj, s3_obj, config, logger):
 def backup_to_local(
     lb_obj,
     logger,
-    controller_path,
-    controller,
     tb,
     tar,
     resultname,
@@ -129,22 +127,19 @@ def backup_to_local(
         # for other errors where we still want to backup in S3.
         return Status.FAIL
 
-    backup_controller_path = Path(lb_obj.backup_dir, controller)
+    backup_path = Path(lb_obj.backup_dir)
 
-    # make sure the controller is present in local backup directory
-    backup_controller_path.mkdir(exist_ok=True)
-
-    if not backup_controller_path.exists():
+    if not backup_path.exists():
         logger.error(
             "os.mkdir: Unable to create backup destination directory: {}",
-            backup_controller_path,
+            backup_path,
         )
         return Status.FAIL
 
     # Check if tarball exists in local backup
-    backup_tar = backup_controller_path / resultname
+    backup_tar = backup_path / resultname
     if backup_tar.exists() and backup_tar.is_file():
-        backup_md5 = backup_controller_path / f"{resultname}.md5"
+        backup_md5 = backup_path / f"{resultname}.md5"
 
         # check that the md5 file exists and it is a regular file
         if backup_md5.exists() and backup_md5.is_file():
@@ -165,13 +160,12 @@ def backup_to_local(
         else:
             if archive_md5_hex_value == backup_md5_hex_value:
                 # declare success
-                logger.info("Already locally backed-up: {}/{}", controller, resultname)
+                logger.info("Already locally backed-up: {}", resultname)
                 return Status.SUCCESS
             else:
                 # md5 file of archive and backup does not match
                 logger.error(
-                    "{}/{} already exists in backup but md5 sums of archive and backup disagree",
-                    controller,
+                    "{} already exists in backup but md5 sums of archive and backup disagree",
                     resultname,
                 )
                 return Status.FAIL
@@ -180,14 +174,14 @@ def backup_to_local(
 
         # copy the md5 file from archive to backup
         try:
-            shutil.copy(archive_md5, backup_controller_path)
+            shutil.copy(archive_md5, backup_path)
         except Exception:
             # couldn't copy md5 file
             md5_done = False
             logger.exception(
                 "shutil.copy: Unable to copy {} from archive to backup: {}",
                 archive_md5,
-                backup_controller_path,
+                backup_path,
             )
         else:
             md5_done = True
@@ -195,18 +189,18 @@ def backup_to_local(
         # copy the tarball from archive to backup
         if md5_done:
             try:
-                shutil.copy(tar, backup_controller_path)
+                shutil.copy(tar, backup_path)
             except Exception:
                 # couldn't copy tarball
                 tar_done = False
                 logger.exception(
                     "shutil.copy: Unable to copy {} from archive to backup: {}",
                     tar,
-                    backup_controller_path,
+                    backup_path,
                 )
 
                 # remove the copied md5 file from backup
-                bmd5_file = backup_controller_path / f"{resultname}.md5"
+                bmd5_file = backup_path / f"{resultname}.md5"
                 if bmd5_file.exists():
                     try:
                         bmd5_file.remove(bmd5_file)
@@ -217,7 +211,7 @@ def backup_to_local(
 
         logger.debug("End local backup of {}.", tar)
         if md5_done and tar_done:
-            logger.info("Local backup of {}/{} successful", controller, resultname)
+            logger.info("Local backup of {} successful", resultname)
             return Status.SUCCESS
         else:
             return Status.FAIL
@@ -226,11 +220,9 @@ def backup_to_local(
 def backup_to_s3(
     s3_obj,
     logger,
-    controller_path,
-    controller,
     tb,
     tar,
-    resultname,
+    s3_resultname,
     archive_md5_hex_value,
 ):
     if s3_obj is None:
@@ -240,7 +232,6 @@ def backup_to_s3(
         return Status.FAIL
 
     logger.debug("Start S3 backup of {}.", tar)
-    s3_resultname = os.path.join(controller, resultname)
 
     # Check if the result already present in s3 or not
     try:
@@ -282,14 +273,13 @@ def backup_to_s3(
             Key=s3_resultname,
         )
     logger.debug("End S3 backup of {}.", tar)
-
     return sts
 
 
 def backup_data(lb_obj, s3_obj, config, logger):
     qdir = config.QDIR
 
-    tarlist = glob.iglob(os.path.join(config.ARCHIVE, "*", _linksrc, "*.tar.xz"))
+    tarlist = glob.iglob(os.path.join(config.ARCHIVE, _linksrc, "*.tar.xz"))
     ntotal = nbackup_success = nbackup_fail = ns3_success = ns3_fail = nquaran = 0
 
     for tb in sorted(tarlist):
@@ -363,12 +353,11 @@ def backup_data(lb_obj, s3_obj, config, logger):
             continue
 
         resultname = tar.name
-        controller_path = tar.parent
-        controller = controller_path.name
+        resultname_path = tar.parent
         try:
             dataset = Dataset.attach(resource_id=get_tarball_md5(tar))
         except DatasetError as e:
-            logger.warning("Trouble tracking {}:{}: {}", controller, resultname, str(e))
+            logger.warning("Trouble tracking {}: {}", resultname, str(e))
             dataset = None
 
         # This will handle all the local backup related
@@ -376,8 +365,6 @@ def backup_data(lb_obj, s3_obj, config, logger):
         local_backup_result = backup_to_local(
             lb_obj,
             logger,
-            controller_path,
-            controller,
             tb,
             tar,
             resultname,
@@ -399,8 +386,6 @@ def backup_data(lb_obj, s3_obj, config, logger):
         s3_backup_result = backup_to_s3(
             s3_obj,
             logger,
-            controller_path,
-            controller,
             tb,
             tar,
             resultname,
@@ -420,7 +405,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             s3_obj is None or s3_backup_result == Status.SUCCESS
         ):
             # Move tar ball symlink to its final resting place
-            rename_tb_link(tb, Path(controller_path, _linkdest), logger)
+            rename_tb_link(tb, Path(resultname_path, _linkdest), logger)
         else:
             # Do nothing when the backup fails, allowing us to retry on a
             # future pass.
