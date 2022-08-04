@@ -59,7 +59,7 @@ class DatasetsInventory(ApiBase):
 
         file_tree = FileTree(self.config, self.logger)
         try:
-            tarball = file_tree.find_dataset(dataset.name)
+            tarball = file_tree.find_dataset(dataset.resource_id)
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
         dataset_location = tarball.unpacked
