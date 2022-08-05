@@ -122,7 +122,7 @@ class TestInternalMetadata:
             "created": "2020-02-15T00:00:00+00:00",
             "name": "drb",
             "owner": "drb",
-            "state": "Uploading",
+            "state": "Indexed",
             "transition": "1970-01-01T00:42:00+00:00",
             "uploaded": "2022-01-01T00:00:00+00:00",
             "metalog": {
@@ -139,7 +139,7 @@ class TestInternalMetadata:
     def test_dataset_keys(self, provide_metadata):
         ds = Dataset.query(name="drb")
         metadata = Metadata.getvalue(ds, "dataset.state")
-        assert metadata == "Uploading"
+        assert metadata == "Indexed"
         metadata = Metadata.getvalue(ds, "dataset.transition")
         assert metadata == "1970-01-01T00:42:00+00:00"
         metadata = Metadata.getvalue(ds, "dataset.metalog.run")

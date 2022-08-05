@@ -161,7 +161,7 @@ class TestDatasetsMetadata:
                 "created": "2020-02-15T00:00:00+00:00",
                 "name": "drb",
                 "owner": "drb",
-                "state": "Uploading",
+                "state": "Indexed",
                 "transition": "1970-01-01T00:42:00+00:00",
                 "uploaded": "2022-01-01T00:00:00+00:00",
                 "metalog": {

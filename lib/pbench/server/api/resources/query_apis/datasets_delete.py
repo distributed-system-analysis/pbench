@@ -13,7 +13,7 @@ from pbench.server.api.resources import (
     ParamType,
 )
 from pbench.server.api.resources.query_apis import ElasticBulkBase
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.filetree import FileTree
 
 
@@ -56,6 +56,7 @@ class DatasetsDelete(ElasticBulkBase):
         Returns:
             A generator for Elasticsearch bulk delete actions
         """
+        dataset.advance(States.DELETING)
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
 
         self.logger.info("Starting delete operation for dataset {}", dataset)

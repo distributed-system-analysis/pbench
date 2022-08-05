@@ -314,12 +314,10 @@ class States(enum.Enum):
 
     UPLOADING = ("Uploading", True)
     UPLOADED = ("Uploaded", False)
-    UNPACKING = ("Unpacking", True)
-    UNPACKED = ("Unpacked", False)
     INDEXING = ("Indexing", True)
     INDEXED = ("Indexed", False)
-    EXPIRING = ("Expiring", True)
-    EXPIRED = ("Expired", False)
+    DELETING = ("Deleting", True)
+    DELETED = ("Deleted", False)
     QUARANTINED = ("Quarantined", False)
 
     def __init__(self, friendly: str, mutating: bool):
@@ -411,13 +409,11 @@ class Dataset(Database.Base):
 
     transitions = {
         States.UPLOADING: [States.UPLOADED, States.QUARANTINED],
-        States.UPLOADED: [States.UNPACKING, States.QUARANTINED],
-        States.UNPACKING: [States.UNPACKED, States.QUARANTINED],
-        States.UNPACKED: [States.INDEXING, States.QUARANTINED],
+        States.UPLOADED: [States.INDEXING, States.QUARANTINED],
         States.INDEXING: [States.INDEXED, States.QUARANTINED],
-        States.INDEXED: [States.INDEXING, States.EXPIRING, States.QUARANTINED],
-        States.EXPIRING: [States.EXPIRED, States.INDEXED, States.QUARANTINED],
-        # NOTE: EXPIRED and QUARANTINED do not appear as keys in the table
+        States.INDEXED: [States.INDEXING, States.DELETING, States.QUARANTINED],
+        States.DELETING: [States.DELETED, States.INDEXED, States.QUARANTINED],
+        # NOTE: DELETED and QUARANTINED do not appear as keys in the table
         # because they're terminal states that cannot be exited.
     }
 
