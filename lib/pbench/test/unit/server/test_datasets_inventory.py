@@ -41,6 +41,10 @@ class TestDatasetsAccess:
         return query_api
 
     def mock_find_dataset(self, dataset):
+        ds = Dataset.query(resource_id=dataset)
+        if ds is None:
+            raise DatasetNotFound(resource_id=ds)
+
         class Tarball(object):
             unpacked = Path("/dataset1/")
 
@@ -66,6 +70,10 @@ class TestDatasetsAccess:
 
     def test_dataset_is_not_unpacked(self, query_get_as, monkeypatch):
         def mock_find_not_unpacked(self, dataset):
+            ds = Dataset.query(resource_id=dataset)
+            if ds is None:
+                raise DatasetNotFound(resource_id=ds)
+
             class Tarball(object):
                 unpacked = None
 
