@@ -19,7 +19,7 @@ from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 from pbench.test import on_disk_config
@@ -314,6 +314,7 @@ def attach_dataset(create_drb_user, create_user):
             owner="drb",
             created=datetime.datetime(2020, 2, 15),
             uploaded=datetime.datetime(2022, 1, 1),
+            state=States.INDEXED,
             name="drb",
             access="private",
             resource_id="random_md5_string1",
@@ -321,6 +322,7 @@ def attach_dataset(create_drb_user, create_user):
         Dataset(
             owner="test",
             created=datetime.datetime(2002, 5, 16),
+            state=States.INDEXED,
             name="test",
             access="private",
             resource_id="random_md5_string2",
@@ -355,6 +357,7 @@ def more_datasets(
             owner="drb",
             created=datetime.datetime(2020, 2, 15),
             uploaded=datetime.datetime(2022, 1, 1),
+            state=States.INDEXED,
             name="fio_1",
             access="public",
             resource_id="random_md5_string3",
@@ -362,6 +365,7 @@ def more_datasets(
         Dataset(
             owner="test",
             created=datetime.datetime(2002, 5, 16),
+            state=States.INDEXED,
             name="fio_2",
             access="public",
             resource_id="random_md5_string4",

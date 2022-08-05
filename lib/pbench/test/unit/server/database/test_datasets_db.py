@@ -16,7 +16,7 @@ from pbench.server.database.models.users import User
 class TestDatasets:
     def test_state_enum(self):
         """Test the States ENUM properties"""
-        assert len(States.__members__) == 9
+        assert len(States.__members__) == 7
         for n, s in States.__members__.items():
             assert str(s) == s.friendly
             assert s.mutating == (
@@ -76,7 +76,7 @@ class TestDatasets:
             "created": "2020-02-15T00:00:00+00:00",
             "name": "drb",
             "owner": "drb",
-            "state": "Uploading",
+            "state": "Indexed",
             "transition": "1970-01-01T00:42:00+00:00",
             "uploaded": "2022-01-01T00:00:00+00:00",
             "metalog": {
@@ -182,7 +182,7 @@ class TestDatasets:
         ds = Dataset(owner=create_user.username, name="fio", resource_id="debead")
         ds.add()
         with pytest.raises(DatasetBadStateTransition):
-            ds.advance(States.EXPIRED)
+            ds.advance(States.DELETED)
 
     def test_advanced_terminal(self, db_session, create_user):
         """Test that we can't advance from a terminal state"""
@@ -190,7 +190,7 @@ class TestDatasets:
             owner=create_user.username,
             name="fio",
             resource_id="beadde",
-            state=States.EXPIRED,
+            state=States.DELETED,
         )
         ds.add()
         with pytest.raises(DatasetTerminalStateViolation):
@@ -216,10 +216,7 @@ class TestDatasets:
             ds.advance(next)
             assert ds.state == next
         lifecycle = ",".join([s.name for s in beenthere])
-        assert (
-            lifecycle
-            == "UPLOADING,UPLOADED,UNPACKING,UNPACKED,INDEXING,INDEXED,EXPIRING,EXPIRED"
-        )
+        assert lifecycle == "UPLOADING,UPLOADED,INDEXING,INDEXED,DELETING,DELETED"
 
     def test_delete(self, db_session, create_user):
         """Test that we can delete a dataset"""
