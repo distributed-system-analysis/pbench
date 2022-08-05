@@ -259,7 +259,7 @@ install-lib:
 # directory is on the PYTHONPATH (which it is not...), so put it on the path,
 # just for the installation, based on our prefix and the version of Python.
 # For some reason, this only seems to be a problem on RHEL platforms prior to 9.
-pver = $(shell /usr/bin/python3 --version | sed -En -e 's/^Python (3\.[^.]+).*$$/python\1/p')
+pver = $(shell /usr/bin/python3 -c 'import sys; print(f"python{sys.version_info.major}.{sys.version_info.minor}")')
 install-python3-setup: install-util-scripts install-lib
 	${COPY} requirements.txt ${DESTDIR}
 	mkdir -p ${DESTDIR}/python3

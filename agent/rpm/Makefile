@@ -40,9 +40,9 @@ all: srpm
 # happening here:  first, the dependencies can be built in parallel if the
 # invocation permits it, e.g., 'make -j 4 -O ci'; second, rpm.mk, when it is
 # invoked, determines which distro to build for based on the pattern of the
-# specified target, so having multiple targets in the same invocation for
-# different distributions won't work, so we need to invoke it separately for
-# each one, which this does.
+# specified target, so we need to invoke it separately for each one, because
+# having multiple targets in the same invocation for different distributions
+# won't work.
 ci: ${ALL_RPMS} ;
 
 # This is a catch-all rule which forwards any target that we don't handle in

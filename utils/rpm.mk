@@ -121,7 +121,7 @@ ${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(version)-$(seqno)$(sha1).src.rpm
 # Determine the present working directory relative to ${PBENCHTOP} so that we
 # can find it inside the container, where the source tree might be in a
 # different location.
-pwdr = $(subst ${PBENCHTOP},,$(PWD))
+pwdr = $(subst ${PBENCHTOP},,${CURDIR})
 
 # NOTE:  we mount ${BLD_DIR}, which ends with 'rpmbuild<distro>-<version>',
 # inside the container as ${HOME}/rpmbuild (with no suffix), which is where
