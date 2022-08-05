@@ -44,6 +44,8 @@ class TestDatasetsAccess:
         class Tarball(object):
             unpacked = Path("/dataset1/")
 
+        # Validate the resource_id
+        Dataset.query(resource_id=dataset)
         return Tarball
 
     def test_get_no_dataset(self, query_get_as):
@@ -55,7 +57,7 @@ class TestDatasetsAccess:
     def test_dataset_not_present(self, query_get_as):
         response = query_get_as("fio_2", "metadata.log", HTTPStatus.NOT_FOUND)
         assert response.json == {
-            "message": "The dataset tarball named 'fio_2' is not present in the file tree"
+            "message": "The dataset tarball named 'random_md5_string4' is not present in the file tree"
         }
 
     def test_unauthorized_access(self, query_get_as):
@@ -69,6 +71,8 @@ class TestDatasetsAccess:
             class Tarball(object):
                 unpacked = None
 
+            # Validate the resource_id
+            Dataset.query(resource_id=dataset)
             return Tarball
 
         monkeypatch.setattr(FileTree, "find_dataset", mock_find_not_unpacked)
