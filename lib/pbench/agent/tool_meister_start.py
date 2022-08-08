@@ -1358,8 +1358,9 @@ def main():
         dest="redis_server",
         default=os.environ.get("PBENCH_REDIS_SERVER", None),
         help=(
-            "Specifies the IP/port to use for the Redis server - if not"
-            " present, the defaults are used, ${_pbench_full_hostname}:"
+            "Specifies the IP/port to use for the Redis server - if not present"
+            " (and if not supplied via the PBENCH_REDIS_SERVER environment"
+            " variable), the defaults are used, ${_pbench_full_hostname}:"
             f"{def_redis_port};"
             " the specified value can take either of two forms:"
             " `<bind host>:<port>;<host>:<port>`, a semi-colon separated"
@@ -1367,6 +1368,9 @@ def main():
             " itself, and how clients will connect; `<host>:<port>`, the"
             " IP/port combination is used both for binding and connecting"
             " (NOTE: binding is not used with --orchestrate=existing);"
+            " NOTE: if this option is specified, it is assumed the caller"
+            " has created and provisioned the specified Redis server, and"
+            " the Tool Data Sink and Tool Meisters as well."
         ),
     )
     parser.add_argument(

@@ -92,7 +92,7 @@ function usage {
 	printf "\t\tone or more block sizes in KiB\n"
 	printf "\n"
 	printf -- "\t-s int[,int...] --file-size=int[,int...] (no default)\n"
-	printf "\t\tfile sizes in MiB\n"
+	printf "\t\tfile sizes in bytes\n"
 	printf "\n"
 	printf -- "\t-d str[,str...] --targets=str[,str...]\n"
 	printf "\t\tone or more files, block devices, or directories (default is $targets);\n"
