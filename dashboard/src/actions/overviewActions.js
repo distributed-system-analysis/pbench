@@ -1,15 +1,17 @@
 import * as TYPES from "./types";
 
+import {
+  DASHBOARD_SAVED,
+  DASHBOARD_SEEN,
+  DATASET_ACCESS,
+  DATASET_CREATED,
+  DATASET_OWNER,
+  SERVER_DELETION,
+  USER_FAVORITE,
+} from "assets/constants/overviewConstants";
+
 import API from "../utils/axiosInstance";
 import { constructToast } from "./toastActions";
-
-const DATASET_ACCESS = "dataset.access";
-const DATASET_CREATED = "dataset.created";
-const DATASET_OWNER = "dataset.owner";
-const DASHBOARD_SAVED = "global.dashboard.saved";
-const DASHBOARD_SEEN = "global.dashboard.seen";
-const SERVER_DELETION = "server.deletion";
-const USER_FAVORITE = "user.dashboard.favorite";
 
 export const getDatasets = () => async (dispatch, getState) => {
   try {
@@ -55,12 +57,8 @@ const initializeRuns = () => (dispatch, getState) => {
   const data = getState().overview.datasets;
   const defaultPerPage = getState().overview.defaultPerPage;
 
-  const savedRuns = data.filter(
-    (item) => item.metadata["global.dashboard.saved"]
-  );
-  const newRuns = data.filter(
-    (item) => !item.metadata["global.dashboard.saved"]
-  );
+  const savedRuns = data.filter((item) => item.metadata[DASHBOARD_SAVED]);
+  const newRuns = data.filter((item) => !item.metadata[DASHBOARD_SAVED]);
   dispatch({
     type: TYPES.SAVED_RUNS,
     payload: savedRuns,
@@ -208,7 +206,7 @@ export const publishDataset =
         const dataIndex = savedRuns.findIndex(
           (item) => item.resource_id === dataset.resource_id
         );
-        savedRuns[dataIndex].metadata["dataset.access"] = updateValue;
+        savedRuns[dataIndex].metadata[DATASET_ACCESS] = updateValue;
 
         dispatch({
           type: TYPES.SAVED_RUNS,

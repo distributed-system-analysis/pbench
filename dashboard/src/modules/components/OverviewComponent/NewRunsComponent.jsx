@@ -13,8 +13,12 @@ import {
   Tr,
 } from "@patternfly/react-table";
 import {
+  DASHBOARD_SEEN,
+  DATASET_OWNER,
   ROWS_PER_PAGE,
+  SERVER_DELETION,
   START_PAGE_NUMBER,
+  USER_FAVORITE,
 } from "assets/constants/overviewConstants";
 import React, { useState } from "react";
 import {
@@ -85,25 +89,19 @@ const NewRunsComponent = () => {
       onClick: () => dispatch(updateDataset(dataset, "save", true)),
     },
     {
-      title: dataset.metadata["global.dashboard.seen"]
-        ? "Mark unread"
-        : "Mark read",
+      title: dataset.metadata[DASHBOARD_SEEN] ? "Mark unread" : "Mark read",
       onClick: () =>
         dispatch(
-          updateDataset(
-            dataset,
-            "read",
-            !dataset.metadata["global.dashboard.seen"]
-          )
+          updateDataset(dataset, "read", !dataset.metadata[DASHBOARD_SEEN])
         ),
     },
     {
-      title: dataset.metadata["user.favorite"]
+      title: dataset.metadata[USER_FAVORITE]
         ? "Mark unfavorite"
         : "Mark favorite",
       onClick: () =>
         dispatch(
-          updateDataset(dataset, "favorite", !dataset.metadata["user.favorite"])
+          updateDataset(dataset, "favorite", !dataset.metadata[USER_FAVORITE])
         ),
     },
     {
@@ -147,8 +145,8 @@ const NewRunsComponent = () => {
 
             {initNewRuns.map((item, rowIndex) => {
               const rowActions = moreActionItems(item);
-              const isItemFavorited = !!item?.metadata?.["user.favorite"];
-              const isItemSeen = !!item?.metadata?.["global.dashboard.seen"];
+              const isItemFavorited = !!item?.metadata?.[USER_FAVORITE];
+              const isItemSeen = !!item?.metadata?.[DASHBOARD_SEEN];
               return (
                 <Tbody key={rowIndex}>
                   <Tr
@@ -177,7 +175,7 @@ const NewRunsComponent = () => {
                     />
                     <Td dataLabel={columnNames.result}>{item.name}</Td>
                     <Td dataLabel={columnNames.endtime}>
-                      {formatDateTime(item.metadata["server.deletion"])}
+                      {formatDateTime(item.metadata[SERVER_DELETION])}
                     </Td>
                     <Td
                       favorites={{
@@ -192,7 +190,7 @@ const NewRunsComponent = () => {
                         <ActionsColumn
                           items={rowActions}
                           isDisabled={
-                            item?.metadata["dataset.owner"] !==
+                            item?.metadata[DATASET_OWNER] !==
                             loginDetails?.username
                           }
                         />
@@ -205,7 +203,7 @@ const NewRunsComponent = () => {
                       <Td />
                       <Td>
                         <ExpandableRowContent>
-                          <div>Owner: {item.metadata["dataset.owner"]}</div>
+                          <div>Owner: {item.metadata[DATASET_OWNER]}</div>
                         </ExpandableRowContent>
                       </Td>
                     </Tr>

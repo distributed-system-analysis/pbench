@@ -11,7 +11,14 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { findNoOfDays, formatDateTime } from "utils/dateFunctions";
+import {
+  DASHBOARD_SEEN,
+  DATASET_ACCESS,
+  DATASET_CREATED,
+  DATASET_OWNER,
+  SERVER_DELETION,
+  USER_FAVORITE,
+} from "assets/constants/overviewConstants";
 import {
   publishDataset,
   setSelectedRuns,
@@ -19,8 +26,8 @@ import {
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import { ProgressBar } from "./common-component";
 import React from "react";
+import { formatDateTime } from "utils/dateFunctions";
 
 const SavedRunsComponent = () => {
   const dispatch = useDispatch();
@@ -31,9 +38,9 @@ const SavedRunsComponent = () => {
   const areAllRunsSelected =
     savedRuns?.length > 0 && savedRuns?.length === selectedRuns?.length;
   const selectAllRuns = (isSelecting) => {
-    dispatch(setSelectedRuns(isSelecting ? savedRuns.map((r) => r) : []));
+    dispatch(setSelectedRuns(isSelecting ? [...savedRuns] : []));
   };
-  const onSelectRuns = (run, __rowIndex, isSelecting) => {
+  const onSelectRuns = (run, _rowIndex, isSelecting) => {
     const otherSelectedRuns = selectedRuns.filter(
       (r) => r.resource_id !== run.resource_id
     );
@@ -48,28 +55,18 @@ const SavedRunsComponent = () => {
   const moreActionItems = (dataset) => [
     {
       title:
-        dataset.metadata["dataset.access"] === "public"
-          ? "Publish"
-          : "Unpublish",
+        dataset.metadata[DATASET_ACCESS] === "public" ? "Publish" : "Unpublish",
       onClick: () => {
         const accessType =
-          dataset.metadata["dataset.access"] === "public"
-            ? "private"
-            : "public";
+          dataset.metadata[DATASET_ACCESS] === "public" ? "private" : "public";
         dispatch(publishDataset(dataset, accessType));
       },
     },
     {
-      title: dataset.metadata["global.dashboard.seen"]
-        ? "Mark unread"
-        : "Mark read",
+      title: dataset.metadata[DASHBOARD_SEEN] ? "Mark unread" : "Mark read",
       onClick: () =>
         dispatch(
-          updateDataset(
-            dataset,
-            "read",
-            !dataset.metadata["global.dashboard.seen"]
-          )
+          updateDataset(dataset, "read", !dataset.metadata[DASHBOARD_SEEN])
         ),
     },
     {
@@ -81,10 +78,7 @@ const SavedRunsComponent = () => {
   const makeFavorites = (dataset, isFavoriting = true) => {
     dispatch(updateDataset(dataset, "favorite", isFavoriting));
   };
-  const calculatePercent = (dateStr) => {
-    const daysLeft = findNoOfDays(dateStr);
-    return Math.abs(daysLeft / 1000) * 100;
-  };
+
   const columnNames = {
     result: "Result",
     createdtime: "Created Time",
@@ -115,8 +109,8 @@ const SavedRunsComponent = () => {
             </Thead>
             {savedRuns.map((item, rowIndex) => {
               const rowActions = moreActionItems(item);
-              const isItemFavorited = !!item?.metadata?.["user.favorite"];
-              const isItemSeen = !!item?.metadata?.["dashboard.seen"];
+              const isItemFavorited = !!item?.metadata?.[USER_FAVORITE];
+              const isItemSeen = !!item?.metadata?.[DASHBOARD_SEEN];
               return (
                 <Tbody key={rowIndex}>
                   <Tr
@@ -138,21 +132,12 @@ const SavedRunsComponent = () => {
                       {item.name}
                     </Td>
                     <Td dataLabel={columnNames.endtime}>
-                      {formatDateTime(item.metadata["dataset.created"])}
+                      {formatDateTime(item.metadata[DATASET_CREATED])}
                     </Td>
                     <Td dataLabel={columnNames.scheduled}>
-                      {formatDateTime(item.metadata["server.deletion"])}
-                      <ProgressBar
-                        percent={calculatePercent(
-                          item.metadata["server.deletion"]
-                        )}
-                        deletionTime={item.metadata["server.deletion"]}
-                        title={"Title"}
-                      />
+                      {formatDateTime(item.metadata[SERVER_DELETION])}
                     </Td>
-                    <Td className="access">
-                      {item.metadata["dataset.access"]}
-                    </Td>
+                    <Td className="access">{item.metadata[DATASET_ACCESS]}</Td>
                     <Td
                       favorites={{
                         isFavorited: isItemFavorited,
@@ -166,7 +151,7 @@ const SavedRunsComponent = () => {
                         <ActionsColumn
                           items={rowActions}
                           isDisabled={
-                            item?.metadata["dataset.owner"] !==
+                            item?.metadata[DATASET_OWNER] !==
                             loginDetails?.username
                           }
                         />

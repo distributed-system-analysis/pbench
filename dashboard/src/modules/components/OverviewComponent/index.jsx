@@ -73,7 +73,7 @@ const OverviewComponent = () => {
                 isExpanded={expanded.includes("newRuns")}
                 id="newRuns"
               >
-                New and Unmnaged
+                New and Unmanaged
               </AccordionToggle>
               <AccordionContent isHidden={!expanded.includes("newRuns")}>
                 <NewRunsHeading />
