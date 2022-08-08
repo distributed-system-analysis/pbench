@@ -1,70 +1,90 @@
-# Getting Started with Create React App
+# Pbench Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Pbench Dashboard is a web-based platform for consuming indexed performance benchmark data. The platform provides a consolidated view of benchmark data within tables, charts, and other powerful visualizations. Users are able to quickly navigate through benchmark data and tune analytics through comparison tools for in-depth analysis.
 
-## Available Scripts
+## Dashboard directory structure
 
-In the project directory, you can run:
+### [public](public/)
 
-### `npm start`
+Contains the root application `index.html` and React template artifacts.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### [server](server/)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The source for an NPM express server that's used in local developer mode to reflect
+the server `/api/v1/endpoints` API call to a remote server. This enables local
+debugging against a real Pbench Server.
 
-### `npm test`
+### [src](src/)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The Pbench Dashboard Javascript source plus additional CSS/LESS and artifacts.
 
-### `npm run build`
+### [src/assets](src/assets/)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Assets placed in the `src/assets/images` directory are only referenced within component or layout definitions and are packaged in the generated `***.js` file during the build process.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### [src/modules](src/modules/)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+`modules` directory has all containers(patent layouts) and components(react components). 
 
-### `npm run eject`
+### [src/utils](src/utils/)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+`utils` directory has all helper/utility scripts.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Setup
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. Install NodeJS - [offical setup guide](https://nodejs.org/en/download/package-manager/)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. Clone the [Pbench repo](https://github.com/distributed-system-analysis/pbench)
 
-## Learn More
+3. Install all the npm packages.
+Navigate to `dashboard` directory and run following command 
+	```bash
+	$ npm install
+	```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+	> NOTE:
+Create `.env` file in the root directory(`/dashboard/`) and declare the environment variable `PBENCH_SERVER`.
+This `PBENCH_SERVER` environment variable is the base URL for all API calls and it should point to a real pbench server.
+```bash
+PBENCH_SERVER=<pbench server url>
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+4. In order to start the developement express server and run the application use the following command 
+	```bash
+	$ npm run dev
+	```
+	> Note: The application runs on http://localhost:3000.
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Build
 
-### Analyzing the Bundle Size
+To build the application run the following command
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+$ npm run build
+```
+This will generate the `build` folder in the root directory, which contains packaged files such as `***.js`, `***.css`, and `index.html`.
 
-### Making a Progressive Web App
+Then, copy the `build` folder to the proper place on the server for deployment.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Local and Production builds
 
-### Advanced Configuration
+Both the production and development builds of the dashboard require API endpoint configurations in order to query data from specific datastores.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+In the production environment, the dashboard code is loaded directly from the Pbench Server and is able to get the endpoint definitions implicitly from that host. 
 
-### Deployment
+When running locally, the express passthrough server uses the environment variable to get the endpoints from a remote server.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Storage
+Pbench Dashboard stores data using local browser storage and cookies.
 
-### `npm run build` fails to minify
+## Template
+This application is based on v4 of PatternFly which is a production-ready UI solution for admin interfaces. For more information regarding the foundation and template of the application, please visit [PatternFly](https://www.patternfly.org/v4/get-started/design)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Resources
+
+- [create-react-app](https://github.com/facebook/create-react-app)   
+
+- [ReactJS](https://reactjs.org/) 
+
+- [React-Redux](https://github.com/reduxjs/react-redux)
