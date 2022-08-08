@@ -33,4 +33,6 @@ isort --check .
 tox                                     # Agent and Server unit tests and legacy tests
 ( cd dashboard && CI=true npm test )    # Dashboard unit tests
 
-exit 0
+# Build RPMS for the Server and Agent
+make -C server/rpm ci
+make -C agent/rpm ci

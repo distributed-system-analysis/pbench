@@ -128,7 +128,7 @@ pwdr = $(subst ${PBENCHTOP},,${CURDIR})
 # inside the container as ${HOME}/rpmbuild (with no suffix), which is where
 # the build will put the RPM when invoked without a distro target.
 .PHONY: %-rpm
-%-rpm: spec srpm
+%-rpm: rpm-dirs
 	cd ${PBENCHTOP} && \
 	  IMAGE=${BUILD_CONTAINER} \
 	    EXTRA_PODMAN_SWITCHES="-v ${BLD_DIR}:$${HOME}/rpmbuild:z" \

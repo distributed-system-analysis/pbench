@@ -53,15 +53,36 @@ fi
 
 _image=${IMAGE:-${_image_repo}/pbench-${_image_role}-${_image_kind}:${_branch_name}}
 
-podman run \
+if [ -n "${CONTAINER_HOST}" ]; then
+    # Since CONTAINER_HOST is defined, when we want to run another container, do
+    # it with `podman-remote` (which will run it where CONTAINER_HOST points).
+    # This works nicely, e.g., if we are already inside a properly configured
+    # container.
+    PODMAN="podman-remote"
+else
+    # Since CONTAINER_HOST is not defined, don't invoke the container remotely.
+    # However, we might want to run a container "remotely" on this host;
+    # therefore, enable the service which makes it available to receive
+    # `podman-remote` invocations.  This creates a listener on
+    # /run/user/$(id -u)/podman/podman.sock, which will be mapped into the
+    # container in the invocation below so that we can create peer-containers
+    # on this host from inside the container.
+    PODMAN="podman"
+    systemctl --user enable --quiet --now podman.socket
+fi
+
+${PODMAN} run \
     --userns=keep-id \
+    --security-opt label=disable \
     --volume ${HOME_DIR} \
     --volume ${HOME_DIR}/.config \
-    --volume $(pwd):${HOME_DIR}/pbench:z \
+    --volume $(pwd):${HOME_DIR}/pbench \
+    --volume /run/user/${UID}/podman/podman.sock:/run/user/${UID}/podman/podman.sock \
     ${GIT_BASE_VOLUME} \
     -w ${HOME_DIR}/pbench \
     --env HOME=${HOME_DIR} \
     --env USER=${USER_NAME} \
+    --env CONTAINER_HOST=unix://run/user/${UID}/podman/podman.sock \
     --ulimit nofile=65536:65536 \
     --rm \
     ${EXTRA_PODMAN_SWITCHES} \

@@ -30,7 +30,8 @@
 FROM quay.io/fedora/fedora:34
 
 RUN \
-    dnf install -y \
+    dnf -y update && \
+    dnf install -y --exclude container-selinux \
         `#` \
         `# Required for agent python unit tests` \
         `#` \
@@ -72,6 +73,10 @@ RUN \
         `#` \
         npm \
         tox \
+        `#` \
+        `# Required for creating peer-containers on the host` \
+        `#` \
+        podman-remote \
         && \
     `#` \
     `# Save space in the container image.` \

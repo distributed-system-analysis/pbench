@@ -41,8 +41,11 @@ RPMBUILD_BASEIMAGE_centos = quay.io/centos/centos:stream${VER}
 RPMBUILD_BASEIMAGE_REPO = $(subst ${VER},${DIST_VERSION},${RPMBUILD_BASEIMAGE_${DIST_NAME}})
 
 # List of packages required to build RPMs, to be installed in the build
-# containers.  (The jinja2 CLI is not available as an RPM on RHEL, so we
-# install it via pip for all platforms, to keep things simple.)
+# containers.
+#
+# TODO:  The Jinja2 CLI is not currently available as an RPM on RHEL, so we
+#        install it via pip for all platforms, to keep things simple; we should
+#        reevaluate this (and the other) dependencies in the future.
 RPMBUILD_PACKAGES = git make python3-jinja2 python3-pip rpmlint rpm-build
 
 # Default package manager tool (may be overridden for some distros)
