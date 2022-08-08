@@ -28,14 +28,9 @@ import { useDispatch, useSelector } from "react-redux";
 
 import DatePickerWidget from "../DatePickerComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
-<<<<<<< HEAD
-import { LoginHint, Heading, EmptyTable, SearchBox } from "./common-components";
-import { getTodayMidnightUTCDate, bumpToDate } from "utils/dateFunctions";
-import { useNavigate } from "react-router";
 import { TOC } from "assets/constants/navigationConstants";
-=======
 import TablePagination from "../PaginationComponent";
->>>>>>> fdeae1fb3 (review comments)
+import { useNavigate } from "react-router";
 
 let startDate = new Date(Date.UTC(1990, 10, 4));
 let endDate = bumpToDate(getTodayMidnightUTCDate(), 1);

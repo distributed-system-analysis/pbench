@@ -40,8 +40,10 @@ export const getTodayMidnightUTCDate = () => {
 
 export const formatDateTime = (dateTimeStamp) => {
   const dateObj = new Date(dateTimeStamp);
-  dateObj.setSeconds(0, 0);
-  return dateObj.toLocaleString();
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(dateObj);
 };
 /**
  * Find number of days between given date and today's date*
@@ -52,6 +54,6 @@ export const formatDateTime = (dateTimeStamp) => {
 export const findNoOfDays = (dateString) => {
   const deletionDate = new Date(dateString);
   const today = new Date();
-  const diffTime = Math.abs(deletionDate - today);
+  const diffTime = deletionDate - today;
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
