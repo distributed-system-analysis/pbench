@@ -1,32 +1,21 @@
-import pytest
 import logging
+
 import jwt
-from pbench.server.auth import KeycloakOpenID
-from pbench.server.auth.keycloak_admin import Admin
+import pytest
+
+from pbench.server.auth import OpenIDClient
 
 
 @pytest.fixture
 def keycloak_oidc(server_config):
     logger = logging.getLogger(__name__)
-    oidc = KeycloakOpenID(
+    oidc = OpenIDClient(
         server_url=server_config.get("keycloak", "server_url"),
         realm_name="public_test_realm",
         client_id="test_client",
         logger=logger,
     )
     return oidc
-
-
-@pytest.fixture
-def keycloak_admin(server_config):
-    logger = logging.getLogger(__name__)
-    return Admin(
-        server_url=server_config.get("keycloak", "server_url"),
-        realm_name="master",
-        client_id="admin-cli",
-        logger=logger,
-        user_realm="public_test_realm",
-    )
 
 
 @pytest.fixture

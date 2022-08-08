@@ -1,27 +1,21 @@
+import logging
 from http import HTTPStatus
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Optional, Union
 from urllib.parse import urljoin
 
-import logging
 import jwt
 import requests
+from flask_restful import abort
+from jwt import PyJWKClient
 from requests.structures import CaseInsensitiveDict
 
 from pbench.server import JSON
-from pbench.server.auth.auth_provider_urls import (
-    URL_INTROSPECT,
-    URL_LOGOUT,
-    URL_REALM,
-    URL_TOKEN,
-    URL_USERINFO,
-    URL_WELL_KNOWN,
-)
-from pbench.server.auth.exceptions import KeycloakConnectionError
+from pbench.server.auth.exceptions import OidcConnectionError
 
 
-class KeycloakOpenID:
+class OpenIDClient:
     """
-    Keycloak OpenID client.
+    OpenID client object.
     :param server_url: Keycloak server url
     :param client_id: client id
     :param realm_name: realm name
@@ -30,16 +24,22 @@ class KeycloakOpenID:
     :param headers: dict of custom header to pass to each HTML request
     """
 
+    AUTHORIZATION_ENDPOINT: str = ""
+    TOKEN_ENDPOINT: str = ""
+    USERINFO_ENDPOINT: str = ""
+    REVOCATION_ENDPOINT: str = ""
+    JWKS_URI: str = ""
+    LOGOUT_ENDPOINT: str = ""
+
     def __init__(
         self,
         server_url: str,
-        realm_name: str,
         client_id: str,
         logger: logging.Logger,
+        realm_name: str = None,
         client_secret_key: str = None,
         verify: bool = True,
         headers: Optional[Dict[str, str]] = None,
-        timeout: int = 60,
     ):
         self.server_url = server_url
         self.client_id = client_id
@@ -48,7 +48,6 @@ class KeycloakOpenID:
         self.logger = logger
         self.headers = headers if headers is not None else CaseInsensitiveDict()
         self.verify = verify
-        self.timeout = timeout
         self.connection = requests.session()
 
     def get_header_param(self, key: str) -> str:
@@ -71,20 +70,38 @@ class KeycloakOpenID:
         """
         del self.headers[key]
 
-    def get_well_known(self) -> JSON:
+    def set_well_known_endpoints(self) -> JSON:
         """Returns the well-known configuration endpoints as a JSON.
         It lists endpoints and other configuration options relevant to
         the OpenID implementation in Keycloak.
         """
-        params_path = {"realm-name": self.realm_name}
-        return self._get(URL_WELL_KNOWN.format(**params_path)).json()
+        well_known_endpoint = "/.well-known/openid-configuration"
+        if self.realm_name:
+            well_known_uri = f"{self.server_url}{self.realm_name}{well_known_endpoint}"
+        else:
+            well_known_uri = f"{self.server_url}{well_known_endpoint}"
+        endpoints_json = self._get(well_known_uri).json()
+        try:
+            OpenIDClient.AUTHORIZATION_ENDPOINT = endpoints_json[
+                "authorization_endpoint"
+            ]
+            OpenIDClient.TOKEN_ENDPOINT = endpoints_json["token_endpoint"]
+            OpenIDClient.USERINFO_ENDPOINT = endpoints_json["userinfo_endpoint"]
+            OpenIDClient.REVOCATION_ENDPOINT = endpoints_json["revocation_endpoint"]
+            OpenIDClient.JWKS_ENDPOINT = endpoints_json["jwks_uri"]
+            if "end_session_endpoint" in endpoints_json:
+                OpenIDClient.LOGOUT_ENDPOINT = endpoints_json["end_session_endpoint"]
+        except KeyError as e:
+            self.logger.exception("{}", str(e))
+            raise
 
-    def get_realm_public_key(self):
+    def get_oidc_public_key(self, token):
         """
         The public key is exposed by the realm page directly.
         """
-        params_path = {"realm-name": self.realm_name}
-        return self._get(URL_REALM.format(**params_path)).json()
+        jwks_client = PyJWKClient(self.JWKS_URI)
+        pubkey = jwks_client.get_signing_key_from_jwt(token).key
+        return pubkey
 
     def get_user_token(
         self,
@@ -101,7 +118,6 @@ class KeycloakOpenID:
         when they expire.
         http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
         """
-        params_path = {"realm-name": self.realm_name}
         payload = {
             "username": username,
             "password": password,
@@ -113,7 +129,7 @@ class KeycloakOpenID:
         if extra:
             payload.update(extra)
 
-        return self._post(URL_TOKEN.format(**params_path), data=payload).json()
+        return self._post(self.TOKEN_ENDPOINT, data=payload).json()
 
     def get_client_service_token(
         self,
@@ -130,7 +146,6 @@ class KeycloakOpenID:
         :param scope:
         :return:
         """
-        params_path = {"realm-name": self.realm_name}
         payload = {
             "client_id": self.client_id,
             "client_secret": self.client_secret_key,
@@ -140,7 +155,7 @@ class KeycloakOpenID:
         if extra:
             payload.update(extra)
 
-        return self._post(URL_TOKEN.format(**params_path), data=payload).json()
+        return self._post(self.TOKEN_ENDPOINT, data=payload).json()
 
     def user_refresh_token(self, refresh_token: str) -> JSON:
         """
@@ -148,38 +163,41 @@ class KeycloakOpenID:
         Note: it issues a new access token.
         http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
         """
-        params_path = {"realm-name": self.realm_name}
         payload = {
             "client_id": self.client_id,
             "client_secret": self.client_secret_key,
             "grant_type": ["refresh_token"],
             "refresh_token": refresh_token,
         }
-        return self._post(URL_TOKEN.format(**params_path), data=payload).json()
+        return self._post(self.TOKEN_ENDPOINT, data=payload).json()
 
-    def token_introspect_online(self, token: str) -> JSON:
+    def token_introspect_online(self, token: str, token_info_uri: str) -> JSON:
         """
         The introspection endpoint is used to retrieve the active state of a token.
         It can only be invoked by confidential clients.
         The introspected JWT token contains the claims specified in https://tools.ietf.org/html/rfc7662
+        Note: this is not supposed to be used in production, instead rely on offline token validation
         :param token: token value to introspect
+        :param token_info_uri: token introspection uri,
+                this uri format may be different for different identity providers
         """
-        params_path = {"realm-name": self.realm_name}
-
         payload = {
             "client_id": self.client_id,
             "client_secret": self.client_secret_key,
             "token": token,
         }
-
-        return self._post(URL_INTROSPECT.format(**params_path), data=payload).json()
+        return self._post(token_info_uri, data=payload).json()
 
     def token_introspect_offline(
-        self, token: str, key: str, audience="account", algorithms=["RS256"], **kwargs
-    ):
+        self,
+        token: str,
+        key: str,
+        audience: str = "account",
+        algorithms: List[str] = ["RS256"],
+        **kwargs,
+    ) -> JSON:
         """
-        The introspection endpoint is used to retrieve the active state of a token.
-        It can only be invoked by confidential clients.
+        Utility method to decode access/Id tokens using the public key provided by the identity provider
         The introspected JWT token contains the claims specified in https://tools.ietf.org/html/rfc7662
         :param token: token value to introspect
         :param key: client public key
@@ -199,31 +217,33 @@ class KeycloakOpenID:
 
         if token:
             self.add_header_param("Authorization", f"Bearer {token}")
-        params_path = {"realm-name": self.realm_name}
 
-        return self._get(URL_USERINFO.format(**params_path)).json()
+        return self._get(self.USERINFO_ENDPOINT).json()
 
-    def logout(self, refresh_token: str) -> HTTPStatus:
+    def logout(self, refresh_token: str):
         """
         The logout endpoint logs out the authenticated user.
         :param refresh_token: Refresh token issued at the time of login
         """
-        params_path = {"realm-name": self.realm_name}
-        payload = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret_key,
-            "refresh_token": refresh_token,
-        }
+        if self.LOGOUT_ENDPOINT:
+            payload = {
+                "client_id": self.client_id,
+                "client_secret": self.client_secret_key,
+                "refresh_token": refresh_token,
+            }
 
-        return HTTPStatus(
-            self._post(URL_LOGOUT.format(**params_path), data=payload).status_code
-        )
+            return self._post(self.LOGOUT_ENDPOINT, data=payload)
+        else:
+            self.logger.warning("logout attempt on third party token")
+            abort(
+                HTTPStatus.METHOD_NOT_ALLOWED,
+                message="Logout operation is not allowed for the given token",
+            )
 
     def revoke_access_token(self, access_token: str) -> HTTPStatus:
         """
         Revoke endpoint to revoke the current access token. It does not however, logs the refresh token out
         """
-        params_path = {"realm-name": self.realm_name}
         payload = {
             "client_id": self.client_id,
             "client_secret": self.client_secret_key,
@@ -232,7 +252,7 @@ class KeycloakOpenID:
         }
 
         return HTTPStatus(
-            self._post(URL_LOGOUT.format(**params_path), data=payload).status_code
+            self._post(self.REVOCATION_ENDPOINT, data=payload).status_code
         )
 
     def _get(self, path: str, **kwargs) -> requests.Response:
@@ -246,12 +266,11 @@ class KeycloakOpenID:
                 urljoin(self.server_url, path),
                 params=kwargs,
                 headers=self.headers,
-                timeout=self.timeout,
                 verify=self.verify,
             )
         except Exception as exc:
             self.logger.exception("{}", str(exc))
-            raise KeycloakConnectionError(
+            raise OidcConnectionError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )
 
@@ -266,12 +285,11 @@ class KeycloakOpenID:
                 params=kwargs,
                 data=data,
                 headers=self.headers,
-                timeout=self.timeout,
                 verify=self.verify,
             )
         except Exception as exc:
             self.logger.exception("{}", str(exc))
-            raise KeycloakConnectionError(
+            raise OidcConnectionError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )
 
@@ -286,12 +304,11 @@ class KeycloakOpenID:
                 params=kwargs,
                 data=data,
                 headers=self.headers,
-                timeout=self.timeout,
                 verify=self.verify,
             )
         except Exception as exc:
             self.logger.exception("{}", str(exc))
-            raise KeycloakConnectionError(
+            raise OidcConnectionError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )
 
@@ -306,11 +323,10 @@ class KeycloakOpenID:
                 params=kwargs,
                 data=data,
                 headers=self.headers,
-                timeout=self.timeout,
                 verify=self.verify,
             )
         except Exception as exc:
             self.logger.exception("{}", str(exc))
-            raise KeycloakConnectionError(
+            raise OidcConnectionError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )

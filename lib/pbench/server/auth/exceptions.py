@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 
-class KeycloakError(Exception):
+class OidcError(Exception):
     def __init__(self, http_status: int, message: str = None):
         self.http_status = http_status
         self.message = message if message else HTTPStatus(http_status).phrase
@@ -13,9 +13,9 @@ class KeycloakError(Exception):
         return self.message
 
 
-class KeycloakConfigError(KeycloakError):
+class OidcConfigError(OidcError):
     pass
 
 
-class KeycloakConnectionError(KeycloakError):
+class OidcConnectionError(OidcError):
     pass

@@ -18,7 +18,7 @@ class Auth:
         # Logger gets set at the time of auth module initialization
         Auth.logger = logger
 
-    def encode_auth_token(self, token_expire_duration, user_id):
+    def encode_auth_token(self, time_delta, user_id):
         """
         Generates the Auth Token
         :return: jwt token string
@@ -26,7 +26,7 @@ class Auth:
         current_utc = datetime.datetime.utcnow()
         payload = {
             "iat": current_utc,
-            "exp": current_utc + datetime.timedelta(minutes=int(token_expire_duration)),
+            "exp": current_utc + time_delta,
             "sub": user_id,
         }
 
@@ -101,3 +101,32 @@ class Auth:
                 e,
             )
         return None
+
+    @staticmethod
+    def verify_third_party_tokens(oidc_client, tokeninfo_endpoint):
+        # Verify auth token validity
+        if not OpenIDClient.AUTHORIZATION_ENDPOINT:
+            oidc_client.set_well_known_endpoints()
+        identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
+        try:
+            oidc_client.token_introspect_offline(token=auth_token, key=identity_provider_pubkey,
+                                                 audience=oidc_client.client_id,
+                                                 options={"verify_signature": True, "verify_aud": True,
+                                                          "verify_exp": True})
+            return True
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.InvalidAudienceError):
+            self.logger.error("oidc token verification failed")
+        except Exception as e:
+            self.logger.exception(
+                "Unexpected exception occurred while verifying the auth token {!r}: {}",
+                auth_token,
+                e,
+            )
+            if not tokeninfo_endpoint:
+                self.logger.warning("Can not perform oidc online token verification")
+            else:
+                token_payload = oidc_client.token_introspect_online(token=auth_token, token_info_uri=tokeninfo_endpoint)
+                if oidc_client.client_id not in token_payload["aud"]:
+                    # If our client is not an intended audeince then we do not accept the token
+                    return False
+        return False

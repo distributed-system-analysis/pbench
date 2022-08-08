@@ -1,7 +1,13 @@
 import pytest
 import responses
 from jwt.exceptions import InvalidAudienceError
-from pbench.server.auth.auth_provider_urls import URL_TOKEN, URL_USERINFO
+
+
+def mock_set_oidc_auth_endpoints(oidc_client):
+    oidc_client.TOKEN_ENDPOINT = "https://oidc_token.endpoint.com"
+    oidc_client.USERINFO_ENDPOINT = "https://oidc_userinfo_endpoint.com"
+    oidc_client.REVOCATION_ENDPOINT = "https://oidc_revocation_endpoint.com"
+    oidc_client.JWKS_ENDPOINT = "https://oidc_jwks_endpoint.com"
 
 
 class TestUserTokenManagement:
@@ -11,11 +17,9 @@ class TestUserTokenManagement:
 
     @responses.activate
     def test_get_token(self, server_config, keycloak_oidc):
-        token_endpoint = (
-            f'{server_config.get("keycloak", "server_url")}{URL_TOKEN}'.format(
-                **{"realm-name": self.REALM_NAME}
-            )
-        )
+        mock_set_oidc_auth_endpoints(keycloak_oidc)
+        token_endpoint = keycloak_oidc.TOKEN_ENDPOINT
+
         json_response = {
             "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJDeXVpZDFYU2F3eEJSNlp2azdNOXZBUnI3R3pUWnE2QlpDQjNra2hGMHRVIn0",
             "expires_in": 300,
@@ -40,11 +44,8 @@ class TestUserTokenManagement:
 
     @responses.activate
     def test_invalid_user_credential(self, server_config, keycloak_oidc):
-        token_endpoint = (
-            f'{server_config.get("keycloak", "server_url")}{URL_TOKEN}'.format(
-                **{"realm-name": self.REALM_NAME}
-            )
-        )
+        mock_set_oidc_auth_endpoints(keycloak_oidc)
+        token_endpoint = keycloak_oidc.TOKEN_ENDPOINT
         json_response = {
             "error": "invalid_grant",
             "error_description": "Invalid user credentials",
@@ -89,11 +90,8 @@ class TestUserTokenManagement:
 
     @responses.activate
     def test_userinfo(self, server_config, keycloak_oidc, keycloak_mock_token):
-        token_endpoint = (
-            f'{server_config.get("keycloak", "server_url")}{URL_USERINFO}'.format(
-                **{"realm-name": self.REALM_NAME}
-            )
-        )
+        mock_set_oidc_auth_endpoints(keycloak_oidc)
+        userinfo_endpoint = keycloak_oidc.USERINFO_ENDPOINT
         json_response = {
             "sub": "d0d1338c-f0df-4493-b9f2-078eedc1e02e",
             "email_verified": False,
@@ -106,7 +104,7 @@ class TestUserTokenManagement:
 
         responses.add(
             responses.GET,
-            token_endpoint,
+            userinfo_endpoint,
             status=200,
             json=json_response,
         )

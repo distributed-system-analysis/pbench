@@ -1,3 +1,4 @@
+from datetime import timedelta
 from http import HTTPStatus
 from typing import NamedTuple
 
@@ -156,6 +157,7 @@ class Login(Resource):
         {
             "username": "username",
             "password": "password",
+            "token_expiry": {"day": 7}
         }
 
         Required headers include
@@ -190,6 +192,30 @@ class Login(Resource):
             self.logger.warning("Password not provided during the login process")
             abort(HTTPStatus.BAD_REQUEST, message="Please provide a valid password")
 
+        token_expiry = post_data.get("token_expiry")
+        if token_expiry:
+            if len(token_expiry.keys()) != 1:
+                self.logger.warning(f"Invalid token expiry format {token_expiry}")
+                abort(
+                    HTTPStatus.BAD_REQUEST,
+                    message="Please provide a valid token expiry",
+                )
+            else:
+                if token_expiry.keys() not in [
+                    "weeks",
+                    "days",
+                    "hours",
+                    "minutes",
+                    "seconds",
+                ]:
+                    self.logger.warning(f"Invalid token expiry format {token_expiry}")
+                    abort(
+                        HTTPStatus.BAD_REQUEST,
+                        message="Please provide a valid token expiry, accepted keys are: 'weeks', 'days', 'hours', 'minutes', 'seconds'",
+                    )
+        else:
+            token_expiry = {"minutes": self.token_expire_duration}
+
         try:
             # fetch the user data
             user = User.query(username=username)
@@ -210,7 +236,7 @@ class Login(Resource):
 
         try:
             auth_token = self.auth.encode_auth_token(
-                self.token_expire_duration, user.id
+                time_delta=timedelta(**token_expiry), user_id=user.id
             )
         except (
             jwt.InvalidIssuer,
