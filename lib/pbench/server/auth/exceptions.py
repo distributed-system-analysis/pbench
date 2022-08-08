@@ -7,15 +7,7 @@ class OidcError(Exception):
         self.message = message if message else HTTPStatus(http_status).phrase
 
     def __repr__(self) -> str:
-        return f"Keycloak error {self.http_status} : {str(self)}"
+        return f"Oidc error {self.http_status} : {str(self)}"
 
     def __str__(self) -> str:
         return self.message
-
-
-class OidcConfigError(OidcError):
-    pass
-
-
-class OidcConnectionError(OidcError):
-    pass

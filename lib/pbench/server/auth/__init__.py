@@ -10,7 +10,7 @@ from jwt import PyJWKClient
 from requests.structures import CaseInsensitiveDict
 
 from pbench.server import JSON
-from pbench.server.auth.exceptions import OidcConnectionError
+from pbench.server.auth.exceptions import OidcError
 
 
 class OpenIDClient:
@@ -70,10 +70,10 @@ class OpenIDClient:
         """
         del self.headers[key]
 
-    def set_well_known_endpoints(self) -> JSON:
-        """Returns the well-known configuration endpoints as a JSON.
-        It lists endpoints and other configuration options relevant to
-        the OpenID implementation in Keycloak.
+    def set_well_known_endpoints(self):
+        """Sets the well-known configuration endpoints for the current oidc client.
+        This includes common useful endpoints for decoding tokens, getting user
+        information etc.
         """
         well_known_endpoint = "/.well-known/openid-configuration"
         if self.realm_name:
@@ -97,7 +97,7 @@ class OpenIDClient:
 
     def get_oidc_public_key(self, token):
         """
-        The public key is exposed by the realm page directly.
+        Returns the Oidc client public key that can be used for decoding tokens offline.
         """
         jwks_client = PyJWKClient(self.JWKS_URI)
         pubkey = jwks_client.get_signing_key_from_jwt(token).key
@@ -114,9 +114,12 @@ class OpenIDClient:
         """
         The token endpoint is used to obtain tokens. Tokens can either be obtained by
         exchanging an authorization code or by supplying credentials directly depending on
-        what flow is used. The token endpoint is also used to obtain new access tokens
+        what authentication flow is used. The token endpoint is also used to obtain new access tokens
         when they expire.
         http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
+        Note: Some oidc clients only accept authorization_code as a grant_type for getting a token,
+        getting token directly from these clients with username and password over an API call will result
+        in Forbidden error.
         """
         payload = {
             "username": username,
@@ -142,9 +145,6 @@ class OpenIDClient:
         based on what roles this client service token has. Client service tokens do not have a
         session associated with them so they dont have a refresh token.
         http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
-        :param grant_type:
-        :param scope:
-        :return:
         """
         payload = {
             "client_id": self.client_id,
@@ -270,7 +270,7 @@ class OpenIDClient:
             )
         except Exception as exc:
             self.logger.exception("{}", str(exc))
-            raise OidcConnectionError(
+            raise OidcError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )
 
@@ -289,7 +289,7 @@ class OpenIDClient:
             )
         except Exception as exc:
             self.logger.exception("{}", str(exc))
-            raise OidcConnectionError(
+            raise OidcError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )
 
@@ -308,7 +308,7 @@ class OpenIDClient:
             )
         except Exception as exc:
             self.logger.exception("{}", str(exc))
-            raise OidcConnectionError(
+            raise OidcError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )
 
@@ -327,6 +327,6 @@ class OpenIDClient:
             )
         except Exception as exc:
             self.logger.exception("{}", str(exc))
-            raise OidcConnectionError(
+            raise OidcError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )

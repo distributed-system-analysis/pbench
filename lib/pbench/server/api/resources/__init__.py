@@ -13,7 +13,7 @@ from flask_restful import abort, Resource
 from sqlalchemy.orm.query import Query
 
 from pbench.server import JSON, JSONOBJECT, JSONVALUE, PbenchServerConfig
-from pbench.server.api.auth import Auth
+from pbench.server.auth.auth import Auth
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,

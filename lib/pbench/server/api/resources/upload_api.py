@@ -9,7 +9,7 @@ from flask_restful import abort, Resource
 import humanize
 
 from pbench.common.utils import Cleanup, validate_hostname
-from pbench.server.api.auth import Auth
+from pbench.server.auth.auth import Auth
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetDuplicate,

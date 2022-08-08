@@ -6,6 +6,7 @@ from flask import abort, request
 from flask_httpauth import HTTPTokenAuth
 import jwt
 
+from pbench.server.auth import OpenIDClient
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
 
@@ -103,29 +104,43 @@ class Auth:
         return None
 
     @staticmethod
-    def verify_third_party_tokens(oidc_client, tokeninfo_endpoint):
+    def verify_third_party_tokens(
+        auth_token: str, oidc_client: OpenIDClient, tokeninfo_endpoint: str = None
+    ):
         # Verify auth token validity
-        if not OpenIDClient.AUTHORIZATION_ENDPOINT:
+        if not oidc_client.AUTHORIZATION_ENDPOINT:
             oidc_client.set_well_known_endpoints()
         identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
         try:
-            oidc_client.token_introspect_offline(token=auth_token, key=identity_provider_pubkey,
-                                                 audience=oidc_client.client_id,
-                                                 options={"verify_signature": True, "verify_aud": True,
-                                                          "verify_exp": True})
+            oidc_client.token_introspect_offline(
+                token=auth_token,
+                key=identity_provider_pubkey,
+                audience=oidc_client.client_id,
+                options={
+                    "verify_signature": True,
+                    "verify_aud": True,
+                    "verify_exp": True,
+                },
+            )
             return True
-        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.InvalidAudienceError):
-            self.logger.error("oidc token verification failed")
+        except (
+            jwt.ExpiredSignatureError,
+            jwt.InvalidTokenError,
+            jwt.InvalidAudienceError,
+        ):
+            Auth.logger.error("oidc token verification failed")
         except Exception as e:
-            self.logger.exception(
+            Auth.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {!r}: {}",
                 auth_token,
                 e,
             )
             if not tokeninfo_endpoint:
-                self.logger.warning("Can not perform oidc online token verification")
+                Auth.logger.warning("Can not perform oidc online token verification")
             else:
-                token_payload = oidc_client.token_introspect_online(token=auth_token, token_info_uri=tokeninfo_endpoint)
+                token_payload = oidc_client.token_introspect_online(
+                    token=auth_token, token_info_uri=tokeninfo_endpoint
+                )
                 if oidc_client.client_id not in token_payload["aud"]:
                     # If our client is not an intended audeince then we do not accept the token
                     return False

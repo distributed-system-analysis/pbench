@@ -17,7 +17,7 @@ import pytest
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
-from pbench.server.api.auth import Auth
+from pbench.server.auth.auth import Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template

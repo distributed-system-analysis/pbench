@@ -6,7 +6,7 @@ from flask.json import jsonify
 from flask.wrappers import Request, Response
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.auth import Auth
+from pbench.server.auth.auth import Auth
 from pbench.server.api.resources import (
     API_AUTHORIZATION,
     API_METHOD,

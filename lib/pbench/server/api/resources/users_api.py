@@ -9,7 +9,7 @@ from flask_restful import abort, Resource
 import jwt
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from pbench.server.api.auth import Auth
+from pbench.server.auth.auth import Auth
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
@@ -213,8 +213,9 @@ class Login(Resource):
                         HTTPStatus.BAD_REQUEST,
                         message="Please provide a valid token expiry, accepted keys are: 'weeks', 'days', 'hours', 'minutes', 'seconds'",
                     )
+            token_expiry = int(token_expiry)
         else:
-            token_expiry = {"minutes": self.token_expire_duration}
+            token_expiry = {"minutes": int(self.token_expire_duration)}
 
         try:
             # fetch the user data
