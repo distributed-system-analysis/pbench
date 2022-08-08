@@ -12,6 +12,7 @@ from pbench.server.api.resources import (
     API_METHOD,
     APIAbort,
     API_OPERATION,
+    ApiAuthorization,
     ApiBase,
     ApiParams,
     ApiSchema,
@@ -148,7 +149,14 @@ class DatasetsMetadata(ApiBase):
             for k in metadata.keys():
                 if Metadata.get_native_key(k) != Metadata.USER:
                     role = API_OPERATION.UPDATE
-        self._check_authorization(str(dataset.owner_id), dataset.access, role)
+        self._check_authorization(
+            ApiAuthorization(
+                API_AUTHORIZATION.USER_ACCESS,
+                role,
+                str(dataset.owner_id),
+                dataset.access,
+            )
+        )
 
         # Validate the metadata key values in a separate pass so that we can
         # fail before committing any changes to the database.

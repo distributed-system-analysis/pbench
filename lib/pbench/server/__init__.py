@@ -166,7 +166,7 @@ class PbenchServerConfig(PbenchConfig):
         return self._get_conf("pbench-server", "rest_uri")
 
     @property
-    def max_retention_period(self) -> timedelta:
+    def max_retention_period(self) -> int:
         """
         Produce a timedelta representing the number of days the server allows
         a dataset to be retained.
@@ -180,8 +180,7 @@ class PbenchServerConfig(PbenchConfig):
             )
         except (NoOptionError, NoSectionError):
             retention_days = self.MAXIMUM_RETENTION_DAYS
-
-        return timedelta(days=retention_days)
+        return retention_days
 
     def _get_conf(self, section, option):
         """

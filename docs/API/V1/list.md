@@ -87,6 +87,12 @@ by `owner` or `access=private`.
 The client asked to filter `access=private` datasets for an `owner` for which
 the client does not have READ access.
 
+`503`   **SERVICE UNAVAILABLE** \
+The server has been disabled using the `server-state` server configuration
+setting in the [server configuration](./server_config.md) API. The response
+body is an `application/json` document describing the current server state,
+a message, and optional JSON data provided by the system administrator.
+
 ## Response body
 
 The `application/json` response body contains a list of objects which describe

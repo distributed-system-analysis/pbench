@@ -30,6 +30,7 @@ class Database:
         # database models to find
         if logger and not hasattr(Database.Base, "logger"):
             Database.Base.logger = logger
+        if server_config and not hasattr(Database.Base, "server_config"):
             Database.Base.config = server_config
 
         # WARNING:

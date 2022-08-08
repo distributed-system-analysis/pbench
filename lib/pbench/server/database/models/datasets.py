@@ -12,6 +12,10 @@ from sqlalchemy.orm import relationship, validates, Query
 from sqlalchemy.types import TypeDecorator
 
 from pbench.server.database.database import Database
+from pbench.server.database.models.server_config import (
+    OPTION_DATASET_LIFETIME,
+    ServerConfig,
+)
 from pbench.server.database.models.users import User
 
 
@@ -1127,7 +1131,10 @@ class Metadata(Database.Base):
             except date_parser.ParserError as p:
                 raise MetadataBadValue(dataset, key, value, "date/time") from p
 
-            maximum = dataset.uploaded + __class__.config.max_retention_period
+            max_retention = ServerConfig.get(key=OPTION_DATASET_LIFETIME)
+            maximum = dataset.uploaded + datetime.timedelta(
+                days=int(max_retention.value)
+            )
             if target > maximum:
                 raise MetadataBadValue(
                     dataset, key, value, f"date/time before {maximum:%Y-%m-%d}"

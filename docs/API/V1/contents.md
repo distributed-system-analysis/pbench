@@ -47,6 +47,12 @@ The authenticated client does not have READ access to the specified dataset.
 Either the `<dataset>` or the relative `<path>` within the dataset does not
 exist.
 
+`503`   **SERVICE UNAVAILABLE** \
+The server has been disabled using the `server-state` server configuration
+setting in the [server configuration](./server_config.md) API. The response
+body is an `application/json` document describing the current server state,
+a message, and optional JSON data provided by the system administrator.
+
 ## Response body
 
 The `application/json` response body consists of a JSON object describing the

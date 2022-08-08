@@ -17,6 +17,7 @@ from pbench.server.database.models.datasets import (
     Metadata,
     States,
 )
+from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.filetree import FileTree
 from pbench.server.utils import UtcTimeHelper, filesize_bytes
 
@@ -59,6 +60,9 @@ class Upload(Resource):
 
     @Auth.token_auth.login_required()
     def put(self, filename: str):
+        disabled = ServerConfig.get_disabled()
+        if disabled:
+            abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
 
         # Used to record what steps have been completed during the upload, and
         # need to be undone on failure
