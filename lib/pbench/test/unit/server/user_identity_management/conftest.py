@@ -6,9 +6,19 @@ import pytest
 from pbench.server.auth import OpenIDClient
 
 
+def mock_set_oidc_auth_endpoints(oidc_client):
+    oidc_client.TOKEN_ENDPOINT = "https://oidc_token.endpoint.com"
+    oidc_client.USERINFO_ENDPOINT = "https://oidc_userinfo_endpoint.com"
+    oidc_client.REVOCATION_ENDPOINT = "https://oidc_revocation_endpoint.com"
+    oidc_client.JWKS_ENDPOINT = "https://oidc_jwks_endpoint.com"
+
+
 @pytest.fixture
-def keycloak_oidc(server_config):
+def keycloak_oidc(server_config, monkeypatch):
     logger = logging.getLogger(__name__)
+    monkeypatch.setattr(
+        OpenIDClient, "set_well_known_endpoints", mock_set_oidc_auth_endpoints
+    )
     oidc = OpenIDClient(
         server_url=server_config.get("keycloak", "server_url"),
         realm_name="public_test_realm",

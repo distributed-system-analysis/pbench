@@ -140,6 +140,8 @@ class Login(Resource):
     Pbench API for User Login or generating an auth token
     """
 
+    TOKEN_EXPIRY_KEYS = ["seconds", "minutes", "hours", "days", "weeks"]
+
     def __init__(self, config, logger, auth):
         self.server_config = config
         self.logger = logger
@@ -157,7 +159,7 @@ class Login(Resource):
         {
             "username": "username",
             "password": "password",
-            "token_expiry": {"day": 7}
+            "token_expiry": {"days": 7}
         }
 
         Required headers include
@@ -201,17 +203,11 @@ class Login(Resource):
                     message="Please provide a valid token expiry",
                 )
             else:
-                if token_expiry.keys() not in [
-                    "weeks",
-                    "days",
-                    "hours",
-                    "minutes",
-                    "seconds",
-                ]:
+                if token_expiry.keys() not in self.TOKEN_EXPIRY_KEYS:
                     self.logger.warning(f"Invalid token expiry format {token_expiry}")
                     abort(
                         HTTPStatus.BAD_REQUEST,
-                        message="Please provide a valid token expiry, accepted keys are: 'weeks', 'days', 'hours', 'minutes', 'seconds'",
+                        message=f"Please provide a valid token expiry, accepted keys are: {self.TOKEN_EXPIRY_KEYS}",
                     )
             token_expiry = int(token_expiry)
         else:

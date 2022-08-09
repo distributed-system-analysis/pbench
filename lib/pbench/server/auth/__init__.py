@@ -6,7 +6,6 @@ from urllib.parse import urljoin
 import jwt
 import requests
 from flask_restful import abort
-from jwt import PyJWKClient
 from requests.structures import CaseInsensitiveDict
 
 from pbench.server import JSON
@@ -46,27 +45,38 @@ class OpenIDClient:
         self.client_secret_key = client_secret_key
         self.realm_name = realm_name
         self.logger = logger
-        self.headers = headers if headers is not None else CaseInsensitiveDict()
+        self.headers = (
+            CaseInsensitiveDict()
+            if headers is None
+            else CaseInsensitiveDict().update(headers)
+        )
         self.verify = verify
         self.connection = requests.session()
+        self.set_well_known_endpoints()
 
     def get_header_param(self, key: str) -> str:
         """
         Return a specific header parameter value.
-        :param key: Header parameters key.
+        Args:
+            key: header key
+        Returns:
+             Header parameters value.
         """
         return self.headers.get(key)
 
     def add_header_param(self, key: str, value: str):
-        """Add a single parameter inside the header.
-        :param key: Header parameters key.
-        :param value: Value to be added.
+        """
+        Add a single parameter inside the header.
+        Args:
+            key: Header parameters key.
+            value: Value to be added for the key.
         """
         self.headers[key] = value
 
     def del_param_headers(self, key: str):
         """Remove a specific header parameter.
-        :param key: Key of the header parameters.
+        Args:
+            Key to delete from the headers.
         """
         del self.headers[key]
 
@@ -95,18 +105,22 @@ class OpenIDClient:
             self.logger.exception("{}", str(e))
             raise
 
-    def get_oidc_public_key(self, token):
+    def get_oidc_public_key(self, token: str):
         """
         Returns the Oidc client public key that can be used for decoding tokens offline.
+        Args:
+            token: Third party token to extract the signing key
+        Returns:
+            OIDC client public key
         """
-        jwks_client = PyJWKClient(self.JWKS_URI)
+        jwks_client = jwt.PyJWKClient(self.JWKS_URI)
         pubkey = jwks_client.get_signing_key_from_jwt(token).key
         return pubkey
 
     def get_user_token(
         self,
         username: str,
-        password: str,
+        password: str = None,
         grant_type: str = "password",
         scope: Union[str, List[str]] = "openid profile email",
         **extra,
@@ -120,6 +134,24 @@ class OpenIDClient:
         Note: Some oidc clients only accept authorization_code as a grant_type for getting a token,
         getting token directly from these clients with username and password over an API call will result
         in Forbidden error.
+        Args:
+            username: username that is registered under this oidc client
+            password: optional password field
+            grant_type: "password"/"authorization_code" etc
+            scope: user scope to that should be included in the token
+        Returns:
+            OIDC client access token payload
+            e.g: json_response = {
+            "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJDeXVpZDFYU2F3eEJSNlp2azdNOXZBUnI3R3pUWnE2QlpDQjNra2hGMHRVIn0",
+            "expires_in": 300,
+            "refresh_expires_in": 1800,
+            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJlNGVlMzc2Ni1mNTVkL",
+            "token_type": "Bearer",
+            "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwiPt_h5LI707x4JLFCBeUMaYSkPhQrmXz2QQZ5qpD60Yo7w",
+            "not-before-policy": 0,
+            "session_state": "a46aca36-78e3-4b2a-90b3-7bd46d5ff70d",
+            "scope": "openid profile email",
+            }
         """
         payload = {
             "username": username,
@@ -145,6 +177,12 @@ class OpenIDClient:
         based on what roles this client service token has. Client service tokens do not have a
         session associated with them so they dont have a refresh token.
         http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
+        Args:
+            grant_type: "client_credential"
+                        (most often client_credential is the correct grant type to get the service token)
+            scope: service scopes to that should be included in the token
+        Returns:
+            OIDC client access token payload
         """
         payload = {
             "client_id": self.client_id,
@@ -160,8 +198,12 @@ class OpenIDClient:
     def user_refresh_token(self, refresh_token: str) -> JSON:
         """
         The token refresh endpoint is used to refresh the soon expiring access tokens.
-        Note: it issues a new access token.
+        Note: it issues a new access and refresh token.
         http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
+        Args:
+            refresh_token: refresh token str to get the new access token
+        Returns:
+            OIDC client access token payload
         """
         payload = {
             "client_id": self.client_id,
@@ -177,9 +219,23 @@ class OpenIDClient:
         It can only be invoked by confidential clients.
         The introspected JWT token contains the claims specified in https://tools.ietf.org/html/rfc7662
         Note: this is not supposed to be used in production, instead rely on offline token validation
-        :param token: token value to introspect
-        :param token_info_uri: token introspection uri,
+        Args:
+            token: token value to introspect
+            token_info_uri: token introspection uri,
                 this uri format may be different for different identity providers
+        Returns:
+            Extracted token information
+            {
+                "aud": "client_id",
+                "email_verified": "true",
+                "expires_in": "3572",
+                "access_type": "offline",
+                "exp": "1660087224",
+                "azp": "client_id",
+                "scope": "openid email profile",
+                "email": "email",
+                "sub": "106203657987367771589"
+            }
         """
         payload = {
             "client_id": self.client_id,
@@ -199,10 +255,24 @@ class OpenIDClient:
         """
         Utility method to decode access/Id tokens using the public key provided by the identity provider
         The introspected JWT token contains the claims specified in https://tools.ietf.org/html/rfc7662
-        :param token: token value to introspect
-        :param key: client public key
-        :param audience: jwt token audience/client, who this token was intended for
-        :param algorithms: Algorithm with which this JWT token was encoded
+        Args:
+            token: token value to introspect
+            key: client public key
+            audience: jwt token audience/client, who this token was intended for
+            algorithms: Algorithm with which this JWT token was encoded
+        Returns:
+            Extracted token information
+            {
+                "aud": "client_id",
+                "email_verified": "true",
+                "expires_in": "3572",
+                "access_type": "offline",
+                "exp": "1660087224",
+                "azp": "client_id",
+                "scope": "openid email profile",
+                "email": "email",
+                "sub": "106203657987367771589"
+            }
         """
         return jwt.decode(
             token, key, algorithms=algorithms, audience=audience, **kwargs
@@ -213,6 +283,21 @@ class OpenIDClient:
         The userinfo endpoint returns standard claims about the authenticated user,
         and is protected by a bearer token.
         http://openid.net/specs/openid-connect-core-1_0.html#UserInfo
+        Args:
+            token: Valid token to extract the userinfo
+        Returns:
+            Userinfo payload
+            {
+                "family_name": "family_name",
+                "sub": "106203657987367771589",
+                "picture": "profile_picture_link",
+                "locale": "en",
+                "email_verified": true,
+                "given_name": "given_name",
+                "email": "email",
+                "hd": "redhat.com",
+                "name": "full_name"
+            }
         """
 
         if token:
@@ -220,10 +305,13 @@ class OpenIDClient:
 
         return self._get(self.USERINFO_ENDPOINT).json()
 
-    def logout(self, refresh_token: str):
+    def logout(self, refresh_token: str) -> HTTPStatus:
         """
         The logout endpoint logs out the authenticated user.
-        :param refresh_token: Refresh token issued at the time of login
+        Args:
+            refresh_token: Refresh token issued at the time of login
+        Returns:
+            Https status code based on success or failure
         """
         if self.LOGOUT_ENDPOINT:
             payload = {
@@ -232,7 +320,9 @@ class OpenIDClient:
                 "refresh_token": refresh_token,
             }
 
-            return self._post(self.LOGOUT_ENDPOINT, data=payload)
+            return HTTPStatus(
+                self._post(self.LOGOUT_ENDPOINT, data=payload).status_code
+            )
         else:
             self.logger.warning("logout attempt on third party token")
             abort(
@@ -242,7 +332,12 @@ class OpenIDClient:
 
     def revoke_access_token(self, access_token: str) -> HTTPStatus:
         """
-        Revoke endpoint to revoke the current access token. It does not however, logs the refresh token out
+        Revoke endpoint to revoke the current access token. It does not however,
+        logs the refresh token out.
+        Args:
+            access_token: token to revoke
+        Returns:
+            Https status code based on success or failure
         """
         payload = {
             "client_id": self.client_id,
@@ -257,8 +352,10 @@ class OpenIDClient:
 
     def _get(self, path: str, **kwargs) -> requests.Response:
         """Submit get request to the path.
-        :param path: Path for the request.
-        :returns: Response from the request.
+        Args:
+            path: Path for the request.
+        Returns:
+            Response from the request.
         """
 
         try:
@@ -276,8 +373,10 @@ class OpenIDClient:
 
     def _post(self, path: str, data: Dict, **kwargs) -> requests.Response:
         """Submit post request to the path.
-        :param path: Path for the request.
-        :param data: Payload for the request.
+        Args:
+            path: Path for the request.
+        Returns:
+            Response from the request.
         """
         try:
             return self.connection.post(
@@ -295,8 +394,10 @@ class OpenIDClient:
 
     def _put(self, path: str, data: Dict, **kwargs) -> requests.Response:
         """Submit put request to the path.
-        :param path: Path for the request.
-        :param data: Payload for the request.
+        Args:
+            path: Path for the request.
+        Returns:
+            Response from the request.
         """
         try:
             return self.connection.put(
@@ -314,8 +415,10 @@ class OpenIDClient:
 
     def _delete(self, path: str, data: Dict = {}, **kwargs) -> requests.Response:
         """Submit delete request to the path.
-        :param path: Path for the request.
-        :param data: Payload for the request.
+        Args:
+            path: Path for the request.
+        Returns:
+            Response from the request.
         """
         try:
             return self.connection.delete(

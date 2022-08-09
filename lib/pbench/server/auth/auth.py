@@ -19,10 +19,14 @@ class Auth:
         # Logger gets set at the time of auth module initialization
         Auth.logger = logger
 
-    def encode_auth_token(self, time_delta, user_id):
+    def encode_auth_token(self, time_delta: datetime.timedelta, user_id: int) -> str:
         """
         Generates the Auth Token
-        :return: jwt token string
+        Args:
+            time_delta: Token lifetime
+            user_id: Authorized user's internal ID
+        Returns:
+            JWT token string
         """
         current_utc = datetime.datetime.utcnow()
         payload = {
@@ -106,10 +110,20 @@ class Auth:
     @staticmethod
     def verify_third_party_tokens(
         auth_token: str, oidc_client: OpenIDClient, tokeninfo_endpoint: str = None
-    ):
+    ) -> bool:
+        """
+        Verify the tokens provided to the Pbench server that were obtained by the
+        third party identity providers.
+        Args:
+            auth_token: Token to authenticate
+            oidc_client: OIDC client to call to authenticate the token
+            tokeninfo_endpoint: Optional tokeninfo_endpoint to validate
+                                tokens online in case offline verification
+                                results in some exception.
+        Returns:
+            JWT token string
+        """
         # Verify auth token validity
-        if not oidc_client.AUTHORIZATION_ENDPOINT:
-            oidc_client.set_well_known_endpoints()
         identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
         try:
             oidc_client.token_introspect_offline(
@@ -141,7 +155,7 @@ class Auth:
                 token_payload = oidc_client.token_introspect_online(
                     token=auth_token, token_info_uri=tokeninfo_endpoint
                 )
-                if oidc_client.client_id not in token_payload["aud"]:
-                    # If our client is not an intended audeince then we do not accept the token
-                    return False
+                if oidc_client.client_id in token_payload["aud"]:
+                    # If our client is an intended audience then only we accept the token
+                    return True
         return False

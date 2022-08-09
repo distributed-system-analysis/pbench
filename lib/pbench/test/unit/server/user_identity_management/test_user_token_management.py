@@ -3,13 +3,6 @@ import responses
 from jwt.exceptions import InvalidAudienceError
 
 
-def mock_set_oidc_auth_endpoints(oidc_client):
-    oidc_client.TOKEN_ENDPOINT = "https://oidc_token.endpoint.com"
-    oidc_client.USERINFO_ENDPOINT = "https://oidc_userinfo_endpoint.com"
-    oidc_client.REVOCATION_ENDPOINT = "https://oidc_revocation_endpoint.com"
-    oidc_client.JWKS_ENDPOINT = "https://oidc_jwks_endpoint.com"
-
-
 class TestUserTokenManagement:
     USERNAME = "test"
     PASSWORD = "test123"
@@ -17,7 +10,6 @@ class TestUserTokenManagement:
 
     @responses.activate
     def test_get_token(self, server_config, keycloak_oidc):
-        mock_set_oidc_auth_endpoints(keycloak_oidc)
         token_endpoint = keycloak_oidc.TOKEN_ENDPOINT
 
         json_response = {
@@ -44,7 +36,6 @@ class TestUserTokenManagement:
 
     @responses.activate
     def test_invalid_user_credential(self, server_config, keycloak_oidc):
-        mock_set_oidc_auth_endpoints(keycloak_oidc)
         token_endpoint = keycloak_oidc.TOKEN_ENDPOINT
         json_response = {
             "error": "invalid_grant",
@@ -90,7 +81,6 @@ class TestUserTokenManagement:
 
     @responses.activate
     def test_userinfo(self, server_config, keycloak_oidc, keycloak_mock_token):
-        mock_set_oidc_auth_endpoints(keycloak_oidc)
         userinfo_endpoint = keycloak_oidc.USERINFO_ENDPOINT
         json_response = {
             "sub": "d0d1338c-f0df-4493-b9f2-078eedc1e02e",
