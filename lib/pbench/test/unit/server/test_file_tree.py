@@ -1,6 +1,8 @@
 import hashlib
+from pathlib import Path
 import re
 import shutil
+import subprocess
 
 import pytest
 
@@ -10,7 +12,9 @@ from pbench.server.filetree import (
     BadFilename,
     DuplicateTarball,
     FileTree,
+    Tarball,
     TarballNotFound,
+    TarballUnpackError,
 )
 
 
@@ -181,11 +185,291 @@ class TestFileTree:
             tree.create("ABC", source_tarball)
         assert exc.value.tarball == Dataset.stem(source_tarball)
 
-    def test_find(self, selinux_enabled, server_config, make_logger, tarball):
+    def test_tarball_subprocess_run_with_exception(self, monkeypatch):
+        """Test to check the subprocess_run functionality of the Tarball when
+        an Exception occured"""
+        my_command = "mycommand"
+
+        def mock_run(args, **kwargs):
+            assert args[0] == my_command
+            raise subprocess.TimeoutExpired(my_command, 43)
+
+        with monkeypatch.context() as m:
+            m.setattr(subprocess, "run", mock_run)
+            command = f"{my_command} myarg"
+            my_dir = "my_dir"
+
+            with pytest.raises(TarballUnpackError) as exc:
+                Tarball.subprocess_run(command, my_dir, TarballUnpackError, my_dir)
+            assert (
+                str(exc.value)
+                == f"An error occurred while unpacking {my_dir}: Command '{my_command}' timed out after 43 seconds"
+            )
+
+    def test_tarball_subprocess_run_with_returncode(self, monkeypatch):
+        """Test to check the subprocess_run functionality of the Tarball when
+        returncode value is not zero"""
+        my_command = "mycommand"
+
+        def mock_run(args, **kwargs):
+            assert args[0] == my_command
+            return subprocess.CompletedProcess(
+                args, returncode=1, stdout=None, stderr="Some error unpacking tarball\n"
+            )
+
+        with monkeypatch.context() as m:
+            m.setattr("subprocess.run", mock_run)
+            command = f"{my_command} myarg"
+            my_dir = "my_dir"
+
+            with pytest.raises(TarballUnpackError) as exc:
+                Tarball.subprocess_run(command, my_dir, TarballUnpackError, my_dir)
+            assert (
+                str(exc.value)
+                == f"An error occurred while unpacking {my_dir}: {my_command} exited with status 1:  'Some error unpacking tarball'"
+            )
+
+    def test_tarball_subprocess_run_success(self, monkeypatch):
+        """Test to check the successful run of subprocess_run functionality of the Tarball."""
+        my_command = "mycommand"
+        my_dir = "my_dir"
+        run_called = False
+
+        def mock_run(args, **kwargs):
+            nonlocal run_called
+            run_called = True
+
+            assert args[0] == my_command
+            assert kwargs["capture_output"]
+            assert kwargs["text"]
+            assert kwargs["cwd"] == my_dir
+            assert kwargs["stdin"] == subprocess.DEVNULL
+            return subprocess.CompletedProcess(
+                args, returncode=0, stdout="Successfully Unpacked!", stderr=None
+            )
+
+        with monkeypatch.context() as m:
+            m.setattr("subprocess.run", mock_run)
+            command = f"{my_command} myarg"
+            Tarball.subprocess_run(command, my_dir, TarballUnpackError, my_dir)
+            assert run_called
+
+    def test_tarball_move_src(self, monkeypatch):
+        """Show that, when source directory for moving results is not present and
+        raises an Exception, it is handled successfully."""
+
+        def mock_move(src: Path, dest: Path):
+            raise FileNotFoundError(f"No such file or directory: '{src}'")
+
+        with monkeypatch.context() as m:
+            m.setattr(shutil, "move", mock_move)
+            tar = "tarball"
+            unpacking_dir = "src_dir"
+            unpacked_dir = "dest_dir"
+            with pytest.raises(TarballUnpackError) as exc:
+                Tarball.do_move(unpacking_dir, unpacked_dir, tar)
+            assert (
+                str(exc.value)
+                == f"An error occurred while unpacking {tar}: Error moving '{unpacking_dir}' to '{unpacked_dir}': No such file or directory: '{unpacking_dir}'"
+            )
+
+    def test_tarball_move_dest(self, monkeypatch):
+        """Show that, when destination directory for moving results is not present and
+        raises an Exception, it is handled successfully."""
+
+        def mock_move(src: Path, dest: Path):
+            assert src == "src_dir"
+            raise FileNotFoundError(f"No such file or directory: '{dest}'")
+
+        with monkeypatch.context() as m:
+            m.setattr(shutil, "move", mock_move)
+            tar = "tarball"
+            unpacking_dir = "src_dir"
+            unpacked_dir = "dest_dir"
+            with pytest.raises(TarballUnpackError) as exc:
+                Tarball.do_move(unpacking_dir, unpacked_dir, tar)
+            assert (
+                str(exc.value)
+                == f"An error occurred while unpacking {tar}: Error moving '{unpacking_dir}' to '{unpacked_dir}': No such file or directory: '{unpacked_dir}'"
+            )
+
+    def test_tarball_move_success(self, monkeypatch):
+        """Show the successful run of move function."""
+        tar = "tarball"
+        move_called = False
+
+        def mock_move(src: Path, dest: Path):
+            nonlocal move_called
+            move_called = True
+            assert src == "src_dir"
+            assert dest == "dest_dir"
+
+        with monkeypatch.context() as m:
+            m.setattr(shutil, "move", mock_move)
+            unpacking_dir = "src_dir"
+            unpacked_dir = "dest_dir"
+            Tarball.do_move(unpacking_dir, unpacked_dir, tar)
+            assert move_called
+
+    class MockTarball:
+        def __init__(self, path):
+            self.name = "A"
+            self.tarball_path = Path("/mock/A.tar.xz")
+
+    def test_unpack_tar_subprocess_exception(self, monkeypatch):
+        """Show that, when unpacking of the Tarball fails and raises
+        an Exception it is handled successfully."""
+        tar = Path("/mock/A.tar.xz")
+        tarball_name = tar.name.removesuffix(".tar.xz")
+        incoming = Path("/mock/incoming/ABC")
+        results = Path("/mock/results/ABC")
+        rmtree_called = False
+
+        def mock_rmtree(path: Path, ignore_errors=False):
+            nonlocal rmtree_called
+            rmtree_called = True
+
+            assert ignore_errors
+            assert path == incoming / f"{tarball_name}.unpack"
+
+        @staticmethod
+        def mock_run(command, dir_path, exception, dir_p):
+            verb = "tar"
+            assert command.startswith("tar")
+            raise subprocess.TimeoutExpired(verb, 43)
+
+        with monkeypatch.context() as m:
+            m.setattr(Path, "mkdir", lambda path, parents: None)
+            m.setattr(Tarball, "subprocess_run", mock_run)
+            m.setattr(shutil, "rmtree", mock_rmtree)
+            m.setattr(Tarball, "__init__", TestFileTree.MockTarball.__init__)
+            tb = Tarball(tar)
+            with pytest.raises(Exception) as exc:
+                tb.unpack(incoming, results)
+            assert str(exc.value) == "Command 'tar' timed out after 43 seconds"
+            assert rmtree_called
+
+    def test_unpack_find_subprocess_exception(self, monkeypatch):
+        """Show that, when permission change of the Tarball fails and raises
+        an Exception it is handled successfully."""
+        tar = Path("/mock/A.tar.xz")
+        tarball_name = tar.name.removesuffix(".tar.xz")
+        incoming = Path("/mock/incoming/ABC")
+        results = Path("/mock/results/ABC")
+        rmtree_called = True
+
+        def mock_rmtree(path: Path, ignore_errors=False):
+            nonlocal rmtree_called
+            rmtree_called = True
+
+            assert ignore_errors
+            assert path == incoming / f"{tarball_name}.unpack"
+
+        @staticmethod
+        def mock_run(command, dir_path, exception, dir_p):
+            verb = "find"
+            if command.startswith(verb):
+                raise subprocess.TimeoutExpired(verb, 43)
+
+        with monkeypatch.context() as m:
+            m.setattr(Path, "mkdir", lambda path, parents: None)
+            m.setattr(Tarball, "subprocess_run", mock_run)
+            m.setattr(shutil, "rmtree", mock_rmtree)
+            m.setattr(Tarball, "__init__", TestFileTree.MockTarball.__init__)
+            tb = Tarball(tar)
+
+            with pytest.raises(Exception) as exc:
+                tb.unpack(incoming, results)
+            assert str(exc.value) == "Command 'find' timed out after 43 seconds"
+            assert rmtree_called
+
+    def test_unpack_move_error(self, monkeypatch):
+        """Show that, when something goes wrong while moving results and it
+        raises an Exception, it is handled successfully."""
+        tar = Path("/mock/A.tar.xz")
+        tarball_name = tar.name.removesuffix(".tar.xz")
+        incoming = Path("/mock/incoming/ABC")
+        results = Path("/mock/results/ABC")
+        rmtree_called = False
+
+        def mock_rmtree(path: Path, ignore_errors=False):
+            nonlocal rmtree_called
+            rmtree_called = True
+
+            assert ignore_errors
+            assert path == incoming / f"{tarball_name}.unpack"
+
+        @staticmethod
+        def mock_move(src: Path, dest: Path, ctx: Path):
+            raise FileNotFoundError(f"No such file or directory: '{src}'")
+
+        with monkeypatch.context() as m:
+            m.setattr(Path, "mkdir", lambda path, parents: None)
+            m.setattr(Tarball, "subprocess_run", lambda *args: None)
+            m.setattr(Tarball, "do_move", mock_move)
+            m.setattr(shutil, "rmtree", mock_rmtree)
+            m.setattr(Tarball, "__init__", TestFileTree.MockTarball.__init__)
+            tb = Tarball(tar)
+
+            unpacking_dir = incoming / f"{tarball_name}.unpack" / tarball_name
+            with pytest.raises(Exception) as exc:
+                tb.unpack(incoming, results)
+            assert str(exc.value) == f"No such file or directory: '{unpacking_dir}'"
+            assert rmtree_called
+
+    def test_unpack_success(self, monkeypatch):
+        """Test to check the unpacking functionality of the FileTree"""
+        tar = Path("/mock/A.tar.xz")
+        tarball_name = tar.name.removesuffix(".tar.xz")
+        incoming = Path("/mock/incoming/ABC")
+        results = Path("/mock/results/ABC")
+        call = list()
+
+        def mock_rmtree(path: Path, ignore_errors=False):
+            call.append("rmtree")
+            assert ignore_errors
+            assert path == incoming / f"{tarball_name}.unpack"
+
+        def mock_symlink(path: Path, link: Path):
+            call.append("symlink_to")
+            assert path == results / tarball_name
+            assert link == incoming / tarball_name
+
+        def mock_run(args, **kwargs):
+            call.append(args[0])
+
+            tar_target = "--file=" + str(tar)
+            assert args[0] == "find" or args[0] == "tar" and tar_target in args
+            return subprocess.CompletedProcess(
+                args, returncode=0, stdout="Successfully Unpacked!", stderr=None
+            )
+
+        with monkeypatch.context() as m:
+            m.setattr(Path, "mkdir", lambda path, parents: None)
+            m.setattr(subprocess, "run", mock_run)
+            m.setattr(Tarball, "do_move", lambda *args: None)
+            m.setattr(shutil, "rmtree", mock_rmtree)
+            m.setattr(Path, "symlink_to", mock_symlink)
+            m.setattr(Tarball, "__init__", TestFileTree.MockTarball.__init__)
+            tb = Tarball(tar)
+            tb.unpack(incoming, results)
+            assert call == ["tar", "find", "rmtree", "symlink_to"]
+            assert tb.unpacked == incoming / tb.name
+            assert tb.results_link == results / tb.name
+
+    def test_find(
+        self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
+    ):
         """
         Create a dataset, check the tree state, and test that we can find it
         through the various supported methods.
         """
+
+        def mock_run(args, **kwargs):
+            """Prevents the Tarball contents from actually being unpacked"""
+            return subprocess.CompletedProcess(
+                args, returncode=0, stdout="Success!", stderr=None
+            )
 
         source_tarball, source_md5, md5 = tarball
         dataset_name = Dataset.stem(source_tarball)
@@ -257,11 +541,19 @@ class TestFileTree:
         assert list(new.datasets) == [md5]
         assert list(new.tarballs) == [dataset_name]
 
-    def test_lifecycle(self, selinux_enabled, server_config, make_logger, tarball):
+    def test_lifecycle(
+        self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
+    ):
         """
         Create a dataset, unpack it, remove the unpacked version, and finally
         delete it.
         """
+
+        def mock_run(args, **kwargs):
+            """Prevents the Tarball contents from actually being unpacked"""
+            return subprocess.CompletedProcess(
+                args, returncode=0, stdout="Success!", stderr=None
+            )
 
         source_tarball, source_md5, md5 = tarball
         tree = FileTree(server_config, make_logger)
