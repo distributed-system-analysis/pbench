@@ -1,15 +1,17 @@
 import * as TYPES from "./types";
 
+import {
+  DASHBOARD_SAVED,
+  DASHBOARD_SEEN,
+  DATASET_ACCESS,
+  DATASET_CREATED,
+  DATASET_OWNER,
+  SERVER_DELETION,
+  USER_FAVORITE,
+} from "assets/constants/overviewConstants";
+
 import API from "../utils/axiosInstance";
 import { constructToast } from "./toastActions";
-
-const DATASET_ACCESS = "dataset.access"
-const DATASET_CREATED = "dataset.created"
-const DATASET_OWNER = "dataset.owner"
-const DASHBOARD_SAVED = "global.dashboard.saved"
-const DASHBOARD_SEEN = "global.dashboard.seen"
-const SERVER_DELETION = "server.deletion"
-const USER_FAVORITE = "user.dashboard.favorite"
 
 export const getDatasets = () => async (dispatch, getState) => {
   try {
@@ -29,8 +31,6 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("owner", username);
 
     const endpoints = getState().apiEndpoint.endpoints;
-    const defaultPerPage = getState().overview.defaultPerPage;
-
     const response = await API.get(endpoints?.api?.datasets_list, {
       params: params,
     });
@@ -43,25 +43,7 @@ export const getDatasets = () => async (dispatch, getState) => {
           payload: data,
         });
 
-        const savedRuns = data.filter(
-          (item) => item.metadata[DASHBOARD_SAVED]
-        );
-        const newRuns = data.filter(
-          (item) => !item.metadata[DASHBOARD_SAVED]
-        );
-
-        dispatch({
-          type: TYPES.SAVED_RUNS,
-          payload: savedRuns,
-        });
-        dispatch({
-          type: TYPES.NEW_RUNS,
-          payload: newRuns,
-        });
-        dispatch({
-          type: TYPES.INIT_NEW_RUNS,
-          payload: newRuns?.slice(0, defaultPerPage),
-        });
+        dispatch(initializeRuns());
       }
     }
   } catch (error) {
@@ -71,6 +53,25 @@ export const getDatasets = () => async (dispatch, getState) => {
   dispatch({ type: TYPES.COMPLETED });
 };
 
+const initializeRuns = () => (dispatch, getState) => {
+  const data = getState().overview.datasets;
+  const defaultPerPage = getState().overview.defaultPerPage;
+
+  const savedRuns = data.filter((item) => item.metadata[DASHBOARD_SAVED]);
+  const newRuns = data.filter((item) => !item.metadata[DASHBOARD_SAVED]);
+  dispatch({
+    type: TYPES.SAVED_RUNS,
+    payload: savedRuns,
+  });
+  dispatch({
+    type: TYPES.NEW_RUNS,
+    payload: newRuns,
+  });
+  dispatch({
+    type: TYPES.INIT_NEW_RUNS,
+    payload: newRuns?.slice(0, defaultPerPage),
+  });
+};
 const metaDataActions = {
   save: DASHBOARD_SAVED,
   read: DASHBOARD_SEEN,
@@ -89,9 +90,8 @@ export const updateDataset =
   (dataset, actionType, actionValue) => async (dispatch, getState) => {
     try {
       dispatch({ type: TYPES.LOADING });
-      const savedRuns = getState().overview.savedRuns;
-      const newRuns = getState().overview.newRuns;
-      const initNewRuns = getState().overview.initNewRuns;
+
+      const runs = getState().overview.datasets;
 
       const method = metaDataActions[actionType];
 
@@ -103,37 +103,16 @@ export const updateDataset =
         }
       );
       if (response.status === 200) {
-        if (actionType === "save") {
-          savedRuns.push(dataset);
-          const filteredNewRuns = newRuns.filter(
-            (item) => item.resource_id !== dataset.resource_id
-          );
-          const filteredInitRuns = initNewRuns.filter(
-            (item) => item.resource_id !== dataset.resource_id
-          );
-          dispatch({
-            type: TYPES.SAVED_RUNS,
-            payload: savedRuns,
-          });
-          dispatch({
-            type: TYPES.INIT_NEW_RUNS,
-            payload: filteredInitRuns,
-          });
-          dispatch({
-            type: TYPES.NEW_RUNS,
-            payload: filteredNewRuns,
-          });
-        } else {
-          const dataIndex = newRuns.findIndex(
-            (item) => item.resource_id === dataset.resource_id
-          );
-          newRuns[dataIndex].metadata[metaDataActions[actionType]] =
-            response.data[metaDataActions[actionType]];
-          dispatch({
-            type: TYPES.NEW_RUNS,
-            payload: newRuns,
-          });
-        }
+        const dataIndex = runs.findIndex(
+          (item) => item.resource_id === dataset.resource_id
+        );
+        runs[dataIndex].metadata[metaDataActions[actionType]] =
+          response.data[metaDataActions[actionType]];
+        dispatch({
+          type: TYPES.USER_RUNS,
+          payload: runs,
+        });
+        dispatch(initializeRuns());
       } else {
         dispatch(constructToast("danger", response?.data?.message));
       }
@@ -152,24 +131,18 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
       `${endpoints?.api?.datasets_delete}/${dataset.resource_id}`
     );
     if (response.status === 200) {
-      const datasets = getState().overview.newRuns;
-      const initNewRuns = getState().overview.initNewRuns;
+      const datasets = getState().overview.datasets;
+
       const result = datasets.filter(
         (item) => item.resource_id !== dataset.resource_id
       );
-      const filteredInitRuns = initNewRuns.filter(
-        (item) => item.resource_id !== dataset.resource_id
-      );
 
       dispatch({
-        type: TYPES.INIT_NEW_RUNS,
-        payload: filteredInitRuns,
-      });
-
-      dispatch({
-        type: TYPES.NEW_RUNS,
+        type: TYPES.USER_RUNS,
         payload: result,
       });
+
+      dispatch(initializeRuns());
       dispatch(constructToast("success", "Deleted!"));
     }
   } catch (error) {
@@ -214,4 +187,36 @@ export const updateMultipleDataset =
     } else {
       dispatch(constructToast("warning", "Select dataset(s) for update"));
     }
+  };
+
+export const publishDataset =
+  (dataset, updateValue) => async (dispatch, getState) => {
+    try {
+      dispatch({ type: TYPES.LOADING });
+      const endpoints = getState().apiEndpoint.endpoints;
+      const savedRuns = getState().overview.savedRuns;
+
+      const response = await API.post(
+        `${endpoints?.api?.datasets_publish}/${dataset.resource_id}`,
+        {
+          access: updateValue,
+        }
+      );
+      if (response.status === 200) {
+        const dataIndex = savedRuns.findIndex(
+          (item) => item.resource_id === dataset.resource_id
+        );
+        savedRuns[dataIndex].metadata[DATASET_ACCESS] = updateValue;
+
+        dispatch({
+          type: TYPES.SAVED_RUNS,
+          payload: savedRuns,
+        });
+        dispatch(constructToast("success", "Updated!"));
+      }
+    } catch (error) {
+      dispatch(constructToast("danger", error?.response?.data?.message));
+      dispatch({ type: TYPES.NETWORK_ERROR });
+    }
+    dispatch({ type: TYPES.COMPLETED });
   };

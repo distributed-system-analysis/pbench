@@ -1,34 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import "./index.less";
+
+import { EmptyTable, Heading, LoginHint, SearchBox } from "./common-components";
 import {
-  ToggleGroup,
-  ToggleGroupItem,
-  PageSectionVariants,
-} from "@patternfly/react-core";
-import {
+  InnerScrollContainer,
+  OuterScrollContainer,
   TableComposable,
-  Thead,
-  Tr,
-  Th,
   Tbody,
   Td,
-  OuterScrollContainer,
-  InnerScrollContainer,
+  Th,
+  Thead,
+  Tr,
 } from "@patternfly/react-table";
 import {
+  PageSectionVariants,
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@patternfly/react-core";
+import React, { useEffect, useState } from "react";
+import { bumpToDate, getTodayMidnightUTCDate } from "utils/dateFunctions";
+import {
   fetchPublicDatasets,
+  getFavoritedDatasets,
   updateFavoriteRepoNames,
   updateTblData,
-  getFavoritedDatasets,
 } from "actions/datasetListActions";
-import TablePagination from "../PaginationComponent";
+import { useDispatch, useSelector } from "react-redux";
+
 import DatePickerWidget from "../DatePickerComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
-import { LoginHint, Heading, EmptyTable, SearchBox } from "./common-components";
-import { getTodayMidnightUTCDate, bumpToDate } from "utils/dateFunctions";
-import { useNavigate } from "react-router";
 import { TOC } from "assets/constants/navigationConstants";
+import TablePagination from "../PaginationComponent";
+import { useNavigate } from "react-router";
 
 let startDate = new Date(Date.UTC(1990, 10, 4));
 let endDate = bumpToDate(getTodayMidnightUTCDate(), 1);
@@ -84,7 +86,7 @@ const TableWithFavorite = () => {
 
   const getSortableRowValues = (data) => {
     const { controller, name } = data;
-    const creationDate = data.metadata["dataset.created"];
+    const creationDate = data.metadata[DATASET_CREATED];
     return [controller, name, creationDate];
   };
   if (activeSortIndex !== null) {
@@ -219,7 +221,7 @@ const TableWithFavorite = () => {
                               {repo.name}
                             </Td>
                             <Td dataLabel={columnNames.creationDate}>
-                              {repo.metadata["dataset.created"]}
+                              {repo.metadata[DATASET_CREATED]}
                             </Td>
                             <Td
                               favorites={{

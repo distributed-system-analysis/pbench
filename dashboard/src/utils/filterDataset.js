@@ -9,7 +9,7 @@
  */
 export const filterData = (dataArray, startDate, endDate, searchKey) => {
   return dataArray.filter((data) => {
-    const datasetDate = new Date(data.metadata["dataset.created"]);
+    const datasetDate = new Date(data.metadata[DATASET_CREATED]);
     return (
       data.name.includes(searchKey) &&
       datasetDate >= startDate &&
