@@ -16,6 +16,9 @@ required CLI interface RPMs:
   * We currently only support container images built from `x86_64`
     architecture RPMs
 
+  * Visualizers have been moved to a new repo, source code can be found
+    at: [distributed-system-analysis/visualizers](https://github.com/distributed-system-analysis/visualizers)
+
 # How to Use
 
 The first step is taken elsewhere, where one would build `pbench-agent`,
