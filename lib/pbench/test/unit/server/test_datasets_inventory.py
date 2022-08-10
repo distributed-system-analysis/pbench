@@ -43,6 +43,7 @@ class TestDatasetsAccess:
     def mock_find_dataset(self, dataset):
         class Tarball(object):
             unpacked = Path("/dataset1/")
+            tarball_path = Path("/dataset1/")
 
         # Validate the resource_id
         Dataset.query(resource_id=dataset)
@@ -107,4 +108,12 @@ class TestDatasetsAccess:
             werkzeug.utils, "send_file", lambda *args, **kwargs: {"status": "OK"}
         )
         response = query_get_as("fio_2", "1-default/default.csv", HTTPStatus.OK)
+        assert response.status_code == HTTPStatus.OK
+
+    def test_get_result_tarball(self, query_get_as, monkeypatch):
+        monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
+        monkeypatch.setattr(
+            werkzeug.utils, "send_file", lambda *args, **kwargs: {"status": "OK"}
+        )
+        response = query_get_as("fio_2", "", HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
