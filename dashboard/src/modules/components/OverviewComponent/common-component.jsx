@@ -99,7 +99,6 @@ export const NewRunsHeading = () => {
   };
   return (
     <div className="newruns-heading-container">
-      {/* <Heading title="New and unmanaged runs" /> */}
       <div>
         <Button
           variant="link"

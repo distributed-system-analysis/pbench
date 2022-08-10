@@ -26,7 +26,9 @@ const OverviewComponent = () => {
   const dispatch = useDispatch();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { loginDetails } = useSelector((state) => state.userAuth);
-  const [expanded, setExpanded] = React.useState(["expired", "newRuns"]);
+  const [expanded, setExpanded] = React.useState(
+    new Set(["expired", "newRuns"])
+  );
 
   useEffect(() => {
     if (Object.keys(endpoints).length > 0) {
@@ -35,13 +37,14 @@ const OverviewComponent = () => {
   }, [dispatch, endpoints, loginDetails]);
 
   const onToggle = (id) => {
-    if (expanded.includes(id)) {
-      setExpanded(expanded.filter((item) => item !== id));
+    if (expanded.has(id)) {
+      expanded.delete(id);
     } else {
-      setExpanded((oldArray) => [...oldArray, id]);
+      expanded.add(id);
     }
+    setExpanded(new Set(expanded));
   };
-  const isExpandedClass = expanded.length === 0 ? "not-expanded" : "";
+  const isExpandedClass = expanded.size === 0 ? "not-expanded" : "";
   return (
     <div className="overview-container">
       <Heading title="Overview" />
@@ -53,13 +56,12 @@ const OverviewComponent = () => {
                 onClick={() => {
                   onToggle("expired");
                 }}
-                isExpanded={expanded.includes("expired")}
+                isExpanded={expanded.has("expired")}
                 id="expired"
               >
                 Expiring soon
               </AccordionToggle>
-              <AccordionContent isHidden={!expanded.includes("expired")}>
-                {/* <Heading title="Expiring soon" /> */}
+              <AccordionContent isHidden={!expanded.has("expired")}>
                 <NoExpiringRuns />
               </AccordionContent>
             </AccordionItem>
@@ -70,12 +72,12 @@ const OverviewComponent = () => {
                 onClick={() => {
                   onToggle("newRuns");
                 }}
-                isExpanded={expanded.includes("newRuns")}
+                isExpanded={expanded.has("newRuns")}
                 id="newRuns"
               >
                 New and Unmanaged
               </AccordionToggle>
-              <AccordionContent isHidden={!expanded.includes("newRuns")}>
+              <AccordionContent isHidden={!expanded.has("newRuns")}>
                 <NewRunsHeading />
                 <NewRunsComponent />
               </AccordionContent>
