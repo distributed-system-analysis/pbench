@@ -208,12 +208,9 @@ class SosReport:
 
 
 class SosCollection:
-    def __init__(self, url_prefix: str, cpu_n: int, sos_host_server: str) -> None:
+    def __init__(self, url_prefix: str, sos_host_server: str) -> None:
         self.url_prefix = url_prefix
-        self.ncpus = cpu_count() - 1 if cpu_n == 0 else cpu_n
-        # self.pool = ProcessPool(self.ncpus)
         self.host = sos_host_server
-        # self.ssh_client, self.sftp_client = self.client_setup(self.host)
         self.seen_sos_valid = dict()
         self.seen_sos_invalid = dict()
         self.download_retry_attempts = 3
@@ -255,12 +252,6 @@ class SosCollection:
             "sys/block/sdX/queue/scheduler",
             "etc/tuned/active_profile",  # recommended by Peter
         ]
-    
-    def sort_and_unique1(filename):
-        with open(filename, "r") as f:
-            lines = set(f)
-        return lines
-
 
     def sos_folder_exist(self):
         self.sos_folder_path = os.getcwd() + "/sosreports_new"
