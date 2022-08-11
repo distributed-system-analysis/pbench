@@ -91,15 +91,27 @@ To temporarily disable (this may give security folks heartburn):
     # systemctl stop firewalld
     # systemctl stop iptables
 
-To temporarily enable port under firewalld use:
+To temporarily enable a port under firewalld use:
 
-    # firewall-cmd --add-port=20000/tcp
+    # firewall-cmd --add-port=20010/tcp
 
-Where "20000" is the default port pbench-uperf will use for the uperf server.
-If you are using multiple servers, then starting with port 20000, pbench-uperf
+Where "20010" is the default port pbench-uperf will use for the uperf server.
+If you are using multiple servers, then starting with port 20010, pbench-uperf
 will use ports in increments of 10.  E.g. for 3 client / server pairs, ports
-ports 20000, 20010, and 20020 will be used.  Be sure you open those ports on
+ports 20010, 20020, and 20030 will be used.  Be sure you open those ports on
 the remote systems ahead of time.
+
+You will also need to open all the local ports on each system. You can find out
+the range of the local ports using this command:
+
+    # sysctl net.ipv4.ip_local_port_range
+
+The default range is 32768-60999, You can use the same command to open a range
+of ports:
+
+    # firewall-cmd --add-port=32768-60999/tcp
+
+and similarly for udp (if needed).
 
 ## syntax
 
