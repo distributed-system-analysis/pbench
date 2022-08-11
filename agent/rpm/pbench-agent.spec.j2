@@ -52,6 +52,8 @@ Requires: %{__python_name}-psutil
 
 %endif
 
+%define __python /usr/bin/python3
+
 # docutils is not available for RHEL7 - it is also *only* available as
 # `python3-docutil's on everything else, which is not good for
 # RHEL8/CentOS Stream 8 where we would want `python39-docutils', but
