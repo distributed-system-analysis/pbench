@@ -64,7 +64,7 @@ For example, such protocols often induce full-duplex traffic
 which can stress the network differently than unidirectional in/out traffic.
 For example, try adding this set of flows to preceding flow:
 
-    (s1, s2),.(s2, s3),.(s3, s4),.(s4, s1)
+    (s1, s2), (s2, s3), (s3, s4), (s4, s1)
 
 # how to run it
 
