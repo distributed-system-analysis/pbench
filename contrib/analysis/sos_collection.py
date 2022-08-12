@@ -11,7 +11,9 @@ class SosReport:
     def __init__(self):
         self.data = dict()
 
-    def add_sos_data(self, sosreport_path: str, combined_data: dict, filenames: list[str]):
+    def add_sos_data(
+        self, sosreport_path: str, combined_data: dict, filenames: list[str]
+    ):
         self.data = self.extract_and_process(sosreport_path, combined_data, filenames)
 
     def __str__(self):
@@ -270,7 +272,11 @@ class SosCollection:
     def extract_sos_data(self, sosreport: str, combined_data: dict):
         download_attempt = 1
         extraction_attempt = 1
-        info = {"download_unsuccessful": False, "extraction_unsuccessful": False, "extracted_data": dict()}
+        info = {
+            "download_unsuccessful": False,
+            "extraction_unsuccessful": False,
+            "extracted_data": dict(),
+        }
         while download_attempt <= self.download_retry_attempts:
             try:
                 local_path = self.copy_sos_from_server(sosreport)
@@ -292,7 +298,9 @@ class SosCollection:
                     # self.cleanup_sos_tar(local_path)
                     break
                 except Exception as e:
-                    print(f"Failed to extract on attempt {extraction_attempt}: {type(e)}")
+                    print(
+                        f"Failed to extract on attempt {extraction_attempt}: {type(e)}"
+                    )
                     extraction_attempt += 1
 
             if extraction_attempt > self.extraction_retry_attempts:
@@ -300,8 +308,6 @@ class SosCollection:
             else:
                 print(f"extraction {sosreport} unsuccesful")
             return info
-
-            
 
     def copy_sos_from_server(self, sosreport: str):
         ssh_client, sftp_client = self.client_setup(self.host)
@@ -321,12 +327,17 @@ class SosCollection:
             if self.seen_sos_valid.get(sosreport, None) == None:
                 if self.seen_sos_invalid.get(sosreport, None) == None:
                     extracted_sos_data = self.extract_sos_data(sosreport, combined_data)
-                    if extracted_sos_data["download_unsuccessful"] is True or extracted_sos_data["extraction_unsuccessful"] is True:
+                    if (
+                        extracted_sos_data["download_unsuccessful"] is True
+                        or extracted_sos_data["extraction_unsuccessful"] is True
+                    ):
                         self.seen_sos_invalid[sosreport] = extracted_sos_data
                     else:
                         self.seen_sos_valid[sosreport] = extracted_sos_data
                 else:
-                    combined_data["sosreports"][sosreport]["extracted_sos"] = self.seen_sos_invalid[sosreport]
+                    combined_data["sosreports"][sosreport][
+                        "extracted_sos"
+                    ] = self.seen_sos_invalid[sosreport]
             else:
                 combined_data["sosreports"][sosreport][
                     "extracted_sos"

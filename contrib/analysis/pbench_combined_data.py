@@ -53,7 +53,7 @@ class PbenchCombinedData:
             abstract class specifying filters to perform
 
         """
-        
+
         self.data = {"diagnostics": dict()}
         self.filters = filters
 
@@ -61,7 +61,7 @@ class PbenchCombinedData:
         """Performs filters of the specified type on doc and updates diagnostics attribute
 
         This performs all the filters of the diagnostic type passed in
-        on the doc passed in and returns the specific type's filtered data and 
+        on the doc passed in and returns the specific type's filtered data and
         diagnostic data as a tuple.
 
         Parameters
@@ -99,10 +99,10 @@ class PbenchCombinedData:
         type_diagnostic["valid"] = not invalid
         # new_data is filtered_data collected based on filters applied
         return new_data, type_diagnostic
-    
+
     def add_data_manual(self, data: dict, diagnostic_data: dict, type: str) -> None:
         """Given data and diagnostic info with type, updates self.data
-        
+
         Parameters
         ----------
         data : dict
@@ -128,10 +128,8 @@ class PbenchCombinedData:
         None
 
         """
-        # print("IN ADD RUN DATA")
         processed_run_data, run_diagnostic = self.filter(doc, "run")
-        # print(processed_run_data, run_diagnostic)
-        self.add_data_manual(processed_run_data, run_diagnostic, "run")      
+        self.add_data_manual(processed_run_data, run_diagnostic, "run")
 
     def add_result_data(self, doc) -> None:
         """Processes result doc given
@@ -159,7 +157,7 @@ class PbenchCombinedData:
         """
         diskhost_data, diskhost_diagnostic = self.filter(self, "diskhost")
         self.add_data_manual(diskhost_data, diskhost_diagnostic, "diskhost")
-    
+
     def add_client_names(self):
         """Adds client name data
 
@@ -204,7 +202,7 @@ class PbenchCombinedDataCollection:
         integration lab server where sosreports are stored
     session : Session
         A session to make request to url (used for diskhost name retrieval)
-    
+
     results_seen : dict # TODO: Is this still necessary here
         Map from result_id to True if encountered
     result_temp_id : int    # TODO: what should be done with this
@@ -258,7 +256,7 @@ class PbenchCombinedDataCollection:
         self.invalid = {"run": dict(), "result": dict(), "client_side": dict()}
         self.es = es
         self.url_prefix = url_prefix
-        self.results_seen = dict() #TODO: fix
+        self.results_seen = dict()  # TODO: fix
         self.session = session
         self.incoming_url = f"{self.url_prefix}/incoming/"
         self.diskhost_map = dict()
@@ -266,26 +264,23 @@ class PbenchCombinedDataCollection:
 
         self.filters = {
             # "special": [ClientCount(self.es)],
-            "run" : [ClientCount(self.es), RunFilter()],
+            "run": [ClientCount(self.es), RunFilter()],
             "result": [ResultFilter(self.results_seen, self.valid)],
-            "diskhost": [DiskAndHostFilter(self.session, self.incoming_url, self.diskhost_map)],
+            "diskhost": [
+                DiskAndHostFilter(self.session, self.incoming_url, self.diskhost_map)
+            ],
             "clientname": [ClientNamesFilter(self.es, self.clientnames_map)],
         }
         self.trackers_initialization()
-        
-        
+
         self.sos_host_server = sos_host_server
         self.record_limit = record_limit
         self.ncpus = cpu_count() - 1 if cpu_n == 0 else cpu_n
         self.pool = ProcessPool(self.ncpus)
-        self.sos_collection = SosCollection(
-            self.url_prefix, self.sos_host_server
-        )
+        self.sos_collection = SosCollection(self.url_prefix, self.sos_host_server)
 
         self.result_temp_id = 0
 
-        
-    
     def trackers_initialization(self) -> None:
         """Initializes all diagnostic tracker values to 0.
 
@@ -310,13 +305,15 @@ class PbenchCombinedDataCollection:
                     self.trackers[filter_type].update({f"missing.{field}": 0})
                 for diagnostic_check in filter.diagnostic_names:
                     self.trackers[filter_type].update({diagnostic_check: 0})
-    
-    def update_diagnostic_trackers(self, diagnsotic_data: dict, diagnostic_type: str) -> None:
+
+    def update_diagnostic_trackers(
+        self, diagnsotic_data: dict, diagnostic_type: str
+    ) -> None:
         """Given the diagnostic info of a certain type of data, updates trackers appropriately.
 
-        If diagnostic info has boolean value, assumes that True corresponds to an error and 
-        increments trackers dict appropriately. 
-        
+        If diagnostic info has boolean value, assumes that True corresponds to an error and
+        increments trackers dict appropriately.
+
         #NOTE: If not boolean counts occurences of that value
         for that specific check. tried to implement this, but caused errors cause of tracker initialization
 
@@ -342,10 +339,9 @@ class PbenchCombinedDataCollection:
         self.trackers[diagnostic_type]["total_records"] += 1
         for diagnostic in diagnsotic_data:
             value = diagnsotic_data[diagnostic]
-            if value is True: 
+            if value is True:
                 self.trackers[diagnostic_type][diagnostic] += 1
-            
-        
+
     def print_report(self) -> None:
         """Print tracker information"""
         print(
@@ -354,7 +350,6 @@ class PbenchCombinedDataCollection:
             + str(self.trackers)
             + "\n---------------\n"
         )
-    
 
     def emit_csv(self) -> None:
         """Creates a folder for csv files, and writes data collected to files
@@ -375,11 +370,8 @@ class PbenchCombinedDataCollection:
         # TODO: trackers should probably not be emitted, and if they are each type
         #       should get its own file, since structure gets messed up in csv
 
-
         # convert all dicts to pandas dataframes and then to csv files
-        valid_df = pandas.DataFrame(
-            self.final_valid.values(), index=self.final_valid.keys()
-        )
+        valid_df = pandas.DataFrame(self.valid.values(), index=self.valid.keys())
         invalid_df = pandas.DataFrame(self.invalid.values(), index=self.invalid.keys())
         trackers_df = pandas.DataFrame(
             self.trackers.values(), index=self.trackers.keys()
@@ -390,6 +382,10 @@ class PbenchCombinedDataCollection:
         clientname_df = pandas.DataFrame(
             self.clientnames_map.values(), index=self.clientnames_map.keys()
         )
+        slat_df = valid_df[valid_df["sample.measurement_title"] == "slat"]
+        clat_df = valid_df[valid_df["sample.measurement_title"] == "clat"]
+        lat_df = valid_df[valid_df["sample.measurement_title"] == "lat"]
+        thr_df = valid_df[valid_df["sample.measurement_type"] == "throughput"]
 
         # writes to csv in w+ mode meaning overwrite if exists and create if doesn't
         # also specifies path to csv file such that in directory from above.
@@ -398,6 +394,10 @@ class PbenchCombinedDataCollection:
         trackers_df.to_csv(csv_folder_path + "/trackers_report.csv", sep=";", mode="w+")
         diskhost_df.to_csv(csv_folder_path + "/diskhost_names.csv", sep=";", mode="w+")
         clientname_df.to_csv(csv_folder_path + "/client_names.csv", sep=";", mode="w+")
+        slat_df.to_csv(csv_folder_path + "/latency_slat.csv", sep=";", mode="w+")
+        clat_df.to_csv(csv_folder_path + "/latency_clat.csv", sep=";", mode="w+")
+        lat_df.to_csv(csv_folder_path + "/latency_lat.csv", sep=";", mode="w+")
+        thr_df.to_csv(csv_folder_path + "/throughput_iops_sec.csv", sep=";", mode="w+")
 
     def add_run(self, doc) -> None:
         """Adds run doc to a PbenchCombinedData object and adds it to either valid or invalid dict.
@@ -417,7 +417,6 @@ class PbenchCombinedDataCollection:
         None
 
         """
-        # print("IN ADD RUN")
         new_run = PbenchCombinedData(self.filters)
         new_run.add_run_data(doc)
         self.update_diagnostic_trackers(new_run.data["diagnostics"]["run"], "run")
@@ -425,12 +424,18 @@ class PbenchCombinedDataCollection:
         # if valid adds run to valid dict else invalid dict
         if new_run.data["diagnostics"]["run"]["valid"] is True:
             self.valid[run_id] = new_run.data
-            assert(self.valid[run_id].get("diagnostics", None) != None)
+            assert self.valid[run_id].get("diagnostics", None) != None
         else:
             self.invalid["run"][run_id] = new_run.data
 
-    # fix for using multiprocessing queue implementation 
-    def add_base_result_to_queue(self, doc, valid_res_queue: pathos_multiprocess.Queue, invalid_res_has_id_queue: pathos_multiprocess.Queue, invalid_res_missing_id_queue: pathos_multiprocess.Queue):
+    # fix for using multiprocessing queue implementation
+    def add_base_result_to_queue(
+        self,
+        doc,
+        valid_res_queue: pathos_multiprocess.Queue,
+        invalid_res_has_id_queue: pathos_multiprocess.Queue,
+        invalid_res_missing_id_queue: pathos_multiprocess.Queue,
+    ):
         """Adds processed base result from doc to appropriate queue.
 
         Given a result doc, first adds it to PbenchCombinedData (PCD) object
@@ -459,23 +464,25 @@ class PbenchCombinedDataCollection:
         base_result = PbenchCombinedData(self.filters)
         base_result.add_result_data(doc)
 
-        self.update_diagnostic_trackers(base_result.data["diagnostics"]["result"], "result")
-        
+        self.update_diagnostic_trackers(
+            base_result.data["diagnostics"]["result"], "result"
+        )
+
         if base_result.data["diagnostics"]["result"]["valid"] is True:
-            valid_res_queue.put(base_result.data) # blocking call. 
+            valid_res_queue.put(base_result.data)  # blocking call.
             # NOTE: async call to do this seems not worthwile
         else:
             if base_result.data["diagnostics"]["result"]["missing._id"] is False:
                 invalid_res_has_id_queue.put(base_result.data)
             else:
                 invalid_res_missing_id_queue.put(base_result.data)
-        
+
         # NOTE: though host and disk names may be marked invalid, a valid output
-            #       is always given in those cases, so we will effectively always have
-            #       valid hostdisk names. However client_names marked as invalid will
-            #       not be added to valid data. The code below then moves the associated run
-            #       to the invalid dict updating trackers, but since the initial code
-            #       treated this as optional and left valid runs valid we do the same.
+        #       is always given in those cases, so we will effectively always have
+        #       valid hostdisk names. However client_names marked as invalid will
+        #       not be added to valid data. The code below then moves the associated run
+        #       to the invalid dict updating trackers, but since the initial code
+        #       treated this as optional and left valid runs valid we do the same.
 
     def es_data_gen(self, es: Elasticsearch, index: str, doc_type: str) -> json:
         """Yield documents where the `run.script` field is "fio" for the given index
@@ -511,35 +518,30 @@ class PbenchCombinedDataCollection:
         ):
             yield doc
 
-
     def load_runs(self, months: list[str]) -> None:
         """Loads all run docs for the months given appropriately
-        
+
         If valid puts it in self.valid, else self.invalid
 
         Parameters
         ----------
         months : list[str]
             list of months in "YYYY-MM" format to load run data for
-        
+
         Returns
         -------
         None
 
         """
-        # print(f"Inside before load_runs execution: {os.getpid()}")
-        # print("IN LOAD RUNS")
-        
         for month in months:
             # run index format in elasticsearch
             run_index = f"dsa-pbench.v4.run.{month}"
             for run_doc in self.es_data_gen(self.es, run_index, "pbench-run"):
                 self.add_run(run_doc)
-        # print(f"Inside After load_runs execution: {os.getpid()}")
 
     def gen_valid_result_indices(self, month):
         """Given a month, returns a list of all the valid result indices
-        
+
         Since elasticsearch stores result indices in YYYY-MM-DD format, and on
         elasticsearch v1.9, need to iterate over all MM-DD to find valid ones,
         because can't use wildcard *.
@@ -548,7 +550,7 @@ class PbenchCombinedDataCollection:
         ----------
         month : str
             month in YYYY-MM format to find valid result indices for
-        
+
         Returns
         -------
         valid_indices : list[str]
@@ -563,9 +565,15 @@ class PbenchCombinedDataCollection:
                 valid_indices.append(result_index)
         return valid_indices
 
-    def load_month_results(self, month: str, valid_res_queue: pathos_multiprocess.Queue, invalid_res_has_id_queue: pathos_multiprocess.Queue, invalid_res_missing_id_queue: pathos_multiprocess.Queue) -> bool:
+    def load_month_results(
+        self,
+        month: str,
+        valid_res_queue: pathos_multiprocess.Queue,
+        invalid_res_has_id_queue: pathos_multiprocess.Queue,
+        invalid_res_missing_id_queue: pathos_multiprocess.Queue,
+    ) -> bool:
         """Loads all result docs for the month given
-        
+
         Parameters
         ----------
         month : str
@@ -585,19 +593,31 @@ class PbenchCombinedDataCollection:
         print(month)
         valid_indices = self.gen_valid_result_indices(month)
         for result_index in valid_indices:
-            for result_doc in self.es_data_gen(self.es, result_index, "pbench-result-data-sample"):
-                self.add_base_result_to_queue(result_doc, valid_res_queue, invalid_res_has_id_queue, invalid_res_missing_id_queue)
+            for result_doc in self.es_data_gen(
+                self.es, result_index, "pbench-result-data-sample"
+            ):
+                self.add_base_result_to_queue(
+                    result_doc,
+                    valid_res_queue,
+                    invalid_res_has_id_queue,
+                    invalid_res_missing_id_queue,
+                )
                 if self.record_limit != -1:
                     if self.trackers["result"]["valid"] >= self.record_limit:
                         return True
         valid_count = self.trackers["result"]["valid"]
         print(f"total valid result count: {valid_count}")
         return False
-            
 
-    def load_results(self, months: list[str], valid_res_queue: pathos_multiprocess.Queue, invalid_res_has_id_queue: pathos_multiprocess.Queue, invalid_res_missing_id_queue: pathos_multiprocess.Queue) -> None:
+    def load_results(
+        self,
+        months: list[str],
+        valid_res_queue: pathos_multiprocess.Queue,
+        invalid_res_has_id_queue: pathos_multiprocess.Queue,
+        invalid_res_missing_id_queue: pathos_multiprocess.Queue,
+    ) -> None:
         """Loads all result docs for the months specified
-        
+
         Parameters
         ----------
         months : list[str]
@@ -613,30 +633,38 @@ class PbenchCombinedDataCollection:
         -------
         None
         """
-        # print(f"Inside before load_results execution: {os.getpid()}")
         self.filters["result"][0].set_run_data(self.valid)
-        # self.filters["result"][0].set_results_seen()
         for month in months:
-            if self.load_month_results(month, valid_res_queue, invalid_res_has_id_queue, invalid_res_missing_id_queue) is True:
+            if (
+                self.load_month_results(
+                    month,
+                    valid_res_queue,
+                    invalid_res_has_id_queue,
+                    invalid_res_missing_id_queue,
+                )
+                is True
+            ):
                 break
         # Signal no more data to be added to these queues
         valid_res_queue.put("DONE")
         invalid_res_has_id_queue.put("DONE")
         invalid_res_missing_id_queue.put("DONE")
         self.results_seen = self.filters["result"][0].get_results_seen()
-        # print(f"Inside After load_results execution: {os.getpid()}")
 
-    
-    def worker_merge_run_result(self, input_queue: pathos_multiprocess.Queue, output_queue: pathos_multiprocess.Queue) -> None:
+    def worker_merge_run_result(
+        self,
+        input_queue: pathos_multiprocess.Queue,
+        output_queue: pathos_multiprocess.Queue,
+    ) -> None:
         """Merges base results from input queue with run data and puts onto output
-        
+
         While the input_queue is not empty, continuously pulls base results off the
         input queue, adds the run data to it as well as diskhost data, and clientname
         data and then puts a dictionary representing all the data onto the output queue.
 
         #NOTE: clientname adding raises a lot of exceptions that I don't have time to debug,
                so I've commented it out for now.
-        
+
         Parameters
         ----------
         input_queue : pathos_multiprocess.Queue
@@ -644,7 +672,7 @@ class PbenchCombinedDataCollection:
             by load_results
         output_queue : pathos_multiprocess.Queue
             queue where semi-combined data containing all but sosreport is put onto by this function
-        
+
         Returns
         -------
         None
@@ -661,41 +689,37 @@ class PbenchCombinedDataCollection:
                 if base_result == "DONE":
                     input_queue.put("DONE")
                     break
-                # print(base_result)
                 associated_run_id = base_result["run.id"]
                 associated_run = self.valid[associated_run_id]
-                # print("DATA FROM SELF.VALID")
-                # print(associated_run)
-                # assert(associated_run.get("diagnostics", None) != None)
+
                 run_diagnostic = associated_run["diagnostics"]["run"]
                 result_diagnostic = base_result.pop("diagnostics")["result"]
                 semi_combined.add_data_manual(associated_run, run_diagnostic, "run")
                 semi_combined.add_data_manual(base_result, result_diagnostic, "result")
-                # if result_diagnostic["valid"] is True:
                 semi_combined.add_host_and_disk_names()
                 # associated_run.add_client_names()         #NOTE: Uncomment when collecting clientname data
                 output_queue.put(semi_combined.data)
                 count += 1
-                # print(f"run result merged: {count} - {pid}")
-                # print(input_queue.empty())
             except EOFError:
                 print("EOF ERROR")
                 break
             except Exception as e:
                 print(f"Exception caught of type: {type(e)}, {e}")
 
-        print(count)
-        print(input_queue.empty())
         print("input_queue empty")
         return
-    
-    def worker_add_sos(self, input_queue: pathos_multiprocess.Queue, output_queue: pathos_multiprocess.Queue) -> None:
+
+    def worker_add_sos(
+        self,
+        input_queue: pathos_multiprocess.Queue,
+        output_queue: pathos_multiprocess.Queue,
+    ) -> None:
         """Merges semi_combined data from input queue with sos data and puts onto output
-        
+
         While the input_queue is not empty, continuously pulls semi_combined data off the
-        input queue, adds the sos data to it and then puts a dictionary 
+        input queue, adds the sos data to it and then puts a dictionary
         representing all the data onto the output queue.
-        
+
         Parameters
         ----------
         input_queue : pathos_multiprocess.Queue
@@ -705,11 +729,11 @@ class PbenchCombinedDataCollection:
 
         # NOTE: Should try to have processes share dict of trackers and dict of sosreports seen so reduce
                 double processing of sos files
-        
+
         Returns
         -------
         None
-        
+
         """
         pid = os.getpid()
         count = 0
@@ -719,20 +743,22 @@ class PbenchCombinedDataCollection:
                 input_queue.put("DONE")
                 break
             self.sos_collection.sync_process_sos(without_sos)
-            print(f"finish 1 sos - {pid}")
             output_queue.put(without_sos)
             count += 1
         print(f"worker {pid} finished - processed {count}")
         return
 
-
-    def merge_run_result_all(self, input_queue: pathos_multiprocess.Queue, output_queue: pathos_multiprocess.Queue) -> None:
+    def merge_run_result_all(
+        self,
+        input_queue: pathos_multiprocess.Queue,
+        output_queue: pathos_multiprocess.Queue,
+    ) -> None:
         """Merges base result data from input queue with run data and puts onto output
-        
+
         Assigns each worker process in the pool to execute the worker_merge_run_result
         function with the required arguments. Puts "DONE" on output queue after all data
         added, then closes and joins process pool.
-        
+
         Parameters
         ----------
         input_queue : pathos_multiprocess.Queue
@@ -740,92 +766,101 @@ class PbenchCombinedDataCollection:
             by load_results
         output_queue : pathos_multiprocess.Queue
             queue where semi-combined data containing all but sosreport is put onto by this function
-        
+
         Returns
         -------
         None
 
         """
-        self.pool.map(self.worker_merge_run_result, (input_queue for i in range(self.ncpus)), (output_queue for i in range(self.ncpus)))
-        output_queue.put("DONE")    # signal no more data to be added to output queue
+        self.pool.map(
+            self.worker_merge_run_result,
+            (input_queue for i in range(self.ncpus)),
+            (output_queue for i in range(self.ncpus)),
+        )
+        output_queue.put("DONE")  # signal no more data to be added to output queue
         self.pool.close()
         self.pool.join()
-        print("finish merge all")
-    
-    def add_sos_data_all(self, input_queue: pathos_multiprocess.Queue, output_queue: pathos_multiprocess.Queue) -> None:
+        print("finish merge run and base result")
+
+    def add_sos_data_all(
+        self,
+        input_queue: pathos_multiprocess.Queue,
+        output_queue: pathos_multiprocess.Queue,
+    ) -> None:
         """Merges semi_combined data from input queue with sos data and puts onto output
-        
+
         Assigns each worker process in the pool to execute the worker_add_sos
         function with the required arguments. Puts "DONE" on output queue after all data
         added, then closes and joins process pool.
-        
+
         Parameters
         ----------
         input_queue : pathos_multiprocess.Queue
             queue containing the semi_combined data that includes run, base_result, diskhost, clientname
         output_queue : pathos_multiprocess.Queue
             queue where fully combined data with sos data is put onto by this function
-        
+
         Returns
         -------
         None
-        
+
         """
-        print("inside sos_data_all")
         self.pool.clear()
         self.pool.restart()
-        self.pool.map(self.worker_add_sos, (input_queue for i in range(self.ncpus)), (output_queue for i in range(self.ncpus)))
-        output_queue.put("DONE")    # signal no more data to be added to output queue
+        self.pool.map(
+            self.worker_add_sos,
+            (input_queue for i in range(self.ncpus)),
+            (output_queue for i in range(self.ncpus)),
+        )
+        output_queue.put("DONE")  # signal no more data to be added to output queue
         self.pool.close()
         self.pool.join()
-    
-    def cleanup_invalid_has_id(self, invalid_with_id_queue: pathos_multiprocess.Queue) -> None:
+        print("finish merge sos report data")
+
+    def cleanup_invalid_has_id(
+        self, invalid_with_id_queue: pathos_multiprocess.Queue
+    ) -> None:
         """Cleans up invalid base result data with result id by adding it to self.invalid
-        
+
         While invalid_with_id_queue empty, gets base result data from it, then adds it to
         self.invalid under 'result' with res.id as key
-        
+
         Parameters
         ----------
         invalid_with_id_queue : pathos_multiprocess.Queue
             queue containing the invalid base result data that has result id
-        
+
         Returns
         -------
         None
-        
+
         """
-        print("invalid_with_id empty: " + str(invalid_with_id_queue.empty()))
-        invalid_with_id_count = 0
         while invalid_with_id_queue.empty() is False:
             res = invalid_with_id_queue.get()
             if res == "DONE":
                 invalid_with_id_queue.put("DONE")
                 break
             self.invalid["result"][res["res.id"]] = res
-            invalid_with_id_count += 1
-            print(f"invalid with id processed: {invalid_with_id_count}")
-        print("invalid_with_id empty: " + str(invalid_with_id_queue.empty()))
         return
-    
-    def cleanup_invalid_no_id(self, invalid_no_id_queue: pathos_multiprocess.Queue) -> None:
+
+    def cleanup_invalid_no_id(
+        self, invalid_no_id_queue: pathos_multiprocess.Queue
+    ) -> None:
         """Cleans up invalid base result data missing result id by adding it to self.invalid
-        
+
         While invalid_with_id_queue empty, gets base result data from it, then adds it to
         self.invalid under 'result' with a temporary id as key.
-        
+
         Parameters
         ----------
         invalid_no_id_queue : pathos_multiprocess.Queue
             queue containing the invalid base result data that is missing result id
-        
+
         Returns
         -------
         None
-        
+
         """
-        print("invalid_no_id empty: " + str(invalid_no_id_queue.empty()))
-        invalid_no_id_count = 0
         while invalid_no_id_queue.empty() is False:
             res = invalid_no_id_queue.get()
             if res == "DONE":
@@ -833,68 +868,50 @@ class PbenchCombinedDataCollection:
                 break
             self.invalid["result"][f"missing_id_{self.result_temp_id}"] = res
             self.result_temp_id += 1
-            invalid_no_id_count += 1
-            print(f"invalid without id processed: {invalid_no_id_count}")
-        print("invalid_no_id empty: " + str(invalid_no_id_queue.empty()))
         return
-    
-    def cleanup_invalids(self, invalid_with_id_queue: pathos_multiprocess.Queue, invalid_no_id_queue: pathos_multiprocess.Queue):
+
+    def cleanup_invalids(
+        self,
+        invalid_with_id_queue: pathos_multiprocess.Queue,
+        invalid_no_id_queue: pathos_multiprocess.Queue,
+    ):
         """Cleans up both invalid base results with and missing result id
-        
+
         Assigns a pool of worker processes to cleanup invalid_with_id_queue, then closes it
         and joins it. It has the main process cleanup invalid_missing_id_queue because need to
-        keep track of how many such seen to generate the temp id. 
+        keep track of how many such seen to generate the temp id.
 
         #NOTE: could change the temp_id to be a value stored from the manager that makes it
                accessible and manipulatable by worker processes safely.
-        
+
         Parameters
         ----------
         invalid_with_id_queue : pathos_multiprocess.Queue
             queue containing the invalid base result data that has result id
         invalid_no_id_queue : pathos_multiprocess.Queue
             queue containing the invalid base result data that is missing result id
-        
+
         Returns
         -------
         None
-        
+
         """
         self.pool.clear()
         self.pool.restart()
-        self.pool.map(self.cleanup_invalid_has_id, (invalid_with_id_queue for i in range(self.ncpus)))
+        self.pool.map(
+            self.cleanup_invalid_has_id,
+            (invalid_with_id_queue for i in range(self.ncpus)),
+        )
         self.pool.close()
         self.pool.join()
         self.cleanup_invalid_no_id(invalid_no_id_queue)
+        print("finish cleanup of invalid base result data")
 
-    def print_queue_statuses(self, queue_dict: dict):
-        """Prints statuses of queues in use
-        
-        Used for debugging primarily
-        
-        Parameters
-        ----------
-        queue_dict : dict
-            dictionary mapping queue names to queue objects
-
-        Returns
-        -------
-        None
-
-        """
-        for queue in queue_dict:
-            item = queue_dict[queue].get()
-            status = False
-            if item == "DONE":
-                queue_dict[queue].put("DONE")
-                status = True
-            else:
-                queue_dict[queue].put(item)
-            print(f"{queue} emmpty status: {status}")
-    
-    def update_valid_final(self, full_combined_queue: pathos_multiprocess.Queue) -> None:
+    def update_valid_final(
+        self, full_combined_queue: pathos_multiprocess.Queue
+    ) -> None:
         """Pulls complete data off of queue and adds it to valid dict property
-        
+
         While the full combined queue is not empty, get data off queue, update
         diagnostic trackers and adds it to valid dict.
 
@@ -912,7 +929,6 @@ class PbenchCombinedDataCollection:
         count = 0
         while full_combined_queue.empty() is False:
             item = full_combined_queue.get()
-            # print(item)
             if item == "DONE":
                 full_combined_queue.put("DONE")
                 break
@@ -920,14 +936,12 @@ class PbenchCombinedDataCollection:
             self.update_diagnostic_trackers(item["diagnostics"]["diskhost"], "diskhost")
             # self.update_diagnostic_trackers(item["diagnostics"]["clientname"], "clientname")      # NOTE: Uncomment when collecting clientname data
             self.valid.update({item["run.id"]: item})
-            print("finish 1 full combined data")
             count += 1
         print(f"full combined data count: {count}")
 
-    
     def aggregate_data(self, months: list[str]) -> None:
         """Aggregates all the data over the months given
-        
+
         Creates multiprocessing manager and queues for transfer of data in pipeline.
         First loads all run data, storing them in self.valid.
         Then loads all result data, putting them in appropriate queues depending on valid status.
@@ -936,7 +950,7 @@ class PbenchCombinedDataCollection:
         Then has worker processes in parallel pull run-result data off of queue, merge it with
         sos data that is downloaded and puts final data onto last queue.
         Then pulls final data off of last queue and stores it in self.valid to be output later.
-        
+
         """
         # correcting for fact that months passed in is from a generator and
         # need to reuse months
@@ -944,70 +958,47 @@ class PbenchCombinedDataCollection:
 
         # sets up ClientCount Filter's dict of run_id_valid_status
         # which is required for the filtering
-        self.filters["run"][0].add_months(months_list)     # NOTE: uncomment line when using ClientCount
+        self.filters["run"][0].add_months(
+            months_list
+        )  # NOTE: uncomment line when using ClientCount
         # print(Counter(self.filters["run"][0].run_id_valid_status))
 
-        print(f"In aggregate_data before managers and queues: {os.getpid()}")
         manager = pathos_multiprocess.Manager()
         valid_base_res_queue = manager.Queue()
         valid_semi_combined_queue = manager.Queue()
         valid_full_combined_queue = manager.Queue()
         invalid_base_res_has_id_queue = manager.Queue()
         invalid_base_res_missing_id_queue = manager.Queue()
-        print(f"In aggregate_data after managers and queues: {os.getpid()}")
-        queue_dict = {
-            "valid_base_res_queue": valid_base_res_queue,
-            "valid_semi_combined_queue": valid_semi_combined_queue,
-            "valid_full_combined_queue": valid_full_combined_queue,
-            "invalid_base_res_has_id_queue": invalid_base_res_has_id_queue,
-            "invalid_base_res_missing_id_queue": invalid_base_res_missing_id_queue
-        }
-        
-        
 
-        print(f"In aggregate_data Before call to load_runs: {os.getpid()}")
         self.load_runs(months_list)
-        print(f"In aggregate_data After call to load_runs: {os.getpid()}")
-
         print("Finish Run processing")
-        print(f"In aggregate_data Before call to load_results: {os.getpid()}")
+
         st = time.time()
-        self.load_results(months_list, valid_base_res_queue, invalid_base_res_has_id_queue, invalid_base_res_missing_id_queue)
+        self.load_results(
+            months_list,
+            valid_base_res_queue,
+            invalid_base_res_has_id_queue,
+            invalid_base_res_missing_id_queue,
+        )
         en = time.time()
         dur = en - st
         print(f"load base results took: {dur:0.2f}")
-        print(f"In aggregate_data After call to load_results: {os.getpid()}")
         print("Finish Result Processing")
-        # time.sleep(5)
-        # exit(1)
-        # pre_merge_res_queue.join()
 
-        # self.print_queue_statuses(queue_dict)
-
-        # pre_merge_res_queue._close()
         s = time.time()
         self.merge_run_result_all(valid_base_res_queue, valid_semi_combined_queue)
         e = time.time()
         duration = e - s
         print(f"merge_run_result_all took: {duration:0.2f}")
-        print("in aggregate")
-        # dur_merge_run_res_queue._close()
-        # dur_merge_run_res_queue.join()
-        # exit(1)
 
-        # exit(1)
-        # self.print_queue_statuses(queue_dict)
-        # self.multiprocess_cleanup(invalid_res_has_id_queue, invalid_res_missing_id_queue)
-        self.cleanup_invalids(invalid_base_res_has_id_queue, invalid_base_res_missing_id_queue)
+        self.cleanup_invalids(
+            invalid_base_res_has_id_queue, invalid_base_res_missing_id_queue
+        )
         self.add_sos_data_all(valid_semi_combined_queue, valid_full_combined_queue)
-        self.final_valid = dict()
-        print("finish sos processing")
 
-        # self.print_queue_statuses(queue_dict)
-        
         self.update_valid_final(valid_full_combined_queue)
         print("finish transfer from final queue to valid dict")
-        # self.print_queue_statuses(queue_dict)
+
 
 class Filter(ABC):
     def __init__(self):
@@ -1032,7 +1023,7 @@ class Filter(ABC):
     @abstractmethod
     def required_fields(self) -> dict:
         """An attribute required_fields specifying required fields in a source doc
-        
+
         Returns
         -------
         required_fiels : dict
@@ -1040,15 +1031,15 @@ class Filter(ABC):
             name to store it under in the filtered data. If name is None, it does not
             get stored. Path format is 'field/subfield/sub_subfield/...' Needs to be
             defined by extending concrete classes
-        
+
         """
         ...
-    
+
     @property
     @abstractmethod
     def optional_fields(self) -> dict:
         """An attribute optional_fields specifying optional fields in a source doc
-        
+
         Returns
         -------
         required_fiels : dict[str, list[str]]
@@ -1057,13 +1048,13 @@ class Filter(ABC):
             The values are lists where the 0th element is the name to store the value under
             in filtered data, and the 1st element is the default value to use if field not found.
             Needs to be defined by extending concrete classes
-        
+
         """
         ...
-    
+
     def update_field_existence(self, doc) -> None:
         """Appropriately updates diagnostic_return and filtered_data
-        
+
         Updates diagnostic_return appropriately if any of the required_fields
         specified are missing. Updates the filtered_data with the values found
         or defaults specified in optional_fields.
@@ -1086,22 +1077,24 @@ class Filter(ABC):
             check_from = doc
             for i in range(len(split_prop) - 1):
                 check_from = check_from[split_prop[i]]
-            
+
             if to_check not in check_from:
                 self.diagnostic_return[f"missing.{property}"] = True
                 self.issues = True
                 # break
             else:
                 if self.required_fields[property] is not None:
-                    self.filtered_data[self.required_fields[property]] = check_from[to_check]
-        
+                    self.filtered_data[self.required_fields[property]] = check_from[
+                        to_check
+                    ]
+
         for opt_prop in self.optional_fields:
             split_prop = opt_prop.split("/")
             to_check = split_prop[-1]
             check_from = doc
             for i in range(len(split_prop) - 1):
                 check_from = check_from[split_prop[i]]
-            
+
             pref_name = opt_prop
             if len(self.optional_fields[opt_prop]) == 2:
                 pref_name = self.optional_fields[opt_prop][0]
@@ -1109,10 +1102,7 @@ class Filter(ABC):
             if to_check not in check_from:
                 self.filtered_data[pref_name] = self.optional_fields[opt_prop][1]
             else:
-               self.filtered_data[pref_name] = check_from[to_check]
-
-            
-
+                self.filtered_data[pref_name] = check_from[to_check]
 
     # appropriately updates instance variables
     @abstractmethod
@@ -1182,31 +1172,37 @@ class Filter(ABC):
             A tuple of the diagnostic_return and issues attributes
         """
         return self.diagnostic_return, self.issues
-    
+
     @abstractmethod
     def apply_filter(self, doc) -> dict:
         """Function specifying how to apply the filter to the source doc given
-        
+
         #NOTE: This is the usually the only function call from Filter objects, so must
         ensure that the diagnostic function gets called from within here.
 
         Returns
         -------
         results : 3-tuple
-            A 3-tuple where the 1st element is the filtered_data dict created by 
+            A 3-tuple where the 1st element is the filtered_data dict created by
             applying the filtering specified. The 2nd element is the
             diagnostic_return dict specifiying the diagnostic checks performed
             and their results. The 3rd element is issues a bool, which is True
             if anything is wrong with the source, and False otherwise.
         """
         ...
-    
+
 
 class RunFilter(Filter):
 
     _diagnostic_names = ["non_2_sosreports", "sosreports_diff_hosts"]
-    _required_fields = {"_source": None, "_source/@metadata": None, "_source/@metadata/md5": "run_id", "_source/@metadata/controller_dir": "controller_dir",
-                       "_index": "run_index", "_source/sosreports": "sosreports"}
+    _required_fields = {
+        "_source": None,
+        "_source/@metadata": None,
+        "_source/@metadata/md5": "run_id",
+        "_source/@metadata/controller_dir": "controller_dir",
+        "_index": "run_index",
+        "_source/sosreports": "sosreports",
+    }
     _optional_fields = {}
     filtered_data = dict()
 
@@ -1217,11 +1213,10 @@ class RunFilter(Filter):
     @property
     def required_fields(self):
         return self._required_fields
-    
+
     @property
     def optional_fields(self):
         return self._optional_fields
-    
 
     def diagnostic(self, doc):
         super().diagnostic(doc)
@@ -1239,7 +1234,7 @@ class RunFilter(Filter):
                 if first["hostname-f"] != second["hostname-f"]:
                     self.diagnostic_return["sosreports_diff_hosts"] = True
                     self.issues = True
-    
+
     def apply_filter(self, doc):
         self.diagnostic(doc)
 
@@ -1258,13 +1253,16 @@ class RunFilter(Filter):
             self.filtered_data["sosreports"] = sosreports
 
         return self.filtered_data, self.diagnostic_return, self.issues
-    
-            
-            
+
+
 class ResultFilter(Filter):
-    _diagnostic_names = ["duplicate_result_id", "result_run_id_not_in_valid_set", "client_hostname_all"]
+    _diagnostic_names = [
+        "duplicate_result_id",
+        "result_run_id_not_in_valid_set",
+        "client_hostname_all",
+    ]
     _required_fields = {
-        "_id": "res.id", 
+        "_id": "res.id",
         "_source": None,
         "_source/run": None,
         "_source/run/id": "run.id",
@@ -1285,16 +1283,16 @@ class ResultFilter(Filter):
         "_source/benchmark/ioengine": "benchmark.ioengine",
         "_source/benchmark/max_stddevpct": "benchmark.max_stddevpct",
         "_source/benchmark/primary_metric": "benchmark.primary_metric",
-        "_source/benchmark/rw": "benchmark.rw"
+        "_source/benchmark/rw": "benchmark.rw",
     }
-    # Add third param in list for function to modify value returned if item exists 
+    # Add third param in list for function to modify value returned if item exists
     # for sentence_setify and anything else
     _optional_fields = {
         "_source/benchmark/filename": ["benchmark.filename", "/tmp/fio"],
         "_source/benchmark/iodepth": ["benchmark.iodepth", "32"],
         "_source/benchmark/size": ["benchmark.size", "4096M"],
         "_source/benchmark/numjobs": ["benchmark.numjobs", "1"],
-        "_source/benchmark/ramp_time": ["benchmark.ramp_time", "none"] ,
+        "_source/benchmark/ramp_time": ["benchmark.ramp_time", "none"],
         "_source/benchmark/runtime": ["benchmark.runtime", "none"],
         "_source/benchmark/sync": ["benchmark.sync", "none"],
         "_source/benchmark/time_based": ["benchmark.time_based", "none"],
@@ -1305,7 +1303,7 @@ class ResultFilter(Filter):
         self.filtered_data = dict()
         self.results_seen = results_seen
         self.run_id_to_data = run_id_to_data
-    
+
     def set_run_data(self, new_run_data):
         self.run_id_to_data.update(new_run_data)
 
@@ -1341,15 +1339,14 @@ class ResultFilter(Filter):
     @property
     def required_fields(self):
         return self._required_fields
-    
+
     @property
     def optional_fields(self):
         return self._optional_fields
-    
 
     def diagnostic(self, doc):
         super().diagnostic(doc)
-        
+
         # duplicate id check
         if self.diagnostic_return["missing._id"] is False:
             id = doc["_id"]
@@ -1368,25 +1365,28 @@ class ResultFilter(Filter):
         if self.filtered_data["sample.client_hostname"] == "all":
             self.diagnostic_return["client_hostname_all"] = True
             self.issues = True
-    
+
     def apply_filter(self, doc):
         self.diagnostic(doc)
 
-        to_setify_from_opt = ["_source/benchmark/filename", "_source/benchmark/size", "_source/benchmark/numjobs"]
-        # print(self.filtered_data)
+        to_setify_from_opt = [
+            "_source/benchmark/filename",
+            "_source/benchmark/size",
+            "_source/benchmark/numjobs",
+        ]
         for field in to_setify_from_opt:
             field_name = self.optional_fields[field][0]
-            self.filtered_data[field_name] = self.sentence_setify(self.filtered_data[field_name])
-        
+            self.filtered_data[field_name] = self.sentence_setify(
+                self.filtered_data[field_name]
+            )
+
         to_setify_required = ["_source/benchmark/rw"]
         for field in to_setify_required:
             field_name = self.required_fields[field]
-            # print(self.diagnostic_return)
             if self.diagnostic_return[f"missing.{field}"] is False:
-                self.filtered_data[field_name] = self.sentence_setify(self.filtered_data[field_name])
-            
-
-        # print(self.filtered_data)
+                self.filtered_data[field_name] = self.sentence_setify(
+                    self.filtered_data[field_name]
+                )
 
         return self.filtered_data, self.diagnostic_return, self.issues
 
@@ -1407,11 +1407,11 @@ class DiskAndHostFilter(Filter):
         self.session = session
         self.incoming_url = incoming_url
         self.diskhost_map = diskhost_map
-        
+
     _diagnostic_names = ["session_response_unsuccessful", "response_invalid_json"]
     _required_fields = {}
     _optional_fields = {}
-    filtered_data = dict() 
+    filtered_data = dict()
 
     @property
     def diagnostic_names(self):
@@ -1420,13 +1420,12 @@ class DiskAndHostFilter(Filter):
     @property
     def required_fields(self):
         return self._required_fields
-    
+
     @property
     def optional_fields(self):
         return self._optional_fields
 
-    def extract_fio_result(
-        self, pbench_combined_data) -> Tuple[list, list]:
+    def extract_fio_result(self, pbench_combined_data) -> Tuple[list, list]:
         """This returns disknames and hostnames associated with data stored.
 
         Given an incoming_url it generates the specific url based on the data stored and performs
@@ -1494,9 +1493,8 @@ class DiskAndHostFilter(Filter):
                 )
 
         return (disknames, hostnames)
-    
-    def add_host_and_disk_names(
-        self, pbench_combined_data) -> None:
+
+    def add_host_and_disk_names(self, pbench_combined_data) -> None:
         """Adds the disk and host names to the self.data dict.
 
         Parameters
@@ -1554,7 +1552,7 @@ class DiskAndHostFilter(Filter):
             except ValueError:
                 self.diagnostic_return["response_invalid_json"] = True
                 self.issues = True
-    
+
     def apply_filter(self, pbench_combined_data) -> dict:
         self.diagnostic(pbench_combined_data)
 
@@ -1563,7 +1561,6 @@ class DiskAndHostFilter(Filter):
 
 
 class ClientNamesFilter(Filter):
-
     def __init__(self, es: Elasticsearch, clientnames_map: dict):
         """Initialization function
 
@@ -1591,11 +1588,11 @@ class ClientNamesFilter(Filter):
     @property
     def required_fields(self):
         return self._required_fields
-    
+
     @property
     def optional_fields(self):
         return self._optional_fields
-    
+
     def extract_clients(self, pbench_combined_data) -> list[str]:
         """Given run and result data already stored returns a list of unique raw client names
 
@@ -1671,7 +1668,6 @@ class ClientNamesFilter(Filter):
         client_names = self.clientnames_map[key]
         self.diagnostic(client_names)
         self.filtered_data.update([("clientnames", client_names)])
-    
 
     def diagnostic(self, clientnames_list):
         # here doc is the list of clientnames
@@ -1686,13 +1682,14 @@ class ClientNamesFilter(Filter):
             self.issues = True
         else:
             pass
-    
+
     def apply_filter(self, pbench_combined_data):
         # since this definitely calls diagnostic, this is fine.
         # NOTE: apply_filter must call diagnostic at some point before returning
         self.add_client_names(pbench_combined_data)
 
         return self.filtered_data, self.diagnostic_return, self.issues
+
 
 class ClientCount(Filter):
     _diagnostic_names = ["non_1_client", "run_not_in_result"]
@@ -1766,13 +1763,9 @@ class ClientCount(Filter):
 
     def measurement_idx_check(self, run):
         for iteration_name in run["3"]["buckets"]:
-            # print(iteration_name["key"])
             for sample_name in iteration_name["4"]["buckets"]:
-                # print(sample_name["key"])
                 for measurement_type in sample_name["5"]["buckets"]:
-                    # print(measurement_type["key"])
                     for measurement_title in measurement_type["6"]["buckets"]:
-                        # print(measurement_title["key"])
                         if len(measurement_title["7"]["buckets"]) > 2:
                             return False
         return True
@@ -1794,7 +1787,7 @@ class ClientCount(Filter):
             for run in resp["aggregations"]["2"]["buckets"]:
                 run_status = self.measurement_idx_check(run)
                 self.run_id_valid_status[run["key"]] = run_status
-    
+
     def add_months(self, months: list[str]):
         for month in months:
             self.add_month(month)
@@ -1806,7 +1799,7 @@ class ClientCount(Filter):
     @property
     def required_fields(self):
         return self._required_fields
-    
+
     @property
     def optional_fields(self):
         return self._optional_fields
@@ -1821,7 +1814,7 @@ class ClientCount(Filter):
             if valid is False:
                 self.diagnostic_return["non_1_client"] = True
                 self.issues = True
-    
+
     def apply_filter(self, doc):
         self.diagnostic(doc)
 

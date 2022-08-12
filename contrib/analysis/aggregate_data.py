@@ -99,7 +99,9 @@ def main(parser: argparse.ArgumentParser) -> None:
     #     _year_month_gen(end_time, args.start_months_prior, args.end_months_prior)
     # )
 
-    pbench_data.aggregate_data(_year_month_gen(end_time,args.start_months_prior, args.end_months_prior))
+    pbench_data.aggregate_data(
+        _year_month_gen(end_time, args.start_months_prior, args.end_months_prior)
+    )
 
     scan_end = time.time()
     duration = scan_end - scan_start
