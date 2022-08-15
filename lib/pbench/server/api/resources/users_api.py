@@ -153,7 +153,8 @@ class Login(Resource):
     def post(self):
         """
         Post request for logging in user.
-        The user is allowed to re-login multiple times and each time a new valid auth token will be provided
+        The user is allowed to re-login multiple times and each time a new
+        valid auth token will be provided
 
         This requires a JSON data with required user metadata fields
         {
@@ -195,23 +196,28 @@ class Login(Resource):
             abort(HTTPStatus.BAD_REQUEST, message="Please provide a valid password")
 
         token_expiry = post_data.get("token_expiry")
-        if token_expiry:
-            if len(token_expiry.keys()) != 1:
-                self.logger.warning(f"Invalid token expiry format {token_expiry}")
-                abort(
-                    HTTPStatus.BAD_REQUEST,
-                    message="Please provide a valid token expiry",
-                )
-            else:
-                if token_expiry.keys() not in self.TOKEN_EXPIRY_KEYS:
-                    self.logger.warning(f"Invalid token expiry format {token_expiry}")
-                    abort(
-                        HTTPStatus.BAD_REQUEST,
-                        message=f"Please provide a valid token expiry, accepted keys are: {self.TOKEN_EXPIRY_KEYS}",
-                    )
-            token_expiry = int(token_expiry)
-        else:
+        if not token_expiry:
             token_expiry = {"minutes": int(self.token_expire_duration)}
+        elif type(token_expiry) is not dict:
+            self.logger.warning(
+                f"Invalid token expiry format {token_expiry}; type: {type(token_expiry)}"
+            )
+            abort(
+                HTTPStatus.BAD_REQUEST,
+                message="Token expiry needs to be a dictionary",
+            )
+        elif any(key not in self.TOKEN_EXPIRY_KEYS for key in token_expiry.keys()):
+            msg = (
+                f"Invalid token expiry key: found {set(token_expiry.keys())}, "
+                f"expected of one {self.TOKEN_EXPIRY_KEYS}"
+            )
+            self.logger.warning(msg)
+            abort(
+                HTTPStatus.BAD_REQUEST,
+                message=msg,
+            )
+        else:
+            token_expiry = {k: int(v) for k, v in token_expiry.items()}
 
         try:
             # fetch the user data

@@ -1,45 +1,47 @@
-import logging
+from flask_restful import abort
 from http import HTTPStatus
+import jwt
+import logging
+import requests
+from requests.structures import CaseInsensitiveDict
 from typing import Dict, List, Optional, Union
 from urllib.parse import urljoin
 
-import jwt
-import requests
-from flask_restful import abort
-from requests.structures import CaseInsensitiveDict
-
 from pbench.server import JSON
-from pbench.server.auth.exceptions import OidcError
+from pbench.server.auth.exceptions import OpenIDClientError
 
 
 class OpenIDClient:
     """
-    OpenID client object.
-    :param server_url: Keycloak server url
-    :param client_id: client id
-    :param realm_name: realm name
-    :param client_secret_key: client secret key
-    :param verify: True if want check connection SSL
-    :param headers: dict of custom header to pass to each HTML request
+    OpenID Connect client object.
     """
 
-    AUTHORIZATION_ENDPOINT: str = ""
-    TOKEN_ENDPOINT: str = ""
-    USERINFO_ENDPOINT: str = ""
-    REVOCATION_ENDPOINT: str = ""
-    JWKS_URI: str = ""
-    LOGOUT_ENDPOINT: str = ""
+    AUTHORIZATION_ENDPOINT: str = None
+    TOKEN_ENDPOINT: str = None
+    USERINFO_ENDPOINT: str = None
+    REVOCATION_ENDPOINT: str = None
+    JWKS_URI: str = None
+    LOGOUT_ENDPOINT: str = None
 
     def __init__(
         self,
         server_url: str,
         client_id: str,
         logger: logging.Logger,
-        realm_name: str = None,
+        realm_name: str = "",
         client_secret_key: str = None,
         verify: bool = True,
         headers: Optional[Dict[str, str]] = None,
     ):
+        """
+        Args:
+            server_url: OpendID connect client server auth url
+            client_id: client id
+            realm_name: realm name
+            client_secret_key: client secret key
+            verify: True if want check connection SSL
+            headers: dict of custom header to pass to each HTML request
+        """
         self.server_url = server_url
         self.client_id = client_id
         self.client_secret_key = client_secret_key
@@ -53,6 +55,13 @@ class OpenIDClient:
         self.verify = verify
         self.connection = requests.session()
         self.set_well_known_endpoints()
+
+    def __repr__(self):
+        return (
+            f"OpenIDClient(server_url={self.server_url}, "
+            f"client_id={self.client_id}, realm_name={self.realm_name}, "
+            f"headers={self.headers})"
+        )
 
     def get_header_param(self, key: str) -> str:
         """
@@ -74,22 +83,21 @@ class OpenIDClient:
         self.headers[key] = value
 
     def del_param_headers(self, key: str):
-        """Remove a specific header parameter.
+        """
+        Remove a specific header parameter.
         Args:
             Key to delete from the headers.
         """
         del self.headers[key]
 
     def set_well_known_endpoints(self):
-        """Sets the well-known configuration endpoints for the current oidc client.
-        This includes common useful endpoints for decoding tokens, getting user
-        information etc.
+        """
+        Sets the well-known configuration endpoints for the current OIDC
+        client. This includes common useful endpoints for decoding tokens,
+        getting user information etc.
         """
         well_known_endpoint = "/.well-known/openid-configuration"
-        if self.realm_name:
-            well_known_uri = f"{self.server_url}{self.realm_name}{well_known_endpoint}"
-        else:
-            well_known_uri = f"{self.server_url}{well_known_endpoint}"
+        well_known_uri = f"{self.server_url}{self.realm_name}{well_known_endpoint}"
         endpoints_json = self._get(well_known_uri).json()
         try:
             OpenIDClient.AUTHORIZATION_ENDPOINT = endpoints_json[
@@ -102,12 +110,17 @@ class OpenIDClient:
             if "end_session_endpoint" in endpoints_json:
                 OpenIDClient.LOGOUT_ENDPOINT = endpoints_json["end_session_endpoint"]
         except KeyError as e:
-            self.logger.exception("{}", str(e))
+            self.logger.exception(
+                f"Key Error while getting all the necessary URI endpoints from "
+                f"{well_known_uri}; Endpoints json returned by the client: "
+                f"{endpoints_json}; Exception: {e}"
+            )
             raise
 
     def get_oidc_public_key(self, token: str):
         """
-        Returns the Oidc client public key that can be used for decoding tokens offline.
+        Returns the OIDC client public key that can be used for decoding
+        tokens offline.
         Args:
             token: Third party token to extract the signing key
         Returns:
@@ -126,28 +139,28 @@ class OpenIDClient:
         **extra,
     ) -> JSON:
         """
-        The token endpoint is used to obtain tokens. Tokens can either be obtained by
-        exchanging an authorization code or by supplying credentials directly depending on
-        what authentication flow is used. The token endpoint is also used to obtain new access tokens
-        when they expire.
+        The token endpoint is used to obtain tokens. Tokens can either be
+        obtained by exchanging an authorization code or by supplying credentials
+        directly depending on what authentication flow is used. The token
+        endpoint is also used to obtain new access tokens when they expire.
         http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
-        Note: Some oidc clients only accept authorization_code as a grant_type for getting a token,
-        getting token directly from these clients with username and password over an API call will result
-        in Forbidden error.
+        Note: Some OIDC clients only accept authorization_code as a grant_type
+        for getting a token, getting token directly from these clients with
+        username and password over an API call will result in Forbidden error.
         Args:
-            username: username that is registered under this oidc client
+            username: username that is registered under this OIDC client
             password: optional password field
             grant_type: "password"/"authorization_code" etc
             scope: user scope to that should be included in the token
         Returns:
             OIDC client access token payload
             e.g: json_response = {
-            "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJDeXVpZDFYU2F3eEJSNlp2azdNOXZBUnI3R3pUWnE2QlpDQjNra2hGMHRVIn0",
+            "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2l",
             "expires_in": 300,
             "refresh_expires_in": 1800,
-            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJlNGVlMzc2Ni1mNTVkL",
+            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA",
             "token_type": "Bearer",
-            "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwiPt_h5LI707x4JLFCBeUMaYSkPhQrmXz2QQZ5qpD60Yo7w",
+            "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwiPt_h5LI70",
             "not-before-policy": 0,
             "session_state": "a46aca36-78e3-4b2a-90b3-7bd46d5ff70d",
             "scope": "openid profile email",
@@ -173,13 +186,15 @@ class OpenIDClient:
         **extra,
     ) -> JSON:
         """
-        The token endpoint is used to obtain client service token to do certain privilege stuff
-        based on what roles this client service token has. Client service tokens do not have a
-        session associated with them so they dont have a refresh token.
+        The token endpoint is used to obtain client service token to do certain
+        privilege stuff based on what roles this client service token has.
+        Client service tokens do not have a session associated with them so
+        they don't have a refresh token.
         http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
         Args:
             grant_type: "client_credential"
-                        (most often client_credential is the correct grant type to get the service token)
+                        (most often client_credential is the correct grant
+                        type to get the service token)
             scope: service scopes to that should be included in the token
         Returns:
             OIDC client access token payload
@@ -197,7 +212,8 @@ class OpenIDClient:
 
     def user_refresh_token(self, refresh_token: str) -> JSON:
         """
-        The token refresh endpoint is used to refresh the soon expiring access tokens.
+        The token refresh endpoint is used to refresh the soon expiring access
+        tokens.
         Note: it issues a new access and refresh token.
         http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
         Args:
@@ -208,32 +224,35 @@ class OpenIDClient:
         payload = {
             "client_id": self.client_id,
             "client_secret": self.client_secret_key,
-            "grant_type": ["refresh_token"],
+            "grant_type": "refresh_token",
             "refresh_token": refresh_token,
         }
         return self._post(self.TOKEN_ENDPOINT, data=payload).json()
 
     def token_introspect_online(self, token: str, token_info_uri: str) -> JSON:
         """
-        The introspection endpoint is used to retrieve the active state of a token.
+        The introspection endpoint is used to retrieve the active state of a
+        token.
         It can only be invoked by confidential clients.
-        The introspected JWT token contains the claims specified in https://tools.ietf.org/html/rfc7662
-        Note: this is not supposed to be used in production, instead rely on offline token validation
+        The introspected JWT token contains the claims specified in
+        https://tools.ietf.org/html/rfc7662
+        Note: this is not supposed to be used in production, instead rely on
+              offline token validation because of security concerns mentioned in
+              https://www.rfc-editor.org/rfc/rfc7662.html#section-4
         Args:
             token: token value to introspect
-            token_info_uri: token introspection uri,
-                this uri format may be different for different identity providers
+            token_info_uri: token introspection uri
         Returns:
             Extracted token information
             {
                 "aud": "client_id",
                 "email_verified": "true",
-                "expires_in": "3572",
+                "expires_in": "3572", # seconds
                 "access_type": "offline",
                 "exp": "1660087224",
                 "azp": "client_id",
                 "scope": "openid email profile",
-                "email": "email",
+                "email": "user@example.com",
                 "sub": "106203657987367771589"
             }
         """
@@ -253,8 +272,10 @@ class OpenIDClient:
         **kwargs,
     ) -> JSON:
         """
-        Utility method to decode access/Id tokens using the public key provided by the identity provider
-        The introspected JWT token contains the claims specified in https://tools.ietf.org/html/rfc7662
+        Utility method to decode access/Id tokens using the public key provided
+        by the identity provider.
+        The introspected JWT token contains the claims specified in
+        https://tools.ietf.org/html/rfc7662
         Args:
             token: token value to introspect
             key: client public key
@@ -265,12 +286,12 @@ class OpenIDClient:
             {
                 "aud": "client_id",
                 "email_verified": "true",
-                "expires_in": "3572",
+                "expires_in": "3572", # seconds
                 "access_type": "offline",
                 "exp": "1660087224",
                 "azp": "client_id",
                 "scope": "openid email profile",
-                "email": "email",
+                "email": "user@example.com",
                 "sub": "106203657987367771589"
             }
         """
@@ -280,23 +301,23 @@ class OpenIDClient:
 
     def get_userinfo(self, token: str = None) -> JSON:
         """
-        The userinfo endpoint returns standard claims about the authenticated user,
-        and is protected by a bearer token.
+        The userinfo endpoint returns standard claims about the authenticated
+        user, and is protected by a bearer token.
         http://openid.net/specs/openid-connect-core-1_0.html#UserInfo
         Args:
             token: Valid token to extract the userinfo
         Returns:
             Userinfo payload
             {
-                "family_name": "family_name",
+                "family_name": <surname>,
                 "sub": "106203657987367771589",
-                "picture": "profile_picture_link",
+                "picture": <URL>,
                 "locale": "en",
                 "email_verified": true,
-                "given_name": "given_name",
-                "email": "email",
+                "given_name": <given-name>,
+                "email": <email-address>,
                 "hd": "redhat.com",
-                "name": "full_name"
+                "name": <full-name>
             }
         """
 
@@ -307,7 +328,7 @@ class OpenIDClient:
 
     def logout(self, refresh_token: str) -> HTTPStatus:
         """
-        The logout endpoint logs out the authenticated user.
+        The logout endpoint log out the authenticated user.
         Args:
             refresh_token: Refresh token issued at the time of login
         Returns:
@@ -332,8 +353,8 @@ class OpenIDClient:
 
     def revoke_access_token(self, access_token: str) -> HTTPStatus:
         """
-        Revoke endpoint to revoke the current access token. It does not however,
-        logs the refresh token out.
+        Revoke endpoint to revoke the current access token. It does not,
+        however, log the refresh token out.
         Args:
             access_token: token to revoke
         Returns:
@@ -354,6 +375,7 @@ class OpenIDClient:
         """Submit get request to the path.
         Args:
             path: Path for the request.
+            kwargs: Params dict to send with GET request
         Returns:
             Response from the request.
         """
@@ -366,8 +388,10 @@ class OpenIDClient:
                 verify=self.verify,
             )
         except Exception as exc:
-            self.logger.exception("{}", str(exc))
-            raise OidcError(
+            self.logger.exception(
+                "Exception submitting a GET request for OIDC client {}", self.__repr__()
+            )
+            raise OpenIDClientError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )
 
@@ -375,6 +399,7 @@ class OpenIDClient:
         """Submit post request to the path.
         Args:
             path: Path for the request.
+            kwargs: Params dict to send with GET request
         Returns:
             Response from the request.
         """
@@ -387,8 +412,11 @@ class OpenIDClient:
                 verify=self.verify,
             )
         except Exception as exc:
-            self.logger.exception("{}", str(exc))
-            raise OidcError(
+            self.logger.exception(
+                "Exception submitting a POST request for OIDC client {}",
+                self.__repr__(),
+            )
+            raise OpenIDClientError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )
 
@@ -396,6 +424,7 @@ class OpenIDClient:
         """Submit put request to the path.
         Args:
             path: Path for the request.
+            kwargs: Params dict to send with GET request
         Returns:
             Response from the request.
         """
@@ -408,8 +437,10 @@ class OpenIDClient:
                 verify=self.verify,
             )
         except Exception as exc:
-            self.logger.exception("{}", str(exc))
-            raise OidcError(
+            self.logger.exception(
+                "Exception submitting a PUT request for OIDC client {}", self.__repr__()
+            )
+            raise OpenIDClientError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )
 
@@ -417,6 +448,7 @@ class OpenIDClient:
         """Submit delete request to the path.
         Args:
             path: Path for the request.
+            kwargs: Params dict to send with GET request
         Returns:
             Response from the request.
         """
@@ -429,7 +461,10 @@ class OpenIDClient:
                 verify=self.verify,
             )
         except Exception as exc:
-            self.logger.exception("{}", str(exc))
-            raise OidcError(
+            self.logger.exception(
+                "Exception submitting a DELETE request for OIDC client {}",
+                self.__repr__(),
+            )
+            raise OpenIDClientError(
                 HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
             )

@@ -1,16 +1,15 @@
-import logging
-
 import jwt
+import logging
 import pytest
 
 from pbench.server.auth import OpenIDClient
 
 
 def mock_set_oidc_auth_endpoints(oidc_client):
-    oidc_client.TOKEN_ENDPOINT = "https://oidc_token.endpoint.com"
-    oidc_client.USERINFO_ENDPOINT = "https://oidc_userinfo_endpoint.com"
-    oidc_client.REVOCATION_ENDPOINT = "https://oidc_revocation_endpoint.com"
-    oidc_client.JWKS_ENDPOINT = "https://oidc_jwks_endpoint.com"
+    oidc_client.TOKEN_ENDPOINT = "https://oidc_token_endpoint.example.com"
+    oidc_client.USERINFO_ENDPOINT = "https://oidc_userinfo_endpoint.example.com"
+    oidc_client.REVOCATION_ENDPOINT = "https://oidc_revocation_endpoint.example.com"
+    oidc_client.JWKS_ENDPOINT = "https://oidc_jwks_endpoint.example.com"
 
 
 @pytest.fixture

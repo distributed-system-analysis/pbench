@@ -7,6 +7,7 @@ from flask_httpauth import HTTPTokenAuth
 import jwt
 
 from pbench.server.auth import OpenIDClient
+from pbench.server.auth.exceptions import OpenIDClientError
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
 
@@ -108,12 +109,12 @@ class Auth:
         return None
 
     @staticmethod
-    def verify_third_party_tokens(
+    def verify_third_party_token(
         auth_token: str, oidc_client: OpenIDClient, tokeninfo_endpoint: str = None
     ) -> bool:
         """
-        Verify the tokens provided to the Pbench server that were obtained by the
-        third party identity providers.
+        Verify a token provided to the Pbench server which was obtained from a
+        third party identity provider.
         Args:
             auth_token: Token to authenticate
             oidc_client: OIDC client to call to authenticate the token
@@ -121,7 +122,7 @@ class Auth:
                                 tokens online in case offline verification
                                 results in some exception.
         Returns:
-            JWT token string
+            True if the verification succeed else False
         """
         # Verify auth token validity
         identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
@@ -145,17 +146,22 @@ class Auth:
             Auth.logger.error("oidc token verification failed")
         except Exception as e:
             Auth.logger.exception(
-                "Unexpected exception occurred while verifying the auth token {!r}: {}",
+                "Unexpected exception occurred while verifying the auth token {}: {}",
                 auth_token,
                 e,
             )
             if not tokeninfo_endpoint:
                 Auth.logger.warning("Can not perform oidc online token verification")
             else:
-                token_payload = oidc_client.token_introspect_online(
-                    token=auth_token, token_info_uri=tokeninfo_endpoint
-                )
-                if oidc_client.client_id in token_payload["aud"]:
-                    # If our client is an intended audience then only we accept the token
-                    return True
+                try:
+                    token_payload = oidc_client.token_introspect_online(
+                        token=auth_token, token_info_uri=tokeninfo_endpoint
+                    )
+                    if "aud" not in token_payload:
+                        return False
+                    elif oidc_client.client_id in token_payload["aud"]:
+                        # If our client is an intended audience then only we accept the token
+                        return True
+                except OpenIDClientError:
+                    return False
         return False

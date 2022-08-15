@@ -1,6 +1,6 @@
+from jwt.exceptions import InvalidAudienceError
 import pytest
 import responses
-from jwt.exceptions import InvalidAudienceError
 
 
 class TestUserTokenManagement:
@@ -9,16 +9,16 @@ class TestUserTokenManagement:
     REALM_NAME = "public_test_realm"
 
     @responses.activate
-    def test_get_token(self, server_config, keycloak_oidc):
+    def test_get_user_token(self, server_config, keycloak_oidc):
         token_endpoint = keycloak_oidc.TOKEN_ENDPOINT
 
         json_response = {
-            "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJDeXVpZDFYU2F3eEJSNlp2azdNOXZBUnI3R3pUWnE2QlpDQjNra2hGMHRVIn0",
+            "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIi",
             "expires_in": 300,
             "refresh_expires_in": 1800,
-            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJlNGVlMzc2Ni1mNTVkL",
+            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA",
             "token_type": "Bearer",
-            "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwiPt_h5LI707x4JLFCBeUMaYSkPhQrmXz2QQZ5qpD60Yo7w",
+            "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwiPt_h5LI707",
             "not-before-policy": 0,
             "session_state": "a46aca36-78e3-4b2a-90b3-7bd46d5ff70d",
             "scope": "openid profile email",
@@ -80,7 +80,7 @@ class TestUserTokenManagement:
             )
 
     @responses.activate
-    def test_userinfo(self, server_config, keycloak_oidc, keycloak_mock_token):
+    def test_get_userinfo(self, server_config, keycloak_oidc, keycloak_mock_token):
         userinfo_endpoint = keycloak_oidc.USERINFO_ENDPOINT
         json_response = {
             "sub": "d0d1338c-f0df-4493-b9f2-078eedc1e02e",
