@@ -143,25 +143,24 @@ class Auth:
             jwt.InvalidTokenError,
             jwt.InvalidAudienceError,
         ):
-            Auth.logger.error("oidc token verification failed")
+            Auth.logger.error("OIDC token verification failed")
+            return False
         except Exception as e:
             Auth.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {}: {}",
                 auth_token,
                 e,
             )
-            if not tokeninfo_endpoint:
-                Auth.logger.warning("Can not perform oidc online token verification")
-            else:
-                try:
-                    token_payload = oidc_client.token_introspect_online(
-                        token=auth_token, token_info_uri=tokeninfo_endpoint
-                    )
-                    if "aud" not in token_payload:
-                        return False
-                    elif oidc_client.client_id in token_payload["aud"]:
-                        # If our client is an intended audience then only we accept the token
-                        return True
-                except OpenIDClientError:
-                    return False
-        return False
+
+        if not tokeninfo_endpoint:
+            Auth.logger.warning("Can not perform OIDC online token verification")
+            return False
+
+        try:
+            token_payload = oidc_client.token_introspect_online(
+                token=auth_token, token_info_uri=tokeninfo_endpoint
+            )
+        except OpenIDClientError:
+            return False
+
+        return "aud" in token_payload and oidc_client.client_id in token_payload["aud"]

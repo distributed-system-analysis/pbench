@@ -1,11 +1,12 @@
-from flask_restful import abort
 from http import HTTPStatus
-import jwt
 import logging
-import requests
-from requests.structures import CaseInsensitiveDict
 from typing import Dict, List, Optional, Union
 from urllib.parse import urljoin
+
+from flask_restful import abort
+import jwt
+import requests
+from requests.structures import CaseInsensitiveDict
 
 from pbench.server import JSON
 from pbench.server.auth.exceptions import OpenIDClientError
@@ -16,12 +17,12 @@ class OpenIDClient:
     OpenID Connect client object.
     """
 
-    AUTHORIZATION_ENDPOINT: str = None
-    TOKEN_ENDPOINT: str = None
-    USERINFO_ENDPOINT: str = None
-    REVOCATION_ENDPOINT: str = None
-    JWKS_URI: str = None
-    LOGOUT_ENDPOINT: str = None
+    AUTHORIZATION_ENDPOINT: Optional[str] = None
+    TOKEN_ENDPOINT: Optional[str] = None
+    USERINFO_ENDPOINT: Optional[str] = None
+    REVOCATION_ENDPOINT: Optional[str] = None
+    JWKS_URI: Optional[str] = None
+    LOGOUT_ENDPOINT: Optional[str] = None
 
     def __init__(
         self,
@@ -29,17 +30,17 @@ class OpenIDClient:
         client_id: str,
         logger: logging.Logger,
         realm_name: str = "",
-        client_secret_key: str = None,
+        client_secret_key: Optional[str] = None,
         verify: bool = True,
         headers: Optional[Dict[str, str]] = None,
     ):
         """
         Args:
-            server_url: OpendID connect client server auth url
+            server_url: OpenID Connect server auth url
             client_id: client id
             realm_name: realm name
             client_secret_key: client secret key
-            verify: True if want check connection SSL
+            verify: True if require valid SSL
             headers: dict of custom header to pass to each HTML request
         """
         self.server_url = server_url
@@ -48,9 +49,7 @@ class OpenIDClient:
         self.realm_name = realm_name
         self.logger = logger
         self.headers = (
-            CaseInsensitiveDict()
-            if headers is None
-            else CaseInsensitiveDict().update(headers)
+            CaseInsensitiveDict() if headers is None else CaseInsensitiveDict(headers)
         )
         self.verify = verify
         self.connection = requests.session()
@@ -95,6 +94,7 @@ class OpenIDClient:
         Sets the well-known configuration endpoints for the current OIDC
         client. This includes common useful endpoints for decoding tokens,
         getting user information etc.
+        ref: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig
         """
         well_known_endpoint = "/.well-known/openid-configuration"
         well_known_uri = f"{self.server_url}{self.realm_name}{well_known_endpoint}"
@@ -113,7 +113,7 @@ class OpenIDClient:
             self.logger.exception(
                 f"Key Error while getting all the necessary URI endpoints from "
                 f"{well_known_uri}; Endpoints json returned by the client: "
-                f"{endpoints_json}; Exception: {e}"
+                f"{endpoints_json}"
             )
             raise
 
@@ -145,7 +145,7 @@ class OpenIDClient:
         endpoint is also used to obtain new access tokens when they expire.
         http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
         Note: Some OIDC clients only accept authorization_code as a grant_type
-        for getting a token, getting token directly from these clients with
+        for getting a token, getting a token directly from these clients with
         username and password over an API call will result in Forbidden error.
         Args:
             username: username that is registered under this OIDC client
@@ -389,10 +389,11 @@ class OpenIDClient:
             )
         except Exception as exc:
             self.logger.exception(
-                "Exception submitting a GET request for OIDC client {}", self.__repr__()
+                "GET request failed for OIDC client {}", self.__repr__()
             )
             raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to complete the GET request from the OpenID client {exc}",
             )
 
     def _post(self, path: str, data: Dict, **kwargs) -> requests.Response:
@@ -413,11 +414,12 @@ class OpenIDClient:
             )
         except Exception as exc:
             self.logger.exception(
-                "Exception submitting a POST request for OIDC client {}",
+                "POST request failed for OIDC client {}",
                 self.__repr__(),
             )
             raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to complete the POST request from the OpenID client {exc}",
             )
 
     def _put(self, path: str, data: Dict, **kwargs) -> requests.Response:
@@ -438,10 +440,11 @@ class OpenIDClient:
             )
         except Exception as exc:
             self.logger.exception(
-                "Exception submitting a PUT request for OIDC client {}", self.__repr__()
+                "PUT request failed for OIDC client {}", self.__repr__()
             )
             raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to complete the PUT request from the OpenID client {exc}",
             )
 
     def _delete(self, path: str, data: Dict = {}, **kwargs) -> requests.Response:
@@ -462,9 +465,10 @@ class OpenIDClient:
             )
         except Exception as exc:
             self.logger.exception(
-                "Exception submitting a DELETE request for OIDC client {}",
+                "DELETE request failed for OIDC client {}",
                 self.__repr__(),
             )
             raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR, f"Can't connect to server {exc}"
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to complete the DELETE request from the OpenID client {exc}",
             )

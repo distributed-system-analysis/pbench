@@ -140,7 +140,7 @@ class Login(Resource):
     Pbench API for User Login or generating an auth token
     """
 
-    TOKEN_EXPIRY_KEYS = ["seconds", "minutes", "hours", "days", "weeks"]
+    TOKEN_EXPIRY_KEYS = set(["seconds", "minutes", "hours", "days", "weeks"])
 
     def __init__(self, config, logger, auth):
         self.server_config = config
@@ -154,7 +154,7 @@ class Login(Resource):
         """
         Post request for logging in user.
         The user is allowed to re-login multiple times and each time a new
-        valid auth token will be provided
+        valid auth token will be returned.
 
         This requires a JSON data with required user metadata fields
         {
@@ -199,17 +199,18 @@ class Login(Resource):
         if not token_expiry:
             token_expiry = {"minutes": int(self.token_expire_duration)}
         elif type(token_expiry) is not dict:
-            self.logger.warning(
-                f"Invalid token expiry format {token_expiry}; type: {type(token_expiry)}"
-            )
             abort(
                 HTTPStatus.BAD_REQUEST,
-                message="Token expiry needs to be a dictionary",
+                message=(
+                    f"Invalid token expiry:  expected a JSON object, "
+                    f"got a {type(token_expiry)}"
+                ),
             )
-        elif any(key not in self.TOKEN_EXPIRY_KEYS for key in token_expiry.keys()):
+        bad_keys = sorted(set(token_expiry.keys()) - self.TOKEN_EXPIRY_KEYS)
+        if bad_keys:
             msg = (
-                f"Invalid token expiry key: found {set(token_expiry.keys())}, "
-                f"expected of one {self.TOKEN_EXPIRY_KEYS}"
+                f"Invalid token expiry key{'s' if len(bad_keys) > 1 else ''}: "
+                f"found {bad_keys}; expected one of {sorted(self.TOKEN_EXPIRY_KEYS)}"
             )
             self.logger.warning(msg)
             abort(

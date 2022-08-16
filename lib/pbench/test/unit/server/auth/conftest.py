@@ -1,5 +1,6 @@
-import jwt
 import logging
+
+import jwt
 import pytest
 
 from pbench.server.auth import OpenIDClient
