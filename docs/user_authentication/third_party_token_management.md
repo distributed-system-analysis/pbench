@@ -18,10 +18,12 @@ Identity-Provider->Pbench-Dashboard: 200 Access/Refresh Token payload response
 note over Identity-Provider,Pbench-Dashboard: {"access_token":"<access_token>",\n"expires_in": 300,\n"refresh_expires_in": 1800,\n"refresh_token": "<refresh_token>",\n"token_type": "Bearer",\n"id_token": "<id_token>",...}
 // Here the dashboard sends the newly acquired access token to the Pbench Server to start the token exchange process.
 Pbench-Dashboard->Pbench-Server: POST /api/v1/pbench-token request (Bearer: Access Token 1)
-Pbench-Server->Identity-Provider: GET public Keys
+Pbench-Server->Identity-Provider: GET public Key
 Identity-Provider->Pbench-Server: 200 Public key
 Pbench-Server->Pbench-Server: Validate the access token
 Pbench-Server->Identity-Provider: [Optional] POST userinfo endpoint
+Identity-Provider->Pbench-Server:  200 userinfo response
+note over Pbench-Server,Pbench-Dashboard: {"family_name":"<surname>",\n"sub": <user_id>,\n"email_verified": <bool>,\n"email": "<email>",\n"given_name": "given_name",...}
 // We exchange the Third-party IDP token with our internal Pbench token that should be used for accessing Pbench server resources.
 // Pbench token might contain more metadata about user such as role/group associations.
 Pbench-Server->Pbench-Keycloak-server: Exchange IDP access token \n(provided by the Pbench dashboard) \nwith Pbench token
