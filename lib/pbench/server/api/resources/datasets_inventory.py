@@ -34,7 +34,7 @@ class DatasetsInventory(ApiBase):
                 API_OPERATION.READ,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True),
-                    Parameter("path", ParamType.STRING, required=False),
+                    Parameter("target", ParamType.STRING, required=False),
                 ),
                 authorization=API_AUTHORIZATION.DATASET,
             ),
@@ -45,17 +45,17 @@ class DatasetsInventory(ApiBase):
         This function returns the contents of the requested file as a byte stream.
 
         Args:
-            ApiParams includes the uri parameters, which provide the dataset and path.
+            ApiParams includes the uri parameters, which provide the dataset and target.
 
         Raises:
             APIAbort, reporting either "NOT_FOUND" or "UNSUPPORTED_MEDIA_TYPE"
 
 
-        GET /api/v1/datasets/inventory/{dataset}/{path}
+        GET /api/v1/datasets/inventory/{dataset}/{target}
         """
 
         dataset = params.uri["dataset"]
-        path = params.uri.get("path")
+        target = params.uri.get("target")
 
         file_tree = FileTree(self.config, self.logger)
         try:
@@ -63,13 +63,13 @@ class DatasetsInventory(ApiBase):
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
-        if path is None:
+        if target is None:
             file_path = tarball.tarball_path
         else:
             dataset_location = tarball.unpacked
             if dataset_location is None:
                 raise APIAbort(HTTPStatus.NOT_FOUND, "The dataset is not unpacked")
-            file_path = dataset_location / path
+            file_path = dataset_location / target
 
         if file_path.is_file():
             return send_file(file_path)

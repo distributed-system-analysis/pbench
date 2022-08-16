@@ -25,16 +25,16 @@ class TestDatasetsAccess:
         """
 
         def query_api(
-            dataset: str, path: str, expected_status: HTTPStatus
+            dataset: str, target: str, expected_status: HTTPStatus
         ) -> requests.Response:
             try:
                 dataset_id = Dataset.query(name=dataset).resource_id
             except DatasetNotFound:
                 dataset_id = dataset  # Allow passing deliberately bad value
             headers = {"authorization": f"bearer {pbench_token}"}
-            if path:
+            if target:
                 response = client.get(
-                    f"{server_config.rest_uri}/datasets/inventory/{dataset_id}/{path}",
+                    f"{server_config.rest_uri}/datasets/inventory/{dataset_id}/{target}",
                     headers=headers,
                 )
             else:
