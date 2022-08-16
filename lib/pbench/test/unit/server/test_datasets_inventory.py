@@ -38,8 +38,9 @@ class TestDatasetsAccess:
                     headers=headers,
                 )
             else:
+                k = "" if target is None else f"/{target}"
                 response = client.get(
-                    f"{server_config.rest_uri}/datasets/inventory/{dataset_id}",
+                    f"{server_config.rest_uri}/datasets/inventory/{dataset_id}{k}",
                     headers=headers,
                 )
             assert response.status_code == expected_status
@@ -119,10 +120,11 @@ class TestDatasetsAccess:
         response = query_get_as("fio_2", "1-default/default.csv", HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
 
-    def test_get_result_tarball(self, query_get_as, monkeypatch):
+    @pytest.mark.parametrize("key", (None, ""))
+    def test_get_result_tarball(self, query_get_as, monkeypatch, key):
         monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Path, "is_file", lambda self: True)
         monkeypatch.setattr(werkzeug.utils, "send_file", self.mock_send_file)
 
-        response = query_get_as("fio_2", "", HTTPStatus.OK)
+        response = query_get_as("fio_2", key, HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK

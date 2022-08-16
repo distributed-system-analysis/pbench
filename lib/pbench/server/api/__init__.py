@@ -101,6 +101,7 @@ def register_endpoints(api, app, config):
     api.add_resource(
         DatasetsInventory,
         f"{base_uri}/datasets/inventory/<string:dataset>",
+        f"{base_uri}/datasets/inventory/<string:dataset>/",
         f"{base_uri}/datasets/inventory/<string:dataset>/<path:target>",
         endpoint="datasets_inventory",
         resource_class_args=(config, logger),
