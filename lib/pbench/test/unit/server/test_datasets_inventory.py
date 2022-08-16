@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from pathlib import Path
+from typing import Dict
 
 import pytest
 import requests
@@ -31,10 +32,16 @@ class TestDatasetsAccess:
             except DatasetNotFound:
                 dataset_id = dataset  # Allow passing deliberately bad value
             headers = {"authorization": f"bearer {pbench_token}"}
-            response = client.get(
-                f"{server_config.rest_uri}/datasets/inventory/{dataset_id}/{path}",
-                headers=headers,
-            )
+            if path:
+                response = client.get(
+                    f"{server_config.rest_uri}/datasets/inventory/{dataset_id}/{path}",
+                    headers=headers,
+                )
+            else:
+                response = client.get(
+                    f"{server_config.rest_uri}/datasets/inventory/{dataset_id}",
+                    headers=headers,
+                )
             assert response.status_code == expected_status
             return response
 
@@ -48,6 +55,9 @@ class TestDatasetsAccess:
         # Validate the resource_id
         Dataset.query(resource_id=dataset)
         return Tarball
+
+    def mock_send_file(*args, **kwargs) -> Dict[str, str]:
+        return {"status": "OK"}
 
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as(
@@ -104,16 +114,15 @@ class TestDatasetsAccess:
     def test_dataset_in_given_path(self, query_get_as, monkeypatch):
         monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Path, "is_file", lambda self: True)
-        monkeypatch.setattr(
-            werkzeug.utils, "send_file", lambda *args, **kwargs: {"status": "OK"}
-        )
+        monkeypatch.setattr(werkzeug.utils, "send_file", self.mock_send_file)
+
         response = query_get_as("fio_2", "1-default/default.csv", HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
 
     def test_get_result_tarball(self, query_get_as, monkeypatch):
         monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
-        monkeypatch.setattr(
-            werkzeug.utils, "send_file", lambda *args, **kwargs: {"status": "OK"}
-        )
+        monkeypatch.setattr(Path, "is_file", lambda self: True)
+        monkeypatch.setattr(werkzeug.utils, "send_file", self.mock_send_file)
+
         response = query_get_as("fio_2", "", HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK

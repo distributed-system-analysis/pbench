@@ -53,12 +53,10 @@ class DatasetsInventory(ApiBase):
 
         GET /api/v1/datasets/inventory/{dataset}/{path}
         """
-        try:
-            path = params.uri["path"]
-        except KeyError:
-            path = None
 
         dataset = params.uri["dataset"]
+        path = params.uri.get("path")
+
         file_tree = FileTree(self.config, self.logger)
         try:
             tarball = file_tree.find_dataset(dataset.resource_id)
@@ -66,22 +64,21 @@ class DatasetsInventory(ApiBase):
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
         if path is None:
-            tarball_path = tarball.tarball_path
-            return send_file(tarball_path)
-
+            file_path = tarball.tarball_path
         else:
             dataset_location = tarball.unpacked
             if dataset_location is None:
                 raise APIAbort(HTTPStatus.NOT_FOUND, "The dataset is not unpacked")
             file_path = dataset_location / path
-            if file_path.is_file():
-                return send_file(file_path)
-            elif file_path.exists():
-                raise APIAbort(
-                    HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
-                    "The specified path does not refer to a regular file",
-                )
-            else:
-                raise APIAbort(
-                    HTTPStatus.NOT_FOUND, "The specified path does not refer to a file"
-                )
+
+        if file_path.is_file():
+            return send_file(file_path)
+        elif file_path.exists():
+            raise APIAbort(
+                HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+                "The specified path does not refer to a regular file",
+            )
+        else:
+            raise APIAbort(
+                HTTPStatus.NOT_FOUND, "The specified path does not refer to a file"
+            )
