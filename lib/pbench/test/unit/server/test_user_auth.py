@@ -1,7 +1,7 @@
 import datetime
 from http import HTTPStatus
 import time
-
+import pytest
 from pbench.server.database.database import Database
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
@@ -110,6 +110,44 @@ class TestUserAuthentication:
             assert data["username"] == "user"
             assert response.content_type == "application/json"
             assert response.status_code == HTTPStatus.OK
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "expected_success, token_expiry",
+        [
+            (True, {"minutes": 1}),
+            (True, {"minutes": 10, "days": 1}),
+            (True, {"seconds": 1, "minutes": 1, "hours": 1, "days": 1, "weeks": 1}),
+            (True, {}),
+            (False, {"bad_key": 1}),
+            (False, {"bad_key": 1, "minutes": 1}),
+            (False, "bad_format"),
+        ],
+    )
+    def test_custom_token_expiry(client, server_config, token_expiry, expected_success):
+        """Test for login of registered-user login"""
+        with client:
+            # user registration
+            resp_register = register_user(
+                client,
+                server_config,
+                username="user",
+                firstname="firstname",
+                lastname="lastName",
+                email="user@domain.com",
+                password="12345",
+            )
+            assert resp_register.status_code == HTTPStatus.CREATED
+            # registered user login
+            response = login_user(client, server_config, "user", "12345", token_expiry)
+            data = response.json
+            if expected_success:
+                assert data["auth_token"]
+                assert data["username"] == "user"
+                assert response.content_type == "application/json"
+                assert response.status_code == HTTPStatus.OK
+            else:
+                assert response.status_code == HTTPStatus.BAD_REQUEST
 
     @staticmethod
     def test_user_relogin(client, server_config):

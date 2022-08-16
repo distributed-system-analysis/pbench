@@ -9,7 +9,7 @@ import requests
 from requests.structures import CaseInsensitiveDict
 
 from pbench.server import JSON
-from pbench.server.auth.exceptions import OpenIDClientError
+from pbench.server.auth.exceptions import OpenIDClientError, OpenIDCAuthenticationError
 
 
 class OpenIDClient:
@@ -53,6 +53,9 @@ class OpenIDClient:
         )
         self.verify = verify
         self.connection = requests.session()
+        self.connection.hooks = {
+            "response": lambda r, *args, **kwargs: r.raise_for_status()
+        }
         self.set_well_known_endpoints()
 
     def __repr__(self):
@@ -109,7 +112,7 @@ class OpenIDClient:
             OpenIDClient.JWKS_ENDPOINT = endpoints_json["jwks_uri"]
             if "end_session_endpoint" in endpoints_json:
                 OpenIDClient.LOGOUT_ENDPOINT = endpoints_json["end_session_endpoint"]
-        except KeyError as e:
+        except KeyError:
             self.logger.exception(
                 f"Key Error while getting all the necessary URI endpoints from "
                 f"{well_known_uri}; Endpoints json returned by the client: "
@@ -381,12 +384,43 @@ class OpenIDClient:
         """
 
         try:
-            return self.connection.get(
+            response = self.connection.get(
                 urljoin(self.server_url, path),
                 params=kwargs,
                 headers=self.headers,
                 verify=self.verify,
             )
+            response.raise_for_status()
+            return response
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == HTTPStatus.FORBIDDEN:
+                raise OpenIDCAuthenticationError(
+                    HTTPStatus.FORBIDDEN, f"Forbidden to perform the operation {e}"
+                )
+            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise OpenIDCAuthenticationError(
+                    HTTPStatus.UNAUTHORIZED,
+                    f"Unauthorized to perform the operation {e}",
+                )
+        except requests.exceptions.ConnectionError as e:
+            self.logger.exception(
+                "GET request resulted in connection error {}",
+                self.__repr__(),
+            )
+            raise OpenIDClientError(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to connect to the OpenID client {e}",
+            )
+        except requests.exceptions.Timeout as e:
+            self.logger.exception(
+                "GET request timeout error {}",
+                self.__repr__(),
+            )
+            raise OpenIDClientError(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to connect to the OpenID client {e}",
+            )
+
         except Exception as exc:
             self.logger.exception(
                 "GET request failed for OIDC client {}", self.__repr__()
@@ -405,13 +439,44 @@ class OpenIDClient:
             Response from the request.
         """
         try:
-            return self.connection.post(
+            response = self.connection.post(
                 urljoin(self.server_url, path),
                 params=kwargs,
                 data=data,
                 headers=self.headers,
                 verify=self.verify,
             )
+            response.raise_for_status()
+            return response
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == HTTPStatus.FORBIDDEN:
+                raise OpenIDCAuthenticationError(
+                    HTTPStatus.FORBIDDEN, f"Forbidden to perform the operation {e}"
+                )
+            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise OpenIDCAuthenticationError(
+                    HTTPStatus.UNAUTHORIZED,
+                    f"Unauthorized to perform the operation {e}",
+                )
+        except requests.exceptions.ConnectionError as e:
+            self.logger.exception(
+                "POST request resulted in connection error {}",
+                self.__repr__(),
+            )
+            raise OpenIDClientError(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to connect to the OpenID client {e}",
+            )
+        except requests.exceptions.Timeout as e:
+            self.logger.exception(
+                "POST request timeout error {}",
+                self.__repr__(),
+            )
+            raise OpenIDClientError(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to connect to the OpenID client {e}",
+            )
+
         except Exception as exc:
             self.logger.exception(
                 "POST request failed for OIDC client {}",
@@ -431,13 +496,44 @@ class OpenIDClient:
             Response from the request.
         """
         try:
-            return self.connection.put(
+            response = self.connection.put(
                 urljoin(self.server_url, path),
                 params=kwargs,
                 data=data,
                 headers=self.headers,
                 verify=self.verify,
             )
+            response.raise_for_status()
+            return response
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == HTTPStatus.FORBIDDEN:
+                raise OpenIDCAuthenticationError(
+                    HTTPStatus.FORBIDDEN, f"Forbidden to perform the operation {e}"
+                )
+            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise OpenIDCAuthenticationError(
+                    HTTPStatus.UNAUTHORIZED,
+                    f"Unauthorized to perform the operation {e}",
+                )
+        except requests.exceptions.ConnectionError as e:
+            self.logger.exception(
+                "PUT request resulted in connection error {}",
+                self.__repr__(),
+            )
+            raise OpenIDClientError(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to connect to the OpenID client {e}",
+            )
+        except requests.exceptions.Timeout as e:
+            self.logger.exception(
+                "PUT request timeout error {}",
+                self.__repr__(),
+            )
+            raise OpenIDClientError(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to connect to the OpenID client {e}",
+            )
+
         except Exception as exc:
             self.logger.exception(
                 "PUT request failed for OIDC client {}", self.__repr__()
@@ -456,12 +552,42 @@ class OpenIDClient:
             Response from the request.
         """
         try:
-            return self.connection.delete(
+            response = self.connection.delete(
                 urljoin(self.server_url, path),
                 params=kwargs,
                 data=data,
                 headers=self.headers,
                 verify=self.verify,
+            )
+            response.raise_for_status()
+            return response
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == HTTPStatus.FORBIDDEN:
+                raise OpenIDCAuthenticationError(
+                    HTTPStatus.FORBIDDEN, f"Forbidden to perform the operation {e}"
+                )
+            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise OpenIDCAuthenticationError(
+                    HTTPStatus.UNAUTHORIZED,
+                    f"Unauthorized to perform the operation {e}",
+                )
+        except requests.exceptions.ConnectionError as e:
+            self.logger.exception(
+                "DELETE request resulted in connection error {}",
+                self.__repr__(),
+            )
+            raise OpenIDClientError(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Failure to connect to the OpenID client {e}",
+            )
+        except requests.exceptions.Timeout as e:
+            self.logger.exception(
+                "DELETE request timeout error {}",
+                self.__repr__(),
+            )
+            raise OpenIDClientError(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"OpenID client connection timed out {e}",
             )
         except Exception as exc:
             self.logger.exception(

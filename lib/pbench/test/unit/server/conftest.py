@@ -185,13 +185,13 @@ def register_user(
     )
 
 
-def login_user(client, server_config, username, password):
+def login_user(client, server_config, username, password, token_expiry=None):
     """
     Helper function to generate a user authentication token
     """
     return client.post(
         f"{server_config.rest_uri}/login",
-        json={"username": username, "password": password},
+        json={"username": username, "password": password, "token_expiry": token_expiry},
     )
 
 

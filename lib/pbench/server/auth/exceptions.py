@@ -11,3 +11,7 @@ class OpenIDClientError(Exception):
 
     def __str__(self) -> str:
         return self.message
+
+
+class OpenIDCAuthenticationError(OpenIDClientError):
+    pass
