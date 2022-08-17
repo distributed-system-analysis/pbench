@@ -125,7 +125,7 @@ class TestUserAuthentication:
         ],
     )
     def test_custom_token_expiry(client, server_config, token_expiry, expected_success):
-        """Test for login of registered-user login"""
+        """Test for custom token expiry specified during the login process"""
         with client:
             # user registration
             resp_register = register_user(
@@ -148,6 +148,16 @@ class TestUserAuthentication:
                 assert response.status_code == HTTPStatus.OK
             else:
                 assert response.status_code == HTTPStatus.BAD_REQUEST
+                if type(token_expiry) is not dict:
+                    assert (
+                        "Invalid token expiry: expected a JSON object"
+                        in response.json["message"]
+                    )
+                else:
+                    assert (
+                        "Invalid token expiry key: found ['bad_key']"
+                        in response.json["message"]
+                    )
 
     @staticmethod
     def test_user_relogin(client, server_config):

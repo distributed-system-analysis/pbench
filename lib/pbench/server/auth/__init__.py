@@ -48,14 +48,9 @@ class OpenIDClient:
         self.client_secret_key = client_secret_key
         self.realm_name = realm_name
         self.logger = logger
-        self.headers = (
-            CaseInsensitiveDict() if headers is None else CaseInsensitiveDict(headers)
-        )
+        self.headers = CaseInsensitiveDict([] if headers is None else headers)
         self.verify = verify
         self.connection = requests.session()
-        self.connection.hooks = {
-            "response": lambda r, *args, **kwargs: r.raise_for_status()
-        }
         self.set_well_known_endpoints()
 
     def __repr__(self):
@@ -112,11 +107,10 @@ class OpenIDClient:
             OpenIDClient.JWKS_ENDPOINT = endpoints_json["jwks_uri"]
             if "end_session_endpoint" in endpoints_json:
                 OpenIDClient.LOGOUT_ENDPOINT = endpoints_json["end_session_endpoint"]
-        except KeyError:
+        except KeyError as e:
             self.logger.exception(
-                f"Key Error while getting all the necessary URI endpoints from "
-                f"{well_known_uri}; Endpoints json returned by the client: "
-                f"{endpoints_json}"
+                f"Missing endpoint {str(e)!s} at {well_known_uri};"
+                f"Endpoints found: {endpoints_json}"
             )
             raise
 
@@ -158,14 +152,14 @@ class OpenIDClient:
         Returns:
             OIDC client access token payload
             e.g: json_response = {
-            "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2l",
-            "expires_in": 300,
-            "refresh_expires_in": 1800,
-            "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA",
+            "access_token": <access_token_string>,
+            "expires_in": <No of seconds>,
+            "refresh_expires_in": <No of seconds>,
+            "refresh_token": <refresh_token_string>,
             "token_type": "Bearer",
-            "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwiPt_h5LI70",
+            "id_token": <id_token_string>,
             "not-before-policy": 0,
-            "session_state": "a46aca36-78e3-4b2a-90b3-7bd46d5ff70d",
+            "session_state": <session_state_id_string>,
             "scope": "openid profile email",
             }
         """
@@ -248,15 +242,15 @@ class OpenIDClient:
         Returns:
             Extracted token information
             {
-                "aud": "client_id",
-                "email_verified": "true",
-                "expires_in": "3572", # seconds
+                "aud": <targeted audience id>, # client_id
+                "email_verified": <true-or-false>,
+                "expires_in": <No of seconds>,
                 "access_type": "offline",
-                "exp": "1660087224",
-                "azp": "client_id",
+                "exp": <unix timestamp>,
+                "azp": <client_id>,
                 "scope": "openid email profile",
-                "email": "user@example.com",
-                "sub": "106203657987367771589"
+                "email": <user_email>,
+                "sub": <user_id>
             }
         """
         payload = {
@@ -287,15 +281,15 @@ class OpenIDClient:
         Returns:
             Extracted token information
             {
-                "aud": "client_id",
-                "email_verified": "true",
-                "expires_in": "3572", # seconds
+                "aud": <targeted audience id>, # client_id
+                "email_verified": <true-or-false>,
+                "expires_in": <No of seconds>,
                 "access_type": "offline",
-                "exp": "1660087224",
-                "azp": "client_id",
+                "exp": <unix timestamp>,
+                "azp": <client_id>,
                 "scope": "openid email profile",
-                "email": "user@example.com",
-                "sub": "106203657987367771589"
+                "email": <user_email>,
+                "sub": <user_id>
             }
         """
         return jwt.decode(
@@ -313,13 +307,13 @@ class OpenIDClient:
             Userinfo payload
             {
                 "family_name": <surname>,
-                "sub": "106203657987367771589",
+                "sub": <user_id>,
                 "picture": <URL>,
-                "locale": "en",
-                "email_verified": true,
+                "locale": <locale-name>,
+                "email_verified": <true-or-false>,
                 "given_name": <given-name>,
                 "email": <email-address>,
-                "hd": "redhat.com",
+                "hd": <domain name>,
                 "name": <full-name>
             }
         """
@@ -331,7 +325,7 @@ class OpenIDClient:
 
     def logout(self, refresh_token: str) -> HTTPStatus:
         """
-        The logout endpoint log out the authenticated user.
+        The logout endpoint logs out the authenticated user.
         Args:
             refresh_token: Refresh token issued at the time of login
         Returns:
@@ -374,227 +368,97 @@ class OpenIDClient:
             self._post(self.REVOCATION_ENDPOINT, data=payload).status_code
         )
 
-    def _get(self, path: str, **kwargs) -> requests.Response:
-        """Submit get request to the path.
+    def _method(
+        self, method: str, path: str, data: Dict, **kwargs
+    ) -> requests.Response:
+        """
+        Common frontend for the HTTP operations on OIDC client.
         Args:
+            method: The API HTTP method
             path: Path for the request.
+            data: Json data to send with the request in case of the POST or PUT
             kwargs: Params dict to send with GET request
         Returns:
             Response from the request.
         """
 
         try:
-            response = self.connection.get(
+            response = self.connection.request(
+                method,
                 urljoin(self.server_url, path),
                 params=kwargs,
+                data=data,
                 headers=self.headers,
                 verify=self.verify,
             )
             response.raise_for_status()
             return response
-        except requests.exceptions.HTTPError as e:
-            if response.status_code == HTTPStatus.FORBIDDEN:
-                raise OpenIDCAuthenticationError(
-                    HTTPStatus.FORBIDDEN, f"Forbidden to perform the operation {e}"
-                )
-            elif response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise OpenIDCAuthenticationError(
-                    HTTPStatus.UNAUTHORIZED,
-                    f"Unauthorized to perform the operation {e}",
-                )
-        except requests.exceptions.ConnectionError as e:
+        except requests.exceptions.HTTPError:
+            raise OpenIDCAuthenticationError(response.status_code)
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             self.logger.exception(
-                "GET request resulted in connection error {}",
-                self.__repr__(),
+                f"Could not connect to the OIDC client {self.__repr__()}"
             )
             raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
+                HTTPStatus.BAD_GATEWAY,
                 f"Failure to connect to the OpenID client {e}",
             )
-        except requests.exceptions.Timeout as e:
-            self.logger.exception(
-                "GET request timeout error {}",
-                self.__repr__(),
-            )
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to connect to the OpenID client {e}",
-            )
-
         except Exception as exc:
             self.logger.exception(
-                "GET request failed for OIDC client {}", self.__repr__()
+                f"{method} request failed for OIDC client {self.__repr__()}"
             )
             raise OpenIDClientError(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to complete the GET request from the OpenID client {exc}",
+                f"Failure to complete the {method} request from the OpenID client {exc}",
             )
+
+    def _get(self, path: str, **kwargs) -> requests.Response:
+        """
+        GET wrapper to handle an authenticated GET operation on the Resource at
+        a given path.
+        Args:
+            path: Path for the request.
+            kwargs: Params dict to send with GET request
+        Returns:
+            Response from the request.
+        """
+        return self._method("GET", path, None, **kwargs)
 
     def _post(self, path: str, data: Dict, **kwargs) -> requests.Response:
-        """Submit post request to the path.
+        """
+        GET wrapper to handle an authenticated POST operation on the Resource at
+        a given path
         Args:
             path: Path for the request.
+            data: data to post with the request
             kwargs: Params dict to send with GET request
         Returns:
             Response from the request.
         """
-        try:
-            response = self.connection.post(
-                urljoin(self.server_url, path),
-                params=kwargs,
-                data=data,
-                headers=self.headers,
-                verify=self.verify,
-            )
-            response.raise_for_status()
-            return response
-        except requests.exceptions.HTTPError as e:
-            if response.status_code == HTTPStatus.FORBIDDEN:
-                raise OpenIDCAuthenticationError(
-                    HTTPStatus.FORBIDDEN, f"Forbidden to perform the operation {e}"
-                )
-            elif response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise OpenIDCAuthenticationError(
-                    HTTPStatus.UNAUTHORIZED,
-                    f"Unauthorized to perform the operation {e}",
-                )
-        except requests.exceptions.ConnectionError as e:
-            self.logger.exception(
-                "POST request resulted in connection error {}",
-                self.__repr__(),
-            )
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to connect to the OpenID client {e}",
-            )
-        except requests.exceptions.Timeout as e:
-            self.logger.exception(
-                "POST request timeout error {}",
-                self.__repr__(),
-            )
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to connect to the OpenID client {e}",
-            )
-
-        except Exception as exc:
-            self.logger.exception(
-                "POST request failed for OIDC client {}",
-                self.__repr__(),
-            )
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to complete the POST request from the OpenID client {exc}",
-            )
+        return self._method("POST", path, data, **kwargs)
 
     def _put(self, path: str, data: Dict, **kwargs) -> requests.Response:
-        """Submit put request to the path.
+        """
+        PUT wrapper to handle an authenticated PUT operation on the Resource at
+        a given path.
         Args:
             path: Path for the request.
+            data: data to post with the request
             kwargs: Params dict to send with GET request
         Returns:
             Response from the request.
         """
-        try:
-            response = self.connection.put(
-                urljoin(self.server_url, path),
-                params=kwargs,
-                data=data,
-                headers=self.headers,
-                verify=self.verify,
-            )
-            response.raise_for_status()
-            return response
-        except requests.exceptions.HTTPError as e:
-            if response.status_code == HTTPStatus.FORBIDDEN:
-                raise OpenIDCAuthenticationError(
-                    HTTPStatus.FORBIDDEN, f"Forbidden to perform the operation {e}"
-                )
-            elif response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise OpenIDCAuthenticationError(
-                    HTTPStatus.UNAUTHORIZED,
-                    f"Unauthorized to perform the operation {e}",
-                )
-        except requests.exceptions.ConnectionError as e:
-            self.logger.exception(
-                "PUT request resulted in connection error {}",
-                self.__repr__(),
-            )
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to connect to the OpenID client {e}",
-            )
-        except requests.exceptions.Timeout as e:
-            self.logger.exception(
-                "PUT request timeout error {}",
-                self.__repr__(),
-            )
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to connect to the OpenID client {e}",
-            )
-
-        except Exception as exc:
-            self.logger.exception(
-                "PUT request failed for OIDC client {}", self.__repr__()
-            )
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to complete the PUT request from the OpenID client {exc}",
-            )
+        return self._method("PUT", path, data, **kwargs)
 
     def _delete(self, path: str, data: Dict = {}, **kwargs) -> requests.Response:
-        """Submit delete request to the path.
+        """
+        DELETE wrapper to handle an authenticated DELETE operation on the
+        Resource at a given path.
         Args:
             path: Path for the request.
+            data: data to post with the request
             kwargs: Params dict to send with GET request
         Returns:
             Response from the request.
         """
-        try:
-            response = self.connection.delete(
-                urljoin(self.server_url, path),
-                params=kwargs,
-                data=data,
-                headers=self.headers,
-                verify=self.verify,
-            )
-            response.raise_for_status()
-            return response
-        except requests.exceptions.HTTPError as e:
-            if response.status_code == HTTPStatus.FORBIDDEN:
-                raise OpenIDCAuthenticationError(
-                    HTTPStatus.FORBIDDEN, f"Forbidden to perform the operation {e}"
-                )
-            elif response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise OpenIDCAuthenticationError(
-                    HTTPStatus.UNAUTHORIZED,
-                    f"Unauthorized to perform the operation {e}",
-                )
-        except requests.exceptions.ConnectionError as e:
-            self.logger.exception(
-                "DELETE request resulted in connection error {}",
-                self.__repr__(),
-            )
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to connect to the OpenID client {e}",
-            )
-        except requests.exceptions.Timeout as e:
-            self.logger.exception(
-                "DELETE request timeout error {}",
-                self.__repr__(),
-            )
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"OpenID client connection timed out {e}",
-            )
-        except Exception as exc:
-            self.logger.exception(
-                "DELETE request failed for OIDC client {}",
-                self.__repr__(),
-            )
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to complete the DELETE request from the OpenID client {exc}",
-            )
+        return self._method("DELETE", path, data, **kwargs)

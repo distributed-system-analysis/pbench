@@ -140,7 +140,7 @@ class Login(Resource):
     Pbench API for User Login or generating an auth token
     """
 
-    TOKEN_EXPIRY_KEYS = set(["seconds", "minutes", "hours", "days", "weeks"])
+    TOKEN_EXPIRY_KEYS = {"seconds", "minutes", "hours", "days", "weeks"}
 
     def __init__(self, config, logger, auth):
         self.server_config = config
@@ -202,12 +202,12 @@ class Login(Resource):
             abort(
                 HTTPStatus.BAD_REQUEST,
                 message=(
-                    f"Invalid token expiry:  expected a JSON object, "
+                    f"Invalid token expiry: expected a JSON object, "
                     f"got a {type(token_expiry)}"
                 ),
             )
-        bad_keys = sorted(set(token_expiry.keys()) - self.TOKEN_EXPIRY_KEYS)
-        if bad_keys:
+        elif set(token_expiry.keys() - self.TOKEN_EXPIRY_KEYS):
+            bad_keys = sorted(set(token_expiry.keys()) - self.TOKEN_EXPIRY_KEYS)
             msg = (
                 f"Invalid token expiry key{'s' if len(bad_keys) > 1 else ''}: "
                 f"found {bad_keys}; expected one of {sorted(self.TOKEN_EXPIRY_KEYS)}"

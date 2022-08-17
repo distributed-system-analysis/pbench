@@ -1,6 +1,7 @@
 from jwt.exceptions import InvalidAudienceError
 import pytest
 import responses
+from pbench.server.auth.exceptions import OpenIDCAuthenticationError
 
 
 class TestUserTokenManagement:
@@ -47,10 +48,9 @@ class TestUserTokenManagement:
             status=401,
             json=json_response,
         )
-        token_response = keycloak_oidc.get_user_token(
-            username=self.USERNAME, password="wrong_pass"
-        )
-        assert token_response["error"] == json_response["error"]
+        with pytest.raises(OpenIDCAuthenticationError) as e:
+            keycloak_oidc.get_user_token(username=self.USERNAME, password="wrong_pass")
+        assert str(e.value) == "Unauthorized"
 
     def test_token_introspect_offline(self, keycloak_oidc, keycloak_mock_token):
         options = {"verify_signature": True, "verify_aud": True, "verify_exp": True}

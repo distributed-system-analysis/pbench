@@ -145,11 +145,10 @@ class Auth:
         ):
             Auth.logger.error("OIDC token verification failed")
             return False
-        except Exception as e:
+        except Exception:
             Auth.logger.exception(
-                "Unexpected exception occurred while verifying the auth token {}: {}",
+                "Unexpected exception occurred while verifying the auth token {}",
                 auth_token,
-                e,
             )
 
         if not tokeninfo_endpoint:
