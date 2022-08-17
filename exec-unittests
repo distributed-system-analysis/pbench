@@ -50,37 +50,9 @@ function _time {
     /usr/bin/time --format="\n\nCommand: '%C'\nExit status: %x\nTimings: user %Us, system %Ss, elapsed %es (%E, %P)\nMemory: max RSS %Mk, minor pf: %R, major pf: %F, swaps %W\nContext switches: inv %c, vol %w, signals %k\nI/O: fs in %I, fs out %O, socket in %r, socket out %s\n" ${@}
 }
 
-function run_legacy {
-    local _rc
-    local _major
-    local _subtst
-
-    _major=${1}
-    shift
-    _subtst=${1}
-    shift
-
-    printf -- "\n\n\nRunning %s/%s legacy unit tests\n\n" "${_major}" "${_subtst}"
-    _time ${_major}/${_subtst}/unittests ${@}
-    _rc=${?}
-    if [[ ${_rc} -ne 0 ]]; then
-        printf -- "\n%s %s legacy unit tests failed with '%s'\n\n" "${_major^}" "${_subtst}" "${_rc}"
-    else
-        printf -- "\n%s %s legacy unit tests succeeded\n\n" "${_major^}" "${_subtst}"
-    fi
-    return ${_rc}
-}
-
-function para_run_legacy {
-    # When we want to use the `run_legacy` function with `parallel`, we have a
-    # problem because the command line arguments are passed as one long
-    # string.  So this jump function breaks up the arguments and invokes
-    # `run_legacy` as expected.
-    run_legacy ${1}
-}
 
 # Export functions for use with `parallel` below.
-export -f para_run_legacy run_legacy _time
+export -f _time
 
 function verify_make_source_tree {
     # The agent and server-side sub-trees have individual ways to create the
@@ -157,49 +129,11 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
     fi
 fi
 
-_subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-scripts bench-scripts"
-
-_para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
-trap "rm -f ${_para_jobs_file}" EXIT INT TERM
-
-let count=0
 for _major in ${major_list}; do
     # Verify the Agent or Server Makefile functions correctly.
     if [[ "${_major}" == "agent" || "${_major}" == "server" ]]; then
         verify_make_source_tree ${_major} || rc=1
     fi
-
-    if [[ "${_major}" == "agent" ]]; then
-        # The parallel program is really cool.  The usage of `parallel` is
-        # internal and automated; only test code depends on this tool, and we,
-        # as developers, have viewed the citation and are justified in
-        # suppressing future displays of it in our development processes (use of
-        # --will-cite below).
-
-        for _subtst in ${_subtst_list}; do
-            if [[ "${subtst:-legacy}" == "legacy" || "${subtst}" == "$(basename ${_subtst})" ]]; then
-                echo "${_major} ${_subtst} ${posargs}"
-                (( count++ ))
-            fi
-        done > ${_para_jobs_file}
-        parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
-        if [[ ${?} -ne 0 ]]; then
-            rc=1
-        fi
-    elif [[ "${_major}" == "server" ]]; then
-        if [[ -z "${subtst}" || "${subtst}" == "legacy" ]]; then
-            (( count++ ))
-            run_legacy ${_major} bin ${posargs} || rc=1
-        fi
-    elif [[ "${_major}" != "client" ]]; then
-        printf -- "Error - unrecognized major test sub-set, '%s'\n" "${_major}" >&2
-        rc=1
-    fi
 done
-
-if [[ ${count} -eq 0 && "${subtst}" != "python" ]]; then
-    printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
-    rc=1
-fi
 
 exit ${rc}

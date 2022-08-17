@@ -100,12 +100,6 @@ class TestBaseServer:
         pidfile = tmp_path / "test.pid"
 
         bs = OurServer("localhost", "localhost")
-        pidfile.write_text("12345")
-        bs.pid_file = pidfile
-        ret = bs.kill(42)
-        assert ret == 42
-
-        bs = OurServer("localhost", "localhost")
         bs.pid_file = pidfile
         pidfile.write_text("badpid")
         ret = bs.kill(42)
