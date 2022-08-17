@@ -1,7 +1,6 @@
 from jwt.exceptions import InvalidAudienceError
 import pytest
 import responses
-from pbench.server.auth.exceptions import OpenIDCAuthenticationError
 
 
 class TestUserTokenManagement:
@@ -35,23 +34,6 @@ class TestUserTokenManagement:
         )
         assert token_response["access_token"] == json_response["access_token"]
 
-    @responses.activate
-    def test_invalid_user_credential(self, server_config, keycloak_oidc):
-        token_endpoint = keycloak_oidc.TOKEN_ENDPOINT
-        json_response = {
-            "error": "invalid_grant",
-            "error_description": "Invalid user credentials",
-        }
-        responses.add(
-            responses.POST,
-            token_endpoint,
-            status=401,
-            json=json_response,
-        )
-        with pytest.raises(OpenIDCAuthenticationError) as e:
-            keycloak_oidc.get_user_token(username=self.USERNAME, password="wrong_pass")
-        assert str(e.value) == "Unauthorized"
-
     def test_token_introspect_offline(self, keycloak_oidc, keycloak_mock_token):
         options = {"verify_signature": True, "verify_aud": True, "verify_exp": True}
         response = keycloak_oidc.token_introspect_offline(
@@ -70,7 +52,7 @@ class TestUserTokenManagement:
 
     def test_token_introspect_wrong_aud_claim(self, keycloak_oidc, keycloak_mock_token):
         options = {"verify_signature": True, "verify_aud": True, "verify_exp": True}
-        with pytest.raises(InvalidAudienceError):
+        with pytest.raises(InvalidAudienceError) as e:
             keycloak_oidc.token_introspect_offline(
                 token=keycloak_mock_token,
                 key="some_secret",
@@ -78,25 +60,4 @@ class TestUserTokenManagement:
                 audience="wrong_client",
                 options=options,
             )
-
-    @responses.activate
-    def test_get_userinfo(self, server_config, keycloak_oidc, keycloak_mock_token):
-        userinfo_endpoint = keycloak_oidc.USERINFO_ENDPOINT
-        json_response = {
-            "sub": "d0d1338c-f0df-4493-b9f2-078eedc1e02e",
-            "email_verified": False,
-            "name": "test pbench",
-            "preferred_username": "test",
-            "given_name": "test",
-            "family_name": "pbench",
-            "email": "test@example.com",
-        }
-
-        responses.add(
-            responses.GET,
-            userinfo_endpoint,
-            status=200,
-            json=json_response,
-        )
-        token_response = keycloak_oidc.get_userinfo(token=keycloak_mock_token)
-        assert token_response["sub"] == json_response["sub"]
+        assert str(e.value) == "Invalid audience"
