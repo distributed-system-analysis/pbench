@@ -10,7 +10,6 @@ ANSIBLEDIR=${DESTDIR}/ansible
 BENCHDIR=${DESTDIR}/bench-scripts
 CONFIGDIR=${DESTDIR}/config
 LIBDIR=${DESTDIR}/lib
-STOCKPILEDIR=${DESTDIR}/stockpile
 TOOLDIR=${DESTDIR}/tool-scripts
 UTILDIR=${DESTDIR}/util-scripts
 
@@ -241,8 +240,6 @@ install: install-destdir install-python3-setup install-bench-scripts install-too
 	${INSTALL} ${INSTALLOPTS} ${CONFIGDIR}/benchmark
 	${COPY} config ${DESTDIR}
 	${COPY} templates ${DESTDIR}
-	${INSTALL} ${INSTALLOPTS} ${STOCKPILEDIR}
-	${COPY} stockpile ${DESTDIR}
 
 install-destdir:
 	${INSTALL} ${INSTALLOPTS} ${DESTDIR}

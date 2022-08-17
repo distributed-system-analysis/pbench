@@ -15,7 +15,6 @@ python3 -m pip install --user -r lint-requirements.txt
 GITTOP=$(git rev-parse --show-toplevel 2>&1 | head -n 1)
 if [[ ${GITTOP} =~ "fatal: unsafe repository ('/home/root/pbench'" ]] ; then
 	git config --global --add safe.directory /home/root/pbench
-	git config --global --add safe.directory /home/root/pbench/agent/stockpile
 	GITTOP=$(git rev-parse --show-toplevel)
 fi
 

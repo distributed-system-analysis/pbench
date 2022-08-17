@@ -28,7 +28,7 @@ use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_pben
                         get_pbench_datetime);
 use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
                         remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
-                        sync_dir_from_hosts verify_success stockpile_hosts);
+                        sync_dir_from_hosts verify_success);
 
 my %defaults = (
     "num-samples" => 1,
@@ -181,14 +181,6 @@ if ($pp_only) {
 mkdir($es_dir);
 for my $es_subdir (qw(run bench config metrics)) {
     mkdir($es_dir . "/" . $es_subdir);
-}
-
-# Use stockpile to collect configuration information
-my @config_hosts = split(/,/, $params{"clients"});
-if (-e "/tmp/stockpile") {
-    print "Collecting confguration information with stockpile\n";
-    stockpile_hosts(\@config_hosts, $base_bench_dir,"stockpile_output_path=".
-                    $base_bench_dir . "/stockpile.json");
 }
 
 my $tool_group = $params{"tool-group"};
@@ -434,36 +426,6 @@ if ($params{'postprocess-mode'} eq 'html') {
         "/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark .
         " " . $benchmark . " " . $base_bench_dir);
     print "finished\n";
-}
-
-# Convert the stockpile data with scribe, then create CDM docs in ./es/config
-if (-e $base_bench_dir . "/stockpile.json") {
-    system('python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' .
-        $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json');
-    open(my $scribe_fh, "<" . $base_bench_dir . "/scribe.json") || die "Could not open " .
-        $base_bench_dir . "/scribe.json";
-    my $json_text = "";
-    # Instead of 1 json document, there are actually multiple documents, but no separator
-    # between them or organized in an array
-    while (<$scribe_fh>) {
-        $json_text .= $_;
-        if (/^\}/) { # Assume this is the end of a json doc
-            my %config_doc = create_config_doc(\%last_run_doc, from_json($json_text));
-            if ($config_doc{'cdm'}{'doctype'} =~ /^config_(.+)/) {
-                my $config_subname = $1;
-                if (exists $config_doc{'config'}{'id'}) {
-                    put_json_file(\%config_doc, $es_dir . "/config/" . $config_doc{'cdm'}{'doctype'} .
-                                "-" . $config_doc{'config'}{'id'} . ".json");
-                } else {
-                    printf "Error: config doc's config.%s not found\n", $config_subname;
-                }
-            } else {
-                printf "Error: config doc's cdm.doctype does not start with \"config_\"\n";
-            }
-            $json_text = "";
-        }
-    }
-    close($scribe_fh);
 }
 
 printf "Run complete\n\n";

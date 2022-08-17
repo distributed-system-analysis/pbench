@@ -84,7 +84,7 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: default, none, all, ara, block, insights, kernel_config, libvirt, security_mitigations, sos, stockpile, topology
+		available: default, none, all, ara, block, insights, kernel_config, libvirt, security_mitigations, sos, topology
 
 	--unique-ports           Use unique ports for each server
 --- Finished test-14 pbench-fio (status=1)

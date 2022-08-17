@@ -14,8 +14,6 @@ The structure of the sysinfo directory in a pbench result, for example,  `/var/l
       * security-mitigation-data.txt	 
       * sosreport-localhost-localhost-pbench-2019-06-10-mrqgzbh.tar.xz
       * sosreport-localhost-localhost-pbench-2019-06-10-mrqgzbh.tar.xz.md5	 
-      * stockpile.json
-      * stockpile.log
 
 ## config-[kernel_version]
 
@@ -62,14 +60,6 @@ The data is collected using [pbench-sysinfo-dump#L87](https://github.com/distrib
 ## ara
 
 This specific file is not in the scope of my internship because ara works with `python2` and Fedora 30, which is installed on my system, works with `python3` only.
-
-## stockpile.json
-
-The file contains system information gathered by the [stockpile](https://github.com/redhat-performance/stockpile) tool using Ansible.
-
-The data is collected using [pbench-sysinfo-dump#L153](https://github.com/distributed-system-analysis/pbench/blob/master/agent/util-scripts/pbench-sysinfo-dump#L153). The script runs a specified stockpile playbook with the given stockpile options. The stockpile playbook has a number of roles associated with it, for example, `ceph`, `cpu`, etc. for each of which there is a specific ansible playbook called `main.yml`, which contains the rules to collect information related to that role.
-
-The file contains data in a json file format.
 
 ## insights tarball
 

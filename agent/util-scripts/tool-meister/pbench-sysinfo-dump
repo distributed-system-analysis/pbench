@@ -185,35 +185,6 @@ function collect_ara {
 	fi
 }
 
-function collect_stockpile {
-	stockpile_playbook="${install_dir}/stockpile/stockpile.yml"
-	if [[ ! -d "${install_dir}" || ! -f ${stockpile_playbook} ]]; then
-		printf -- "ERROR: stockpile playbook not found, '%s'\n" "${stockpile_playbook}" >&2
-		return 1
-	fi
-
-	mkdir ${dir}/stockpile
-
-	stockpile_log=${dir}/stockpile/output.log
-	stockpile_output_path=${dir}/stockpile/output.json
-
-	# generate inventory and run stockpile
-	INVENTORY=${dir}/stockpile/inventory
-	generate_inventory stockpile > ${INVENTORY}
-
-	stockpile_opts="stockpile_user=${USER} local_remote_user=${USER} host_remote_user=${USER} stockpile_output_path=${stockpile_output_path}"
-	stockpile_playbook="${install_dir}/stockpile/stockpile.yml"
-	echo "ansible-playbook -vv --extra-vars '"${stockpile_opts}"' -i ${INVENTORY} ${stockpile_playbook}" > ${dir}/stockpile/command
-	chmod +x ${dir}/stockpile/command
-
-	${dir}/stockpile/command &> ${stockpile_log}
-	if [[ ${?} != 0 ]]; then
-		printf -- "ERROR: stockpile run failed\n" >&2
-	else
-		printf -- "done collecting stockpile data\n"
-	fi
-}
-
 function collect_insights {
 	mkdir ${dir}/insights-client
 	script -c 'insights-client --offline --logging-file ${dir}/insights-client/output.log' /dev/null | sed -n 's/.*\sat\s//p' | tr -d "$'\r" | xargs -I '{}' mv {} ${dir}/insights-client
@@ -226,7 +197,7 @@ function collect_insights {
 
 for item in ${sysinfo//,/ }; do
 	case ${item} in
-	kernel_config|security_mitigations|libvirt|topology|sos|block|ara|stockpile|insights)
+	kernel_config|security_mitigations|libvirt|topology|sos|block|ara|insights)
 		printf -- "collecting %s\n" "${item}"
 		if [[ "${mode}" == "parallel" ]]; then
 			collect_${item} &

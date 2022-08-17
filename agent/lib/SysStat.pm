@@ -56,7 +56,6 @@ sub build_cpu_topology {
     # Other methods will be added here, and may include:
     # - inspecting data from sosreport
     # - having sar collect sysinfo data for topology at tool registration
-    # - inspecting data from stockpile
 }
 
 sub get_cpu_socket_core {
