@@ -41,7 +41,6 @@ include = '''
 extend-exclude = '''
 (
 fio-histo-log-pctiles\.py$
-| agent/stockpile
 | web-server/v0\.3/demo\.py$
 )
 '''

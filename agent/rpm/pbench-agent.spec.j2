@@ -97,8 +97,6 @@ Conflicts: pbench <= 0.34
 # the configtools RPM installed.
 Conflicts: configtools
 
-Patch0: stockpile-shebang.patch
-
 %define installdir opt/pbench-agent
 
 %description
@@ -178,10 +176,3 @@ fi
 %attr(444,root,root) /%{installdir}/bench-scripts/postprocess/BenchPostprocess.pm
 %attr(444,root,root) /%{installdir}/bench-scripts/templates/fio.job
 %attr(444,root,root) /%{installdir}/bench-scripts/templates/fio-shared-fs.job
-
-# stockpile
-%defattr(444,root,root,555)
-/%{installdir}/stockpile
-%attr(555,root,root) /%{installdir}/stockpile/import_roles.sh
-%attr(555,root,root) /%{installdir}/stockpile/roles/openshift-cluster-topology/files/openshift_config_scraper.py
-%attr(555,root,root) /%{installdir}/stockpile/roles/openstack_common/files/openstack-config-parser.py

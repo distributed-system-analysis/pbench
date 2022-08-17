@@ -41,6 +41,4 @@ sysinfo_opts_default = frozenset(
     ("block", "kernel_config", "libvirt", "security_mitigations", "sos", "topology")
 )
 # All of the available system configuration items that could be collected.
-sysinfo_opts_available = sysinfo_opts_default | frozenset(
-    ("ara", "insights", "stockpile")
-)
+sysinfo_opts_available = sysinfo_opts_default | frozenset(("ara", "insights"))
