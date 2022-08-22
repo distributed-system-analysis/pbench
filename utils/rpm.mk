@@ -105,7 +105,7 @@ submodules:
 ${subcomps}:
 	make -C ${PBENCHTOP}/$@ DESTDIR=${TBDIR}/$@ install
 
-$(RPMSRPM)/$(prog)-$(version)-$(seqno)g$(sha1).src.rpm: srpm
+$(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm: srpm
 
 ifdef COPR_USER
 _copr_user = ${COPR_USER}
@@ -115,7 +115,7 @@ endif
 
 COPR_TARGETS = copr copr-test
 .PHONY: ${COPR_TARGETS}
-${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(version)-$(seqno)g$(sha1).src.rpm
+${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
 	copr-cli build ${CHROOTS} $(_copr_user)/$(subst copr,pbench,$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
 
 # Determine the present working directory relative to ${PBENCHTOP} so that we
