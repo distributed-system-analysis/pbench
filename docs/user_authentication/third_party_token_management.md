@@ -1,42 +1,58 @@
 
 ```sequence {theme: 'simple'}
-title Third Party IDP Token Management
+title Third party token management
 
-participant Pbench-Keycloak-server
 participant Pbench-Server
 participant Pbench-Dashboard
+participant Identity-Broker
 participant Identity-Provider
 
 autonumber 1
-Pbench-Dashboard->Pbench-Server: GET IAM scheme & link
-Pbench-Server->Pbench-Dashboard: 200 authentication schema/link
-Pbench-Dashboard->Identity-Provider: POST Authorization request
-note over Identity-Provider: Authenticate User and request \nuser consent for Pbench
-Identity-Provider->Pbench-Dashboard: 200 Authorization code response
-Pbench-Dashboard->Identity-Provider: POST authorization code (Token request)
-Identity-Provider->Pbench-Dashboard: 200 Access/Refresh Token payload response 
-note over Identity-Provider,Pbench-Dashboard: {"access_token":<access_token>,\n"expires_in": 300,\n"refresh_expires_in": 1800,\n"refresh_token": <refresh_token>,\n"token_type": "Bearer",\n"id_token": <id_token>,...}
-// Here the dashboard sends the newly acquired access token to the Pbench Server to start the token exchange process.
-Pbench-Dashboard->Pbench-Server: POST /api/v1/pbench-token request (Bearer: External IDP Access Token)
-Pbench-Server->Identity-Provider: GET public Key
-Identity-Provider->Pbench-Server: 200 public key
-Pbench-Server->Pbench-Server: Validate the access token
-Pbench-Server->Identity-Provider: [Optional] POST userinfo endpoint
-Identity-Provider->Pbench-Server:  200 userinfo response
-note over Pbench-Server,Pbench-Dashboard: {"family_name": <surname>,\n"sub": <user_id>,\n"email_verified": <bool>,\n"email": <email>,\n"given_name": <given_name>,...}
-// We exchange the Third-party IDP token with our internal Pbench token that should be used for accessing Pbench server resources.
-// Pbench token might contain more metadata about user such as role/group associations.
-Pbench-Server->Pbench-Keycloak-server: Exchange IDP access token \n(provided by the Pbench dashboard) \nwith Pbench token
-Pbench-Keycloak-server->Pbench-Server: 200 new Pbench access_token and refresh_token
-// Finally, the Pbench Server responds to the dashboard with the new pbench token in the response payload.
-Pbench-Server->Pbench-Dashboard: 200 /api/v1/pbench-token reponse (new 'Pbench Access Token' in payload)
-// Preceding is a pbench token retrival setup; 
-// following is a requests which can be issued without repeating the preceding setup
+Pbench-Dashboard->Pbench-Server: GET Pbench client ID
+
+Pbench-Server->Pbench-Dashboard: 200 Response 
+
+note over Pbench-Server,Pbench-Dashboard:{Identity_Broker_auth_URI: <auth_URI>\nclient_id: <pbench_client_id>\nclient_secret: <pbench_client_secret> # optional\n}
+
+note over Pbench-Dashboard:User clicks login
+
+Pbench-Dashboard->Identity-Broker:LOAD identity broker auth URI\n(Authentication Request)
+
+note right of Pbench-Dashboard:GET request:\n<identity_broker_auth_URI>\n?client_id=<pbench_client_id>\n&response_type=code\n&redirect_uri=<dashboard_URI>\n&scope=openid
+
+note over Identity-Broker:User selects an identity provider from the list
+
+Identity-Broker->Identity-Provider:LOAD identity provider auth page
+
+note right of Identity-Broker:GET request:\n<identity_provider_auth_URI>\n?client_id=<client_id as registered on identity provider>\n&response_type=code\n&redirect_uri=<identity_broker_URI>\n&scope=openid
+
+note over Identity-Provider:User challenge credentials and consent
+
+Identity-Provider->Identity-Broker:302 Authentication Response\n(Redirect back to identity broker)
+
+note left of Identity-Provider:Redirect Location:\n<Identity_broker_URI>\n?code=<auth_code>\n&state=<session_state_id>
+
+note over Identity-Broker:Identity federation\na. Checks the validity of response from the Identity provider\nb. Imports and create user identity from the token\nc. Link the user identity with the Identity provider
+
+Identity-Broker->Pbench-Dashboard:302 Authentication Response\n(Redirect back to Pbench dashboard)
+
+note left of Identity-Broker:Redirect Location:\n<Pbench_dashboard_URI>\n?code=<identity_broker_auth_code>\n&state=<session_state_id>
+
+Pbench-Dashboard->Identity-Broker:POST Request to token endpoint
+
+note right of Pbench-Dashboard:POST request:\npost <identity_broker token endpoint>\npayload:\n{code: <identity_broker_auth_code>\nclient_id: <pbench_client_id>\nredirect_uri: <dashboard_URI>\n}
+
+Identity-Broker->Pbench-Dashboard: 200 Token Response
+
+note left of Identity-Broker:token response:\n{\n  access_token: <indetity_broker_access_token>,\n  expires_in: <no of seconds>,\n  refresh_expires_in: <no of seconds>,\n  refresh_token: <refresh_token>,\n  token_type: "Bearer",\n  id_token: <id_token>\n  session_state: <session_id>,\n  scope: <openid email profile>\n}
+
 Pbench-Dashboard->Pbench-Server: POST /api/v1/<restricted_endpoint> request (Bearer: Pbench Access Token)
-note over Pbench-Server: Validation and Role extraction \nfrom the Pbench token
+
+note over Pbench-Server:Validation and identity extraction \nfrom the Pbench token
+
 alt case 1
 Pbench-Server->Pbench-Dashboard: 200 /api/v1/<restricted_endpoint> reponse
 else case 2
-Pbench-Server->Pbench-Dashboard: 401 /api/v1/<restricted_endpoint> reponse
+Pbench-Server->Pbench-Dashboard:40X /api/v1/<restricted_endpoint> reponse
 end
 ```
