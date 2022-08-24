@@ -206,7 +206,7 @@ class Login(Resource):
                     f"got a {type(token_expiry)}"
                 ),
             )
-        elif set(token_expiry.keys() - self.TOKEN_EXPIRY_KEYS):
+        elif set(token_expiry.keys()) - self.TOKEN_EXPIRY_KEYS:
             bad_keys = sorted(set(token_expiry.keys()) - self.TOKEN_EXPIRY_KEYS)
             msg = (
                 f"Invalid token expiry key{'s' if len(bad_keys) > 1 else ''}: "

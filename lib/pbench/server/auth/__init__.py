@@ -109,8 +109,10 @@ class OpenIDClient:
                 OpenIDClient.LOGOUT_ENDPOINT = endpoints_json["end_session_endpoint"]
         except KeyError as e:
             self.logger.exception(
-                f"Missing endpoint {str(e)!s} at {well_known_uri};"
-                f"Endpoints found: {endpoints_json}"
+                "Missing endpoint {} at {}; Endpoints found: {}",
+                str(e),
+                well_known_uri,
+                endpoints_json,
             )
             raise
 
@@ -153,8 +155,8 @@ class OpenIDClient:
             OIDC client access token payload
             e.g: json_response = {
             "access_token": <access_token_string>,
-            "expires_in": <No of seconds>,
-            "refresh_expires_in": <No of seconds>,
+            "expires_in": <Number_of_seconds>,
+            "refresh_expires_in": <Number_of_seconds>,
             "refresh_token": <refresh_token_string>,
             "token_type": "Bearer",
             "id_token": <id_token_string>,
@@ -242,11 +244,11 @@ class OpenIDClient:
         Returns:
             Extracted token information
             {
-                "aud": <targeted audience id>, # client_id
+                "aud": <targeted audience id>,
                 "email_verified": <true-or-false>,
-                "expires_in": <No of seconds>,
+                "expires_in": <Number_of_seconds>,
                 "access_type": "offline",
-                "exp": <unix timestamp>,
+                "exp": <unix_timestamp>,
                 "azp": <client_id>,
                 "scope": "openid email profile",
                 "email": <user_email>,
@@ -283,9 +285,9 @@ class OpenIDClient:
             {
                 "aud": <targeted audience id>, # client_id
                 "email_verified": <true-or-false>,
-                "expires_in": <No of seconds>,
+                "expires_in": <Number_of_seconds>,
                 "access_type": "offline",
-                "exp": <unix timestamp>,
+                "exp": <unix_timestamp>,
                 "azp": <client_id>,
                 "scope": "openid email profile",
                 "email": <user_email>,
@@ -397,7 +399,7 @@ class OpenIDClient:
             raise OpenIDCAuthenticationError(response.status_code)
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             self.logger.exception(
-                f"Could not connect to the OIDC client {self.__repr__()}"
+                "Could not connect to the OIDC client {}", self.__repr__()
             )
             raise OpenIDClientError(
                 HTTPStatus.BAD_GATEWAY,
@@ -405,7 +407,7 @@ class OpenIDClient:
             )
         except Exception as exc:
             self.logger.exception(
-                f"{method} request failed for OIDC client {self.__repr__()}"
+                "{} request failed for OIDC client {}", method, self.__repr__()
             )
             raise OpenIDClientError(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -426,12 +428,12 @@ class OpenIDClient:
 
     def _post(self, path: str, data: Dict, **kwargs) -> requests.Response:
         """
-        GET wrapper to handle an authenticated POST operation on the Resource at
+        POST wrapper to handle an authenticated POST operation on the Resource at
         a given path
         Args:
             path: Path for the request.
             data: data to post with the request
-            kwargs: Params dict to send with GET request
+            kwargs: Params dict to send with POST request
         Returns:
             Response from the request.
         """
@@ -443,8 +445,8 @@ class OpenIDClient:
         a given path.
         Args:
             path: Path for the request.
-            data: data to post with the request
-            kwargs: Params dict to send with GET request
+            data: data to put with the request
+            kwargs: Params dict to send with PUT request
         Returns:
             Response from the request.
         """
@@ -456,8 +458,8 @@ class OpenIDClient:
         Resource at a given path.
         Args:
             path: Path for the request.
-            data: data to post with the request
-            kwargs: Params dict to send with GET request
+            data: data to send with the request
+            kwargs: Params dict to send with DELETE request
         Returns:
             Response from the request.
         """

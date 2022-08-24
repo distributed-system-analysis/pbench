@@ -1,6 +1,6 @@
 
 ```sequence {theme: 'simple'}
-title Third party token management
+title Third-party Token Management
 
 participant Pbench-Server
 participant Pbench-Dashboard
@@ -32,7 +32,7 @@ Identity-Provider->Identity-Broker:302 Authentication Response\n(Redirect back t
 
 note left of Identity-Provider:Redirect Location:\n<Identity_broker_URI>\n?code=<auth_code>\n&state=<session_state_id>
 
-note over Identity-Broker:Identity federation\na. Checks the validity of response from the Identity provider\nb. Imports and create user identity from the token\nc. Link the user identity with the Identity provider
+note over Identity-Broker:Identity federation\na. Checks the validity of response from the Identity provider\nb. Imports and creates user identity from the token\nc. Links the user identity with the Identity provider
 
 Identity-Broker->Pbench-Dashboard:302 Authentication Response\n(Redirect back to Pbench dashboard)
 
@@ -44,7 +44,7 @@ note right of Pbench-Dashboard:POST request:\npost <identity_broker token endpoi
 
 Identity-Broker->Pbench-Dashboard: 200 Token Response
 
-note left of Identity-Broker:token response:\n{\n  access_token: <indetity_broker_access_token>,\n  expires_in: <no of seconds>,\n  refresh_expires_in: <no of seconds>,\n  refresh_token: <refresh_token>,\n  token_type: "Bearer",\n  id_token: <id_token>\n  session_state: <session_id>,\n  scope: <openid email profile>\n}
+note left of Identity-Broker:token response:\n{\n  access_token: <indetity_broker_access_token>,\n  expires_in: <number of seconds>,\n  refresh_expires_in: <number of seconds>,\n  refresh_token: <refresh_token>,\n  token_type: "Bearer",\n  id_token: <id_token>\n  session_state: <session_id>,\n  scope: <openid email profile>\n}
 
 Pbench-Dashboard->Pbench-Server: POST /api/v1/<restricted_endpoint> request (Bearer: Pbench Access Token)
 
