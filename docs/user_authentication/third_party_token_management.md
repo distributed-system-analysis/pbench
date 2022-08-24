@@ -46,13 +46,17 @@ Identity-Broker->Pbench-Dashboard: 200 Token Response
 
 note left of Identity-Broker:token response:\n{\n  access_token: <indetity_broker_access_token>,\n  expires_in: <number of seconds>,\n  refresh_expires_in: <number of seconds>,\n  refresh_token: <refresh_token>,\n  token_type: "Bearer",\n  id_token: <id_token>\n  session_state: <session_id>,\n  scope: <openid email profile>\n}
 
+// ==Authorization Setup complete; the steps below may be repeated to issue a series of requests==
+
 Pbench-Dashboard->Pbench-Server: POST /api/v1/<restricted_endpoint> request (Bearer: Pbench Access Token)
 
-note over Pbench-Server:Validation and identity extraction \nfrom the Pbench token
+note over Pbench-Server:Validation and identity extraction\nfrom the Pbench token
 
-alt case 1
-Pbench-Server->Pbench-Dashboard: 200 /api/v1/<restricted_endpoint> reponse
-else case 2
-Pbench-Server->Pbench-Dashboard:40X /api/v1/<restricted_endpoint> reponse
+alt Authenticated user is authorized for resource
+Pbench-Server->Pbench-Dashboard: 200 /api/v1/<restricted_endpoint> response
+else Authenticated user is not authorized for resource
+Pbench-Server->Pbench-Dashboard:403 /api/v1/<restricted_endpoint> response
+else Authorization token expired or invalidated
+Pbench-Server->Pbench-Dashboard:401 /api/v1/<restricted_endpoint> response
 end
 ```

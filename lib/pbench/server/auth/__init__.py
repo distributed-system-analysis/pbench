@@ -3,7 +3,6 @@ import logging
 from typing import Dict, List, Optional, Union
 from urllib.parse import urljoin
 
-from flask_restful import abort
 import jwt
 import requests
 from requests.structures import CaseInsensitiveDict
@@ -105,8 +104,6 @@ class OpenIDClient:
             OpenIDClient.USERINFO_ENDPOINT = endpoints_json["userinfo_endpoint"]
             OpenIDClient.REVOCATION_ENDPOINT = endpoints_json["revocation_endpoint"]
             OpenIDClient.JWKS_ENDPOINT = endpoints_json["jwks_uri"]
-            if "end_session_endpoint" in endpoints_json:
-                OpenIDClient.LOGOUT_ENDPOINT = endpoints_json["end_session_endpoint"]
         except KeyError as e:
             self.logger.exception(
                 "Missing endpoint {} at {}; Endpoints found: {}",
@@ -275,6 +272,9 @@ class OpenIDClient:
         by the identity provider.
         The introspected JWT token contains the claims specified in
         https://tools.ietf.org/html/rfc7662
+
+        Please refer https://www.rfc-editor.org/rfc/rfc7662.html#section-4 for
+        reasons on doing the token introspection offline.
         Args:
             token: token value to introspect
             key: client public key
@@ -324,31 +324,6 @@ class OpenIDClient:
             self.add_header_param("Authorization", f"Bearer {token}")
 
         return self._get(self.USERINFO_ENDPOINT).json()
-
-    def logout(self, refresh_token: str) -> HTTPStatus:
-        """
-        The logout endpoint logs out the authenticated user.
-        Args:
-            refresh_token: Refresh token issued at the time of login
-        Returns:
-            Https status code based on success or failure
-        """
-        if self.LOGOUT_ENDPOINT:
-            payload = {
-                "client_id": self.client_id,
-                "client_secret": self.client_secret_key,
-                "refresh_token": refresh_token,
-            }
-
-            return HTTPStatus(
-                self._post(self.LOGOUT_ENDPOINT, data=payload).status_code
-            )
-        else:
-            self.logger.warning("logout attempt on third party token")
-            abort(
-                HTTPStatus.METHOD_NOT_ALLOWED,
-                message="Logout operation is not allowed for the given token",
-            )
 
     def revoke_access_token(self, access_token: str) -> HTTPStatus:
         """
