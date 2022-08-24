@@ -1,0 +1,65 @@
+sequence:
+- testcase 1
+- testcase 2
+test:
+- testcase 1:
+  - scenario: invalid pbench-dashboard login
+  - step 1:
+      action: goto
+      target: http://10.1.170.201
+      targets:
+      - http://10.1.170.201
+  - step 2:
+      action: click
+      target: Login
+      targets:
+      - Login
+  - step 3:
+      action: input
+      target: //*[@id="username"]
+      value: user
+      targets:
+      - //*[@id="username"]
+  - step 4:
+      action: input
+      target: //*[@id="password"]
+      value: password
+      targets:
+      - //*[@id="password"]
+  - step 5:
+      action: click
+      target: Login
+      wait after action: 3
+      assert: text=Bad login
+      targets:
+      - Login
+- testcase 2:
+  - scenario: Valid pbench-dashboard login
+  - step 1:
+      action: goto
+      target: http://10.1.170.201
+      targets:
+      - http://10.1.170.201
+  - step 2:
+      action: click
+      target: Login
+      targets:
+      - Login
+  - step 3:
+      action: input
+      target: //*[@id="username"]
+      value: vishalvvr
+      targets:
+      - //*[@id="username"]
+  - step 4:
+      action: input
+      target: //*[@id="password"]
+      value: Redhat@123
+      targets:
+      - //*[@id="password"]
+  - step 5:
+      action: click
+      target: Login
+      targets:
+      - Login
+      assert: text=Logged in successfully!
