@@ -106,7 +106,7 @@ class OpenIDClient:
             OpenIDClient.JWKS_ENDPOINT = endpoints_json["jwks_uri"]
         except KeyError as e:
             self.logger.exception(
-                "Missing endpoint {} at {}; Endpoints found: {}",
+                "Missing endpoint {!r} at {}; Endpoints found: {}",
                 str(e),
                 well_known_uri,
                 endpoints_json,
@@ -159,7 +159,7 @@ class OpenIDClient:
             "id_token": <id_token_string>,
             "not-before-policy": 0,
             "session_state": <session_state_id_string>,
-            "scope": "openid profile email",
+            "scope": <scope_string>, # "openid email profile",
             }
         """
         payload = {
@@ -241,13 +241,13 @@ class OpenIDClient:
         Returns:
             Extracted token information
             {
-                "aud": <targeted audience id>,
-                "email_verified": <true-or-false>,
+                "aud": <targeted_audience_id>,
+                "email_verified": <true_or_false>,
                 "expires_in": <Number_of_seconds>,
                 "access_type": "offline",
                 "exp": <unix_timestamp>,
                 "azp": <client_id>,
-                "scope": "openid email profile",
+                "scope": <scope_string>, # "openid email profile"
                 "email": <user_email>,
                 "sub": <user_id>
             }
@@ -283,13 +283,13 @@ class OpenIDClient:
         Returns:
             Extracted token information
             {
-                "aud": <targeted audience id>, # client_id
-                "email_verified": <true-or-false>,
+                "aud": <targeted_audience_id>,
+                "email_verified": <true_or_false>,
                 "expires_in": <Number_of_seconds>,
                 "access_type": "offline",
                 "exp": <unix_timestamp>,
                 "azp": <client_id>,
-                "scope": "openid email profile",
+                "scope": <scope_string>, # "openid email profile"
                 "email": <user_email>,
                 "sub": <user_id>
             }
@@ -311,12 +311,12 @@ class OpenIDClient:
                 "family_name": <surname>,
                 "sub": <user_id>,
                 "picture": <URL>,
-                "locale": <locale-name>,
-                "email_verified": <true-or-false>,
-                "given_name": <given-name>,
-                "email": <email-address>,
-                "hd": <domain name>,
-                "name": <full-name>
+                "locale": <locale_name>,
+                "email_verified": <true_or_false>,
+                "given_name": <given_name>,
+                "email": <email_address>,
+                "hd": <domain_name>,
+                "name": <full_name>
             }
         """
 
@@ -373,9 +373,7 @@ class OpenIDClient:
         except requests.exceptions.HTTPError:
             raise OpenIDCAuthenticationError(response.status_code)
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-            self.logger.exception(
-                "Could not connect to the OIDC client {}", self.__repr__()
-            )
+            self.logger.exception("Could not connect to the OIDC client {!r}", self)
             raise OpenIDClientError(
                 HTTPStatus.BAD_GATEWAY,
                 f"Failure to connect to the OpenID client {e}",
@@ -407,7 +405,7 @@ class OpenIDClient:
         a given path
         Args:
             path: Path for the request.
-            data: data to post with the request
+            data: JSON request body
             kwargs: Params dict to send with POST request
         Returns:
             Response from the request.
@@ -420,7 +418,7 @@ class OpenIDClient:
         a given path.
         Args:
             path: Path for the request.
-            data: data to put with the request
+            data: JSON request body
             kwargs: Params dict to send with PUT request
         Returns:
             Response from the request.
@@ -433,7 +431,7 @@ class OpenIDClient:
         Resource at a given path.
         Args:
             path: Path for the request.
-            data: data to send with the request
+            data: JSON request body
             kwargs: Params dict to send with DELETE request
         Returns:
             Response from the request.
