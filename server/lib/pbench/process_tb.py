@@ -12,7 +12,7 @@ Results = namedtuple("Results", ["nstatus", "ntotal", "ntbs", "nerr"])
 
 class ProcessTb:
     def __init__(self, config: PbenchConfig, logger: Logger):
-        """ Processes Tar ball, gets the tar ball from receiving directory
+        """Processes Tar ball, gets the tar ball from receiving directory
         and copies it to the remote server by creating a subprocess which
         call Agent's 'pbench-results-push' command.
 
