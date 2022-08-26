@@ -79,7 +79,7 @@ if [ $1 -eq 0 ] ;then
 fi
 
 %postun
-# if uninstalling, rather than updating, remove /%{installdir}
+# if uninstalling, rather than updating, remove installation directory entirely
 if [ $1 -eq 0 ] ;then
     rm -rf /%{installdir}
 fi

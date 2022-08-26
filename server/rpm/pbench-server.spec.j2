@@ -23,8 +23,8 @@ Requires: npm
 # because we don't know where the config file is. Note that we omit
 # the initial / - it is added in every use below.  IMO, that's more
 # readable since it appears in the middle of the path in all cases,
-# *except* in the %files section (and one instance in the %post
-# and %postun sections).
+# *except* in the 'files'section (and one instance in the 'post'
+# and 'postun' sections).
 
 %define installdir opt/pbench-server
 %define static html/static
@@ -56,7 +56,7 @@ mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 # Install python dependencies
 pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log
 
-# install node.js modules under /%{installdir}
+# install node.js modules under the installation directory
 cd /%{installdir}
 rm -rf node_modules
 npm install
