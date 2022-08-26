@@ -14,7 +14,7 @@
 # In addition, specifying a distro-specific target, like "rhel-9-rpm", will
 # cause Step 7 to be executed locally in a suitable container, to produce a
 # binary RPM for the indicated distribution.  In this case, the RPM will be
-# placed in ${HOME}/rpmbuild-<distro>-<version>/RPMS.
+# placed in ${HOME}/pbench/rpmbuild-<distro>-<version>/RPMS.
 #
 
 RPMBUILD_IMAGE_REPO = images.paas.redhat.com/pbench
@@ -44,13 +44,15 @@ else
   BLD_SUFFIX :=
 endif
 
-# Set BLD_DIR to "${HOME}/rpmbuild" when the target has no specific distro and
-# to "${HOME}/rpmbuild-<DISTRO>-<VERSION>" when there is a specific distro.
-# (Keep BLD_SUBDIR separate from BLD_DIR for mapping the location into the
-# container.)  Set TMPDIR, analogously.  This prevents builds for one distro
-# from interfering with builds for another.
+# Set BLD_DIR to `${BLD_ROOT}/rpmbuild-<DISTRO>-<VERSION>` when the target has
+# a specific distro and to `${BLD_ROOT}/rpmbuild` when the target has no
+# specific distro.  (Define BLD_SUBDIR separately from BLD_DIR to allow us to
+# mix and match them for mapping the location into the container.)  Set TMPDIR,
+# analogously.  This prevents builds for one distro from interfering with
+# builds for another.
+BLD_ROOT := ${HOME}/pbench
 BLD_SUBDIR := rpmbuild${BLD_SUFFIX}
-BLD_DIR := ${HOME}/${BLD_SUBDIR}
+BLD_DIR := ${BLD_ROOT}/${BLD_SUBDIR}
 TMPDIR := /tmp/rpmbuild${BLD_SUFFIX}/opt
 
 $(info Building ${MAKECMDGOALS} for ${prog}-${VERSION} from ${TBDIR} to ${BLD_DIR})
@@ -122,15 +124,15 @@ ${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
 # Determine the present working directory relative to ${PBENCHTOP} so that we
 # can find it inside the container, where the source tree might be in a
 # different location.
-pwdr = $(subst ${PBENCHTOP},,${CURDIR})
+pwdr = $(subst ${PBENCHTOP}/,,${CURDIR})
 
 # This is a pattern target used to build RPMs for specific distros.  It launches
 # a "normal" `rpm` target in a sub-make that is run inside a container built
-# from the distro for which the RPM is targeted.  We mount ${BLD_DIR}, which
-# ends with `rpmbuild<distro>-<version>`, inside the container as
-# `${HOME}/rpmbuild` (with no suffix), which is where the build will put the RPM
-# when invoked without a distro target.  Each sub-make is self contained -- it
-# builds its own SRPM and binary RPM -- putting the output in the file system
+# from the distro for which the RPM is targeted.  We mount the output path,
+# which ends with `rpmbuild<distro>-<version>`, inside the container as
+# `${BLD_ROOT}/rpmbuild` (with no suffix), which is where the build will put the
+# RPM when invoked without a distro target.  Each sub-make is self contained --
+# it builds its own SRPM and binary RPM -- putting the output in the file system
 # mapped in from the host.  So, the pattern target here only needs to create the
 # output directories which will be mapped into the containers.
 #
@@ -142,16 +144,16 @@ pwdr = $(subst ${PBENCHTOP},,${CURDIR})
 %-rpm: rpm-dirs
 	cd ${PBENCHTOP} && \
 	  IMAGE=${BUILD_CONTAINER} \
-	    EXTRA_PODMAN_SWITCHES="-v ${BLD_DIR}:$${HOME}/rpmbuild:z" \
-	    jenkins/run make -C $${HOME}/pbench/${pwdr} rpm
+	    EXTRA_PODMAN_SWITCHES="--volume $${WORKSPACE:-${BLD_ROOT}}/${BLD_SUBDIR}:${BLD_ROOT}/rpmbuild" \
+	    jenkins/run make -C ${pwdr} rpm
 
 .PHONY: distclean
 distclean:
-	rm -rf $(addprefix ${HOME}/rpmbuild*/,${RPMDIRS}) /tmp/rpmbuild*/opt
+	rm -rf $(addprefix ${BLD_ROOT}/rpmbuild*/,${RPMDIRS}) /tmp/rpmbuild*/opt
 
 .PHONY: clean
 clean:: rpm-clean
 
 .PHONY: rpm-clean
 rpm-clean:
-	rm -rf $(foreach dir,${RPMDIRS},${HOME}/rpmbuild*/${dir}/*)
+	rm -rf $(foreach dir,${RPMDIRS},${BLD_ROOT}/rpmbuild*/${dir}/*)

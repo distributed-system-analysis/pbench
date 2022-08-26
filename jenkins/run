@@ -38,8 +38,19 @@ _image_repo=${IMAGE_REPO:-quay.io/pbench}
 _image_role=${IMAGE_ROLE:-devel}
 _image_kind=${IMAGE_KIND:-fedora}
 
+# USER_NAME:  the name of the user (and the home directory) inside the container
+# HOME_DIR:   the path to the user's home directory inside the container
+# PODMAN_SOCK: the path to the Podman remote socket both in-/outside the container
+# WORKSPACE:  the directory containing the Git checkout -- in the Jenkins
+#             environment this is set and setup for us; otherwise, it defaults to
+#             the current working directory, which is required by this script to
+#             be a Git checkout.
+#             NOTE:  this is the path on the HOST, if we're already in a container;
+#             inside the container, it will be mapped to /home/${USER}/pbench.
 USER_NAME=${USER}
 HOME_DIR=/home/${USER_NAME}
+PODMAN_SOCK=/run/user/${UID}/podman/podman.sock
+WORKSPACE=${WORKSPACE:-$(pwd)}
 
 # The PBR in our setup.py Pbench installer relies on `git` knowledge and can't
 # handle a git worktree. This handy sequence solves the problem by importing
@@ -76,14 +87,16 @@ ${PODMAN} run \
     --security-opt label=disable \
     --volume ${HOME_DIR} \
     --volume ${HOME_DIR}/.config \
-    --volume $(pwd):${HOME_DIR}/pbench \
-    --volume /run/user/${UID}/podman/podman.sock:/run/user/${UID}/podman/podman.sock \
+    --volume ${WORKSPACE}:${HOME_DIR}/pbench \
+    --volume ${PODMAN_SOCK}:${PODMAN_SOCK} \
     ${GIT_BASE_VOLUME} \
     -w ${HOME_DIR}/pbench \
     --env HOME=${HOME_DIR} \
     --env USER=${USER_NAME} \
-    --env CONTAINER_HOST=unix://run/user/${UID}/podman/podman.sock \
+    --env CONTAINER_HOST=unix:/${PODMAN_SOCK} \
+    --env WORKSPACE=${WORKSPACE} \
     --ulimit nofile=65536:65536 \
     --rm \
     ${EXTRA_PODMAN_SWITCHES} \
-    ${_image} jenkins/runner "${@}"
+    ${_image} \
+    jenkins/runner "${@}"
