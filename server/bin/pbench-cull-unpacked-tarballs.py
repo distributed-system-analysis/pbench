@@ -18,24 +18,23 @@ links).
 
 """
 
+from argparse import ArgumentParser
 import configparser
+from datetime import datetime
 import os
+from pathlib import Path
 import re
 import shutil
 import sys
 import tempfile
-from argparse import ArgumentParser
-from datetime import datetime
-from pathlib import Path
 
-import pbench.server
 from pbench.common import MetadataLog
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
+import pbench.server
 from pbench.server.database import init_db
 from pbench.server.indexer import _STD_DATETIME_FMT
 from pbench.server.report import Report
-
 
 _NAME_ = "pbench-cull-unpacked-tarballs"
 

@@ -1,9 +1,9 @@
 from http import HTTPStatus
-import requests
-import responses
 from typing import Any, Dict
 
 import pytest
+import requests
+import responses
 
 
 @pytest.fixture

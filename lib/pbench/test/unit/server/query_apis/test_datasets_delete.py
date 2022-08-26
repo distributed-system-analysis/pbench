@@ -1,11 +1,11 @@
 from http import HTTPStatus
-from logging import Logger, ERROR
+from logging import ERROR, Logger
 from typing import Iterator
 
 import elasticsearch
 import pytest
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 from pbench.server.filetree import FileTree
 from pbench.test.unit.server.headertypes import HeaderTypes

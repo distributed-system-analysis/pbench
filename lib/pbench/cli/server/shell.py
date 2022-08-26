@@ -1,3 +1,4 @@
+from configparser import NoOptionError, NoSectionError
 from logging import Logger
 import os
 from pathlib import Path
@@ -5,7 +6,6 @@ import site
 import subprocess
 import sys
 
-from configparser import NoOptionError, NoSectionError
 from sqlalchemy_utils import create_database, database_exists
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified

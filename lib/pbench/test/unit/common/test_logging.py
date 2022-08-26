@@ -2,14 +2,14 @@
 """
 
 import logging
-import pytest
+from pathlib import Path
 import tempfile
 
-from pathlib import Path
+import pytest
 
 from pbench import PbenchConfig
 from pbench.common.exceptions import BadConfig
-from pbench.common.logger import get_pbench_logger, _handlers
+from pbench.common.logger import _handlers, get_pbench_logger
 
 
 class TestLoggingSetup:

@@ -1,10 +1,10 @@
 from pathlib import Path
-import pytest
 import shutil
 from typing import Dict
 
-from pbench.test import on_disk_config
+import pytest
 
+from pbench.test import on_disk_config
 
 agent_cfg_tmpl = """[DEFAULT]
 pbench_install_dir = {TMP}/opt/pbench-agent

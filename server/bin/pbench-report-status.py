@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-import os
-import sys
 from argparse import ArgumentParser
+import os
 from socket import gethostname
+import sys
 
+from pbench.common.exceptions import BadConfig
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
-from pbench.common.exceptions import BadConfig
 from pbench.server.report import Report
 
 if __name__ != "__main__":

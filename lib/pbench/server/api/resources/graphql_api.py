@@ -1,7 +1,8 @@
 from http import HTTPStatus
+
+from flask import make_response, request
+from flask_restful import abort, Resource
 import requests
-from flask_restful import Resource, abort
-from flask import request, make_response
 
 
 class GraphQL(Resource):

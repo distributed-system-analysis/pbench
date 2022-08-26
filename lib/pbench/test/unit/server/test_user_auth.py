@@ -1,12 +1,11 @@
 import datetime
+from http import HTTPStatus
 import time
 
-from http import HTTPStatus
-
-from pbench.server.database.models.users import User
-from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.database import Database
-from pbench.test.unit.server.conftest import register_user, login_user, admin_username
+from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.database.models.users import User
+from pbench.test.unit.server.conftest import admin_username, login_user, register_user
 
 
 class TestUserAuthentication:

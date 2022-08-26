@@ -5,8 +5,8 @@
 # $ curl -X GET 'http://<es host>:<port>/<index prefix>.server-reports.*/pbench-server-reports/_search?size=500' > ./response.json
 # $ pbench-pp-status ./response.json | less -S
 
-import sys
 import json
+import sys
 
 with open(sys.argv[1], "r") as fp:
     doc = json.load(fp)

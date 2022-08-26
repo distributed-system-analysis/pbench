@@ -4,15 +4,15 @@ from sqlalchemy import or_
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import (
     Dataset,
+    DatasetBadParameterType,
     DatasetNotFound,
     Metadata,
-    DatasetBadParameterType,
+    MetadataBadKey,
     MetadataBadStructure,
     MetadataBadValue,
-    MetadataNotFound,
-    MetadataBadKey,
-    MetadataMissingKeyValue,
     MetadataDuplicateKey,
+    MetadataMissingKeyValue,
+    MetadataNotFound,
 )
 from pbench.server.database.models.users import User
 

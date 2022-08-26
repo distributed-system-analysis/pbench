@@ -1,11 +1,12 @@
 from http import HTTPStatus
+from logging import Logger
 import re
 from typing import Any, Dict
-from flask import request, jsonify
-from flask.globals import current_app
-from flask_restful import Resource, abort
-from logging import Logger
 from urllib.parse import urljoin
+
+from flask import jsonify, request
+from flask.globals import current_app
+from flask_restful import abort, Resource
 
 from pbench.server import PbenchServerConfig
 

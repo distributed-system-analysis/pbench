@@ -8,22 +8,21 @@ stopping all local/remote tool meisters, closing down the local data sink, and
 finally the local redis server.
 """
 
+from argparse import ArgumentParser, Namespace
 import logging
 import os
+from pathlib import Path
 import sys
 import time
-
-from argparse import ArgumentParser, Namespace
-from pathlib import Path
 
 from pbench.agent.constants import cli_tm_channel_prefix
 from pbench.agent.tool_group import BadToolGroup, ToolGroup
 from pbench.agent.tool_meister_client import Client
 from pbench.agent.utils import (
-    RedisServerCommon,
     cli_verify_sysinfo,
     error_log,
     info_log,
+    RedisServerCommon,
 )
 
 

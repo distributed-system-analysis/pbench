@@ -3,13 +3,13 @@ import datetime
 import hashlib
 from http import HTTPStatus
 import os
-import uuid
 from pathlib import Path
 from posix import stat_result
 import shutil
 from stat import ST_MTIME
 import tarfile
 from typing import Dict
+import uuid
 
 from email_validator import EmailNotValidError, ValidatedEmail
 from freezegun import freeze_time

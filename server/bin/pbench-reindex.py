@@ -14,25 +14,20 @@ service that runs as a cronjob.  NO RE-INDEXING STEPS SHOULD BE AUTOMATED
 AT THIS POINT.
 """
 
-import sys
-import os
-import re
+from argparse import ArgumentParser
 
 # import shutil
 from datetime import datetime
-from argparse import ArgumentParser
+import os
+import re
+import sys
 
-import pbench.server
 from pbench import BadConfig
-from pbench.server.database.models.datasets import (
-    Dataset,
-    Metadata,
-    DatasetError,
-)
-from pbench.server.database import init_db
 from pbench.common.logger import get_pbench_logger
+import pbench.server
+from pbench.server.database import init_db
+from pbench.server.database.models.datasets import Dataset, DatasetError, Metadata
 from pbench.server.utils import get_tarball_md5
-
 
 _NAME_ = "pbench-reindex"
 

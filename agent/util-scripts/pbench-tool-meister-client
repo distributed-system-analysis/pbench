@@ -9,6 +9,5 @@ import sys
 
 from pbench.agent.tool_meister_client import main
 
-
 if __name__ == "__main__":
     sys.exit(main())

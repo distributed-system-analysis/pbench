@@ -5,7 +5,6 @@ from requests import HTTPError
 
 from pbench.client import PbenchServerClient
 
-
 USERNAME1 = "functional"
 USERNAME2 = "nonfunctional"
 PASSWORD = "tests"

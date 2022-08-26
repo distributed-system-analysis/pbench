@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
-import pytest
 import subprocess
 from typing import Dict
+
+import pytest
 
 from pbench.test import on_disk_config
 from pbench.test.unit.agent.conftest import do_setup

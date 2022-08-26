@@ -8,9 +8,9 @@ from pbench.common.logger import get_pbench_logger
 from pbench.server.database.models.datasets import Dataset, DatasetBadName
 from pbench.server.filetree import (
     BadFilename,
-    TarballNotFound,
     DuplicateTarball,
     FileTree,
+    TarballNotFound,
 )
 
 

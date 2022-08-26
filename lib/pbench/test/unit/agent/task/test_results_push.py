@@ -1,10 +1,10 @@
+from http import HTTPStatus
 import logging
 import os
-from http import HTTPStatus
 
+from click.testing import CliRunner
 import requests
 import responses
-from click.testing import CliRunner
 
 from pbench.cli.agent.commands.results.push import main
 from pbench.test.unit.agent.task.common import bad_tarball, tarball

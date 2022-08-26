@@ -13,9 +13,9 @@ Returns 1 on failure
 
 import os
 from pathlib import Path
-import requests
 import sys
 
+import requests
 
 prog = Path(sys.argv[0]).name
 

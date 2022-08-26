@@ -13,7 +13,6 @@ from pbench.server.database.models.server_config import (
     ServerConfigNullKey,
 )
 
-
 # NOTE: the SQLAlchemy mock infrastructure here is specific to the ServerConfig
 # class, but it could "easily" (with substantial effort) be generalized to
 # become a shared mock platform for DB operation testing, including across

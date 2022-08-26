@@ -13,7 +13,6 @@ from pathos.helpers import cpu_count
 from pathos.helpers import mp as pathos_multiprocess
 from pathos.pools import ProcessPool
 from requests import Session
-
 from sos_collection import SosCollection
 
 

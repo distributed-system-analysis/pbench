@@ -9,6 +9,5 @@ import sys
 
 from pbench.agent.tool_data_sink import main
 
-
 status = main(sys.argv)
 sys.exit(status)

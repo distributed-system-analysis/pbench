@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import sys
-from os.path import join, basename
 from configparser import ConfigParser
+from os.path import basename, join
+import sys
 
 _prog = basename(sys.argv[0])
 

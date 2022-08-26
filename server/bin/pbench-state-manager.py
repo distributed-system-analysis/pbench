@@ -12,9 +12,9 @@ Therefore, while this can eventually be removed, we need to resolve both
 of those requirements first.
 """
 
-import sys
-import os
 from argparse import ArgumentParser
+import os
+import sys
 
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
@@ -22,7 +22,6 @@ from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
 from pbench.server.database.models.datasets import Dataset, States
-
 
 _NAME_ = "pbench-state-manager"
 

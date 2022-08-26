@@ -123,10 +123,13 @@ are created with `--orchestrate=create`:
     _PBENCH_TOOL_DATA_SINK_LOG_LEVEL    Tool Data Sink
 """
 
+from argparse import ArgumentParser, Namespace
+from distutils.spawn import find_executable
 import ipaddress
 import json
 import logging
 import os
+from pathlib import Path
 import shlex
 import shutil
 import socket
@@ -135,17 +138,14 @@ import time
 from typing import Dict, Union
 import uuid
 
-from argparse import ArgumentParser, Namespace
-from distutils.spawn import find_executable
-from pathlib import Path
 import redis
 
 from pbench.agent.constants import (
+    cli_tm_channel_prefix,
     def_redis_port,
     def_wsgi_port,
-    cli_tm_channel_prefix,
-    tm_channel_suffix_to_client,
     tm_channel_suffix_from_client,
+    tm_channel_suffix_to_client,
     tm_channel_suffix_to_logging,
     tm_data_key,
 )
@@ -167,7 +167,6 @@ from pbench.agent.utils import (
     warn_log,
 )
 from pbench.common.utils import Cleanup, validate_hostname
-
 
 # The --orchestrate parameter default choice, and the full list of choices.
 _orchestrate_choices = ["create", "existing"]

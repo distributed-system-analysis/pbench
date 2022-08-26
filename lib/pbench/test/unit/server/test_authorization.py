@@ -6,9 +6,9 @@ from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
     API_AUTHORIZATION,
     API_METHOD,
+    API_OPERATION,
     ApiAuthorization,
     ApiBase,
-    API_OPERATION,
     ApiSchema,
     UnauthorizedAccess,
 )

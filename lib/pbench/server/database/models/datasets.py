@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Union
 from dateutil import parser as date_parser
 from sqlalchemy import Column, DateTime, Enum, event, ForeignKey, Integer, JSON, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.orm import relationship, validates, Query
+from sqlalchemy.orm import Query, relationship, validates
 from sqlalchemy.types import TypeDecorator
 
 from pbench.server.database.database import Database

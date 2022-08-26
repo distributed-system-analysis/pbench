@@ -8,7 +8,7 @@ from typing import Union
 from dateutil import parser as date_parser
 
 from pbench.common.utils import md5sum
-from pbench.server.database.models.datasets import Dataset, States, DatasetNotFound
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound, States
 
 
 def rename_tb_link(tb, dest, logger):

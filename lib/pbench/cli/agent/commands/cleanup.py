@@ -1,8 +1,9 @@
 """pbench-cleanup - DEPRECATED - wraps pbench-clear-results
 """
 
-import click
 import os
+
+import click
 
 from pbench.agent.base import BaseCommand
 from pbench.cli.agent import pass_cli_context

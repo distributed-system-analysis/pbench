@@ -11,7 +11,6 @@ This is associated with the Prometheus collector run by the Tool Data Sink.
 
 import sys
 
-
 if len(sys.argv) == 2 and sys.argv[1] == "--help":
     help = """Options:
 

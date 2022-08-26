@@ -1,11 +1,10 @@
+from collections import Counter
 import copy
+from datetime import datetime
 import json
+from pathlib import Path
 import re
 import sys
-
-from collections import Counter
-from datetime import datetime
-from pathlib import Path
 from typing import Any, AnyStr, Dict
 
 import pyesbulk
@@ -13,15 +12,12 @@ from sqlalchemy.sql.sqltypes import JSON
 
 from pbench.common.exceptions import (
     BadDate,
-    MappingFileError,
     JsonFileError,
+    MappingFileError,
     TemplateError,
 )
 from pbench.server import tstos
-from pbench.server.database.models.template import (
-    Template,
-    TemplateNotFound,
-)
+from pbench.server.database.models.template import Template, TemplateNotFound
 
 
 class JsonFile:

@@ -6,18 +6,18 @@ from flask.wrappers import Response
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
-    APIAbort,
     API_AUTHORIZATION,
     API_METHOD,
     API_OPERATION,
+    APIAbort,
     ApiBase,
     ApiParams,
     ApiSchema,
-    ParamType,
     Parameter,
+    ParamType,
     Schema,
 )
-from pbench.server.filetree import TarballNotFound, FileTree
+from pbench.server.filetree import FileTree, TarballNotFound
 
 
 class DatasetsInventory(ApiBase):

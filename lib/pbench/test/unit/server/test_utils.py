@@ -1,8 +1,7 @@
 from dateutil import parser as date_parser
 import pytest
 
-from pbench.server.utils import UtcTimeHelper, filesize_bytes
-
+from pbench.server.utils import filesize_bytes, UtcTimeHelper
 
 _sizes = [("  10  ", 10)]
 for i, mult in [
