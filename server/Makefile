@@ -100,9 +100,10 @@ install-binscripts:
 install-lib:
 	${COPY} requirements.txt ${DESTDIR}/
 	${COPY} -r lib ${DESTDIR}/
+	rm -rf ${LIBDIR}/pbench/__pycache__ ${LIBDIR}/pbench/test
 
 install-configtools:
-	${COPY} -r ../lib/configtools ${LIBDIR}/
+	${COPY} ../lib/configtools/__init__.py ${LIBDIR}/configtools/
 
 # SHA1 and SEQNO - these are used when building an RPM only
 # so we provide a target for the spec file to invoke. This
