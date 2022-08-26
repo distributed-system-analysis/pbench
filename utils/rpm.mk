@@ -124,9 +124,20 @@ ${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
 # different location.
 pwdr = $(subst ${PBENCHTOP},,${CURDIR})
 
-# NOTE:  we mount ${BLD_DIR}, which ends with 'rpmbuild<distro>-<version>',
-# inside the container as ${HOME}/rpmbuild (with no suffix), which is where
-# the build will put the RPM when invoked without a distro target.
+# This is a pattern target used to build RPMs for specific distros.  It launches
+# a "normal" `rpm` target in a sub-make that is run inside a container built
+# from the distro for which the RPM is targeted.  We mount ${BLD_DIR}, which
+# ends with `rpmbuild<distro>-<version>`, inside the container as
+# `${HOME}/rpmbuild` (with no suffix), which is where the build will put the RPM
+# when invoked without a distro target.  Each sub-make is self contained -- it
+# builds its own SRPM and binary RPM -- putting the output in the file system
+# mapped in from the host.  So, the pattern target here only needs to create the
+# output directories which will be mapped into the containers.
+#
+# TODO:  When building more than one container, we should probably build the
+#        SRPM exactly once (on the host) and then map it into the container(s).
+#        And, we should presumably share the values of $(version)/$(VERSION),
+#        $(seqno), and $(sha1), as well.
 .PHONY: %-rpm
 %-rpm: rpm-dirs
 	cd ${PBENCHTOP} && \
