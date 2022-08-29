@@ -1,7 +1,13 @@
 import datetime
 from http import HTTPStatus
+import os
 import time
+
+from freezegun.api import freeze_time
+import jwt
 import pytest
+
+from pbench.server.auth.auth import Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
@@ -124,40 +130,72 @@ class TestUserAuthentication:
             (False, "bad_format"),
         ],
     )
-    def test_custom_token_expiry(client, server_config, token_expiry, expected_success):
+    def test_custom_token_expiry(
+        client, monkeypatch, server_config, token_expiry, expected_success
+    ):
         """Test for custom token expiry specified during the login process"""
-        with client:
-            # user registration
-            resp_register = register_user(
-                client,
-                server_config,
-                username="user",
-                firstname="firstname",
-                lastname="lastName",
-                email="user@domain.com",
-                password="12345",
-            )
-            assert resp_register.status_code == HTTPStatus.CREATED
-            # registered user login
-            response = login_user(client, server_config, "user", "12345", token_expiry)
-            data = response.json
-            if expected_success:
-                assert data["auth_token"]
-                assert data["username"] == "user"
-                assert response.content_type == "application/json"
-                assert response.status_code == HTTPStatus.OK
-            else:
-                assert response.status_code == HTTPStatus.BAD_REQUEST
-                if type(token_expiry) is not dict:
-                    assert (
-                        "Invalid token expiry: expected a JSON object"
-                        in response.json["message"]
+        mock_secret_key = "secret_key"
+        jwt_algorithm = "HS256"
+
+        def mock_encode_auth_token(self, time_delta: datetime.timedelta, user_id: int):
+            current_utc = datetime.datetime.utcnow()
+            payload = {
+                "iat": current_utc,
+                "exp": current_utc + time_delta,
+                "sub": user_id,
+            }
+            return jwt.encode(payload, mock_secret_key, algorithm=jwt_algorithm)
+
+        with freeze_time(datetime.datetime.utcnow()):
+            monkeypatch.setattr(Auth, "encode_auth_token", mock_encode_auth_token)
+            with client:
+                # user registration
+                resp_register = register_user(
+                    client,
+                    server_config,
+                    username="user",
+                    firstname="firstname",
+                    lastname="lastName",
+                    email="user@domain.com",
+                    password="12345",
+                )
+                assert resp_register.status_code == HTTPStatus.CREATED
+                # registered user login
+                response = login_user(
+                    client, server_config, "user", "12345", token_expiry
+                )
+                data = response.json
+                if expected_success:
+                    assert data["auth_token"]
+                    payload = jwt.decode(
+                        data["auth_token"],
+                        mock_secret_key,
+                        algorithms=jwt_algorithm,
                     )
+                    if not token_expiry:
+                        token_expire_duration = server_config.get(
+                            "pbench-server", "token_expiration_duration"
+                        )
+                        token_expiry = {"minutes": int(token_expire_duration)}
+                    exp = datetime.datetime.utcnow() + datetime.timedelta(
+                        **token_expiry
+                    )
+                    assert payload.get("exp") == int(exp.timestamp())
+                    assert data["username"] == "user"
+                    assert response.content_type == "application/json"
+                    assert response.status_code == HTTPStatus.OK
                 else:
-                    assert (
-                        "Invalid token expiry key: found ['bad_key']"
-                        in response.json["message"]
-                    )
+                    assert response.status_code == HTTPStatus.BAD_REQUEST
+                    if type(token_expiry) is not dict:
+                        assert (
+                            "Invalid token expiry: expected a JSON object"
+                            in response.json["message"]
+                        )
+                    else:
+                        assert (
+                            "Invalid token expiry key: found ['bad_key']"
+                            in response.json["message"]
+                        )
 
     @staticmethod
     def test_user_relogin(client, server_config):

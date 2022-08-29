@@ -6,8 +6,7 @@ from flask import abort, request
 from flask_httpauth import HTTPTokenAuth
 import jwt
 
-from pbench.server.auth import OpenIDClient
-from pbench.server.auth.exceptions import OpenIDClientError
+from pbench.server.auth import OpenIDClient, OpenIDClientError
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
 

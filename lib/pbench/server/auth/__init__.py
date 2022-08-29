@@ -1,6 +1,6 @@
 from http import HTTPStatus
 import logging
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
 import jwt
@@ -8,7 +8,22 @@ import requests
 from requests.structures import CaseInsensitiveDict
 
 from pbench.server import JSON
-from pbench.server.auth.exceptions import OpenIDClientError, OpenIDCAuthenticationError
+
+
+class OpenIDClientError(Exception):
+    def __init__(self, http_status: int, message: str = None):
+        self.http_status = http_status
+        self.message = message if message else HTTPStatus(http_status).phrase
+
+    def __repr__(self) -> str:
+        return f"Oidc error {self.http_status} : {str(self)}"
+
+    def __str__(self) -> str:
+        return self.message
+
+
+class OpenIDCAuthenticationError(OpenIDClientError):
+    pass
 
 
 class OpenIDClient:
@@ -16,12 +31,8 @@ class OpenIDClient:
     OpenID Connect client object.
     """
 
-    AUTHORIZATION_ENDPOINT: Optional[str] = None
-    TOKEN_ENDPOINT: Optional[str] = None
     USERINFO_ENDPOINT: Optional[str] = None
-    REVOCATION_ENDPOINT: Optional[str] = None
     JWKS_URI: Optional[str] = None
-    LOGOUT_ENDPOINT: Optional[str] = None
 
     def __init__(
         self,
@@ -59,16 +70,6 @@ class OpenIDClient:
             f"headers={self.headers})"
         )
 
-    def get_header_param(self, key: str) -> str:
-        """
-        Return a specific header parameter value.
-        Args:
-            key: header key
-        Returns:
-             Header parameters value.
-        """
-        return self.headers.get(key)
-
     def add_header_param(self, key: str, value: str):
         """
         Add a single parameter inside the header.
@@ -97,12 +98,7 @@ class OpenIDClient:
         well_known_uri = f"{self.server_url}{self.realm_name}{well_known_endpoint}"
         endpoints_json = self._get(well_known_uri).json()
         try:
-            OpenIDClient.AUTHORIZATION_ENDPOINT = endpoints_json[
-                "authorization_endpoint"
-            ]
-            OpenIDClient.TOKEN_ENDPOINT = endpoints_json["token_endpoint"]
             OpenIDClient.USERINFO_ENDPOINT = endpoints_json["userinfo_endpoint"]
-            OpenIDClient.REVOCATION_ENDPOINT = endpoints_json["revocation_endpoint"]
             OpenIDClient.JWKS_ENDPOINT = endpoints_json["jwks_uri"]
         except KeyError as e:
             self.logger.exception(
@@ -125,105 +121,6 @@ class OpenIDClient:
         jwks_client = jwt.PyJWKClient(self.JWKS_URI)
         pubkey = jwks_client.get_signing_key_from_jwt(token).key
         return pubkey
-
-    def get_user_token(
-        self,
-        username: str,
-        password: str = None,
-        grant_type: str = "password",
-        scope: Union[str, List[str]] = "openid profile email",
-        **extra,
-    ) -> JSON:
-        """
-        The token endpoint is used to obtain tokens. Tokens can either be
-        obtained by exchanging an authorization code or by supplying credentials
-        directly depending on what authentication flow is used. The token
-        endpoint is also used to obtain new access tokens when they expire.
-        http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
-        Note: Some OIDC clients only accept authorization_code as a grant_type
-        for getting a token, getting a token directly from these clients with
-        username and password over an API call will result in Forbidden error.
-        Args:
-            username: username that is registered under this OIDC client
-            password: optional password field
-            grant_type: "password"/"authorization_code" etc
-            scope: user scope to that should be included in the token
-        Returns:
-            OIDC client access token payload
-            e.g: json_response = {
-            "access_token": <access_token_string>,
-            "expires_in": <Number_of_seconds>,
-            "refresh_expires_in": <Number_of_seconds>,
-            "refresh_token": <refresh_token_string>,
-            "token_type": "Bearer",
-            "id_token": <id_token_string>,
-            "not-before-policy": 0,
-            "session_state": <session_state_id_string>,
-            "scope": <scope_string>, # "openid email profile",
-            }
-        """
-        payload = {
-            "username": username,
-            "password": password,
-            "client_id": self.client_id,
-            "client_secret": self.client_secret_key,
-            "grant_type": grant_type,
-            "scope": scope,
-        }
-        if extra:
-            payload.update(extra)
-
-        return self._post(self.TOKEN_ENDPOINT, data=payload).json()
-
-    def get_client_service_token(
-        self,
-        grant_type: str = "client_credentials",
-        scope: Union[str, List[str]] = "openid profile email",
-        **extra,
-    ) -> JSON:
-        """
-        The token endpoint is used to obtain client service token to do certain
-        privilege stuff based on what roles this client service token has.
-        Client service tokens do not have a session associated with them so
-        they don't have a refresh token.
-        http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
-        Args:
-            grant_type: "client_credential"
-                        (most often client_credential is the correct grant
-                        type to get the service token)
-            scope: service scopes to that should be included in the token
-        Returns:
-            OIDC client access token payload
-        """
-        payload = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret_key,
-            "grant_type": grant_type,
-            "scope": scope,
-        }
-        if extra:
-            payload.update(extra)
-
-        return self._post(self.TOKEN_ENDPOINT, data=payload).json()
-
-    def user_refresh_token(self, refresh_token: str) -> JSON:
-        """
-        The token refresh endpoint is used to refresh the soon expiring access
-        tokens.
-        Note: it issues a new access and refresh token.
-        http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint
-        Args:
-            refresh_token: refresh token str to get the new access token
-        Returns:
-            OIDC client access token payload
-        """
-        payload = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret_key,
-            "grant_type": "refresh_token",
-            "refresh_token": refresh_token,
-        }
-        return self._post(self.TOKEN_ENDPOINT, data=payload).json()
 
     def token_introspect_online(self, token: str, token_info_uri: str) -> JSON:
         """
@@ -325,26 +222,6 @@ class OpenIDClient:
 
         return self._get(self.USERINFO_ENDPOINT).json()
 
-    def revoke_access_token(self, access_token: str) -> HTTPStatus:
-        """
-        Revoke endpoint to revoke the current access token. It does not,
-        however, log the refresh token out.
-        Args:
-            access_token: token to revoke
-        Returns:
-            Https status code based on success or failure
-        """
-        payload = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret_key,
-            "token": access_token,
-            "token_type_hint": "access_token",
-        }
-
-        return HTTPStatus(
-            self._post(self.REVOCATION_ENDPOINT, data=payload).status_code
-        )
-
     def _method(
         self, method: str, path: str, data: Dict, **kwargs
     ) -> requests.Response:
@@ -411,29 +288,3 @@ class OpenIDClient:
             Response from the request.
         """
         return self._method("POST", path, data, **kwargs)
-
-    def _put(self, path: str, data: Dict, **kwargs) -> requests.Response:
-        """
-        PUT wrapper to handle an authenticated PUT operation on the Resource at
-        a given path.
-        Args:
-            path: Path for the request.
-            data: JSON request body
-            kwargs: Params dict to send with PUT request
-        Returns:
-            Response from the request.
-        """
-        return self._method("PUT", path, data, **kwargs)
-
-    def _delete(self, path: str, data: Dict = {}, **kwargs) -> requests.Response:
-        """
-        DELETE wrapper to handle an authenticated DELETE operation on the
-        Resource at a given path.
-        Args:
-            path: Path for the request.
-            data: JSON request body
-            kwargs: Params dict to send with DELETE request
-        Returns:
-            Response from the request.
-        """
-        return self._method("DELETE", path, data, **kwargs)
