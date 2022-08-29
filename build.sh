@@ -19,8 +19,9 @@ if [[ ${GITTOP} =~ "fatal: unsafe repository ('/home/root/pbench'" ]] ; then
 fi
 
 # Install the Dashboard dependencies, including the linter's dependencies and
-# the unit test dependencies.
-( cd dashboard && npm install )
+# the unit test dependencies.  First, remove any existing Node modules and
+# package-lock.json to ensure that we install the latest.
+( cd dashboard && rm -rf node_modules package-lock.json && npm install )
 
 # Test for code style and lint
 black --check .
