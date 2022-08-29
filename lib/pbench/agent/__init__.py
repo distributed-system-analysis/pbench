@@ -1,14 +1,14 @@
+from configparser import NoOptionError, NoSectionError
 from pathlib import Path
-from configparser import NoSectionError, NoOptionError
 
 from pbench import PbenchConfig
-from pbench.common.exceptions import BadConfig
 from pbench.common.constants import (
-    DEFAULT_PBENCH_AGENT_RUN_DIR,
     DEFAULT_PBENCH_AGENT_INSTALL_DIR,
+    DEFAULT_PBENCH_AGENT_RUN_DIR,
     DEFAULT_SCP_OPTS,
     DEFAULT_SSH_OPTS,
 )
+from pbench.common.exceptions import BadConfig
 
 
 class PbenchAgentConfig(PbenchConfig):

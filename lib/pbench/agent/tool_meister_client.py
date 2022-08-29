@@ -21,11 +21,11 @@ import sys
 import redis
 
 from pbench.agent.constants import (
+    api_tm_allowed_actions,
     cli_tm_allowed_actions,
     cli_tm_channel_prefix,
-    tm_channel_suffix_to_client,
     tm_channel_suffix_from_client,
-    api_tm_allowed_actions,
+    tm_channel_suffix_to_client,
 )
 from pbench.agent.redis_utils import RedisChannelSubscriber
 from pbench.agent.tool_group import ToolGroup

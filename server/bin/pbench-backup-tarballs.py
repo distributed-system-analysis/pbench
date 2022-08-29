@@ -1,28 +1,22 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-import os
-import sys
 import glob
-import shutil
-import tempfile
-
+import os
 from pathlib import Path
+import shutil
+import sys
+import tempfile
 
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
-from pbench.server.report import Report
-from pbench.server.s3backup import S3Config, Status, NoSuchKey
-from pbench.server.utils import get_tarball_md5, rename_tb_link, quarantine
-from pbench.server.database.models.datasets import (
-    Dataset,
-    Metadata,
-    DatasetError,
-)
 from pbench.server.database import init_db
-
+from pbench.server.database.models.datasets import Dataset, DatasetError, Metadata
+from pbench.server.report import Report
+from pbench.server.s3backup import NoSuchKey, S3Config, Status
+from pbench.server.utils import get_tarball_md5, quarantine, rename_tb_link
 
 _NAME_ = "pbench-backup-tarballs"
 

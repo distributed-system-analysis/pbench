@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-import os
-import sys
-from pathlib import Path
 from argparse import ArgumentParser
+import os
+from pathlib import Path
+import sys
+
+from pbench.common.exceptions import BadConfig
 
 # Export all the expected pbench config file attributes for the
 # existing shell scripts.  This maintains the single-source-of-
 # truth for those definitions in the PbenchServerConfig class, but
 # still accessible to all pbench bash shell scripts.
 from pbench.server import PbenchServerConfig
-from pbench.common.exceptions import BadConfig
 
 if __name__ != "__main__":
     sys.exit(1)

@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
 import pytest
-from pbench.server.api.resources import APIAbort
 
+from pbench.server.api.resources import APIAbort
 from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,

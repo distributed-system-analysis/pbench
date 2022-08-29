@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 # -*- mode: python -*-
 
-import sys
 import os
+import sys
 
 PROG = os.path.basename(sys.argv[0])
 

@@ -1,4 +1,5 @@
 import datetime
+
 import pytest
 
 from pbench.server.database.models.template import (

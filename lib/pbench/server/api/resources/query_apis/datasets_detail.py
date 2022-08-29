@@ -1,16 +1,17 @@
 from http import HTTPStatus
-from flask import jsonify
 from logging import Logger
 
-from pbench.server import PbenchServerConfig, JSON
+from flask import jsonify
+
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
     API_METHOD,
     API_OPERATION,
     APIAbort,
     ApiParams,
     ApiSchema,
-    ParamType,
     Parameter,
+    ParamType,
     Schema,
 )
 from pbench.server.api.resources.query_apis import (

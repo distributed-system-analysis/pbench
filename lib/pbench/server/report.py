@@ -1,20 +1,20 @@
 """Reporting module for pbench server.
 """
 
-import sys
-import os
+from configparser import Error as NoSectionError
+from configparser import NoOptionError
+import hashlib
+import json
 import lzma
 import math
-import json
-import hashlib
-import socket
-
-from configparser import Error as NoSectionError, NoOptionError
+import os
 from pathlib import Path
+import socket
+import sys
 
 from pbench.common.logger import get_pbench_logger
 from pbench.server import tstos
-from pbench.server.indexer import PbenchTemplates, get_es, es_index, _op_type
+from pbench.server.indexer import _op_type, es_index, get_es, PbenchTemplates
 
 
 class Report:

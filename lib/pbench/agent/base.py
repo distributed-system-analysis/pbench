@@ -8,7 +8,7 @@ import sys
 import click
 
 from pbench.agent import PbenchAgentConfig
-from pbench.agent.tool_group import ToolGroup, BadToolGroup
+from pbench.agent.tool_group import BadToolGroup, ToolGroup
 from pbench.agent.utils import setup_logging
 
 

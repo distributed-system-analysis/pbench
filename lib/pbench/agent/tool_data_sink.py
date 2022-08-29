@@ -9,6 +9,7 @@
 #   sudo dnf install python3-bottle python3-daemon
 #   sudo pip3 install python-pidfile
 
+from configparser import DuplicateSectionError
 from datetime import datetime
 import errno
 import hashlib
@@ -21,16 +22,15 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from threading import Thread, Lock, Condition
+from threading import Condition, Lock, Thread
 from typing import Any, Dict, List, NamedTuple, Tuple
+from wsgiref.simple_server import make_server, WSGIRequestHandler
 
-from bottle import Bottle, ServerAdapter, request, abort
-from configparser import DuplicateSectionError
+from bottle import abort, Bottle, request, ServerAdapter
 from daemon import DaemonContext
 from jinja2 import Environment, FileSystemLoader
 import pidfile
 import redis
-from wsgiref.simple_server import WSGIRequestHandler, make_server
 
 from pbench.agent.constants import (
     tm_allowed_actions,
@@ -46,7 +46,6 @@ from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
 from pbench.common import MetadataLog
 from pbench.common.utils import canonicalize
-
 
 # Logging format string for unit tests
 fmtstr_ut = "%(levelname)s %(name)s %(funcName)s -- %(message)s"

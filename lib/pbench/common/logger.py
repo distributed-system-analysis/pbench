@@ -1,8 +1,7 @@
-import logging
-import logging.handlers
-
 from configparser import NoOptionError, NoSectionError
 from datetime import datetime
+import logging
+import logging.handlers
 from pathlib import Path
 
 from pbench.common.exceptions import BadConfig

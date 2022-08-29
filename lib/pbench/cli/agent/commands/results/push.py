@@ -4,7 +4,7 @@ import click
 
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb
-from pbench.cli.agent import pass_cli_context, CliContext
+from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.options import common_options
 from pbench.common.utils import md5sum
 

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 import argparse
-import requests
+from datetime import datetime
 import time
 
-from datetime import datetime
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
-from pbench_combined_data import PbenchCombinedDataCollection
 from elasticsearch1 import Elasticsearch
+from pbench_combined_data import PbenchCombinedDataCollection
+import requests
 
 
 def _year_month_gen(

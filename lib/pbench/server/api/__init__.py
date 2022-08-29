@@ -16,9 +16,9 @@ from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources.datasets_daterange import DatasetsDateRange
+from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
-from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.server.api.resources.graphql_api import GraphQL
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (

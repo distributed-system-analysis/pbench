@@ -4,7 +4,7 @@ from logging import Logger
 from flask import jsonify
 from flask.wrappers import Response
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
     API_AUTHORIZATION,
     API_METHOD,
@@ -12,8 +12,8 @@ from pbench.server.api.resources import (
     APIAbort,
     ApiParams,
     ApiSchema,
-    ParamType,
     Parameter,
+    ParamType,
     Schema,
 )
 from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError

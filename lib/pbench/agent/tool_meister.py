@@ -40,8 +40,7 @@ import json
 import logging
 import logging.handlers
 import os
-import requests
-import requests.exceptions
+from pathlib import Path
 import shutil
 import signal
 import subprocess
@@ -52,26 +51,26 @@ import time
 from typing import Any, Dict, List, NamedTuple, Tuple
 
 from daemon import DaemonContext
-from pathlib import Path
 import pidfile
 import redis
+import requests
+import requests.exceptions
 
 from pbench.agent.constants import (
+    TDS_RETRY_PERIOD_SECS,
     tm_allowed_actions,
-    tm_channel_suffix_to_tms,
     tm_channel_suffix_from_tms,
     tm_channel_suffix_to_logging,
-    TDS_RETRY_PERIOD_SECS,
+    tm_channel_suffix_to_tms,
 )
 from pbench.agent.redis_utils import (
-    RedisHandler,
     RedisChannelSubscriber,
+    RedisHandler,
     wait_for_conn_and_key,
 )
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
 from pbench.common.utils import canonicalize, md5sum
-
 
 # Logging format string for unit tests
 fmtstr_ut = "%(levelname)s %(name)s %(funcName)s -- %(message)s"

@@ -9,6 +9,5 @@ import sys
 
 from pbench.agent.tool_meister import main
 
-
 status = main(sys.argv)
 sys.exit(status)

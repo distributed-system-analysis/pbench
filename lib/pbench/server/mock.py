@@ -2,10 +2,10 @@
 Module for mocking out behaviors of Elasticsearch.
 """
 
+from collections import Counter
+import json
 import re
 import sys
-import json
-from collections import Counter
 
 
 class MockElasticsearch:

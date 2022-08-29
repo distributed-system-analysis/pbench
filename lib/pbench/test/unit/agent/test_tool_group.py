@@ -1,7 +1,7 @@
 import os
-import pytest
-
 from pathlib import Path
+
+import pytest
 
 from pbench.agent.tool_group import BadToolGroup, ToolGroup
 

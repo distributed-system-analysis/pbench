@@ -13,9 +13,9 @@
           program by the same name.
 
 """
-import sys
 from collections import OrderedDict
 from configparser import ConfigParser
+import sys
 
 
 def parse_config(filename):

@@ -13,8 +13,8 @@ from pbench.server.api.resources import (
     ApiBase,
     ApiParams,
     ApiSchema,
-    ParamType,
     Parameter,
+    ParamType,
     Schema,
 )
 from pbench.server.database.models.server_config import (

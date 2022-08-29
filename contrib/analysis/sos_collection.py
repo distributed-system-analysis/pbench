@@ -1,9 +1,9 @@
 import os
-import requests
 import sys
 import tarfile
 
 import paramiko
+import requests
 
 
 class SosReport:

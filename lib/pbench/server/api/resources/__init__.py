@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 from dateutil import parser as date_parser
 from flask import request
 from flask.wrappers import Request, Response
-from flask_restful import Resource, abort
+from flask_restful import abort, Resource
 from sqlalchemy.orm.query import Query
 
 from pbench.server import JSON, JSONOBJECT, JSONVALUE, PbenchServerConfig

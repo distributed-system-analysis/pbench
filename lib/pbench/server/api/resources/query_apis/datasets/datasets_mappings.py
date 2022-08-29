@@ -13,11 +13,10 @@ from pbench.server.api.resources import (
     ApiBase,
     ApiParams,
     ApiSchema,
-    ParamType,
     Parameter,
+    ParamType,
     Schema,
 )
-
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 from pbench.server.database.models.template import TemplateNotFound
 

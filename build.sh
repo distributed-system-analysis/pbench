@@ -26,6 +26,7 @@ fi
 # Test for code style and lint
 black --check .
 flake8 .
+isort --check .
 ( cd dashboard && npx eslint "src/**" --max-warnings 0 )
 
 # Run unit tests

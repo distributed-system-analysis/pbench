@@ -1,22 +1,22 @@
 """Tests for the Tool Data Sink module.
 """
 
-import logging
-import pytest
-import shutil
-import time
-
 from http import HTTPStatus
 from io import BytesIO
+import logging
+import shutil
 from threading import Condition, Lock, Thread
+import time
 from unittest.mock import patch
 from wsgiref.simple_server import WSGIRequestHandler
+
+import pytest
 
 from pbench.agent import tool_data_sink
 from pbench.agent.tool_data_sink import (
     BenchmarkRunDir,
-    ToolDataSinkError,
     DataSinkWsgiServer,
+    ToolDataSinkError,
 )
 
 

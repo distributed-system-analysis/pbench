@@ -8,10 +8,8 @@ It reads the generated properties file to figure out how to behave, and
 creates the expected output files in the locations determined by the
 properties.
 """
-import sys
-
 from pathlib import Path
-
+import sys
 
 if sys.argv[-2] != "-id":
     sys.exit(0)
