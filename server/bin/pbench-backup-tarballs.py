@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-import glob
 import os
 from pathlib import Path
 import shutil
@@ -16,7 +15,8 @@ from pbench.server.database import init_db
 from pbench.server.database.models.datasets import Dataset, DatasetError, Metadata
 from pbench.server.report import Report
 from pbench.server.s3backup import NoSuchKey, S3Config, Status
-from pbench.server.utils import get_tarball_md5, quarantine, rename_tb_link
+from pbench.server.sync import Operation, Sync
+from pbench.server.utils import get_tarball_md5, quarantine
 
 _NAME_ = "pbench-backup-tarballs"
 
@@ -73,19 +73,6 @@ def sanity_check(lb_obj, s3_obj, config, logger):
                 backup,
                 exc,
             )
-            lb_obj = None
-
-    # make sure the quarantine directory is present
-    qdir = config.QDIR
-
-    if not qdir:
-        logger.error(
-            "Unspecified quarantine directory, no pbench-quarantine-dir config in pbench-server section"
-        )
-        lb_obj = None
-    else:
-        qdirpath = config.get_valid_dir_option("QUARANTINE", qdir, logger)
-        if not qdirpath:
             lb_obj = None
 
     # make sure the S3 bucket is defined, exists and is accessible
@@ -281,12 +268,12 @@ def backup_to_s3(
 
 
 def backup_data(lb_obj, s3_obj, config, logger):
-    qdir = config.QDIR
-
-    tarlist = glob.iglob(os.path.join(config.ARCHIVE, "*", _linksrc, "*.tar.xz"))
+    sync = Sync(logger, "backup")
+    datasets = sync.next(Operation.BACKUP)
     ntotal = nbackup_success = nbackup_fail = ns3_success = ns3_fail = nquaran = 0
 
-    for tb in sorted(tarlist):
+    for dataset in datasets:
+        tb = Metadata.getvalue(dataset, Metadata.TARBALL_PATH)
         ntotal += 1
         # resolve the link
         try:
@@ -295,33 +282,19 @@ def backup_data(lb_obj, s3_obj, config, logger):
             logger.error("Tarball link, '{}', does not resolve to a real location", tb)
 
         logger.debug("Start backup of {}.", tar)
-        # check tarball exist and it is a regular file
-        if tar.exists() and tar.is_file():
-            pass
-        else:
+        # check tarball exists and it is a regular file
+        if not (tar.exists() and tar.is_file()):
             # tarball does not exist or it is not a regular file
-            quarantine(qdir, logger, tb)
+            sync.error(dataset, f"tarball {tb} does not exist")
             nquaran += 1
-            logger.error(
-                "Quarantine: {}, {} does not exist or it is not a regular file",
-                tb,
-                tar,
-            )
             continue
 
         archive_md5 = Path(f"{tar}.md5")
         # check that the md5 file exists and it is a regular file
-        if archive_md5.exists() and archive_md5.is_file():
-            pass
-        else:
+        if not (archive_md5.exists() and archive_md5.is_file()):
             # md5 file does not exist or it is not a regular file
-            quarantine(qdir, logger, tb)
+            sync.error(dataset, f"MD5 file {archive_md5} does not exist")
             nquaran += 1
-            logger.error(
-                "Quarantine: {}, {} does not exist or it is not a regular file",
-                tb,
-                archive_md5,
-            )
             continue
 
         # read the md5sum from md5 file
@@ -330,7 +303,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
                 archive_md5_hex_value = f.readline().split(" ")[0]
         except Exception:
             # Could not read file.
-            quarantine(qdir, logger, tb)
+            sync.error(dataset, f"can't read MD5 file {archive_md5}")
             nquaran += 1
             logger.exception("Quarantine: {}, Could not read {}", tb, archive_md5)
             continue
@@ -340,13 +313,17 @@ def backup_data(lb_obj, s3_obj, config, logger):
             (_, archive_tar_hex_value) = md5sum(tar)
         except Exception:
             # Could not read file.
-            quarantine(qdir, logger, tb)
+            quarantine("can't compute tarfile MD5", logger, tb)
             nquaran += 1
             logger.exception("Quarantine: {}, Could not read {}", tb, tar)
             continue
 
         if archive_tar_hex_value != archive_md5_hex_value:
-            quarantine(qdir, logger, tb)
+            quarantine(
+                f"MD5 file {archive_md5_hex_value!r} does not match tarball MD5 {archive_tar_hex_value!r}",
+                logger,
+                tb,
+            )
             nquaran += 1
             logger.error(
                 "Quarantine: {}, md5sum of {} does not match with its md5 file {}",
@@ -362,8 +339,8 @@ def backup_data(lb_obj, s3_obj, config, logger):
         try:
             dataset = Dataset.attach(resource_id=get_tarball_md5(tar))
         except DatasetError as e:
-            logger.warning("Trouble tracking {}:{}: {}", controller, resultname, str(e))
-            dataset = None
+            logger.error("Unable to find dataset {}: {}", resultname, str(e))
+            continue
 
         # This will handle all the local backup related
         # operations and count the number of successes and failures.
@@ -413,15 +390,16 @@ def backup_data(lb_obj, s3_obj, config, logger):
         if local_backup_result == Status.SUCCESS and (
             s3_obj is None or s3_backup_result == Status.SUCCESS
         ):
-            # Move tar ball symlink to its final resting place
-            rename_tb_link(tb, Path(controller_path, _linkdest), logger)
+            # Mark the dataset as archived, and request that it be unpacked
+            Metadata.setvalue(dataset=dataset, key=Metadata.ARCHIVED, value=True)
+            sync.update(
+                dataset, Operation.BACKUP, [Operation.SOS_REPORT, Operation.UNPACK]
+            )
         else:
             # Do nothing when the backup fails, allowing us to retry on a
             # future pass.
             pass
 
-        if dataset:
-            Metadata.setvalue(dataset=dataset, key=Metadata.ARCHIVED, value=True)
         logger.debug("End backup of {}.", tar)
 
     return Results(
@@ -458,7 +436,6 @@ def main(cfg_name):
 
     # Add a BACKUP and QDIR field to the config object
     config.BACKUP = config.conf.get("pbench-server", "pbench-backup-dir")
-    config.QDIR = config.get("pbench-server", "pbench-quarantine-dir")
 
     # call the LocalBackupObject class
     lb_obj = LocalBackupObject(config)

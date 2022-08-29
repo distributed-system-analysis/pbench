@@ -128,37 +128,9 @@ def main(options, name):
         idxctx.templates.dump_templates()
         return 0
 
-    res = error_code["OK"]
-
-    ARCHIVE_rp = idxctx.config.ARCHIVE
-
-    INCOMING_rp = idxctx.config.INCOMING
-    INCOMING_path = idxctx.config.get_valid_dir_option(
-        "INCOMING", INCOMING_rp, idxctx.logger
-    )
-    if not INCOMING_path:
-        res = error_code["BAD_CFG"]
-
-    qdir = idxctx.config.get_conf(
-        "QUARANTINE", "pbench-server", "pbench-quarantine-dir", idxctx.logger
-    )
-    if not qdir:
-        res = error_code["BAD_CFG"]
-    else:
-        qdir_path = idxctx.config.get_valid_dir_option(
-            "QDIR", Path(qdir), idxctx.logger
-        )
-        if not qdir_path:
-            res = error_code["BAD_CFG"]
-
-    if not res.success:
-        # Exit early if we encounter any errors.
-        return res.value
-
     idxctx.logger.debug("{}.{}: starting", name, idxctx.TS)
 
-    index_obj = Index(name, options, idxctx, INCOMING_rp, ARCHIVE_rp, qdir)
-
+    index_obj = Index(name, options, idxctx)
     status, tarballs = index_obj.collect_tb()
     if status == 0 and tarballs:
         status = index_obj.process_tb(tarballs)

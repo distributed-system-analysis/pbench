@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Query, relationship, validates
 from sqlalchemy.types import TypeDecorator
 
+from pbench.server import JSONVALUE
 from pbench.server.database.database import Database
 from pbench.server.database.models.server_config import (
     OPTION_DATASET_LIFETIME,
@@ -169,7 +170,8 @@ class MetadataSqlError(MetadataError):
         super().__init__(dataset, key)
 
     def __str__(self) -> str:
-        return f"Error {self.operation} {self.dataset} key {self.key}"
+        ds = str(self.dataset) if self.dataset else "no dataset"
+        return f"Error {self.operation} {ds} key {self.key}"
 
 
 class MetadataNotFound(MetadataError):
@@ -307,8 +309,8 @@ class MetadataDuplicateKey(MetadataError):
 
 class States(enum.Enum):
     """
-    States: Track the progress of a dataset (tarball) through the various
-    stages and operation of the Pbench server.
+    Track the progress of a dataset (tarball) through the various stages and
+    operation of the Pbench server.
     """
 
     UPLOADING = ("Uploading", True)
@@ -835,6 +837,10 @@ class Metadata(Database.Base):
     #
     # {"server.archived": True}
     ARCHIVED = "server.archived"
+
+    # OPERATION tag to tell the Pbench Server cron tools which operation needs
+    # to be performed next, replacing the old STATE symlink subdirectories.
+    OPERATION = "server.operation"
 
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
     # to record an S3 object store key.) NOT YET USED.

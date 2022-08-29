@@ -1,38 +1,15 @@
 import datetime
-import os
+from logging import Logger
 from pathlib import Path
-import shutil
 import sys
-from typing import Union
+from typing import List, Union
 
 from dateutil import parser as date_parser
 
 from pbench.common.utils import md5sum
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound, States
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 
-
-def rename_tb_link(tb, dest, logger):
-    try:
-        os.mkdir(dest)
-    except FileExistsError:
-        # directory already exists, ignore
-        pass
-    except Exception:
-        logger.exception(
-            "os.mkdir: Unable to create tar ball destination directory: {}".format(dest)
-        )
-        raise
-    tbname = os.path.basename(tb)
-    tbnewname = os.path.join(dest, tbname)
-    try:
-        os.rename(tb, tbnewname)
-    except Exception:
-        logger.exception(
-            "os.rename: Unable to move tar ball link {} to destination directory: {}".format(
-                tb, dest
-            )
-        )
-        raise
+from . import JSONVALUE
 
 
 def filesize_bytes(size):
@@ -82,38 +59,50 @@ def get_tarball_md5(tarball: Union[Path, str]) -> str:
     return md5sum(tarball).md5_hash
 
 
-def quarantine(dest, logger, *files):
-    """Quarantine problematic tarballs.
+def quarantine(error: str, logger: Logger, *files: str):
+    """Mark problematic tarballs.
+
+    Add an error status to the Dataset using the metadata subnamespace
+    "server.errors" with a key of "quarantine": e.g.,
+
+    "server": {
+        "errors": {
+            "quarantine": "can't read tarball MD5 file"
+        }
+    }
 
     Errors here are fatal but we log an error message to help diagnose
     problems.
     """
-    try:
-        os.mkdir(dest)
-    except FileExistsError:
-        # directory already exists, ignore
-        pass
-    except Exception:
-        logger.exception('quarantine {} {!r}: "mkdir -p {}/" failed', dest, files, dest)
-        sys.exit(101)
 
     for afile in files:
-        if not os.path.exists(afile) and not os.path.islink(afile):
-            continue
         try:
-            # If the file we're moving is a tarball, update the dataset
-            # state. (If it's the associated MD5 file, skip that.)
+            # If the file we're moving is a tarball, update the dataset.
+            # If it's the associated MD5 file, skip that.
             if Dataset.is_tarball(afile):
                 id = get_tarball_md5(afile)
                 try:
-                    Dataset.attach(resource_id=id, state=States.QUARANTINED)
+                    dataset = Dataset.query(resource_id=id)
+
+                    # "Update" the 'server.errors' key to a potential list of
+                    # quarantine errors. We don't have an atomic update at this
+                    # time so it's best-effort.
+                    #
+                    # FIX-ME: I had the idea of support multiple quarantine
+                    # reasons, but is that really meaningful vs just directly
+                    # updating `server.errors.quarantine` as a string?
+                    errors: JSONVALUE = Metadata.getvalue(dataset, "server.errors")
+                    if errors:
+                        quarantine: List[str] = errors.get("quarantine", [])
+                        quarantine.append(error)
+                        errors["quarantine"] = quarantine
+                    else:
+                        errors = {"quarantine": [error]}
+                    Metadata.setvalue(dataset, "server.errors", errors)
                 except DatasetNotFound:
                     logger.debug("quarantine dataset {} not found", afile)
-            shutil.move(afile, os.path.join(dest, os.path.basename(afile)))
         except Exception:
-            logger.exception(
-                'quarantine {} {!r}: "mv {} {}/" failed', dest, files, afile, dest
-            )
+            logger.exception("quarantine {!r} {!r} failed", afile, error)
             sys.exit(102)
 
 
