@@ -903,7 +903,7 @@ class ToolDataSink(Bottle):
 
         # Set up signal responder for state control
         self.sig_resp = state_signals.SignalResponder(
-            redis_host=self.redis_host, redis_port=self.redis_port
+            existing_redis_conn=self.redis_server
         )
         self.sig_resp.lock_tag("from_pbench_client")
 

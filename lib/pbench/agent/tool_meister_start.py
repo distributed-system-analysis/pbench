@@ -1271,7 +1271,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         # drive the following client operations ("sysinfo" [optional] and "init"
         # [required]).
         with Client.create_with_redis(
-            redis_host=redis_server.host, redis_port=redis_server.port, logger=logger
+            existing_redis_client=redis_client, logger=logger
         ) as client:
             if sysinfo:
                 sysinfo_path = benchmark_run_dir / "sysinfo" / "beg"

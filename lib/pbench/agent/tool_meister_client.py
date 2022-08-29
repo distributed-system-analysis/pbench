@@ -17,6 +17,7 @@ import logging
 import os
 import sys
 
+import redis
 import state_signals
 
 from pbench.agent.constants import cli_tm_allowed_actions, tm_allowed_actions
@@ -82,14 +83,20 @@ class Client:
     @classmethod
     def create_with_redis(
         cls,
-        redis_host: str,
-        redis_port: str,
+        existing_redis_client: redis.Redis = None,
+        redis_host: str = "localhost",
+        redis_port: str = "6379",
         publisher_name: str = "pbench_client",
         logger: logging.Logger = None,
     ):
-        sig_pub = state_signals.SignalExporter(
-            publisher_name, redis_host=redis_host, redis_port=redis_port
-        )
+        if existing_redis_client:
+            sig_pub = state_signals.SignalExporter(
+                publisher_name, existing_redis_conn=existing_redis_client
+            )
+        else:
+            sig_pub = state_signals.SignalExporter(
+                publisher_name, redis_host=redis_host, redis_port=redis_port
+            )
         sig_pub.initialize_and_wait(
             1,
             list(tm_allowed_actions),
