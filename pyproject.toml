@@ -1,5 +1,5 @@
 [project]
-name = "pbench-agent"
+name = "pbench"
 version = "0.69.10"
 
 [build-system]
