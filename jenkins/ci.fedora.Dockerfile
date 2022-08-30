@@ -27,7 +27,7 @@
 #
 # [1] See https://www.redhat.com/sysadmin/user-flag-rootless-containers
 
-FROM quay.io/fedora/fedora:34
+FROM quay.io/fedora/fedora:35
 
 RUN \
     dnf -y update && \
@@ -81,4 +81,9 @@ RUN \
     `#` \
     `# Save space in the container image.` \
     `#` \
-    dnf -y clean all && rm -rf /var/cache/dnf
+    dnf -y clean all && rm -rf /var/cache/dnf && \
+    `#` \
+    `# Tweak npm.` \
+    `#` \
+    npm install -g npm@8.19.0 && \
+    npm config set fetch-retry-maxtimeout 120000

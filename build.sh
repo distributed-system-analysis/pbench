@@ -21,6 +21,7 @@ fi
 # Install the Dashboard dependencies, including the linter's dependencies and
 # the unit test dependencies.  First, remove any existing Node modules and
 # package-lock.json to ensure that we install the latest.
+mkdir -p ${HOME}/.config
 ( cd dashboard && rm -rf node_modules package-lock.json && npm install )
 
 # Test for code style and lint
@@ -36,3 +37,6 @@ tox                                     # Agent and Server unit tests and legacy
 # Build RPMS for the Server and Agent
 make -C server/rpm ci
 make -C agent/rpm ci
+
+# Display our victory
+ls -l ${HOME}/rpmbuild*/RPMS/noarch/*

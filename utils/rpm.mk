@@ -14,7 +14,7 @@
 # In addition, specifying a distro-specific target, like "rhel-9-rpm", will
 # cause Step 7 to be executed locally in a suitable container, to produce a
 # binary RPM for the indicated distribution.  In this case, the RPM will be
-# placed in ${HOME}/pbench/rpmbuild-<distro>-<version>/RPMS.
+# placed in ${HOME}/rpmbuild-<distro>-<version>/RPMS.
 #
 
 RPMBUILD_IMAGE_REPO = images.paas.redhat.com/pbench
@@ -28,7 +28,7 @@ include ${PBENCHTOP}/utils/utils.mk
 prog = pbench-${component}
 VERSION := $(shell cat ${PBENCHTOP}/${component}/VERSION)
 MAJORMINOR := $(shell grep -oE '[0-9]+\.[0-9]+' ${PBENCHTOP}/${component}/VERSION)
-TBDIR = ${TMPDIR}/${prog}-${VERSION}
+TBDIR = ${RPMTMP}/${prog}-${VERSION}
 
 # If we are building for a distro, use a distro-specific suffix on the build and
 # temporary directories, so that builds can be done in parallel and so that the
@@ -47,24 +47,23 @@ endif
 # Set BLD_DIR to `${BLD_ROOT}/rpmbuild-<DISTRO>-<VERSION>` when the target has
 # a specific distro and to `${BLD_ROOT}/rpmbuild` when the target has no
 # specific distro.  (Define BLD_SUBDIR separately from BLD_DIR to allow us to
-# mix and match them for mapping the location into the container.)  Set TMPDIR,
-# analogously.  This prevents builds for one distro from interfering with
-# builds for another.
-BLD_ROOT := ${HOME}/pbench
-BLD_SUBDIR := rpmbuild${BLD_SUFFIX}
+# mix and match them for mapping the location into the container.)  This
+# prevents builds for one distro from interfering with builds for another.
+BLD_ROOT ?= ${HOME}
+BLD_SUBDIR ?= rpmbuild${BLD_SUFFIX}
 BLD_DIR := ${BLD_ROOT}/${BLD_SUBDIR}
-TMPDIR := /tmp/rpmbuild${BLD_SUFFIX}/opt
 
-$(info Building ${MAKECMDGOALS} for ${prog}-${VERSION} from ${TBDIR} to ${BLD_DIR})
-
-RPMDIRS = BUILD BUILDROOT SPECS SOURCES SRPMS RPMS
+RPMDIRS = BUILD BUILDROOT SPECS SOURCES SRPMS RPMS TMP
 
 RPMSRC = ${BLD_DIR}/SOURCES
 RPMSRPM = ${BLD_DIR}/SRPMS
 RPMSPEC = ${BLD_DIR}/SPECS
+RPMTMP = ${BLD_DIR}/TMP
 
 sha1 := $(shell git rev-parse --short HEAD)
 seqno := $(shell if [ -e ./seqno ] ;then cat ./seqno ;else echo "1" ;fi)
+
+$(info Building ${MAKECMDGOALS} for ${prog}-${VERSION} from ${TBDIR} to ${BLD_DIR})
 
 # By default we only build a source RPM
 all: srpm
@@ -93,8 +92,8 @@ patches: rpm-dirs
 tarball: rpm-dirs submodules ${subcomps}
 	echo "${sha1}" > ${TBDIR}/${component}/SHA1
 	echo "${seqno}" > ${TBDIR}/${component}/SEQNO
-	tar zcf ${RPMSRC}/${prog}-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
-	rm -rf ${TMPDIR}/*
+	tar zcf ${RPMSRC}/${prog}-${VERSION}.tar.gz -C ${RPMTMP} ${prog}-${VERSION}
+	rm -rf ${RPMTMP}/*
 
 .PHONY: rpm-dirs
 rpm-dirs:
@@ -126,26 +125,27 @@ ${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
 # different location.
 pwdr = $(subst ${PBENCHTOP}/,,${CURDIR})
 
-# This is a pattern target used to build RPMs for specific distros.  It launches
-# a "normal" `rpm` target in a sub-make that is run inside a container built
-# from the distro for which the RPM is targeted.  We mount the output path,
-# which ends with `rpmbuild<distro>-<version>`, inside the container as
-# `${BLD_ROOT}/rpmbuild` (with no suffix), which is where the build will put the
-# RPM when invoked without a distro target.  Each sub-make is self contained --
-# it builds its own SRPM and binary RPM -- putting the output in the file system
-# mapped in from the host.  So, the pattern target here only needs to create the
-# output directories which will be mapped into the containers.
+# This target is used to build RPMs for specific distros.  It launches a
+# "normal" `rpm` target in a sub-make that is run inside a container built from
+# the distro for which the RPM is targeted.  We override the definitions for
+# `${BLD_ROOT}` and `${BLD_SUBDIR}` so that they point to the distro-specific
+# directory inside the container.
+#
+# Each sub-make is self contained -- it builds its own SRPM and binary RPM --
+# putting the output in the file system mapped in from the host.  So, the
+# pattern target here only needs to create the output directories which will be
+# mapped into the containers.
 #
 # TODO:  When building more than one container, we should probably build the
 #        SRPM exactly once (on the host) and then map it into the container(s).
-#        And, we should presumably share the values of $(version)/$(VERSION),
-#        $(seqno), and $(sha1), as well.
+#        And, we should presumably share the values of $(VERSION), $(seqno),
+#        and $(sha1), as well.
 .PHONY: %-rpm
 %-rpm: rpm-dirs
 	cd ${PBENCHTOP} && \
 	  IMAGE=${BUILD_CONTAINER} \
-	    EXTRA_PODMAN_SWITCHES="--volume $${WORKSPACE:-${BLD_ROOT}}/${BLD_SUBDIR}:${BLD_ROOT}/rpmbuild" \
-	    jenkins/run make -C ${pwdr} rpm
+	    jenkins/run \
+	      make BLD_ROOT=${BLD_ROOT} BLD_SUBDIR=${BLD_SUBDIR} -C ${pwdr} rpm
 
 .PHONY: distclean
 distclean:

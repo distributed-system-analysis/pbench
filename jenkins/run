@@ -6,9 +6,32 @@
 #
 # EXTRA_PODMAN_SWITCHES []
 # IMAGE_REPO [quay.io/pbench]
-# IMAGE_ROLE [devel] (see Makefile for options)
-# IMAGE_KIND [fedora] (see Makefile for options)
-# IMAGE [image spec you want, overrides all of the above]
+# IMAGE_ROLE [devel] (See Makefile for options)
+# IMAGE_KIND [fedora] (See Makefile for options)
+# IMAGE      [${IMAGE_REPO}-${IMAGE_ROLE}-${IMAGE_KIND}:<branch_name>]
+#            If defined, will override the $IMAGE_* values above.
+# CONTAINER_HOST [] (see podman-remote man page)
+#            May be defined to control remote container execution; will already
+#            be defined, if running inside a container invoked by this script,
+#            to point to the current host.
+# WORKSPACE: [$(pwd)]
+#            The directory containing the Git checkout -- in the Jenkins
+#            environment this is set and setup for us; otherwise, it defaults to
+#            the current working directory, which is required by this script to
+#            be a Git checkout.
+#            NOTE:  if we're already running inside a container this is the path
+#            to the checkout on the HOST file system; inside the container, it
+#            will be mapped to /home/${USER}/pbench.
+# WORKSPACE_TMP: []
+#            If defined, used as the mapping for /home/${USER} in the container
+#            (inside the container, the Git checkout will be mounted over the
+#            pbench subdirectory).  In the Jenkins environment, this points to a
+#            place where we can create a temporary directory tree. In a local
+#            environment, defining this value (e.g., to /home/${USER} _outside_
+#            the container) will allow the user to receive files created inside
+#            the container.
+#            NOTE:  if we're already running inside a container this is either
+#            the path to the directory on the HOST file system or a Podman volume.
 #
 # For example, run an interactive bash shell:
 #
@@ -41,12 +64,7 @@ _image_kind=${IMAGE_KIND:-fedora}
 # USER_NAME:  the name of the user (and the home directory) inside the container
 # HOME_DIR:   the path to the user's home directory inside the container
 # PODMAN_SOCK: the path to the Podman remote socket both in-/outside the container
-# WORKSPACE:  the directory containing the Git checkout -- in the Jenkins
-#             environment this is set and setup for us; otherwise, it defaults to
-#             the current working directory, which is required by this script to
-#             be a Git checkout.
-#             NOTE:  this is the path on the HOST, if we're already in a container;
-#             inside the container, it will be mapped to /home/${USER}/pbench.
+# WORKSPACE:  the directory containing the Git checkout
 USER_NAME=${USER}
 HOME_DIR=/home/${USER_NAME}
 PODMAN_SOCK=/run/user/${UID}/podman/podman.sock
@@ -67,26 +85,52 @@ _image=${IMAGE:-${_image_repo}/pbench-${_image_role}-${_image_kind}:${_branch_na
 if [ -n "${CONTAINER_HOST}" ]; then
     # Since CONTAINER_HOST is defined, when we want to run another container, do
     # it with `podman-remote` (which will run it where CONTAINER_HOST points).
-    # This works nicely, e.g., if we are already inside a properly configured
-    # container.
+    # This is the core mechanism that allows CI jobs, which are run inside one
+    # container, to run sub-sets of the build inside separate containers on the
+    # same host.
     PODMAN="podman-remote"
 else
-    # Since CONTAINER_HOST is not defined, don't invoke the container remotely.
-    # However, we might want to run a container "remotely" on this host;
-    # therefore, enable the service which makes it available to receive
-    # `podman-remote` invocations.  This creates a listener on
-    # /run/user/$(id -u)/podman/podman.sock, which will be mapped into the
-    # container in the invocation below so that we can create peer-containers
-    # on this host from inside the container.
+    # Since CONTAINER_HOST is not defined, arrange to invoke the container
+    # directly.  Since the code running in the container might want to run an
+    # additional container "remotely" on this host, enable the service which
+    # makes it available to receive `podman-remote` invocations.  This creates a
+    # listener on /run/user/$(id -u)/podman/podman.sock, which will be mapped
+    # into the container in the invocation below so that we can create
+    # peer-containers on this host from inside the container.
     PODMAN="podman"
     systemctl --user enable --quiet --now podman.socket
 fi
 
+# We have two directory trees which we are concerned with inside the container:
+# $HOME_DIR and $HOME_DIR/pbench.  The first is provided for anything which
+# happens to reference it (such as RPM builds and npm), and the second contains
+# the Git checkout.
+#
+# When this script is run under the CI (or in any other environment which
+# defines $WORKSPACE_TMP), the $HOME_DIR is mapped from $WORKSPACE_TMP.  When
+# this script is run locally by an individual developer, $HOME_DIR is mapped
+# from a Podman volume, to maintain isolation from the surrounding environment;
+# this volume is created automatically by Podman if it does not already exist
+# (it is deleted after the container exits, if it is no longer in use), and
+# $WORKSPACE_TMP inside the container is set to it so that any containers
+# created inside this container will use the same volume for their $HOME_DIR.
+#
+# When run under the CI (or in any other environment which defines $WORKSPACE),
+# the $HOME_DIR/pbench is mapped from $WORKSPACE, which is where the Jenkins
+# setup checks out the Git sources.  Otherwise, the current working directory
+# (which is required to be the root of the Git checkout) is mapped as the second
+# directory inside the container.
+if [ -z "${WORKSPACE_TMP}" ]; then
+    WORKSPACE_TMP=$(uuidgen)  # Generate a volume name
+    _volume="True"
+    echo Using new WORKSPACE_TMP=${WORKSPACE_TMP}
+fi
+
+echo Starting container:  WORKSPACE_TMP=${WORKSPACE_TMP}, WORKSPACE=${WORKSPACE}
 ${PODMAN} run \
     --userns=keep-id \
     --security-opt label=disable \
-    --volume ${HOME_DIR} \
-    --volume ${HOME_DIR}/.config \
+    --volume ${WORKSPACE_TMP}:${HOME_DIR} \
     --volume ${WORKSPACE}:${HOME_DIR}/pbench \
     --volume ${PODMAN_SOCK}:${PODMAN_SOCK} \
     ${GIT_BASE_VOLUME} \
@@ -95,8 +139,15 @@ ${PODMAN} run \
     --env USER=${USER_NAME} \
     --env CONTAINER_HOST=unix:/${PODMAN_SOCK} \
     --env WORKSPACE=${WORKSPACE} \
+    --env WORKSPACE_TMP=${WORKSPACE_TMP} \
     --ulimit nofile=65536:65536 \
     --rm \
     ${EXTRA_PODMAN_SWITCHES} \
     ${_image} \
     jenkins/runner "${@}"
+
+rc=$?
+
+[ "${_volume}" == "True" ] && podman volume rm $WORKSPACE_TMP
+
+exit $rc
