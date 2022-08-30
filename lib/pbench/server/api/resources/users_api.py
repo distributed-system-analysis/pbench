@@ -213,10 +213,7 @@ class Login(Resource):
                 f"found {bad_keys}; expected one of {sorted(self.TOKEN_EXPIRY_KEYS)}"
             )
             self.logger.warning(msg)
-            abort(
-                HTTPStatus.BAD_REQUEST,
-                message=msg,
-            )
+            abort(HTTPStatus.BAD_REQUEST, message=msg)
         else:
             token_expiry = {k: int(v) for k, v in token_expiry.items()}
 

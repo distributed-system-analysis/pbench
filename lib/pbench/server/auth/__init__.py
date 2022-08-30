@@ -32,6 +32,7 @@ class OpenIDClient:
     """
 
     USERINFO_ENDPOINT: Optional[str] = None
+    TOKENINFO_ENDPOINT: Optional[str] = None
     JWKS_URI: Optional[str] = None
 
     def __init__(
@@ -79,7 +80,7 @@ class OpenIDClient:
         """
         self.headers[key] = value
 
-    def del_param_headers(self, key: str):
+    def del_header_params(self, key: str):
         """
         Remove a specific header parameter.
         Args:
@@ -98,8 +99,11 @@ class OpenIDClient:
         well_known_uri = f"{self.server_url}{self.realm_name}{well_known_endpoint}"
         endpoints_json = self._get(well_known_uri).json()
         try:
-            OpenIDClient.USERINFO_ENDPOINT = endpoints_json["userinfo_endpoint"]
-            OpenIDClient.JWKS_ENDPOINT = endpoints_json["jwks_uri"]
+            OpenIDClient.USERINFO_ENDPOINT = endpoints_json.get("userinfo_endpoint")
+            OpenIDClient.TOKENINFO_ENDPOINT = endpoints_json.get(
+                "introspection_endpoint"
+            )
+            OpenIDClient.JWKS_ENDPOINT = endpoints_json.get("jwks_uri")
         except KeyError as e:
             self.logger.exception(
                 "Missing endpoint {!r} at {}; Endpoints found: {}",
@@ -139,8 +143,8 @@ class OpenIDClient:
             Extracted token information
             {
                 "aud": <targeted_audience_id>,
-                "email_verified": <true_or_false>,
-                "expires_in": <Number_of_seconds>,
+                "email_verified": <boolean>,
+                "expires_in": <number_of_seconds>,
                 "access_type": "offline",
                 "exp": <unix_timestamp>,
                 "azp": <client_id>,
@@ -171,7 +175,7 @@ class OpenIDClient:
         https://tools.ietf.org/html/rfc7662
 
         Please refer https://www.rfc-editor.org/rfc/rfc7662.html#section-4 for
-        reasons on doing the token introspection offline.
+        requirements on doing the token introspection offline.
         Args:
             token: token value to introspect
             key: client public key
@@ -181,8 +185,8 @@ class OpenIDClient:
             Extracted token information
             {
                 "aud": <targeted_audience_id>,
-                "email_verified": <true_or_false>,
-                "expires_in": <Number_of_seconds>,
+                "email_verified": <boolean>,
+                "expires_in": <number_of_seconds>,
                 "access_type": "offline",
                 "exp": <unix_timestamp>,
                 "azp": <client_id>,
@@ -209,7 +213,7 @@ class OpenIDClient:
                 "sub": <user_id>,
                 "picture": <URL>,
                 "locale": <locale_name>,
-                "email_verified": <true_or_false>,
+                "email_verified": <boolean>,
                 "given_name": <given_name>,
                 "email": <email_address>,
                 "hd": <domain_name>,

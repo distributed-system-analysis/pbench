@@ -108,22 +108,16 @@ class Auth:
         return None
 
     @staticmethod
-    def verify_third_party_token(
-        auth_token: str, oidc_client: OpenIDClient, tokeninfo_endpoint: str = None
-    ) -> bool:
+    def verify_third_party_token(auth_token: str, oidc_client: OpenIDClient) -> bool:
         """
         Verify a token provided to the Pbench server which was obtained from a
         third party identity provider.
         Args:
             auth_token: Token to authenticate
             oidc_client: OIDC client to call to authenticate the token
-            tokeninfo_endpoint: Optional tokeninfo_endpoint to validate
-                                tokens online in case offline verification
-                                results in some exception.
         Returns:
-            True if the verification succeed else False
+            True if the verification succeeds else False
         """
-        # Verify auth token validity
         identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
         try:
             oidc_client.token_introspect_offline(
@@ -150,13 +144,13 @@ class Auth:
                 auth_token,
             )
 
-        if not tokeninfo_endpoint:
+        if not oidc_client.TOKENINFO_ENDPOINT:
             Auth.logger.warning("Can not perform OIDC online token verification")
             return False
 
         try:
             token_payload = oidc_client.token_introspect_online(
-                token=auth_token, token_info_uri=tokeninfo_endpoint
+                token=auth_token, token_info_uri=oidc_client.TOKENINFO_ENDPOINT
             )
         except OpenIDClientError:
             return False

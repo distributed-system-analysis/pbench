@@ -3,9 +3,9 @@ from typing import Optional
 import pytest
 
 from pbench.server import JSON
-from pbench.server.auth.auth import Auth
 from pbench.server.api.resources import API_METHOD, API_OPERATION, ApiSchema
 from pbench.server.api.resources.query_apis import ElasticBase
+from pbench.server.auth.auth import Auth
 from pbench.server.database.models.users import User
 
 ADMIN_ID = "6"  # This needs to match the current_user_admin fixture
