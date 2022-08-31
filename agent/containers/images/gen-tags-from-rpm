@@ -24,11 +24,11 @@
 url_prefix="${1}"
 dist="${2}"
 arch="${3}"
-test="${4}"
+name="${4}"
 
 # Ensure we only consider the pbench-agent RPM's version string from the
 # target repo.
-url="${url_prefix}/pbench${test}/${dist}-${arch}"
+url="${url_prefix}/${name}/${dist}-${arch}"
 version_string="$(yum list -q --repofrompath pbench,"${url}" pbench-agent.noarch 2>/dev/null | awk 'FNR==2{print $2}')"
 if [[ -z "${version_string}" ]]; then
     printf -- "Failed to fetch pbench-agent.noarch version string from '%s'\n" "${url}" >&2
