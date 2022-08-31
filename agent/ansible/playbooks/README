@@ -16,7 +16,7 @@ N.B. Installation is incomplete until we install a key file so that
 config file so that it knows which server to use.
 
 The playbooks use variables defined in the inventory file (for an
-example inventory file, see =Inventory/pbench-agent.hosts.example=).
+example inventory file, see =./pbench-agent.hosts.example=).
 It must be modified for a given environment: see comments in the
 file for guidance.
 
