@@ -3212,6 +3212,11 @@ class PbenchTarBall:
             self.controller_name = self.controller_dir
         tb_stat = os.stat(self.tbname)
         mtime = datetime.utcfromtimestamp(tb_stat.st_mtime)
+
+        # FIX-ME: This is curious. We're opening the tarball to find the
+        # metadata.log and verify the paths "before extracting" ... except
+        # we don't index until we've finished unpacking, so this seems all
+        # entirely redundant.
         self.tb = tarfile.open(self.tbname)
 
         # Build a map showing the documents in each Elasticsearch index so we

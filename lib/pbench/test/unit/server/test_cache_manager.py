@@ -6,7 +6,6 @@ import subprocess
 
 import pytest
 
-from pbench.common.logger import get_pbench_logger
 from pbench.server.cache_manager import (
     BadFilename,
     CacheManager,
@@ -16,15 +15,6 @@ from pbench.server.cache_manager import (
     TarballNotFound,
     TarballUnpackError,
 )
-from pbench.server.database.models.datasets import Dataset, DatasetBadName
-
-
-@pytest.fixture()
-def make_logger(server_config):
-    """
-    Construct a Pbench Logger object
-    """
-    return get_pbench_logger("TEST", server_config)
 
 
 @pytest.fixture(scope="function", autouse=True)

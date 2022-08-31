@@ -291,7 +291,8 @@ class Index:
         tb_deque = deque(tarballs)
 
         res = self.load_templates()
-        if not res:
+        if res:
+            idxctx.logger.info("Load templates {!r}", res)
             return res
 
         # tarballs contains a list of tar balls sorted by size.
@@ -306,8 +307,8 @@ class Index:
                 with tb_list.open(mode="w") as lfp:
                     # Write out all the tar balls we are processing so external
                     # viewers can follow along from home.
-                    for size, controller, tb in tarballs:
-                        print(f"{size:20d} {controller} {tb}", file=lfp)
+                    for size, dataset, tb in tarballs:
+                        print(f"{size:20d} {dataset.name} {tb}", file=lfp)
 
                 indexed = Path(tmpdir, f"{self.name}.{idxctx.TS}.indexed")
                 erred = Path(tmpdir, f"{self.name}.{idxctx.TS}.erred")
@@ -345,6 +346,7 @@ class Index:
                         ptb = None
                         userid = None
                         unpacked = None
+                        tb_res = error_code["OK"]
 
                         # Sanity check source tar ball path
                         try:
@@ -370,7 +372,7 @@ class Index:
                                 # state where we'd expect to be indexing it. So what do
                                 # we do with it? (Note: this is where an audit log will
                                 # be handy; i.e., how did we get here?) For now, just
-                                # let it go.
+                                # record the error and let it go.
                                 self.sync.error(
                                     dataset, f"Unable to advance dataset state: {e!r}"
                                 )
@@ -641,7 +643,7 @@ class Index:
                 idxctx.logger.exception(error_code["GENERIC_ERROR"].message)
                 res = error_code["GENERIC_ERROR"]
             else:
-                # No exceptions while processing tar ball, success.
+                # No exceptions while processing tar balls, success.
                 res = error_code["OK"]
             finally:
                 if idxctx:

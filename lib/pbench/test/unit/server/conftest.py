@@ -15,6 +15,7 @@ from email_validator import EmailNotValidError, ValidatedEmail
 from freezegun import freeze_time
 import pytest
 
+from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 from pbench.server.auth.auth import Auth
@@ -148,7 +149,15 @@ def client(server_config, fake_email_validator):
 
 
 @pytest.fixture()
-def db_session(server_config):
+def make_logger(server_config):
+    """
+    Construct a Pbench Logger object
+    """
+    return get_pbench_logger("TEST", server_config)
+
+
+@pytest.fixture()
+def db_session(server_config, make_logger):
     """
     Construct a temporary DB session for the test case that will reset on
     completion.
@@ -160,7 +169,7 @@ def db_session(server_config):
     Args:
         server_config: pbench-server.cfg fixture
     """
-    Database.init_db(server_config, None)
+    Database.init_db(server_config, make_logger)
     yield
     Database.db_session.remove()
 
