@@ -111,11 +111,7 @@ function _run {
         ${_real_cat} ${env_file} >> ${_testroot}/run.cmd
         printf -- "\n" >> ${_testroot}/run.cmd
     fi
-    if [[ "${tscrpt}" == "pbench-run-benchmark" ]]; then
-        local config=""
-    else
-        local config=" --config=${tname}"
-    fi
+    local config=" --config=${tname}"
     printf -- "%s%s %s\n" "${tscrpt}" "${config}" "${opts}" >> ${_testroot}/run.cmd
     chmod +x ${_testroot}/run.cmd
     ${_testroot}/run.cmd >> ${_testout} 2>&1
@@ -334,24 +330,6 @@ while read tst benchmark; do
     # Determine what the test will use for a "benchmark_run_dir"
     if [[ ${benchmark} == "pbench-user-benchmark" ]]; then
         _rundir="${benchmark}_${tst}_${_date_suffix}"
-    elif [[ ${benchmark} == "pbench-run-benchmark" ]]; then
-        # The first argument in the "opts" file determines the name
-        # that will be used for the benchmark run directory.
-        if [[ -f ${_tdir}/tests/${_tst}.opts ]]; then
-            bm_name="$(head -n 1 ${_tdir}/tests/${_tst}.opts | awk '{print $1}')"
-            if [[ "${bm_name}" != "list" ]]; then
-                bm_config="$(head -n 1 ${_tdir}/tests/${_tst}.opts | awk '{print $2}')"
-                if [[ "${bm_config%=*}" == "--user-tags" ]]; then
-                    _rundir="${bm_name}_${bm_config#*=}_${_date_suffix}"
-                else
-                    _rundir="${bm_name}__${_date_suffix}"
-                fi
-            else
-                _rundir=""
-            fi
-        else
-            _rundir=""
-        fi
     elif [[ ${benchmark%%-*} == "pbench" ]]; then
         _rundir="${bm_postfix}_${tst}_${_date_suffix}"
     else
