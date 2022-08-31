@@ -1,6 +1,6 @@
 ---
 # pbench agent configuration
-- name: "pbench agent configuration - install config file(s)"
+- name: "Pbench agent configuration - install config file(s)"
   ansible.builtin.include_role:
     name: pbench_agent_files_install
   vars:
@@ -9,7 +9,7 @@
     mode: "0644"
     files: "{{ pbench_config_files }}"
 
-- name: "pbench agent configuration - install ssh key"
+- name: "Pbench agent configuration - install ssh key"
   ansible.builtin.include_role:
     name: pbench_agent_files_install
   vars:
