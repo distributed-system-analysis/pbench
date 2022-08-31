@@ -41,8 +41,7 @@ _filenotfounderror = getattr(__builtins__, "FileNotFoundError", IOError)
 
 
 def _count_lines(fname):
-    """Simple method to count the lines of a file.
-    """
+    """Simple method to count the lines of a file."""
     try:
         with open(fname, "r") as fp:
             cnt = sum(1 for line in fp)
@@ -54,49 +53,49 @@ def _count_lines(fname):
 def main(options, name):
     """Main entry point to pbench-index.
 
-       The caller is required to pass the "options" argument with the following
-       expected attributes:
-           cfg_name              - Name of the configuration file to use
-           dump_index_patterns   - Don't do any indexing, but just emit the
-                                   list of index patterns that would be used
-           dump_templates        - Dump the templates that would be used
-           index_tool_data       - Index tool data only
-           re_index              - Consider tar balls marked for re-indexing
-       All exceptions are caught and logged to syslog with the stacktrace of
-       the exception in a sub-object of the logged JSON document.
+    The caller is required to pass the "options" argument with the following
+    expected attributes:
+        cfg_name              - Name of the configuration file to use
+        dump_index_patterns   - Don't do any indexing, but just emit the
+                                list of index patterns that would be used
+        dump_templates        - Dump the templates that would be used
+        index_tool_data       - Index tool data only
+        re_index              - Consider tar balls marked for re-indexing
+    All exceptions are caught and logged to syslog with the stacktrace of
+    the exception in a sub-object of the logged JSON document.
 
-       Status codes used by es_index and the error below are defined from the
-       list below to maintain compatibility with the previous code base when
-       pbench-index was a bash script and invoked index-pbench (yes, a bit
-       confusing), the predecessor to this program.  The codes were used to
-       sort the errors we encountered processing tar balls in to categories
-       of retry or not:
+    Status codes used by es_index and the error below are defined from the
+    list below to maintain compatibility with the previous code base when
+    pbench-index was a bash script and invoked index-pbench (yes, a bit
+    confusing), the predecessor to this program.  The codes were used to
+    sort the errors we encountered processing tar balls in to categories
+    of retry or not:
 
-            0 - normal, successful exit, no errors
-            1 - Operational error while indexing
-            2 - Configuration file not specified
-            3 - Bad configuration file
-            4 - Tar ball does not contain a metadata.log file
-            5 - Bad start run date value encountered
-            6 - File Not Found error
-            7 - Bad metadata.log file encountered
-            8 - Error reading a mapping file for Elasticsearch templates
-            9 - Error creating one of the Elasticsearch templates
-           10 - Bad hostname in a sosreport
-           11 - Failure unpacking the tar ball
-           12 - generic error, needs to be investigated and can be retried
-                after any indexing bugs are fixed.
+         0 - normal, successful exit, no errors
+         1 - Operational error while indexing
+         2 - Configuration file not specified
+         3 - Bad configuration file
+         4 - Tar ball does not contain a metadata.log file
+         5 - Bad start run date value encountered
+         6 - File Not Found error
+         7 - Bad metadata.log file encountered
+         8 - Error reading a mapping file for Elasticsearch templates
+         9 - Error creating one of the Elasticsearch templates
+        10 - Bad hostname in a sosreport
+        11 - Failure unpacking the tar ball
+        12 - generic error, needs to be investigated and can be retried
+             after any indexing bugs are fixed.
 
-       Return Values (now a sub-set of the original status codes above):
-         0 - Successfully processed all tar balls (errors processing tar
-             balls are reported in the logs and in index status reports)
-         1 - Failed to process one or more tar balls for unknown reasons
-             (see logs)
-         2 - Missing configuration file
-         3 - Invalid configuration file
-         8 - Unable to load and process expected mapping files
-         9 - Unable to update index templates in configured Elasticsearch
-             instance
+    Return Values (now a sub-set of the original status codes above):
+      0 - Successfully processed all tar balls (errors processing tar
+          balls are reported in the logs and in index status reports)
+      1 - Failed to process one or more tar balls for unknown reasons
+          (see logs)
+      2 - Missing configuration file
+      3 - Invalid configuration file
+      8 - Unable to load and process expected mapping files
+      9 - Unable to update index templates in configured Elasticsearch
+          instance
     """
     _name_suf = "-tool-data" if options.index_tool_data else ""
     _name_re = "-re" if options.re_index else ""
@@ -290,9 +289,10 @@ def main(options, name):
                 # Sanity check source tar ball path
                 linksrc_dir = os.path.dirname(tb)
                 linksrc_dirname = os.path.basename(linksrc_dir)
-                assert linksrc_dirname == linksrc, (
-                    "Logic bomb!  tar ball "
-                    "path {} does not contain {}".format(tb, linksrc)
+                assert (
+                    linksrc_dirname == linksrc
+                ), "Logic bomb!  tar ball " "path {} does not contain {}".format(
+                    tb, linksrc
                 )
 
                 idxctx.logger.info("Starting {} (size {:d})", tb, size)

@@ -33,7 +33,8 @@ tb_pat = re.compile(tb_pat_r)
 def main(options):
     if not options.tb_path:
         print(
-            f"{_NAME_}: ERROR: No tar ball path specified", file=sys.stderr,
+            f"{_NAME_}: ERROR: No tar ball path specified",
+            file=sys.stderr,
         )
         return 2
     tb_path = os.path.realpath(options.tb_path)

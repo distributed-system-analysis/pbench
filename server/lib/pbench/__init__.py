@@ -196,7 +196,7 @@ class BadConfig(Exception):
 
 class PbenchConfig(object):
     """A simple class to wrap a ConfigParser object using the configtools
-       style of multiple configuration files.
+    style of multiple configuration files.
     """
 
     def __init__(self, cfg_name):

@@ -67,9 +67,10 @@ class _MockPutTemplate(object):
             print("Template: ", name)
             body = self.mock_collected_templates[name]
             for name, mapping in body["mappings"].items():
-                assert name not in self.mock_mappings, (
-                    "Duplicate mapping name encountered:"
-                    " {} ({!r})".format(name, self.mock_mappings.keys())
+                assert (
+                    name not in self.mock_mappings
+                ), "Duplicate mapping name encountered:" " {} ({!r})".format(
+                    name, self.mock_mappings.keys()
                 )
                 self.mock_mappings[name] = mapping
         sys.stdout.flush()

@@ -486,8 +486,7 @@ class PbenchTemplates(object):
         sys.stdout.flush()
 
     def update_templates(self, es, target_name=None):
-        """Push the various Elasticsearch index templates required by pbench.
-        """
+        """Push the various Elasticsearch index templates required by pbench."""
         if target_name is not None:
             idxname = self.index_patterns[target_name]["idxname"]
         else:
@@ -1192,12 +1191,14 @@ class ResultData(PbenchData):
                     return None
                 if ubm_driver["start_ts_col"] not in cols:
                     idxctx.logger.error(
-                        "Logic bomb! bad ubm driver start_ts_col ({})", ptb._tbctx,
+                        "Logic bomb! bad ubm driver start_ts_col ({})",
+                        ptb._tbctx,
                     )
                     return None
                 if ubm_driver["end_ts_col"] and (ubm_driver["end_ts_col"] not in cols):
                     idxctx.logger.error(
-                        "Logic bomb! bad ubm driver end_ts_col ({})", ptb._tbctx,
+                        "Logic bomb! bad ubm driver end_ts_col ({})",
+                        ptb._tbctx,
                     )
                     return None
                 for bm_md_col in ubm_driver["benchmark_md_cols"]:
@@ -1694,8 +1695,7 @@ class ResultData(PbenchData):
         return
 
     def _handle_iteration(self, iter_data, iter_name, iter_number, result_json):
-        """Generate source documents for iteration data.
-        """
+        """Generate source documents for iteration data."""
         # There should always be a 'parameters' element with 'benchmark'
         # array element inside it.  There is no reason for this to be an
         # array, but it is: we just pick the 0^th (and only element) as
@@ -2061,9 +2061,13 @@ class ResultData(PbenchData):
                             del res["date"]
                             ts = cvt_ts(orig_ts)
                             if prev_ts is not None:
-                                assert prev_ts <= ts, (
-                                    "prev_ts (%r, %r) > ts (%r, %r)"
-                                    % (prev_ts, prev_orig_ts, ts, orig_ts)
+                                assert (
+                                    prev_ts <= ts
+                                ), "prev_ts (%r, %r) > ts (%r, %r)" % (
+                                    prev_ts,
+                                    prev_orig_ts,
+                                    ts,
+                                    orig_ts,
                                 )
                             prev_orig_ts = orig_ts
                             prev_ts = ts
@@ -2507,7 +2511,10 @@ class ToolData(PbenchData):
             iterseqno = -1
         itername = iteration
 
-        self.iteration_metadata = _dict_const(name=itername, number=iterseqno,)
+        self.iteration_metadata = _dict_const(
+            name=itername,
+            number=iterseqno,
+        )
         self.sample_metadata = _dict_const(name=sample, hostname=host)
 
         try:
@@ -2824,9 +2831,13 @@ class ToolData(PbenchData):
             # string.
             ts_val = self.mk_abs_timestamp_millis(first)
             if prev_ts_val is not None:
-                assert prev_ts_val <= ts_val, (
-                    "prev_ts_val (%r, %r) > first (%r, %r)"
-                    % (prev_ts_val, prev_first, ts_val, first)
+                assert (
+                    prev_ts_val <= ts_val
+                ), "prev_ts_val (%r, %r) > first (%r, %r)" % (
+                    prev_ts_val,
+                    prev_first,
+                    ts_val,
+                    first,
                 )
             prev_first = first
             prev_ts_val = ts_val
@@ -2935,9 +2946,13 @@ class ToolData(PbenchData):
                     if col == 0:
                         ts_val = self.mk_abs_timestamp_millis(val)
                         if prev_ts_val is not None:
-                            assert prev_ts_val <= ts_val, (
-                                "prev_ts_val (%r, %r) > ts_val (%r, %r)"
-                                % (prev_ts_val, prev_val, ts_val, val)
+                            assert (
+                                prev_ts_val <= ts_val
+                            ), "prev_ts_val (%r, %r) > ts_val (%r, %r)" % (
+                                prev_ts_val,
+                                prev_val,
+                                ts_val,
+                                val,
                             )
                         prev_val = val
                         prev_ts_val = ts_val
@@ -3281,16 +3296,16 @@ class ToolData(PbenchData):
 
     def _make_source_json(self):
         """Process JSON files in the form of an outer JSON array of ready to
-           source documents.  It is expected that each source document has an
-           "@timestamp" field as either an ISO format string,
-           "YYYY-mm-ddTHH:MM:SS.ssssss", or as a unix seconds since the epoch
-           floating point timestamp value.
+        source documents.  It is expected that each source document has an
+        "@timestamp" field as either an ISO format string,
+        "YYYY-mm-ddTHH:MM:SS.ssssss", or as a unix seconds since the epoch
+        floating point timestamp value.
 
-           Any JSON document missing an "@timestamp" field is ignored.  Each
-           JSON document will have its "@timestamp" field validated that it
-           lands within the start/end run time frame.  The source JSON that
-           will be indexed into Elasticsearch will convert the "@timetamp"
-           value to millis since the epoch.
+        Any JSON document missing an "@timestamp" field is ignored.  Each
+        JSON document will have its "@timestamp" field validated that it
+        lands within the start/end run time frame.  The source JSON that
+        will be indexed into Elasticsearch will convert the "@timetamp"
+        value to millis since the epoch.
         """
         for df in self.files:
             try:
@@ -4126,8 +4141,7 @@ class PbenchTarBall(object):
         return iter_objs
 
     def get_samples(self, iteration):
-        """Get the list of Sample objects for a given iteration object.
-        """
+        """Get the list of Sample objects for a given iteration object."""
         samples = []
         for member in self.members:
             if not member.isdir():
@@ -4595,8 +4609,7 @@ class PbenchTarBall(object):
         return
 
     def mk_tool_data_actions(self):
-        """Generate all the tool data actions from the entire run hierarchy.
-        """
+        """Generate all the tool data actions from the entire run hierarchy."""
         self.idxctx.logger.debug("start")
         count = 0
         for td in self.mk_tool_data():
@@ -4633,8 +4646,7 @@ class PbenchTarBall(object):
         return
 
     def mk_result_data_actions(self):
-        """Generate all the result data actions.
-        """
+        """Generate all the result data actions."""
         self.idxctx.logger.debug("start")
         rd = ResultData(self)
         if not rd:

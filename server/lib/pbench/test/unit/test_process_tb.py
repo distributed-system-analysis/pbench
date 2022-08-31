@@ -37,7 +37,7 @@ class TestProcessTb:
 
     def test_get_receive_dir_failed(self, monkeypatch, logger):
         def mock_is_dir(self) -> bool:
-            assert False, f"Unexpected call to mocked Path.is_dir()"
+            assert False, "Unexpected call to mocked Path.is_dir()"
 
         expected_error_msg = "Failed: No value for config option pbench-receive-dir-prefix in section pbench-server"
         mappings = {

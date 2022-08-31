@@ -99,7 +99,7 @@ def parse_args(options=[], usage=None):
 
 def parse_range(s):
     """s is of the form <prefix>[<range>]<suffix>.
-       Parse and return the three components separately.
+    Parse and return the three components separately.
     """
     pos = s.find("[")
     rpos = s.find("]")
@@ -120,8 +120,8 @@ def parse_range(s):
 
 def expand_range(s):
     """Expand a range `foo[N-M]bar' or 'foo[1, 2, 3]bar' or 'foo[a, b, c]bar'
-       into a list - no multiple ranges or nesting allowed.
-       Always return a list, maybe a singleton if no expansion is necessary.
+    into a list - no multiple ranges or nesting allowed.
+    Always return a list, maybe a singleton if no expansion is necessary.
     """
     prefix, suffix, rng = parse_range(s)
     if not rng:
