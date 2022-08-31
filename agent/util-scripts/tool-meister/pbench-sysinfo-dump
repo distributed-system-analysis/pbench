@@ -163,28 +163,6 @@ function collect_sos {
 	fi
 }
 
-function collect_ara {
-	# collect data only when ara is installed
-	if python -c "import ara" &> /dev/null; then
-		ara_pb="${install_dir}/ansible/ara/ara.yml"
-		if [[ ! -d "${install_dir}" || ! -f ${ara_pb} ]]; then
-			printf -- "ERROR: ara playbook not found, '%s'\n" "${ara_pb}" >&2
-			return 1
-		fi
-
-		mkdir ${dir}/ara
-
-		# generate inventory file with controller and remotes
-		INVENTORY=${dir}/ara/inventory
-		generate_inventory > ${INVENTORY}
-
-		ansible-playbook -i ${INVENTORY} --extra-vars '{"SYSINFO_DIR":"'${dir}'"}' "${ara_pb}"
-		printf -- "done collection ara data\n"
-	else
-		printf -- "skipping, ara python module not installed\n"
-	fi
-}
-
 function collect_insights {
 	mkdir ${dir}/insights-client
 	script -c 'insights-client --offline --logging-file ${dir}/insights-client/output.log' /dev/null | sed -n 's/.*\sat\s//p' | tr -d "$'\r" | xargs -I '{}' mv {} ${dir}/insights-client
@@ -197,7 +175,7 @@ function collect_insights {
 
 for item in ${sysinfo//,/ }; do
 	case ${item} in
-	kernel_config|security_mitigations|libvirt|topology|sos|block|ara|insights)
+	kernel_config|security_mitigations|libvirt|topology|sos|block|insights)
 		printf -- "collecting %s\n" "${item}"
 		if [[ "${mode}" == "parallel" ]]; then
 			collect_${item} &

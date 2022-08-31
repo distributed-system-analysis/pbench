@@ -299,8 +299,6 @@ install-tool-scripts: install-destdir
 
 install-ansible: install-destdir
 	${INSTALL} ${INSTALLOPTS} ${ANSIBLEDIR}
-	cd ansible; \
-	    ${COPY} ara ${ANSIBLEDIR}
 
 clean:
 	rm -rf ${DESTDIR}

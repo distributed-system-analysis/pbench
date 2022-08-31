@@ -57,10 +57,6 @@ The tarball contains system configuration and diagnostic information collected b
 
 The data is collected using [pbench-sysinfo-dump#L91](https://github.com/distributed-system-analysis/pbench/blob/main/agent/util-scripts/tool-meister/pbench-sysinfo-dump#L91). The script uses `sosreport` command with different plugins to get the required system information. The resulting tarball contains a number of files copied from the system as well as the output of several commands executed on the system.
 
-## ara
-
-This specific file is not in the scope of my internship because ara works with `python2` and Fedora 30, which is installed on my system, works with `python3` only.
-
 ## insights tarball
 
 The tarball contains system information gathered by the [insights-client](https://github.com/RedHatInsights/insights-client).
