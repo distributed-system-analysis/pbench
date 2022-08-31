@@ -1,5 +1,11 @@
 ---
 # Install pbench.repo
+- name: Assert pbench_repo_name is defined
+  assert:
+    that:
+      - pbench_repo_name is defined
+    fail_msg: "Please specify the COPR repository name to use in the `pbench_repo_name` variable"
+
 - name: ensure we have the pbench.repo file properly in place
   ansible.builtin.template:
     src: etc/yum.repos.d/pbench.repo.j2
