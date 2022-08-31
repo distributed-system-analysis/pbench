@@ -140,8 +140,6 @@ class Login(Resource):
     Pbench API for User Login or generating an auth token
     """
 
-    TOKEN_EXPIRY_KEYS = {"seconds", "minutes", "hours", "days", "weeks"}
-
     def __init__(self, config, logger, auth):
         self.server_config = config
         self.logger = logger
@@ -160,7 +158,6 @@ class Login(Resource):
         {
             "username": "username",
             "password": "password",
-            "token_expiry": {"days": 7}
         }
 
         Required headers include
@@ -195,28 +192,6 @@ class Login(Resource):
             self.logger.warning("Password not provided during the login process")
             abort(HTTPStatus.BAD_REQUEST, message="Please provide a valid password")
 
-        token_expiry = post_data.get("token_expiry")
-        if not token_expiry:
-            token_expiry = {"minutes": int(self.token_expire_duration)}
-        elif type(token_expiry) is not dict:
-            abort(
-                HTTPStatus.BAD_REQUEST,
-                message=(
-                    f"Invalid token expiry: expected a JSON object, "
-                    f"got a {type(token_expiry)}"
-                ),
-            )
-        elif set(token_expiry.keys()) - self.TOKEN_EXPIRY_KEYS:
-            bad_keys = sorted(set(token_expiry.keys()) - self.TOKEN_EXPIRY_KEYS)
-            msg = (
-                f"Invalid token expiry key{'s' if len(bad_keys) > 1 else ''}: "
-                f"found {bad_keys}; expected one of {sorted(self.TOKEN_EXPIRY_KEYS)}"
-            )
-            self.logger.warning(msg)
-            abort(HTTPStatus.BAD_REQUEST, message=msg)
-        else:
-            token_expiry = {k: int(v) for k, v in token_expiry.items()}
-
         try:
             # fetch the user data
             user = User.query(username=username)
@@ -237,7 +212,8 @@ class Login(Resource):
 
         try:
             auth_token = self.auth.encode_auth_token(
-                time_delta=timedelta(**token_expiry), user_id=user.id
+                time_delta=timedelta(**{"minutes": int(self.token_expire_duration)}),
+                user_id=user.id,
             )
         except (
             jwt.InvalidIssuer,
