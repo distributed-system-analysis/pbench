@@ -45,6 +45,7 @@ URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${COPR_USER}
 # the final repo name would be "pbench-test".
 TEST =
 _TEST_SUFFIX = $(if $(TEST),-$(TEST),"")
+_PBENCH_REPO_NAME = pbench${_TEST_SUFFIX}
 
 # By default we use the pbench Quay.io organization for the image
 # repository.  You can override this default using an environment
@@ -284,7 +285,7 @@ $(foreach tagtype,${_TAG_TYPES},$(eval $(call _TAG_RULE,${tagtype})))  # Define 
 
 # Build the tags file for the given distribution. (We rename "centos" to "epel".)
 %-tags.lis:
-	./gen-tags-from-rpm "${URL_PREFIX}" "$(subst centos,epel,$*)" "${_ARCH}" "${_TEST_SUFFIX}" > ${@}
+	./gen-tags-from-rpm "${URL_PREFIX}" "$(subst centos,epel,$*)" "${_ARCH}" "${_PBENCH_REPO_NAME}" > ${@}
 
 # This file takes a long time to generate, so preserve it between builds (it can
 # be removed explicitly via the `clean` target).
@@ -329,7 +330,7 @@ all-tags: pkgmgr-clean $(_DEFAULT_DISTROS:%=%-tags.lis)
 	jinja2 ${_PBENCH_REPO_TEMPLATE} $*-pbench.yml -o $@
 
 %-pbench.yml: repo.yml.j2
-	jinja2 repo.yml.j2 -D test_suffix=${_TEST_SUFFIX} -D user=${COPR_USER} \
+	jinja2 repo.yml.j2 -D name=${_PBENCH_REPO_NAME} -D user=${COPR_USER} \
         -D distro=$(if $(filter centos,${DIST_NAME}),$(subst centos,epel,$*),$*) \
         -D url_prefix=${URL_PREFIX} -o $@
 
