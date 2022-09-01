@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
-from pbench.server.api.resources import APIAbort
+from pbench.server.api.resources import API_METHOD, APIAbort
 from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,
@@ -16,18 +16,19 @@ class TestSamplesNamespace(Commons):
     Unit testing for SamplesNamespace class.
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
-    constructor and `post` service.
+    constructor and `get` service.
     """
 
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
             cls_obj=SampleNamespace(client.config, client.logger),
-            pbench_endpoint="/datasets/namespace/iterations",
+            pbench_endpoint="/datasets/namespace/random_md5_string1/iterations",
             elastic_endpoint="/_search",
-            payload={"name": "random_md5_string1"},
             index_from_metadata="result-data-sample",
         )
+
+    api_method = API_METHOD.GET
 
     def test_with_no_index_document(
         self, client, server_config, pbench_token, attach_dataset
@@ -49,10 +50,9 @@ class TestSamplesNamespace(Commons):
         timeseries (result-data) documents
         """
         incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-1]) + "/test"
-        response = client.post(
+        response = client.get(
             f"{server_config.rest_uri}{incorrect_endpoint}",
             headers={"Authorization": "Bearer " + pbench_token},
-            json=self.payload,
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
 
@@ -351,6 +351,7 @@ class TestSamplesNamespace(Commons):
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
+            request_method=self.api_method,
         )
         if expected_status == HTTPStatus.OK:
             res_json = response.json
@@ -406,9 +407,9 @@ class TestSampleValues(Commons):
     def _setup(self, client):
         super()._setup(
             cls_obj=SampleValues(client.config, client.logger),
-            pbench_endpoint="/datasets/values/iterations",
+            pbench_endpoint="/datasets/values/random_md5_string1/iterations",
             elastic_endpoint="/_search",
-            payload={"name": "random_md5_string1"},
+            payload={},
             index_from_metadata="result-data-sample",
         )
 

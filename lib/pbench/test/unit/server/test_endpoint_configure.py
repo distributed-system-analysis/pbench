@@ -100,8 +100,11 @@ class TestEndpointConfig:
                     "params": {"dataset": {"type": "string"}},
                 },
                 "datasets_namespace": {
-                    "template": f"{uri}/datasets/namespace/{{dataset_view}}",
-                    "params": {"dataset_view": {"type": "string"}},
+                    "template": f"{uri}/datasets/namespace/{{dataset}}/{{dataset_view}}",
+                    "params": {
+                        "dataset": {"type": "string"},
+                        "dataset_view": {"type": "string"},
+                    },
                 },
                 "datasets_publish": {
                     "template": f"{uri}/datasets/publish/{{dataset}}",
@@ -109,8 +112,11 @@ class TestEndpointConfig:
                 },
                 "datasets_search": {"template": f"{uri}/datasets/search", "params": {}},
                 "datasets_values": {
-                    "template": f"{uri}/datasets/values/{{dataset_view}}",
-                    "params": {"dataset_view": {"type": "string"}},
+                    "template": f"{uri}/datasets/values/{{dataset}}/{{dataset_view}}",
+                    "params": {
+                        "dataset": {"type": "string"},
+                        "dataset_view": {"type": "string"},
+                    },
                 },
                 "elasticsearch": {"template": f"{uri}/elasticsearch", "params": {}},
                 "endpoints": {"template": f"{uri}/endpoints", "params": {}},

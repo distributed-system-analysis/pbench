@@ -35,17 +35,17 @@ class SampleNamespace(IndexMapBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.POST,
+                API_METHOD.GET,
                 API_OPERATION.READ,
                 uri_schema=Schema(
+                    Parameter("dataset", ParamType.DATASET, required=True),
                     Parameter(
                         "dataset_view",
                         ParamType.KEYWORD,
                         required=True,
                         keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
-                    )
+                    ),
                 ),
-                body_schema=Schema(Parameter("name", ParamType.DATASET, required=True)),
                 authorization=API_AUTHORIZATION.DATASET,
             ),
         )
@@ -67,7 +67,7 @@ class SampleNamespace(IndexMapBase):
         }
         """
         dataset: Dataset = context["dataset"]
-        document = self.ES_INTERNAL_INDEX_NAMES[params.uri["dataset_view"]]
+        document = self.ES_INTERNAL_INDEX_NAMES[params.uri.get("dataset_view")]
 
         document_index = document["index"]
 
@@ -197,16 +197,16 @@ class SampleValues(IndexMapBase):
                 API_METHOD.POST,
                 API_OPERATION.READ,
                 uri_schema=Schema(
+                    Parameter("dataset", ParamType.DATASET, required=True),
                     Parameter(
                         "dataset_view",
                         ParamType.KEYWORD,
                         required=True,
                         keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
-                    )
+                    ),
                 ),
                 body_schema=Schema(
                     Parameter("filters", ParamType.JSON, required=False),
-                    Parameter("name", ParamType.DATASET, required=True),
                     Parameter("scroll_id", ParamType.STRING, required=False),
                 ),
                 authorization=API_AUTHORIZATION.DATASET,
