@@ -234,8 +234,8 @@ class OpenIDClient:
         Args:
             method: The API HTTP method
             path: Path for the request.
-            data: Json data to send with the request in case of the POST or PUT
-            kwargs: Params dict to send with GET request
+            data: Json data to send with the request in case of the POST
+            kwargs: Additional keyword args
         Returns:
             Response from the request.
         """
@@ -261,7 +261,7 @@ class OpenIDClient:
             )
         except Exception as exc:
             self.logger.exception(
-                "{} request failed for OIDC client {}", method, self.__repr__()
+                "{} request failed for OIDC client {!r}", method, self
             )
             raise OpenIDClientError(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -274,7 +274,7 @@ class OpenIDClient:
         a given path.
         Args:
             path: Path for the request.
-            kwargs: Params dict to send with GET request
+            kwargs: Additional keyword args
         Returns:
             Response from the request.
         """
@@ -287,7 +287,7 @@ class OpenIDClient:
         Args:
             path: Path for the request.
             data: JSON request body
-            kwargs: Params dict to send with POST request
+            kwargs: Additional keyword args
         Returns:
             Response from the request.
         """

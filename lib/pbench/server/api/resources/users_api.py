@@ -212,7 +212,7 @@ class Login(Resource):
 
         try:
             auth_token = self.auth.encode_auth_token(
-                time_delta=timedelta(**{"minutes": int(self.token_expire_duration)}),
+                time_delta=timedelta(minutes=int(self.token_expire_duration)),
                 user_id=user.id,
             )
         except (
