@@ -52,11 +52,8 @@ class DatasetsContents(IndexMapBase):
             context: propagate the dataset and the "target" directory value.
         """
         # Copy target directory metadata to CONTEXT for postprocessor
-        get_target = params.uri.get("target")
-
-        k = "/" if get_target is None else f"/{get_target}"
-
-        target = context["target"] = k
+        target = "/" + params.uri.get("target", "")
+        context["target"] = target
 
         dataset = context["dataset"]
 

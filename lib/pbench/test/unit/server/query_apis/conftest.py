@@ -6,7 +6,6 @@ import requests
 import responses
 
 
-
 @pytest.fixture
 @responses.activate
 def query_api(client, server_config, provide_metadata):
