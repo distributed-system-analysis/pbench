@@ -2,11 +2,12 @@ from http import HTTPStatus
 
 import pytest
 
+from pbench.server.api.resources import API_METHOD
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
     DatasetsContents,
 )
 from pbench.server.database.models.datasets import Dataset
-from pbench.test.unit.server.query_apis.commons_get import Commons
+from pbench.test.unit.server.query_apis.commons import Commons
 
 
 class TestDatasetsContents(Commons):
@@ -24,6 +25,7 @@ class TestDatasetsContents(Commons):
             pbench_endpoint="/datasets/contents/random_md5_string1/1-default",
             elastic_endpoint="/_search",
             index_from_metadata="run-toc",
+            api_method=API_METHOD.GET,
         )
 
     def test_with_no_index_document(self, client, server_config):

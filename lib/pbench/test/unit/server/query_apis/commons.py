@@ -45,6 +45,7 @@ class Commons:
         error_payload: JSON = None,
         empty_es_response_payload: JSON = None,
         index_from_metadata: AnyStr = None,
+        api_method: AnyStr = API_METHOD.POST,
     ):
         self.cls_obj = cls_obj
         self.pbench_endpoint = pbench_endpoint
@@ -54,6 +55,7 @@ class Commons:
         self.error_payload = error_payload
         self.empty_es_response_payload = empty_es_response_payload
         self.index_from_metadata = index_from_metadata
+        self.api_method = api_method
 
     def build_index(self, server_config, dates):
         """
@@ -128,6 +130,24 @@ class Commons:
             expected_status = HTTPStatus.OK
         return expected_status
 
+    def make_request_call(
+        self, client, url, header: JSON, json: JSON = None, data=None
+    ):
+        if self.api_method == API_METHOD.GET:
+            return client.get(
+                url,
+                headers=header,
+                json=json,
+                data=data,
+            )
+        elif self.api_method == API_METHOD.POST:
+            return client.post(
+                url,
+                headers=header,
+                json=json,
+                data=data,
+            )
+
     @pytest.mark.parametrize(
         "malformed_token",
         ("malformed", "bear token" "Bearer malformed"),
@@ -150,10 +170,11 @@ class Commons:
         fails because we're asking for {"access": "private"} data, which is not
         allowed for an unauthenticated client call.
         """
-        response = client.post(
+        response = self.make_request_call(
+            client,
             server_config.rest_uri + self.pbench_endpoint,
-            headers={"Authorization": malformed_token},
-            json=self.payload,
+            {"Authorization": malformed_token},
+            self.payload,
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
 
@@ -164,15 +185,16 @@ class Commons:
         # The pbench_token fixture logs in as user "drb"
         # Trying to access the data belong to the user "pp"
         user = self.cls_obj.schemas.get_param_by_type(
-            API_METHOD.POST, ParamType.USER, None
+            self.api_method, ParamType.USER, None
         )
         if not user:
             pytest.skip("skipping " + self.test_bad_user_name.__name__)
         self.payload[user.parameter.name] = "pp"
-        response = client.post(
+        response = self.make_request_call(
+            client,
             server_config.rest_uri + self.pbench_endpoint,
-            headers={"Authorization": "Bearer " + pbench_token},
-            json=self.payload,
+            {"Authorization": "Bearer " + pbench_token},
+            self.payload,
         )
         assert response.status_code == HTTPStatus.NOT_FOUND
 
@@ -196,23 +218,25 @@ class Commons:
         redirect to a login page.
         """
         userp = self.cls_obj.schemas.get_param_by_type(
-            API_METHOD.POST, ParamType.USER, None
+            self.api_method, ParamType.USER, None
         )
         if not userp:
             pytest.skip(
                 "skipping " + self.test_accessing_user_data_with_invalid_token.__name__
             )
         # valid token logout
-        response = client.post(
+        response = self.make_request_call(
+            client,
             server_config.rest_uri + "/logout",
-            headers={"Authorization": "Bearer " + pbench_token},
+            {"Authorization": "Bearer " + pbench_token},
         )
         assert response.status_code == HTTPStatus.OK
         self.payload[userp.parameter.name] = user
-        response = client.post(
+        response = self.make_request_call(
+            client,
             server_config.rest_uri + self.pbench_endpoint,
-            headers={"Authorization": "Bearer " + pbench_token},
-            json=self.payload,
+            {"Authorization": "Bearer " + pbench_token},
+            self.payload,
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
 
@@ -222,7 +246,7 @@ class Commons:
         """
         with pytest.raises(SchemaError) as exc:
             self.cls_obj.schemas.validate(
-                API_METHOD.POST, ApiParams(uri=None, query=None, body={})
+                self.api_method, ApiParams(uri=None, query=None, body={})
             )
         assert str(exc.value).startswith("Missing required parameters: ")
 
@@ -230,9 +254,10 @@ class Commons:
         """
         Test behavior when payload is not valid JSON
         """
-        response = client.post(
+        response = self.make_request_call(
+            client,
             server_config.rest_uri + self.pbench_endpoint,
-            headers={
+            {
                 "Authorization": "Bearer " + pbench_token,
                 "Content-Type": "application/json",
             },
@@ -253,10 +278,11 @@ class Commons:
         """
 
         def missing_key_helper(keys):
-            response = client.post(
+            response = self.make_request_call(
+                client,
                 server_config.rest_uri + self.pbench_endpoint,
-                headers={"Authorization": "Bearer " + pbench_token},
-                json=keys,
+                {"Authorization": "Bearer " + pbench_token},
+                keys,
             )
             assert response.status_code == HTTPStatus.BAD_REQUEST
             missing = sorted(set(required_keys) - set(keys))
@@ -265,9 +291,14 @@ class Commons:
                 == f"Missing required parameters: {','.join(missing)}"
             )
 
-        parameter_items = self.cls_obj.schemas[
-            API_METHOD.POST
-        ].body_schema.parameters.items()
+        if self.api_method == API_METHOD.GET:
+            parameter_items = self.cls_obj.schemas[
+                self.api_method
+            ].uri_schema.parameters.items()
+        elif self.api_method == API_METHOD.POST:
+            parameter_items = self.cls_obj.schemas[
+                self.api_method
+            ].body_schema.parameters.items()
 
         required_keys = [
             key for key, parameter in parameter_items if parameter.required
@@ -290,28 +321,37 @@ class Commons:
                 else:
                     keys[key] = "foobar"
 
-            missing_key_helper(keys)
+            if self.api_method == API_METHOD.POST:
+                missing_key_helper(keys)
 
         # Test in case all of the required keys are missing and some
         # random non-existent key is present in the payload
-        if required_keys:
+        if required_keys and self.api_method == API_METHOD.POST:
             missing_key_helper({"notakey": None})
 
     def test_bad_dates(self, client, server_config, pbench_token):
         """
         Test behavior when a bad date string is given
         """
-        for key, p in self.cls_obj.schemas[
-            API_METHOD.POST
-        ].body_schema.parameters.items():
+        if self.api_method == API_METHOD.GET:
+            parameter_items = self.cls_obj.schemas[
+                self.api_method
+            ].uri_schema.parameters.items()
+        elif self.api_method == API_METHOD.POST:
+            parameter_items = self.cls_obj.schemas[
+                self.api_method
+            ].body_schema.parameters.items()
+
+        for key, p in parameter_items:
             # Modify date/time key in the payload to make it look invalid
             if p.type == ParamType.DATE and key in self.payload:
                 original_date_value = self.payload[key]
                 self.payload[key] = "2020-19"
-                response = client.post(
+                response = self.make_request_call(
+                    client,
                     server_config.rest_uri + self.pbench_endpoint,
-                    headers={"Authorization": "Bearer " + pbench_token},
-                    json=self.payload,
+                    {"Authorization": "Bearer " + pbench_token},
+                    self.payload,
                 )
                 assert response.status_code == HTTPStatus.BAD_REQUEST
                 assert (
@@ -379,6 +419,7 @@ class Commons:
         self,
         server_config,
         query_api,
+        query_api_get,
         exceptions,
         find_template,
         pbench_token,
@@ -398,21 +439,32 @@ class Commons:
                 self.date_range(self.payload["start"], self.payload["end"]),
             )
 
-        query_api(
-            self.pbench_endpoint,
-            self.elastic_endpoint,
-            self.payload,
-            index,
-            exceptions["status"],
-            body=exceptions["exception"],
-            headers={"Authorization": "Bearer " + pbench_token},
-        )
+        if self.api_method == API_METHOD.GET:
+            query_api_get(
+                self.pbench_endpoint,
+                self.elastic_endpoint,
+                index,
+                exceptions["status"],
+                body=exceptions["exception"],
+                headers={"Authorization": "Bearer " + pbench_token},
+            )
+        elif self.api_method == API_METHOD.POST:
+            query_api(
+                self.pbench_endpoint,
+                self.elastic_endpoint,
+                self.payload,
+                index,
+                exceptions["status"],
+                body=exceptions["exception"],
+                headers={"Authorization": "Bearer " + pbench_token},
+            )
 
     @pytest.mark.parametrize("errors", (400, 500, 409))
     def test_http_error(
         self,
         server_config,
         query_api,
+        query_api_get,
         find_template,
         pbench_token,
         provide_metadata,
@@ -433,12 +485,22 @@ class Commons:
                 self.date_range(self.payload["start"], self.payload["end"]),
             )
 
-        query_api(
-            self.pbench_endpoint,
-            self.elastic_endpoint,
-            self.payload,
-            index,
-            HTTPStatus.BAD_GATEWAY,
-            status=errors,
-            headers={"Authorization": "Bearer " + pbench_token},
-        )
+        if self.api_method == API_METHOD.GET:
+            query_api_get(
+                self.pbench_endpoint,
+                self.elastic_endpoint,
+                index,
+                HTTPStatus.BAD_GATEWAY,
+                status=errors,
+                headers={"Authorization": "Bearer " + pbench_token},
+            )
+        elif self.api_method == API_METHOD.POST:
+            query_api(
+                self.pbench_endpoint,
+                self.elastic_endpoint,
+                self.payload,
+                index,
+                HTTPStatus.BAD_GATEWAY,
+                status=errors,
+                headers={"Authorization": "Bearer " + pbench_token},
+            )
