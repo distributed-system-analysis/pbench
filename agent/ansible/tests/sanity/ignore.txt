@@ -1,0 +1,7 @@
+bin/check-readmes compile-3.8!skip
+bin/check-readmes compile-3.9!skip
+bin/check-readmes compile-3.10!skip
+bin/check-readmes pep8!skip
+bin/check-readmes pylint!skip
+bin/check-readmes shebang!skip
+bin/yamlconf shebang!skip

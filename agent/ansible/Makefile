@@ -29,5 +29,5 @@ publish: clean build
 	ansible-galaxy collection publish -vvv -s "${apiserver}"  --api-key "${apikey}" ${tb}
 
 clean:
-	sudo rm -rf collections
+	rm -rf collections
 	rm -f ${tb} ${namespace}-${collection}-*.tar.gz
