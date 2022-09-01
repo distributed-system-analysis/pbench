@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import sys
-import os
 import logging
+import os
+import sys
 
 PROG = os.path.basename(sys.argv[0])
 try:
@@ -43,9 +43,9 @@ else:
     else:
         clear_counters = False
 
-import subprocess  # noqa E402
 import errno  # noqa E402
-from time import time, sleep  # noqa E402
+import subprocess  # noqa E402
+from time import sleep, time  # noqa E402
 
 # FIXME: haproxy router namespace, "default"
 _router_namespace = "default"
@@ -349,8 +349,8 @@ else:
     signal.signal(signal.SIGQUIT, handler)
     signal.signal(signal.SIGINT, handler)
 
-import math  # noqa E402
 from datetime import datetime  # noqa E402
+import math  # noqa E402
 
 # Initial timestamp and next interval calcultion
 time_stamp = time()

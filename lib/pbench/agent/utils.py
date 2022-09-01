@@ -1,3 +1,4 @@
+from datetime import datetime
 import ipaddress
 import logging
 import os
@@ -8,7 +9,6 @@ import sys
 import time
 from typing import Dict, List, NamedTuple
 
-from datetime import datetime
 import ifaddr
 
 from pbench.agent.constants import (

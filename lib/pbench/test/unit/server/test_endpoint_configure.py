@@ -59,6 +59,7 @@ class TestEndpointConfig:
                 "login": f"{uri}/login",
                 "logout": f"{uri}/logout",
                 "register": f"{uri}/register",
+                "server_configuration": f"{uri}/server/configuration",
                 "upload": f"{uri}/upload",
                 "user": f"{uri}/user",
             },
@@ -83,8 +84,11 @@ class TestEndpointConfig:
                     "params": {"dataset": {"type": "string"}},
                 },
                 "datasets_inventory": {
-                    "template": f"{uri}/datasets/inventory/{{dataset}}/{{path}}",
-                    "params": {"dataset": {"type": "string"}, "path": {"type": "path"}},
+                    "template": f"{uri}/datasets/inventory/{{dataset}}/{{target}}",
+                    "params": {
+                        "dataset": {"type": "string"},
+                        "target": {"type": "path"},
+                    },
                 },
                 "datasets_list": {"template": f"{uri}/datasets/list", "params": {}},
                 "datasets_mappings": {
@@ -114,6 +118,10 @@ class TestEndpointConfig:
                 "login": {"template": f"{uri}/login", "params": {}},
                 "logout": {"template": f"{uri}/logout", "params": {}},
                 "register": {"template": f"{uri}/register", "params": {}},
+                "server_configuration": {
+                    "template": f"{uri}/server/configuration/{{key}}",
+                    "params": {"key": {"type": "string"}},
+                },
                 "upload": {
                     "template": f"{uri}/upload/{{filename}}",
                     "params": {"filename": {"type": "string"}},

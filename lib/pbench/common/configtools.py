@@ -1,12 +1,11 @@
 """ Configtools """
 from __future__ import print_function
 
-import os
-import sys
-
 # python3
 from configparser import ConfigParser
-from optparse import OptionParser, make_option
+from optparse import make_option, OptionParser
+import os
+import sys
 
 
 def uniq(alist):

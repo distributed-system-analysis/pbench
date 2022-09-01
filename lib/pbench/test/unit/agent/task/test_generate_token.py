@@ -1,5 +1,6 @@
-from click.testing import CliRunner
 from http import HTTPStatus
+
+from click.testing import CliRunner
 import requests
 import responses
 

@@ -21,7 +21,7 @@ use List::Util qw(max);
 use Data::Dumper;
 use JSON;
 use PbenchBase qw(get_hostname);
-our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success stockpile_hosts yum_install_hosts);
+our @EXPORT_OK = qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts remove_files_from_hosts remove_dir_from_hosts create_dir_hosts sync_dir_from_hosts verify_success yum_install_hosts);
 
 my $script = "PbenchAnsible.pm";
 my $sub;
@@ -79,21 +79,6 @@ sub build_inventory { # create an inventory file with hosts
 	close $fh;
 	return $file;
 }
-sub build_stockpile_inventory { # create an inventory file with hosts
-	my $hosts_ref = shift;
-	my $logdir = shift;
-	my $file = $logdir . "/hosts";
-	my $fh;
-	open($fh, ">", $file) or die "Could not create the inventory file $file";
-	print $fh "[all]\n";
-	for my $h (@$hosts_ref) {
-		print $fh "$h\n";
-	}
-	print $fh "[stockpile]\n";
-	printf $fh "%s\n", get_hostname;
-	close $fh;
-	return $file;
-}
 sub build_playbook { # create the playbok file
 	my $playbook_ref = shift;
 	my $logdir = shift;
@@ -142,23 +127,6 @@ sub ping_hosts { # check for connectivity with ping
 		printf "Ansible log dir: %s\n", $logdir;
 		exit 1;
 	}
-}
-sub stockpile_hosts { # run stockpile against these hosts
-	my $hosts_ref = shift; # array-reference to host list, with the first host being the 'stockpile' host
-	my $basedir = shift;
-	my $extra_vars = shift;
-	my $logdir = get_ansible_logdir($basedir, "stockpile_hosts");
-	system('cp -a /tmp/stockpile/* ' . $logdir);
-	my $inv_file = build_stockpile_inventory($hosts_ref, $logdir);
-	my %play;
-	my @playbook;
-	my @roles1 = qw(cpu_vulnerabilities yum_repos);
-	my %play1 = ( "hosts" => "all", "remote_user" => "root", "become" => JSON::true, "roles" => \@roles1);
-	push(@playbook, \%play1);
-	my @roles2 = qw(dump-facts);
-	my %play2 = ( "hosts" => "stockpile", "gather_facts" => JSON::false, "remote_user" => "root", "roles" => \@roles2);
-	push(@playbook, \%play2);
-	return run_playbook(\@playbook, $inv_file, $logdir, $extra_vars);
 }
 sub yum_install_hosts { # verify/install these packages on hosts
 	my $hosts_ref = shift; # array-reference to hosts

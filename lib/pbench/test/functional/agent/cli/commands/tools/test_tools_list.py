@@ -1,6 +1,5 @@
 import pytest
 
-
 EMPTY = b""
 USAGE = b"Usage: pbench-list-tools [OPTIONS]"
 TRACEBACK = b"Traceback (most recent call last):\n"

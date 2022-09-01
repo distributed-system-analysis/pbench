@@ -1,8 +1,8 @@
 import datetime
 import logging
 
-import responses
 from click.testing import CliRunner
+import responses
 
 from pbench.cli.agent.commands.results.move import main
 from pbench.test.unit.agent.task.common import MockDatetime

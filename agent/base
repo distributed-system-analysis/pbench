@@ -250,11 +250,7 @@ function verify_common_bench_script_options {
 function generate_inventory {
     local component="${1}"
     local preamble=""
-    if [[ ${component} == "stockpile" ]]; then
-        preamble="[stockpile]\n%s\n\n[all]\n"
-    else
-        preamble="[controller]\n%s\n\n[remote]\n"
-    fi
+    preamble="[controller]\n%s\n\n[remote]\n"
     printf -- ${preamble} "${_pbench_full_hostname}"
     for dirent in $(/bin/ls -1 ${tool_group_dir}); do
         if [[ "${dirent}" == "__trigger__" ]]; then

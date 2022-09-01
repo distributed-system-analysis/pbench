@@ -6,12 +6,12 @@ from pbench.server.api.resources import (
     API_AUTHORIZATION,
     API_METHOD,
     API_OPERATION,
-    JSON,
     ApiParams,
     ApiSchema,
-    Schema,
+    JSON,
     Parameter,
     ParamType,
+    Schema,
 )
 from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase

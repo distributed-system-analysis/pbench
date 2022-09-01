@@ -16,9 +16,9 @@ from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources.datasets_daterange import DatasetsDateRange
+from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
-from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.server.api.resources.graphql_api import GraphQL
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
@@ -36,6 +36,7 @@ from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetai
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
+from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
 from pbench.server.database import init_db
@@ -100,7 +101,9 @@ def register_endpoints(api, app, config):
     )
     api.add_resource(
         DatasetsInventory,
-        f"{base_uri}/datasets/inventory/<string:dataset>/<path:path>",
+        f"{base_uri}/datasets/inventory/<string:dataset>",
+        f"{base_uri}/datasets/inventory/<string:dataset>/",
+        f"{base_uri}/datasets/inventory/<string:dataset>/<path:target>",
         endpoint="datasets_inventory",
         resource_class_args=(config, logger),
     )
@@ -164,6 +167,14 @@ def register_endpoints(api, app, config):
         RegisterUser,
         f"{base_uri}/register",
         endpoint="register",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        ServerConfiguration,
+        f"{base_uri}/server/configuration",
+        f"{base_uri}/server/configuration/",
+        f"{base_uri}/server/configuration/<string:key>",
+        endpoint="server_configuration",
         resource_class_args=(config, logger),
     )
     api.add_resource(

@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import logging
 import os
 from pathlib import Path
@@ -5,12 +6,10 @@ from pathlib import Path
 import pytest
 import responses
 
-from http import HTTPStatus
-
 from pbench.agent import PbenchAgentConfig
 from pbench.agent.results import CopyResultTb
 from pbench.common.logger import get_pbench_logger
-from pbench.test.unit.agent.task.common import tarball, bad_tarball
+from pbench.test.unit.agent.task.common import bad_tarball, tarball
 
 
 class TestCopyResults:

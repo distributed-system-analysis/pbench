@@ -1,8 +1,9 @@
 import sys
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
+
 from pbench.server import NoOptionError, NoSectionError
 
 
@@ -30,6 +31,7 @@ class Database:
         # database models to find
         if logger and not hasattr(Database.Base, "logger"):
             Database.Base.logger = logger
+        if server_config and not hasattr(Database.Base, "server_config"):
             Database.Base.config = server_config
 
         # WARNING:

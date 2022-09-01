@@ -19,8 +19,8 @@ else:
         sys.exit(1)
 
 try:
-    from ansible.parsing.dataloader import DataLoader
     from ansible.inventory.manager import InventoryManager
+    from ansible.parsing.dataloader import DataLoader
 except ImportError as exc:
     logging.error(
         "[%s]: required Ansible python3 modules not available, '%s'", PROG, exc

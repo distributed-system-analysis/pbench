@@ -3,13 +3,13 @@ import datetime
 import hashlib
 from http import HTTPStatus
 import os
-import uuid
 from pathlib import Path
 from posix import stat_result
 import shutil
 from stat import ST_MTIME
 import tarfile
 from typing import Dict
+import uuid
 
 from email_validator import EmailNotValidError, ValidatedEmail
 from freezegun import freeze_time
@@ -19,7 +19,7 @@ from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 from pbench.test import on_disk_config
@@ -314,6 +314,7 @@ def attach_dataset(create_drb_user, create_user):
             owner="drb",
             created=datetime.datetime(2020, 2, 15),
             uploaded=datetime.datetime(2022, 1, 1),
+            state=States.INDEXED,
             name="drb",
             access="private",
             resource_id="random_md5_string1",
@@ -321,6 +322,7 @@ def attach_dataset(create_drb_user, create_user):
         Dataset(
             owner="test",
             created=datetime.datetime(2002, 5, 16),
+            state=States.INDEXED,
             name="test",
             access="private",
             resource_id="random_md5_string2",
@@ -355,6 +357,7 @@ def more_datasets(
             owner="drb",
             created=datetime.datetime(2020, 2, 15),
             uploaded=datetime.datetime(2022, 1, 1),
+            state=States.INDEXED,
             name="fio_1",
             access="public",
             resource_id="random_md5_string3",
@@ -362,6 +365,7 @@ def more_datasets(
         Dataset(
             owner="test",
             created=datetime.datetime(2002, 5, 16),
+            state=States.INDEXED,
             name="fio_2",
             access="public",
             resource_id="random_md5_string4",
@@ -380,7 +384,7 @@ def provide_metadata(attach_dataset):
     confusion.)
     """
     drb = Dataset.query(name="drb")
-    Metadata.setvalue(dataset=drb, key="dashboard.contact", value="me@example.com")
+    Metadata.setvalue(dataset=drb, key="global.contact", value="me@example.com")
     Metadata.setvalue(
         dataset=drb, key=Metadata.DELETION, value="2022-12-25 00:00-04:00"
     )
@@ -408,7 +412,7 @@ def provide_metadata(attach_dataset):
     )
 
     test = Dataset.query(name="test")
-    Metadata.setvalue(dataset=test, key="dashboard.contact", value="you@example.com")
+    Metadata.setvalue(dataset=test, key="global.contact", value="you@example.com")
     Metadata.setvalue(
         dataset=test, key=Metadata.DELETION, value="1979-11-01T00:00+00:00"
     )

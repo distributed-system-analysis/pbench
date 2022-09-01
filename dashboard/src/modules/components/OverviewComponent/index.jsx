@@ -1,6 +1,14 @@
 import "./index.less";
 
-import { Grid, GridItem } from "@patternfly/react-core";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionToggle,
+  Card,
+  Grid,
+  GridItem,
+} from "@patternfly/react-core";
 import {
   Heading,
   NewRunsHeading,
@@ -11,12 +19,16 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import NewRunsComponent from "./NewRunsComponent";
+import SavedRunsComponent from "./SavedRunsComponent";
 import { getDatasets } from "actions/overviewActions";
 
 const OverviewComponent = () => {
   const dispatch = useDispatch();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { loginDetails } = useSelector((state) => state.userAuth);
+  const [expanded, setExpanded] = React.useState(
+    new Set(["expired", "newRuns"])
+  );
 
   useEffect(() => {
     if (Object.keys(endpoints).length > 0) {
@@ -24,35 +36,60 @@ const OverviewComponent = () => {
     }
   }, [dispatch, endpoints, loginDetails]);
 
+  const onToggle = (id) => {
+    if (expanded.has(id)) {
+      expanded.delete(id);
+    } else {
+      expanded.add(id);
+    }
+    setExpanded(new Set(expanded));
+  };
+  const isExpandedClass = expanded.size === 0 ? "not-expanded" : "";
   return (
     <div className="overview-container">
       <Heading title="Overview" />
-      <Grid hasGutter>
-        <GridItem
-          className="bordered expiring-container"
-          span={4}
-          rowSpan={6}
-          lgRowSpan={6}
-          xlRowSpan={7}
-        >
-          <Heading title="Expiring soon" />
-          <NoExpiringRuns />
-        </GridItem>
-        <GridItem
-          className="bordered new-runs-container"
-          span={8}
-          rowSpan={6}
-          lgRowSpan={6}
-          xlRowSpan={7}
-        >
-          <NewRunsHeading />
-          <NewRunsComponent />
-        </GridItem>
-      </Grid>
+      <Accordion isBordered>
+        <Grid hasGutter>
+          <GridItem span={4}>
+            <AccordionItem>
+              <AccordionToggle
+                onClick={() => {
+                  onToggle("expired");
+                }}
+                isExpanded={expanded.has("expired")}
+                id="expired"
+              >
+                Expiring soon
+              </AccordionToggle>
+              <AccordionContent isHidden={!expanded.has("expired")}>
+                <NoExpiringRuns />
+              </AccordionContent>
+            </AccordionItem>
+          </GridItem>
+          <GridItem span={8} className="new-runs-container ">
+            <AccordionItem>
+              <AccordionToggle
+                onClick={() => {
+                  onToggle("newRuns");
+                }}
+                isExpanded={expanded.has("newRuns")}
+                id="newRuns"
+              >
+                New and Unmanaged
+              </AccordionToggle>
+              <AccordionContent isHidden={!expanded.has("newRuns")}>
+                <NewRunsHeading />
+                <NewRunsComponent />
+              </AccordionContent>
+            </AccordionItem>
+          </GridItem>
+        </Grid>
+      </Accordion>
       <Separator />
-      <div className="bordered saved-runs-container">
+      <Card className={`bordered saved-runs-container ${isExpandedClass}`}>
         <Heading title="Saved Runs" />
-      </div>
+        <SavedRunsComponent />
+      </Card>
     </div>
   );
 };

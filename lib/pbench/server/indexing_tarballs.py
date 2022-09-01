@@ -1,35 +1,30 @@
 """Initialising Indexing class"""
 
+from collections import deque
 import glob
 import os
+from pathlib import Path
 import signal
 import tempfile
 
-from collections import deque
-from pathlib import Path
-
 from pbench.common.exceptions import (
     BadDate,
-    UnsupportedTarballFormat,
     BadMDLogFormat,
     TemplateError,
+    UnsupportedTarballFormat,
 )
 from pbench.server import tstos
 from pbench.server.database.models.datasets import (
     Dataset,
-    States,
-    Metadata,
     DatasetError,
     DatasetNotFound,
     DatasetTransitionError,
+    Metadata,
+    States,
 )
-from pbench.server.indexer import (
-    PbenchTarBall,
-    es_index,
-    VERSION,
-)
+from pbench.server.indexer import es_index, PbenchTarBall, VERSION
 from pbench.server.report import Report
-from pbench.server.utils import get_tarball_md5, rename_tb_link, quarantine
+from pbench.server.utils import get_tarball_md5, quarantine, rename_tb_link
 
 
 class SigIntException(Exception):

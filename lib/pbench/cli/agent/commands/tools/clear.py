@@ -8,9 +8,9 @@ Specifying a tool name and/or remote host will limit the scope of the removal.
 
 import pathlib
 import shutil
+from typing import Dict, Tuple
 
 import click
-from typing import Dict, Tuple
 
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand

@@ -1,9 +1,9 @@
 """Test PbenchConfig class and objects
 """
-import pytest
-
 from configparser import ConfigParser, NoOptionError, NoSectionError
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+import pytest
 
 from pbench import PbenchConfig
 from pbench.common import configtools

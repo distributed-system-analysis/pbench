@@ -1,5 +1,6 @@
 import datetime
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 
 from pbench.server.database.database import Database
 

@@ -3,9 +3,8 @@ from logging import Logger
 from pathlib import Path
 import re
 import shutil
-from typing import Dict, Optional, Union
-
 import tarfile
+from typing import Dict, Optional, Union
 
 from pbench.common import selinux
 from pbench.server import JSONOBJECT, PbenchServerConfig

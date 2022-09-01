@@ -1,9 +1,9 @@
 """Common test support functions."""
 import json
-
-from filelock import FileLock
 from pathlib import Path
 from typing import Callable, Dict
+
+from filelock import FileLock
 
 
 def on_disk_config(

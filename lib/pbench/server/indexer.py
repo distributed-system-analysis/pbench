@@ -2,40 +2,41 @@
 result tar balls.
 """
 
+from collections import Counter, OrderedDict
 import configparser
 import csv
+from datetime import datetime, timedelta
+import errno
 import hashlib
 import json
 import logging
 import math
+from operator import itemgetter
 import os
+from random import SystemRandom
 import re
 import socket
 import tarfile
-import errno
-from collections import Counter, OrderedDict
-from datetime import datetime, timedelta
-from operator import itemgetter
-from random import SystemRandom
 from time import sleep as _sleep
 
 from urllib3 import Timeout
+
+from pbench.common import MetadataLog
+from pbench.common.exceptions import (
+    BadDate,
+    BadIterationName,
+    BadMDLogFormat,
+    BadSampleName,
+    ConfigFileError,
+    UnsupportedTarballFormat,
+)
+import pbench.server
+from pbench.server.templates import PbenchTemplates
 
 # We import the entire pbench module so that mocking time works by changing
 # the _time binding in the pbench module for unit tests via the
 # PbenchServerConfig constructor's execution.
 
-from pbench.common import MetadataLog
-from pbench.common.exceptions import (
-    BadDate,
-    ConfigFileError,
-    BadMDLogFormat,
-    UnsupportedTarballFormat,
-    BadIterationName,
-    BadSampleName,
-)
-from pbench.server.templates import PbenchTemplates
-import pbench.server
 
 try:
     from elasticsearch import Elasticsearch, VERSION

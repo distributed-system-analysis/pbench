@@ -8,7 +8,7 @@ import time
 import ifaddr
 import pytest
 
-from pbench.agent.utils import BaseServer, BaseReturnCode, LocalRemoteHost
+from pbench.agent.utils import BaseReturnCode, BaseServer, LocalRemoteHost
 
 
 class OurServer(BaseServer):
@@ -98,12 +98,6 @@ class TestBaseServer:
             bs.kill(1)
 
         pidfile = tmp_path / "test.pid"
-
-        bs = OurServer("localhost", "localhost")
-        pidfile.write_text("12345")
-        bs.pid_file = pidfile
-        ret = bs.kill(42)
-        assert ret == 42
 
         bs = OurServer("localhost", "localhost")
         bs.pid_file = pidfile

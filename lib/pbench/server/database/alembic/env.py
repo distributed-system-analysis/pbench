@@ -20,15 +20,15 @@ Examples:
    alembic upgrade head     # upgrade database to the latest
    alembic downgrade base   # downgrade to the original tracked state
 """
-import sys
 import logging
+import sys
 
 from alembic import context
 from sqlalchemy import create_engine
 
-from pbench.server.database.database import Database
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api import get_server_config
+from pbench.server.database.database import Database
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

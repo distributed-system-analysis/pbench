@@ -1,8 +1,8 @@
 from http import HTTPStatus
 from logging import Logger
-from typing import AnyStr, Union, List
+from typing import AnyStr, List, Union
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
     API_AUTHORIZATION,
     APIAbort,
@@ -11,13 +11,8 @@ from pbench.server.api.resources import (
     ParamType,
     SchemaError,
 )
-
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
-from pbench.server.database.models.datasets import (
-    Dataset,
-    Metadata,
-    MetadataError,
-)
+from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
 from pbench.server.database.models.template import Template
 
 

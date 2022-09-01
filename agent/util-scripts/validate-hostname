@@ -9,7 +9,6 @@ import sys
 
 from pbench.common.utils import validate_hostname
 
-
 try:
     host_name = sys.argv[1]
 except IndexError:

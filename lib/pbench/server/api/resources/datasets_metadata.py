@@ -10,13 +10,14 @@ from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
     API_AUTHORIZATION,
     API_METHOD,
-    APIAbort,
     API_OPERATION,
+    APIAbort,
+    ApiAuthorization,
     ApiBase,
     ApiParams,
     ApiSchema,
-    ParamType,
     Parameter,
+    ParamType,
     Schema,
 )
 from pbench.server.database.models.datasets import (
@@ -81,7 +82,7 @@ class DatasetsMetadata(ApiBase):
             params: API parameters
             request: The original Request object containing query parameters
 
-        GET /api/v1/datasets/metadata?name=dname&metadata=dashboard.seen,server.deletion
+        GET /api/v1/datasets/metadata?name=dname&metadata=global.seen,server.deletion
         """
 
         dataset = params.uri["dataset"]
@@ -102,7 +103,7 @@ class DatasetsMetadata(ApiBase):
         {
             "name": "datasetname",
             "metadata": [
-                "dashboard.seen": True,
+                "global.seen": True,
                 "user": {"favorite": True}
             ]
         }
@@ -116,7 +117,7 @@ class DatasetsMetadata(ApiBase):
         e.g., for the above query,
 
         [
-            "dashboard.seen": True,
+            "global.seen": True,
             "user": {"favorite": False}
         ]
         """
@@ -148,7 +149,14 @@ class DatasetsMetadata(ApiBase):
             for k in metadata.keys():
                 if Metadata.get_native_key(k) != Metadata.USER:
                     role = API_OPERATION.UPDATE
-        self._check_authorization(str(dataset.owner_id), dataset.access, role)
+        self._check_authorization(
+            ApiAuthorization(
+                API_AUTHORIZATION.USER_ACCESS,
+                role,
+                str(dataset.owner_id),
+                dataset.access,
+            )
+        )
 
         # Validate the metadata key values in a separate pass so that we can
         # fail before committing any changes to the database.

@@ -2,14 +2,13 @@
 Utility functions common to both agent and server.
 """
 from collections import deque
+from functools import partial
 import hashlib
 import ipaddress
 from logging import Logger
 from pathlib import Path
 import re
 from typing import Callable, Deque, NamedTuple, Union
-
-from functools import partial
 
 
 class Md5Result(NamedTuple):

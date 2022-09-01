@@ -6,9 +6,7 @@ import math
 import os
 import subprocess
 import sys
-
 from time import sleep, time
-
 
 PROG = os.path.basename(sys.argv[0])
 try:

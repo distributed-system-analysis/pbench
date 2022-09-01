@@ -37,9 +37,10 @@
 #      11->Graham's number ...
 
 from __future__ import print_function
-from pathlib import Path
+
 import argparse
 import math
+from pathlib import Path
 import re
 import subprocess
 import sys

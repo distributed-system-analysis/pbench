@@ -262,7 +262,7 @@ wait_keypress 120
 printf -- "\n
 You can also now run a live metrics visualizer for the Prometheus & PCP data
 
-    $ podman run --network host -d --rm --name pbench-viz quay.io/pbench/live-metric-visualizer
+    $ podman run --network host -d --rm --name pbench-viz quay.io/distributed-systems-analysis/live-metric-visualizer
     
 If done, open a browser to watch live metrics at: %s\n\n" "http://$(hostname -f):3000/"
 

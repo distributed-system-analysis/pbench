@@ -15,17 +15,18 @@ python3 -m pip install --user -r lint-requirements.txt
 GITTOP=$(git rev-parse --show-toplevel 2>&1 | head -n 1)
 if [[ ${GITTOP} =~ "fatal: unsafe repository ('/home/root/pbench'" ]] ; then
 	git config --global --add safe.directory /home/root/pbench
-	git config --global --add safe.directory /home/root/pbench/agent/stockpile
 	GITTOP=$(git rev-parse --show-toplevel)
 fi
 
 # Install the Dashboard dependencies, including the linter's dependencies and
-# the unit test dependencies.
-( cd dashboard && npm install )
+# the unit test dependencies.  First, remove any existing Node modules and
+# package-lock.json to ensure that we install the latest.
+( cd dashboard && rm -rf node_modules package-lock.json && npm install )
 
 # Test for code style and lint
 black --check .
 flake8 .
+isort --check .
 ( cd dashboard && npx eslint "src/**" --max-warnings 0 )
 
 # Run unit tests

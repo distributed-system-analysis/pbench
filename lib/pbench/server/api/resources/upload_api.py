@@ -4,9 +4,9 @@ import hashlib
 from http import HTTPStatus
 import os
 
-import humanize
 from flask import jsonify, request
 from flask_restful import abort, Resource
+import humanize
 
 from pbench.common.utils import Cleanup, validate_hostname
 from pbench.server.api.auth import Auth
@@ -17,8 +17,9 @@ from pbench.server.database.models.datasets import (
     Metadata,
     States,
 )
+from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.filetree import FileTree
-from pbench.server.utils import UtcTimeHelper, filesize_bytes
+from pbench.server.utils import filesize_bytes, UtcTimeHelper
 
 
 class CleanupTime(Exception):
@@ -59,6 +60,9 @@ class Upload(Resource):
 
     @Auth.token_auth.login_required()
     def put(self, filename: str):
+        disabled = ServerConfig.get_disabled()
+        if disabled:
+            abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
 
         # Used to record what steps have been completed during the upload, and
         # need to be undone on failure

@@ -1,6 +1,7 @@
 import datetime
 from pathlib import Path
-from sqlalchemy import Column, Integer, String, event
+
+from sqlalchemy import Column, event, Integer, String
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.sql.sqltypes import DateTime, JSON
 

@@ -14,16 +14,16 @@ from flask import jsonify
 from flask.wrappers import Response
 import requests
 
-from pbench.server import PbenchServerConfig, JSON
+from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
     API_AUTHORIZATION,
     API_METHOD,
     APIAbort,
     ApiBase,
+    ApiParams,
     ApiSchema,
     ParamType,
-    ApiParams,
     SchemaError,
     UnauthorizedAccess,
 )

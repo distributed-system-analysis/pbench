@@ -85,11 +85,12 @@ else:
     go_cmd = "go"
 
 
+from datetime import datetime  # noqa E402
+import errno  # noqa E402
+
 # The Operation class using subprocess internally.
 import math  # noqa E402
-import errno  # noqa E402
-from time import time, sleep  # noqa E402
-from datetime import datetime  # noqa E402
+from time import sleep, time  # noqa E402
 
 
 class Operation:

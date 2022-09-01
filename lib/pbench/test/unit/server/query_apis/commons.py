@@ -1,12 +1,13 @@
-import itertools
 from http import HTTPStatus
+import itertools
 from typing import AnyStr
 
-import pytest
-import requests
 from dateutil import parser as date_parser
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
+import pytest
+import requests
+
 from pbench.server import JSON
 from pbench.server.api.resources import API_METHOD, ApiParams, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase

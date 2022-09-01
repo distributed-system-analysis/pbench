@@ -1,11 +1,11 @@
 import collections
 import datetime
+from logging import Logger
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import urllib.parse
-from logging import Logger
-from pathlib import Path
 
 import requests
 
@@ -13,7 +13,6 @@ from pbench.agent import PbenchAgentConfig
 from pbench.common import MetadataLog
 from pbench.common.exceptions import BadMDLogFormat
 from pbench.common.utils import md5sum, validate_hostname
-
 
 TarballRecord = collections.namedtuple("TarballRecord", ["name", "length", "md5"])
 

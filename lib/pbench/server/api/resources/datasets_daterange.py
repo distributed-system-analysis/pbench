@@ -1,6 +1,7 @@
+from logging import Logger
+
 from flask.json import jsonify
 from flask.wrappers import Request, Response
-from logging import Logger
 from sqlalchemy import func
 
 from pbench.server import PbenchServerConfig

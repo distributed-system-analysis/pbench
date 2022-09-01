@@ -23,19 +23,24 @@ based on the owner's retention policy and the server administrator's retention
 policy along with some other internal management context. The expected deletion
 date is accessible under the `server` metadata key namespace.
 
-Clients can also set arbitrary metadata through the "dashboard" and "user"
+Clients can also set arbitrary metadata through the "global" and "user"
 metadata namespaces:
-* The "dashboard" namespace can only be modified by the owner of the dataset,
+* The "global" namespace can only be modified by the owner of the dataset,
 and is visible to anyone with read access to the dataset.
 * The "user" namespace is private to each authenticated user, and even if you
 don't own a dataset you can set your own private "user" metadata to help you
 categorize that dataset and to find it again.
 
 Metadata namespaces are hierarchical, and are exposed as nested JSON objects.
-You can address an entire namespace, e.g., `dashboard` or `dataset` and
+You can address an entire namespace, e.g., `global` or `dataset` and
 retrieve the entire JSON object, or you can address nested objects or values
-using a dotted metadata key path like `dashboard.contact.email` or
+using a dotted metadata key path like `global.contact.email` or
 `dataset.metalog.pbench.script`.
+
+By convention, a Pbench Server client should create a sub-namespace to minimize
+the risk of key collisions within the `global` and `user` namespaces. The
+Pbench Dashboard client, for example, uses `global.dashboard.seen` and
+`user.dashboard.favorite`.
 
 For example, given the following hypothetical `user` JSON value:
 
@@ -58,11 +63,11 @@ would return the entire JSON value. In addition:
 There are currently four metadata namespaces.
 
 * The `dataset` and `server` namespaces are defined and managed by Pbench.
-* The `dashboard` namespace allows an authenticated client to define an
+* The `global` namespace allows an authenticated client to define an
 arbitrary nested set of JSON objects associated with a specific dataset
 owned by the authenticated user.
-* The `user` namespace is similar to `dashboard` in structure. The difference
-is that where metadata in the `dashboard` namespace can only be modified by the
+* The `user` namespace is similar to `global` in structure. The difference
+is that where metadata in the `global` namespace can only be modified by the
 owner of the dataset and is visible to all clients with read access to the
 dataset, any authenticated user can set arbitrary values in the `user`
 namespace and those values are visible only to the user who set them. Other
@@ -99,13 +104,19 @@ received based on user profile preferences and server configuration; but it can
 be modified by the owner of the dataset, as long as the new timestamp remains
 within the maximum allowed server data retention period.
 
-### Dashboard namespace
+### Global namespace
 
 The server will never modify or directly interpret values in this namespace. An
 authenticated client representing the owner of a dataset can set any keys
 within this namespace to any valid JSON values (string, number, boolean, list,
 or nested objects) for retrieval later. All clients with read access to the
 dataset will see the same values.
+
+The recommended best practice is to select a project sub-key that will be unique
+and minimize the risk of collisions between various clients. The Pbench Dashboard
+project, for example, will store all client metadata under the `global.dashboard`
+sub-namespace, for example `global.dashboard.seen`. A hypothetical client named
+"clienta" might use `global.clienta`, for example `global.clienta.configuration`.
 
 __NOTE__: The server will in the future be able to use these values to filter
 the selected datasets for [datasets/list](V1/list.md).
@@ -125,6 +136,12 @@ dataset. Any authenticated client has UPDATE and DELETE access to this private
 sub-resource as long as the client has READ access to the dataset. See
 [Access model](./access_model.md) for general information about the Pbench
 Server access controls.
+
+The recommended best practice is to select a project sub-key that will be unique
+to minimize the risk of collisions between various clients. The Pbench Dashboard
+project, for example, will store all client metadata under the `user.dashboard`
+sub-namespace, for example `user.dashboard.favorite`. A hypothetical client
+named "clienta" might use `user.clienta`, for example `user.clienta.configuration`.
 
 An unauthenticated client can neither set nor retrieve any `user` namespace
 values; such a client will always see the `user` namespace as empty.

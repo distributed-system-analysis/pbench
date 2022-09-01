@@ -4,15 +4,15 @@ from sqlalchemy import or_
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import (
     Dataset,
+    DatasetBadParameterType,
     DatasetNotFound,
     Metadata,
-    DatasetBadParameterType,
+    MetadataBadKey,
     MetadataBadStructure,
     MetadataBadValue,
-    MetadataNotFound,
-    MetadataBadKey,
-    MetadataMissingKeyValue,
     MetadataDuplicateKey,
+    MetadataMissingKeyValue,
+    MetadataNotFound,
 )
 from pbench.server.database.models.users import User
 
@@ -23,19 +23,19 @@ class TestGetSetMetadata:
         # See if we can create a metadata row
         ds = Dataset.query(name="drb")
         assert ds.metadatas == []
-        m = Metadata.create(key="dashboard", value=True, dataset=ds)
+        m = Metadata.create(key="global", value=True, dataset=ds)
         assert m is not None
         assert ds.metadatas == [m]
 
         # Try to get it back
-        m1 = Metadata.get(ds, "dashboard")
+        m1 = Metadata.get(ds, "global")
         assert m1.key == m.key
         assert m1.value == m.value
         assert m.id == m1.id
         assert m.dataset_ref == m1.dataset_ref
 
         # Check the str()
-        assert "drb(3)|drb>>dashboard" == str(m)
+        assert "drb(3)|drb>>global" == str(m)
 
         # Try to get a metadata key that doesn't exist
         with pytest.raises(MetadataNotFound) as exc:
@@ -54,33 +54,33 @@ class TestGetSetMetadata:
 
         # Try to create a key without a value
         with pytest.raises(MetadataMissingKeyValue):
-            Metadata(key="dashboard")
+            Metadata(key="global")
 
         # Try to add a duplicate metadata key
         with pytest.raises(MetadataDuplicateKey) as exc:
-            m1 = Metadata(key="dashboard", value="IRRELEVANT")
+            m1 = Metadata(key="global", value="IRRELEVANT")
             m1.add(ds)
-        assert exc.value.key == "dashboard"
+        assert exc.value.key == "global"
         assert exc.value.dataset == ds
         assert ds.metadatas == [m]
 
         # Try to add a Metadata key to something that's not a dataset
         with pytest.raises(DatasetBadParameterType) as exc:
-            m1 = Metadata(key="dashboard", value="DONTCARE")
+            m1 = Metadata(key="global", value="DONTCARE")
             m1.add("foobar")
         assert exc.value.bad_value == "foobar"
         assert exc.value.expected_type == Dataset.__name__
 
         # Try to create a Metadata with a bad value for the dataset
         with pytest.raises(DatasetBadParameterType) as exc:
-            m1 = Metadata.create(key="dashboard", value="TRUE", dataset=[ds])
+            m1 = Metadata.create(key="global", value="TRUE", dataset=[ds])
         assert exc.value.bad_value == [ds]
         assert exc.value.expected_type == Dataset.__name__
 
         # Try to update the metadata key
         m.value = "False"
         m.update()
-        m1 = Metadata.get(ds, "dashboard")
+        m1 = Metadata.get(ds, "global")
         assert m.id == m1.id
         assert m.dataset_ref == m1.dataset_ref
         assert m.key == m1.key
@@ -89,27 +89,27 @@ class TestGetSetMetadata:
         # Delete the key and make sure its gone
         m.delete()
         with pytest.raises(MetadataNotFound) as exc:
-            Metadata.get(ds, "dashboard")
+            Metadata.get(ds, "global")
         assert exc.value.dataset == ds
-        assert exc.value.key == "dashboard"
+        assert exc.value.key == "global"
         assert ds.metadatas == []
 
     def test_metadata_remove(self, attach_dataset):
         """Test that we can remove a Metadata key"""
         ds = Dataset.query(name="test")
         assert ds.metadatas == []
-        m = Metadata(key="dashboard", value="TRUE")
+        m = Metadata(key="global", value="TRUE")
         m.add(ds)
         assert ds.metadatas == [m]
 
-        Metadata.remove(ds, "dashboard")
+        Metadata.remove(ds, "global")
         assert ds.metadatas == []
         with pytest.raises(MetadataNotFound) as exc:
-            Metadata.get(ds, "dashboard")
+            Metadata.get(ds, "global")
         assert exc.value.dataset == ds
-        assert exc.value.key == "dashboard"
+        assert exc.value.key == "global"
 
-        Metadata.remove(ds, "dashboard")
+        Metadata.remove(ds, "global")
         assert ds.metadatas == []
 
 
@@ -122,7 +122,7 @@ class TestInternalMetadata:
             "created": "2020-02-15T00:00:00+00:00",
             "name": "drb",
             "owner": "drb",
-            "state": "Uploading",
+            "state": "Indexed",
             "transition": "1970-01-01T00:42:00+00:00",
             "uploaded": "2022-01-01T00:00:00+00:00",
             "metalog": {
@@ -139,7 +139,7 @@ class TestInternalMetadata:
     def test_dataset_keys(self, provide_metadata):
         ds = Dataset.query(name="drb")
         metadata = Metadata.getvalue(ds, "dataset.state")
-        assert metadata == "Uploading"
+        assert metadata == "Indexed"
         metadata = Metadata.getvalue(ds, "dataset.transition")
         assert metadata == "1970-01-01T00:42:00+00:00"
         metadata = Metadata.getvalue(ds, "dataset.metalog.run")
@@ -179,10 +179,10 @@ class TestMetadataNamespace:
     def test_get_bad_syntax(self, attach_dataset):
         ds = Dataset.query(name="drb")
         with pytest.raises(MetadataBadKey) as exc:
-            Metadata.getvalue(ds, "dashboard..foo")
+            Metadata.getvalue(ds, "global..foo")
         assert exc.type == MetadataBadKey
-        assert exc.value.key == "dashboard..foo"
-        assert str(exc.value) == "Metadata key 'dashboard..foo' is not supported"
+        assert exc.value.key == "global..foo"
+        assert str(exc.value) == "Metadata key 'global..foo' is not supported"
 
     def test_user_metadata(self, attach_dataset):
         """Various tests on user-mapped Metadata keys"""
@@ -249,55 +249,55 @@ class TestMetadataNamespace:
     def test_set_bad_syntax(self, attach_dataset):
         ds = Dataset.query(name="drb")
         with pytest.raises(MetadataBadKey) as exc:
-            Metadata.setvalue(ds, "dashboard.foo.", "irrelevant")
+            Metadata.setvalue(ds, "global.foo.", "irrelevant")
         assert exc.type == MetadataBadKey
-        assert exc.value.key == "dashboard.foo."
-        assert str(exc.value) == "Metadata key 'dashboard.foo.' is not supported"
+        assert exc.value.key == "global.foo."
+        assert str(exc.value) == "Metadata key 'global.foo.' is not supported"
 
     def test_set_bad_characters(self, attach_dataset):
         ds = Dataset.query(name="drb")
         with pytest.raises(MetadataBadKey) as exc:
-            Metadata.setvalue(ds, "dashboard.*!foo", "irrelevant")
+            Metadata.setvalue(ds, "global.*!foo", "irrelevant")
         assert exc.type == MetadataBadKey
-        assert exc.value.key == "dashboard.*!foo"
-        assert str(exc.value) == "Metadata key 'dashboard.*!foo' is not supported"
+        assert exc.value.key == "global.*!foo"
+        assert str(exc.value) == "Metadata key 'global.*!foo' is not supported"
 
     def test_get_novalue(self, attach_dataset):
         ds = Dataset.query(name="drb")
-        assert Metadata.getvalue(ds, "dashboard.email") is None
-        assert Metadata.getvalue(ds, "dashboard") is None
+        assert Metadata.getvalue(ds, "global.email") is None
+        assert Metadata.getvalue(ds, "global") is None
 
     def test_get_bad_path(self, attach_dataset):
         ds = Dataset.query(name="drb")
-        Metadata.setvalue(ds, "dashboard.contact", "hello")
+        Metadata.setvalue(ds, "global.contact", "hello")
         with pytest.raises(MetadataBadStructure) as exc:
-            Metadata.getvalue(ds, "dashboard.contact.email")
+            Metadata.getvalue(ds, "global.contact.email")
         assert exc.type == MetadataBadStructure
-        assert exc.value.key == "dashboard.contact.email"
+        assert exc.value.key == "global.contact.email"
         assert exc.value.element == "contact"
         assert (
             str(exc.value)
-            == "Key 'contact' value for 'dashboard.contact.email' in drb(3)|drb is not a JSON object"
+            == "Key 'contact' value for 'global.contact.email' in drb(3)|drb is not a JSON object"
         )
 
     def test_set_bad_path(self, attach_dataset):
         ds = Dataset.query(name="drb")
-        Metadata.setvalue(ds, "dashboard.contact", "hello")
+        Metadata.setvalue(ds, "global.contact", "hello")
         with pytest.raises(MetadataBadStructure) as exc:
-            Metadata.setvalue(ds, "dashboard.contact.email", "me@example.com")
+            Metadata.setvalue(ds, "global.contact.email", "me@example.com")
         assert exc.type == MetadataBadStructure
-        assert exc.value.key == "dashboard.contact.email"
+        assert exc.value.key == "global.contact.email"
         assert exc.value.element == "contact"
         assert (
             str(exc.value)
-            == "Key 'contact' value for 'dashboard.contact.email' in drb(3)|drb is not a JSON object"
+            == "Key 'contact' value for 'global.contact.email' in drb(3)|drb is not a JSON object"
         )
 
     def test_get_outer_path(self, attach_dataset):
         ds = Dataset.query(name="drb")
-        Metadata.setvalue(ds, "dashboard.value.hello.english", "hello")
-        Metadata.setvalue(ds, "dashboard.value.hello.espanol", "hola")
-        assert Metadata.getvalue(ds, "dashboard.value") == {
+        Metadata.setvalue(ds, "global.value.hello.english", "hello")
+        Metadata.setvalue(ds, "global.value.hello.espanol", "hola")
+        assert Metadata.getvalue(ds, "global.value") == {
             "hello": {"english": "hello", "espanol": "hola"}
         }
 
@@ -305,12 +305,12 @@ class TestMetadataNamespace:
         ds = Dataset.query(name="drb")
         Metadata.setvalue(
             ds,
-            "dashboard.contact",
+            "global.contact",
             {"email": "me@example.com", "name": {"first": "My", "last": "Name"}},
         )
-        assert Metadata.getvalue(ds, "dashboard.contact.email") == "me@example.com"
-        assert Metadata.getvalue(ds, "dashboard.contact.name.first") == "My"
-        assert Metadata.getvalue(ds, "dashboard.contact.name") == {
+        assert Metadata.getvalue(ds, "global.contact.email") == "me@example.com"
+        assert Metadata.getvalue(ds, "global.contact.name.first") == "My"
+        assert Metadata.getvalue(ds, "global.contact.name") == {
             "first": "My",
             "last": "Name",
         }
@@ -319,12 +319,12 @@ class TestMetadataNamespace:
         ds = Dataset.query(name="drb")
         Metadata.setvalue(
             ds,
-            "dashboard.contact",
+            "global.contact",
             {"email": "me@example.com", "name": {"first": "My", "last": "Name"}},
         )
-        assert Metadata.getvalue(ds, "dashboard.contact.email") == "me@example.com"
-        assert Metadata.getvalue(ds, "dashboard.contact.name.first") == "My"
-        assert Metadata.getvalue(ds, "dashboard.contact.name") == {
+        assert Metadata.getvalue(ds, "global.contact.email") == "me@example.com"
+        assert Metadata.getvalue(ds, "global.contact.name.first") == "My"
+        assert Metadata.getvalue(ds, "global.contact.name") == {
             "first": "My",
             "last": "Name",
         }

@@ -180,7 +180,7 @@ class TestDatasetsList:
             HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard', 'dataset', 'server', 'user']"
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dataset', 'global', 'server', 'user']"
         }
 
     def test_get_unknown_keys(self, query_as):

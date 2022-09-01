@@ -6,18 +6,18 @@ from flask.wrappers import Response
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
-    APIAbort,
     API_AUTHORIZATION,
     API_METHOD,
     API_OPERATION,
+    APIAbort,
     ApiBase,
     ApiParams,
     ApiSchema,
-    ParamType,
     Parameter,
+    ParamType,
     Schema,
 )
-from pbench.server.filetree import TarballNotFound, FileTree
+from pbench.server.filetree import FileTree, TarballNotFound
 
 
 class DatasetsInventory(ApiBase):
@@ -34,7 +34,7 @@ class DatasetsInventory(ApiBase):
                 API_OPERATION.READ,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True),
-                    Parameter("path", ParamType.STRING, required=True),
+                    Parameter("target", ParamType.STRING, required=False),
                 ),
                 authorization=API_AUTHORIZATION.DATASET,
             ),
@@ -45,27 +45,32 @@ class DatasetsInventory(ApiBase):
         This function returns the contents of the requested file as a byte stream.
 
         Args:
-            ApiParams includes the uri parameters, which provide the dataset and path.
+            ApiParams includes the uri parameters, which provide the dataset and target.
 
         Raises:
             APIAbort, reporting either "NOT_FOUND" or "UNSUPPORTED_MEDIA_TYPE"
 
 
-        GET /api/v1/datasets/inventory/{dataset}/{path}
+        GET /api/v1/datasets/inventory/{dataset}/{target}
         """
 
         dataset = params.uri["dataset"]
-        path = params.uri["path"]
+        target = params.uri.get("target")
 
         file_tree = FileTree(self.config, self.logger)
         try:
-            tarball = file_tree.find_dataset(dataset.name)
+            tarball = file_tree.find_dataset(dataset.resource_id)
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
-        dataset_location = tarball.unpacked
-        if dataset_location is None:
-            raise APIAbort(HTTPStatus.NOT_FOUND, "The dataset is not unpacked")
-        file_path = dataset_location / path
+
+        if target is None:
+            file_path = tarball.tarball_path
+        else:
+            dataset_location = tarball.unpacked
+            if dataset_location is None:
+                raise APIAbort(HTTPStatus.NOT_FOUND, "The dataset is not unpacked")
+            file_path = dataset_location / target
+
         if file_path.is_file():
             return send_file(file_path)
         elif file_path.exists():

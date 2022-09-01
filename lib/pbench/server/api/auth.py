@@ -1,9 +1,9 @@
 import datetime
+from http import HTTPStatus
 import os
 
 from flask import abort, request
 from flask_httpauth import HTTPTokenAuth
-from http import HTTPStatus
 import jwt
 
 from pbench.server.database.models.active_tokens import ActiveTokens

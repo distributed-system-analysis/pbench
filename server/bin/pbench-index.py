@@ -6,21 +6,17 @@ into the configured Elasticsearch instance.
 
 """
 
-import sys
-import os
-import signal
-from pathlib import Path
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
+import os
+from pathlib import Path
+import signal
+import sys
 
+from pbench.common.exceptions import BadConfig, ConfigFileError, JsonFileError
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
-from pbench.common.exceptions import (
-    BadConfig,
-    ConfigFileError,
-    JsonFileError,
-)
 from pbench.server.indexer import IdxContext
 from pbench.server.indexing_tarballs import Index, SigTermException
 

@@ -5,9 +5,7 @@ import logging
 import time
 
 import redis
-
 from redis.connection import SERVER_CLOSED_CONNECTION_ERROR
-
 
 # Maximum time to wait for the Redis server to respond.
 REDIS_MAX_WAIT = 60
