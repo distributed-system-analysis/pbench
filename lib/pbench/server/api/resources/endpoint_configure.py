@@ -8,7 +8,7 @@ from flask import jsonify, request
 from flask.globals import current_app
 from flask_restful import abort, Resource
 
-from pbench.server import PbenchServerConfig
+from pbench.server import NoOptionError, PbenchServerConfig
 
 
 class EndpointConfig(Resource):
@@ -48,12 +48,16 @@ class EndpointConfig(Resource):
         self.logger = logger
         self.uri_prefix = config.rest_uri
         self.commit_id = config.COMMIT_ID
+        self.server_config = config
 
     def get(self):
         """
         Return server configuration information required by web clients
         including the Pbench dashboard UI. This includes:
 
+        authentication: A JSON object containing the authentication parameters
+                        required for the web client to authenticate the end-user
+                        with OIDC broker.
         identification: The Pbench server name and version
         api:    A dict of the server APIs supported; we give a name, which
                 identifies the service, and the full URI relative to the
@@ -174,7 +178,23 @@ class EndpointConfig(Resource):
                     templates[path] = template
 
         try:
+            oidc_secret = self.server_config.get("authentication", "secret")
+        except NoOptionError:
+            oidc_secret = ""
+        try:
+            client = self.server_config.get("authentication", "client")
+            realm = self.server_config.get("authentication", "realm")
+            issuer = (
+                self.server_config.get("authentication", "server_url")
+            ) + f"/{realm}"
+            auth_object = {
+                "client": client,
+                "realm": realm,
+                "issuer": issuer,
+                "secret": oidc_secret,
+            }
             endpoints = {
+                "authentication": auth_object,
                 "identification": f"Pbench server {self.commit_id}",
                 "api": apis,
                 "uri": templates,

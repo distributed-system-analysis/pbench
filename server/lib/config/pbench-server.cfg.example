@@ -38,6 +38,12 @@ port = 0000
 host = graphql.example.com
 port = 0000
 
+[authentication]
+server_url = keycloak.example.com:0000
+realm = pbench
+client = pbench-dashboard
+secret = client-secret
+
 ###########################################################################
 # crontab roles
 
