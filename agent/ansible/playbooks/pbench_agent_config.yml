@@ -1,5 +1,5 @@
 ---
-- name: install pbench-agent config and key files
+- name: Install pbench-agent config and key files
   hosts: servers
   remote_user: root
 

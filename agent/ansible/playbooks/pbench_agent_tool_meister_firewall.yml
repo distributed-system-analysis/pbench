@@ -1,5 +1,5 @@
 ---
-- name: open ports for redis and tool data sink
+- name: Open ports for redis and tool data sink
   hosts: controllers
   remote_user: root
 

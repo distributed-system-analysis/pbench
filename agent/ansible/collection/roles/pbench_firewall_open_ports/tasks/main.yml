@@ -1,6 +1,6 @@
 ---
 # pbench agent configuration
-- name: "pbench agent configuration - open firewall ports for tool meister"
+- name: "Pbench agent configuration - open firewall ports for tool meister"
   ansible.posix.firewalld:
     port: "{{ item }}/tcp"
     permanent: true

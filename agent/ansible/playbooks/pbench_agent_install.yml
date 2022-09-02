@@ -1,5 +1,5 @@
 ---
-- name: install pbench-agent
+- name: Install pbench-agent
   hosts: servers
   remote_user: root
 

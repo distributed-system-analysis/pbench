@@ -30,3 +30,8 @@ An example inventory file that can be edited to suit your circumstances can be o
 The raw link for that is
 
     https://raw.githubusercontent.com/distributed-system-analysis/pbench/master/agent/ansible/Inventory/pbench_agent.hosts.example
+
+## Build Requirements
+
+    dnf install python3-ansible-lint rubygem-yaml-lint
+    ansible-galaxy collection install ansible.posix

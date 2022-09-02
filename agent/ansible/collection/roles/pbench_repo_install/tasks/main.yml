@@ -1,6 +1,6 @@
 ---
 # Install pbench.repo
-- name: ensure we have the pbench.repo file properly in place
+- name: Ensure we have the pbench.repo file properly in place
   ansible.builtin.template:
     src: etc/yum.repos.d/pbench.repo.j2
     dest: /etc/yum.repos.d/pbench.repo
