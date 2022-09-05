@@ -4,31 +4,31 @@ Pbench Dashboard is a web-based platform for consuming indexed performance bench
 
 ## Dashboard directory structure
 
-### [public](public/)
+### [`public`](public/)
 
 Contains the root application `index.html` and React template artifacts.
 
-### [server](server/)
+### [`server`](server/)
 
 The source for an NPM express server that's used in local developer mode to reflect
 the server `/api/v1/endpoints` API call to a remote server. This enables local
 debugging against a real Pbench Server.
 
-### [src](src/)
+### [`src`](src/)
 
 The Pbench Dashboard Javascript source plus additional CSS/LESS and artifacts.
 
-### [src/assets](src/assets/)
+#### [`src/assets`](src/assets/)
 
 Assets placed in the `src/assets/images` directory are only referenced within component or layout definitions and are packaged in the generated `***.js` file during the build process.
 
-### [src/modules](src/modules/)
+#### [`src/modules`](src/modules/)
 
-`modules` directory has all containers(patent layouts) and components(react components). 
+`modules` directory has all containers (patent layouts) and components (react components). 
 
-### [src/utils](src/utils/)
+#### [`src/utils`](src/utils/)
 
-`utils` directory has all helper/utility scripts.
+The `utils` directory has all helper/utility scripts.
 
 ## Setup
 
@@ -42,19 +42,19 @@ Navigate to `dashboard` directory and run following command
 	$ npm install
 	```
 
-	> NOTE:
-Create `.env` file in the root directory(`/dashboard/`) and declare the environment variable `PBENCH_SERVER`.
-This `PBENCH_SERVER` environment variable is the base URL for all API calls and it should point to a real pbench server.
-```bash
-PBENCH_SERVER=<pbench server url>
-```
+## Development and Test 
 
-4. In order to start the developement express server and run the application use the following command 
+Create a `.env` file in the root directory (`/dashboard/`) and declare the environment variable `PBENCH_SERVER`.
+This `PBENCH_SERVER` environment variable is the base URL for all API calls and it should point to a real pbench server.
+	```bash
+	PBENCH_SERVER=<pbench server url>
+	```
+
+In order to start the development express server and run the application use the following command 
 	```bash
 	$ npm run dev
 	```
 	> Note: The application runs on http://localhost:3000.
-
 
 ## Build
 
