@@ -11,12 +11,8 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import {
-  PageSectionVariants,
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@patternfly/react-core";
 import React, { useEffect, useState } from "react";
+import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core";
 import { bumpToDate, getTodayMidnightUTCDate } from "utils/dateFunctions";
 import {
   fetchPublicDatasets,
@@ -151,7 +147,7 @@ const TableWithFavorite = () => {
               redirect="auth"
             />
           )}
-          <div className="table-container" variant={PageSectionVariants.light}>
+          <div className="table-container">
             <PathBreadCrumb pathList={datasetBreadcrumb} />
             <Heading
               containerClass="publicDataPageTitle"
