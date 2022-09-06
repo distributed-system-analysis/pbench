@@ -27,13 +27,11 @@ export _testdir=${_testroot}/pbench-agent
 # Copy bench-scripts execution environment to _testroot
 export _testopt=${_testroot}/opt/pbench-agent
 res=0
-mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/driver ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib ${_testopt}/config/benchmark
+mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/driver ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib ${_testopt}/config
 let res=res+${?}
 cat ${_tdir}/../base.ut.pre ${_tdir}/../base ${_tdir}/../base.ut.post > ${_testopt}/base
 let res=res+${?}
 cp -rH ${_tdir}/../lib/* ${_testopt}/lib/
-let res=res+${?}
-cp -rH ${_tdir}/../config/benchmark/* ${_testopt}/config/benchmark/
 let res=res+${?}
 for script in ${_tdir}/pbench-* ; do
     cp $script ${_testopt}/bench-scripts/

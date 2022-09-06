@@ -59,8 +59,6 @@ cp -L ${_tdir}/../tool-scripts/datalog/*-convert ${_testopt}/tool-scripts/datalo
 let res=res+${?}
 cp -L ${_tdir}/../tool-scripts/postprocess/*-postprocess ${_testopt}/tool-scripts/postprocess/
 let res=res+${?}
-cp ${_tdir}/../tool-scripts/postprocess/*-postprocess-cdm ${_testopt}/tool-scripts/postprocess/
-let res=res+${?}
 cp -rL ${_tdir}/../lib/* ${_testopt}/lib/
 let res=res+${?}
 cp -rL ${_tdir}/test-lib/* ${_testopt}/unittest-lib/
