@@ -27,13 +27,11 @@ export _testdir=${_testroot}/pbench-agent
 # Copy bench-scripts execution environment to _testroot
 export _testopt=${_testroot}/opt/pbench-agent
 res=0
-mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/driver ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib ${_testopt}/config/benchmark
+mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/driver ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib ${_testopt}/config
 let res=res+${?}
 cat ${_tdir}/../base.ut.pre ${_tdir}/../base ${_tdir}/../base.ut.post > ${_testopt}/base
 let res=res+${?}
 cp -rH ${_tdir}/../lib/* ${_testopt}/lib/
-let res=res+${?}
-cp -rH ${_tdir}/../config/benchmark/* ${_testopt}/config/benchmark/
 let res=res+${?}
 for script in ${_tdir}/pbench-* ; do
     cp $script ${_testopt}/bench-scripts/
@@ -111,11 +109,7 @@ function _run {
         ${_real_cat} ${env_file} >> ${_testroot}/run.cmd
         printf -- "\n" >> ${_testroot}/run.cmd
     fi
-    if [[ "${tscrpt}" == "pbench-run-benchmark" ]]; then
-        local config=""
-    else
-        local config=" --config=${tname}"
-    fi
+    local config=" --config=${tname}"
     printf -- "%s%s %s\n" "${tscrpt}" "${config}" "${opts}" >> ${_testroot}/run.cmd
     chmod +x ${_testroot}/run.cmd
     ${_testroot}/run.cmd >> ${_testout} 2>&1
@@ -334,24 +328,6 @@ while read tst benchmark; do
     # Determine what the test will use for a "benchmark_run_dir"
     if [[ ${benchmark} == "pbench-user-benchmark" ]]; then
         _rundir="${benchmark}_${tst}_${_date_suffix}"
-    elif [[ ${benchmark} == "pbench-run-benchmark" ]]; then
-        # The first argument in the "opts" file determines the name
-        # that will be used for the benchmark run directory.
-        if [[ -f ${_tdir}/tests/${_tst}.opts ]]; then
-            bm_name="$(head -n 1 ${_tdir}/tests/${_tst}.opts | awk '{print $1}')"
-            if [[ "${bm_name}" != "list" ]]; then
-                bm_config="$(head -n 1 ${_tdir}/tests/${_tst}.opts | awk '{print $2}')"
-                if [[ "${bm_config%=*}" == "--user-tags" ]]; then
-                    _rundir="${bm_name}_${bm_config#*=}_${_date_suffix}"
-                else
-                    _rundir="${bm_name}__${_date_suffix}"
-                fi
-            else
-                _rundir=""
-            fi
-        else
-            _rundir=""
-        fi
     elif [[ ${benchmark%%-*} == "pbench" ]]; then
         _rundir="${bm_postfix}_${tst}_${_date_suffix}"
     else

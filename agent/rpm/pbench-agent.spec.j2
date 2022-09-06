@@ -83,14 +83,6 @@ Requires:  bc, bzip2, hostname, iproute, iputils, net-tools, numactl
 Requires:  openssh-clients, openssh-server, procps-ng, psmisc, redis
 Requires:  rpmdevtools, rsync, screen, sos, tar, xz
 
-# The condition here should be 7 OR 8.4 OR 8.5 but we don't have a way to deal with minor versions.
-# The resulting RPM will NOT work on RHEL8.[45].
-%if 0%{?rhel} == 7
-Requires:  ansible
-%else
-Requires:  ansible-core
-%endif
-
 Obsoletes: pbench <= 0.34
 Conflicts: pbench <= 0.34
 # configtools is packaged with pbench-agent, so we specifically do NOT want

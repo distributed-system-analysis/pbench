@@ -21,24 +21,18 @@ INSTALLOPTS = --directory
 
 # all the scripts that's fit to install
 util-scripts = \
-	cdm-get-iterations \
 	get-internal-tool \
 	pbench-add-metalog-option \
 	pbench-avg-stddev \
 	pbench-copy-results \
 	pbench-copy-result-tb \
 	pbench-display-sysinfo-options \
-	pbench-get-iteration-metrics \
-	pbench-get-metric-data \
-	pbench-get-primary-metric \
-	pbench-import-cdm \
 	pbench-kill-tools \
 	pbench-log-timestamp \
 	pbench-make-result-tb \
 	pbench-move-results \
 	pbench-output-monitor \
 	pbench-postprocess-tools \
-	pbench-postprocess-tools-cdm \
 	pbench-register-tool \
 	pbench-register-tool-set \
 	pbench-send-tools \
@@ -75,9 +69,6 @@ bench-scripts = \
 	pbench-fio.md \
 	pbench-gen-iterations \
 	pbench-linpack \
-	pbench-run-benchmark \
-	pbench-run-benchmark.pl \
-	pbench-run-benchmark-sample \
 	pbench-specjbb2005 \
 	pbench-uperf \
 	pbench-uperf.md \
@@ -88,7 +79,6 @@ bench-postprocess = \
 	BenchPostprocess.pm \
 	compare-bench-results \
 	fio-postprocess \
-	fio-postprocess-cdm \
 	fio-postprocess-viz.py \
 	fio-prepare-jobfile \
 	generate-benchmark-summary \
@@ -195,20 +185,17 @@ tool-postprocess = \
 	docker-postprocess \
 	haproxy-ocp-postprocess \
 	iostat-postprocess \
-	iostat-postprocess-cdm \
 	jmap-postprocess \
 	jstack-postprocess \
 	kvm-spinlock-postprocess \
 	kvmstat-postprocess \
 	kvmtrace-stop-postprocess \
 	mpstat-postprocess \
-	mpstat-postprocess-cdm \
 	mpstat-stop-postprocess \
 	numastat-postprocess \
 	openvswitch-postprocess \
 	perf-stop-postprocess \
 	pidstat-postprocess \
-	pidstat-postprocess-cdm \
 	proc-interrupts-postprocess \
 	proc-sched_debug-postprocess \
 	proc-vmstat-postprocess \
@@ -216,7 +203,6 @@ tool-postprocess = \
 	qemu-migrate-postprocess \
 	rabbit-postprocess \
 	sar-postprocess \
-	sar-postprocess-cdm \
 	sysfs-postprocess \
 	virsh-migrate-postprocess \
 	vmstat-postprocess
