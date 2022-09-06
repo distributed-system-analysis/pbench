@@ -6,6 +6,7 @@ import {
   DATASET_ACCESS,
   DATASET_CREATED,
   DATASET_OWNER,
+  EXPIRATION_DAYS_LIMIT,
   SERVER_DELETION,
   USER_FAVORITE,
 } from "assets/constants/overviewConstants";
@@ -62,7 +63,8 @@ const initializeRuns = () => (dispatch, getState) => {
   const newRuns = data.filter((item) => !item.metadata[DASHBOARD_SAVED]);
 
   const expiringRuns = data.filter(
-    (item) => findNoOfDays(item.metadata["server.deletion"]) < 20
+    (item) =>
+      findNoOfDays(item.metadata["server.deletion"]) < EXPIRATION_DAYS_LIMIT
   );
   dispatch({
     type: TYPES.EXPIRING_RUNS,
