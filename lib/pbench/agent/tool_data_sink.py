@@ -1308,11 +1308,16 @@ class ToolDataSink(Bottle):
                 if action == "shutdown":
                     # This simply means that a SignalExporter/Client we
                     # were listening to has shut down, no action needed
+                    self.logger.debug("Client %s has shut down", client)
                     continue
                 if action == "initialization":
                     self.sig_resp.srespond(signal)
                     continue
                 if not signal.metadata:
+                    self.logger.debug(
+                        "Signal for %s received, but required metadata not included",
+                        action,
+                    )
                     continue
                 if not self._is_valid_data(action, signal.metadata):
                     continue
