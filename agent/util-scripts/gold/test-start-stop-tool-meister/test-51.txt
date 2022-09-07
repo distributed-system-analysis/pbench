@@ -22,7 +22,6 @@ pbench-tool-meister-start: payload from pbench-agent-cli-to-client: {'type': 'me
 pbench-tool-meister-start: publish state signal for state init with metadata: {'group': 'default', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-default', 'args': None}
 pbench-tool-meister-stop: publish state signal for state end with metadata: {'group': 'default', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-default', 'args': None}
 pbench-tool-meister-stop: publish state signal for state terminate with metadata: {'group': 'default', 'directory': None, 'args': {'interrupt': False}}
-pbench-tool-meister-stop: waiting for tool-data-sink (#####) to exit
 --- Finished test-51 test-start-stop-tool-meister (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

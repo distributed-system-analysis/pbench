@@ -58,6 +58,9 @@ _BUFFER_SIZE = 65536
 # Maximum size of the tar ball for collected tool data.
 _MAX_TOOL_DATA_SIZE = 2**30
 
+# Expected metadata from received state signals
+METADATA_KEYS = {"group", "directory", "args"}
+
 
 def _now(when):
     """_now - An ugly hack to facilitate testing without the ability to mock.
@@ -1243,21 +1246,26 @@ class ToolDataSink(Bottle):
 
         return tms
 
-    def _is_valid_data(self, action: str, data: Dict[str, Any]) -> False:
-        if len({"group", "directory", "args"}.intersection(data.keys())) != 3:
-            self.logger.warning("unrecognized data payload in message, %r", data)
+    def _is_valid_data(self, action: str, data: Dict[str, Any]) -> bool:
+        if not METADATA_KEYS.issubset(data.keys()):
+            self.logger.warning(
+                "Malformed data: missing required payload metadata key(s), %r",
+                list(METADATA_KEYS - data.keys()),
+            )
             return False
-        else:
-            group = data["group"]
 
         if action not in tm_allowed_actions:
-            self.logger.warning("unrecognized action in message, %r", data)
+            self.logger.warning(
+                "Malformed data: unrecognized action in message, %r", data
+            )
             return False
-        elif group != self.tool_group:
-            self.logger.warning("unrecognized tool group in message, %r", data)
+        if data["group"] != self.params.tool_group:
+            self.logger.warning(
+                "Malformed data: unrecognized tool group in message, %r", data
+            )
             return False
-        else:
-            return True
+
+        return True
 
     def execute(self):
         """execute - Driver for listening to client requests and taking action on
@@ -1307,7 +1315,6 @@ class ToolDataSink(Bottle):
                 if not signal.metadata:
                     continue
                 if not self._is_valid_data(action, signal.metadata):
-                    self.logger.warning("Ignoring malformed signal")
                     continue
                 data = signal.metadata
                 data["action"] = action

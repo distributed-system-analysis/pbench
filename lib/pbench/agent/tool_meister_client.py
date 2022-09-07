@@ -78,6 +78,11 @@ class Client:
         signal_publisher: state_signals.SignalExporter,
         logger: logging.Logger = None,
     ):
+        """
+        Creates the Client object using an existing, passed-in
+        SignalExporter.
+        """
+
         return cls(signal_publisher, False, logger)
 
     @classmethod
@@ -89,6 +94,12 @@ class Client:
         publisher_name: str = "pbench_client",
         logger: logging.Logger = None,
     ):
+        """
+        Creates the Client object with a new SignalExporter,
+        built either with an existing redis connection object
+        or with a host+port specification.
+        """
+
         if existing_redis_client:
             sig_pub = state_signals.SignalExporter(
                 publisher_name, existing_redis_conn=existing_redis_client
@@ -105,6 +116,15 @@ class Client:
         return cls(sig_pub, True, logger)
 
     def _publish(self, group: str, directory: str, action: str, args=None) -> int:
+        """
+        A helper function that handles the publishing of messages via
+        state-signals, using the Client's SignalExporter. It then awaits
+        responses from subscribers (TDS).
+
+        Returns 0 on success, 1 on failure; logs are also written for any
+        errors encountered.
+        """
+
         # The published message contains four pieces of information:
         #   {
         #     "action": "< 'init' | 'start' | 'stop' | 'send' | 'end' | 'terminate' >",
@@ -114,11 +134,20 @@ class Client:
         #   }
         # The caller of tool-meister-client must be sure the directory argument
         # is accessible by the Tool Data Sink instance.
-        if directory:
-            directory = str(directory)
+
+        # This check/conversion is necessary, as the pbench scripts sometimes pass
+        # in the directory as a str, and sometimes as pathlib.PosixPath
+        if directory and not isinstance(directory, str):
+            try:
+                directory = str(directory)
+            except Exception:
+                self.logger.exception(
+                    "Publish failed: directory must be compatible with type string, was instead %s",
+                    type(directory),
+                )
         metadata = dict(group=group, directory=directory, args=args)
         self.logger.debug(
-            f"publish state signal for state {action} with metadata: {metadata}"
+            "publish state signal for state %s with metadata: %s", action, metadata
         )
         try:
             resp, msgs = self.sig_pub.publish_signal(
@@ -129,12 +158,12 @@ class Client:
             return 1
         else:
             if resp != 0:
-                self.logger.error(f"Missing or bad response from the TDS, {resp}")
+                self.logger.error("Missing or bad response from the TDS, %s", str(resp))
                 ret_val = 1
                 for responder, msg in msgs.items():
                     if msg != "success":
                         self.logger.warning(
-                            f"TDS responder {responder} reported: {msg}"
+                            "TDS responder %s reported: %s", responder, msg
                         )
             else:
                 ret_val = 0
