@@ -101,7 +101,7 @@ else
     systemctl --user enable --quiet --now podman.socket
 fi
 
-# We have two directory trees which we are concerned with inside the container:
+# We have two volumes which we are concerned with inside the container:
 # $HOME_DIR and $HOME_DIR/pbench.  The first is provided for anything which
 # happens to reference it (such as RPM builds and npm), and the second contains
 # the Git checkout.
@@ -111,9 +111,10 @@ fi
 # this script is run locally by an individual developer, $HOME_DIR is mapped
 # from a Podman volume, to maintain isolation from the surrounding environment;
 # this volume is created automatically by Podman if it does not already exist
-# (it is deleted after the container exits, if it is no longer in use), and
-# $WORKSPACE_TMP inside the container is set to it so that any containers
-# created inside this container will use the same volume for their $HOME_DIR.
+# (it is deleted by this script after the container exits, if it is no longer
+# in use), and $WORKSPACE_TMP inside the container is set to it so that any
+# containers created inside this container will use the same volume for their
+# $HOME_DIR.
 #
 # When run under the CI (or in any other environment which defines $WORKSPACE),
 # the $HOME_DIR/pbench is mapped from $WORKSPACE, which is where the Jenkins
