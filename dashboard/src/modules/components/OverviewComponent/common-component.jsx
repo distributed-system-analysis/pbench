@@ -42,8 +42,8 @@ export const NoExpiringRuns = () => {
         <Text component={TextVariants.h3}> You have no runs expiring soon</Text>
         <Text component={TextVariants.p}>
           Runs that have expiration date within next {EXPIRATION_DAYS_LIMIT}{" "}
-          days will appear here. These runs will be automatically removed from
-          the system if left unacknowledged.{" "}
+          days will appear here. These runs will be automatically removed from{" "}
+          the system if left unacknowledged.
           <Button variant="link">Learn More.</Button>
         </Text>
       </TextContent>
