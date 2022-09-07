@@ -6,14 +6,9 @@ import {
   DropdownItem,
   DropdownToggle,
   Pagination,
-  Progress,
-  ProgressMeasureLocation,
-  ProgressSize,
-  ProgressVariant,
   Text,
   TextContent,
   TextVariants,
-  Tooltip,
 } from "@patternfly/react-core";
 import { CaretDownIcon, RedoIcon } from "@patternfly/react-icons";
 import React, { useState } from "react";
@@ -21,7 +16,6 @@ import { getDatasets, updateMultipleDataset } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import { EXPIRATION_DAYS_LIMIT } from "assets/constants/overviewConstants";
-import { findNoOfDays } from "utils/dateFunctions";
 
 export const Heading = (props) => {
   return (
@@ -160,28 +154,5 @@ export const RenderPagination = (props) => {
       perPageOptions={perPageOptions}
       onPerPageSelect={onPerPageSelect}
     />
-  );
-};
-export const ProgressBar = (props) => {
-  const findVariant = () => {
-    if (props.percent >= 65) {
-      return null;
-    } else if (props.percent < 65 && props.percent >= 40) {
-      return ProgressVariant.warning;
-    } else {
-      return ProgressVariant.danger;
-    }
-  };
-
-  return (
-    <Tooltip content={`${findNoOfDays(props.deletionTime)} days left`}>
-      <Progress
-        value={props.percent}
-        measureLocation={ProgressMeasureLocation.none}
-        variant={findVariant()}
-        size={ProgressSize.sm}
-        aria-label="Number of days left"
-      />
-    </Tooltip>
   );
 };
