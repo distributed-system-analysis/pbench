@@ -28,8 +28,10 @@
 #     all-dockerfiles:  build all default distro ".repo" and ".Dockerfile" files
 #
 
+_PBENCH_TOP := $(shell git rev-parse --show-toplevel)
+
 # Include definition of _DISTROS
-include ../utils/utils.mk
+include ${_PBENCH_TOP}/utils/utils.mk
 
 # By default we only build images for x86_64 architectures.
 _ARCH = x86_64
