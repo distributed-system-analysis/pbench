@@ -110,11 +110,10 @@ fi
 # defines $WORKSPACE_TMP), the $HOME_DIR is mapped from $WORKSPACE_TMP.  When
 # this script is run locally by an individual developer, $HOME_DIR is mapped
 # from a Podman volume, to maintain isolation from the surrounding environment;
-# this volume is created automatically by Podman if it does not already exist
-# (it is deleted by this script after the container exits, if it is no longer
-# in use), and $WORKSPACE_TMP inside the container is set to it so that any
-# containers created inside this container will use the same volume for their
-# $HOME_DIR.
+# this is a temporary but named volume which will be deleted by this script
+# after the container exits (if it is not in use by another container), and
+# $WORKSPACE_TMP inside the container is set to it so that any containers
+# created inside this container will use the same volume for their $HOME_DIR.
 #
 # When run under the CI (or in any other environment which defines $WORKSPACE),
 # the $HOME_DIR/pbench is mapped from $WORKSPACE, which is where the Jenkins

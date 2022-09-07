@@ -83,7 +83,7 @@ RUN \
     `#` \
     dnf -y clean all && rm -rf /var/cache/dnf && \
     `#` \
-    `# Tweak npm.` \
+    `# Configure npm.` \
     `#` \
     npm install -g npm@8.19.0 && \
     npm config set fetch-retry-maxtimeout 120000
