@@ -7,6 +7,7 @@ const initialState = {
   defaultPerPage: 5,
   initNewRuns: [],
   selectedRuns: [],
+  expiringRuns: [],
 };
 
 const OverviewReducer = (state = initialState, action = {}) => {
@@ -36,6 +37,11 @@ const OverviewReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         selectedRuns: payload,
+      };
+    case TYPES.EXPIRING_RUNS:
+      return {
+        ...state,
+        expiringRuns: payload,
       };
     default:
       return state;

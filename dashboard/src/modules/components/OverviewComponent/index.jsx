@@ -18,6 +18,7 @@ import {
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import ExpiringSoonComponent from "./ExpiringSoonComponent";
 import NewRunsComponent from "./NewRunsComponent";
 import SavedRunsComponent from "./SavedRunsComponent";
 import { getDatasets } from "actions/overviewActions";
@@ -26,6 +27,7 @@ const OverviewComponent = () => {
   const dispatch = useDispatch();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { loginDetails } = useSelector((state) => state.userAuth);
+  const { expiringRuns } = useSelector((state) => state.overview);
   const [expanded, setExpanded] = React.useState(
     new Set(["expired", "newRuns"])
   );
@@ -62,7 +64,11 @@ const OverviewComponent = () => {
                 Expiring soon
               </AccordionToggle>
               <AccordionContent isHidden={!expanded.has("expired")}>
-                <NoExpiringRuns />
+                {expiringRuns.length > 0 ? (
+                  <ExpiringSoonComponent />
+                ) : (
+                  <NoExpiringRuns />
+                )}
               </AccordionContent>
             </AccordionItem>
           </GridItem>

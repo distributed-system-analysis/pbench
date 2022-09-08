@@ -6,12 +6,14 @@ import {
   DATASET_ACCESS,
   DATASET_CREATED,
   DATASET_OWNER,
+  EXPIRATION_DAYS_LIMIT,
   SERVER_DELETION,
   USER_FAVORITE,
 } from "assets/constants/overviewConstants";
 
 import API from "../utils/axiosInstance";
 import { constructToast } from "./toastActions";
+import { findNoOfDays } from "utils/dateFunctions";
 
 export const getDatasets = () => async (dispatch, getState) => {
   try {
@@ -59,6 +61,15 @@ const initializeRuns = () => (dispatch, getState) => {
 
   const savedRuns = data.filter((item) => item.metadata[DASHBOARD_SAVED]);
   const newRuns = data.filter((item) => !item.metadata[DASHBOARD_SAVED]);
+
+  const expiringRuns = data.filter(
+    (item) =>
+      findNoOfDays(item.metadata["server.deletion"]) < EXPIRATION_DAYS_LIMIT
+  );
+  dispatch({
+    type: TYPES.EXPIRING_RUNS,
+    payload: expiringRuns,
+  });
   dispatch({
     type: TYPES.SAVED_RUNS,
     payload: savedRuns,

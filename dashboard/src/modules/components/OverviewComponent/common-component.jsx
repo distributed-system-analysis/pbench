@@ -15,6 +15,8 @@ import React, { useState } from "react";
 import { getDatasets, updateMultipleDataset } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import { EXPIRATION_DAYS_LIMIT } from "assets/constants/overviewConstants";
+
 export const Heading = (props) => {
   return (
     <TextContent>
@@ -33,9 +35,10 @@ export const NoExpiringRuns = () => {
       <TextContent className="no-runs-wrapper">
         <Text component={TextVariants.h3}> You have no runs expiring soon</Text>
         <Text component={TextVariants.p}>
-          Runs that have expiration date within next 10days will appear here.
-          These runs will be automatically removed from the system if left
-          unacknowledged. <Button variant="link">Learn More.</Button>
+          Runs that have expiration date within next {EXPIRATION_DAYS_LIMIT}{" "}
+          days will appear here. These runs will be automatically removed from{" "}
+          the system if left unacknowledged.
+          <Button variant="link">Learn More.</Button>
         </Text>
       </TextContent>
     </>

@@ -78,7 +78,6 @@ const SavedRunsComponent = () => {
   const makeFavorites = (dataset, isFavoriting = true) => {
     dispatch(updateDataset(dataset, "favorite", isFavoriting));
   };
-
   const columnNames = {
     result: "Result",
     createdtime: "Created Time",
