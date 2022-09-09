@@ -25,14 +25,13 @@ class TestDatasetsContents(Commons):
             pbench_endpoint="/datasets/contents/random_md5_string1/1-default",
             elastic_endpoint="/_search",
             index_from_metadata="run-toc",
-            api_method=API_METHOD.GET,
         )
 
     def test_with_no_index_document(self, client, server_config):
         """
         Check the DatasetsContents API when no index name is provided
         """
-        # remove the last two component of the pbench_endpoint
+        # remove the last two components of the pbench_endpoint
         incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-2])
         response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}")
         assert response.status_code == HTTPStatus.NOT_FOUND
