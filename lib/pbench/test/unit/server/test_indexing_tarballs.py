@@ -218,8 +218,12 @@ class FakeFileTree:
         self.datasets = {}
 
     def find_dataset(self, resource_id: str):
-        controller = FakeController(Path("/archive/ctrl"), Path("/incoming"), Path("/results"), self.logger)
-        return FakeTarball(Path(f"/archive/ctrl/tarball-{resource_id}.tar.xz"), controller)
+        controller = FakeController(
+            Path("/archive/ctrl"), Path("/incoming"), Path("/results"), self.logger
+        )
+        return FakeTarball(
+            Path(f"/archive/ctrl/tarball-{resource_id}.tar.xz"), controller
+        )
 
 
 @pytest.fixture()

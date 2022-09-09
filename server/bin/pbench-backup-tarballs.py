@@ -312,13 +312,16 @@ def backup_data(lb_obj, s3_obj, config, logger):
             (_, archive_tar_hex_value) = md5sum(tar)
         except Exception:
             # Could not read file.
-            sync.error(dataset, f"can't compute tarfile MD5")
+            sync.error(dataset, "can't compute tarfile MD5")
             nquaran += 1
             logger.exception("Quarantine: {}, Could not read {}", tb, tar)
             continue
 
         if archive_tar_hex_value != archive_md5_hex_value:
-            sync.error(dataset, f"MD5 file {archive_md5_hex_value!r} does not match tarball MD5 {archive_tar_hex_value!r}")
+            sync.error(
+                dataset,
+                f"MD5 file {archive_md5_hex_value!r} does not match tarball MD5 {archive_tar_hex_value!r}",
+            )
             nquaran += 1
             logger.error(
                 "Quarantine: {}, md5sum of {} does not match with its md5 file {}",

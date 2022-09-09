@@ -286,7 +286,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--sync",
         dest="sync",
-        help="Specify a name for the 'sync' object used for --query_operation, " "--operations, --did, and --error"
+        help="Specify a name for the 'sync' object used for --query_operation, "
+        "--operations, --did, and --error",
     )
     parser.add_argument("--md5", dest="md5", help="Specify dataset MD5 hash")
     parsed = parser.parse_args()
