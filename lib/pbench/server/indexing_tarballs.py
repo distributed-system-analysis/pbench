@@ -163,7 +163,7 @@ class Index:
         idxctx = self.idxctx
         error_code = self.error_code
         try:
-            datasets = self.sync.next(Operation.INDEX)
+            datasets = self.sync.next(self.operation)
             for dataset in datasets:
                 tb = Metadata.getvalue(dataset, Metadata.TARBALL_PATH)
                 if not tb:
@@ -357,7 +357,12 @@ class Index:
                             # but skip the dataset to be re-tried later.
                             try:
                                 tarobj = self.filetree.find_dataset(dataset.resource_id)
-                                unpacked = tarobj.unpacked
+                                if not tarobj.unpacked:
+                                    idxctx.logger.warning(
+                                        "{} has not been unpacked", dataset
+                                    )
+                                    continue
+                                unpacked = tarobj.controller.results
                             except TarballNotFound as e:
                                 self.sync.error(
                                     dataset,
@@ -580,7 +585,11 @@ class Index:
                             # Success
                             with indexed.open(mode="a") as fp:
                                 print(tb, file=fp)
-                            self.sync.update(dataset, self.operation, self.enabled)
+                            self.sync.update(
+                                dataset=dataset,
+                                did=self.operation,
+                                enabled=self.enabled,
+                            )
                         elif tb_res is error_code["OP_ERROR"]:
                             with erred.open(mode="a") as fp:
                                 print(tb, file=fp)

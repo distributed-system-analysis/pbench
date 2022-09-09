@@ -1,5 +1,5 @@
 from enum import auto, Enum
-from logging import Logger
+from logging import DEBUG, Logger
 from typing import List, Optional
 
 from pbench.server.database.database import Database
@@ -68,13 +68,16 @@ class Sync:
             query = Database.db_session.query(Dataset).join(Metadata)
             query = (
                 query.filter(Metadata.key == Metadata.SERVER)
-                .filter(Metadata.value["operation"].as_string() == operation.name)
+                .filter(
+                    Metadata.value["operation"].as_string().contains(operation.name)
+                )
                 .order_by(Dataset.name)
             )
-            self.logger.info(
-                "QUERY {}",
-                query.statement.compile(compile_kwargs={"literal_binds": True}),
-            )
+            if self.logger.isEnabledFor(DEBUG):
+                self.logger.debug(
+                    "QUERY {}",
+                    query.statement.compile(compile_kwargs={"literal_binds": True}),
+                )
             return list(query.all())
         except Exception as e:
             self.logger.exception("Failed to query for {}", operation)
@@ -85,42 +88,44 @@ class Sync:
         dataset: Dataset,
         did: Optional[Operation] = None,
         enabled: Optional[List[Operation]] = None,
+        status: Optional[str] = None,
     ):
         """
         Advertise the operations for which the dataset is now ready.
+
+        TODO: It'd be nice to nest this inside a transaction so it's all
+        atomic. This seems to be difficult to achieve in a manner that works
+        both with PostgreSQL for production and sqlite3 for unit tests. When
+        we've removed the use of sqlite3 we can make this a nested transaction.
 
         Args:
             dataset: The dataset
             did: The operation (if any) just completed, which will marked done
             enabled: A list (if any) of operations for which the dataset is now
                 eligible.
+            status: A status message (if not specified, and enabling new
+                operation(s), the default is "ok")
         """
-        with Database.db_session.begin_nested():
-            # Put the `getvalue` inside a transaction with the `setvalue` to
-            # approximate an atomic update.
-            operations: List[str] = Metadata.getvalue(dataset, Metadata.OPERATION)
+        operations: List[str] = Metadata.getvalue(dataset, Metadata.OPERATION)
+        message = status
 
-            print(f"OLD operations {operations}")
+        if not operations:
+            operations = []
+        elif did:
+            try:
+                operations.remove(did.name)
+            except ValueError:
+                pass
 
-            if type(operations) is str:
-                # FIXME: compatibility hack for hacking
-                operations = [operations]
-            elif not operations:
-                operations = []
+        if enabled:
+            operations.extend([o.name for o in enabled if o.name not in operations])
+            operations.sort()
+            if not message:
+                message = "ok"
 
-            if did:
-                try:
-                    operations.remove(did.name)
-                except ValueError:
-                    pass
-
-            if enabled:
-                operations.extend([o.name for o in enabled if o.name not in operations])
-
-            print(f"DID {did}, DOING {operations}")
-
-            Metadata.setvalue(dataset, Metadata.OPERATION, operations)
-            Database.db_session.commit()
+        Metadata.setvalue(dataset, Metadata.OPERATION, operations)
+        if message:
+            Metadata.setvalue(dataset, "server.status." + self.component, message)
 
     def error(self, dataset: Dataset, message: str):
         """
@@ -128,7 +133,6 @@ class Sync:
 
         Args:
             dataset: The dataset affected
-            message: A message to be stored at "server.errors.{component}"
+            message: A message to be stored at "server.status.{component}"
         """
-        self.logger.error("Error in {} for {}: {}", self.component, dataset, message)
-        Metadata.setvalue(dataset, f"server.errors.{self.component}", message)
+        Metadata.setvalue(dataset, "server.status." + self.component, message)

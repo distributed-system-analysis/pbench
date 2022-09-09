@@ -59,53 +59,6 @@ def get_tarball_md5(tarball: Union[Path, str]) -> str:
     return md5sum(tarball).md5_hash
 
 
-def quarantine(error: str, logger: Logger, *files: str):
-    """Mark problematic tarballs.
-
-    Add an error status to the Dataset using the metadata subnamespace
-    "server.errors" with a key of "quarantine": e.g.,
-
-    "server": {
-        "errors": {
-            "quarantine": "can't read tarball MD5 file"
-        }
-    }
-
-    Errors here are fatal but we log an error message to help diagnose
-    problems.
-    """
-
-    for afile in files:
-        try:
-            # If the file we're moving is a tarball, update the dataset.
-            # If it's the associated MD5 file, skip that.
-            if Dataset.is_tarball(afile):
-                id = get_tarball_md5(afile)
-                try:
-                    dataset = Dataset.query(resource_id=id)
-
-                    # "Update" the 'server.errors' key to a potential list of
-                    # quarantine errors. We don't have an atomic update at this
-                    # time so it's best-effort.
-                    #
-                    # FIX-ME: I had the idea of support multiple quarantine
-                    # reasons, but is that really meaningful vs just directly
-                    # updating `server.errors.quarantine` as a string?
-                    errors: JSONVALUE = Metadata.getvalue(dataset, "server.errors")
-                    if errors:
-                        quarantine: List[str] = errors.get("quarantine", [])
-                        quarantine.append(error)
-                        errors["quarantine"] = quarantine
-                    else:
-                        errors = {"quarantine": [error]}
-                    Metadata.setvalue(dataset, "server.errors", errors)
-                except DatasetNotFound:
-                    logger.debug("quarantine dataset {} not found", afile)
-        except Exception:
-            logger.exception("quarantine {!r} {!r} failed", afile, error)
-            sys.exit(102)
-
-
 class UtcTimeHelper:
     """
     A helper class to work with UTC "aware" datetime objects. A "naive" object

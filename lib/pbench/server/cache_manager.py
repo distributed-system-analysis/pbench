@@ -497,18 +497,18 @@ class Controller:
         # Provide a mapping from Dataset resource ID to object
         self.datasets: Dict[str, Tarball] = {}
 
-        # The directory where the tarball will be unpacked
+        # The directory where the controller's tarballs will be unpacked
         self.incoming: Path = incoming / self.name
 
-        # A path that will link to the unpacked tarball
+        # A path that will link to the controller's unpacked tarballs
         self.results: Path = results / self.name
         self._discover_tarballs()
 
     def _discover_tarballs(self):
         """
-        Discover the tarballs and state directories within the ARCHIVE tree's
-        controller directory. Check for an unpacked tarball in the INCOMING
-        tree and if that's present also check for a RESULTS tree link.
+        Discover the tarballs within the ARCHIVE tree's controller directory.
+        Check for an unpacked tarball in the INCOMING tree and if that's
+        present also check for a RESULTS tree link.
         """
         for file in self.path.iterdir():
             if file.is_file() and Dataset.is_tarball(file):
@@ -820,8 +820,7 @@ class CacheManager:
         already exist.
 
         FIXME: This builds the entire Controller, which will discover all
-        datasets within the controller. This could be streamlined... however
-        for create and delete, we need to know the state link directories.
+        datasets within the controller. This could be streamlined.
 
         This allows a targeted minimal entry for mutation without discovering
         the entire tree.

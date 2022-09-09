@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-"""Command line interface to the Dataset state mechanism.
+"""Command line interface to Dataset state.
 
 This serves two purposes:
 
-1. It allows access to the dataset SQL table for bash scripts;
-2. It's used to pre-set database state for the `gold` unit tests
+1. It allows access to the dataset and metadata operations for bash scripts;
+2. It allows bash scripts to access the synchronization class
 
-Therefore, while this can eventually be removed, we need to resolve both
-of those requirements first.
+Most of this will become obsolete as we phase out bash scripts in the server
+component pipeline.
 """
 
 from argparse import ArgumentParser
@@ -19,11 +19,11 @@ import sys
 
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
-from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
 from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.sync import Operation, Sync
+from pbench.server.utils import get_tarball_md5
 
 _NAME_ = "pbench-state-manager"
 
@@ -51,7 +51,8 @@ def main(options) -> int:
         init_db(config, logger)
 
         # Construct a sync object to manage dataset operational sequencing.
-        sync = Sync(logger)
+        name = options.sync if options.sync else _NAME_
+        sync = Sync(logger, name)
 
         if options.query_operation:
             if (
@@ -87,7 +88,7 @@ def main(options) -> int:
         if options.md5:
             args["resource_id"] = options.md5
         elif options.path:
-            args["resource_id"] = md5sum(options.path).md5_hash
+            args["resource_id"] = get_tarball_md5(options.path)
         else:
             print(
                 f"{_NAME_}: Either --path or --md5 must be specified",
@@ -143,7 +144,7 @@ def main(options) -> int:
         else:
             operators = None
 
-        metadata = {}
+        set_metadata = {}
         if options.set_metadata:
             for m in options.set_metadata:
                 key, value = m.split("=")
@@ -153,30 +154,29 @@ def main(options) -> int:
                         file=sys.stderr,
                     )
                     return 2
-                try:
-                    encoded = json.loads(value)
-                except Exception:
-                    print(
-                        f"{_NAME_}: Key {key!r} value {value!r} isn't valid JSON",
-                        file=sys.stderr,
-                    )
-                    return 2
-                if not (key and value):
-                    print(
-                        f"{_NAME_}: Can't set metadata {key!r} to value {value!r}",
-                        file=sys.stderr,
-                    )
-                    return 2
-                metadata[key] = encoded
+                if "{" in value:
+                    try:
+                        value = json.loads(value)
+                    except json.JSONDecodeError as e:
+                        print(
+                            f"{_NAME_}: Can't decode JSON value {value!r} for {key!r}: {e}",
+                            file=sys.stderr,
+                        )
+                        return 1
+                set_metadata[key] = value
 
+        get_metadata = []
         if options.get_metadata:
-            for m in options.get_metadata:
-                if not Metadata.is_key_path(m, Metadata.METADATA_KEYS):
-                    print(
-                        f"{_NAME_}: Get metadata key {m!r} is not valid",
-                        file=sys.stderr,
-                    )
-                    return 2
+            for metaval in options.get_metadata:
+                metas = metaval.split(",")
+                for m in metas:
+                    if not Metadata.is_key_path(m, Metadata.METADATA_KEYS):
+                        print(
+                            f"{_NAME_}: Get metadata key {m!r} is not valid",
+                            file=sys.stderr,
+                        )
+                        return 2
+                    get_metadata.append(m)
 
         # Either create a new dataset or attach to an existing dataset
         doit = Dataset.create if options.create else Dataset.attach
@@ -184,13 +184,16 @@ def main(options) -> int:
         # Find or create the specified dataset.
         dataset = doit(**args)
 
-        if operators or did:
-            sync.update(dataset, did, operators)
+        if operators or did or options.error:
+            sync.update(
+                dataset=dataset, did=did, enabled=operators, status=options.error
+            )
 
-        for key, value in metadata.items():
+        for key, value in set_metadata.items():
+            print(f"Setting {key!r}={value!r}")
             Metadata.setvalue(dataset, key, value)
 
-        for key in options.get_metadata:
+        for key in get_metadata:
             v = Metadata.getvalue(dataset, key)
             print(f"{key}={v}")
 
@@ -203,11 +206,10 @@ def main(options) -> int:
             if options.query_operation
             else "attach"
         )
-        logger.exception("Failed to {} {}", what, args)
+        logger.exception("Failed to {} {}", what, options)
         print(f"{_NAME_}: {e}: {e.with_traceback(None)}", file=sys.stderr)
         return 1
     else:
-        print("Finished successfully")
         return 0
 
 
@@ -237,15 +239,18 @@ if __name__ == "__main__":
         ),
     )
     parser.add_argument(
-        "--get-metadata",
+        "--error", dest="error", help="Specify an error message to be recorded"
+    )
+    parser.add_argument(
         "-g",
+        "--get-metadata",
         action="append",
         dest="get_metadata",
         help="Print metadata values as key=value",
     )
     parser.add_argument(
-        "--set-metadata",
         "-m",
+        "--set-metadata",
         action="append",
         dest="set_metadata",
         help="Specify metadata values to set as key=value",
@@ -277,6 +282,11 @@ if __name__ == "__main__":
         "--state",
         dest="state",
         help="Specify desired dataset state",
+    )
+    parser.add_argument(
+        "--sync",
+        dest="sync",
+        help="Specify a name for the 'sync' object used for --query_operation, " "--operations, --did, and --error"
     )
     parser.add_argument("--md5", dest="md5", help="Specify dataset MD5 hash")
     parsed = parser.parse_args()

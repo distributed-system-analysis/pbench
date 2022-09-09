@@ -36,7 +36,7 @@
 #    from the TODO area to the TO-COPY-SOS area.
 
 # load common things
-. $dir/pbench-base.sh
+. ${dir}/pbench-base.sh
 
 # check that all the directories exist
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
@@ -67,7 +67,7 @@ fi
 log_info "$TS: starting at $(timestamp)"
 
 # get the list of files we'll be operating on
-list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
+list=$(pbench-state-manager --sync="sos_report" --query-operation copy_sos)
 
 typeset -i nresults=0
 typeset -i ntotal=0
@@ -79,24 +79,9 @@ index_content=$TMPDIR/index_mail_contents
 > $index_content
 
 for result in $list ;do
-    link=$(readlink -e $result)
-    if [ ! -f $link ] ;then
-        log_error "$TS: $link does not exist"
-        nerrs=$nerrs+1
-        continue
-    fi
-
     resultname=$(basename $result)
     resultname=${resultname%.tar.xz}
-    hostname=$(basename $(dirname $link))
-
-    # echo $link
-    # echo $resultname
-    # echo $hostname
-    # continue
-
-    # make sure that all the relevant state directories exist
-    mk_dirs $hostname
+    hostname=$(basename $(dirname $result))
 
     # the tarball is already unpacked, so go to the appropriate place
     # and find all the sosreports under it. This should be quick!
@@ -152,11 +137,10 @@ for result in $list ;do
         popd > /dev/null 2>&4
     fi
 
-    # move the link to $linkdest directory
-    mv $result $(echo $result | sed "s/$linksrc/$linkdest/")
+    pbench-state-manager --sync="sos_report" --path="${result}" --did copy_sos
     sts=$?
     if [[ $sts -ne 0 ]] ;then
-        log_error "$TS: Cannot move $result link from $linksrc to $linkdest: code $sts"
+        log_error "$TS: Error finalizing dataset ${resultname} state"
         nerrs=$nerrs+1
         continue
     fi

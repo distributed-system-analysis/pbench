@@ -194,10 +194,20 @@ class FakeSync:
         __class__.errors = message
 
 
+class FakeController:
+    def __init__(self, path: Path, incoming: Path, results: Path, logger: Logger):
+        self.name = path.name
+        self.path = path
+        self.incoming = incoming / self.name
+        self.results = results / self.name
+        self.logger = logger
+
+
 class FakeTarball:
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, controller: FakeController):
         self.name = path.name
         self.tarball_path = path
+        self.controller = controller
         self.unpacked = f"/incoming/{path.name}"
 
 
@@ -208,7 +218,8 @@ class FakeFileTree:
         self.datasets = {}
 
     def find_dataset(self, resource_id: str):
-        return FakeTarball(Path(f"/archive/tarball-{resource_id}.tar.xz"))
+        controller = FakeController(Path("/archive/ctrl"), Path("/incoming"), Path("/results"), self.logger)
+        return FakeTarball(Path(f"/archive/ctrl/tarball-{resource_id}.tar.xz"), controller)
 
 
 @pytest.fixture()
