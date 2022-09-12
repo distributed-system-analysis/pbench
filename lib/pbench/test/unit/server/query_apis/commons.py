@@ -60,8 +60,7 @@ class Commons:
         elif API_METHOD.POST in self.cls_obj.schemas:
             self.api_method = API_METHOD.POST
         else:
-            self.api_method = None
-            raise Exception("Unexpected API method")
+            assert False, "api_method is neither API_METHOD.GET nor API_METHOD.POST"
 
     def build_index(self, server_config, dates):
         """
@@ -139,9 +138,14 @@ class Commons:
     def make_request_call(
         self, client, url, header: JSON, json: JSON = None, data=None
     ):
-        assert self.api_method != API_METHOD.GET or json is data is None
+        assert self.api_method in (API_METHOD.GET, API_METHOD.POST)
+        if self.api_method == API_METHOD.GET:
+            assert json is None
+            assert data is None
+            func = client.get
+        else:
+            func = client.post
 
-        func = client.get if self.api_method == API_METHOD.GET else client.post
         return func(url, headers=header, json=json, data=data)
 
     @pytest.mark.parametrize(
@@ -250,7 +254,7 @@ class Commons:
         """
         Test behavior when payload is not valid JSON
         """
-        if self.api_method == API_METHOD.GET:
+        if self.api_method != API_METHOD.POST:
             pytest.skip("skipping " + self.test_malformed_payload.__name__)
         response = self.make_request_call(
             client,
@@ -289,7 +293,7 @@ class Commons:
                 == f"Missing required parameters: {','.join(missing)}"
             )
 
-        if self.api_method == API_METHOD.GET:
+        if self.api_method != API_METHOD.POST:
             pytest.skip("skipping " + self.test_missing_keys.__name__)
         parameter_items = self.cls_obj.schemas[
             self.api_method
@@ -327,7 +331,7 @@ class Commons:
         """
         Test behavior when a bad date string is given
         """
-        if self.api_method == API_METHOD.GET:
+        if self.api_method != API_METHOD.POST:
             pytest.skip("skipping " + self.test_bad_dates.__name__)
 
         parameter_items = self.cls_obj.schemas[

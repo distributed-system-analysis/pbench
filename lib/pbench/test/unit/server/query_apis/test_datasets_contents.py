@@ -148,9 +148,9 @@ class TestDatasetsContents(Commons):
         response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
-            index,
-            expected_status,
+            payload=None,
+            expected_index=index,
+            expected_status=expected_status,
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
@@ -260,9 +260,9 @@ class TestDatasetsContents(Commons):
         response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
-            index,
-            expected_status,
+            payload=None,
+            expected_index=index,
+            expected_status=expected_status,
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
@@ -334,9 +334,9 @@ class TestDatasetsContents(Commons):
         response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
-            index,
-            expected_status,
+            payload=None,
+            expected_index=index,
+            expected_status=expected_status,
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
@@ -410,9 +410,9 @@ class TestDatasetsContents(Commons):
         response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
-            index,
-            expected_status,
+            payload=None,
+            expected_index=index,
+            expected_status=expected_status,
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
@@ -459,9 +459,9 @@ class TestDatasetsContents(Commons):
         response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
-            self.payload,
-            index,
-            expected_status
+            payload=None,
+            expected_index=index,
+            expected_status=expected_status
             if expected_status != HTTPStatus.OK
             else HTTPStatus.NOT_FOUND,
             json=response_payload,
