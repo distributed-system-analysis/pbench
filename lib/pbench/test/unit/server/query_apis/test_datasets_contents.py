@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
+from pbench.server.api.resources import API_METHOD
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
     DatasetsContents,
 )
@@ -25,6 +26,8 @@ class TestDatasetsContents(Commons):
             elastic_endpoint="/_search",
             index_from_metadata="run-toc",
         )
+
+    api_method = API_METHOD.GET
 
     def test_with_no_index_document(self, client, server_config):
         """
@@ -51,7 +54,7 @@ class TestDatasetsContents(Commons):
     def test_query(
         self,
         server_config,
-        query_api_get,
+        query_api,
         pbench_token,
         build_auth_header,
         find_template,
@@ -142,14 +145,16 @@ class TestDatasetsContents(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        response = query_api_get(
+        response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
+            self.payload,
             index,
             expected_status,
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
+            request_method=self.api_method,
         )
         if expected_status == HTTPStatus.OK:
             res_json = response.json
@@ -171,7 +176,7 @@ class TestDatasetsContents(Commons):
     def test_subdirectory_query(
         self,
         server_config,
-        query_api_get,
+        query_api,
         pbench_token,
         build_auth_header,
         find_template,
@@ -252,14 +257,16 @@ class TestDatasetsContents(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        response = query_api_get(
+        response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
+            self.payload,
             index,
             expected_status,
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
+            request_method=self.api_method,
         )
         if expected_status == HTTPStatus.OK:
             res_json = response.json
@@ -269,7 +276,7 @@ class TestDatasetsContents(Commons):
     def test_files_query(
         self,
         server_config,
-        query_api_get,
+        query_api,
         pbench_token,
         build_auth_header,
         find_template,
@@ -324,14 +331,16 @@ class TestDatasetsContents(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        response = query_api_get(
+        response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
+            self.payload,
             index,
             expected_status,
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
+            request_method=self.api_method,
         )
         if expected_status == HTTPStatus.OK:
             res_json = response.json
@@ -352,7 +361,7 @@ class TestDatasetsContents(Commons):
     def test_no_subdirectory_no_files_query(
         self,
         server_config,
-        query_api_get,
+        query_api,
         pbench_token,
         build_auth_header,
         find_template,
@@ -398,14 +407,16 @@ class TestDatasetsContents(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        response = query_api_get(
+        response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
+            self.payload,
             index,
             expected_status,
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
+            request_method=self.api_method,
         )
         if expected_status == HTTPStatus.OK:
             res_json = response.json
@@ -415,7 +426,7 @@ class TestDatasetsContents(Commons):
     def test_empty_query(
         self,
         server_config,
-        query_api_get,
+        query_api,
         pbench_token,
         build_auth_header,
         find_template,
@@ -445,9 +456,10 @@ class TestDatasetsContents(Commons):
             auth_json, build_auth_header["header_param"]
         )
 
-        response = query_api_get(
+        response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
+            self.payload,
             index,
             expected_status
             if expected_status != HTTPStatus.OK
@@ -455,6 +467,7 @@ class TestDatasetsContents(Commons):
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
+            request_method=self.api_method,
         )
         if expected_status == HTTPStatus.NOT_FOUND:
             res_json = response.json

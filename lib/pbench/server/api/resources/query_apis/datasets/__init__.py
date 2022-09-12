@@ -87,11 +87,12 @@ class IndexMapBase(ElasticBase):
         api_name = self.__class__.__name__
 
         if len(schemas) != 1:
-            raise MissingDatasetNameParameter(api_name, "no schema provided")
+            raise MissingDatasetNameParameter(
+                api_name, f"exactly one schema required: found {len(schemas)}"
+            )
 
-        self.method = schemas[0].method
-        dset = self.schemas.get_param_by_type(
-            self.method,
+        self.schema = schemas[0]
+        dset = self.schema.get_param_by_type(
             ParamType.DATASET,
             ApiParams(),
         )
@@ -99,7 +100,7 @@ class IndexMapBase(ElasticBase):
             raise MissingDatasetNameParameter(
                 api_name, "dataset parameter is not defined or not required"
             )
-        if self.schemas[self.method].authorization != API_AUTHORIZATION.DATASET:
+        if self.schema.authorization != API_AUTHORIZATION.DATASET:
             raise MissingDatasetNameParameter(
                 api_name, "schema authorization is not by dataset"
             )
@@ -115,7 +116,7 @@ class IndexMapBase(ElasticBase):
         """
 
         _, dataset = self.schemas.get_param_by_type(
-            self.method, ParamType.DATASET, params
+            self.schema.method, ParamType.DATASET, params
         )
 
         return {"dataset": dataset}

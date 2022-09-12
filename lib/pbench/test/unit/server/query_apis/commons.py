@@ -59,6 +59,9 @@ class Commons:
             self.api_method = API_METHOD.GET
         elif API_METHOD.POST in self.cls_obj.schemas:
             self.api_method = API_METHOD.POST
+        else:
+            self.api_method = None
+            raise Exception(f"Unexpected API method")
 
     def build_index(self, server_config, dates):
         """
@@ -136,11 +139,7 @@ class Commons:
     def make_request_call(
         self, client, url, header: JSON, json: JSON = None, data=None
     ):
-        if self.api_method not in (API_METHOD.GET, API_METHOD.POST):
-            raise Exception(f"Unexpected API method, {self.api_method}")
-
-        if self.api_method == API_METHOD.GET:
-            assert json is None and data is None
+        assert self.api_method != API_METHOD.GET or json is data is None
 
         func = client.get if self.api_method == API_METHOD.GET else client.post
         return func(url, headers=header, json=json, data=data)
@@ -251,21 +250,22 @@ class Commons:
         """
         Test behavior when payload is not valid JSON
         """
-        if self.api_method == API_METHOD.POST:
-            response = self.make_request_call(
-                client,
-                server_config.rest_uri + self.pbench_endpoint,
-                {
-                    "Authorization": "Bearer " + pbench_token,
-                    "Content-Type": "application/json",
-                },
-                data='{"x":0]',
-            )
-            assert response.status_code == HTTPStatus.BAD_REQUEST
-            assert (
-                response.json.get("message")
-                == "Invalid request payload: '400 Bad Request: The browser (or proxy) sent a request that this server could not understand.'"
-            )
+        if self.api_method == API_METHOD.GET:
+            pytest.skip("skipping " + self.test_malformed_payload.__name__)
+        response = self.make_request_call(
+            client,
+            server_config.rest_uri + self.pbench_endpoint,
+            {
+                "Authorization": "Bearer " + pbench_token,
+                "Content-Type": "application/json",
+            },
+            data='{"x":0]',
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert (
+            response.json.get("message")
+            == "Invalid request payload: '400 Bad Request: The browser (or proxy) sent a request that this server could not understand.'"
+        )
 
     def test_missing_keys(self, client, server_config, pbench_token):
         """
@@ -289,74 +289,74 @@ class Commons:
                 == f"Missing required parameters: {','.join(missing)}"
             )
 
-        if self.api_method == API_METHOD.POST:
-            parameter_items = self.cls_obj.schemas[
-                self.api_method
-            ].body_schema.parameters.items()
+        if self.api_method == API_METHOD.GET:
+            pytest.skip("skipping " + self.test_missing_keys.__name__)
+        parameter_items = self.cls_obj.schemas[
+            self.api_method
+        ].body_schema.parameters.items()
 
-            required_keys = [
-                key for key, parameter in parameter_items if parameter.required
-            ]
+        required_keys = [
+            key for key, parameter in parameter_items if parameter.required
+        ]
 
-            all_combinations = []
-            for r in range(1, len(parameter_items) + 1):
-                for item in itertools.combinations(parameter_items, r):
-                    tmp_req_keys = [
-                        key for key, parameter in item if parameter.required
-                    ]
-                    if tmp_req_keys != required_keys:
-                        all_combinations.append(item)
+        all_combinations = []
+        for r in range(1, len(parameter_items) + 1):
+            for item in itertools.combinations(parameter_items, r):
+                tmp_req_keys = [key for key, parameter in item if parameter.required]
+                if tmp_req_keys != required_keys:
+                    all_combinations.append(item)
 
-            for items in all_combinations:
-                keys = {}
-                for key, parameter in items:
-                    if parameter.type == ParamType.ACCESS:
-                        keys[key] = "public"
-                    elif parameter.type == ParamType.DATE:
-                        keys[key] = "2020"
-                    else:
-                        keys[key] = "foobar"
+        for items in all_combinations:
+            keys = {}
+            for key, parameter in items:
+                if parameter.type == ParamType.ACCESS:
+                    keys[key] = "public"
+                elif parameter.type == ParamType.DATE:
+                    keys[key] = "2020"
+                else:
+                    keys[key] = "foobar"
 
-                missing_key_helper(keys)
+            missing_key_helper(keys)
 
-            # Test in case all of the required keys are missing and some
-            # random non-existent key is present in the payload
-            if required_keys:
-                missing_key_helper({"notakey": None})
+        # Test in case all of the required keys are missing and some
+        # random non-existent key is present in the payload
+        if required_keys:
+            missing_key_helper({"notakey": None})
 
     def test_bad_dates(self, client, server_config, pbench_token):
         """
         Test behavior when a bad date string is given
         """
-        if self.api_method == API_METHOD.POST:
-            parameter_items = self.cls_obj.schemas[
-                self.api_method
-            ].body_schema.parameters.items()
+        if self.api_method == API_METHOD.GET:
+            pytest.skip("skipping " + self.test_bad_dates.__name__)
 
-            for key, p in parameter_items:
-                # Modify date/time key in the payload to make it look invalid
-                if p.type == ParamType.DATE and key in self.payload:
-                    original_date_value = self.payload[key]
-                    self.payload[key] = "2020-19"
-                    response = self.make_request_call(
-                        client,
-                        server_config.rest_uri + self.pbench_endpoint,
-                        {"Authorization": "Bearer " + pbench_token},
-                        json=self.payload,
-                    )
-                    assert response.status_code == HTTPStatus.BAD_REQUEST
-                    assert (
-                        response.json.get("message")
-                        == "Value '2020-19' (str) cannot be parsed as a date/time string"
-                    )
-                    self.payload[key] = original_date_value
+        parameter_items = self.cls_obj.schemas[
+            self.api_method
+        ].body_schema.parameters.items()
+
+        for key, p in parameter_items:
+            # Modify date/time key in the payload to make it look invalid
+            if p.type == ParamType.DATE and key in self.payload:
+                original_date_value = self.payload[key]
+                self.payload[key] = "2020-19"
+                response = self.make_request_call(
+                    client,
+                    server_config.rest_uri + self.pbench_endpoint,
+                    {"Authorization": "Bearer " + pbench_token},
+                    json=self.payload,
+                )
+                assert response.status_code == HTTPStatus.BAD_REQUEST
+                assert (
+                    response.json.get("message")
+                    == "Value '2020-19' (str) cannot be parsed as a date/time string"
+                )
+                self.payload[key] = original_date_value
 
     def test_empty_query(
         self,
         client,
         server_config,
         query_api,
-        query_api_get,
         find_template,
         build_auth_header,
     ):
@@ -373,27 +373,17 @@ class Commons:
         index = self.build_index(
             server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
-        if self.api_method == API_METHOD.GET:
-            response = query_api_get(
-                self.pbench_endpoint,
-                self.elastic_endpoint,
-                index,
-                expected_status,
-                headers=build_auth_header["header"],
-                status=HTTPStatus.OK,
-                json=self.empty_es_response_payload,
-            )
-        elif self.api_method == API_METHOD.POST:
-            response = query_api(
-                self.pbench_endpoint,
-                self.elastic_endpoint,
-                self.payload,
-                index,
-                expected_status,
-                headers=build_auth_header["header"],
-                status=HTTPStatus.OK,
-                json=self.empty_es_response_payload,
-            )
+        response = query_api(
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            self.payload,
+            index,
+            expected_status,
+            headers=build_auth_header["header"],
+            status=HTTPStatus.OK,
+            json=self.empty_es_response_payload,
+            request_method=self.api_method,
+        )
         assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
             assert response.json == []
@@ -421,7 +411,6 @@ class Commons:
         self,
         server_config,
         query_api,
-        query_api_get,
         exceptions,
         find_template,
         pbench_token,
@@ -441,32 +430,22 @@ class Commons:
                 self.date_range(self.payload["start"], self.payload["end"]),
             )
 
-        if self.api_method == API_METHOD.GET:
-            query_api_get(
-                self.pbench_endpoint,
-                self.elastic_endpoint,
-                index,
-                exceptions["status"],
-                body=exceptions["exception"],
-                headers={"Authorization": "Bearer " + pbench_token},
-            )
-        elif self.api_method == API_METHOD.POST:
-            query_api(
-                self.pbench_endpoint,
-                self.elastic_endpoint,
-                self.payload,
-                index,
-                exceptions["status"],
-                body=exceptions["exception"],
-                headers={"Authorization": "Bearer " + pbench_token},
-            )
+        query_api(
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            self.payload,
+            index,
+            exceptions["status"],
+            body=exceptions["exception"],
+            headers={"Authorization": "Bearer " + pbench_token},
+            request_method=self.api_method,
+        )
 
     @pytest.mark.parametrize("errors", (400, 500, 409))
     def test_http_error(
         self,
         server_config,
         query_api,
-        query_api_get,
         find_template,
         pbench_token,
         provide_metadata,
@@ -486,23 +465,13 @@ class Commons:
                 server_config,
                 self.date_range(self.payload["start"], self.payload["end"]),
             )
-
-        if self.api_method == API_METHOD.GET:
-            query_api_get(
-                self.pbench_endpoint,
-                self.elastic_endpoint,
-                index,
-                HTTPStatus.BAD_GATEWAY,
-                status=errors,
-                headers={"Authorization": "Bearer " + pbench_token},
-            )
-        elif self.api_method == API_METHOD.POST:
-            query_api(
-                self.pbench_endpoint,
-                self.elastic_endpoint,
-                self.payload,
-                index,
-                HTTPStatus.BAD_GATEWAY,
-                status=errors,
-                headers={"Authorization": "Bearer " + pbench_token},
-            )
+        query_api(
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            self.payload,
+            index,
+            HTTPStatus.BAD_GATEWAY,
+            status=errors,
+            headers={"Authorization": "Bearer " + pbench_token},
+            request_method=self.api_method,
+        )
