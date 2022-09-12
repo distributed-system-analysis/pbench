@@ -61,7 +61,7 @@ class Commons:
             self.api_method = API_METHOD.POST
         else:
             self.api_method = None
-            raise Exception(f"Unexpected API method")
+            raise Exception("Unexpected API method")
 
     def build_index(self, server_config, dates):
         """
