@@ -77,6 +77,16 @@ GIT_BASE_VOLUME=""
 git_dir="$(git rev-parse --absolute-git-dir)"
 if [ "${git_dir}" != "$(pwd)/.git" ]; then
     git_common_dir="$(git rev-parse --git-common-dir)"
+    if [ "${git_common_dir}" == "${HOME_DIR}/pbench/.git" ]; then
+            # When the Git checkout is in a Git "worktree", the path to the
+            # "main worktree" must NOT be `~/pbench`:  this is the path used to
+            # mount the checkout inside the containers, and, once the worktree
+            # is mounted there, the common Git directory cannot be mounted at
+            # `~/pbench/.git` because the worktree contains a back-link file
+            # there.
+        echo "When the checkout is a Git worktree, the path to the main worktree cannot be ~/pbench." >&2
+        exit 2
+    fi
     GIT_BASE_VOLUME="--volume ${git_common_dir}:${git_common_dir}:z"
 fi
 
@@ -126,7 +136,10 @@ if [ -z "${WORKSPACE_TMP}" ]; then
     echo Using new WORKSPACE_TMP=${WORKSPACE_TMP}
 fi
 
-echo Starting container:  WORKSPACE_TMP=${WORKSPACE_TMP}, WORKSPACE=${WORKSPACE}
+echo "Starting container with ${PODMAN}:
+        WORKSPACE_TMP=${WORKSPACE_TMP}
+        WORKSPACE=${WORKSPACE}
+        ${GIT_BASE_VOLUME:+GIT_BASE_VOLUME=${GIT_BASE_VOLUME}}"
 ${PODMAN} run \
     --userns=keep-id \
     --security-opt label=disable \
