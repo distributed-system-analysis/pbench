@@ -18,27 +18,31 @@ options:
                         directs the command to use existing instances of all
                         three. The default is `create`.
   --redis-server REDIS_SERVER
-                        Specifies the IP/port to use for the Redis server - if
-                        not present, the defaults are used,
-                        ${_pbench_full_hostname}:17001; the specified value
-                        can take either of two forms: `<bind
+                        Specifies the IP/port to use for the Redis server. If
+                        not present (and if not supplied via the
+                        PBENCH_REDIS_SERVER environment variable), the
+                        defaults are used, ${_pbench_full_hostname}:17001. The
+                        specified value can take either of two forms: `<bind
                         host>:<port>;<host>:<port>`, a semi-colon separated
                         IP/port specified for both how the Redis server will
-                        bind itself, and how clients will connect;
+                        bind itself, and how clients will connect; or,
                         `<host>:<port>`, the IP/port combination is used both
-                        for binding and connecting (NOTE: binding is not used
-                        with --orchestrate=existing);
+                        for binding and connecting. The binding is not used
+                        with --orchestrate=existing. NOTE: if --redis-server
+                        is specified, it is assumed that the caller has
+                        created and provisioned the specified Redis server,
+                        and the Tool Data Sink and Tool Meisters as well.
   --tool-data-sink TOOL_DATA_SINK
-                        Specifies the IP/port to use for the Tool Data Sink -
-                        if not present, the defaults are used,
-                        ${_pbench_full_hostname}:8080; the specified value can
+                        Specifies the IP/port to use for the Tool Data Sink.
+                        If not present, the defaults are used,
+                        ${_pbench_full_hostname}:8080. The specified value can
                         take either of two forms: `<bind
                         host>:<port>;<host>:<port>`, a semi-colon separated
                         IP/port specified for both how the Tool Data Sink will
                         bind itself, and how clients will connect;
                         `<host>:<port>`, the IP/port combination is used both
-                        for binding and connecting (NOTE: binding is not used
-                        with --orchestrate=existing);
+                        for binding and connecting. The binding is not used
+                        with --orchestrate=existing.
 --- Finished test-54 pbench-tool-meister-start (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
