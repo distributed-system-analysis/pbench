@@ -6,12 +6,24 @@ pipeline {
         IMAGE_REPO="quay.io/pbench"
         IMAGE_ROLE="ci"
         NO_COLORS=0
-        PB_AGENT_CONTAINER_REG="quay.io"
-        PB_SERVER_CONTAINER_REG="images.paas.redhat.com"
-        PODMAN_AGENT=credentials('87ad2797-02eb-464f-989f-8ab78d63cdf3')
-        PODMAN_SERVER=credentials('12b404ca-3036-4960-9929-979148b9e49a')
+        PB_EXTERNAL_CONTAINER_REG=credentials('24a93506-ecd6-403a-b4f0-386f9cc943e9')
+        PB_INTERNAL_CONTAINER_REG=credentials('c3e2d737-0e56-4c1e-a945-d86bc644384c')
+        PODMAN_EXTERNAL=credentials('87ad2797-02eb-464f-989f-8ab78d63cdf3')
+        PODMAN_INTERNAL=credentials('12b404ca-3036-4960-9929-979148b9e49a')
         PY_COLORS=0
         TERM='dumb'
+
+        // Set the tag to the PR number (i.e., the Jenkins CHANGE_ID) if run for
+        // a PR; otherwise set it to the branch name (e.g., `main`).  Set a
+        // shorthand for the Pbench Server image path, and set a variable for
+        // the Server Pod name, based on the image tag, so that we don't
+        // interfere with other pods on this executor.
+        PB_SERVER_IMAGE_TAG="""${sh(
+            returnStdout: true,
+            script: 'echo ${CHANGE_ID:-${BRANCH_NAME}}'
+            )}"""
+        PB_SERVER_IMAGE="${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-pbenchserver"
+        PB_POD_NAME="pbenchinacan_${PB_SERVER_IMAGE_TAG}"
     }
     stages {
         stage('Agent Python3.6 Check') {
@@ -31,15 +43,33 @@ pipeline {
                 sh 'jenkins/run ./build.sh'
             }
         }
-        stage('Pbench Server Container build') {
+        stage('Build the Pbench Server Container') {
             steps {
-                sh 'buildah login -u="${PODMAN_SERVER_USR}" -p="${PODMAN_SERVER_PSW}" ${PB_SERVER_CONTAINER_REG}'
-                sh 'RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm OUTPUT_IMAGE_TAG=${CHANGE_ID:-${BRANCH_NAME}} bash -ex ./server/pbenchinacan/container-build.sh'
-                sh 'buildah push localhost/pbench-server:${CHANGE_ID:-${BRANCH_NAME}} ${PB_SERVER_CONTAINER_REG}/pbench/pbenchinacan-pbenchserver:${CHANGE_ID:-${BRANCH_NAME}}'
+                sh 'buildah login -u="${PODMAN_INTERNAL_USR}" -p="${PODMAN_INTERNAL_PSW}" ${PB_INTERNAL_CONTAINER_REG}'
+                sh 'RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build.sh'
+                sh 'buildah push localhost/pbench-server:${PB_SERVER_IMAGE_TAG} ${PB_SERVER_IMAGE}:${PB_SERVER_IMAGE_TAG}'
+            }
+        }
+        stage('Start, test, and stop the Pbench Server pod') {
+            steps {
+                sh 'envsubst < server/pbenchinacan/pod-nodata.yml | podman play kube -'
+                sleep 30
+                retry(count: 10) {
+                    sleep 10
+                    sh 'curl localhost:8001/api/v1/endpoints'
+                }
+                sh 'podman pod stop ${PB_POD_NAME}'
             }
         }
     }
     post {
+        always {
+            // Remove the pod which we just created and ran; remove any
+            // dangling containers; and then remove any dangling images.
+            sh 'podman pod rm -f ${PB_POD_NAME}'
+            sh 'podman container prune -f'
+            sh 'podman image prune -f'
+        }
         success {
             // Note that jenkins/run-pytests is executed inside the container
             // while the Cobertura plug-in is executed natively, so this poses
@@ -57,7 +87,7 @@ pipeline {
                 onlyStable: false,
                 sourceEncoding: 'ASCII',
                 zoomCoverageChart: false])
-            sh 'rm cov/report.xml'
+            sh 'rm -f cov/report.xml'
         }
     }
 }

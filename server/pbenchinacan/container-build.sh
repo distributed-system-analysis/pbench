@@ -28,7 +28,7 @@ GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PBINC_DIR=${GITTOP}/server/pbenchinacan
 
 # Image tag determined from jenkins/branch.name
-OUTPUT_IMAGE_TAG=${OUTPUT_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
+PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
 
 # Open a copy of the base container.  Docker format is required in order to set
 # the hostname.
@@ -40,10 +40,10 @@ container=$(buildah from --format=docker ${BASE_IMAGE})
 
 # Consider adding -v datavolume for the Server data, and perhaps SQL and ES data
 buildah config \
-    --label maintainer="Nick Dokos <ndokos@redhat.com>" \
+    --label maintainer="Webb Scales <wscales@redhat.com>" \
     --hostname $HOSTNAME_F \
     --stop-signal SIGINT \
-    --port 22:55555  `# sshd` \
+    --port 22        `# sshd` \
     --port 8001      `# pbench-server` \
     $container
 
@@ -121,4 +121,4 @@ buildah run $container systemctl enable httpd
 buildah run $container systemctl enable pbench-server
 
 # Create the container image
-buildah commit $container localhost/pbench-server:${OUTPUT_IMAGE_TAG}
+buildah commit $container localhost/pbench-server:${PB_SERVER_IMAGE_TAG}
