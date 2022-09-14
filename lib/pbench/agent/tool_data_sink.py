@@ -1305,7 +1305,9 @@ class ToolDataSink(Bottle):
             for signal in self.sig_resp.listen():
                 client = signal.publisher_id
                 action = signal.event
-                self.logger.debug("client %r, action %r, metadata %r", client, action, signal.metadata)
+                self.logger.debug(
+                    "client %r, action %r, metadata %r", client, action, signal.metadata
+                )
                 if action == "shutdown":
                     # This simply means that a SignalExporter/Client we
                     # were listening to has shut down, no action needed

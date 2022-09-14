@@ -135,7 +135,6 @@ class CleanupAction:
         else:
             self.logger.debug(f"end - {self.name}")
 
-
     def __str__(self) -> str:
         return self.name
 
