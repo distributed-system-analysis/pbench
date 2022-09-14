@@ -15,10 +15,10 @@ Browser->Pbench-Server: GET Pbench client ID
 
 Pbench-Server->Browser: 200 Response 
 
-note over Pbench-Server,Browser:{Identity_Broker_auth_URI: <auth_URI>\nclient_id: <pbench_client_id>\nclient_secret: <pbench_client_secret> # optional\n}
+note right of Pbench-Server:{Identity_Broker_auth_URI: <auth_URI>\nclient_id: <pbench_client_id>\nclient_secret: <pbench_client_secret> # optional\n}
 
 note over Browser:User clicks login
-abox over Browser: Dashboard instructs the browser to \nload identity broker authentication page
+abox over Browser: Dashboard instructs the browser to \nload identity broker authentication page \nurl that was supplied by the Pbench-server.
 
 deactivate Browser
 
@@ -49,14 +49,14 @@ rbox over Browser: Identity-Provider
 
 note over Browser:User challenge credentials and consent
 
-abox over Browser:Identity provider instructs the browser to\nload the redirect
+abox over Browser:Identity provider instructs the browser to \nsend the request and load the response
 
 deactivate Browser
 
 Browser->Identity-Provider: GET/POST authentication request
 
 Identity-Provider->Browser: 302/303 Response
-note left of Identity-Provider:Redirect Location:\n<Identity_provider_URI>\n?code=<auth_code>\n&state=<session_state_id>
+note left of Identity-Provider:Redirect Location:\n<Identity_broker_URI>\n?code=<auth_code>\n&state=<session_state_id>
 
 Identity-Broker<-Browser:GET Redirect location (identity broker URI)
 
