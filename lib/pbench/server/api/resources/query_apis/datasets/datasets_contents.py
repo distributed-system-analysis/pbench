@@ -30,13 +30,11 @@ class DatasetsContents(IndexMapBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.POST,
+                API_METHOD.GET,
                 API_OPERATION.READ,
                 uri_schema=Schema(
-                    Parameter("dataset", ParamType.DATASET, required=True)
-                ),
-                body_schema=Schema(
-                    Parameter("parent", ParamType.STRING, required=True),
+                    Parameter("dataset", ParamType.DATASET, required=True),
+                    Parameter("target", ParamType.STRING, required=False),
                 ),
                 authorization=API_AUTHORIZATION.DATASET,
             ),
@@ -50,22 +48,19 @@ class DatasetsContents(IndexMapBase):
         that belong to the given run id.
 
         Args:
-            params: API parameters
-            context: propagate the dataset and the "parent" directory value.
-
-        EXAMPLE:
-        {
-            "parent": '/1-default'
-        }
+            params: ApiParams includes the uri parameters, which provide the dataset and target.
+            context: propagate the dataset and the "target" directory value.
         """
-        # Copy parent directory metadata to CONTEXT for postprocessor
-        parent = context["parent"] = params.body.get("parent")
+        # Copy target directory metadata to CONTEXT for postprocessor
+        target = "/" + params.uri.get("target", "")
+        context["target"] = target
+
         dataset = context["dataset"]
 
         self.logger.info(
             "Discover dataset {} Contents, directory {}",
             dataset.name,
-            parent,
+            target,
         )
 
         # Retrieve the ES indices that belong to this run_id from the metadata
@@ -83,14 +78,14 @@ class DatasetsContents(IndexMapBase):
                                 {
                                     "dis_max": {
                                         "queries": [
-                                            {"term": {"directory": parent}},
-                                            {"term": {"parent": parent}},
+                                            {"term": {"directory": target}},
+                                            {"term": {"parent": target}},
                                         ]
                                     }
                                 },
                                 {"term": {"run_data_parent": dataset.resource_id}},
                             ],
-                            "must_not": {"regexp": {"directory": f"{parent}/[^/]+/.+"}},
+                            "must_not": {"regexp": {"directory": f"{target}/[^/]+/.+"}},
                         }
                     },
                 }
@@ -198,16 +193,16 @@ class DatasetsContents(IndexMapBase):
         if len(es_json["hits"]["hits"]) == 0:
             raise PostprocessError(
                 HTTPStatus.NOT_FOUND,
-                f"No directory '{context['parent']}' in '{context['dataset']}' contents.",
+                f"No directory '{context['target']}' in '{context['dataset']}' contents.",
             )
 
         dir_list = []
         file_list = []
         for val in es_json["hits"]["hits"]:
-            if val["_source"]["directory"] == context["parent"]:
+            if val["_source"]["directory"] == context["target"]:
                 # Retrieve files list if present else add an empty list.
                 file_list = val["_source"].get("files", [])
-            elif val["_source"]["parent"] == context["parent"]:
+            elif val["_source"]["parent"] == context["target"]:
                 dir_list.append(val["_source"]["name"])
 
         return {"directories": dir_list, "files": file_list}

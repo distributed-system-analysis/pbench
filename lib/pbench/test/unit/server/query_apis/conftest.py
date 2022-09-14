@@ -5,6 +5,8 @@ import pytest
 import requests
 import responses
 
+from pbench.server.api.resources import API_METHOD
+
 
 @pytest.fixture
 @responses.activate
@@ -32,11 +34,20 @@ def query_api(client, server_config, provide_metadata):
         expected_index: str,
         expected_status: str,
         headers: dict = {},
+        request_method=API_METHOD.POST,
         **kwargs,
     ) -> requests.Response:
         host = server_config.get("elasticsearch", "host")
         port = server_config.get("elasticsearch", "port")
         es_url = f"http://{host}:{port}{expected_index}{es_uri}"
+        assert request_method in (API_METHOD.GET, API_METHOD.POST)
+        if request_method == API_METHOD.GET:
+            es_method = responses.GET
+            client_method = client.get
+            assert not payload
+        else:
+            es_method = responses.POST
+            client_method = client.post
         with responses.RequestsMock() as rsp:
             # We need to set up mocks for the Server's call to Elasticsearch,
             # which will only be made if we don't expect Pbench to fail before
@@ -48,10 +59,11 @@ def query_api(client, server_config, provide_metadata):
                 HTTPStatus.UNAUTHORIZED,
             ] and (
                 expected_status != HTTPStatus.NOT_FOUND
+                or request_method != API_METHOD.POST
                 or payload.get("user") != "badwolf"
             ):
-                rsp.add(responses.POST, es_url, **kwargs)
-            response = client.post(
+                rsp.add(es_method, es_url, **kwargs)
+            response = client_method(
                 f"{server_config.rest_uri}{pbench_uri}",
                 headers=headers,
                 json=payload,
