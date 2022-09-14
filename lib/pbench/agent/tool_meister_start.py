@@ -1358,15 +1358,19 @@ def main():
         dest="redis_server",
         default=os.environ.get("PBENCH_REDIS_SERVER", None),
         help=(
-            "Specifies the IP/port to use for the Redis server - if not"
-            " present, the defaults are used, ${_pbench_full_hostname}:"
-            f"{def_redis_port};"
-            " the specified value can take either of two forms:"
+            "Specifies the IP/port to use for the Redis server.  If not present"
+            " (and if not supplied via the PBENCH_REDIS_SERVER environment"
+            " variable), the defaults are used, ${_pbench_full_hostname}:"
+            f"{def_redis_port}. "
+            " The specified value can take either of two forms:"
             " `<bind host>:<port>;<host>:<port>`, a semi-colon separated"
             " IP/port specified for both how the Redis server will bind"
-            " itself, and how clients will connect; `<host>:<port>`, the"
-            " IP/port combination is used both for binding and connecting"
-            " (NOTE: binding is not used with --orchestrate=existing);"
+            " itself, and how clients will connect; or, `<host>:<port>`, the"
+            " IP/port combination is used both for binding and connecting. "
+            " The binding is not used with --orchestrate=existing. "
+            " NOTE: if --redis-server is specified, it is assumed that the"
+            " caller has created and provisioned the specified Redis server,"
+            " and the Tool Data Sink and Tool Meisters as well."
         ),
     )
     parser.add_argument(
@@ -1374,15 +1378,15 @@ def main():
         dest="tool_data_sink",
         default=os.environ.get("PBENCH_TOOL_DATA_SINK", None),
         help=(
-            "Specifies the IP/port to use for the Tool Data Sink - if not"
+            "Specifies the IP/port to use for the Tool Data Sink.  If not"
             " present, the defaults are used, ${_pbench_full_hostname}:"
-            f"{def_wsgi_port};"
-            " the specified value can take either of two forms:"
+            f"{def_wsgi_port}. "
+            " The specified value can take either of two forms:"
             " `<bind host>:<port>;<host>:<port>`, a semi-colon separated"
             " IP/port specified for both how the Tool Data Sink will bind"
             " itself, and how clients will connect; `<host>:<port>`, the"
-            " IP/port combination is used both for binding and connecting"
-            " (NOTE: binding is not used with --orchestrate=existing);"
+            " IP/port combination is used both for binding and connecting. "
+            " The binding is not used with --orchestrate=existing."
         ),
     )
     parser.add_argument(

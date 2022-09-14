@@ -26,7 +26,8 @@ The following options are available:
 		one or more block sizes in KiB
 
 	-s int[,int...] --file-size=int[,int...] (no default)
-		file sizes in MiB
+		file sizes in bytes (accepts modifiers, e.g. '128m', '1500k', etc.,
+		see https://fio.readthedocs.io/en/latest/fio_doc.html#int)
 
 	-d str[,str...] --targets=str[,str...]
 		one or more files, block devices, or directories (default is /tmp/fio);
@@ -120,7 +121,8 @@ The following options are available:
 		one or more block sizes in KiB
 
 	-s int[,int...] --file-size=int[,int...] (no default)
-		file sizes in MiB
+		file sizes in bytes (accepts modifiers, e.g. '128m', '1500k', etc.,
+		see https://fio.readthedocs.io/en/latest/fio_doc.html#int)
 
 	-d str[,str...] --targets=str[,str...]
 		one or more files, block devices, or directories (default is /tmp/fio);
@@ -214,7 +216,8 @@ The following options are available:
 		one or more block sizes in KiB
 
 	-s int[,int...] --file-size=int[,int...] (no default)
-		file sizes in MiB
+		file sizes in bytes (accepts modifiers, e.g. '128m', '1500k', etc.,
+		see https://fio.readthedocs.io/en/latest/fio_doc.html#int)
 
 	-d str[,str...] --targets=str[,str...]
 		one or more files, block devices, or directories (default is /tmp/fio);
