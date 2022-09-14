@@ -1267,11 +1267,15 @@ def start(_prog: str, cli_params: Namespace) -> int:
                 "Tool installation check failures encountered",
             )
 
-        # Setup a Client API object using our existing to_client_chan object to
-        # drive the following client operations ("sysinfo" [optional] and "init"
-        # [required]).
-        with Client.create_with_redis(
-            existing_redis_client=redis_client, logger=logger
+        # Setup a Client API object using our existing Redis server connection
+        # to drive the following client operations: "sysinfo" [optional], and
+        # "init" [required].
+        #
+        # FIXME - What should be done with the `to_client_chan` object?
+        with Client(
+            redis_server=redis_client,
+            publisher_prefix="start",
+            logger=logger,
         ) as client:
             if sysinfo:
                 sysinfo_path = benchmark_run_dir / "sysinfo" / "beg"

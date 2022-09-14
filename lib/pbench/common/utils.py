@@ -126,11 +126,15 @@ class CleanupAction:
         This handles errors and reports them, but doesn't propagate failure to
         ensure that cleanup continues as best we can.
         """
+        self.logger.debug(f"beg - {self.name}")
         try:
             self.action()
         except Exception:
             # TODO: f-string used because this is shared by agent and server
             self.logger.exception(f"Unable to {self}")
+        else:
+            self.logger.debug(f"end - {self.name}")
+
 
     def __str__(self) -> str:
         return self.name

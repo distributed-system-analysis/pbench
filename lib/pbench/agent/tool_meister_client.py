@@ -17,7 +17,6 @@ import logging
 import os
 import sys
 
-import redis
 import state_signals
 
 from pbench.agent.constants import cli_tm_allowed_actions, tm_allowed_actions
@@ -34,96 +33,110 @@ class Client:
 
     def __init__(
         self,
-        signal_publisher: state_signals.SignalExporter,
-        to_be_shutdown: bool,
-        logger: logging.Logger = None,
+        redis_server=None,
+        redis_host=None,
+        redis_port=None,
+        publisher_prefix=None,
+        logger=None,
     ):
-        """
-        Construct a Tool Meister "client" object, given an initialized
-        SignalExporter and whether it was created by the user or us.
-        The caller can additionally optionally provide a logger to be used.
+        """Construct a Tool Meister "client" object, given the host and port
+        of a Redis server, or an existing Redis server object. The caller must
+        specify a "prefix" to be used for the publisher name given to the
+        State Signals sub-system.
 
-        :signal_publisher: - An initialized SignalExporter object for publishing
-                             state signals
-        :to_be_shutdown:   - A boolean flag to indicate whether or not we are
-                             responsible for shutting down the SignalExporter
-                             on exit (if we created it)
-        :logger:           - (optional) a logger to use for reporting any errors
-                             encountered (one will be created if not provided)
-        """
+        The caller can optionally provide a logger to be used.
 
-        self.sig_pub = signal_publisher
-        self._to_be_shutdown = to_be_shutdown
+        This constructor does not contact the Redis server, it just records
+        the information for where that Redis server is.
+
+        :redis_server:     - (optional) a previously construct Redis server
+                             client object
+
+        :redis_host:       - (optional) the IP or host name of the Redis
+                             server to use
+
+        :redis_port:       - (optional) the port on which the Redis server on
+                             the given host name is listening
+
+        :publisher_prefix: - (required) the prefix string to use for the
+                             channel name
+
+        :logger:           - (optional) a logger to use for reporting any
+                             errors encountered (one will be created if not
+                             provided)
+
+        Typically, if you already have a Redis server client object, you would
+        pass that in via "redis_server", otherwise you must pass a host name
+        and port number for the Redis server to use.
+        """
+        assert (
+            redis_server is None and (redis_host is not None and redis_port is not None)
+        ) or (
+            redis_server is not None and (redis_host is None and redis_port is None)
+        ), "You must specify either a redis server object or a redis server host / port pair, but not both"
+
+        self.redis_server = redis_server
+        self.redis_host = redis_host
+        self.redis_port = redis_port
+
+        assert publisher_prefix is not None, "You must specify a publisher prefix"
+        self.publisher_name = f"{publisher_prefix}-pbench-client"
 
         if logger is None:
             self.logger = logging.getLogger("tool-meister-client")
         else:
             self.logger = logger
 
-        if not self.sig_pub.subs:
-            self.logger.warning(
-                "TDS not subbed to TM-Client, missing guarantee of await"
-            )
-
     def __enter__(self) -> "Client":
-        return self
-
-    def __exit__(self, *args):
-        if self._to_be_shutdown:
-            self.sig_pub.shutdown()
-
-    @classmethod
-    def create_with_exporter(
-        cls,
-        signal_publisher: state_signals.SignalExporter,
-        logger: logging.Logger = None,
-    ):
-        """
-        Creates the Client object using an existing, passed-in
-        SignalExporter.
-        """
-
-        return cls(signal_publisher, False, logger)
-
-    @classmethod
-    def create_with_redis(
-        cls,
-        existing_redis_client: redis.Redis = None,
-        redis_host: str = "localhost",
-        redis_port: str = "6379",
-        publisher_name: str = "pbench_client",
-        logger: logging.Logger = None,
-    ):
-        """
-        Creates the Client object with a new SignalExporter,
-        built either with an existing redis connection object
-        or with a host+port specification.
-        """
-
-        if existing_redis_client:
+        """On context entry, setup the connection with the Redis server using
+        a SignalExporter instance."""
+        if self.redis_server:
+            self.logger.debug(
+                "constructing SignalExporter() object using existing Redis"
+                " connection, name: %s",
+                self.publisher_name,
+            )
             sig_pub = state_signals.SignalExporter(
-                publisher_name, existing_redis_conn=existing_redis_client
+                self.publisher_name, existing_redis_conn=self.redis_server
             )
         else:
+            self.logger.debug(
+                "constructing SignalExporter() object using host %s:%s," " name: %s",
+                self.redis_host,
+                self.redis_port,
+                self.publisher_name,
+            )
             sig_pub = state_signals.SignalExporter(
-                publisher_name, redis_host=redis_host, redis_port=redis_port
+                self.publisher_name,
+                redis_host=self.redis_host,
+                redis_port=self.redis_port,
             )
         sig_pub.initialize_and_wait(
             1,
             list(tm_allowed_actions),
             tag="from_pbench_client",
         )
-        return cls(sig_pub, True, logger)
+        self.sig_pub = sig_pub
+        self.logger.debug("constructed SignalExporter() object")
+        return self
 
-    def _publish(self, group: str, directory: str, action: str, args=None) -> int:
-        """
-        A helper function that handles the publishing of messages via
-        state-signals, using the Client's SignalExporter. It then awaits
-        responses from subscribers (TDS).
+    def __exit__(self, *args):
+        """On context exit, just close down the to SignalExporter object."""
+        self.sig_pub.shutdown()
+
+    def publish(self, group: str, directory: str, action: str, args=None) -> int:
+        """Publish a state signal formed from the group, directory, action,
+        and args arguments, using the SignalExporter instance.  It waits for
+        responses from subscribers (TDS, and the TMs indirectly) before
+        continuing.
 
         Returns 0 on success, 1 on failure; logs are also written for any
         errors encountered.
+
         """
+        if action not in tm_allowed_actions:
+            self.logger.warning(f"Attempted to publish illegal action '{action}'")
+            return 1
 
         # The published message contains four pieces of information:
         #   {
@@ -135,17 +148,14 @@ class Client:
         # The caller of tool-meister-client must be sure the directory argument
         # is accessible by the Tool Data Sink instance.
 
-        # This check/conversion is necessary, as the pbench scripts sometimes pass
-        # in the directory as a str, and sometimes as pathlib.PosixPath
-        if directory and not isinstance(directory, str):
-            try:
-                directory = str(directory)
-            except Exception:
-                self.logger.exception(
-                    "Publish failed: directory must be compatible with type string, was instead %s",
-                    type(directory),
-                )
-        metadata = dict(group=group, directory=directory, args=args)
+        metadata = dict(
+            group=group,
+            # This check/conversion is necessary, as the pbench scripts
+            # sometimes pass in the directory as a str, and sometimes as
+            # pathlib.PosixPath
+            directory=None if directory is None else str(directory),
+            args=args,
+        )
         self.logger.debug(
             "publish state signal for state %s with metadata: %s", action, metadata
         )
@@ -169,24 +179,6 @@ class Client:
                 ret_val = 0
         return ret_val
 
-    def publish(self, group: str, directory: str, action: str, args=None) -> int:
-        """publish a state signal formed from the group, directory,
-        action, and args arguments.
-
-        Returns 0 on success, 1 on failure; logs are also written for any
-        errors encountered.
-        """
-        if action not in tm_allowed_actions:
-            self.logger.warning(f"Attempted to publish illegal action '{action}'")
-            return 1
-
-        return self._publish(
-            group=group,
-            directory=directory,
-            action=action,
-            args=args,
-        )
-
     def terminate(self, group: str, interrupt=False) -> int:
         """terminate - send the terminate message for the tool group to the
         Tool Data Sink, which will forward to all the Tool Meisters to have
@@ -195,7 +187,7 @@ class Client:
         Returns 0 on success, non-zero on failure (errors logged on failure).
         """
 
-        return self._publish(
+        return self.publish(
             group=group,
             directory=None,
             action="terminate",
@@ -278,9 +270,10 @@ def main() -> int:
         logger.error(str(exc))
         return exc.return_code
 
-    with Client.create_with_redis(
+    with Client(
         redis_host=redis_server.host,
         redis_port=redis_server.port,
+        publisher_prefix="cli",
         logger=logger,
     ) as client:
         ret_val = client.publish(group, directory, action)

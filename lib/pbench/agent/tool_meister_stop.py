@@ -203,9 +203,10 @@ def start(_prog: str, cli_params: Namespace) -> int:
         return exc.return_code
 
     # The Redis server is always running on the local host with the CLI.
-    with Client.create_with_redis(
+    with Client(
         redis_host=redis_server.host,
         redis_port=redis_server.port,
+        publisher_prefix="stop",
         logger=logger,
     ) as client:
         # First we end the persistent tools

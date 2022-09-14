@@ -17,11 +17,16 @@ pbench-tool-meister-start: 6a. starting localhost tool meister
 pbench-tool-meister-start: 7. waiting for all successfully created Tool Meister processes to show up as subscribers
 pbench-tool-meister-start: 8. Initialize persistent tools
 pbench-tool-meister-start: channel pbench-agent-cli-to-client payload, '{"action": "startup", "kind": "ds", "status": "success"}'
+pbench-tool-meister-start: constructed SignalExporter() object
+pbench-tool-meister-start: constructing SignalExporter() object using existing Redis connection, name: start-pbench-client
 pbench-tool-meister-start: next pbench-agent-cli-to-client
 pbench-tool-meister-start: payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "startup", "kind": "ds", "status": "success"}'}
 pbench-tool-meister-start: publish state signal for state init with metadata: {'group': 'default', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-default', 'args': None}
+pbench-tool-meister-stop: constructed SignalExporter() object
+pbench-tool-meister-stop: constructing SignalExporter() object using host localhost:17001, name: stop-pbench-client
 pbench-tool-meister-stop: publish state signal for state end with metadata: {'group': 'default', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-default', 'args': None}
 pbench-tool-meister-stop: publish state signal for state terminate with metadata: {'group': 'default', 'directory': None, 'args': {'interrupt': False}}
+pbench-tool-meister-stop: waiting for tool-data-sink (#####) to exit
 --- Finished test-51 test-start-stop-tool-meister (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
