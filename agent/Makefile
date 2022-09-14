@@ -23,7 +23,6 @@ INSTALLOPTS = --directory
 util-scripts = \
 	get-internal-tool \
 	pbench-add-metalog-option \
-	pbench-avg-stddev \
 	pbench-copy-results \
 	pbench-copy-result-tb \
 	pbench-display-sysinfo-options \

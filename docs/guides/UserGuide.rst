@@ -306,7 +306,6 @@ do?) in `FAQ section <https://distributed-system-analysis.github.io/pbench/learn
 There is a set of miscellaneous tools for doing various and sundry things - although the name of the script indicates its purpose, 
 if you want more information on these, you will have to read the code:
 
-* pbench-avg-stddev
 * pbench-log-timestamp
 
 These are used by various pieces of Pbench. There is also a contrib directory that contains completely unsupported tools that 
