@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
-from pbench.server.api.resources import API_METHOD
+from pbench.server.api.resources import ApiMethod
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
     DatasetsContents,
 )
@@ -27,7 +27,7 @@ class TestDatasetsContents(Commons):
             index_from_metadata="run-toc",
         )
 
-    api_method = API_METHOD.GET
+    api_method = ApiMethod.GET
 
     def test_with_no_index_document(self, client, server_config):
         """

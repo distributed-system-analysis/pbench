@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import List
 
 import pytest
 from sqlalchemy.exc import IntegrityError
@@ -12,189 +12,7 @@ from pbench.server.database.models.server_config import (
     ServerConfigMissingKey,
     ServerConfigNullKey,
 )
-
-# NOTE: the SQLAlchemy mock infrastructure here is specific to the ServerConfig
-# class, but it could "easily" (with substantial effort) be generalized to
-# become a shared mock platform for DB operation testing, including across
-# multiple DB tables (e.g., by maintaining a dict of session commit lists by
-# database table name)
-
-
-class FakeDBOrig:
-    """
-    A simple mocked replacement for SQLAlchemy's engine "origin" object in
-    exceptions.
-    """
-
-    def __init__(self, arg: str):
-        """
-        Create an 'orig' object
-
-        Args:
-            arg:    A text string passing information about the engine's
-                    SQL query.
-        """
-        self.args = [arg]
-
-
-class FakeRow:
-    """
-    Maintain an internal "database row" copy that we can use to verify the
-    committed records and compare active proxy values against the committed DB
-    rows.
-    """
-
-    def __init__(self, id, key, value):
-        self.id = id
-        self.key = key
-        self.value = value
-
-    def __eq__(self, entity) -> bool:
-        return (
-            isinstance(entity, __class__)
-            and self.id == entity.id
-            and self.key == entity.key
-            and self.value == entity.value
-        )
-
-    def __gt__(self, entity) -> bool:
-        return self.id > entity.id
-
-    def __lt__(self, entity) -> bool:
-        return self.id < entity.id
-
-
-class FakeQuery:
-    """
-    Model the SQLAlchemy query operations by reducing the list of known
-    committed DB values based on filter expressions.
-    """
-
-    def __init__(self, session: "FakeSession"):
-        """
-        Set up the query using a copy of the full list of known DB objects.
-
-        Args:
-            session: The associated fake session object
-        """
-        self.selected = list(session.known.values())
-        self.session = session
-
-    def all(self) -> List[ServerConfig]:
-        """
-        Return all selected records
-        """
-        return self.selected
-
-    def filter_by(self, **kwargs) -> "FakeQuery":
-        """
-        Reduce the list of matching DB objects by matching against the two
-        main columns.
-
-        Args:
-            kwargs: Standard SQLAlchemy signature
-                key: if present, select by key
-                value: if present, select by value
-
-        Returns:
-            The query so filters can be chained
-        """
-        for s in self.selected:
-            if "id" in kwargs and s.id != kwargs["id"]:
-                self.selected.remove(s)
-            elif "key" in kwargs and s.key != kwargs["key"]:
-                self.selected.remove(s)
-            elif "value" in kwargs and s.value != kwargs["value"]:
-                self.selected.remove(s)
-        return self
-
-    def first(self) -> Optional[ServerConfig]:
-        """
-        Return the first match, or None if there are none left.
-        """
-        return self.selected[0] if self.selected else None
-
-
-class FakeSession:
-    """
-    Mock a SQLAlchemy Session for testing.
-    """
-
-    def __init__(self):
-        """
-        Initialize the context of the session.
-
-        NOTE: 'raise_on_commit' can be set by a caller to cause an exception
-        during the next commit operation. The exception should generally be
-        a subclass of the SQLAlchemy IntegrityError. This is a "one shot" and
-        will be reset when the exception is raised.
-        """
-        self.id = 1
-        self.added: List[ServerConfig] = []
-        self.known: Dict[int, ServerConfig] = {}
-        self.committed: Dict[int, FakeRow] = {}
-        self.rolledback = 0
-        self.queries: List[FakeQuery] = []
-        self.raise_on_commit: Optional[Exception] = None
-
-    def query(self, *entities, **kwargs) -> FakeQuery:
-        """
-        Perform a mocked query on the session, setting up the query context
-        and returning it
-
-        Args:
-            entities: The SQLAlchemy entities on which we're operating
-            kwargs: Additional SQLAlchemy parameters
-
-        Returns:
-            A mocked query object
-        """
-        q = FakeQuery(self)
-        self.queries.append(q)
-        return q
-
-    def add(self, config: ServerConfig):
-        """
-        Add a DB object to a list for testing
-
-        Args:
-            config: A server configuration setting object
-        """
-        self.added.append(config)
-
-    def commit(self):
-        """
-        Mock a commit operation on the DB session. If the 'raise_on_commit'
-        property has been set, "fail" by raising the exception. Otherwise,
-        mock a commit by updating any cached "committed" values if the "known"
-        proxy objects have changed, and record any new "added" objects.
-        """
-        if self.raise_on_commit:
-            exc = self.raise_on_commit
-            self.raise_on_commit = None
-            raise exc
-        for k in self.known:
-            self.committed[k].value = self.known[k].value
-        for a in self.added:
-            a.id = self.id
-            self.id += 1
-            self.known[a.id] = a
-            self.committed[a.id] = FakeRow(id=a.id, key=a.key, value=a.value)
-        self.added = []
-
-    def rollback(self):
-        """
-        Just record that rollback was called, since we always raise an error
-        before changing anything during the mocked commit.
-        """
-        self.rolledback += 1
-
-        # Clear the proxy state by removing any new objects that weren't yet
-        # committed, and "rolling back" any proxy values that were updated
-        # from the committed values.
-        self.added = []
-        for k in self.committed:
-            self.known[k].value = self.committed[k].value
+from pbench.test.unit.server.database import FakeDBOrig, FakeRow, FakeSession
 
 
 class TestServerConfig:
@@ -238,7 +56,7 @@ class TestServerConfig:
         server configuration object directly on the Database.Base (normally
         done during DB initialization) because that can't be monkeypatched.
         """
-        self.session = FakeSession()
+        self.session = FakeSession(ServerConfig)
         with monkeypatch.context() as m:
             m.setattr(Database, "db_session", self.session)
             Database.Base.config = server_config

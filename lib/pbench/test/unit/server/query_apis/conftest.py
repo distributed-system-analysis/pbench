@@ -6,7 +6,7 @@ import requests
 import responses
 
 from pbench.server import JSON
-from pbench.server.api.resources import API_METHOD
+from pbench.server.api.resources import ApiMethod
 
 
 @pytest.fixture
@@ -35,15 +35,15 @@ def query_api(client, server_config, provide_metadata):
         expected_index: str,
         expected_status: str,
         headers: dict = {},
-        request_method=API_METHOD.POST,
+        request_method=ApiMethod.POST,
         query_params: JSON = None,
         **kwargs,
     ) -> requests.Response:
         host = server_config.get("elasticsearch", "host")
         port = server_config.get("elasticsearch", "port")
         es_url = f"http://{host}:{port}{expected_index}{es_uri}"
-        assert request_method in (API_METHOD.GET, API_METHOD.POST)
-        if request_method == API_METHOD.GET:
+        assert request_method in (ApiMethod.GET, ApiMethod.POST)
+        if request_method == ApiMethod.GET:
             es_method = responses.GET
             client_method = client.get
             assert not payload
@@ -61,7 +61,7 @@ def query_api(client, server_config, provide_metadata):
                 HTTPStatus.UNAUTHORIZED,
             ] and (
                 expected_status != HTTPStatus.NOT_FOUND
-                or request_method != API_METHOD.POST
+                or request_method != ApiMethod.POST
                 or payload.get("user") != "badwolf"
             ):
                 rsp.add(es_method, es_url, **kwargs)

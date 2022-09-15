@@ -2,12 +2,12 @@ from typing import Union
 
 import pytest
 
+from pbench.server import OperationCode
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
-    API_OPERATION,
     ApiAuthorization,
+    ApiAuthorizationType,
     ApiBase,
+    ApiMethod,
     ApiSchema,
     UnauthorizedAccess,
 )
@@ -29,7 +29,7 @@ class TestAuthorization:
     @pytest.fixture()
     def apibase(self, client) -> ApiBase:
         return ApiBase(
-            client.config, client.logger, ApiSchema(API_METHOD.GET, API_OPERATION.READ)
+            client.config, client.logger, ApiSchema(ApiMethod.GET, OperationCode.READ)
         )
 
     @pytest.fixture()
@@ -54,14 +54,14 @@ class TestAuthorization:
     @pytest.mark.parametrize(
         "ask",
         [
-            {"user": "drb", "access": "private", "role": API_OPERATION.UPDATE},
-            {"user": "drb", "access": "public", "role": API_OPERATION.UPDATE},
-            {"user": "drb", "access": "private", "role": API_OPERATION.DELETE},
-            {"user": "drb", "access": "public", "role": API_OPERATION.DELETE},
-            {"user": "drb", "access": "private", "role": API_OPERATION.READ},
-            {"user": "drb", "access": "public", "role": API_OPERATION.READ},
-            {"user": None, "access": "private", "role": API_OPERATION.READ},
-            {"user": None, "access": "public", "role": API_OPERATION.READ},
+            {"user": "drb", "access": "private", "role": OperationCode.UPDATE},
+            {"user": "drb", "access": "public", "role": OperationCode.UPDATE},
+            {"user": "drb", "access": "private", "role": OperationCode.DELETE},
+            {"user": "drb", "access": "public", "role": OperationCode.DELETE},
+            {"user": "drb", "access": "private", "role": OperationCode.READ},
+            {"user": "drb", "access": "public", "role": OperationCode.READ},
+            {"user": None, "access": "private", "role": OperationCode.READ},
+            {"user": None, "access": "public", "role": OperationCode.READ},
         ],
     )
     def test_allowed_admin(
@@ -70,17 +70,17 @@ class TestAuthorization:
         user = self.get_user_id(ask["user"])
         apibase._check_authorization(
             ApiAuthorization(
-                API_AUTHORIZATION.USER_ACCESS, ask["role"], user, ask["access"]
+                ApiAuthorizationType.USER_ACCESS, ask["role"], user, ask["access"]
             )
         )
 
     @pytest.mark.parametrize(
         "ask",
         [
-            {"user": None, "access": "private", "role": API_OPERATION.UPDATE},
-            {"user": None, "access": "public", "role": API_OPERATION.UPDATE},
-            {"user": None, "access": "private", "role": API_OPERATION.DELETE},
-            {"user": None, "access": "public", "role": API_OPERATION.DELETE},
+            {"user": None, "access": "private", "role": OperationCode.UPDATE},
+            {"user": None, "access": "public", "role": OperationCode.UPDATE},
+            {"user": None, "access": "private", "role": OperationCode.DELETE},
+            {"user": None, "access": "public", "role": OperationCode.DELETE},
         ],
     )
     def test_disallowed_admin(self, apibase, server_config, current_user_admin, ask):
@@ -89,7 +89,7 @@ class TestAuthorization:
         with pytest.raises(UnauthorizedAccess) as exc:
             apibase._check_authorization(
                 ApiAuthorization(
-                    API_AUTHORIZATION.USER_ACCESS, ask["role"], user, access
+                    ApiAuthorizationType.USER_ACCESS, ask["role"], user, access
                 )
             )
         assert exc.value.owner == (ask["user"] if ask["user"] else "none")
@@ -98,15 +98,15 @@ class TestAuthorization:
     @pytest.mark.parametrize(
         "ask",
         [
-            {"user": "drb", "access": "private", "role": API_OPERATION.UPDATE},
-            {"user": "drb", "access": "public", "role": API_OPERATION.UPDATE},
-            {"user": "drb", "access": "private", "role": API_OPERATION.DELETE},
-            {"user": "drb", "access": "public", "role": API_OPERATION.DELETE},
-            {"user": "drb", "access": "private", "role": API_OPERATION.READ},
-            {"user": "drb", "access": "public", "role": API_OPERATION.READ},
-            {"user": "test", "access": "public", "role": API_OPERATION.READ},
-            {"user": None, "access": "public", "role": API_OPERATION.READ},
-            {"user": None, "access": "private", "role": API_OPERATION.READ},
+            {"user": "drb", "access": "private", "role": OperationCode.UPDATE},
+            {"user": "drb", "access": "public", "role": OperationCode.UPDATE},
+            {"user": "drb", "access": "private", "role": OperationCode.DELETE},
+            {"user": "drb", "access": "public", "role": OperationCode.DELETE},
+            {"user": "drb", "access": "private", "role": OperationCode.READ},
+            {"user": "drb", "access": "public", "role": OperationCode.READ},
+            {"user": "test", "access": "public", "role": OperationCode.READ},
+            {"user": None, "access": "public", "role": OperationCode.READ},
+            {"user": None, "access": "private", "role": OperationCode.READ},
         ],
     )
     def test_allowed_auth(
@@ -121,22 +121,22 @@ class TestAuthorization:
         user = self.get_user_id(ask["user"])
         apibase._check_authorization(
             ApiAuthorization(
-                API_AUTHORIZATION.USER_ACCESS, ask["role"], user, ask["access"]
+                ApiAuthorizationType.USER_ACCESS, ask["role"], user, ask["access"]
             )
         )
 
     @pytest.mark.parametrize(
         "ask",
         [
-            {"user": "test", "access": "private", "role": API_OPERATION.UPDATE},
-            {"user": "test", "access": "public", "role": API_OPERATION.UPDATE},
-            {"user": None, "access": "private", "role": API_OPERATION.UPDATE},
-            {"user": None, "access": "public", "role": API_OPERATION.UPDATE},
-            {"user": "test", "access": "private", "role": API_OPERATION.DELETE},
-            {"user": "test", "access": "public", "role": API_OPERATION.DELETE},
-            {"user": None, "access": "private", "role": API_OPERATION.DELETE},
-            {"user": None, "access": "public", "role": API_OPERATION.DELETE},
-            {"user": "test", "access": "private", "role": API_OPERATION.READ},
+            {"user": "test", "access": "private", "role": OperationCode.UPDATE},
+            {"user": "test", "access": "public", "role": OperationCode.UPDATE},
+            {"user": None, "access": "private", "role": OperationCode.UPDATE},
+            {"user": None, "access": "public", "role": OperationCode.UPDATE},
+            {"user": "test", "access": "private", "role": OperationCode.DELETE},
+            {"user": "test", "access": "public", "role": OperationCode.DELETE},
+            {"user": None, "access": "private", "role": OperationCode.DELETE},
+            {"user": None, "access": "public", "role": OperationCode.DELETE},
+            {"user": "test", "access": "private", "role": OperationCode.READ},
         ],
     )
     def test_disallowed_auth(
@@ -147,7 +147,7 @@ class TestAuthorization:
         with pytest.raises(UnauthorizedAccess) as exc:
             apibase._check_authorization(
                 ApiAuthorization(
-                    API_AUTHORIZATION.USER_ACCESS, ask["role"], user, access
+                    ApiAuthorizationType.USER_ACCESS, ask["role"], user, access
                 )
             )
         assert exc.value.owner == (ask["user"] if ask["user"] else "none")
@@ -156,9 +156,9 @@ class TestAuthorization:
     @pytest.mark.parametrize(
         "ask",
         [
-            {"user": "drb", "access": "public", "role": API_OPERATION.READ},
-            {"user": "test", "access": "public", "role": API_OPERATION.READ},
-            {"user": None, "access": "public", "role": API_OPERATION.READ},
+            {"user": "drb", "access": "public", "role": OperationCode.READ},
+            {"user": "test", "access": "public", "role": OperationCode.READ},
+            {"user": None, "access": "public", "role": OperationCode.READ},
         ],
     )
     def test_allowed_noauth(
@@ -173,18 +173,18 @@ class TestAuthorization:
         user = self.get_user_id(ask["user"])
         apibase._check_authorization(
             ApiAuthorization(
-                API_AUTHORIZATION.USER_ACCESS, ask["role"], user, ask["access"]
+                ApiAuthorizationType.USER_ACCESS, ask["role"], user, ask["access"]
             )
         )
 
     @pytest.mark.parametrize(
         "ask",
         [
-            {"user": "test", "access": "private", "role": API_OPERATION.UPDATE},
-            {"user": "test", "access": "public", "role": API_OPERATION.UPDATE},
-            {"user": "test", "access": "private", "role": API_OPERATION.DELETE},
-            {"user": "test", "access": "public", "role": API_OPERATION.DELETE},
-            {"user": "test", "access": "private", "role": API_OPERATION.READ},
+            {"user": "test", "access": "private", "role": OperationCode.UPDATE},
+            {"user": "test", "access": "public", "role": OperationCode.UPDATE},
+            {"user": "test", "access": "private", "role": OperationCode.DELETE},
+            {"user": "test", "access": "public", "role": OperationCode.DELETE},
+            {"user": "test", "access": "private", "role": OperationCode.READ},
         ],
     )
     def test_disallowed_noauth(
@@ -195,7 +195,7 @@ class TestAuthorization:
         with pytest.raises(UnauthorizedAccess) as exc:
             apibase._check_authorization(
                 ApiAuthorization(
-                    API_AUTHORIZATION.USER_ACCESS, ask["role"], user, access
+                    ApiAuthorizationType.USER_ACCESS, ask["role"], user, access
                 )
             )
         assert exc.value.owner == (ask["user"] if ask["user"] else "none")
@@ -204,7 +204,7 @@ class TestAuthorization:
     def test_admin_unauth(self, apibase, server_config, current_user_none):
         with pytest.raises(UnauthorizedAccess) as exc:
             apibase._check_authorization(
-                ApiAuthorization(API_AUTHORIZATION.ADMIN, API_OPERATION.CREATE)
+                ApiAuthorization(ApiAuthorizationType.ADMIN, OperationCode.CREATE)
             )
         assert (
             str(exc.value)
@@ -214,7 +214,7 @@ class TestAuthorization:
     def test_admin_user(self, apibase, server_config, current_user_drb):
         with pytest.raises(UnauthorizedAccess) as exc:
             apibase._check_authorization(
-                ApiAuthorization(API_AUTHORIZATION.ADMIN, API_OPERATION.CREATE)
+                ApiAuthorization(ApiAuthorizationType.ADMIN, OperationCode.CREATE)
             )
         assert (
             str(exc.value)
@@ -223,5 +223,5 @@ class TestAuthorization:
 
     def test_admin_admin(self, apibase, server_config, current_user_admin):
         apibase._check_authorization(
-            ApiAuthorization(API_AUTHORIZATION.ADMIN, API_OPERATION.CREATE)
+            ApiAuthorization(ApiAuthorizationType.ADMIN, OperationCode.CREATE)
         )

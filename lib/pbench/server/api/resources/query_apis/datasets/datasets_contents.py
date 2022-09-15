@@ -1,11 +1,10 @@
 from http import HTTPStatus
 from logging import Logger
 
-from pbench.server import PbenchServerConfig
+from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
-    API_OPERATION,
+    ApiAuthorizationType,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     JSON,
@@ -13,7 +12,7 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
+from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 
 
@@ -30,17 +29,17 @@ class DatasetsContents(IndexMapBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.GET,
-                API_OPERATION.READ,
+                ApiMethod.GET,
+                OperationCode.READ,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True),
                     Parameter("target", ParamType.STRING, required=False),
                 ),
-                authorization=API_AUTHORIZATION.DATASET,
+                authorization=ApiAuthorizationType.DATASET,
             ),
         )
 
-    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: ApiContext) -> JSON:
         """
         Construct a pbench Elasticsearch query for getting a list of
         documents which contains the user provided parent with files
@@ -92,7 +91,7 @@ class DatasetsContents(IndexMapBase):
             },
         }
 
-    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
+    def postprocess(self, es_json: JSON, context: ApiContext) -> JSON:
         """
         Returns a Flask Response containing a JSON object (keyword/value
         pairs) whose values are lists of entries describing individual

@@ -3,7 +3,8 @@ from http import HTTPStatus
 import pytest
 import requests
 
-from pbench.server import JSON
+from pbench.server import JSON, OperationCode, PbenchServerConfig
+from pbench.server.database.models.audit import Audit, AuditStatus
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
@@ -429,6 +430,12 @@ class TestDatasetsMetadata:
             "global.seen": False,
             "dataset.access": "private",
         }
+        audit = Audit.query(operation=OperationCode.UPDATE, status=AuditStatus.SUCCESS)
+        assert len(audit) == 1
+        assert audit[0].attributes["updated"] == {
+            "global.seen": False,
+            "global.saved": True,
+        }
 
     def test_put_user(self, query_get_as, query_put_as):
         response = query_put_as(
@@ -438,6 +445,13 @@ class TestDatasetsMetadata:
             HTTPStatus.OK,
         )
         assert response.json == {"user.favorite": True, "user.tag": "AWS"}
+        audit = Audit.query(operation=OperationCode.UPDATE, status=AuditStatus.SUCCESS)
+        assert len(audit) == 1
+        assert audit[0].attributes["updated"] == {
+            "user.favorite": True,
+            "user.tag": "AWS",
+        }
+
         response = query_put_as(
             "fio_1",
             {"metadata": {"user.favorite": False, "user.tag": "RHEL"}},

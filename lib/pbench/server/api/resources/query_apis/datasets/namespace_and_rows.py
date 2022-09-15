@@ -4,19 +4,18 @@ from logging import Logger
 from flask import jsonify
 from flask.wrappers import Response
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSON, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
-    API_OPERATION,
     APIAbort,
+    ApiAuthorizationType,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     Parameter,
     ParamType,
     Schema,
 )
-from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
+from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.template import TemplateNotFound
@@ -35,8 +34,8 @@ class SampleNamespace(IndexMapBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.GET,
-                API_OPERATION.READ,
+                ApiMethod.GET,
+                OperationCode.READ,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True),
                     Parameter(
@@ -46,11 +45,11 @@ class SampleNamespace(IndexMapBase):
                         keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
                     ),
                 ),
-                authorization=API_AUTHORIZATION.DATASET,
+                authorization=ApiAuthorizationType.DATASET,
             ),
         )
 
-    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: ApiContext) -> JSON:
         """
         Construct an Elasticsearch query which returns a list of values which
         appear in each of the keyword fields in the WHITELIST_AGGS_FIELDS
@@ -109,7 +108,7 @@ class SampleNamespace(IndexMapBase):
             },
         }
 
-    def postprocess(self, es_json: JSON, context: CONTEXT) -> Response:
+    def postprocess(self, es_json: JSON, context: ApiContext) -> Response:
         """
         Returns a Flask Response containing a JSON object (keyword/value
         pairs) where each key is the fully qualified dot-separated name of a
@@ -194,8 +193,8 @@ class SampleValues(IndexMapBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.POST,
-                API_OPERATION.READ,
+                ApiMethod.POST,
+                OperationCode.READ,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True),
                     Parameter(
@@ -209,11 +208,11 @@ class SampleValues(IndexMapBase):
                     Parameter("filters", ParamType.JSON, required=False),
                     Parameter("scroll_id", ParamType.STRING, required=False),
                 ),
-                authorization=API_AUTHORIZATION.DATASET,
+                authorization=ApiAuthorizationType.DATASET,
             ),
         )
 
-    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: ApiContext) -> JSON:
         """
         Construct an Elasticsearch query which returns a list of data values
         from a selected set of documents that belong to the given run id in
@@ -316,7 +315,7 @@ class SampleValues(IndexMapBase):
             },
         }
 
-    def postprocess(self, es_json: JSON, context: CONTEXT) -> Response:
+    def postprocess(self, es_json: JSON, context: ApiContext) -> Response:
         """
         Returns a Flask Response containing a JSON object with keys as
         results and possibly a scroll_id if the next page of results

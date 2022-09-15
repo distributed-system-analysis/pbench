@@ -14,8 +14,8 @@ from pbench.common.exceptions import (
     TemplateError,
     UnsupportedTarballFormat,
 )
-from pbench.server import tstos
-from pbench.server.cache_manager import CacheManager, TarballNotFound
+from pbench.server import OperationCode, tstos
+from pbench.server.database.models.audit import Audit, AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetError,
@@ -357,12 +357,11 @@ class Index:
                         count_processed_tb += 1
 
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
+                        dataset = None
+                        audit = None
                         ptb = None
                         userid = None
-                        unpacked = None
                         tb_res = error_code["OK"]
-
-                        # Sanity check source tar ball path
                         try:
                             path = os.path.realpath(tb)
 
@@ -404,6 +403,14 @@ class Index:
                                 # the notion that we want to keep this as a "keyword" (string)
                                 # field.
                                 userid = str(dataset.owner_id)
+
+                            audit = Audit.create(
+                                operation=OperationCode.UPDATE,
+                                name="index",
+                                status=AuditStatus.BEGIN,
+                                user_name=Audit.BACKGROUND_USER,
+                                dataset=dataset,
+                            )
 
                             # "Open" the tar ball represented by the tar ball object
                             idxctx.logger.debug("open tar ball")
@@ -534,7 +541,17 @@ class Index:
                                     idxctx.logger.exception(
                                         "Unexpected error on {}: {}", ptb.tbname, e
                                     )
+                            if audit:
+                                doneness = AuditStatus.SUCCESS
+                                attributes = None
 
+                                # TODO: can we categorize anything as "WARNING"?
+                                if tb_res != error_code["OK"]:
+                                    doneness = AuditStatus.FAILURE
+                                    attributes = {"message": tb_res.message}
+                                Audit.create(
+                                    root=audit, status=doneness, attributes=attributes
+                                )
                         try:
                             ie_len = ie_filepath.stat().st_size
                         except FileNotFoundError:

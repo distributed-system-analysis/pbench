@@ -3,20 +3,21 @@ from logging import Logger
 
 from flask import jsonify
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSON, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
-    API_OPERATION,
     APIAbort,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     Parameter,
     ParamType,
     Schema,
 )
-from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
-from pbench.server.api.resources.query_apis.datasets import IndexMapBase
+from pbench.server.api.resources.query_apis import (
+    ApiContext,
+    ElasticBase,
+    PostprocessError,
+)
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
@@ -35,8 +36,8 @@ class DatasetsDetail(IndexMapBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.GET,
-                API_OPERATION.READ,
+                ApiMethod.POST,
+                OperationCode.READ,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True)
                 ),
@@ -54,7 +55,7 @@ class DatasetsDetail(IndexMapBase):
             ),
         )
 
-    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: ApiContext) -> JSON:
         """
         Get details for a specific Pbench dataset which is either owned
         by a specified username, or has been made publicly accessible.
@@ -92,7 +93,7 @@ class DatasetsDetail(IndexMapBase):
             },
         }
 
-    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
+    def postprocess(self, es_json: JSON, context: ApiContext) -> JSON:
         """
         Returns details from the run, @metadata, and host_tools_info subdocuments
         of the Elasticsearch run document. The Elasticsearch information can

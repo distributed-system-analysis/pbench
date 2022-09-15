@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
-from pbench.server.api.resources import API_METHOD, APIAbort
+from pbench.server.api.resources import APIAbort, ApiMethod
 from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,
@@ -349,7 +349,7 @@ class TestSamplesNamespace(Commons):
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
-            request_method=API_METHOD.GET,
+            request_method=ApiMethod.GET,
         )
         if expected_status == HTTPStatus.OK:
             res_json = response.json

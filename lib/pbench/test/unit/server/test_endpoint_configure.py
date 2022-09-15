@@ -65,6 +65,7 @@ class TestEndpointConfig:
                 "login": f"{uri}/login",
                 "logout": f"{uri}/logout",
                 "register": f"{uri}/register",
+                "server_audit": f"{uri}/server/audit",
                 "server_configuration": f"{uri}/server/configuration",
                 "upload": f"{uri}/upload",
                 "user": f"{uri}/user",
@@ -128,6 +129,7 @@ class TestEndpointConfig:
                 "login": {"template": f"{uri}/login", "params": {}},
                 "logout": {"template": f"{uri}/logout", "params": {}},
                 "register": {"template": f"{uri}/register", "params": {}},
+                "server_audit": {"template": f"{uri}/server/audit", "params": {}},
                 "server_configuration": {
                     "template": f"{uri}/server/configuration/{{key}}",
                     "params": {"key": {"type": "string"}},

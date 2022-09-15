@@ -3,10 +3,9 @@ from logging import Logger
 
 from flask import jsonify
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSON, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_METHOD,
-    API_OPERATION,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     Parameter,
@@ -14,7 +13,7 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.api.resources.query_apis import (
-    CONTEXT,
+    ApiContext,
     ElasticBase,
     PostprocessError,
 )
@@ -32,8 +31,8 @@ class DatasetsSearch(ElasticBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.POST,
-                API_OPERATION.READ,
+                ApiMethod.POST,
+                OperationCode.READ,
                 body_schema=Schema(
                     Parameter("user", ParamType.USER, required=False),
                     Parameter("start", ParamType.DATE, required=True),
@@ -49,7 +48,7 @@ class DatasetsSearch(ElasticBase):
             ),
         )
 
-    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: ApiContext) -> JSON:
         """
         Construct a pbench search query based on a pattern matching given "search_term" parameter
         within a specified date range and which are either owned by a specified username,
@@ -128,7 +127,7 @@ class DatasetsSearch(ElasticBase):
             },
         }
 
-    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
+    def postprocess(self, es_json: JSON, context: ApiContext) -> JSON:
         """
         Returns a summary of the returned Elasticsearch query results, showing
         the list of dictionaries with user selected fields from request json as keys

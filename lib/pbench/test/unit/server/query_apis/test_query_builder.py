@@ -2,8 +2,8 @@ from typing import Optional
 
 import pytest
 
-from pbench.server import JSON
-from pbench.server.api.resources import API_METHOD, API_OPERATION, ApiSchema
+from pbench.server import JSON, OperationCode
+from pbench.server.api.resources import ApiMethod, ApiSchema
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.auth.auth import Auth
 from pbench.server.database.models.users import User
@@ -17,7 +17,7 @@ class TestQueryBuilder:
     @pytest.fixture()
     def elasticbase(self, client) -> ElasticBase:
         return ElasticBase(
-            client.config, client.logger, ApiSchema(API_METHOD.POST, API_OPERATION.READ)
+            client.config, client.logger, ApiSchema(ApiMethod.POST, OperationCode.READ)
         )
 
     @pytest.fixture()

@@ -534,7 +534,7 @@ class TemplateFile:
             day=day,
         )
 
-    def body(self) -> Dict[AnyStr, Any]:
+    def body(self) -> Dict[str, Any]:
         """
         Return a JSON payload suitable to POST to Elasticsearch in order to
         register an indexed document template.
@@ -555,7 +555,14 @@ class PbenchTemplates:
     templates needed to define our Elasticsearch document schema.
     """
 
-    def __init__(self, basepath, idx_prefix, logger, known_tool_handlers=None, _dbg=0):
+    def __init__(
+        self,
+        basepath: str,
+        idx_prefix: str,
+        logger: Logger,
+        known_tool_handlers: JSONOBJECT = None,
+        _dbg: int = 0,
+    ):
         """
         This contains the embedded knowledge of how the Pbench server defines
         and managed Elasticsearch template documents and indices. It relies on
@@ -581,13 +588,12 @@ class PbenchTemplates:
         mapping_dir = base_dir / "mappings"
         setting_dir = base_dir / "settings"
 
-        self.versions = {}
-        self.templates = {}
-        self.idx_prefix = idx_prefix
-        self.logger = logger
-        self.known_tool_handlers = known_tool_handlers
-        self._dbg = _dbg
-        self.counters = Counter()
+        self.templates: Dict[str, TemplateFile] = {}
+        self.idx_prefix: str = idx_prefix
+        self.logger: Logger = logger
+        self.known_tool_handlers: JSONOBJECT = known_tool_handlers
+        self._dbg: int = _dbg
+        self.counters: Counter = Counter()
 
         # Pbench report status mapping and settings.
         self.add_template(
@@ -729,6 +735,16 @@ class PbenchTemplates:
                 # If we were asked to only load a given template name, skip
                 # all non-matching templates.
                 continue
+            attrs = {"update": {"name": template.name, "version": template.version}}
+            audit = Audit.create(
+                operation=OperationCode.CREATE,
+                object_type=AuditType.TEMPLATE,
+                name="template",
+                status=AuditStatus.BEGIN,
+                object_name=template.name,
+                attributes=attrs,
+            )
+            completion = AuditStatus.SUCCESS
             try:
                 _beg, _end, _retries, _stat = pyesbulk.put_template(
                     es,
@@ -737,6 +753,8 @@ class PbenchTemplates:
                     template.body(),
                 )
             except Exception as e:
+                completion = AuditStatus.FAILURE
+                attrs["message"] = str(e)
                 self.counters["put_template_failures"] += 1
                 raise TemplateError(f"Tool {name} update failed: {e}")
             else:
@@ -745,6 +763,8 @@ class PbenchTemplates:
                     beg = _beg
                 end = _end
                 retries += _retries
+            finally:
+                Audit.create(root=audit, status=completion, attributes=attrs)
         log_action = self.logger.warning if retries > 0 else self.logger.debug
         log_action(
             "done templates (start ts: {}, end ts: {}, duration: {:.2f}s,"

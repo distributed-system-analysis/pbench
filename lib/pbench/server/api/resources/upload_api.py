@@ -4,6 +4,7 @@ import hashlib
 from http import HTTPStatus
 import os
 import shutil
+from typing import Optional
 
 from flask import jsonify, request
 from flask_restful import abort, Resource
@@ -69,6 +70,8 @@ class Upload(Resource):
         # Used to record what steps have been completed during the upload, and
         # need to be undone on failure
         recovery = Cleanup(self.logger)
+        user: Optional[User] = None
+        audit: Optional[Audit] = None
 
         try:
             try:
@@ -141,6 +144,8 @@ class Upload(Resource):
 
             tar_full_path = self.temporary / filename
             md5_full_path = self.temporary / f"{filename}.md5"
+            dataset_name = Dataset.stem(tar_full_path)
+
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
             self.logger.info(
@@ -168,7 +173,6 @@ class Upload(Resource):
                 )
                 dataset.add()
             except DatasetDuplicate:
-                dataset_name = Dataset.stem(tar_full_path)
                 self.logger.info(
                     "Dataset already exists, user = (user_id: {}, username: {}), file = {!a}",
                     user_id,
@@ -199,6 +203,13 @@ class Upload(Resource):
                     message="Unable to create dataset",
                 )
 
+            audit = Audit.create(
+                operation=OperationCode.CREATE,
+                name="upload",
+                user=user,
+                dataset=dataset,
+                status=AuditStatus.BEGIN,
+            )
             recovery.add(dataset.delete)
 
             self.logger.info(
@@ -373,6 +384,7 @@ class Upload(Resource):
                 Sync(self.logger, "upload").update(
                     dataset=dataset, enabled=[Operation.BACKUP, Operation.UNPACK]
                 )
+                Audit.create(root=audit, status=AuditStatus.SUCCESS)
             except Exception as exc:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -401,6 +413,21 @@ class Upload(Resource):
                 status = e.status
             else:
                 self.logger.exception("Unexpected exception in outer try")
+
+            # FIXME:
+            # 1. Try to decode a Reason for failure
+            # 2. This isn't auditing failure if we failed on header validation
+            #    before we created the Dataset object. We probably don't want
+            #    to audit every failed API call, so maybe this is correct, but
+            #    we could audit a CREATE with no object ID and request header
+            #    info as 'attributes' when add object_name/id later, possibly
+            #    through a "status change" audit event connecting the two?
+            if audit:
+                Audit.create(
+                    root=audit,
+                    status=AuditStatus.FAILURE,
+                    attributes={"message": abort_msg},
+                )
             recovery.cleanup()
             abort(status, message=abort_msg)
 

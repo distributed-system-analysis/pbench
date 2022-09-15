@@ -14,6 +14,7 @@ from flask_restful import Api
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
+from pbench.server.api.resources.audit_query import AuditQuery
 from pbench.server.api.resources.datasets_daterange import DatasetsDateRange
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
@@ -156,6 +157,12 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, logger),
     )
     api.add_resource(
+        AuditQuery,
+        f"{base_uri}/server/audit",
+        endpoint="server_audit",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
         ServerConfiguration,
         f"{base_uri}/server/configuration",
         f"{base_uri}/server/configuration/",
@@ -208,7 +215,7 @@ def create_app(server_config):
     register_endpoints(api, app, server_config)
 
     try:
-        init_db(server_config=server_config, logger=app.logger)
+        init_db(configuration=server_config, logger=app.logger)
     except Exception:
         app.logger.exception("Exception while initializing sqlalchemy database")
         sys.exit(1)

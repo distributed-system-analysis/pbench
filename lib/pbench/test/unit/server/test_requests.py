@@ -6,8 +6,9 @@ from typing import Any
 
 import pytest
 
-from pbench.server import PbenchServerConfig
+from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.cache_manager import CacheManager
+from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
@@ -351,6 +352,13 @@ class TestUpload:
         assert Metadata.getvalue(dataset, Metadata.OPERATION) == ["BACKUP", "UNPACK"]
         assert self.cachemanager_created
         assert dataset.name in self.cachemanager_created
+        audit = Audit.query(operation=OperationCode.CREATE, status=AuditStatus.SUCCESS)
+        assert len(audit) == 1
+        assert audit[0].object_type == AuditType.DATASET
+        assert audit[0].object_id == md5
+        assert audit[0].object_name == datafile.name[:-7]
+        assert audit[0].user_id == "3"
+        assert audit[0].user_name == "drb"
 
         for record in caplog.records:
             assert record.levelname in ["DEBUG", "INFO"]
@@ -430,3 +438,10 @@ class TestUpload:
         assert not self.cachemanager_create_path.exists()
         assert not Path(str(self.cachemanager_create_path) + ".md5").exists()
         assert self.tarball_deleted == Dataset.stem(datafile)
+
+        audit = Audit.query(object_id=md5)
+        assert len(audit) == 2
+        assert audit[0].operation == OperationCode.CREATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[1].operation is OperationCode.CREATE
+        assert audit[1].status is AuditStatus.FAILURE
