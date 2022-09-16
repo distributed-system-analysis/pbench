@@ -14,7 +14,6 @@ from flask_restful import Api
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
-from pbench.server.api.auth import Auth
 from pbench.server.api.resources.datasets_daterange import DatasetsDateRange
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
@@ -39,6 +38,7 @@ from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsear
 from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
+from pbench.server.auth.auth import Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
 

@@ -6,6 +6,7 @@ from flask import abort, request
 from flask_httpauth import HTTPTokenAuth
 import jwt
 
+from pbench.server.auth import OpenIDClient, OpenIDClientError
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
 
@@ -18,15 +19,19 @@ class Auth:
         # Logger gets set at the time of auth module initialization
         Auth.logger = logger
 
-    def encode_auth_token(self, token_expire_duration, user_id):
+    def encode_auth_token(self, time_delta: datetime.timedelta, user_id: int) -> str:
         """
         Generates the Auth Token
-        :return: jwt token string
+        Args:
+            time_delta: Token lifetime
+            user_id: Authorized user's internal ID
+        Returns:
+            JWT token string
         """
         current_utc = datetime.datetime.utcnow()
         payload = {
             "iat": current_utc,
-            "exp": current_utc + datetime.timedelta(minutes=int(token_expire_duration)),
+            "exp": current_utc + time_delta,
             "sub": user_id,
         }
 
@@ -101,3 +106,53 @@ class Auth:
                 e,
             )
         return None
+
+    @staticmethod
+    def verify_third_party_token(auth_token: str, oidc_client: OpenIDClient) -> bool:
+        """
+        Verify a token provided to the Pbench server which was obtained from a
+        third party identity provider.
+        Args:
+            auth_token: Token to authenticate
+            oidc_client: OIDC client to call to authenticate the token
+        Returns:
+            True if the verification succeeds else False
+        """
+        identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
+        try:
+            oidc_client.token_introspect_offline(
+                token=auth_token,
+                key=identity_provider_pubkey,
+                audience=oidc_client.client_id,
+                options={
+                    "verify_signature": True,
+                    "verify_aud": True,
+                    "verify_exp": True,
+                },
+            )
+            return True
+        except (
+            jwt.ExpiredSignatureError,
+            jwt.InvalidTokenError,
+            jwt.InvalidAudienceError,
+        ):
+            Auth.logger.error("OIDC token verification failed")
+            return False
+        except Exception:
+            Auth.logger.exception(
+                "Unexpected exception occurred while verifying the auth token {}",
+                auth_token,
+            )
+
+        if not oidc_client.TOKENINFO_ENDPOINT:
+            Auth.logger.warning("Can not perform OIDC online token verification")
+            return False
+
+        try:
+            token_payload = oidc_client.token_introspect_online(
+                token=auth_token, token_info_uri=oidc_client.TOKENINFO_ENDPOINT
+            )
+        except OpenIDClientError:
+            return False
+
+        return "aud" in token_payload and oidc_client.client_id in token_payload["aud"]

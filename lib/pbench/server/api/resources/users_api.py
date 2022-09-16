@@ -1,3 +1,4 @@
+from datetime import timedelta
 from http import HTTPStatus
 from typing import NamedTuple
 
@@ -8,7 +9,7 @@ from flask_restful import abort, Resource
 import jwt
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from pbench.server.api.auth import Auth
+from pbench.server.auth.auth import Auth
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
@@ -150,7 +151,8 @@ class Login(Resource):
     def post(self):
         """
         Post request for logging in user.
-        The user is allowed to re-login multiple times and each time a new valid auth token will be provided
+        The user is allowed to re-login multiple times and each time a new
+        valid auth token will be returned.
 
         This requires a JSON data with required user metadata fields
         {
@@ -210,7 +212,8 @@ class Login(Resource):
 
         try:
             auth_token = self.auth.encode_auth_token(
-                self.token_expire_duration, user.id
+                time_delta=timedelta(minutes=int(self.token_expire_duration)),
+                user_id=user.id,
             )
         except (
             jwt.InvalidIssuer,

@@ -17,7 +17,7 @@ import pytest
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
-from pbench.server.api.auth import Auth
+from pbench.server.auth.auth import Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
@@ -52,6 +52,8 @@ logging_level = DEBUG
 [Indexing]
 index_prefix = unit-test
 
+[keycloak]
+server_url = http://pbench.example.com/
 
 ###########################################################################
 # The rest will come from the default config file.
@@ -183,13 +185,13 @@ def register_user(
     )
 
 
-def login_user(client, server_config, username, password):
+def login_user(client, server_config, username, password, token_expiry=None):
     """
     Helper function to generate a user authentication token
     """
     return client.post(
         f"{server_config.rest_uri}/login",
-        json={"username": username, "password": password},
+        json={"username": username, "password": password, "token_expiry": token_expiry},
     )
 
 

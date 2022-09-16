@@ -15,7 +15,6 @@ from flask.wrappers import Response
 import requests
 
 from pbench.server import JSON, PbenchServerConfig
-from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
     API_AUTHORIZATION,
     API_METHOD,
@@ -27,6 +26,7 @@ from pbench.server.api.resources import (
     SchemaError,
     UnauthorizedAccess,
 )
+from pbench.server.auth.auth import Auth
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
