@@ -260,7 +260,7 @@ install-lib:
 install-python3-setup: install-util-scripts install-lib
 	${COPY} requirements.txt ${DESTDIR}
 	mkdir -p ${DESTDIR}/python3
-	(cd ..; SKIP_GENERATE_AUTHORS=1 SKIP_WRITE_GIT_CHANGELOG=1 python3 setup.py install --prefix=${DESTDIR}/python3)
+	(cd ..; /usr/bin/python3 -m pip install --prefix=${DESTDIR}/python3 -e .)
 	${COPY} $(addprefix ${DESTDIR}/python3/bin/, ${click-scripts}) ${UTILDIR}/
 	rm -rf ${DESTDIR}/python3
 	${COPY} ../lib/pbench ${LIBDIR}/
