@@ -67,7 +67,7 @@ class SampleNamespace(IndexMapBase):
         }
         """
         dataset: Dataset = context["dataset"]
-        document = self.ES_INTERNAL_INDEX_NAMES[params.uri.get("dataset_view")]
+        document = self.ES_INTERNAL_INDEX_NAMES[params.uri["dataset_view"]]
 
         document_index = document["index"]
 

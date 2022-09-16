@@ -28,8 +28,6 @@ class TestSamplesNamespace(Commons):
             index_from_metadata="result-data-sample",
         )
 
-    api_method = API_METHOD.GET
-
     def test_with_no_index_document(
         self, client, server_config, pbench_token, attach_dataset
     ):
@@ -351,7 +349,7 @@ class TestSamplesNamespace(Commons):
             json=response_payload,
             status=HTTPStatus.OK,
             headers=build_auth_header["header"],
-            request_method=self.api_method,
+            request_method=API_METHOD.GET,
         )
         if expected_status == HTTPStatus.OK:
             res_json = response.json
