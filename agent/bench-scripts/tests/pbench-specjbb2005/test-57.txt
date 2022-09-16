@@ -1,0 +1,107 @@
++++ Running test-57 pbench-specjbb2005
+tool trigger strings for start: "Timing Measurement began" and for stop: "Timing Measurement ended" are now registered for tool group: "default"
+[pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+[pbench-tool-trigger] start-trigger:"Timing Measurement began" stop-trigger:"Timing Measurement ended"
+Timing Measurement began
+[pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-default/sample1
+Timing Measurement ended
+[pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-default/sample1
+Timing Measurement began
+[pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-default/sample1
+Timing Measurement ended
+[pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-default/sample1
+Timing Measurement began
+[pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-default/sample1
+Timing Measurement ended
+[pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-default/sample1
+--- Finished test-57 pbench-specjbb2005 (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/.iterations
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-warehouses:13
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-warehouses:13/reference-result
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-warehouses:13/sample1
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-warehouses:13/sample1/SPECjbb.raw
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-warehouses:13/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-warehouses:18
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-warehouses:18/reference-result
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-warehouses:18/sample1
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-warehouses:18/sample1/SPECjbb.raw
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-warehouses:18/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-warehouses:23
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-warehouses:23/reference-result
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-warehouses:23/sample1
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-warehouses:23/sample1/SPECjbb.raw
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-warehouses:23/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb.props
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb_config.props
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/jvm-1-worker.txt
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/jvm-2-worker.txt
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/metadata.log
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/results
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/results/SPECjbbMultiJVM.001
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/results/SPECjbbMultiJVM.001/SPECjbb.001.raw
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/results/SPECjbbMultiJVM.002
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/results/SPECjbbMultiJVM.002/SPECjbb.002.raw
+/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/xml
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] worker JVMs have finished
+[debug][1900-01-01T00:00:00.000000] waiting for controller JVM to finish
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-warehouses:13/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-warehouses:18/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-warehouses:23/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/2-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/specjbb2005_test-57_1900.01.01T00.00.00/3-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=default default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/sleep 5
+--- test-execution.log file contents
++++ specjbb2005_test-57_1900.01.01T00.00.00/metadata.log file contents
+[pbench]
+
+[iterations/1-warehouses:13]
+iteration_number = 1
+iteration_name = 1-warehouses:13
+user_script = specjbb2005
+
+[iterations/2-warehouses:18]
+iteration_number = 2
+iteration_name = 2-warehouses:18
+user_script = specjbb2005
+
+[iterations/3-warehouses:23]
+iteration_number = 3
+iteration_name = 3-warehouses:23
+user_script = specjbb2005
+
+--- specjbb2005_test-57_1900.01.01T00.00.00/metadata.log file contents
++++ specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb.props file contents
+input.jvm_instances=_bad_
+input.measurement_seconds=_bad_
+input.starting_number_warehouses=_bad_
+input.increment_number_warehouses=_bad_
+#input.ending_number_warehouses=_bad_
+input.jvm_instances=2
+input.measurement_seconds=30
+input.starting_number_warehouses=13
+input.increment_number_warehouses=5
+input.ending_number_warehouses=23
+--- specjbb2005_test-57_1900.01.01T00.00.00/SPECjbb.props file contents

@@ -7,8 +7,7 @@
 
 import sys
 
-from pbench.agent.utils import verify_sysinfo, error_log
-
+from pbench.agent.utils import error_log, verify_sysinfo
 
 good_l, bad_l = verify_sysinfo(sys.argv[1])
 if bad_l:

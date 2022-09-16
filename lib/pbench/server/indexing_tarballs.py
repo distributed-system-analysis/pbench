@@ -1,33 +1,30 @@
 """Initialising Indexing class"""
 
-import os
+from collections import deque
 import glob
+import os
+from pathlib import Path
 import signal
 import tempfile
-from pathlib import Path
-from collections import deque
 
 from pbench.common.exceptions import (
     BadDate,
-    UnsupportedTarballFormat,
     BadMDLogFormat,
     TemplateError,
+    UnsupportedTarballFormat,
 )
 from pbench.server import tstos
-from pbench.server.indexer import (
-    PbenchTarBall,
-    es_index,
-    VERSION,
-)
-from pbench.server.database.models.tracker import (
+from pbench.server.database.models.datasets import (
     Dataset,
-    States,
-    Metadata,
+    DatasetError,
     DatasetNotFound,
     DatasetTransitionError,
+    Metadata,
+    States,
 )
+from pbench.server.indexer import es_index, PbenchTarBall, VERSION
 from pbench.server.report import Report
-from pbench.server.utils import rename_tb_link, quarantine
+from pbench.server.utils import get_tarball_md5, quarantine, rename_tb_link
 
 
 class SigIntException(Exception):
@@ -60,8 +57,7 @@ class Errors:
 
 
 def _count_lines(fname):
-    """Simple method to count the lines of a file.
-    """
+    """Simple method to count the lines of a file."""
     try:
         with open(fname, "r") as fp:
             cnt = sum(1 for line in fp)
@@ -71,11 +67,11 @@ def _count_lines(fname):
 
 
 class Index:
-    """ class used to collect tarballs and index them
+    """class used to collect tarballs and index them
 
-        Status codes used by es_index and the error below are defined to
-        maintain compatibility with the previous code base when pbench-index
-        was a bash script.
+    Status codes used by es_index and the error below are defined to
+    maintain compatibility with the previous code base when pbench-index
+    was a bash script.
     """
 
     error_code = Errors(
@@ -84,7 +80,10 @@ class Index:
         ErrorCode("CFG_ERROR", 2, False, "Configuration file not specified"),
         ErrorCode("BAD_CFG", 3, False, "Bad configuration file"),
         ErrorCode(
-            "TB_META_ABSENT", 4, True, "Tar ball does not contain a metadata.log file",
+            "TB_META_ABSENT",
+            4,
+            True,
+            "Tar ball does not contain a metadata.log file",
         ),
         ErrorCode("BAD_DATE", 5, True, "Bad start run date value encountered"),
         ErrorCode("FILE_NOT_FOUND_ERROR", 6, True, "File Not Found error"),
@@ -128,7 +127,7 @@ class Index:
         self.qdir = qdir
 
     def collect_tb(self):
-        """ Collect tarballs that needs indexing"""
+        """Collect tarballs that needs indexing"""
 
         # find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
         tarballs = []
@@ -187,18 +186,18 @@ class Index:
     def emit_error(self, logger_method, error, exception):
         """Helper method to write a log message in a standard format from an error code
 
-            Args
-                logger_method -- Reference to a method of a Python logger object,
-                                like idxctx.logger.warning
-                error -- An error code name from the Errors collection, like "OK"
-                exception -- the original exception leading to the error
+        Args
+            logger_method -- Reference to a method of a Python logger object,
+                            like idxctx.logger.warning
+            error -- An error code name from the Errors collection, like "OK"
+            exception -- the original exception leading to the error
 
-            Returns
-                Relevant error_code object
+        Returns
+            Relevant error_code object
 
-            Although all log messages will appear to have originated from this method,
-            the origin can easily be identified from the error code value, and this
-            interface provides simplicity and consistency.
+        Although all log messages will appear to have originated from this method,
+        the origin can easily be identified from the error code value, and this
+        interface provides simplicity and consistency.
         """
         ec = self.error_code[error]
         logger_method("{}: {}", ec.message, exception)
@@ -207,8 +206,8 @@ class Index:
     def process_tb(self, tarballs):
         """Process Tarballs For Indexing and creates report
 
-            "tarballs" - List of tarball, it is the second value of
-                the tuple returned by collect_tb() """
+        "tarballs" - List of tarball, it is the second value of
+            the tuple returned by collect_tb()"""
         res = 0
         idxctx = self.idxctx
         error_code = self.error_code
@@ -319,17 +318,19 @@ class Index:
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
                         dataset = None
                         ptb = None
-                        username = None
+                        userid = None
                         try:
                             path = os.path.realpath(tb)
 
                             try:
                                 dataset = Dataset.attach(
-                                    path=path, state=States.INDEXING,
+                                    resource_id=get_tarball_md5(path),
+                                    state=States.INDEXING,
                                 )
                             except DatasetNotFound:
                                 idxctx.logger.warn(
-                                    "Unable to locate Dataset {}", path,
+                                    "Unable to locate Dataset {}",
+                                    path,
                                 )
                             except DatasetTransitionError as e:
                                 # TODO: This means the Dataset is known, but not in a
@@ -341,13 +342,17 @@ class Index:
                                     "Unable to advance dataset state: {}", str(e)
                                 )
                             else:
-                                username = dataset.owner
+                                # NOTE: we index the owner_id foreign key not the username.
+                                # Although this is technically an integer, I'm clinging to
+                                # the notion that we want to keep this as a "keyword" (string)
+                                # field.
+                                userid = str(dataset.owner_id)
 
                             # "Open" the tar ball represented by the tar ball object
                             idxctx.logger.debug("open tar ball")
                             ptb = PbenchTarBall(
                                 idxctx,
-                                username,
+                                userid,
                                 path,
                                 tmpdir,
                                 Path(self.incoming, controller),
@@ -432,9 +437,55 @@ class Index:
                                         if tb_res.success
                                         else States.QUARANTINED
                                     )
-                                    Metadata.remove(dataset, Metadata.REINDEX)
+
+                                    # In case this was a re-index, clear the
+                                    # REINDEX tag.
+                                    Metadata.setvalue(dataset, Metadata.REINDEX, False)
+
+                                    # Because we're on the `finally` path, we
+                                    # can get here without a PbenchTarBall
+                                    # object, so don't try to write an index
+                                    # map if there is none.
+                                    if ptb:
+                                        # A pbench-index --tool-data follows a
+                                        # pbench-index and generates only the
+                                        # tool-specific documents: we want to
+                                        # merge that with the existing document
+                                        # map. On the other hand, a re-index
+                                        # should replace the entire index. We
+                                        # accomplish this by overwriting each
+                                        # duplicate index key separately.
+                                        try:
+                                            map = Metadata.getvalue(
+                                                dataset, Metadata.INDEX_MAP
+                                            )
+                                            assert type(ptb.index_map) is dict
+                                            if map:
+                                                assert type(map) is dict
+                                                map.update(ptb.index_map)
+                                            else:
+                                                map = ptb.index_map
+                                            Metadata.setvalue(
+                                                dataset, Metadata.INDEX_MAP, map
+                                            )
+                                        except Exception as e:
+                                            idxctx.logger.exception(
+                                                "Unexpected Metadata error on {}: {}",
+                                                ptb.tbname,
+                                                e,
+                                            )
                                 except DatasetTransitionError:
-                                    idxctx.logger.exception("Dataset state error")
+                                    idxctx.logger.exception(
+                                        "Dataset state error: {}", ptb.tbname
+                                    )
+                                except DatasetError as e:
+                                    idxctx.logger.exception(
+                                        "Dataset error on {}: {}", ptb.tbname, e
+                                    )
+                                except Exception as e:
+                                    idxctx.logger.exception(
+                                        "Unexpected error on {}: {}", ptb.tbname, e
+                                    )
 
                         try:
                             ie_len = ie_filepath.stat().st_size

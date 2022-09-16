@@ -2,11 +2,10 @@
 Simple module level convenience functions.
 """
 
-from configparser import ConfigParser, NoSectionError, NoOptionError
+from configparser import ConfigParser, NoOptionError, NoSectionError
 
 from pbench.common import configtools
 from pbench.common.exceptions import BadConfig
-
 
 # Standard normalized date/time format
 _STD_DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%f"

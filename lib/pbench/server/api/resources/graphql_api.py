@@ -1,6 +1,8 @@
+from http import HTTPStatus
+
+from flask import make_response, request
+from flask_restful import abort, Resource
 import requests
-from flask_restful import Resource, abort
-from flask import request, make_response
 
 
 class GraphQL(Resource):
@@ -19,7 +21,7 @@ class GraphQL(Resource):
         if not json_data:
             message = "Invalid json object"
             self.logger.warning(f"{message}: {request.url}")
-            abort(400, message=message)
+            abort(HTTPStatus.BAD_REQUEST, message=message)
 
         try:
             # query GraphQL
@@ -30,24 +32,28 @@ class GraphQL(Resource):
             abort(gql_response.status_code, message=f"HTTP error {e} from GraphQL")
         except requests.exceptions.ConnectionError:
             self.logger.exception("Connection refused during the GraphQL post request")
-            abort(502, message="Network problem, could not post to GraphQL Endpoint")
+            abort(
+                HTTPStatus.BAD_GATEWAY,
+                message="Network problem, could not post to GraphQL Endpoint",
+            )
         except requests.exceptions.Timeout:
             self.logger.exception(
                 "Connection timed out during the GraphQL post request"
             )
             abort(
-                504, message="Connection timed out, could not post to GraphQL Endpoint"
+                HTTPStatus.GATEWAY_TIMEOUT,
+                message="Connection timed out, could not post to GraphQL Endpoint",
             )
         except Exception:
             self.logger.exception("Exception occurred during the GraphQL post request")
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         try:
             # construct response object
             response = make_response(gql_response.text)
         except Exception:
             self.logger.exception("Exception occurred GraphQL response construction")
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         response.status_code = gql_response.status_code
         return response

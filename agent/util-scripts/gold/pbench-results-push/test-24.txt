@@ -1,0 +1,19 @@
++++ Running test-24 pbench-results-push --help
+Usage: pbench-results-push [OPTIONS] CONTROLLER RESULT_TB_NAME
+
+  Push a result tar ball to the configured Pbench server.
+
+  CONTROLLER is the name of the controlling node.
+  RESULT_TB_NAME is the path to the result tar ball.
+
+Options:
+  -C, --config PATH  Path to a pbench-agent configuration file (defaults to
+                     the '_PBENCH_AGENT_CONFIG' environment variable, if
+                     defined)  [required]
+  --token TEXT       pbench server authentication token (will prompt if
+                     unspecified)  [required]
+  --help             Show this message and exit.
+--- Finished test-24 pbench-results-push (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+--- pbench tree state

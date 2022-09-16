@@ -100,7 +100,7 @@ len(actions) = 9
             "@timestamp": "2021-01-28T17:22:57.531604",
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "host_tools_info": [
                 {
@@ -132,7 +132,7 @@ len(actions) = 9
             "@timestamp": "2021-01-28T17:22:57.531604",
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/",
             "files": [
@@ -193,7 +193,7 @@ len(actions) = 9
             "@timestamp": "2021-01-28T17:22:57.531604",
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/1-default",
             "files": [
@@ -224,7 +224,7 @@ len(actions) = 9
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/1-default/sample1",
             "files": [
@@ -283,7 +283,7 @@ len(actions) = 9
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/1-default/sample1/tools-default",
             "mode": "0o755",
@@ -306,7 +306,7 @@ len(actions) = 9
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/1-default/sample1/tools-default/ctrlA",
             "mode": "0o755",
@@ -330,7 +330,7 @@ len(actions) = 9
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/1-default/sample1/tools-default/ctrlA/turbostat",
             "files": [
@@ -486,7 +486,7 @@ len(actions) = 16
             "@timestamp": "2020-02-06T15:26:14.978063",
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "host_tools_info": [
                 {
@@ -518,7 +518,7 @@ len(actions) = 16
             "@timestamp": "2020-02-06T15:26:14.978063",
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/",
             "files": [
@@ -579,7 +579,7 @@ len(actions) = 16
             "@timestamp": "2020-02-06T15:26:14.978063",
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/1-10U",
             "files": [
@@ -610,7 +610,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/1-10U/sample1",
             "files": [
@@ -669,7 +669,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/1-10U/sample1/tools-default",
             "mode": "0o755",
@@ -692,7 +692,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/1-10U/sample1/tools-default/ctlrA",
             "mode": "0o755",
@@ -716,7 +716,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/1-10U/sample1/tools-default/ctlrA/turbostat",
             "files": [
@@ -757,7 +757,7 @@ len(actions) = 16
             "@timestamp": "2020-02-06T15:26:14.978063",
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/2-20U",
             "files": [
@@ -788,7 +788,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/2-20U/sample1",
             "files": [
@@ -847,7 +847,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/2-20U/sample1/tools-default",
             "mode": "0o755",
@@ -870,7 +870,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/2-20U/sample1/tools-default/ctlrA",
             "mode": "0o755",
@@ -894,7 +894,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/2-20U/sample1/tools-default/ctlrA/turbostat",
             "files": [
@@ -1269,31 +1269,17 @@ len(actions) = 1
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.24/var-www-html)
 lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/test-7.24/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        120 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/test-7.24/pbench/public_html/results
 lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/test-7.24/pbench/public_html/static
 lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-7.24/pbench/public_html/users
 --- var/www/html tree state
-+++ results host info (/var/tmp/pbench-test-server/test-7.24/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-7.24/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.24/pbench-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/test-7.24/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
---- results host info
 +++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-7.24/var-www-html-satellite)
 lrwxrwxrwx         75 incoming -> /var/tmp/pbench-test-server/test-7.24/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        140 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         74 results -> /var/tmp/pbench-test-server/test-7.24/pbench-satellite/public_html/results
 lrwxrwxrwx         73 static -> /var/tmp/pbench-test-server/test-7.24/pbench-satellite/public_html/static
 lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.24/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
-+++ results host info (/var/tmp/pbench-test-server/test-7.24/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-7.24/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.24/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/test-7.24/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
---- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-7.24/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
@@ -1427,8 +1413,6 @@ drwxrwxr-x          - logs/pbench-state-manager
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 -rw-rw-r--       1446 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
-drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
@@ -1463,8 +1447,6 @@ drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
 +++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.24/pbench-satellite-local)
 drwxrwxr-x          - logs
-drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
@@ -1586,6 +1568,6 @@ run-1970-01-01T00:00:42-UTC: Processed 2 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-test|ctlrA|pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57|INDEXED|
-test|ctlrA|pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14|INDEXED|
+test|pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57|INDEXED| server = {"reindex": false, "index-map": {"pbench-unittests.v6.run-data.2021-01": ["bc17a97cb5c4f5569dc8006dfa7b2057"], "pbench-unittests.v6.run-toc.2021-01": ["e9c4ebe1af686b3016df0a4f22f95367", "8ed6148e48ad843e51354c8fad035a1e", "167227cdfa4ce31453bcd6ac9fd86df7", "122af95e34f6f10dc6b53cf4278b5c9a", "04e2655503febf18e430086590899ea9", "31cec319612911bf2a1d0aa9d36672c3"], "pbench-unittests.v5.result-data-sample.2021-01-28": ["dfc34873d328a4a8179a05cbfba9cc8d"], "pbench-unittests.v5.result-data.2021-01-28": ["f3da0f1c8efd55807393d0e85b789d07"]}}
+test|pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14|INDEXED| server = {"reindex": false, "index-map": {"pbench-unittests.v6.run-data.2020-02": ["9b31e1ada521b8b1394d011b1d773dad"], "pbench-unittests.v6.run-toc.2020-02": ["fd3bd4caa0a64e1c3ac37ace5a110e32", "4c00e92eb8f6cd05cc048f8d41f7b813", "118059feac27a2fbfa0a6607421f9737", "a3e71a01991337446c9865936b183f42", "749e405ef9086336d0454dcb00ce4575", "645be55cd2c80bac38f7da259ae07a9b", "578666daa0d49f19768c78b9bc4e59a7", "4d963460daccd02b596c5ff167c822cd", "b6f96baa494b1a8d3d878af758b3c848", "ecd46774f1338e72f4694efde5e2b7bf", "d8f99ece6c1043e8f4ca7e4788c89bf3"], "pbench-unittests.v5.result-data-sample.2020-02-06": ["901532bf5feefb367b7b346068d886cf", "70a50fad9a69856d81042d4f4342889e"], "pbench-unittests.v5.result-data.2020-02-06": ["46bbae97bb45acff940fc824581eb7a1", "6c98ffb2b332548e83a1023dd14ed5be"]}}
 --- SqliteDB Datasets

@@ -1,0 +1,104 @@
+.pf-c-input-group {
+  // Input group
+  --pf-c-input-group--BackgroundColor: var(--pf-global--BackgroundColor--100);
+  --pf-c-input-group--BorderRadius: var(--pf-global--BorderRadius--sm);
+
+  // Input group text
+  --pf-c-input-group__text--FontSize: var(--pf-global--FontSize--md);
+  --pf-c-input-group__text--PaddingRight: var(--pf-global--spacer--sm);
+  --pf-c-input-group__text--PaddingLeft: var(--pf-global--spacer--sm);
+  --pf-c-input-group__text--Color: var(--pf-global--Color--dark-200);
+  --pf-c-input-group__text--BorderWidth: var(--pf-global--BorderWidth--sm);
+  --pf-c-input-group__text--BorderTopColor: var(--pf-global--BorderColor--300);
+  --pf-c-input-group__text--BorderRightColor: var(--pf-global--BorderColor--300);
+  --pf-c-input-group__text--BorderBottomColor: var(--pf-global--BorderColor--200);
+  --pf-c-input-group__text--BorderLeftColor: var(--pf-global--BorderColor--300);
+  --pf-c-input-group__text--BackgroundColor: var(--pf-global--BackgroundColor--100);
+  --pf-c-input-group__textarea--MinHeight: var(--pf-global--spacer--xl);
+
+  // Button
+  --pf-c-input-group--c-button--BorderRadius: var(--pf-global--BorderRadius--sm);
+
+  // Form control
+  --pf-c-input-group--c-form-control--invalid--ZIndex: var(--pf-global--ZIndex--xs);
+  --pf-c-input-group--c-form-control--MarginRight: 1px;
+
+  // This component always needs to be light
+  @include pf-t-light;
+
+  display: flex;
+  width: 100%;
+  background-color: var(--pf-c-input-group--BackgroundColor);
+  border-radius: var(--pf-c-input-group--BorderRadius); // This adds a default border radius to make sure the input group wont display if a button with a border radius is used.
+
+  // stylelint-disable
+  > * + * {
+    margin-left: -1px;
+  }
+
+  // stylelint-enable
+
+  .pf-c-form-control {
+    &[aria-invalid="true"] {
+      &:not(:last-child) {
+        margin-right: var(--pf-c-input-group--c-form-control--MarginRight);
+      }
+    }
+  }
+
+  .pf-c-button:not(.pf-m-control) {
+    position: relative;
+
+    &,
+    &::after {
+      border-radius: 0;
+    }
+
+    // Applies top/left and bottom/left border-radius to a button if it's the first item in the input group
+    &:first-child {
+      &,
+      &::after {
+        border-radius: var(--pf-c-input-group--c-button--BorderRadius) 0 0 var(--pf-c-input-group--c-button--BorderRadius);
+      }
+    }
+
+    // Applies top/right and bottom/right border-radius to a button if it's the last item in the input group
+    &:last-child {
+      &,
+      &::after {
+        border-radius: 0 var(--pf-c-input-group--c-button--BorderRadius) var(--pf-c-input-group--c-button--BorderRadius) 0;
+      }
+    }
+  }
+
+  .pf-c-dropdown__toggle {
+    height: 100%;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea {
+    flex: 2;
+    min-width: 0;
+  }
+
+  textarea {
+    min-height: var(--pf-c-input-group__textarea--MinHeight);
+  }
+}
+
+.pf-c-input-group__text {
+  display: flex;
+  align-items: center;
+  padding-right: var(--pf-c-input-group__text--PaddingRight);
+  padding-left: var(--pf-c-input-group__text--PaddingLeft);
+  font-size: var(--pf-c-input-group__text--FontSize);
+  color: var(--pf-c-input-group__text--Color);
+  text-align: center;
+  background-color: var(--pf-c-input-group__text--BackgroundColor);
+  border: var(--pf-c-input-group__text--BorderWidth) solid;
+  border-color: var(--pf-c-input-group__text--BorderTopColor) var(--pf-c-input-group__text--BorderRightColor) var(--pf-c-input-group__text--BorderBottomColor) var(--pf-c-input-group__text--BorderLeftColor);
+
+  @at-root label#{&} {
+    cursor: pointer;
+  }
+}

@@ -1,0 +1,38 @@
+---
+# Install file(s) for pbench agent.
+- name: Create temp dir to store the file(s) locally
+  delegate_to: localhost
+  become: false
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: "{{ inventory_hostname }}-"
+  register: tempdir_1
+
+- name: Relax perms
+  delegate_to: localhost
+  become: false
+  ansible.builtin.file:
+    path: "{{ tempdir_1.path }}"
+    mode: 0755
+
+- name: Install the file(s) locally
+  delegate_to: localhost
+  become: false
+  ansible.builtin.get_url:
+    url: "{{ source }}/{{ item }}"
+    dest: "{{ tempdir_1.path }}/{{ item }}"
+  with_items: "{{ files }}"
+
+- name: Copy the file(s) to the remote
+  ansible.builtin.copy:
+    src: "{{ tempdir_1.path }}/{{ item }}"
+    dest: "{{ dest }}"
+    mode: "{{ mode }}"
+  with_items: "{{ files }}"
+
+- name: Delete local temp dir
+  delegate_to: localhost
+  become: false
+  ansible.builtin.file:
+    state: absent
+    path: "{{ tempdir_1.path }}"

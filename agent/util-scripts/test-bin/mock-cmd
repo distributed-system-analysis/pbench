@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import os
+from pathlib import Path
 import sys
 import time
 
-from pathlib import Path
-
-
+args = " ".join(sys.argv)
 with open(os.environ["_testlog"], "a") as ofp:
-    args = " ".join(sys.argv)
     ofp.write(f"{args}\n")
 
 _prog = os.path.basename(sys.argv[0])
@@ -17,15 +15,20 @@ _prog = os.path.basename(sys.argv[0])
 # ensure we don't run programs where they were not supposed to run.
 if _prog not in ("pbench-tool-meister-client", "yum", "scp"):
     with open(f"{_prog}.file", "a+") as ofp:
-        args = " ".join(sys.argv)
         ofp.write(f"{args}\n")
 
+_sleepers = ["dcgm-exporter", "node_exporter", "pmcd"]
 _sleep = 0
 if _prog == "pbench-sysinfo-dump":
     tgtdir = Path(sys.argv[1])
     sysinfo = sys.argv[2]
-    (tgtdir / "contents.lis").write_text(sysinfo)
-elif _prog == "node_exporter" or (_prog == "prometheus" and sys.argv[1] == "run"):
+    sysinfo_install_dir = os.environ.get("sysinfo_install_dir", "")
+    sysinfo_full_hostname = os.environ.get("sysinfo_full_hostname", "")
+    (tgtdir / "contents.lis").write_text(
+        f"sysinfo={sysinfo!r}\nsysinfo_install_dir={sysinfo_install_dir!r}\n"
+        f"sysinfo_full_hostname={sysinfo_full_hostname!r}\n"
+    )
+elif _prog in _sleepers or (_prog == "prometheus" and sys.argv[1] == "run"):
     _sleep = 9999
 
 if _sleep > 0:

@@ -1,32 +1,38 @@
 +++ Running test-52 test-start-stop-tool-meister mygroup
+     1	usage: pbench-tool-meister-start [--sysinfo <list of system information items>]
+     2	       [-h] [--sysinfo SYSINFO] [--orchestrate {create,existing}]
+     3	       [--redis-server REDIS_SERVER] [--tool-data-sink TOOL_DATA_SINK]
+     4	       tool_group
+     5	pbench-tool-meister-start [--sysinfo <list of system information items>]: error: argument --orchestrate: invalid choice: 'bad' (choose from 'create', 'existing')
+     6	Exit code: 2
+     7	pbench-tool-meister-start: invalid --orchestrate directive, 'bad', expected one of create, existing
+     8	Exit code: 39
 "mpstat" tool is now registered for host "testhost.example.com" in group "mygroup"
 "perf" tool is now registered for host "testhost.example.com" in group "mygroup"
-2. starting redis server
-3. connecting to the redis server
-4. push tool group data and metadata
-5. starting tool data sink
-6a. starting localhost tool meister
-7. waiting for all successfully created Tool Meister processes to show up as subscribers
-8. Initialize persistent tools
-channel pbench-agent-cli-to-client payload, '{"action": "end", "kind": "ds", "status": "success"}'
-channel pbench-agent-cli-to-client payload, '{"action": "init", "kind": "ds", "status": "success"}'
-channel pbench-agent-cli-to-client payload, '{"action": "startup", "kind": "ds", "status": "success"}'
-constructed Redis() object
-constructing Redis() object
-next pbench-agent-cli-to-client
-next pbench-agent-cli-to-client
-next pbench-agent-cli-to-client
-payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "end", "kind": "ds", "status": "success"}'}
-payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "init", "kind": "ds", "status": "success"}'}
-payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "startup", "kind": "ds", "status": "success"}'}
-pbench-tool-data-sink: connected to redis server localhost:17001
-pbench-tool-meister: connected to redis server localhost:17001
-publish end on chan pbench-agent-cli-from-client
-publish init on chan pbench-agent-cli-from-client
-publish terminate on chan pbench-agent-cli-from-client
-published pbench-agent-cli-from-client
-published pbench-agent-cli-from-client
-waiting for tool-data-sink (#####) to exit
+pbench-tool-meister-start: 2. starting redis server
+pbench-tool-meister-start: 3. connecting to the redis server
+pbench-tool-meister-start: 4. push tool group data and metadata
+pbench-tool-meister-start: 5. starting tool data sink
+pbench-tool-meister-start: 6a. starting localhost tool meister
+pbench-tool-meister-start: 7. waiting for all successfully created Tool Meister processes to show up as subscribers
+pbench-tool-meister-start: 8. Initialize persistent tools
+pbench-tool-meister-start: channel pbench-agent-cli-to-client payload, '{"action": "init", "kind": "ds", "status": "success"}'
+pbench-tool-meister-start: channel pbench-agent-cli-to-client payload, '{"action": "startup", "kind": "ds", "status": "success"}'
+pbench-tool-meister-start: next pbench-agent-cli-to-client
+pbench-tool-meister-start: next pbench-agent-cli-to-client
+pbench-tool-meister-start: payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "init", "kind": "ds", "status": "success"}'}
+pbench-tool-meister-start: payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "startup", "kind": "ds", "status": "success"}'}
+pbench-tool-meister-start: publish init on chan pbench-agent-cli-from-client
+pbench-tool-meister-start: published pbench-agent-cli-from-client
+pbench-tool-meister-stop: channel pbench-agent-cli-to-client payload, '{"action": "end", "kind": "ds", "status": "success"}'
+pbench-tool-meister-stop: constructed Redis() object
+pbench-tool-meister-stop: constructing Redis() object
+pbench-tool-meister-stop: next pbench-agent-cli-to-client
+pbench-tool-meister-stop: payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "end", "kind": "ds", "status": "success"}'}
+pbench-tool-meister-stop: publish end on chan pbench-agent-cli-from-client
+pbench-tool-meister-stop: publish terminate on chan pbench-agent-cli-from-client
+pbench-tool-meister-stop: published pbench-agent-cli-from-client
+pbench-tool-meister-stop: waiting for tool-data-sink (#####) to exit
 --- Finished test-52 test-start-stop-tool-meister (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -35,15 +41,19 @@ waiting for tool-data-sink (#####) to exit
 /var/tmp/pbench-test-utils/pbench/mock-run/ssh_config
 /var/tmp/pbench-test-utils/pbench/mock-run/ssh_config.d
 /var/tmp/pbench-test-utils/pbench/mock-run/tm
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/.uuid
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-mygroup-testhost.example.com.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-mygroup-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-mygroup
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-mygroup/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-mygroup/testhost.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-mygroup/testhost.example.com/perf
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-mygroup
@@ -71,11 +81,15 @@ script = fake-bm
 
 [controller]
 hostname = testhost.example.com
-hostname-s = agent.example.com
-hostname-f = agent.example.com
-hostname-i = agent.example.com
-hostname-a = agent.example.com
-ssh_opts = -o StrictHostKeyChecking=no
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
+ssh_opts = -o BatchMode=yes -o StrictHostKeyChecking=no
 
 [run]
 controller = testhost.example.com
@@ -90,10 +104,14 @@ trigger = None
 [tools/testhost.example.com]
 label = 
 tools = mpstat,perf
-hostname-s = agent.example.com
-hostname-f = agent.example.com
-hostname-i = agent.example.com
-hostname-a = agent.example.com
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
 rpm-version = v(unknown)-g(unknown)
 mpstat = 
 perf = --record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions" --report-opts="-I -g"
@@ -101,7 +119,7 @@ perf = --record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses
 [tools/testhost.example.com/mpstat]
 options = 
 install_check_status_code = 0
-install_check_output = mpstat: pbench-sysstat-12.0.3 is installed
+install_check_output = mpstat: pbench-sysstat-12.0.3-1 is installed
 
 [tools/testhost.example.com/perf]
 options = --record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions" --report-opts="-I -g"
@@ -112,7 +130,7 @@ install_check_output = perf: perf is installed
 +++ mock-run/tm/pbench-tool-data-sink.err file contents
 DEBUG pbench-tool-data-sink daemon -- re-constructing Redis server object
 DEBUG pbench-tool-data-sink daemon -- reconstructed Redis server object
-DEBUG pbench-tool-data-sink driver -- params_key (tds-mygroup): {'benchmark_run_dir': '/var/tmp/pbench-test-utils/pbench/mock-run', 'bind_hostname': 'localhost', 'channel_prefix': 'pbench-agent-cli', 'group': 'mygroup', 'optional_md': {'config': '', 'date': '1900-01-01T00:00:00', 'script': 'fake-bm', 'ssh_opts': '-o StrictHostKeyChecking=no'}, 'port': 8080, 'tool_metadata': {'persistent': {'dcgm': {'collector': 'prometheus', 'port': '9400'}, 'node-exporter': {'collector': 'prometheus', 'port': '9100'}, 'pcp': {'collector': 'pcp', 'port': '44321'}}, 'transient': {'blktrace': None, 'bpftrace': None, 'cpuacct': None, 'disk': None, 'dm-cache': None, 'docker': None, 'docker-info': None, 'external-data-source': None, 'haproxy-ocp': None, 'iostat': None, 'jmap': None, 'jstack': None, 'kvm-spinlock': None, 'kvmstat': None, 'kvmtrace': None, 'lockstat': None, 'mpstat': None, 'numastat': None, 'oc': None, 'openvswitch': None, 'pcp-transient': None, 'perf': None, 'pidstat': None, 'pprof': None, 'proc-interrupts': None, 'proc-sched_debug': None, 'proc-vmstat': None, 'prometheus-metrics': None, 'qemu-migrate': None, 'rabbit': None, 'sar': None, 'strace': None, 'sysfs': None, 'systemtap': None, 'tcpdump': None, 'turbostat': None, 'user-tool': None, 'virsh-migrate': None, 'vmstat': None}}, 'tool_trigger': None, 'tools': {'testhost.example.com': {'mpstat': '', 'perf': '--record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions" --report-opts="-I -g"'}}}
+DEBUG pbench-tool-data-sink driver -- params_key (tds-mygroup): {'benchmark_run_dir': '/var/tmp/pbench-test-utils/pbench/mock-run', 'bind_hostname': 'localhost', 'channel_prefix': 'pbench-agent-cli', 'instance_uuid': '00000000-0000-0000-0000-000000000001', 'optional_md': {'config': '', 'date': '1900-01-01T00:00:00', 'script': 'fake-bm', 'ssh_opts': '-o BatchMode=yes -o StrictHostKeyChecking=no'}, 'port': 8080, 'tool_group': 'mygroup', 'tool_metadata': {'persistent': {'dcgm': {'collector': 'prometheus', 'port': '9400'}, 'node-exporter': {'collector': 'prometheus', 'port': '9100'}, 'pcp': {'collector': 'pcp', 'port': '44321'}}, 'transient': {'blktrace': None, 'bpftrace': None, 'cpuacct': None, 'disk': None, 'dm-cache': None, 'docker': None, 'docker-info': None, 'external-data-source': None, 'haproxy-ocp': None, 'iostat': None, 'jmap': None, 'jstack': None, 'kvm-spinlock': None, 'kvmstat': None, 'kvmtrace': None, 'lockstat': None, 'mpstat': None, 'numastat': None, 'oc': None, 'openvswitch': None, 'pcp-transient': None, 'perf': None, 'pidstat': None, 'pprof': None, 'proc-interrupts': None, 'proc-sched_debug': None, 'proc-vmstat': None, 'prometheus-metrics': None, 'qemu-migrate': None, 'rabbit': None, 'sar': None, 'strace': None, 'sysfs': None, 'systemtap': None, 'tcpdump': None, 'turbostat': None, 'user-tool': None, 'virsh-migrate': None, 'vmstat': None}}, 'tool_trigger': None, 'tools': {'testhost.example.com': {'mpstat': '', 'perf': '--record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions" --report-opts="-I -g"'}}}
 INFO pbench-tool-data-sink web_server_run -- Running Bottle web server ...
 Bottle v#.##.## server starting up (using DataSinkWsgiServer(handler_class=<class 'pbench.agent.tool_data_sink.DataSinkWsgiServer.__init__.<locals>.DataSinkWsgiRequestHandler'>))...
 Listening on http://localhost:8080/
@@ -125,8 +143,8 @@ DEBUG pbench-tool-data-sink __enter__ -- web server 'run' thread started, proces
 INFO pbench-tool-data-sink tm_log_capture -- Running Tool Meister log capture ...
 DEBUG pbench-tool-data-sink __enter__ -- 'tm_log_capture' thread started, processing Tool Meister logs ...
 DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-tms
-DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-tms', 'data': b'{"hostname": "testhost.example.com", "hostname_A": "agent.example.com", "hostname_I": "agent.example.com", "hostname_f": "agent.example.com", "hostname_i": "agent.example.com", "hostname_s": "agent.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'}
-DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-tms payload, '{"hostname": "testhost.example.com", "hostname_A": "agent.example.com", "hostname_I": "agent.example.com", "hostname_f": "agent.example.com", "hostname_i": "agent.example.com", "hostname_s": "agent.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'
+DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-tms', 'data': b'{"hostdata": {"alias": "bond", "all-fqdns": "agent.example.com bond.example.com", "all-ip-addresses": "192.168.0.1 172.0.0.1 127.0.0.1", "domain": "example.com", "fqdn": "agent.example.com", "ip-address": "172.0.0.1 127.0.0.1", "nis": "hostname[mock]: Local domain name not set", "short": "agent"}, "hostname": "testhost.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3-1 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'}
+DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-tms payload, '{"hostdata": {"alias": "bond", "all-fqdns": "agent.example.com bond.example.com", "all-ip-addresses": "192.168.0.1 172.0.0.1 127.0.0.1", "domain": "example.com", "fqdn": "agent.example.com", "ip-address": "172.0.0.1 127.0.0.1", "nis": "hostname[mock]: Local domain name not set", "short": "agent"}, "hostname": "testhost.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3-1 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'
 DEBUG pbench-tool-data-sink execute -- publish pbench-agent-cli-to-client
 DEBUG pbench-tool-data-sink execute -- published pbench-agent-cli-to-client
 DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-client
@@ -177,10 +195,12 @@ DEBUG pbench-tool-data-sink __exit__ -- Exiting Tool Data Sink context ...
 bind localhost
 daemonize yes
 dir /var/tmp/pbench-test-utils/pbench/mock-run/tm
+save ""
+appendonly no
 dbfilename pbench-redis.rdb
 logfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
 loglevel notice
-pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis_17001.pid
+pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.pid
 port 17001
 --- mock-run/tm/redis.conf file contents
 +++ mock-run/tm/redis.log file contents
@@ -191,10 +211,10 @@ port 17001
 * Removing the pid file.
 # Redis is now ready to exit, bye bye...
 --- mock-run/tm/redis.log file contents
-+++ mock-run/tm/tm-mygroup-testhost.example.com.err file contents
++++ mock-run/tm/tm.err file contents
 DEBUG pbench-tool-meister daemon -- re-constructing Redis server object
 DEBUG pbench-tool-meister daemon -- re-constructed Redis server object
-DEBUG pbench-tool-meister driver -- params_key (tm-mygroup-testhost.example.com): {'benchmark_run_dir': '/var/tmp/pbench-test-utils/pbench/mock-run', 'channel_prefix': 'pbench-agent-cli', 'controller': 'testhost.example.com', 'group': 'mygroup', 'hostname': 'testhost.example.com', 'label': '', 'tds_hostname': 'localhost', 'tds_port': 8080, 'tool_metadata': {'persistent': {'dcgm': {'collector': 'prometheus', 'port': '9400'}, 'node-exporter': {'collector': 'prometheus', 'port': '9100'}, 'pcp': {'collector': 'pcp', 'port': '44321'}}, 'transient': {'blktrace': None, 'bpftrace': None, 'cpuacct': None, 'disk': None, 'dm-cache': None, 'docker': None, 'docker-info': None, 'external-data-source': None, 'haproxy-ocp': None, 'iostat': None, 'jmap': None, 'jstack': None, 'kvm-spinlock': None, 'kvmstat': None, 'kvmtrace': None, 'lockstat': None, 'mpstat': None, 'numastat': None, 'oc': None, 'openvswitch': None, 'pcp-transient': None, 'perf': None, 'pidstat': None, 'pprof': None, 'proc-interrupts': None, 'proc-sched_debug': None, 'proc-vmstat': None, 'prometheus-metrics': None, 'qemu-migrate': None, 'rabbit': None, 'sar': None, 'strace': None, 'sysfs': None, 'systemtap': None, 'tcpdump': None, 'turbostat': None, 'user-tool': None, 'virsh-migrate': None, 'vmstat': None}}, 'tools': {'mpstat': '', 'perf': '--record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions" --report-opts="-I -g"'}}
+DEBUG pbench-tool-meister driver -- params_key (tm-mygroup-testhost.example.com): {'benchmark_run_dir': '/var/tmp/pbench-test-utils/pbench/mock-run', 'channel_prefix': 'pbench-agent-cli', 'controller': 'testhost.example.com', 'hostname': 'testhost.example.com', 'instance_uuid': '00000000-0000-0000-0000-000000000001', 'label': '', 'tds_hostname': 'localhost', 'tds_port': 8080, 'tool_group': 'mygroup', 'tool_metadata': "{'persistent': {'dcgm': {'collector': 'prometheus', 'port': '9400'}, 'node-exporter': {'collector': 'prometheus', 'port': '9100'}, 'pcp': {'collector': 'pcp', 'port': '44321'}}, 'transient': {'blktrace': None, 'bpftrace': None, 'cpuacct': None, 'disk': None, 'dm-cache': None, 'docker': None, 'docker-info': None, 'external-data-source': None, 'haproxy-ocp': None, 'iostat': None, 'jmap': None, 'jstack': None, 'kvm-spinlock': None, 'kvmstat': None, 'kvmtrace': None, 'lockstat': None, 'mpstat': None, 'numastat': None, 'oc': None, 'openvswitch': None, 'pcp-transient': None, 'perf': None, 'pidstat': None, 'pprof': None, 'proc-interrupts': None, 'proc-sched_debug': None, 'proc-vmstat': None, 'prometheus-metrics': None, 'qemu-migrate': None, 'rabbit': None, 'sar': None, 'strace': None, 'sysfs': None, 'systemtap': None, 'tcpdump': None, 'turbostat': None, 'user-tool': None, 'virsh-migrate': None, 'vmstat': None}}", 'tools': {'mpstat': '', 'perf': '--record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions" --report-opts="-I -g"'}}
 DEBUG pbench-tool-meister __enter__ -- publish pbench-agent-cli-from-tms
 DEBUG pbench-tool-meister __enter__ -- published pbench-agent-cli-from-tms
 DEBUG pbench-tool-meister driver -- waiting ...
@@ -212,6 +232,7 @@ DEBUG pbench-tool-meister fetch_message -- payload from pbench-agent-cli-to-tms:
 DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms payload, '{"action": "end", "args": null, "directory": "/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup", "group": "mygroup"}'
 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'group': 'mygroup'}
 DEBUG pbench-tool-meister driver -- acting ... end_tools, {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'group': 'mygroup'}
+DEBUG pbench-tool-meister end_tools -- testhost.example.com: deleting persistent tool tmp directory mygroup /var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup/testhost.example.com
 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "success"}
 DEBUG pbench-tool-meister _send_client_status -- posted client status message, '{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'
 DEBUG pbench-tool-meister driver -- waiting ...
@@ -221,12 +242,10 @@ DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms paylo
 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'terminate', 'args': {'interrupt': False}, 'directory': None, 'group': 'mygroup'}
 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "terminated"}
---- mock-run/tm/tm-mygroup-testhost.example.com.err file contents
-+++ mock-run/tm/tm-mygroup-testhost.example.com.out file contents
---- mock-run/tm/tm-mygroup-testhost.example.com.out file contents
+--- mock-run/tm/tm.err file contents
 +++ mock-run/tm/tm.logs file contents
 pbench-tool-meister-start - verify logging channel up
-testhost.example.com 0000 DEBUG pbench-tool-meister driver -- params_key (tm-mygroup-testhost.example.com): {'benchmark_run_dir': '/var/tmp/pbench-test-utils/pbench/mock-run', 'channel_prefix': 'pbench-agent-cli', 'controller': 'testhost.example.com', 'group': 'mygroup', 'hostname': 'testhost.example.com', 'label': '', 'tds_hostname': 'localhost', 'tds_port': 8080, 'tool_metadata': {'persistent': {'dcgm': {'collector': 'prometheus', 'port': '9400'}, 'node-exporter': {'collector': 'prometheus', 'port': '9100'}, 'pcp': {'collector': 'pcp', 'port': '44321'}}, 'transient': {'blktrace': None, 'bpftrace': None, 'cpuacct': None, 'disk': None, 'dm-cache': None, 'docker': None, 'docker-info': None, 'external-data-source': None, 'haproxy-ocp': None, 'iostat': None, 'jmap': None, 'jstack': None, 'kvm-spinlock': None, 'kvmstat': None, 'kvmtrace': None, 'lockstat': None, 'mpstat': None, 'numastat': None, 'oc': None, 'openvswitch': None, 'pcp-transient': None, 'perf': None, 'pidstat': None, 'pprof': None, 'proc-interrupts': None, 'proc-sched_debug': None, 'proc-vmstat': None, 'prometheus-metrics': None, 'qemu-migrate': None, 'rabbit': None, 'sar': None, 'strace': None, 'sysfs': None, 'systemtap': None, 'tcpdump': None, 'turbostat': None, 'user-tool': None, 'virsh-migrate': None, 'vmstat': None}}, 'tools': {'mpstat': '', 'perf': '--record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions" --report-opts="-I -g"'}}
+testhost.example.com 0000 DEBUG pbench-tool-meister driver -- params_key (tm-mygroup-testhost.example.com): {'benchmark_run_dir': '/var/tmp/pbench-test-utils/pbench/mock-run', 'channel_prefix': 'pbench-agent-cli', 'controller': 'testhost.example.com', 'hostname': 'testhost.example.com', 'instance_uuid': '00000000-0000-0000-0000-000000000001', 'label': '', 'tds_hostname': 'localhost', 'tds_port': 8080, 'tool_group': 'mygroup', 'tool_metadata': "{'persistent': {'dcgm': {'collector': 'prometheus', 'port': '9400'}, 'node-exporter': {'collector': 'prometheus', 'port': '9100'}, 'pcp': {'collector': 'pcp', 'port': '44321'}}, 'transient': {'blktrace': None, 'bpftrace': None, 'cpuacct': None, 'disk': None, 'dm-cache': None, 'docker': None, 'docker-info': None, 'external-data-source': None, 'haproxy-ocp': None, 'iostat': None, 'jmap': None, 'jstack': None, 'kvm-spinlock': None, 'kvmstat': None, 'kvmtrace': None, 'lockstat': None, 'mpstat': None, 'numastat': None, 'oc': None, 'openvswitch': None, 'pcp-transient': None, 'perf': None, 'pidstat': None, 'pprof': None, 'proc-interrupts': None, 'proc-sched_debug': None, 'proc-vmstat': None, 'prometheus-metrics': None, 'qemu-migrate': None, 'rabbit': None, 'sar': None, 'strace': None, 'sysfs': None, 'systemtap': None, 'tcpdump': None, 'turbostat': None, 'user-tool': None, 'virsh-migrate': None, 'vmstat': None}}", 'tools': {'mpstat': '', 'perf': '--record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions" --report-opts="-I -g"'}}
 testhost.example.com 0001 DEBUG pbench-tool-meister __enter__ -- publish pbench-agent-cli-from-tms
 testhost.example.com 0002 DEBUG pbench-tool-meister __enter__ -- published pbench-agent-cli-from-tms
 testhost.example.com 0003 DEBUG pbench-tool-meister driver -- waiting ...
@@ -244,16 +263,27 @@ testhost.example.com 0014 DEBUG pbench-tool-meister fetch_message -- payload fro
 testhost.example.com 0015 DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms payload, '{"action": "end", "args": null, "directory": "/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup", "group": "mygroup"}'
 testhost.example.com 0016 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'group': 'mygroup'}
 testhost.example.com 0017 DEBUG pbench-tool-meister driver -- acting ... end_tools, {'action': 'end', 'args': None, 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'group': 'mygroup'}
-testhost.example.com 0018 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "success"}
-testhost.example.com 0019 DEBUG pbench-tool-meister _send_client_status -- posted client status message, '{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'
-testhost.example.com 0020 DEBUG pbench-tool-meister driver -- waiting ...
-testhost.example.com 0021 DEBUG pbench-tool-meister fetch_message -- next pbench-agent-cli-to-tms
-testhost.example.com 0022 DEBUG pbench-tool-meister fetch_message -- payload from pbench-agent-cli-to-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-tms', 'data': b'{"action": "terminate", "args": {"interrupt": false}, "directory": null, "group": "mygroup"}'}
-testhost.example.com 0023 DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms payload, '{"action": "terminate", "args": {"interrupt": false}, "directory": null, "group": "mygroup"}'
-testhost.example.com 0024 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'terminate', 'args': {'interrupt': False}, 'directory': None, 'group': 'mygroup'}
-testhost.example.com 0025 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
-testhost.example.com 0026 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "terminated"}
+testhost.example.com 0018 DEBUG pbench-tool-meister end_tools -- testhost.example.com: deleting persistent tool tmp directory mygroup /var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup/testhost.example.com
+testhost.example.com 0019 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "success"}
+testhost.example.com 0020 DEBUG pbench-tool-meister _send_client_status -- posted client status message, '{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'
+testhost.example.com 0021 DEBUG pbench-tool-meister driver -- waiting ...
+testhost.example.com 0022 DEBUG pbench-tool-meister fetch_message -- next pbench-agent-cli-to-tms
+testhost.example.com 0023 DEBUG pbench-tool-meister fetch_message -- payload from pbench-agent-cli-to-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-tms', 'data': b'{"action": "terminate", "args": {"interrupt": false}, "directory": null, "group": "mygroup"}'}
+testhost.example.com 0024 DEBUG pbench-tool-meister fetch_message -- channel pbench-agent-cli-to-tms payload, '{"action": "terminate", "args": {"interrupt": false}, "directory": null, "group": "mygroup"}'
+testhost.example.com 0025 DEBUG pbench-tool-meister wait_for_command -- testhost.example.com: msg - {'action': 'terminate', 'args': {'interrupt': False}, 'directory': None, 'group': 'mygroup'}
+testhost.example.com 0026 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
+testhost.example.com 0027 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "terminated"}
 --- mock-run/tm/tm.logs file contents
++++ mock-run/tm/tm.out file contents
+--- mock-run/tm/tm.out file contents
++++ tools-v1-mygroup/testhost.example.com/mpstat file contents
+--- tools-v1-mygroup/testhost.example.com/mpstat file contents
++++ tools-v1-mygroup/testhost.example.com/perf file contents
+--record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions"
+--report-opts="-I -g"
+--- tools-v1-mygroup/testhost.example.com/perf file contents
 +++ test-execution.log file contents
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n perf
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
 --- test-execution.log file contents

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import sys
-import os
 import logging
+import os
+import sys
 
 PROG = os.path.basename(sys.argv[0])
 try:
@@ -43,9 +43,9 @@ else:
     else:
         clear_counters = False
 
-import subprocess  # noqa E402
 import errno  # noqa E402
-from time import time, sleep  # noqa E402
+import subprocess  # noqa E402
+from time import sleep, time  # noqa E402
 
 # FIXME: haproxy router namespace, "default"
 _router_namespace = "default"
@@ -143,8 +143,7 @@ class Router:
         self.proc = dict()
 
     def collect_metrics(self, timestamp):
-        """Starts a background sub-process to clearing the counters.
-        """
+        """Starts a background sub-process to clearing the counters."""
         print(timestamp, file=self.csv_fp)
         if self._clear_counters:
             # We only clear the counters once.
@@ -267,8 +266,6 @@ def operation(routers, ts_str):
     new_routers = curr_routers - prev_routers
     # These are all the routers that have died since the last time.
     dead_routers = prev_routers - curr_routers
-    # Remember for the next iteration of the loop.
-    prev_routers = curr_routers
 
     for pod_name in dead_routers:
         # Clear out any dead routers
@@ -310,7 +307,7 @@ if _unit_test_iterations is not None:
 
     def _time(*args, **kwargs):
         """Each call to mock'd _time() increments the internal clock by
-           one second.
+        one second.
         """
         global _ts
         _ts += 1
@@ -321,11 +318,11 @@ if _unit_test_iterations is not None:
 
     def _sleep(length):
         """Each call to mock'd _sleep() increments the internal clock by
-           the amount of time requested for the sleep, and checks to see
-           if we have exceeded the number of times time.sleep() should be
-           called before exiting the datalog. It calls the actual time.sleep
-           for one second no matter how much time the actual sleep would
-           have been.
+        the amount of time requested for the sleep, and checks to see
+        if we have exceeded the number of times time.sleep() should be
+        called before exiting the datalog. It calls the actual time.sleep
+        for one second no matter how much time the actual sleep would
+        have been.
         """
         global _ts
         global _sleep_iterations
@@ -352,8 +349,8 @@ else:
     signal.signal(signal.SIGQUIT, handler)
     signal.signal(signal.SIGINT, handler)
 
-import math  # noqa E402
 from datetime import datetime  # noqa E402
+import math  # noqa E402
 
 # Initial timestamp and next interval calcultion
 time_stamp = time()
@@ -399,7 +396,7 @@ while not terminate:
     next_start = time_stamp + interval
 
 # First wait on any existing sub-processes to complete.
-for router in _routers.values():
+for router in _routers.values():  # lgtm [py/unreachable-statement]
     router.wait(all=True)
 
 ts_str = datetime.utcfromtimestamp(time()).strftime("%s.%f")

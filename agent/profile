@@ -6,6 +6,9 @@ function _pbench_pathins() {
     fi
 }
 
+_pbench_pathins "/usr/sbin"
+_pbench_pathins "/usr/bin"
+
 function _pbench_setup() {
     local prefix=/opt/pbench-agent
 

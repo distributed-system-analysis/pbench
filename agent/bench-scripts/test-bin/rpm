@@ -1,1 +1,39 @@
-mock-cmd
+#!/bin/bash
+
+# Mock the behavior of the 'rpm --query --queryformat=%{EVR}\n <rpm name>'
+# command invocation.
+#
+# For the bench-scripts legacy unit tests each invocation of 'rpm' is expected
+# to exit with success (0).  The only invocations of 'rpm' we have at this
+# point are looking for either the 'fio', 'uperf', or 'dpdk-tools' RPMs.  For
+# those cases, we hard-code the response as if that version was installed.
+#
+# Just in case some other RPM is searched for in the future in the unit tests,
+# we emit the same output 'rpm' would when that package is not found. 
+
+args="${@}"
+echo "${0} ${args}" >> ${_testlog}
+
+if [[ "${1}" != "--query" ]]; then
+    printf -- "rpm[mock]: unexpected 1st argument, '%s'\n" "${1}" >&2
+    exit 101
+fi
+if [[ "${2}" != "--queryformat=%{EVR}\n" ]]; then
+    printf -- "rpm[mock]: unexpected 2nd argument, '%s'\n" "${2}" >&2
+    exit 101
+fi
+
+if [[ -z "${3}" ]]; then
+    echo "rpm[mock]: no arguments given for query"
+    rc=1
+elif [[ "${3}" == "fio" ]]; then
+    echo "3.21"
+    rc=0
+elif [[ "${3}" == "uperf" ]]; then
+    echo "1.0.7"
+    rc=0
+else
+    echo "[mock] package ${3} is not installed"
+    rc=1
+fi
+exit ${rc}

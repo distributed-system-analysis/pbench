@@ -1,0 +1,106 @@
++++ Running test-11.16 pbench-register-tool-set --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/good-remote-file
+[warn][1900-01-01T00:00:00.000000] pbench-register-tool-set: the 'default' tool set is deprecated and will be removed in the Pbench Agent v1.0 future release, please use a named tool set argument from one of: heavy, legacy, light, medium
+"iostat" tool is now registered for host "foo" in group "default"
+"iostat" tool is now registered for host "bar" in group "default"
+"mpstat" tool is now registered for host "foo" in group "default"
+"mpstat" tool is now registered for host "bar" in group "default"
+"pidstat" tool is now registered for host "foo" in group "default"
+"pidstat" tool is now registered for host "bar" in group "default"
+"proc-interrupts" tool is now registered for host "foo" in group "default"
+"proc-interrupts" tool is now registered for host "bar" in group "default"
+"proc-vmstat" tool is now registered for host "foo" in group "default"
+"proc-vmstat" tool is now registered for host "bar" in group "default"
+"sar" tool is now registered for host "foo" in group "default"
+"sar" tool is now registered for host "bar" in group "default"
+"turbostat" tool is now registered for host "foo" in group "default"
+"turbostat" tool is now registered for host "bar" in group "default"
+"perf" tool is now registered for host "foo" in group "default"
+"perf" tool is now registered for host "bar" in group "default"
+--- Finished test-11.16 pbench-register-tool-set (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tmp/good-remote-file
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/bar
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/iostat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/perf
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/pidstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/proc-interrupts
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/proc-vmstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/sar
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/turbostat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/foo
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/iostat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/perf
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/pidstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/proc-interrupts
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/proc-vmstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/sar
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/turbostat
+=== /var/tmp/pbench-test-utils/pbench/tmp/good-remote-file:
+foo
+bar
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/iostat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/mpstat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/perf:
+--record-opts='-a --freq=100'
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/pidstat:
+--interval=30
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/proc-interrupts:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/proc-vmstat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/sar:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/bar/turbostat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/iostat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/mpstat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/perf:
+--record-opts='-a --freq=100'
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/pidstat:
+--interval=30
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/proc-interrupts:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/proc-vmstat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/sar:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/foo/turbostat:
+--interval=3
+--- pbench tree state
++++ pbench.log file contents
+[warn][1900-01-01T00:00:00.000000] pbench-register-tool-set: the 'default' tool set is deprecated and will be removed in the Pbench Agent v1.0 future release, please use a named tool set argument from one of: heavy, legacy, light, medium
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "foo" in group "default"
+[info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "bar" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "foo" in group "default"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "bar" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=30"
+[info][1900-01-01T00:00:00.000000] "pidstat" tool is now registered for host "foo" in group "default"
+[info][1900-01-01T00:00:00.000000] "pidstat" tool is now registered for host "bar" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "proc-interrupts" tool is now registered for host "foo" in group "default"
+[info][1900-01-01T00:00:00.000000] "proc-interrupts" tool is now registered for host "bar" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "proc-vmstat" tool is now registered for host "foo" in group "default"
+[info][1900-01-01T00:00:00.000000] "proc-vmstat" tool is now registered for host "bar" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "sar" tool is now registered for host "foo" in group "default"
+[info][1900-01-01T00:00:00.000000] "sar" tool is now registered for host "bar" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "foo" in group "default"
+[info][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "bar" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts='-a --freq=100'"
+[info][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "foo" in group "default"
+[info][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "bar" in group "default"
+--- pbench.log file contents

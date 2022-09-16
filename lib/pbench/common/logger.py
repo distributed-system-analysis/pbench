@@ -1,8 +1,7 @@
-import logging
-import logging.handlers
-
 from configparser import NoOptionError, NoSectionError
 from datetime import datetime
+import logging
+import logging.handlers
 from pathlib import Path
 
 from pbench.common.exceptions import BadConfig
@@ -157,9 +156,8 @@ def get_pbench_logger(caller, config):
             handler = logging.FileHandler(log_dir / f"{caller}.log")
         elif config.logger_type == "devlog":
             handler = logging.handlers.SysLogHandler(address=_devlog)
-        elif (
-            config.logger_type == "hostport"
-        ):  # hostport logger type uses UDP-based logging
+        elif config.logger_type == "hostport":
+            # hostport logger type uses UDP-based logging
             handler = logging.handlers.SysLogHandler(
                 address=(config.logger_host, int(config.logger_port))
             )
@@ -168,7 +166,7 @@ def get_pbench_logger(caller, config):
 
         handler.setLevel(logging.DEBUG)
         if config.log_fmt is None:
-            logfmt = "{asctime} {levelname} {process} {thread} {name}.{module} {funcName} {lineno} -- {message}"
+            logfmt = "{asctime} {levelname} {process} {thread} {name} {module} {funcName} {lineno} -- {message}"
         else:
             logfmt = config.log_fmt
         formatter = _PbenchLogFormatter(fmt=logfmt)

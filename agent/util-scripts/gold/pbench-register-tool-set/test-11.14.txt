@@ -1,10 +1,11 @@
 +++ Running test-11.14 pbench-register-tool-set 
-"sar" tool is now registered for host "testhost.example.com" in group "default"
+[warn][1900-01-01T00:00:00.000000] pbench-register-tool-set: the 'default' tool set is deprecated and will be removed in the Pbench Agent v1.0 future release, please use a named tool set argument from one of: heavy, legacy, light, medium
 "iostat" tool is now registered for host "testhost.example.com" in group "default"
 "mpstat" tool is now registered for host "testhost.example.com" in group "default"
 "pidstat" tool is now registered for host "testhost.example.com" in group "default"
-"proc-vmstat" tool is now registered for host "testhost.example.com" in group "default"
 "proc-interrupts" tool is now registered for host "testhost.example.com" in group "default"
+"proc-vmstat" tool is now registered for host "testhost.example.com" in group "default"
+"sar" tool is now registered for host "testhost.example.com" in group "default"
 "turbostat" tool is now registered for host "testhost.example.com" in group "default"
 "perf" tool is now registered for host "testhost.example.com" in group "default"
 --- Finished test-11.14 pbench-register-tool-set (status=0)
@@ -40,8 +41,7 @@
 --interval=3
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-[info][1900-01-01T00:00:00.000000] "sar" tool is now registered for host "testhost.example.com" in group "default"
+[warn][1900-01-01T00:00:00.000000] pbench-register-tool-set: the 'default' tool set is deprecated and will be removed in the Pbench Agent v1.0 future release, please use a named tool set argument from one of: heavy, legacy, light, medium
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "testhost.example.com" in group "default"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
@@ -49,9 +49,11 @@
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=30"
 [info][1900-01-01T00:00:00.000000] "pidstat" tool is now registered for host "testhost.example.com" in group "default"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "proc-interrupts" tool is now registered for host "testhost.example.com" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [info][1900-01-01T00:00:00.000000] "proc-vmstat" tool is now registered for host "testhost.example.com" in group "default"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-[info][1900-01-01T00:00:00.000000] "proc-interrupts" tool is now registered for host "testhost.example.com" in group "default"
+[info][1900-01-01T00:00:00.000000] "sar" tool is now registered for host "testhost.example.com" in group "default"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [info][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "testhost.example.com" in group "default"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts='-a --freq=100'"

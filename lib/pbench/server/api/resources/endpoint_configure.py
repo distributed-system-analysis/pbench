@@ -1,46 +1,52 @@
-import re
+from http import HTTPStatus
 from logging import Logger
-
-from flask.globals import current_app
-from flask_restful import Resource, abort
-from flask import request, jsonify
+import re
+from typing import Any, Dict
 from urllib.parse import urljoin
 
+from flask import jsonify, request
+from flask.globals import current_app
+from flask_restful import abort, Resource
+
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources.query_apis import get_index_prefix
 
 
 class EndpointConfig(Resource):
     """
-    EndpointConfig API resource: this supports dynamic dashboard configuration
-    from the Pbench server rather than constructing a disconnected dashboard
-    config file.
+    This supports dynamic dashboard configuration from the Pbench server rather
+    than constructing a static dashboard config file.
     """
 
     forward_pattern = re.compile(r";\s*host\s*=\s*(?P<host>[^;\s]+)")
     x_forward_pattern = re.compile(r"\s*(?P<host>[^;\s,]+)")
-    param_template = re.compile(r"<\w+:\w+>")
+    param_template = re.compile(r"/<(?P<type>[^:]+):(?P<name>\w+)>")
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         """
         __init__ Construct the API resource
 
         Args:
-            :config: server config values
-            :logger: message logging
+            config: server config values
+            logger: message logging
 
         Report the server configuration to a web client. By default, the Pbench
         server ansible script sets up a local Apache reverse proxy routing
         through the HTTP port (80); an external reverse-proxy can be configured
-        without the knowledge of the server, and this API will use reverse-proxy
-        Forwarded or X-Forwarded-Host HTTP headers to discover the proxy
-        configuration. All server endpoints will be reported with respect to that
-        address.
+        without the knowledge of the server, and this API will try to use the
+        reverse-proxy Forwarded or X-Forwarded-Host HTTP headers to discover
+        preferred HTTP address of the server.
+
+        If neither forwarding header is present, this API will use the `host`
+        attribute from the Flask `Requests` object, which records how the
+        client directed the request.
+
+        All server endpoints will be reported with respect to the identified
+        address. This means subsequent client API calls will preserve whatever
+        proxying was set up for the original endpoints query: e.g., the
+        Javascript `window.origin` from which the Pbench dashboard was loaded.
         """
         self.logger = logger
-        self.host = config.get("pbench-server", "host")
         self.uri_prefix = config.rest_uri
-        self.prefix = get_index_prefix(config)
         self.commit_id = config.COMMIT_ID
 
     def get(self):
@@ -48,20 +54,6 @@ class EndpointConfig(Resource):
         Return server configuration information required by web clients
         including the Pbench dashboard UI. This includes:
 
-        indices: Information about the server's ES indices. (NOTE: once
-                we've removed all direct Elasticsearch queries from the
-                dashboard, these won't be necessary.)
-            result_index: The "root" index name for Pbench result data,
-                qualified by the current index version and prefix. In the
-                current ES schema, this is "v5.result-data-sample."
-            result_data_index: The "result-data" index has been broken into
-                "result-data-sample" and "result-data" indices for the
-                Elasticsearch V7 transition. In the current ES schema, this
-                is "v5.result-data."
-            run_index: The "master" run-data index root. In the current ES
-                schema, this is "v6.run-data."
-            run_toc_index: The Elasticsearch V7 index for run TOC data. In
-                the current ES schema, this is "v6.run-toc."
         identification: The Pbench server name and version
         api:    A dict of the server APIs supported; we give a name, which
                 identifies the service, and the full URI relative to the
@@ -71,24 +63,57 @@ class EndpointConfig(Resource):
                 rules; refer to api/__init__.py for the code which creates
                 those mappings, or test_endpoint_configure.py for code that
                 validates the current set (and must be updated when the API
-                set changes). We supplement the Flask API list with the
-                "results" API, which is currently just an Apache public_html
-                file mapping but is referenced by the dashboard code.
+                set changes).
+        uri:    A dict of server API templates, where each template defines a
+                template URI and a list of typed parameters.
 
-        TODO: We need an internal mechanism to track the active versions of the
-        various Elasticsearch template documents. We're hardcoding them here and
-        in other APIs. We should consider persisting an equivalent of the
-        mapping table built in "indexer.py" for use across the server APIs.
+        We derive a "name" for each API by removing URI parameters and the API
+        prefix (/api/v1/), then replacing the path "/" characters with
+        underscores.
 
-        TODO: We provide Elasticsearch index root names here, which the dashboard
-        code needs to perform the queries we've not yet replaced with server-side
-        implementations. The entire "indices" section can be removed once that is
-        resolved.
+        The "api" object contains a key for each API name, where the value is a
+        simplified URI omitting URI parameters. The client must either know the
+        required parameters and order, and connect them to the "api" value
+        separated by slash characters, or refer to the "uri" templates.
+
+        E.g, "/api/v1/controllers/list" yields:
+
+            "controllers_list": "http://host/api/v1/controllers/list"
+
+        while "/api/v1/users/<string:username>" yields:
+
+            "users": "http://host/api/v1/users"
+
+        For URIs with multiple parameters, or embedded parameters, it may be
+        easier to work with the template string in the "uri" object. The value
+        of each API name key in the "uri" object is a minimal "schema" object
+        defining the template string and parameters for the API. The "uri"
+        value for the "users" API, for example, will be
+
+            {
+                "template": "http://host/api/v1/users/{target_username}",
+                "params": {"target_username": {"type": "string"}}
+            }
+
+        The template can be resolved in Python with:
+
+            template.format(target_username="value")
+
+        Or in Javascript with:
+
+            template.replace('{target_username}', 'value')
         """
-        self.logger.debug("Received these headers: {!r}", request.headers)
+        self.logger.debug(
+            "Received headers: {!r}, access_route {!r}, base_url {!r}, host {!r}, host_url {!r}",
+            request.headers,
+            request.access_route,
+            request.base_url,
+            request.host,
+            request.host_url,
+        )
         origin = None
-        host_source = "configuration"
-        host_value = self.host
+        host_source = "request"
+        host_value = request.host
         header = request.headers.get("Forwarded")
         if header:
             m = self.forward_pattern.search(header)
@@ -105,7 +130,7 @@ class EndpointConfig(Resource):
                     host_source = "X-Forwarded-Host"
                     host_value = header
         if not origin:
-            origin = self.host
+            origin = host_value
         host = f"http://{origin}"
         self.logger.info(
             "Advertising endpoints at {} relative to {} ({})",
@@ -114,10 +139,8 @@ class EndpointConfig(Resource):
             host_value,
         )
 
-        # We pre-load the APIs list with the "results" link, which isn't yet
-        # a Pbench server API. The dashboard static endpoint configuration
-        # included this, and it makes sense for consistency.
-        apis = {"results": urljoin(host, "/results")}
+        apis = {}
+        templates = {}
 
         # Iterate through the Flask endpoints to add a description for each.
         for rule in current_app.url_map.iter_rules():
@@ -126,46 +149,40 @@ class EndpointConfig(Resource):
             # Ignore anything that doesn't use our API prefix, because it's
             # not in our API.
             if url.startswith(self.uri_prefix):
-                # If the URI is parameterized with a Flask "<type:name>"
-                # template string, we don't want to report it, so we remove
-                # it from the URI. We derive an API name by converting the
-                # "/" characters in the URI to "_", after removing a trailing
-                # "/" that would have been left by removing a template... we
-                # don't remove the trailing "/" from the URI, which serves as
-                # an indication that the parameter is needed.
-                #
-                # E.g, "/api/v1/controllers/list" yields:
-                #     "controllers_list": "/api/v1/controllers/list"
-                #
-                # while "/api/v1/users/<string:username>" yields:
-                #     "users": "/api/v1/users/"
-                #
-                # TODO: This won't work right with embedded template strings,
-                # which we're not currently using anywhere; but it'll require
-                # adjustment later if we add any. (E.g., something like
-                # "/api/v1/foo/<string:name>/detail/<string:param>")
+                simplified = self.param_template.sub(r"/{\g<name>}", url)
+                matches = self.param_template.finditer(url)
+                template: Dict[str, Any] = {
+                    "template": urljoin(host, simplified),
+                    "params": {
+                        match.group("name"): {"type": match.group("type")}
+                        for match in matches
+                    },
+                }
                 url = self.param_template.sub("", url)
-                path = url[len(self.uri_prefix) + 1 :]
-                if path.endswith("/"):
-                    path = path[:-1]
-                path = path.replace("/", "_")
-                apis[path] = urljoin(host, url)
+                path = rule.endpoint
+
+                # We have some URI endpoints that repeat a basic URI pattern.
+                # The "primary" may have several URI parameters; the others
+                # have fewer parameters (e.g., "/x/{p}" and "/x" or
+                # "/x/{p}/{n}" and "/x/{p}" and "/x") and won't capture all
+                # the information we want. So we only keep the variant with the
+                # highest parameter count.
+                if path not in templates or (
+                    len(template["params"]) > len(templates[path]["params"])
+                ):
+                    apis[path] = urljoin(host, url)
+                    templates[path] = template
 
         try:
             endpoints = {
                 "identification": f"Pbench server {self.commit_id}",
-                "indices": {
-                    "run_index": f"{self.prefix}.v6.run-data.",
-                    "run_toc_index": f"{self.prefix}.v6.run-toc.",
-                    "result_index": f"{self.prefix}.v5.result-data-sample.",
-                    "result_data_index": f"{self.prefix}.v5.result-data.",
-                },
                 "api": apis,
+                "uri": templates,
             }
             response = jsonify(endpoints)
         except Exception:
             self.logger.exception("Something went wrong constructing the endpoint info")
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         else:
-            response.status_code = 200
+            response.status_code = HTTPStatus.OK
             return response

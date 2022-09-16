@@ -1,16 +1,16 @@
 """
 This module provides convenience functions that interface to lower-level services, provided by the boto3 module.
 """
-import boto3
-import os
-import glob
 import base64
-import hashlib
-from configparser import NoSectionError, NoOptionError
-from boto3.s3.transfer import TransferConfig
-from botocore.exceptions import ConnectionClosedError, ClientError
-
+from configparser import NoOptionError, NoSectionError
 from enum import Enum
+import glob
+import hashlib
+import os
+
+import boto3
+from boto3.s3.transfer import TransferConfig
+from botocore.exceptions import ClientError, ConnectionClosedError
 
 
 class Status(Enum):
@@ -51,8 +51,8 @@ class Entry:
 
 class S3Config:
 
-    GB = 1024 ** 3
-    MB = 1024 ** 2
+    GB = 1024**3
+    MB = 1024**2
 
     def __init__(self, config, logger):
         try:
@@ -363,7 +363,7 @@ class MockS3Connector(Connector):
     """
 
     # class "constant"
-    GB = 1024 ** 3
+    GB = 1024**3
 
     def __init__(self, config, logger):
         try:

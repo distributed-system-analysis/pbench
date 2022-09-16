@@ -1,8 +1,6 @@
 +++ Running test-53 test-client-tool-meister 
 "mpstat" tool is now registered for host "testhost.example.com" in group "default"
 "dcgm" tool is now registered for host "testhost.example.com" in group "default"
-pbench-tool-data-sink: connected to redis server localhost:17001
-pbench-tool-meister: connected to redis server localhost:17001
 Collecting system information
 --- Finished test-53 test-client-tool-meister (status=0)
 +++ pbench tree state
@@ -20,10 +18,6 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com/mpstat/mpstat-stop-postprocess.out
 /var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com/mpstat/mpstat.cmd
 /var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com/mpstat/online-cpus.txt
-/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com/tm-mpstat-start.err
-/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com/tm-mpstat-start.out
-/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com/tm-mpstat-stop.err
-/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com/tm-mpstat-stop.out
 /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one
 /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42
 /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default
@@ -35,10 +29,6 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com/mpstat/mpstat-stop-postprocess.out
 /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com/mpstat/mpstat.cmd
 /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com/mpstat/online-cpus.txt
-/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com/tm-mpstat-start.err
-/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com/tm-mpstat-start.out
-/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com/tm-mpstat-stop.err
-/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com/tm-mpstat-stop.out
 /var/tmp/pbench-test-utils/pbench/mock-run/metadata.log
 /var/tmp/pbench-test-utils/pbench/mock-run/ssh_config
 /var/tmp/pbench-test-utils/pbench/mock-run/ssh_config.d
@@ -56,20 +46,20 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com/tm-sysinfo.err
 /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com/tm-sysinfo.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/.uuid
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-default-testhost.example.com.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-default-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/prometheus_data.tar.xz
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm/dcgm.file
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm/tm-dcgm-start.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm/tm-dcgm-start.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-default/testhost.example.com/dcgm
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-v1-default/testhost.example.com/mpstat
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-default
@@ -101,11 +91,15 @@ iterations = 0-iter-zero, 1-iter-one
 
 [controller]
 hostname = testhost.example.com
-hostname-s = agent.example.com
-hostname-f = agent.example.com
-hostname-i = agent.example.com
-hostname-a = agent.example.com
-ssh_opts = -o StrictHostKeyChecking=no
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
+ssh_opts = -o BatchMode=yes -o StrictHostKeyChecking=no
 
 [run]
 controller = testhost.example.com
@@ -120,10 +114,14 @@ trigger = None
 [tools/testhost.example.com]
 label = 
 tools = dcgm,mpstat
-hostname-s = agent.example.com
-hostname-f = agent.example.com
-hostname-i = agent.example.com
-hostname-a = agent.example.com
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
 rpm-version = v(unknown)-g(unknown)
 dcgm = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
 mpstat = --interval=42 --options=forty-two
@@ -131,12 +129,12 @@ mpstat = --interval=42 --options=forty-two
 [tools/testhost.example.com/dcgm]
 options = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
 install_check_status_code = 0
-install_check_output = dcgm tool properly installed
+install_check_output = dcgm tool (dcgm-exporter) properly installed
 
 [tools/testhost.example.com/mpstat]
 options = --interval=42 --options=forty-two
 install_check_status_code = 0
-install_check_output = mpstat: pbench-sysstat-12.0.3 is installed
+install_check_output = mpstat: pbench-sysstat-12.0.3-1 is installed
 
 --- mock-run/metadata.log file contents
 +++ mock-run/tm/pbench-tool-data-sink.err file contents
@@ -155,10 +153,12 @@ INFO pbench-tool-data-sink web_server_run -- Bottle web server exited
 bind localhost
 daemonize yes
 dir /var/tmp/pbench-test-utils/pbench/mock-run/tm
+save ""
+appendonly no
 dbfilename pbench-redis.rdb
 logfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
 loglevel notice
-pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis_17001.pid
+pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.pid
 port 17001
 --- mock-run/tm/redis.conf file contents
 +++ mock-run/tm/redis.log file contents
@@ -169,49 +169,63 @@ port 17001
 * Removing the pid file.
 # Redis is now ready to exit, bye bye...
 --- mock-run/tm/redis.log file contents
-+++ mock-run/tm/tm-default-testhost.example.com.err file contents
++++ mock-run/tm/tm.err file contents
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
-INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
-INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
+INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Transient tool mpstat stop process
+INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Transient tool mpstat start process
 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com
 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
-INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
-INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
+INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Transient tool mpstat stop process
+INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Transient tool mpstat start process
 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
-INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
+INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Persistent tool dcgm process
+WARNING pbench-tool-meister end_tools -- testhost.example.com: unexpected temp files dcgm/dcgm-exporter.file
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
---- mock-run/tm/tm-default-testhost.example.com.err file contents
-+++ mock-run/tm/tm-default-testhost.example.com.out file contents
---- mock-run/tm/tm-default-testhost.example.com.out file contents
+INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+--- mock-run/tm/tm.err file contents
 +++ mock-run/tm/tm.logs file contents
 pbench-tool-meister-start - verify logging channel up
-testhost.example.com 0000 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
-testhost.example.com 0001 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
-testhost.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
-testhost.example.com 0003 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
-testhost.example.com 0004 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
-testhost.example.com 0005 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
-testhost.example.com 0006 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
-testhost.example.com 0007 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com
-testhost.example.com 0008 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
-testhost.example.com 0009 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
-testhost.example.com 0010 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
-testhost.example.com 0011 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
-testhost.example.com 0012 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com
-testhost.example.com 0013 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
-testhost.example.com 0014 INFO pbench-tool-meister wait -- Stopped persistent tool dcgm
-testhost.example.com 0015 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
-testhost.example.com 0016 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
-testhost.example.com 0017 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
+testhost.example.com INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
+testhost.example.com INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
+testhost.example.com INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
+testhost.example.com INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
+testhost.example.com INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
+testhost.example.com INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Transient tool mpstat stop process
+testhost.example.com INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Transient tool mpstat start process
+testhost.example.com INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com
+testhost.example.com INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
+testhost.example.com INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
+testhost.example.com INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Transient tool mpstat stop process
+testhost.example.com INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Transient tool mpstat start process
+testhost.example.com INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com
+testhost.example.com INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
+testhost.example.com INFO pbench-tool-meister _wait_for_process_with_kill -- Waiting for Persistent tool dcgm process
+testhost.example.com WARNING pbench-tool-meister end_tools -- testhost.example.com: unexpected temp files dcgm/dcgm-exporter.file
+testhost.example.com INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com block,security_mitigations,sos parallel
+testhost.example.com INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
+testhost.example.com INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
+testhost.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
+testhost.example.com INFO pbench-tool-meister.logger-start log_raw_io_output -- mpstat: running "/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 42 --options=forty-two "
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: stopping
+testhost.example.com INFO pbench-tool-meister.logger-stop log_raw_io_output -- mpstat: post-processing following stop
 --- mock-run/tm/tm.logs file contents
++++ mock-run/tm/tm.out file contents
+--- mock-run/tm/tm.out file contents
 +++ tools-default/prometheus/prom.log file contents
 --- tools-default/prometheus/prom.log file contents
 +++ tools-default/prometheus/prometheus.file file contents
@@ -232,13 +246,23 @@ scrape_configs:
     static_configs:
     - targets: ['testhost.example.com:9400']
 --- tools-default/prometheus/prometheus.yml file contents
-+++ tools-default/testhost.example.com/dcgm/dcgm.file file contents
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
---- tools-default/testhost.example.com/dcgm/dcgm.file file contents
-+++ tools-default/testhost.example.com/dcgm/tm-dcgm-start.err file contents
---- tools-default/testhost.example.com/dcgm/tm-dcgm-start.err file contents
-+++ tools-default/testhost.example.com/dcgm/tm-dcgm-start.out file contents
---- tools-default/testhost.example.com/dcgm/tm-dcgm-start.out file contents
++++ tools-v1-default/testhost.example.com/dcgm file contents
+--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
+--- tools-v1-default/testhost.example.com/dcgm file contents
++++ tools-v1-default/testhost.example.com/mpstat file contents
+--interval=42
+--options=forty-two
+--- tools-v1-default/testhost.example.com/mpstat file contents
++++ mock-run/sysinfo/beg/testhost.example.com/contents.lis file contents
+sysinfo='block,security_mitigations,sos'
+sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'
+sysinfo_full_hostname='testhost.example.com'
+--- mock-run/sysinfo/beg/testhost.example.com/contents.lis file contents
++++ mock-run/sysinfo/end/testhost.example.com/contents.lis file contents
+sysinfo='block,security_mitigations,sos'
+sysinfo_install_dir='/var/tmp/pbench-test-utils/opt/pbench-agent'
+sysinfo_full_hostname='testhost.example.com'
+--- mock-run/sysinfo/end/testhost.example.com/contents.lis file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
@@ -247,4 +271,5 @@ scrape_configs:
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/prometheus --config.file=/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/prometheus/prometheus.yml --storage.tsdb.path=/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
 --- test-execution.log file contents

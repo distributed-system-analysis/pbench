@@ -1,0 +1,233 @@
+import * as TYPES from "./types";
+
+import {
+  DASHBOARD_SAVED,
+  DASHBOARD_SEEN,
+  DATASET_ACCESS,
+  DATASET_CREATED,
+  DATASET_OWNER,
+  EXPIRATION_DAYS_LIMIT,
+  SERVER_DELETION,
+  USER_FAVORITE,
+} from "assets/constants/overviewConstants";
+
+import API from "../utils/axiosInstance";
+import { constructToast } from "./toastActions";
+import { findNoOfDays } from "utils/dateFunctions";
+
+export const getDatasets = () => async (dispatch, getState) => {
+  try {
+    dispatch({ type: TYPES.LOADING });
+
+    const username = getState().userAuth.loginDetails.username;
+
+    const params = new URLSearchParams();
+    params.append("metadata", DATASET_CREATED);
+    params.append("metadata", DATASET_OWNER);
+    params.append("metadata", DATASET_ACCESS);
+    params.append("metadata", SERVER_DELETION);
+    params.append("metadata", DASHBOARD_SAVED);
+    params.append("metadata", DASHBOARD_SEEN);
+    params.append("metadata", USER_FAVORITE);
+
+    params.append("owner", username);
+
+    const endpoints = getState().apiEndpoint.endpoints;
+    const response = await API.get(endpoints?.api?.datasets_list, {
+      params: params,
+    });
+
+    if (response.status === 200) {
+      if (response?.data?.results?.length > 0) {
+        const data = response.data.results;
+        dispatch({
+          type: TYPES.USER_RUNS,
+          payload: data,
+        });
+
+        dispatch(initializeRuns());
+      }
+    }
+  } catch (error) {
+    dispatch(constructToast("danger", error?.response?.data?.message));
+    dispatch({ type: TYPES.NETWORK_ERROR });
+  }
+  dispatch({ type: TYPES.COMPLETED });
+};
+
+const initializeRuns = () => (dispatch, getState) => {
+  const data = getState().overview.datasets;
+  const defaultPerPage = getState().overview.defaultPerPage;
+
+  const savedRuns = data.filter((item) => item.metadata[DASHBOARD_SAVED]);
+  const newRuns = data.filter((item) => !item.metadata[DASHBOARD_SAVED]);
+
+  const expiringRuns = data.filter(
+    (item) =>
+      findNoOfDays(item.metadata["server.deletion"]) < EXPIRATION_DAYS_LIMIT
+  );
+  dispatch({
+    type: TYPES.EXPIRING_RUNS,
+    payload: expiringRuns,
+  });
+  dispatch({
+    type: TYPES.SAVED_RUNS,
+    payload: savedRuns,
+  });
+  dispatch({
+    type: TYPES.NEW_RUNS,
+    payload: newRuns,
+  });
+  dispatch({
+    type: TYPES.INIT_NEW_RUNS,
+    payload: newRuns?.slice(0, defaultPerPage),
+  });
+};
+const metaDataActions = {
+  save: DASHBOARD_SAVED,
+  read: DASHBOARD_SEEN,
+  favorite: USER_FAVORITE,
+};
+/**
+ * Function which return a thunk to be passed to a Redux dispatch() call
+ * @function
+ * @param {Object} dataset - Dataset which is being updated
+ * @param {string} actionType - Action (save, read, favorite) being performed
+ * @param {string} actionValue - Value to be updated (true/ false)
+ * @return {Object} - dispatch the action and update the state
+ */
+
+export const updateDataset =
+  (dataset, actionType, actionValue) => async (dispatch, getState) => {
+    try {
+      dispatch({ type: TYPES.LOADING });
+
+      const runs = getState().overview.datasets;
+
+      const method = metaDataActions[actionType];
+
+      const endpoints = getState().apiEndpoint.endpoints;
+      const response = await API.put(
+        `${endpoints?.api?.datasets_metadata}/${dataset.resource_id}`,
+        {
+          metadata: { [method]: actionValue },
+        }
+      );
+      if (response.status === 200) {
+        const dataIndex = runs.findIndex(
+          (item) => item.resource_id === dataset.resource_id
+        );
+        runs[dataIndex].metadata[metaDataActions[actionType]] =
+          response.data[metaDataActions[actionType]];
+        dispatch({
+          type: TYPES.USER_RUNS,
+          payload: runs,
+        });
+        dispatch(initializeRuns());
+      } else {
+        dispatch(constructToast("danger", response?.data?.message));
+      }
+    } catch (error) {
+      dispatch(constructToast("danger", error?.response?.data?.message));
+      dispatch({ type: TYPES.NETWORK_ERROR });
+    }
+    dispatch({ type: TYPES.COMPLETED });
+  };
+
+export const deleteDataset = (dataset) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: TYPES.LOADING });
+    const endpoints = getState().apiEndpoint.endpoints;
+    const response = await API.post(
+      `${endpoints?.api?.datasets_delete}/${dataset.resource_id}`
+    );
+    if (response.status === 200) {
+      const datasets = getState().overview.datasets;
+
+      const result = datasets.filter(
+        (item) => item.resource_id !== dataset.resource_id
+      );
+
+      dispatch({
+        type: TYPES.USER_RUNS,
+        payload: result,
+      });
+
+      dispatch(initializeRuns());
+      dispatch(constructToast("success", "Deleted!"));
+    }
+  } catch (error) {
+    dispatch(constructToast("danger", error?.response?.data?.message));
+    dispatch({ type: TYPES.NETWORK_ERROR });
+  }
+  dispatch({ type: TYPES.COMPLETED });
+};
+
+export const setRows = (rows) => {
+  return {
+    type: TYPES.INIT_NEW_RUNS,
+    payload: rows,
+  };
+};
+
+export const setSelectedRuns = (rows) => {
+  return {
+    type: TYPES.SELECTED_NEW_RUNS,
+    payload: rows,
+  };
+};
+
+export const updateMultipleDataset =
+  (method, value) => (dispatch, getState) => {
+    const selectedRuns = getState().overview.selectedRuns;
+
+    if (selectedRuns.length > 0) {
+      selectedRuns.forEach((item) =>
+        method === "delete"
+          ? dispatch(deleteDataset(item))
+          : dispatch(updateDataset(item, method, value))
+      );
+      const toastMsg =
+        method === "delete"
+          ? "Deleted!"
+          : method === "save"
+          ? "Saved!"
+          : "Updated!";
+      dispatch(constructToast("success", toastMsg));
+      dispatch(setSelectedRuns([]));
+    } else {
+      dispatch(constructToast("warning", "Select dataset(s) for update"));
+    }
+  };
+
+export const publishDataset =
+  (dataset, updateValue) => async (dispatch, getState) => {
+    try {
+      dispatch({ type: TYPES.LOADING });
+      const endpoints = getState().apiEndpoint.endpoints;
+      const savedRuns = getState().overview.savedRuns;
+
+      const response = await API.post(
+        `${endpoints?.api?.datasets_publish}/${dataset.resource_id}`,
+        {
+          access: updateValue,
+        }
+      );
+      if (response.status === 200) {
+        const dataIndex = savedRuns.findIndex(
+          (item) => item.resource_id === dataset.resource_id
+        );
+        savedRuns[dataIndex].metadata[DATASET_ACCESS] = updateValue;
+
+        dispatch({
+          type: TYPES.SAVED_RUNS,
+          payload: savedRuns,
+        });
+        dispatch(constructToast("success", "Updated!"));
+      }
+    } catch (error) {
+      dispatch(constructToast("danger", error?.response?.data?.message));
+      dispatch({ type: TYPES.NETWORK_ERROR });
+    }
+    dispatch({ type: TYPES.COMPLETED });
+  };

@@ -8,6 +8,7 @@ dist
 *~
 ????-*.patch
 /.env
+.DS_Store
 .npmrc
 .yarnrc
 *.egg-info/
@@ -21,3 +22,5 @@ pip-wheel-metadata
 Pipfile
 Pipfile.lock
 *,cover
+AUTHORS
+ChangeLog

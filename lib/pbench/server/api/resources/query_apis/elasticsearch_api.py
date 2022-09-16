@@ -1,81 +1,59 @@
-import requests
-from flask_restful import Resource, abort
-from flask import request, make_response
-from pbench.server.api.resources.query_apis import get_es_url
+from logging import Logger
+
+from pbench.server import JSON, PbenchServerConfig
+from pbench.server.api.resources import (
+    API_METHOD,
+    API_OPERATION,
+    ApiParams,
+    ApiSchema,
+    Parameter,
+    ParamType,
+    Schema,
+)
+from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 
 
-class Elasticsearch(Resource):
+class Elasticsearch(ElasticBase):
     """Elasticsearch API for post request via server."""
 
-    def __init__(self, config, logger):
-        self.logger = logger
-        self.elasticsearch = get_es_url(config)
+    def __init__(self, config: PbenchServerConfig, logger: Logger):
+        """
+        __init__ Configure the Elasticsearch passthrough class
 
-    def post(self):
-        json_data = request.get_json(silent=True)
-        if not json_data:
-            message = "Invalid json object in the query"
-            self.logger.warning(f"{message}: {request.url}")
-            abort(400, message=message)
+        NOTE: This API is obsolescent. We've talked about retaining it as a
+        potentially "privileged" mechanism to gain direct access to the
+        Elasticsearch backend, but this isn't defined. We should likely
+        delete it, or at least remove it from the API routing, until then;
+        for now I've given it the minimum coat of paint to build under the
+        new schema infrastructure rather than tackling those issues at the
+        same time.
 
-        if not json_data["indices"]:
-            message = "Missing indices path in the post request"
-            self.logger.warning(f"{message}")
-            abort(400, message=f"{message}")
+        Args:
+            config: Pbench configuration object
+            logger: logger object
+        """
+        super().__init__(
+            config,
+            logger,
+            ApiSchema(
+                API_METHOD.POST,
+                API_OPERATION.UPDATE,
+                body_schema=Schema(
+                    Parameter("indices", ParamType.STRING, required=True),
+                    Parameter("payload", ParamType.JSON),
+                    Parameter("params", ParamType.JSON),
+                ),
+            ),
+        )
 
-        try:
-            # query Elasticsearch
-            url = f"{self.elasticsearch}/{json_data['indices']}"
-            if "params" in json_data:
-                if "ignore_unavailable" in json_data["params"]:
-                    url = f"{url}?ignore_unavailable={json_data['params']['ignore_unavailable']}"
+    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
+        return {
+            "path": params.body["indices"],
+            "kwargs": {
+                "json": params.body.get("payload"),
+                "params": params.body.get("params"),
+            },
+        }
 
-            if "payload" in json_data:
-                es_response = requests.post(url, json=json_data["payload"])
-            else:
-                self.logger.debug(
-                    "No payload found in Elasticsearch post request json data"
-                )
-                es_response = requests.get(url)
-            es_response.raise_for_status()
-
-        except requests.exceptions.HTTPError as e:
-            self.logger.exception("HTTP error {} from Elasticsearch post request", e)
-            abort(es_response.status_code, message=f"HTTP error {e} from Elasticsearch")
-
-        except requests.exceptions.ConnectionError:
-            self.logger.exception(
-                "Connection refused during the Elasticsearch post request"
-            )
-            abort(
-                502, message="Network problem, could not post to Elasticsearch Endpoint"
-            )
-        except requests.exceptions.Timeout:
-            self.logger.exception(
-                "Connection timed out during the Elasticsearch post request"
-            )
-            abort(
-                504,
-                message="Connection timed out, could not post to Elasticsearch Endpoint",
-            )
-        except Exception:
-            self.logger.exception(
-                "Exception occurred during the Elasticsearch post request"
-            )
-            abort(
-                500, message="INTERNAL ERROR",
-            )
-
-        try:
-            # Construct our response object
-            response = make_response(es_response.text)
-        except Exception:
-            self.logger.exception(
-                "Exception occurred Elasticsearch response construction"
-            )
-            abort(
-                500, message="INTERNAL ERROR",
-            )
-
-        response.status_code = es_response.status_code
-        return response
+    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
+        return es_json

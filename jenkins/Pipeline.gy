@@ -1,24 +1,52 @@
 pipeline {
     agent { label 'pbench' }
+    environment {
+        IMAGE_ROLE="ci"
+        IMAGE_KIND="fedora"
+        IMAGE_REPO="quay.io/pbench"
+        EXTRA_PODMAN_SWITCHES="--pull=always -e COV_REPORT_XML=yes"
+        NO_COLORS=0
+        PY_COLORS=0
+        TERM='dumb'
+    }
     stages {
         stage('Linting & Unit Tests') {
             steps {
-                echo 'Linting, pytest-based unit tests, and legacy unit tests'
-                sh 'jenkins/run jenkins/tox -r --current-env -e jenkins-pytests,jenkins-unittests'
+                // If there is somehow a symlink left over from a previous run's
+                // Cobertura processing, remove it, because it seems to confuse
+                // the coverage data collection.
+                sh 'rm -fv pbench'
+
+                // Run the "build" (lint, unit tests, etc.) in a container.
+                sh 'jenkins/run ./build.sh'
+            }
+        }
+        stage('Agent Python3.6 Check') {
+            steps {
+                echo 'Verify agent side works with Python 3.6'
+                sh 'jenkins/run tox -e py36 -- agent'
             }
         }
     }
     post {
         success {
-            // Unfortunately, the Cobertura Publisher plugin considers the
-            // report file to be a relative-to-WORKSPACE-only file. So we
-            // have to hack the separate report file into the local workspace
-            // with a symlink.
-            sh 'ln -s ${WORKSPACE_TMP}/${BUILD_NUMBER}/tmp/pbench/cov/cov.xml ${WORKSPACE}/cov.xml'
+            // This symlink somehow allows the Cobertura plug-in to find the
+            // sources referenced in the coverage report.  However, the presence
+            // of this link inside the container seems to confuse the coverage
+            // data collection, so we create it here and then remove it after
+            // generating the report. (We use the -f option just in case there's
+            // an old one hanging around.)
+            sh 'ln -sTf lib/pbench pbench'
+
+            // Note that jenkins/run-pytests is executed inside the container
+            // while the Cobertura plug-in is executed natively, so this poses
+            // a challenge in terms of finding the coverage report file; we
+            // finesse this by assuming that it will be in the current
+            // directory in both environments.
             step([$class: 'CoberturaPublisher',
                 autoUpdateHealth: false,
                 autoUpdateStability: false,
-                coberturaReportFile: 'cov.xml',
+                coberturaReportFile: "cov/report.xml",
                 failNoReports: false,
                 failUnhealthy: false,
                 failUnstable: false,
@@ -26,7 +54,7 @@ pipeline {
                 onlyStable: false,
                 sourceEncoding: 'ASCII',
                 zoomCoverageChart: false])
-            sh 'rm ${WORKSPACE}/cov.xml'
+            sh 'rm cov/report.xml pbench'
         }
     }
 }

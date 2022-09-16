@@ -8,16 +8,12 @@ fi
 
 prog="$(basename "${0}")"
 args=( "${@}" )
-lastidx=$((${#args[@]} - 1))
-# avoid "bad array subscript" error
-if [[ "${lastidx}" -lt 0 ]] ;then
-    exit 0
-fi
-
-last=${args[${lastidx}]}
 if [[ "${prog}" == "pbench-tool-meister-start" ]]; then
     echo [pbench] > ${benchmark_run_dir}/metadata.log
 elif [[ "${prog}" == "cat" && "${args[0]}" == "/proc/cmdline" ]]; then
     echo "intel_iommu=on"
+elif [[ "${prog}" == "screen" && "${args[1]}" == "pbench-linpack" ]]; then
+    shift 2
+    eval "${@}"
 fi
 exit 0

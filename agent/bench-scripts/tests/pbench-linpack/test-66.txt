@@ -1,0 +1,135 @@
++++ Running test-66 pbench-linpack
+Starting iteration 1-1-threads
+test sample 1 of 1
+Waiting for all clients to finish pbench-linpack jobs
+Sample finished on a.example.com
+Sample finished on b.example.com
+Iteration 1-1-threads complete
+Starting iteration 2-3-threads
+test sample 1 of 1
+Waiting for all clients to finish pbench-linpack jobs
+Sample finished on a.example.com
+Sample finished on b.example.com
+Iteration 2-3-threads complete
+Starting iteration 3-5-threads
+test sample 1 of 1
+Waiting for all clients to finish pbench-linpack jobs
+Sample finished on a.example.com
+Sample finished on b.example.com
+Iteration 3-5-threads complete
+--- Finished test-66 pbench-linpack (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/.iterations
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/clients
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/clients/a.example.com
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/clients/b.example.com
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/csv
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/linpack-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/linpack-postprocess.cmd.out
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/result.json
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/clients
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/clients/a.example.com
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/clients/b.example.com
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/csv
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/linpack-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/linpack-postprocess.cmd.out
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/result.json
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/clients
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/clients/a.example.com
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/clients/b.example.com
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/csv
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/linpack-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/linpack-postprocess.cmd.out
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/result.json
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/generate-benchmark-summary.cmd
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/generate-benchmark-summary.cmd.out
+/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/metadata.log
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
+--- pbench tree state
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary linpack --config=test-66 --threads=1,3,5 --samples=1 --clients=a.example.com,b.example.com /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/.. gflops 100 0 1 n n
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/.. gflops 100 0 1 n n
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/.. gflops 100 0 1 n n
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=default default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o BatchMode=yes -o StrictHostKeyChecking=no a.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/linpack.out a.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/linpack.meta /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/clients/a.example.com
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o BatchMode=yes -o StrictHostKeyChecking=no a.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/linpack.out a.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/linpack.meta /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/clients/a.example.com
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o BatchMode=yes -o StrictHostKeyChecking=no a.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/linpack.out a.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/linpack.meta /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/clients/a.example.com
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o BatchMode=yes -o StrictHostKeyChecking=no b.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/linpack.out b.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/linpack.meta /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/clients/b.example.com
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o BatchMode=yes -o StrictHostKeyChecking=no b.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/linpack.out b.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/linpack.meta /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/clients/b.example.com
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/scp -o BatchMode=yes -o StrictHostKeyChecking=no b.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/linpack.out b.example.com:/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/linpack.meta /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/clients/b.example.com
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no a.example.com /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack-wait /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no a.example.com /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack-wait /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no a.example.com /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack-wait /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no a.example.com mkdir -p '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1' && screen -dmS pbench-linpack /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack --output-dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1 --threads=1 11.1.3 /var/tmp/pbench-test-bench/tmp
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no a.example.com mkdir -p '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1' && screen -dmS pbench-linpack /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack --output-dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1 --threads=3 11.1.3 /var/tmp/pbench-test-bench/tmp
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no a.example.com mkdir -p '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1' && screen -dmS pbench-linpack /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack --output-dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1 --threads=5 11.1.3 /var/tmp/pbench-test-bench/tmp
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no a.example.com pbench-linpack --pre-check-only 11.1.3 /var/tmp/pbench-test-bench/tmp
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no b.example.com /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack-wait /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no b.example.com /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack-wait /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no b.example.com /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack-wait /var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no b.example.com mkdir -p '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1' && screen -dmS pbench-linpack /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack --output-dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1 --threads=1 11.1.3 /var/tmp/pbench-test-bench/tmp
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no b.example.com mkdir -p '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1' && screen -dmS pbench-linpack /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack --output-dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1 --threads=3 11.1.3 /var/tmp/pbench-test-bench/tmp
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no b.example.com mkdir -p '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1' && screen -dmS pbench-linpack /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/linpack --output-dir=/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1 --threads=5 11.1.3 /var/tmp/pbench-test-bench/tmp
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no b.example.com pbench-linpack --pre-check-only 11.1.3 /var/tmp/pbench-test-bench/tmp
+--- test-execution.log file contents
++++ linpack_test-66_1900.01.01T00.00.00/metadata.log file contents
+[pbench]
+
+[iterations/1-1-threads]
+iteration_number = 1
+threads = 1
+iteration_name = 1-1-threads
+
+[iterations/2-3-threads]
+iteration_number = 2
+threads = 3
+iteration_name = 2-3-threads
+
+[iterations/3-5-threads]
+iteration_number = 3
+threads = 5
+iteration_name = 3-5-threads
+
+--- linpack_test-66_1900.01.01T00.00.00/metadata.log file contents
++++ linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/linpack-postprocess.cmd file contents
+'/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/linpack-postprocess' '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1' '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00' 'default' 1
+--- linpack_test-66_1900.01.01T00.00.00/1-1-threads/sample1/linpack-postprocess.cmd file contents
++++ linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/linpack-postprocess.cmd file contents
+'/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/linpack-postprocess' '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1' '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00' 'default' 1
+--- linpack_test-66_1900.01.01T00.00.00/2-3-threads/sample1/linpack-postprocess.cmd file contents
++++ linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/linpack-postprocess.cmd file contents
+'/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/linpack-postprocess' '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1' '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00' 'default' 1
+--- linpack_test-66_1900.01.01T00.00.00/3-5-threads/sample1/linpack-postprocess.cmd file contents
++++ linpack_test-66_1900.01.01T00.00.00/generate-benchmark-summary.cmd file contents
+'/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary' 'linpack' '--config=test-66 --threads=1,3,5 --samples=1 --clients=a.example.com,b.example.com' '/var/tmp/pbench-test-bench/pbench-agent/linpack_test-66_1900.01.01T00.00.00'
+--- linpack_test-66_1900.01.01T00.00.00/generate-benchmark-summary.cmd file contents

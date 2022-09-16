@@ -39,22 +39,21 @@ or S3, then those files will have been moved backed up first before we can
 re-verify.
 """
 
-import os
-import sys
-import glob
-import errno
-import tempfile
-
 from enum import Enum
+import errno
+import glob
+import os
 from pathlib import Path
+import sys
+import tempfile
 
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
+from pbench.server.database import init_db
 from pbench.server.report import Report
-from pbench.server.s3backup import S3Config, Entry
-
+from pbench.server.s3backup import Entry, S3Config
 
 _NAME_ = "pbench-verify-backup-tarballs"
 
@@ -170,7 +169,7 @@ class BackupObject:
             self.indicator_file_fail, "w"
         ) as f_fail:
             for tar in self.content_list:
-                md5_returned = md5sum(Path(self.dirname, tar.name))
+                (_, md5_returned) = md5sum(Path(self.dirname, tar.name))
                 if tar.md5 == md5_returned:
                     f_ok.write(f"{tar.name}: {'OK'}\n")
                 else:
@@ -290,6 +289,10 @@ def main():
         return 1
 
     logger = get_pbench_logger(_NAME_, config)
+
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    init_db(config, logger)
 
     # add a BACKUP field to the config object
     config.BACKUP = backup = config.conf.get("pbench-server", "pbench-backup-dir")

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# This script exists to ensure that `bash` is the process 1 in the container
+# executed by jenkins/run.  If `bash` is not process 1, then any zombie
+# processes won't be reaped until the program running as process 1 explicitly
+# reaps zombie processes.
+
+# printf -- "'%s'\n" "${@}"
+
+"${@}"

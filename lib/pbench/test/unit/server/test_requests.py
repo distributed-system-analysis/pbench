@@ -1,173 +1,487 @@
-import os
+from http import HTTPStatus
+from logging import Logger
+from pathlib import Path
 import socket
+from typing import Any
+
+from freezegun.api import freeze_time
 import pytest
 
-from pathlib import Path
-from werkzeug.utils import secure_filename
-from pbench.server.database.models.tracker import Dataset, States
+from pbench.server import PbenchServerConfig
+from pbench.server.database.models.datasets import (
+    Dataset,
+    DatasetNotFound,
+    Metadata,
+    MetadataKeyError,
+    States,
+)
+from pbench.server.filetree import FileTree
+from pbench.test.unit.server.test_user_auth import login_user, register_user
 
 
-class TestHostInfo:
-    @staticmethod
-    def test_host_info(client, pytestconfig, caplog, server_config):
-        tmp_d = pytestconfig.cache.get("TMP", None)
-        expected_message = (
-            f"pbench@pbench.example.com:{tmp_d}/srv/pbench"
-            "/pbench-move-results-receive"
-            "/fs-version-002"
-        )
-        response = client.get(f"{server_config.rest_uri}/host_info")
+def get_pbench_token(client, server_config):
+    # First create a user
+    response = register_user(
+        client,
+        server_config,
+        username="user",
+        firstname="firstname",
+        lastname="lastName",
+        email="user@domain.com",
+        password="12345",
+    )
+    assert response.status_code == HTTPStatus.CREATED
 
-        assert response.status_code == 200
-        assert response.json.get("message") == expected_message
-        for record in caplog.records:
-            assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
+    # Login user to get valid pbench token
+    response = login_user(client, server_config, "user", "12345")
+    assert response.status_code == HTTPStatus.OK
+    data = response.json
+    assert data["auth_token"]
+    return data["auth_token"]
 
 
 class TestElasticsearch:
     @staticmethod
-    def test_json_object(client, caplog, server_config):
-        response = client.post(f"{server_config.rest_uri}/elasticsearch")
-        assert response.status_code == 400
-        assert response.json.get("message") == "Invalid json object in the query"
-        assert len(caplog.records) == 1
-        assert caplog.records[0].levelname == "WARNING"
-
-    @staticmethod
-    def test_empty_url_path(client, caplog, server_config):
+    def test_missing_json_object(client, caplog, server_config, pbench_token):
         response = client.post(
-            f"{server_config.rest_uri}/elasticsearch", json={"indices": ""}
+            f"{server_config.rest_uri}/elasticsearch",
+            headers={"Authorization": "Bearer " + pbench_token},
         )
-        assert response.status_code == 400
-        assert (
-            response.json.get("message") == "Missing indices path in the post request"
-        )
-        assert len(caplog.records) == 1
-        assert caplog.records[0].levelname == "WARNING"
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json.get("message") == "Missing required parameters: indices"
 
     @staticmethod
-    def test_bad_request(client, caplog, server_config, requests_mock):
+    def test_empty_url_path(client, caplog, server_config, pbench_token):
+        response = client.post(
+            f"{server_config.rest_uri}/elasticsearch",
+            json={"indices": None},
+            headers={"Authorization": "Bearer " + pbench_token},
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json.get("message") == "Missing required parameters: indices"
+
+    @staticmethod
+    def test_bad_request(client, caplog, server_config, requests_mock, pbench_token):
         requests_mock.post(
-            "http://elasticsearch.example.com:7080/some_invalid_url", status_code=400
+            "http://elasticsearch.example.com:7080/some_invalid_url",
+            status_code=HTTPStatus.BAD_REQUEST,
         )
         response = client.post(
             f"{server_config.rest_uri}/elasticsearch",
+            headers={"Authorization": "Bearer " + pbench_token},
             json={"indices": "some_invalid_url", "payload": '{ "babble": "42" }'},
         )
-        assert response.status_code == 400
-
-        # This is a bit awkward, but the requests_mock throws in its own
-        # DEBUG log record to announce the POST; so allow it. (But don't
-        # fail if it's missing.)
-        if len(caplog.records) > 0:
-            assert len(caplog.records) == 2
-            assert caplog.records[0].levelname == "DEBUG"
-            assert caplog.records[0].name == "requests_mock.adapter"
+        assert response.status_code == HTTPStatus.BAD_GATEWAY
 
 
 class TestGraphQL:
     @staticmethod
     def test_json_object(client, caplog, server_config):
         response = client.post(f"{server_config.rest_uri}/graphql")
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Invalid json object"
         assert len(caplog.records) == 1
         assert caplog.records[0].levelname == "WARNING"
 
 
 class TestUpload:
+    filetree_created = None
+    filetree_create_fail = False
+    filetree_create_path = None
+    tarball_deleted = None
+
+    @pytest.fixture
+    def setup_ctrl(self):
+        self.controller = socket.gethostname()
+        yield
+        self.controller = None
+
     @staticmethod
-    def test_missing_filename_header_upload(client, caplog, server_config):
-        expected_message = (
-            "Missing filename header, "
-            "POST operation requires a filename header to name the uploaded file"
-        )
+    def gen_uri(server_config, filename="f.tar.xz"):
+        return f"{server_config.rest_uri}/upload/{filename}"
+
+    def gen_headers(self, auth_token, md5):
+        headers = {
+            "Authorization": "Bearer " + auth_token,
+            "controller": self.controller,
+            "Content-MD5": md5,
+        }
+        return headers
+
+    @staticmethod
+    def verify_logs(caplog):
+        for record in caplog.records:
+            assert record.levelname not in ("ERROR", "CRITICAL")
+        assert caplog.records[-1].levelname == "WARNING"
+
+    @pytest.fixture(scope="function", autouse=True)
+    def fake_filetree(self, monkeypatch):
+        class FakeTarball:
+            def __init__(self, path: Path):
+                self.tarball_path = path
+                self.name = Dataset.stem(path)
+
+            def delete(self):
+                TestUpload.tarball_deleted = self.name
+
+            def get_metadata(self):
+                return {"pbench": {"date": "2002-05-16T00:00:00"}}
+
+        class FakeFileTree(FileTree):
+            def __init__(self, options: PbenchServerConfig, logger: Logger):
+                self.controllers = []
+                self.datasets = {}
+                TestUpload.filetree_created = self
+
+            def create(self, controller: str, path: Path) -> FakeTarball:
+                TestUpload.filetree_create_path = path
+                if TestUpload.filetree_create_fail:
+                    raise Exception()
+                self.controllers.append(controller)
+                tarball = FakeTarball(path)
+                self.datasets[tarball.name] = tarball
+                return tarball
+
+        TestUpload.filetree_created = None
+        TestUpload.filetree_create_fail = False
+        TestUpload.filetree_create_path = None
+        TestUpload.tarball_deleted = None
+        monkeypatch.setattr(FileTree, "__init__", FakeFileTree.__init__)
+        monkeypatch.setattr(FileTree, "create", FakeFileTree.create)
+
+    def test_missing_authorization_header(self, client, server_config):
+        response = client.put(self.gen_uri(server_config))
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert not self.filetree_created
+
+    @pytest.mark.parametrize(
+        "malformed_token",
+        ("malformed", "bear token" "Bearer malformed"),
+    )
+    def test_malformed_authorization_header(
+        self, client, server_config, malformed_token
+    ):
         response = client.put(
-            f"{server_config.rest_uri}/upload/ctrl/{socket.gethostname()}"
+            self.gen_uri(server_config),
+            headers={"Authorization": malformed_token},
         )
-        assert response.status_code == 400
-        assert response.json.get("message") == expected_message
-        for record in caplog.records:
-            assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert not self.filetree_created
 
-    @staticmethod
-    def test_missing_md5sum_header_upload(client, caplog, server_config):
-        expected_message = "Missing md5sum header, POST operation requires md5sum of an uploaded file in header"
+    def test_missing_controller_header_upload(
+        self, client, caplog, server_config, pbench_token
+    ):
+        expected_message = "Missing required 'controller' header"
         response = client.put(
-            f"{server_config.rest_uri}/upload/ctrl/{socket.gethostname()}",
-            headers={"filename": "f.tar.xz"},
+            self.gen_uri(server_config),
+            headers={"Authorization": "Bearer " + pbench_token},
         )
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        for record in caplog.records:
-            assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
+        self.verify_logs(caplog)
+        assert not self.filetree_created
 
-    @staticmethod
-    @pytest.mark.parametrize("bad_extension", ("test.tar.bad", "test.tar", "test.tar."))
-    def test_bad_extension_upload(client, bad_extension, caplog, server_config):
-        expected_message = "File extension not supported. Only .xz"
+    def test_missing_md5sum_header_upload(
+        self, client, caplog, server_config, setup_ctrl, pbench_token
+    ):
+        expected_message = "Missing required 'Content-MD5' header"
         response = client.put(
-            f"{server_config.rest_uri}/upload/ctrl/{socket.gethostname()}",
-            headers={"filename": bad_extension, "Content-MD5": "md5sum"},
+            self.gen_uri(server_config),
+            headers={
+                "Authorization": "Bearer " + pbench_token,
+                "controller": self.controller,
+            },
         )
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        for record in caplog.records:
-            assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
+        self.verify_logs(caplog)
+        assert not self.filetree_created
 
-    @staticmethod
-    def test_empty_upload(client, pytestconfig, caplog, server_config):
-        expected_message = "Upload failed, Content-Length received in header is 0"
-        filename = "tmp.tar.xz"
-        tmp_d = pytestconfig.cache.get("TMP", None)
-        Path(tmp_d, filename).touch()
-
-        with open(Path(tmp_d, filename), "rb") as data_fp:
-            response = client.put(
-                f"{server_config.rest_uri}/upload/ctrl/{socket.gethostname()}",
-                data=data_fp,
-                headers={
-                    "filename": "log.tar.xz",
-                    "Content-MD5": "d41d8cd98f00b204e9800998ecf8427e",
-                },
-            )
-        assert response.status_code == 400
+    def test_missing_length_header_upload(
+        self, client, caplog, server_config, setup_ctrl, pbench_token
+    ):
+        expected_message = "Missing or invalid 'Content-Length' header"
+        response = client.put(
+            self.gen_uri(server_config),
+            headers={
+                "Authorization": "Bearer " + pbench_token,
+                "controller": self.controller,
+                "Content-MD5": "ANYMD5",
+            },
+        )
+        assert response.status_code == HTTPStatus.LENGTH_REQUIRED
         assert response.json.get("message") == expected_message
-        for record in caplog.records:
-            assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
+        self.verify_logs(caplog)
+        assert not self.filetree_created
 
-    @staticmethod
-    def test_upload(client, pytestconfig, caplog, server_config):
+    def test_bad_length_header_upload(
+        self, client, caplog, server_config, setup_ctrl, pbench_token
+    ):
+        expected_message = "Missing or invalid 'Content-Length' header"
+        response = client.put(
+            self.gen_uri(server_config),
+            headers={
+                "Authorization": "Bearer " + pbench_token,
+                "controller": self.controller,
+                "Content-MD5": "ANYMD5",
+                "Content-Length": "string",
+            },
+        )
+        assert response.status_code == HTTPStatus.LENGTH_REQUIRED
+        assert response.json.get("message") == expected_message
+        self.verify_logs(caplog)
+        assert not self.filetree_created
+
+    def test_bad_controller_upload(
+        self, client, caplog, server_config, setup_ctrl, pbench_token
+    ):
+        expected_message = "Invalid 'controller' header"
+        response = client.put(
+            self.gen_uri(server_config),
+            headers={
+                "Authorization": "Bearer " + pbench_token,
+                "controller": "not_a_hostname",
+                "Content-MD5": "ANYMD5",
+                "Content-Length": "STRING",
+            },
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json.get("message") == expected_message
+        self.verify_logs(caplog)
+        assert not self.filetree_created
+
+    def test_mismatched_md5sum_header(
+        self, client, caplog, server_config, setup_ctrl, pbench_token
+    ):
         filename = "log.tar.xz"
         datafile = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
-        controller = socket.gethostname()
-        with open(f"{datafile}.md5") as md5sum_check:
-            md5sum = md5sum_check.read()
 
-        with open(datafile, "rb") as data_fp:
+        with datafile.open("rb") as data_fp:
             response = client.put(
-                f"{server_config.rest_uri}/upload/ctrl/{controller}",
+                self.gen_uri(server_config, filename),
                 data=data_fp,
-                headers={"filename": filename, "Content-MD5": md5sum},
+                # Content-Length header set automatically
+                headers=self.gen_headers(pbench_token, "md5sum"),
+            )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert (
+            response.json.get("message")
+            == "MD5 checksum 9d5a479f6f75fa9b3bab27ef79ad5b29 does not match expected md5sum"
+        )
+        self.verify_logs(caplog)
+        assert not self.filetree_created
+        with pytest.raises(DatasetNotFound):
+            Dataset.query(name="log")
+
+    @pytest.mark.parametrize("bad_extension", ("test.tar.bad", "test.tar", "test.tar."))
+    def test_bad_extension_upload(
+        self,
+        client,
+        bad_extension,
+        tmp_path,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+    ):
+        datafile = tmp_path / bad_extension
+        datafile.write_text("compressed tar ball")
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, bad_extension),
+                data=data_fp,
+                # Content-Length header set automatically
+                headers=self.gen_headers(pbench_token, "md5sum"),
+            )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert (
+            response.json.get("message")
+            == "File extension not supported, must be .tar.xz"
+        )
+        self.verify_logs(caplog)
+        assert not self.filetree_created
+
+    def test_invalid_authorization_upload(
+        self, client, caplog, server_config, setup_ctrl, pbench_token
+    ):
+        # Log out the user
+        response = client.post(
+            f"{server_config.rest_uri}/logout",
+            headers={"Authorization": "Bearer " + pbench_token},
+        )
+
+        # Upload with invalid token
+        response = client.put(
+            self.gen_uri(server_config),
+            headers=self.gen_headers(pbench_token, "md5sum"),
+        )
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        for record in caplog.records:
+            assert record.levelname in ["DEBUG", "INFO"]
+        assert not self.filetree_created
+
+    def test_empty_upload(
+        self, client, tmp_path, caplog, server_config, setup_ctrl, pbench_token
+    ):
+        filename = "tmp.tar.xz"
+        datafile = tmp_path / filename
+        datafile.touch()
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, filename),
+                data=data_fp,
+                # Content-Length header set automatically
+                # MD5 hash of an empty file
+                headers=self.gen_headers(
+                    pbench_token, "d41d8cd98f00b204e9800998ecf8427e"
+                ),
+            )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert (
+            response.json.get("message") == "'Content-Length' 0 must be greater than 0"
+        )
+        self.verify_logs(caplog)
+        assert not self.filetree_created
+
+    def test_upload_filetree_error(
+        self,
+        client,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
+    ):
+        """
+        Cause the FileTree.create() to fail; this should trigger the cleanup
+        actions to delete the tarball, MD5 file, and Dataset, and fail with an
+        internal server error.
+        """
+        datafile, _, md5 = tarball
+        TestUpload.filetree_create_fail = True
+
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_token, md5),
             )
 
-        assert response.status_code == 201, repr(response)
-        sfilename = secure_filename(filename)
-        tmp_d = pytestconfig.cache.get("TMP", None)
-        receive_dir = os.path.join(
-            tmp_d, "srv", "pbench", "pbench-move-results-receive", "fs-version-002"
-        )
-        assert os.path.exists(receive_dir), (
-            f"receive_dir = '{receive_dir}', filename = '{filename}',"
-            f" sfilename = '{sfilename}'"
-        )
+        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
 
-        dataset = Dataset.attach(controller=controller, path=filename)
+        with pytest.raises(DatasetNotFound):
+            Dataset.query(resource_id=md5)
+        assert self.filetree_created
+        assert self.filetree_create_path
+        assert not self.filetree_create_path.exists()
+        assert not Path(str(self.filetree_create_path) + ".md5").exists()
+
+    def test_upload(
+        self,
+        client,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
+    ):
+        datafile, _, md5 = tarball
+        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.CREATED, repr(response)
+
+        dataset = Dataset.query(resource_id=md5)
         assert dataset is not None
-        assert dataset.md5 == md5sum
-        assert dataset.controller == controller
-        assert dataset.name == "log"
+        assert dataset.resource_id == md5
+        assert dataset.name == datafile.name[:-7]
         assert dataset.state == States.UPLOADED
+        assert dataset.created.isoformat() == "2002-05-16T00:00:00+00:00"
+        assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
+        assert Metadata.getvalue(dataset, "global") is None
+        assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-02"
+        assert self.filetree_created
+        assert dataset.name in self.filetree_created
 
         for record in caplog.records:
-            assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
+            assert record.levelname in ["DEBUG", "INFO"]
+
+    def test_upload_duplicate(
+        self,
+        client,
+        caplog,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
+    ):
+        datafile, _, md5 = tarball
+        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.CREATED, repr(response)
+
+        # Reset manually since we upload twice in this test
+        TestUpload.filetree_created = None
+
+        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.OK, repr(response)
+        assert response.json.get("message") == "Dataset already exists"
+
+        for record in caplog.records:
+            assert record.levelname in ["DEBUG", "INFO", "WARNING"]
+
+        # We didn't get far enough to create a FileTree
+        assert TestUpload.filetree_created is None
+
+    def test_upload_metadata_error(
+        self,
+        client,
+        caplog,
+        monkeypatch,
+        server_config,
+        setup_ctrl,
+        pbench_token,
+        tarball,
+    ):
+        """
+        Cause the Metadata.setvalue to fail at the very end of the upload so we
+        can test recovery handling.
+        """
+        datafile, _, md5 = tarball
+
+        def setvalue(dataset: Dataset, key: str, value: Any):
+            raise MetadataKeyError()
+
+        monkeypatch.setattr(Metadata, "setvalue", setvalue)
+
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_token, md5),
+            )
+
+        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+
+        with pytest.raises(DatasetNotFound):
+            Dataset.query(resource_id=md5)
+        assert self.filetree_created
+        assert self.filetree_create_path
+        assert not self.filetree_create_path.exists()
+        assert not Path(str(self.filetree_create_path) + ".md5").exists()
+        assert self.tarball_deleted == Dataset.stem(datafile)

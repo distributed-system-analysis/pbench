@@ -1,209 +1,217 @@
+import datetime
+from http import HTTPStatus
+from typing import List
+from urllib.parse import urlencode
+
 import pytest
-import re
 import requests
 
-from pbench.server.api.resources.query_apis import get_es_url, get_index_prefix
-
-
-@pytest.fixture
-def query_helper(client, server_config, requests_mock):
-    """
-    query_helper Help controller queries that want to interact with a mocked
-    Elasticsearch service.
-
-    This is a fixture which exposes a function of the same name that can be
-    used to set up and validate a mocked Elasticsearch query with a JSON
-    payload and an expected status.
-
-    Parameters to the mocked Elasticsearch POST are passed as keyword
-    parameters: these can be any of the parameters supported by the
-    request_mock post method. The most common are 'json' for the JSON
-    response payload, and 'exc' to throw an exception.
-
-    :return: the response object for further checking
-    """
-
-    def query_helper(payload, expected_index, expected_status, server_config, **kwargs):
-        es_url = get_es_url(server_config)
-        requests_mock.post(re.compile(f"{es_url}"), **kwargs)
-        response = client.post(f"{server_config.rest_uri}/datasets/list", json=payload)
-        assert requests_mock.last_request.url == (
-            es_url + expected_index + "/_search?ignore_unavailable=true"
-        )
-        assert response.status_code == expected_status
-        return response
-
-    return query_helper
+from pbench.server import JSON, PbenchServerConfig
+from pbench.server.database.models.datasets import Dataset
 
 
 class TestDatasetsList:
     """
-    Unit testing for resources/DatasetsList class.
-
-    In a web service context, we access class functions mostly via the
-    Flask test client rather than trying to directly invoke the class
-    constructor and `post` service.
+    Test the `datasets/list` API. We perform a variety of queries using a
+    set of datasets provided by the `attach_dataset` fixture and the
+    `more_datasets` fixture.
     """
 
-    def build_index(self, server_config, dates):
+    @pytest.fixture()
+    def query_as(self, client, server_config, more_datasets, provide_metadata):
         """
-        build_index Build the index list for query
+        Helper fixture to perform the API query and validate an expected
+        return status.
 
         Args:
-            dates (iterable): list of date strings
+            client: Flask test API client fixture
+            server_config: Pbench config fixture
+            more_datasets: Dataset construction fixture
+            provide_metadata: Dataset metadata fixture
         """
-        prefix = get_index_prefix(server_config)
-        idx = prefix + ".v6.run-data."
-        index = "/"
-        for d in dates:
-            index += f"{idx}{d},"
-        return index
 
-    def test_missing_json_object(self, client, server_config):
-        """
-        test_missing_json_object Test behavior when no JSON payload is given
-        """
-        response = client.post(f"{server_config.rest_uri}/datasets/list")
-        assert response.status_code == 400
-        assert response.json.get("message") == "Invalid request payload"
+        def query_api(
+            payload: JSON, username: str, expected_status: HTTPStatus
+        ) -> requests.Response:
+            """
+            Encapsulate an HTTP GET operation with proper authentication, and
+            check the return status.
 
-    @pytest.mark.parametrize(
-        "keys",
-        (
-            {"user": "x"},
-            {"controller": "y"},
-            {"start": "2020"},
-            {"end": "2020"},
-            {"user": "x", "start": "2020"},
-            {"user": "x", "end": "2020"},
-            {"user": "x", "controller": "y", "start": "2021"},
-            {"start": "2020", "end": "2020"},
-        ),
-    )
-    def test_missing_keys(self, client, server_config, keys):
-        """
-        test_missing_keys Test behavior when JSON payload does not contain
-        all required keys.
+            Args:
+                payload:            Query parameter dict
+                username:           Username to authenticate (None to skip
+                                    authentication)
+                expected_status:    Expected HTTP status
 
-        Note that "user", "controller", "start", and "end" are all required;
-        however, Pbench will silently ignore any additional keys that are
-        specified.
-       """
-        response = client.post(f"{server_config.rest_uri}/datasets/list", json=keys)
-        assert response.status_code == 400
-        missing = [k for k in ("user", "controller", "start", "end") if k not in keys]
-        assert (
-            response.json.get("message") == f"Missing request data: {','.join(missing)}"
-        )
+            Return:
+                HTTP Response object
+            """
+            headers = None
+            if username:
+                token = self.token(client, server_config, username)
+                headers = {"authorization": f"bearer {token}"}
+            response = client.get(
+                f"{server_config.rest_uri}/datasets/list",
+                headers=headers,
+                query_string=payload,
+            )
+            assert response.status_code == expected_status
+            return response
 
-    def test_bad_dates(self, client, server_config):
-        """
-        test_bad_dates Test behavior when a bad date string is given
-        """
+        return query_api
+
+    def token(self, client, config: PbenchServerConfig, user: str) -> str:
         response = client.post(
-            f"{server_config.rest_uri}/datasets/list",
-            json={
-                "user": "drb",
-                "controller": "dbutenho.csb",
-                "start": "2020-15",
-                "end": "2020-19",
-            },
+            f"{config.rest_uri}/login",
+            json={"username": user, "password": "12345"},
         )
-        assert response.status_code == 400
-        assert response.json.get("message") == "Invalid start or end time string"
+        assert response.status_code == HTTPStatus.OK
+        data = response.json
+        assert data["auth_token"]
+        return data["auth_token"]
 
-    def test_query(self, client, server_config, query_helper):
+    def get_results(self, name_list: List[str], query: JSON, server_config) -> JSON:
         """
-        test_query Check the construction of Elasticsearch query URI
-        and filtering of the response body.
-        """
-        json = {
-            "user": "drb",
-            "controller": "dbutenho.csb",
-            "start": "2020-08",
-            "end": "2020-10",
-        }
-        response_payload = {
-            "took": 6,
-            "timed_out": False,
-            "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
-            "hits": {
-                "total": {"value": 1, "relation": "eq"},
-                "max_score": None,
-                "hits": [
-                    {
-                        "_index": "drb.v6.run-data.2020-04",
-                        "_type": "_doc",
-                        "_id": "12fb1e952fd826727810868c9327254f",
-                        "_score": None,
-                        "_source": {
-                            "authorization": {"access": "private", "user": "unknown"},
-                            "@metadata": {"controller_dir": "dhcp31-187.example.com"},
-                            "run": {
-                                "controller": "dhcp31-187.example.com",
-                                "name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
-                                "start": "2020-04-29T12:49:13.560620",
-                                "end": "2020-04-29T13:30:04.918704",
-                                "id": "12fb1e952fd826727810868c9327254f",
-                                "config": "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus",
-                            },
-                        },
-                        "sort": [1588167004918],
-                    }
-                ],
-            },
-        }
+        Translate a list of names into a list of expected results of the
+        abbreviated form returned by `datasets/list`: name, controller,
+        run_id, and metadata.
 
-        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
-        response = query_helper(json, index, 200, server_config, json=response_payload)
-        res_json = response.json
-        assert isinstance(res_json, list)
-        assert len(res_json) == 1
-        assert (
-            res_json[0]["key"]
-            == "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13"
-        )
-        assert res_json[0]["@metadata.controller_dir"] == "dhcp31-187.example.com"
-        assert (
-            res_json[0]["run.config"]
-            == "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus"
-        )
-        assert res_json[0]["run.controller"] == "dhcp31-187.example.com"
-        assert (
-            res_json[0]["run.name"]
-            == "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13"
-        )
-        assert res_json[0]["run.start"] == "2020-04-29T12:49:13.560620"
-        assert res_json[0]["run.end"] == "2020-04-29T13:30:04.918704"
-        assert res_json[0]["startUnixTimestamp"] == 1588167004918
-        assert res_json[0]["id"] == "12fb1e952fd826727810868c9327254f"
+        Args:
+            name_list: List of dataset names
+            query: A JSON representation of the query parameters
+            server_config: Pbench config fixture
+
+        Returns:
+            Paginated JSON object containing list of dataset values
+        """
+        list: List[JSON] = []
+        offset = query.get("offset", 0)
+        limit = query.get("limit")
+
+        if limit:
+            next_offset = offset + limit
+            paginated_name_list = name_list[offset:next_offset]
+            if next_offset >= len(name_list):
+                next_url = ""
+            else:
+                query["offset"] = next_offset
+                next_url = (
+                    f"http://localhost{server_config.rest_uri}/datasets/list?"
+                    + urlencode(query)
+                )
+        else:
+            paginated_name_list = name_list[offset:]
+            next_url = ""
+
+        for name in sorted(paginated_name_list):
+            dataset = Dataset.query(name=name)
+            list.append(
+                {
+                    "name": dataset.name,
+                    "resource_id": dataset.resource_id,
+                    "metadata": {
+                        "dataset.created": datetime.datetime.isoformat(dataset.created)
+                    },
+                }
+            )
+        return {"next_url": next_url, "results": list, "total": len(name_list)}
 
     @pytest.mark.parametrize(
-        "exceptions",
-        (
-            {"exception": requests.exceptions.HTTPError, "status": 502},
-            {"exception": requests.exceptions.ConnectionError, "status": 502},
-            {"exception": requests.exceptions.Timeout, "status": 504},
-            {"exception": requests.exceptions.InvalidURL, "status": 500},
-            {"exception": Exception, "status": 500},
-        ),
+        "login,query,results",
+        [
+            ("drb", {"name": "fio"}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "limit": 1}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "limit": 1, "offset": 2}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "offset": 1}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "offset": 2}, ["fio_1", "fio_2"]),
+            ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
+            ("drb", {"name": "drb"}, ["drb"]),
+            ("test", {"name": "drb"}, []),
+            ("test_admin", {"name": "drb"}, ["drb"]),
+            ("drb", {}, ["drb", "fio_1", "fio_2"]),
+            ("test", {}, ["test", "fio_1", "fio_2"]),
+            ("test_admin", {}, ["drb", "test", "fio_1", "fio_2"]),
+            ("drb", {"start": "2000-01-01", "end": "2005-12-31"}, ["fio_2"]),
+            ("drb", {"start": "2005-01-01"}, ["drb", "fio_1"]),
+            ("drb", {"end": "2020-09-01"}, ["drb", "fio_1", "fio_2"]),
+            ("drb", {"end": "1970-09-01"}, []),
+        ],
     )
-    def test_http_error(self, client, server_config, query_helper, exceptions):
+    def test_dataset_list(self, query_as, login, query, results, server_config):
         """
-        test_http_error Check that an Elasticsearch error is reported
-        correctly.
-       """
-        json = {
-            "user": "drb",
-            "controller": "foobar",
-            "start": "2020-08",
-            "end": "2020-08",
-        }
-        index = self.build_index(server_config, ("2020-08",))
-        query_helper(
-            json,
-            index,
-            exceptions["status"],
-            server_config,
-            exc=exceptions["exception"],
+        Test the operation of `datasets/list` against our set of test
+        datasets.
+
+        Args:
+            query_as: A fixture to provide a helper that executes the API call
+            login: The username as which to perform a query
+            query: A JSON representation of the query parameters (these will be
+                automatically supplemented with a metadata request term)
+            results: A list of the dataset names we expect to be returned
+        """
+        query.update({"metadata": ["dataset.created"]})
+        result = query_as(query, login, HTTPStatus.OK)
+        assert result.json == self.get_results(results, query, server_config)
+
+    def test_unauth_dataset_list(self, query_as):
+        """
+        Test the operation of `datasets/list` when the client doesn't have
+        access to all of the requested datasets.
+
+        Args:
+            query_as: A fixture to provide a helper that executes the API call
+            login: The username as which to perform a query
+            query: A JSON representation of the query parameters (these will be
+                automatically supplemented with a metadata request term)
+            results: A list of the dataset names we expect to be returned
+        """
+        query_as({"access": "private"}, None, HTTPStatus.UNAUTHORIZED)
+
+    def test_get_bad_keys(self, query_as):
+        """
+        Test case requesting non-existent metadata keys.
+
+        Args:
+            query_as: Query helper fixture
+        """
+        response = query_as(
+            {"metadata": "xyzzy,plugh,dataset.owner,dataset.access"},
+            "drb",
+            HTTPStatus.BAD_REQUEST,
         )
+        assert response.json == {
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dataset', 'global', 'server', 'user']"
+        }
+
+    def test_get_unknown_keys(self, query_as):
+        """
+        Test case requesting non-existent query parameter keys.
+
+        Args:
+            query_as: Query helper fixture
+        """
+        response = query_as(
+            {"plugh": "xyzzy", "passages": "twisty"},
+            "drb",
+            HTTPStatus.BAD_REQUEST,
+        )
+        assert response.json == {"message": "Unknown URL query keys: passages,plugh"}
+
+    def test_get_repeat_keys(self, query_as):
+        """
+        Test case requesting repeated single-value metadata keys.
+
+        NOTE that the request package processes a list of values for a query
+        parameter by repeating the key name with each value since the HTTP
+        standard doesn't cover multiple values for a single key; so
+        "name": ["one", "two"] will appear to the API as "?name=one&name=two".
+
+        Args:
+            query_as: Query helper fixture
+        """
+        response = query_as(
+            {"name": ["one", "two"]},
+            "drb",
+            HTTPStatus.BAD_REQUEST,
+        )
+        assert response.json == {"message": "Repeated URL query key 'name'"}

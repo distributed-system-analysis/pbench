@@ -11,26 +11,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 export benchmark="fio"
-benchmark_rpm=${benchmark}
 export benchmark_run_dir=""
-# allow unit tests to override
-if [[ -z "${benchmark_bin}" ]]; then
-	benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
-	if [[ -z "${benchmark_bin}" ]]; then
-		error_log "[${script_name}] ${benchmark} executable not found on PATH=${PATH}"
-		exit 1
-	fi
-fi
-ver="$(pbench-config version ${benchmark})"
-if [[ -z "${ver}" ]]; then
-	error_log "${script_name}: package version is missing in config file"
-	exit 1
-fi
-fio_server_port="$(pbench-config server_port ${benchmark})"
-if [[ -z "${fio_server_port}" ]]; then
-	error_log "${script_name}: server_port is missing in config file"
-	exit 1
-fi
 
 job_file="${script_path}/templates/fio.job"
 
@@ -52,10 +33,10 @@ tar_nonref_data="y"
 postprocess_only="n"
 nr_samples=5
 maxstddevpct=5 # maximum allowable standard deviation in percent
-max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
+max_failures=6 # after N failed attempts to hit below ${maxstddevpct}, move on to the next test
 supported_test_types="read,write,rw,randread,randwrite,randrw"
 test_types="read,randread"		# default is -non- destructive
-install_only="n"
+pre_check="n"
 export config=""
 rate_iops=""
 block_sizes="4,64,1024"
@@ -89,7 +70,7 @@ unique_ports=0
 function usage {
 	printf "The following options are available:\n"
 	printf "\n"
-	printf -- "\t-t str[,str] --test-types=str[,str]\n"
+	printf -- "\t-t str[,str...] --test-types=str[,str...]\n"
 	printf "\t\tone or more of %s\n" $supported_test_types
 	printf "\n"
 	printf -- "\t--direct=[0/1]\n"
@@ -107,15 +88,20 @@ function usage {
 	printf -- "\t--ramptime=int\n"
 	printf "\t\ttime in seconds to warm up test before taking measurements (default is $ramptime)\n"
 	printf "\n"
-	printf -- "\t-b int[,int] --block-sizes=str[,str] (default is $block_sizes)\n"
+	printf -- "\t-b int[,int...] --block-sizes=int[,int...] (default is $block_sizes)\n"
 	printf "\t\tone or more block sizes in KiB\n"
 	printf "\n"
-	printf -- "\t-s int[,int] --file-size=str[,str] (no default)\n"
-	printf "\t\tfile sizes in MiB\n"
+	printf -- "\t-s int[,int...] --file-size=int[,int...] (no default)\n"
+	printf "\t\tfile sizes in bytes (accepts modifiers, e.g. '128m', '1500k', etc.,\n"
+	printf "\t\tsee https://fio.readthedocs.io/en/latest/fio_doc.html#int)\n"
 	printf "\n"
-	printf -- "\t-d str[,str] --targets=str[,str]\n"
-	printf "\t\tone or more directories or block devices (default is $targets)\n"
-	printf "\t\t(persistent names for devices highly recommended)\n"
+	printf -- "\t-d str[,str...] --targets=str[,str...]\n"
+	printf "\t\tone or more files, block devices, or directories (default is $targets);\n"
+	printf "\t\tuse of persistent names for block devices is highly recommended;\n"
+	printf "\t\twhen a directory is specified, one must also provide a job file\n"
+	printf "\t\tvia '--job-file=<path>' which employs the 'directory = \$target'\n"
+	printf "\t\tsyntax, or use the predefined job file provided at:\n"
+	printf "\t\t  ${script_path}/templates/fio-shared-fs.job\n"
 	printf "\n"
 	printf -- "\t-j str --job-mode=str    str=[serial|concurrent]  (default is '${job_mode_def}')\n"
 	printf "\t\tdirects how --targets parameter(s) is/are used; with 'serial' mode all combinations\n"
@@ -127,7 +113,7 @@ function usage {
 	printf -- "\t--iodepth=<int>"
 	printf "\t\tSet the iodepth config variable in the fio job file\n"
 	printf "\n"
-	printf -- "\t-c str[,str] --clients=str[,str]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run\n"
+	printf -- "\t-c str[,str...] --clients=str[,str...]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run\n"
 	printf "\t\tIf no clients are specified, fio is run locally\n"
 	printf "\t\tNote: the pbench-agent must be installed on each of the client systems already.\n"
 	printf "\n"
@@ -173,155 +159,130 @@ function usage {
 	printf -- "\t--unique-ports           Use unique ports for each server\n"
 }
 
-function fio_local_check_install() {
-	if check_install_rpm ${benchmark_rpm} ${ver}; then
-		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is installed"
-		_rc=0
-	else
-		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is not installed, exiting"
-		_rc=1
-	fi
-	return ${_rc}
-}
-
 function fio_process_options() {
-	opts=$(getopt -q -o b:c:d:hj:r:s:t: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:,unique-ports" -n "getopt.sh" -- "$@");
+	local opts
+	opts=$(getopt -q -o b:c:d:hj:r:s:t: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,pre-check,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:,unique-ports" -n "getopt.sh" -- "$@")
 	if [ $? -ne 0 ]; then
 		printf -- "${script_name} $*\n"
 		printf -- "\n"
 		printf -- "\tunrecognized option specified\n\n"
-		usage
+		usage >&2
 		exit 1
 	fi
-	eval set -- "$opts";
+	eval set -- "$opts"
+	local arg
 	while true; do
-		case "$1" in
+		arg="${1}"
+		shift
+		case "${arg}" in
 		-h|--help)
 			usage
-			exit
+			exit 0
 			;;
-		--install)
-			shift;
+		--pre-check)
 			if [[ "$postprocess_only" != "n" ]]; then
 				printf -- "${script_name} $*\n"
 				printf -- "\n"
-				printf -- "\t--install not compatible with specified \"--postprocess-only ${postprocess_only}\" option\n\n"
-				usage
+				printf -- "\t--pre-check not compatible with specified \"--postprocess-only ${postprocess_only}\" option\n\n"
+				usage >&2
 				exit 1
 			fi
-			install_only="y"
-			;;
-		--remote-only)
-			shift;
-			warn_log "--remote-only is deprecated, ignoring (was non-operational previously)"
+			pre_check="y"
 			;;
 		--max-stddev)
-			shift;
 			if [ -n "$1" ]; then
 				maxstddevpct="$1"
-				shift;
+				shift
 			fi
 			;;
 		--max-failures)
-			shift;
 			if [ -n "$1" ]; then
 				max_failures="$1"
-				shift;
+				shift
 			fi
 			;;
 		--samples)
-			shift;
 			if [ -n "$1" ]; then
 				nr_samples="$1"
-				shift;
+				shift
 			fi
 			;;
 		--direct)
-			shift;
 			if [ -n "$1" ]; then
 				direct=$1
-				shift;
+				shift
 			fi
 			;;
 		--sync)
-			shift;
 			if [ -n "$1" ]; then
 				sync=$1
-				shift;
+				shift
 			fi
 			;;
 		-t|--test-types)
-			shift;
 			if [ -n "$1" ]; then
 				test_types="$1"
-				shift;
+				shift
 			fi
 			;;
 		-b|--block-sizes)
-			shift;
 			if [ -n "$1" ]; then
 				block_sizes="$1"
-				shift;
+				shift
 			fi
 			;;
 		-s|--file-size)
-			shift;
 			if [ -n "$1" ]; then
 				file_size="$1"
-				shift;
+				shift
 			fi
 			;;
 		--ramptime)
-			shift;
 			if [ -n "$1" ]; then
 				ramptime="$1"
-				shift;
+				shift
 			fi
 			;;
 		--rate-iops)
-			shift;
 			if [ -n "$1" ]; then
 				rate_iops="$1"
-				shift;
+				shift
 			fi
 			;;
 		-r|--runtime)
-			shift;
 			if [ -n "$1" ]; then
 				runtime="$1"
-				shift;
+				shift
 			fi
 			;;
 		-c|--clients)
-			shift;
-			if [ ! -z "$client_file" ] ;then
+			if [ -n "$client_file" ] ;then
 				printf -- "${script_name} $*\n"
 				printf -- "\n"
 				printf -- "\t-c|--clients and --client-file are mutually exclusive\n\n"
-				usage
+				usage >&2
 				exit 1
 			fi
 			if [ -n "$1" ]; then
 				clients="$1"
-				shift;
+				shift
 			fi
 			;;
 		--client-file)
-			shift;
-			if [ ! -z "$clients" ] ;then
+			if [ -n "${clients}" ] ;then
 				printf -- "${script_name} $*\n"
 				printf -- "\n"
 				printf -- "\t--client-file and -c|--clients are mutually exclusive\n\n"
-				usage
+				usage >&2
 				exit 1
 			fi
 			client_file=$1
-			shift;
+			shift
 			if [ ! -e "${client_file}" ]; then
 				printf -- "${script_name} $*\n"
 				printf -- "\n"
 				printf -- "\tSpecified client file, ${client_file}, does not exist\n\n"
-				usage
+				usage >&2
 				exit 1
 			fi
 			if [[ "$client_file" != /* ]] ;then
@@ -329,137 +290,123 @@ function fio_process_options() {
 				client_file=$PWD/$client_file
 			fi
 			while read line; do
-				clients="$clients,$line"
+				clients="${clients},${line}"
 			done < ${client_file}
-			# Remove the leading comma since $clients starts off empty
-			clients=`echo $clients | sed -e 's/^,//'`
+			clients=${clients:1}
 			;;
 		-d|--targets)
-			shift;
 			if [ -n "$1" ]; then
 				targets="$1"
-				shift;
+				shift
 			fi
 			;;
 		-j|--job-mode)
-			shift;
 			if [ -n "$1" ]; then
 				job_mode="$1"
-				shift;
+				shift
 			fi
 			;;
 		--config)
-			shift;
 			if [ -n "$1" ]; then
 				config="$1"
-				shift;
+				shift
 			fi
 			;;
 		--ioengine)
-			shift;
 			if [ -n "$1" ]; then
 				ioengine="$1"
-				shift;
+				shift
 			fi
 			;;
 		--iodepth)
-			shift;
 			if [ -n "$1" ]; then
 				iodepth="$1"
-				shift;
+				shift
 			fi
 			;;
 		--tool-group)
-			shift;
 			if [ -n "$1" ]; then
 				tool_group="$1"
-				shift;
+				shift
 			fi
 			;;
 		--postprocess-only)
-			shift;
 			if [ -n "$1" ]; then
 				postprocess_only="$1"
-				shift;
-				if [[ "$postprocess_only" != "n" && "$install_only" == "y" ]]; then
+				shift
+				if [[ "$postprocess_only" != "n" && "$pre_check" == "y" ]]; then
 					printf -- "${script_name} $*\n"
 					printf -- "\n"
-					printf -- "\t\"--postprocess-only ${postprocess_only}\" not compatible with specified --install option\n\n"
-					usage
+					printf -- "\t\"--postprocess-only ${postprocess_only}\" not compatible with specified --pre-check option\n\n"
+					usage >&2
 					exit 1
 				fi
 			fi
 			;;
 		--run-dir)
-			shift;
 			if [ -n "$1" ]; then
 				run_dir="$1"
-				shift;
+				shift
 			fi
 			;;
 		--numjobs)
-			shift;
 			if [ -n "$1" ]; then
 				numjobs="$1"
-				shift;
+				shift
 			fi
 			;;
 		--job-file)
-			shift;
 			if [ -n "$1" ]; then
 				job_file="$1"
-				shift;
+				shift
 
 			fi
 			;;
 		--pre-iteration-script)
-			shift;
 			if [ -n "$1" ]; then
 				pre_iteration_script="$1"
 				if [ ! -x $pre_iteration_script ]; then
 					printf "ERROR: $pre_iteration_script must be executable\n"
 					exit 1
 				fi
-				shift;
+				shift
 			fi
 			;;
 		--histogram-interval-sec)
-			shift;
 			histogram_interval_sec="$1"
 			shift
 			;;
 			# histogram-interval-msec is only kept for backwards compatibility
 			# it is deprecated and is not documented in the --help output
 		--histogram-interval-msec)
-			shift;
 			(( histogram_interval_sec = $1 / 1000 ))
 			shift
 			;;
 		--sysinfo)
-			shift;
 			if [ -n "$1" ]; then
 				sysinfo="$1"
-				shift;
+				shift
 			fi
 			;;
 		--unique-ports)
-			shift;
 			unique_ports=1
 			;;
 		--)
-			shift;
-			break;
+			break
 			;;
 		*)
-			echo "what's this? [$1]"
-			shift;
-			break;
+			usage >&2
+			exit 1
 			;;
 		esac
 	done
 
-	if [[ "${install_only}" == "y" ]]; then
-		fio_local_check_install
+	if [[ "${pre_check}" == "y" ]]; then
+		# The extra arguments are the expected version number and match
+		# condition the controller found in its configuration file. This
+		# means we do NOT use the local client's configuration file for
+		# the `fio` version.
+		local_pre_check "${targets}" ${@}
 		exit ${?}
 	fi
 
@@ -467,23 +414,23 @@ function fio_process_options() {
 
 	if [[ ${job_mode} != "serial" && ${job_mode} != "concurrent" ]]; then
 		error_log "Unsupported --job-mode=${job_mode} encountered"
-		usage
+		usage >&2
 		exit 1
 	fi
 
 	local tt=""
-	space_sep_vtt=$(echo $supported_test_types | sed -e s/,/" "/g)
-	for tt in $(echo "$test_types" | sed -e s/,/" "/g); do
+	local space_sep_stt=${supported_test_types//,/ }
+	for tt in ${test_types//,/ }; do
 		local found=0
-		for vtt in ${space_sep_vtt}; do
+		for vtt in ${space_sep_stt}; do
 			if [[ "${tt}" == "${vtt}" ]]; then
 				found=1
-				break;
+				break
 			fi
-	        done
+		done
 		if [[ ${found} -ne 1 ]]; then
 			error_log "Unsupported --test-types=${test_types} encountered"
-			usage
+			usage >&2
 			exit 1
 		fi
 	done
@@ -498,24 +445,6 @@ function fio_process_options() {
 		fi
 		benchmark_fullname="$(basename $run_dir)"
 		benchmark_run_dir="$run_dir"
-	fi
-	if [[ -n "$clients" ]] ; then
-		for client in ${clients//,/ } ; do
-			client_name=
-			client_port=
-			if [[ $client = *':'* ]] ; then
-				client_name=${client%%:*}
-				client_port=${client#*:}
-			else
-				client_name=$client
-				if (( unique_ports )) ; then
-					client_port=$fio_server_port
-					fio_server_port=$((fio_server_port+1))
-				fi
-			fi
-			client_names+=("$client_name")
-			client_ports["$client_name"]=$client_port
-		done
 	fi
 }
 
@@ -535,48 +464,75 @@ function record_iteration {
 	echo ${iteration} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
 }
 
-# Ensure the right version of the benchmark is installed
-function fio_install() {
-	fio_local_check_install
+function local_pre_check() {
+	local devs="${1}"
+	local ver="${2}"
+	local match="${3}"
+
+	debug_log "local_pre_check(devs=\"${devs}\", ver=\"${ver}\", match=\"${match}\")"
+
+	# First check for the supported version of fio in use.
+
+	local _stdout
+	_stdout=$(${benchmark} --version 2>&1)
 	if [[ ${?} -ne 0 ]]; then
+		error_log "[${script_name}] ${benchmark} failed reporting its version: '${_stdout}'"
 		exit 1
 	fi
-	if [ ! -z "$clients" ] ; then
-		debug_log "verifying clients have fio installed"
-		echo "verifying clients have fio installed"
-		for client in "${client_names[@]}" ; do
-			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/$script_name --install &
-		done
-		# FIXME - save the pid and wait for each pid to ensure it returns with success
-		wait
+	local ver_installed=${_stdout##*-}
+
+	vercmp "${benchmark}" "${match}" "${ver}" "${ver_installed}"
+	if [[ ${?} -ne 0 ]]; then
+		return 1
 	fi
-}
 
-# Make sure this devices exists
-function fio_device_check() {
-	local devs=$1
-	local clients=$2
+	# Now if we have any block devices specified, verify them.
+
 	local dev=""
-	local client=""
 	local rc=0
-
-	debug_log "fio_device_check(devs=\"${devs}\", clients=\"${clients}\")"
-	for dev in `echo $devs | sed -e s/,/" "/g`; do
-		if echo $dev | grep -q "^/dev/"; then
-			if [ ! -z "$clients" ]; then
-				for client in "${client_names[@]}" ; do
-					debug_log "checking to see if $dev exists on client $client"
-					ssh $ssh_opts $client "if [ -L $dev ]; then dev=`dirname $dev`/`readlink $dev`; fi; test -b $dev" || rc=1
-				done
-			else
-				if [ -L $dev ]; then dev=`dirname $dev`/`readlink $dev`; fi; test -b $dev || rc=1
-			fi
-			if [ $rc -eq 1 ]; then
-				error_log "At least one client did not have block device $dev, exiting"
-				exit 1
+	for dev in ${devs//,/ }; do
+		if [[ ${dev} =~ ^/dev/ ]]; then
+			local rp_dev=$(realpath ${dev})
+			if [[ ! -b ${rp_dev} ]]; then
+				error_log "${pbench_hostname_full} does not have block device ${dev}"
 			fi
 		fi
 	done
+
+	return ${rc}
+}
+
+function fio_pre_check() {
+	local targets="${1}"
+	local clients="${2}"
+	local ver="${3}"
+	local match="${4}"
+
+	local rc=0
+	local do_local_pre_check=0
+
+	debug_log "fio_pre_check(targets=\"${targets}\", clients=\"${clients}\", ver=\"${ver}\", match=\"${match}\")"
+	if [ -n "${clients}" ]; then
+		local client=""
+		for client in "${client_names[@]}" ; do
+			if pbench-is-local ${client}; then
+				do_local_pre_check=1
+			else
+				debug_log "Running pre-check on client ${client}"
+				ssh ${ssh_opts} ${client} pbench-fio --pre-check --targets="${targets}" "${ver}" "${match}" || rc=1
+			fi
+		done
+	else
+		do_local_pre_check=1
+	fi
+	if [[ ${do_local_pre_check} -eq 1 ]]; then
+		debug_log "Running pre-check locally"
+		local_pre_check "${devs}" "${ver}" "${match}" || rc=${?}
+	fi
+	if [[ ${rc} -ne 0 ]]; then
+		error_log "pre-check(s) failed, exiting"
+		exit 1
+	fi
 }
 
 function fio_create_jobfile() {
@@ -595,11 +551,11 @@ function fio_create_jobfile() {
 		-direct="${5}" \
 		-sync="${6}" \
 		-runtime="${7}" \
-		-ramptime="${8}" \
+		-ramp_time="${8}" \
 		-size="${9}" \
 		-rate_iops="${10}" \
 		-log_hist_msec="${11}" \
-		-targets $(echo "${12}" | sed -e 's/,/ /g') \
+		-targets ${12//,/ } \
 		-numjobs="${14}" \
 		| sed -e 's/ = /=/g' > ${fio_job_file}
 
@@ -607,8 +563,6 @@ function fio_create_jobfile() {
 		error_log "Failed to create job file \"${fio_job_file}\""
 		exit 1
 	fi
-	echo "Created the following job file (${fio_job_file}):"
-	cat ${fio_job_file}
 }
 
 function does_wildcard_exist() {
@@ -640,32 +594,21 @@ function fio_run_job() {
 
 	echo "running fio job: $fio_job_file ($(basename $benchmark_results_dir))"
 
-	if [ ! -z "$clients" ]; then
-		debug_log "creating directories on the clients"
+	if [ -n "${clients}" ]; then
 		for client in "${client_names[@]}"; do
-			ssh $ssh_opts $client mkdir -p $benchmark_results_dir &
+			if pbench-is-local ${client}; then
+				debug_log "killing any old local ${benchmark} processes and starting new a ${benchmark} process for the local client"
+				${script_path}/driver/${benchmark}-client ${benchmark_results_dir} ${client_ports[${client}]}
+			else
+				debug_log "killing any old ${benchmark} processes, creating directories, and starting new a ${benchmark} process on remote client ${client}:${client_ports[${client}]}"
+				ssh ${ssh_opts} ${client} "mkdir -p ${benchmark_results_dir} && ${script_path}/driver/${benchmark}-client ${benchmark_results_dir} ${client_ports[${client}]}"
+			fi
 		done
-		wait
-		debug_log "opening port 8765 on firewall on the clients"
+		debug_log "waiting for all ${benchmark} client processes to start on the specified clients"
 		for client in "${client_names[@]}"; do
-			ssh $ssh_opts $client "firewall-cmd --add-port=${client_ports[$client]:-$fio_server_port}/tcp >/dev/null" &
-		done
-		wait
-		debug_log "killing any old fio process on the clients"
-		for client in "${client_names[@]}"; do
-			ssh $ssh_opts $client "killall fio >/dev/null 2>&1" &
-		done
-		wait
-		debug_log "starting new fio process on the clients"
-		for client in "${client_names[@]}"; do
-			ssh $ssh_opts $client "pushd $benchmark_results_dir >/dev/null; screen -dmS fio-server bash -c ''$benchmark_bin' --server${client_ports[$client]:+=,${client_ports[$client]}} 2>&1 >client-result.txt'"
-		done
-		wait
-		debug_log "waiting for fio process(server) to start on clients"
-		for client in "${client_names[@]}"; do
-			timeout --kill-after=1 60 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' $client ${client_ports[$client]:-${fio_server_port}}
+			timeout --kill-after=1 60 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' "${client}" "${client_ports[${client}]}"
 			if [[ $? -eq 124 ]]; then
-				error_log "fio process took more than 60 seconds to start in client $client, failing"
+				error_log "${benchmark} process took more than 60 seconds to start in client ${client}, failing"
 				exit 1
 			fi
 		done
@@ -673,19 +616,19 @@ function fio_run_job() {
 
 	local client_opts=""
 
-	if [ ! -z "$clients" ]; then
-		# If a client-file parameter was passed, then clients is
-		# already initialized to its contents.
+	if [ -n "${clients}" ]; then
+		# If a client-file parameter was passed, then clients is already
+		# initialized to its contents.
 		local max_jobs=0
 		local nclients=0
 
-		if [ ! -z $numjobs ]; then
-			# so that a separate filename will be generated
-			# for each (host, job-number) pair
-			let max_jobs=$numjobs
+		if [ -n "${numjobs}" ]; then
+			# So that a separate filename will be generated for each (host,
+			# job-number) pair.
+			max_jobs=${numjobs}
 		else
-			for t in `echo $tgts | sed -e s/,/" "/g` ; do
-				let max_jobs=$max_jobs+1
+			for t in ${tgts//,/ }; do
+				(( max_jobs++ ))
 			done
 		fi
 
@@ -705,11 +648,12 @@ function fio_run_job() {
 	pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
 	# create a command file and keep it with the results for debugging later, or user can run outside of pbench
-	echo "$benchmark_bin $client_opts $bench_opts" >$benchmark_results_dir/fio.cmd
+	echo "$benchmark $client_opts $bench_opts" >$benchmark_results_dir/fio.cmd
 	chmod +x $benchmark_results_dir/fio.cmd
-	debug_log "$benchmark: Going to run [$benchmark_bin $bench_opts $client_opts]"
+	debug_log "$benchmark: Going to run [$benchmark $bench_opts $client_opts]"
 	pushd $benchmark_results_dir >/dev/null
 	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/fio-result.txt
+	local _fio_exit_code=$?
 	popd >/dev/null
 
 	pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
@@ -719,9 +663,11 @@ function fio_run_job() {
 	local histogram_cmd="fio-histo-log-pctiles.py ${histogram_params} -- "
 
 	# First move all fio log files to the appropriate client directory.
-	if [ ! -z "${clients}" ]; then
+	local _clients_list=""
+	if [ -n "${clients}" ]; then
 		local client
 		for client in "${client_names[@]}"; do
+			_clients_list="${_clients_list} ${client}"
 			mkdir -p ${benchmark_results_dir}/clients/${client}
 			/bin/mv ${benchmark_results_dir}/*.log.${client} ${benchmark_results_dir}/clients/${client}/ 2> /dev/null
 			# remove the trailing client name in the log file names
@@ -732,18 +678,12 @@ function fio_run_job() {
 			popd >/dev/null
 		done
 	else
+		_clients_list="localhost"
 		mkdir -p ${benchmark_results_dir}/clients/localhost/
 		/bin/mv ${benchmark_results_dir}/*.log ${benchmark_results_dir}/clients/localhost/ 2> /dev/null
 	fi
 
 	if grep -q "^log_hist_msec" ${fio_job_file}; then
-		local client
-		local _clients_list
-		if [ ! -z "${clients}" ]; then
-			_clients_list="$(echo ${clients} | sed -e s/,/" "/g)"
-		else
-			_clients_list="localhost"
-		fi
 		for client in ${_clients_list}; do
 			# Process the histograms
 			# Determine histogram interval based on value used in job file.
@@ -773,20 +713,25 @@ function fio_run_job() {
 		fi
 	fi
 
-	echo "fio job complete"
+	if [[ ${_fio_exit_code} -eq 0 ]]; then
+		printf "fio job complete\n"
+	else
+		printf "fio job failed, status code %s\n" "${_fio_exit_code}"
+	fi
+	return ${_fio_exit_code}
 }
 
 # Run the benchmark and start/stop perf analysis tools
 function fio_run_benchmark() {
 	(( histogram_interval_msec = histogram_interval_sec * 1000 ))
 
-	if [[ ! -z "$client_file" ]] ;then
+	if [[ -n "$client_file" ]] ;then
 		# Copy the clients file given on the command line into the run
 		# directory to keep it with the run.
-		cp $client_file $benchmark_run_dir/fio-client.file
 		_client_file=$benchmark_run_dir/fio-client.file
+		cp $client_file ${_client_file}
 	else
-		if [[ ! -z "$clients" ]]; then
+		if [[ -n "${clients}" ]]; then
 			# Record the -c|--clients list into the
 			# fio-client.file.  This makes the fio command shorter
 			# by always using a client file regardless of how
@@ -794,11 +739,7 @@ function fio_run_benchmark() {
 			# client list once in the benchmark run directory.
 			_client_file=$benchmark_run_dir/fio-client.file
 			for client in "${client_names[@]}"; do
-				if [[ -n "${client_ports[$client]:-}" ]] ; then
-					echo ip:$client,${client_ports[$client]}
-				else
-					echo "$client"
-				fi
+				echo ip:$client,${client_ports[$client]}
 			done > $_client_file
 		fi
 	fi
@@ -806,27 +747,30 @@ function fio_run_benchmark() {
 	local count=1
 	if [ "$job_mode" = "serial" ]; then
 		# if each target is separated by a space, there will be one job for each in next for loop
-		targets=`echo $targets | sed -e s/,/" "/g`
+		targets=${targets//,/ }
 	fi
-	typeset -i ntargets=$(echo $targets | wc -w)
-	typeset -i ntesttypes=$(echo $test_types | sed -e 's/,/ /g' | wc -w)
-	typeset -i nblocksizes=$(echo $block_sizes | sed -e 's/,/ /g' | wc -w)
+	local _targets_arr=(${targets})
+	typeset -i ntargets=${#_targets_arr[@]}
+	local _test_types_arr=(${test_types})
+	typeset -i ntesttypes=${#_test_types_arr[@]}
+	local _block_sizes_arr=(${block_sizes})
+	typeset -i nblocksizes=${#_block_sizes_arr[@]}
 	typeset -i total_iterations=$ntargets*$ntesttypes*$nblocksizes
+	local iteration_failures=0
 	for dev in $targets; do
-		for test_type in `echo $test_types | sed -e s/,/" "/g`; do
-			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
-				job_num=1
-				iteration="${count}-${test_type}-${block_size}KiB"
+		for test_type in ${test_types//,/ }; do
+			for block_size in ${block_sizes//,/ }; do
+				local job_num=1
+				local iteration="${count}-${test_type}-${block_size}KiB"
 				if [[ "$job_mode" = "serial" ]]; then
 					dev_short_name="$(basename $dev)"
 					# easier to identify what job used what device when having 1 job per device
 					iteration="${iteration}-${dev_short_name}"
 				fi
 				record_iteration ${count} ${test_type} ${block_size} ${dev} ${iteration}
-				iteration_dir=$benchmark_run_dir/$iteration
-				result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
-				failures=0
-				while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
+				local iteration_dir=$benchmark_run_dir/$iteration
+				local failures=0
+				while true; do
 					if [[ $failures -gt 0 ]]; then
 						echo "Restarting iteration $iteration ($count of $total_iterations)"
 						log "Restarting iteration $iteration ($count of $total_iterations)"
@@ -855,32 +799,54 @@ function fio_run_benchmark() {
 						fi
 					fi
 					if [ -e $iteration_dir ]; then
-						fio_job_file="$iteration_dir/fio.job"
-						#             ARG   1            2           3             4          5         6       7          8           9            10           11                         12     13              14
-						fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$histogram_interval_msec" "$dev" "$fio_job_file" "$numjobs"
-						iteration_failed=0
-						sample_failed=0
+						local fio_job_file="$iteration_dir/fio.job"
+						local _action=""
+						if [ "$postprocess_only" = "n" ]; then
+							_action="Created"
+							#             ARG   1            2           3             4          5         6       7          8           9            10           11                         12     13              14
+							fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$histogram_interval_msec" "$dev" "$fio_job_file" "$numjobs"
+						else
+							_action="Found"
+						fi
+						echo "${_action} the following job file (${fio_job_file}):"
+						cat ${fio_job_file}
+
 						for sample in `seq 1 $nr_samples`; do
 							# each attempt at a test config requires multiple samples to get stddev
-							benchmark_results_dir="$iteration_dir/sample$sample"
+							local benchmark_results_dir="$iteration_dir/sample$sample"
 							if [ "$postprocess_only" = "n" ]; then
 								if [ -e $benchmark_results_dir ]; then
 									# FIXME - Shouldn't we error and exit out instead of removing data?
 									/bin/rm -rf $benchmark_results_dir
 								fi
 								mkdir -p $benchmark_results_dir
-								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$dev" "$clients"
+								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$dev" "${clients}"
+								rc=$?
+								if [ $rc -ne 0 ]; then
+									debug_log "failed: fio_run_job \"$iteration\" \"$benchmark_results_dir\" \"$fio_job_file\" \"$dev\" \"${clients}\""
+									# we need all samples to be good, so bust out of testing samples now
+									((iteration_failures++))
+									break 2
+								fi
 							else
-								# if we are only postprocessing, then we might have to untar an existing result
-								pushd $iteration_dir >/dev/null
-								if [ ! -e sample$sample ]; then
-									if [ -e sample$sample.tar.xz ]; then
+								# we are only postprocessing, so we might have to untar an existing result
+								if [ ! -e $benchmark_results_dir ]; then
+									if [ -e ${iteration_dir}/sample${sample}.tar.xz ]; then
+										pushd $iteration_dir >/dev/null
 										tar Jxf sample$sample.tar.xz && /bin/rm sample$sample.tar.xz
+										local _tar_rc=$?
+										popd >/dev/null
+										if [[ ${_tar_rc} -ne 0 ]]; then
+											error_log "could not unpack sample tar ball, ${iteration_dir}/sample${sample}.tar.xz"
+											((iteration_failures++))
+											break 2
+										fi
 									else
 										echo "sample $sample missing.  There should be $nr_samples samples"
+										((iteration_failures++))
+										break 2
 									fi
 								fi
-								popd >/dev/null
 							fi
 							debug_log "post-processing tool data"
 							pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
@@ -891,12 +857,10 @@ function fio_run_benchmark() {
 							rc=$?
 							# if for any reason the benchmark postprocessing script fails, consider this a failure to get a sample
 							if [ $rc -ne 0 ]; then
-								debug_log "failed: $script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $tool_group"
-								sample_failed=1
-							fi
-							if [ $sample_failed -eq 1 ]; then
+								debug_log "failed: $(cat $benchmark_results_dir/$benchmark-postprocess.cmd)"
 								# we need all samples to be good, so bust out of testing samples now
-								break
+								((iteration_failures++))
+								break 2
 							fi
 						done
 					fi
@@ -904,26 +868,74 @@ function fio_run_benchmark() {
 					chmod +x "$iteration_dir/process-iteration-samples.cmd"
 					$iteration_dir/process-iteration-samples.cmd
 					fail=$?
-					if [ $fail -ne  0 ]; then
-						((failures++))
+					if [[ $fail -eq 0 || "$postprocess_only" = "n" ]]; then
+						# Either this sample was successful, or we are in
+						# post-processing only mode, so break out of the retry
+						# loop.
+						break
 					fi
-					if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
+					# The sample was not within the max stddev.
+					((failures++))
+					if [ $failures -ge $max_failures ]; then
+						# We consider this iteration to be a failure since too
+						# many sample failures were encountered.
+						((iteration_failures++))
 						break
 					fi
 				done
-			let count=$count+1 # now we can move to the next iteration
+				let count=$count+1 # now we can move to the next iteration
 			done
 		done
 	done
+	return ${iteration_failures}
 }
 
 fio_process_options "$@"
+
 if [ "$postprocess_only" = "n" ]; then
-	fio_install
-	if [ "$install_only" = "y" ]; then
-		exit 0
+	ver="$(pbench-config version ${benchmark})"
+	if [[ -z "${ver}" ]]; then
+		error_log "${script_name}: 'version' is missing in the [${benchmark}] section of the config file"
+		exit 1
 	fi
-	fio_device_check "$targets" "$clients"
+	match="$(pbench-config match ${benchmark})"
+	if [[ -z "${match}" ]]; then
+		error_log "${script_name}: 'match' is missing in the [${benchmark}] section of the config file"
+		exit 1
+	fi
+	fio_server_port="$(pbench-config server_port ${benchmark})"
+	if [[ -z "${fio_server_port}" ]]; then
+		error_log "${script_name}: 'server_port' is missing in the [${benchmark}] section of the config file"
+		exit 1
+	fi
+
+	if [[ -n "${clients}" ]] ; then
+		let local_client_count=0
+		for client in ${clients//,/ } ; do
+			if [[ $client = *':'* ]] ; then
+				client_name=${client%%:*}
+				client_port=${client#*:}
+			else
+				client_name=${client}
+				client_port=${fio_server_port}
+				if (( unique_ports )) ; then
+					fio_server_port=$((fio_server_port+1))
+				fi
+			fi
+			if pbench-is-local ${client}; then
+				(( local_client_count++ ))
+				if [[ ${local_client_count} -gt 1 ]]; then
+					error_log "${script_name}: more than one client refers to the local host"
+					exit 1
+				fi
+			fi
+			client_names+=("${client_name}")
+			client_ports["${client_name}"]=${client_port}
+		done
+	fi
+
+	fio_pre_check "${targets}" "${clients}" "${ver}" "${match}"
+
 	mkdir -p $benchmark_run_dir/.running
 	if [[ $? -ne 0 ]]; then
 		error_log "Unable to create $benchmark_run_dir path and/or .running marker directory"
@@ -946,9 +958,12 @@ if [[ "$postprocess_only" == "n" ]]; then
 fi
 
 fio_run_benchmark
+_frb_sts=${?}
+
 echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
 $benchmark_run_dir/generate-benchmark-summary.cmd
+_gbs_sts=${?}
 
 if [[ "$postprocess_only" == "n" ]]; then
 	# Stop the tool meisters on each registered local/remote host
@@ -956,6 +971,9 @@ if [[ "$postprocess_only" == "n" ]]; then
 	if [[ ${?} != 0 ]]; then
 		error_log "[${script_name}]: failed to stop the tool meisters."
 	fi
+	rmdir $benchmark_run_dir/.running
 fi
 
-rmdir $benchmark_run_dir/.running
+# FYI this is tricky using the exit status of `[[` itself, where we only exit
+# with 0 if both statuses are 0, otherwise we exit with 1 indicating an error.
+[[ ${_frb_sts} -eq 0 && ${_gbs_sts} -eq 0 ]]

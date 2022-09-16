@@ -1,13 +1,13 @@
+"""pbench-cleanup - DEPRECATED - wraps pbench-clear-results
 """
-pbench-cleanup
-"""
+
+import os
 
 import click
 
 from pbench.agent.base import BaseCommand
 from pbench.cli.agent import pass_cli_context
 from pbench.cli.agent.options import common_options
-from pbench.agent.utils import run_command
 
 
 class Cleanup(BaseCommand):
@@ -19,7 +19,7 @@ class Cleanup(BaseCommand):
             "%s deprecated, will be removed in future release in favor of pbench-clear-results",
             self.name,
         )
-        run_command("pbench-clear-results")
+        os.execlp("pbench-clear-results", "pbench-clear-results")
 
 
 @click.command()

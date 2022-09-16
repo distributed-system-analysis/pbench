@@ -1,0 +1,3 @@
+#!/bin/bash
+
+mv ${_testopt}/unittest-scripts/cat ${_testopt}/unittest-scripts/cat.save || exit 1

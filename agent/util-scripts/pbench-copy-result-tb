@@ -9,8 +9,22 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 . "${pbench_bin}"/base
 
 function usage() {
-    printf "usage:\n"
-    printf "${script_name} [--help] <full path to tar ball> <results host> <results path prefix>\n"
+    printf -- "usage:\n%s [--help] <tarball> <host> <prefix>\n" "${script_name}"
+    printf -- "\ntarball:\n"
+    printf -- " The tarball must be in a controller directory along with the matching MD5 file;\n"
+    printf -- " The tarball file name must end in '.tar.xz';\n"
+    printf -- " The tarball must be accompanied by a matching MD5 file with a name ending\n"
+    printf -- "  in '.tar.xz.md5.check';\n"
+    printf -- " For example, '%s /var/tmp/pbench-agent/tmp/hostname/tarball.tar.xz'\n" "${script_name}"
+    printf -- "\nhost:\n"
+    printf -- " The Pbench 0.69 server hostname to which the tarball will be copied; it should\n"
+    printf -- " be the FQDN for the server host configured in the Pbench agent config file, as\n"
+    printf -- " reported by 'pbench-config pbench-web-server results'\n"
+    printf -- "\nprefix:\n"
+    printf -- " The Pbench server path where incoming tarballs are stored, as reported by\n"
+    printf -- " 'pbench-config host_info_url results'\n"
+    printf -- "\n\nThis command requires a 0.69 Pbench server id_rsa file in /opt/pbench-agent;\n"
+    printf -- "do not use this command with a Pbench server more recent than 0.69.\n"
 }
 
 # Process options and arguments
@@ -47,12 +61,21 @@ fi
 controller_dir=$(dirname ${tarball})
 cnt=$(find ${controller_dir} -type f 2> /dev/null | wc -l 2> /dev/null)
 if [[ ${cnt} != 2 ]]; then
-    error_log "ERROR (internal): unexpected file count, ${cnt}, associated with tar ball, ${tarball}"
+    error_log "ERROR: expected only two files (found ${cnt}), in controller directory $(basename ${controller_dir}) for tarball $(basename ${tarball})"
     exit 1
 fi
 
 results_repo=${2}
+if [[ -z ${results_repo} ]]; then
+    error_log "ERROR: missing results host parameter."
+    exit 2
+fi
+
 results_path_prefix=${3}
+if [[ -z ${results_path_prefix} ]]; then
+    error_log "ERROR: missing results host path prefix."
+    exit 2
+fi
 
 if [[ ! -f "${pbench_bin}/id_rsa" ]]; then
     error_log "ERROR: ${pbench_bin}/id_rsa required for moving results to archive host"
@@ -65,6 +88,8 @@ fi
 # foo.tar.xz.md5.check file to foo.tar.xz.md5. That's the signal that the
 # agent has finished with this tarball.
 
+controller=$(basename ${controller_dir})
+ssh -n -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} "mkdir -p ${results_path_prefix}/${controller}"
 scp -r ${scp_opts} -i ${pbench_bin}/id_rsa ${controller_dir} ${results_repo}:${results_path_prefix}
 if [[ ${?} -ne 0 ]]; then
     error_log "ERROR: unable to copy results tarball, ${tarball}, to ${results_repo}:${results_path_prefix}"
@@ -73,7 +98,6 @@ fi
 
 # Verify the remotely copied bits are good
 md5name=$(basename ${tarball}).md5
-controller=$(basename ${controller_dir})
 ssh -n -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} "cd ${results_path_prefix}/${controller}; md5sum --check ${md5name}.check && mv ${md5name}.check ${md5name}"
 chk_res=${?}
 if [[ ${chk_res} -ne 0 ]]; then

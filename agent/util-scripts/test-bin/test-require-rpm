@@ -1,0 +1,62 @@
+#!/bin/bash
+# Test require-rpm via a series of simple invocations
+
+# The way we verify the behavior of require-rpm itself is by mocking out the
+# behavior of `rpm` and `rpmdev-vercmp` to behave the way we want.  The name
+# of the RPM encodes the behavior.
+
+_tmp=$(dirname "${_testout}")/tmp
+function _cleanup {
+    rm -rf ${_tmp}
+}
+trap _cleanup INT QUIT TERM EXIT
+mkdir ${_tmp}
+if [[ ${?} -ne 0 ]]; then
+    printf -- "test-require-rpm: failed to create temporary directory, %s\n" "${_tmp}" >&2
+    exit 1
+fi
+
+_prefix="Verify require-rpm with"
+function run_req_rpm {
+    _desc="${1}"
+    shift
+    printf -- "\n%s %s\n" "${_prefix}" "${_desc}"
+    require-rpm ${*} > ${_tmp}/std.out 2> ${_tmp}/std.err
+    echo "require-rpm ${*} --> ${?}"
+    echo "+++ stdout"
+    cat ${_tmp}/std.out
+    echo "--- stdout"
+    echo "+++ stderr"
+    cat ${_tmp}/std.err
+    echo "--- stderr"
+    rm -f ${_tmp}/std.{out,err}
+}
+
+run_req_rpm "no arguments"
+
+run_req_rpm "1 argument, RPM not found" not-found
+
+run_req_rpm "1 argument, RPM found" found
+
+run_req_rpm "2 arguments, RPM not found with that version" not-found 1.0.0
+
+run_req_rpm "2 arguments, RPM found with that version" found 1.0.0
+
+run_req_rpm "3 arguments, 3rd argument not recognized" found 1.0.0 foo
+
+run_req_rpm "3 arguments, 3rd argument is 'any', not found" not-found 1.0.0 any
+run_req_rpm "3 arguments, 3rd argument is 'any', found" found 1.0.0 any
+
+run_req_rpm "3 arguments, 3rd argument is 'equ', not equal" not-equal 1.0.0 equ
+run_req_rpm "3 arguments, 3rd argument is 'equ', equal" equal 1.0.0 equ
+
+run_req_rpm "3 arguments, 3rd argument is 'gte', not greater or equal" not-greater-equal 1.0.0 gte
+run_req_rpm "3 arguments, 3rd argument is 'gte', greater or equal" greater-equal 1.0.0 gte
+
+run_req_rpm "3 arguments, 3rd argument is 'gtr', not greater" not-greater 1.0.0 gtr
+run_req_rpm "3 arguments, 3rd argument is 'gtr', greater" greater 1.0.0 gtr
+
+run_req_rpm "3 arguments, multiple RPM version, 'equ', not equal" not-equal-mult 1.0.0 equ
+run_req_rpm "3 arguments, multiple RPM version, 'equ', equal" equal-mult 1.0.0 equ
+
+exit 0

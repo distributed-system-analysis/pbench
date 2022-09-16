@@ -15,6 +15,7 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 
 # Defaults
 toolset="default"
+toolset_option_used=0
 remotes_arg=""
 labels_arg=""
 group_arg=""
@@ -24,17 +25,43 @@ if [[ -z "${default_interval}" ]] ;then
 	default_interval=3
 fi
 
+function list_tool_sets() {
+	local _toolsets_list
+	_toolsets_list=$(pbench-config -a pbench/tools 2> /dev/null | grep tool-set | awk '{print $1}')
+	if [[ ${?} -ne 0 ]]; then
+		return 1
+	fi
+	local toolsets_list
+	local toolset_raw
+	local toolset
+	for toolset_raw in ${_toolsets_list}; do
+		toolset="${toolset_raw%%-*}"
+		if [[ ${toolset} == "default" ]]; then
+			continue
+		fi
+		toolsets_list+=" ${toolset}"
+	done
+	printf -- "${toolsets_list/ /}"
+	return 0
+}
+
 function usage() {
+	local toolsets_raw
+	local toolsets_err
+	local toolset
+	toolsets_raw=$(list_tool_sets)
+	toolsets_err=${?}
+	
 	# Usage is formatted for a 80 column width screen.
 	printf -- "usage:\n"
-	printf -- "${script_name} --toolset=<tool-set> [--group=<group-name>]"
+	printf -- "${script_name} [--toolset=<tool-set>] [--group=<group-name>]"
 	printf -- " [--interval=<interval>] [--no-install]"
 	printf -- " [--remotes=<remote-host>[,<remote-host>]]"
-	printf -- " [--labels=<label>[,<label>]]\n"
-	printf -- "${script_name} --toolset=<tool-set> [--group=<group-name>]"
+	printf -- " [--labels=<label>[,<label>]] [<tool-set>]\n"
+	printf -- "${script_name} [--toolset=<tool-set>] [--group=<group-name>]"
 	printf -- " [--interval=<interval>] [--no-install]"
-	printf -- " [--remotes=@<remotes-file>]\n\n"
-        #             1         2         3         4         5         6         7         8
+	printf -- " [--remotes=@<remotes-file>] [<tool-set>]\n\n"
+	#             1         2         3         4         5         6         7         8
 	# (tab)    1 901234567890123456789012345678901234567890123456789012345678901234567890
 	printf -- "\tWhere the list of labels must match the list of remotes.\n\n"
 	printf -- "\tOne can specify as the argument to the \"--remotes\" option a single\n"
@@ -45,10 +72,13 @@ function usage() {
 	printf -- "\tseparated by a comma (\",\"); empty lines are ignored, and comments are\n"
 	printf -- "\tdenoted by a leading hash, or pound (\"#\"), character.\n"
 	printf -- "\nAvailable tool sets from ${_PBENCH_AGENT_CONFIG}:\n"
-	toolsets_raw=$(pbench-config -a pbench/tools | grep tool-set | awk '{print $1}')
-	for toolset_raw in ${toolsets_raw}; do
-		printf -- "\t${toolset_raw%%-*}\n"
-	done
+	if [[ ${toolsets_err} -eq 0 ]]; then
+		for toolset in ${toolsets_raw}; do
+			printf -- "\t${toolset}\n"
+		done
+	else
+		printf -- "\tERROR - list of tool sets not available\n"
+	fi
 }
 
 # Process options and arguments
@@ -62,44 +92,41 @@ fi
 
 eval set -- "${opts}"
 while true; do
-	case "${1}" in
+	opt=${1}
+	shift
+	case "${opt}" in
 	-t|--toolset)
-		shift
+		toolset_option_used=1
 		if [[ -n "${1}" ]]; then
 			toolset="${1}"
 			shift
 		fi
 		;;
 	-r|--remote|--remotes)
-		shift
 		if [[ -n "${1}" ]]; then
 			remotes_arg=" --remotes=${1}"
 			shift
 		fi
 		;;
 	-l|--label|--labels)
-		shift
 		if [[ -n "${1}" ]]; then
 			labels_arg=" --labels=${1}"
 			shift
 		fi
 		;;
 	-g|--group)
-		shift
 		if [[ -n "${1}" ]]; then
 			group_arg=" --group=${1}"
 			shift
 		fi
 		;;
 	-i|--interval)
-		shift
 		if [[ -n "${1}" ]]; then
 			default_interval="${1}"
 			shift
 		fi
 		;;
 	--no-install)
-		shift
 		install_arg=" --no-install"
 		;;
 	-h|--help)
@@ -107,14 +134,19 @@ while true; do
 		exit 0
 		;;
 	--)
-		shift
 		break
 		;;
 	esac
 done
 
+if [[ -n "${1}" ]]; then
+	toolset=${1}
+fi
+
+# Guard against `toolset` being empty when used to fetch the configuration
+# value.
 if [[ -z "${toolset}" ]]; then
-	printf -- "ERROR: Missing --toolset=<tool-set> argument\n" >&2
+	printf -- "ERROR: Missing <tool-set> argument\n" >&2
 	usage >&2
 	exit 1
 fi
@@ -129,16 +161,21 @@ if [[ -z ${the_tool_set} ]]; then
 	exit 1
 fi
 
-if [[ -n "${labels_arg}" ]]; then
-	pbench-register-tool --name=perf --test-labels ${remotes_arg}${labels_arg}
-	if [[ ${?} -ne 0 ]]; then
-		if [[ -z "${remotes_arg}" ]]; then
-			remotes_arg="(default) --remotes=${_pbench_full_hostname}"
-		fi
-		error_log "The number of labels given, \"${labels_arg}\", does not match the number of remotes given, \"${remotes_arg}\""
-		usage >&2
-		exit 1
-	fi
+pbench-register-tool --test-args ${remotes_arg}${labels_arg}
+if [[ ${?} -ne 0 ]]; then
+	usage >&2
+	exit 1
+fi
+
+common_notice="is deprecated and will be removed in the Pbench Agent v1.0 future release"
+
+if [[ "${toolset}" == "default" ]]; then
+	toolset_list=$(list_tool_sets)
+	warn_log "${script_name}: the 'default' tool set ${common_notice}, please use a named tool set argument from one of: ${toolset_list// /, }"
+fi
+
+if [[ ${toolset_option_used} -eq 1 ]]; then
+	warn_log "${script_name}: the '--toolset' option ${common_notice}, please use an argument value to specify the tool set name."
 fi
 
 typeset -i nerrs=0

@@ -1,0 +1,57 @@
++++ Running test-67 pbench-user-benchmark
+pbench-user-benchmark: WARNING: No tools are registered
+pbench-start-tools: WARNING: No tools are registered
+Running bm for iteration 1-default
+pbench-stop-tools: WARNING: No tools are registered
+pbench-send-tools: WARNING: No tools are registered
+pbench-postprocess-tools: WARNING: No tools are registered
+--- Finished test-67 pbench-user-benchmark (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/.iterations
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/1-default
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/1-default/reference-result
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/1-default/sample1
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/1-default/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/1-default/sample1/tools-empty
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/1-default/sample1/user-benchmark.cmd
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/iteration.lis
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/metadata.log
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/user-benchmark-summary-debug.json
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/user-benchmark-summary.json
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-empty
+--- pbench tree state
++++ pbench.log file contents
+[info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running bm for iteration 1-default
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start empty
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default empty
+--- test-execution.log file contents
++++ pbench-user-benchmark_test-67_1900.01.01T00.00.00/metadata.log file contents
+[pbench]
+
+[iterations/1-default]
+iteration_number = 1
+iteration_name = 1-default
+user_script = bm
+
+--- pbench-user-benchmark_test-67_1900.01.01T00.00.00/metadata.log file contents
++++ pbench-user-benchmark_test-67_1900.01.01T00.00.00/user-benchmark-summary.json file contents
+{
+    "duration":0,
+    "duration_units":"sec"
+}
+--- pbench-user-benchmark_test-67_1900.01.01T00.00.00/user-benchmark-summary.json file contents
++++ pbench-user-benchmark_test-67_1900.01.01T00.00.00/1-default/sample1/user-benchmark.cmd file contents
+bm 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-67_1900.01.01T00.00.00/1-default/sample1/result.txt
+--- pbench-user-benchmark_test-67_1900.01.01T00.00.00/1-default/sample1/user-benchmark.cmd file contents

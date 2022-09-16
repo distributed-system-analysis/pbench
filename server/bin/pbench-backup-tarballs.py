@@ -1,28 +1,22 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-import os
-import sys
 import glob
-import shutil
-import tempfile
-
+import os
 from pathlib import Path
+import shutil
+import sys
+import tempfile
 
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
+from pbench.server.database import init_db
+from pbench.server.database.models.datasets import Dataset, DatasetError, Metadata
 from pbench.server.report import Report
-from pbench.server.s3backup import S3Config, Status, NoSuchKey
-from pbench.server.utils import rename_tb_link, quarantine
-from pbench.server.database.models.tracker import (
-    Dataset,
-    Metadata,
-    DatasetError,
-)
-from pbench.server.database.database import Database
-
+from pbench.server.s3backup import NoSuchKey, S3Config, Status
+from pbench.server.utils import get_tarball_md5, quarantine, rename_tb_link
 
 _NAME_ = "pbench-backup-tarballs"
 
@@ -343,7 +337,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
 
         # match md5sum of the tarball to its md5 file
         try:
-            archive_tar_hex_value = md5sum(tar)
+            (_, archive_tar_hex_value) = md5sum(tar)
         except Exception:
             # Could not read file.
             quarantine(qdir, logger, tb)
@@ -366,10 +360,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         controller_path = tar.parent
         controller = controller_path.name
         try:
-            # This tool can't see a dataset until it's been prepared either
-            # by server PUT or by pbench-server-prep-shim-002.py; in either
-            # case, the Dataset object must already exist.
-            dataset = Dataset.attach(controller=controller, path=resultname)
+            dataset = Dataset.attach(resource_id=get_tarball_md5(tar))
         except DatasetError as e:
             logger.warning("Trouble tracking {}:{}: {}", controller, resultname, str(e))
             dataset = None
@@ -430,7 +421,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             pass
 
         if dataset:
-            Metadata.create(dataset=dataset, key=Metadata.ARCHIVED, value="True")
+            Metadata.setvalue(dataset=dataset, key=Metadata.ARCHIVED, value=True)
         logger.debug("End backup of {}.", tar)
 
     return Results(
@@ -463,7 +454,7 @@ def main(cfg_name):
 
     # We're going to need the Postgres DB to track dataset state, so setup
     # DB access.
-    Database.init_db(config, logger)
+    init_db(config, logger)
 
     # Add a BACKUP and QDIR field to the config object
     config.BACKUP = config.conf.get("pbench-server", "pbench-backup-dir")

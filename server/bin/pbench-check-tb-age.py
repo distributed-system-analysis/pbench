@@ -9,17 +9,16 @@ age (specified in days), and return 1 if it is not.
 A return value > 1 indicates some other error with the command.
 """
 
-import sys
-import os
-import re
-from pathlib import Path
-from datetime import datetime
 from argparse import ArgumentParser
 from configparser import NoOptionError
+from datetime import datetime
+import os
+from pathlib import Path
+import re
+import sys
 
 from pbench import BadConfig
 from pbench.server import PbenchServerConfig
-
 
 _NAME_ = "pbench-check-tb_age"
 
@@ -32,7 +31,8 @@ tb_pat = re.compile(tb_pat_r)
 def main(options):
     if not options.tb_path:
         print(
-            f"{_NAME_}: ERROR: No tar ball path specified", file=sys.stderr,
+            f"{_NAME_}: ERROR: No tar ball path specified",
+            file=sys.stderr,
         )
         return 2
 

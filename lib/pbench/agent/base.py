@@ -8,7 +8,7 @@ import sys
 import click
 
 from pbench.agent import PbenchAgentConfig
-from pbench.agent.tool_group import ToolGroup, BadToolGroup
+from pbench.agent.tool_group import BadToolGroup, ToolGroup
 from pbench.agent.utils import setup_logging
 
 
@@ -21,22 +21,38 @@ class BaseCommand(metaclass=abc.ABCMeta):
         self.config = PbenchAgentConfig(self.context.config)
         self.name = os.path.basename(sys.argv[0])
 
-        self.pbench_run = self.config.pbench_run
-        if not self.pbench_run.exists():
-            click.secho(
-                f"[ERROR] the provided pbench run directory, {self.pbench_run}, does not exist"
-            )
-            sys.exit(1)
+        env_pbench_run = os.environ.get("pbench_run")
+        if env_pbench_run:
+            pbench_run = pathlib.Path(env_pbench_run)
+            if not pbench_run.is_dir():
+                click.echo(
+                    f"[ERROR] the provided pbench run directory, {env_pbench_run}, does not exist",
+                    err=True,
+                )
+                click.get_current_context().exit(1)
+            self.pbench_run = pbench_run
+        else:
+            self.pbench_run = pathlib.Path(self.config.pbench_run)
+            if not self.pbench_run:
+                self.pbench_run = pathlib.Path("/var/lib/pbench-agent")
+            try:
+                self.pbench_run.mkdir(exist_ok=True)
+            except Exception as exc:
+                click.secho(
+                    f"[ERROR] unable to create pbench_run directory, '{self.pbench_run}': '{exc}'"
+                )
+                click.get_current_context().exit(1)
 
         # the pbench temporary directory is always relative to the $pbench_run
         # directory
         self.pbench_tmp = self.pbench_run / "tmp"
-        if not self.pbench_tmp.exists():
-            try:
-                os.makedirs(self.pbench_tmp)
-            except OSError:
-                click.secho(f"[ERROR] unable to create TMP dir, {self.pbench_tmp}")
-                sys.exit(1)
+        try:
+            self.pbench_tmp.mkdir(exist_ok=True)
+        except Exception as exc:
+            click.secho(
+                f"[ERROR] unable to create TMP directory, '{self.pbench_tmp}': '{exc}'"
+            )
+            click.get_current_context().exit(1)
 
         # log file - N.B. not a directory
         self.pbench_log = self.config.pbench_log
@@ -50,46 +66,24 @@ class BaseCommand(metaclass=abc.ABCMeta):
             click.secho(
                 f"[ERROR] pbench installation directory, {self.pbench_install_dir}, does not exist"
             )
-            sys.exit(1)
+            click.get_current_context().exit(1)
 
         self.pbench_bspp_dir = self.pbench_install_dir / "bench-scripts" / "postprocess"
         self.pbench_lib_dir = self.pbench_install_dir / "lib"
 
         self.logger = setup_logging(debug=False, logfile=self.pbench_log)
 
-        self.ssh_opts = self.config.ssh_opts
-        os.environ["ssh_opts"] = self.ssh_opts
+        self.ssh_opts = os.environ.get("ssh_opts", self.config.ssh_opts)
+        self.scp_opts = os.environ.get("scp_opts", self.config.scp_opts)
 
-        self.scp_opts = self.config.scp_opts
-        os.environ["scp_opts"] = self.scp_opts
-
-        os.environ["_pbench_debug_mode"] = "0"
-        if os.environ.get("_PBENCH_UNIT_TESTS"):
-            self.date = "1900-01-01T00:00:00"
-            self.date_suffix = "1900.01.01T00.00.00"
-            self.hostname = "testhost"
-            self.full_hostname = "testhost.example.com"
-        else:
-            self.date = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%s")
-            self.date_suffix = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H.%M.%s")
-            self.hostname = socket.gethostname()
-            self.full_hostname = socket.getfqdn()
-
-        # Backwards compatibility and for toolmeister
-        pbench_env = {
-            "date": self.date,
-            "date_suffix": self.date_suffix,
-            "hostname": self.hostname,
-            "full_hostname": self.full_hostname,
-            "pbench_run": str(self.pbench_run),
-            "pbench_install_dir": str(self.pbench_install_dir),
-            "pbench_tmp": str(self.pbench_tmp),
-            "pbench_log": str(self.pbench_log),
-            "pbench_bspp_dir": str(self.pbench_bspp_dir),
-            "pbench_lib_dir": str(self.pbench_lib_dir),
-        }
-        for k, v in pbench_env.items():
-            os.environ[k] = v
+        ut = os.environ.get("_PBENCH_UNIT_TESTS")
+        self.hostname = "testhost" if ut else socket.gethostname()
+        self.full_hostname = "testhost.example.com" if ut else socket.getfqdn()
+        now = datetime.datetime.utcnow()
+        if ut:
+            now = datetime.datetime(1900, 1, 1, tzinfo=datetime.timezone.utc)
+        self.date = now.strftime("%FT%H:%M:%S")
+        self.date_suffix = now.strftime("%Y.%m.%dT%H.%M.%S")
 
     @abc.abstractmethod
     def execute(self):
@@ -112,9 +106,9 @@ class BaseCommand(metaclass=abc.ABCMeta):
         try:
             self.tool_group_dir = self.gen_tools_group_dir(group)
         except BadToolGroup as exc:
-            click.echo(f'\t{self.name}: invalid --group option ("{group}"), {exc}')
-            ctxt = click.get_current_context()
-            click.echo(ctxt.get_help())
+            click.echo(
+                f'{self.name}: invalid --group option "{group}" ({exc})', err=True
+            )
             ret_code = 1
         else:
             ret_code = 0

@@ -1,12 +1,11 @@
 import os
-import re
-
 from pathlib import Path
+import re
+import shutil
 
 
 class BadToolGroup(Exception):
-    """Exception representing a tool group that does not exist or is invalid.
-    """
+    """Exception representing a tool group that does not exist or is invalid."""
 
     pass
 
@@ -20,7 +19,7 @@ class ToolGroup:
     TOOL_GROUP_PREFIX = "tools-v1"
 
     @staticmethod
-    def verify_tool_group(group, pbench_run=None):
+    def verify_tool_group(name, pbench_run=None):
         """verify_tool_group - given a tool group name, verify it exists in the
         ${pbench_run} directory as a properly prefixed tool group directory
         name.
@@ -34,34 +33,34 @@ class ToolGroup:
         _pbench_run = os.environ.get("pbench_run") if pbench_run is None else pbench_run
         if not _pbench_run:
             raise BadToolGroup(
-                "Cannot validate tool group, '{group}', 'pbench_run'"
+                f"Cannot validate tool group, '{name}', 'pbench_run'"
                 " environment variable missing"
             )
 
-        tg_dir_name = Path(_pbench_run, f"{ToolGroup.TOOL_GROUP_PREFIX}-{group}")
+        tg_dir_name = Path(_pbench_run, f"{ToolGroup.TOOL_GROUP_PREFIX}-{name}")
         try:
             tg_dir = tg_dir_name.resolve(strict=True)
         except FileNotFoundError:
             raise BadToolGroup(
-                f"Bad tool group, '{group}': directory {tg_dir_name} does not exist"
+                f"Bad tool group, '{name}': directory {tg_dir_name} does not exist"
             )
         except Exception as exc:
             raise BadToolGroup(
-                f"Bad tool group, '{group}': error resolving {tg_dir_name} directory"
+                f"Bad tool group, '{name}': error resolving {tg_dir_name} directory"
             ) from exc
         else:
             if not tg_dir.is_dir():
                 raise BadToolGroup(
-                    f"Bad tool group, '{group}': directory {tg_dir_name} not valid"
+                    f"Bad tool group, '{name}': directory {tg_dir_name} not valid"
                 )
             else:
                 return tg_dir
 
-    def __init__(self, group):
+    def __init__(self, name):
         """Construct a ToolGroup object from the on-disk data of the given
         tool group.
 
-        If the given tool group is valid, the contents are read into the three
+        If the given tool group name is valid, the contents are read into the three
         dictionary structures:
 
           "toolnames" - each tool name is the key, with separate dictionaries
@@ -76,8 +75,8 @@ class ToolGroup:
 
         Raises BadToolGroup via the verify_tool_group() method on error.
         """
-        self.tg_dir = self.verify_tool_group(group)
-        self.group = group
+        self.tg_dir = self.verify_tool_group(name)
+        self.name = name
 
         # __trigger__
         try:
@@ -155,3 +154,22 @@ class ToolGroup:
         that host.
         """
         return self.labels.get(host, "")
+
+    def archive(self, target_dir: Path):
+        """Copy the entire tool group on-disk state to the target directory.
+        No interpretation is applied.
+
+        This is intentionally a convenience layer around shutil.copytree.
+
+        For example:
+
+            obj.tg_dir = "/a/b/tools-v1-red"
+            target_dir = "/d/e/target_dir"
+
+            obj.archive(target_dir)
+
+            $ diff -r /a/b/tools-v1-red /d/e/target_dir/tools-v1-red
+            $ echo ${?}
+            0
+        """
+        shutil.copytree(str(self.tg_dir), target_dir / self.tg_dir.name, symlinks=False)

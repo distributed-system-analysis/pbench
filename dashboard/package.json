@@ -1,0 +1,93 @@
+{
+  "name": "pbench-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.1.1",
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
+    "@fortawesome/react-fontawesome": "^0.1.18",
+    "@patternfly/patternfly": "^4.183.1",
+    "@patternfly/react-core": "^4.198.19",
+    "@patternfly/react-table": "^4.75.2",
+    "@testing-library/jest-dom": "^5.16.2",
+    "@testing-library/react": "^12.1.4",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^0.26.1",
+    "babel-jest": "^27.5.1",
+    "classnames": "^2.3.1",
+    "crypto-js": "^4.1.1",
+    "customize-cra": "^1.0.0",
+    "dotenv": "^16.0.1",
+    "gulp": "^4.0.2",
+    "jest": "^27.5.1",
+    "js-cookie": "^3.0.1",
+    "less-watch-compiler": "^1.16.3",
+    "patternfly": "^3.9.0",
+    "react": "^17.0.2",
+    "react-app-rewired": "^2.2.1",
+    "react-bootstrap": "^2.1.2",
+    "react-dom": "^17.0.2",
+    "react-redux": "^7.2.6",
+    "react-router": "^6.3.0",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "^5.0.0",
+    "redux": "^4.1.2",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.4.1",
+    "rsuite": "^5.6.2",
+    "serve": "^13.0.2",
+    "validator": "^13.7.0",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "build": "react-app-rewired build",
+    "dev": "npm run server & npm start",
+    "doc": "jsdoc -c jsdoc.json",
+    "eject": "react-scripts eject",
+    "server": "node server",
+    "start": "react-app-rewired start",
+    "test": "react-scripts test"
+  },
+  "proxy": "http://localhost:3001",
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!@patternfly)/"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "css-loader": "^6.7.1",
+    "customize-cra-less-loader": "^2.0.0",
+    "eslint": "^8.16.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-react": "^7.30.0",
+    "eslint-plugin-react-hooks": "^4.5.0",
+    "express": "^4.17.3",
+    "jsdoc": "^3.6.10",
+    "less": "^4.1.2",
+    "less-loader": "^11.0.0",
+    "prettier": "^2.6.2",
+    "tough-cookie": "^4.1.2"
+  }
+}

@@ -1,12 +1,16 @@
+import sys
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
+
 from pbench.server import NoOptionError, NoSectionError
 
 
 class Database:
     # Create declarative base model that our model can inherit from
     Base = declarative_base()
+    db_session = None
 
     @staticmethod
     def get_engine_uri(config, logger):
@@ -14,16 +18,21 @@ class Database:
             psql = config.get("Postgres", "db_uri")
             return psql
         except (NoSectionError, NoOptionError):
-            logger.error(
-                "Failed to find an [Postgres] section" " in configuration file."
-            )
+            msg = "Failed to find a [Postgres] section in configuration file."
+            if logger:
+                logger.error(msg)
+            else:
+                print(msg, file=sys.stderr)
             return None
 
     @staticmethod
     def init_db(server_config, logger):
-        # Attach the logger to the base class for models to find
-        if not hasattr(Database.Base, "logger"):
+        # Attach the logger and server config object to the base class for
+        # database models to find
+        if logger and not hasattr(Database.Base, "logger"):
             Database.Base.logger = logger
+        if server_config and not hasattr(Database.Base, "server_config"):
+            Database.Base.config = server_config
 
         # WARNING:
         # Make sure all the models are imported before this function gets called

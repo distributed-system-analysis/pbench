@@ -15,15 +15,21 @@ Meisters.
 
 import json
 import logging
+import os
+import sys
 
 import redis
 
 from pbench.agent.constants import (
-    tm_channel_suffix_to_client,
-    tm_channel_suffix_from_client,
     api_tm_allowed_actions,
+    cli_tm_allowed_actions,
+    cli_tm_channel_prefix,
+    tm_channel_suffix_from_client,
+    tm_channel_suffix_to_client,
 )
-from pbench.agent.redis import RedisChannelSubscriber
+from pbench.agent.redis_utils import RedisChannelSubscriber
+from pbench.agent.tool_group import ToolGroup
+from pbench.agent.utils import RedisServerCommon
 
 
 class Client:
@@ -96,9 +102,8 @@ class Client:
         else:
             self.logger = logger
 
-    def __enter__(self):
-        """On context entry, setup the connection with the Redis server.
-        """
+    def __enter__(self) -> "Client":
+        """On context entry, setup the connection with the Redis server."""
         if self.redis_server is None:
             self.logger.debug("constructing Redis() object")
             try:
@@ -112,7 +117,7 @@ class Client:
                     self.redis_port,
                     e,
                 )
-                return 2
+                raise
             else:
                 self.logger.debug("constructed Redis() object")
 
@@ -123,8 +128,7 @@ class Client:
         return self
 
     def __exit__(self, *args):
-        """On context exit, just close down the to client channel object.
-        """
+        """On context exit, just close down the to client channel object."""
         if self.to_client_chan is not None:
             self.to_client_chan.close()
 
@@ -188,7 +192,8 @@ class Client:
                     continue
                 if status != "success":
                     self.logger.warning(
-                        "Status message not successful: '%s'", status,
+                        "Status message not successful: '%s'",
+                        status,
                     )
                     ret_val = 1
                 break
@@ -225,3 +230,89 @@ class Client:
                 )
                 ret_val = 1
         return ret_val
+
+
+def main() -> int:
+    """Main program for the Tool Meister client CLI.  The command line
+    arguments are:
+
+      group - the tool group on which the actions will be taken
+
+      directory - the directory where data gathered from the actions will be
+                  stored
+
+      action - the particular action to take, can we one of "start", "stop",
+               or "send" (see `cli_tm_allowed_actions`).
+    """
+    logger_name = os.path.basename(sys.argv[0])
+    logger = logging.getLogger(logger_name)
+
+    if os.environ.get("_PBENCH_TOOL_MEISTER_CLIENT_LOG_LEVEL") == "debug":
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.INFO
+    logger.setLevel(log_level)
+    sh = logging.StreamHandler()
+    sh.setLevel(log_level)
+    shf = logging.Formatter(f"{logger_name}: %(message)s")
+    sh.setFormatter(shf)
+    logger.addHandler(sh)
+
+    try:
+        group = sys.argv[1]
+    except IndexError:
+        logger.error("Missing group argument")
+        return 1
+    try:
+        directory = sys.argv[2]
+    except IndexError:
+        logger.error("Missing directory argument")
+        return 1
+    try:
+        action = sys.argv[3]
+    except IndexError:
+        logger.error("Missing action argument")
+        return 1
+    else:
+        if action not in cli_tm_allowed_actions:
+            logger.error(
+                "Unrecognized action, '{}', allowed actions are: {}",
+                action,
+                cli_tm_allowed_actions,
+            )
+            return 1
+        elif action == "kill":
+            # FIXME: we need to implement the gritty method of killing all the
+            # tool meisters, locally and remotely, and ensuring they are all
+            # properly shut down.
+            return 0
+
+    try:
+        # Load the tool group data
+        tool_group = ToolGroup(group)
+    except Exception:
+        logger.exception("failed to load tool group data for '%s'", group)
+        return 1
+    else:
+        if not tool_group.hostnames:
+            # If a tool group has no tools registered, then there will be no
+            # host names on which Tool Meisters would have been started, so we
+            # can safely exit.
+            return 0
+
+    redis_server_env = os.environ.get("PBENCH_REDIS_SERVER", "")
+    try:
+        redis_server = RedisServerCommon(redis_server_env, "localhost")
+    except RedisServerCommon.Err as exc:
+        logger.error(str(exc))
+        return exc.return_code
+
+    with Client(
+        redis_host=redis_server.host,
+        redis_port=redis_server.port,
+        channel_prefix=cli_tm_channel_prefix,
+        logger=logger,
+    ) as client:
+        ret_val = client.publish(group, directory, action)
+
+    return ret_val

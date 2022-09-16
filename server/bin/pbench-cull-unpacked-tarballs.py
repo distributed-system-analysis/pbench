@@ -18,23 +18,23 @@ links).
 
 """
 
-import sys
+from argparse import ArgumentParser
+import configparser
+from datetime import datetime
 import os
+from pathlib import Path
 import re
 import shutil
+import sys
 import tempfile
-from pathlib import Path
-from datetime import datetime
-from argparse import ArgumentParser
-from configparser import ConfigParser, NoOptionError
 
-import pbench.server
-from pbench.server import PbenchServerConfig
+from pbench.common import MetadataLog
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
+import pbench.server
+from pbench.server.database import init_db
 from pbench.server.indexer import _STD_DATETIME_FMT
 from pbench.server.report import Report
-
 
 _NAME_ = "pbench-cull-unpacked-tarballs"
 
@@ -86,7 +86,7 @@ def fetch_username(tb_incoming_dir):
     """fetch_username - Return the pbench "run"'s "user" value from the
     `metadata.log` file, if it exists.
     """
-    config = ConfigParser()
+    config = MetadataLog()
     try:
         config.read(Path(tb_incoming_dir, "metadata.log"))
     except Exception:
@@ -186,7 +186,10 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
     user_name = fetch_username(tb_incoming_dir)
     if user_name:
         errors, _actions_taken = remove_symlinks(
-            Path(users, user_name, controller_name), tb_incoming_dir, logger, dry_run,
+            Path(users, user_name, controller_name),
+            tb_incoming_dir,
+            logger,
+            dry_run,
         )
         actions_taken.extend(_actions_taken)
         if errors > 0:
@@ -227,7 +230,9 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
                 shutil.rmtree(del_path)
         except OSError as exc:
             logger.error(
-                "Failed to remove incoming directory tree, '{}': '{}'", del_path, exc,
+                "Failed to remove incoming directory tree, '{}': '{}'",
+                del_path,
+                exc,
             )
             errors = 1
             act.set_status("fail")
@@ -320,12 +325,16 @@ def main(options):
         return 1
 
     try:
-        config = PbenchServerConfig(options.cfg_name)
+        config = pbench.server.PbenchServerConfig(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2
 
     logger = get_pbench_logger(_NAME_, config)
+
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    init_db(config, logger)
 
     archivepath = config.ARCHIVE
 
@@ -348,7 +357,7 @@ def main(options):
     # in the INCOMING tree.
     try:
         max_unpacked_age = config.conf.get("pbench-server", "max-unpacked-age")
-    except NoOptionError as e:
+    except configparser.NoOptionError as e:
         logger.error(f"{e}")
         return 5
     try:

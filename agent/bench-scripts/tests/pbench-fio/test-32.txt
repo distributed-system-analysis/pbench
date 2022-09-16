@@ -1,5 +1,4 @@
 +++ Running test-32 pbench-fio
-verifying clients have fio installed
 Created the following job file (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/fio.job):
 [global]
 bs=42k
@@ -17,6 +16,7 @@ write_lat_log=fio
 log_avg_msec=1000
 write_hist_log=fio
 log_hist_msec=10000
+log_unix_epoch=1
 
 [job-/tmp/fio]
 filename=/tmp/fio
@@ -25,9 +25,9 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/fio.job (sample1)
-[fio-postprocess-viz.py] Chart Type: xy (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/results.html)
-[fio-postprocess-viz.py] Chart Type: xy (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/results.html)
-[fio-postprocess-viz.py] Chart Type: xy (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/results.html)
+[fio-postprocess-viz.py] Chart Type: timeseries (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/results.html)
+[fio-postprocess-viz.py] Chart Type: timeseries (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/results.html)
+[fio-postprocess-viz.py] Chart Type: timeseries (/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/results.html)
 fio job complete
 --- Finished test-32 pbench-fio (status=0)
 +++ pbench tree state
@@ -92,16 +92,13 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] fio-3.21 is installed
-[debug][1900-01-01T00:00:00.000000] [pbench-fio] fio-3.21 is installed
-[debug][1900-01-01T00:00:00.000000] verifying clients have fio installed
-[debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/tmp/fio", clients="hist.foo,hist.bar")
-[debug][1900-01-01T00:00:00.000000] creating directories on the clients
-[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
-[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
-[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
-[debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
-[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/fio-client.file --max-jobs=2]
+[debug][1900-01-01T00:00:00.000000] fio_pre_check(targets="/tmp/fio", clients="hist.foo,hist.bar", ver="3.21", match="gte")
+[debug][1900-01-01T00:00:00.000000] Running pre-check on client hist.foo
+[debug][1900-01-01T00:00:00.000000] Running pre-check on client hist.bar
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on remote client hist.foo:42
+[debug][1900-01-01T00:00:00.000000] killing any old fio processes, creating directories, and starting new a fio process on remote client hist.bar:42
+[debug][1900-01-01T00:00:00.000000] waiting for all fio client processes to start on the specified clients
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [fio --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/fio-client.file --max-jobs=2]
 [debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 --- pbench.log file contents
@@ -109,7 +106,7 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 fio- default
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary fio --config=test-32 --test-type=rw --samples=1 --block-sizes=42 --clients=hist.foo,hist.bar /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB readwrite_IOPS 5 0 6 y y
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/fio-client.file --max-jobs=2 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/fio-client.file --max-jobs=2 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/fio.job
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 99.5 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/fio_clat_hist.empty.log
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 99.5 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/fio_clat_hist.empty.log /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/fio_clat_hist.empty.log
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 99.5 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/fio_clat_hist.empty.log
@@ -119,18 +116,12 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=default default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.bar /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.bar firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.bar killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.bar mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.bar pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.foo /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.foo firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.foo killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.foo mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.foo pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done hist.bar 8765
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done hist.foo 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.bar mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 && /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/fio-client /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 42
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.bar pbench-fio --pre-check --targets=/tmp/fio 3.21 gte
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.foo mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 && /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/driver/fio-client /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1 42
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no hist.foo pbench-fio --pre-check --targets=/tmp/fio 3.21 gte
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done hist.bar 42
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done hist.foo 42
 --- test-execution.log file contents
 +++ fio_test-32_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
@@ -143,6 +134,18 @@ dev = /tmp/fio
 iteration_name = 1-rw-42KiB
 
 --- fio_test-32_1900.01.01T00.00.00/metadata.log file contents
++++ fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/process-iteration-samples.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB" "readwrite_IOPS" "5" "0" "6" "y" "y"
+--- fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/process-iteration-samples.cmd file contents
++++ fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/fio-postprocess.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1" "fio-" "default"
+--- fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/fio-postprocess.cmd file contents
++++ fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/fio.cmd file contents
+fio  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/fio-client.file --max-jobs=2 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/fio.job
+--- fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/fio.cmd file contents
++++ fio_test-32_1900.01.01T00.00.00/generate-benchmark-summary.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary "fio" "--config=test-32 --test-type=rw --samples=1 --block-sizes=42 --clients=hist.foo,hist.bar" "/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00"
+--- fio_test-32_1900.01.01T00.00.00/generate-benchmark-summary.cmd file contents
 +++ fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/results.html file contents
 <html>
   <head>
@@ -156,7 +159,7 @@ iteration_name = 1-rw-42KiB
     <script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
     <div id='jschart_latency'>
       <script>
-        create_jschart(0, "xy", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
+        create_jschart(0, "timeseries", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
             { plotfiles: [ "min.log", "median.log", "p90.0.log", "p95.0.log", "p99.0.log", "p99.5.log", "max.log" ],
               sort_datasets: false, x_log_scale: false
             });
@@ -179,7 +182,7 @@ iteration_name = 1-rw-42KiB
     <script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
     <div id='jschart_latency'>
       <script>
-        create_jschart(0, "xy", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
+        create_jschart(0, "timeseries", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
             { plotfiles: [ "min.log", "median.log", "p90.0.log", "p95.0.log", "p99.0.log", "p99.5.log", "max.log" ],
               sort_datasets: false, x_log_scale: false
             });
@@ -202,7 +205,7 @@ iteration_name = 1-rw-42KiB
     <script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
     <div id='jschart_latency'>
       <script>
-        create_jschart(0, "xy", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
+        create_jschart(0, "timeseries", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
             { plotfiles: [ "min.log", "median.log", "p90.0.log", "p95.0.log", "p99.0.log", "p99.5.log", "max.log" ],
               sort_datasets: false, x_log_scale: false
             });

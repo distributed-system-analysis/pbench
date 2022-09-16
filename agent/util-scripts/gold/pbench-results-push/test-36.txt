@@ -1,0 +1,9 @@
++++ Running test-36 pbench-results-push 
+Usage: pbench-results-push [OPTIONS] CONTROLLER RESULT_TB_NAME
+Try 'pbench-results-push --help' for help.
+
+Error: Missing argument 'CONTROLLER'.
+--- Finished test-36 pbench-results-push (status=2)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+--- pbench tree state

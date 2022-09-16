@@ -1,0 +1,13 @@
+---
+# We have agreed as a community that by default the official builds are
+# provided by the `ndokos` COPR user.
+fedoraproject_username: ndokos
+pbench_repo_url_prefix: https://copr-be.cloud.fedoraproject.org/results/{{ fedoraproject_username }}
+
+repos:
+  - name: "{{ pbench_repo_name }}"
+    user: "{{ fedoraproject_username }}"
+    baseurl: "{{ pbench_repo_url_prefix }}/{{ pbench_repo_name }}/{{ distrodir }}"
+    gpgkey: "{{ pbench_repo_url_prefix }}/{{ pbench_repo_name }}/pubkey.gpg"
+    gpgcheck: 1
+    enabled: 1

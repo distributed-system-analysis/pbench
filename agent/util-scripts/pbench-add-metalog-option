@@ -1,35 +1,58 @@
 #!/usr/bin/env python3
 
-# Usage: pbench-add-metalog-option <metadata log file> <section> <option>
-
-# Add an option to a section of the metadata.log file.
-# E.g. using an 'iterations' arg for the option
-#
-# iterations: 1-iter, 2-iter, 3-iter
-#
-# where the iterations are in the <iterations.file>, one iteration per line.
-
+from argparse import ArgumentParser
 import sys
-from configparser import ConfigParser, NoSectionError
+
+from pbench.cli.agent.commands.log import add_metalog_option
 
 
-def main(lfile, section, option):
-    config = ConfigParser()
-    config.read(lfile)
-    # python3
-    # config[section][option] = ', '.join(sys.stdin.read().split())
-    sin = sys.stdin.read().replace("%", "%%")
+def main(prog, parsed):
+    """main - main program entry point to add an option to, or update an option
+    in, a section of a given metadata.log file.
+
+    To create a section name "run", with an option named, "iterations", having
+    a value of "1-iter, 2-iter, 3-iter", you would do the following:
+
+      $ echo "1-iter 2-iter 3-iter" \
+        | pbench-add-metalog-option ./metadata.log run iterations
+
+    Exits with 0 on success, 1 on failure.
+    """
     try:
-        config.set(section, option, ", ".join(sin.split()))
-    except NoSectionError:
-        config.add_section(section)
-        config.set(section, option, ", ".join(sin.split()))
-    config.write(open(lfile, "w"))
+        value = ", ".join(sys.stdin.read().split())
+        add_metalog_option(parsed.metadata_log, parsed.section, parsed.option, value)
+    except FileNotFoundError:
+        print(f"{prog}: {parsed.metadata_log}, file not found", file=sys.stderr)
+        return 1
+    except Exception as exc:
+        print(
+            f"{prog}: ERROR - unexpected error encountered adding option"
+            f" {parsed.option} to section {parsed.section}, {exc}",
+            file=sys.stderr,
+        )
+        return 1
+    return 0
 
+
+_NAME_ = "pbench-add-metalog-option"
 
 if __name__ == "__main__":
-    lfile = sys.argv[1]
-    section = sys.argv[2]
-    option = sys.argv[3]
-    status = main(lfile, section, option)
+    parser = ArgumentParser(
+        f"Usage: {_NAME_} <metadata log file> <section> <option>; option value"
+        " read from stdin"
+    )
+    parser.add_argument(
+        "metadata_log",
+        help="The full path and name of the target metadata.log file to modify",
+    )
+    parser.add_argument(
+        "section",
+        help="The name of the section containing the option",
+    )
+    parser.add_argument(
+        "option",
+        help="The name of the option to be added or modified",
+    )
+    parsed = parser.parse_args()
+    status = main(sys.argv[0], parsed)
     sys.exit(status)

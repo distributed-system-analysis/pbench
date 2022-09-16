@@ -14,25 +14,20 @@ service that runs as a cronjob.  NO RE-INDEXING STEPS SHOULD BE AUTOMATED
 AT THIS POINT.
 """
 
-import sys
-import os
-import re
+from argparse import ArgumentParser
 
 # import shutil
 from datetime import datetime
-from argparse import ArgumentParser
+import os
+import re
+import sys
 
 from pbench import BadConfig
-import pbench.server
-from pbench.server import PbenchServerConfig
-from pbench.server.database.models.tracker import (
-    Dataset,
-    Metadata,
-    DatasetError,
-)
-from pbench.server.database.database import Database
 from pbench.common.logger import get_pbench_logger
-
+import pbench.server
+from pbench.server.database import init_db
+from pbench.server.database.models.datasets import Dataset, DatasetError, Metadata
+from pbench.server.utils import get_tarball_md5
 
 _NAME_ = "pbench-reindex"
 
@@ -98,8 +93,9 @@ def reindex(controller_name, tb_name, archive_p, incoming_p, dry_run=False):
     try:
         if not dry_run:
             paths[0].rename(newpath)
-            ds = Dataset.attach(controller=controller_name, path=tb_name)
-            Metadata.create(dataset=ds, key=Metadata.REINDEX, value="True")
+            tb_file = newpath.resolve()
+            ds = Dataset.query(resource_id=get_tarball_md5(tb_file))
+            Metadata.setvalue(dataset=ds, key=Metadata.REINDEX, value=True)
     except DatasetError as exc:
         msg = f"WARNING: unable to set REINDEX metadata for {controller_name}:{tb_name}: {str(exc)}"
         res = "error"
@@ -175,7 +171,7 @@ def main(options):
         return 1
 
     try:
-        config = PbenchServerConfig(options.cfg_name)
+        config = pbench.server.PbenchServerConfig(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2
@@ -184,7 +180,7 @@ def main(options):
 
     # We're going to need the Postgres DB to track dataset state, so setup
     # DB access.
-    Database.init_db(config, logger)
+    init_db(config, logger)
 
     archive_p = config.ARCHIVE
 

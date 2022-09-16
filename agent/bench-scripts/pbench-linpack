@@ -1,29 +1,19 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
 # This is a script to run the linpack benchmark
 
 # TODO:
-# 1) write results in pbench standard file names and formats
-# 2) add support to run mulitple samples and get stddev
-# 3) add support for multiple local or remote copies of benchmark running concurrently
-# 4) add support for binding copies of benchmark to numa nodes
+# 1) add support to run mulitple samples with stddev
+# 2) add support for multiple local or remote copies of benchmark running concurrently
+# 3) add support for binding copies of benchmark to numa nodes
 
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
-. "$pbench_bin"/base
-
-benchmark_rpm=$script_name
-export benchmark="linpack"
-ver=11.1.3
-linpack_dir=/usr/local/${script_name}-${ver}/benchmarks/linpack
-linpack_cmd=xlinpack_xeon64
-linpack_dat=linpack.dat
-threads=`cat /proc/cpuinfo | grep processor | wc -l`
-
+. "${pbench_bin}"/base
 
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
@@ -34,105 +24,210 @@ threads=`cat /proc/cpuinfo | grep processor | wc -l`
 # 6) postprocess benchmark data
 # 7) postprocess analysis tool data
 
+export benchmark="linpack"
+
 # Defaults
-baseconfig="`uname -r`"
-start_iteration_num=1
-orig_cmd="$*"
+
+# This script always runs a pre-check. When non-local clients are used, as part
+# of the pre-check operation, it invokes itself remotely to ONLY run a local
+# pre-check and exit.
+pre_check_only=0
+def_threads=$(cat /proc/cpuinfo | grep processor | wc -l)
+threads=${def_threads}
+def_nr_samples=2
+nr_samples=${def_nr_samples}
+orig_cmd="${*}"
 tool_group="default"
 export config=""
 sysinfo="default"
+clients="localhost"
 
 function usage {
-	printf "\tThe following options are available:\n\n"
+	printf -- "The following options are available:\n\n"
 	printf -- "\t-C str --config=str         name of the test config\n"
-	printf -- "\t       --threads=int[,int]  number of threads to use (default is num_cpus)\n"
+	printf -- "\t-c str[,str...] --clients=str[,str...]      a list of one or more host names (hosta,hostb,hostc) where you want ${script_name} to run\n"
+	printf -- "\t       --samples=<int>      number of samples to use per test iteration (default is ${def_nr_samples})\n"
+	printf -- "\t       --threads=int[,int]  number of threads to use (default is # local CPUs)\n"
 	printf -- "\t       --tool-group=str\n"
 	printf -- "\t       --sysinfo=str,       str= comma separated values of sysinfo to be collected\n"
 	printf -- "\t                                available: $(pbench-display-sysinfo-options)\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:h --longoptions "config:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf -- "${script_name} $*\n"
-	printf -- "\n"
-	printf -- "\tunrecognized option specified\n\n"
-	usage
+opts=$(getopt -q -o C:c:h --longoptions "config:,clients:,help,pre-check-only,samples:,sysinfo:,threads:,tool-group:" -n "getopt.sh" -- "${@}")
+if [[ ${?} -ne 0 ]]; then
+	printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${script_name}" "${*}" >&2
+	usage >&2
 	exit 1
 fi
-eval set -- "$opts";
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		-c|--config)
-		shift;
-		if [ -n "$1" ]; then
-			config="$1"
-			shift;
+	arg=${1}
+	shift
+	case "${arg}" in
+	-C|--config)
+		if [[ -n "${1}" ]]; then
+			config="${1}"
+			shift
 		fi
 		;;
-		--threads)
-		shift;
-		if [ -n "$1" ]; then
-			threads="$1"
-			shift;
+	-c|--clients)
+		if [[ -n "${1}" ]]; then
+			clients="${1}"
+			shift
 		fi
 		;;
-		--tool-group)
-		shift;
-		if [ -n "$1" ]; then
-			tool_group="$1"
-			shift;
+	--pre-check-only)
+		pre_check_only=1
+		;;
+	--samples)
+		if [[ -n "${1}" ]]; then
+			nr_samples="${1}"
+			shift
 		fi
 		;;
-		--sysinfo)
-		shift;
-		if [ -n "$1" ]; then
-			sysinfo="$1"
-			shift;
+	--sysinfo)
+		if [[ -n "${1}" ]]; then
+			sysinfo="${1}"
+			shift
 		fi
 		;;
-		-h|--help)
+	--threads)
+		if [[ -n "${1}" ]]; then
+			threads="${1}"
+			shift
+		fi
+		;;
+	--tool-group)
+		if [[ -n "${1}" ]]; then
+			tool_group="${1}"
+			shift
+		fi
+		;;
+	-h|--help)
 		usage
 		exit 0
 		;;
-		--)
-		shift;
-		break;
+	--)
+		break
 		;;
-		*)
-		echo "what happened? [$1]"
-		exit 0
-		break;
+	*)
+		printf -- "${script_name}: unrecognized command line argument, '${arg}'" >&2
+		usage >&2
+		exit 1
 		;;
 	esac
 done
-verify_common_bench_script_options $tool_group $sysinfo
 
-## Ensure the right version of the benchmark is installed
-if check_install_rpm $benchmark_rpm $ver; then
-	debug_log "[$script_name]$benchmark_rpm is installed"
-else
-	error_log "[$script_name]$benchmark_rpm installation failed, exiting"
+function pre_check {
+	# Invoke the linpack driver to perform a pre-check that it will be able to
+	# execute the benchmark. The expected version is the first argument, and the
+	# second is the expected directory prefix for the linpack installation.
+	local ver=${1}
+	local install_prefix_arg=${2}
+
+	${pbench_bin}/bench-scripts/driver/linpack --pre-check-only ${ver} ${install_prefix_arg}
+	return ${?}
+}
+
+if [[ ${pre_check_only} -ne 0 ]]; then
+	# We have been invoked remotely to check for the expected version of
+	# linpack installed.  The remote invocation has provided the arguments to
+	# pass to the pre-check function (see --pre-check-only invocation below).
+	pre_check ${@}
+	exit ${?}
+fi
+
+verify_common_bench_script_options ${tool_group} ${sysinfo}
+
+linpack_ver="$(pbench-config version ${benchmark})"
+if [[ -z "${linpack_ver}" ]]; then
+	error_log "${script_name}: package version is missing in config file"
 	exit 1
 fi
 
-benchmark_fullname="${benchmark}_${config}_${date_suffix}"
-export benchmark_run_dir="$pbench_run/${benchmark_fullname}"
-benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
-benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
-benchmark_iterations="${benchmark_run_dir}/.iterations"
+# Run the pre-check.
+let not_found=0
+for client in ${clients//,/ }; do
+	if pbench-is-local "${client}"; then
+		pre_check ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}
+		if [[ ${?} -ne 0 ]]; then
+			error_log "${script_name}: linpack not installed locally"
+			(( not_found++ ))
+		fi
+	else
+		ssh ${ssh_opts} ${client} ${script_name} --pre-check-only ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}
+		if [[ ${?} -ne 0 ]]; then
+			error_log "${script_name}: linpack not installed on client ${client}"
+			(( not_found++ ))
+		fi
+	fi
+done
+if [[ ${not_found} -gt 0 ]]; then
+	exit 1
+fi
 
-mkdir -p ${benchmark_run_dir}/.running
+function store_and_run {
+	local workdir=${1}
+	local cmd=${2}
+	local filename=${3}
+	(
+		cd "${workdir}" &&
+		echo "${cmd}" > "${filename}" &&
+		chmod +x "${filename}" &&
+		"./${filename}" &> "${filename}.out"
+	)
+	ret=${?}
+	if [[ ${ret} -ne 0 ]]; then
+		warn_log "failed to execute: ${workdir}/${filename}"
+	fi
+	return ${ret}
+}
+
+function postprocess-sample {
+	local _cmd="${pbench_bin}/bench-scripts/postprocess/linpack-postprocess"
+	store_and_run "${1}" "'${_cmd}' '${1}' '${2}' '${tool_group}' ${3}" \
+			"${benchmark}-postprocess.cmd"
+}
+
+function postprocess-results {
+	local _cmd="${pbench_bin}/bench-scripts/postprocess/generate-benchmark-summary"
+	store_and_run "${1}" "'${_cmd}' '${benchmark}' '${orig_cmd}' '${1}'" \
+			"generate-benchmark-summary.cmd"
+}
+
+benchmark_fullname="${benchmark}_${config}_${date_suffix}"
+export benchmark_run_dir="${pbench_run}/${benchmark_fullname}"
+
+# we'll record the iterations in this file
+benchmark_iterations="${benchmark_run_dir}/.iterations"
+mdlog=${benchmark_run_dir}/metadata.log
+
+function record_iteration {
+	local count=${1}
+	local thread=${2}
+	local iteration=${3}
+
+	echo ${iteration} >> ${benchmark_iterations}
+	echo ${count} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
+	echo ${thread} | pbench-add-metalog-option ${mdlog} iterations/${iteration} threads
+	echo ${iteration} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
+}
+
+mkdir ${benchmark_run_dir}
+if [[ ${?} -ne 0 ]]; then
+	error_log "[${script_name}]: failed to create the run directory, ${benchmark_run_dir}"
+	exit 1
+fi
+
+mkdir ${benchmark_run_dir}/.running
+if [[ ${?} -ne 0 ]]; then
+	error_log "[${script_name}]: failed to create the '.running' marker diretory in ${benchmark_run_dir}"
+	exit 1
+fi
 
 # now that the benchmark_run_dir directory exists, we can initialize the iterations file
 > ${benchmark_iterations}
-
-iteration=1-$threads-threads
-sample="sample1"
-echo $iteration >> $benchmark_iterations
-benchmark_results_dir="$benchmark_run_dir/$iteration/${sample}"
-result_file=$benchmark_results_dir/result.txt
-mkdir -p $benchmark_results_dir
 
 # Start the tool meisters on each registered local/remote host
 pbench-tool-meister-start --sysinfo="${sysinfo}" "${tool_group}"
@@ -143,16 +238,96 @@ fi
 
 trap "interrupt" INT QUIT TERM
 
-## Run the benchmark and start/stop perf analysis tools
-pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
+let count=1
+for thread in ${threads//,/ }; do
+	iteration="${count}-${thread}-threads"
+	iteration_dir="${benchmark_run_dir}/${iteration}"
 
-OMP_NUM_THREADS=$threads ${linpack_dir}/${linpack_cmd} < ${linpack_dir}/${linpack_dat} | tee $result_file
+	mkdir "${iteration_dir}"
+	if [[ ${?} -ne 0 ]]; then
+		error_log "[${script_name}]: failed to create iteration diretory, ${iteration_dir}"
+		exit 1
+	fi
 
-pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
-pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
-pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
+	record_iteration ${count} ${thread} ${iteration}
+	echo "Starting iteration ${iteration}"
 
-ln -s ${sample} $benchmark_run_dir/$iteration/reference-result
+	for sample in $(seq 1 ${nr_samples}); do
+		echo "test sample ${sample} of ${nr_samples}"
+		sample_dir="${iteration_dir}/sample${sample}"
+
+		mkdir "${sample_dir}"
+		if [[ ${?} -ne 0 ]]; then
+			error_log "[${script_name}]: failed to create sample directory, ${sample_dir}"
+			exit 1
+		fi
+		mkdir "${sample_dir}/clients"
+		if [[ ${?} -ne 0 ]]; then
+			error_log "[${script_name}]: failed to create clients directory, ${sample_dir}/clients"
+			exit 1
+		fi
+		(cd "${sample_dir}/clients" && mkdir ${clients//,/ })
+		if [[ ${?} -ne 0 ]]; then
+			error_log "[${script_name}]: failed to create individual clients directory, ${sample_dir}/clients/{${clients}}"
+			exit 1
+		fi
+
+		# Run the benchmark and start/stop perf analysis tools
+		pbench-start-tools --group=${tool_group} --dir="${sample_dir}"
+
+		run_it="pbench-linpack ${pbench_bin}/bench-scripts/driver/linpack"
+		run_it+=" --output-dir=${sample_dir} --threads=${thread}"
+		run_it+=" ${linpack_ver} ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}"
+		screen_it="screen -dmS ${run_it}"
+		for client in ${clients//,/ }; do
+			if pbench-is-local "${client}"; then
+				${screen_it}
+			else
+				ssh ${ssh_opts} ${client} "mkdir -p '${sample_dir}' && ${screen_it}"
+			fi
+		done
+
+		# Wait for all of them to finish
+		echo "Waiting for all clients to finish pbench-linpack jobs"
+		run_it="${pbench_bin}/bench-scripts/driver/linpack-wait ${sample_dir}"
+		for client in ${clients//,/ }; do
+			if pbench-is-local "${client}"; then
+				${run_it}
+			else
+				ssh ${ssh_opts} ${client} ${run_it}
+			fi
+			echo "Sample finished on ${client}"
+		done
+
+		pbench-stop-tools --group=${tool_group} --dir="${sample_dir}"
+
+		# Move the results to the output directory expected by the postprocess script
+		for client in ${clients//,/ }; do
+			client_result_dir="${sample_dir}/clients/${client}"
+			if pbench-is-local "${client}"; then
+				mv "${sample_dir}/"linpack.{out,meta} "${client_result_dir}"
+			else
+				scp ${scp_opts} "${client}:${sample_dir}"/linpack.{out,meta} "${client_result_dir}"
+			fi
+			if [[ ${?} -ne 0 ]]; then
+				warn_log "[${script_name}]: failed to save linpack output to directory, ${client_result_dir}"
+			fi
+		done
+
+		# Have the Tool Meisters send the tool data back and post-process it
+		pbench-send-tools --group=${tool_group} --dir="${sample_dir}"
+		pbench-postprocess-tools --group=${tool_group} --dir="${sample_dir}"
+
+		# Post-process the benchmark results after the tools so that the
+		# post-processing has that data available to it.
+		(( last = (sample == nr_samples ? 1 : 0) ))
+		postprocess-sample "${sample_dir}" "${benchmark_run_dir}" ${last}
+	done
+
+	echo "Iteration ${iteration} complete"
+	let count++
+done
+postprocess-results "${benchmark_run_dir}"
 
 # Stop the tool meisters on each registered local/remote host
 pbench-tool-meister-stop --sysinfo="${sysinfo}" "${tool_group}"
@@ -160,4 +335,4 @@ if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to stop the tool meisters."
 fi
 
-rmdir $benchmark_run_dir/.running
+rmdir ${benchmark_run_dir}/.running

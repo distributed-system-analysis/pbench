@@ -1,9 +1,7 @@
 from urllib.parse import urljoin
 
-from pbench.server.api.resources.query_apis import get_index_prefix
 
-
-class TestEnpointConfig:
+class TestEndpointConfig:
     """
     Unit testing for EndpointConfig class.
 
@@ -14,10 +12,11 @@ class TestEnpointConfig:
 
     def test_query(self, client, server_config):
         """
-        test_query Check that endpoint data matches the config file.
+        test_query Check that endpoint data matches the config file. In the
+        local Flask mocked environment, `request.host` will always be
+        "localhost".
         """
-        host = server_config.get("pbench-server", "host")
-        self.check_config(client, server_config, host)
+        self.check_config(client, server_config, "localhost")
 
     def test_proxy_query(self, client, server_config):
         host = "proxy.example.com:8901"
@@ -39,30 +38,98 @@ class TestEnpointConfig:
         uri_prefix = server_config.rest_uri
         host = "http://" + host
         uri = urljoin(host, uri_prefix)
-        prefix = get_index_prefix(server_config)
         expected_results = {
             "identification": f"Pbench server {server_config.COMMIT_ID}",
-            "indices": {
-                "run_index": f"{prefix}.v6.run-data.",
-                "run_toc_index": f"{prefix}.v6.run-toc.",
-                "result_index": f"{prefix}.v5.result-data-sample.",
-                "result_data_index": f"{prefix}.v5.result-data.",
-            },
             "api": {
-                "results": f"{host}/results",
+                "datasets_contents": f"{uri}/datasets/contents",
+                "datasets_daterange": f"{uri}/datasets/daterange",
+                "datasets_delete": f"{uri}/datasets/delete",
+                "datasets_detail": f"{uri}/datasets/detail",
+                "datasets_inventory": f"{uri}/datasets/inventory",
+                "datasets_list": f"{uri}/datasets/list",
+                "datasets_mappings": f"{uri}/datasets/mappings",
+                "datasets_metadata": f"{uri}/datasets/metadata",
+                "datasets_namespace": f"{uri}/datasets/namespace",
+                "datasets_publish": f"{uri}/datasets/publish",
+                "datasets_search": f"{uri}/datasets/search",
+                "datasets_values": f"{uri}/datasets/values",
                 "elasticsearch": f"{uri}/elasticsearch",
                 "endpoints": f"{uri}/endpoints",
                 "graphql": f"{uri}/graphql",
-                "controllers_list": f"{uri}/controllers/list",
-                "controllers_months": f"{uri}/controllers/months",
-                "datasets_list": f"{uri}/datasets/list",
-                "datasets_detail": f"{uri}/datasets/detail",
-                "register": f"{uri}/register",
                 "login": f"{uri}/login",
                 "logout": f"{uri}/logout",
-                "user": f"{uri}/user/",
-                "host_info": f"{uri}/host_info",
-                "upload_ctrl": f"{uri}/upload/ctrl/",
+                "register": f"{uri}/register",
+                "server_configuration": f"{uri}/server/configuration",
+                "upload": f"{uri}/upload",
+                "user": f"{uri}/user",
+            },
+            "uri": {
+                "datasets_contents": {
+                    "template": f"{uri}/datasets/contents/{{dataset}}/{{target}}",
+                    "params": {
+                        "dataset": {"type": "string"},
+                        "target": {"type": "path"},
+                    },
+                },
+                "datasets_daterange": {
+                    "template": f"{uri}/datasets/daterange",
+                    "params": {},
+                },
+                "datasets_delete": {
+                    "template": f"{uri}/datasets/delete/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
+                },
+                "datasets_detail": {
+                    "template": f"{uri}/datasets/detail/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
+                },
+                "datasets_inventory": {
+                    "template": f"{uri}/datasets/inventory/{{dataset}}/{{target}}",
+                    "params": {
+                        "dataset": {"type": "string"},
+                        "target": {"type": "path"},
+                    },
+                },
+                "datasets_list": {"template": f"{uri}/datasets/list", "params": {}},
+                "datasets_mappings": {
+                    "template": f"{uri}/datasets/mappings/{{dataset_view}}",
+                    "params": {"dataset_view": {"type": "string"}},
+                },
+                "datasets_metadata": {
+                    "template": f"{uri}/datasets/metadata/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
+                },
+                "datasets_namespace": {
+                    "template": f"{uri}/datasets/namespace/{{dataset_view}}",
+                    "params": {"dataset_view": {"type": "string"}},
+                },
+                "datasets_publish": {
+                    "template": f"{uri}/datasets/publish/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
+                },
+                "datasets_search": {"template": f"{uri}/datasets/search", "params": {}},
+                "datasets_values": {
+                    "template": f"{uri}/datasets/values/{{dataset_view}}",
+                    "params": {"dataset_view": {"type": "string"}},
+                },
+                "elasticsearch": {"template": f"{uri}/elasticsearch", "params": {}},
+                "endpoints": {"template": f"{uri}/endpoints", "params": {}},
+                "graphql": {"template": f"{uri}/graphql", "params": {}},
+                "login": {"template": f"{uri}/login", "params": {}},
+                "logout": {"template": f"{uri}/logout", "params": {}},
+                "register": {"template": f"{uri}/register", "params": {}},
+                "server_configuration": {
+                    "template": f"{uri}/server/configuration/{{key}}",
+                    "params": {"key": {"type": "string"}},
+                },
+                "upload": {
+                    "template": f"{uri}/upload/{{filename}}",
+                    "params": {"filename": {"type": "string"}},
+                },
+                "user": {
+                    "template": f"{uri}/user/{{target_username}}",
+                    "params": {"target_username": {"type": "string"}},
+                },
             },
         }
 

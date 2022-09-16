@@ -2,41 +2,41 @@
 result tar balls.
 """
 
+from collections import Counter, OrderedDict
+import configparser
 import csv
+from datetime import datetime, timedelta
+import errno
 import hashlib
 import json
 import logging
 import math
+from operator import itemgetter
 import os
+from random import SystemRandom
 import re
 import socket
 import tarfile
-import errno
-from collections import Counter
-from configparser import ConfigParser
-from configparser import Error as ConfigParserError
-from configparser import NoOptionError, NoSectionError
-from datetime import datetime, timedelta
-from operator import itemgetter
-from random import SystemRandom
 from time import sleep as _sleep
 
 from urllib3 import Timeout
 
+from pbench.common import MetadataLog
+from pbench.common.exceptions import (
+    BadDate,
+    BadIterationName,
+    BadMDLogFormat,
+    BadSampleName,
+    ConfigFileError,
+    UnsupportedTarballFormat,
+)
+import pbench.server
+from pbench.server.templates import PbenchTemplates
+
 # We import the entire pbench module so that mocking time works by changing
 # the _time binding in the pbench module for unit tests via the
 # PbenchServerConfig constructor's execution.
-from pbench.common.exceptions import (
-    BadDate,
-    ConfigFileError,
-    BadMDLogFormat,
-    UnsupportedTarballFormat,
-    BadIterationName,
-    BadSampleName,
-)
-from pbench.common.logger import get_pbench_logger
-from pbench.server.templates import PbenchTemplates
-import pbench.server
+
 
 try:
     from elasticsearch import Elasticsearch, VERSION
@@ -66,6 +66,7 @@ import pyesbulk
 #     patch: change when:
 #       - bug fixes are made to existing code that don't affect indices or
 #         mappings
+#
 # We add the version to the run documents we generate.  Having the version
 # number in each run document helps us track down the version of the code that
 # generated those documents.  In turn, this can help us fix indexing problems
@@ -107,7 +108,7 @@ def _get_es_hosts(config, logger):
     try:
         host = config.get("elasticsearch", "host")
         port = config.get("elasticsearch", "port")
-    except (NoSectionError, NoOptionError):
+    except (configparser.NoSectionError, configparser.NoOptionError):
         logger.warning(
             "Failed to find an [elasticsearch] section with host and port defined"
             " in {} configuration file.",
@@ -502,12 +503,14 @@ class ResultData(PbenchData):
                     return None
                 if ubm_driver["start_ts_col"] not in cols:
                     idxctx.logger.error(
-                        "Logic bomb! bad ubm driver start_ts_col ({})", ptb._tbctx,
+                        "Logic bomb! bad ubm driver start_ts_col ({})",
+                        ptb._tbctx,
                     )
                     return None
                 if ubm_driver["end_ts_col"] and (ubm_driver["end_ts_col"] not in cols):
                     idxctx.logger.error(
-                        "Logic bomb! bad ubm driver end_ts_col ({})", ptb._tbctx,
+                        "Logic bomb! bad ubm driver end_ts_col ({})",
+                        ptb._tbctx,
                     )
                     return None
                 for bm_md_col in ubm_driver["benchmark_md_cols"]:
@@ -645,6 +648,13 @@ class ResultData(PbenchData):
                                 self.ptb._tbctx,
                             )
                             continue
+                except StopIteration:
+                    # The csv_reader encountered the end-of-file on the first
+                    # iteration (i.e., the file was empty), so skip it.
+                    self.ptb.idxctx.logger.warning(
+                        "CSV file {csv_name!r} is empty ({self.ptb._tbctx})"
+                    )
+                    continue
                 except OSError as exc:
                     if exc.errno == errno.ENOENT:
                         continue
@@ -1006,8 +1016,7 @@ class ResultData(PbenchData):
         return
 
     def _handle_iteration(self, iter_data, iter_name, iter_number, result_json):
-        """Generate source documents for iteration data.
-        """
+        """Generate source documents for iteration data."""
         # There should always be a 'parameters' element with 'benchmark'
         # array element inside it.  There is no reason for this to be an
         # array, but it is: we just pick the 0^th (and only element) as
@@ -1194,7 +1203,7 @@ class ResultData(PbenchData):
                         pass
                     else:
                         s = re.sub(m, val, s)
-                if run is not None and key == "controller_host":
+                elif key == "controller_host" and run is not None:
                     # Fix "controller_host" to try to find "controller" in the
                     # run metadata if available.
                     try:
@@ -1204,7 +1213,6 @@ class ResultData(PbenchData):
                     else:
                         s = re.sub(m, val, s)
                 # Keyword not found, ignore
-                pass
             else:
                 s = re.sub(m, val, s)
         return s
@@ -1371,9 +1379,13 @@ class ResultData(PbenchData):
                             del res["date"]
                             ts = cvt_ts(orig_ts)
                             if prev_ts is not None:
-                                assert prev_ts <= ts, (
-                                    "prev_ts (%r, %r) > ts (%r, %r)"
-                                    % (prev_ts, prev_orig_ts, ts, orig_ts)
+                                assert (
+                                    prev_ts <= ts
+                                ), "prev_ts (%r, %r) > ts (%r, %r)" % (
+                                    prev_ts,
+                                    prev_orig_ts,
+                                    ts,
+                                    orig_ts,
                                 )
                             prev_orig_ts = orig_ts
                             prev_ts = ts
@@ -1818,7 +1830,10 @@ class ToolData(PbenchData):
             iterseqno = -1
         itername = iteration
 
-        self.iteration_metadata = _dict_const(name=itername, number=iterseqno,)
+        self.iteration_metadata = _dict_const(
+            name=itername,
+            number=iterseqno,
+        )
         self.sample_metadata = _dict_const(name=sample, hostname=host)
 
         try:
@@ -2135,9 +2150,13 @@ class ToolData(PbenchData):
             # string.
             ts_val = self.mk_abs_timestamp_millis(first)
             if prev_ts_val is not None:
-                assert prev_ts_val <= ts_val, (
-                    "prev_ts_val (%r, %r) > first (%r, %r)"
-                    % (prev_ts_val, prev_first, ts_val, first)
+                assert (
+                    prev_ts_val <= ts_val
+                ), "prev_ts_val (%r, %r) > first (%r, %r)" % (
+                    prev_ts_val,
+                    prev_first,
+                    ts_val,
+                    first,
                 )
             prev_first = first
             prev_ts_val = ts_val
@@ -2173,12 +2192,12 @@ class ToolData(PbenchData):
             # taken from all .csv files (assumes timestamps are the same).
             for fname, row in rows.items():
                 klass, metric, converter = metric_mapping[fname]
-                for idx, val in enumerate(row):
-                    if idx == 0:
+                for i, val in enumerate(row):
+                    if i == 0:
                         continue
                     # Given an fname and a column offset, return the
                     # identifier from the header
-                    identifier, subfield = field_mapping[fname][idx]
+                    identifier, subfield = field_mapping[fname][i]
                     if klass is not None:
                         _d = datum[identifier][self.toolname][klass]
                     else:
@@ -2246,9 +2265,13 @@ class ToolData(PbenchData):
                     if col == 0:
                         ts_val = self.mk_abs_timestamp_millis(val)
                         if prev_ts_val is not None:
-                            assert prev_ts_val <= ts_val, (
-                                "prev_ts_val (%r, %r) > ts_val (%r, %r)"
-                                % (prev_ts_val, prev_val, ts_val, val)
+                            assert (
+                                prev_ts_val <= ts_val
+                            ), "prev_ts_val (%r, %r) > ts_val (%r, %r)" % (
+                                prev_ts_val,
+                                prev_val,
+                                ts_val,
+                                val,
                             )
                         prev_val = val
                         prev_ts_val = ts_val
@@ -2592,16 +2615,16 @@ class ToolData(PbenchData):
 
     def _make_source_json(self):
         """Process JSON files in the form of an outer JSON array of ready to
-           source documents.  It is expected that each source document has an
-           "@timestamp" field as either an ISO format string,
-           "YYYY-mm-ddTHH:MM:SS.ssssss", or as a unix seconds since the epoch
-           floating point timestamp value.
+        source documents.  It is expected that each source document has an
+        "@timestamp" field as either an ISO format string,
+        "YYYY-mm-ddTHH:MM:SS.ssssss", or as a unix seconds since the epoch
+        floating point timestamp value.
 
-           Any JSON document missing an "@timestamp" field is ignored.  Each
-           JSON document will have its "@timestamp" field validated that it
-           lands within the start/end run time frame.  The source JSON that
-           will be indexed into Elasticsearch will convert the "@timetamp"
-           value to millis since the epoch.
+        Any JSON document missing an "@timestamp" field is ignored.  Each
+        JSON document will have its "@timestamp" field validated that it
+        lands within the start/end run time frame.  The source JSON that
+        will be indexed into Elasticsearch will convert the "@timetamp"
+        value to millis since the epoch.
         """
         for df in self.files:
             try:
@@ -2914,13 +2937,11 @@ def ip_address_to_ip_o_addr(contents):
     the preferred case - at least similar enough to satisfy the caller of this
     function.
     """
-    as_is = True
     lines = contents.split("\n")
     for line in lines[:-1]:
         if not re.match(_ip_o_addr_pat, line):
-            as_is = False
             break
-    if as_is:
+    else:
         return lines
 
     # Handle various formats encountered via a state machine:
@@ -2955,7 +2976,6 @@ def ip_address_to_ip_o_addr(contents):
             proto, addr = line.lstrip().split()[0:2]
     if state == 2:
         newlines.append(f"{serial}: {ifname} {proto} {addr}\n")
-        state = 3
     return newlines
 
 
@@ -3096,7 +3116,7 @@ class Iteration:
         iter_dict = dict()
         try:
             items = ptb.mdconf.items(f"iterations/{name}")
-        except NoSectionError:
+        except configparser.NoSectionError:
             if name == "1":
                 # Old pbench-user-benchmark implementations used an iteration
                 # name of "1" for the on-disk directory, since they only ever
@@ -3169,7 +3189,7 @@ class PbenchTarBall:
         self.idxctx = idxctx
         self.authorization = {
             "owner": username,
-            "access": "public" if username is None else "private",
+            "access": "private",
         }
         self.tbname = tbarg
         self.controller_dir = os.path.basename(os.path.dirname(self.tbname))
@@ -3181,6 +3201,17 @@ class PbenchTarBall:
         tb_stat = os.stat(self.tbname)
         mtime = datetime.utcfromtimestamp(tb_stat.st_mtime)
         self.tb = tarfile.open(self.tbname)
+
+        # Build a map showing the documents in each Elasticsearch index so we
+        # can find them later to UPDATE or DELETE without searching all
+        # indices.
+        #
+        # {
+        #     "jam-pbench.v6.run-data.2021-05": ["<doc-id>"],
+        #     "jam-pbench.v6.run-toc.2021-05": ["<doc-id>", "<doc-id>"],
+        #     [...]
+        # }
+        self.index_map = {}
 
         # This is the top-level name of the run - it should be the common
         # first component of every member of the tar ball.
@@ -3223,7 +3254,7 @@ class PbenchTarBall:
         md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
         # Construct the @metadata and run metadata dictionaries from the
         # metadata.log file.
-        self.mdconf = ConfigParser()
+        self.mdconf = MetadataLog()
         mdf = os.path.join(self.extracted_root, metadata_log_path)
         try:
             # Read and parse the metadata.log file.
@@ -3290,13 +3321,13 @@ class PbenchTarBall:
         )
         try:
             rpm_version = self.mdconf.get("pbench", "rpm-version")
-        except NoOptionError:
+        except configparser.NoOptionError:
             pass
         else:
             self.at_metadata["pbench-agent-version"] = rpm_version
         try:
             result_prefix = self.mdconf.get("run", "prefix")
-        except NoOptionError:
+        except configparser.NoOptionError:
             pass
         else:
             self.at_metadata["result-prefix"] = result_prefix
@@ -3305,7 +3336,7 @@ class PbenchTarBall:
         self.at_metadata["controller_dir"] = self.controller_dir
         try:
             tb_ts_str = self.mdconf.get("pbench", "tar-ball-creation-timestamp")
-        except NoOptionError:
+        except configparser.NoOptionError:
             pass
         else:
             self.at_metadata[
@@ -3313,7 +3344,7 @@ class PbenchTarBall:
             ] = PbenchTarBall.convert_to_dt(tb_ts_str)[1]
         try:
             raw_size = self.mdconf.get("run", "raw_size")
-        except NoOptionError:
+        except configparser.NoOptionError:
             pass
         else:
             try:
@@ -3331,7 +3362,7 @@ class PbenchTarBall:
         try:
             self.run_metadata.update(self.mdconf.items("run"))
             self.run_metadata.update(self.mdconf.items("pbench"))
-        except NoSectionError as e:
+        except configparser.NoSectionError as e:
             raise BadMDLogFormat(
                 '{} - missing section in metadata.log, "{}"'.format(self.dirname, e)
             )
@@ -3359,7 +3390,7 @@ class PbenchTarBall:
             if toolsgroup:
                 # Add the tools group used as run metadata for indexing purposes.
                 self.run_metadata["toolsgroup"] = toolsgroup
-        except NoSectionError:
+        except configparser.NoSectionError:
             # No tool data collected for this result.
             pass
         # Update the start and end run times using the already updated values
@@ -3376,6 +3407,22 @@ class PbenchTarBall:
         # MD5 value so that warnings, errors, and exceptions can have
         # additional context to add.
         self._tbctx = f"{self.controller_dir}/{os.path.basename(tbarg)}({md5sum})"
+
+    def map_document(self, index: str, id: str) -> None:
+        """
+        Create an entry in the document indexing dictionary to record the index
+        name and document ID. This map will be stored as Dataset metadata to be
+        retrieved later when we want to locate the documents for UPDATE and
+        DELETE operations.
+
+        Args:
+            index: Fully qualified index in which the document is stored
+            id: The Elasticsearch document ID
+        """
+        try:
+            self.index_map[index].append(id)
+        except KeyError:
+            self.index_map[index] = [id]
 
     def gen_files_by_partial_path(self, path):
         """Generator for all files in the tar ball which match the given path
@@ -3441,8 +3488,7 @@ class PbenchTarBall:
         return iter_objs
 
     def get_samples(self, iteration):
-        """Get the list of Sample objects for a given iteration object.
-        """
+        """Get the list of Sample objects for a given iteration object."""
         samples = []
         for member in self.members:
             if not member.isdir():
@@ -3473,7 +3519,7 @@ class PbenchTarBall:
     def get_section_items(self, section):
         try:
             section_items = self.mdconf.items(section)
-        except NoSectionError:
+        except configparser.NoSectionError:
             self.idxctx.logger.warning(
                 "No [{}] section in metadata.log: tool data will"
                 " *not* be indexed ({})",
@@ -3481,7 +3527,7 @@ class PbenchTarBall:
                 self._tbctx,
             )
             return []
-        except ConfigParserError:
+        except configparser.Error:
             self.idxctx.logger.exception(
                 "ConfigParser error in get_section_items: tool data"
                 " will *not* be indexed -- this is most probably a bug:"
@@ -3496,21 +3542,21 @@ class PbenchTarBall:
         try:
             # N.B. Space-separated list
             hosts = self.mdconf.get("tools", "hosts")
-        except NoSectionError:
+        except configparser.NoSectionError:
             self.idxctx.logger.warning(
                 "No [tools] section in metadata.log: tool data will"
                 " *not* be indexed ({})",
                 self._tbctx,
             )
             return []
-        except NoOptionError:
+        except configparser.NoOptionError:
             self.idxctx.logger.warning(
                 'No "hosts" option in [tools] section in metadata'
                 " log: tool data will *NOT* be indexed ({})",
                 self._tbctx,
             )
             return []
-        except ConfigParserError:
+        except configparser.Error:
             self.idxctx.logger.exception(
                 "ConfigParser error in get_hosts: tool data will"
                 " *not* be indexed -- this is most probably a bug: please"
@@ -3558,8 +3604,8 @@ class PbenchTarBall:
                 continue
             else:
                 return dt, dt.isoformat()
-        else:
-            raise Exception()
+
+        raise ValueError(f"Unrecognized date-time format, {dt_str!r}")
 
     def make_all_actions(self):
         """Driver for generating all actions on source documents for indexing into
@@ -3602,6 +3648,7 @@ class PbenchTarBall:
         # make a simple action for indexing
         pd = PbenchData(self)
         idx_name = pd.generate_index_name("run", source)
+        self.map_document(idx_name, self.run_metadata["id"])
         action = _dict_const(
             _op_type=_op_type,
             _index=idx_name,
@@ -3731,8 +3778,10 @@ class PbenchTarBall:
         count = 0
         for source in self.gen_toc():
             source["@timestamp"] = tstamp
+            source_id = get_md5sum_of_dir(source, self.run_metadata["id"])
+            self.map_document(idx_name, source_id)
             action = _dict_const(
-                _id=get_md5sum_of_dir(source, self.run_metadata["id"]),
+                _id=source_id,
                 _op_type=_op_type,
                 _index=idx_name,
                 _source=source,
@@ -3912,8 +3961,7 @@ class PbenchTarBall:
         return
 
     def mk_tool_data_actions(self):
-        """Generate all the tool data actions from the entire run hierarchy.
-        """
+        """Generate all the tool data actions from the entire run hierarchy."""
         self.idxctx.logger.debug("start")
         count = 0
         for td in self.mk_tool_data():
@@ -3935,6 +3983,7 @@ class PbenchTarBall:
                 except BadDate:
                     pass
                 else:
+                    self.map_document(idx_name, source_id)
                     source["@generated-by"] = self.idxctx.get_tracking_id()
                     source["authorization"] = self.authorization
                     action = _dict_const(
@@ -3949,8 +3998,7 @@ class PbenchTarBall:
         return
 
     def mk_result_data_actions(self):
-        """Generate all the result data actions.
-        """
+        """Generate all the result data actions."""
         self.idxctx.logger.debug("start")
         rd = ResultData(self)
         if not rd:
@@ -3978,8 +4026,12 @@ class PbenchTarBall:
                 pass
             else:
                 action = _dict_const(
-                    _op_type=_op_type, _index=idx_name, _id=source_id, _source=source,
+                    _op_type=_op_type,
+                    _index=idx_name,
+                    _id=source_id,
+                    _source=source,
                 )
+                self.map_document(idx_name, source_id)
                 if parent_id is None:
                     # Only the parent result data documents hold the tracking IDs.
                     source["@generated-by"] = self.idxctx.get_tracking_id()
@@ -3995,12 +4047,13 @@ class IdxContext:
     state, provided as an object.
     """
 
-    def __init__(self, options, name, _dbg=0):
+    def __init__(self, options, name, config, logger, _dbg=0):
         self.options = options
         self.name = name
+        self.config = config
+        self.logger = logger
         self._dbg = _dbg
         self.opctx = []
-        self.config = pbench.server.PbenchServerConfig(options.cfg_name)
         try:
             self.idx_prefix = self.config.get("Indexing", "index_prefix")
         except Exception as e:
@@ -4017,10 +4070,8 @@ class IdxContext:
         # test environments.
         self.time = pbench.server._time
         if self.config._unittests:
-            import collections
-
             global _dict_const
-            _dict_const = collections.OrderedDict
+            _dict_const = OrderedDict
 
             def _do_gethostname():
                 return "example.com"
@@ -4048,7 +4099,6 @@ class IdxContext:
             self.getuid = os.getuid
         self.TS = self.config.TS
 
-        self.logger = get_pbench_logger(self.name, self.config)
         self.es = get_es(self.config, self.logger)
         self.templates = PbenchTemplates(
             self.config.BINDIR,

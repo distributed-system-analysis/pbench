@@ -10,7 +10,6 @@ ANSIBLEDIR=${DESTDIR}/ansible
 BENCHDIR=${DESTDIR}/bench-scripts
 CONFIGDIR=${DESTDIR}/config
 LIBDIR=${DESTDIR}/lib
-STOCKPILEDIR=${DESTDIR}/stockpile
 TOOLDIR=${DESTDIR}/tool-scripts
 UTILDIR=${DESTDIR}/util-scripts
 
@@ -22,24 +21,17 @@ INSTALLOPTS = --directory
 
 # all the scripts that's fit to install
 util-scripts = \
-	cdm-get-iterations \
 	get-internal-tool \
 	pbench-add-metalog-option \
-	pbench-avg-stddev \
 	pbench-copy-results \
 	pbench-copy-result-tb \
 	pbench-display-sysinfo-options \
-	pbench-get-iteration-metrics \
-	pbench-get-metric-data \
-	pbench-get-primary-metric \
-	pbench-import-cdm \
 	pbench-kill-tools \
 	pbench-log-timestamp \
 	pbench-make-result-tb \
 	pbench-move-results \
 	pbench-output-monitor \
 	pbench-postprocess-tools \
-	pbench-postprocess-tools-cdm \
 	pbench-register-tool \
 	pbench-register-tool-set \
 	pbench-send-tools \
@@ -64,24 +56,19 @@ click-scripts = \
 	pbench-clear-results \
 	pbench-clear-tools \
 	pbench-config \
+	pbench-is-local \
 	pbench-list-tools \
 	pbench-list-triggers \
+	pbench-results-move \
+	pbench-results-push \
 	pbench-register-tool-trigger
 
 bench-scripts = \
-	pbench-cyclictest \
-	pbench-dbench \
 	pbench-fio \
 	pbench-fio.md \
 	pbench-gen-iterations \
-	pbench-iozone \
 	pbench-linpack \
-	pbench-migrate \
-	pbench-netperf \
-	pbench-run-benchmark \
-	pbench-run-benchmark-sample \
 	pbench-specjbb2005 \
-	pbench-trafficgen \
 	pbench-uperf \
 	pbench-uperf.md \
 	pbench-user-benchmark \
@@ -90,20 +77,20 @@ bench-scripts = \
 bench-postprocess = \
 	BenchPostprocess.pm \
 	compare-bench-results \
-	dbench-postprocess \
 	fio-postprocess \
-	fio-postprocess-cdm \
 	fio-postprocess-viz.py \
 	fio-prepare-jobfile \
 	generate-benchmark-summary \
 	linpack-postprocess \
-	linpack-postprocess-cdm \
-	linpack-prepare-input-file \
+	linpack-postprocess-sample \
 	process-iteration-samples \
-	trafficgen-postprocess \
-	trafficgen-postprocess-cdm \
 	uperf-postprocess \
 	user-benchmark-wrapper
+
+bench-driver = \
+	fio-client \
+	linpack \
+	linpack-wait
 
 tool-scripts = \
 	base-tool \
@@ -197,20 +184,17 @@ tool-postprocess = \
 	docker-postprocess \
 	haproxy-ocp-postprocess \
 	iostat-postprocess \
-	iostat-postprocess-cdm \
 	jmap-postprocess \
 	jstack-postprocess \
 	kvm-spinlock-postprocess \
 	kvmstat-postprocess \
 	kvmtrace-stop-postprocess \
 	mpstat-postprocess \
-	mpstat-postprocess-cdm \
 	mpstat-stop-postprocess \
 	numastat-postprocess \
 	openvswitch-postprocess \
 	perf-stop-postprocess \
 	pidstat-postprocess \
-	pidstat-postprocess-cdm \
 	proc-interrupts-postprocess \
 	proc-sched_debug-postprocess \
 	proc-vmstat-postprocess \
@@ -218,7 +202,6 @@ tool-postprocess = \
 	qemu-migrate-postprocess \
 	rabbit-postprocess \
 	sar-postprocess \
-	sar-postprocess-cdm \
 	sysfs-postprocess \
 	virsh-migrate-postprocess \
 	vmstat-postprocess
@@ -242,8 +225,6 @@ install: install-destdir install-python3-setup install-bench-scripts install-too
 	${INSTALL} ${INSTALLOPTS} ${CONFIGDIR}/benchmark
 	${COPY} config ${DESTDIR}
 	${COPY} templates ${DESTDIR}
-	${INSTALL} ${INSTALLOPTS} ${STOCKPILEDIR}
-	${COPY} stockpile ${DESTDIR}
 
 install-destdir:
 	${INSTALL} ${INSTALLOPTS} ${DESTDIR}
@@ -252,10 +233,20 @@ install-lib:
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}
 	${COPY} lib ${DESTDIR}
 
+# NOTE: we deliberately use `/usr/bin/python3` to make sure that when this is
+# invoked inside a python virtualenv the pip installation won't uninstall the
+# existing pbench module, breaking the environment.
+#
+# During the Python installation, it's going to test to see if the installation
+# directory is on the PYTHONPATH (which it is not...), so put it on the path,
+# just for the installation, based on our prefix and the version of Python.
+# For some reason, this only seems to be a problem on RHEL platforms prior to 9.
+pver = $(shell /usr/bin/python3 -c 'import sys; print(f"python{sys.version_info.major}.{sys.version_info.minor}")')
 install-python3-setup: install-util-scripts install-lib
 	${COPY} requirements.txt ${DESTDIR}
 	mkdir -p ${DESTDIR}/python3
-	(cd ..; SKIP_GENERATE_AUTHORS=1 SKIP_WRITE_GIT_CHANGELOG=1 python3 setup.py install --prefix=${DESTDIR}/python3)
+	cd .. && PYTHONPATH=${DESTDIR}/python3/lib/${pver}/site-packages \
+	  /usr/bin/python3 -m pip install --prefix=${DESTDIR}/python3 -e .
 	${COPY} $(addprefix ${DESTDIR}/python3/bin/, ${click-scripts}) ${UTILDIR}/
 	rm -rf ${DESTDIR}/python3
 	${COPY} ../lib/pbench ${LIBDIR}/
@@ -274,6 +265,9 @@ install-bench-scripts: install-destdir
 	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}/postprocess
 	cd bench-scripts/postprocess; \
 	    ${COPY} ${bench-postprocess} ${BENCHDIR}/postprocess
+	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}/driver
+	cd bench-scripts/driver; \
+	    ${COPY} ${bench-driver} ${BENCHDIR}/driver
 	cd ${BENCHDIR}; \
 	    ln -sf postprocess/compare-bench-results compare-bench-results
 
@@ -290,8 +284,6 @@ install-tool-scripts: install-destdir
 
 install-ansible: install-destdir
 	${INSTALL} ${INSTALLOPTS} ${ANSIBLEDIR}
-	cd ansible; \
-	    ${COPY} ara ${ANSIBLEDIR}
 
 clean:
 	rm -rf ${DESTDIR}

@@ -1,1 +1,1 @@
---test-types=rw,randrw
+--test-types=rw,randrw --ramptime=61

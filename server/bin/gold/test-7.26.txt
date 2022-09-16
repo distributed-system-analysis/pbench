@@ -71,7 +71,7 @@ len(actions) = 22
             "@timestamp": "2020-02-28T19:10:55.645002",
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "host_tools_info": [
                 {
@@ -104,7 +104,7 @@ len(actions) = 22
             "@timestamp": "2020-02-28T19:10:55.645002",
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/",
             "files": [
@@ -172,7 +172,7 @@ len(actions) = 22
             "@timestamp": "2020-02-28T19:10:55.645002",
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64",
             "files": [
@@ -202,7 +202,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0",
             "files": [
@@ -268,7 +268,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/csv",
             "mode": "0o755",
@@ -290,7 +290,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/tools-default",
             "mode": "0o755",
@@ -313,7 +313,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/tools-default/ctlrA",
             "mode": "0o755",
@@ -337,7 +337,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/tools-default/ctlrA/turbostat",
             "files": [
@@ -378,7 +378,7 @@ len(actions) = 22
             "@timestamp": "2020-02-28T19:10:55.645002",
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64",
             "files": [
@@ -408,7 +408,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0",
             "files": [
@@ -474,7 +474,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/csv",
             "mode": "0o755",
@@ -496,7 +496,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/tools-default",
             "mode": "0o755",
@@ -519,7 +519,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/tools-default/ctlrA",
             "mode": "0o755",
@@ -543,7 +543,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/tools-default/ctlrA/turbostat",
             "files": [
@@ -584,7 +584,7 @@ len(actions) = 22
             "@timestamp": "2020-02-28T19:10:55.645002",
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64",
             "files": [
@@ -614,7 +614,7 @@ len(actions) = 22
             ],
             "authorization": {
                 "access": "private",
-                "owner": "fake"
+                "owner": "1"
             },
             "directory": "/2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64/sample0",
             "files": [
@@ -1076,31 +1076,17 @@ len(actions) = 1
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.26/var-www-html)
 lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/test-7.26/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        120 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/test-7.26/pbench/public_html/results
 lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/test-7.26/pbench/public_html/static
 lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-7.26/pbench/public_html/users
 --- var/www/html tree state
-+++ results host info (/var/tmp/pbench-test-server/test-7.26/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-7.26/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.26/pbench-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/test-7.26/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
---- results host info
 +++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-7.26/var-www-html-satellite)
 lrwxrwxrwx         75 incoming -> /var/tmp/pbench-test-server/test-7.26/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        140 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         74 results -> /var/tmp/pbench-test-server/test-7.26/pbench-satellite/public_html/results
 lrwxrwxrwx         73 static -> /var/tmp/pbench-test-server/test-7.26/pbench-satellite/public_html/static
 lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.26/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
-+++ results host info (/var/tmp/pbench-test-server/test-7.26/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-7.26/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.26/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/test-7.26/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
---- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-7.26/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
@@ -1201,8 +1187,6 @@ drwxrwxr-x          - logs/pbench-index-re
 -rw-rw-r--       4027 logs/pbench-index-re/pbench-index-re.log
 drwxrwxr-x          - logs/pbench-state-manager
 -rw-rw-r--          0 logs/pbench-state-manager/pbench-state-manager.log
-drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
@@ -1237,8 +1221,6 @@ drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
 +++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.26/pbench-satellite-local)
 drwxrwxr-x          - logs
-drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
@@ -1292,5 +1274,5 @@ drwxrwxr-x          - tmp
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-fake|ctlrA|linpack_mock_2020.02.28T19.10.55|INDEXED|
+fake|linpack_mock_2020.02.28T19.10.55|INDEXED| server = {"reindex": false, "index-map": {"pbench-unittests.v6.run-data.2020-02": ["38c50b45fa28a3958e4f4310abe19587"], "pbench-unittests.v6.run-toc.2020-02": ["3ea57ce63cdd6ba40a4365245df43553", "0b410c707cdeab2173136475189f1169", "c17a8074c49be0dcb7e87a1133395dc4", "c46f28def7a05a69a3d8417f1adda0b0", "6a4724af641564ff4cc854261e3f0cc2", "504acd8ff2eec003c70cfec46b2c122d", "eebc5bbdea8721962251c684e0cac563", "d99a1782f577a27574e63f5f7d080c22", "7248ecd9e6405f865c33bd072e51970b", "43f5bed3926290c54e50df48481bd8ad", "f3e30a345f50dd3b0865ac534a69fa78", "217165030eabd5537ecd50d4448ccf72", "91fb60c27bc789fc0fe7cd67cf8a8266", "dc43487c323354be78979f17b8c78c82", "82b8cae47140b15a68242cc69fada4c9", "a23c689fb4c161c451272b77739d4589", "df68bb7e9d46bbfe586ff9402e631e43", "8a883d828f1316c848a018ac7a924b5c", "12bedce9388716d22df6070a345d2ee0"], "pbench-unittests.v5.result-data-sample.2020-02-28": ["76d9eb7b612f0c6b86db12e8ae88303b", "b0ba125535b563a48f944a2ef20d07e1", "76368af6424b16a32af23fa53f343a9b", "0168053ee770b9dbdea3a7d7ce19ae01", "dd9ebe75f09005c491d77cb557e9795f", "95be3d60d17ab3acdbc0cfadc65731cc"]}}
 --- SqliteDB Datasets

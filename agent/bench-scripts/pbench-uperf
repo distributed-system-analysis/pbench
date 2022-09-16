@@ -25,19 +25,6 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 export benchmark="uperf"
-benchmark_rpm=${benchmark}
-if [[ -z "${benchmark_bin}" ]]; then
-	benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
-	if [[ -z "${benchmark_bin}" ]]; then
-		error_log "${script_name}: ${benchmark} executable not found on PATH=${PATH}"
-		exit 1
-	fi
-fi
-ver="$(pbench-config version ${benchmark})"
-if [[ -z "${ver}" ]]; then
-	error_log "${script_name}: package version is missing in config file"
-	exit 1
-fi
 
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
@@ -61,7 +48,8 @@ maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 runtime=60
 mode="loopback"
-servers=127.0.0.1
+clients_def=127.0.0.1
+servers_def=${clients_def}
 server_base_port=20000
 port_number_gap=10
 postprocess_only=n
@@ -75,6 +63,7 @@ tool_label_pattern="uperf-"
 server_nodes=""
 client_nodes=""
 sysinfo="default"
+do_pre_check_only=0
 
 function usage {
 	printf "\tThe following options are available:\n\n"
@@ -95,6 +84,9 @@ function usage {
 	printf    "\t\t\t\t   server (listening for connections).\n"
 	printf    "\t\t\t\t   If this is omitted, the server will listen on the local system\n"
 	printf    "\t\t\t\t   loopback interface.\n"
+	printf -- "\t--vsock-server[s]=str[,str]             a list of one or more AF_VSOCK hostnames, used instead of the server\n"
+	printf -- "\t\t\t\t   hostnames, and directs uperf to use the AF_VSOCK protocol\n"
+	printf -- "\t\t\t\t   The number of --vsock-servers provided must match the number of --servers\n"
 	printf -- "\t--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding\n"
 	printf -- "\t--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding\n"
 	printf -- "\t\t\t\t   For both options above, the order must correspond with the --clients/--servers list\n"
@@ -178,261 +170,327 @@ function gen_xml {
 }
 
 function stop_server {
-	local server=$1
-	local server_port=$2
-	local message=$3
-	local uperf_pid=`ssh $ssh_opts $server netstat -tlnp | grep ":$server_port " | awk '{print $7}' | awk -F/ '{print $1}'`
-	if [ ! -z "$uperf_pid" ]; then
-		if [ $message -eq 1 ]; then
-			echo found uperf pid $uperf_pid on $server:$server_port, killing
+	local server="${1}"
+	local server_port="${2}"
+	local message="${3}"
+
+	local ss_output
+	if pbench-is-local ${server}; then
+		ss_output=$(ss -tlnp --vsock)
+	else
+		ss_output=$(ssh ${ssh_opts} ${server} ss -tlnp --vsock)
+	fi
+	local uperf_pids=$(sed -En -e "/:${server_port} / s/.*pid=([^,]+),.*/\1/p" <<< "${ss_output}" | sort -u)
+	if [[ -n "${uperf_pids}" ]]; then
+		if [[ ${message} -eq 1 ]]; then
+			echo "found uperf pid(s) ${uperf_pids} on ${server}:${server_port}, killing"
 		fi
-		ssh $ssh_opts $server kill $uperf_pid
+		if pbench-is-local ${server}; then
+			for pid in ${uperf_pids}; do kill ${pid}; done
+		else
+			ssh ${ssh_opts} ${server} "for pid in ${uperf_pids}; do kill \${pid}; done"
+		fi
 	fi
 }
 
-function install_uperf {
-	if check_install_rpm ${benchmark_rpm} ${ver}; then
-		debug_log "[$script_name] ${benchmark_rpm}-${ver} is installed"
-	else
-		error_log "[$script_name] ${benchmark_rpm}-${ver} is not installed, exiting"
-		exit 1
+function local_pre_check {
+	local _ver="${1}"
+	local _match="${2}"
+
+	local _stdout
+	_stdout=$(${benchmark} -V 2>&1)
+	if [[ ${?} -ne 0 ]]; then
+		error_log "${script_name}: ${benchmark} failed reporting version: '${_stdout}'"
+		return 1
 	fi
+	local ver_installed=$(awk 'NR==1 {print $3}' <<< ${_stdout})
+	vercmp "${benchmark}" "${_match}" "${_ver}" "${ver_installed}"
+	return ${?}
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,tool-label-pattern:,pre-check,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,server:,servers:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,vsock-server:,vsock-servers:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
 	printf -- "\tunrecognized option specified\n\n"
-	usage
+	usage >&2
 	exit 1
 fi
 eval set -- "$opts"
 while true; do
-	case "$1" in
-		--install)
-		shift
-		install_uperf
-		exit
+	arg="${1}"
+	shift
+	case "${arg}" in
+		--pre-check)
+			if [[ ${postprocess_only} == "y" ]]; then
+				error_log "[${script_name}] '--pre-check not compatible with previously specified '--postprocess-only=y' option"
+				usage >&2
+				exit 1
+			fi
+			do_pre_check_only=1
 		;;
 		-h|--help)
-		usage
-		exit 0
-		;;
-		--client-label)
-		shift
-		if [ -n "$1" ]; then
-			shift
-		fi
-		warn_log "The --client-label option is deprecated, please use --tool-label-pattern"
-		;;
-		--server-label)
-		shift
-		if [ -n "$1" ]; then
-			shift
-		fi
-		warn_log "The --server-label option is deprecated, please use --tool-label-pattern"
+			usage
+			exit 0
 		;;
 		--tool-label-pattern)
-		shift
-		if [ -n "$1" ]; then
-			tool_label_pattern="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				tool_label_pattern="$1"
+				shift
+			fi
 		;;
 		--postprocess-only)
-		shift
-		if [ -n "$1" ]; then
-			postprocess_only="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				postprocess_only="$1"
+				if [[ ${do_pre_check_only} -eq 1 ]]; then
+					error_log "[${script_name}] '--postprocess-only=y' not compatible with previously specified '--pre-check' option"
+					usage >&2
+					exit 1
+				fi
+				shift
+			fi
 		;;
 		--run-dir)
-		shift
-		if [ -n "$1" ]; then
-			benchmark_run_dir="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				benchmark_run_dir="$1"
+				shift
+			fi
 		;;
 		--max-stddev)
-		shift
-		if [ -n "$1" ]; then
-			maxstddevpct="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				maxstddevpct="$1"
+				shift
+			fi
 		;;
 		--max-failures)
-		shift
-		if [ -n "$1" ]; then
-			max_failures="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				max_failures="$1"
+				shift
+			fi
 		;;
 		--samples)
-		shift
-		if [ -n "$1" ]; then
-			nr_samples="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				nr_samples="$1"
+				shift
+			fi
 		;;
 		-i|--instances)
-		shift
-		if [ -n "$1" ]; then
-			instances="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				instances="$1"
+				shift
+			fi
 		;;
 		-t|--test-types)
-		shift
-		if [ -n "$1" ]; then
-			test_types="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				test_types="$1"
+				shift
+			fi
 		;;
 		--tool-group)
-		shift
-		if [ -n "$1" ]; then
-			tool_group="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				tool_group="$1"
+				shift
+			fi
 		;;
 		-m|--message-sizes)
-		shift
-		if [ -n "$1" ]; then
-			message_sizes="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				message_sizes="$1"
+				shift
+			fi
 		;;
 		-r|--runtime)
-		shift
-		if [ -n "$1" ]; then
-			runtime="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				runtime="$1"
+				shift
+			fi
 		;;
 		--log-response-times)
-		shift
-		if [ -n "$1" ]; then
-			log_response_times="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				log_response_times="$1"
+				shift
+			fi
 		;;
 		-p|--protocols)
-		shift
-		if [ -n "$1" ]; then
-			protocols="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				protocols="$1"
+				shift
+			fi
 		;;
 		-C|--client|--clients)
-		shift
-		if [ -n "$1" ]; then
-			clients="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				clients="$1"
+				shift
+			fi
 		;;
 		-S|--server|--servers)
-		shift
-		if [ -n "$1" ]; then
-			servers="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				servers="$1"
+				shift
+			fi
+		;;
+		--vsock-server|--vsock-servers)
+			if [ -n "$1" ]; then
+				vsock_servers="$1"
+				shift
+			fi
 		;;
 		-c|--config)
-		shift
-		if [ -n "$1" ]; then
-			config="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				config="$1"
+				shift
+			fi
 		;;
 		--start-iteration-num)
-		shift
-		if [ -n "$1" ]; then
-			start_iteration_num=$1
-			shift
-		fi
+			if [ -n "$1" ]; then
+				start_iteration_num=$1
+				shift
+			fi
 		;;
 		--client-node|--client-nodes)
-		shift
-		if [ -n "$1" ]; then
-			client_nodes="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				client_nodes="$1"
+				shift
+			fi
 		;;
 		--server-node|--server-nodes)
-		shift
-		if [ -n "$1" ]; then
-			server_nodes="$1"
-			shift
-		fi
+			if [ -n "$1" ]; then
+				server_nodes="$1"
+				shift
+			fi
 		;;
 		--sysinfo)
-		shift;
-		if [ -n "$1" ]; then
-			sysinfo="$1"
-			shift;
-		fi
+			if [ -n "$1" ]; then
+				sysinfo="$1"
+				shift
+			fi
 		;;
 		--)
-		shift
-		break
+			break
 		;;
 		*)
-		error_log "[$script_name] bad option, \"$1 $2\""
-		exit 1
-		break
+			error_log "[$script_name] bad option, \"${arg} ${1}\""
+			usage >&2
+			exit 1
 		;;
 	esac
 done
+
+if [[ ${do_pre_check_only} -eq 1 ]]; then
+	local_pre_check ${@}
+	exit ${?}
+fi
+
 verify_common_bench_script_options $tool_group $sysinfo
 
-# Verify the number of clients and servers match.
-if [ ! -z "$clients" -a "$postprocess_only" != "y" ]; then
-	let c_cnt=0
-	for client in `echo $clients | sed -e s/,/" "/g`; do
-		let c_cnt=c_cnt+1
-	done
-	let s_cnt=0
-	for server in `echo $servers | sed -e s/,/" "/g`; do
-		let s_cnt=s_cnt+1
-	done
-	if [ $c_cnt -ne $s_cnt ]; then
-		error_log "Number of clients and servers specified on command line must match"
-		error_log "    clients($c_cnt): $clients"
-		error_log "    servers($s_cnt): $servers"
+clients=${clients:-${clients_def}}
+servers=${servers:-${servers_def}}
+
+if [[ "${postprocess_only}" != "y" ]]; then
+	ver="$(pbench-config version ${benchmark})"
+	if [[ -z "${ver}" ]]; then
+		error_log "${script_name}: 'version' is missing in the [${benchmark}] section of the config file"
 		exit 1
 	fi
-fi
-# before we run a test, verify clients and servers are accessible and install
-# uperf if necessary
-if [ "$postprocess_only" != "y" ]; then
-	# Always install locally
-	# FIXME: why is this necessary?
-	install_uperf
+	match="$(pbench-config match ${benchmark})"
+	if [[ -z "${match}" ]]; then
+		error_log "${script_name}: 'match' is missing in the [${benchmark}] section of the config file"
+		exit 1
+	fi
+
+	# Boolean value recording if local clients or servers are specified.
+	let check_local=0
+
+	# Verify that the number of clients, servers, and optional vsock servers
+	# match.
+	let c_cnt=0
+	for client in ${clients//,/ }; do
+		(( c_cnt++ ))
+		if pbench-is-local "${client}"; then
+			check_local=1
+		fi
+	done
+	if [[ ${c_cnt} -eq 0 ]]; then
+		error_log "[${script_name}] INTERNAL ERROR - no clients found"
+		exit 1
+	fi
+	let s_cnt=0
+	for server in ${servers//,/ }; do
+		(( s_cnt++ ))
+		if pbench-is-local "${server}"; then
+			check_local=1
+		fi
+	done
+	if [[ ${s_cnt} -eq 0 ]]; then
+		error_log "[${script_name}] INTERNAL ERROR - no servers found"
+		exit 1
+	fi
+	if [ ${c_cnt} -ne ${s_cnt} ]; then
+		error_log "Number of clients and servers specified on command line must match"
+		error_log "    clients(${c_cnt}): ${clients}"
+		error_log "    servers(${s_cnt}): ${servers}"
+		exit 1
+	fi
+	let has_vsock=0
+	for protocol in ${protocols//,/ }; do
+		if [[ ${protocol} == "vsock" ]]; then
+			has_vsock=1
+		fi
+	done
+	let v_cnt=0
+	for vserver in ${vsock_servers//,/ }; do
+		(( v_cnt++ ))
+	done
+	if [[ ${has_vsock} -eq 1 ]]; then
+		if [[ ${v_cnt} -ne ${s_cnt} ]]; then
+			error_log "When using the 'vsock' protocol, servers and vsock-servers must match"
+			error_log "    servers(${s_cnt}): ${servers}"
+			error_log "    vsock-servers(${v_cnt}): ${vsock_servers}"
+			exit 1
+		fi
+	elif [[ ${v_cnt} -gt 0 ]]; then
+		error_log "Do not provide vsock-servers without using the vsock protocol"
+		exit 1
+	fi
+
+	if [[ ${check_local} -eq 1 ]]; then
+		# At least one client or server is a local host, so perform the
+		# pre-check.
+		local_pre_check "${ver}" "${match}"
+		res=${?}
+		if [[ ${res} -ne 0 ]]; then
+			error_log "[${script_name}] The local pre-check failed"
+			exit ${res}
+		fi
+	fi
+
 	let err_cnt=0
 	err_clients=""
-	for client in `echo $clients | sed -e s/,/" "/g`; do
-		debug_log "checking for uperf on client $client"
-		ssh $ssh_opts $client pbench-uperf --install
-		if [ $? -ne 0 ]; then
-			let err_cnt=err_cnt+1
-			err_clients="$err_clients $client"
+	for client in ${clients//,/ }; do
+		if ! pbench-is-local "${client}"; then
+			debug_log "performing uperf pre-checks on client ${client}"
+			ssh ${ssh_opts} ${client} pbench-uperf --pre-check "${ver}" "${match}"
+			if [ ${?} -ne 0 ]; then
+				(( err_cnt++ ))
+				err_clients+=" ${client}"
+			fi
 		fi
 	done
 	err_servers=""
-	for server in `echo $servers | sed -e s/,/" "/g`; do
-		debug_log "checking for uperf on server $server"
-		ssh $ssh_opts $server pbench-uperf --install
-		if [ $? -ne 0 ]; then
-			let err_cnt=err_cnt+1
-			err_servers="$err_servers $server"
+	for server in ${servers//,/ }; do
+		if ! pbench-is-local "${server}"; then
+			debug_log "performing uperf pre-checks on server ${server}"
+			ssh ${ssh_opts} ${server} pbench-uperf --pre-check "${ver}" "${match}"
+			if [ ${?} -ne 0 ]; then
+				let err_cnt=err_cnt+1
+				err_servers+=" ${server}"
+			fi
 		fi
 	done
-	if [ $err_cnt -gt 0 ]; then
-		error_log "Unable to verify connectivity and uperf installation on the following clients and servers:"
-		error_log "    clients: $err_clients"
-		error_log "    servers: $err_servers"
+	if [[ ${err_cnt} -gt 0 ]]; then
+		error_log "[${script_name}] The following pre-checks on clients and servers failed:"
+		error_log "    clients: ${err_clients}"
+		error_log "    servers: ${err_servers}"
 		exit 1
 	fi
 fi
@@ -489,10 +547,10 @@ chmod +x $benchmark_run_dir/$script_name.cmd
 ## Run the benchmark and start/stop perf analysis tools
 
 total_iterations=0
-for protocol in `echo $protocols | sed -e s/,/" "/g`; do
-	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
-		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
-			for instance in `echo $instances | sed -e s/,/" "/g`; do
+for protocol in ${protocols//,/ }; do
+	for test_type in ${test_types//,/ }; do
+		for message_size in ${message_sizes//,/ }; do
+			for instance in ${instances//,/ }; do
 				((total_iterations++))
 			done
 		done
@@ -512,8 +570,8 @@ fi
 
 # start the server processes
 count=1
-for protocol in `echo $protocols | sed -e s/,/" "/g`; do
-	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
+for protocol in ${protocols//,/ }; do
+	for test_type in ${test_types//,/ }; do
 		case $test_type in
 			rr)
 			primary_metric="trans_sec"
@@ -526,8 +584,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 			continue
 			;;
 		esac
-		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
-			for instance in `echo $instances | sed -e s/,/" "/g`; do
+		for message_size in ${message_sizes//,/ }; do
+			for instance in ${instances//,/ }; do
 				if [ $count -ge $start_iteration_num ]; then
 					echo "Starting iteration $iteration ($count of $total_iterations)"
 					log "Starting iteration $iteration ($count of $total_iterations)"
@@ -552,11 +610,10 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								mkdir -p $benchmark_results_dir
 								server_nr=1
 								# the following loop does all of the pre-benchmark execution work
-								for server in `echo $servers | sed -e s/,/" "/g`; do
-									client=`echo $clients | cut -d, -f$server_nr`
-									if [ -z "$client" ]; then
-										client="127.0.0.1"
-									fi
+								for server in ${servers//,/ }; do
+									client=`echo ${clients} | cut -d, -f$server_nr`
+									vsock_server=`echo $vsock_servers | cut -d, -f$server_nr`
+									uperf_server="${vsock_server:-${server}}"
 									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
 
@@ -566,10 +623,14 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									server_log="$benchmark_results_dir/$uperf_identifier--server.log"
 
 									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
-									gen_xml $server $protocol ${runtime_padded}s $message_size $instance $test_type >$xml_file
+									gen_xml $uperf_server $protocol ${runtime_padded}s $message_size $instance $test_type >$xml_file
 
 									# construct the server command
-									benchmark_server_cmd="${benchmark_bin} -v -s -P $server_port > ${server_log} 2>&1"
+									if [ "$protocol" == "vsock" ]; then
+										# vsock protocol requires socket-type to be specified
+										vsock_extra_opts=" -S vsock"
+									fi
+									benchmark_server_cmd="${benchmark} -v -s -P ${server_port}${vsock_extra_opts} > ${server_log} 2>&1"
 									# adjust server command for NUMA binding
 									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
 									if [ ! -z "$server_node" ]; then
@@ -586,7 +647,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									if [ "$log_response_times" == "y" ]; then
 										resp_opt=" -X $benchmark_results_dir/$uperf_identifier--response-times.txt"
 									fi
-									benchmark_client_cmd="${benchmark_bin} -v -m $xml_file -R -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
+									benchmark_client_cmd="${benchmark} -v -m $xml_file -R -a -i 1 ${resp_opt}${vsock_extra_opts} -P $server_port >$result_file 2>&1"
 									# adjust client command for NUMA binding
 									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
 									if [ ! -z "$client_node" ]; then
@@ -600,21 +661,26 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									chmod +x $benchmark_client_cmd_file
 
 									# prepare test files and dirs if using remote clients
-									if [ ! -z "$clients" ]; then
+									if ! pbench-is-local "${client}"; then
 										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
 										scp $scp_opts $xml_file $client:$xml_file >/dev/null
 										scp $scp_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
-										ssh $ssh_opts $client "systemctl stop firewalld"
 									fi
 
 									# prepare test files and dirs on servers
-									ssh $ssh_opts $server mkdir -p $benchmark_results_dir
-									scp $scp_opts $benchmark_server_cmd_file $server:$benchmark_server_cmd_file >/dev/null
+									if ! pbench-is-local "${server}"; then
+										ssh $ssh_opts $server mkdir -p $benchmark_results_dir
+										scp $scp_opts $benchmark_server_cmd_file $server:$benchmark_server_cmd_file >/dev/null
+									fi
 
 									# start the uperf server(s)
 									stop_server $server $server_port 1
-									ssh $ssh_opts $server "systemctl stop firewalld"
-									ssh $ssh_opts $server "screen -dmS uperf-server $benchmark_server_cmd_file"
+
+									if pbench-is-local "${server}"; then
+										screen -dmS uperf-server $benchmark_server_cmd_file
+									else
+										ssh $ssh_opts $server "screen -dmS uperf-server $benchmark_server_cmd_file"
+									fi
 
 									((server_nr++))
 								done
@@ -625,11 +691,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								echo "test sample $sample of $nr_samples"
 								log "test sample $sample of $nr_samples"
 								server_nr=1
-								for server in `echo $servers | sed -e s/","/" "/g`; do
-									client=`echo $clients | cut -d, -f$server_nr`
-									if [ -z "$client" ]; then
-										client="127.0.0.1"
-									fi
+								for server in ${servers//,/ }; do
+									client=`echo ${clients} | cut -d, -f$server_nr`
 									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
 
@@ -654,12 +717,12 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									debug_log "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 									echo "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 
-									if [ -z "$clients" ]; then
-										# using local clients
+									if pbench-is-local "${client}"; then
+										# using local client
 										debug_log "screen -dmS uperf-client $benchmark_client_cmd_file"
 										screen -dmS uperf-client $benchmark_client_cmd_file
 									else
-										# using remote clients
+										# using remote client
 										debug_log "ssh $ssh_opts $client screen -dmS uperf-client $benchmark_client_cmd_file"
 										ssh $ssh_opts $client "screen -dmS uperf-client $benchmark_client_cmd_file"
 									fi
@@ -673,18 +736,18 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
 
 								server_nr=1
-								for server in `echo $servers | sed -e s/,/" "/g`; do
-									client=`echo $clients | cut -d, -f$server_nr`
-									if [ -z "$client" ]; then
-										client="127.0.0.1"
-									fi
+								for server in ${servers//,/ }; do
+									client=`echo ${clients} | cut -d, -f$server_nr`
 									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
 
 									stop_server $server $server_port 0
-									server_log="$benchmark_results_dir/$uperf_identifier--server.log"
-									scp $scp_opts $server:$server_log $server_log >/dev/null
-									if [ ! -z "$clients" ]; then
+
+									if ! pbench-is-local "${server}"; then
+										server_log="$benchmark_results_dir/$uperf_identifier--server.log"
+										scp $scp_opts $server:$server_log $server_log >/dev/null
+									fi
+									if ! pbench-is-local "${client}"; then
 										result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
 										scp $scp_opts $client:$result_file $result_file >/dev/null
 									fi
@@ -710,7 +773,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								log "Not going to run uperf.  Only postprocesing existing data"
 							fi
 							pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
-							echo "$script_path/postprocess/$benchmark-postprocess \"$benchmark_results_dir\" \"$protocol\" \"$message_size\" \"$instance\" \"$test_type\" \"$clients\" \"$servers\" \"$tool_label_pattern\" \"$tool_group\" \"${ver}\"" >"$benchmark_results_dir/$benchmark-postprocess.cmd"
+							echo "$script_path/postprocess/$benchmark-postprocess \"$benchmark_results_dir\" \"$protocol\" \"$message_size\" \"$instance\" \"$test_type\" \"${clients}\" \"${servers}\" \"$tool_label_pattern\" \"$tool_group\" \"${ver}\"" >"$benchmark_results_dir/$benchmark-postprocess.cmd"
 							chmod +x "$benchmark_results_dir/$benchmark-postprocess.cmd"
 							$benchmark_results_dir/$benchmark-postprocess.cmd
 						done

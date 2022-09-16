@@ -21,6 +21,8 @@ tm_channel_suffix_to_tms = "to-tms"
 tm_channel_suffix_from_tms = "from-tms"
 # Channel suffix for the Tool Meister logging channel
 tm_channel_suffix_to_logging = "to-logging"
+# Tool-Meisters info key
+tm_data_key = "tool-meister-data-key"
 
 # List of allowed actions from the Pbench Agent CLI commands.
 cli_tm_allowed_actions = frozenset(("start", "stop", "send"))
@@ -39,6 +41,4 @@ sysinfo_opts_default = frozenset(
     ("block", "kernel_config", "libvirt", "security_mitigations", "sos", "topology")
 )
 # All of the available system configuration items that could be collected.
-sysinfo_opts_available = sysinfo_opts_default | frozenset(
-    ("ara", "insights", "stockpile")
-)
+sysinfo_opts_available = sysinfo_opts_default | frozenset(("ara", "insights"))

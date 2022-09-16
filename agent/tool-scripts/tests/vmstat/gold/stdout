@@ -1,3 +1,4 @@
+vmstat: procps-ng is installed
 vmstat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/vmstat-datalog 10"
 vmstat: stopping
 vmstat: no post-processing available following stop

@@ -1,0 +1,204 @@
+#!/bin/bash
+
+# Test execution helper for tox.  It is not intended to be executed outside of a
+# tox environment test execution.
+
+# For now we ignore the tox environment directory argument.
+_toxenvdir="${1}"
+if [[ -z "${_toxenvdir}" ]]; then
+    printf -- "Missing required tox environment directory.\n" >&2
+    exit 2
+fi
+shift
+
+# The first argument will be which major sub-system to run tests for: the
+# agent code, the functional test client code, or the server code.
+
+major="${1}"
+shift
+major_list="agent client server"
+if [[ -n "${major}" ]]; then
+    if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "client" && "${major}" != "all" ]]; then
+        printf -- "Expected major sub-system to be 'agent', 'client', 'server', or 'all', got '%s'\n" "${major}" >&2
+        exit 2
+    fi
+    if [[ "${major}" != "all" ]]; then
+        major_list="${major}"
+    fi
+fi
+
+# Sub-test of the major test.
+subtst="${1}"
+shift
+
+# Remaining positional arguments passed along to whatever test is run.
+posargs="${@}"
+
+parallel=${PBENCH_UNITTEST_PARALLEL:-auto}
+if [[ "${parallel}" == "serial" ]]; then
+    para_jobs_arg="-j 1"
+    pytest_jobs_arg="-n 1"
+elif [[ "${parallel}" == "auto" ]]; then
+    para_jobs_arg=""
+    pytest_jobs_arg="-n auto"
+else
+    printf -- "Unrecognized PBENCH_UNITTEST_PARALLEL environment variable value, '%s'\n" "${parallel}" >&2
+    exit 2
+fi
+
+function _time {
+    /usr/bin/time --format="\n\nCommand: '%C'\nExit status: %x\nTimings: user %Us, system %Ss, elapsed %es (%E, %P)\nMemory: max RSS %Mk, minor pf: %R, major pf: %F, swaps %W\nContext switches: inv %c, vol %w, signals %k\nI/O: fs in %I, fs out %O, socket in %r, socket out %s\n" ${@}
+}
+
+function run_legacy {
+    local _rc
+    local _major
+    local _subtst
+
+    _major=${1}
+    shift
+    _subtst=${1}
+    shift
+
+    printf -- "\n\n\nRunning %s/%s legacy unit tests\n\n" "${_major}" "${_subtst}"
+    _time ${_major}/${_subtst}/unittests ${@}
+    _rc=${?}
+    if [[ ${_rc} -ne 0 ]]; then
+        printf -- "\n%s %s legacy unit tests failed with '%s'\n\n" "${_major^}" "${_subtst}" "${_rc}"
+    else
+        printf -- "\n%s %s legacy unit tests succeeded\n\n" "${_major^}" "${_subtst}"
+    fi
+    return ${_rc}
+}
+
+function para_run_legacy {
+    # When we want to use the `run_legacy` function with `parallel`, we have a
+    # problem because the command line arguments are passed as one long
+    # string.  So this jump function breaks up the arguments and invokes
+    # `run_legacy` as expected.
+    run_legacy ${1}
+}
+
+# Export functions for use with `parallel` below.
+export -f para_run_legacy run_legacy _time
+
+function verify_make_source_tree {
+    # The agent and server-side sub-trees have individual ways to create the
+    # source tree for a tar ball.  This function executes that step for the
+    # given sub-tree.
+    #
+    # Arguments:
+    #     _major -- Name of the sub-tree to execute the "make install"
+    #
+    # Returns the exit status of the "make install" execution, or the exit
+    # status dependent command steps (e.g. make, cd, etc.). 
+    local _major=${1}
+    local _rc
+
+    if [[ ! -d ${_toxenvdir}/src ]]; then
+        mkdir ${_toxenvdir}/src || return ${?}
+    fi
+    local _dir=${_toxenvdir}/src/${_major}
+    rm -rf ${_dir}
+    mkdir ${_dir} || return ${?}
+
+    printf -- "\n\n\nVerifying %s source tree build\n\n" "${_major^}"
+    (cd ${_major} && make DESTDIR=${_dir} install > ${_dir}.log 2>&1)
+    _rc=${?}
+    if [[ ${_rc} -ne 0 ]]; then
+        cat ${_dir}.log
+        printf -- "\n%s source tree build failed with '%s'\n\n" "${_major^}" "${_rc}"
+    else
+        printf -- "\n%s source tree build succeeded\n\n" "${_major^}"
+        rm -rf ${_dir} ${_dir}.log
+    fi
+    return ${_rc}
+}
+
+rc=0
+
+if [[ -n "${COV_REPORT_XML}" ]]; then
+    _cov_report_kind="xml"
+    _cov_report_name="cov/report.xml"
+else
+    _cov_report_kind="html"
+    _cov_report_name="${_toxenvdir}/cov/html"
+fi
+_cov_report="${_cov_report_kind}:${_cov_report_name}"
+
+if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
+    _pytest_majors="pbench.test.unit.common"
+    for _major in ${major_list}; do
+        _pytest_majors="${_pytest_majors} pbench.test.unit.${_major}"
+        if [[ "${_major}" == "agent" ]]; then
+            # TODO: real functional tests require a deployed instance. Current
+            # agent "functional" tests are mocked Click tests rather than true
+            # "functional" tests.
+            _pytest_majors="${_pytest_majors} pbench.test.functional.agent"
+        fi
+    done
+
+    printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${major_list// /,}"
+    _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent.parent)')
+    _PBENCH_COV_DIR="${_toxenvdir}/cov" _time pytest \
+        ${pytest_jobs_arg} \
+        --basetemp="${_toxenvdir}/tmp" \
+        --cov=${_pbench_sources} \
+        --cov-branch \
+        --cov-append \
+        --cov-report ${_cov_report} \
+        ${posargs} \
+        --pyargs ${_pytest_majors}
+    rc=${?}
+    if [[ ${rc} -ne 0 ]]; then
+        printf -- "\n%s pytest command failed with '%s'\n\n" "${_major^}" "${rc}"
+    else
+        printf -- "\n%s pytest command succeeded\n\n" "${_major^}"
+    fi
+fi
+
+_subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-scripts bench-scripts"
+
+_para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
+trap "rm -f ${_para_jobs_file}" EXIT INT TERM
+
+let count=0
+for _major in ${major_list}; do
+    # Verify the Agent or Server Makefile functions correctly.
+    if [[ "${_major}" == "agent" || "${_major}" == "server" ]]; then
+        verify_make_source_tree ${_major} || rc=1
+    fi
+
+    if [[ "${_major}" == "agent" ]]; then
+        # The parallel program is really cool.  The usage of `parallel` is
+        # internal and automated; only test code depends on this tool, and we,
+        # as developers, have viewed the citation and are justified in
+        # suppressing future displays of it in our development processes (use of
+        # --will-cite below).
+
+        for _subtst in ${_subtst_list}; do
+            if [[ "${subtst:-legacy}" == "legacy" || "${subtst}" == "$(basename ${_subtst})" ]]; then
+                echo "${_major} ${_subtst} ${posargs}"
+                (( count++ ))
+            fi
+        done > ${_para_jobs_file}
+        parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
+        if [[ ${?} -ne 0 ]]; then
+            rc=1
+        fi
+    elif [[ "${_major}" == "server" ]]; then
+        if [[ -z "${subtst}" || "${subtst}" == "legacy" ]]; then
+            printf -- "Warning - server legacy tests are no longer executed\n" >&2
+        fi
+    elif [[ "${_major}" != "client" ]]; then
+        printf -- "Error - unrecognized major test sub-set, '%s'\n" "${_major}" >&2
+        rc=1
+    fi
+done
+
+if [[ ${count} -eq 0 && "${subtst}" != "python" ]]; then
+    printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
+    rc=1
+fi
+
+exit ${rc}

@@ -1,11 +1,11 @@
-ansible
 bottle
 cffi
-click
+click>=8.0
+hiredis
+ifaddr
 jinja2
 python-daemon
 python-pidfile
 redis
 requests
 sh
-werkzeug

@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+""" Emulate / mock the behavior of SPECjbb 2005.
+
+The `pbench-specjbb2005` bench-script runs SPECjbb via the `java` command,
+so we provide this fake `java` executable.
+
+It reads the generated properties file to figure out how to behave, and
+creates the expected output files in the locations determined by the
+properties.
+"""
+from pathlib import Path
+import sys
+
+if sys.argv[-2] != "-id":
+    sys.exit(0)
+
+jvm_id = int(sys.argv[-1])
+
+nr_jvms = None
+start = None
+inc = None
+stop = None
+runtime = None
+with open("SPECjbb.props", "r") as fp:
+    for line in fp:
+        if not line.startswith("input."):
+            continue
+        val_str = line.split("=", 1)[1]
+        if val_str == "_bad_\n":
+            continue
+        val = int(val_str)
+        if line.startswith("input.jvm_instances="):
+            nr_jvms = val
+        if line.startswith("input.starting_number_warehouses="):
+            start = val
+        if line.startswith("input.increment_number_warehouses="):
+            inc = val
+        if line.startswith("input.ending_number_warehouses="):
+            stop = val
+        if line.startswith("input.measurement_seconds="):
+            runtime = val
+
+tgt_dir = "SPECjbbSingleJVM" if nr_jvms == 1 else f"SPECjbbMultiJVM.{jvm_id:03d}"
+res_dir = Path("results") / tgt_dir
+res_dir.mkdir()
+with open(res_dir / f"SPECjbb.{jvm_id:03d}.raw", "w") as fp:
+    for i in range(start, stop + 1, inc):
+        print("Timing Measurement began")
+        fp.write(f"test{i} -- 42 * {i} - {runtime}\n")
+        print("Timing Measurement ended")
+sys.exit(0)

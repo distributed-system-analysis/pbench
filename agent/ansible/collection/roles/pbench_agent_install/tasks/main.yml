@@ -1,0 +1,11 @@
+---
+- name: Run the role that expunges the yum cache completely
+  ansible.builtin.import_role:
+    name: pbench_clean_yum_cache
+
+- name: Install RPMs
+  ansible.builtin.package:
+    name: "{{ item }}"
+  with_items:
+    - pbench-agent
+    - pbench-sysstat

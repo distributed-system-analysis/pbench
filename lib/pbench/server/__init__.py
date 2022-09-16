@@ -2,13 +2,23 @@
 Simple module level convenience functions.
 """
 
+from configparser import NoOptionError, NoSectionError
+from datetime import datetime, timedelta, tzinfo
 from pathlib import Path
-from datetime import datetime, tzinfo, timedelta
 from time import time as _time
-from configparser import NoSectionError, NoOptionError
+from typing import Dict, List, Union
 
-from pbench import PbenchConfig, _STD_DATETIME_FMT
+from pbench import _STD_DATETIME_FMT, PbenchConfig
 from pbench.common.exceptions import BadConfig
+
+# A type defined to conform to the semantic definition of a JSON structure
+# with Python syntax.
+JSONSTRING = str
+JSONNUMBER = Union[int, float]
+JSONVALUE = Union["JSONOBJECT", "JSONARRAY", JSONSTRING, JSONNUMBER, bool, None]
+JSONARRAY = List[JSONVALUE]
+JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
+JSON = JSONVALUE
 
 
 class simple_utc(tzinfo):
@@ -33,6 +43,10 @@ class PbenchServerConfig(PbenchConfig):
     """PbenchServerConfig - a sub-class of the PbenchConfig class specifically
     for the pbench server environment.
     """
+
+    # Define a fallback default for dataset maximum retention, which we expect
+    # to be defined in pbench-server-default.cfg.
+    MAXIMUM_RETENTION_DAYS = 3650
 
     def __init__(self, cfg_name):
         super().__init__(cfg_name)
@@ -149,6 +163,23 @@ class PbenchServerConfig(PbenchConfig):
     @property
     def rest_uri(self):
         return self._get_conf("pbench-server", "rest_uri")
+
+    @property
+    def max_retention_period(self) -> int:
+        """
+        Produce a timedelta representing the number of days the server allows
+        a dataset to be retained.
+
+        Returns
+            delta time representing retention period
+        """
+        try:
+            retention_days = int(
+                self._get_conf("pbench-server", "maximum-dataset-retention-days")
+            )
+        except (NoOptionError, NoSectionError):
+            retention_days = self.MAXIMUM_RETENTION_DAYS
+        return retention_days
 
     def _get_conf(self, section, option):
         """

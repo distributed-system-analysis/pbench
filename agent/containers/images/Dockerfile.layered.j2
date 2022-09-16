@@ -2,13 +2,25 @@
 FROM pbench-agent-base-{{ distro }}:{{ tag }}
 
 {% if kind in ('tools', 'all') %}
+{% if distro.startswith('fedora') or distro == 'centos-7' or distro == 'centos-8' %}
 COPY ./{{ distro }}-pcp.repo /etc/yum.repos.d/pcp.repo
+{% if distro.startswith('centos') %}
+COPY ./{{ distro }}-prometheus.repo /etc/yum.repos.d/prometheus.repo
+{% endif %}
+{% endif %}
 {% endif %}
 
 # Install all the RPMs required for this image.
 #
 # FIXME: this is not exhaustive, it does not include RPMs to support
 #        Kubernetes or RHV environments.
-RUN {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} install -y --setopt=tsflags=nodocs {% if distro == 'centos-8' %}--enablerepo powertools {% endif %}{% if kind in ('tools', 'all') %}--enablerepo pcp {% endif %}{{ rpms }} && \
-    {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} -y clean all && \
-    rm -rf /var/cache/{% if distro == 'centos-7' %}yum{% else %}dnf{% endif %}
+{% set pkgmgr = 'yum' if distro == 'centos-7' else 'dnf' %}
+RUN {{ pkgmgr }} install -y --setopt=tsflags=nodocs \
+        {% if distro == 'centos-9' %}--enablerepo crb \
+        {% else %}
+        {% if distro == 'centos-8' %}--enablerepo powertools {% endif %} \
+        {% if kind in ('tools', 'all') %}--enablerepo pcp-rpm-release {% endif %} \
+        {% endif %}
+        {{ rpms }} && \
+    {{ pkgmgr }} -y clean all && \
+    rm -rf /var/cache/{{ pkgmgr }}

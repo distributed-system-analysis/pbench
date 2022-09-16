@@ -24,18 +24,12 @@
 url_prefix="${1}"
 dist="${2}"
 arch="${3}"
-test="${4}"
-
-if [[ "${dist}" == "centos-8" ]]; then
-    dist="epel-8"
-elif [[ "${dist}" == "centos-7" ]]; then
-    dist="epel-7"
-fi
+name="${4}"
 
 # Ensure we only consider the pbench-agent RPM's version string from the
 # target repo.
-url="${url_prefix}/pbench${test}/${dist}-${arch}"
-version_string="$(yum list -q --repofrompath pbench,"${url}" pbench-agent.noarch 2>/dev/null | awk 'FNR==2{print $2}')"
+url="${url_prefix}/${name}/${dist}-${arch}"
+version_string="$(yum list -q --repofrompath ${name},"${url}" pbench-agent.noarch 2>/dev/null | awk 'FNR==2{print $2}')"
 if [[ -z "${version_string}" ]]; then
     printf -- "Failed to fetch pbench-agent.noarch version string from '%s'\n" "${url}" >&2
     exit 1

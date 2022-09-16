@@ -1,0 +1,252 @@
+body, #startBtn{
+   font-family: 'Work Sans';font-size: 22px;
+}
+
+.title{
+  padding-left: var(--pf-global--spacer--xl);
+  margin: var(--pf-global--spacer--2xl);
+  margin-bottom: 0px;
+  padding-right: var(--pf-global--spacer--xl);
+}
+
+ul.landingPageQue{
+   list-style: disc;
+}
+    
+li.PbenchQueItem {
+   position: relative;
+   margin: 0;
+   padding-bottom: 1em;
+   padding-left: 30px;
+}
+    
+li.PbenchQueItem.lineRequired:before {
+   background-color: #1bc1c9;
+   width: 2px;
+   content: '';
+   position: absolute;
+   top: 5px;
+   bottom: -5px;
+   left: 5px;
+}
+    
+li.PbenchQueItem::after {
+   content: '';
+   position: absolute;
+   background-image: url("images/list.svg");
+   background-repeat: no-repeat;
+   background-size: contain;
+   left: 2px;
+   top: 2px;
+   width: 12px;
+   height: 12px;
+}
+
+.callout_card{
+  padding: var( --pf-global--spacer--sm );
+  text-align: center;
+  margin: var( --pf-global--spacer--md ) 0 var( --pf-global--spacer--md ) 0;
+  max-width: 1440px;
+  width: 100%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#navlogo{
+   height: 44px;
+   margin-left: 60px;
+   margin-top: 16px;
+   margin-bottom: 16px;
+}
+.contrib{
+  font-family: Work Sans;
+  text-align: justify;
+  padding: var(--pf-global--spacer--lg);
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1440px;
+ }
+ 
+ .quoteBox{
+   margin: 0 8% 20px 3%;
+   background-color:#F5F5F5;
+   padding: 48px;
+ }
+ 
+ .quote-left{
+   font-size: 24px;
+   color: #1BC1C9;
+ }
+ 
+ p.quote{
+   font-size: 24px;
+   font-weight: 300;
+ }
+ 
+ p.credit{
+   font-size: 16px;
+   float: right;
+ }
+
+ .div1{
+   background-image: url(images/CollectionAgent.png);
+ }
+ 
+ .div2{
+   background-image: url(images/BackgroundTasks.png);
+ }
+ 
+ .div3{
+   background-image: url(images/WebServer.png);
+ }
+
+ .hero_header{
+   text-align: center;
+ }
+
+ .hero_subtitle{
+   text-align: center;
+ }
+
+ .vertical-btn {
+  text-align: center;
+}
+
+#startBtn{
+  margin-right: 22px;
+}
+
+button#agentBtn,button#serverBtn, button#dashboardBtn {
+  background-color: transparent;
+  border: 2px solid white;
+  font-size: 18px;
+}
+
+button.pf-c-button.pf-m-link{
+  color: #ffffff;
+  font-family: Work Sans;
+  font-size: var(--pf-global--FontSize--xl);
+}
+
+.landingCard{
+  background: #0e0e0e73;
+  margin-top: var(--pf-global--spacer--xl);
+  padding: var(--pf-global--spacer--lg);
+  max-width: 1440px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landingCard p.cardHeader{
+  color: white;
+}
+
+.recentMeetCard{
+  margin-left: var( --pf-global--spacer--2xl );
+  padding-left: var(--pf-global--spacer--xl);
+  max-width: 1440px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.viewDemoLink{  
+  font-family: Work Sans;
+  margin-bottom: var(--pf-global--spacer--2xl);
+}
+
+.pf-c-card__header.pf-c-title.pf-m-md.landingImageDiv.div1{
+  height: 250px;
+  margin-top: var(--pf-global--spacer--xl);
+  margin: var(--pf-global--spacer--lg);
+}
+
+
+.quickLinkDiv{
+  float: left;
+}
+
+.landingIntro{
+  flex-basis: 50%;
+}
+
+.landingImg{
+  flex-basis: 40%;
+  background-image: url(images/home-banner-graphic.png);
+  background-repeat: round;
+}
+
+.subcards{
+  margin-bottom: 16px;
+}	
+
+/* media query for sub cards */
+@media (min-width: 1440px) {
+  .subcards{
+    flex-basis: 33.333%;
+  }
+  .recentMeetSubCard{
+    flex-basis: 30%;
+  }
+}
+@media (max-width: 1440px) {
+  .subcards{
+    flex-basis: 33.333%;
+  }
+  .recentMeetSubCard{
+    flex-basis: 30%;
+  }
+}
+
+@media (max-width: 1200px) {
+  .subcards{
+    flex-basis: 50%;
+  }
+  .recentMeetSubCard{
+    flex-basis: 50%;
+  }
+}
+
+@media (max-width: 900px) {
+  .subcards{
+    flex-basis: 50%;
+  }
+  .recentMeetSubCard{
+    flex-basis: 50%;
+  }
+  .landingImg{
+    display: none;
+  }
+  .landingIntro{
+    flex-basis: 100%;
+  }
+  .title{
+    margin: 0;
+    padding: 0;
+  }
+  .callout_card{
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@media (max-width: 500px) {
+  .subcards{
+    flex-basis: 100%;
+  }
+  .recentMeetSubCard{
+    flex-basis: 100%;
+  }
+}
+
+.addPadding1, .addPadding2, .addPadding3{
+  padding: var( --pf-global--spacer--xl );
+}
+
+.hidden{
+  display: none;
+} 

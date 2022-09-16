@@ -1,6 +1,24 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
+# Installation directory.
+install_dir="$(realpath -e ${sysinfo_install_dir} 2> /dev/null)"
+if [[ ${?} -ne 0 ]]; then
+	printf -- "You must provide an installation directory that exists, \"%s\" is not a real path\n" "${sysinfo_install_dir}" >&2
+	exit 1
+fi
+if [[ ! -d "${install_dir}" ]]; then
+	printf -- "You must provide an installation directory that exists, \"%s\" does not\n" "${install_dir}" >&2
+	exit 1
+fi
+
+# Ensure we have a host name to use.
+if [[ -z "${sysinfo_full_hostname}" ]]; then
+	printf -- "You must provide a FQDN host name via 'sysinfo_full_hostname'\n" >&2
+	exit 1
+fi
+
+# Target directory where data should be written.
 dir="$(realpath -e ${1} 2> /dev/null)"
 if [[ ${?} -ne 0 ]]; then
 	printf -- "You must provide a directory that exists, \"%s\" is not a real path\n" "${1}" >&2
@@ -11,13 +29,15 @@ if [[ ! -d "${dir}" ]]; then
 	exit 1
 fi
 
+# Which pieces of system information should be collected. The options
+# available are the suffixes to all the collect_* functions.
 sysinfo="${2}"
 
-if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
-	mode="${3}"
-else
-	# Force sequential mode for unit tests.
-	mode=""
+# Collection mode, serial or parallel.
+mode="${3}"
+if [[ "${mode}" != "serial" && "${mode}" != "parallel" ]]; then
+	printf -- "Invalid collection mode, \"%s\"\n" "${mode}" >&2
+	exit 1
 fi
 
 function collect_kernel_config {
@@ -75,6 +95,10 @@ function collect_sos {
 	else
 		_quiet=" --quiet"
 	fi
+
+	_sos_report_cmd="sosreport"
+	_cksum_suffix="md5"
+
 	if [[ "${sos_ver}" -lt 3 || ( "${sos_ver}" -eq 3 && ( "${sos_ver_minor}" -lt 5 || ( "${sos_ver_minor}" -eq 5 && -z "${sos_ver_subminor}" ) ) ) ]]; then
 		# Pre-v3.5.1+
 		_modules="general lsbrelease"
@@ -101,9 +125,19 @@ function collect_sos {
 		_modules="${_modules} tuned"
 	fi
 
-	_name="pbench-${_pbench_full_hostname}"
+	if [[ "${sos_ver}" -ge 4 ]]; then
+		# the command is now "sos report" in 4.0+
+		_sos_report_cmd="sos report"
+	fi
+
+	if [[ "${sos_ver}" -gt 4 || ( "${sos_ver}" -eq 4 && "${sos_ver_minor}" -ge 1 )]]; then
+		# sos uses sha256 sums, not md5, in 4.1+
+		_cksum_suffix="sha256"
+	fi
+
+	_name="pbench-${sysinfo_full_hostname}"
 	_cmd="${dir}/sosreport-${_name}.cmd"
-	printf -- "sosreport" > ${_cmd}
+	printf -- "%s" "${_sos_report_cmd}" > ${_cmd}
 	for mod in ${_modules}; do
 		printf -- " -o %s" "${mod}" >> ${_cmd}
 	done
@@ -113,69 +147,19 @@ function collect_sos {
 	printf -- "collecting sosreport\n"
 	${_cmd} > ${dir}/sosreport-${_name}.log 2>&1
 
-	# The latest version of sosreport (3.6 right now) generates different names
-	# for the sosreport tar balls, inserting a short hostname before the label.
-	# Since older versions of sosreport did not do that, we use a wildcard
-	# pattern to capture both names when checking for success.
+	# Versions of sosreport >= 3.6 generate different names for
+	# the sosreport tar balls, inserting a short hostname before
+	# the label.  Since older versions of sosreport did not do
+	# that, we use a wildcard pattern to capture both names when
+	# checking for success.
 	_sosreport_tb="${dir}/sosreport-*${_name}-*.tar.xz"
-	_sosreport_md5="${_sosreport_tb}.md5"
-	ls -1 ${_sosreport_tb} ${_sosreport_md5} > ${dir}/sosreport-names.lis 2> /dev/null
+	_sosreport_cksum="${_sosreport_tb}.${_cksum_suffix}"
+	ls -1 ${_sosreport_tb} ${_sosreport_cksum} > ${dir}/sosreport-names.lis 2> /dev/null
 	if [[ $? -ne 0 ]]; then
 		printf -- "ERROR: sosreport collection failed!\n" >&2
 	else
 		rm -f ${dir}/sosreport-names.lis
 		printf -- "done collecting sosreport\n"
-	fi
-}
-
-function collect_ara {
-	# collect data only when ara is installed
-	if python -c "import ara" &> /dev/null; then
-		ara_pb="${pbench_install_dir}/ansible/ara/ara.yml"
-		if [[ ! -d "${pbench_install_dir}" || ! -f ${ara_pb} ]]; then
-			printf -- "ERROR: ara playbook not found, '%s'\n" "${ara_pb}" >&2
-			return 1
-		fi
-
-		mkdir ${dir}/ara
-
-		# generate inventory file with controller and remotes
-		INVENTORY=${dir}/ara/inventory
-		generate_inventory > ${INVENTORY}
-
-		ansible-playbook -i ${INVENTORY} --extra-vars '{"SYSINFO_DIR":"'${dir}'"}' "${ara_pb}"
-		printf -- "done collection ara data\n"
-	else
-		printf -- "skipping, ara python module not installed\n"
-	fi
-}
-
-function collect_stockpile {
-	stockpile_playbook="${pbench_install_dir}/stockpile/stockpile.yml"
-	if [[ ! -d "${pbench_install_dir}" || ! -f ${stockpile_playbook} ]]; then
-		printf -- "ERROR: stockpile playbook not found, '%s'\n" "${stockpile_playbook}" >&2
-		return 1
-	fi
-
-	mkdir ${dir}/stockpile
-
-	stockpile_log=${dir}/stockpile/output.log
-	stockpile_output_path=${dir}/stockpile/output.json
-
-	# generate inventory and run stockpile
-	INVENTORY=${dir}/stockpile/inventory
-	generate_inventory stockpile > ${INVENTORY}
-
-	stockpile_opts="stockpile_user=${USER} local_remote_user=${USER} host_remote_user=${USER} stockpile_output_path=${stockpile_output_path}"
-	stockpile_playbook="${pbench_install_dir}/stockpile/stockpile.yml"
-	echo "ansible-playbook -vv --extra-vars '"${stockpile_opts}"' -i ${INVENTORY} ${stockpile_playbook}" > ${dir}/stockpile/command
-	chmod +x ${dir}/stockpile/command
-
-	${dir}/stockpile/command &> ${stockpile_log}
-	if [[ ${?} != 0 ]]; then
-		printf -- "ERROR: stockpile run failed\n" >&2
-	else
-		printf -- "done collecting stockpile data\n"
 	fi
 }
 
@@ -190,36 +174,19 @@ function collect_insights {
 }
 
 for item in ${sysinfo//,/ }; do
-	if [[ "${item}" == "kernel_config" ]]; then
-		:
-	elif [[ "${item}" == "security_mitigations" ]]; then
-		:
-	elif [[ "${item}" == "libvirt" ]]; then
-		:
-	elif [[ "${item}" == "topology" ]]; then
-		:
-	elif [[ "${item}" == "sos" ]]; then
-		:
-	elif [[ "${item}" == "block" ]]; then
-		:
-	elif [[ "${item}" == "ara" ]]; then
-		:
-	elif [[ "${item}" == "stockpile" ]]; then
-		:
-	elif [[ "${item}" == "insights" ]]; then
-                :
-	else
-		printf -- "bad sysinfo value, \"%s\"\n" "${item}" >&2
-		continue
-	fi
-	printf -- "collecting %s\n" "${item}"
-	if [[ "${mode}" == "parallel" ]]; then
-		collect_${item} &
-	else
-		collect_${item}
-	fi
+	case ${item} in
+	kernel_config|security_mitigations|libvirt|topology|sos|block|insights)
+		printf -- "collecting %s\n" "${item}"
+		if [[ "${mode}" == "parallel" ]]; then
+			collect_${item} &
+		else
+			collect_${item}
+		fi
+		;;
+	*)
+		printf -- "WARNING: bad sysinfo value, \"%s\"; ignoring\n" "${item}" >&2
+		;;
+	esac
 done
 wait
-
-# FIXME - what?
-chmod -R 775 ${dir}
+exit 0

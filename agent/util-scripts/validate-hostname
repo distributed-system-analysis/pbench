@@ -7,8 +7,7 @@ if the argument is missing.
 
 import sys
 
-from pbench.agent.utils import validate_hostname
-
+from pbench.common.utils import validate_hostname
 
 try:
     host_name = sys.argv[1]

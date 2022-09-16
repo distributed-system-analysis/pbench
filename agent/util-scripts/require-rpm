@@ -1,20 +1,88 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
 
-_rpm="${1}"
-if [[ ! -z "${2}" ]]; then
-    _version="-${2}"
-else
-    _version=""
+# require-rpm - check to see if a RPM with the required version is installed.
+#
+# Usage: require-rpm <rpm name> [<version> [<match>]]
+#
+# Where the "rpm name" and "version" strings must be valid for an RPM, and the
+# match parameter can be one of: 'any', 'equ', 'gtr', 'gte'.  The default value
+# for match is 'any' when no version is provided, and 'equ' when a version is
+# provided.
+#
+# If a match is found, emits the RPM EVR (epoch, version, release) found that
+# matches on stdout. If a match is not found, emits the RPM name and version
+# arguments provided on stdout.
+#
+# Exits with 0 (success) if a match is found, 1 if a match is not found, 2 if
+# an error occurred during operation; 3 if the 3rd argument, match, is not
+# recognized.
+
+if [[ -z "${1}" ]]; then
+    echo "require-rpm: missing RPM name" >&2
+    exit 1
 fi
-if [[ ! -z "${_PBENCH_UNIT_TESTS}" ]]; then
-    # Package changes are always successful for unit tests.
-    exit 0
+_rpm=${1}
+_version=${2}
+if [[ ! -z "${3}" ]]; then
+    _match=${3}
+else
+    if [[ ! -z "${_version}" ]]; then
+        _match="equ"
+    else
+        _match="any"
+    fi
 fi
 
-_status=$(rpm --query ${_rpm}${_version})
-rc=0
-if echo ${_status} | grep -q "is not installed"; then
-    rc=1
+# The inputs for the `rpmdev-vercmp` tool to compare are EVR tags.  The first
+# EVR is derived from a look up of the RPMs that are installed.  Note well that
+# this can be a list of multiple RPMs in some cases.
+_evr_list=$(rpm --query --queryformat="%{EVR}\n" ${_rpm} 2>/dev/null)
+rc=1
+if echo ${_evr_list} | grep -q "is not installed"; then
+    echo "${_rpm}${_version:+-${_version}}"
+elif [[ "${_match}" == "any" ]]; then
+    echo "${_rpm}${_version:+-${_version}}"
+    rc=0
+else
+    # Some RPMs might have multiple versions installed, iterate through all
+    # of them.
+    for ver_installed in ${_evr_list}; do
+        # Exit status is 0 if the EVR's are equal, 11 if EVR1 is newer, and
+        # 12 if EVR2 is newer.  Other exit statuses indicate problems.
+        _stderr=$(rpmdev-vercmp ${ver_installed} ${_version} 2>&1 > /dev/null)
+        res=${?}
+        if [[ ${res} -ne 0 && ${res} -ne 11 && ${res} -ne 12 ]]; then
+            rc=2
+            echo "require-rpm: rpmdev-vercmp - ${_stderr}" >&2
+            break
+        fi
+        if [[ "${_match}" == "equ" ]]; then
+            if [[ ${res} -eq 0 ]]; then
+                rc=0
+                echo "${_rpm}-${ver_installed}"
+                break
+            fi
+        elif [[ "${_match}" == "gte" ]]; then
+            if [[ ${res} -eq 0 || ${res} -eq 11 ]]; then
+                rc=0
+                echo "${_rpm}-${ver_installed}"
+                break
+            fi
+        elif [[ "${_match}" == "gtr" ]]; then
+            if [[ ${res} -eq 11 ]]; then
+                rc=0
+                echo "${_rpm}-${ver_installed}"
+                break
+            fi
+        else
+            rc=3
+            echo "require-rpm: unrecognized 'match' argument, '${_match}'" >&2
+            break
+        fi
+    done
+    if [[ ${rc} -eq 1 ]]; then
+        echo "${_rpm}${_version:+-${_version}}"
+    fi
 fi
 exit ${rc}

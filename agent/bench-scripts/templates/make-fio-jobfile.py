@@ -13,9 +13,9 @@
           program by the same name.
 
 """
-import sys
 from collections import OrderedDict
 from configparser import ConfigParser
+import sys
 
 
 def parse_config(filename):
@@ -31,12 +31,12 @@ def write_config(dictionary, out=sys.stdout):
 
 
 def replace_all(dct, old, new):
-    """ Replace all instances of string 'old' with string 'new' in
-        both keys and values of the (possibly nested) dictionary """
+    """Replace all instances of string 'old' with string 'new' in
+    both keys and values of the (possibly nested) dictionary"""
     keys = list(dct.keys())
     for k in keys:
         if isinstance(dct[k], dict):
-            dct[k] = replace_all(dct[k], old, new)
+            replace_all(dct[k], old, new)
         elif dct[k] is not None:
             assert isinstance(dct[k], str)
             old_val = dct[k]
@@ -46,13 +46,13 @@ def replace_all(dct, old, new):
 
 
 def replace_val(dct, magic, delta):
-    """ Replace all values of string 'magic' with the new value
-        given by the same key in dict 'delta', in the possibly nested
-        dictionary dct """
+    """Replace all values of string 'magic' with the new value
+    given by the same key in dict 'delta', in the possibly nested
+    dictionary dct"""
     keys = list(dct.keys())
     for k in keys:
         if isinstance(dct[k], dict):
-            dct[k] = replace_val(dct[k], magic, delta)
+            replace_val(dct[k], magic, delta)
         elif dct[k] is not None:
             assert isinstance(dct[k], str)
             if magic in dct[k]:
@@ -68,7 +68,7 @@ other_args = [
     "direct",
     "sync",
     "runtime",
-    "ramptime",
+    "ramp_time",
     "size",
     "rate_iops",
     "log_hist_msec",

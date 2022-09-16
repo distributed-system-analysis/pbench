@@ -1,44 +1,45 @@
 """Tests for the Tool Data Sink module.
 """
 
-import logging
-import pytest
-import shutil
-import time
-
 from http import HTTPStatus
 from io import BytesIO
-from pathlib import Path
+import logging
+import shutil
 from threading import Condition, Lock, Thread
+import time
 from unittest.mock import patch
 from wsgiref.simple_server import WSGIRequestHandler
+
+import pytest
 
 from pbench.agent import tool_data_sink
 from pbench.agent.tool_data_sink import (
     BenchmarkRunDir,
-    ToolDataSinkError,
     DataSinkWsgiServer,
+    ToolDataSinkError,
 )
 
 
 class TestBenchmarkRunDir:
-    """Verify the Tool Data Sink BenchmarkRunDir class.
-    """
+    """Verify the Tool Data Sink BenchmarkRunDir class."""
 
     @pytest.fixture
-    def cleanup_tmp(self, pytestconfig):
-        TMP = Path(pytestconfig.cache.get("TMP", None))
-        self.int_pb_run = TMP / "pbench-run-int"
-        self.ext_pb_run = TMP / "pbench-run-ext"
+    def cleanup_tmp(self, tmp_path):
+        self.int_pb_run = tmp_path / "pbench-run-int"
+        self.ext_pb_run = tmp_path / "pbench-run-ext"
         yield
         try:
             shutil.rmtree(self.int_pb_run)
-        except Exception as exc:
-            print(exc)
+        except FileNotFoundError:
+            pass
+        except NotADirectoryError:
+            self.int_pb_run.unlink()
         try:
             shutil.rmtree(self.ext_pb_run)
-        except Exception as exc:
-            print(exc)
+        except FileNotFoundError:
+            pass
+        except NotADirectoryError:
+            self.ext_pb_run.unlink()
 
     def test_validate(self, cleanup_tmp):
         """test_validate - verify the behavior of the validate() using both an
@@ -121,12 +122,10 @@ def _test_app(environ, start_response):
 
 
 class TestDataSinkWsgiServer:
-    """Verify the DataSinkWsgiServer wrapper class.
-    """
+    """Verify the DataSinkWsgiServer wrapper class."""
 
     def test_constructor(self):
-        """test_constructor - verify the DataSinkWsgiServer constructor.
-        """
+        """test_constructor - verify the DataSinkWsgiServer constructor."""
         with pytest.raises(Exception) as exc:
             DataSinkWsgiServer()
         assert "DataSinkWsgiServer requires a logger" == str(exc.value)
@@ -206,7 +205,7 @@ class TestDataSinkWsgiServer:
         handler.log_message("test msg %d %s", 42, "43")
         assert caplog.records[2].levelname == "WARNING"
         assert caplog.records[2].message == "0 - - test msg 42 43"
-        handler.log_request(code=HTTPStatus(404), size=42)
+        handler.log_request(code=HTTPStatus.NOT_FOUND, size=42)
         assert caplog.records[3].levelname == "INFO"
         assert caplog.records[3].message == '0 - - "GET / HTTP/1.1" 404 42'
 

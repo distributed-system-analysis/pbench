@@ -38,7 +38,6 @@ nr_jvms=1
 start_warehouses=1
 stop_warehouses="default"
 inc_warehouses=1
-peak_warehouses=2
 heap_size="4096m"
 nr_cpus=`cat /proc/cpuinfo | grep processor | wc -l`
 specjbb2005_dir=/usr/local/share/specjbb2005
@@ -277,17 +276,16 @@ fi
 trap "interrupt" INT QUIT TERM
 
 # edit the jbb properties file to match user's options
-> ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.jvm_instances=.*/input.jvm_instances=$nr_jvms/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.measurement_seconds=.*/input.measurement_seconds=$runtime/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.starting_number_warehouses=.*/input.starting_number_warehouses=$start_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.increment_number_warehouses=.*/input.increment_number_warehouses=$inc_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.ending_number_warehouses=.*/input.ending_number_warehouses=$stop_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
-sed -f ${benchmark_run_dir}/SPECjbb.props.sed ${specjbb2005_dir}/SPECjbb.props > ${benchmark_run_dir}/SPECjbb.props
+cp ${specjbb2005_dir}/SPECjbb.props ${benchmark_run_dir}/SPECjbb.props
 if [ $? -ne 0 ]; then
 	printf "\t${benchmark}: unable to create the SPECjbb.props file (\"${benchmark_run_dir}/SPECjbb.props\")\n\n"
 	exit 1
 fi
+printf "input.jvm_instances=$nr_jvms\n" >> ${benchmark_run_dir}/SPECjbb.props
+printf "input.measurement_seconds=$runtime\n" >> ${benchmark_run_dir}/SPECjbb.props
+printf "input.starting_number_warehouses=$start_warehouses\n" >> ${benchmark_run_dir}/SPECjbb.props
+printf "input.increment_number_warehouses=$inc_warehouses\n" >> ${benchmark_run_dir}/SPECjbb.props
+printf "input.ending_number_warehouses=$stop_warehouses\n" >> ${benchmark_run_dir}/SPECjbb.props
 cp ${specjbb2005_dir}/SPECjbb_config.props ${benchmark_run_dir}/
 if [ $? -ne 0 ]; then
 	printf "\t${benchmark}: unable to copy SPECjbb_config.props file from \"${specjbb2005_dir}\"\n\n"
@@ -322,14 +320,11 @@ fi
 sleep 5
 
 specjbb_opts="-cp ${specjbb_cp} -Xms${heap_size} -Xmx${heap_size} ${java_opts} spec.jbb.JBBmain -propfile ${benchmark_run_dir}/SPECjbb.props"
-for i in `seq $nr_jvms -1 1`; do
-	if [ $i -eq 1 ]; then
-		# the last JVM gets output so we can trigger the tools starting at iteration 1
-		java ${specjbb_opts} -id $i | tee ./jvm-$i-worker.txt | pbench-tool-trigger 1 "${benchmark_run_dir}" "${tool_group}" "${sample}"
-	else
-		java ${specjbb_opts} -id $i >     ./jvm-$i-worker.txt &
-	fi
+for i in `seq $nr_jvms -1 2`; do
+	java ${specjbb_opts} -id $i > ./jvm-$i-worker.txt &
 done
+# The last JVM's output is used to trigger the tools starting at iteration 1.
+java ${specjbb_opts} -id 1 | tee ./jvm-1-worker.txt | pbench-tool-trigger 1 "${benchmark_run_dir}" "${tool_group}"
 
 debug_log "worker JVMs have finished"
 debug_log "waiting for controller JVM to finish"
@@ -347,6 +342,7 @@ function record_iteration {
 	local iteration=$1
 	local iteration_name=$2
 	local benchmark_bin=$3
+	local mdlog="${benchmark_run_dir}/metadata.log"
 
 	echo ${iteration_name} >> ${benchmark_iterations}
 	echo ${iteration}      | pbench-add-metalog-option ${mdlog} iterations/${iteration_name} iteration_number
@@ -369,13 +365,13 @@ for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 	if [ $? -ne 0 ]; then
 		error_log "missing test${i} raw results in ${specjbb_results}/SPECjbb.raw"
 	fi
+	pbench-send-tools --group=${tool_group} --dir=${benchmark_run_dir}/${iteration}-default/${sample}
 	new_iteration_name="${iteration}-warehouses:${i}"
 	mv ${iteration}-default ${new_iteration_name}
 	if [ $? -ne 0 ]; then
 		error_log "unable to move ${iteration}-default directory hierarchy to ${new_iteration_name}, skipping tools post-processing"
 	else
 		record_iteration ${iteration} ${new_iteration_name} ${benchmark}
-		pbench-send-tools --group=${tool_group} --dir=${benchmark_run_dir}/${new_iteration_name}/${sample}
 		pbench-postprocess-tools --group=${tool_group} --dir=${benchmark_run_dir}/${new_iteration_name}/${sample}
 		ln -s ${sample} ${benchmark_run_dir}/${new_iteration_name}/reference-result
 	fi

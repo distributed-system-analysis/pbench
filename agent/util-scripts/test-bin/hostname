@@ -1,4 +1,40 @@
-#! /bin/bash
+#!/usr/bin/env python3
 
-# fake out the hostname -f in pbench-move-results
-echo "agent.example.com"
+"""hostname - mock the behavior of the hostname command for the unit tests."""
+
+import sys
+
+short = "agent"
+alias = "bond"
+domain = "example.com"
+fqdn = f"{short}.{domain}"
+alt_fqdn = f"{alias}.{domain}"
+ip_addrs = "172.0.0.1 127.0.0.1"
+all_ip_addrs = f"192.168.0.1 {ip_addrs}"
+
+exit_code = 0
+if len(sys.argv) <= 1:
+    print(fqdn)
+elif sys.argv[1] in ("-a", "--alias"):
+    print(alias)
+elif sys.argv[1] in ("-A", "--all-fqdns"):
+    print(f"{fqdn} {alt_fqdn}")
+elif sys.argv[1] in ("-d", "--domain"):
+    print(domain)
+elif sys.argv[1] in ("-f", "--fqdn", "--long"):
+    print(fqdn)
+elif sys.argv[1] in ("-i", "--ip-address"):
+    print(ip_addrs)
+elif sys.argv[1] in ("-I", "--all-ip-addresses"):
+    print(all_ip_addrs)
+elif sys.argv[1] in ("-s", "--short"):
+    print(short)
+elif sys.argv[1] in ("-y", "--yp", "--nis"):
+    print("hostname[mock]: Local domain name not set")
+    exit_code = 1
+else:
+    print(
+        f"hostname[mock]: unexpected hostname invocation: {sys.argv!r}", file=sys.stderr
+    )
+    exit_code = 101
+sys.exit(exit_code)

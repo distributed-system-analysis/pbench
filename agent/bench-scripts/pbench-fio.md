@@ -339,3 +339,28 @@ Here are the pbench-fio parameters:
 * **--numjobs=uint** - the total number of "jobs" to run.  This is typically set to the number of clients above.  Typically in the job file, you use numjobs=1.
 * **--pre-iteration-script=path** - this points to a local executable script (doesn't have to be bash) that will execute before each sample is run.  For an example of how this can be useful, see cache-dropping section above.
 * **--max-stddev=uint** - maximum percent deviation (100.0 \* standard deviation / mean) allowed for a successful test.  If you get test failures, consider either lengthening your test, changing test procedure to improve repeatability, or increasing this parameter.  Default is 5%.
+
+
+## firewalls
+
+*You must ensure that the network firewall is not up, or poke holes in the firewall
+for pbench-fio when using remote clients*.  Typically there are two possible
+firewall implementations encountered:
+
+* the **firewalld** service
+* the **iptables** service
+
+To temporarily disable (this may give security folks heartburn):
+
+    # systemctl stop firewalld
+    # systemctl stop iptables
+
+To temporarily enable port under firewalld use:
+
+    # firewall-cmd --add-port=8765/tcp
+
+Where "8765" is the default port pbench-fio will use for the fio clients.
+If you are using multiple clients, without specifying explicit ports, and using
+the `--unique-ports` switch, then starting with port 8765, pbench-fio will use
+sequential ports for each client.  Be sure you open those ports on the remote
+systems ahead of time.

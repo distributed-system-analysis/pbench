@@ -23,6 +23,7 @@ log_avg_msec = 1000
 write_hist_log = fio
 log_hist_msec = 10000
 # log_hist_coarseness = 4 # 76 bins
+log_unix_epoch = 1
 
 [job-$target]
 filename = $target

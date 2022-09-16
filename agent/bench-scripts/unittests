@@ -27,13 +27,11 @@ export _testdir=${_testroot}/pbench-agent
 # Copy bench-scripts execution environment to _testroot
 export _testopt=${_testroot}/opt/pbench-agent
 res=0
-mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib ${_testopt}/config/benchmark
+mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/driver ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib ${_testopt}/config
 let res=res+${?}
 cat ${_tdir}/../base.ut.pre ${_tdir}/../base ${_tdir}/../base.ut.post > ${_testopt}/base
 let res=res+${?}
 cp -rH ${_tdir}/../lib/* ${_testopt}/lib/
-let res=res+${?}
-cp -rH ${_tdir}/../config/benchmark/* ${_testopt}/config/benchmark/
 let res=res+${?}
 for script in ${_tdir}/pbench-* ; do
     cp $script ${_testopt}/bench-scripts/
@@ -41,9 +39,11 @@ for script in ${_tdir}/pbench-* ; do
 done
 cp ${_tdir}/postprocess/* ${_testopt}/bench-scripts/postprocess
 let res=res+${?}
+cp ${_tdir}/driver/* ${_testopt}/bench-scripts/driver
+let res=res+${?}
 cp ${_tdir}/templates/* ${_testopt}/bench-scripts/templates
 let res=res+${?}
-cp -a $_tdir/../util-scripts/{require-rpm,validate-*,pbench-*} $_testopt/util-scripts/
+cp -a $_tdir/../util-scripts/{pbench-*,require-rpm,validate-*} $_testopt/util-scripts/
 let res=res+$?
 cp -rH ${_tdir}/test-bin/* ${_testopt}/unittest-scripts/
 let res=res+${?}
@@ -103,16 +103,13 @@ function _run {
     printf -- "#!/bin/bash\n\n" > ${_testroot}/run.cmd
     printf -- "export _tst_benchmark=%s\n" "${tscrpt%% *}" >> ${_testroot}/run.cmd
     printf -- "export _PBENCH_AGENT_CONFIG=%s/config/pbench-agent.cfg\n" "${_testopt}" >> ${_testroot}/run.cmd
-    printf -- "export benchmark_bin=%s/unittest-scripts/bm\n\n" "${_testopt}" >> ${_testroot}/run.cmd
+    printf -- "export PERL_HASH_SEED=0\n" "${_testopt}" >> ${_testroot}/run.cmd
+
     if [[ -e "${env_file}" ]]; then
         ${_real_cat} ${env_file} >> ${_testroot}/run.cmd
         printf -- "\n" >> ${_testroot}/run.cmd
     fi
-    if [[ "${tscrpt}" == "pbench-run-benchmark" ]]; then
-        local config=""
-    else
-        local config=" --config=${tname}"
-    fi
+    local config=" --config=${tname}"
     printf -- "%s%s %s\n" "${tscrpt}" "${config}" "${opts}" >> ${_testroot}/run.cmd
     chmod +x ${_testroot}/run.cmd
     ${_testroot}/run.cmd >> ${_testout} 2>&1
@@ -156,12 +153,16 @@ function _dump_logs {
     if [[ ! -z "${rundir}" ]]; then
         _dump_file ${rundir} metadata.log
         _dump_file ${rundir} user-benchmark-summary.json
+        _dump_file ${rundir} SPECjbb.props
         (
         if cd ${_testdir}/${rundir} > /dev/null 2>&1 ;then
-            for f in $(find . -name user-benchmark.cmd 2> /dev/null | sort); do
+            for f in $(find . -name '*.cmd' 2> /dev/null | sort); do
                 _dump_file ${rundir} ${f:2}
             done
             for f in $(find . -name results.html 2> /dev/null | sort); do
+                _dump_file ${rundir} ${f:2}
+            done
+            for f in $(find . -name '*--client_start.sh' -o -name '*--server_start.sh' 2> /dev/null | sort); do
                 _dump_file ${rundir} ${f:2}
             done
         fi
@@ -281,7 +282,7 @@ else
                 # Ignore somebody trying to run the "Defaults" data directory.
                 continue
             fi
-            # All all the tests in that benchmark directory
+            # Add all the tests in that benchmark directory
             for _tst in $(ls -1 ${_tdir}/tests/${_tst_arg}/*.txt); do
                 tst=$(basename "${_tst}")
                 printf -- "%s %s\n" "${tst%%.*}" "${_tst_arg}" >> ${_testroot}/tests-unsorted.lis
@@ -301,7 +302,17 @@ else
     mv ${_testroot}/tests-unsorted.lis ${_testroot}/tests.lis
 fi
 
-export date="1900.01.01T00.00.00"
+if [[ ! -z "${_PBENCH_LEGACY_UNITTESTS_LIST}" ]]; then
+    # List the tests we are going to run without running them.  This is helpful
+    # when adding a new test to either use an unused test number or add another
+    # one.
+    cat ${_testroot}/tests.lis
+    # We empty list once displayed so that the execution loop below becomes a
+    # "no-op" and exits cleanly. 
+    > ${_testroot}/tests.lis
+fi
+
+export _date_suffix="1900.01.01T00.00.00"
 let errs=0
 
 while read tst benchmark; do
@@ -316,27 +327,9 @@ while read tst benchmark; do
 
     # Determine what the test will use for a "benchmark_run_dir"
     if [[ ${benchmark} == "pbench-user-benchmark" ]]; then
-        _rundir="${benchmark}_${tst}_${date}"
-    elif [[ ${benchmark} == "pbench-run-benchmark" ]]; then
-	# The first argument in the "opts" file determines the name
-	# that will be used for the benchmark run directory.
-	if [[ -f ${_tdir}/tests/${_tst}.opts ]]; then
-	    bm_name="$(head -n 1 ${_tdir}/tests/${_tst}.opts | awk '{print $1}')"
-	    if [[ "${bm_name}" != "list" ]]; then
-	        bm_config="$(head -n 1 ${_tdir}/tests/${_tst}.opts | awk '{print $2}')"
-		if [[ "${bm_config%=*}" == "--user-tags" ]]; then
-                    _rundir="${bm_name}_${bm_config#*=}_${date}"
-                else
-                    _rundir="${bm_name}__${date}"
-		fi
-	    else
-	        _rundir=""
-	    fi
-	else
-	    _rundir=""
-	fi
+        _rundir="${benchmark}_${tst}_${_date_suffix}"
     elif [[ ${benchmark%%-*} == "pbench" ]]; then
-        _rundir="${bm_postfix}_${tst}_${date}"
+        _rundir="${bm_postfix}_${tst}_${_date_suffix}"
     else
         _rundir=""
     fi
@@ -347,6 +340,7 @@ while read tst benchmark; do
         ${_tdir}/tests/${_tst}.pre
     fi
 
+    export _rundir
     _run ${tst} ${benchmark} ${_tdir}/tests/${_tst}.opts ${_tdir}/tests/${_tst}.env
     res=${?}
 
@@ -356,6 +350,7 @@ while read tst benchmark; do
 
     _save_tree
     _dump_logs "${_rundir}"
+    unset _rundir
     _verify_output ${res} ${tst} ${benchmark} ${status}
     res=${?}
     let errs=${errs}+${res}

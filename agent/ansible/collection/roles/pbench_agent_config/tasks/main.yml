@@ -1,0 +1,19 @@
+---
+# pbench agent configuration
+- name: "Pbench agent configuration - install config file(s)"
+  ansible.builtin.include_role:
+    name: pbench_agent_files_install
+  vars:
+    source: "{{ pbench_config_url }}"
+    dest: "{{ pbench_config_dest }}"
+    mode: "0644"
+    files: "{{ pbench_config_files }}"
+
+- name: "Pbench agent configuration - install ssh key"
+  ansible.builtin.include_role:
+    name: pbench_agent_files_install
+  vars:
+    source: "{{ pbench_key_url }}"
+    dest: "{{ pbench_key_dest }}"
+    mode: "0600"
+    files: id_rsa

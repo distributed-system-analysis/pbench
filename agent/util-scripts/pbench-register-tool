@@ -88,13 +88,23 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 #-
 
 # Defaults
-remotes_arg="localhost"
+name=""
+remotes_arg=""
+remotes_def="localhost"
+labels_arg=""
 group="default"
+tool_type="transient"
 options=""
 do_install=1
-_do_test_labels=0
+_do_test_args=0
 
 function usage() {
+	if [[ ${_do_test_args} -eq 1 ]]; then
+		# Since we are working on behalf of pbench-register-tool-set,
+		# skip printing the usage message here -- it will issue its own
+		# usage message on failure.
+		return 0
+	fi
 	# Usage is formatted for a 80 column width screen.
 	printf -- "usage:\n"
 	printf -- "${script_name} --name=<tool-name> [--group=<group-name>]"
@@ -126,7 +136,7 @@ function usage() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o hn:g:r:l: --longoptions "help,name:,group:,no-install,remote:,remotes:,label:,labels:,test-labels, persistent, transient" -n "getopt.sh" -- "${@}")
+opts=$(getopt -q -o hn:g:r:l: --longoptions "help,name:,group:,no-install,remote:,remotes:,label:,labels:,test-args,persistent,transient" -n "getopt.sh" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
 	printf -- "\n${*}\n" >&2
 	printf -- "${script_name}: you specified an invalid option\n\n" >&2
@@ -172,9 +182,9 @@ while true; do
 		shift
 		do_install=0
 		;;
-	--test-labels)
+	--test-args)
 		shift
-		_do_test_labels=1
+		_do_test_args=1
 		;;
 	--persistent)
 		shift
@@ -183,7 +193,7 @@ while true; do
 		if [[ -z "${name}" ]]; then
 			name="internal-tool-not-found"
 		fi
-		type="persistent"
+		tool_type="persistent"
 		;;
 	--transient)
 		shift
@@ -192,7 +202,7 @@ while true; do
 		if [[ -z "${name}" ]]; then
 			name="internal-tool-not-found"
 		fi
-		type="transient"
+		tool_type="transient"
 		;;
 	-h|--help)
 		usage
@@ -205,14 +215,18 @@ while true; do
 	esac
 done
 
-if [[ -z ${name} ]]; then
+# Normally --name is required but, when called with --test-args, we allow an
+# exception: that allows pbench-register-tool-set to call us without having to
+# specify a (meaningless in that case) --name.
+if [[ -z "${name}" && "${_do_test_args}" != 1 ]]; then
 	error_log "Missing required parameter --name=<tool-name>"
 	usage >&2
 	exit 1
 fi
+
 if [[ ! -x "${pbench_bin}/tool-scripts/${name}" ]]; then
 	if [[ ${name} == "internal-tool-not-found" ]]; then
-		error_log "Could not find ${display_name} with type ${type} in ${pbench_bin}/tool-scripts/: has the right type been specified?"
+		error_log "Could not find ${display_name} with type ${tool_type} in ${pbench_bin}/tool-scripts/: has the right type been specified?"
 	else
 		error_log "Could not find ${name} in ${pbench_bin}/tool-scripts/: has this tool been integrated into the pbench-agent?"
 	fi
@@ -222,54 +236,58 @@ fi
 
 if [[ ${remotes_arg::1} == "@" ]]; then
 	# We are dealing with a file containing the list of remotes.
+	remotes_file=${remotes_arg:1}
 
 	if [[ -n ${labels_arg} ]]; then
 		error_log "--labels=${labels_arg} not allowed with remotes file (${remotes_arg})"
 		usage >&2
 		exit 1
 	fi
-	remotes_file=${remotes_arg#*@}
-	if [[ ! -e ${remotes_file} ]]; then
-		error_log "--remotes=@${remotes_file} specifies a file that does not exist"
+
+	if [[ ! -r ${remotes_file} ]]; then
+		error_log "--remotes=@${remotes_file} specifies a file that does not exist or is not readable"
 		usage >&2
 		exit 1
 	fi
+
+	if [[ ! -s ${remotes_file} ]]; then
+		error_log "--remotes=@${remotes_file} specifies an empty file"
+		usage >&2
+		exit 1
+	fi
+
 	declare -a remotes_A
 	declare -A labels_A
 	idx=0
 	lineno=0
 	while read line; do
-		if [[ ${line::1} == "#" ]]; then
+		(( lineno++ ))
+		# a comment starts with '#' (optionally preceded by spaces or tabs) and ends at the end of the line
+		if [[ ${line} == *([[:blank:]])#* ]]; then
 			# Ignore comments
-			(( lineno++ ))
 			continue
 		fi
 		IFS=',' read -ra parts <<< "${line}"
-		if [[ ${#parts[@]} == 0 ]]; then
+		# we need arithmetic evaluation of the conditionals
+		if (( ${#parts[@]} == 0 )); then
 			# Ignore empty lines
-			(( lineno++ ))
 			continue
-		elif [[ ${#parts[@]} == 1 ]]; then
-			# Assume the only part is a remote host name.
-			remotes_A[${idx}]=${parts[0]}
-			labels_A[${parts[0]}]=""
-		elif [[ ${#parts[@]} == 2 ]]; then
+		elif (( ${#parts[@]} <= 2 )); then
 			# Assume the first part is the remote host name, and
-			# the second part is the label for that host name.
+			# the second part (if present) is the label for that host name.
 			remotes_A[${idx}]=${parts[0]}
 			labels_A[${parts[0]}]=${parts[1]}
 		else
-			error_log "--remotes=@${remotes_file} contains an invalid file format, expected lines with \"<hostname>[,<label>]\" at line #${lineno}"
+			error_log "--remotes=@${remotes_file} specifies a file with an invalid format, expected \"<hostname>[,<label>]\" at line #${lineno}"
 			usage >&2
 			exit 1
 		fi
-		(( lineno++ ))
 		(( idx++ ))
 	done < ${remotes_file}
 else
 	# First create the array of remotes and their labels, "remotes_A"
 	# "labels_A", from the "remotes_arg" and "labels_arg".
-	IFS=',' read -ra remotes_A <<< "${remotes_arg}"
+	IFS=',' read -ra remotes_A <<< "${remotes_arg:-${remotes_def}}"
 	if [[ -z "${remotes_A}" ]]; then
 		error_log "INTERNAL: missing -r|--remote|--remotes=<remote-host>[,<remote-host>] argument for some unknown reason (should not happen)"
 		usage >&2
@@ -281,15 +299,13 @@ else
 		IFS=',' read -ra labels_A0 <<< "${labels_arg}"
 		if [[ -n "${labels_A0}" ]]; then
 			if [[ ${#remotes_A[@]} -ne ${#labels_A0[@]} ]]; then
-				if [[ ${_do_test_labels} -eq 0 ]]; then
-					# We emit an error message now if we
-					# are not working on behalf of
-					# pbench-register-tool-set, since it
-					# will handle its own error message on
-					# failure.
-					error_log "The number of labels given, \"${labels_arg}\", does not match the number of remotes given, \"${remotes_arg}\""
-					usage >&2
+				if [[ -z "${remotes_arg}" ]]; then
+					remotes="\"${_pbench_full_hostname}\" (default)"
+				else
+					remotes="\"${remotes_arg}\""
 				fi
+				error_log "The number of labels given, \"${labels_arg}\", does not match the number of remotes given, ${remotes}"
+				usage >&2
 				exit 1
 			fi
 			# Now create an array for labels, where the index is
@@ -314,7 +330,7 @@ if [[ ${invalids} -gt 0 ]]; then
 	exit 1
 fi
 
-if [[ ${_do_test_labels} -ne 0 ]]; then
+if [[ ${_do_test_args} -ne 0 ]]; then
 	# Used by pbench-register-tool-set to avoid duplicating logic, we
 	# have been asked to exit early successfully if all argument
 	# processing has been successful so far.
@@ -354,13 +370,13 @@ for (( i=0; ${i} < ${#remotes_A[@]}; i++ )); do
 	for local_interface in ${local_interfaces}; do
 		if [[ "${remote}" == "${local_interface}" ]]; then
 			if [[ -z "${local_hostname}" ]]; then
-				if [[ "${remotes_arg}" != "localhost" ]]; then
+				if [[ -n "${remotes_arg}" ]]; then
 					debug_log "The remote host you have provided, ${remote}, matches a local interface, so we will register this tool locally only"
 				fi
 				local_hostname="${_pbench_full_hostname}"
 				local_label="${labels_A[${remote}]}"
 			else
-				if [[ "${remotes_arg}" != "localhost" ]]; then
+				if [[ -n "${remotes_arg}" ]]; then
 					debug_log "The remote host you have provided, ${remote}, matches a local interface, and has already been registered locally"
 				fi
 			fi

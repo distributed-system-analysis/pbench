@@ -1,0 +1,1 @@
+--pre-check-only 11.1.3 ${PBENCH_LINPACK_INSTALL_PREFIX_DIR}

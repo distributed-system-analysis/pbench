@@ -119,7 +119,7 @@ sub put_json_file {
     close(JSON_FH);
 }
 
-# Find all the benchmarks in the pbench configuraton data
+# Find all the benchmarks in the pbench configuration data
 sub get_benchmark_names {
     my $dir = shift;
     my @benchmarks;
@@ -130,7 +130,7 @@ sub get_benchmark_names {
             push(@benchmarks, $1);
         }
     }
-    return @benchmarks;
+    return sort(@benchmarks);
 }
 
 # Scan the cmdline and return an array of client hostnames in --clients= if present

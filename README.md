@@ -54,12 +54,19 @@ https://github.com/distributed-system-analysis/pbench-dashboard.
 
 Yes, we use [Google Groups](https://groups.google.com/forum/#!forum/pbench)
 
+## How do I report and issue?
+
+Please use GitHub's [issues](
+https://github.com/distributed-system-analysis/pbench/issues/new/choose).
+
 ## Is there a place to track current and future work items?
+
 Yes, we are using GitHub [Projects](
 https://github.com/distributed-system-analysis/pbench/projects).
 Please find projects covering the [Agent](
 https://github.com/distributed-system-analysis/pbench/projects/2),
 [Server](https://github.com/distributed-system-analysis/pbench/projects/3),
+[Dashboard]()https://github.com/distributed-system-analysis/pbench/projects/1,
 and a project that is named the same as the current [milestone](
 https://github.com/distributed-system-analysis/pbench/milestones).
 
@@ -79,31 +86,80 @@ $ cd pbench
 
 ### Running the Unit Tests
 
-To simply run the unit tests quickly from within the checked out source tree,
-execute:
-
- * `jenkins/run jenkins/tox -r --current-env -e jenkins-pytests`
- * `jenkins/run jenkins/tox -r --current-env -e jenkins-unittests`
-
-The above commands run the tests in a Fedora-base container with all the
-proper packages installed.
-
-If you want to run the unit tests outside of that environment, you need to
-install `tox` properly in your environment (Fedora/CentOS/RHEL):
+Install `tox` properly in your environment (Fedora/CentOS/RHEL):
 
 ```
 $ sudo dnf install -y perl-JSON python3-pip python3-tox
 ```
 
-Once tox is installed you can run the unit tests (use `tox --listenvs` to see
-the full list); e.g.:
+Once tox is installed you can run the unit tests against different versions of
+python using the python environment short-hands:
 
-  * `tox -e util-scripts`  -- for agent/util-scripts tests
-  * `tox -e server`  -- for server tests
-  * `tox -e lint`  -- to run the linting and code style checks
+  * `tox -e py36`    -- run all tests in a Python 3.6 environment (our default)
+  * `tox -e py39`    -- run all tests in a Python 3.9 environment
+  * `tox -e py310`   -- run all tests in a Python 3.10 environment
+  * `tox -e pypy3`   -- run all tests in a PyPy 3 environment
+  * `tox -e pypy3.8` -- run all tests in a PyPy 3.8 environment
 
-To run the full suite of unit tests in parallel, invoke the `run-unittests`
-script at the top-level of the pbench repository.
+See https://tox.wiki/en/latest/example/basic.html#a-simple-tox-ini-default-environments.
+
+Each time tests are run, the linting steps (`black` and `flake8`) are run first.
+
+You can provide arguments to the `tox` invocation to request sub-sets of the
+available tests be run.
+
+For example, if you want to just run the agent or server tests, you'd invoke
+`tox` as follows:
+
+  * `tox -- agent`   -- runs only the agent tests
+  * `tox -- server`  -- runs only the server tests
+
+Each of the "agent" and "server" tests can be further subsetted as follows:
+
+  * agent
+    * python          -- runs the python tests (via `pytest`)
+    * legacy          -- runs all the legacy tests
+    * datalog         -- runs only the legacy tool data-log tests,
+                         `agent/tool-scripts/datalog/unittests`
+    * postprocess     -- runs only the legacy tool/bench-scripts post-processing
+                         tests, `agent/tool-scripts/postprocess/unittests`
+    * tool-scripts    -- runs only the legacy tool-scripts tests,
+                         `agent/tool-scripts/unittests`
+    * util-scripts    -- runs only the legacy util-scripts tests,
+                         `agent/util-scripts/unittests`
+    * bench-scripts   -- runs only the legacy bench-scripts tests,
+                         `agent/bench-scripts/unittests`
+
+  * server
+    * python          -- runs the python tests (via python)
+    * legacy          -- runs the legacy tests
+
+For example:
+
+  * `tox -- agent legacy`   -- run agent legacy tests
+  * `tox -- server legacy`  -- run server legacy tests
+  * `tox -- server python`  -- run server python tests (via `pytest`)
+
+For any of the test sub-sets on either the agent or server sides of the tree,
+one can pass additional arguments to the specific sub-system test runner.  This
+allows one to request a specific test, or set of tests, or command line
+parameters to modify the test behavior:
+
+  * `tox -- agent bench-scripts test-CL`    -- run bench-scripts' test-CL
+  * `tox -- server legacy test-28 test-32`  -- run server legacy tests 28 & 32
+  * `tox -- server python -v`               -- run server python tests verbosely
+
+For the `agent/bench-scripts` tests, one can run entire sub-sets of tests using
+a sub-directory name found in `agent/bench-scripts/tests`. For example:
+
+  * `tox -- agent bench-scripts pbench-fio`
+  * `tox -- agent bench-scripts pbench-uperf pbench-linpack`
+
+The first runs all the `pbench-fio` tests, while the second runs all the
+`pbench-uperf` and `pbench-linpack` tests.
+
+Finally, see the `jenkins/Pipeline.gy` file for how the unit tests are run in
+our CI jobs.
 
 ### Python formatting
 

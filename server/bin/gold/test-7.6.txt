@@ -96,7 +96,7 @@ len(actions) = 5
             "@timestamp": "2015-09-21T19:31:12.673292",
             "authorization": {
                 "access": "private",
-                "owner": "roger"
+                "owner": "1"
             },
             "host_tools_info": [
                 {
@@ -142,7 +142,7 @@ len(actions) = 5
             "@timestamp": "2015-09-21T19:31:12.673292",
             "authorization": {
                 "access": "private",
-                "owner": "roger"
+                "owner": "1"
             },
             "directory": "/",
             "files": [
@@ -168,7 +168,7 @@ len(actions) = 5
             "@timestamp": "2015-09-21T19:31:12.673292",
             "authorization": {
                 "access": "private",
-                "owner": "roger"
+                "owner": "1"
             },
             "directory": "/sysinfo",
             "mode": "0o775",
@@ -189,7 +189,7 @@ len(actions) = 5
             ],
             "authorization": {
                 "access": "private",
-                "owner": "roger"
+                "owner": "1"
             },
             "directory": "/sysinfo/foo",
             "mode": "0o775",
@@ -211,7 +211,7 @@ len(actions) = 5
             ],
             "authorization": {
                 "access": "private",
-                "owner": "roger"
+                "owner": "1"
             },
             "directory": "/sysinfo/foo/end",
             "files": [
@@ -397,31 +397,17 @@ len(actions) = 1
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.6/var-www-html)
 lrwxrwxrwx         64 incoming -> /var/tmp/pbench-test-server/test-7.6/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        119 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         63 results -> /var/tmp/pbench-test-server/test-7.6/pbench/public_html/results
 lrwxrwxrwx         62 static -> /var/tmp/pbench-test-server/test-7.6/pbench/public_html/static
 lrwxrwxrwx         61 users -> /var/tmp/pbench-test-server/test-7.6/pbench/public_html/users
 --- var/www/html tree state
-+++ results host info (/var/tmp/pbench-test-server/test-7.6/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-7.6/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.6/pbench-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/test-7.6/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
---- results host info
 +++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-7.6/var-www-html-satellite)
 lrwxrwxrwx         74 incoming -> /var/tmp/pbench-test-server/test-7.6/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
--rw-rw-r--        139 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
 lrwxrwxrwx         73 results -> /var/tmp/pbench-test-server/test-7.6/pbench-satellite/public_html/results
 lrwxrwxrwx         72 static -> /var/tmp/pbench-test-server/test-7.6/pbench-satellite/public_html/static
 lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-7.6/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
-+++ results host info (/var/tmp/pbench-test-server/test-7.6/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-7.6/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.6/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/test-7.6/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
---- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-7.6/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
@@ -500,8 +486,6 @@ drwxrwxr-x          - logs/pbench-state-manager
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 -rw-rw-r--        862 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
-drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
@@ -536,8 +520,6 @@ drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
 +++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.6/pbench-satellite-local)
 drwxrwxr-x          - logs
-drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
@@ -625,5 +607,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-roger|alphaville|test_7.6_2015.09.21T15.31.08|INDEXED|
+roger|test_7.6_2015.09.21T15.31.08|INDEXED| server = {"reindex": false, "index-map": {"pbench-unittests.v6.run-data.2015-09": ["8e83473657c4f7d311bb7f770de3fb74"], "pbench-unittests.v6.run-toc.2015-09": ["a3d45b0a73ebcab3456c984ab825c030", "69a38c03e70773d8f9690af602bca6e8", "5fe00aea3b81d5a216e4d15b9f4af07a", "cc4934e427f12dd6d95c7d5fd8f0e547"]}}
 --- SqliteDB Datasets

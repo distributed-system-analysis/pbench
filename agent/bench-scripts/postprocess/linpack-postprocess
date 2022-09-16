@@ -1,165 +1,31 @@
 #!/usr/bin/perl
+## -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 4 -*-
+## vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
 
 use strict;
 use warnings;
-
-use lib $ENV{'pbench_lib_dir'};
-use lib $ENV{'pbench_bspp_dir'};
-no lib ".";
-use GenData qw(gen_data);
-use BenchPostprocess qw(value_exists trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash get_json);
 use File::Basename;
-use Data::Dumper;
-use List::Util('sum');
-use JSON;
+use lib $ENV{'pbench_lib_dir'};
 
-my $script = basename($0);
-my $dir = $ARGV[0];
-my $tool_label_pattern = $ARGV[1];
-my $tool_group = $ARGV[2];
+printf "\@ARGV: %s\n", join(" ", @ARGV);
 
-my $benchmark_name = 'linpack';
-my $primary_metric = 'gflops';
-
-my %workload;
-my %parameters;
-my @benchmark;
-my %benchmark_params;
-my %throughput;
-my @gflops;
-
-my @client_hostname_dirs;
-
-if (opendir(my $clients_dh, "$dir/clients")) {
-    @client_hostname_dirs = grep(!/^\./, (sort  readdir($clients_dh)));
-    closedir($clients_dh);
-} else {
-    printf STDERR "ERROR: Could not open clients directory!\n";
+if (scalar @ARGV < 4) {
+    print "You must supply 4 arguments to linpack-postprocess-cdm:\n";
+    print "(1) The run directory\n";
+    print "(2) The sample directory\n";
+    print "(3) The tool group\n";
+    print "(4) 0 or 1 indicating this is the last sample\n";
     exit 1;
 }
 
-my %client_data;
+my $script_name = basename($0);
+my $rundir = shift(@ARGV);
+my $base_bench_dir = shift(@ARGV);
+my $tool_group = shift(@ARGV);
+my $last_sample = shift(@ARGV);
 
-foreach my $client_hostname_dir (@client_hostname_dirs) {
-    $client_data{$client_hostname_dir} = {};
-
-    my @client_data_files;
-    if (opendir(my $clients_dh, "$dir/clients/$client_hostname_dir")) {
-	@client_data_files = grep(/^linpack\..+$/, (sort readdir($clients_dh)));
-	closedir($clients_dh);
-    } else {
-	printf STDERR "ERROR: Could not open client %s results directory!\n", $client_hostname_dir;
-	exit 2;
-    }
-
-    foreach my $client_data_file (@client_data_files) {
-	if ($client_data_file =~ /^linpack\.(out|meta)$/) {
-	    if (open(CLIENT_OUTPUT, "$dir/clients/$client_hostname_dir/$client_data_file")) {
-		while(<CLIENT_OUTPUT>) {
-		    if ($client_data_file =~ /meta$/) {
-			if ($_ =~ /^(binary|problem_sizes|leading_dimensions|alignment_values|numactl_cmd|use_omp|kmp_affinity|threads)/) {
-			    chomp($_);
-			    my @fields = split(/=/, $_, 2);
-			    $client_data{$client_hostname_dir}{$fields[0]} = $fields[1];
-			}
-		    } elsif ($client_data_file =~ /out$/) {
-			if ($_ =~ /^[0-9]+/) {
-			    chomp($_);
-			    my @fields = split(/\s+/, $_);
-			    if (@fields == 5) {
-				$client_data{$client_hostname_dir}{'bw'} = $fields[3];
-			    }
-			} elsif ($_ =~ /^Performance Summary/) {
-			    $_ =~ m/\((.+)\)$/;
-			    $client_data{$client_hostname_dir}{'bw_units'} = $1;
-			}
-		    }
-		}
-	    } else {
-		printf STDERR "ERROR: Could not open client %s result file %s!\n", $client_hostname_dir, $client_data_file;
-		exit 3;
-	    }
-	}
-    }
-}
-
-print Dumper \%client_data;
-
-foreach my $client (sort (keys %client_data)) {
-    for my $param (keys %{$client_data{$client}}) {
-	if ($param !~ /^bw/) {
-	    if (exists $benchmark_params{$param}) {
-		$benchmark_params{$param} .= ";" . $client_data{$client}{$param};
-	    } else {
-		$benchmark_params{$param} = $client_data{$client}{$param};
-	    }
-	}
-    }
-
-    if (exists $benchmark_params{'clients'}) {
-	$benchmark_params{'clients'} .= ";" . $client;
-    } else {
-	$benchmark_params{'clients'} = $client;
-    }
-}
-
-$benchmark_params{get_label('benchmark_name_label')} = $benchmark_name;
-$benchmark_params{get_label('primary_metric_label')} = $primary_metric;
-$benchmark_params{get_label('uid_label')} = create_uid('benchmark_name_label', 'controller_host_label');
-
-#print Dumper \%benchmark_params;
-
-push(@benchmark, \%benchmark_params);
-
-#print Dumper \@benchmark;
-
-
-foreach my $client (sort (keys %client_data)) {
-    for my $param (keys %{$client_data{$client}}) {
-	if ($param =~ /^bw$/) {
-	    my %this_dataset = ( get_label('role_label') => 'client',
-				 get_label('client_hostname_label') => $client,
-				 get_label('value_label') => $client_data{$client}{$param},
-				 get_label('uid_label') => create_uid('client_hostname_label'),
-				 get_label('description_label') => 'Billions of floating point operations per second' );
-	    push(@gflops, \%this_dataset);
-	}
-    }
-}
-
-
-if (@gflops) {
-    $throughput{'gflops'} = \@gflops;
-}
-
-if (@benchmark) {
-    $parameters{'benchmark'} = \@benchmark;
-}
-
-if (%throughput) {
-    $workload{'throughput'} = \%throughput;
-}
-
-if (%parameters) {
-    $workload{'parameters'} = \%parameters;
-}
-
-print Dumper \%workload;
-
-calc_aggregate_metrics(\%workload);
-
-my %graph;
-create_graph_hash(\%graph, \%workload);
-my %graph_threshold;
-my %graph_type;
-gen_data(\%graph, \%graph_type, \%graph_threshold, $dir, 1);
-
-my $json_file = $dir . "/result.json";
-my $json_text = to_json(\%workload, { ascii => 1, pretty => 1, canonical => 1 } );
-if (open(JSON, ">$json_file")) {
-    print JSON $json_text;
-    close(JSON);
-} else {
-    print STDERR "ERROR: Could not open json file '$json_file' for writing!\n";
-    exit 4;
+# Call the legacy post-process script, so we can build the static html reports later
+system($ENV{'pbench_install_dir'} . "/bench-scripts/postprocess/linpack-postprocess-sample `/bin/pwd` linpack default");
+if (defined $last_sample and $last_sample eq "1") {
+	system($ENV{'pbench_install_dir'} . "/bench-scripts/postprocess/process-iteration-samples `/bin/pwd`/.. gflops 100 0 1 n n");
 }

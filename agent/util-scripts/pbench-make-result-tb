@@ -9,7 +9,7 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 . "$pbench_bin"/base
 
 function usage() {
-    printf -- "usage:\n%s --result-dir=<pbench results dir> --target-dir=<where to put tar ball> [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded=<0|1>]\n" "${script_name}"
+    printf -- "usage:\n%s --result-dir=<pbench results dir> --target-dir=<where to put tar ball> [--help] --user=<user> [--prefix=<path>] [--xz-single-threaded=<0|1>]\n" "${script_name}"
 }
 function missing_arg() {
     printf -- "\n%s: %s is missing its argument\n\n" "${script_name}" "${1}" >&2
@@ -84,12 +84,17 @@ while true; do
 	    break;
 	    ;;
 	*)
- 	    printf "\n%s: you specified an invalid option or an unexpected argument: \"${opt}\"\n\n" "${script_name}" >&2
+	    printf "\n%s: you specified an invalid option or an unexpected argument: \"${opt}\"\n\n" "${script_name}" >&2
 	    usage >&2
 	    exit 1
 	    ;;
     esac
 done
+
+if [[ -z "$user" ]] ;then
+    error_log "Missing required '--user' option"
+    exit 1
+fi
 
 if [[ ! -d "${result_dir}" ]]; then
     error_log "Invalid result directory provided: \"${result_dir}\""
@@ -102,13 +107,14 @@ if [[ ! -d "${target_dir}" ]]; then
     exit 1
 fi
 
-controller_dir="$(basename -- "${target_dir}")"
+controller_dir=$(basename -- "${target_dir}")
+full_result_dir=$(realpath -e "${result_dir}")
+full_target_dir=$(realpath -e "${target_dir}")
 
 # We can now start building the target tarball
 
 # Move into pbench run collection directory
-full_result_dir=$(realpath -e ${result_dir})
-pushd $(dirname full_result_dir) > /dev/null 2>&1
+cd $(dirname ${full_result_dir}) > /dev/null
 if [[ ${?} -ne 0 ]]; then
     exit 1
 fi
@@ -161,10 +167,8 @@ if [[ -e pbench.log ]]; then
     /bin/cp pbench.log ${pbench_run_name}/
 fi
 
-# if -u|--user was specified, store the specified user in metadata.log
-if [[ ! -z "$user" ]] ;then
-    printf -- "%s" "$user" | pbench-add-metalog-option ${mdlog} run user
-fi
+# Store the specified user in metadata.log
+printf -- "%s" "$user" | pbench-add-metalog-option ${mdlog} run user
 
 # if -p|--prefix was specified, store the specified prefix in metadata.log
 if [[ ! -z "$prefix" ]] ;then
@@ -178,7 +182,7 @@ printf -- "%s" "$result_size" | pbench-add-metalog-option ${mdlog} run raw_size
 ts=$(timestamp)
 printf -- "%s" "$ts" | pbench-add-metalog-option ${mdlog} pbench tar-ball-creation-timestamp
 
-tarball="${target_dir}/${pbench_run_name}.tar.xz"
+tarball="${full_target_dir}/${pbench_run_name}.tar.xz"
 if [[ "${xz_single_threaded}" == "1" ]]; then
     tar_cmd="tar --create --force-local -xz \"${pbench_run_name}\""
 else
@@ -192,10 +196,10 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-tarballmd5="${tarball}.md5.check"
+tarballmd5=$(basename "${tarball}.md5.check")
 # We need to calculate the md5 sum in the temp directory
 # in order to get the filename right.
-pushd $(dirname ${tarball}) > /dev/null 2>&1
+cd $(dirname ${tarball}) > /dev/null
 md5sum "$(basename ${tarball})" > "${tarballmd5}"
 if [[ $? -ne 0 ]]; then
     error_log "ERROR: md5sum failed for ${tarball}, skipping"

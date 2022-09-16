@@ -85,11 +85,12 @@ else:
     go_cmd = "go"
 
 
+from datetime import datetime  # noqa E402
+import errno  # noqa E402
+
 # The Operation class using subprocess internally.
 import math  # noqa E402
-import errno  # noqa E402
-from time import time, sleep  # noqa E402
-from datetime import datetime  # noqa E402
+from time import sleep, time  # noqa E402
 
 
 class Operation:
@@ -223,14 +224,18 @@ pids = {}
 for operation in gen_operations(masters, nodes):
     if operation.op_id in pids:
         logging.warning(
-            "[%s]: encountered duplicate operation, %s", PROG, operation.op_id,
+            "[%s]: encountered duplicate operation, %s",
+            PROG,
+            operation.op_id,
         )
         continue
     try:
         pid = os.fork()
     except OSError:
         logging.exception(
-            "[%s]: os.fork() failed [operation=%s]", PROG, operation.op_id,
+            "[%s]: os.fork() failed [operation=%s]",
+            PROG,
+            operation.op_id,
         )
         sys.exit(1)
     else:
@@ -288,7 +293,7 @@ if parent:
                         operation.op_id,
                         exc,
                     )
-    sys.exit(0)
+    sys.exit(0)  # lgtm [py/unreachable-statement]
 
 # We are now in the "child" ONLY at this point.
 
@@ -303,7 +308,7 @@ if _unit_test_iterations is not None:
 
     def _time(*args, **kwargs):
         """Each call to mock'd _time() increments the internal clock by
-           one second.
+        one second.
         """
         global _ts
         _ts += 1
@@ -314,11 +319,11 @@ if _unit_test_iterations is not None:
 
     def _sleep(length):
         """Each call to mock'd _sleep() increments the internal clock by
-           the amount of time requested for the sleep, and checks to see
-           if we have exceeded the number of times time.sleep() should be
-           called before exiting the datalog. It calls the actual time.sleep
-           for one second no matter how much time the actual sleep would
-           have been.
+        the amount of time requested for the sleep, and checks to see
+        if we have exceeded the number of times time.sleep() should be
+        called before exiting the datalog. It calls the actual time.sleep
+        for one second no matter how much time the actual sleep would
+        have been.
         """
         global _ts
         global _sleep_iterations

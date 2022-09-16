@@ -1,0 +1,17 @@
+[copr-pbench-server]
+name=Copr pbench Server repo
+baseurl=https://copr-be.cloud.fedoraproject.org/results/wscales/pbench/epel-8-$basearch
+gpgcheck= 1
+gpgkey=https://copr-be.cloud.fedoraproject.org/results/wscales/pbench/pubkey.gpg
+enabled=1
+enabled_metadata=1
+skip_if_unavailable=1
+
+[copr-pbench-dashboard]
+name=Copr pbench Dashboard repo
+baseurl=https://copr-be.cloud.fedoraproject.org/results/wscales/pbench-dashboard/epel-8-$basearch
+gpgcheck= 1
+gpgkey=https://copr-be.cloud.fedoraproject.org/results/wscales/pbench-dashboard/pubkey.gpg
+enabled=1
+enabled_metadata=1
+skip_if_unavailable=1

@@ -8,48 +8,86 @@ URL:            https://github.com/distributed-system-analysis/pbench
 Source0:        pbench-agent-%{version}.tar.gz
 Buildarch:      noarch
 
-%if 0%{?rhel} == 7
-Requires:  python3, python3-pip
-# For RHEL boxen we need the python development environment in order for the
-# pip3 installs for some modules to be successful.
-Requires:  gcc python3-devel
-%endif
 
+# RHEL7, RHEL9 (and CentOS-Stream-9) and the Fedoras provide a python3 package
+# through the standard distro repos.
+# RHEL8 (and CentOS-Stream-8) provide python36, python38 and python39 as modules.
+# We stick with python39 for them for now.
+# N.B. The condition catches both RHEL8 and CentOS-Stream-8)
 %if 0%{?rhel} == 8
-Requires:  python36, python3-pip
-# RPMs for modules in requirements.txt
-Requires:  python3-cffi, python3-click, python3-requests, python3-werkzeug
-# RPMs for module dependencies
-Requires:  python3-docutils, python3-psutil
+
+Requires:  python39
+# This is used by the shebang processor
+%define __python3 /usr/bin/python3.9
+%define __python_name python39
+
+%else
+
+Requires:  python3
+%define __python_name python3
+
 %endif
 
+
+# RHEL7 is a special case: it does not conform to the (slightly) more
+# general pattern of the rest
+
+%if 0%{?rhel} == 7
+
+# RPMs for modules in requirements.txt
+Requires: python3-pip, python3-requests
+# RPMS for module dependencies
+Requires: python3-psutil
+
+# RHEL7 also does not define __python3 - we need it for installing
+# requirements through pip so we define it here
+%define __python3 /usr/bin/python3
+
+%else
+
+# RPMs for modules in requirements.txt
+Requires: %{__python_name}-pip, %{__python_name}-cffi, %{__python_name}-requests
+# RPMS for module dependencies
+Requires: %{__python_name}-psutil
+
+%endif
+
+%define __python /usr/bin/python3
+
+# docutils is not available for RHEL7 - it is also *only* available as
+# `python3-docutil's on everything else, which is not good for
+# RHEL8/CentOS Stream 8 where we would want `python39-docutils', but
+# this does not exist. We need to handle it specially: check for
+# RHEL9/CentOS Stream 9 OR Fedora
+
+%if 0%{?rhel} > 8 || 0%{?fedora} != 0
+Requires: python3-docutils
+%endif
+
+# additional packages that Fedora builds but the RHELs don't
 %if 0%{?fedora} != 0
-Requires:  python3, python3-pip
 # RPMs for modules in requirements.txt
-Requires:  python3-bottle, python3-cffi, python3-click, python3-daemon
-Requires:  python3-jinja2, python3-redis, python3-requests, python3-werkzeug
-Requires:  python3-sh
-# RPMs for module dependencies
-Requires:  python3-psutil
+Requires:  python3-bottle, python3-click, python3-daemon
+Requires:  python3-jinja2, python3-redis, python3-sh
 %endif
 
-%if 0%{?rhel} >= 7
-%define prefixjsonxs pbench-
+%if 0%{?fedora} >= 36
+Requires: python3-ifaddr
 %endif
-Requires:  perl, perl-Data-UUID, perl-JSON, %{?prefixjsonxs}perl-JSON-XS
+
+# Common requirements
+Requires:  perl, perl-Data-UUID, perl-JSON, perl-JSON-XS
 Requires:  perl-Time-HiRes
 
-Requires:  ansible, bc, bzip2, hostname, iproute, iputils, net-tools
-Requires:  openssh-clients, openssh-server, procps-ng, psmisc, redis, rsync
-Requires:  screen, sos, tar, xz
+Requires:  bc, bzip2, hostname, iproute, iputils, net-tools, numactl
+Requires:  openssh-clients, openssh-server, procps-ng, psmisc, redis
+Requires:  rpmdevtools, rsync, screen, sos, tar, xz
 
 Obsoletes: pbench <= 0.34
 Conflicts: pbench <= 0.34
 # configtools is packaged with pbench-agent, so we specifically do NOT want
 # the configtools RPM installed.
 Conflicts: configtools
-
-Patch0: stockpile-shebang.patch
 
 %define installdir opt/pbench-agent
 
@@ -59,7 +97,6 @@ The Pbench Agent - wraps benchmark workloads to collect specified tool and confi
 %prep
 
 %setup
-%patch0 -p1
 
 %build
 
@@ -76,8 +113,9 @@ cp -a agent/* %{?buildroot}/%{installdir}/
 if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;fi
 
 %post
+
 # Install python dependencies
-pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log
+%{__python3} -m pip --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log 2>&1
 
 # link the pbench profile, so it'll automatically be sourced on login
 ln -sf /%{installdir}/profile /etc/profile.d/pbench-agent.sh
@@ -101,7 +139,7 @@ fi
 %posttrans
 
 %files
-%defattr(664,root,root,775)
+%defattr(444,root,root,555)
 /%{installdir}/ansible
 /%{installdir}/config
 /%{installdir}/lib
@@ -116,23 +154,16 @@ fi
 
 %config(noreplace) %attr(0664,root,root) /%{installdir}/config/pbench-agent.cfg
 
-%defattr(775,root,root,775)
+%defattr(555,root,root,555)
 /%{installdir}/util-scripts
-%attr(664,root,root) /%{installdir}/util-scripts/README.md
+%attr(444,root,root) /%{installdir}/util-scripts/README.md
 /%{installdir}/tool-scripts
-%attr(664,root,root) /%{installdir}/tool-scripts/meta.json
-%attr(664,root,root) /%{installdir}/tool-scripts/perf.README
-%attr(664,root,root) /%{installdir}/tool-scripts/README.md
+%attr(444,root,root) /%{installdir}/tool-scripts/meta.json
+%attr(444,root,root) /%{installdir}/tool-scripts/perf.README
+%attr(444,root,root) /%{installdir}/tool-scripts/README.md
 /%{installdir}/bench-scripts
-%attr(664,root,root) /%{installdir}/bench-scripts/pbench-fio.md
-%attr(664,root,root) /%{installdir}/bench-scripts/pbench-uperf.md
-%attr(664,root,root) /%{installdir}/bench-scripts/postprocess/BenchPostprocess.pm
-%attr(664,root,root) /%{installdir}/bench-scripts/templates/fio.job
-%attr(664,root,root) /%{installdir}/bench-scripts/templates/fio-shared-fs.job
-
-# stockpile
-%defattr(664,root,root,775)
-/%{installdir}/stockpile
-%attr(775,root,root) /%{installdir}/stockpile/import_roles.sh
-%attr(775,root,root) /%{installdir}/stockpile/roles/openshift-cluster-topology/files/openshift_config_scraper.py
-%attr(775,root,root) /%{installdir}/stockpile/roles/openstack_common/files/openstack-config-parser.py
+%attr(444,root,root) /%{installdir}/bench-scripts/pbench-fio.md
+%attr(444,root,root) /%{installdir}/bench-scripts/pbench-uperf.md
+%attr(444,root,root) /%{installdir}/bench-scripts/postprocess/BenchPostprocess.pm
+%attr(444,root,root) /%{installdir}/bench-scripts/templates/fio.job
+%attr(444,root,root) /%{installdir}/bench-scripts/templates/fio-shared-fs.job
