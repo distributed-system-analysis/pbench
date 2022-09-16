@@ -109,13 +109,13 @@ def register_endpoints(api, app, config):
     )
     api.add_resource(
         SampleNamespace,
-        f"{base_uri}/datasets/namespace/<string:dataset_view>",
+        f"{base_uri}/datasets/namespace/<string:dataset>/<string:dataset_view>",
         endpoint="datasets_namespace",
         resource_class_args=(config, logger),
     )
     api.add_resource(
         SampleValues,
-        f"{base_uri}/datasets/values/<string:dataset_view>",
+        f"{base_uri}/datasets/values/<string:dataset>/<string:dataset_view>",
         endpoint="datasets_values",
         resource_class_args=(config, logger),
     )
