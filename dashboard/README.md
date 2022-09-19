@@ -46,15 +46,15 @@ Navigate to `dashboard` directory and run following command
 
 Create a `.env` file in the root directory (`/dashboard/`) and declare the environment variable `PBENCH_SERVER`.
 This `PBENCH_SERVER` environment variable is the base URL for all API calls and it should point to a real pbench server.
-	```bash
-	PBENCH_SERVER=<pbench server url>
-	```
+```bash
+PBENCH_SERVER=<pbench server url>
+```
 
 In order to start the development express server and run the application use the following command 
-	```bash
-	$ npm run dev
-	```
-	> Note: The application runs on http://localhost:3000.
+```bash
+$ npm run dev
+```
+> Note: The application runs on http://localhost:3000.
 
 ## Build
 
