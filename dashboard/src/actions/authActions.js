@@ -1,3 +1,4 @@
+import * as APP_ROUTES from "utils/routeConstants";
 import * as CONSTANTS from "../assets/constants/authConstants";
 import * as TYPES from "./types";
 
@@ -43,7 +44,7 @@ export const makeLoginRequest =
           payload: loginDetails,
         });
 
-        navigate("/dashboard/overview");
+        navigate("/dashboard/" + APP_ROUTES.OVERVIEW);
 
         dispatch(constructToast("success", "Logged in successfully!"));
       }
@@ -106,7 +107,7 @@ export const registerUser =
         dispatch(
           constructToast("success", "Account created!", "Login to continue")
         );
-        navigate("/dashboard/login");
+        navigate("/" + APP_ROUTES.AUTH_LOGIN);
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {
@@ -163,6 +164,6 @@ export const logout = () => async (dispatch) => {
   }
   dispatch({ type: TYPES.COMPLETED });
   setTimeout(() => {
-    window.location.href = "auth";
+    window.location.href = "/" + APP_ROUTES.AUTH;
   }, CONSTANTS.LOGOUT_DELAY_MS);
 };

@@ -1,5 +1,7 @@
 import "./index.less";
 
+import * as APP_ROUTES from "utils/routeConstants";
+
 import { EmptyTable, Heading, LoginHint, SearchBox } from "./common-components";
 import {
   InnerScrollContainer,
@@ -144,7 +146,7 @@ const TableWithFavorite = () => {
               message="Want to see your own data?"
               link="Login or Create an account"
               onCloseMethod={onCloseLoginHint}
-              redirect="auth"
+              redirect={"/" + APP_ROUTES.AUTH}
             />
           )}
           <div className="table-container">

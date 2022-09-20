@@ -1,5 +1,7 @@
 import "./index.less";
 
+import * as APP_ROUTES from "utils/routeConstants";
+
 import {
   Button,
   Card,
@@ -92,7 +94,7 @@ export const AuthForm = () => {
         <div className="button-wrapper">
           <Button
             variant="primary"
-            onClick={() => navigatePage("/dashboard/login")}
+            onClick={() => navigatePage("/" + APP_ROUTES.AUTH_LOGIN)}
           >
             Pbench Credentials
           </Button>
@@ -102,7 +104,7 @@ export const AuthForm = () => {
             <span>Need an account?</span>
             <Button
               variant="link"
-              onClick={() => navigatePage("/dashboard/signup")}
+              onClick={() => navigatePage("/" + APP_ROUTES.AUTH_SIGNUP)}
             >
               Sign up
             </Button>

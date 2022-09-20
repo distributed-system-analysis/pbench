@@ -1,3 +1,5 @@
+import * as APP_ROUTES from "utils/routeConstants";
+
 import {
   Alert,
   AlertGroup,
@@ -145,7 +147,7 @@ const SignupForm = () => {
   return (
     <Card className="signup-card">
       <CardTitle>
-        <Back toPage="/dashboard/auth" />
+        <Back toPage={"/" + APP_ROUTES.AUTH} />
         <LoginHeader title="Create an account" />
         <AlertGroup isLiveRegion>
           {alerts.map(({ title, key }) => (

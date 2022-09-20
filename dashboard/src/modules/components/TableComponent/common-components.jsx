@@ -1,21 +1,23 @@
-import React, { useState } from "react";
+import "./index.less";
+
 import {
   Alert,
   AlertActionCloseButton,
   Button,
   EmptyState,
-  EmptyStateVariant,
-  EmptyStateIcon,
-  Title,
   EmptyStateBody,
-  TextContent,
-  TextVariants,
-  Text,
+  EmptyStateIcon,
+  EmptyStateVariant,
   InputGroup,
+  Text,
+  TextContent,
   TextInput,
+  TextVariants,
+  Title,
 } from "@patternfly/react-core";
+import React, { useState } from "react";
+
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import "./index.less";
 import { filterData } from "utils/filterDataset";
 import { useNavigate } from "react-router";
 
@@ -34,7 +36,7 @@ export const LoginHint = (props) => {
           variant="link"
           key="login-hint-button"
           className="alertHelpText"
-          onClick={() => navigate(`/${redirect}`)}
+          onClick={() => navigate(`${redirect}`)}
         >
           {link}
         </Button>,

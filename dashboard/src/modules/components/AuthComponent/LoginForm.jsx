@@ -1,3 +1,5 @@
+import * as APP_ROUTES from "utils/routeConstants";
+
 import {
   Alert,
   AlertGroup,
@@ -86,7 +88,7 @@ const LoginForm = () => {
   return (
     <Card>
       <CardTitle>
-        <Back toPage="/dashboard/auth" />
+        <Back toPage={"/" + APP_ROUTES.AUTH} />
         <LoginHeader title={"Login to your Pbench account"} />
         <AlertGroup isLiveRegion>
           {alerts.map(({ title, key }) => (
