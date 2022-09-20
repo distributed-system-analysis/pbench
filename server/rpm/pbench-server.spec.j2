@@ -59,8 +59,8 @@ Requires: python3-certifi python3-bcrypt python3-greenlet
 # because we don't know where the config file is. Note that we omit
 # the initial / - it is added in every use below.  IMO, that's more
 # readable since it appears in the middle of the path in all cases,
-# *except* in the %files section (and one instance in the %post
-# and %postun sections).
+# *except* in the files section (and one instance in the post
+# and postun sections).
 
 %define installdir opt/pbench-server
 %define static html/static
@@ -92,7 +92,7 @@ cp -a ./web-server/* %{buildroot}/%{installdir}/%{static}
 # for the npm install below
 mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 
-# The %dir directive creates this directory on install, but needs a source
+# The %%dir directive creates this directory on install, but needs a source
 mkdir -p %{buildroot}/var/log/pbench-server/
 
 %post
@@ -129,7 +129,7 @@ su pbench -c "python3 -m pip --no-cache-dir install --user --no-warn-script-loca
 # site-library paths, and /opt/pbench-server/lib.
 su pbench -c "echo /%{installdir}/lib > \$(python3 -m site --user-site)/pbench.pth"
 
-# install node.js modules under /%{installdir}
+# install node.js modules under /{installdir}
 cd /%{installdir}
 rm -rf node_modules
 echo 'package-lock=false' >> .npmrc
