@@ -38,7 +38,7 @@ push-relnotes: RELEASE-NOTES.html
 	rsync -ave ssh $< ${dest}/doc/$<
 
 #
-# Sphinx built documentation (requires `pip3 install --user -r requirements.txt`)
+# Sphinx built documentation (requires `pip3 install --user -r docs/requirements.txt`)
 #
 
 # You can set these variables from the command line.
