@@ -5,7 +5,7 @@
 all:  pbench-agent.html
 
 .PHONY: everything
-everything: all pbench-agent.pdf singlehtml
+everything: all pbench-agent.pdf html
 
 %.html:	%.org batch-export.el
 	emacs -batch -l batch-export.el --eval "(batch-org-export-as 'html)" $<
@@ -38,7 +38,7 @@ push-relnotes: RELEASE-NOTES.html
 	rsync -ave ssh $< ${dest}/doc/$<
 
 #
-# Sphinx built documentation (requires `pip3 install --user -r requirements.txt`)
+# Sphinx built documentation (requires `pip3 install --user -r docs/requirements.txt`)
 #
 
 # You can set these variables from the command line.
@@ -60,5 +60,8 @@ clean:
 	rm -rf $(BUILDDIR)
 
 .PHONY: veryclean
-veryclean:	clean
-	rm -f *.html *.pdf *.tex
+veryclean:	clean pbench-agent.clean results.clean
+
+.PHONY: %.clean
+%.clean:
+	rm -f $*.html $*.pdf $*.tex

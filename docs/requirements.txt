@@ -1,2 +1,2 @@
-sphinx-panels
-sphinx_rtd_theme
+sphinx-design
+sphinx-rtd-theme

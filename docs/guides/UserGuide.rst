@@ -209,7 +209,7 @@ pbench-linpack
      TBD
 
 pbench-specjbb2005
-================
+===================
 
 .. note::
 
