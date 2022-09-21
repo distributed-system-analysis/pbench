@@ -49,7 +49,7 @@ URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${COPR_USER}
 # test COPR repos to have a suffix added, typically "test", so that
 # the final repo name would be "pbench-test".
 TEST =
-_TEST_SUFFIX = $(if $(TEST),-$(TEST),"")
+_TEST_SUFFIX = $(if $(TEST),-$(TEST),)
 _PBENCH_REPO_NAME = pbench-$(shell grep -oE '[0-9]+\.[0-9]+' ${_PBENCH_TOP}/agent/VERSION)${_TEST_SUFFIX}
 
 # By default we use the pbench Quay.io organization for the image
@@ -59,7 +59,7 @@ IMAGE_REPO = docker://quay.io/pbench
 
 # Convenience reference to the repo template in the pbench tree.
 # Not intended to be overridden with an environment variable.
-_PBENCH_REPO_TEMPLATE = ../../ansible/roles/pbench_repo_install/templates/etc/yum.repos.d/pbench.repo.j2
+_PBENCH_REPO_TEMPLATE = ../../ansible/collection/roles/pbench_repo_install/templates/etc/yum.repos.d/pbench.repo.j2
 
 # This is for use on CentOS; on Fedora, the package is available without a
 # custom .repo file.
@@ -108,13 +108,13 @@ _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 _DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35
 
 # By default we build the Tool Data Sink and Tool Meister images as well.
-all: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
+all: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
 
 # Convenience target to only build the Tool Data Sink images.
-tds: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
+tds: all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
 
 # Convenience target to only build the Tool Meister images.
-tm: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
+tm: all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
 
 #+
 # For the following rule patterns, the "%" represents the "distribution" name,
@@ -181,35 +181,35 @@ repofix: $(_DEFAULT_DISTROS:%=%-repofix)
 # Build targets
 #-
 
-%-all-tagged: %-all %-tags.lis
+$(_DISTROS:%=%-all-tagged): %-all-tagged: %-all %-tags.lis
 	./apply-tags pbench-agent-all-$* $*-tags.lis
 
-%-all: %-workloads-tagged %-tool-data-sink-tagged %-tool-meister-tagged %-all.Dockerfile %-tags.lis
+$(_DISTROS:%=%-all): %-all: %-workloads-tagged %-tool-data-sink-tagged %-tool-meister-tagged %-all.Dockerfile %-tags.lis
 	./build-image all $* $*-tags.lis
 
-%-all.Dockerfile: Dockerfile.layered.j2 %-tags.lis
+$(_DISTROS:%=%-all.Dockerfile): %-all.Dockerfile:  Dockerfile.layered.j2 %-tags.lis
 	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" \
 		-D kind="all" -D rpms="${_ALL_RPMS}" > ./$@
 
-%-tool-data-sink-tagged: %-tool-data-sink %-tags.lis
+$(_DISTROS:%=%-tool-data-sink-tagged): %-tool-data-sink-tagged:  %-tool-data-sink %-tags.lis
 	./apply-tags pbench-agent-tool-data-sink-$* $*-tags.lis
 
-%-tool-data-sink: %-tools-tagged %-tool-data-sink.Dockerfile %-tags.lis
+$(_DISTROS:%=%-tool-data-sink): %-tool-data-sink:  %-tools-tagged %-tool-data-sink.Dockerfile %-tags.lis
 	./build-image tool-data-sink $* $*-tags.lis
 
-%-tool-data-sink.Dockerfile: Dockerfile.tds.j2 %-tags.lis
+$(_DISTROS:%=%-tool-data-sink.Dockerfile): %-tool-data-sink.Dockerfile:  Dockerfile.tds.j2 %-tags.lis
 	jinja2 Dockerfile.tds.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" > ./$@
 
-%-tool-meister-tagged: %-tool-meister %-tags.lis
+$(_DISTROS:%=%-tool-meister-tagged): %-tool-meister-tagged:  %-tool-meister %-tags.lis
 	./apply-tags pbench-agent-tool-meister-$* $*-tags.lis
 
-%-tool-meister: %-tools-tagged %-tool-meister.Dockerfile %-tags.lis
+$(_DISTROS:%=%-tool-meister): %-tool-meister:  %-tools-tagged %-tool-meister.Dockerfile %-tags.lis
 	./build-image tool-meister $* $*-tags.lis
 
-%-tool-meister.Dockerfile: Dockerfile.tm.j2 %-tags.lis
+$(_DISTROS:%=%-tool-meister.Dockerfile): %-tool-meister.Dockerfile:  Dockerfile.tm.j2 %-tags.lis
 	jinja2 Dockerfile.tm.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" > ./$@
 
-%-tools-tagged: %-tools %-tags.lis
+$(_DISTROS:%=%-tools-tagged): %-tools-tagged:  %-tools %-tags.lis
 	./apply-tags pbench-agent-tools-$* $*-tags.lis
 
 # CentOS 7 & 8 (but not 9) require an additional .repo file for Prometheus for
@@ -218,27 +218,27 @@ repofix: $(_DEFAULT_DISTROS:%=%-repofix)
 centos-7-tools centos-8-tools: centos-%-tools: centos-%-prometheus.repo
 $(_ALL_fedora_VERSIONS:%=%-tools) centos-7-tools centos-8-tools: %-tools: %-pcp.repo
 
-%-tools: %-base-tagged %-tools.Dockerfile %-tags.lis
+$(_DISTROS:%=%-tools): %-tools:  %-base-tagged %-tools.Dockerfile %-tags.lis
 	./build-image tools $* $*-tags.lis
 
-%-tools.Dockerfile: Dockerfile.layered.j2 %-tags.lis
+$(_DISTROS:%=%-tools.Dockerfile): %-tools.Dockerfile:  Dockerfile.layered.j2 %-tags.lis
 	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" \
 		-D kind="tools" -D rpms="${_TOOL_RPMS}" > ./$@
 
-%-workloads-tagged: %-workloads %-tags.lis
+$(_DISTROS:%=%-workloads-tagged): %-workloads-tagged:  %-workloads %-tags.lis
 	./apply-tags pbench-agent-workloads-$* $*-tags.lis
 
-%-workloads: %-base-tagged %-workloads.Dockerfile %-tags.lis
+$(_DISTROS:%=%-workloads): %-workloads:  %-base-tagged %-workloads.Dockerfile %-tags.lis
 	./build-image workloads $* $*-tags.lis
 
-%-workloads.Dockerfile: Dockerfile.layered.j2 %-tags.lis
+$(_DISTROS:%=%-workloads.Dockerfile): %-workloads.Dockerfile:  Dockerfile.layered.j2 %-tags.lis
 	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" \
 		-D kind="workloads" -D rpms="${_WORKLOAD_RPMS}" > ./$@
 
-%-base-tagged: %-base %-tags.lis
+$(_DISTROS:%=%-base-tagged): %-base-tagged:  %-base %-tags.lis
 	./apply-tags pbench-agent-base-$* $*-tags.lis
 
-%-base: %-base.Dockerfile %-pbench.repo %-tags.lis
+$(_DISTROS:%=%-base): %-base:  %-base.Dockerfile %-pbench.repo %-tags.lis
 	./build-image base $* $*-tags.lis
 
 #+
@@ -246,20 +246,20 @@ $(_ALL_fedora_VERSIONS:%=%-tools) centos-7-tools centos-8-tools: %-tools: %-pcp.
 #-
 
 define _PUSH_RULE
-%-push-$(1): %-tags.lis
+$(_DISTROS:%=%-push-$(1)): %-push-$(1):  %-tags.lis
 	./push ${IMAGE_REPO} $$* $(1)
 endef
 
 $(foreach tagtype,${_TAG_TYPES},$(eval $(call _PUSH_RULE,${tagtype})))  # Define rules
 
-%-push: %-tags.lis
+$(_DISTROS:%=%-push): %-push:  %-tags.lis
 	./push ${IMAGE_REPO} $*
 
 #+
 # Invoke quay-repo to force visibility and permission change
 #-
 
-%-repofix:
+$(_DISTROS:%=%-repofix): %-repofix:
 	./repo-fix $*
 
 #+
@@ -270,14 +270,14 @@ $(foreach tagtype,${_TAG_TYPES},$(eval $(call _PUSH_RULE,${tagtype})))  # Define
 #-
 
 define _TAG_RULE
-%-tag-$(1): %-tags.lis
+$(_DISTROS:%=%-tag-$(1)): %-tag-$(1):  %-tags.lis
 	./tagit $$* $(1)$(if $(findstring major,$(1)),-latest)
 endef
 
 $(foreach tagtype,${_TAG_TYPES},$(eval $(call _TAG_RULE,${tagtype})))  # Define rules
 
 # Build the tags file for the given distribution. (We rename "centos" to "epel".)
-%-tags.lis:
+$(_DISTROS:%=%-tags.lis): %-tags.lis:
 	./gen-tags-from-rpm "${URL_PREFIX}" "$(subst centos,epel,$*)" "${_ARCH}" "${_PBENCH_REPO_NAME}" > ${@}
 
 # This file takes a long time to generate, so preserve it between builds (it can
@@ -293,7 +293,7 @@ pkgmgr-clean:
 # between the distribution name and the repo name, which for CentOS images
 # is "epel".  And for both CentOS and Fedora, the distribution image
 # reference, the package manager (dnf vs yum), and image name, also require
-# mappings (e.g. centos-7 -> yum, centos:7, CentOS 7, fedora-32 -> dnf,
+# mappings (e.g. centos-7 -> yum, centos:7, CentOS 7; or, fedora-32 -> dnf,
 # fedora:32, Fedora 32).
 #-
 _PKGMGR = dnf
@@ -319,18 +319,18 @@ all-dockerfiles: \
 all-tags: pkgmgr-clean $(_DEFAULT_DISTROS:%=%-tags.lis)
 	./verify-tags *-tags.lis
 
-%-pbench.repo: %-pbench.yml ${_PBENCH_REPO_TEMPLATE}
+$(_DISTROS:%=%-pbench.repo): %-pbench.repo:  %-pbench.yml ${_PBENCH_REPO_TEMPLATE}
 	jinja2 ${_PBENCH_REPO_TEMPLATE} $*-pbench.yml -o $@
 
-%-pbench.yml: repo.yml.j2
+$(_DISTROS:%=%-pbench.yml): %-pbench.yml:  repo.yml.j2
 	jinja2 repo.yml.j2 -D name=${_PBENCH_REPO_NAME} -D user=${COPR_USER} \
         -D distro=$(if $(filter centos,${DIST_NAME}),$(subst centos,epel,$*),$*) \
         -D url_prefix=${URL_PREFIX} -o $@
 
-%-pcp.repo: pcp.repo.j2
+$(_DISTROS:%=%-pcp.repo): %-pcp.repo:  pcp.repo.j2
 	jinja2 pcp.repo.j2 -D distro=${DIST_NAME} -D version=${DIST_VERSION} -o $@
 
-%-prometheus.repo:
+$(_DISTROS:%=%-prometheus.repo): %-prometheus.repo:
 	curl -sSf "${_PROMETHEUS_REPO_URL}" > $@
 
 clean:
