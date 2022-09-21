@@ -1317,7 +1317,7 @@ class ToolDataSink(Bottle):
                     self.sig_resp.srespond(signal)
                     continue
                 if not signal.metadata:
-                    self.logger.debug(
+                    self.logger.warning(
                         "Signal for %s received, but required metadata not included",
                         action,
                     )

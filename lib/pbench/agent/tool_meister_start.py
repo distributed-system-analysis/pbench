@@ -1233,6 +1233,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
             raise CleanupTime(
                 ReturnCode.TDSWAITFAILURE, "TDS didn't confirm init sequence completion"
             )
+        to_client_chan.close()
 
         # +
         # Step 8. - Verify all the Tool Meisters have reported back, and that
@@ -1270,8 +1271,6 @@ def start(_prog: str, cli_params: Namespace) -> int:
         # Setup a Client API object using our existing Redis server connection
         # to drive the following client operations: "sysinfo" [optional], and
         # "init" [required].
-        #
-        # FIXME - What should be done with the `to_client_chan` object?
         with Client(
             redis_server=redis_client,
             publisher_prefix="start",

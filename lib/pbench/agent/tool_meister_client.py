@@ -15,13 +15,18 @@ Meisters.
 
 import logging
 import os
+from pathlib import Path
 import sys
+from typing import Union
 
 import state_signals
 
 from pbench.agent.constants import cli_tm_allowed_actions, tm_allowed_actions
 from pbench.agent.tool_group import ToolGroup
 from pbench.agent.utils import RedisServerCommon
+
+
+SIGNAL_RESPONSE_TIMEOUT = 100
 
 
 class Client:
@@ -124,7 +129,9 @@ class Client:
         """On context exit, just close down the to SignalExporter object."""
         self.sig_pub.shutdown()
 
-    def publish(self, group: str, directory: str, action: str, args=None) -> int:
+    def publish(
+        self, group: str, directory: Union[str, Path, None], action: str, args=None
+    ) -> int:
         """Publish a state signal formed from the group, directory, action,
         and args arguments, using the SignalExporter instance.  It waits for
         responses from subscribers (TDS, and the TMs indirectly) before
@@ -134,9 +141,6 @@ class Client:
         errors encountered.
 
         """
-        if action not in tm_allowed_actions:
-            self.logger.warning(f"Attempted to publish illegal action '{action}'")
-            return 1
 
         # The published message contains four pieces of information:
         #   {
@@ -161,7 +165,10 @@ class Client:
         )
         try:
             resp, msgs = self.sig_pub.publish_signal(
-                event=action, tag="from_pbench_client", metadata=metadata, timeout=100
+                event=action,
+                tag="from_pbench_client",
+                metadata=metadata,
+                timeout=SIGNAL_RESPONSE_TIMEOUT,
             )
         except Exception:
             self.logger.exception("Failed to publish client signal")
