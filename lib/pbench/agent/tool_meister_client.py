@@ -17,14 +17,13 @@ import logging
 import os
 from pathlib import Path
 import sys
-from typing import Union
+from typing import Any, Union
 
 import state_signals
 
 from pbench.agent.constants import cli_tm_allowed_actions, tm_allowed_actions
 from pbench.agent.tool_group import ToolGroup
 from pbench.agent.utils import RedisServerCommon
-
 
 SIGNAL_RESPONSE_TIMEOUT = 100
 
@@ -130,7 +129,11 @@ class Client:
         self.sig_pub.shutdown()
 
     def publish(
-        self, group: str, directory: Union[str, Path, None], action: str, args=None
+        self,
+        group: str,
+        directory: Union[str, Path, None],
+        action: str,
+        args: Any = None,
     ) -> int:
         """Publish a state signal formed from the group, directory, action,
         and args arguments, using the SignalExporter instance.  It waits for
