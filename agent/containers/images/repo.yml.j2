@@ -6,3 +6,9 @@ repos:
     gpgkey: "{{ url_prefix }}/{{ name }}/pubkey.gpg"
     gpgcheck: 1
     enabled: 1
+  - name: pbench
+    user: {{ user }}
+    baseurl: "{{ url_prefix }}/pbench/{{ distro }}-$basearch"
+    gpgkey: "{{ url_prefix }}/pbench/pubkey.gpg"
+    gpgcheck: 1
+    enabled: 1

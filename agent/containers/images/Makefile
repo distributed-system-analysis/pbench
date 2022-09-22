@@ -105,7 +105,7 @@ _WORKLOAD_RPMS = fio uperf
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
 # By default we only build images for the following distributions.
-_DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35
+_DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35 fedora-36
 
 # By default we build the Tool Data Sink and Tool Meister images as well.
 all: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
