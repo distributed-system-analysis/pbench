@@ -59,7 +59,7 @@ IMAGE_REPO = docker://quay.io/pbench
 
 # Convenience reference to the repo template in the pbench tree.
 # Not intended to be overridden with an environment variable.
-_PBENCH_REPO_TEMPLATE = ../../ansible/roles/pbench_repo_install/templates/etc/yum.repos.d/pbench.repo.j2
+_PBENCH_REPO_TEMPLATE = ../../ansible/collection/roles/pbench_repo_install/templates/etc/yum.repos.d/pbench.repo.j2
 
 # This is for use on CentOS; on Fedora, the package is available without a
 # custom .repo file.
@@ -105,7 +105,7 @@ _WORKLOAD_RPMS = fio uperf
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
 # By default we only build images for the following distributions.
-_DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35
+_DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35 fedora-36
 
 # By default we build the Tool Data Sink and Tool Meister images as well.
 all: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
