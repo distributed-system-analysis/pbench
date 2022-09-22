@@ -293,8 +293,8 @@ pkgmgr-clean:
 # between the distribution name and the repo name, which for CentOS images
 # is "epel".  And for both CentOS and Fedora, the distribution image
 # reference, the package manager (dnf vs yum), and image name, also require
-# mappings (e.g. centos-7 -> yum, centos:7, CentOS 7, fedora-32 -> dnf,
-# fedora:32, Fedora 32).
+# mappings (e.g. centos-7 -> yum, centos:7, CentOS 7; or fedora-## -> dnf,
+# fedora:##, Fedora ##).
 #-
 _PKGMGR = dnf
 centos-7-base.Dockerfile: _PKGMGR = yum
