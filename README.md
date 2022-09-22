@@ -20,7 +20,7 @@ https://github.com/distributed-system-analysis/pbench-dashboard).
 ## How is it installed?
 Instructions on installing `pbench-agent`, can be found
 in the Pbench Agent [Getting Started Guide](
-https://distributed-system-analysis.github.io/pbench/start.html).
+https://distributed-system-analysis.github.io/pbench/gh-pages/start.html).
 
 For Fedora, CentOS, and RHEL users, we have made available [COPR
 builds](https://copr.fedorainfracloud.org/coprs/ndokos/pbench/) for the
@@ -33,14 +33,14 @@ sending the results to a server, or even if there is no server configured to
 send results.
 
 You might want to consider browsing through the [rest of the documentation](
-https://distributed-system-analysis.github.io/pbench/doc.html).
+https://distributed-system-analysis.github.io/pbench/gh-pages/doc.html).
 
 ## How do I use pbench?
 Refer to the [Pbench Agent Getting Started Guide](
-https://distributed-system-analysis.github.io/pbench/start.html).
+https://distributed-system-analysis.github.io/pbench/gh-pages/start.html).
 
 TL;DR? See "[TL;DR - How to set up the `pbench-agent` and run a benchmark
-](https://distributed-system-analysis.github.io/pbench/doc.html#how)" in the
+](https://distributed-system-analysis.github.io/pbench/gh-pages/doc.html#how)" in the
 main documentation for a super quick set of introductory steps.
 
 ## Where is the source kept?
@@ -75,7 +75,7 @@ https://github.com/distributed-system-analysis/pbench/milestones).
 Below are some simple steps for setting up a development environment for
 working with the Pbench code base.  For more detailed instructions on the
 workflow and process of contributing code to Pbench, refer to the [Guidelines
-for Contributing](doc/CONTRIBUTING.md).
+for Contributing](docs/CONTRIBUTING.md).
 
 ### Getting the Code
 
