@@ -87,7 +87,8 @@
     "jsdoc": "^3.6.10",
     "less": "^4.1.2",
     "less-loader": "^11.0.0",
-    "prettier": "^2.6.2",
-    "tough-cookie": "^4.1.2"
+    "prettier": "^2.6.2"
+  },
+  "overrides": {
   }
 }
