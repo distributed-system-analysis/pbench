@@ -42,14 +42,13 @@ class TestEndpointConfig:
         auth_issuer = (
             server_config.get("authentication", "server_url") + f"/{auth_realm}"
         )
-        auth_obj = {
-            "realm": auth_realm,
-            "client": server_config.get("authentication", "client"),
-            "issuer": auth_issuer,
-            "secret": "",
-        }
         expected_results = {
-            "authentication": auth_obj,
+            "authentication": {
+                "realm": auth_realm,
+                "client": server_config.get("authentication", "client"),
+                "issuer": auth_issuer,
+                "secret": "",
+            },
             "identification": f"Pbench server {server_config.COMMIT_ID}",
             "api": {
                 "datasets_contents": f"{uri}/datasets/contents",

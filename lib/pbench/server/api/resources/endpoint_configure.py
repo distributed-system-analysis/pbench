@@ -46,8 +46,6 @@ class EndpointConfig(Resource):
         Javascript `window.origin` from which the Pbench dashboard was loaded.
         """
         self.logger = logger
-        self.uri_prefix = config.rest_uri
-        self.commit_id = config.COMMIT_ID
         self.server_config = config
 
     def get(self):
@@ -56,8 +54,7 @@ class EndpointConfig(Resource):
         including the Pbench dashboard UI. This includes:
 
         authentication: A JSON object containing the authentication parameters
-                        required for the web client to authenticate the end-user
-                        with OIDC broker.
+                        required for the web client to use OIDC authentication.
         identification: The Pbench server name and version
         api:    A dict of the server APIs supported; we give a name, which
                 identifies the service, and the full URI relative to the
@@ -152,7 +149,7 @@ class EndpointConfig(Resource):
 
             # Ignore anything that doesn't use our API prefix, because it's
             # not in our API.
-            if url.startswith(self.uri_prefix):
+            if url.startswith(self.server_config.rest_uri):
                 simplified = self.param_template.sub(r"/{\g<name>}", url)
                 matches = self.param_template.finditer(url)
                 template: Dict[str, Any] = {
@@ -187,15 +184,14 @@ class EndpointConfig(Resource):
             issuer = (
                 self.server_config.get("authentication", "server_url")
             ) + f"/{realm}"
-            auth_object = {
-                "client": client,
-                "realm": realm,
-                "issuer": issuer,
-                "secret": oidc_secret,
-            }
             endpoints = {
-                "authentication": auth_object,
-                "identification": f"Pbench server {self.commit_id}",
+                "authentication": {
+                    "client": client,
+                    "realm": realm,
+                    "issuer": issuer,
+                    "secret": oidc_secret,
+                },
+                "identification": f"Pbench server {self.server_config.COMMIT_ID}",
                 "api": apis,
                 "uri": templates,
             }
