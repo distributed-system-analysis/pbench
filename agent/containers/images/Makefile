@@ -108,13 +108,13 @@ _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 _DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35
 
 # By default we build the Tool Data Sink and Tool Meister images as well.
-all: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
+all: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
 
 # Convenience target to only build the Tool Data Sink images.
-tds: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
+tds: all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
 
 # Convenience target to only build the Tool Meister images.
-tm: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
+tm: all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
 
 #+
 # For the following rule patterns, the "%" represents the "distribution" name,
@@ -127,11 +127,11 @@ tm: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
 #-
 
 # We also offer targets per distribution target
-${_DISTROS}: %: pkgmgr-clean %-all-tagged
+${_DISTROS}: %: all-tags %-all-tagged
 
-$(_DISTROS:%=%-tds): %-tds: pkgmgr-clean %-tool-data-sink-tagged
+$(_DISTROS:%=%-tds): %-tds: all-tags %-tool-data-sink-tagged
 
-$(_DISTROS:%=%-tm): %-tm: pkgmgr-clean %-tool-meister-tagged
+$(_DISTROS:%=%-tm): %-tm: all-tags %-tool-meister-tagged
 
 # For any given target, extract the distribution name and version from the
 # first two fields, e.g., fedora-35-tds would yield values "fedora" and "35"
