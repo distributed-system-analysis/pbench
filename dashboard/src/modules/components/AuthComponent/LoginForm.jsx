@@ -24,12 +24,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import { makeLoginRequest, setUserLoggedInState } from "actions/authActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import { useNavigate } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
+  const navigate = useOutletContext();
   const alerts = useSelector((state) => state.userAuth.alerts);
   const [details, setDetails] = useState({
     password: "",
@@ -86,68 +85,70 @@ const LoginForm = () => {
   }, [checkOkButton, details]);
 
   return (
-    <Card>
-      <CardTitle>
-        <Back toPage={"/" + APP_ROUTES.AUTH} />
-        <LoginHeader title={"Login to your Pbench account"} />
-        <AlertGroup isLiveRegion>
-          {alerts.map(({ title, key }) => (
-            <Alert variant="danger" title={title} key={key} />
-          ))}
-        </AlertGroup>
-      </CardTitle>
-      <CardBody>
-        <Form>
-          <FormGroup label="Username" isRequired fieldId="username">
-            <TextInput
-              isRequired
-              type="text"
-              id="username"
-              name="username"
-              value={details.username}
-              onChange={handleUsernameChange}
-            />
-          </FormGroup>
-          <FormGroup label="Password" isRequired fieldId="password">
-            <div className="password-holder">
-              <PasswordTextInput
+    <>
+      <Card>
+        <CardTitle>
+          <Back toPage={APP_ROUTES.AUTH} ctxtNav={navigate} />
+          <LoginHeader title={"Login to your Pbench account"} />
+          <AlertGroup isLiveRegion>
+            {alerts.map(({ title, key }) => (
+              <Alert variant="danger" title={title} key={key} />
+            ))}
+          </AlertGroup>
+        </CardTitle>
+        <CardBody>
+          <Form>
+            <FormGroup label="Username" isRequired fieldId="username">
+              <TextInput
                 isRequired
-                isShowPassword={showPassword}
-                id="password"
-                name="password"
-                value={details.password}
-                onChangeMethod={handlePasswordChange}
+                type="text"
+                id="username"
+                name="username"
+                value={details.username}
+                onChange={handleUsernameChange}
               />
-              <Button
-                variant="control"
-                onClick={onShowPassword}
-                icon={showPassword ? <EyeSlashIcon /> : <EyeIcon />}
-              ></Button>
-            </div>
-          </FormGroup>
-          <Checkbox
-            label="Keep me logged in"
-            isChecked={keepUser}
-            onChange={checkBoxChangeHander}
-            id="logged-in"
-            name="logged-in"
-          />
-        </Form>
-      </CardBody>
-      <CardFooter>
-        <div className="login-footer-btn-wrapper">
-          <Button
-            variant="primary"
-            onClick={sendLoginDetails}
-            isDisabled={btnDisabled}
-            {...primaryLoadingProps}
-          >
-            Login
-          </Button>
-        </div>
-        <NoLoginComponent />
-      </CardFooter>
-    </Card>
+            </FormGroup>
+            <FormGroup label="Password" isRequired fieldId="password">
+              <div className="password-holder">
+                <PasswordTextInput
+                  isRequired
+                  isShowPassword={showPassword}
+                  id="password"
+                  name="password"
+                  value={details.password}
+                  onChangeMethod={handlePasswordChange}
+                />
+                <Button
+                  variant="control"
+                  onClick={onShowPassword}
+                  icon={showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                ></Button>
+              </div>
+            </FormGroup>
+            <Checkbox
+              label="Keep me logged in"
+              isChecked={keepUser}
+              onChange={checkBoxChangeHander}
+              id="logged-in"
+              name="logged-in"
+            />
+          </Form>
+        </CardBody>
+        <CardFooter>
+          <div className="login-footer-btn-wrapper">
+            <Button
+              variant="primary"
+              onClick={sendLoginDetails}
+              isDisabled={btnDisabled}
+              {...primaryLoadingProps}
+            >
+              Login
+            </Button>
+          </div>
+          <NoLoginComponent />
+        </CardFooter>
+      </Card>
+    </>
   );
 };
 

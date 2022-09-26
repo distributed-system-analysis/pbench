@@ -26,11 +26,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { validateEmail, validatePassword } from "utils/helper.js";
 
 import { signupFormData } from "./signupFormData";
-import { useNavigate } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 
 const SignupForm = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const navigate = useOutletContext();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { alerts, isSignupBtnDisabled, passwordLength } = useSelector(
     (state) => state.userAuth
@@ -147,7 +147,7 @@ const SignupForm = () => {
   return (
     <Card className="signup-card">
       <CardTitle>
-        <Back toPage={"/" + APP_ROUTES.AUTH} />
+        <Back toPage={APP_ROUTES.AUTH} ctxtNav={navigate} />
         <LoginHeader title="Create an account" />
         <AlertGroup isLiveRegion>
           {alerts.map(({ title, key }) => (

@@ -108,7 +108,7 @@ const HeaderToolbar = () => {
                 aria-label="Login"
                 className="header-login-button"
                 variant={ButtonVariant.plain}
-                onClick={() => navigate("/" + APP_ROUTES.AUTH_LOGIN)}
+                onClick={() => navigate(APP_ROUTES.AUTH_LOGIN)}
               >
                 Login
               </Button>

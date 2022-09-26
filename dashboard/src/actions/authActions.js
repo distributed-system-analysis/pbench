@@ -44,7 +44,7 @@ export const makeLoginRequest =
           payload: loginDetails,
         });
 
-        navigate("/dashboard/" + APP_ROUTES.OVERVIEW);
+        navigate(APP_ROUTES.OVERVIEW);
 
         dispatch(constructToast("success", "Logged in successfully!"));
       }
@@ -107,7 +107,7 @@ export const registerUser =
         dispatch(
           constructToast("success", "Account created!", "Login to continue")
         );
-        navigate("/" + APP_ROUTES.AUTH_LOGIN);
+        navigate(APP_ROUTES.AUTH_LOGIN);
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {
@@ -164,6 +164,6 @@ export const logout = () => async (dispatch) => {
   }
   dispatch({ type: TYPES.COMPLETED });
   setTimeout(() => {
-    window.location.href = "/" + APP_ROUTES.AUTH;
+    window.location.href = APP_ROUTES.AUTH;
   }, CONSTANTS.LOGOUT_DELAY_MS);
 };

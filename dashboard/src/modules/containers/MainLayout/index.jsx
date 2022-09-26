@@ -1,16 +1,18 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
-import ToastComponent from "modules/components/ToastNotificationComponent";
-import { useSelector } from "react-redux";
-import HeaderComponent from "modules/components/HeaderComponent";
+import "./index.less";
+
 import {
-  Spinner,
   Page,
   PageSection,
   PageSectionVariants,
+  Spinner,
 } from "@patternfly/react-core";
+
+import HeaderComponent from "modules/components/HeaderComponent";
+import { Outlet } from "react-router-dom";
+import React from "react";
 import Sidebar from "modules/components/SidebarComponent";
-import "./index.less";
+import ToastComponent from "modules/components/ToastNotificationComponent";
+import { useSelector } from "react-redux";
 
 const MainLayout = () => {
   const { alerts } = useSelector((state) => state.toastReducer);
@@ -25,6 +27,7 @@ const MainLayout = () => {
           padding={{ default: "noPadding" }}
         >
           {isLoading && <Spinner className="spinner" />}
+
           <Outlet />
         </PageSection>
       </Page>

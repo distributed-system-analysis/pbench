@@ -12,11 +12,14 @@ import {
 } from "react-router-dom";
 import React, { useEffect } from "react";
 
-import AuthComponent from "./modules/components/AuthComponent";
+import { AuthForm } from "modules/components/AuthComponent/common-components";
+import AuthLayout from "modules/containers/AuthLayout";
 import Cookies from "js-cookie";
-import MainLayout from "./modules/containers/MainLayout";
+import LoginForm from "modules/components/AuthComponent/LoginForm";
+import MainLayout from "modules/containers/MainLayout";
 import OverviewComponent from "modules/components/OverviewComponent";
 import ProfileComponent from "modules/components/ProfileComponent";
+import SignupForm from "modules/components/AuthComponent/SignupForm";
 import TableOfContent from "modules/components/TableOfContent";
 import TableWithFavorite from "modules/components/TableComponent";
 import { constructToast } from "actions/toastActions";
@@ -36,7 +39,7 @@ const ProtectedRoute = ({ redirectPath = APP_ROUTES.AUTH_LOGIN, children }) => {
   return children ? children : <Outlet />;
 };
 
-const HomeRoute = ({ redirectPath = APP_ROUTES.HOME, children }) => {
+const HomeRoute = ({ redirectPath = APP_ROUTES.HOME }) => {
   return <Navigate to={redirectPath} replace />;
 };
 
@@ -56,26 +59,30 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomeRoute />}></Route>
-          <Route path="/dashboard" element={<MainLayout />}>
-            <Route index element={<TableWithFavorite />} />
-            <Route element={<ProtectedRoute />}>
-              <Route
-                path={APP_ROUTES.USER_PROFILE}
-                element={<ProfileComponent />}
-              />
-              <Route
-                path={APP_ROUTES.OVERVIEW}
-                element={<OverviewComponent />}
-              />
+          <Route path="/dashboard">
+            <Route element={<AuthLayout />}>
+              <Route path={APP_ROUTES.AUTH_LOGIN} element={<LoginForm />} />
+              <Route path={APP_ROUTES.AUTH} element={<AuthForm />} />
+              <Route path={APP_ROUTES.AUTH_SIGNUP} element={<SignupForm />} />
+            </Route>
+            <Route element={<MainLayout />}>
+              <Route index element={<TableWithFavorite />} />
+              <Route element={<ProtectedRoute />}>
+                <Route
+                  path={APP_ROUTES.USER_PROFILE}
+                  element={<ProfileComponent />}
+                />
+                <Route
+                  path={APP_ROUTES.OVERVIEW}
+                  element={<OverviewComponent />}
+                />
+                <Route
+                  path={APP_ROUTES.TABLE_OF_CONTENT}
+                  element={<TableOfContent />}
+                />
+              </Route>
             </Route>
           </Route>
-          <Route path={APP_ROUTES.AUTH} element={<AuthComponent />} />
-          <Route path={APP_ROUTES.AUTH_LOGIN} element={<AuthComponent />} />
-          <Route path={APP_ROUTES.AUTH_SIGNUP} element={<AuthComponent />} />
-          <Route
-            path={APP_ROUTES.TABLE_OF_CONTENT}
-            element={<TableOfContent />}
-          />
         </Routes>
       </BrowserRouter>
     </div>

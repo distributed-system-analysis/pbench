@@ -1,8 +1,7 @@
-const prefix = "dashboard";
-export const HOME = "/" + prefix;
-export const AUTH = prefix + "/auth";
-export const AUTH_LOGIN = prefix + "/login";
-export const AUTH_SIGNUP = prefix + "/signup";
+export const HOME = "dashboard";
+export const AUTH = "auth";
+export const AUTH_LOGIN = "login";
+export const AUTH_SIGNUP = "signup";
+export const TABLE_OF_CONTENT = "toc/:dataset_id";
 export const USER_PROFILE = "user-profile";
-export const TABLE_OF_CONTENT = prefix + "/toc/:dataset_id";
 export const OVERVIEW = "overview";

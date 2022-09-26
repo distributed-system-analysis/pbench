@@ -17,6 +17,7 @@ import {
 } from "@patternfly/react-core";
 import { CheckIcon, CloseIcon, TimesIcon } from "@patternfly/react-icons";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PBenchLogo from "assets/logo/pbench_logo.svg";
@@ -24,16 +25,14 @@ import React from "react";
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { movePage } from "actions/authActions";
 import { passwordConstraintsText } from "./signupFormData";
-import { useNavigate } from "react-router-dom";
 
 export const LoginHeader = (props) => {
   return <Title headingLevel="h3">{props?.title}</Title>;
 };
 export const Back = (props) => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const navigatePage = (toPage) => {
-    dispatch(movePage(toPage, navigate));
+    dispatch(movePage(toPage, props.ctxtNav));
   };
   return (
     <Button
@@ -80,9 +79,11 @@ export const LoginRightComponent = () => {
 };
 
 export const AuthForm = () => {
-  const navigate = useNavigate();
+  const navigate = useOutletContext();
+  const { pathname } = useLocation();
   const dispatch = useDispatch();
   const navigatePage = (toPage) => {
+    console.log(pathname);
     dispatch(movePage(toPage, navigate));
   };
   return (
@@ -94,7 +95,7 @@ export const AuthForm = () => {
         <div className="button-wrapper">
           <Button
             variant="primary"
-            onClick={() => navigatePage("/" + APP_ROUTES.AUTH_LOGIN)}
+            onClick={() => navigatePage(APP_ROUTES.AUTH_LOGIN)}
           >
             Pbench Credentials
           </Button>
@@ -104,7 +105,7 @@ export const AuthForm = () => {
             <span>Need an account?</span>
             <Button
               variant="link"
-              onClick={() => navigatePage("/" + APP_ROUTES.AUTH_SIGNUP)}
+              onClick={() => navigatePage(APP_ROUTES.AUTH_SIGNUP)}
             >
               Sign up
             </Button>
