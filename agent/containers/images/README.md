@@ -1,7 +1,7 @@
 # Build Requirements
 
-Container image building requires both the `buildah` and `jinja2` CLI
-commands to be present.
+Container image building requires both the `buildah` and `jinja2` CLI commands
+to be present.
 
 On Fedora 35 and later systems, use the following command to install the
 required CLI interface RPMs:
@@ -10,29 +10,28 @@ required CLI interface RPMs:
 
 # Notes
 
-  * We currently only support building container images from previously
-    built RPMs in an accessible yum/dnf set of repos
+  * We currently only support building container images from previously built
+    RPMs in an accessible yum/dnf set of repos
 
-  * We currently only support container images built from `x86_64`
-    architecture RPMs
+  * We currently only support container images built from `x86_64` architecture
+    RPMs
 
-  * Visualizers have been moved to a new repo, source code can be found
-    at: [distributed-system-analysis/visualizers](https://github.com/distributed-system-analysis/visualizers)
+  * Visualizers have been moved to a new repo, source code can be found at:
+    [distributed-system-analysis/visualizers](https://github.com/distributed-system-analysis/visualizers)
 
 # How to Use
 
-The first step is taken elsewhere, where one would build `pbench-agent`,
-and `pbench-sysstat` RPMs, build or find proper RPMs for `fio` & `uperf`,
-and place them in a single yum/dnf repository accessible via HTTPS.  By
-default, we use Fedora COPR repos under the `ndokos` user (one can
-override the yum/dnf repos and user via the `URL_PREFIX` and `USER`
-environment variables, and use `pbench-test` repos by setting the `TEST`
-environment variable to `test`).
+The first step is taken elsewhere, where one would build `pbench-agent`, and
+`pbench-sysstat` RPMs, build or find proper RPMs for `fio` & `uperf`, and place
+them in a single yum/dnf repository accessible via HTTPS.  By default, we use
+Fedora COPR repos under the `ndokos` user (one can override the yum/dnf repos
+and user via the `URL_PREFIX` and `USER` environment variables, and use
+`pbench-test` repos by setting the `TEST` environment variable to `test`).
 
-Once the proper RPMs are available in the target repo, the default
-`Makefile` target, `everything`, will build each default image, and tag
-them with the pbench-agent RPM version and git commit hash ID.  E.g.,
-when done, one might see output from `buildah images` that looks like:
+Once the proper RPMs are available in the target repo, the default `Makefile`
+target, `everything`, will build each default image, and tag them with the
+pbench-agent RPM version and git commit hash ID.  E.g., when done, one might
+see output from `buildah images` that looks like:
 
 ```
 $ make everything
@@ -52,45 +51,42 @@ localhost/pbench-agent-all-centos-8   v0.69.3-1  9396f0337681 ...
 .
 ```
 
-There are make targets for each of the five supported distributions,
-CentOS 9 (`centos-9`), CentOS 8 (`centos-8`), CentOS 7 (`centos-7`),
-Fedora 33 (`fedora-33`), and Fedora 35 (`fedora-35`).  There are also
-make targets for each subset of the container image kinds (`all`,
-`tool-data-sink`, `tool-meister`, `tools`, `workloads`, `base`) built
-for each distribution, e.g. `centos-8-tools-tagged`,
-`fedora-35-base-tagged`, etc.
+There are make targets for each of the five supported distributions, CentOS 9
+(`centos-9`), CentOS 8 (`centos-8`), CentOS 7 (`centos-7`), Fedora 33
+(`fedora-33`), and Fedora 35 (`fedora-35`).  There are also make targets for
+each subset of the container image kinds (`all`, `tool-data-sink`,
+`tool-meister`, `tools`, `workloads`, `base`) built for each distribution, e.g.
+`centos-8-tools-tagged`, `fedora-35-base-tagged`, etc.
 
-Two tags are always applied to an image that is built, the `<git
-commit ID>` derived from the RPM version, and the version string of
-the RPM itself (without the trailing commit ID).
+Two tags are always applied to an image that is built, the `<git commit ID>`
+derived from the RPM version, and the version string of the RPM itself (without
+the trailing commit ID).
 
-One can add additional local tags using the following targets when
-appropriate (these tags are not automatically applied at build time):
+One can add additional local tags using the following targets when appropriate
+(these tags are not automatically applied at build time):
 
  * `tag-latest` - adds the `latest` label to the images with the
-   `<git commit ID>` as derived from the RPM version string of the
-   pbench-agent RPM
+   `<git commit ID>` as derived from the RPM version string of the pbench-agent
+   RPM
 
- * `tag-major` - adds the `v<Major>-latest` label to the images
-   as derived from the RPM version string ...
+ * `tag-major` - adds the `v<Major>-latest` label to the images as derived from
+   the RPM version string ...
 
- * `tag-major-minor` -adds the `v<Major>.<Minor>-latest` label to
-   the images ...
+ * `tag-major-minor` -adds the `v<Major>.<Minor>-latest` label to the images ...
 
  * `tag-alpha` - adds the `alpha` label to the images ...
 
  * `tag-beta` - adds the `beta` label to the images ...
 
-Finally, there are "push" targets to copy the locally built and
-tagged images to a non-local container image repository.  By default
-we use `docker://quay.io/pbench` (you can override that via the
-environment variable `IMAGE_REPO`).  We have separate push targets to
-allow the administrator of the container image repository to label the
-images based on what they have built in relation to what has been
-published already.  The push targets are:
+Finally, there are "push" targets to copy the locally built and tagged images
+to a non-local container image repository.  By default we use
+`docker://quay.io/pbench` (you can override that via the environment variable
+`IMAGE_REPO`).  We have separate push targets to allow the administrator of the
+container image repository to label the images based on what they have built in
+relation to what has been published already.  The push targets are:
 
- * `push` - pushes each image by its `<git commit ID>` tag,
-   and its RPM version tag
+ * `push` - pushes each image by its `<git commit ID>` tag, and its RPM version
+   tag
 
  * `push-latest` - pushes each image by its `latest` tag
 
@@ -102,7 +98,7 @@ published already.  The push targets are:
 
  * `push-beta` - pushes each image by its `beta` tag
 
-NOTE WELL: Each separate tag for each image needs to be pushed to
-the non-local container image repository.  This does NOT result in
-multiple image copies over the wire using up network bandwidth, as
-`buildah push` is smart enough to push the actual image only once.
+NOTE WELL: Each separate tag for each image needs to be pushed to the non-local
+container image repository.  This does NOT result in multiple image copies over
+the wire using up network bandwidth, as `buildah push` is smart enough to push
+the actual image only once.
