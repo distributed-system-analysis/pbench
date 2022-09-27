@@ -85,6 +85,10 @@ _DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35 fedora-36
 # By default we build the Tool Data Sink and Tool Meister images as well.
 everything: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
 
+# Do not use `all` as a target!
+all:
+	@printf -- "Do not use 'all' as a Make target, please use 'everything' instead\n" >&2
+
 # Convenience target to only build the Tool Data Sink images.
 tds: all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
 
@@ -102,11 +106,11 @@ tm: all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
 #-
 
 # We also offer targets per distribution target
-${_DISTROS}: %: %-all-tagged
+${_DISTROS}: %: pkgmgr-clean %-all-tagged
 
-$(_DISTROS:%=%-tds): %-tds: %-tool-data-sink-tagged
+$(_DISTROS:%=%-tds): %-tds: pkgmgr-clean %-tool-data-sink-tagged
 
-$(_DISTROS:%=%-tm): %-tm: %-tool-meister-tagged
+$(_DISTROS:%=%-tm): %-tm: pkgmgr-clean %-tool-meister-tagged
 
 # For any given target, extract the distribution name and version from the
 # first two fields, e.g., fedora-35-tds would yield values "fedora" and "35"
