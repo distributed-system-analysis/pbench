@@ -7,25 +7,53 @@
 #     all (default):  make all images for all default platforms
 #     tds:  make Tool Data Sink images for all default platforms
 #     tm:  make Tool Meister images for all default platforms
-#     tag-<TYPE> (e.g., "tag-latest"):  apply specified tag to all images for all default platforms
-#     push:  push images for all default platforms with "<git commit hash>" and "v<full RPM version>" tags
-#     push-<TYPE> (e.g., "push-latest"):  push images for all default platforms with specified tag
+#     tag-<TYPE> (e.g., "tag-latest"):  apply specified tag to all images for
+#                                       all default platforms
+#     push:  push images for all default platforms with "<git commit hash>"
+#            and "v<full RPM version>" tags
+#     push-<TYPE> (e.g., "push-latest"):  push images for all default
+#                                         platforms with specified tag
 #
 #   These act on the indicated distribution's containers:
 #
-#     <DISTRO> (e.g., "fedora-34"):  make all images for the requested platform
-#     <DISTRO>-tds (e.g., "fedora-34-tds"):  make the TDS image for the requested platform
-#     <DISTRO>-tm (e.g., "fedora-34-tm"):  make the TM image for the requested platform
-#     <DISTRO>-tag-<TYPE> (e.g., "fedora-34-tag-alpha"):  apply the specified tag to the distro containers
+#     <DISTRO> (e.g., "fedora-34"):  make all images for the distribution
+#     <DISTRO>-tds (e.g., "fedora-34-tds"):  make the TDS image for the distro
+#     <DISTRO>-tm (e.g., "fedora-34-tm"):  make the TM image for the distro
+#     <DISTRO>-tag-<TYPE> (e.g., "fedora-34-tag-alpha"):  apply the specified
+#                                                         tag to the distro
+#                                                         containers
 #     <DISTRO>-push (e.g., "fedora-34-push"):  push the specified containers
-#     <DISTRO>-push-<TYPE> (e.g., "fedora-34-push-alpha"):  push the specified containers
+#     <DISTRO>-push-<TYPE> (e.g., "fedora-34-push-alpha"):  push the specified
+#                                                           containers
+#
+#     NOTE: the supported distributions are centos-# and fedora-#, where the
+#           the minimum CentOS version is 7, and the minimum Fedora version is
+#           the latest non-end-of-life releases.
+#
+#     Further, each container has its own build target per distribution:
+#
+#     <DISTRO>-all[-tagged]            - depends on others below
+#         NOTE: the "all" here is the kind of container, which is composed of 
+#               the combined contents of the other containers for a <DISTRO>
+#     <DISTRO>-tool-data-sink[-tagged] - depends on <DISTRO>-tools-tagged
+#     <DISTRO>-tool-meister[-tagged]   - depends on <DISTRO>-tools-tagged
+#     <DISTRO>-tools[-tagged]          - depends on <DISTRO>-base-tagged
+#     <DISTRO>-workloads[-tagged]      - depends on <DISTRO>-base-tagged
+#     <DISTRO>-base[-tagged]
 #
 #   Utility targets:
 #
 #     clean:  remove build artifacts
 #     pkgmgr-clean:  clear the local package manager cache
-#     all-tags:  build all default distro "-tags.lis" files and verify that they are consistent.
-#     all-dockerfiles:  build all default distro ".repo" and ".Dockerfile" files
+#     all-tags:  build all default distro "-tags.lis" files and verify that
+#                they are consistent
+#     all-dockerfiles:  build all default distro ".repo" and ".Dockerfile"
+#                       files
+#
+# NOTE: for debugging purposes, you can set the environment variable,
+#       `BUILDAH_ECHO` to the value of `echo` to prevent container build
+#       operations from taking place so that you can see all the other build
+#       steps and their output.
 #
 
 _PBENCH_TOP := $(shell git rev-parse --show-toplevel)
@@ -127,11 +155,11 @@ tm: all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
 #-
 
 # We also offer targets per distribution target
-${_DISTROS}: %: all-tags %-all-tagged
+${_DISTROS}: %: %-all-tagged
 
-$(_DISTROS:%=%-tds): %-tds: all-tags %-tool-data-sink-tagged
+$(_DISTROS:%=%-tds): %-tds: %-tool-data-sink-tagged
 
-$(_DISTROS:%=%-tm): %-tm: all-tags %-tool-meister-tagged
+$(_DISTROS:%=%-tm): %-tm: %-tool-meister-tagged
 
 # For any given target, extract the distribution name and version from the
 # first two fields, e.g., fedora-35-tds would yield values "fedora" and "35"

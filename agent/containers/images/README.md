@@ -3,7 +3,7 @@
 Container image building requires both the `buildah` and `jinja2` CLI
 commands to be present.
 
-On Fedora 32 and later systems, use the following command to install the
+On Fedora 35 and later systems, use the following command to install the
 required CLI interface RPMs:
 
     sudo dnf install buildah python3-jinja2-cli
@@ -52,11 +52,13 @@ localhost/pbench-agent-all-centos-8   v0.69.3-1  9396f0337681 ...
 .
 ```
 
-There are make targets for each of the four supported distributions,
-CentOS 8 (`centos-8`), CentOS 7 (`centos-7`), Fedora 33 (`fedora-33`),
-and Fedora 32 (`fedora-32`).  There are also make targets for each
-subset of the four images (all, base, tools, workloads) built for
-each distribution, e.g. `centos-8-tools`, `fedora-32-base`, etc.
+There are make targets for each of the five supported distributions,
+CentOS 9 (`centos-9`), CentOS 8 (`centos-8`), CentOS 7 (`centos-7`),
+Fedora 33 (`fedora-33`), and Fedora 35 (`fedora-35`).  There are also
+make targets for each subset of the container image kinds (`all`,
+`tool-data-sink`, `tool-meister`, `tools`, `workloads`, `base`) built
+for each distribution, e.g. `centos-8-tools-tagged`,
+`fedora-35-base-tagged`, etc.
 
 Two tags are always applied to an image that is built, the `<git
 commit ID>` derived from the RPM version, and the version string of
