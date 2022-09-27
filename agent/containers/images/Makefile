@@ -105,8 +105,10 @@ tm: all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
 # See https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 #-
 
-# We also offer targets per distribution target
-${_DISTROS}: %: pkgmgr-clean %-all-tagged
+# We also offer targets per distribution.
+${_DISTROS}: %: %-everything
+
+$(_DISTROS:%=%-everything): %-everything: pkgmgr-clean %-all-tagged
 
 $(_DISTROS:%=%-tds): %-tds: pkgmgr-clean %-tool-data-sink-tagged
 
