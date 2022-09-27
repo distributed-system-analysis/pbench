@@ -89,18 +89,18 @@ allow the administrator of the container image repository to label the
 images based on what they have built in relation to what has been
 published already.  The push targets are:
 
- * `push` - pushes each image by their `<git commit ID>` tag,
-   and their RPM version tag
+ * `push` - pushes each image by its `<git commit ID>` tag,
+   and its RPM version tag
 
- * `push-latest` - pushes each image by their `latest` tag
+ * `push-latest` - pushes each image by its `latest` tag
 
- * `push-major` - pushes each image by their `v<Major>-latest` tag
+ * `push-major` - pushes each image by its `v<Major>-latest` tag
 
- * `push-major-minor` - pushes each image by their `v<Major>.<Minor>-latest` tag
+ * `push-major-minor` - pushes each image by its `v<Major>.<Minor>-latest` tag
 
- * `push-alpha` - pushes each image by their `alpha` tag
+ * `push-alpha` - pushes each image by its `alpha` tag
 
- * `push-beta` - pushes each image by their `beta` tag
+ * `push-beta` - pushes each image by its `beta` tag
 
 NOTE WELL: Each separate tag for each image needs to be pushed to
 the non-local container image repository.  This does NOT result in
