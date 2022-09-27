@@ -30,12 +30,12 @@ environment variables, and use `pbench-test` repos by setting the `TEST`
 environment variable to `test`).
 
 Once the proper RPMs are available in the target repo, the default
-`Makefile` target, `all`, will build all the default images, and tag
+`Makefile` target, `everything`, will build each default image, and tag
 them with the pbench-agent RPM version and git commit hash ID.  E.g.,
 when done, one might see output from `buildah images` that looks like:
 
 ```
-$ make all
+$ make everything
 .
 . (lots of build output here ...)
 .
@@ -89,20 +89,18 @@ allow the administrator of the container image repository to label the
 images based on what they have built in relation to what has been
 published already.  The push targets are:
 
- * `push` - pushes all the images by their `<git commit ID>` tag,
+ * `push` - pushes each image by their `<git commit ID>` tag,
    and their RPM version tag
 
- * `push-latest` - pushes all the images by their `latest` tag
+ * `push-latest` - pushes each image by their `latest` tag
 
- * `push-major` - pushes all the images by their `v<Major>-latest`
-   tag
+ * `push-major` - pushes each image by their `v<Major>-latest` tag
 
- * `push-major-minor` - pushes all the images by their
-   `v<Major>.<Minor>-latest` tag
+ * `push-major-minor` - pushes each image by their `v<Major>.<Minor>-latest` tag
 
- * `push-alpha` - pushes all the images by their `alpha` tag
+ * `push-alpha` - pushes each image by their `alpha` tag
 
- * `push-beta` - pushes all the images by their `beta` tag
+ * `push-beta` - pushes each image by their `beta` tag
 
 NOTE WELL: Each separate tag for each image needs to be pushed to
 the non-local container image repository.  This does NOT result in

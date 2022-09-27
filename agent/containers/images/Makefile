@@ -1,22 +1,22 @@
-# Base Makefile for building all images and tagging them
+# Base Makefile for building images and tagging them
 
 # List of external Make targets:
 #
-#   These act on all default platforms' containers:
+#   These act on the default platforms' containers:
 #
-#     all (default):  make all images for all default platforms
-#     tds:  make Tool Data Sink images for all default platforms
-#     tm:  make Tool Meister images for all default platforms
-#     tag-<TYPE> (e.g., "tag-latest"):  apply specified tag to all images for
-#                                       all default platforms
-#     push:  push images for all default platforms with "<git commit hash>"
+#     everything (default):  make every image for the default platforms
+#     tds:  make Tool Data Sink images for the default platforms
+#     tm:  make Tool Meister images for the default platforms
+#     tag-<TYPE> (e.g., "tag-latest"):  apply specified tag to every images for
+#                                       the default platforms
+#     push:  push images for the default platforms with "<git commit hash>"
 #            and "v<full RPM version>" tags
-#     push-<TYPE> (e.g., "push-latest"):  push images for all default
+#     push-<TYPE> (e.g., "push-latest"):  push images for the default
 #                                         platforms with specified tag
 #
 #   These act on the indicated distribution's containers:
 #
-#     <DISTRO> (e.g., "fedora-34"):  make all images for the distribution
+#     <DISTRO> (e.g., "fedora-34"):  make every image kind for the distribution
 #     <DISTRO>-tds (e.g., "fedora-34-tds"):  make the TDS image for the distro
 #     <DISTRO>-tm (e.g., "fedora-34-tm"):  make the TM image for the distro
 #     <DISTRO>-tag-<TYPE> (e.g., "fedora-34-tag-alpha"):  apply the specified
@@ -136,7 +136,7 @@ _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 _DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35 fedora-36
 
 # By default we build the Tool Data Sink and Tool Meister images as well.
-all: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
+everything: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
 
 # Convenience target to only build the Tool Data Sink images.
 tds: all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
