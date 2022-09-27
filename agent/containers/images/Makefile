@@ -1,58 +1,6 @@
-# Base Makefile for building images and tagging them
-
-# List of external Make targets:
+# Base Makefile for building images and tagging them.
 #
-#   These act on the default platforms' containers:
-#
-#     everything (default):  make every image for the default platforms
-#     tds:  make Tool Data Sink images for the default platforms
-#     tm:  make Tool Meister images for the default platforms
-#     tag-<TYPE> (e.g., "tag-latest"):  apply specified tag to every image for
-#         the default platforms
-#     push:  push images for the default platforms with "<git commit hash>"
-#         and "v<full RPM version>" tags
-#     push-<TYPE> (e.g., "push-latest"):  push images for the default
-#         platforms with specified tag
-#
-#   These act on the indicated distribution's containers:
-#
-#     <DISTRO> (e.g., "fedora-34"):  make every image kind for the distribution
-#     <DISTRO>-tds (e.g., "fedora-34-tds"):  make the TDS image for the distro
-#     <DISTRO>-tm (e.g., "fedora-34-tm"):  make the TM image for the distro
-#     <DISTRO>-tag-<TYPE> (e.g., "fedora-34-tag-alpha"):  apply the specified
-#         tag to the distro containers
-#     <DISTRO>-push (e.g., "fedora-34-push"):  push the specified containers
-#     <DISTRO>-push-<TYPE> (e.g., "fedora-34-push-alpha"):  push the specified
-#         containers
-#
-#     NOTE: the supported distributions are centos-# and fedora-#, where the
-#         minimum CentOS version is 7, and the minimum Fedora version is the
-#         latest non-end-of-life releases.
-#
-#     Further, each container has its own build target per distribution:
-#
-#     <DISTRO>-all[-tagged]            - depends on others below
-#         NOTE: the "all" here is the kind of container, which is composed of 
-#             the combined contents of the other containers for a <DISTRO>
-#     <DISTRO>-tool-data-sink[-tagged] - depends on <DISTRO>-tools-tagged
-#     <DISTRO>-tool-meister[-tagged]   - depends on <DISTRO>-tools-tagged
-#     <DISTRO>-tools[-tagged]          - depends on <DISTRO>-base-tagged
-#     <DISTRO>-workloads[-tagged]      - depends on <DISTRO>-base-tagged
-#     <DISTRO>-base[-tagged]
-#
-#   Utility targets:
-#
-#     clean:  remove build artifacts
-#     pkgmgr-clean:  clear the local package manager cache
-#     all-tags:  build all default distro "-tags.lis" files and verify that
-#         they are consistent
-#     all-dockerfiles:  build all default distro ".repo" and ".Dockerfile"
-#         files
-#
-# NOTE: for debugging purposes, you can set the environment variable,
-#     `BUILDAH_ECHO`, to the value of `echo` to prevent container build
-#     operations from taking place. This behavior allows a person to quickly see
-#     all the build steps and their output.
+# See the README.md file for a description of the interface.
 #
 
 _PBENCH_TOP := $(shell git rev-parse --show-toplevel)
