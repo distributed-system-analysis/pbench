@@ -30,7 +30,9 @@ We did not bump the "major" release version number with these changes because we
 
 Note that work on the `v0.71` release started in earnest with the `v0.69.3-agent` release (tagged as `b0.69-bp`).  A number of bug fixes and behaviors from the `v0.71` work have already been back-ported and delivered in the various `v0.69.*` releases since then.  These release notes will highlight only the behavioral changes that have not been back-ported previously.
 
-This release supports RHEL 7.9, RHEL 8.6, RHEL 9, CentOS-Stream 8, CentOS-Stream 9 and Fedora 35. For various reasons, it does *NOT* support earlier versions of RHEL 8 (ansible vs. ansible-core dependency problem), RHEL 9.1 (missing repos) or Fedora 36 (python-3.10 problems). If you need support for any of these, please talk to us: we will do our best to accommodate you in some way, but there is no guarantee.
+This release supports RHEL 7.9, RHEL 8.6, RHEL 9, CentOS-Stream 8, CentOS-Stream 9, Fedora 35 and Fedora 36 (see below). For various reasons, it does *NOT* support earlier versions of RHEL 8 (ansible vs. ansible-core dependency problem) or RHEL 9.1 (missing repos). If you need support for any of these, please talk to us: we will do our best to accommodate you in some way, but there is no guarantee.
+
+Originally, Fedora 36 was not supported (python-3.10 problems), but a recent (2022-09-07) fix to the Fedora `python3` package has resolved that problem. Check the installed python3 version with `dnf list python3`; if the reported version is earlier than 3.10.7-1, please update it with `dnf update python3` (or, better yet, get all updates up to this point with `dnf update`). Check again to make sure that the fixed version (3.10.7 or later) of python 3.10 has been installed. Details of the fix can be found at https://github.com/fedora-python/cpython/pull/48.
 
 Installation
 ====
