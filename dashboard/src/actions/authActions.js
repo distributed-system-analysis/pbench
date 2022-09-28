@@ -1,9 +1,11 @@
-import * as TYPES from "./types";
-import API from "../utils/axiosInstance";
+import * as APP_ROUTES from "utils/routeConstants";
 import * as CONSTANTS from "../assets/constants/authConstants";
+import * as TYPES from "./types";
+
+import API from "../utils/axiosInstance";
 import Cookies from "js-cookie";
-import { uid } from "../utils/helper";
 import { constructToast } from "actions/toastActions";
+import { uid } from "../utils/helper";
 
 export const makeLoginRequest =
   (details, navigate) => async (dispatch, getState) => {
@@ -42,7 +44,7 @@ export const makeLoginRequest =
           payload: loginDetails,
         });
 
-        navigate("/");
+        navigate(APP_ROUTES.OVERVIEW);
 
         dispatch(constructToast("success", "Logged in successfully!"));
       }
@@ -105,7 +107,7 @@ export const registerUser =
         dispatch(
           constructToast("success", "Account created!", "Login to continue")
         );
-        navigate("/login");
+        navigate(APP_ROUTES.AUTH_LOGIN);
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {
@@ -162,6 +164,6 @@ export const logout = () => async (dispatch) => {
   }
   dispatch({ type: TYPES.COMPLETED });
   setTimeout(() => {
-    window.location.href = "auth";
+    window.location.href = APP_ROUTES.AUTH;
   }, CONSTANTS.LOGOUT_DELAY_MS);
 };

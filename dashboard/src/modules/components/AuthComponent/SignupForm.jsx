@@ -1,33 +1,36 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import * as APP_ROUTES from "utils/routeConstants";
+
 import {
+  Alert,
+  AlertGroup,
+  Button,
   Card,
-  CardTitle,
   CardBody,
   CardFooter,
-  Button,
+  CardTitle,
   Form,
   FormGroup,
   TextInput,
-  AlertGroup,
-  Alert,
 } from "@patternfly/react-core";
-import { registerUser, toggleSignupBtn } from "actions/authActions";
-import { signupFormData } from "./signupFormData";
-import { validateEmail, validatePassword } from "utils/helper.js";
-import { useDispatch, useSelector } from "react-redux";
 import {
   Back,
   LoginHeader,
+  NoLoginComponent,
   PasswordConstraints,
   PasswordTextInput,
-  NoLoginComponent,
 } from "./common-components";
 import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
+import React, { useCallback, useEffect, useState } from "react";
+import { registerUser, toggleSignupBtn } from "actions/authActions";
+import { useDispatch, useSelector } from "react-redux";
+import { validateEmail, validatePassword } from "utils/helper.js";
+
+import { signupFormData } from "./signupFormData";
+import { useOutletContext } from "react-router-dom";
 
 const SignupForm = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const navigate = useOutletContext();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { alerts, isSignupBtnDisabled, passwordLength } = useSelector(
     (state) => state.userAuth
@@ -144,7 +147,7 @@ const SignupForm = () => {
   return (
     <Card className="signup-card">
       <CardTitle>
-        <Back toPage="/auth" />
+        <Back toPage={APP_ROUTES.AUTH} ctxtNav={navigate} />
         <LoginHeader title="Create an account" />
         <AlertGroup isLiveRegion>
           {alerts.map(({ title, key }) => (

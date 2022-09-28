@@ -1,20 +1,18 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import * as APP_ROUTES from "utils/routeConstants";
+
 import {
+  Alert,
+  AlertGroup,
+  Button,
   Card,
-  CardTitle,
   CardBody,
   CardFooter,
-  Button,
+  CardTitle,
+  Checkbox,
   Form,
   FormGroup,
   TextInput,
-  Checkbox,
-  AlertGroup,
-  Alert,
 } from "@patternfly/react-core";
-import { makeLoginRequest, setUserLoggedInState } from "actions/authActions";
 import {
   Back,
   LoginHeader,
@@ -22,11 +20,15 @@ import {
   PasswordTextInput,
 } from "./common-components";
 import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
+import React, { useCallback, useEffect, useState } from "react";
+import { makeLoginRequest, setUserLoggedInState } from "actions/authActions";
+import { useDispatch, useSelector } from "react-redux";
+
+import { useOutletContext } from "react-router-dom";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
+  const navigate = useOutletContext();
   const alerts = useSelector((state) => state.userAuth.alerts);
   const [details, setDetails] = useState({
     password: "",
@@ -85,7 +87,7 @@ const LoginForm = () => {
   return (
     <Card>
       <CardTitle>
-        <Back toPage="/auth" />
+        <Back toPage={APP_ROUTES.AUTH} ctxtNav={navigate} />
         <LoginHeader title={"Login to your Pbench account"} />
         <AlertGroup isLiveRegion>
           {alerts.map(({ title, key }) => (

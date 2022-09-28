@@ -1,24 +1,28 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
 import "./index.less";
+
+import * as APP_ROUTES from "utils/routeConstants";
+
 import {
+  Button,
   Card,
-  CardTitle,
   CardBody,
   CardFooter,
-  Button,
-  Title,
+  CardTitle,
   Flex,
   FlexItem,
   HelperText,
   HelperTextItem,
   TextInput,
+  Title,
 } from "@patternfly/react-core";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { CheckIcon, CloseIcon, TimesIcon } from "@patternfly/react-icons";
-import PBenchLogo from "assets/logo/pbench_logo.svg";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useOutletContext } from "react-router-dom";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import PBenchLogo from "assets/logo/pbench_logo.svg";
+import React from "react";
+import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { movePage } from "actions/authActions";
 import { passwordConstraintsText } from "./signupFormData";
 
@@ -26,10 +30,9 @@ export const LoginHeader = (props) => {
   return <Title headingLevel="h3">{props?.title}</Title>;
 };
 export const Back = (props) => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const navigatePage = (toPage) => {
-    dispatch(movePage(toPage, navigate));
+    dispatch(movePage(toPage, props.ctxtNav));
   };
   return (
     <Button
@@ -76,7 +79,8 @@ export const LoginRightComponent = () => {
 };
 
 export const AuthForm = () => {
-  const navigate = useNavigate();
+  const navigate = useOutletContext();
+
   const dispatch = useDispatch();
   const navigatePage = (toPage) => {
     dispatch(movePage(toPage, navigate));
@@ -88,14 +92,20 @@ export const AuthForm = () => {
       </CardTitle>
       <CardBody>
         <div className="button-wrapper">
-          <Button variant="primary" onClick={() => navigatePage("/login")}>
+          <Button
+            variant="primary"
+            onClick={() => navigatePage(APP_ROUTES.AUTH_LOGIN)}
+          >
             Pbench Credentials
           </Button>
         </div>
         <div className="account-wrapper">
           <div>
             <span>Need an account?</span>
-            <Button variant="link" onClick={() => navigatePage("/signup")}>
+            <Button
+              variant="link"
+              onClick={() => navigatePage(APP_ROUTES.AUTH_SIGNUP)}
+            >
               Sign up
             </Button>
           </div>
