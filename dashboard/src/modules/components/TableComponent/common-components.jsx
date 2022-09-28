@@ -19,10 +19,10 @@ import React, { useState } from "react";
 
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { filterData } from "utils/filterDataset";
-import { useNavigate } from "react-router";
+import { useOutletContext } from "react-router-dom";
 
 export const LoginHint = (props) => {
-  const navigate = useNavigate();
+  const navigate = useOutletContext();
   const { message, link, onCloseMethod, redirect } = props;
   return (
     <Alert

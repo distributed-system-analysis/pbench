@@ -17,7 +17,7 @@ import {
 } from "@patternfly/react-core";
 import { CheckIcon, CloseIcon, TimesIcon } from "@patternfly/react-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PBenchLogo from "assets/logo/pbench_logo.svg";
@@ -80,10 +80,9 @@ export const LoginRightComponent = () => {
 
 export const AuthForm = () => {
   const navigate = useOutletContext();
-  const { pathname } = useLocation();
+
   const dispatch = useDispatch();
   const navigatePage = (toPage) => {
-    console.log(pathname);
     dispatch(movePage(toPage, navigate));
   };
   return (

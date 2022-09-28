@@ -1,5 +1,6 @@
 import "./index.less";
 
+import { Outlet, useNavigate } from "react-router-dom";
 import {
   Page,
   PageSection,
@@ -8,7 +9,6 @@ import {
 } from "@patternfly/react-core";
 
 import HeaderComponent from "modules/components/HeaderComponent";
-import { Outlet } from "react-router-dom";
 import React from "react";
 import Sidebar from "modules/components/SidebarComponent";
 import ToastComponent from "modules/components/ToastNotificationComponent";
@@ -17,7 +17,7 @@ import { useSelector } from "react-redux";
 const MainLayout = () => {
   const { alerts } = useSelector((state) => state.toastReducer);
   const isLoading = useSelector((state) => state.loading.isLoading);
-
+  const navigate = useNavigate();
   return (
     <>
       {alerts && alerts.length > 0 && <ToastComponent />}
@@ -28,7 +28,7 @@ const MainLayout = () => {
         >
           {isLoading && <Spinner className="spinner" />}
 
-          <Outlet />
+          <Outlet context={navigate} />
         </PageSection>
       </Page>
     </>
