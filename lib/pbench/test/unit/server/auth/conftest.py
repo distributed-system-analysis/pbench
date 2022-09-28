@@ -18,7 +18,7 @@ def keycloak_oidc(server_config, monkeypatch):
         OpenIDClient, "set_well_known_endpoints", mock_set_oidc_auth_endpoints
     )
     oidc = OpenIDClient(
-        server_url=server_config.get("keycloak", "server_url"),
+        server_url=server_config.get("authentication", "server_url"),
         realm_name="public_test_realm",
         client_id="test_client",
         logger=logger,
