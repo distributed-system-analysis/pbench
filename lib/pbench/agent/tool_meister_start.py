@@ -144,7 +144,6 @@ from pbench.agent.constants import (
     cli_tm_channel_prefix,
     def_redis_port,
     def_wsgi_port,
-    tm_channel_suffix_from_client,
     tm_channel_suffix_to_client,
     tm_channel_suffix_to_logging,
     tm_data_key,
@@ -707,7 +706,9 @@ port {redis_port:d}
 
 
 def terminate_no_wait(
-    tool_group_name: str, logger: logging.Logger, redis_client: redis.Redis, key: str
+    tool_group_name: str,
+    logger: logging.Logger,
+    redis_client: redis.Redis,
 ) -> None:
     """
     Use a low-level Redis publish operation to send a "terminate" request to
@@ -724,19 +725,16 @@ def terminate_no_wait(
         tool_group_name: The tool group we're trying to terminate
         logger: Python Logger
         redis_client: Redis client
-        key: TDS Redis pubsub key
     """
-    terminate_msg = {
-        "action": "terminate",
-        "group": tool_group_name,
-        "directory": None,
-        "args": {"interrupt": False},
-    }
     try:
-        ret = redis_client.publish(
-            key,
-            json.dumps(terminate_msg, sort_keys=True),
-        )
+        with Client(
+            redis_server=redis_client,
+            publisher_prefix="start.terminate",
+            logger=logger,
+        ) as client:
+            ret = client.publish(
+                tool_group_name, None, "terminate", {"interrupt": False}
+            )
     except Exception:
         logger.exception("Failed to publish terminate message")
     else:
@@ -1182,12 +1180,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         # assigning work to them and the terminate message will tell them to
         # stop.
         recovery.add(
-            lambda: terminate_no_wait(
-                tool_group.name,
-                logger,
-                redis_client,
-                f"{cli_tm_channel_prefix}-{tm_channel_suffix_from_client}",
-            ),
+            lambda: terminate_no_wait(tool_group.name, logger, redis_client),
             "terminate tool group",
         )
 

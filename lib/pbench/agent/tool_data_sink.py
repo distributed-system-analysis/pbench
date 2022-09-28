@@ -956,8 +956,7 @@ class ToolDataSink(Bottle):
         # Create a separate logger so that the fetch_message() code only logs
         # warnings and errors to stdout/stderr when problems occur handling
         # logs from remote Tool Meisters.
-        logger = logging.getLogger("tm_log_capture_thread")
-        logger.setLevel(logging.WARNING)
+        logger = get_logger("tm_log_capture_thread", daemon=False, level="warning")
         tm_log_file = self.benchmark_run_dir.local / "tm" / "tm.logs"
         with tm_log_file.open("w") as fp:
             try:
@@ -1881,7 +1880,7 @@ class ToolDataSink(Bottle):
 def get_logger(
     logger_name: str, daemon: bool = False, level: str = "info"
 ) -> logging.Logger:
-    """construct a logger for a Tool Meister Data Sync instance.
+    """Construct a logger for a Tool Meister Data Sink instance.
 
     If in the Unit Test environment, just log to console.
     If in non-unit test environment:
@@ -1891,6 +1890,8 @@ def get_logger(
     logger = logging.getLogger(logger_name)
     if level == "debug":
         log_level = logging.DEBUG
+    elif level == "warning":
+        log_level = logging.WARNING
     else:
         log_level = logging.INFO
     logger.setLevel(log_level)
