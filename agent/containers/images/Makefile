@@ -1,31 +1,6 @@
-# Base Makefile for building all images and tagging them
-
-# List of external Make targets:
+# Base Makefile for building images and tagging them.
 #
-#   These act on all default platforms' containers:
-#
-#     all (default):  make all images for all default platforms
-#     tds:  make Tool Data Sink images for all default platforms
-#     tm:  make Tool Meister images for all default platforms
-#     tag-<TYPE> (e.g., "tag-latest"):  apply specified tag to all images for all default platforms
-#     push:  push images for all default platforms with "<git commit hash>" and "v<full RPM version>" tags
-#     push-<TYPE> (e.g., "push-latest"):  push images for all default platforms with specified tag
-#
-#   These act on the indicated distribution's containers:
-#
-#     <DISTRO> (e.g., "fedora-34"):  make all images for the requested platform
-#     <DISTRO>-tds (e.g., "fedora-34-tds"):  make the TDS image for the requested platform
-#     <DISTRO>-tm (e.g., "fedora-34-tm"):  make the TM image for the requested platform
-#     <DISTRO>-tag-<TYPE> (e.g., "fedora-34-tag-alpha"):  apply the specified tag to the distro containers
-#     <DISTRO>-push (e.g., "fedora-34-push"):  push the specified containers
-#     <DISTRO>-push-<TYPE> (e.g., "fedora-34-push-alpha"):  push the specified containers
-#
-#   Utility targets:
-#
-#     clean:  remove build artifacts
-#     pkgmgr-clean:  clear the local package manager cache
-#     all-tags:  build all default distro "-tags.lis" files and verify that they are consistent.
-#     all-dockerfiles:  build all default distro ".repo" and ".Dockerfile" files
+# See the README.md file for a description of the interface.
 #
 
 _PBENCH_TOP := $(shell git rev-parse --show-toplevel)
@@ -49,7 +24,7 @@ URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${COPR_USER}
 # test COPR repos to have a suffix added, typically "test", so that
 # the final repo name would be "pbench-test".
 TEST =
-_TEST_SUFFIX = $(if $(TEST),-$(TEST),"")
+_TEST_SUFFIX = $(if $(TEST),-$(TEST),)
 _PBENCH_REPO_NAME = pbench-$(shell grep -oE '[0-9]+\.[0-9]+' ${_PBENCH_TOP}/agent/VERSION)${_TEST_SUFFIX}
 
 # By default we use the pbench Quay.io organization for the image
@@ -59,7 +34,7 @@ IMAGE_REPO = docker://quay.io/pbench
 
 # Convenience reference to the repo template in the pbench tree.
 # Not intended to be overridden with an environment variable.
-_PBENCH_REPO_TEMPLATE = ../../ansible/roles/pbench_repo_install/templates/etc/yum.repos.d/pbench.repo.j2
+_PBENCH_REPO_TEMPLATE = ../../ansible/collection/roles/pbench_repo_install/templates/etc/yum.repos.d/pbench.repo.j2
 
 # This is for use on CentOS; on Fedora, the package is available without a
 # custom .repo file.
@@ -105,16 +80,20 @@ _WORKLOAD_RPMS = fio uperf
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
 # By default we only build images for the following distributions.
-_DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35
+_DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35 fedora-36
 
 # By default we build the Tool Data Sink and Tool Meister images as well.
-all: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
+everything: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
+
+# Do not use `all` as a target!
+all:
+	@printf -- "Do not use 'all' as a Make target, please use 'everything' instead\n" >&2
 
 # Convenience target to only build the Tool Data Sink images.
-tds: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
+tds: all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
 
 # Convenience target to only build the Tool Meister images.
-tm: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
+tm: all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
 
 #+
 # For the following rule patterns, the "%" represents the "distribution" name,
@@ -126,8 +105,10 @@ tm: pkgmgr-clean all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
 # See https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 #-
 
-# We also offer targets per distribution target
-${_DISTROS}: %: pkgmgr-clean %-all-tagged
+# We also offer targets per distribution.
+${_DISTROS}: %: %-everything
+
+$(_DISTROS:%=%-everything): %-everything: pkgmgr-clean %-all-tagged
 
 $(_DISTROS:%=%-tds): %-tds: pkgmgr-clean %-tool-data-sink-tagged
 
@@ -293,8 +274,8 @@ pkgmgr-clean:
 # between the distribution name and the repo name, which for CentOS images
 # is "epel".  And for both CentOS and Fedora, the distribution image
 # reference, the package manager (dnf vs yum), and image name, also require
-# mappings (e.g. centos-7 -> yum, centos:7, CentOS 7, fedora-32 -> dnf,
-# fedora:32, Fedora 32).
+# mappings (e.g. centos-7 -> yum, centos:7, CentOS 7; or fedora-## -> dnf,
+# fedora:##, Fedora ##).
 #-
 _PKGMGR = dnf
 centos-7-base.Dockerfile: _PKGMGR = yum

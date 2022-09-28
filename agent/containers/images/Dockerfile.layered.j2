@@ -19,7 +19,6 @@ RUN {{ pkgmgr }} install -y --setopt=tsflags=nodocs \
         {% if distro == 'centos-9' %}--enablerepo crb \
         {% else %}
         {% if distro == 'centos-8' %}--enablerepo powertools {% endif %} \
-        {% if kind in ('tools', 'all') %}--enablerepo pcp-rpm-release {% endif %} \
         {% endif %}
         {{ rpms }} && \
     {{ pkgmgr }} -y clean all && \
