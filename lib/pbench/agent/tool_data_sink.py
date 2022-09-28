@@ -1310,9 +1310,9 @@ class ToolDataSink(Bottle):
                 if action == "shutdown":
                     # This simply means that a SignalExporter/Client we
                     # were listening to has shut down, no action needed
-                    self.logger.debug("Client %s has shut down", client)
                     continue
                 if action == "initialization":
+                    # Required response for subscribing to new client SignalExporter
                     self.sig_resp.srespond(signal)
                     continue
                 if not signal.metadata:
@@ -1327,8 +1327,6 @@ class ToolDataSink(Bottle):
                 data["action"] = action
                 self.execute_action(client, data)
                 if action == "terminate":
-                    self.logger.info("Tool Data Sink terminating")
-                    self._send_client_status(client, action, "success")
                     break
         except redis.ConnectionError:
             self.logger.warning(
@@ -1530,6 +1528,8 @@ class ToolDataSink(Bottle):
 
             self._from_tms_chan.close()
             self._to_logging_chan.unsubscribe()
+            self.logger.info("Tool Data Sink terminating")
+            self._send_client_status(client, action, "success")
             return
 
         try:
