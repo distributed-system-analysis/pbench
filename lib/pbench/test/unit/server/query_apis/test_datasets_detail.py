@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
-from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
+from pbench.server.api.resources.query_apis.datasets.datasets_detail import DatasetsDetail
 from pbench.test.unit.server.query_apis.commons import Commons
 
 

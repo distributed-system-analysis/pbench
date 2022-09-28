@@ -31,7 +31,9 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleValues,
 )
 from pbench.server.api.resources.query_apis.datasets_delete import DatasetsDelete
-from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
+from pbench.server.api.resources.query_apis.datasets.datasets_detail import (
+    DatasetsDetail,
+)
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
