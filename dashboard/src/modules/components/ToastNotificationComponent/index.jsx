@@ -1,19 +1,20 @@
-import React from "react";
 import {
   Alert,
+  AlertActionCloseButton,
   AlertGroup,
   AlertVariant,
-  AlertActionCloseButton,
 } from "@patternfly/react-core";
 import { useDispatch, useSelector } from "react-redux";
-import { CLEAR_TOAST } from "actions/types";
+
+import React from "react";
+import { clearToast } from "actions/toastActions";
 
 const ToastComponent = () => {
   const { alerts } = useSelector((state) => state.toastReducer);
   const dispatch = useDispatch();
 
   const removeToast = (key) => {
-    dispatch({ type: CLEAR_TOAST, payload: key });
+    dispatch(clearToast(key));
   };
   return (
     <AlertGroup isToast>
