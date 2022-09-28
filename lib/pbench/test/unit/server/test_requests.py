@@ -109,10 +109,13 @@ class TestUpload:
         return headers
 
     @staticmethod
-    def verify_logs(caplog):
+    def verify_logs(caplog, warning_msg):
+        found = False
         for record in caplog.records:
             assert record.levelname not in ("ERROR", "CRITICAL")
-        assert caplog.records[-1].levelname == "WARNING"
+            if record.levelname == "WARNING" and warning_msg in record.message:
+                found = True
+        assert found, f"Failed to find expected warning message, {warning_msg!r}"
 
     @pytest.fixture(scope="function", autouse=True)
     def fake_filetree(self, monkeypatch):
@@ -178,7 +181,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog)
+        self.verify_logs(caplog, expected_message)
         assert not self.filetree_created
 
     def test_missing_md5sum_header_upload(
@@ -194,7 +197,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog)
+        self.verify_logs(caplog, expected_message)
         assert not self.filetree_created
 
     def test_missing_length_header_upload(
@@ -211,7 +214,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.LENGTH_REQUIRED
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog)
+        self.verify_logs(caplog, expected_message)
         assert not self.filetree_created
 
     def test_bad_length_header_upload(
@@ -229,7 +232,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.LENGTH_REQUIRED
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog)
+        self.verify_logs(caplog, expected_message)
         assert not self.filetree_created
 
     def test_bad_controller_upload(
@@ -247,7 +250,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog)
+        self.verify_logs(caplog, expected_message)
         assert not self.filetree_created
 
     def test_mismatched_md5sum_header(
@@ -255,7 +258,7 @@ class TestUpload:
     ):
         filename = "log.tar.xz"
         datafile = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
-
+        expected_message = "MD5 checksum 9d5a479f6f75fa9b3bab27ef79ad5b29 does not match expected md5sum"
         with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, filename),
@@ -264,11 +267,8 @@ class TestUpload:
                 headers=self.gen_headers(pbench_token, "md5sum"),
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert (
-            response.json.get("message")
-            == "MD5 checksum 9d5a479f6f75fa9b3bab27ef79ad5b29 does not match expected md5sum"
-        )
-        self.verify_logs(caplog)
+        assert response.json.get("message") == expected_message
+        self.verify_logs(caplog, expected_message)
         assert not self.filetree_created
         with pytest.raises(DatasetNotFound):
             Dataset.query(name="log")
@@ -286,6 +286,7 @@ class TestUpload:
     ):
         datafile = tmp_path / bad_extension
         datafile.write_text("compressed tar ball")
+        expected_message = "File extension not supported, must be .tar.xz"
         with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, bad_extension),
@@ -294,11 +295,8 @@ class TestUpload:
                 headers=self.gen_headers(pbench_token, "md5sum"),
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert (
-            response.json.get("message")
-            == "File extension not supported, must be .tar.xz"
-        )
-        self.verify_logs(caplog)
+        assert response.json.get("message") == expected_message
+        self.verify_logs(caplog, expected_message)
         assert not self.filetree_created
 
     def test_invalid_authorization_upload(
@@ -326,6 +324,7 @@ class TestUpload:
         filename = "tmp.tar.xz"
         datafile = tmp_path / filename
         datafile.touch()
+        expected_message = "'Content-Length' 0 must be greater than 0"
         with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, filename),
@@ -337,10 +336,8 @@ class TestUpload:
                 ),
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert (
-            response.json.get("message") == "'Content-Length' 0 must be greater than 0"
-        )
-        self.verify_logs(caplog)
+        assert response.json.get("message") == expected_message
+        self.verify_logs(caplog, expected_message)
         assert not self.filetree_created
 
     def test_upload_filetree_error(
