@@ -84,9 +84,8 @@ const TableWithFavorite = () => {
     !!favoriteRepoNames.find((element) => element.name === repo.name);
 
   const getSortableRowValues = (data) => {
-    const { controller, name } = data;
     const creationDate = data.metadata[DATASET_CREATED];
-    return [controller, name, creationDate];
+    return [data.name, creationDate, isRepoFavorited(data)];
   };
   if (activeSortIndex !== null) {
     selectedArray.sort((a, b) => {
@@ -103,7 +102,7 @@ const TableWithFavorite = () => {
     });
   }
   const getSortParams = (columnIndex) => ({
-    isFavorites: columnIndex === 3,
+    isFavorites: columnIndex === 2,
     sortBy: {
       index: activeSortIndex,
       direction: activeSortDirection,
