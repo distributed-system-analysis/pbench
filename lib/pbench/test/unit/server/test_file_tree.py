@@ -13,6 +13,7 @@ from pbench.server.filetree import (
     DuplicateTarball,
     FileTree,
     Tarball,
+    TarballModeChangeError,
     TarballNotFound,
     TarballUnpackError,
 )
@@ -332,21 +333,24 @@ class TestFileTree:
             assert ignore_errors
             assert path == incoming / f"{tarball_name}.unpack"
 
-        @staticmethod
         def mock_run(command, dir_path, exception, dir_p):
             verb = "tar"
-            assert command.startswith("tar")
-            raise subprocess.TimeoutExpired(verb, 43)
+            assert command.startswith(verb)
+            raise exception(dir_p, subprocess.TimeoutExpired(verb, 43))
 
         with monkeypatch.context() as m:
             m.setattr(Path, "mkdir", lambda path, parents: None)
-            m.setattr(Tarball, "subprocess_run", mock_run)
+            m.setattr(Tarball, "subprocess_run", staticmethod(mock_run))
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestFileTree.MockTarball.__init__)
             tb = Tarball(tar)
-            with pytest.raises(Exception) as exc:
+            with pytest.raises(TarballUnpackError) as exc:
                 tb.unpack(incoming, results)
-            assert str(exc.value) == "Command 'tar' timed out after 43 seconds"
+            assert (
+                str(exc.value)
+                == f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
+            )
+            assert exc.type == TarballUnpackError
             assert rmtree_called
 
     def test_unpack_find_subprocess_exception(self, monkeypatch):
@@ -356,6 +360,7 @@ class TestFileTree:
         tarball_name = tar.name.removesuffix(".tar.xz")
         incoming = Path("/mock/incoming/ABC")
         results = Path("/mock/results/ABC")
+        unpack_dir = incoming / f"{tarball_name}.unpack"
         rmtree_called = True
 
         def mock_rmtree(path: Path, ignore_errors=False):
@@ -363,24 +368,29 @@ class TestFileTree:
             rmtree_called = True
 
             assert ignore_errors
-            assert path == incoming / f"{tarball_name}.unpack"
+            assert path == unpack_dir
 
-        @staticmethod
         def mock_run(command, dir_path, exception, dir_p):
             verb = "find"
             if command.startswith(verb):
-                raise subprocess.TimeoutExpired(verb, 43)
+                raise exception(dir_p, subprocess.TimeoutExpired(verb, 43))
+            else:
+                assert command.startswith("tar")
 
         with monkeypatch.context() as m:
             m.setattr(Path, "mkdir", lambda path, parents: None)
-            m.setattr(Tarball, "subprocess_run", mock_run)
+            m.setattr(Tarball, "subprocess_run", staticmethod(mock_run))
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestFileTree.MockTarball.__init__)
             tb = Tarball(tar)
 
-            with pytest.raises(Exception) as exc:
+            with pytest.raises(TarballModeChangeError) as exc:
                 tb.unpack(incoming, results)
-            assert str(exc.value) == "Command 'find' timed out after 43 seconds"
+            assert (
+                str(exc.value)
+                == f"An error occurred while changing file permissions of {unpack_dir}: Command 'find' timed out after 43 seconds"
+            )
+            assert exc.type == TarballModeChangeError
             assert rmtree_called
 
     def test_unpack_move_error(self, monkeypatch):
@@ -399,14 +409,13 @@ class TestFileTree:
             assert ignore_errors
             assert path == incoming / f"{tarball_name}.unpack"
 
-        @staticmethod
         def mock_move(src: Path, dest: Path, ctx: Path):
             raise FileNotFoundError(f"No such file or directory: '{src}'")
 
         with monkeypatch.context() as m:
             m.setattr(Path, "mkdir", lambda path, parents: None)
             m.setattr(Tarball, "subprocess_run", lambda *args: None)
-            m.setattr(Tarball, "do_move", mock_move)
+            m.setattr(Tarball, "do_move", staticmethod(mock_move))
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestFileTree.MockTarball.__init__)
             tb = Tarball(tar)
