@@ -186,8 +186,12 @@ for _major in ${major_list}; do
         if [[ ${?} -ne 0 ]]; then
             rc=1
         fi
+        if [[ ${count} -eq 0 && "${subtst}" != "python" ]]; then
+            printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
+            rc=1
+        fi
     elif [[ "${_major}" == "server" ]]; then
-        if [[ -z "${subtst}" || "${subtst}" == "legacy" ]]; then
+        if [[ "${subtst}" == "legacy" ]]; then
             printf -- "Warning - server legacy tests are no longer executed\n" >&2
         fi
     elif [[ "${_major}" != "client" ]]; then
@@ -195,10 +199,5 @@ for _major in ${major_list}; do
         rc=1
     fi
 done
-
-if [[ ${count} -eq 0 && "${subtst}" != "python" ]]; then
-    printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
-    rc=1
-fi
 
 exit ${rc}
