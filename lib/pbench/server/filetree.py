@@ -2,7 +2,9 @@ from configparser import ConfigParser
 from logging import Logger
 from pathlib import Path
 import re
+import shlex
 import shutil
+import subprocess
 import tarfile
 from typing import Dict, Optional, Union
 
@@ -71,6 +73,33 @@ class MetadataError(FiletreeError):
         return f"A problem occurred processing metadata.log from {self.tarball!s}: {self.error!r}"
 
 
+class TarballUnpackError(FiletreeError):
+    """
+    An error occured while trying to unpack tarball in Unpacked Directory.
+    """
+
+    def __init__(self, tarball: Path, error: str):
+        self.tarball = tarball
+        self.error = error
+
+    def __str__(self) -> str:
+        return f"An error occurred while unpacking {self.tarball}: {self.error}"
+
+
+class TarballModeChangeError(FiletreeError):
+    """
+    An error occurred while trying to change the file permissions of
+    unpacked tarball files.
+    """
+
+    def __init__(self, tarball: Path, error: str):
+        self.tarball = tarball
+        self.error = error
+
+    def __str__(self) -> str:
+        return f"An error occurred while changing file permissions of {self.tarball}: {self.error}"
+
+
 class Tarball:
     """
     This class corresponds to the physical representation of a Dataset: the
@@ -127,7 +156,7 @@ class Tarball:
         the INCOMING tree and if so record the link.
 
         Args
-            result:   The controller's RESULTS directory
+            incoming: The controller's INCOMING directory
 
         Return
             True if an unpacked directory was discovered
@@ -291,6 +320,65 @@ class Tarball:
             self.metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
         return self.metadata
 
+    @staticmethod
+    def subprocess_run(
+        command: str, working_dir: Path, exception: type[FiletreeError], ctx: Path
+    ):
+        """
+        Runs command under subprocess.run
+
+        Args:
+            command: command to be executed.
+            working_dir: Directory where tarball needs to be unpacked.
+            exception: A reference to a class (e.g., TarballUnpackError or
+                        TarballModeChangeError) to be raised in the event of an error.
+            ctx: tarball path/unpack directory path. This is only used at
+                the event of an error as a parameter to the FiletreeError Exception.
+
+        Raises:
+            In the event of an error, will raise an instance of the class specified
+            by the `exception` parameter, instantiated with the value of the
+            `ctx` arguments and an explanatory message.
+        """
+        try:
+            process = subprocess.run(
+                shlex.split(command),
+                cwd=working_dir,
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+            )
+        except Exception as exc:
+            raise exception(ctx, str(exc)) from exc
+        else:
+            if process.returncode != 0:
+                raise exception(
+                    ctx,
+                    f"{shlex.split(command)[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
+                )
+
+    @staticmethod
+    def do_move(src: Path, dest: Path, ctx: Path):
+        """Moves unpacked Tarball from unpacked to incoming directory
+
+        Args:
+            src: source directory to move contents from.
+            dest: destinations directory to move contents to.
+            ctx: tarball path/unpack directory path. This is only used at
+                the event of an error as a parameter to the FiletreeError Exception.
+
+        Raises:
+            TarballUnpackError if an exception/failure occurs while unpacking
+            the tarball.
+        """
+        try:
+            shutil.move(src, dest)
+        except Exception as exc:
+            raise TarballUnpackError(
+                ctx,
+                f"Error moving {str(src)!r} to {str(dest)!r}: {str(exc)}",
+            )
+
     def unpack(self, incoming: Path, results: Path):
         """
         Unpack a tarball into the INCOMING directory tree; this assumes that
@@ -298,20 +386,31 @@ class Tarball:
         ensured by calling this indirectly through the Controller class unpack
         method.
 
-        TODO: This is a prototype for testing, and doesn't actually unpack
-        the tarball as we're going to be relying on the current unpack pipeline
-        command for some time.
-
         Args:
             incoming: Controller's directory in the INCOMING tree
             results: Controller's directory in the RESULTS tree
         """
-        self.logger.warning("Tarball unpack is not yet implemented")
-        unpacked = incoming / self.name
-        unpacked.mkdir(parents=True)  # Just create an empty directory for now
-        self.unpacked = unpacked
+        unpacked = incoming / f"{self.name}.unpack"
+        unpacked.mkdir(parents=True)
+
+        try:
+            tar_command = f"tar -x --no-same-owner --delay-directory-restore --force-local --file='{str(self.tarball_path)}'"
+            self.subprocess_run(
+                tar_command, unpacked, TarballUnpackError, self.tarball_path
+            )
+
+            find_command = "find . ( -type d -exec chmod ugo+rx {} + ) -o ( -type f -exec chmod ugo+r {} + )"
+            self.subprocess_run(
+                find_command, unpacked, TarballModeChangeError, unpacked
+            )
+
+            self.do_move(unpacked / self.name, incoming, self.tarball_path)
+        finally:
+            shutil.rmtree(unpacked, ignore_errors=True)
+
+        self.unpacked = incoming / self.name
         results_link = results / self.name
-        results_link.symlink_to(unpacked)
+        results_link.symlink_to(self.unpacked)
         self.results_link = results_link
 
     def uncache(self):
