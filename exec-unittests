@@ -162,7 +162,6 @@ _subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-sc
 _para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
 trap "rm -f ${_para_jobs_file}" EXIT INT TERM
 
-let count=0
 for _major in ${major_list}; do
     # Verify the Agent or Server Makefile functions correctly.
     if [[ "${_major}" == "agent" || "${_major}" == "server" ]]; then
@@ -176,6 +175,7 @@ for _major in ${major_list}; do
         # suppressing future displays of it in our development processes (use of
         # --will-cite below).
 
+        let count=0
         for _subtst in ${_subtst_list}; do
             if [[ "${subtst:-legacy}" == "legacy" || "${subtst}" == "$(basename ${_subtst})" ]]; then
                 echo "${_major} ${_subtst} ${posargs}"
@@ -186,8 +186,12 @@ for _major in ${major_list}; do
         if [[ ${?} -ne 0 ]]; then
             rc=1
         fi
+        if [[ ${count} -eq 0 && "${subtst}" != "python" ]]; then
+            printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
+            rc=1
+        fi
     elif [[ "${_major}" == "server" ]]; then
-        if [[ -z "${subtst}" || "${subtst}" == "legacy" ]]; then
+        if [[ "${subtst}" == "legacy" ]]; then
             printf -- "Warning - server legacy tests are no longer executed\n" >&2
         fi
     elif [[ "${_major}" != "client" ]]; then
@@ -195,10 +199,5 @@ for _major in ${major_list}; do
         rc=1
     fi
 done
-
-if [[ ${count} -eq 0 && "${subtst}" != "python" ]]; then
-    printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
-    rc=1
-fi
 
 exit ${rc}
