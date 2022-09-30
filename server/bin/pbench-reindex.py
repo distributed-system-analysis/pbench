@@ -32,14 +32,13 @@ from pbench import (
 
 _NAME_ = "pbench-reindex"
 
-tb_pat_r = (
+tb_pat = re.compile(
     r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)\.tar\.xz"
 )
-tb_pat = re.compile(tb_pat_r)
 
 
 def reindex(controller_name, tb_name, archive_p, incoming_p, dry_run=False):
-    """reindex - re-index the given tar ball name.
+    """Re-index the given tar ball name.
 
     This method is responsible for finding the current symlink to the tar ball
     and moving it to the TO-RE-INDEX directory, creating that directory if
@@ -115,7 +114,7 @@ def gen_reindex_list(archive, oldest_dt, newest_dt):
         # sub-directories.
         for c_entry in archive_scan:
             if c_entry.name.startswith(".") and c_entry.is_dir(follow_symlinks=False):
-                # Ignore the ".", "..", and any other ".*" subdirectories.
+                # Ignore any other ".*" subdirectories.
                 continue
             if not c_entry.is_dir(follow_symlinks=False):
                 # NOTE: the pbench-audit-server should pick up and flag this
@@ -134,8 +133,7 @@ def gen_reindex_list(archive, oldest_dt, newest_dt):
                     match = tb_pat.fullmatch(entry.name)
                     if not match:
                         # Ignore any directory entries which do not match the
-                        # tar ball pattern.  Such entries should be flagged by
-                        # the server audit process.
+                        # tar ball pattern.
                         continue
                     # Turn the pattern components of the match into a datetime
                     # object.
@@ -146,8 +144,7 @@ def gen_reindex_list(archive, oldest_dt, newest_dt):
                             int(match.group(3)),
                         )
                     except ValueError:
-                        # Tar ball has a bad date timestamp, the server audit
-                        # process should flag those.
+                        # Tar ball has a bad date timestamp.
                         continue
                     if tb_dt < oldest_dt or newest_dt < tb_dt:
                         # This tar ball is outside the given range, ignore it.
@@ -157,19 +154,17 @@ def gen_reindex_list(archive, oldest_dt, newest_dt):
 
 
 def main(options):
-    if not options.cfg_name:
-        print(
-            f"{_NAME_}: ERROR: No config file specified; set"
-            " _PBENCH_SERVER_CONFIG env variable",
-            file=sys.stderr,
-        )
-        return 1
+    """Simple driver function for this CLI.
 
+    Verify the options and configuration, then performs the re-indexing.
+
+    Returns 0 on success, 1 on failure.
+    """
     try:
         config = PbenchConfig(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
-        return 2
+        return 1
 
     try:
         archive_p = Path(config.ARCHIVE).resolve(strict=True)
@@ -178,14 +173,14 @@ def main(options):
             f"The configured ARCHIVE directory, {config.ARCHIVE}, does not exist",
             file=sys.stderr,
         )
-        return 3
+        return 1
 
     if not archive_p.is_dir():
         print(
             f"The configured ARCHIVE directory, {config.ARCHIVE}, is not a valid directory",
             file=sys.stderr,
         )
-        return 4
+        return 1
 
     try:
         incoming_p = Path(config.INCOMING).resolve(strict=True)
@@ -194,14 +189,14 @@ def main(options):
             f"The configured INCOMING directory, {config.INCOMING}, does not exist",
             file=sys.stderr,
         )
-        return 5
+        return 1
 
     if not incoming_p.is_dir():
         print(
             f"The configured INCOMING directory, {config.INCOMING}, is not a valid directory",
             file=sys.stderr,
         )
-        return 6
+        return 1
 
     _fmt = "%Y-%m-%d"
     try:
@@ -213,7 +208,7 @@ def main(options):
             f"'{exc}', expected time range values in the form YYYY-MM-DD",
             file=sys.stderr,
         )
-        return 7
+        return 1
     else:
         if newest_dt < oldest_dt:
             # For convenience, swap oldest and newest dates that are reversed.
@@ -262,5 +257,14 @@ if __name__ == "__main__":
         "newest", help="Newest date of the range of tar balls to re-index"
     )
     parsed = parser.parse_args()
-    status = main(parsed)
+    if not parsed.cfg_name:
+        print(
+            f"{_NAME_}: ERROR: No config file specified on command line via -C"
+            " or --config, and the _PBENCH_SERVER_CONFIG env variable did not"
+            " have a value",
+            file=sys.stderr,
+        )
+        status = 1
+    else:
+        status = main(parsed)
     sys.exit(status)

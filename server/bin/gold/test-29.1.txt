@@ -1,6 +1,6 @@
 +++ Running pbench-reindex 1970-02-01 1970-02-XX
 Invalid time range, 1970-02-01 to 1970-02-XX, 'time data '1970-02-XX' does not match format '%Y-%m-%d'', expected time range values in the form YYYY-MM-DD
---- Finished pbench-reindex (status=7)
+--- Finished pbench-reindex (status=1)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
