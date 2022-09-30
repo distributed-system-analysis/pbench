@@ -157,7 +157,7 @@ class Client:
 
         metadata = dict(
             group=group,
-            # The "check" is necessary because sometimes `directory is None`
+            # The "check" is necessary because sometimes directory is `None`
             # and we don't want to pass `str(None)`; the "conversion" is because
             # we're passing a "path-like object" which might be str or Path.
             directory=None if directory is None else str(directory),
