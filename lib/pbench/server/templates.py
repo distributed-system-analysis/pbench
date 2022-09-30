@@ -741,6 +741,7 @@ class PbenchTemplates:
                 object_type=AuditType.TEMPLATE,
                 name="template",
                 status=AuditStatus.BEGIN,
+                user_name=Audit.BACKGROUND_USER,
                 object_name=template.name,
                 attributes=attrs,
             )

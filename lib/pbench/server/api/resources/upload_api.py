@@ -13,6 +13,12 @@ import humanize
 from pbench.common.utils import Cleanup, validate_hostname
 from pbench.server.auth.auth import Auth
 from pbench.server.cache_manager import CacheManager
+from pbench.server.database.models.audit import (
+    Audit,
+    AuditReason,
+    AuditStatus,
+    OperationCode,
+)
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetDuplicate,
@@ -414,18 +420,20 @@ class Upload(Resource):
             else:
                 self.logger.exception("Unexpected exception in outer try")
 
-            # FIXME:
-            # 1. Try to decode a Reason for failure
-            # 2. This isn't auditing failure if we failed on header validation
-            #    before we created the Dataset object. We probably don't want
-            #    to audit every failed API call, so maybe this is correct, but
-            #    we could audit a CREATE with no object ID and request header
-            #    info as 'attributes' when add object_name/id later, possibly
-            #    through a "status change" audit event connecting the two?
+            # NOTE: there are nested try blocks so we can't be 100% confident
+            # here that an audit "root" object was created. We don't audit on
+            # header validation/consistency errors caught before we decide that
+            # we have a "resource" to track. We won't try to audit failure if
+            # we didn't create the root object.
             if audit:
+                if status == HTTPStatus.INTERNAL_SERVER_ERROR:
+                    reason = AuditReason.INTERNAL
+                else:
+                    reason = AuditReason.CONSISTENCY
                 Audit.create(
                     root=audit,
                     status=AuditStatus.FAILURE,
+                    reason=reason,
                     attributes={"message": abort_msg},
                 )
             recovery.cleanup()

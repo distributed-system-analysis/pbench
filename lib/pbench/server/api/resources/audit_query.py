@@ -50,12 +50,7 @@ class AuditQuery(ApiBase):
                     Parameter("type", ParamType.KEYWORD, enum=AuditType),
                     Parameter("user", ParamType.USER),
                     Parameter("user_id", ParamType.STRING),
-                    # FIXME: Implement pagination
-                    Parameter("offset", ParamType.INT),
-                    Parameter("limit", ParamType.INT),
                 ),
-                # FIXME: We should restrict non-ADMIN queries to audit records
-                # tagged for the particular user, probably by owner_id.
                 authorization=ApiAuthorizationType.NONE,
             ),
             always_enabled=True,

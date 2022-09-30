@@ -92,10 +92,12 @@ class AuditType(enum.Enum):
 
 
 class AuditStatus(enum.Enum):
+    """The 'status' of an operation. Each operation is bracketed by two audit
+    records: the first with 'BEGIN' status and a final record with either
+    'SUCCESS', 'FAILURE', or 'WARNING' status."""
 
     """Pending operation: this signals the beginning of an optation that might
     fail or require further context later."""
-
     BEGIN = enum.auto()
 
     """Successful operation: an operation completed without problems."""
@@ -111,9 +113,11 @@ class AuditStatus(enum.Enum):
 
 
 class AuditReason(enum.Enum):
+    """A high-level 'reason' for a `FAILURE` or `WARNING` audit record. These
+    records should also contain a 'message' string in the 'attributes' to
+    provide more detail."""
 
     """Permission denied."""
-
     PERMISSION = enum.auto()
 
     """Internal failure."""
@@ -127,7 +131,9 @@ class Audit(Database.Base):
     """
     A framework to store Pbench audit records. These will track server
     configuration changes as well as every mutation of user-visible data and
-    attribute each to a specific user and operation.
+    attribute each to a specific user and operation. Mutations attributed to
+    "the server" independent of a specific authenticated user will be attached
+    to a "BACKGROUND" user.
 
     Architecturally, the SQL table may be used as a "front end" for a more
     expensive audit repository (e.g., Elasticsearch). For example, we might
