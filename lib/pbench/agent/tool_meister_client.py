@@ -17,7 +17,7 @@ import logging
 import os
 from pathlib import Path
 import sys
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 import state_signals
 
@@ -131,9 +131,9 @@ class Client:
     def publish(
         self,
         group: str,
-        directory: Union[str, Path, None],
+        directory: Optional[Union[str, Path]],
         action: str,
-        args: Any = None,
+        args: Optional[Any] = None,
     ) -> int:
         """Publish a state signal formed from the group, directory, action,
         and args arguments, using the SignalExporter instance.  It waits for
@@ -159,7 +159,7 @@ class Client:
             group=group,
             # This check/conversion is necessary, as the pbench scripts
             # sometimes pass in the directory as a str, and sometimes as
-            # pathlib.PosixPath
+            # pathlib.PosixPath (and sometimes simply None)
             directory=None if directory is None else str(directory),
             args=args,
         )
