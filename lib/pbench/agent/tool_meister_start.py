@@ -563,8 +563,13 @@ class ToolDataSink(BaseServer):
     def shutdown_tds(self, status: int) -> None:
         """Make sure TDS is shut down; wait for it to stop running on its own
         and kill it if the wait times out."""
-        if self.wait_for_pid(self.get_pid()):
-            self.kill(status)
+        try:
+            pid = self.get_pid()
+        except FileNotFoundError:
+            pass
+        else:
+            if self.wait_for_pid(pid):
+                self.kill(status)
 
 
 class RedisServer(RedisServerCommon):

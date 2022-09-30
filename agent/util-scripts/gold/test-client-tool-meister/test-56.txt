@@ -410,7 +410,7 @@ install_check_output = mpstat: pbench-sysstat-12.0.3-1 is installed
 
 Bottle v#.##.## server starting up (using DataSinkWsgiServer(handler_class=<class 'pbench.agent.tool_data_sink.DataSinkWsgiServer.__init__.<locals>.DataSinkWsgiRequestHandler'>))...
 Hit Ctrl-C to quit.
-INFO pbench-tool-data-sink execute -- Tool Data Sink terminating
+INFO pbench-tool-data-sink execute_action -- Tool Data Sink terminating
 INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /sysinfo-data/27c00bc325171c4893ef3862b4340952/remote-a.example.com HTTP/1.1" 200 0
 INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /sysinfo-data/27c00bc325171c4893ef3862b4340952/remote-b.example.com HTTP/1.1" 200 0
 INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /sysinfo-data/27c00bc325171c4893ef3862b4340952/remote-c.example.com HTTP/1.1" 200 0

@@ -1245,7 +1245,7 @@ class ToolDataSink(Bottle):
 
         return tms
 
-    def _is_valid_data(self, action: str, data: Dict[str, Any]) -> bool:
+    def _is_valid_data(self, data: Dict[str, Any]) -> bool:
         if not METADATA_KEYS.issubset(data.keys()):
             self.logger.warning(
                 "Malformed data: missing required payload metadata key(s), %r",
@@ -1253,7 +1253,7 @@ class ToolDataSink(Bottle):
             )
             return False
 
-        if action not in tm_allowed_actions:
+        if data["action"] not in tm_allowed_actions:
             self.logger.warning(
                 "Malformed data: unrecognized action in message, %r", data
             )
@@ -1266,10 +1266,39 @@ class ToolDataSink(Bottle):
 
         return True
 
+    def _fetch_action(self):
+        """Wrapper for a State Signal's SignalResponder encapsulating its use."""
+        for signal in self.sig_resp.listen():
+            client = signal.publisher_id
+            action = signal.event
+            self.logger.debug(
+                "client %r, action %r, metadata %r", client, action, signal.metadata
+            )
+            if action == "shutdown":
+                # This simply means that a SignalExporter/Client we
+                # were listening to has shut down, no action needed
+                continue
+            if action == "initialization":
+                # Required response for subscribing to new client
+                # SignalExporter.  The response to initialization is the
+                # means by which the Tool Data Sink actually acknowledges
+                # the client and subscribes.
+                self.sig_resp.srespond(signal)
+                continue
+            if not signal.metadata:
+                self.logger.warning(
+                    "Signal for %s received, but required metadata not included",
+                    action,
+                )
+                continue
+            data = signal.metadata
+            data["action"] = action
+            yield client, data
+            if action == "terminate":
+                break
+
     def execute(self):
-        """execute - Driver for listening to client requests and taking action on
-        them.
-        """
+        """Driver for listening to client requests and taking action on them."""
         try:
             # At this point, all the Tool Meisters started by the external
             # orchestrator will publish a message on the "<prefix>-from-tms"
@@ -1301,33 +1330,10 @@ class ToolDataSink(Bottle):
 
             # Begin listening for client state signals, and react/respond
             # accordingly upon signal receipt
-            for signal in self.sig_resp.listen():
-                client = signal.publisher_id
-                action = signal.event
-                self.logger.debug(
-                    "client %r, action %r, metadata %r", client, action, signal.metadata
-                )
-                if action == "shutdown":
-                    # This simply means that a SignalExporter/Client we
-                    # were listening to has shut down, no action needed
+            for client, data in self._fetch_action():
+                if not self._is_valid_data(data):
                     continue
-                if action == "initialization":
-                    # Required response for subscribing to new client SignalExporter
-                    self.sig_resp.srespond(signal)
-                    continue
-                if not signal.metadata:
-                    self.logger.warning(
-                        "Signal for %s received, but required metadata not included",
-                        action,
-                    )
-                    continue
-                if not self._is_valid_data(action, signal.metadata):
-                    continue
-                data = signal.metadata
-                data["action"] = action
                 self.execute_action(client, data)
-                if action == "terminate":
-                    break
         except redis.ConnectionError:
             self.logger.warning(
                 "run closing down after losing connection to redis server"
