@@ -144,7 +144,7 @@ Listening on http://localhost:8080/
 Hit Ctrl-C to quit.
 
 INFO pbench-tool-data-sink tm_log_capture -- Running Tool Meister log capture ...
-INFO pbench-tool-data-sink execute -- Tool Data Sink terminating
+INFO pbench-tool-data-sink execute_action -- Tool Data Sink terminating
 INFO pbench-tool-data-sink web_server_run -- Bottle web server exited
 --- mock-run/tm/pbench-tool-data-sink.err file contents
 +++ mock-run/tm/pbench-tool-data-sink.out file contents

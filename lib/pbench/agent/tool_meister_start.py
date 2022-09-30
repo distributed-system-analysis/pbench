@@ -144,7 +144,6 @@ from pbench.agent.constants import (
     cli_tm_channel_prefix,
     def_redis_port,
     def_wsgi_port,
-    tm_channel_suffix_from_client,
     tm_channel_suffix_to_client,
     tm_channel_suffix_to_logging,
     tm_data_key,
@@ -564,8 +563,13 @@ class ToolDataSink(BaseServer):
     def shutdown_tds(self, status: int) -> None:
         """Make sure TDS is shut down; wait for it to stop running on its own
         and kill it if the wait times out."""
-        if self.wait_for_pid(self.get_pid()):
-            self.kill(status)
+        try:
+            pid = self.get_pid()
+        except FileNotFoundError:
+            pass
+        else:
+            if self.wait_for_pid(pid):
+                self.kill(status)
 
 
 class RedisServer(RedisServerCommon):
@@ -707,7 +711,9 @@ port {redis_port:d}
 
 
 def terminate_no_wait(
-    tool_group_name: str, logger: logging.Logger, redis_client: redis.Redis, key: str
+    tool_group_name: str,
+    logger: logging.Logger,
+    redis_client: redis.Redis,
 ) -> None:
     """
     Use a low-level Redis publish operation to send a "terminate" request to
@@ -724,19 +730,16 @@ def terminate_no_wait(
         tool_group_name: The tool group we're trying to terminate
         logger: Python Logger
         redis_client: Redis client
-        key: TDS Redis pubsub key
     """
-    terminate_msg = {
-        "action": "terminate",
-        "group": tool_group_name,
-        "directory": None,
-        "args": {"interrupt": False},
-    }
     try:
-        ret = redis_client.publish(
-            key,
-            json.dumps(terminate_msg, sort_keys=True),
-        )
+        with Client(
+            redis_server=redis_client,
+            publisher_prefix="start.terminate",
+            logger=logger,
+        ) as client:
+            ret = client.publish(
+                tool_group_name, None, "terminate", {"interrupt": False}
+            )
     except Exception:
         logger.exception("Failed to publish terminate message")
     else:
@@ -1182,12 +1185,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         # assigning work to them and the terminate message will tell them to
         # stop.
         recovery.add(
-            lambda: terminate_no_wait(
-                tool_group.name,
-                logger,
-                redis_client,
-                f"{cli_tm_channel_prefix}-{tm_channel_suffix_from_client}",
-            ),
+            lambda: terminate_no_wait(tool_group.name, logger, redis_client),
             "terminate tool group",
         )
 
@@ -1233,6 +1231,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
             raise CleanupTime(
                 ReturnCode.TDSWAITFAILURE, "TDS didn't confirm init sequence completion"
             )
+        to_client_chan.close()
 
         # +
         # Step 8. - Verify all the Tool Meisters have reported back, and that
@@ -1267,13 +1266,12 @@ def start(_prog: str, cli_params: Namespace) -> int:
                 "Tool installation check failures encountered",
             )
 
-        # Setup a Client API object using our existing to_client_chan object to
-        # drive the following client operations ("sysinfo" [optional] and "init"
-        # [required]).
+        # Setup a Client API object using our existing Redis server connection
+        # to drive the following client operations: "sysinfo" [optional], and
+        # "init" [required].
         with Client(
             redis_server=redis_client,
-            channel_prefix=cli_tm_channel_prefix,
-            to_client_chan=to_client_chan,
+            publisher_prefix="start",
             logger=logger,
         ) as client:
             if sysinfo:

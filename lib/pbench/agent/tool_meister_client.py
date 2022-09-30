@@ -13,23 +13,19 @@ for all the Tool Meisters, including forwarding the action payload to the Tool
 Meisters.
 """
 
-import json
 import logging
 import os
+from pathlib import Path
 import sys
+from typing import Any, Optional, Union
 
-import redis
+import state_signals
 
-from pbench.agent.constants import (
-    api_tm_allowed_actions,
-    cli_tm_allowed_actions,
-    cli_tm_channel_prefix,
-    tm_channel_suffix_from_client,
-    tm_channel_suffix_to_client,
-)
-from pbench.agent.redis_utils import RedisChannelSubscriber
+from pbench.agent.constants import cli_tm_allowed_actions, tm_allowed_actions
 from pbench.agent.tool_group import ToolGroup
 from pbench.agent.utils import RedisServerCommon
+
+SIGNAL_RESPONSE_TIMEOUT = 100
 
 
 class Client:
@@ -44,38 +40,38 @@ class Client:
         redis_server=None,
         redis_host=None,
         redis_port=None,
-        channel_prefix=None,
-        to_client_chan=None,
+        publisher_prefix=None,
         logger=None,
     ):
         """Construct a Tool Meister "client" object, given the host and port
-        of a Redis server.  The caller can optionally provide a logger to be
-        used.
+        of a Redis server, or an existing Redis server object. The caller must
+        specify a "prefix" to be used for the publisher name given to the
+        State Signals sub-system.
+
+        The caller can optionally provide a logger to be used.
 
         This constructor does not contact the Redis server, it just records
         the information for where that Redis server is.
 
-        :redis_server:   - (optional) a previously construct Redis server
-                           client object
-        :redis_host:     - (optional) the IP or host name of the Redis server
-                           to use
-        :redis_port:     - (optional) the port on which the Redis server on
-                           the given host name is listening
-        :channel_prefix: - (required) the prefix string to use for the channel
-                           name
-        :to_client_chan: - (optional) a previously constructed
-                           RedisChannelSubscriber object (the caller ensures
-                           it is for the same Redis server client object
-                           given)
-        :logger:         - (optional) a logger to use for reporting any errors
-                           encountered (one will be created if not provided)
+        :redis_server:     - (optional) a previously construct Redis server
+                             client object
+
+        :redis_host:       - (optional) the IP or host name of the Redis
+                             server to use
+
+        :redis_port:       - (optional) the port on which the Redis server on
+                             the given host name is listening
+
+        :publisher_prefix: - (required) the prefix string to use for the
+                             channel name
+
+        :logger:           - (optional) a logger to use for reporting any
+                             errors encountered (one will be created if not
+                             provided)
 
         Typically, if you already have a Redis server client object, you would
         pass that in via "redis_server", otherwise you must pass a host name
         and port number for the Redis server to use.
-
-        If you already have a RedisChannelSubscriber object, you must provide
-        the Redis server client object that was used to construct it.
         """
         assert (
             redis_server is None and (redis_host is not None and redis_port is not None)
@@ -87,15 +83,8 @@ class Client:
         self.redis_host = redis_host
         self.redis_port = redis_port
 
-        assert channel_prefix is not None, "You must specify a channel prefix"
-        self.to_client_channel = f"{channel_prefix}-{tm_channel_suffix_to_client}"
-        self.from_client_channel = f"{channel_prefix}-{tm_channel_suffix_from_client}"
-
-        assert to_client_chan is None or redis_server is not None, (
-            "You must specify a Redis server client object with a"
-            " RedisChannelSubscriber object"
-        )
-        self.to_client_chan = to_client_chan
+        assert publisher_prefix is not None, "You must specify a publisher prefix"
+        self.publisher_name = f"{publisher_prefix}-pbench-client"
 
         if logger is None:
             self.logger = logging.getLogger("tool-meister-client")
@@ -103,133 +92,117 @@ class Client:
             self.logger = logger
 
     def __enter__(self) -> "Client":
-        """On context entry, setup the connection with the Redis server."""
-        if self.redis_server is None:
-            self.logger.debug("constructing Redis() object")
-            try:
-                self.redis_server = redis.Redis(
-                    host=self.redis_host, port=self.redis_port, db=0
-                )
-            except Exception as e:
-                self.logger.error(
-                    "Unable to connect to redis server, %s:%s: %s",
-                    self.redis_host,
-                    self.redis_port,
-                    e,
-                )
-                raise
-            else:
-                self.logger.debug("constructed Redis() object")
-
-        if self.to_client_chan is None:
-            self.to_client_chan = RedisChannelSubscriber(
-                self.redis_server, self.to_client_channel
+        """On context entry, setup the connection with the Redis server using
+        a SignalExporter instance."""
+        if self.redis_server:
+            self.logger.debug(
+                "constructing SignalExporter() object using existing Redis"
+                " connection, name: %s",
+                self.publisher_name,
             )
+            sig_pub = state_signals.SignalExporter(
+                self.publisher_name, existing_redis_conn=self.redis_server
+            )
+        else:
+            self.logger.debug(
+                "constructing SignalExporter() object using host %s:%s," " name: %s",
+                self.redis_host,
+                self.redis_port,
+                self.publisher_name,
+            )
+            sig_pub = state_signals.SignalExporter(
+                self.publisher_name,
+                redis_host=self.redis_host,
+                redis_port=self.redis_port,
+            )
+        sig_pub.initialize_and_wait(
+            1,
+            list(tm_allowed_actions),
+            tag="from_pbench_client",
+        )
+        self.sig_pub = sig_pub
+        self.logger.debug("constructed SignalExporter() object")
         return self
 
     def __exit__(self, *args):
-        """On context exit, just close down the to client channel object."""
-        if self.to_client_chan is not None:
-            self.to_client_chan.close()
+        """On context exit, just close down the to SignalExporter object."""
+        self.sig_pub.shutdown()
 
-    def publish(self, group, directory, action, args=None):
-        """publish - marshal a JSON document formed from the group, directory,
-        action, and args arguments.
+    def publish(
+        self,
+        group: str,
+        directory: Optional[Union[str, Path]],
+        action: str,
+        args: Optional[Any] = None,
+    ) -> int:
+        """Publish a state signal formed from the group, directory, action,
+        and args arguments, using the SignalExporter instance.  It waits for
+        responses from subscribers (TDS, and the TMs indirectly) before
+        continuing.
 
         Returns 0 on success, 1 on failure; logs are also written for any
         errors encountered.
+
         """
-        if action not in api_tm_allowed_actions:
-            return 1
+
         # The published message contains four pieces of information:
         #   {
-        #     "action": "< 'start' | 'stop' | 'send' | 'kill' >",
+        #     "action": "< 'init' | 'start' | 'stop' | 'send' | 'end' | 'terminate' >",
         #     "group": "< the tool group name for the tools to operate on >",
         #     "directory": "< the local directory path to store collected data >"
         #     "args": "< arbitrary argument payload for a particular action >"
         #   }
         # The caller of tool-meister-client must be sure the directory argument
         # is accessible by the Tool Data Sink instance.
-        self.logger.debug("publish %s on chan %s", action, self.from_client_channel)
-        msg = dict(action=action, group=group, directory=str(directory), args=args)
+
+        metadata = dict(
+            group=group,
+            # The "check" is necessary because sometimes directory is `None`
+            # and we don't want to pass `str(None)`; the "conversion" is because
+            # we're passing a "path-like object" which might be str or Path.
+            directory=None if directory is None else str(directory),
+            args=args,
+        )
+        self.logger.debug(
+            "publish state signal for state %s with metadata: %s", action, metadata
+        )
         try:
-            num_present = self.redis_server.publish(
-                self.from_client_channel, json.dumps(msg)
+            resp, msgs = self.sig_pub.publish_signal(
+                event=action,
+                tag="from_pbench_client",
+                metadata=metadata,
+                timeout=SIGNAL_RESPONSE_TIMEOUT,
             )
         except Exception:
-            self.logger.exception("Failed to publish client message")
+            self.logger.exception("Failed to publish client signal")
             return 1
         else:
-            self.logger.debug("published %s", self.from_client_channel)
-            if num_present != 1:
-                self.logger.error(
-                    "Failed to publish to the TDS, encountered %d subscribers"
-                    " on the channel",
-                    num_present,
-                )
+            if resp != 0:
+                self.logger.error("Missing or bad response from the TDS, %s", str(resp))
                 ret_val = 1
+                for responder, msg in msgs.items():
+                    if msg != "success":
+                        self.logger.warning(
+                            "TDS responder %s reported: %s", responder, msg
+                        )
             else:
                 ret_val = 0
-
-        # Wait for an operational status message from the Tool Data Sink
-        # reporting the combined response of the Tool Meisters.
-        for data in self.to_client_chan.fetch_json(self.logger):
-            try:
-                kind = data["kind"]
-                action_r = data["action"]
-                status = data["status"]
-            except Exception:
-                self.logger.error("unrecognized status payload, %r", data)
-                ret_val = 1
-            else:
-                if kind != "ds":
-                    self.logger.warning("unrecognized kind in payload, %r", data)
-                    ret_val = 1
-                    continue
-                if action_r != action:
-                    self.logger.warning("unrecognized action in payload, %r", data)
-                    ret_val = 1
-                    continue
-                if status != "success":
-                    self.logger.warning(
-                        "Status message not successful: '%s'",
-                        status,
-                    )
-                    ret_val = 1
-                break
         return ret_val
 
-    def terminate(self, group, interrupt=False):
+    def terminate(self, group: str, interrupt=False) -> int:
         """terminate - send the terminate message for the tool group to the
         Tool Data Sink, which will forward to all the Tool Meisters to have
         them shut down.
 
         Returns 0 on success, non-zero on failure (errors logged on failure).
         """
-        ret_val = 0
 
-        self.logger.debug("publish terminate on chan %s", self.from_client_channel)
-        terminate_msg = dict(
-            action="terminate",
+        return self.publish(
             group=group,
             directory=None,
+            action="terminate",
             args={"interrupt": interrupt},
         )
-        try:
-            num_present = self.redis_server.publish(
-                self.from_client_channel, json.dumps(terminate_msg, sort_keys=True)
-            )
-        except Exception:
-            self.logger.exception("Failed to publish terminate message")
-            ret_val = 1
-        else:
-            if num_present != 1:
-                self.logger.error(
-                    "Failed to terminate TDS, encountered %d on the channel",
-                    num_present,
-                )
-                ret_val = 1
-        return ret_val
 
 
 def main() -> int:
@@ -310,7 +283,7 @@ def main() -> int:
     with Client(
         redis_host=redis_server.host,
         redis_port=redis_server.port,
-        channel_prefix=cli_tm_channel_prefix,
+        publisher_prefix="cli",
         logger=logger,
     ) as client:
         ret_val = client.publish(group, directory, action)

@@ -9,3 +9,4 @@ python-pidfile
 redis
 requests
 sh
+state-signals>=1.0.1
