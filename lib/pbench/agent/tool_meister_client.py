@@ -157,9 +157,9 @@ class Client:
 
         metadata = dict(
             group=group,
-            # This check/conversion is necessary, as the pbench scripts
-            # sometimes pass in the directory as a str, and sometimes as
-            # pathlib.PosixPath (and sometimes simply None)
+            # The "check" is necessary because sometimes `directory is None`
+            # and we don't want to pass `str(None)`; the "conversion" is because
+            # we're passing a "path-like object" which might be str or Path.
             directory=None if directory is None else str(directory),
             args=args,
         )
