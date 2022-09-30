@@ -5,21 +5,17 @@
 
 Review all archived tar balls and report how many have been properly indexed.
 """
-from collections import defaultdict
 import logging
 import os
 import re
 import sys
-
-from pathlib import Path
 from argparse import ArgumentParser
-
-from elasticsearch1 import Elasticsearch
-from elasticsearch1 import helpers
+from collections import defaultdict
+from pathlib import Path
 
 import pbench
 import pbench.indexer
-
+from elasticsearch1 import Elasticsearch, helpers
 
 _NAME_ = "pbench-verify-indexed"
 
@@ -78,8 +74,7 @@ def main(options):
         archive_p = Path(config.ARCHIVE).resolve(strict=True)
     except FileNotFoundError:
         print(
-            f"The configured ARCHIVE directory, {config.ARCHIVE},"
-            " does not exist",
+            f"The configured ARCHIVE directory, {config.ARCHIVE}," " does not exist",
             file=sys.stderr,
         )
         return 1
@@ -95,9 +90,7 @@ def main(options):
     print("Verifying indexed state of tar balls")
 
     es_client = Elasticsearch(
-        pbench.indexer._get_es_hosts(
-            config, logging.getLogger("pbench-verify-indexed")
-        )
+        pbench.indexer._get_es_hosts(config, logging.getLogger("pbench-verify-indexed"))
     )
     query = {"query": {"match_all": {}}}
 
@@ -107,9 +100,9 @@ def main(options):
     index_prefix = config.get("Indexing", "index_prefix")
     if not index_prefix:
         print(
-            f"Missing 'index_prefix' value in 'Indexing' section of"
-            " configuration",
-            file=sys.stderr)
+            "Missing 'index_prefix' value in 'Indexing' section of configuration",
+            file=sys.stderr,
+        )
         return 1
 
     # Fetch a thousand records at a time.
@@ -120,7 +113,7 @@ def main(options):
         query=query,
         expand_wildcards="open",
         fields=["@metadata.file-name"],
-        size=1000
+        size=1000,
     )
     indexed = defaultdict(int)
     indexed_cnt = 0
