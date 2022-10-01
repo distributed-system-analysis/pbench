@@ -71,16 +71,17 @@ for version in $versions ;do
     results_host_info=$user@$host:${receive_dir}
     echo $results_host_info > $prefix.active
 
-    # create the maintenance file as well
-    # the format is *fixed*: see the pbench-agent move-results script for details
-    # IOW, do *NOT* change anything here
+    # Create the maintenance file as well.  The format is *fixed*: see the
+    # pbench-agent move-results script for details.  IOW, do *NOT* change
+    # anything here.
     mailaddr=$(getconf.py admin-email pbench-server)
     msg="MESSAGE===System Under Maintenance - please retry at a later time ($mailaddr)"
 
     echo $msg > $prefix.maint
 
-    # mark it active
-    ln -sf $prefix.active $prefix 2>/dev/null
+    # Default the server installation to maintenance mode.  This gives the SRE
+    # an opportunity to review its operational settings before data flows.
+    ln -sf $prefix.maint $prefix 2>/dev/null
 done
 
 exit 0

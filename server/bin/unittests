@@ -253,6 +253,15 @@ function _verify_output {
     return ${res}
 }
 
+function move_out_of_maint {
+    # Given an mock "/var/www/html", move the target Pbench Server out of
+    # maintenance mode.
+    local tgthtml=${1}
+    local prefix=${tgthtml}/pbench-results-host-info.versioned
+    local tgtname=pbench-results-host-info.URL002
+    ln -sf ${tgtname}.active ${prefix}/${tgtname}
+}
+
 function _setup_state {
     res=0
     mkdir -p $_testopt/unittest-scripts/
@@ -369,6 +378,10 @@ function _setup_state {
         echo "$_testopt/bin/pbench-server-activate ${_PBENCH_SERVER_CONFIG}" >> $_testactout
         $_testopt/bin/pbench-server-activate ${_PBENCH_SERVER_CONFIG} >> $_testactout
         rc=$?
+        if [ $rc == 0 ] ;then
+            move_out_of_maint ${_testhtml}
+            rc=$?
+        fi
     fi
     if [ $rc -ne 0 ]; then
         echo "ERROR: failed to properly activate the main server test environment root, \"$_testroot\"" >&2
@@ -401,6 +414,10 @@ function _setup_state {
         echo "$_testopt_sat/bin/pbench-server-activate ${SATCONFIG}" >> $_testactout
         $_testopt_sat/bin/pbench-server-activate ${SATCONFIG} >> $_testactout
         rc=$?
+        if [ $rc == 0 ] ;then
+            move_out_of_maint ${_testhtml_sat}
+            rc=$?
+        fi
     fi
     if [ $rc -ne 0 ]; then
         echo "ERROR: failed to properly activate the satellite server test environment root, \"$_testroot\"" >&2
