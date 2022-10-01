@@ -19,9 +19,10 @@ from elasticsearch1 import Elasticsearch, helpers
 
 _NAME_ = "pbench-verify-indexed"
 
-tb_pat = re.compile(
-    r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)\.tar\.xz"
-)
+tb_pat = re.compile(pbench.TAR_BALL_NAME_W_TAR_PAT_S)
+
+# Number of JSON documents to fetch in one batch for the scan operation.
+batch_size = 10000
 
 
 def gen_tb_list(archive):
@@ -87,15 +88,10 @@ def main(options):
         )
         return 1
 
-    print("Verifying indexed state of tar balls")
-
     es_client = Elasticsearch(
         pbench.indexer._get_es_hosts(config, logging.getLogger("pbench-verify-indexed"))
     )
     query = {"query": {"match_all": {}}}
-
-    # Start the overall timer.
-    start = pbench._time()
 
     index_prefix = config.get("Indexing", "index_prefix")
     if not index_prefix:
@@ -105,6 +101,11 @@ def main(options):
         )
         return 1
 
+    # Start the overall timer.
+    start = pbench._time()
+    start_s = pbench.tstos(start)
+    print(f"[{start_s}] Verifying indexed state of tar balls", flush=True)
+
     # Fetch a thousand records at a time.
     scanner = helpers.scan(
         es_client,
@@ -113,15 +114,14 @@ def main(options):
         query=query,
         expand_wildcards="open",
         fields=["@metadata.file-name"],
-        size=1000,
+        size=batch_size,
     )
     indexed = defaultdict(int)
-    indexed_cnt = 0
     for hit in scanner:
         tb_file_p = Path(hit["fields"]["@metadata.file-name"][0])
         tb_file = f"{tb_file_p.parent.name}/{tb_file_p.name}"
         indexed[tb_file] += 1
-        indexed_cnt += 1
+    indexed_cnt = len(indexed)
 
     # Snap shot of query time.
     q_end = pbench._time()
@@ -142,31 +142,28 @@ def main(options):
     # Snap shot of disk scan time.
     d_end = pbench._time()
 
-    not_on_disk = []
-    for tb_file in indexed.keys():
-        if tb_file not in on_disk:
-            not_on_disk.append(tb_file)
+    not_on_disk = [f for f in indexed.keys() if f not in on_disk]
     not_on_disk_cnt = len(not_on_disk)
 
     # The heavy lifting is done.
     end = pbench._time()
+    end_s = pbench.tstos(end)
 
+    print(f"[{end_s}] Generating report ...")
     print(f"On Disk: {on_disk_cnt:n}, indexed {on_disk_indexed_cnt:n}")
     print(f"Indexed: {indexed_cnt:n}, not on disk {not_on_disk_cnt:n}")
     print(
-        f"Run-time: {start} {end} {(end - start):.2f},"
-        f" query time {(q_end - start):.2f},"
-        f" disk time {(d_end - q_end):.2f},"
-        f" final pass {(end - d_end):.2f}"
+        f"Run-time: {(end - start):.2f}s, query time {(q_end - start):.2f}s,"
+        f" disk time {(d_end - q_end):.2f}s, final pass {(end - d_end):.2f}s"
     )
 
     if not_on_disk:
         print(f"Not on disk... ({not_on_disk_cnt:n})")
-        for tb_file in not_on_disk:
+        for tb_file in sorted(not_on_disk):
             print(f"\t{tb_file}")
     if not_indexed:
         print(f"Not indexed... ({(on_disk_cnt - on_disk_indexed_cnt):n})")
-        for tb_file in not_indexed:
+        for tb_file in sorted(not_indexed):
             print(f"\t{tb_file}")
 
     return 0
@@ -174,12 +171,11 @@ def main(options):
 
 if __name__ == "__main__":
     parser = ArgumentParser(f"Usage: {_NAME_} [--config <path-to-config-file>]")
-    cfg_name_def = os.environ.get("_PBENCH_SERVER_CONFIG")
     parser.add_argument(
         "-C",
         "--config",
         dest="cfg_name",
-        default=cfg_name_def,
+        default=os.environ.get("_PBENCH_SERVER_CONFIG"),
         help="Specify config file",
     )
     parsed = parser.parse_args()
