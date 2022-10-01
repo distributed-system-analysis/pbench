@@ -40,13 +40,11 @@ from pathlib import Path
 
 import pbench
 
-
 _NAME_ = "pbench-restore-and-unpack-tarballs"
 
 md5_suffix_len = len(".md5")
 
-tb_pat_r = r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)\.tar\.xz\.md5"
-tb_pat = re.compile(tb_pat_r)
+tb_pat = re.compile(pbench.TAR_BALL_NAME_W_MD5_PAT_S)
 
 report_tb_fmt = (
     "\nFile {combined:d} of {cnt:d} ({restored:d} restored,"

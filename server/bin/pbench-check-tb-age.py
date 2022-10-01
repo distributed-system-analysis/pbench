@@ -9,25 +9,18 @@ age (specified in days), and return 1 if it is not.
 A return value > 1 indicates some other error with the command.
 """
 
-import sys
 import os
 import re
-from datetime import datetime
+import sys
 from argparse import ArgumentParser
 from configparser import NoOptionError
+from datetime import datetime
 
-from pbench import (
-    PbenchConfig,
-    BadConfig,
-)
-
+from pbench import TAR_BALL_NAME_W_TAR_PAT_S, BadConfig, PbenchConfig
 
 _NAME_ = "pbench-check-tb_age"
 
-tb_pat_r = (
-    r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)\.tar\.xz"
-)
-tb_pat = re.compile(tb_pat_r)
+tb_pat = re.compile(TAR_BALL_NAME_W_TAR_PAT_S)
 
 
 def main(options):

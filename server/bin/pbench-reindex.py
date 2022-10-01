@@ -14,27 +14,21 @@ service that runs as a cronjob.  NO RE-INDEXING STEPS SHOULD BE AUTOMATED
 AT THIS POINT.
 """
 
-import sys
 import os
 import re
+import sys
+from argparse import ArgumentParser
+from datetime import datetime
 
 # import shutil
 from pathlib import Path
-from datetime import datetime
-from argparse import ArgumentParser
 
 import pbench
-from pbench import (
-    PbenchConfig,
-    BadConfig,
-)
-
+from pbench import TAR_BALL_NAME_W_TAR_PAT_S, BadConfig, PbenchConfig
 
 _NAME_ = "pbench-reindex"
 
-tb_pat = re.compile(
-    r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)\.tar\.xz"
-)
+tb_pat = re.compile(TAR_BALL_NAME_W_TAR_PAT_S)
 
 
 def reindex(controller_name, tb_name, archive_p, incoming_p, dry_run=False):

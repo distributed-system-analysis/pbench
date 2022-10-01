@@ -13,20 +13,15 @@ import locale
 import os
 import re
 import sys
-
 from argparse import ArgumentParser, Namespace
 from datetime import datetime, timedelta
 
 import jinja2
-
 import pbench
-
 
 _NAME_ = "pbench-tarball-stats"
 
-tb_pat = re.compile(
-    r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)\.tar\.xz"
-)
+tb_pat = re.compile(pbench.TAR_BALL_NAME_W_TAR_PAT_S)
 
 TarBallInfo = collections.namedtuple("TarBallInfo", ["ctrl", "tb", "dt", "stat"])
 TarBallStats = collections.namedtuple("TarBallStats", ["ctrls", "count", "size"])

@@ -2,18 +2,25 @@
 Simple module level convenience functions.
 """
 
-import sys
-import os
-import logging
-import configtools
-import shutil
 import hashlib
-
+import logging
+import os
+import shutil
+import sys
+from configparser import ConfigParser, NoOptionError, NoSectionError
+from datetime import datetime, timedelta, tzinfo
+from functools import partial
 from logging import handlers
 from time import time as _time
-from datetime import datetime, tzinfo, timedelta
-from functools import partial
-from configparser import ConfigParser, NoSectionError, NoOptionError
+
+import configtools
+
+# On-disk tar ball file name pattern strings.
+TAR_BALL_NAME_PAT_S = (
+    r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)"
+)
+TAR_BALL_NAME_W_TAR_PAT_S = TAR_BALL_NAME_PAT_S + r"\.tar\.xz"
+TAR_BALL_NAME_W_MD5_PAT_S = TAR_BALL_NAME_W_TAR_PAT_S + r"\.md5"
 
 # Standard normalized date/time format
 _STD_DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%f"
