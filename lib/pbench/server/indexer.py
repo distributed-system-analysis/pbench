@@ -1132,7 +1132,7 @@ class ResultData(PbenchData):
             # Now that we have a proper "template" field, generate the actual
             # UID from the template using the existing metadata we have
             # collected.
-            bm_md["uid"] = ResultData.expand_template(
+            bm_md["uid"] = ResultData.expand_uid_template(
                 bm_md["uid_tmpl"], bm_md, run=self.run_metadata
             )
 
@@ -1152,7 +1152,7 @@ class ResultData(PbenchData):
             # Now that we have a proper "template" field, generate the actual
             # UID from the template using the existing metadata we have
             # collected.
-            bm_md["trafficgen_uid"] = ResultData.expand_template(
+            bm_md["trafficgen_uid"] = ResultData.expand_uid_template(
                 bm_md["trafficgen_uid_tmpl"], bm_md, run=self.run_metadata
             )
 
@@ -1180,42 +1180,59 @@ class ResultData(PbenchData):
         ):
             yield source, PbenchData.make_source_id(source), _parent, _type
 
-    # UID keyword pattern
+    # UID keyword pattern, non-greedy
     _uid_keyword_pat = re.compile(r"%\w*?%")
 
     @staticmethod
-    def expand_template(templ, d, run=None):
-        # match %...% patterns non-greedily.
-        s = templ
-        for m in re.findall(ResultData._uid_keyword_pat, s):
-            # m[1:-1] strips the initial and final % signs from the match.
+    def expand_uid_template(templ, d, run=None):
+        """Given a UID template string using %<keyword>% pattern identifiers,
+        lookup those keywords in the given dictionary and replacing those
+        keywords which have values.
+
+        There are two keywords which are treated specially:
+
+          * If the "benchmark_name" is not found in the given dictionary, a
+            second attempt to find a value using "name" will be attempted.
+
+          * If a additional `run` dictionary is provided, it'll be used on a
+            second attempt to find a "controller_host" value by using
+            "controller" in the `run` lookup.
+
+        The supported keyword values are one of: `str`, `int`, or `float`.  If
+        a keyword's value is not a supported type, the replacement is not
+        made.  For floats, 6 decimal places are used in the string conversion.
+
+        Returns a new string with as many keywords replaced as possible.
+
+        """
+        # Even though this is just a second name bound to the same string
+        # object, the `re.sub` method returns a new string object each time a
+        # change is made.
+        result = templ
+        for m in re.findall(ResultData._uid_keyword_pat, templ):
+            # Strips the initial and final % signs from the match.
             key = m[1:-1]
+            val = None
             try:
                 val = d[key]
             except KeyError:
-                if key == "benchmark_name":
-                    # Fix "benchmark_name" to try to find "name" in the
-                    # metadata if available (should be as we rename
-                    # benchmark_name to name).
-                    try:
+                try:
+                    if key == "benchmark_name":
+                        # Fix "benchmark_name" to try to find "name" in the
+                        # metadata if available (should be as we rename
+                        # benchmark_name to name).
                         val = d["name"]
-                    except KeyError:
-                        pass
-                    else:
-                        s = re.sub(m, val, s)
-                elif key == "controller_host" and run is not None:
-                    # Fix "controller_host" to try to find "controller" in the
-                    # run metadata if available.
-                    try:
+                    elif run is not None and key == "controller_host":
+                        # Fix "controller_host" to try to find "controller" in the
+                        # run metadata if available.
                         val = run["controller"]
-                    except KeyError:
-                        pass
-                    else:
-                        s = re.sub(m, val, s)
-                # Keyword not found, ignore
-            else:
-                s = re.sub(m, val, s)
-        return s
+                except KeyError:
+                    # Keyword not found, ignore
+                    pass
+            if val is not None and isinstance(val, (str, int, float)):
+                val_s = f"{val:.6f}" if isinstance(val, float) else str(val)
+                result = re.sub(m, val_s, result)
+        return result
 
     @staticmethod
     def make_sample_wrapper(result_type, title, result_el_idx, result_el):
@@ -1249,7 +1266,9 @@ class ResultData(PbenchData):
         # Construct the uid from the template and the values in result_el
         # and replace the template with the result.
         result_el["uid_tmpl"] = result_el["uid"]
-        result_el["uid"] = ResultData.expand_template(result_el["uid_tmpl"], result_el)
+        result_el["uid"] = ResultData.expand_uid_template(
+            result_el["uid_tmpl"], result_el
+        )
         try:
             mean_val = float(result_el["mean"])
         except KeyError:
