@@ -39,41 +39,6 @@ def get_pbench_token(client, server_config):
     assert data["auth_token"]
     return data["auth_token"]
 
-
-class TestElasticsearch:
-    @staticmethod
-    def test_missing_json_object(client, caplog, server_config, pbench_token):
-        response = client.post(
-            f"{server_config.rest_uri}/elasticsearch",
-            headers={"Authorization": "Bearer " + pbench_token},
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == "Missing required parameters: indices"
-
-    @staticmethod
-    def test_empty_url_path(client, caplog, server_config, pbench_token):
-        response = client.post(
-            f"{server_config.rest_uri}/elasticsearch",
-            json={"indices": None},
-            headers={"Authorization": "Bearer " + pbench_token},
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == "Missing required parameters: indices"
-
-    @staticmethod
-    def test_bad_request(client, caplog, server_config, requests_mock, pbench_token):
-        requests_mock.post(
-            "http://elasticsearch.example.com:7080/some_invalid_url",
-            status_code=HTTPStatus.BAD_REQUEST,
-        )
-        response = client.post(
-            f"{server_config.rest_uri}/elasticsearch",
-            headers={"Authorization": "Bearer " + pbench_token},
-            json={"indices": "some_invalid_url", "payload": '{ "babble": "42" }'},
-        )
-        assert response.status_code == HTTPStatus.BAD_GATEWAY
-
-
 class TestGraphQL:
     @staticmethod
     def test_json_object(client, caplog, server_config):
