@@ -22,7 +22,7 @@ _NAME_ = "pbench-verify-indexed"
 tb_pat = re.compile(pbench.TAR_BALL_NAME_W_TAR_PAT_S)
 
 # Number of JSON documents to fetch in one batch for the scan operation.
-batch_size = 10000
+BATCH_SIZE = 10000
 
 
 def gen_tb_list(archive):
@@ -114,7 +114,7 @@ def main(options):
         query=query,
         expand_wildcards="open",
         fields=["@metadata.file-name"],
-        size=batch_size,
+        size=BATCH_SIZE,
     )
     indexed = defaultdict(int)
     for hit in scanner:
