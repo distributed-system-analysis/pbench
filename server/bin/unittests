@@ -254,8 +254,7 @@ function _verify_output {
 }
 
 function move_out_of_maint {
-    # Given an mock "/var/www/html", move the target Pbench Server out of
-    # maintenance mode.
+    # Move the Pbench Server out of maintenance mode for the target environment.
     local tgthtml=${1}
     local prefix=${tgthtml}/pbench-results-host-info.versioned
     local tgtname=pbench-results-host-info.URL002
