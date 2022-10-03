@@ -1186,7 +1186,7 @@ class ResultData(PbenchData):
     @staticmethod
     def expand_uid_template(templ, d, run=None):
         """Given a UID template string using %<keyword>% pattern identifiers,
-        lookup those keywords in the given dictionary and replacing those
+        lookup those keywords in the given dictionary and replace those
         keywords which have values.
 
         There are two keywords which are treated specially:
@@ -1218,13 +1218,13 @@ class ResultData(PbenchData):
             except KeyError:
                 try:
                     if key == "benchmark_name":
-                        # Fix "benchmark_name" to try to find "name" in the
-                        # metadata if available (should be as we rename
-                        # benchmark_name to name).
+                        # Try the alternate key, "name", to see if it is
+                        # available in the metadata (should be as if we renamed
+                        # "benchmark_name" to "name").
                         val = d["name"]
                     elif run is not None and key == "controller_host":
-                        # Fix "controller_host" to try to find "controller" in the
-                        # run metadata if available.
+                        # Try the alternate key, "controller", in the run
+                        # metadata since the metadata was explicitly provided.
                         val = run["controller"]
                 except KeyError:
                     # Keyword not found, ignore
