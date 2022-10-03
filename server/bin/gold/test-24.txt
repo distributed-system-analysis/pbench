@@ -112,7 +112,7 @@ drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        118 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL003 -> pbench-results-host-info.URL003.active
+lrwxrwxrwx         37 pbench-results-host-info.versioned/pbench-results-host-info.URL003 -> pbench-results-host-info.URL003.maint
 -rw-rw-r--        118 pbench-results-host-info.versioned/pbench-results-host-info.URL003.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL003.maint
 lrwxrwxrwx         62 results -> /var/tmp/pbench-test-server/test-24/pbench/public_html/results
