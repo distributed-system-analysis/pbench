@@ -59,13 +59,7 @@ class DatasetsDetail(IndexMapBase):
         Get details for a specific Pbench dataset which is either owned
         by a specified username, or has been made publicly accessible.
 
-        POST /datasets/detail/<dataset>
-        {
-            "user": "username",
-            "start": "start-time",
-            "end": "end-time",
-            "metadata": ["seen", "saved"]
-        }
+        GET /datasets/detail/<dataset>?name=dname&metadata=global.seen,server.deletion
 
         params: API parameter set
 
