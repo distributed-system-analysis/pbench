@@ -1194,7 +1194,7 @@ class ResultData(PbenchData):
           * If the "benchmark_name" is not found in the given dictionary, a
             second attempt to find a value using "name" will be attempted.
 
-          * If a additional `run` dictionary is provided, it'll be used on a
+          * If an additional `run` dictionary is provided, it'll be used on a
             second attempt to find a "controller_host" value by using
             "controller" in the `run` lookup.
 
