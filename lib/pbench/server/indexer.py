@@ -1203,7 +1203,6 @@ class ResultData(PbenchData):
         made.  For floats, 6 decimal places are used in the string conversion.
 
         Returns a new string with as many keywords replaced as possible.
-
         """
         # Even though this is just a second name bound to the same string
         # object, the `re.sub` method returns a new string object each time a
@@ -1212,23 +1211,17 @@ class ResultData(PbenchData):
         for m in re.findall(ResultData._uid_keyword_pat, templ):
             # Strips the initial and final % signs from the match.
             key = m[1:-1]
-            val = None
-            try:
-                val = d[key]
-            except KeyError:
-                try:
-                    if key == "benchmark_name":
-                        # Try the alternate key, "name", to see if it is
-                        # available in the metadata (should be as if we renamed
-                        # "benchmark_name" to "name").
-                        val = d["name"]
-                    elif run is not None and key == "controller_host":
-                        # Try the alternate key, "controller", in the run
-                        # metadata since the metadata was explicitly provided.
-                        val = run["controller"]
-                except KeyError:
-                    # Keyword not found, ignore
-                    pass
+            val = d.get(key)
+            if val is None:
+                if key == "benchmark_name":
+                    # Try the alternate key, "name", to see if it is available
+                    # in the metadata (should be as if we renamed
+                    # "benchmark_name" to "name").
+                    val = d.get("name")
+                elif key == "controller_host" and run is not None:
+                    # Try the alternate key, "controller", in the run metadata
+                    # since the metadata was explicitly provided.
+                    val = run.get("controller")
             if val is not None and isinstance(val, (str, int, float)):
                 val_s = f"{val:.6f}" if isinstance(val, float) else str(val)
                 result = re.sub(m, val_s, result)
