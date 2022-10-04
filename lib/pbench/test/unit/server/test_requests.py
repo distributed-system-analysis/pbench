@@ -39,6 +39,7 @@ def get_pbench_token(client, server_config):
     assert data["auth_token"]
     return data["auth_token"]
 
+
 class TestGraphQL:
     @staticmethod
     def test_json_object(client, caplog, server_config):
