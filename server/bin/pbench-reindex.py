@@ -150,7 +150,7 @@ def gen_reindex_list(archive, oldest_dt, newest_dt):
 def main(options):
     """Simple driver function for this CLI.
 
-    Verify the options and configuration, then performs the re-indexing.
+    Verify the options and configuration, then perform the re-indexing.
 
     Returns 0 on success, 1 on failure.
     """
