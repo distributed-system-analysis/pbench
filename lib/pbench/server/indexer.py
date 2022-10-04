@@ -1222,7 +1222,7 @@ class ResultData(PbenchData):
                     # Try the alternate key, "controller", in the run metadata
                     # since the metadata was explicitly provided.
                     val = run.get("controller")
-            if val is not None and isinstance(val, (str, int, float)):
+            if isinstance(val, (str, int, float)):
                 val_s = f"{val:.6f}" if isinstance(val, float) else str(val)
                 result = re.sub(m, val_s, result)
         return result
