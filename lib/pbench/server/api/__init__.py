@@ -34,7 +34,6 @@ from pbench.server.api.resources.query_apis.datasets_delete import DatasetsDelet
 from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
-from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
@@ -129,12 +128,6 @@ def register_endpoints(api, app, config):
         DatasetsSearch,
         f"{base_uri}/datasets/search",
         endpoint="datasets_search",
-        resource_class_args=(config, logger),
-    )
-    api.add_resource(
-        Elasticsearch,
-        f"{base_uri}/elasticsearch",
-        endpoint="elasticsearch",
         resource_class_args=(config, logger),
     )
     api.add_resource(
