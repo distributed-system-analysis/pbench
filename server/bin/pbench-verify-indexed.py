@@ -125,10 +125,7 @@ def main(options):
 
     # Look for duplicates in the returned Elasticsearch data to help detect
     # problems with the indexer.
-    duplicates = []
-    for tb_file, val in indexed.items():
-        if val > 1:
-            duplicates.append(tb_file)
+    duplicates = [tb for tb, v in indexed.items() if v > 1]
     if duplicates:
         print(f"WARNING - encountered {len(duplicates):d} tar ball duplicate names")
         for dup in duplicates:
