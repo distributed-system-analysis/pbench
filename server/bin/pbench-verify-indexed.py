@@ -106,7 +106,7 @@ def main(options):
     start_s = pbench.tstos(start)
     print(f"[{start_s}] Verifying indexed state of tar balls", flush=True)
 
-    # Fetch a thousand records at a time.
+    # Fetch a batch of records at a time.
     scanner = helpers.scan(
         es_client,
         index=f"{index_prefix}.v4.run.*",
@@ -123,6 +123,17 @@ def main(options):
         indexed[tb_file] += 1
     indexed_cnt = len(indexed)
 
+    # Look for duplicates in the returned Elasticsearch data to help detect
+    # problems with the indexer.
+    duplicates = []
+    for tb_file, val in indexed.items():
+        if val > 1:
+            duplicates.append(tb_file)
+    if duplicates:
+        print(f"WARNING - encountered {len(duplicates):d} tar ball duplicate names")
+        for dup in duplicates:
+            print(f"\t{dup}")
+
     # Snap shot of query time.
     q_end = pbench._time()
 
@@ -133,11 +144,11 @@ def main(options):
     for ctrl, tb_name in gen_tb_list(archive_p):
         tb_file = f"{ctrl}/{tb_name}"
         on_disk[tb_file] += 1
-        on_disk_cnt += 1
         if tb_file in indexed:
             on_disk_indexed_cnt += 1
         else:
             not_indexed.append(tb_file)
+    on_disk_cnt = len(on_disk)
 
     # Snap shot of disk scan time.
     d_end = pbench._time()
