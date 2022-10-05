@@ -18,29 +18,28 @@ links).
 
 """
 
-import sys
 import os
 import re
 import shutil
+import sys
 import tempfile
-from datetime import datetime
 from argparse import ArgumentParser
 from configparser import ConfigParser, NoOptionError
+from datetime import datetime
 
 import pbench
 from pbench import (
-    PbenchConfig,
+    _STD_DATETIME_FMT,
+    TAR_BALL_NAME_PAT_S,
     BadConfig,
+    PbenchConfig,
     get_pbench_logger,
 )
-from pbench.indexer import _STD_DATETIME_FMT
 from pbench.report import Report
-
 
 _NAME_ = "pbench-cull-unpacked-tarballs"
 
-tb_pat_r = r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)"
-tb_pat = re.compile(tb_pat_r)
+tb_pat = re.compile(TAR_BALL_NAME_PAT_S)
 
 
 class Action(object):
