@@ -38,10 +38,19 @@ port = 0000
 host = graphql.example.com
 port = 0000
 
+## User authentication section to use when authorizing the user with a Keycloak broker
 [authentication]
+
+# URL of the Keycloak auth server with port
 server_url = keycloak.example.com:0000
-realm = pbench
-client = pbench-dashboard
+
+# Realm name that is used for the authentication with keycloak
+realm = Pbench
+
+# Client entity name requesting Keycloak to authenticate a user
+client = Pbench-dashboard
+
+# Client secret if the above client is not public
 secret = client-secret
 
 ###########################################################################
