@@ -71,7 +71,6 @@ RUN \
         python3-click \
         python3-coverage \
         python3-daemon \
-        python3-elasticsearch \
         python3-entrypoints \
         python3-flake8 \
         python3-flask \
