@@ -95,8 +95,6 @@ class DatasetsDelete(ElasticBulkBase):
         # Only on total success we update the Dataset's registered access
         # column; a "partial success" will remain in the previous state.
         if summary["failure"] == 0:
-            self.logger.debug("Deleting dataset {} file system representation", dataset)
             cache_m = CacheManager(self.config, self.logger)
             cache_m.delete(dataset.resource_id)
-            self.logger.debug("Deleting dataset {} PostgreSQL representation", dataset)
             dataset.delete()

@@ -10,7 +10,7 @@ from pbench.server.database.models.audit import Audit, AuditStatus
 
 class TestServerAudit:
     @pytest.fixture()
-    def query_get(self, client, server_config):
+    def query_get(self, client, server_config, pbench_admin_token):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
@@ -18,14 +18,18 @@ class TestServerAudit:
         Args:
             client: Flask test API client fixture
             server_config: Pbench config fixture
+            pbench_admin_token: ADMIN authorization fixture
         """
 
         def query_api(
             params: Optional[JSONOBJECT] = None,
             expected_status: HTTPStatus = HTTPStatus.OK,
+            token: str = pbench_admin_token,
         ) -> requests.Response:
             response = client.get(
-                f"{server_config.rest_uri}/server/audit", query_string=params
+                f"{server_config.rest_uri}/server/audit",
+                query_string=params,
+                headers={"authorization": f"Bearer {token}"},
             )
             assert response.status_code == expected_status
             return response
@@ -33,7 +37,8 @@ class TestServerAudit:
         return query_api
 
     @pytest.fixture()
-    def make_audits(self, db_session, create_user):
+    def make_audits(self, client, create_user):
+        """Create some audit records to test."""
         root = Audit.create(
             operation=OperationCode.CREATE,
             name="first",
@@ -63,7 +68,7 @@ class TestServerAudit:
         assert audits[1]["status"] == "SUCCESS"
         assert audits[0]["operation"] == audits[1]["operation"] == "CREATE"
         assert audits[0]["name"] == audits[1]["name"] == "first"
-        assert audits[0]["user_id"] == audits[1]["user_id"] == "1"
+        assert audits[0]["user_id"] == audits[1]["user_id"] == "2"
         assert audits[0]["user_name"] == audits[1]["user_name"] == "test"
         assert audits[2]["status"] == "BEGIN"
         assert audits[3]["status"] == "FAILURE"
@@ -71,6 +76,20 @@ class TestServerAudit:
         assert audits[2]["name"] == audits[3]["name"] == "second"
         assert audits[2]["user_id"] == audits[3]["user_id"] is None
         assert audits[2]["user_name"] == audits[3]["user_name"] == "fake"
+
+    def test_unauthenticated(self, query_get, make_audits):
+        """Verify UNAUTHORIZED status with no authentication token"""
+        response = query_get(token=None, expected_status=HTTPStatus.UNAUTHORIZED)
+        assert response.json == {
+            "message": "Unauthenticated client is not authorized to READ a server administrative resource"
+        }
+
+    def test_unauthorized(self, query_get, make_audits, pbench_token):
+        """Verify UNAUTHORIZED status with no authentication token"""
+        response = query_get(token=pbench_token, expected_status=HTTPStatus.FORBIDDEN)
+        assert response.json == {
+            "message": "User drb is not authorized to READ a server administrative resource"
+        }
 
     def test_get_name(self, query_get, make_audits):
         """Get all audit records matching a specific operation name"""
@@ -81,7 +100,7 @@ class TestServerAudit:
         assert audits[1]["status"] == "SUCCESS"
         assert audits[0]["operation"] == audits[1]["operation"] == "CREATE"
         assert audits[0]["name"] == audits[1]["name"] == "first"
-        assert audits[0]["user_id"] == audits[1]["user_id"] == "1"
+        assert audits[0]["user_id"] == audits[1]["user_id"] == "2"
         assert audits[0]["user_name"] == audits[1]["user_name"] == "test"
 
     def test_get_operation(self, query_get, make_audits):
@@ -95,7 +114,7 @@ class TestServerAudit:
         assert audits[1]["status"] == "SUCCESS"
         assert audits[0]["operation"] == audits[1]["operation"] == "CREATE"
         assert audits[0]["name"] == audits[1]["name"] == "first"
-        assert audits[0]["user_id"] == audits[1]["user_id"] == "1"
+        assert audits[0]["user_id"] == audits[1]["user_id"] == "2"
         assert audits[0]["user_name"] == audits[1]["user_name"] == "test"
 
     def test_get_status_begin(self, query_get, make_audits):

@@ -93,9 +93,8 @@ class DatasetsContents(IndexMapBase):
 
     def postprocess(self, es_json: JSON, context: ApiContext) -> JSON:
         """
-        Returns a Flask Response containing a JSON object (keyword/value
-        pairs) whose values are lists of entries describing individual
-        directories and files.
+        Returns a JSON object (keyword/value pairs) whose values are lists of
+        entries describing individual directories and files.
 
         Example: These are the contents of es_json parameter. The
         contents are the result of a request for directory "/1-default"

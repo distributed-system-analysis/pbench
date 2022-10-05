@@ -26,9 +26,9 @@ from pbench.server.database.models.audit import (
 )
 
 
-class AuditQuery(ApiBase):
+class ServerAudit(ApiBase):
     """
-    API class to retrieve and mutate server configuration settings.
+    API class to retrieve audit records.
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
@@ -51,7 +51,7 @@ class AuditQuery(ApiBase):
                     Parameter("user", ParamType.USER),
                     Parameter("user_id", ParamType.STRING),
                 ),
-                authorization=ApiAuthorizationType.NONE,
+                authorization=ApiAuthorizationType.ADMIN,
             ),
             always_enabled=True,
         )
@@ -60,7 +60,12 @@ class AuditQuery(ApiBase):
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
         """
-        Get the values of server configuration parameters.
+        Retrieve audit trail records. Each operation that affects a resource
+        (create, update, delete) generates two audit records, a BEGIN and
+        either SUCCESS, FAILURE, or WARNING. Note that the elapsed time for
+        the operation can be computed by comparing the timestamps. Details of
+        an update are captured by attributes in the finalization record, along
+        with an error "message" on failure.
 
         GET /api/v1/server/audit?start=2022-08-01
             return all audit records since August 1, 2022

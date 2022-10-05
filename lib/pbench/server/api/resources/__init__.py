@@ -485,10 +485,9 @@ def convert_keyword(value: str, parameter: "Parameter") -> Union[str, Enum]:
         raise ConversionError(value, str.__name__)
     if parameter.enum:
         try:
-            input = parameter.enum[value.upper()]
+            return parameter.enum[value.upper()]
         except ValueError as e:
             raise KeywordError(parameter, "enum", [value]) from e
-        return input
 
     input = value.lower()
     if not parameter.keywords:
@@ -1212,9 +1211,7 @@ class ApiBase(Resource):
             if user:
                 username = user.username
             else:
-                self.logger.error(
-                    "Parser user ID {} not found in User database", user_id
-                )
+                self.logger.error("User ID {} not found", user_id)
 
         # The ADMIN authorization doesn't involve a target resource owner or
         # access, so take care of that first as a special case. If there is
@@ -1570,22 +1567,6 @@ class ApiBase(Resource):
             params = ApiParams(None, None, None)
 
         audit = None
-        if schema.operation is not OperationCode.READ:
-            user = Auth.token_auth.current_user()
-            dataset_found = schema.get_param_by_type(ParamType.DATASET, params)
-            if dataset_found:
-                dataset = dataset_found.value
-            else:
-                dataset = None
-
-            audit = Audit.create(
-                operation=schema.operation,
-                status=AuditStatus.BEGIN,
-                user=user,
-                name=schema.audit_name,
-                dataset=dataset,
-                object_type=schema.audit_type,
-            )
 
         # Automatically authorize the operation only if the API schema for the
         # active HTTP method has authorization enabled, using the selected
@@ -1621,24 +1602,38 @@ class ApiBase(Resource):
                     message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
                 )
 
+        if schema.operation is not OperationCode.READ:
+            user = Auth.token_auth.current_user()
+            dataset_found = schema.get_param_by_type(ParamType.DATASET, params)
+            if dataset_found:
+                dataset = dataset_found.value
+            else:
+                dataset = None
+
+            audit = Audit.create(
+                operation=schema.operation,
+                status=AuditStatus.BEGIN,
+                user=user,
+                name=schema.audit_name,
+                dataset=dataset,
+                object_type=schema.audit_type,
+            )
+
         # Pass the root audit object to the API implementation. Normally, we'll
         # automatically generate an audit finalization; however if the API
         # wants to emit a special audit sequence it can disable "finalize"
         # in the context. It can also pass "attributes" by setting that
         # field.
-        context = {
-            "auditing": {
-                "audit": audit,
-                "finalize": bool(audit),
-                "status": AuditStatus.SUCCESS,
-                "reason": None,
-                "attributes": None,
-            }
+        auditing = {
+            "audit": audit,
+            "finalize": bool(audit),
+            "status": AuditStatus.SUCCESS,
+            "reason": None,
+            "attributes": None,
         }
 
         try:
-            response = execute(params, request, context)
-            auditing = context["auditing"]
+            response = execute(params, request, {"auditing": auditing})
             if auditing["finalize"]:
                 Audit.create(
                     root=auditing["audit"],
@@ -1648,7 +1643,6 @@ class ApiBase(Resource):
                 )
             return response
         except APIAbort as e:
-            auditing = context["auditing"]
             if auditing["finalize"]:
                 attr = auditing.get("attributes", {"message": str(e)})
                 try:
@@ -1659,13 +1653,14 @@ class ApiBase(Resource):
                         attributes=attr,
                     )
                 except Exception:
-                    self.logger.exception("The audit did it!")
+                    self.logger.exception(
+                        "Unexpected exception on audit: {}", json.dumps(auditing)
+                    )
             abort(e.http_status, message=str(e))
         except Exception as e:
             self.logger.exception(
-                "Exception {} API error: {}: {!r}", api_name, e, context
+                "Exception {} API error: {}: {!r}", api_name, e, json.dumps(auditing)
             )
-            auditing = context["auditing"]
             if auditing["finalize"]:
                 attr = auditing.get("attributes", {})
                 attr["message"] = str(e)

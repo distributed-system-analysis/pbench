@@ -4,7 +4,7 @@ from datetime import datetime
 from http import HTTPStatus
 from logging import Logger
 import re
-from typing import Any, Callable, Iterator, List, Optional
+from typing import Any, Callable, Iterator, List, NoReturn, Optional
 from urllib.parse import urljoin
 from urllib.request import Request
 
@@ -302,19 +302,13 @@ class ElasticBase(ApiBase):
             )
         return indices
 
-    def preprocess(self, params: ApiParams, context: ApiContext):
+    def preprocess(self, params: ApiParams, context: ApiContext) -> NoReturn:
         """
         Given the client Request payload, perform any preprocessing activities
         necessary prior to constructing an Elasticsearch query.
 
-        The base class assumes no preprocessing is necessary, and returns an
-        empty dictionary to indicate that the Elasticsearch operation should
-        continue; this can be overridden by subclasses as necessary.
-
-        The value returned here (if not None) will be passed to the "assemble"
-        and "postprocess" methods to provide shared context across the set of
-        operations. Note that "assemble" can modify the CONTEXT dict to pass
-        additional context to "postprocess" if necessary.
+        The base class assumes no preprocessing is necessary; this can be
+        overridden by subclasses as necessary.
 
         Args:
             params: Type-normalized client parameters
@@ -323,12 +317,8 @@ class ElasticBase(ApiBase):
         Raises:
             Any errors in the postprocess method shall be reported by
             exceptions which will be logged and will terminate the operation.
-
-        Returns:
-            None if Elasticsearch query shouldn't proceed, or a CONTEXT dict to
-            provide shared context for the assemble and postprocess methods.
         """
-        return {}
+        pass
 
     def assemble(self, params: ApiParams, context: ApiContext) -> JSON:
         """
@@ -338,7 +328,7 @@ class ElasticBase(ApiBase):
 
         Args:
             params: Type-normalized client parameters
-            context: CONTEXT dict returned by preprocess method
+            context: API context dictionary
 
         Raises:
             Any errors in the assemble method shall be reported by exceptions
@@ -364,7 +354,7 @@ class ElasticBase(ApiBase):
 
         Args:
             es_json: Elasticsearch Response payload
-            context: CONTEXT value returned by preprocess method
+            context: context: API context dictionary
 
         Raises:
             Any errors in the postprocess method shall be reported by
@@ -491,6 +481,12 @@ class ElasticBase(ApiBase):
         subclasses through the assemble() and postprocess() methods;
         we rely on the ApiBase superclass to provide basic JSON parameter
         validation and normalization.
+
+        Args:
+            method: The API HTTP method
+            request: The flask Request object containing payload and headers
+            uri_params: URI encoded keyword-arg supplied by the Flask
+                framework
         """
         return self._call(requests.post, params, context)
 
@@ -501,6 +497,12 @@ class ElasticBase(ApiBase):
         Handle a GET operation involving a call to the server's Elasticsearch
         instance. The post-processing of the Elasticsearch query is handled
         the subclasses through their postprocess() methods.
+
+        Args:
+            method: The API HTTP method
+            request: The flask Request object containing payload and headers
+            uri_params: URI encoded keyword-arg supplied by the Flask
+                framework
         """
         return self._call(requests.get, params, context)
 
@@ -808,7 +810,7 @@ class ElasticBulkBase(ApiBase):
         # pyesbulk side.
         if report.errors > 0:
             auditing["status"] = AuditStatus.WARNING
-            auditing["reason"] = AuditReason.CONSISTENCY
+            auditing["reason"] = AuditReason.INTERNAL
             attributes["message"] = f"Unable to {self.action} some indexed documents"
             raise APIAbort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,

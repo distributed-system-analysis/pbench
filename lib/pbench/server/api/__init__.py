@@ -14,7 +14,6 @@ from flask_restful import Api
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources.audit_query import AuditQuery
 from pbench.server.api.resources.datasets_daterange import DatasetsDateRange
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
@@ -36,6 +35,7 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
 from pbench.server.api.resources.query_apis.datasets_delete import DatasetsDelete
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
+from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
@@ -157,7 +157,7 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        AuditQuery,
+        ServerAudit,
         f"{base_uri}/server/audit",
         endpoint="server_audit",
         resource_class_args=(config, logger),

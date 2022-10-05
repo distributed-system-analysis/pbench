@@ -232,6 +232,7 @@ class ServerConfiguration(ApiBase):
         Args:
             params: API parameters
             request: The original Request object containing query parameters
+            context: API context dictionary
 
         Returns:
             HTTP Response object

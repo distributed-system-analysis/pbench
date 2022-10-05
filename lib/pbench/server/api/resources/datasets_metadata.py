@@ -105,6 +105,11 @@ class DatasetsMetadata(ApiBase):
         """
         Set or modify the values of client-accessible dataset metadata keys.
 
+        Args:
+            params: API parameters
+            request: The original Request object containing query parameters
+            context: API context dictionary
+
         PUT /api/v1/datasets/metadata
         {
             "name": "datasetname",

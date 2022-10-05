@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from logging import Logger
-from typing import AnyStr, List, Union
+from typing import AnyStr, List, NoReturn, Union
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -106,10 +106,10 @@ class IndexMapBase(ElasticBase):
                 api_name, "schema authorization is not by dataset"
             )
 
-    def preprocess(self, params: ApiParams, context: ApiContext) -> ApiContext:
+    def preprocess(self, params: ApiParams, context: ApiContext) -> NoReturn:
         """
         Identify the Dataset on which we're operating, and return it in the
-        CONTEXT for the Elasticsearch assembly and postprocessing.
+        context for the Elasticsearch assembly and postprocessing.
 
         Note that the class constructor validated that the API is authorized
         using the Dataset ownership/access, so validation and authorization has
