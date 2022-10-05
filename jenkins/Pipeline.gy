@@ -1,17 +1,32 @@
 pipeline {
     agent { label 'pbench' }
     environment {
-        IMAGE_ROLE="ci"
+        EXTRA_PODMAN_SWITCHES="--pull=always -e=COV_REPORT_XML=yes"
         IMAGE_KIND="fedora"
         IMAGE_REPO="quay.io/pbench"
-        EXTRA_PODMAN_SWITCHES="--pull=always -e COV_REPORT_XML=yes"
+        IMAGE_ROLE="ci"
         NO_COLORS=0
+        PB_AGENT_CONTAINER_REG="quay.io"
+        PB_SERVER_CONTAINER_REG="images.paas.redhat.com"
+        PODMAN_AGENT=credentials('87ad2797-02eb-464f-989f-8ab78d63cdf3')
+        PODMAN_SERVER=credentials('12b404ca-3036-4960-9929-979148b9e49a')
         PY_COLORS=0
         TERM='dumb'
     }
     stages {
-        stage('Linting & Unit Tests') {
+        stage('Agent Python3.6 Check') {
             steps {
+                echo 'Verify agent side works with Python 3.6'
+                sh 'jenkins/run tox -e py36 -- agent'
+            }
+        }
+        stage('Linting, Unit Tests, RPM builds') {
+            steps {
+                // If we don't have a sequence number file left over from a
+                // previous run, then create one.
+                sh 'if [[ ! -e agent/rpm/seqno ]] ; then echo "1" > agent/rpm/seqno ; fi'
+                sh 'if [[ ! -e server/rpm/seqno ]] ; then echo "1" > server/rpm/seqno ; fi'
+
                 // If there is somehow a symlink left over from a previous run's
                 // Cobertura processing, remove it, because it seems to confuse
                 // the coverage data collection.
@@ -21,10 +36,11 @@ pipeline {
                 sh 'jenkins/run ./build.sh'
             }
         }
-        stage('Agent Python3.6 Check') {
+        stage('Pbench Server Container build') {
             steps {
-                echo 'Verify agent side works with Python 3.6'
-                sh 'jenkins/run tox -e py36 -- agent'
+                sh 'buildah login -u="${PODMAN_SERVER_USR}" -p="${PODMAN_SERVER_PSW}" ${PB_SERVER_CONTAINER_REG}'
+                sh 'RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm OUTPUT_IMAGE_TAG=${CHANGE_ID:-${BRANCH_NAME}} bash -ex ./server/pbenchinacan/container-build.sh'
+                sh 'buildah push localhost/pbench-server:${CHANGE_ID:-${BRANCH_NAME}} ${PB_SERVER_CONTAINER_REG}/pbench/pbenchinacan-pbenchserver:${CHANGE_ID:-${BRANCH_NAME}}'
             }
         }
     }

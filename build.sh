@@ -35,6 +35,7 @@ tox                                     # Agent and Server unit tests and legacy
 ( cd dashboard && CI=true npm test )    # Dashboard unit tests
 
 # Build RPMS for the Server and Agent
+make -C server/rpm distclean  # Cleans all RPMs, both Server and Agent.
 make -C server/rpm ci
 make -C agent/rpm ci
 

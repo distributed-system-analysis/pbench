@@ -13,6 +13,9 @@
 
 set -o errexit
 
+BASE_IMAGE=${BASE_IMAGE:-registry.access.redhat.com/ubi9:latest}
+RPM_PATH=${RPM_PATH:-/root/sandbox/rpmbuild/RPMS/noarch/pbench-server-*.rpm}
+
 # Locations inside the container
 INSTALL_ROOT=/opt/pbench-server
 SERVER_LIB=${INSTALL_ROOT}/lib
@@ -25,11 +28,11 @@ GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PBINC_DIR=${GITTOP}/server/pbenchinacan
 
 # Image tag determined from jenkins/branch.name
-BRANCH=$(< ${GITTOP}/jenkins/branch.name)
+OUTPUT_IMAGE_TAG=${OUTPUT_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
 
 # Open a copy of the base container.  Docker format is required in order to set
 # the hostname.
-container=$(buildah from --format=docker quay.io/pbench/pbench-devel-ubi:${BRANCH})
+container=$(buildah from --format=docker ${BASE_IMAGE})
 
 # We could mount the container filesystem and access it directly, but we
 # instead access it with buildah commands.
@@ -44,10 +47,22 @@ buildah config \
     --port 8001      `# pbench-server` \
     $container
 
-# Set up Pbench DNF repo and install the Server and Apache
-buildah copy $container ${PBINC_DIR}/etc/yum.repos.d/pbench.repo /etc/yum.repos.d/pbench.repo
-buildah run $container dnf install -y pbench-server httpd
+if (( $(ls ${RPM_PATH} 2>/dev/null | wc -l) != 1 ))
+then
+    echo "RPM_PATH (${RPM_PATH}) does not uniquely identify the RPM file" >&2
+    exit 2
+fi
+
+buildah copy $container ${RPM_PATH} /tmp/pbench-server.rpm
+buildah copy $container server/requirements.txt /tmp
+buildah run $container dnf update -y
+buildah run $container dnf install -y --setopt=tsflags=nodocs \
+        https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+buildah run $container dnf install -y /tmp/pbench-server.rpm httpd
+# FIXME:  Should we be running Pip with the --user switch under the `pbench` user?
+buildah run $container pip install -r /tmp/requirements.txt
 buildah run $container dnf clean all
+buildah run $container rm -f /tmp/pbench-server.rpm /tmp/requirements.txt
 
 # Skip installing and configuring the Firewall
 
@@ -106,4 +121,4 @@ buildah run $container systemctl enable httpd
 buildah run $container systemctl enable pbench-server
 
 # Create the container image
-buildah commit $container pbench-server:latest
+buildah commit $container localhost/pbench-server:${OUTPUT_IMAGE_TAG}
