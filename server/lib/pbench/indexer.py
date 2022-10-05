@@ -4,6 +4,7 @@ result tar balls.
 
 import copy
 import csv
+import errno
 import glob
 import hashlib
 import json
@@ -14,7 +15,6 @@ import re
 import socket
 import sys
 import tarfile
-import errno
 from collections import Counter, deque
 from configparser import ConfigParser
 from configparser import Error as ConfigParserError
@@ -24,24 +24,19 @@ from operator import itemgetter
 from random import SystemRandom
 from time import sleep as _sleep
 
-from urllib3 import Timeout
-
 # We import the entire pbench module so that mocking time works by changing
 # the _time binding in the pbench module for unit tests via the PbenchConfig
 # constructor's execution.
 import pbench
-
-try:
-    from elasticsearch1 import Elasticsearch, helpers, exceptions as es_excs
-except ImportError:
-    from elasticsearch import Elasticsearch, helpers, exceptions as es_excs
-
+from elasticsearch1 import Elasticsearch
+from elasticsearch1 import exceptions as es_excs
+from elasticsearch1 import helpers
+from urllib3 import Timeout
 
 try:
     from pbench.mock import MockElasticsearch
 except ImportError:
     MockElasticsearch = None
-
 
 # This is the version of this python code. We use the version number to mean
 # the following:
@@ -1811,7 +1806,7 @@ class ResultData(PbenchData):
             # Now that we have a proper "template" field, generate the actual
             # UID from the template using the existing metadata we have
             # collected.
-            bm_md["uid"] = ResultData.expand_template(
+            bm_md["uid"] = ResultData.expand_uid_template(
                 bm_md["uid_tmpl"], bm_md, run=self.run_metadata
             )
 
@@ -1831,7 +1826,7 @@ class ResultData(PbenchData):
             # Now that we have a proper "template" field, generate the actual
             # UID from the template using the existing metadata we have
             # collected.
-            bm_md["trafficgen_uid"] = ResultData.expand_template(
+            bm_md["trafficgen_uid"] = ResultData.expand_uid_template(
                 bm_md["trafficgen_uid_tmpl"], bm_md, run=self.run_metadata
             )
 
@@ -1861,43 +1856,52 @@ class ResultData(PbenchData):
                 source, _parent=_parent
             ), _parent, _type
 
-    # UID keyword pattern
+    # UID keyword pattern, non-greedy
     _uid_keyword_pat = re.compile(r"%\w*?%")
 
     @staticmethod
-    def expand_template(templ, d, run=None):
-        # match %...% patterns non-greedily.
-        s = templ
-        for m in re.findall(ResultData._uid_keyword_pat, s):
-            # m[1:-1] strips the initial and final % signs from the match.
+    def expand_uid_template(templ, d, run=None):
+        """Given a UID template string using %<keyword>% pattern identifiers,
+        lookup those keywords in the given dictionary and replace those
+        keywords which have values.
+
+        There are two keywords which are treated specially:
+
+          * If the "benchmark_name" is not found in the given dictionary, a
+            second attempt to find a value using "name" will be attempted.
+
+          * If an additional `run` dictionary is provided, it'll be used on a
+            second attempt to find a "controller_host" value by using
+            "controller" in the `run` lookup.
+
+        The supported keyword values are one of: `str`, `int`, or `float`.  If
+        a keyword's value is not a supported type, the replacement is not
+        made.  For floats, 6 decimal places are used in the string conversion.
+
+        Returns a new string with as many keywords replaced as possible.
+        """
+        # Even though this is just a second name bound to the same string
+        # object, the `re.sub` method returns a new string object each time a
+        # change is made.
+        result = templ
+        for m in re.findall(ResultData._uid_keyword_pat, templ):
+            # Strips the initial and final % signs from the match.
             key = m[1:-1]
-            try:
-                val = d[key]
-            except KeyError:
+            val = d.get(key)
+            if val is None:
                 if key == "benchmark_name":
-                    # Fix "benchmark_name" to try to find "name" in the
-                    # metadata if available (should be as we rename
-                    # benchmark_name to name).
-                    try:
-                        val = d["name"]
-                    except KeyError:
-                        pass
-                    else:
-                        s = re.sub(m, val, s)
-                if run is not None and key == "controller_host":
-                    # Fix "controller_host" to try to find "controller" in the
-                    # run metadata if available.
-                    try:
-                        val = run["controller"]
-                    except KeyError:
-                        pass
-                    else:
-                        s = re.sub(m, val, s)
-                # Keyword not found, ignore
-                pass
-            else:
-                s = re.sub(m, val, s)
-        return s
+                    # Try the alternate key, "name", to see if it is available
+                    # in the metadata (should be as if we renamed
+                    # "benchmark_name" to "name").
+                    val = d.get("name")
+                elif key == "controller_host" and run is not None:
+                    # Try the alternate key, "controller", in the run metadata
+                    # since the metadata was explicitly provided.
+                    val = run.get("controller")
+            if isinstance(val, (str, int, float)):
+                val_s = f"{val:.6f}" if isinstance(val, float) else str(val)
+                result = re.sub(m, val_s, result)
+        return result
 
     @staticmethod
     def make_sample_wrapper(result_type, title, result_el_idx, result_el):
@@ -1931,7 +1935,9 @@ class ResultData(PbenchData):
         # Construct the uid from the template and the values in result_el
         # and replace the template with the result.
         result_el["uid_tmpl"] = result_el["uid"]
-        result_el["uid"] = ResultData.expand_template(result_el["uid_tmpl"], result_el)
+        result_el["uid"] = ResultData.expand_uid_template(
+            result_el["uid_tmpl"], result_el
+        )
         try:
             mean_val = float(result_el["mean"])
         except KeyError:

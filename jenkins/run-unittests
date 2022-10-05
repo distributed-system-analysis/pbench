@@ -7,7 +7,9 @@ source $(dirname "${0}")/python-setup.sh
 
 typeset -i errors=0
 
-printf -- "black --check ...\n"
+printf -- "\n\n\nrun-unittests started ...\n"
+
+printf -- "\n\nblack --check ...\n"
 black --check .
 black_sts=${?}
 if [[ ${black_sts} -ne 0 ]]; then
@@ -15,14 +17,23 @@ if [[ ${black_sts} -ne 0 ]]; then
     (( errors++ ))
 fi
 
-printf -- "\nflake8 --verbose ...\n"
+printf -- "\n\nflake8 --verbose ...\n"
 flake8 --verbose .
 flake_sts=${?}
 if [[ ${flake_sts} -ne 0 ]]; then
     printf -- "FAILED: flake8 --verbose .\n" >&2
     (( errors++ ))
 fi
-printf -- "\n"
+
+printf -- "\n\npytests ...\n"
+pytest server/lib/pbench/test/unit
+pytest_sts=${?}
+if [[ ${pytest_sts} -ne 0 ]]; then
+    printf -- "FAILED: pytest server/lib/pbench/test/unit\n" >&2
+    (( errors++ ))
+fi
+
+printf -- "\n\n\n"
 
 export PBENCH_UNITTEST_SERVER_MODE=parallel
 
@@ -79,9 +90,9 @@ for env in ${envs}; do
 done
 
 if [[ ${errors} -gt 0 ]]; then
-    printf -- "\n\nTests failed! (%d errors)\n" ${errors}
+    printf -- "\n\nrun-unittests ... Tests failed! (%d errors)\n\n\n" ${errors}
     exit 1
 else
-    printf -- "\n\nTests succeeded.\n"
+    printf -- "\n\nrun-unittests ... Tests succeeded.\n"
     exit 0
 fi
