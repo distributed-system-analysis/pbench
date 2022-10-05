@@ -180,7 +180,12 @@ class DatasetsMetadata(ApiBase):
             if native_key == Metadata.USER:
                 user = Auth.token_auth.current_user()
             try:
-                Metadata.setvalue(key=k, value=v, dataset=dataset, user=user)
+                Metadata.setvalue(
+                    key=k,
+                    value=v,
+                    dataset=dataset,
+                    user=user.username if user else None,
+                )
             except MetadataError as e:
                 self.logger.warning("Unable to update key {} = {!r}: {}", k, v, str(e))
                 fail = True

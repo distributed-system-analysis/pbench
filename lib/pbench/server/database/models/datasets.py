@@ -16,7 +16,6 @@ from pbench.server.database.models.server_config import (
     OPTION_DATASET_LIFETIME,
     ServerConfig,
 )
-from pbench.server.database.models.users import User
 
 
 class DatasetError(Exception):
@@ -436,11 +435,11 @@ class Dataset(Database.Base):
     # Dataset name
     name = Column(String(255), unique=False, nullable=False)
 
-    # ID of the owning user
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    # Keycloak ID of the owning user
+    owner_id = Column(String(255), nullable=True)
 
-    # Indirect reference to the owning User record
-    owner = relationship("User")
+    # username of the owning user
+    owner = Column(String(255), nullable=True)
 
     # Access policy for Dataset (public or private)
     access = Column(String(255), unique=False, nullable=False, default="private")
@@ -533,30 +532,6 @@ class Dataset(Database.Base):
         if type(value) is not States:
             raise DatasetBadParameterType(value, States)
         return value
-
-    @validates("owner")
-    def validate_owner(self, key: str, value: Any) -> User:
-        """
-        Validate and translate owner name to User object
-
-        Args:
-            key: owner
-            value: username
-
-        Raises:
-            DatasetBadParameter: the owner value given doesn't resolve to a
-                Pbench username.
-
-        Returns:
-            User object
-        """
-        if type(value) is User:
-            return value
-        elif type(value) is str:
-            user = User.query(username=value)
-            if user:
-                return user
-        raise DatasetBadParameterType(value, "username")
 
     @validates("access")
     def validate_access(self, key: str, value: str) -> str:
@@ -675,7 +650,7 @@ class Dataset(Database.Base):
             "access": self.access,
             "created": self.created.isoformat() if self.created else None,
             "name": self.name,
-            "owner": self.owner.username,
+            "owner": self.owner,
             "state": str(self.state),
             "transition": self.transition.isoformat(),
             "uploaded": self.uploaded.isoformat(),
@@ -689,7 +664,7 @@ class Dataset(Database.Base):
         Returns:
             string: Representation of the dataset
         """
-        return f"{self.owner.username}({self.owner_id})|{self.name}"
+        return f"{self.owner}({self.owner_id})|{self.name}"
 
     def advance(self, new_state: States):
         """
@@ -913,10 +888,9 @@ class Metadata(Database.Base):
     key = Column(String(255), unique=False, nullable=False, index=True)
     value = Column(JSON, unique=False, nullable=True)
     dataset_ref = Column(Integer, ForeignKey("datasets.id"), nullable=False)
-    user_ref = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     dataset = relationship("Dataset", back_populates="metadatas", single_parent=True)
-    user = relationship("User", back_populates="dataset_metadata", single_parent=True)
+    user = Column(String(255), nullable=True)
 
     @validates("key")
     def validate_key(self, _, value: Any) -> str:
@@ -1019,7 +993,7 @@ class Metadata(Database.Base):
         return bool(re.fullmatch(Metadata._valid_key_charset, k))
 
     @staticmethod
-    def getvalue(dataset: Dataset, key: str, user: Optional[User] = None) -> JSON:
+    def getvalue(dataset: Dataset, key: str, user: Optional[str] = None) -> JSON:
         """
         Returns the value of the specified key, which may be a dotted
         hierarchical path (e.g., "server.deleted").
@@ -1141,7 +1115,7 @@ class Metadata(Database.Base):
             return value
 
     @staticmethod
-    def setvalue(dataset: Dataset, key: str, value: Any, user: Optional[User] = None):
+    def setvalue(dataset: Dataset, key: str, value: Any, user: Optional[str] = None):
         """
         Create or modify an existing metadata value. This method supports
         hierarchical dotted paths like "dashboard.seen" and should be used in
@@ -1215,13 +1189,13 @@ class Metadata(Database.Base):
             )
 
     @staticmethod
-    def _query(dataset: Dataset, key: str, user: Optional[User]) -> Query:
+    def _query(dataset: Dataset, key: str, user: Optional[str]) -> Query:
         return Database.db_session.query(Metadata).filter_by(
             dataset=dataset, key=key, user=user
         )
 
     @staticmethod
-    def get(dataset: Dataset, key: str, user: Optional[User] = None) -> "Metadata":
+    def get(dataset: Dataset, key: str, user: Optional[str] = None) -> "Metadata":
         """
         Fetch a Metadata (row) from the database by key name.
 
@@ -1247,7 +1221,7 @@ class Metadata(Database.Base):
             return meta
 
     @staticmethod
-    def remove(dataset: Dataset, key: str, user: Optional[User] = None):
+    def remove(dataset: Dataset, key: str, user: Optional[str] = None):
         """
         remove Remove a metadata key from the dataset
 

@@ -160,6 +160,7 @@ class TestDatasetsDelete:
         monkeypatch,
         pbench_token,
         server_config,
+        current_user_drb,
     ):
         """
         Check the delete API when some document updates fail. We expect an

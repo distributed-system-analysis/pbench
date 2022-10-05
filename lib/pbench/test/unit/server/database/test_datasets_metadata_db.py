@@ -1,5 +1,4 @@
 import pytest
-from sqlalchemy import or_
 
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import (
@@ -190,59 +189,36 @@ class TestMetadataNamespace:
         ds = Dataset.query(name="drb")
         user1 = User.query(username="drb")
         assert ds.metadatas == []
-        t = Metadata.create(key="user", value=True, dataset=ds, user=user1)
+        t = Metadata.create(key="user", value=True, dataset=ds, user=user1.username)
         assert t is not None
         assert ds.metadatas == [t]
-        assert user1.dataset_metadata == [t]
 
         user2 = User.query(username="test")
-        d = Metadata.create(key="user", value=False, dataset=ds, user=user2)
+        d = Metadata.create(key="user", value=False, dataset=ds, user=user2.username)
         assert d is not None
         assert ds.metadatas == [t, d]
-        assert user1.dataset_metadata == [t]
-        assert user2.dataset_metadata == [d]
 
         g = Metadata.create(key="user", value="text", dataset=ds)
         assert g is not None
         assert ds.metadatas == [t, d, g]
-        assert user1.dataset_metadata == [t]
-        assert user2.dataset_metadata == [d]
 
         assert Metadata.get(key="user", dataset=ds).value == "text"
-        assert Metadata.get(key="user", dataset=ds, user=user1).value is True
-        assert Metadata.get(key="user", dataset=ds, user=user2).value is False
+        assert Metadata.get(key="user", dataset=ds, user=user1.username).value is True
+        assert Metadata.get(key="user", dataset=ds, user=user2.username).value is False
 
-        Metadata.remove(key="user", dataset=ds, user=user1)
-        assert user1.dataset_metadata == []
-        assert user2.dataset_metadata == [d]
+        Metadata.remove(key="user", dataset=ds, user=user1.username)
         assert ds.metadatas == [d, g]
 
         Metadata.remove(key="user", dataset=ds)
-        assert user1.dataset_metadata == []
-        assert user2.dataset_metadata == [d]
         assert ds.metadatas == [d]
 
-        Metadata.remove(key="user", dataset=ds, user=user2)
-        assert user1.dataset_metadata == []
-        assert user2.dataset_metadata == []
+        Metadata.remove(key="user", dataset=ds, user=user2.username)
         assert ds.metadatas == []
 
         # Peek under the carpet to look for orphaned metadata objects linked
         # to the Dataset or User
         metadata = (
             Database.db_session.query(Metadata).filter_by(dataset_ref=ds.id).first()
-        )
-        assert metadata is None
-        metadata = (
-            Database.db_session.query(Metadata)
-            .filter(
-                or_(
-                    Metadata.user_ref == user1.id,
-                    Metadata.user_ref == user2.id,
-                    Metadata.user_ref is None,
-                )
-            )
-            .first()
         )
         assert metadata is None
 
@@ -352,16 +328,20 @@ class TestMetadataNamespace:
         user1 = User.query(username="drb")
         user2 = User.query(username="test")
         Metadata.setvalue(dataset=ds, key="user.contact", value="Barney")
-        Metadata.setvalue(dataset=ds, key="user.contact", value="Fred", user=user2)
-        Metadata.setvalue(dataset=ds, key="user.contact", value="Wilma", user=user1)
+        Metadata.setvalue(
+            dataset=ds, key="user.contact", value="Fred", user=user2.username
+        )
+        Metadata.setvalue(
+            dataset=ds, key="user.contact", value="Wilma", user=user1.username
+        )
 
         assert Metadata.getvalue(dataset=ds, user=None, key="user") == {
             "contact": "Barney"
         }
-        assert Metadata.getvalue(dataset=ds, user=user2, key="user") == {
+        assert Metadata.getvalue(dataset=ds, user=user2.username, key="user") == {
             "contact": "Fred"
         }
-        assert Metadata.getvalue(dataset=ds, user=user1, key="user") == {
+        assert Metadata.getvalue(dataset=ds, user=user1.username, key="user") == {
             "contact": "Wilma"
         }
 

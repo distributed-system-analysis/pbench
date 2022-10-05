@@ -1460,7 +1460,9 @@ class ApiBase(Resource):
                 if native_key == Metadata.USER:
                     user = Auth.token_auth.current_user()
                 try:
-                    metadata[i] = Metadata.getvalue(dataset=dataset, key=i, user=user)
+                    metadata[i] = Metadata.getvalue(
+                        dataset=dataset, key=i, user=user.username if user else None
+                    )
                 except MetadataNotFound:
                     metadata[i] = None
             else:

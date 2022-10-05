@@ -28,9 +28,11 @@ class TestDatasets:
         """Test dataset contructor"""
         user = create_user
         with freeze_time("1970-01-01"):
-            ds = Dataset(owner=user.username, name="fio", resource_id="f00b0ad")
+            ds = Dataset(
+                owner=user.username, owner_id="1", name="fio", resource_id="f00b0ad"
+            )
             ds.add()
-        assert ds.owner == user
+        assert ds.owner == user.username
         assert ds.name == "fio"
         assert ds.state == States.UPLOADING
         assert ds.resource_id == "f00b0ad"
@@ -90,11 +92,6 @@ class TestDatasets:
                 "run": {"controller": "node1.example.com"},
             },
         }
-
-    def test_construct_bad_owner(self, db_session):
-        """Test with a non-existent username"""
-        with pytest.raises(DatasetBadParameterType):
-            Dataset(owner="notme", name="fio")
 
     def test_construct_bad_state(self, db_session, create_user):
         """Test with a non-States state value"""
