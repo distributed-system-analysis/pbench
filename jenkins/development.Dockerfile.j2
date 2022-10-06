@@ -112,7 +112,6 @@ RUN \
         `# file and this list should be regenerated.` \
         `#` \
         cronie \
-        libpq-devel \
         npm \
         policycoreutils \
         policycoreutils-python-utils \
@@ -169,12 +168,8 @@ RUN \
         python3-mock \
         python3-pytest \
         python3-pytest-cov \
-{%- if not ubi %}
-        python3-pytest-helpers-namespace \
-{%- endif %}
         python3-pytest-mock \
         python3-responses \
-        python3-tox-current-env \
         python3-pytest-xdist \
         \
         `#` \
@@ -194,13 +189,9 @@ RUN \
         python3-mock \
         python3-pytest \
         python3-pytest-cov \
-{%- if not ubi %}
-        python3-pytest-helpers-namespace \
-{%- endif %}
         python3-pytest-mock \
         python3-requests-mock \
         python3-responses \
-        python3-tox-current-env \
         python3-pytest-xdist \
         \
         `#` \

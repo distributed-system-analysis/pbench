@@ -27,7 +27,7 @@
 #
 # [1] See https://www.redhat.com/sysadmin/user-flag-rootless-containers
 
-FROM quay.io/fedora/fedora:35
+FROM {{ base_image_ref }}
 
 RUN \
     dnf -y update && \
