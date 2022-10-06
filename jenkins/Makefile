@@ -8,22 +8,29 @@
 #  image-ci:           builds the CI image
 #  image-fedora:       builds the Fedora-based development image
 #  image-rpmbuild-all: builds all the default containers for building RPMs
-#  image-rpmbuild-rhel-7:  builds a single RPM build container (e.g., for RHEL-7)
+#  image-rpmbuild-rhel-7:  builds a single RPM build container (e.g. for RHEL-7)
 #  push-ci:            pushes the CI image to the registry
 #  push-fedora:        pushes the Fedora-based development image to the registry
-#  push-rpmbuild-all:  pushes all the default RPM build containers to the registry
+#  push-rpmbuild-all:  pushes all default RPM build containers to the registry
 #
 
 # Include definition of _DISTROS
 include ../utils/utils.mk
 
-# Default list of distributions for which to build containers in which to build RPMs
+# Default list of distributions for which to build containers in which to build
+# RPMs
 RPMBUILD_BASEIMAGE_DEFAULTS = \
 	rhel-9 rhel-8 rhel-7 \
-	fedora-36 fedora-35 fedora-34 \
+	fedora-36 fedora-35 \
 	centos-9 centos-8
 
-# Registry where the resulting RPM build container images are to be stored
+# All Fedora images are based on Fedora 35
+FEDORA_BASE_IMAGE_REF = quay.io/fedora/fedora:35
+
+# Base image for CI and Fedora development container image
+UBI_BASE_IMAGE_REF = registry.access.redhat.com/ubi8/ubi-init:8.5
+
+# Base image for UBI development container image
 RPMBUILD_IMAGE_REPO = images.paas.redhat.com/pbench
 
 # Templates for the various distributions' base images.  For the moment, for a
@@ -92,19 +99,25 @@ ${_DISTROS:%=image-rpmbuild-%}: image-rpmbuild-%:
 image-ubi: development.ubi.Dockerfile
 	buildah bud -f development.ubi.Dockerfile -t localhost/pbench-devel-ubi:${BRANCH}
 
+ci.fedora.Dockerfile: ci.Dockerfile.j2
+	jinja2 ci.Dockerfile.j2 \
+		-D base_image_ref="${FEDORA_BASE_IMAGE_REF}" \
+		-D fedora=True \
+		> $@
+
 development.fedora.Dockerfile: development.Dockerfile.j2
 	jinja2 development.Dockerfile.j2 \
-		-D base_image_ref="quay.io/fedora/fedora:34" \
+		-D base_image_ref="${FEDORA_BASE_IMAGE_REF}" \
 		-D fedora=True \
 		> $@
 
 development.ubi.Dockerfile: development.Dockerfile.j2
 	jinja2 development.Dockerfile.j2 \
-		-D base_image_ref="registry.access.redhat.com/ubi8/ubi-init:8.5" \
+		-D base_image_ref="${UBI_BASE_IMAGE_REF}" \
 		-D ubi=True \
 		-D repo_file_url="${REPO_FILE_URL}" \
 		-D hosts_file_url="${HOSTS_FILE_URL}" \
 		> $@
 
 clean:
-	rm -f development.*.Dockerfile
+	rm -f development.*.Dockerfile ci.*.Dockerfile
