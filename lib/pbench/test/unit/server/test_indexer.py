@@ -22,12 +22,32 @@ class TestResultData_expand_uid_template:
 
     @staticmethod
     def test_fallbacks():
-        keyvals = {"name": "mybm"}
+        templ = "%benchmark_name%_UID"
+        res = ResultData.expand_uid_template(templ, dict(foo=1, bar=2))
+        assert res == templ
+
+        keyvals = {"benchmark_name": "mybm"}
         templ = "%benchmark_name%_UID"
         res = ResultData.expand_uid_template(templ, keyvals)
         assert res == "mybm_UID"
+
+        keyvals = {"name": "myname"}
+
+        templ = "%benchmark_name%_UID"
+        res = ResultData.expand_uid_template(templ, keyvals)
+        assert res == "myname_UID"
+
         templ = "%controller_host%_UID"
-        res = ResultData.expand_uid_template(templ, keyvals, {"controller": "hostA"})
+        res = ResultData.expand_uid_template(templ, keyvals)
+        assert res == templ
+
+        templ = "%controller_host%_UID"
+        res = ResultData.expand_uid_template(templ, keyvals, dict(abc=123))
+        assert res == templ
+
+        run_d = {"controller": "hostA"}
+        templ = "%controller_host%_UID"
+        res = ResultData.expand_uid_template(templ, keyvals, run_d)
         assert res == "hostA_UID"
 
     @staticmethod
