@@ -38,16 +38,16 @@ port = 0000
 host = graphql.example.com
 port = 0000
 
-## User authentication section to use when authorizing the user with a Keycloak broker
+## User authentication section to use when authorizing the user with an OIDC identity provider
 [authentication]
 
-# URL of the Keycloak auth server with port
+# URL of the OIDC auth server with port
 server_url = keycloak.example.com:0000
 
-# Realm name that is used for the authentication with keycloak
+# Realm name that is used for the authentication with OIDC
 realm = Pbench
 
-# Client entity name requesting Keycloak to authenticate a user
+# Client entity name requesting OIDC to authenticate a user
 client = Pbench-dashboard
 
 # Client secret if the above client is not public
