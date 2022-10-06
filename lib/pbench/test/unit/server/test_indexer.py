@@ -22,12 +22,27 @@ class TestResultData_expand_uid_template:
 
     @staticmethod
     def test_fallbacks():
-        keyvals = {"name": "mybm"}
+        # This UID template is shared with multiple test cases.
         templ = "%benchmark_name%_UID"
+        res = ResultData.expand_uid_template(templ, dict(foo=1, bar=2))
+        assert res == templ
+
+        # This dictionary is shared with all the other test cases.
+        keyvals = {"name": "myname"}
+
         res = ResultData.expand_uid_template(templ, keyvals)
-        assert res == "mybm_UID"
+        assert res == "myname_UID"
+
+        # This UID template is shared with multiple test cases.
         templ = "%controller_host%_UID"
-        res = ResultData.expand_uid_template(templ, keyvals, {"controller": "hostA"})
+        res = ResultData.expand_uid_template(templ, keyvals)
+        assert res == templ
+
+        res = ResultData.expand_uid_template(templ, keyvals, dict(abc=123))
+        assert res == templ
+
+        run_d = {"controller": "hostA"}
+        res = ResultData.expand_uid_template(templ, keyvals, run_d)
         assert res == "hostA_UID"
 
     @staticmethod
