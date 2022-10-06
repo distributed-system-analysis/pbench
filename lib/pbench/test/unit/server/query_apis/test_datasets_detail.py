@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
+from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import API_METHOD
 from pbench.server.api.resources.query_apis.datasets.datasets_detail import (
     DatasetsDetail,
@@ -30,25 +31,37 @@ class TestDatasetsDetail(Commons):
 
     api_method = API_METHOD.GET
 
+    def token(self, client, config: PbenchServerConfig, user: str) -> str:
+        response = client.post(
+            f"{config.rest_uri}/login",
+            json={"username": user, "password": "12345"},
+        )
+        assert response.status_code == HTTPStatus.OK
+        data = response.json
+        assert data["auth_token"]
+        return data["auth_token"]
+
     @pytest.mark.parametrize(
-        "user",
-        ("drb", "no_user"),
+        "user, expected_status",
+        [
+            ("drb", HTTPStatus.OK),
+            ("test", HTTPStatus.FORBIDDEN),
+            (None, HTTPStatus.UNAUTHORIZED),
+        ],
     )
     def test_query(
-        self, client, server_config, query_api, find_template, build_auth_header, user
+        self, client, server_config, query_api, find_template, user, expected_status
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
-        The test will run once with each parameter supplied from the local parameterization,
-        and, for each of those, three times with different values of the build_auth_header fixture.
+        The test will run once with each parameter supplied from the local parameterization.
         """
-        auth_json = {"user": user, "access": "private"}
-        """
-        We expect "no_user" to succeed, looking for public data. In this case, we'll look for
-        public data owned by a known user; which should succeed.
-        """
-        if user == "no_user":
-            auth_json["access"] = "public"
+
+        headers = None
+
+        if user:
+            token = self.token(client, server_config, user)
+            headers = {"authorization": f"bearer {token}"}
 
         response_payload = {
             "took": 112,
@@ -114,10 +127,6 @@ class TestDatasetsDetail(Commons):
 
         index = self.build_index_from_metadata()
 
-        expected_status = self.get_expected_status(
-            auth_json, build_auth_header["header_param"]
-        )
-
         response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
@@ -125,7 +134,7 @@ class TestDatasetsDetail(Commons):
             expected_index=index,
             expected_status=expected_status,
             json=response_payload,
-            headers=build_auth_header["header"],
+            headers=headers,
             request_method=self.api_method,
         )
         assert response.status_code == expected_status
@@ -369,7 +378,7 @@ class TestDatasetsDetail(Commons):
 
         index = self.build_index_from_metadata()
         response = query_api(
-            f"{self.pbench_endpoint}",
+            self.pbench_endpoint,
             self.elastic_endpoint,
             self.payload,
             index,

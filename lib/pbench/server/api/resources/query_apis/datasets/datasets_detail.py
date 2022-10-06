@@ -59,7 +59,7 @@ class DatasetsDetail(IndexMapBase):
         Get details for a specific Pbench dataset which is either owned
         by a specified username, or has been made publicly accessible.
 
-        GET /datasets/detail/<dataset>?name=dname&metadata=global.seen,server.deletion
+        GET /datasets/detail/<dataset>?metadata=global.seen,server.deletion
 
         params: API parameter set
 
@@ -79,7 +79,6 @@ class DatasetsDetail(IndexMapBase):
         # Copy client's metadata request to CONTEXT for postprocessor
         context["metadata"] = params.query.get("metadata")
 
-        self.logger.info("Return dataset {}, prefix {}", dataset, self.prefix)
         indices = self.get_index(dataset, "run-data")
 
         return {
@@ -87,9 +86,7 @@ class DatasetsDetail(IndexMapBase):
             "kwargs": {
                 "params": {"ignore_unavailable": "true"},
                 "json": {
-                    "query": {
-                        "bool": {"filter": {"match": {"run.id": dataset.resource_id}}}
-                    },
+                    "query": {"term": {"run.id": dataset.resource_id}},
                     "sort": "_index",
                 },
             },
