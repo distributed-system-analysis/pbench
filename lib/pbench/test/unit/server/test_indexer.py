@@ -31,6 +31,7 @@ class TestResultData_expand_uid_template:
         res = ResultData.expand_uid_template(templ, keyvals)
         assert res == "mybm_UID"
 
+        # This dictionary is shared with all the other test cases.
         keyvals = {"name": "myname"}
 
         templ = "%benchmark_name%_UID"
