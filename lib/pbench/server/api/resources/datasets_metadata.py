@@ -184,7 +184,7 @@ class DatasetsMetadata(ApiBase):
                     key=k,
                     value=v,
                     dataset=dataset,
-                    user=user.username if user else None,
+                    user_id=user.id if user else None,
                 )
             except MetadataError as e:
                 self.logger.warning("Unable to update key {} = {!r}: {}", k, v, str(e))

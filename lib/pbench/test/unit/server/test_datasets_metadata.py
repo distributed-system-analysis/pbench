@@ -160,7 +160,7 @@ class TestDatasetsMetadata:
                 "access": "private",
                 "created": "2020-02-15T00:00:00+00:00",
                 "name": "drb",
-                "owner": "drb",
+                "owner_id": "3",
                 "state": "Indexed",
                 "transition": "1970-01-01T00:42:00+00:00",
                 "uploaded": "2022-01-01T00:00:00+00:00",
@@ -353,7 +353,7 @@ class TestDatasetsMetadata:
         )
         assert (
             put.json["message"]
-            == "Metadata key 'dataset.name' value 1 for dataset drb(3)|drb must be a UTF-8 string of 1 to 32 characters"
+            == "Metadata key 'dataset.name' value 1 for dataset (3)|drb must be a UTF-8 string of 1 to 32 characters"
         )
 
         # verify that the values didn't change
@@ -389,7 +389,7 @@ class TestDatasetsMetadata:
         )
         assert (
             put.json["message"]
-            == "Metadata key 'server.deletion' value '1800-25-55' for dataset drb(3)|drb must be a date/time"
+            == "Metadata key 'server.deletion' value '1800-25-55' for dataset (3)|drb must be a date/time"
         )
 
         # verify that the values didn't change

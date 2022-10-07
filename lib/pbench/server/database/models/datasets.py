@@ -394,7 +394,7 @@ class Dataset(Database.Base):
 
     Columns:
         id          Generated unique ID of table row
-        owner       Owning username of the dataset
+        owner_id    Owning uuid of the owner of the dataset
         access      Dataset is "private" to owner, or "public"
         name        Base name of dataset (tarball)
         md5         The dataset MD5 hash (Elasticsearch ID)
@@ -435,11 +435,8 @@ class Dataset(Database.Base):
     # Dataset name
     name = Column(String(255), unique=False, nullable=False)
 
-    # Keycloak ID of the owning user
-    owner_id = Column(String(255), nullable=True)
-
-    # username of the owning user
-    owner = Column(String(255), nullable=True)
+    # OIDC UUID of the owning user
+    owner_id = Column(String(255), nullable=False)
 
     # Access policy for Dataset (public or private)
     access = Column(String(255), unique=False, nullable=False, default="private")
@@ -563,7 +560,7 @@ class Dataset(Database.Base):
             kwargs (dict):
                 access: The dataset access policy
                 name: The dataset name (file path stem).
-                owner: The owner of the dataset; defaults to None.
+                owner_id: The owner id of the dataset.
                 resource_id: The tarball MD5
                 state: The initial state of the new dataset.
 
@@ -650,7 +647,7 @@ class Dataset(Database.Base):
             "access": self.access,
             "created": self.created.isoformat() if self.created else None,
             "name": self.name,
-            "owner": self.owner,
+            "owner_id": self.owner_id,
             "state": str(self.state),
             "transition": self.transition.isoformat(),
             "uploaded": self.uploaded.isoformat(),
@@ -664,7 +661,7 @@ class Dataset(Database.Base):
         Returns:
             string: Representation of the dataset
         """
-        return f"{self.owner}({self.owner_id})|{self.name}"
+        return f"({self.owner_id})|{self.name}"
 
     def advance(self, new_state: States):
         """
@@ -890,7 +887,7 @@ class Metadata(Database.Base):
     dataset_ref = Column(Integer, ForeignKey("datasets.id"), nullable=False)
 
     dataset = relationship("Dataset", back_populates="metadatas", single_parent=True)
-    user = Column(String(255), nullable=True)
+    user_id = Column(String(255), nullable=True)
 
     @validates("key")
     def validate_key(self, _, value: Any) -> str:
@@ -993,7 +990,7 @@ class Metadata(Database.Base):
         return bool(re.fullmatch(Metadata._valid_key_charset, k))
 
     @staticmethod
-    def getvalue(dataset: Dataset, key: str, user: Optional[str] = None) -> JSON:
+    def getvalue(dataset: Dataset, key: str, user_id: Optional[str] = None) -> JSON:
         """
         Returns the value of the specified key, which may be a dotted
         hierarchical path (e.g., "server.deleted").
@@ -1036,7 +1033,7 @@ class Metadata(Database.Base):
             value = dataset.as_dict()
         else:
             try:
-                meta = Metadata.get(dataset, native_key, user)
+                meta = Metadata.get(dataset, native_key, user_id)
             except MetadataNotFound:
                 return None
             value = meta.value
@@ -1115,7 +1112,7 @@ class Metadata(Database.Base):
             return value
 
     @staticmethod
-    def setvalue(dataset: Dataset, key: str, value: Any, user: Optional[str] = None):
+    def setvalue(dataset: Dataset, key: str, value: Any, user_id: Optional[str] = None):
         """
         Create or modify an existing metadata value. This method supports
         hierarchical dotted paths like "dashboard.seen" and should be used in
@@ -1147,7 +1144,7 @@ class Metadata(Database.Base):
             return
 
         try:
-            meta = Metadata.get(dataset, native_key, user)
+            meta = Metadata.get(dataset, native_key, user_id)
 
             # SQLAlchemy determines whether to perform an `update` based on the
             # Python object reference. We make a copy here to ensure that it
@@ -1185,17 +1182,17 @@ class Metadata(Database.Base):
             meta.update()
         else:
             Metadata.create(
-                dataset=dataset, key=native_key, value=meta_value, user=user
+                dataset=dataset, key=native_key, value=meta_value, user_id=user_id
             )
 
     @staticmethod
-    def _query(dataset: Dataset, key: str, user: Optional[str]) -> Query:
+    def _query(dataset: Dataset, key: str, user_id: Optional[str]) -> Query:
         return Database.db_session.query(Metadata).filter_by(
-            dataset=dataset, key=key, user=user
+            dataset=dataset, key=key, user_id=user_id
         )
 
     @staticmethod
-    def get(dataset: Dataset, key: str, user: Optional[str] = None) -> "Metadata":
+    def get(dataset: Dataset, key: str, user_id: Optional[str] = None) -> "Metadata":
         """
         Fetch a Metadata (row) from the database by key name.
 
@@ -1211,7 +1208,7 @@ class Metadata(Database.Base):
             The Metadata model object
         """
         try:
-            meta = __class__._query(dataset, key, user).first()
+            meta = __class__._query(dataset, key, user_id).first()
         except SQLAlchemyError as e:
             Metadata.logger.exception("Can't get {}>>{} from DB", dataset, key)
             raise MetadataSqlError("getting", dataset, key) from e
@@ -1221,7 +1218,7 @@ class Metadata(Database.Base):
             return meta
 
     @staticmethod
-    def remove(dataset: Dataset, key: str, user: Optional[str] = None):
+    def remove(dataset: Dataset, key: str, user_id: Optional[str] = None):
         """
         remove Remove a metadata key from the dataset
 
@@ -1233,7 +1230,7 @@ class Metadata(Database.Base):
             DatasetSqlError: Something went wrong
         """
         try:
-            __class__._query(dataset, key, user).delete()
+            __class__._query(dataset, key, user_id).delete()
             Database.db_session.commit()
         except SQLAlchemyError as e:
             Metadata.logger.exception("Can't remove {}>>{} from DB", dataset, key)
@@ -1250,7 +1247,7 @@ class Metadata(Database.Base):
             raise DatasetBadParameterType(dataset, Dataset)
 
         try:
-            Metadata.get(dataset, self.key, self.user)
+            Metadata.get(dataset, self.key, self.user_id)
         except MetadataNotFound:
             pass
         else:

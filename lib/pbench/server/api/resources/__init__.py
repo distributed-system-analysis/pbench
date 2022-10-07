@@ -1461,7 +1461,7 @@ class ApiBase(Resource):
                     user = Auth.token_auth.current_user()
                 try:
                     metadata[i] = Metadata.getvalue(
-                        dataset=dataset, key=i, user=user.username if user else None
+                        dataset=dataset, key=i, user_id=user.id if user else None
                     )
                 except MetadataNotFound:
                     metadata[i] = None

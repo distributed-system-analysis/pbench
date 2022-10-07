@@ -315,7 +315,6 @@ def attach_dataset(create_drb_user, create_user):
     # for one Dataset and letting it default for the other.
     with freeze_time("1970-01-01 00:42:00"):
         Dataset(
-            owner="drb",
             owner_id="3",
             created=datetime.datetime(2020, 2, 15),
             uploaded=datetime.datetime(2022, 1, 1),
@@ -325,7 +324,6 @@ def attach_dataset(create_drb_user, create_user):
             resource_id="random_md5_string1",
         ).add()
         Dataset(
-            owner="test",
             owner_id="5",
             created=datetime.datetime(2002, 5, 16),
             state=States.INDEXED,
@@ -360,7 +358,6 @@ def more_datasets(
     """
     with freeze_time("1978-06-26 08:00:00"):
         Dataset(
-            owner="drb",
             owner_id="3",
             created=datetime.datetime(2020, 2, 15),
             uploaded=datetime.datetime(2022, 1, 1),
@@ -370,7 +367,6 @@ def more_datasets(
             resource_id="random_md5_string3",
         ).add()
         Dataset(
-            owner="test",
             owner_id="5",
             created=datetime.datetime(2002, 5, 16),
             state=States.INDEXED,

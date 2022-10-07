@@ -70,11 +70,12 @@ class Upload(Resource):
 
         try:
             try:
+                user_id = Auth.token_auth.current_user().id
                 username = Auth.token_auth.current_user().username
             except Exception:
                 username = None
                 raise CleanupTime(
-                    HTTPStatus.INTERNAL_SERVER_ERROR, "Error verifying username"
+                    HTTPStatus.INTERNAL_SERVER_ERROR, "Error verifying user_id"
                 )
 
             controller = request.headers.get("controller")
@@ -143,9 +144,10 @@ class Upload(Resource):
             bytes_received = 0
 
             self.logger.info(
-                "PUT uploading {}:{} for user {} to {}",
+                "PUT uploading {}:{} for user {}|{} to {}",
                 controller,
                 filename,
+                user_id,
                 username,
                 tar_full_path,
             )
@@ -153,7 +155,7 @@ class Upload(Resource):
             # Create a tracking dataset object; it'll begin in UPLOADING state
             try:
                 dataset = Dataset(
-                    owner=username,
+                    owner_id=user_id,
                     name=Dataset.stem(tar_full_path),
                     resource_id=md5sum,
                 )
@@ -161,7 +163,8 @@ class Upload(Resource):
             except DatasetDuplicate:
                 dataset_name = Dataset.stem(tar_full_path)
                 self.logger.info(
-                    "Dataset already exists, user = {}, file = {!a}",
+                    "Dataset already exists, user = {}|{}, file = {!a}",
+                    user_id,
                     username,
                     dataset_name,
                 )
@@ -169,7 +172,8 @@ class Upload(Resource):
                     Dataset.query(resource_id=md5sum)
                 except DatasetNotFound:
                     self.logger.error(
-                        "Duplicate dataset {}:{} not found",
+                        "Duplicate dataset {}|{}:{} not found",
+                        user_id,
                         username,
                         dataset_name,
                     )
@@ -191,8 +195,9 @@ class Upload(Resource):
             recovery.add(dataset.delete)
 
             self.logger.info(
-                "Uploading file {!a} (user = {}, ctrl = {!a}) to {}",
+                "Uploading file {!a} (user = {}|{}, ctrl = {!a}) to {}",
                 filename,
+                user_id,
                 username,
                 controller,
                 dataset,
