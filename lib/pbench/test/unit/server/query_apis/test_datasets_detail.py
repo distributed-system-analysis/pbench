@@ -2,7 +2,6 @@ from http import HTTPStatus
 
 import pytest
 
-from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import API_METHOD
 from pbench.server.api.resources.query_apis.datasets.datasets_detail import (
     DatasetsDetail,
