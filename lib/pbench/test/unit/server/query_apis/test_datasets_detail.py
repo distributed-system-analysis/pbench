@@ -8,6 +8,7 @@ from pbench.server.api.resources.query_apis.datasets.datasets_detail import (
     DatasetsDetail,
 )
 from pbench.test.unit.server.query_apis.commons import Commons
+from pbench.test.unit.server.test_user_auth import login_user
 
 
 class TestDatasetsDetail(Commons):
@@ -31,26 +32,24 @@ class TestDatasetsDetail(Commons):
 
     api_method = API_METHOD.GET
 
-    def token(self, client, config: PbenchServerConfig, user: str) -> str:
-        response = client.post(
-            f"{config.rest_uri}/login",
-            json={"username": user, "password": "12345"},
-        )
-        assert response.status_code == HTTPStatus.OK
-        data = response.json
-        assert data["auth_token"]
-        return data["auth_token"]
-
     @pytest.mark.parametrize(
         "user, expected_status",
         [
             ("drb", HTTPStatus.OK),
+            ("test_admin", HTTPStatus.OK),
             ("test", HTTPStatus.FORBIDDEN),
             (None, HTTPStatus.UNAUTHORIZED),
         ],
     )
     def test_query(
-        self, client, server_config, query_api, find_template, user, expected_status
+        self,
+        client,
+        server_config,
+        query_api,
+        find_template,
+        pbench_admin_token,
+        user,
+        expected_status,
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
@@ -60,7 +59,13 @@ class TestDatasetsDetail(Commons):
         headers = None
 
         if user:
-            token = self.token(client, server_config, user)
+            if user == "test_admin":
+                token = pbench_admin_token
+            else:
+                response = login_user(client, server_config, user, "12345")
+                assert response.status_code == HTTPStatus.OK
+                token = response.json["auth_token"]
+            assert token
             headers = {"authorization": f"bearer {token}"}
 
         response_payload = {
