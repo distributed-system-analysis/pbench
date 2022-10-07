@@ -41,28 +41,28 @@ class AuditSqlError(AuditError):
 
 class AuditDuplicate(AuditError):
     """
-    Attempt to commit a duplicate ServerConfig.
+    Attempt to commit a duplicate unique value.
     """
 
-    def __init__(self, name: str, cause: str):
-        self.name = name
+    def __init__(self, audit: "Audit", cause: str):
+        self.audit = audit
         self.cause = cause
 
     def __str__(self) -> str:
-        return f"Duplicate config setting {self.name!r}: {self.cause}"
+        return f"Duplicate audit setting in {self.audit.as_json()}: {self.cause}"
 
 
 class AuditNullKey(AuditError):
     """
-    Attempt to commit a ServerConfig with an empty key.
+    Attempt to commit an Audit row with an empty required column.
     """
 
-    def __init__(self, name: str, cause: str):
-        self.name = name
+    def __init__(self, audit: "Audit", cause: str):
+        self.audit = audit
         self.cause = cause
 
     def __str__(self) -> str:
-        return f"Missing key value in {self.name!r}: {self.cause}"
+        return f"Missing required key in {self.audit.as_json()}: {self.cause}"
 
 
 class AuditType(enum.Enum):
@@ -163,17 +163,17 @@ class Audit(Database.Base):
     __tablename__ = "audit"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    root_id = Column(Integer, nullable=True)
-    name = Column(String(128), nullable=True)
-    operation = Column(Enum(OperationCode), index=True, nullable=False)
-    object_type = Column(Enum(AuditType), index=False, nullable=True)
-    object_id = Column(String(128), index=False, nullable=True)
-    object_name = Column(String(256), nullable=True)
-    user_id = Column(String(128), index=True, nullable=True)
-    user_name = Column(String(256), index=False, nullable=True)
-    status = Column(Enum(AuditStatus), index=True, nullable=False)
-    reason = Column(Enum(AuditReason), nullable=True)
-    attributes = Column(JSON, index=False, nullable=True)
+    root_id = Column(Integer)
+    name = Column(String(128))
+    operation = Column(Enum(OperationCode), nullable=False)
+    object_type = Column(Enum(AuditType))
+    object_id = Column(String(128))
+    object_name = Column(String(256))
+    user_id = Column(String(128))
+    user_name = Column(String(256))
+    status = Column(Enum(AuditStatus), nullable=False)
+    reason = Column(Enum(AuditReason))
+    attributes = Column(JSON)
     timestamp = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
 
     # Other global class properties
@@ -212,7 +212,9 @@ class Audit(Database.Base):
         Most columns are defined explicitly here primarily to allow completion
         in an IDE for convenience. The remaining less-used columns (primarily
         the raw root_id and timestamp, which should normally be defaulted) are
-        accessible using kwargs.
+        accessible using kwargs and will override columns set by the "root",
+        "user", and "dataset" shortcuts. This results in slightly messy code,
+        but named parameters make writing calls much easier.
 
         Args:
             root: The root (BEGIN) audit record of a long-running operation,
@@ -239,20 +241,8 @@ class Audit(Database.Base):
             A new Audit object initialized with the parameters and added
             to the database.
         """
+        audit = Audit()
 
-        audit = Audit(
-            name=name,
-            operation=operation,
-            object_type=object_type,
-            object_id=object_id,
-            object_name=object_name,
-            user_id=user_id,
-            user_name=user_name,
-            status=status,
-            reason=reason,
-            attributes=attributes,
-            **kwargs,
-        )
         if root:
             audit.root_id = root.id
             audit.name = root.name
@@ -269,6 +259,35 @@ class Audit(Database.Base):
             audit.object_type = AuditType.DATASET
             audit.object_id = dataset.resource_id
             audit.object_name = dataset.name
+
+        # Specific parameters, including kwargs, override the defaults we set
+        # above. Note that kwargs can't override the explicit parameter values
+        # as Python won't assign named parameter values to kwargs regardless of
+        # order.
+        if name:
+            audit.name = name
+        if operation:
+            audit.operation = operation
+        if object_type:
+            audit.object_type = object_type
+        if object_id:
+            audit.object_id = object_id
+        if object_name:
+            audit.object_name = object_name
+        if user_id:
+            audit.user_id = user_id
+        if user_name:
+            audit.user_name = user_name
+        if status:
+            audit.status = status
+        if reason:
+            audit.reason = reason
+        if attributes:
+            audit.attributes = attributes
+
+        for n, v in kwargs.items():
+            setattr(audit, n, v)
+
         audit.add()
         return audit
 
@@ -303,11 +322,9 @@ class Audit(Database.Base):
 
         try:
             query = Database.db_session.query(Audit)
-            if start and end:
-                query = query.filter(Audit.timestamp.between(start, end))
-            elif start:
+            if start:
                 query = query.filter(Audit.timestamp >= start)
-            elif end:
+            if end:
                 query = query.filter(Audit.timestamp <= end)
             if user:
                 query = query.filter(Audit.user_id == user)
@@ -339,10 +356,10 @@ class Audit(Database.Base):
         # Postgres engine returns (code, message) but sqlite3 engine only
         # returns (message); so always take the last element.
         cause = exception.orig.args[-1]
-        if cause.find("UNIQUE constraint") != -1:
-            return AuditDuplicate(self.id, cause)
-        elif cause.find("NOT NULL constraint") != -1:
-            return AuditNullKey(self.id, cause)
+        if "UNIQUE constraint" in cause:
+            return AuditDuplicate(self, cause)
+        elif "NOT NULL constraint" in cause:
+            return AuditNullKey(self, cause)
         return exception
 
     def add(self):
@@ -372,5 +389,5 @@ class Audit(Database.Base):
             "status": self.status.name if self.status else None,
             "reason": self.reason.name if self.reason else None,
             "attributes": self.attributes,
-            "timestamp": self.timestamp.isoformat(),
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None,
         }

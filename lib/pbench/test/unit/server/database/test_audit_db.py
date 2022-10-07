@@ -6,7 +6,13 @@ from sqlalchemy.exc import IntegrityError
 
 from pbench.server import OperationCode
 from pbench.server.database.database import Database
-from pbench.server.database.models.audit import Audit, AuditNullKey, AuditStatus
+from pbench.server.database.models.audit import (
+    Audit,
+    AuditDuplicate,
+    AuditNullKey,
+    AuditStatus,
+    AuditType,
+)
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.users import User
 from pbench.test.unit.server.database import FakeDBOrig, FakeRow, FakeSession
@@ -44,7 +50,7 @@ class TestAudit:
         # Check whether we've rolled back a transaction due to failure.
         assert session.rolledback == rolledback
 
-    @pytest.fixture(autouse=True, scope="function")
+    @pytest.fixture()
     def fake_db(self, monkeypatch, server_config):
         """
         Fixture to mock a DB session for testing.
@@ -59,27 +65,38 @@ class TestAudit:
             Database.Base.config = server_config
             yield
 
-    def test_construct(self):
+    def test_construct(self, fake_db):
         """Test Audit record constructor"""
-        audit = Audit(operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
+        audit = Audit(
+            name="mine", operation=OperationCode.CREATE, status=AuditStatus.BEGIN
+        )
+        assert audit.name == "mine"
         assert audit.operation is OperationCode.CREATE
         assert audit.status is AuditStatus.BEGIN
         self.check_session()
 
-    def test_create(self):
+    def test_create(self, fake_db):
         """Test Audit record creation"""
-        audit = Audit.create(operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
+        audit = Audit.create(
+            name="mine", operation=OperationCode.CREATE, status=AuditStatus.BEGIN
+        )
+        assert audit.name == "mine"
         assert audit.operation == OperationCode.CREATE
         assert audit.status == AuditStatus.BEGIN
         self.check_session(
             committed=[
-                FakeRow(id=1, operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
+                FakeRow(
+                    id=1,
+                    name="mine",
+                    operation=OperationCode.CREATE,
+                    status=AuditStatus.BEGIN,
+                )
             ]
         )
 
-    def test_construct_null(self):
+    def test_construct_null(self, fake_db):
         """Test handling of Audit record null value error"""
-        with pytest.raises(AuditNullKey):
+        with pytest.raises(AuditNullKey, match="'operation': 'CREATE'"):
             self.session.raise_on_commit = IntegrityError(
                 statement="", params="", orig=FakeDBOrig("NOT NULL constraint")
             )
@@ -88,12 +105,26 @@ class TestAudit:
             rolledback=1,
         )
 
-    def test_sequence(self):
+    def test_construct_duplicate(self, fake_db):
+        """Test handling of Audit record null value error"""
+        with pytest.raises(AuditDuplicate, match="'id': 1"):
+            self.session.raise_on_commit = IntegrityError(
+                statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
+            )
+            Audit.create(id=1, operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
+        self.check_session(
+            rolledback=1,
+        )
+
+    def test_sequence(self, fake_db):
         attr = {"message": "the framistan is borked"}
-        ds = Dataset(id=1, name="test")
+        ds = Dataset(id=1, name="test", resource_id="hash")
         with freeze_time("2022-01-01 00:00:00 UTC") as f:
             root = Audit.create(
-                dataset=ds, operation=OperationCode.CREATE, status=AuditStatus.BEGIN
+                name="upload",
+                dataset=ds,
+                operation=OperationCode.CREATE,
+                status=AuditStatus.BEGIN,
             )
             f.tick(delta=datetime.timedelta(hours=5))
             other = Audit.create(root=root, status=AuditStatus.FAILURE, attributes=attr)
@@ -101,8 +132,19 @@ class TestAudit:
         records = Audit.query()
         assert len(records) == 2
         assert records[0].id == root.id
+        assert records[0].root_id is None
         assert records[1].id == other.id
-        assert records[0].operation == records[1].operation == OperationCode.CREATE
+        assert records[1].root_id == root.id
+        assert records[0].name == "upload"
+        assert records[1].name == "upload"
+        assert records[0].object_type == AuditType.DATASET
+        assert records[0].object_id == "hash"
+        assert records[0].object_name == "test"
+        assert records[1].object_type == AuditType.DATASET
+        assert records[1].object_id == "hash"
+        assert records[1].object_name == "test"
+        assert records[0].operation == OperationCode.CREATE
+        assert records[1].operation == OperationCode.CREATE
         assert records[0].status == AuditStatus.BEGIN
         assert records[1].status == AuditStatus.FAILURE
         assert records[0].attributes is None
@@ -126,11 +168,68 @@ class TestAudit:
             tzinfo=datetime.timezone.utc,
         )
 
-    def test_queries(self):
+    def test_override(self, fake_db):
+        attr = {"message": "the framistan is borked"}
+        ds = Dataset(id=1, name="test", resource_id="md5")
+        with freeze_time("2022-01-01 00:00:00 UTC") as f:
+            root = Audit.create(
+                name="meta",
+                dataset=ds,
+                operation=OperationCode.CREATE,
+                status=AuditStatus.BEGIN,
+            )
+            f.tick(delta=datetime.timedelta(hours=5))
+            other = Audit.create(
+                root=root,
+                status=AuditStatus.FAILURE,
+                attributes=attr,
+                object_id="5",
+                name="secundo",
+            )
+
+        records = Audit.query()
+        assert len(records) == 2
+        assert records[0].id == root.id
+        assert records[1].id == other.id
+        assert records[0].name == "meta"
+        assert records[1].name == "secundo"
+        assert records[1].root_id == root.id
+        assert records[0].operation == OperationCode.CREATE
+        assert records[1].operation == OperationCode.CREATE
+        assert records[0].status == AuditStatus.BEGIN
+        assert records[1].status == AuditStatus.FAILURE
+        assert records[0].attributes is None
+        assert records[1].attributes == attr
+        assert records[0].object_type == AuditType.DATASET
+        assert records[0].object_id == "md5"
+        assert records[0].object_name == "test"
+        assert records[1].object_type == AuditType.DATASET
+        assert records[1].object_id == "5"
+        assert records[1].object_name == "test"
+        assert records[0].timestamp == datetime.datetime(
+            year=2022,
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+            tzinfo=datetime.timezone.utc,
+        )
+        assert records[1].timestamp == datetime.datetime(
+            year=2022,
+            month=1,
+            day=1,
+            hour=5,
+            minute=0,
+            second=0,
+            tzinfo=datetime.timezone.utc,
+        )
+
+    def test_queries(self, fake_db):
         attr1 = {"message": "the framistan is borked"}
         attr2 = {"message": "OK", "updated": {"dataset.access": "public"}}
-        ds1 = Dataset(id=1, name="testy")
-        ds2 = Dataset(id=2, name="tasty")
+        ds1 = Dataset(id=1, name="testy", resource_id="md5.1")
+        ds2 = Dataset(id=2, name="tasty", resource_id="md5.2")
         user1 = User(id=1, username="imme")
         user2 = User(id=2, username="imyou")
         with freeze_time("2022-01-01 00:00:00 UTC") as f:

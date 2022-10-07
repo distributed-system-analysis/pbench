@@ -859,20 +859,24 @@ class ApiSchema:
         apply to a particular HTTP method.
 
         Args:
-            method: API method
-            operation: CRUD operation code
-            body_schema: Definition of parameters received through a JSON body.
+            method:
+                    API method
+            operation:
+                    CRUD operation code
+            body_schema:
+                    Definition of parameters received through a JSON body.
             query_schema: Definition of parameters received through query
-                parameters.
+                    parameters.
             uri_schema: Definition of parameters received through Flask URI
-                templates.
+                    templates.
             audit_type: The type of resource affected by API calls; only
-                meaningful for CREATE/UPDATE/DELETE operations.
-            audit_name: The name to use for the audit record
+                    meaningful for CREATE/UPDATE/DELETE operations.
+            audit_name:
+                    The name to use for the audit record
             authorization: How to authorize access to this API method; the
-                authorization process triggers on a specific type of parameter,
-                DATASET or USER, which must appear in exactly one of the set of
-                schema defined for an HTTP method.
+                    authorization process triggers on a specific type of
+                    parameter, DATASET or USER, which must appear in exactly
+                    one of the set of schema defined for an HTTP method.
         """
         self.method = method
         self.operation = operation

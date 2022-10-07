@@ -49,16 +49,20 @@ class FakeRow:
                 setattr(new, k, v)
         return new
 
-    def str(self) -> str:
-        return f"Row({','.join([f'{k}={v!r}' for k, v in self.__dict__.items() if not k.startswith('_')])})"
+    def __str__(self) -> str:
+        return (
+            "Row("
+            + ",".join(
+                f"{k}={v!r}" for k, v in self.__dict__.items() if not k.startswith("_")
+            )
+            + ")"
+        )
 
     def __eq__(self, entity) -> bool:
         return all(
-            [
-                getattr(self, x) == getattr(entity, x)
-                for x in entity.__dict__.keys()
-                if not x.startswith("_")
-            ]
+            getattr(self, x) == getattr(entity, x)
+            for x in entity.__dict__.keys()
+            if not x.startswith("_")
         )
 
     def __gt__(self, entity) -> bool:
@@ -104,9 +108,6 @@ class FakeQuery:
         return self
 
     def order_by(self, column: Column) -> "FakeQuery":
-        # print(f"ORDER BY {type(column).__name__}: {column!r}")
-        # for x in dir(column):
-        #     print(f"  {x}: {type(getattr(column, x)).__name__} ({getattr(column, x)})")
         self.selected.sort(key=lambda o: getattr(o, column.key))
         return self
 
@@ -190,9 +191,6 @@ class FakeSession:
             for c in a.__table__._columns:
                 if c.default:
                     default = c.default
-                    # print(f"{type(object).__name__}.{c.name}({type(default).__name__}) default:")
-                    # for x in dir(default):
-                    #     print(f"  {x}: {type(getattr(default, x)).__name__} ({getattr(default, x)})")
                     if default.is_scalar:
                         setattr(a, c.name, default.arg)
                     elif default.is_callable:
