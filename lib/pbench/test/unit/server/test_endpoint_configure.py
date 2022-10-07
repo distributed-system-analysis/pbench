@@ -38,7 +38,17 @@ class TestEndpointConfig:
         uri_prefix = server_config.rest_uri
         host = "http://" + host
         uri = urljoin(host, uri_prefix)
+        auth_realm = server_config.get("authentication", "realm")
+        auth_issuer = (
+            server_config.get("authentication", "server_url") + f"/{auth_realm}"
+        )
         expected_results = {
+            "authentication": {
+                "realm": auth_realm,
+                "client": server_config.get("authentication", "client"),
+                "issuer": auth_issuer,
+                "secret": "",
+            },
             "identification": f"Pbench server {server_config.COMMIT_ID}",
             "api": {
                 "datasets_contents": f"{uri}/datasets/contents",

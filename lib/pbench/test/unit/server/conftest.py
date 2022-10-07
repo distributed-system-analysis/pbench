@@ -52,8 +52,10 @@ logging_level = DEBUG
 [Indexing]
 index_prefix = unit-test
 
-[keycloak]
-server_url = http://pbench.example.com/
+[authentication]
+server_url = keycloak.example.com:0000
+realm = pbench
+client = pbench-dashboard
 
 ###########################################################################
 # The rest will come from the default config file.
