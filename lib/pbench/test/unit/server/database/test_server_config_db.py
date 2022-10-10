@@ -1,5 +1,3 @@
-from typing import List
-
 import pytest
 from sqlalchemy.exc import IntegrityError
 
@@ -17,35 +15,6 @@ from pbench.test.unit.server.database import FakeDBOrig, FakeRow, FakeSession
 
 class TestServerConfig:
     session = None
-
-    def check_session(self, queries=0, committed: List[FakeRow] = [], rolledback=0):
-        """
-        Encapsulate the common checks we want to make after running test cases.
-
-        Args:
-            queries: A count of queries we expect to have been made
-            committed: A list of FakeRow objects we expect to have been
-                committed
-            rolledback: True if we expect rollback to have been called
-        """
-        session = self.session
-        assert session
-
-        # Check the number of queries we've created
-        assert len(session.queries) == queries
-
-        # 'added' is an internal "dirty" list between 'add' and 'commit' or
-        # 'rollback'. We test that 'commit' moves elements to the committed
-        # state and 'rollback' clears the list. We don't ever expect to see
-        # anything on this list.
-        assert not session.added
-
-        # Check that the 'committed' list (which stands in for the actual DB
-        # table) contains the expected rows.
-        assert sorted(list(session.committed.values())) == sorted(committed)
-
-        # Check whether we've rolled back a transaction due to failure.
-        assert session.rolledback == rolledback
 
     @pytest.fixture(autouse=True, scope="function")
     def fake_db(self, monkeypatch, server_config):
@@ -74,7 +43,7 @@ class TestServerConfig:
         assert config.key == "dataset-lifetime"
         assert config.value == "2"
         assert str(config) == "dataset-lifetime: '2'"
-        self.check_session()
+        self.session.check_session()
 
     def test_create(self):
         """Test server config parameter creation"""
@@ -82,20 +51,31 @@ class TestServerConfig:
         assert config.key == "dataset-lifetime"
         assert config.value == "2"
         assert str(config) == "dataset-lifetime: '2'"
-        self.check_session(committed=[FakeRow(id=1, key="dataset-lifetime", value="2")])
+        self.session.check_session(
+            committed=[
+                FakeRow(cls=ServerConfig, id=1, key="dataset-lifetime", value="2")
+            ]
+        )
 
     def test_construct_duplicate(self):
         """Test server config parameter constructor"""
         ServerConfig.create(key="dataset-lifetime", value=1)
-        self.check_session(committed=[FakeRow(id=1, key="dataset-lifetime", value="1")])
+        self.session.check_session(
+            committed=[
+                FakeRow(cls=ServerConfig, id=1, key="dataset-lifetime", value="1")
+            ]
+        )
         with pytest.raises(ServerConfigDuplicate) as e:
             self.session.raise_on_commit = IntegrityError(
                 statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
             )
             ServerConfig.create(key="dataset-lifetime", value=2)
         assert str(e).find("dataset-lifetime") != -1
-        self.check_session(
-            committed=[FakeRow(id=1, key="dataset-lifetime", value="1")], rolledback=1
+        self.session.check_session(
+            committed=[
+                FakeRow(cls=ServerConfig, id=1, key="dataset-lifetime", value="1")
+            ],
+            rolledback=1,
         )
 
     def test_construct_null(self):
@@ -105,7 +85,7 @@ class TestServerConfig:
                 statement="", params="", orig=FakeDBOrig("NOT NULL constraint")
             )
             ServerConfig.create(key="dataset-lifetime", value=2)
-        self.check_session(
+        self.session.check_session(
             rolledback=1,
         )
 
@@ -114,21 +94,37 @@ class TestServerConfig:
         config = ServerConfig.create(key="dataset-lifetime", value="2")
         result = ServerConfig.get(key="dataset-lifetime")
         assert config == result
-        self.check_session(
-            committed=[FakeRow(id=1, key="dataset-lifetime", value="2")], queries=1
+        self.session.check_session(
+            committed=[
+                FakeRow(cls=ServerConfig, id=1, key="dataset-lifetime", value="2")
+            ],
+            queries=1,
+            filters=["key=dataset-lifetime"],
         )
 
     def test_update(self):
         """Test that we can update an existing configuration setting"""
         config = ServerConfig.create(key="dataset-lifetime", value="2")
-        self.check_session(committed=[FakeRow(id=1, key="dataset-lifetime", value="2")])
+        self.session.check_session(
+            committed=[
+                FakeRow(cls=ServerConfig, id=1, key="dataset-lifetime", value="2")
+            ]
+        )
         config.value = "5"
         config.update()
-        self.check_session(committed=[FakeRow(id=1, key="dataset-lifetime", value="5")])
+        self.session.check_session(
+            committed=[
+                FakeRow(cls=ServerConfig, id=1, key="dataset-lifetime", value="5")
+            ]
+        )
         result = ServerConfig.get(key="dataset-lifetime")
         assert config == result
-        self.check_session(
-            committed=[FakeRow(id=1, key="dataset-lifetime", value="5")], queries=1
+        self.session.check_session(
+            committed=[
+                FakeRow(cls=ServerConfig, id=1, key="dataset-lifetime", value="5")
+            ],
+            queries=1,
+            filters=["key=dataset-lifetime"],
         )
 
     def test_set(self):
@@ -146,8 +142,17 @@ class TestServerConfig:
 
         # NOTE: each `get` does a query, plus each `set` checks whether the
         # key already exists: 2 get + 2 set == 4 queries
-        self.check_session(
-            committed=[FakeRow(id=1, key="dataset-lifetime", value="120")], queries=4
+        self.session.check_session(
+            committed=[
+                FakeRow(cls=ServerConfig, id=1, key="dataset-lifetime", value="120")
+            ],
+            queries=4,
+            filters=[
+                "key=dataset-lifetime",
+                "key=dataset-lifetime",
+                "key=dataset-lifetime",
+                "key=dataset-lifetime",
+            ],
         )
 
     def test_missing(self):
@@ -178,6 +183,7 @@ class TestServerConfig:
             "server-state": {"status": "enabled"},
             "server-banner": {"message": "Mine"},
         }
+        self.session.check_session(queries=1, filters=[])
 
     @pytest.mark.parametrize(
         "value,expected",

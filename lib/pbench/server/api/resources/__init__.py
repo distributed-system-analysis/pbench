@@ -1570,12 +1570,10 @@ class ApiBase(Resource):
         else:
             params = ApiParams(None, None, None)
 
-        audit = None
-
         # Automatically authorize the operation only if the API schema for the
         # active HTTP method has authorization enabled, using the selected
         # parameters. Automatic authorization can be disabled by selecting
-        # API_AUTHORIZATION.NONE for a particular method's schema where either
+        # ApiAuthorization.NONE for a particular method's schema where either
         # no authorization is required, or a specialized authorization
         # mechanism is required by the API.
         auth_params = self.schemas.authorize(method, params)
@@ -1584,27 +1582,15 @@ class ApiBase(Resource):
                 self._check_authorization(auth_params)
             except UnauthorizedAccess as e:
                 self.logger.warning("{}: {}", api_name, e)
-                if audit:
-                    Audit.create(
-                        root=audit,
-                        status=AuditStatus.FAILURE,
-                        reason=AuditReason.PERMISSION,
-                        attributes={"message": str(e)},
-                    )
                 abort(e.http_status, message=str(e))
             except Exception as e:
                 self.logger.exception("{}: {}", api_name, e)
-                if audit:
-                    Audit.create(
-                        root=audit,
-                        status=AuditStatus.FAILURE,
-                        reason=AuditReason.INTERNAL,
-                        attributes={"message": str(e)},
-                    )
                 abort(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
                 )
+
+        audit = None
 
         if schema.operation is not OperationCode.READ:
             user = Auth.token_auth.current_user()

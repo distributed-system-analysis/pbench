@@ -156,18 +156,33 @@ class TestServerConfiguration:
     def test_put_param(self, query_put):
         response = query_put(key="dataset-lifetime", query_string={"value": "2"})
         assert response.json == {"dataset-lifetime": "2"}
-        audit = Audit.query(operation=OperationCode.UPDATE, status=AuditStatus.SUCCESS)
-        assert len(audit) == 1
-        assert audit[0].attributes["updated"] == {"dataset-lifetime": "2"}
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].operation == OperationCode.UPDATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "config"
         assert audit[0].object_type == AuditType.CONFIG
+        assert audit[0].object_name is None
+        assert audit[1].operation == OperationCode.UPDATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "config"
+        assert audit[1].object_type == AuditType.CONFIG
+        assert audit[1].object_name is None
+        assert audit[1].attributes["updated"] == {"dataset-lifetime": "2"}
 
     def test_put_value(self, query_put):
         response = query_put(key="dataset-lifetime", json={"value": "2"})
         assert response.json == {"dataset-lifetime": "2"}
-        audit = Audit.query(operation=OperationCode.UPDATE, status=AuditStatus.SUCCESS)
-        assert len(audit) == 1
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].operation == OperationCode.UPDATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "config"
         assert audit[0].object_type == AuditType.CONFIG
-        assert audit[0].attributes["updated"] == {"dataset-lifetime": "2"}
+        assert audit[1].operation == OperationCode.UPDATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "config"
+        assert audit[1].attributes["updated"] == {"dataset-lifetime": "2"}
 
     def test_put_value_unauth(self, query_put):
         response = query_put(
@@ -209,9 +224,19 @@ class TestServerConfiguration:
             "server-state": {"status": "enabled"},
             "server-banner": None,
         }
-        audit = Audit.query(operation=OperationCode.UPDATE, status=AuditStatus.SUCCESS)
-        assert len(audit) == 1
-        assert audit[0].attributes["updated"] == {
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].operation == OperationCode.UPDATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "config"
+        assert audit[0].object_type == AuditType.CONFIG
+        assert audit[0].object_name is None
+        assert audit[1].operation == OperationCode.UPDATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "config"
+        assert audit[1].object_type == AuditType.CONFIG
+        assert audit[1].object_name is None
+        assert audit[1].attributes["updated"] == {
             "dataset-lifetime": "2",
             "server-state": {"status": "enabled"},
         }

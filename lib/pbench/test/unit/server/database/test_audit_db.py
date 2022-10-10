@@ -1,8 +1,9 @@
 import datetime
 
+import dateutil.parser
 from freezegun.api import freeze_time
 import pytest
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import DatabaseError, IntegrityError
 
 from pbench.server import OperationCode
 from pbench.server.database.database import Database
@@ -10,8 +11,8 @@ from pbench.server.database.models.audit import (
     Audit,
     AuditDuplicate,
     AuditNullKey,
+    AuditSqlError,
     AuditStatus,
-    AuditType,
 )
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.users import User
@@ -20,35 +21,6 @@ from pbench.test.unit.server.database import FakeDBOrig, FakeRow, FakeSession
 
 class TestAudit:
     session = None
-
-    def check_session(self, queries=0, committed: list[FakeRow] = [], rolledback=0):
-        """
-        Encapsulate the common checks we want to make after running test cases.
-
-        Args:
-            queries: A count of queries we expect to have been made
-            committed: A list of FakeRow objects we expect to have been
-                committed
-            rolledback: True if we expect rollback to have been called
-        """
-        session = self.session
-        assert session
-
-        # Check the number of queries we've created
-        assert len(session.queries) == queries
-
-        # 'added' is an internal "dirty" list between 'add' and 'commit' or
-        # 'rollback'. We test that 'commit' moves elements to the committed
-        # state and 'rollback' clears the list. We don't ever expect to see
-        # anything on this list.
-        assert not session.added
-
-        # Check that the 'committed' list (which stands in for the actual DB
-        # table) contains the expected rows.
-        assert sorted(list(session.committed.values())) == sorted(committed)
-
-        # Check whether we've rolled back a transaction due to failure.
-        assert session.rolledback == rolledback
 
     @pytest.fixture()
     def fake_db(self, monkeypatch, server_config):
@@ -73,7 +45,7 @@ class TestAudit:
         assert audit.name == "mine"
         assert audit.operation is OperationCode.CREATE
         assert audit.status is AuditStatus.BEGIN
-        self.check_session()
+        self.session.check_session()
 
     def test_create(self, fake_db):
         """Test Audit record creation"""
@@ -83,16 +55,7 @@ class TestAudit:
         assert audit.name == "mine"
         assert audit.operation == OperationCode.CREATE
         assert audit.status == AuditStatus.BEGIN
-        self.check_session(
-            committed=[
-                FakeRow(
-                    id=1,
-                    name="mine",
-                    operation=OperationCode.CREATE,
-                    status=AuditStatus.BEGIN,
-                )
-            ]
-        )
+        self.session.check_session(committed=[FakeRow.clone(audit)])
 
     def test_construct_null(self, fake_db):
         """Test handling of Audit record null value error"""
@@ -101,7 +64,7 @@ class TestAudit:
                 statement="", params="", orig=FakeDBOrig("NOT NULL constraint")
             )
             Audit.create(operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
-        self.check_session(
+        self.session.check_session(
             rolledback=1,
         )
 
@@ -112,7 +75,18 @@ class TestAudit:
                 statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
             )
             Audit.create(id=1, operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
-        self.check_session(
+        self.session.check_session(
+            rolledback=1,
+        )
+
+    def test_construct_error(self, fake_db):
+        """Test handling of Audit record null value error"""
+        with pytest.raises(AuditSqlError, match="'id': 1"):
+            self.session.raise_on_commit = DatabaseError(
+                statement="", params="", orig=FakeDBOrig("something else")
+            )
+            Audit.create(id=1, operation=OperationCode.CREATE, status=AuditStatus.BEGIN)
+        self.session.check_session(
             rolledback=1,
         )
 
@@ -128,44 +102,11 @@ class TestAudit:
             )
             f.tick(delta=datetime.timedelta(hours=5))
             other = Audit.create(root=root, status=AuditStatus.FAILURE, attributes=attr)
-
-        records = Audit.query()
-        assert len(records) == 2
-        assert records[0].id == root.id
-        assert records[0].root_id is None
-        assert records[1].id == other.id
-        assert records[1].root_id == root.id
-        assert records[0].name == "upload"
-        assert records[1].name == "upload"
-        assert records[0].object_type == AuditType.DATASET
-        assert records[0].object_id == "hash"
-        assert records[0].object_name == "test"
-        assert records[1].object_type == AuditType.DATASET
-        assert records[1].object_id == "hash"
-        assert records[1].object_name == "test"
-        assert records[0].operation == OperationCode.CREATE
-        assert records[1].operation == OperationCode.CREATE
-        assert records[0].status == AuditStatus.BEGIN
-        assert records[1].status == AuditStatus.FAILURE
-        assert records[0].attributes is None
-        assert records[1].attributes == attr
-        assert records[0].timestamp == datetime.datetime(
-            year=2022,
-            month=1,
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
-            tzinfo=datetime.timezone.utc,
-        )
-        assert records[1].timestamp == datetime.datetime(
-            year=2022,
-            month=1,
-            day=1,
-            hour=5,
-            minute=0,
-            second=0,
-            tzinfo=datetime.timezone.utc,
+        self.session.check_session(
+            committed=[
+                FakeRow.clone(root),
+                FakeRow.clone(other),
+            ]
         )
 
     def test_override(self, fake_db):
@@ -186,43 +127,8 @@ class TestAudit:
                 object_id="5",
                 name="secundo",
             )
-
-        records = Audit.query()
-        assert len(records) == 2
-        assert records[0].id == root.id
-        assert records[1].id == other.id
-        assert records[0].name == "meta"
-        assert records[1].name == "secundo"
-        assert records[1].root_id == root.id
-        assert records[0].operation == OperationCode.CREATE
-        assert records[1].operation == OperationCode.CREATE
-        assert records[0].status == AuditStatus.BEGIN
-        assert records[1].status == AuditStatus.FAILURE
-        assert records[0].attributes is None
-        assert records[1].attributes == attr
-        assert records[0].object_type == AuditType.DATASET
-        assert records[0].object_id == "md5"
-        assert records[0].object_name == "test"
-        assert records[1].object_type == AuditType.DATASET
-        assert records[1].object_id == "5"
-        assert records[1].object_name == "test"
-        assert records[0].timestamp == datetime.datetime(
-            year=2022,
-            month=1,
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
-            tzinfo=datetime.timezone.utc,
-        )
-        assert records[1].timestamp == datetime.datetime(
-            year=2022,
-            month=1,
-            day=1,
-            hour=5,
-            minute=0,
-            second=0,
-            tzinfo=datetime.timezone.utc,
+        self.session.check_session(
+            committed=[FakeRow.clone(root), FakeRow.clone(other)]
         )
 
     def test_queries(self, fake_db):
@@ -254,23 +160,50 @@ class TestAudit:
             f.tick(delta=datetime.timedelta(minutes=40))
             Audit.create(root=root2, status=AuditStatus.SUCCESS, attributes=attr2)
 
-        # Try some simplistic queries. There's not much point in trying to
-        # exhaustively test queries as this ends up being more a test of the
-        # SQLAlchemy engine mocks than the Audit class. All we really care
-        # about here is that Audit.query() returns the results of the engine
-        # query.
+        # Try some queries. The mocked query returns the ordered list of
+        # filters passed to the database engine: we want to confirm that the
+        # expected filters were run, and there's no point in trying to mock the
+        # behavior of those filters.
 
-        records = Audit.query(user_name="imme")
-        assert len(records) == 2
-        assert records[0].operation is OperationCode.UPDATE
-        assert records[1].operation is OperationCode.UPDATE
+        Audit.query(user_name="imme")
+        self.session.check_session(filters=["user_name=imme"])
 
-        records = Audit.query(object_name="testy")
-        assert len(records) == 2
-        assert records[0].operation is OperationCode.CREATE
-        assert records[1].operation is OperationCode.CREATE
+        Audit.query(object_name="testy")
+        self.session.check_session(filters=["object_name=testy"])
 
-        records = Audit.query(user_id=2)
-        assert len(records) == 2
-        assert records[0].operation is OperationCode.CREATE
-        assert records[1].operation is OperationCode.CREATE
+        Audit.query(dataset=ds1)
+        self.session.check_session(
+            filters=["audit.object_type = AuditType.DATASET, audit.object_id = md5.1"]
+        )
+
+        Audit.query(timestamp=dateutil.parser.parse("2022-01-01 00:00:00 UTC"))
+        self.session.check_session(filters=["timestamp=2022-01-01 00:00:00+00:00"])
+
+        Audit.query(start=dateutil.parser.parse("2022-01-01 04:00:00 UTC"))
+        self.session.check_session(
+            filters=["audit.timestamp >= 2022-01-01 04:00:00+00:00"]
+        )
+
+        Audit.query(
+            start=dateutil.parser.parse("2022-01-01 01:00:00 UTC"),
+            end=dateutil.parser.parse("2022-01-01 04:00:00 UTC"),
+        )
+        self.session.check_session(
+            filters=[
+                "audit.timestamp >= 2022-01-01 01:00:00+00:00",
+                "audit.timestamp <= 2022-01-01 04:00:00+00:00",
+            ]
+        )
+
+        Audit.query(
+            name="test",
+            start=dateutil.parser.parse("2022-01-01 01:00:00 UTC"),
+            end=dateutil.parser.parse("2022-01-01 04:00:00 UTC"),
+        )
+        self.session.check_session(
+            filters=[
+                "name=test",
+                "audit.timestamp >= 2022-01-01 01:00:00+00:00",
+                "audit.timestamp <= 2022-01-01 04:00:00+00:00",
+            ]
+        )

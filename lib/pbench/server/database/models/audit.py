@@ -204,10 +204,11 @@ class Audit(Database.Base):
         The "root" parameter is a shortcut to copy values from a reference
         "root" Audit record, for updates and finalization to a sequence.
 
-        The "user" parameter pulls ID and name from a User record.
+        The "user" parameter pulls ID and name from a User record: this will
+        override values inherited from a "root" object.
 
         The "dataset" parameter pulls object type, ID, and name from a Dataset
-        record.
+        record: this will override values inherited from a "root" object.
 
         Most columns are defined explicitly here primarily to allow completion
         in an IDE for convenience. The remaining less-used columns (primarily
@@ -330,15 +331,26 @@ class Audit(Database.Base):
                 query = query.filter(Audit.user_id == user)
             if dataset:
                 query = query.filter(
-                    Audit.object_type == AuditType.DATASET
-                    and Audit.object_id == dataset.resource_id
+                    Audit.object_type == AuditType.DATASET,
+                    Audit.object_id == dataset.resource_id,
                 )
             if kwargs:
                 query = query.filter_by(**kwargs)
 
             audit = query.order_by(Audit.timestamp).all()
         except SQLAlchemyError as e:
-            raise AuditSqlError("finding", kwargs, str(e)) from e
+            args = {
+                k: v
+                for k, v in (
+                    ("start", start),
+                    ("end", end),
+                    ("dataset", dataset),
+                    ("user", user),
+                    *kwargs.items(),
+                )
+                if v is not None
+            }
+            raise AuditSqlError("finding", args, str(e)) from e
         return audit
 
     def _decode(self, exception: IntegrityError) -> Exception:
@@ -373,7 +385,7 @@ class Audit(Database.Base):
             Database.db_session.rollback()
             if isinstance(e, IntegrityError):
                 raise self._decode(e) from e
-            raise AuditSqlError("adding", self.id, str(e)) from e
+            raise AuditSqlError("adding", self.as_json(), str(e)) from e
 
     def as_json(self) -> JSONOBJECT:
         return {

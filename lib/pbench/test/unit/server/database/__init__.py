@@ -2,11 +2,49 @@
 is currently sufficient to support the ServerConfig and Audit DB unit tests.
 """
 
+import operator
 from typing import Optional
 
 from sqlalchemy import Column
+from sqlalchemy.util import immutabledict
 
 from pbench.server.database.database import Database
+
+
+def dumpem(object: object, depth: int = 0, max_depth: int = 20):
+    """
+    Useful recursive function to help debug SQLAlchemy's deep and mostly not
+    documented class hierarchy! NOTE: this can generate an enormous amount of
+    output and should be used carefully. While simple in principle, it's worth
+    archiving for future use.
+
+    The recursion depth is limited to 20 by default. That's arbitrary, but we
+    don't want to overflow.
+
+    Args:
+        object: Any Python object type
+        depth: indentation levels (two spaces)
+        max_depth: maximum recursion depth
+    """
+    if depth > max_depth:
+        return
+    indent = " " * (depth * 2)
+    print(f"{indent}{object} [{type(object).__name__}]")
+    if isinstance(object, list):
+        for e in object:
+            dumpem(e, depth + 1, max_depth)
+    elif isinstance(object, (dict, immutabledict)):
+        for n, v in object.items():
+            print(f"{indent}  '{n}'={v} [{type(v).__name__}]")
+            dumpem(v, depth + 2, max_depth)
+    elif (
+        object is not None
+        and not isinstance(object, (bool, int, float, str))
+        and hasattr(object, "__dict__")
+    ):
+        for n, v in object.__dict__.items():
+            print(f"{indent}  {n}={v} [{type(v).__name__}]")
+            dumpem(v, depth + 2, max_depth)
 
 
 class FakeDBOrig:
@@ -37,32 +75,29 @@ class FakeRow:
     objects have an "id" attribute.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, cls: Optional[type[Database.Base]] = None, **kwargs):
+        self.cls = cls
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def _columns(self) -> list[str]:
+        return [c.name for c in self.cls.__table__._columns] if self.cls else dir(self)
+
     @classmethod
-    def clone(cls, template) -> "FakeRow":
-        new = cls()
-        for k, v in template.__dict__.items():
-            if not k.startswith("_"):
-                setattr(new, k, v)
+    def clone(cls, template: Database.Base) -> "FakeRow":
+        new = cls(cls=type(template))
+        for c in new._columns():
+            setattr(new, c, getattr(template, c))
         return new
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return (
-            "Row("
-            + ",".join(
-                f"{k}={v!r}" for k, v in self.__dict__.items() if not k.startswith("_")
-            )
-            + ")"
+            "Row(" + ",".join(f"{c}={getattr(self, c)}" for c in self._columns()) + ")"
         )
 
     def __eq__(self, entity) -> bool:
-        return all(
-            getattr(self, x) == getattr(entity, x)
-            for x in entity.__dict__.keys()
-            if not x.startswith("_")
+        return (type(self) is type(entity) or type(entity) is self.cls) and all(
+            getattr(self, x) == getattr(entity, x) for x in self._columns()
         )
 
     def __gt__(self, entity) -> bool:
@@ -78,6 +113,16 @@ class FakeQuery:
     committed DB values based on filter expressions.
     """
 
+    """Translate built-in operator functions to symbols"""
+    OPS = {
+        operator.lt: "<",
+        operator.le: "<=",
+        operator.eq: "=",
+        operator.ne: "!=",
+        operator.ge: ">=",
+        operator.gt: ">",
+    }
+
     def __init__(self, session: "FakeSession"):
         """
         Set up the query using a copy of the full list of known DB objects.
@@ -87,6 +132,7 @@ class FakeQuery:
         """
         self.selected = list(session.known.values())
         self.session = session
+        self.filters = []
 
     def filter_by(self, **kwargs) -> "FakeQuery":
         """
@@ -101,10 +147,39 @@ class FakeQuery:
         Returns:
             The query so filters can be chained
         """
-        for s in self.selected:
-            for k, v in kwargs.items():
-                if k in s.__dict__ and v != getattr(s, k):
-                    self.selected.remove(s)
+        self.selected = [
+            s
+            for s in self.selected
+            if not any(
+                k in s.__dict__ and v != getattr(s, k) for k, v in kwargs.items()
+            )
+        ]
+        self.session.filters.append(",".join(f"{n}={v}" for n, v in kwargs.items()))
+        return self
+
+    def filter(self, *criteria) -> "FakeQuery":
+        """
+        Record the context of a filter operation. Unlike the simple key=value
+        semantics of filter_by, we don't try to implement the filtering: a unit
+        test using the filter operation should instead compare the list of
+        filter representations directly.
+
+        NOTE: the SQL/column syntax here is harder to emulate than the simple
+        key=value semantics of filter_by, and while we interpret the SQLAlchemy
+        BinaryExpression enough to represent it as a string, we don't attempt to
+        emulate the actual filter behavior.
+
+        Args:
+            criteria: A set of column expressions like 'Table.column >= foo'.
+        """
+        filters = []
+        for c in criteria:
+            op = (
+                __class__.OPS[c.operator] if c.operator in __class__.OPS else c.operator
+            )
+            f = f"{c.left} {op} {c.right.value}"
+            filters.append(f)
+        self.session.filters.append(", ".join(filters))
         return self
 
     def order_by(self, column: Column) -> "FakeQuery":
@@ -113,7 +188,8 @@ class FakeQuery:
 
     def all(self) -> list[Database.Base]:
         """
-        Return all selected records
+        Return all selected records alphabetically sorted to help with
+        comparison. (Generally the order of filtering is not important.)
         """
         return self.selected
 
@@ -145,7 +221,15 @@ class FakeSession:
         self.committed: dict[int, FakeRow] = {}
         self.rolledback = 0
         self.queries: list[FakeQuery] = []
+        self.filters: list[str] = []
         self.raise_on_commit: Optional[Exception] = None
+
+    def reset_context(self):
+        """Reset the queries and filters for the session between unit test
+        cases, along with forced errors."""
+        self.queries = []
+        self.filters = []
+        self.raise_on_commit = None
 
     def query(self, *entities, **kwargs) -> FakeQuery:
         """
@@ -213,8 +297,55 @@ class FakeSession:
         for k in self.committed:
             self.known[k] = self.cls(
                 **{
-                    k: v
-                    for k, v in self.committed[k].__dict__.items()
-                    if not k.startswith("_")
+                    n: getattr(self.committed[k], n)
+                    for n in self.committed[k]._columns()
                 }
             )
+
+    def check_session(
+        self,
+        queries: Optional[int] = None,
+        committed: Optional[list[FakeRow]] = None,
+        filters: Optional[list[str]] = None,
+        rolledback=0,
+    ):
+        """
+        Encapsulate the common checks we want to make after running test cases.
+
+        Args:
+            queries: A count of queries we expect to have been made
+            committed: A list of FakeRow objects we expect to have been
+                committed
+            rolledback: True if we expect rollback to have been called
+        """
+
+        # Check the number of queries we've created, if specified
+        if queries is not None:
+            assert (
+                len(self.queries) == queries
+            ), f"Expected {queries} query object constructors, got {len(self.queries)}"
+
+        # Check the filters we imposed. We sort the filters because normally
+        # the end result doesn't depend on the order they're applied.
+        # NOTE: this generally presumes we're only generating a single query,
+        # so that all filters are associated with that query. If this becomes
+        # important for testing some DB object, we'd need to make the filters
+        # parameter into a list of lists to be compared against individual
+        # queries.
+        if filters is not None:
+            assert sorted(filters) == sorted(self.filters)
+
+        # 'added' is an internal "dirty" list between 'add' and 'commit' or
+        # 'rollback'. We test that 'commit' moves elements to the committed
+        # state and 'rollback' clears the list. We don't ever expect to see
+        # anything on this list.
+        assert not self.added
+
+        # Check that the 'committed' list (which stands in for the actual DB
+        # table) contains the expected rows.
+        if committed is not None:
+            assert sorted(list(self.committed.values())) == sorted(committed)
+
+        # Check whether we've rolled back a transaction due to failure.
+        assert self.rolledback == rolledback
+        self.reset_context()
