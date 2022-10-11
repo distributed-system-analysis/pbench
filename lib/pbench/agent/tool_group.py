@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import Iterable, Optional
+from typing import Any, Dict, Iterable, Optional
 
 from pbench.agent.utils import LocalRemoteHost
 
@@ -59,6 +59,16 @@ class ToolGroup:
             else:
                 return tg_dir
 
+    @classmethod
+    def gen_tool_groups(cls, pbench_run: str) -> Iterable[Any]:
+        """Generate a series of ToolGroup objects for each on-disk tool group
+        found in the given pbench run directory.
+        """
+        for tg_dir in Path(pbench_run).glob(f"{ToolGroup.TOOL_GROUP_PREFIX}-*"):
+            # All on-disk tool group directories will have names that look like
+            # above.
+            yield cls(tg_dir.name[len(ToolGroup.TOOL_GROUP_PREFIX) + 1 :], pbench_run)
+
     def __init__(self, name: str, pbench_run: Optional[str] = None):
         """Construct a ToolGroup object from the on-disk data of the given
         tool group.
@@ -101,40 +111,38 @@ class ToolGroup:
         # names and parameters for each tool
         self.hostnames = {}
         self.labels = {}
-        for hdirent in os.listdir(self.tg_dir):
-            if hdirent == "__trigger__":
+        for hdirent in self.tg_dir.iterdir():
+            if hdirent.name == "__trigger__":
                 # Ignore handled above
                 continue
-            if not (self.tg_dir / hdirent).is_dir():
+            if not hdirent.is_dir():
                 # Ignore wayward non-directory files
                 continue
             # We assume this directory is a hostname.
             host = hdirent
             assert (
-                host not in self.hostnames
-            ), f"Logic error!  {host} in {self.hostnames!r}"
-            self.hostnames[host] = {}
-            for tdirent in os.listdir(self.tg_dir / host):
-                if tdirent == "__label__":
-                    self.labels[host] = (
-                        (self.tg_dir / host / tdirent).read_text().strip()
-                    )
+                host.name not in self.hostnames
+            ), f"Logic error!  {host.name} in {self.hostnames!r}"
+            self.hostnames[host.name] = {}
+            for tdirent in host.iterdir():
+                if tdirent.name == "__label__":
+                    self.labels[host.name] = tdirent.read_text().strip()
                     continue
-                if tdirent.endswith("__noinstall__"):
+                if tdirent.name.endswith("__noinstall__"):
                     # FIXME: ignore "noinstall" for now, tools are going to be
                     # in containers so this does not make sense going forward.
                     continue
                 # This directory entry is the name of a tool.
                 tool = tdirent
-                tool_opts_text = (self.tg_dir / host / tool).read_text().strip()
+                tool_opts_text = tool.read_text().strip()
                 tool_opts = re.sub(r"\n\s*", " ", tool_opts_text)
-                if tool not in self.toolnames:
-                    self.toolnames[tool] = {}
-                self.toolnames[tool][host] = tool_opts
+                if tool.name not in self.toolnames:
+                    self.toolnames[tool.name] = {}
+                self.toolnames[tool.name][host.name] = tool_opts
                 assert (
-                    tool not in self.hostnames[host]
-                ), f"Logic error!  {tool} in {self.hostnames[host]!r}"
-                self.hostnames[host][tool] = tool_opts
+                    tool.name not in self.hostnames[host.name]
+                ), f"Logic error!  {tool.name} in {self.hostnames[host.name]!r}"
+                self.hostnames[host.name][tool.name] = tool_opts
 
     def verify_hostnames(self):
         """verify all registered host names properly resolve their host
@@ -149,7 +157,7 @@ class ToolGroup:
                     f"Bad tool group, '{self.name}': '{host}' did not resolve"
                 ) from exc
 
-    def get_tools(self, host):
+    def get_tools(self, host: str) -> Dict[str, str]:
         """get_tools - given a target host, return a dictionary with the list
         of tool names as keys, and the values being their options for that
         host.
@@ -165,7 +173,7 @@ class ToolGroup:
                 tools[tool] = host_opts
         return tools
 
-    def get_label(self, host):
+    def get_label(self, host: str) -> str:
         """get_label - given a target host, return the label associated with
         that host.
         """
@@ -189,13 +197,3 @@ class ToolGroup:
             0
         """
         shutil.copytree(str(self.tg_dir), target_dir / self.tg_dir.name, symlinks=False)
-
-
-def gen_tool_groups(pbench_run: str) -> Iterable[ToolGroup]:
-    """Generate a series of ToolGroup objects for each on-disk tool group
-    found in the given pbench run directory.
-    """
-    for tg_dir in Path(pbench_run).glob(f"{ToolGroup.TOOL_GROUP_PREFIX}-*"):
-        # All on-disk tool group directories will have names that look like
-        # above.
-        yield ToolGroup(tg_dir.name[len(ToolGroup.TOOL_GROUP_PREFIX) + 1 :], pbench_run)

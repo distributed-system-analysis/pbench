@@ -191,14 +191,16 @@ class TestKillTools:
         present.
         """
 
-        def mock_gen_tool_groups(pbench_run: str) -> Iterable[ToolGroup]:
+        def mock_gen_tool_groups(cls, pbench_run: str) -> Iterable[ToolGroup]:
             """Override kill.gen_tool_groups definition to yield no ToolGroup
             objects.
             """
             for group in []:
                 yield ToolGroup(group)
 
-        monkeypatch.setattr(kill, "gen_tool_groups", mock_gen_tool_groups)
+        monkeypatch.setattr(
+            ToolGroup, "gen_tool_groups", classmethod(mock_gen_tool_groups)
+        )
         assert not any(kill.gen_host_names(pathlib.Path("no-tool-group-dirs")))
 
     @staticmethod
@@ -228,7 +230,7 @@ class TestKillTools:
             "remote3.example.com",
         }
 
-        def mock_gen_tool_groups(pbench_run: str) -> Iterable[MockToolGroup]:
+        def mock_gen_tool_groups(cls, pbench_run: str) -> Iterable[MockToolGroup]:
             """Override kill.gen_tool_groups definition to return a simple
             tool group object.
             """
@@ -241,7 +243,11 @@ class TestKillTools:
             def is_local(self, host_name: str):
                 return host_name.startswith("localhost")
 
-        monkeypatch.setattr(kill, "gen_tool_groups", mock_gen_tool_groups)
+        monkeypatch.setattr(
+            ToolGroup,
+            "gen_tool_groups",
+            classmethod(mock_gen_tool_groups),
+        )
         monkeypatch.setattr(kill, "LocalRemoteHost", MockLocalRemoteHost)
 
         hosts = set(kill.gen_host_names(pathlib.Path("have-tool-group-dirs")))

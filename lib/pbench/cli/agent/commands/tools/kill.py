@@ -34,7 +34,7 @@ from typing import Callable, Dict, Iterable, List, Tuple
 import click
 import psutil
 
-from pbench.agent.tool_group import gen_tool_groups
+from pbench.agent.tool_group import ToolGroup
 from pbench.agent.utils import LocalRemoteHost, TemplateSsh
 from pbench.cli.agent import BaseCommand, CliContext, pass_cli_context
 from pbench.cli.agent.options import common_options
@@ -132,7 +132,7 @@ def gen_host_names(result_dir: pathlib.Path) -> Iterable[str]:
     """Read the registered tool data saved for this result directory and
     return the list of remote hosts.
     """
-    tool_groups = list(gen_tool_groups(result_dir))
+    tool_groups = list(ToolGroup.gen_tool_groups(result_dir))
     if not tool_groups:
         return
 
