@@ -112,15 +112,6 @@ class BaseCommand(metaclass=abc.ABCMeta):
         """
         pass
 
-    def get_path(self, path):
-        """Converts a string path into a pathlib object"""
-        if path is None:
-            return path
-        elif not isinstance(path, pathlib.PurePath):
-            return pathlib.Path(path)
-        else:
-            return path
-
     def verify_tool_group(self, group):
         """Ensure we have a tools group directory to work with"""
         try:
