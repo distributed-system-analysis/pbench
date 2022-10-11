@@ -1,6 +1,6 @@
 import pathlib
 import sys
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, Iterable, List, Optional, Tuple
 from unittest import mock
 
 from click.testing import CliRunner
@@ -127,55 +127,30 @@ class TestKillTools:
     @staticmethod
     def test_gen_host_names():
         class MockToolGroup:
-            """A simple ToolGroup mock to generate host names from different
-            tool group directories.
+            """A simplified tool group object which only provides the
+            `hostnames` dictionary.
             """
 
-            TOOL_GROUP_PREFIX = "tests-v9"
+            def __init__(self, hosts: List[str]):
+                self.hostnames = {}
+                for host in hosts:
+                    self.hostnames[host] = None
 
-            _named_sets = {
-                "light": {
-                    "remote1.example.com": None,
-                    "localhost.example.com": None,
-                },
-                "medium": {
-                    "remote2.example.com": None,
-                    "remote3.example.com": None,
-                },
-                "heavy": {"localhost.example.com": None},
-            }
+        tool_group_host_names = [
+            ["localhost.example.com"],
+            ["localhost.example.com", "remote1.example.com"],
+            ["remote2.example.com", "remote3.example.com"],
+        ]
+        expected_hosts = set(
+            ("remote1.example.com", "remote2.example.com", "remote3.example.com")
+        )
 
-            _expected_hosts = set(
-                ("remote1.example.com", "remote2.example.com", "remote3.example.com")
-            )
-
-            def __init__(self, name: str, run_dir: Any):
-                self.hostnames = self._named_sets[name]
-
-        class MockPathGlob:
-            """Mock of a Path object to direct the `.glob()` method's behavior."""
-
-            def __init__(self, name: str):
-                self.name = name
-
-            def glob(self, prefix: str):
-                if self.name == "no-tool-group-dirs":
-                    # The special name which for a directory which "does not
-                    # have tool groups".
-                    return
-                for n in MockToolGroup._named_sets.keys():
-                    # Return the 3 tools groups that are found with the prefix
-                    # attached.
-                    yield AnotherPath(f"{prefix[:-2]}-{n}")
-
-        class MockPathForGlob:
-            """Mock of a Path object just to generate a parent object which
-            uses the MockPathGlob class.  We don't need a name for the object
-            itself, just need to hand out the parent when referenced.
+        def mock_gen_tool_groups(pbench_run: str) -> Iterable[MockToolGroup]:
+            """Override kill.gen_tool_groups definition to return a simple
+            tool group object.
             """
-
-            def __init__(self, parent: str):
-                self.parent = MockPathGlob(parent)
+            for hosts in tool_group_host_names:
+                yield MockToolGroup(hosts)
 
         class MockLocalRemoteHost:
             """A simple mock for the LocalRemoteHost behaviors."""
@@ -184,20 +159,20 @@ class TestKillTools:
                 return host_name.startswith("localhost")
 
         # To verify the case where there are no tool groups created, we make a
-        # special Path object which will behavior like it has no tool groups.
-        hosts = list(kill.gen_host_names(MockPathForGlob("no-tool-group-dirs")))
+        # special Path object which will expose no tool groups.
+        hosts = list(kill.gen_host_names(pathlib.Path("no-tool-group-dirs")))
         assert len(hosts) == 0
 
         with mock.patch(
-            "pbench.cli.agent.commands.tools.kill.ToolGroup", MockToolGroup
+            "pbench.cli.agent.commands.tools.kill.gen_tool_groups", mock_gen_tool_groups
         ), mock.patch(
             "pbench.cli.agent.commands.tools.kill.LocalRemoteHost", MockLocalRemoteHost
         ):
             # Using the special Path object which does have tool groups, we
             # verify that the expected generated list of remote hosts are all
             # the expected hosts listed in the MockToolGroup class above.
-            hosts = set(kill.gen_host_names(MockPathForGlob("have-tool-group-dirs")))
-            assert hosts == MockToolGroup._expected_hosts
+            hosts = set(kill.gen_host_names(pathlib.Path("have-tool-group-dirs")))
+            assert hosts == expected_hosts
 
     @staticmethod
     def test_with_uuids():
@@ -206,7 +181,7 @@ class TestKillTools:
         The scenario we construct artificially starts with an invocation using
         3 UUIDs, one won't be found.  The mocked-out `psutil.process_iter()`
         will generate 3 PIDs, one of which will have child processes, which
-        will all operate normally with no expections.  Of the other two, one
+        will all operate normally with no exceptions.  Of the other two, one
         will raise an expected exception, and the other will not be found.
         """
         action_list = []
@@ -325,7 +300,7 @@ class TestKillTools:
         ), f"stdout={result.stdout!r}, stderr={result.stderr!r}"
 
     @staticmethod
-    def test_without_uuids_wi_action():
+    def test_without_uuids_with_action():
         """Exercise the code paths for both local and remote PIDs to kill.
 
         Since the PidSource object is mocked out, we just care that the

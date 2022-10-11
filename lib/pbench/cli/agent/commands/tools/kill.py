@@ -20,22 +20,22 @@ The algorithm is fairly straight-forward:
      a. `ssh` to that remote host
      b. Stop the Tool Meister running on that host
 
-The pbench-tool-meister-start uses a UUID in the command line of all the
-remote Tool Meister processes. Any Tool Meister process with that UUID in its
-command line string will be stopped via `kill -KILL`, along with all of its
-child processes.
+The pbench-tool-meister-start generates a UUID for the entire session and
+inserts that value into each command line of spawned remote Tool Meister
+processes. Any Tool Meister process with that UUID in its command line string
+will be stopped via `kill -KILL`, along with all of its child processes.
 """
 
 from collections import defaultdict
 import pathlib
 import shlex
-from typing import Callable, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
 import click
 import psutil
 
 from pbench.agent.base import BaseCommand
-from pbench.agent.tool_group import ToolGroup
+from pbench.agent.tool_group import gen_tool_groups
 from pbench.agent.utils import LocalRemoteHost, TemplateSsh
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.options import common_options
@@ -60,9 +60,9 @@ def kill_family(proc: psutil.Process):
 
 
 class PidSource:
-    """For a given PID file name keep track of discovered PIDs and UUIDs as
+    """For a given PID file name keep track of discovered Process-es and UUIDs as
     Tool Meister directories are `load()`ed.  The `killem()` method is invoked
-    by the caller at their discretion.
+    by the caller at its discretion.
 
     The `killem()` method clears out all accumlated data.
     """
@@ -70,8 +70,8 @@ class PidSource:
     def __init__(self, file_name: str, display_name: str):
         self.file_name = file_name
         self.display_name = display_name
-        self.pids_by_uuid = {}
-        self.uuid_to_tmdir = {}
+        self.procs_by_uuid: Dict[str, psutil.Process] = {}
+        self.uuid_to_tmdir: Dict[str, pathlib.Path] = {}
 
     def load(self, tm_dir: pathlib.Path, uuid: str) -> bool:
         """Load a PID from the given directory associated with the given UUID.
@@ -84,7 +84,7 @@ class PidSource:
         except FileNotFoundError:
             return False
         try:
-            self.pids_by_uuid[uuid] = psutil.Process(pid)
+            self.procs_by_uuid[uuid] = psutil.Process(pid)
         except psutil.NoSuchProcess:
             return False
         self.uuid_to_tmdir[uuid] = tm_dir
@@ -92,12 +92,13 @@ class PidSource:
 
     def killem(self, echo: Callable[[str], None]) -> None:
         """Kill all PIDs found, and their children."""
-        if not self.pids_by_uuid:
+        if not self.procs_by_uuid:
             return
         echo(f"Killing {self.display_name} PIDs ...")
-        pids_by_uuid, self.pids_by_uuid = self.pids_by_uuid, {}
+        # Clear out the stored data ahead of the killings.
+        procs_by_uuid, self.procs_by_uuid = self.procs_by_uuid, {}
         uuid_to_tmdir, self.uuid_to_tmdir = self.uuid_to_tmdir, {}
-        for uuid, proc in pids_by_uuid.items():
+        for uuid, proc in procs_by_uuid.items():
             pid = proc.pid
             echo(f"\tKilling {pid} (from {uuid_to_tmdir[uuid]})")
             try:
@@ -132,17 +133,14 @@ def gen_host_names(tm_dir: pathlib.Path) -> str:
     of remote hosts.
     """
     run_dir = tm_dir.parent
-    tool_group_dirs = list(run_dir.glob(f"{ToolGroup.TOOL_GROUP_PREFIX}-*"))
-    if not tool_group_dirs:
+    tool_groups = list(gen_tool_groups(run_dir))
+    if not tool_groups:
         return
 
     lrh = LocalRemoteHost()
 
-    for tool_group_dir in tool_group_dirs:
-        tg_name = tool_group_dir.name.split("-", 2)[2]
-        tg = ToolGroup(tg_name, run_dir)
-        for host_name_k in tg.hostnames.keys():
-            host_name = str(host_name_k)
+    for tg in tool_groups:
+        for host_name in tg.hostnames.keys():
             if lrh.is_local(host_name):
                 continue
             yield host_name
@@ -157,7 +155,7 @@ class KillTools(BaseCommand):
         If any UUIDs are passed as arguments, we only want to look for, and
         locally kill, processes having those UUIDs.
 
-        Without command line arguemnts, kill all the local PIDs from all the
+        Without command line arguments, kill all the local PIDs from all the
         discovered run directories.
 
         All the Redis server PIDs are killed first, then the Tool Data Sinks,
