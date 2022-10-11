@@ -2,8 +2,12 @@ from http import HTTPStatus
 
 import pytest
 
-from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
+from pbench.server.api.resources import API_METHOD
+from pbench.server.api.resources.query_apis.datasets.datasets_detail import (
+    DatasetsDetail,
+)
 from pbench.test.unit.server.query_apis.commons import Commons
+from pbench.test.unit.server.test_user_auth import login_user
 
 
 class TestDatasetsDetail(Commons):
@@ -19,43 +23,49 @@ class TestDatasetsDetail(Commons):
     def _setup(self, client):
         super()._setup(
             cls_obj=DatasetsDetail(client.config, client.logger),
-            pbench_endpoint="/datasets/detail/fio",
+            pbench_endpoint="/datasets/detail/random_md5_string1",
             elastic_endpoint="/_search?ignore_unavailable=true",
-            payload={
-                "user": "drb",
-                "access": "private",
-                "start": "2020-08",
-                "end": "2020-10",
-            },
+            index_from_metadata="run-data",
             empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 
+    api_method = API_METHOD.GET
+
     @pytest.mark.parametrize(
-        "user",
-        ("drb", "badwolf", "no_user"),
+        "user, expected_status",
+        [
+            ("drb", HTTPStatus.OK),
+            ("test_admin", HTTPStatus.OK),
+            ("test", HTTPStatus.FORBIDDEN),
+            (None, HTTPStatus.UNAUTHORIZED),
+        ],
     )
     def test_query(
-        self, client, server_config, query_api, find_template, build_auth_header, user
+        self,
+        client,
+        server_config,
+        query_api,
+        find_template,
+        pbench_admin_token,
+        user,
+        expected_status,
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
-        The test will run once with each parameter supplied from the local parameterization,
-        and, for each of those, three times with different values of the build_auth_header fixture.
+        The test will run once with each parameter supplied from the local parameterization.
         """
-        dataset_name = "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13"
-        payload = {
-            "user": user,
-            "access": "private",
-            "start": "2020-08",
-            "end": "2020-10",
-        }
 
-        # We expect "no_user" to succeed, looking for only public data. We
-        # normally remove the user parameter; for this case, we'll look for
-        # public data owned by a known user; which should succeed.
-        if user == "no_user":
-            del payload["user"]
-            payload["access"] = "public"
+        headers = None
+
+        if user:
+            if user == "test_admin":
+                token = pbench_admin_token
+            else:
+                response = login_user(client, server_config, user, "12345")
+                assert response.status_code == HTTPStatus.OK
+                token = response.json["auth_token"]
+            assert token
+            headers = {"authorization": f"bearer {token}"}
 
         response_payload = {
             "took": 112,
@@ -119,23 +129,17 @@ class TestDatasetsDetail(Commons):
             },
         }
 
-        index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
-        )
+        index = self.build_index_from_metadata()
 
-        expected_status = HTTPStatus.OK
-
-        expected_status = self.get_expected_status(
-            payload, build_auth_header["header_param"]
-        )
         response = query_api(
-            f"/datasets/detail/{dataset_name}",
+            self.pbench_endpoint,
             self.elastic_endpoint,
-            payload,
-            index,
-            expected_status,
-            headers=build_auth_header["header"],
+            payload=None,
+            expected_index=index,
+            expected_status=expected_status,
             json=response_payload,
+            headers=headers,
+            request_method=self.api_method,
         )
         assert response.status_code == expected_status
         if response.status_code == HTTPStatus.OK:
@@ -196,13 +200,7 @@ class TestDatasetsDetail(Commons):
         focus on the PostgreSQL dataset metadata... but necessarily has to
         borrow much of the setup.
         """
-        dataset_name = "drb"
-        payload = {
-            "user": "drb",
-            "start": "2020-08",
-            "end": "2020-10",
-            "metadata": ["global.seen", "server.deletion"],
-        }
+        query_params = {"metadata": ["global.seen", "server.deletion"]}
 
         response_payload = {
             "took": 112,
@@ -266,18 +264,18 @@ class TestDatasetsDetail(Commons):
             },
         }
 
-        index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
-        )
+        index = self.build_index_from_metadata()
 
         response = query_api(
-            f"/datasets/detail/{dataset_name}",
+            self.pbench_endpoint,
             self.elastic_endpoint,
-            payload,
+            self.payload,
             index,
             HTTPStatus.OK,
             headers={"authorization": f"Bearer {pbench_token}"},
             json=response_payload,
+            request_method=self.api_method,
+            query_params=query_params,
         )
         assert response.status_code == HTTPStatus.OK
         res_json = response.json
@@ -341,17 +339,18 @@ class TestDatasetsDetail(Commons):
         The test will run thrice with different values of the build_auth_header
         fixture.
         """
+        auth_json = {"user": "drb", "access": "private"}
+
         expected_status = self.get_expected_status(
-            self.payload, build_auth_header["header_param"]
+            auth_json, build_auth_header["header_param"]
         )
 
         # In this case, if we don't get a validation/permission error, expect
         # to fail because of the unexpectedly empty Elasticsearch result.
         if expected_status == HTTPStatus.OK:
             expected_status = HTTPStatus.BAD_REQUEST
-        index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
-        )
+        index = self.build_index_from_metadata()
+
         response = query_api(
             f"{self.pbench_endpoint}",
             self.elastic_endpoint,
@@ -360,18 +359,19 @@ class TestDatasetsDetail(Commons):
             expected_status,
             headers=build_auth_header["header"],
             json=self.empty_es_response_payload,
+            request_method=self.api_method,
         )
         assert response.status_code == expected_status
         if response.status_code == HTTPStatus.BAD_REQUEST:
             assert response.json["message"].find("dataset has gone missing") != -1
 
-    def test_nonunique_query(self, client, server_config, query_api, find_template):
+    def test_nonunique_query(
+        self, client, server_config, query_api, find_template, pbench_token
+    ):
         """
         Check the handling of a query that returns too much data.
         """
-        # We look for public data so we can make an unauthorized query
-        del self.payload["user"]
-        self.payload["access"] = "public"
+
         response_payload = {
             "hits": {
                 "total": {"value": 0, "relation": "eq"},
@@ -380,13 +380,15 @@ class TestDatasetsDetail(Commons):
             },
         }
 
-        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+        index = self.build_index_from_metadata()
         response = query_api(
-            f"{self.pbench_endpoint}",
+            self.pbench_endpoint,
             self.elastic_endpoint,
             self.payload,
             index,
             HTTPStatus.BAD_REQUEST,
             json=response_payload,
+            headers={"authorization": f"Bearer {pbench_token}"},
+            request_method=self.api_method,
         )
         assert response.json["message"].find("Too many hits for a unique query") != -1

@@ -5,6 +5,7 @@ from flask import jsonify
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
+    API_AUTHORIZATION,
     API_METHOD,
     API_OPERATION,
     APIAbort,
@@ -14,11 +15,8 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.api.resources.query_apis import (
-    CONTEXT,
-    ElasticBase,
-    PostprocessError,
-)
+from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
+from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
@@ -27,7 +25,7 @@ from pbench.server.database.models.datasets import (
 )
 
 
-class DatasetsDetail(ElasticBase):
+class DatasetsDetail(IndexMapBase):
     """
     Get detailed data from the run document for a dataset by name.
     """
@@ -37,16 +35,12 @@ class DatasetsDetail(ElasticBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.POST,
+                API_METHOD.GET,
                 API_OPERATION.READ,
                 uri_schema=Schema(
-                    Parameter("dataset", ParamType.STRING, required=True)
+                    Parameter("dataset", ParamType.DATASET, required=True)
                 ),
-                body_schema=Schema(
-                    Parameter("user", ParamType.USER, required=False),
-                    Parameter("access", ParamType.ACCESS, required=False),
-                    Parameter("start", ParamType.DATE, required=True),
-                    Parameter("end", ParamType.DATE, required=True),
+                query_schema=Schema(
                     Parameter(
                         "metadata",
                         ParamType.LIST,
@@ -56,6 +50,7 @@ class DatasetsDetail(ElasticBase):
                         string_list=",",
                     ),
                 ),
+                authorization=API_AUTHORIZATION.DATASET,
             ),
         )
 
@@ -64,29 +59,14 @@ class DatasetsDetail(ElasticBase):
         Get details for a specific Pbench dataset which is either owned
         by a specified username, or has been made publicly accessible.
 
-        POST /datasets/detail/<dataset>
-        {
-            "user": "username",
-            "start": "start-time",
-            "end": "end-time",
-            "metadata": ["seen", "saved"]
-        }
+        GET /datasets/detail/<dataset>?metadata=global.seen,server.deletion
 
         params: API parameter set
 
             URI parameters:
                 "dataset" is the name of a Pbench agent dataset (tarball).
 
-            JSON body parameters:
-                user: specifies the owner of the data to be searched; it need not
-                    necessarily be the user represented by the session token
-                    header, assuming the session user is authorized to view "user"s
-                    data. If "user": None is specified, then only public datasets
-                    will be returned.
-
-                "start" and "end" are time strings representing a set of Elasticsearch
-                    run document indices in which the dataset will be found.
-
+            Query parameters:
                 "metadata" specifies the set of Dataset metadata properties the
                     caller needs to see. (If not specified, no metadata will be
                     returned.)
@@ -94,32 +74,19 @@ class DatasetsDetail(ElasticBase):
         context: Context passed from preprocess method: used to propagate the
             requested set of metadata to the postprocess method.
         """
-        dataset = params.uri.get("dataset")
-        user = params.body.get("user")
-        access = params.body.get("access")
-        start = params.body.get("start")
-        end = params.body.get("end")
+        dataset = context["dataset"]
 
         # Copy client's metadata request to CONTEXT for postprocessor
-        context["metadata"] = params.body.get("metadata")
-        self.logger.info(
-            "Return dataset {} for user {}, prefix {}: ({} - {})",
-            dataset,
-            user,
-            self.prefix,
-            start,
-            end,
-        )
+        context["metadata"] = params.query.get("metadata")
 
-        uri_fragment = self._gen_month_range("run", start, end)
+        indices = self.get_index(dataset, "run-data")
+
         return {
-            "path": f"/{uri_fragment}/_search",
+            "path": f"/{indices}/_search",
             "kwargs": {
                 "params": {"ignore_unavailable": "true"},
                 "json": {
-                    "query": self._build_elasticsearch_query(
-                        user, access, [{"term": {"run.name": dataset}}]
-                    ),
+                    "query": {"term": {"run.id": dataset.resource_id}},
                     "sort": "_index",
                 },
             },

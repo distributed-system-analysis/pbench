@@ -5,6 +5,7 @@ import pytest
 import requests
 import responses
 
+from pbench.server import JSON
 from pbench.server.api.resources import API_METHOD
 
 
@@ -35,6 +36,7 @@ def query_api(client, server_config, provide_metadata):
         expected_status: str,
         headers: dict = {},
         request_method=API_METHOD.POST,
+        query_params: JSON = None,
         **kwargs,
     ) -> requests.Response:
         host = server_config.get("elasticsearch", "host")
@@ -67,6 +69,7 @@ def query_api(client, server_config, provide_metadata):
                 f"{server_config.rest_uri}{pbench_uri}",
                 headers=headers,
                 json=payload,
+                query_string=query_params,
             )
         assert response.status_code == expected_status
         return response
