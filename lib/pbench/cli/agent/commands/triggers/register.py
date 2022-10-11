@@ -1,26 +1,17 @@
-"""
-pbench-register-tool-trigger
+"""pbench-register-tool-trigger
 
 The sole purpose of this script is to register tool triggers for a given
 tool group of your choosing.  During the execution of a benchmark, the
 output of the benchmark is used to trigger the starting of tools and the
 stopping of tools.
-
-For a list of performance tools, look at the ${pbench_bin}/tool-scripts
-directory.
-
 """
-import logging
 import sys
 
 import click
 
-from pbench.agent.utils import setup_logging
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.triggers.base import TriggerCommand
 from pbench.cli.agent.options import common_options
-
-LOG = logging.getLogger(__name__)
 
 
 class TriggerRegister(TriggerCommand):
@@ -29,14 +20,12 @@ class TriggerRegister(TriggerCommand):
     def __init__(self, context):
         super().__init__(context)
 
-        setup_logging(debug=False, logfile=None)
-
     def execute(self):
         if self.verify_tool_group(self.context.group) != 0:
             return 1
 
         if ":" in self.context.start:
-            LOG.error(
+            self.logger.error(
                 '%s: the start trigger cannot have a colon in it: "%s"',
                 self.name,
                 self.context.start,
@@ -44,7 +33,7 @@ class TriggerRegister(TriggerCommand):
             return 1
 
         if ":" in self.context.stop:
-            LOG.error(
+            self.logger.error(
                 '%s: the stop trigger cannot have a colon in it: "%s"',
                 self.name,
                 self.context.stop,
@@ -55,7 +44,9 @@ class TriggerRegister(TriggerCommand):
         trigger = self.tool_group_dir / "__trigger__"
         trigger.write_text(f"{self.context.start}:{self.context.stop}\n")
         click.secho(
-            f'tool trigger strings for start: "{self.context.start}" and for stop: "{self.context.stop}" are now registered for tool group: "{self.context.group}"'
+            f'tool trigger strings for start: "{self.context.start}"'
+            f' and for stop: "{self.context.stop}" are now registered'
+            f' for tool group: "{self.context.group}"'
         )
 
         return 0
