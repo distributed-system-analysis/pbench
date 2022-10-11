@@ -11,7 +11,6 @@ import sys
 import click
 
 from pbench.agent import PbenchAgentConfig
-from pbench.agent.tool_group import BadToolGroup, ToolGroup
 from pbench.agent.utils import setup_logging
 
 
@@ -111,19 +110,3 @@ class BaseCommand(metaclass=abc.ABCMeta):
         This is the main method of the application
         """
         pass
-
-    def verify_tool_group(self, group):
-        """Ensure we have a tools group directory to work with"""
-        try:
-            self.tool_group_dir = self.gen_tools_group_dir(group)
-        except BadToolGroup as exc:
-            click.echo(
-                f'{self.name}: invalid --group option "{group}" ({exc})', err=True
-            )
-            ret_code = 1
-        else:
-            ret_code = 0
-        return ret_code
-
-    def gen_tools_group_dir(self, group):
-        return ToolGroup.verify_tool_group(group, pbench_run=self.pbench_run)

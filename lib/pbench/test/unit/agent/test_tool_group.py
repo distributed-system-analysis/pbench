@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import Iterable, Optional
+from types import TracebackType
+from typing import Any, Iterable, Optional
 
 import pytest
 
@@ -133,6 +134,26 @@ class Test_ToolGroup:
         """Mocked read text, file not found"""
         raise FileNotFoundError(f"Mock Path('{path.name}').read_text()")
 
+    class MockFileLock:
+        def __init__(self, name: str, timeout: Optional[int]):
+            self.name = name
+            self.timeout = timeout
+
+        def acquire(self) -> Any:
+            class MockAcqRetProxy:
+                def __enter__(self):
+                    return None
+
+                def __exit__(
+                    self,
+                    exc_type: Optional[type[BaseException]] = None,
+                    exc_value: Optional[BaseException] = None,
+                    traceback: Optional[TracebackType] = None,
+                ) -> None:
+                    pass
+
+            return MockAcqRetProxy()
+
     def test_target_trigger_file(self, monkeypatch):
         """Verify if the trigger file exists"""
 
@@ -142,8 +163,9 @@ class Test_ToolGroup:
         monkeypatch.setattr(Path, "iterdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
         monkeypatch.setattr(Path, "read_text", self.mock_read_text_fnf)
+        monkeypatch.setattr("filelock.UnixFileLock", self.MockFileLock)
         tg = ToolGroup("wrong-file")
-        assert tg.trigger is None
+        assert tg.trigger() is None
 
     def test_target_trigger_empty_file(self, monkeypatch):
         """Verify the trigger file is empty"""
@@ -153,25 +175,9 @@ class Test_ToolGroup:
         monkeypatch.setattr(Path, "iterdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
         monkeypatch.setattr(Path, "read_text", lambda path: "")
+        monkeypatch.setattr("filelock.UnixFileLock", self.MockFileLock)
         tg = ToolGroup("tool-group")
-        assert tg.trigger is None
-
-    def test_target_trigger_file_contents(self, monkeypatch):
-        """Verify the contents of the Trigger file"""
-        trigger_file_content = "trigger_file_contents"
-
-        def mock_read_text(path: Path) -> str:
-            """Mocked read file check, returns contents"""
-            return trigger_file_content
-
-        monkeypatch.setattr(
-            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
-        )
-        monkeypatch.setattr(Path, "iterdir", lambda path: [])
-        monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
-        monkeypatch.setattr(Path, "read_text", mock_read_text)
-        tg = ToolGroup("tool-group")
-        assert tg.trigger is trigger_file_content
+        assert tg.trigger() is None
 
     def test_tool_group_empty_dir(self, monkeypatch):
         """Verify empty tool group Directory"""
@@ -185,8 +191,9 @@ class Test_ToolGroup:
         monkeypatch.setattr(Path, "iterdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
         monkeypatch.setattr(Path, "read_text", self.mock_read_text_fnf)
+        monkeypatch.setattr("filelock.UnixFileLock", self.MockFileLock)
         tg = ToolGroup("tool-group")
-        assert tg.trigger is None
+        assert tg.trigger() is None
         assert tg.name == "tool-group"
         assert tg.get_label("hostname") == ""
         assert tg.get_tools("hostname") == {}
@@ -431,10 +438,11 @@ class Test_ToolGroup:
 
         monkeypatch.setenv("pbench_run", f"/mock/{self.MockPath._RD_ONE_TOOL_GROUP}")
         monkeypatch.setattr("pbench.agent.tool_group.Path", self.MockPath)
+        monkeypatch.setattr("filelock.UnixFileLock", self.MockFileLock)
         tg = ToolGroup(self.MockPath._single_tg)
         assert tg.name == self.MockPath._single_tg
-        assert tg.trigger == self.MockPath._trigger_contents
-        assert tg.hostnames == expected_hostnames
+        assert tg.trigger() == self.MockPath._trigger_contents
+        assert tg.hostnames() == expected_hostnames
         for host in expected_hostnames.keys():
             assert tg.get_tools(host) == expected_tools[host]
             assert tg.get_label(host) == expected_labels[host]
@@ -445,6 +453,7 @@ class Test_ToolGroup:
         """Verify the tool group directory generator."""
 
         monkeypatch.setattr("pbench.agent.tool_group.Path", self.MockPath)
+        monkeypatch.setattr("filelock.UnixFileLock", self.MockFileLock)
 
         # To verify the case where there are no tool groups created, we make
         # a special Path object which will expose no tool groups.

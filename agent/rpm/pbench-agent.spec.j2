@@ -67,7 +67,7 @@ Requires: python3-docutils
 # additional packages that Fedora builds but the RHELs don't
 %if 0%{?fedora} != 0
 # RPMs for modules in requirements.txt
-Requires:  python3-bottle, python3-click, python3-daemon
+Requires:  python3-bottle, python3-click, python3-daemon, python3-filelock
 Requires:  python3-jinja2, python3-redis, python3-sh
 %endif
 

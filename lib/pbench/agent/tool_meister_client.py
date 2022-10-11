@@ -267,7 +267,7 @@ def main() -> int:
         logger.exception("failed to load tool group data for '%s'", group)
         return 1
     else:
-        if not tool_group.hostnames:
+        if not tool_group.hostnames():
             # If a tool group has no tools registered, then there will be no
             # host names on which Tool Meisters would have been started, so we
             # can safely exit.

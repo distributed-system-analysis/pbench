@@ -9,40 +9,50 @@ import sys
 
 import click
 
-from pbench.cli.agent import CliContext, pass_cli_context
-from pbench.cli.agent.commands.triggers.base import TriggerCommand
+from pbench.agent.tool_group import (
+    BadStartTrigger,
+    BadStopTrigger,
+    BadToolGroup,
+    ToolGroup,
+)
+from pbench.cli.agent import BaseCommand, CliContext, pass_cli_context
 from pbench.cli.agent.options import common_options
 
 
-class TriggerRegister(TriggerCommand):
+class TriggerRegister(BaseCommand):
     """Register tool trigger"""
 
     def __init__(self, context):
         super().__init__(context)
 
     def execute(self):
-        if self.verify_tool_group(self.context.group) != 0:
-            return 1
-
-        if ":" in self.context.start:
-            self.logger.error(
-                '%s: the start trigger cannot have a colon in it: "%s"',
-                self.name,
-                self.context.start,
-            )
-            return 1
-
-        if ":" in self.context.stop:
-            self.logger.error(
-                '%s: the stop trigger cannot have a colon in it: "%s"',
-                self.name,
-                self.context.stop,
+        try:
+            tool_group = ToolGroup(self.context.group, self.pbench_run)
+        except BadToolGroup as exc:
+            click.echo(
+                f'{self.name}: invalid --group option "{self.context.group}"'
+                f" ({exc})",
+                err=True,
             )
             return 1
 
         # Remember this trigger
-        trigger = self.tool_group_dir / "__trigger__"
-        trigger.write_text(f"{self.context.start}:{self.context.stop}\n")
+        try:
+            tool_group.store_trigger(self.context.start, self.context.stop)
+        except BadStartTrigger:
+            click.echo(
+                f"{self.name}: the start trigger cannot have a colon in it:"
+                f' "{self.context.start}"',
+                err=True,
+            )
+            return 1
+        except BadStopTrigger:
+            click.echo(
+                f"{self.name}: the stop trigger cannot have a colon in it:"
+                f' "{self.context.stop}"',
+                err=True,
+            )
+            return 1
         click.secho(
             f'tool trigger strings for start: "{self.context.start}"'
             f' and for stop: "{self.context.stop}" are now registered'

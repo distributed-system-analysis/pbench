@@ -5,16 +5,16 @@ This script lists all tools from all groups, all tools from a specific group,
 or all groups which contain a specific tool.
 
 """
+from typing import Iterable
 
 import click
 
-from pbench.agent.tool_group import BadToolGroup
-from pbench.cli.agent import CliContext, pass_cli_context
-from pbench.cli.agent.commands.tools.base import ToolCommand
+from pbench.agent.tool_group import BadToolGroup, ToolGroup
+from pbench.cli.agent import BaseCommand, CliContext, pass_cli_context
 from pbench.cli.agent.options import common_options
 
 
-class ListTools(ToolCommand):
+class ListTools(BaseCommand):
     """List registered Tools"""
 
     def __init__(self, context):
@@ -22,107 +22,87 @@ class ListTools(ToolCommand):
 
     @staticmethod
     def print_results(toolinfo: dict, with_option: bool) -> bool:
-        """
-        Print the results.
-
-        Return True indicating that something was printed.
-        """
-        printed = False
+        """Print the gathered results."""
         for group, gval in sorted(toolinfo.items()):
             for host, tools in sorted(gval.items()):
-                if tools:
-                    if not with_option:
-                        s = ", ".join(sorted(tools.keys()))
-                    else:
-                        tools_with_options = [
-                            f"{t} {' '.join(v)}" for t, v in sorted(tools.items())
-                        ]
-                        s = ", ".join(tools_with_options)
-                    print(f"group: {group}; host: {host}; tools: {s}")
-                    printed = True
-        return printed
+                if not with_option:
+                    s = ", ".join(sorted(tools.keys()))
+                else:
+                    tools_with_options = [f"{t} {v}" for t, v in sorted(tools.items())]
+                    s = ", ".join(tools_with_options)
+                print(f"group: {group}; host: {host}; tools: {s}")
+
+    def gen_tool_groups(self) -> Iterable[ToolGroup]:
+        """Provide an interable for all the ToolGroup objects being considered.
+
+        If one or more groups are provided on the command line, individual
+        ToolGroup objects are created and returned in a list so that invalid
+        tool groups can be flagged early.
+
+        If no groups are provided on the command line, we ask the ToolGroup
+        class to provide the list.
+
+        Will cause the command to exit with an error if a bad tool group is
+        encountered.
+        """
+        if self.context.group:
+            tool_groups = []
+            for group in self.context.group:
+                try:
+                    tool_groups.append(ToolGroup(group, self.pbench_run))
+                except BadToolGroup:
+                    self.logger.error("Bad tool group: %s", group)
+                    click.get_current_context().exit(1)
+        else:
+            tool_groups = list(ToolGroup.gen_tool_groups(self.pbench_run))
+        return tool_groups
 
     def execute(self) -> int:
-        if not self.pbench_run.exists():
-            self.logger.warn("The %s directory does not exist", self.pbench_run)
-            return 1
-
-        # list tools in one or all groups
-        if self.context.group:
-            groups = self.context.group
-        else:
-            groups = self.groups
-
+        # Generate the list of ToolGroups to target.
+        tool_groups = self.gen_tool_groups()
         opts = self.context.with_option
+        tool_name = self.context.name
         tool_info = {}
 
-        if not self.context.name:
-            for group in groups:
-                tool_info[group] = {}
-                try:
-                    tg_dir = self.gen_tools_group_dir(group).glob("*/**")
-                except BadToolGroup:
-                    self.logger.error("Bad tool group: %s", group)
-                    return 1
-
-                for path in tg_dir:
-                    host = path.name
-                    tool_info[group][host] = {}
-                    for tool in sorted(self.tools(path)):
-                        tool_info[group][host][tool] = (
-                            sorted((path / tool).read_text().rstrip("\n").split("\n"))
-                            if opts
-                            else ""
-                        )
-
-            if tool_info:
-                found = self.print_results(tool_info, self.context.with_option)
-                if not found:
-                    msg = "No tools found"
-                    if self.context.group:
-                        msg += f' in group "{self.context.group[0]}"'
-                    self.logger.warn(msg)
-            else:
+        if not tool_name:
+            if not tool_groups:
                 self.logger.warn("No tool groups found")
+                return 0
 
-            return 0
-
+            # List all tools in the target groups
+            for tool_group in tool_groups:
+                hostnames = tool_group.hostnames()
+                if hostnames:
+                    tool_info[tool_group.name] = hostnames
         else:
             # List the groups which include this tool
-            tool = self.context.name
-            found = False
-            for group in groups:
-                try:
-                    tg_dir = self.gen_tools_group_dir(group)
-                except BadToolGroup:
-                    self.logger.error("Bad tool group: %s", group)
-                    return 1
+            for tool_group in tool_groups:
+                hosts = tool_group.toolnames().get(tool_name, {})
+                if not hosts:
+                    # This group has no hosts with the given tool name
+                    # registered.
+                    continue
+                for host, opts in hosts.items():
+                    if tool_group.name not in tool_info:
+                        tool_info[tool_group.name] = {}
+                    tool_info[tool_group.name][host] = dict([(tool_name, opts)])
 
-                tool_info[group] = {}
-                for path in tg_dir.iterdir():
-                    # skip files like __label__ and __trigger__
-                    if not path.is_dir():
-                        continue
-
-                    host = path.name
-                    tool_info[group][host] = {}
-                    # Check to see if the tool is in any of the hosts.
-                    if tool in self.tools(path):
-                        tool_info[group][host][tool] = (
-                            sorted((path / tool).read_text().rstrip("\n").split("\n"))
-                            if opts
-                            else ""
-                        )
-                        found = True
-
-            if found:
-                self.print_results(tool_info, self.context.with_option)
-                return 0
-            else:
+        if tool_info:
+            self.print_results(tool_info, opts)
+            ret_val = 0
+        else:
+            if tool_name:
                 msg = f'Tool "{self.context.name}" not found in '
                 msg += self.context.group[0] if self.context.group else "any group"
-                self.logger.error(msg)
-                return 1
+                ret_val = 1
+            else:
+                msg = "No tools found"
+                if self.context.group:
+                    msg += f' in group "{self.context.group[0]}"'
+                ret_val = 0
+            self.logger.warn(msg)
+
+        return ret_val
 
 
 def _group_option(f):

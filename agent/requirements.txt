@@ -1,6 +1,7 @@
 bottle
 cffi
 click>=8.0
+filelock
 hiredis
 ifaddr
 jinja2

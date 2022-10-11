@@ -295,7 +295,7 @@ def start_tms_via_ssh(
     occur for some; this allows the user to see logs for all the individual
     failures.
     """
-    assert len(tool_group.hostnames) > 0, "No hosts to run tools"
+    assert len(tool_group.hostnames()) > 0, "No hosts to run tools"
     lrh = LocalRemoteHost()
     failures = 0
     successes = 0
@@ -307,7 +307,7 @@ def start_tms_via_ssh(
     template = TemplateSsh(ssh_cmd, shlex.split(ssh_opts), cmd)
     tms: Dict[str, Union[str, int, Dict[str, str]]] = {}
     tm_count = 0
-    for host in tool_group.hostnames.keys():
+    for host in tool_group.hostnames().keys():
         tm_count += 1
         tm_param_key = f"tm-{tool_group.name}-{host}"
         if lrh.is_local(host):
@@ -392,7 +392,7 @@ def start_tms_via_ssh(
             else:
                 successes += 1
 
-    assert tm_count == len(tool_group.hostnames) and tm_count == (
+    assert tm_count == len(tool_group.hostnames()) and tm_count == (
         successes + failures
     ), f"Number of successes ({successes}) and failures ({failures}) for TM creation don't add up (should be {tm_count})"
 
@@ -802,7 +802,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         )
         return ReturnCode.TOOLGROUPEXC
     else:
-        if not tool_group.hostnames:
+        if not tool_group.hostnames():
             # If a tool group has no tools registered, then there will be no
             # host names on which to start Tool Meisters.
             return ReturnCode.SUCCESS
@@ -952,12 +952,13 @@ def start(_prog: str, cli_params: Namespace) -> int:
             )
             recovery.add(template.abort, "stop TM clients")
 
-            for host in tool_group.hostnames.keys():
+            hostnames = tool_group.hostnames()
+            for host in hostnames.keys():
                 if not localhost.is_local(host):
                     any_remote = True
                     template.start(host)
 
-            for host, params in tool_group.hostnames.items():
+            for host, params in hostnames.items():
                 if not localhost.is_local(host):
                     connection = template.wait(host)
                     logger.debug("Host %s reports connection `%s`", host, connection)
@@ -1099,7 +1100,7 @@ def start(_prog: str, cli_params: Namespace) -> int:
         tool_group.archive(benchmark_run_dir)
 
         tool_group_data = dict()
-        for host, params in tool_group.hostnames.items():
+        for host, params in tool_group.hostnames().items():
             tools = tool_group.get_tools(host)
             tm = dict(
                 benchmark_run_dir=str(benchmark_run_dir),
