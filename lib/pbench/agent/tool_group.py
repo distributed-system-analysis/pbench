@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+from typing import Iterable
 
 
 class BadToolGroup(Exception):
@@ -173,3 +174,14 @@ class ToolGroup:
             0
         """
         shutil.copytree(str(self.tg_dir), target_dir / self.tg_dir.name, symlinks=False)
+
+
+def gen_tool_groups(pbench_run: str) -> Iterable[ToolGroup]:
+    """Generate a series of ToolGroup objects for each on-disk tool group
+    found in the given pbench run directory.
+    """
+    for tg_dir in Path(pbench_run).glob(f"{ToolGroup.TOOL_GROUP_PREFIX}-*"):
+        # All on-disk tool group directories will have names that look like
+        # above, where the prefix also contains a '-'.  To strip the prefix,
+        # we split the string and use the last component of the split.
+        yield ToolGroup(tg_dir.name.split("-", 2)[2], pbench_run)

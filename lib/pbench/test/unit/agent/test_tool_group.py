@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
-from pbench.agent.tool_group import BadToolGroup, ToolGroup
+from pbench.agent.tool_group import BadToolGroup, gen_tool_groups, ToolGroup
 
 
 class Test_VerifyToolGroup:
@@ -256,3 +257,52 @@ class Test_ToolGroup:
             assert tg.get_label(host) == labels[host]
         assert tg.get_tools("bad-host") == {}
         assert tg.get_label("bad-host") == ""
+
+
+def test_gen_tool_groups():
+    """Verify the tool group directory generator."""
+
+    class MockPath:
+        """A simple ToolGroup mock to generate host names from different
+        tool group directories.
+        """
+
+        _groups = set(("heavy", "light", "medium"))
+
+        def __init__(self, name: str):
+            self._name = name
+
+        def glob(self, prefix: str):
+            if self._name == "no-tool-group-dirs":
+                # The special name which for a directory which "does not
+                # have tool groups".
+                return
+            for n in self._groups:
+                # Return the 3 tools groups that are found with the prefix
+                # attached.
+                yield Path(f"{prefix[:-2]}-{n}")
+
+    class MockToolGroup:
+        """A simple no-op ToolGroup class which just stores the constructor
+        arguments.
+        """
+
+        TOOL_GROUP_PREFIX = "tests-vX"
+
+        def __init__(self, name: str, pbench_run: str):
+            self.name = name
+            self.pbench_run = pbench_run
+
+    with mock.patch("pbench.agent.tool_group.Path", MockPath), mock.patch(
+        "pbench.agent.tool_group.ToolGroup", MockToolGroup
+    ):
+        # To verify the case where there are no tool groups created, we make a
+        # special Path object which will expose no tool groups.
+        tgs = list(gen_tool_groups("no-tool-group-dirs"))
+        assert len(tgs) == 0
+
+        # Using the special Path object which does have tool groups, we verify
+        # that the expected generated list of Tool Group objects matches the
+        # list of names we expect.
+        names = set([tg.name for tg in gen_tool_groups("have-tool-group-dirs")])
+        assert names == MockPath._groups
