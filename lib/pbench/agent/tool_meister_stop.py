@@ -130,7 +130,7 @@ def graceful_shutdown(
     return ret_val
 
 
-def start(_prog: str, cli_params: Namespace) -> int:
+def stop(_prog: str, cli_params: Namespace) -> int:
     """Main program for the tool meister stop CLI interface.
 
     Stopping the Tool Meisters involves four steps:
@@ -151,7 +151,8 @@ def start(_prog: str, cli_params: Namespace) -> int:
         * tool_group - The tool group from which to load the registered tools
         * interrupt  - True / False value indicating if the call to stop the
                        Tool Meisters is in response to an interrupt or not
-        * sysinfo    - The system information set to be collected at the start
+        * sysinfo    - The system information set to be collected before the
+                       Tool Meisters are stopped
 
     Return 0 on success, 1 on failure.
     """
@@ -300,4 +301,4 @@ def main():
         help="The tool group name of tools being run in the Tool Meisters.",
     )
     parsed = parser.parse_args()
-    return start(sys.argv[0], parsed)
+    return stop(sys.argv[0], parsed)
