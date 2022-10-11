@@ -32,12 +32,6 @@ def main(cfg_name):
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1
 
-    logger = get_pbench_logger(_NAME_, config)
-
-    # We're going to need the Postgres DB to track dataset state, so setup
-    # DB access.
-    init_db(config, logger)
-
     BUCKET = str(sys.argv[1]) if len(sys.argv) > 1 else None
     prog = Path(sys.argv[0]).name
 
@@ -54,6 +48,12 @@ def main(cfg_name):
         )
         upperbound = float(upperbound) * 1024.0 * 1024.0
         prog = f"{prog}-{BUCKET}"
+
+    logger = get_pbench_logger(_NAME_, config)
+
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    init_db(config, logger)
 
     # Initiate the unpacking
     unpack_obj = UnpackTarballs(config, logger)
