@@ -1,4 +1,4 @@
-from pbench.agent.base import BaseCommand
+from pbench.cli.agent import BaseCommand
 
 
 class ToolCommand(BaseCommand):

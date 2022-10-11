@@ -34,10 +34,9 @@ from typing import Callable, Dict, Iterable, List, Tuple
 import click
 import psutil
 
-from pbench.agent.base import BaseCommand
 from pbench.agent.tool_group import gen_tool_groups
 from pbench.agent.utils import LocalRemoteHost, TemplateSsh
-from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli.agent import BaseCommand, CliContext, pass_cli_context
 from pbench.cli.agent.options import common_options
 
 
