@@ -143,7 +143,6 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
     _PBENCH_COV_DIR="${_toxenvdir}/cov" _time pytest \
         ${pytest_jobs_arg} \
         --basetemp="${_toxenvdir}/tmp" \
-        --no-cov-on-fail \
         --cov=${_pbench_sources} \
         --cov-report ${_cov_report} \
         ${posargs} \
