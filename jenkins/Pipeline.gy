@@ -27,11 +27,6 @@ pipeline {
                 sh 'if [[ ! -e agent/rpm/seqno ]] ; then echo "1" > agent/rpm/seqno ; fi'
                 sh 'if [[ ! -e server/rpm/seqno ]] ; then echo "1" > server/rpm/seqno ; fi'
 
-                // If there is somehow a symlink left over from a previous run's
-                // Cobertura processing, remove it, because it seems to confuse
-                // the coverage data collection.
-                sh 'rm -fv pbench'
-
                 // Run the "build" (lint, unit tests, etc.) in a container.
                 sh 'jenkins/run ./build.sh'
             }
@@ -46,14 +41,6 @@ pipeline {
     }
     post {
         success {
-            // This symlink somehow allows the Cobertura plug-in to find the
-            // sources referenced in the coverage report.  However, the presence
-            // of this link inside the container seems to confuse the coverage
-            // data collection, so we create it here and then remove it after
-            // generating the report. (We use the -f option just in case there's
-            // an old one hanging around.)
-            sh 'ln -sTf lib/pbench pbench'
-
             // Note that jenkins/run-pytests is executed inside the container
             // while the Cobertura plug-in is executed natively, so this poses
             // a challenge in terms of finding the coverage report file; we
@@ -70,7 +57,7 @@ pipeline {
                 onlyStable: false,
                 sourceEncoding: 'ASCII',
                 zoomCoverageChart: false])
-            sh 'rm cov/report.xml pbench'
+            sh 'rm cov/report.xml'
         }
     }
 }
