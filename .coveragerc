@@ -1,3 +1,7 @@
 [run]
-parallel = True
+branch = True
+cover_pylib = False
 data_file = ${_PBENCH_COV_DIR}/coverage.db
+parallel = True
+relative_files = True
+omit = */pbench/test/*

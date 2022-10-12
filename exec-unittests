@@ -139,13 +139,12 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
     done
 
     printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${major_list// /,}"
-    _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent.parent)')
+    _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent)')
     _PBENCH_COV_DIR="${_toxenvdir}/cov" _time pytest \
         ${pytest_jobs_arg} \
         --basetemp="${_toxenvdir}/tmp" \
+        --no-cov-on-fail \
         --cov=${_pbench_sources} \
-        --cov-branch \
-        --cov-append \
         --cov-report ${_cov_report} \
         ${posargs} \
         --pyargs ${_pytest_majors}
@@ -154,6 +153,12 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
         printf -- "\n%s pytest command failed with '%s'\n\n" "${_major^}" "${rc}"
     else
         printf -- "\n%s pytest command succeeded\n\n" "${_major^}"
+    fi
+
+    if [[ "${_cov_report_kind}" == "xml" && -n "${WORKSPACE}" ]]; then
+        # For the Jenkins CI we need to adjust the generated XML report to
+        # use WORKSPACE relative file name paths in the report.
+        sed -i "s;${_pbench_sources};${WORKSPACE}/lib/pbench;" ${_cov_report_name}
     fi
 fi
 
