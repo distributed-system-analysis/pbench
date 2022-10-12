@@ -49,7 +49,7 @@ def main(cfg_name):
         upperbound = float(upperbound) * 1024.0 * 1024.0
         prog = f"{prog}-{BUCKET}"
 
-    logger = get_pbench_logger(_NAME_, config)
+    logger = get_pbench_logger(prog, config)
 
     # We're going to need the Postgres DB to track dataset state, so setup
     # DB access.
