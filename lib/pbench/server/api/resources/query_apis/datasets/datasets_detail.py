@@ -6,6 +6,7 @@ from flask import jsonify
 from pbench.server import JSON, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
+    ApiAuthorizationType,
     ApiMethod,
     ApiParams,
     ApiSchema,
@@ -13,11 +14,8 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.api.resources.query_apis import (
-    ApiContext,
-    ElasticBase,
-    PostprocessError,
-)
+from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
+from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
@@ -36,7 +34,7 @@ class DatasetsDetail(IndexMapBase):
             config,
             logger,
             ApiSchema(
-                ApiMethod.POST,
+                ApiMethod.GET,
                 OperationCode.READ,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True)
@@ -51,7 +49,7 @@ class DatasetsDetail(IndexMapBase):
                         string_list=",",
                     ),
                 ),
-                authorization=API_AUTHORIZATION.DATASET,
+                authorization=ApiAuthorizationType.DATASET,
             ),
         )
 

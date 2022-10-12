@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 import pytest
 
-from pbench.server.api.resources import API_METHOD
+from pbench.server.api.resources import ApiMethod
 from pbench.server.api.resources.query_apis.datasets.datasets_detail import (
     DatasetsDetail,
 )
@@ -29,7 +29,7 @@ class TestDatasetsDetail(Commons):
             empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 
-    api_method = API_METHOD.GET
+    api_method = ApiMethod.GET
 
     @pytest.mark.parametrize(
         "user, expected_status",

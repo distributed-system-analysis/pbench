@@ -60,7 +60,7 @@ class Commons:
         elif ApiMethod.POST in self.cls_obj.schemas:
             self.api_method = ApiMethod.POST
         else:
-            assert False, "api_method is neither API_METHOD.GET nor API_METHOD.POST"
+            assert False, "api_method is neither ApiMethod.GET nor ApiMethod.POST"
 
     def build_index(self, server_config, dates):
         """
