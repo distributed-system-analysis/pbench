@@ -177,7 +177,7 @@ class TestDatasets:
         """Test that we can't advance to a state that's not a
         successor to the initial state.
         """
-        ds = Dataset(owner_id=(create_user.id), name="fio", resource_id="debead")
+        ds = Dataset(owner_id=str(create_user.id), name="fio", resource_id="debead")
         ds.add()
         with pytest.raises(DatasetBadStateTransition):
             ds.advance(States.DELETED)
@@ -185,7 +185,7 @@ class TestDatasets:
     def test_advanced_terminal(self, db_session, create_user):
         """Test that we can't advance from a terminal state"""
         ds = Dataset(
-            owner_id=(create_user.id),
+            owner_id=str(create_user.id),
             name="fio",
             resource_id="beadde",
             state=States.DELETED,

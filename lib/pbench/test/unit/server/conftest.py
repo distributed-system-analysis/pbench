@@ -315,7 +315,7 @@ def attach_dataset(create_drb_user, create_user):
     # for one Dataset and letting it default for the other.
     with freeze_time("1970-01-01 00:42:00"):
         Dataset(
-            owner_id="3",
+            owner_id=str(create_drb_user.id),
             created=datetime.datetime(2020, 2, 15),
             uploaded=datetime.datetime(2022, 1, 1),
             state=States.INDEXED,
@@ -324,7 +324,7 @@ def attach_dataset(create_drb_user, create_user):
             resource_id="random_md5_string1",
         ).add()
         Dataset(
-            owner_id="5",
+            owner_id=str(create_user.id),
             created=datetime.datetime(2002, 5, 16),
             state=States.INDEXED,
             name="test",

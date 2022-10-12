@@ -394,7 +394,7 @@ class Dataset(Database.Base):
 
     Columns:
         id          Generated unique ID of table row
-        owner_id    Owning uuid of the owner of the dataset
+        owner_id    Owning UUID of the owner of the dataset
         access      Dataset is "private" to owner, or "public"
         name        Base name of dataset (tarball)
         md5         The dataset MD5 hash (Elasticsearch ID)

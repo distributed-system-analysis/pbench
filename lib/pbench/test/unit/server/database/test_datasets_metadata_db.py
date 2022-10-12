@@ -114,14 +114,14 @@ class TestGetSetMetadata:
 
 
 class TestInternalMetadata:
-    def test_dataset_full(self, provide_metadata):
+    def test_dataset_full(self, provide_metadata, create_drb_user):
         ds = Dataset.query(name="drb")
         metadata = Metadata.getvalue(ds, "dataset")
         assert metadata == {
             "access": "private",
             "created": "2020-02-15T00:00:00+00:00",
             "name": "drb",
-            "owner_id": "3",
+            "owner_id": str(create_drb_user.id),
             "state": "Indexed",
             "transition": "1970-01-01T00:42:00+00:00",
             "uploaded": "2022-01-01T00:00:00+00:00",
@@ -202,6 +202,7 @@ class TestMetadataNamespace:
         d = Metadata.create(key="user", value=False, dataset=ds, user_id=user2.id)
         assert d is not None
         assert ds.metadatas == [t, d]
+        assert metadata_db_query.filter_by(user_id=user1.id).all() == [t]
         assert metadata_db_query.filter_by(user_id=user2.id).all() == [d]
 
         g = Metadata.create(key="user", value="text", dataset=ds)
@@ -231,21 +232,15 @@ class TestMetadataNamespace:
 
         # Peek under the carpet to look for orphaned metadata objects linked
         # to the Dataset or User
-        metadata = (
-            Database.db_session.query(Metadata).filter_by(dataset_ref=ds.id).first()
-        )
+        metadata = metadata_db_query.filter_by(dataset_ref=ds.id).first()
         assert metadata is None
-        metadata = (
-            Database.db_session.query(Metadata)
-            .filter(
-                or_(
-                    Metadata.user_id == user1.id,
-                    Metadata.user_id == user2.id,
-                    Metadata.user_id is None,
-                )
+        metadata = metadata_db_query.filter(
+            or_(
+                Metadata.user_id == user1.id,
+                Metadata.user_id == user2.id,
+                Metadata.user_id is None,
             )
-            .first()
-        )
+        ).first()
         assert metadata is None
 
     def test_set_bad_syntax(self, attach_dataset):

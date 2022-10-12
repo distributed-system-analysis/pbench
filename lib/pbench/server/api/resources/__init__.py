@@ -1457,11 +1457,14 @@ class ApiBase(Resource):
             if Metadata.is_key_path(i, Metadata.METADATA_KEYS):
                 native_key = Metadata.get_native_key(i)
                 user: Optional[User] = None
+                user_id = None
                 if native_key == Metadata.USER:
                     user = Auth.token_auth.current_user()
+                    if user:
+                        user_id = user.id
                 try:
                     metadata[i] = Metadata.getvalue(
-                        dataset=dataset, key=i, user_id=user.id if user else None
+                        dataset=dataset, key=i, user_id=user_id
                     )
                 except MetadataNotFound:
                     metadata[i] = None
