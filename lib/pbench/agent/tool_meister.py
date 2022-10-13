@@ -362,7 +362,7 @@ class TransientTool(Tool):
         waits for the tool's start process to complete (since the "stop"
         process is supposed stop the "start" process).
         """
-        assert self.tool_dir is None, "Logic bomb!  tool directory still provided!"
+        assert self.tool_dir is None, "Logic error!  tool directory still provided!"
         assert (
             self.stop_process is not None
         ), f"Tool({self.name}) does not have a stop process running"
@@ -560,7 +560,7 @@ class PersistentTool(Tool):
         """
         if not tool_dir.is_dir():
             raise ToolException(f"tool directory does not exist: {tool_dir!r}")
-        assert self.args is not None, "Logic bomb!  {self.name} install had failed!"
+        assert self.args is not None, "Logic error!  {self.name} install had failed!"
         assert (
             self.process is None
         ), f"Tool({self.name}) has an unexpected process running"
@@ -843,7 +843,7 @@ class ToolMeister:
         for name in self.persistent_tool_names:
             assert (
                 name in self._tool_name_class_mappings
-            ), f"Logic bomb! {name} not in tool name class mappings"
+            ), f"Logic error! {name} not in tool name class mappings"
         # We start in the "startup" state, waiting for first "init" action.
         self.state = "startup"
 
@@ -1621,7 +1621,7 @@ class ToolMeister:
         tool_cnt = 0
         for name, persistent_tool in self._persistent_tools.items():
             assert name in self._usable_tools, (
-                f"Logic bomb!  Persistent tool, '{name}' not in registered"
+                f"Logic error!  Persistent tool, '{name}' not in registered"
                 f" list of tools, '{self._usable_tools!r}'."
             )
             tool_cnt += 1

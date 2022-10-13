@@ -311,7 +311,7 @@ class Index:
                         linksrc_dirname = linksrc_dir.name
                         count_processed_tb += 1
                         assert linksrc_dirname == self.linksrc, (
-                            f"Logic bomb!  tar ball "
+                            f"Logic error!  tar ball "
                             f"path {tb} does not contain {self.linksrc}"
                         )
 

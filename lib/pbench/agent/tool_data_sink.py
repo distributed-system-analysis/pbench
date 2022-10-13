@@ -153,7 +153,7 @@ class DataSinkWsgiServer(ServerAdapter):
         try:
             server = make_server(self.host, self.port, app, **self.options)
         except OSError as exc:
-            assert exc.errno != 0, "Logic bomb!  OSError exception with no errno value"
+            assert exc.errno != 0, "Logic error!  OSError exception with no errno value"
             self._do_notify(str(exc), exc.errno)
             raise
         except Exception as exc:
@@ -223,7 +223,7 @@ class BaseCollector:
         self.templates_path = pbench_bin / "templates"
         assert (
             self.templates_path.is_dir()
-        ), f"Logic bomb! {self.templates_path} does not exist as a directory"
+        ), f"Logic error! {self.templates_path} does not exist as a directory"
         self.benchmark_run_dir = benchmark_run_dir
         self.tool_group = tool_group
         self.host_tools_dict = host_tools_dict
@@ -354,7 +354,7 @@ class PromCollector(BaseCollector):
             return
 
         yml = self.render_from_template("prometheus.yml", dict(tools=self.tool_context))
-        assert yml is not None, f"Logic bomb!  {self.tool_context!r}"
+        assert yml is not None, f"Logic error!  {self.tool_context!r}"
         with (self.tool_dir / "prometheus.yml").open("w") as config:
             config.write(yml)
 
@@ -1356,7 +1356,7 @@ class ToolDataSink(Bottle):
         assert (
             self.action in self._data_actions
         ), f"expected action to be one of {self._data_actions!r}, not {self.action!r}"
-        assert self._tm_tracking is not None, "Logic bomb!  self._tm_tracking is None"
+        assert self._tm_tracking is not None, "Logic error!  self._tm_tracking is None"
 
         done = False
         while not done:
@@ -1367,7 +1367,7 @@ class ToolDataSink(Bottle):
                     # Don't bother checking any other Tool Meister when we
                     # have at least one that has not sent any data.
                     break
-                assert tm["posted"] == "dormant", f"Logic bomb! {tm['posted']!r}"
+                assert tm["posted"] == "dormant", f"Logic error! {tm['posted']!r}"
             else:
                 # We have checked every Tool Meister tracking record and
                 # they all have posted their data (`posted` field is set
@@ -1383,7 +1383,7 @@ class ToolDataSink(Bottle):
 
         Assumes self._lock is already acquired by our caller.
         """
-        assert self._tm_tracking is not None, "Logic bomb!  self._tm_tracking is None"
+        assert self._tm_tracking is not None, "Logic error!  self._tm_tracking is None"
         for hostname, tm in self._tm_tracking.items():
             if tm["posted"] is None:
                 continue
@@ -1560,7 +1560,7 @@ class ToolDataSink(Bottle):
             self._send_client_status(client, action, "directory does not exist")
             return
         else:
-            assert local_dir is not None, f"Logic bomb!  local_dir = {local_dir!r}"
+            assert local_dir is not None, f"Logic error!  local_dir = {local_dir!r}"
 
         with self._lock:
             # Handle all actions underneath the lock for consistency.

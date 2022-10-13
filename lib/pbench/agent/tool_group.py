@@ -109,7 +109,7 @@ class ToolGroup:
             host = hdirent
             assert (
                 host not in self.hostnames
-            ), f"Logic bomb!  {host} in {self.hostnames!r}"
+            ), f"Logic error!  {host} in {self.hostnames!r}"
             self.hostnames[host] = {}
             for tdirent in os.listdir(self.tg_dir / host):
                 if tdirent == "__label__":
@@ -130,7 +130,7 @@ class ToolGroup:
                 self.toolnames[tool][host] = tool_opts
                 assert (
                     tool not in self.hostnames[host]
-                ), f"Logic bomb!  {tool} in {self.hostnames[host]!r}"
+                ), f"Logic error!  {tool} in {self.hostnames[host]!r}"
                 self.hostnames[host][tool] = tool_opts
 
     def get_tools(self, host):
