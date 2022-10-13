@@ -153,13 +153,12 @@ class TestDatasetsDelete:
 
     def test_partial(
         self,
-        attach_dataset,
         caplog,
         client,
         get_document_map,
         monkeypatch,
-        pbench_token,
         server_config,
+        pbench_token,
     ):
         """
         Check the delete API when some document updates fail. We expect an
@@ -168,22 +167,29 @@ class TestDatasetsDelete:
         self.fake_elastic(monkeypatch, get_document_map, True)
         self.fake_filetree(monkeypatch)
 
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/random_md5_string1",
-            headers={"authorization": f"Bearer {pbench_token}"},
-        )
+        # We have to keep the db session alive otherwise user instance created
+        # by the get_document_map fixture gets detached from the session
+        # resulting in sqlalchemy DetachedInstanceError. This happens because
+        # immediately upon the APIAbort call we close the db session.
+        # ref: https://docs.sqlalchemy.org/en/14/errors.html#error-bhk3
+        with client:
+            ds = Dataset.query(name="drb")
+            response = client.post(
+                f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
+                headers={"authorization": f"Bearer {pbench_token}"},
+            )
 
-        # Verify the report and status
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == "Failed to update 3 out of 31 documents"
-        assert (
-            "pbench.server.api",
-            ERROR,
-            'DatasetsDelete:dataset (3)|drb: 28 successful document actions and 3 failures: {"Just kidding": {"unit-test.v6.run-data.2021-06": 1, "unit-test.v6.run-toc.2021-06": 1, "unit-test.v5.result-data-sample.2021-06": 1}, "ok": {"unit-test.v6.run-toc.2021-06": 9, "unit-test.v5.result-data-sample.2021-06": 19}}',
-        ) in caplog.record_tuples
+            # Verify the report and status
+            assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+            assert response.json["message"] == "Failed to update 3 out of 31 documents"
+            assert (
+                "pbench.server.api",
+                ERROR,
+                'DatasetsDelete:dataset (3)|drb: 28 successful document actions and 3 failures: {"Just kidding": {"unit-test.v6.run-data.2021-06": 1, "unit-test.v6.run-toc.2021-06": 1, "unit-test.v5.result-data-sample.2021-06": 1}, "ok": {"unit-test.v6.run-toc.2021-06": 9, "unit-test.v5.result-data-sample.2021-06": 19}}',
+            ) in caplog.record_tuples
 
-        # Verify that the Dataset still exists
-        Dataset.query(name="drb")
+            # Verify that the Dataset still exists
+            Dataset.query(name="drb")
 
     def test_no_dataset(
         self, client, get_document_map, monkeypatch, pbench_token, server_config
