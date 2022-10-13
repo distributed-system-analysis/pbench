@@ -3,15 +3,14 @@ is currently sufficient to support the ServerConfig and Audit DB unit tests.
 """
 
 import operator
-from typing import Optional
+from typing import Any, Callable, Iterable, Optional
 
 from sqlalchemy import Column
-from sqlalchemy.util import immutabledict
 
 from pbench.server.database.database import Database
 
 
-def dumpem(object: object, depth: int = 0, max_depth: int = 20):
+def dumpem(object: Any, depth: int = 0, max_depth: int = 20):
     """
     Useful recursive function to help debug SQLAlchemy's deep and mostly not
     documented class hierarchy! NOTE: this can generate an enormous amount of
@@ -22,29 +21,29 @@ def dumpem(object: object, depth: int = 0, max_depth: int = 20):
     don't want to overflow.
 
     Args:
-        object: Any Python object type
+        object: Any Python object
         depth: indentation levels (two spaces)
         max_depth: maximum recursion depth
     """
     if depth > max_depth:
         return
     indent = " " * (depth * 2)
-    print(f"{indent}{object} [{type(object).__name__}]")
-    if isinstance(object, list):
+    print(f"{indent}'{object}' [{type(object).__name__}]")
+    if hasattr(object, "items") or hasattr(object, "__dict__"):
+        # Either a map-style object (dict, immutabledict) or a non-builtin
+        # object (__dict__) has a set of key/value pairs we want to expose:
+        # we can handle these more or less the same. If the value of each
+        # isn't "obviously trivial" recurse to format it as well.
+        d = object if hasattr(object, "items") else object.__dict__
+        for n, v in d.items():
+            print(f"{indent}  '{n}'='{v}' [{type(v).__name__}]")
+            if not isinstance(v, (type(None), bool, int, float, str, Callable)):
+                dumpem(v, depth + 2, max_depth)
+    elif isinstance(object, Iterable) and not isinstance(object, str):
+        # If the object is iterable, we want to iterate through all
+        # values.
         for e in object:
             dumpem(e, depth + 1, max_depth)
-    elif isinstance(object, (dict, immutabledict)):
-        for n, v in object.items():
-            print(f"{indent}  '{n}'={v} [{type(v).__name__}]")
-            dumpem(v, depth + 2, max_depth)
-    elif (
-        object is not None
-        and not isinstance(object, (bool, int, float, str))
-        and hasattr(object, "__dict__")
-    ):
-        for n, v in object.__dict__.items():
-            print(f"{indent}  {n}={v} [{type(v).__name__}]")
-            dumpem(v, depth + 2, max_depth)
 
 
 class FakeDBOrig:
