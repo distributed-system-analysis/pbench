@@ -337,9 +337,9 @@ def attach_dataset(create_drb_user, create_user):
 def more_datasets(
     client,
     server_config,
+    attach_dataset,
     create_drb_user,
     create_admin_user,
-    attach_dataset,
     create_user,
 ):
     """

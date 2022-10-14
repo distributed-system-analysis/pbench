@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from logging import Logger
-from typing import Optional
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
@@ -25,7 +24,6 @@ from pbench.server.database.models.datasets import (
     MetadataBadValue,
     MetadataError,
 )
-from pbench.server.database.models.users import User
 
 
 class DatasetsMetadata(ApiBase):
@@ -176,7 +174,6 @@ class DatasetsMetadata(ApiBase):
         fail = False
         for k, v in metadata.items():
             native_key = Metadata.get_native_key(k)
-            user: Optional[User] = None
             user_id = None
             if native_key == Metadata.USER:
                 user = Auth.token_auth.current_user()
