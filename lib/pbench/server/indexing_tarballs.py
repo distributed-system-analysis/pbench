@@ -556,7 +556,7 @@ class Index:
                             )
                         elif tb_res in (error_code["CFG_ERROR"], error_code["BAD_CFG"]):
                             assert False, (
-                                f"Logic Bomb!  Unexpected tar ball handling "
+                                f"Logic error!  Unexpected tar ball handling "
                                 f"result status {tb_res.value:d} for tar ball {tb}"
                             )
                         elif tb_res.tarball_error:

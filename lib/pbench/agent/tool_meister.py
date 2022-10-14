@@ -1586,13 +1586,13 @@ class ToolMeister:
 
         if self._params.label:
             assert tool_dir.name == f"{self._params.label}:{self._params.hostname}", (
-                f"Logic Bomb! Final path component of the tool directory is"
+                f"Logic error! Final path component of the tool directory is"
                 f" '{tool_dir.name}', not our label and host name"
                 f" '{self._params.label}:{self._params.hostname}'"
             )
         else:
             assert tool_dir.name == self._params.hostname, (
-                f"Logic Bomb! Final path component of the tool directory is"
+                f"Logic error! Final path component of the tool directory is"
                 f" '{tool_dir.name}', not our host name '{self._params.hostname}'"
             )
 
