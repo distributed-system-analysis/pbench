@@ -1458,9 +1458,7 @@ class ApiBase(Resource):
                 native_key = Metadata.get_native_key(i)
                 user_id = None
                 if native_key == Metadata.USER:
-                    user = Auth.token_auth.current_user()
-                    if user:
-                        user_id = user.id
+                    user_id = Auth.get_user_id()
                 try:
                     metadata[i] = Metadata.getvalue(
                         dataset=dataset, key=i, user_id=user_id

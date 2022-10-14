@@ -74,9 +74,7 @@ class Upload(Resource):
                 username = Auth.token_auth.current_user().username
             except Exception:
                 username = None
-                raise CleanupTime(
-                    HTTPStatus.INTERNAL_SERVER_ERROR, "Error verifying user_id"
-                )
+                raise CleanupTime(HTTPStatus.UNAUTHORIZED, "Verifying user_id failed")
 
             controller = request.headers.get("controller")
             if not controller:
@@ -144,7 +142,7 @@ class Upload(Resource):
             bytes_received = 0
 
             self.logger.info(
-                "PUT uploading {}:{} for user {}|{} to {}",
+                "PUT uploading {}:{} for user = (user_id: {}, username: {}) to {}",
                 controller,
                 filename,
                 user_id,
@@ -163,7 +161,7 @@ class Upload(Resource):
             except DatasetDuplicate:
                 dataset_name = Dataset.stem(tar_full_path)
                 self.logger.info(
-                    "Dataset already exists, user = {}|{}, file = {!a}",
+                    "Dataset already exists, user = (user_id: {}, username: {}), file = {!a}",
                     user_id,
                     username,
                     dataset_name,
@@ -172,10 +170,10 @@ class Upload(Resource):
                     Dataset.query(resource_id=md5sum)
                 except DatasetNotFound:
                     self.logger.error(
-                        "Duplicate dataset {}|{}:{} not found",
+                        "Duplicate dataset {} for user = (user_id: {}, username: {}) not found",
+                        dataset_name,
                         user_id,
                         username,
-                        dataset_name,
                     )
                     raise CleanupTime(
                         HTTPStatus.INTERNAL_SERVER_ERROR, "INTERNAL ERROR"
@@ -195,7 +193,7 @@ class Upload(Resource):
             recovery.add(dataset.delete)
 
             self.logger.info(
-                "Uploading file {!a} (user = {}|{}, ctrl = {!a}) to {}",
+                "Uploading file {!a} (user = (user_id: {}, username: {}), ctrl = {!a}) to {}",
                 filename,
                 user_id,
                 username,

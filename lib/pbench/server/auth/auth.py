@@ -1,6 +1,7 @@
 import datetime
 from http import HTTPStatus
 import os
+from typing import Optional
 
 from flask import abort, request
 from flask_httpauth import HTTPTokenAuth
@@ -18,6 +19,18 @@ class Auth:
     def set_logger(logger):
         # Logger gets set at the time of auth module initialization
         Auth.logger = logger
+
+    @staticmethod
+    def get_user_id() -> Optional[str]:
+        """
+        Returns the user id of the current authenticated user.
+        If the user not authenticated this would return None
+        """
+        user_id = None
+        user = Auth.token_auth.current_user()
+        if user:
+            user_id = user.id
+        return user_id
 
     def encode_auth_token(self, time_delta: datetime.timedelta, user_id: int) -> str:
         """
