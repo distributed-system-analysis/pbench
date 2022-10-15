@@ -281,17 +281,18 @@ class TestKillTools:
         def mock_gen_run_directories(
             run_dir: pathlib.Path,
         ) -> List[Tuple[pathlib.Path, str]]:
-            return []
+            for run_dir in []:
+                yield run_dir, "uuid"
 
         runner = CliRunner(mix_stderr=False)
-        with (
-            mock.patch("pbench.cli.agent.commands.tools.kill.PidSource", MockPidSource),
-            mock.patch(
+        with mock.patch(
+            "pbench.cli.agent.commands.tools.kill.PidSource", MockPidSource
+        ):
+            with mock.patch(
                 "pbench.cli.agent.commands.tools.kill.gen_run_directories",
                 mock_gen_run_directories,
-            ),
-        ):
-            result = runner.invoke(kill.main)
+            ):
+                result = runner.invoke(kill.main)
         assert (
             result.exit_code == 0
         ), f"stdout={result.stdout!r}, stderr={result.stderr!r}"
@@ -330,15 +331,17 @@ class TestKillTools:
         def mock_gen_run_directories(
             pbench_run_dir: pathlib.Path,
         ) -> Tuple[pathlib.Path, str]:
-            return [
+            for run_dir in [
                 (pathlib.Path("run0/tm"), "uuid1abc"),
                 (pathlib.Path("run1/tm"), "uuid2def"),
                 (pathlib.Path("run2/tm"), "uuid3ghi"),
-            ]
+            ]:
+                yield run_dir
 
         def mock_gen_host_names(run_dir: pathlib.Path) -> str:
             hosts = {"run0": ["hostA", "hostB"], "run2": ["host3"]}
-            return hosts.get(run_dir.name, [])
+            for host in hosts.get(run_dir.name, []):
+                yield host
 
         class MockTemplateSsh:
             def __init__(self, name: str, ssh_opts: List[str], cmd: str):
@@ -353,21 +356,22 @@ class TestKillTools:
                 action_list.append(("wait", host))
 
         runner = CliRunner(mix_stderr=False)
-        with (
-            mock.patch("pbench.cli.agent.commands.tools.kill.PidSource", MockPidSource),
-            mock.patch(
+        with mock.patch(
+            "pbench.cli.agent.commands.tools.kill.PidSource", MockPidSource
+        ):
+            with mock.patch(
                 "pbench.cli.agent.commands.tools.kill.gen_run_directories",
                 mock_gen_run_directories,
-            ),
-            mock.patch(
-                "pbench.cli.agent.commands.tools.kill.gen_host_names",
-                mock_gen_host_names,
-            ),
-            mock.patch(
-                "pbench.cli.agent.commands.tools.kill.TemplateSsh", MockTemplateSsh
-            ),
-        ):
-            result = runner.invoke(kill.main, catch_exceptions=False)
+            ):
+                with mock.patch(
+                    "pbench.cli.agent.commands.tools.kill.gen_host_names",
+                    mock_gen_host_names,
+                ):
+                    with mock.patch(
+                        "pbench.cli.agent.commands.tools.kill.TemplateSsh",
+                        MockTemplateSsh,
+                    ):
+                        result = runner.invoke(kill.main, catch_exceptions=False)
         assert (
             result.exit_code == 0
         ), f"stdout={result.stdout!r}, stderr={result.stderr!r}"
