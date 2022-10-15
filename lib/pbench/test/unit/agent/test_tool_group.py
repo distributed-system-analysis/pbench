@@ -267,20 +267,24 @@ def test_gen_tool_groups():
         tool group directories.
         """
 
-        _groups = set(("heavy", "light", "medium"))
+        # The path name determines the behavior.
+        NO_TOOL_GROUP_DIRS = "ntgd"
+        # Tool group names that will be found by the `.glob()` method.
+        _names = set(("heavy", "light", "medium"))
 
         def __init__(self, name: str):
             self._name = name
 
         def glob(self, prefix: str):
-            if self._name == "no-tool-group-dirs":
+            if self._name == self.NO_TOOL_GROUP_DIRS:
                 # The special name which for a directory which "does not
                 # have tool groups".
                 return
-            for n in self._groups:
+            for n in self._names:
                 # Return the 3 tools groups that are found with the prefix
-                # attached.
-                yield Path(f"{prefix[:-2]}-{n}")
+                # attached, stripping the `*` and replacing it with the value
+                # of `n`.
+                yield Path(f"{prefix[:-1]}{n}")
 
     class MockToolGroup:
         """A simple no-op ToolGroup class which just stores the constructor
@@ -293,16 +297,17 @@ def test_gen_tool_groups():
             self.name = name
             self.pbench_run = pbench_run
 
-    with mock.patch("pbench.agent.tool_group.Path", MockPath), mock.patch(
-        "pbench.agent.tool_group.ToolGroup", MockToolGroup
+    with (
+        mock.patch("pbench.agent.tool_group.Path", MockPath),
+        mock.patch("pbench.agent.tool_group.ToolGroup", MockToolGroup),
     ):
         # To verify the case where there are no tool groups created, we make a
         # special Path object which will expose no tool groups.
-        tgs = list(gen_tool_groups("no-tool-group-dirs"))
+        tgs = list(gen_tool_groups(MockPath.NO_TOOL_GROUP_DIRS))
         assert len(tgs) == 0
 
-        # Using the special Path object which does have tool groups, we verify
-        # that the expected generated list of Tool Group objects matches the
-        # list of names we expect.
-        names = set([tg.name for tg in gen_tool_groups("have-tool-group-dirs")])
-        assert names == MockPath._groups
+        # Using a Path object which does have tool groups, we verify that the
+        # expected generated list of Tool Group objects matches the list of
+        # names we expect.
+        names = set([tg.name for tg in gen_tool_groups("some-pbench-run-dir")])
+        assert names == MockPath._names

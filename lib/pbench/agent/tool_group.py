@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import Iterable
+from typing import Iterable, Optional
 
 
 class BadToolGroup(Exception):
@@ -20,7 +20,7 @@ class ToolGroup:
     TOOL_GROUP_PREFIX = "tools-v1"
 
     @staticmethod
-    def verify_tool_group(name: str, pbench_run: str = None) -> Path:
+    def verify_tool_group(name: str, pbench_run: Optional[str] = None) -> Path:
         """verify_tool_group - given a tool group name, verify it exists in the
         ${pbench_run} directory as a properly prefixed tool group directory
         name.
@@ -57,7 +57,7 @@ class ToolGroup:
             else:
                 return tg_dir
 
-    def __init__(self, name: str, pbench_run: str = None):
+    def __init__(self, name: str, pbench_run: Optional[str] = None):
         """Construct a ToolGroup object from the on-disk data of the given
         tool group.
 
@@ -182,6 +182,5 @@ def gen_tool_groups(pbench_run: str) -> Iterable[ToolGroup]:
     """
     for tg_dir in Path(pbench_run).glob(f"{ToolGroup.TOOL_GROUP_PREFIX}-*"):
         # All on-disk tool group directories will have names that look like
-        # above, where the prefix also contains a '-'.  To strip the prefix,
-        # we split the string and use the last component of the split.
-        yield ToolGroup(tg_dir.name.split("-", 2)[2], pbench_run)
+        # above.
+        yield ToolGroup(tg_dir.name[len(ToolGroup.TOOL_GROUP_PREFIX) + 1 :], pbench_run)
