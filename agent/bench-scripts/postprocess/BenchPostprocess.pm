@@ -273,7 +273,7 @@ sub calc_ratio_series {
 			return;
 		}
 		if ($num_ts_1 > $den_ts) {
-			die "Logic bomb:  numerator timestamp (${num_ts_1}) > denominator timestamp (${den_ts})";
+			die "Logic error:  numerator timestamp (${num_ts_1}) > denominator timestamp (${den_ts})";
 		}
 		my $num_value = $numerator->{$num_ts_1}{'value'};
 		my $time_diff = $den_ts - $num_ts_1;
@@ -363,7 +363,7 @@ sub calc_sum_series {
 			return;
 		}
 		if ($add_ts_1 > $sum_ts) {
-			die "Logic bomb:  addend timestamp (${add_ts_1}) > sum timestamp (${sum_ts})";
+			die "Logic error:  addend timestamp (${add_ts_1}) > sum timestamp (${sum_ts})";
 		}
 		my $value = $add_from_ref->{$add_ts_1}{'value'};
 		my $time_diff = $sum_ts - $add_ts_1;

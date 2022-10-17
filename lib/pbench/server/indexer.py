@@ -498,32 +498,32 @@ class ResultData(PbenchData):
                 cols = set(ubm_driver["columns"].keys())
                 if ubm_driver["val_col"] not in cols:
                     idxctx.logger.error(
-                        "Logic bomb! bad ubm driver val_col ({})", ptb._tbctx
+                        "Logic error! bad ubm driver val_col ({})", ptb._tbctx
                     )
                     return None
                 if ubm_driver["start_ts_col"] not in cols:
                     idxctx.logger.error(
-                        "Logic bomb! bad ubm driver start_ts_col ({})",
+                        "Logic error! bad ubm driver start_ts_col ({})",
                         ptb._tbctx,
                     )
                     return None
                 if ubm_driver["end_ts_col"] and (ubm_driver["end_ts_col"] not in cols):
                     idxctx.logger.error(
-                        "Logic bomb! bad ubm driver end_ts_col ({})",
+                        "Logic error! bad ubm driver end_ts_col ({})",
                         ptb._tbctx,
                     )
                     return None
                 for bm_md_col in ubm_driver["benchmark_md_cols"]:
                     if bm_md_col not in cols:
                         idxctx.logger.error(
-                            "Logic bomb! bad ubm driver benchmark_md_cols ({})",
+                            "Logic error! bad ubm driver benchmark_md_cols ({})",
                             ptb._tbctx,
                         )
                         return None
                 for sample_md_col in ubm_driver["sample_md_cols"]:
                     if sample_md_col not in cols:
                         idxctx.logger.error(
-                            "Logic bomb! bad ubm driver sample_md_cols ({})",
+                            "Logic error! bad ubm driver sample_md_cols ({})",
                             ptb._tbctx,
                         )
                         return None
@@ -2452,7 +2452,7 @@ class ToolData(PbenchData):
                         the_rate = value_diff / duration
                         rate[stat] = the_rate
                 else:
-                    assert len(parts) == 2, "Logic bomb! parts is not parts!"
+                    assert len(parts) == 2, "Logic error! parts is not parts!"
                     stat = parts[0]
                     substat = parts[1]
                     if stat not in gauge:
@@ -2758,7 +2758,7 @@ class ToolData(PbenchData):
         elif self.handler["@prospectus"]["method"] == "periodic_timestamp":
             gen = self._make_source_stdout()
         else:
-            raise Exception("Logic bomb!")
+            raise Exception("Logic error!")
         return gen
 
     @staticmethod
@@ -2797,7 +2797,7 @@ class ToolData(PbenchData):
                         # self.logger.warning("no .csv handler for '{}' ({}, {})\n",
                         #        alias_name, fname, p)
                         continue
-            assert handler_rec is not None, "Logic bomb! handler_rec is None"
+            assert handler_rec is not None, "Logic error! handler_rec is None"
             datafile = _dict_const(path=p, basename=fname, handler_rec=handler_rec)
             datafile["reader"] = reader = csv.reader(
                 open(os.path.join(ptb.extracted_root, p))
@@ -2860,7 +2860,7 @@ class ToolData(PbenchData):
                 handler, basepath, toolsgroup, tool, ptb
             )
         else:
-            raise Exception("Logic bomb! %s" % (handler["@prospectus"]["handling"]))
+            raise Exception("Logic error! %s" % (handler["@prospectus"]["handling"]))
         datafiles.sort(key=itemgetter("path", "basename"))
         return datafiles
 
@@ -2979,7 +2979,7 @@ def ip_address_to_ip_o_addr(contents):
                 state = 1
             serial, ifname = line.split(":")[0:2]
         elif line.lstrip().startswith("inet"):
-            assert state != 0, f"Logic bomb! Unexpected state: {state!r}"
+            assert state != 0, f"Logic error! Unexpected state: {state!r}"
             if state == 1:
                 state = 2
             elif state == 2:
@@ -3885,7 +3885,7 @@ class PbenchTarBall:
                     path_els = dpath.split(os.path.sep)[1:-1]
                 if dpath in toc_dirs:
                     raise Exception(
-                        "Logic bomb! Found a directory entry that already exists!"
+                        "Logic error! Found a directory entry that already exists!"
                     )
                 toc_dirs[dpath] = _dict_const(
                     parent=parent,

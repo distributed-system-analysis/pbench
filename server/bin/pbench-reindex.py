@@ -88,7 +88,7 @@ def reindex(controller_name, tb_name, archive_p, incoming_p, dry_run=False):
         return (controller_name, tb_name, "badstate", "")
 
     # At this point we are guaranteed to have only one path.
-    assert len(paths) == 1, f"Logic bomb!  len(paths) ({len(paths)}) != 1"
+    assert len(paths) == 1, f"Logic error!  len(paths) ({len(paths)}) != 1"
 
     try:
         if not dry_run:

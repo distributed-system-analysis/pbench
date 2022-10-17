@@ -280,7 +280,7 @@ sub gen_data {
 						if ( $series_tot > $series_num ) {
 							printf TOOL_HTML "    <p class=\"chart-reason\">No data from any series met set thresholds for graphing.</p>\n";
 						} else {
-							die "Logic bomb!\n";
+							die "Logic error!\n";
 						}
 					}
 					printf TOOL_HTML "    <br>\n";

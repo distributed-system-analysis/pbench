@@ -227,7 +227,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
         else:
             assert (
                 sorted_list_one_content[i].name > sorted_list_two_content[j].name
-            ), "Logic bomb!"
+            ), "Logic error!"
             report_text = (
                 f"{sorted_list_two_content[j].name}: present in "
                 f"{list_two_obj.description} but not in "
@@ -236,7 +236,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
             report.write(report_text)
             logger.debug(report_text)
             j += 1
-    assert (i == len_list_one_content) or (j == len_list_two_content), "Logic bomb!"
+    assert (i == len_list_one_content) or (j == len_list_two_content), "Logic error!"
 
     if i == len_list_one_content and j < len_list_two_content:
         for entry in sorted_list_two_content[j:len_list_two_content]:
@@ -257,7 +257,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
     else:
         assert (i == len_list_one_content) and (
             j == len_list_two_content
-        ), "Logic bomb!"
+        ), "Logic error!"
 
 
 def sanity_check(s3_obj, logger):
