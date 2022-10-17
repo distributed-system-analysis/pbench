@@ -297,17 +297,15 @@ def test_gen_tool_groups():
             self.name = name
             self.pbench_run = pbench_run
 
-    with (
-        mock.patch("pbench.agent.tool_group.Path", MockPath),
-        mock.patch("pbench.agent.tool_group.ToolGroup", MockToolGroup),
-    ):
-        # To verify the case where there are no tool groups created, we make a
-        # special Path object which will expose no tool groups.
-        tgs = list(gen_tool_groups(MockPath.NO_TOOL_GROUP_DIRS))
-        assert len(tgs) == 0
+    with mock.patch("pbench.agent.tool_group.Path", MockPath):
+        with mock.patch("pbench.agent.tool_group.ToolGroup", MockToolGroup):
+            # To verify the case where there are no tool groups created, we make
+            # a special Path object which will expose no tool groups.
+            tgs = list(gen_tool_groups(MockPath.NO_TOOL_GROUP_DIRS))
+            assert len(tgs) == 0
 
-        # Using a Path object which does have tool groups, we verify that the
-        # expected generated list of Tool Group objects matches the list of
-        # names we expect.
-        names = set([tg.name for tg in gen_tool_groups("some-pbench-run-dir")])
-        assert names == MockPath._names
+            # Using a Path object which does have tool groups, we verify that
+            # the expected generated list of Tool Group objects matches the list
+            # of names we expect.
+            names = set([tg.name for tg in gen_tool_groups("some-pbench-run-dir")])
+            assert names == MockPath._names
