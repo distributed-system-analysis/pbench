@@ -28,9 +28,9 @@ class TestDatasets:
         """Test dataset contructor"""
         user = create_user
         with freeze_time("1970-01-01"):
-            ds = Dataset(owner=user.username, name="fio", resource_id="f00b0ad")
+            ds = Dataset(owner_id=str(user.id), name="fio", resource_id="f00b0ad")
             ds.add()
-        assert ds.owner == user
+        assert ds.owner_id == str(user.id)
         assert ds.name == "fio"
         assert ds.state == States.UPLOADING
         assert ds.resource_id == "f00b0ad"
@@ -43,12 +43,12 @@ class TestDatasets:
         assert ds.created is None
         assert ds.uploaded <= ds.transition
         assert ds.id is not None
-        assert "test(1)|fio" == str(ds)
+        assert "(1)|fio" == str(ds)
         assert ds.as_dict() == {
             "access": "private",
             "created": None,
             "name": "fio",
-            "owner": "test",
+            "owner_id": "1",
             "state": "Uploading",
             "transition": "1970-01-01T00:00:00+00:00",
             "uploaded": "1970-01-01T00:00:00+00:00",
@@ -60,7 +60,7 @@ class TestDatasets:
         user is removed.
         """
         user = create_user
-        ds = Dataset(owner=user.username, name="fio", resource_id="deadbeef")
+        ds = Dataset(owner_id=str(user.id), name="fio", resource_id="deadbeef")
         ds.add()
         User.delete(username=user.username)
         ds1 = Dataset.query(resource_id="deadbeef")
@@ -76,7 +76,7 @@ class TestDatasets:
             "access": "private",
             "created": "2020-02-15T00:00:00+00:00",
             "name": "drb",
-            "owner": "drb",
+            "owner_id": "3",
             "state": "Indexed",
             "transition": "1970-01-01T00:42:00+00:00",
             "uploaded": "2022-01-01T00:00:00+00:00",
@@ -91,16 +91,11 @@ class TestDatasets:
             },
         }
 
-    def test_construct_bad_owner(self, db_session):
-        """Test with a non-existent username"""
-        with pytest.raises(DatasetBadParameterType):
-            Dataset(owner="notme", name="fio")
-
     def test_construct_bad_state(self, db_session, create_user):
         """Test with a non-States state value"""
         with pytest.raises(DatasetBadParameterType):
             Dataset(
-                owner=create_user.username,
+                owner_id=str(create_user.id),
                 name="fio",
                 resource_id="d00d",
                 state="notStates",
@@ -109,7 +104,7 @@ class TestDatasets:
     def test_attach_exists(self, db_session, create_user):
         """Test that we can attach to a dataset"""
         ds1 = Dataset(
-            owner=create_user.username,
+            owner_id=str(create_user.id),
             name="fio",
             resource_id="bib",
             state=States.INDEXING,
@@ -117,7 +112,7 @@ class TestDatasets:
         ds1.add()
 
         ds2 = Dataset.attach(resource_id=ds1.resource_id, state=States.INDEXED)
-        assert ds2.owner == ds1.owner
+        assert ds2.owner_id == ds1.owner_id
         assert ds2.name == ds1.name
         assert ds2.state == States.INDEXED
         assert ds2.resource_id is ds1.resource_id
@@ -133,7 +128,7 @@ class TestDatasets:
     def test_query_name(self, db_session, create_user):
         """Test that we can find a dataset by name alone"""
         ds1 = Dataset(
-            owner=create_user.username,
+            owner_id=str(create_user.id),
             resource_id="deed1e",
             name="fio",
             state=States.INDEXING,
@@ -142,7 +137,7 @@ class TestDatasets:
 
         ds2 = Dataset.query(name="fio")
         assert ds2.name == "fio"
-        assert ds2.owner == ds1.owner
+        assert ds2.owner_id == ds1.owner_id
         assert ds2.name == ds1.name
         assert ds2.state == ds1.state
         assert ds2.resource_id == ds1.resource_id
@@ -151,7 +146,9 @@ class TestDatasets:
     def test_advanced_good(self, db_session, create_user):
         """Test advancing the state of a dataset"""
         with freeze_time("2525-05-25T15:15"):
-            ds = Dataset(owner=create_user.username, name="fio", resource_id="beefeed")
+            ds = Dataset(
+                owner_id=str(create_user.id), name="fio", resource_id="beefeed"
+            )
             ds.created = datetime(2020, 1, 25, 23, 14)
             ds.add()
         with freeze_time("2525-08-25T15:25"):
@@ -162,7 +159,7 @@ class TestDatasets:
             "access": "private",
             "created": "2020-01-25T23:14:00+00:00",
             "name": "fio",
-            "owner": "test",
+            "owner_id": "1",
             "state": "Uploaded",
             "transition": "2525-08-25T15:25:00+00:00",
             "uploaded": "2525-05-25T15:15:00+00:00",
@@ -171,7 +168,7 @@ class TestDatasets:
 
     def test_advanced_bad_state(self, db_session, create_user):
         """Test with a non-States state value"""
-        ds = Dataset(owner=create_user.username, name="fio", resource_id="feebeed")
+        ds = Dataset(owner_id=str(create_user.id), name="fio", resource_id="feebeed")
         ds.add()
         with pytest.raises(DatasetBadParameterType):
             ds.advance("notStates")
@@ -180,7 +177,7 @@ class TestDatasets:
         """Test that we can't advance to a state that's not a
         successor to the initial state.
         """
-        ds = Dataset(owner=create_user.username, name="fio", resource_id="debead")
+        ds = Dataset(owner_id=str(create_user.id), name="fio", resource_id="debead")
         ds.add()
         with pytest.raises(DatasetBadStateTransition):
             ds.advance(States.DELETED)
@@ -188,7 +185,7 @@ class TestDatasets:
     def test_advanced_terminal(self, db_session, create_user):
         """Test that we can't advance from a terminal state"""
         ds = Dataset(
-            owner=create_user.username,
+            owner_id=str(create_user.id),
             name="fio",
             resource_id="beadde",
             state=States.DELETED,
@@ -201,7 +198,7 @@ class TestDatasets:
         """Advance a dataset through the entire lifecycle using the state
         transition dict.
         """
-        ds = Dataset(owner=create_user.username, name="fio", resource_id="beaddee")
+        ds = Dataset(owner_id=str(create_user.id), name="fio", resource_id="beaddee")
         ds.add()
         assert ds.state == States.UPLOADING
         beenthere = [ds.state]
@@ -222,7 +219,7 @@ class TestDatasets:
     def test_delete(self, db_session, create_user):
         """Test that we can delete a dataset"""
         ds1 = Dataset(
-            owner=create_user.username,
+            owner_id=str(create_user.id),
             name="foobar",
             resource_id="f00dea7",
             state=States.INDEXING,

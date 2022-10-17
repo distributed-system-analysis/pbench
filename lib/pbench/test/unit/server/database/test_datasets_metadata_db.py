@@ -35,7 +35,7 @@ class TestGetSetMetadata:
         assert m.dataset_ref == m1.dataset_ref
 
         # Check the str()
-        assert "drb(3)|drb>>global" == str(m)
+        assert "(3)|drb>>global" == str(m)
 
         # Try to get a metadata key that doesn't exist
         with pytest.raises(MetadataNotFound) as exc:
@@ -114,14 +114,14 @@ class TestGetSetMetadata:
 
 
 class TestInternalMetadata:
-    def test_dataset_full(self, provide_metadata):
+    def test_dataset_full(self, provide_metadata, create_drb_user):
         ds = Dataset.query(name="drb")
         metadata = Metadata.getvalue(ds, "dataset")
         assert metadata == {
             "access": "private",
             "created": "2020-02-15T00:00:00+00:00",
             "name": "drb",
-            "owner": "drb",
+            "owner_id": str(create_drb_user.id),
             "state": "Indexed",
             "transition": "1970-01-01T00:42:00+00:00",
             "uploaded": "2022-01-01T00:00:00+00:00",
@@ -189,61 +189,58 @@ class TestMetadataNamespace:
         # See if we can create a metadata row
         ds = Dataset.query(name="drb")
         user1 = User.query(username="drb")
+        metadata_db_query = Database.db_session.query(Metadata)
         assert ds.metadatas == []
-        t = Metadata.create(key="user", value=True, dataset=ds, user=user1)
+        t = Metadata.create(key="user", value=True, dataset=ds, user_id=user1.id)
         assert t is not None
         assert ds.metadatas == [t]
-        assert user1.dataset_metadata == [t]
+        assert Database.db_session.query(Metadata).filter_by(
+            user_id=user1.id
+        ).all() == [t]
 
         user2 = User.query(username="test")
-        d = Metadata.create(key="user", value=False, dataset=ds, user=user2)
+        d = Metadata.create(key="user", value=False, dataset=ds, user_id=user2.id)
         assert d is not None
         assert ds.metadatas == [t, d]
-        assert user1.dataset_metadata == [t]
-        assert user2.dataset_metadata == [d]
+        assert metadata_db_query.filter_by(user_id=user1.id).all() == [t]
+        assert metadata_db_query.filter_by(user_id=user2.id).all() == [d]
 
         g = Metadata.create(key="user", value="text", dataset=ds)
         assert g is not None
         assert ds.metadatas == [t, d, g]
-        assert user1.dataset_metadata == [t]
-        assert user2.dataset_metadata == [d]
+        assert metadata_db_query.filter_by(user_id=user1.id).all() == [t]
+        assert metadata_db_query.filter_by(user_id=user2.id).all() == [d]
 
         assert Metadata.get(key="user", dataset=ds).value == "text"
-        assert Metadata.get(key="user", dataset=ds, user=user1).value is True
-        assert Metadata.get(key="user", dataset=ds, user=user2).value is False
+        assert Metadata.get(key="user", dataset=ds, user_id=user1.id).value is True
+        assert Metadata.get(key="user", dataset=ds, user_id=user2.id).value is False
 
-        Metadata.remove(key="user", dataset=ds, user=user1)
-        assert user1.dataset_metadata == []
-        assert user2.dataset_metadata == [d]
+        Metadata.remove(key="user", dataset=ds, user_id=user1.id)
+        assert metadata_db_query.filter_by(user_id=user1.id).all() == []
+        assert metadata_db_query.filter_by(user_id=user2.id).all() == [d]
         assert ds.metadatas == [d, g]
 
         Metadata.remove(key="user", dataset=ds)
-        assert user1.dataset_metadata == []
-        assert user2.dataset_metadata == [d]
+        assert metadata_db_query.filter_by(user_id=user1.id).all() == []
+        assert metadata_db_query.filter_by(user_id=user2.id).all() == [d]
         assert ds.metadatas == [d]
 
-        Metadata.remove(key="user", dataset=ds, user=user2)
-        assert user1.dataset_metadata == []
-        assert user2.dataset_metadata == []
+        Metadata.remove(key="user", dataset=ds, user_id=user2.id)
+        assert metadata_db_query.filter_by(user_id=user1.id).all() == []
+        assert metadata_db_query.filter_by(user_id=user2.id).all() == []
         assert ds.metadatas == []
 
         # Peek under the carpet to look for orphaned metadata objects linked
         # to the Dataset or User
-        metadata = (
-            Database.db_session.query(Metadata).filter_by(dataset_ref=ds.id).first()
-        )
+        metadata = metadata_db_query.filter_by(dataset_ref=ds.id).first()
         assert metadata is None
-        metadata = (
-            Database.db_session.query(Metadata)
-            .filter(
-                or_(
-                    Metadata.user_ref == user1.id,
-                    Metadata.user_ref == user2.id,
-                    Metadata.user_ref is None,
-                )
+        metadata = metadata_db_query.filter(
+            or_(
+                Metadata.user_id == user1.id,
+                Metadata.user_id == user2.id,
+                Metadata.user_id is None,
             )
-            .first()
-        )
+        ).first()
         assert metadata is None
 
     def test_set_bad_syntax(self, attach_dataset):
@@ -277,7 +274,7 @@ class TestMetadataNamespace:
         assert exc.value.element == "contact"
         assert (
             str(exc.value)
-            == "Key 'contact' value for 'global.contact.email' in drb(3)|drb is not a JSON object"
+            == "Key 'contact' value for 'global.contact.email' in (3)|drb is not a JSON object"
         )
 
     def test_set_bad_path(self, attach_dataset):
@@ -290,7 +287,7 @@ class TestMetadataNamespace:
         assert exc.value.element == "contact"
         assert (
             str(exc.value)
-            == "Key 'contact' value for 'global.contact.email' in drb(3)|drb is not a JSON object"
+            == "Key 'contact' value for 'global.contact.email' in (3)|drb is not a JSON object"
         )
 
     def test_get_outer_path(self, attach_dataset):
@@ -352,16 +349,20 @@ class TestMetadataNamespace:
         user1 = User.query(username="drb")
         user2 = User.query(username="test")
         Metadata.setvalue(dataset=ds, key="user.contact", value="Barney")
-        Metadata.setvalue(dataset=ds, key="user.contact", value="Fred", user=user2)
-        Metadata.setvalue(dataset=ds, key="user.contact", value="Wilma", user=user1)
+        Metadata.setvalue(
+            dataset=ds, key="user.contact", value="Fred", user_id=user2.id
+        )
+        Metadata.setvalue(
+            dataset=ds, key="user.contact", value="Wilma", user_id=user1.id
+        )
 
-        assert Metadata.getvalue(dataset=ds, user=None, key="user") == {
+        assert Metadata.getvalue(dataset=ds, user_id=None, key="user") == {
             "contact": "Barney"
         }
-        assert Metadata.getvalue(dataset=ds, user=user2, key="user") == {
+        assert Metadata.getvalue(dataset=ds, user_id=user2.id, key="user") == {
             "contact": "Fred"
         }
-        assert Metadata.getvalue(dataset=ds, user=user1, key="user") == {
+        assert Metadata.getvalue(dataset=ds, user_id=user1.id, key="user") == {
             "contact": "Wilma"
         }
 
@@ -397,7 +398,7 @@ class TestMetadataNamespace:
             Metadata.setvalue(ds, "dataset.name", value)
         assert (
             str(exc.value)
-            == f"Metadata key 'dataset.name' value {value!r} for dataset drb(3)|drb must be a UTF-8 string of 1 to 32 characters"
+            == f"Metadata key 'dataset.name' value {value!r} for dataset (3)|drb must be a UTF-8 string of 1 to 32 characters"
         )
         assert Metadata.getvalue(ds, "dataset.name") == name
 
@@ -414,11 +415,11 @@ class TestMetadataNamespace:
         [
             (
                 "Not a date",
-                "Metadata key 'server.deletion' value 'Not a date' for dataset drb(3)|drb must be a date/time",
+                "Metadata key 'server.deletion' value 'Not a date' for dataset (3)|drb must be a date/time",
             ),
             (
                 "2040-12-25",
-                "Metadata key 'server.deletion' value '2040-12-25' for dataset drb(3)|drb must be a date/time before 2031-12-30",
+                "Metadata key 'server.deletion' value '2040-12-25' for dataset (3)|drb must be a date/time before 2031-12-30",
             ),
         ],
     )

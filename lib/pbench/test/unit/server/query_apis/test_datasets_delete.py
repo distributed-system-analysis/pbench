@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from logging import ERROR, Logger
+from logging import Logger
 from typing import Iterator
 
 import elasticsearch
@@ -152,14 +152,7 @@ class TestDatasetsDelete:
             Dataset.query(name=owner)
 
     def test_partial(
-        self,
-        attach_dataset,
-        caplog,
-        client,
-        get_document_map,
-        monkeypatch,
-        pbench_token,
-        server_config,
+        self, client, get_document_map, monkeypatch, server_config, pbench_token
     ):
         """
         Check the delete API when some document updates fail. We expect an
@@ -167,20 +160,15 @@ class TestDatasetsDelete:
         """
         self.fake_elastic(monkeypatch, get_document_map, True)
         self.fake_filetree(monkeypatch)
-
+        ds = Dataset.query(name="drb")
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/random_md5_string1",
+            f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_token}"},
         )
 
         # Verify the report and status
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
         assert response.json["message"] == "Failed to update 3 out of 31 documents"
-        assert (
-            "pbench.server.api",
-            ERROR,
-            'DatasetsDelete:dataset drb(3)|drb: 28 successful document actions and 3 failures: {"Just kidding": {"unit-test.v6.run-data.2021-06": 1, "unit-test.v6.run-toc.2021-06": 1, "unit-test.v5.result-data-sample.2021-06": 1}, "ok": {"unit-test.v6.run-toc.2021-06": 9, "unit-test.v5.result-data-sample.2021-06": 19}}',
-        ) in caplog.record_tuples
 
         # Verify that the Dataset still exists
         Dataset.query(name="drb")
