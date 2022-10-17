@@ -68,7 +68,7 @@ def main():
             logger.info("Created DB {}", db)
         Database.init_db(server_config, logger)
     except (NoOptionError, NoSectionError):
-        logger.exception(f"{PROG}: ERROR")
+        logger.exception("Error fetching required configuration")
         sys.exit(1)
 
     cmd_line = [
