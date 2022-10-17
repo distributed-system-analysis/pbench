@@ -437,7 +437,7 @@ def main(options):
             for act in act_set.actions:
                 assert act.noun.startswith(
                     public_html
-                ), f"Logic bomb! {act.noun} not in .../public_html/"
+                ), f"Logic error! {act.noun} not in .../public_html/"
                 tgt = Path(act.noun[len(public_html) + 1 :])
                 if act.verb == "mv":
                     name = tgt.name

@@ -370,4 +370,4 @@ class CopyResultTb:
                 )
         assert (
             response.ok
-        ), f"Logic bomb!  Unexpected error response, '{response.reason}' ({response.status_code})"
+        ), f"Logic error!  Unexpected error response, '{response.reason}' ({response.status_code})"

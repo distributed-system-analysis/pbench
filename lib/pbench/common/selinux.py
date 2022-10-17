@@ -24,7 +24,7 @@ except ImportError:
     def restorecon(path):
         """Always raises an exception, to identify logic problems."""
         raise NotImplementedError(
-            "Logic bomb!  selinux.restorecon() called when selinux is not enabled."
+            "Logic error!  selinux.restorecon() called when selinux is not enabled."
         )
 
 else:

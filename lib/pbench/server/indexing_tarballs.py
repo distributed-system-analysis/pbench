@@ -311,7 +311,7 @@ class Index:
                         linksrc_dirname = linksrc_dir.name
                         count_processed_tb += 1
                         assert linksrc_dirname == self.linksrc, (
-                            f"Logic bomb!  tar ball "
+                            f"Logic error!  tar ball "
                             f"path {tb} does not contain {self.linksrc}"
                         )
 
@@ -556,7 +556,7 @@ class Index:
                             )
                         elif tb_res in (error_code["CFG_ERROR"], error_code["BAD_CFG"]):
                             assert False, (
-                                f"Logic Bomb!  Unexpected tar ball handling "
+                                f"Logic error!  Unexpected tar ball handling "
                                 f"result status {tb_res.value:d} for tar ball {tb}"
                             )
                         elif tb_res.tarball_error:

@@ -334,7 +334,7 @@ let failures=0
 for testname in ${tests}; do
     cmd=${cmds[${testname}]}
     if [[ -z "${cmd}" ]]; then
-        printf -- "Unknown test - Logic bomb!: \"%s\"\n" "${testname}" >&2
+        printf -- "Unknown test - Logic error!: \"%s\"\n" "${testname}" >&2
         continue
     fi
     let count=count+1

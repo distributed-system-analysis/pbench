@@ -222,7 +222,7 @@ class Report:
                         and duplicates == 0
                         and failures == 0
                         and retries == 0
-                    ), "Logic Bomb!"
+                    ), "Logic error!"
                     log_action = self.logger.debug
                 log_action(
                     "posted status (start ts: {}, end ts: {}, duration: {:.2f}s,"

@@ -96,7 +96,7 @@ class BaseServer:
         """
         assert (
             def_host_name
-        ), f"Logic bomb!  Default host name required: {spec!r}, {def_host_name!r}"
+        ), f"Logic error!  Default host name required: {spec!r}, {def_host_name!r}"
         _spec = spec if spec else def_host_name
         parts = _spec.split(";", 1)
         pairs = []
@@ -134,7 +134,7 @@ class BaseServer:
             self.host, self.port = pairs[1]
             self._repr = f"{self.name} - {self.bind_host}:{self.bind_port} / {self.host}:{self.port}"
         else:
-            assert len(pairs) == 1, "Logic bomb!  unexpected pairs, {pairs!r}"
+            assert len(pairs) == 1, "Logic error!  unexpected pairs, {pairs!r}"
             self.host, self.port = pairs[0]
             self._repr = f"{self.name} - {self.host}:{self.port}"
 
@@ -157,7 +157,7 @@ class BaseServer:
 
         Returns BaseReturnCode "enum" via the "kill" return code method.
         """
-        assert self.pid_file is not None, f"Logic bomb!  Unexpected state: {self!r}"
+        assert self.pid_file is not None, f"Logic error!  Unexpected state: {self!r}"
 
         try:
             pid = self.get_pid()
