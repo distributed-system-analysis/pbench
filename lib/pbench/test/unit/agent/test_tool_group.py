@@ -125,7 +125,9 @@ class Test_ToolGroup:
             """Mocked directory check"""
             raise FileNotFoundError("Mock Path.resolve()")
 
-        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(
+            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
+        )
         monkeypatch.setattr(os, "listdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
         monkeypatch.setattr(Path, "read_text", mock_read_text)
@@ -134,7 +136,9 @@ class Test_ToolGroup:
 
     def test_target_trigger_empty_file(self, monkeypatch):
         """verify if the trigger file is empty"""
-        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(
+            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
+        )
         monkeypatch.setattr(os, "listdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
         monkeypatch.setattr(Path, "read_text", lambda path: "")
@@ -149,7 +153,9 @@ class Test_ToolGroup:
             """Mocked read file check"""
             return trigger_file_content
 
-        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(
+            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
+        )
         monkeypatch.setattr(os, "listdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
         monkeypatch.setattr(Path, "read_text", mock_read_text)
@@ -166,7 +172,9 @@ class Test_ToolGroup:
             """Mocked directory check"""
             raise FileNotFoundError("Mock Path.resolve()")
 
-        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(
+            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
+        )
         monkeypatch.setattr(os, "listdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
         monkeypatch.setattr(Path, "read_text", mock_read_text)
@@ -244,7 +252,9 @@ class Test_ToolGroup:
                 return opt_template.format(path.parent.name, path.name)
             raise AssertionError(f"Unexpected file in read_text() mock: {str(path)!r}")
 
-        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(
+            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
+        )
         monkeypatch.setattr(os, "listdir", mock_listdir)
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
         monkeypatch.setattr(Path, "read_text", mock_read_text)

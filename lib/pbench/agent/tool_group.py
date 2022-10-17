@@ -76,7 +76,7 @@ class ToolGroup:
 
         Raises BadToolGroup via the verify_tool_group() method on error.
         """
-        self.tg_dir = ToolGroup.verify_tool_group(name, pbench_run)
+        self.tg_dir = self.verify_tool_group(name, pbench_run)
         self.name = name
 
         # __trigger__
