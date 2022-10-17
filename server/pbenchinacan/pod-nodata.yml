@@ -1,11 +1,37 @@
-# Created with podman-3.2.2
+#
+# This configuration is intended to create a brand new (empty) Pbench Server
+# deployment.  The resulting pod consists of three containers: the Pbench Server
+# and its associated Elasticsearch and PostgreSQL database servers.
+#
+# The Elasticsearch and PostgreSQL container images have specific versions and
+# are pulled from cached images in an internal registry; the Pbench Server
+# container image is pulled from the same registry with a configurable tag.
+#
+# The pod should be invoked via the following command
+#
+#    envsubst < server/pbenchinacan/pod-nodata.yml | podman play kube -
+#
+# with the following environment variables defined:
+#
+#  PB_POD_NAME - the name to be used for the pod
+#  PB_INTERNAL_CONTAINER_REG - the FQDN of the container registry
+#  PB_SERVER_IMAGE - the <registry>/<repo>/<img_name> of the Pbench Server image
+#  PB_SERVER_IMAGE_TAG - the tag for the Pbench Server image
+#
+# The resulting pod maps the following ports:
+#
+#   8080 - HTTP web server (and Pbench Dashboard)
+#   8001 - Pbench Server RESTful API
+#   9200 - Elasticsearch
+#  55555 - ssh
+#
 apiVersion: v1
 kind: Pod
 metadata:
   creationTimestamp: "2021-10-29T21:13:14Z"
   labels:
     app: pbenchserverinacan
-  name: pbenchinacan
+  name: ${PB_POD_NAME}
 spec:
   hostname: "pbenchinacan"
   containers:
@@ -28,7 +54,7 @@ spec:
       value: "single-node"
     - name: xpack.security.enabled
       value: "false"
-    image: registry.connect.redhat.com/elastic/elasticsearch:7.13.3
+    image: ${PB_INTERNAL_CONTAINER_REG}/pbench/elasticsearch:7.13.3
     name: elasticsearch
     ports:
       - containerPort: 9200
@@ -44,30 +70,6 @@ spec:
       - name: vm.max_map_count
         value: "262144"
     workingDir: /usr/share/elasticsearch
-  - command:
-    - /sbin/init
-    env:
-    - name: PATH
-      value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-    - name: TERM
-      value: xterm
-    - name: container
-      value: oci
-    image: localhost/pbench-server:latest
-    name: pbenchserver
-    ports:
-      - containerPort: 8001
-        hostPort: 8001
-      - containerPort: 80
-        hostPort: 8080
-    resources: {}
-    securityContext:
-      allowPrivilegeEscalation: true
-      capabilities: {}
-      privileged: false
-      readOnlyRootFilesystem: false
-      seLinuxOptions: {}
-    workingDir: /
   - args:
     - run-postgresql
     command:
@@ -110,7 +112,7 @@ spec:
       value: pbench
     - name: POSTGRESQL_DATABASE
       value: pbenchcontainer
-    image: registry.redhat.io/rhel8/postgresql-13:latest
+    image: ${PB_INTERNAL_CONTAINER_REG}/pbench/postgresql-13:latest
     name: postgresql
     ports:
       - containerPort: 5432
@@ -124,6 +126,32 @@ spec:
       runAsUser: 26
       seLinuxOptions: {}
     workingDir: /opt/app-root/src
+  - command:
+    - /sbin/init
+    env:
+    - name: PATH
+      value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - name: TERM
+      value: xterm
+    - name: container
+      value: oci
+    image: ${PB_SERVER_IMAGE}:${PB_SERVER_IMAGE_TAG}
+    name: pbenchserver
+    ports:
+      - containerPort: 22
+        hostPort: 55555
+      - containerPort: 80
+        hostPort: 8080
+      - containerPort: 8001
+        hostPort: 8001
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities: {}
+      privileged: false
+      readOnlyRootFilesystem: false
+      seLinuxOptions: {}
+    workingDir: /
   dnsConfig: {}
   restartPolicy: Never
 status: {}
