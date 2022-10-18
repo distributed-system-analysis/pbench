@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from unittest import mock
 
 import pytest
 
@@ -269,7 +268,7 @@ class Test_ToolGroup:
         assert tg.get_label("bad-host") == ""
 
 
-def test_gen_tool_groups():
+def test_gen_tool_groups(monkeypatch):
     """Verify the tool group directory generator."""
 
     class MockPath:
@@ -307,15 +306,16 @@ def test_gen_tool_groups():
             self.name = name
             self.pbench_run = pbench_run
 
-    with mock.patch("pbench.agent.tool_group.Path", MockPath):
-        with mock.patch("pbench.agent.tool_group.ToolGroup", MockToolGroup):
-            # To verify the case where there are no tool groups created, we make
-            # a special Path object which will expose no tool groups.
-            tgs = list(gen_tool_groups(MockPath.NO_TOOL_GROUP_DIRS))
-            assert len(tgs) == 0
+    monkeypatch.setattr("pbench.agent.tool_group.Path", MockPath)
+    monkeypatch.setattr("pbench.agent.tool_group.ToolGroup", MockToolGroup)
 
-            # Using a Path object which does have tool groups, we verify that
-            # the expected generated list of Tool Group objects matches the list
-            # of names we expect.
-            names = {tg.name for tg in gen_tool_groups("some-pbench-run-dir")}
-            assert names == MockPath._names
+    # To verify the case where there are no tool groups created, we make
+    # a special Path object which will expose no tool groups.
+    tgs = list(gen_tool_groups(MockPath.NO_TOOL_GROUP_DIRS))
+    assert len(tgs) == 0
+
+    # Using a Path object which does have tool groups, we verify that
+    # the expected generated list of Tool Group objects matches the list
+    # of names we expect.
+    names = {tg.name for tg in gen_tool_groups("some-pbench-run-dir")}
+    assert names == MockPath._names
