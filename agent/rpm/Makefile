@@ -9,28 +9,25 @@
 # 8. Clean up the temp directory
 
 # Do not use the RHEL9 chroots - v0.69 does not work on RHEL9
-CHROOTS = --exclude-chroot centos-stream-9-aarch64 \
-	  --exclude-chroot centos-stream-9-x86_64 \
-	  --exclude-chroot epel-9-aarch64 \
-	  --exclude-chroot epel-9-x86_64
+#CHROOTS = --exclude-chroot centos-stream-9-aarch64 \
+#	  --exclude-chroot centos-stream-9-x86_64 \
+#	  --exclude-chroot epel-9-aarch64 \
+#	  --exclude-chroot epel-9-x86_64
 
+CWD = $(shell pwd -L)
 
-CWD = $(shell pwd)
+component = agent
 
-# adjust as necessary
-AGENT = $(dir ${CWD})
-
-VERSION = $(file < ${AGENT}/VERSION)
-
-# temp directory for packing up the tarball
-TMPDIR = /tmp/opt
-
-RPMSRC = ${HOME}/rpmbuild/SOURCES
-RPMSRPM = ${HOME}/rpmbuild/SRPMS
-RPMSPEC = ${HOME}/rpmbuild/SPECS
+PBENCHTOP := $(shell git rev-parse --show-toplevel)
+VERSION := $(shell cat ${PBENCHTOP}/${component}/VERSION)
+MAJORMINOR := $(shell grep -oE '[0-9]+\.[0-9]+' ${PBENCHTOP}/${component}/VERSION)
 
 prog = pbench-agent
 arch = noarch
+
+# temp directory for packing up the tarball
+TMPDIR = /tmp/opt
+TBDIR = ${TMPDIR}/${prog}-${VERSION}
 
 USE_GIT_SHA1 = yes
 sha1 := $(shell git rev-parse --short HEAD)
@@ -43,7 +40,7 @@ rpm: srpm
 	rpmbuild -bb ${RPMSPEC}/${prog}.spec
 
 srpm: spec patches tarball
-	rm -f ${RPMSRPM}/$(prog)-*.src.rpm
+	rm -f ${RPMSRPM}/${prog}-*.src.rpm
 	rpmbuild -bs ${RPMSPEC}/${prog}.spec
 
 .PHONY: spec
@@ -61,12 +58,18 @@ patches:
 tarball:
 	git submodule init
 	git submodule update
-	make -C .. DESTDIR=${TMPDIR}/${prog}-${VERSION}/agent
-	echo "${sha1}" > ${TMPDIR}/${prog}-${VERSION}/agent/SHA1
-	echo "${seqno}" > ${TMPDIR}/${prog}-${VERSION}/agent/SEQNO
-	tar zcf ${RPMSRC}/pbench-agent-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
+	make -C ${PBENCHTOP}/${component} DESTDIR=${TBDIR}/${component}
+	echo "${sha1}" > ${TBDIR}/${component}/SHA1
+	echo "${seqno}" > ${TBDIR}/${component}/SEQNO
+	tar zcf ${RPMSRC}/${prog}-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
 	rm -rf ${TMPDIR}
 
+###########################################################################
+# build RPMs in COPR
+
 include rpm.mk
+
+clean-sha1:
+	rm -f ${upstmtree}/${prog}.SHA1
 
 clean:: rpm-clean

@@ -6,35 +6,36 @@
 
 CWD = $(shell pwd -L)
 
-SERVER = $(dir ${CWD})
-PBENCHTOP = $(shell dirname ${SERVER})
-TMPDIR = /tmp/opt
+component = server
 
-VERSION = $(shell cat ${SERVER}/VERSION)
+PBENCHTOP := $(shell git rev-parse --show-toplevel)
+VERSION := $(shell cat ${PBENCHTOP}/${component}/VERSION)
+MAJORMINOR := $(shell grep -oE '[0-9]+\.[0-9]+' ${PBENCHTOP}/${component}/VERSION)
+
+prog = pbench-server
+arch = noarch
 
 DISTRO = $(shell uname -r | python -c 'import sys; print(sys.stdin.read().split(".")[-2])')
 
 PYTHON = python3
 
-RPMSRC = ${HOME}/rpmbuild/SOURCES
-RPMSRPM = ${HOME}/rpmbuild/SRPMS
-RPMSPEC = ${HOME}/rpmbuild/SPECS
-
-prog = pbench-server
-arch = noarch
-
+# temp directory for packing up the tarball
+TMPDIR = /tmp/opt
 TBDIR = ${TMPDIR}/${prog}-${VERSION}
 
 USE_GIT_SHA1 = yes
-sha1 = $(shell git rev-parse --short HEAD)
+sha1 := $(shell git rev-parse --short HEAD)
 seqno := $(shell if [ -e ./seqno ] ;then cat ./seqno ;else echo "1" ;fi)
 
-rpm:  srpm
-	rpmbuild -bb ${HOME}/rpmbuild/SPECS/${prog}.spec
+# By default we only build a source RPM
+all: srpm
 
-srpm:	patches tarball
-	rm -f ${HOME}/rpmbuild/SRPMS/$(prog)-*.src.rpm
-	rpmbuild -bs ${HOME}/rpmbuild/SPECS/$(prog).spec
+rpm: srpm
+	rpmbuild -bb ${RPMSPEC}/${prog}.spec
+
+srpm: spec patches tarball
+	rm -f ${RPMSRPM}/${prog}-*.src.rpm
+	rpmbuild -bs ${RPMSPEC}/${prog}.spec
 
 .PHONY: spec
 spec: ${prog}.spec.j2
@@ -48,13 +49,13 @@ patches:
 	if [ -d ${CWD}/patches ] ;then cp ${CWD}/patches/* ${RPMSRC} ;fi
 
 .PHONY: tarball
-tarball: spec
+tarball:
 	mkdir -p ${RPMSRC}
-	make -C ${PBENCHTOP}/server DESTDIR=${TBDIR}/server install
+	make -C ${PBENCHTOP}/${component} DESTDIR=${TBDIR}/${component} install
 	make -C ${PBENCHTOP}/web-server DESTDIR=${TBDIR}/web-server install
-	echo "${sha1}" > ${TBDIR}/server/SHA1
-	echo "${seqno}" > ${TBDIR}/server/SEQNO
-	tar zcf ${RPMSRC}/pbench-server-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
+	echo "${sha1}" > ${TBDIR}/${component}/SHA1
+	echo "${seqno}" > ${TBDIR}/${component}/SEQNO
+	tar zcf ${RPMSRC}/${prog}-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
 	rm -rf ${TMPDIR}
 
 ###########################################################################
@@ -65,4 +66,4 @@ include rpm.mk
 clean-sha1:
 	rm -f ${upstmtree}/${prog}.SHA1
 
-clean:: localclean
+clean:: rpm-clean
