@@ -1,4 +1,4 @@
-#!/usr/libexec/platform-python
+#!/usr/bin/env python3
 # -*- mode: python -*-
 
 """Pbench Verify Indexed
