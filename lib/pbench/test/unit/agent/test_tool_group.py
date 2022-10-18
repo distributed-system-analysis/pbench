@@ -105,166 +105,153 @@ class Test_VerifyToolGroup:
         tg_dir = ToolGroup.verify_tool_group(self.group, self.pbench_run)
         assert tg_dir == self.tool_group_dir
 
-    class Test_ToolGroup:
-        """Verify ToolGroup class"""
 
-        def mock_verify_tool_group(name: str, pbench_run: Path):
-            return Path("/mock/pbench-agent")
+class Test_ToolGroup:
+    """Verify ToolGroup class"""
 
-        def mock_is_dir(self: Path):
+    def mock_verify_tool_group(name: str, pbench_run: Path):
+        return Path("/mock/pbench-agent")
+
+    def mock_is_dir(self: Path):
+        """Mocked directory check"""
+        return True
+
+    def test_target_trigger_file(self, monkeypatch):
+        """Verify if the trigger file exists"""
+
+        def mock_read_text(self: Path):
             """Mocked directory check"""
-            return True
+            raise FileNotFoundError("Mock Path.resolve()")
 
-        def test_target_trigger_file(self, monkeypatch):
-            """Verify if the trigger file exists"""
+        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(os, "listdir", lambda path: [])
+        monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
+        monkeypatch.setattr(Path, "read_text", mock_read_text)
+        tg = ToolGroup("wrong-file")
+        assert tg.trigger is None
 
-            def mock_read_text(self: Path):
-                """Mocked directory check"""
-                raise FileNotFoundError("Mock Path.resolve()")
+    def test_target_trigger_empty_file(self, monkeypatch):
+        """verify if the trigger file is empty"""
+        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(os, "listdir", lambda path: [])
+        monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
+        monkeypatch.setattr(Path, "read_text", lambda path: "")
+        tg = ToolGroup("tool-group")
+        assert tg.trigger is None
 
-            monkeypatch.setattr(
-                ToolGroup, "verify_tool_group", self.mock_verify_tool_group
-            )
-            monkeypatch.setattr(os, "listdir", lambda path: [])
-            monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
-            monkeypatch.setattr(Path, "read_text", mock_read_text)
-            tg = ToolGroup("wrong-file")
-            assert tg.trigger is None
+    def test_target_trigger_file_contents(self, monkeypatch):
+        """Verify the contesnts of the Trigger file"""
+        trigger_file_content = "trigger_file_contents"
 
-        def test_target_trigger_empty_file(self, monkeypatch):
-            """verify if the trigger file is empty"""
-            monkeypatch.setattr(
-                ToolGroup, "verify_tool_group", self.mock_verify_tool_group
-            )
-            monkeypatch.setattr(os, "listdir", lambda path: [])
-            monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
-            monkeypatch.setattr(Path, "read_text", lambda path: "")
-            tg = ToolGroup("tool-group")
-            assert tg.trigger is None
+        def mock_read_text(self: Path):
+            """Mocked read file check"""
+            return trigger_file_content
 
-        def test_target_trigger_file_contents(self, monkeypatch):
-            """Verify the contesnts of the Trigger file"""
-            trigger_file_content = "trigger_file_contents"
+        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(os, "listdir", lambda path: [])
+        monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
+        monkeypatch.setattr(Path, "read_text", mock_read_text)
+        tg = ToolGroup("tool-group")
+        assert tg.trigger is trigger_file_content
 
-            def mock_read_text(self: Path):
-                """Mocked read file check"""
-                return trigger_file_content
+    def test_tool_group_empty_dir(self, monkeypatch):
+        """Verify empty tool group Directory"""
 
-            monkeypatch.setattr(
-                ToolGroup, "verify_tool_group", self.mock_verify_tool_group
-            )
-            monkeypatch.setattr(os, "listdir", lambda path: [])
-            monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
-            monkeypatch.setattr(Path, "read_text", mock_read_text)
-            tg = ToolGroup("tool-group")
-            assert tg.trigger is trigger_file_content
+        def mock_is_dir(self):
+            raise AssertionError("Unexpected call to is_dir()")
 
-        def test_tool_group_empty_dir(self, monkeypatch):
-            """Verify empty tool group Directory"""
+        def mock_read_text(self: Path):
+            """Mocked directory check"""
+            raise FileNotFoundError("Mock Path.resolve()")
 
-            def mock_is_dir(self):
-                raise AssertionError("Unexpected call to is_dir()")
+        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(os, "listdir", lambda path: [])
+        monkeypatch.setattr(Path, "is_dir", mock_is_dir)
+        monkeypatch.setattr(Path, "read_text", mock_read_text)
+        tg = ToolGroup("tool-group")
+        assert tg.trigger is None
+        assert tg.name == "tool-group"
+        assert tg.get_label("hostname") == ""
+        assert tg.get_tools("hostname") == {}
 
-            def mock_read_text(self: Path):
-                """Mocked directory check"""
-                raise FileNotFoundError("Mock Path.resolve()")
+    def test_tool_group_dir(self, monkeypatch):
+        """Verify ToolGroup class normal operation"""
 
-            monkeypatch.setattr(
-                ToolGroup, "verify_tool_group", self.mock_verify_tool_group
-            )
-            monkeypatch.setattr(os, "listdir", lambda path: [])
-            monkeypatch.setattr(Path, "is_dir", mock_is_dir)
-            monkeypatch.setattr(Path, "read_text", mock_read_text)
-            tg = ToolGroup("tool-group")
-            assert tg.trigger is None
-            assert tg.name == "tool-group"
-            assert tg.get_label("hostname") == ""
-            assert tg.get_tools("hostname") == {}
+        tool_group_name = "tool-group"
+        tool_group_dir = Path("/mock/pbench-agent")
+        trigger = "trigger file contents"
+        hosts = ["host1", "host2", "host3"]
 
-        def test_tool_group_dir(self, monkeypatch):
-            """Verify ToolGroup class normal operation"""
+        subdirs = {
+            tool_group_dir / "host1": ["tool2", "tool3", "dir__noinstall__"],
+            tool_group_dir / "host2": ["tool1", "__label__", "dir__noinstall__"],
+            tool_group_dir / "host3": ["tool1", "tool2", "tool3", "__label__"],
+        }
+        opt_template = "tool opts for {}/{}"
+        tools = {
+            "host1": {
+                "tool2": opt_template.format("host1", "tool2"),
+                "tool3": opt_template.format("host1", "tool3"),
+            },
+            "host2": {
+                "tool1": opt_template.format("host2", "tool1"),
+            },
+            "host3": {
+                "tool1": opt_template.format("host3", "tool1"),
+                "tool2": opt_template.format("host3", "tool2"),
+                "tool3": opt_template.format("host3", "tool3"),
+            },
+        }
+        label_template = "{} label file contents"
+        labels = {
+            "host1": "",
+            "host2": label_template.format("host2"),
+            "host3": label_template.format("host3"),
+        }
 
-            tool_group_name = "tool-group"
-            tool_group_dir = Path("/mock/pbench-agent")
-            trigger = "trigger file contents"
-            hosts = ["host1", "host2", "host3"]
+        hostnames = {
+            "host1": {
+                "tool2": "tool opts for host1/tool2",
+                "tool3": "tool opts for host1/tool3",
+            },
+            "host2": {"tool1": "tool opts for host2/tool1"},
+            "host3": {
+                "tool1": "tool opts for host3/tool1",
+                "tool2": "tool opts for host3/tool2",
+                "tool3": "tool opts for host3/tool3",
+            },
+        }
 
-            subdirs = {
-                tool_group_dir / "host1": ["tool2", "tool3", "dir__noinstall__"],
-                tool_group_dir / "host2": ["tool1", "__label__", "dir__noinstall__"],
-                tool_group_dir / "host3": ["tool1", "tool2", "tool3", "__label__"],
-            }
-            opt_template = "tool opts for {}/{}"
-            tools = {
-                "host1": {
-                    "tool2": opt_template.format("host1", "tool2"),
-                    "tool3": opt_template.format("host1", "tool3"),
-                },
-                "host2": {
-                    "tool1": opt_template.format("host2", "tool1"),
-                },
-                "host3": {
-                    "tool1": opt_template.format("host3", "tool1"),
-                    "tool2": opt_template.format("host3", "tool2"),
-                    "tool3": opt_template.format("host3", "tool3"),
-                },
-            }
-            label_template = "{} label file contents"
-            labels = {
-                "host1": "",
-                "host2": label_template.format("host2"),
-                "host3": label_template.format("host3"),
-            }
+        def mock_listdir(path):
+            if path == tool_group_dir:
+                return hosts
+            try:
+                return subdirs[path]
+            except KeyError as exc:
+                raise AssertionError(f"Unexpected directory in listdir() mock: {exc}")
 
-            hostnames = {
-                "host1": {
-                    "tool2": "tool opts for host1/tool2",
-                    "tool3": "tool opts for host1/tool3",
-                },
-                "host2": {"tool1": "tool opts for host2/tool1"},
-                "host3": {
-                    "tool1": "tool opts for host3/tool1",
-                    "tool2": "tool opts for host3/tool2",
-                    "tool3": "tool opts for host3/tool3",
-                },
-            }
+        def mock_is_dir(path):
+            return str(path).startswith(str(tool_group_dir / "host"))
 
-            def mock_listdir(path):
-                if path == tool_group_dir:
-                    return hosts
-                try:
-                    return subdirs[path]
-                except KeyError as exc:
-                    raise AssertionError(
-                        f"Unexpected directory in listdir() mock: {exc}"
-                    )
+        def mock_read_text(path):
+            if path.name == "__trigger__":
+                return trigger
+            if path.name == "__label__":
+                return label_template.format(path.parent.name)
+            if path.name[:-1] == "tool":
+                return opt_template.format(path.parent.name, path.name)
+            raise AssertionError(f"Unexpected file in read_text() mock: {str(path)!r}")
 
-            def mock_is_dir(path):
-                return str(path).startswith(str(tool_group_dir / "host"))
-
-            def mock_read_text(path):
-                if path.name == "__trigger__":
-                    return trigger
-                if path.name == "__label__":
-                    return label_template.format(path.parent.name)
-                if path.name[:-1] == "tool":
-                    return opt_template.format(path.parent.name, path.name)
-                raise AssertionError(
-                    f"Unexpected file in read_text() mock: {str(path)!r}"
-                )
-
-            monkeypatch.setattr(
-                ToolGroup, "verify_tool_group", self.mock_verify_tool_group
-            )
-            monkeypatch.setattr(os, "listdir", mock_listdir)
-            monkeypatch.setattr(Path, "is_dir", mock_is_dir)
-            monkeypatch.setattr(Path, "read_text", mock_read_text)
-            tg = ToolGroup(tool_group_name)
-            assert tg.name == tool_group_name
-            assert tg.trigger == trigger
-            assert tg.hostnames == hostnames
-            for host in hosts:
-                assert tg.get_tools(host) == tools[host]
-                assert tg.get_label(host) == labels[host]
-            assert tg.get_tools("bad-host") == {}
-            assert tg.get_label("bad-host") == ""
+        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(os, "listdir", mock_listdir)
+        monkeypatch.setattr(Path, "is_dir", mock_is_dir)
+        monkeypatch.setattr(Path, "read_text", mock_read_text)
+        tg = ToolGroup(tool_group_name)
+        assert tg.name == tool_group_name
+        assert tg.trigger == trigger
+        assert tg.hostnames == hostnames
+        for host in hosts:
+            assert tg.get_tools(host) == tools[host]
+            assert tg.get_label(host) == labels[host]
+        assert tg.get_tools("bad-host") == {}
+        assert tg.get_label("bad-host") == ""
