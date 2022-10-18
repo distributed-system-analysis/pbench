@@ -280,7 +280,7 @@ def test_gen_tool_groups():
         # The path name determines the behavior.
         NO_TOOL_GROUP_DIRS = "ntgd"
         # Tool group names that will be found by the `.glob()` method.
-        _names = set(("heavy", "light", "medium"))
+        _names = {"heavy", "light", "medium"}
 
         def __init__(self, name: str):
             self._name = name
@@ -317,5 +317,5 @@ def test_gen_tool_groups():
             # Using a Path object which does have tool groups, we verify that
             # the expected generated list of Tool Group objects matches the list
             # of names we expect.
-            names = set([tg.name for tg in gen_tool_groups("some-pbench-run-dir")])
+            names = {tg.name for tg in gen_tool_groups("some-pbench-run-dir")}
             assert names == MockPath._names
