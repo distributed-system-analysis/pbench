@@ -53,6 +53,7 @@ binlinks = \
 	pbench-server-put-shim\
 	pbench-sync-package-tarballs\
 	pbench-sync-satellite\
+	pbench-tarball-stats\
 	pbench-unpack-tarballs\
 	pbench-verify-backup-tarballs\
 	pbench-verify-indexed
