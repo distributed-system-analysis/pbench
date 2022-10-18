@@ -29,7 +29,7 @@ will be stopped via `kill -KILL`, along with all of its child processes.
 from collections import defaultdict
 import pathlib
 import shlex
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, Iterable, List, Tuple
 
 import click
 import psutil
@@ -107,7 +107,7 @@ class PidSource:
                 echo(f"\t\terror killing {pid}: {exc}", err=True)
 
 
-def gen_run_directories(pbench_run: pathlib.Path) -> Tuple[pathlib.Path, str]:
+def gen_run_directories(pbench_run: pathlib.Path) -> Iterable[Tuple[pathlib.Path, str]]:
     """Generate the list of run directories available under ${pbench_run},
     yielding a Path object for that directory, along with its recorded
     UUID.
@@ -128,7 +128,7 @@ def gen_run_directories(pbench_run: pathlib.Path) -> Tuple[pathlib.Path, str]:
         yield tm_dir, uuid
 
 
-def gen_host_names(tm_dir: pathlib.Path) -> str:
+def gen_host_names(tm_dir: pathlib.Path) -> Iterable[str]:
     """Read the registered tool data saved for this run and return the list
     of remote hosts.
     """

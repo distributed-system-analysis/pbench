@@ -280,7 +280,8 @@ class TestKillTools:
 
         def mock_gen_run_directories(
             run_dir: pathlib.Path,
-        ) -> List[Tuple[pathlib.Path, str]]:
+        ) -> Iterable[Tuple[pathlib.Path, str]]:
+            """Intentional generator which does not yield anything."""
             for run_dir in []:
                 yield run_dir, "uuid"
 
@@ -330,7 +331,7 @@ class TestKillTools:
 
         def mock_gen_run_directories(
             pbench_run_dir: pathlib.Path,
-        ) -> Tuple[pathlib.Path, str]:
+        ) -> Iterable[Tuple[pathlib.Path, str]]:
             for run_dir in [
                 (pathlib.Path("run0/tm"), "uuid1abc"),
                 (pathlib.Path("run1/tm"), "uuid2def"),
