@@ -27,6 +27,10 @@ USE_GIT_SHA1 = yes
 sha1 := $(shell git rev-parse --short HEAD)
 seqno := $(shell if [ -e ./seqno ] ;then cat ./seqno ;else echo "1" ;fi)
 
+# Finally, we need to exclude Epel 7 builds for the Pbench Server, we don't
+# support it any more.
+CHROOTS = --exclude-chroot epel-7-x86_64
+
 # By default we only build a source RPM
 all: srpm
 
