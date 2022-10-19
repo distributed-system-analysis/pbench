@@ -11,7 +11,6 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Query, relationship, validates
 from sqlalchemy.types import TypeDecorator
 
-from pbench.server import JSONVALUE
 from pbench.server.database.database import Database
 from pbench.server.database.models.server_config import (
     OPTION_DATASET_LIFETIME,

@@ -1,7 +1,6 @@
 from configparser import ConfigParser
 from logging import Logger
 from pathlib import Path
-import re
 import shlex
 import shutil
 import subprocess

@@ -1,13 +1,17 @@
-from collections import namedtuple
-import os
+from dataclasses import dataclass
+from logging import Logger
 from pathlib import Path
-from typing import Any
+from typing import Union
 
 import pytest
 
+from pbench.client import JSONOBJECT
 from pbench.common.logger import get_pbench_logger
+from pbench.server import PbenchServerConfig
 from pbench.server.cache_manager import CacheManager, TarballUnpackError
-from pbench.server.unpack_tarballs import UnpackTarballs
+from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.sync import Operation
+from pbench.server.unpack_tarballs import Target, UnpackTarballs
 
 
 @pytest.fixture()
@@ -16,6 +20,27 @@ def make_logger(server_config):
     Construct a Pbench Logger object
     """
     return get_pbench_logger("TEST", server_config)
+
+
+@dataclass(frozen=True)
+class TarballInfo:
+    dataset: Dataset
+    tarball: str
+    size: int
+
+
+datasets = [
+    TarballInfo(Dataset(resource_id="md5.1", name="d1"), "/pb/ar/xy/d1.tar.xz", 250),
+    TarballInfo(Dataset(resource_id="md5.2", name="d2"), "/pb/ar/xy/d2.tar.xz", 500),
+    TarballInfo(Dataset(resource_id="md5.3", name="d3"), "/pb/ar/xy/d3.tar.xz", 900),
+]
+
+
+def getvalue(dataset: Dataset, key: str):
+    for d in datasets:
+        if d.dataset.resource_id == dataset.resource_id:
+            return d.tarball
+    return None
 
 
 class MockConfig:
@@ -32,165 +57,95 @@ class MockConfig:
         return "TO-INDEX, TO-COPY-SOS"
 
 
-class TestUnpackTarballs:
-    tarlist = ["/mock/ABC/TO-UNPACK/A.tar.xz", "/mock/ABC/TO-UNPACK/B.tar.xz"]
-    tar = Path(tarlist[0])
-    min_size, max_size = 0, 1000
-    tar_size, tar_mode = 586, 16893
+@dataclass()
+class StatResult:
+    st_mode: int
+    st_size: int
 
-    def mock_stat(self, *args, follow_symlinks=False):
-        """Mocked replacement for Path.stat()"""
-        StatResult = namedtuple("StatResult", ["st_mode", "st_size"])
-        return StatResult(
-            st_mode=TestUnpackTarballs.tar_mode, st_size=TestUnpackTarballs.tar_size
-        )
 
-    @pytest.mark.parametrize(
-        "min_size, max_size, total", [(586, 1000, 2), (0, 1000, 2), (0, 586, 0)]
-    )
-    def test_tarball_size(
-        self, monkeypatch, make_logger, caplog, min_size, max_size, total
-    ):
-        """Test for the valid size and path of the tarball. We are intentionally
-        causing Path.resolve() to fail as a means to short-circuit the CUT
-        while still enabling the testing of the size filtering."""
+class MockPath:
 
-        def mock_resolve(self: Path, strict: bool = False):
-            """
-            Mock replacement for Path.resolve()
+    fails: list[str] = []
 
-            Args:
-                strict: Boolean value to make sure path exist if True.
+    def __init__(self, path: Union[str, Path, "MockPath"]):
+        self.path = str(path)
 
-            Returns:
-                Raising FileNotFoundError Exception
-            """
-            assert strict
-            raise FileNotFoundError(f"No such file or directory: '{self}'")
+    def resolve(self, strict: bool = False):
+        assert strict
+        for t in datasets:
+            if self.path == t.tarball:
+                if t.dataset.resource_id in __class__.fails:
+                    break  # Drop out to raise an exception
+                return MockPath(self.path)
+        raise FileNotFoundError(f"No such file or directory: '{self.path}'")
 
-        monkeypatch.setattr(Path, "glob", lambda path, args: self.tarlist)
-        monkeypatch.setattr(Path, "resolve", mock_resolve)
-        monkeypatch.setattr(Path, "stat", self.mock_stat)
-        obj = UnpackTarballs(MockConfig, make_logger)
-        result = obj.unpack_tarballs(min_size, max_size)
-        if result.total > 0:
-            for tar in self.tarlist:
-                assert (
-                    f"Tarball link, '{tar}', does not resolve to a real location: No such file or directory: '{tar}'"
-                    in caplog.text
-                )
-        assert result.total == total
-        assert result.success == 0
+    def stat(self) -> StatResult:
+        for t in datasets:
+            if self.path == t.tarball:
+                return StatResult(st_mode=0o554, st_size=t.size)
+        raise FileNotFoundError(f"No such file or directory: '{self.path}'")
 
-    def test_unpack_md5_error(self, monkeypatch, make_logger, caplog):
-        """Show that when md5 file path cannot be accessed it throws a
-        FileNotFoundError Exception"""
+    @classmethod
+    def _fail_on(cls, fails: list[str]):
+        cls.fails.extend(fails)
 
-        mocks_called = []
+    @classmethod
+    def _reset(cls):
+        cls.fails.clear()
 
-        def mock_md5sum(filepath: Path):
-            """
-            Mock of md5sum function
 
-            Args:
-                filepath: Tarball file path
+class MockSync:
 
-            Returns:
-                Raises FileNotFoundError Exception
-            """
-            mocks_called.append("mock_tarball_md5")
-            raise FileNotFoundError(f"No such file or directory: '{filepath}.md5'")
+    record: dict[str, JSONOBJECT] = {}
 
-        monkeypatch.setattr("pbench.server.utils.md5sum", mock_md5sum)
-        obj = UnpackTarballs(MockConfig, make_logger)
-        with pytest.raises(FileNotFoundError):
-            obj.unpack(self.tar, None)
-            assert (
-                f"Getting md5 value of tarball '{self.tar}' failed: No such file or directory: '{self.tar}.md5'"
-                in caplog.text
-            )
-        assert mocks_called == ["mock_tarball_md5"]
+    def __init__(self, logger: Logger, component: str):
+        self.component = component
+        self.logger = logger
 
-    def test_unpack_exception(self, monkeypatch, make_logger, caplog):
-        """Show that when unpack module raises TarballUnpackError exception
-        it is being handled properly."""
-        mocks_called = []
+    def next(self, operation: Operation) -> list[Dataset]:
+        return [x.dataset for x in datasets]
 
-        def tickmock(id: str, ret_val: Any) -> Any:
-            mocks_called.append(id)
-            return ret_val
+    def update(self, dataset: Dataset, did: Operation, enabled: list[Operation]):
+        __class__.record[dataset.resource_id] = {"did": did, "enabled": enabled}
 
-        class MockCacheManager:
-            def unpack(self, dataset_id: str):
-                """Mock of CacheManager.unpack(tar_md5) function"""
-                mocks_called.append("mock_unpack")
-                raise TarballUnpackError("tarball", "tar exited with status 1")
+    @classmethod
+    def _reset(cls):
+        cls.record = {}
 
-        monkeypatch.setattr(
-            "pbench.server.unpack_tarballs.get_tarball_md5",
-            lambda tb: tickmock("tarball_md5", "my_md5_string"),
-        )
-        obj = UnpackTarballs(MockConfig, make_logger)
-        with pytest.raises(TarballUnpackError):
-            obj.unpack(self.tar, MockCacheManager())
-            assert (
-                f"Unpacking of tarball {self.tar} failed: An error occurred while unpacking tarball: tar exited with status 1"
-                in caplog.text
-            )
-        assert mocks_called == ["tarball_md5", "mock_unpack"]
-
-    def test_unpack_success(self, monkeypatch, make_logger):
-        """Show that the unpacking of Tarballs proceeds successfully."""
-        mocks_called = []
 
         class MockCacheManager:
             def unpack(self, dataset_id: str):
                 """Mock of CacheManager.unpack(tar_md5) function"""
                 mocks_called.append("unpack")
 
-        def tickmock(id: str, ret_val: Any) -> Any:
-            mocks_called.append(id)
-            return ret_val
+    fails: list[str] = []
+    unpacked: list[str] = []
 
-        monkeypatch.setattr(
-            "pbench.server.unpack_tarballs.get_tarball_md5",
-            lambda tb: tickmock("tarball_md5", "my_md5_string"),
-        )
-        obj = UnpackTarballs(MockConfig, make_logger)
-        obj.unpack(self.tar, MockCacheManager())
-        assert mocks_called == ["tarball_md5", "unpack"]
+    def __init__(self, config: PbenchServerConfig, logger: Logger):
+        self.config = config
+        self.logger = logger
 
     def test_unpack_symlinks_creation(self, monkeypatch, make_logger, caplog):
         """Show that when symlink creation fails and raises
         FileNotFoundError Exception it is handled successfully."""
         mocks_called = []
 
-        def mock_symlink(path: Path, dest: Path):
-            """
-            Mock of os.symlink() function
+    @classmethod
+    def _fail_on(cls, fails: list[str]):
+        cls.fails.append(fails)
 
-            Args:
-                path: tarball file path
-                dest: destination path to create symlink
+    @classmethod
+    def _reset(cls):
+        cls.fails.clear()
+        cls.unpacked.clear()
 
-            Returns:
-                Raises FileNotFoundError Exception
-            """
-            mocks_called.append("mock_symlink")
-            raise FileNotFoundError(f"'{path}' -> '{dest}'")
 
-        linkedlistdest = MockConfig.get("pbench-server", "unpacked-states").split(", ")[
-            0
-        ]
-        monkeypatch.setattr(os, "symlink", mock_symlink)
-        obj = UnpackTarballs(MockConfig, make_logger)
-        with pytest.raises(FileNotFoundError):
-            obj.update_symlink(self.tar)
-            assert (
-                f"Error in creation of symlink. '{MockConfig.ARCHIVE / 'ABC' / self.tar.name}' -> '{MockConfig.ARCHIVE / 'ABC' / linkedlistdest / self.tar.name}'"
-                in caplog.text
-            )
-        assert mocks_called == ["mock_symlink"]
+class TestUnpackTarballs:
+    @pytest.fixture()
+    def reset(self):
+        MockPath._reset()
+        MockSync._reset()
+        MockFileTree._reset()
 
     def test_unpack_symlinks_removal(self, monkeypatch, make_logger, caplog):
         """Show that, when unlinking the tarball results in
@@ -253,163 +208,54 @@ class TestUnpackTarballs:
             """
             Mock of UnpackTarballs.unpack(self.min_size, self.max_size) function
 
-            Args:
-                dataset_id: tarball md5 value
+            obj = UnpackTarballs(MockConfig(), make_logger)
+            result = obj.unpack_tarballs(min_size, max_size)
+            assert result.total == len(targets)
+            assert result.success == len(targets)
+            assert sorted(MockFileTree.unpacked) == sorted(targets)
+            assert sorted(MockSync.record.keys()) == sorted(targets)
+            for id, actions in MockSync.record.items():
+                assert actions["did"] == Operation.UNPACK
+                assert actions["enabled"] == [Operation.COPY_SOS, Operation.INDEX]
 
-            Returns:
-                Raises TarballUnpackError Exception
-            """
-            mocks_called.append("mock_unpack")
-            raise TarballUnpackError("tarball", "tar exited with status 1")
+    @pytest.mark.parametrize("fail", [["md5.1"], ["md5.1", "md5.2"], []])
+    def test_failures(self, monkeypatch, make_logger, fail, reset):
+        """Test that tarball evaluation continues when resolution of one or
+        more fails."""
 
-        def mock_update_symlink(self, tb):
-            """Mock of update_symlink() function"""
-            mocks_called.append("mock_symlink")
+        with monkeypatch.context() as m:
+            m.setattr("pbench.server.unpack_tarballs.Path", MockPath)
+            m.setattr("pbench.server.unpack_tarballs.Sync", MockSync)
+            m.setattr("pbench.server.unpack_tarballs.FileTree", MockFileTree)
+            m.setattr(Metadata, "getvalue", getvalue)
 
-        monkeypatch.setattr(
-            Path, "glob", lambda path, args: tickmock("glob", self.tarlist)
-        )
-        monkeypatch.setattr(
-            Path, "resolve", lambda path, strict: tickmock("resolve", self)
-        )
-        monkeypatch.setattr(
-            CacheManager,
-            "__init__",
-            lambda self, config, logger: tickmock("cachemanager", None),
-        )
-        monkeypatch.setattr(
-            Path,
-            "stat",
-            lambda self, *args, **kwargs: tickmock(
-                "stat", TestUnpackTarballs.mock_stat(self, *args, **kwargs)
-            ),
-        )
-        monkeypatch.setattr(UnpackTarballs, "unpack", mock_unpack)
-        monkeypatch.setattr(UnpackTarballs, "update_symlink", mock_update_symlink)
-        obj = UnpackTarballs(MockConfig, make_logger)
-        result = obj.unpack_tarballs(self.min_size, self.max_size)
-        assert mocks_called == [
-            "glob",
-            "stat",
-            "stat",
-            "cachemanager",
-            "resolve",
-            "mock_unpack",
-            "resolve",
-            "mock_unpack",
-        ]
-        assert result.total == 2
-        assert result.success == 0
+            obj = UnpackTarballs(MockConfig(), make_logger)
+            MockPath._fail_on(fail)
+            result = obj.unpack_tarballs(0.0, 1000.0)
+            assert result.total == len(datasets) - len(fail)
+            assert result.success == result.total
+            ids = sorted(
+                [
+                    t.dataset.resource_id
+                    for t in datasets
+                    if t.dataset.resource_id not in fail
+                ]
+            )
+            assert sorted(MockFileTree.unpacked) == ids
+            assert sorted(MockSync.record.keys()) == ids
 
-    def test_unpack_tarballs_symlink_failure(self, monkeypatch, make_logger):
-        """Show that when unlinking failure leads to FileNotFoundError,
-        it is handled successfully."""
-        mocks_called = []
+    def test_unpack_exception(self, monkeypatch, make_logger, reset):
+        """Show that when unpack module raises TarballUnpackError exception
+        it is being handled properly."""
 
-        def tickmock(id: str, ret_val: Any) -> Any:
-            mocks_called.append(id)
-            return ret_val
-
-        def mock_update_symlink(self, path):
-            """
-            Mock of update_symlink() function
-
-            Args:
-                path: tarball path in 'TO-INDEX' state directory
-
-            Returns:
-                Raises FileNotFoundError Exception
-            """
-            mocks_called.append("mock_update_symlink")
-            raise FileNotFoundError(f"No such file or directory: '{path}'")
-
-        monkeypatch.setattr(
-            Path, "glob", lambda path, args: tickmock("glob", self.tarlist)
-        )
-        monkeypatch.setattr(
-            Path, "resolve", lambda path, strict: tickmock("resolve", self)
-        )
-        monkeypatch.setattr(
-            CacheManager,
-            "__init__",
-            lambda self, config, logger: tickmock("cachemanager", None),
-        )
-        monkeypatch.setattr(
-            Path,
-            "stat",
-            lambda self, *args, **kwargs: tickmock(
-                "stat", TestUnpackTarballs.mock_stat(self, *args, **kwargs)
-            ),
-        )
-        monkeypatch.setattr(
-            UnpackTarballs, "unpack", lambda self, *args: tickmock("unpack", None)
-        )
-        monkeypatch.setattr(UnpackTarballs, "update_symlink", mock_update_symlink)
-        obj = UnpackTarballs(MockConfig, make_logger)
-        result = obj.unpack_tarballs(self.min_size, self.max_size)
-        assert mocks_called == [
-            "glob",
-            "stat",
-            "stat",
-            "cachemanager",
-            "resolve",
-            "unpack",
-            "mock_update_symlink",
-            "resolve",
-            "unpack",
-            "mock_update_symlink",
-        ]
-        assert result.total == 2
-        assert result.success == 0
-
-    def test_unpack_tarballs_success(self, monkeypatch, make_logger):
-        """Show that when unpacking goes smoothly we can count the
-        successfully unpacked tarballs."""
-        mocks_called = []
-
-        def tickmock(id: str, ret_val: Any) -> Any:
-            mocks_called.append(id)
-            return ret_val
-
-        monkeypatch.setattr(
-            Path, "glob", lambda path, args: tickmock("glob", self.tarlist)
-        )
-        monkeypatch.setattr(
-            Path,
-            "stat",
-            lambda self, *args, **kwargs: tickmock(
-                "stat", TestUnpackTarballs.mock_stat(self, *args, **kwargs)
-            ),
-        )
-        monkeypatch.setattr(
-            Path, "resolve", lambda path, strict: tickmock("resolve", self)
-        )
-        monkeypatch.setattr(
-            CacheManager,
-            "__init__",
-            lambda self, config, logger: tickmock("cachemanager", None),
-        )
-        monkeypatch.setattr(
-            UnpackTarballs, "unpack", lambda self, *args: tickmock("unpack", None)
-        )
-        monkeypatch.setattr(
-            UnpackTarballs,
-            "update_symlink",
-            lambda path, *args: tickmock("update_symlink", None),
-        )
-        obj = UnpackTarballs(MockConfig, make_logger)
-        result = obj.unpack_tarballs(self.min_size, self.max_size)
-        assert mocks_called == [
-            "glob",
-            "stat",
-            "stat",
-            "cachemanager",
-            "resolve",
-            "unpack",
-            "update_symlink",
-            "resolve",
-            "unpack",
-            "update_symlink",
-        ]
-        assert result.total == 2
-        assert result.success == 2
+        with monkeypatch.context() as m:
+            m.setattr("pbench.server.unpack_tarballs.Path", MockPath)
+            m.setattr("pbench.server.unpack_tarballs.Sync", MockSync)
+            m.setattr("pbench.server.unpack_tarballs.FileTree", MockFileTree)
+            m.setattr(Metadata, "getvalue", getvalue)
+            obj = UnpackTarballs(MockConfig, make_logger)
+            tar = MockPath(datasets[0].tarball)
+            target = Target(datasets[0].dataset, tar)
+            MockFileTree.fails.append(datasets[0].dataset.resource_id)
+            with pytest.raises(TarballUnpackError):
+                obj.unpack(target)
