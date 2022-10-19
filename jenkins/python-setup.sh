@@ -17,6 +17,10 @@ if [[ ":${PATH:-}:" != *":${_pdir}:"* ]]; then
 fi
 
 while read -r _pdir; do
+    if [[ -z "${_pdir}" ]]; then
+        continue
+    fi
+    echo "Adding to PYTHONPATH: ${_pdir}"
     if [[ ":${PYTHONPATH:-}:" != *":${_pdir}:"* ]]; then
         PYTHONPATH=${_pdir}${PYTHONPATH:+:${PYTHONPATH}}
     fi
