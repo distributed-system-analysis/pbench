@@ -48,13 +48,22 @@ else:
                 PROG, inv_file_param, exc)
         sys.exit(1)
 
-try:
-    from ansible.parsing.dataloader import DataLoader
-    from ansible.inventory.manager import InventoryManager
-except ImportError as exc:
-    logging.error("[%s]: required Ansible python3 modules not available, '%s'",
-            PROG, exc)
-    sys.exit(1)
+import warnings
+with warnings.catch_warnings():
+    # Unfortunately the `ansible` module imported below will itself import the
+    # `cryptography` module.  With Python 3.6 marked End-of-Life, the
+    # `cryptography` module will emit a warning about deprecated support for
+    # Python 3.6.  That output pollutes the test case causing it to fail.
+    # Ignoring all warnings for this datalog is fine since the v0.69 branch is
+    # also nearing End-of-Life.
+    warnings.filterwarnings(action="ignore", category=Warning)
+    try:
+        from ansible.parsing.dataloader import DataLoader
+        from ansible.inventory.manager import InventoryManager
+    except ImportError as exc:
+        logging.error("[%s]: required Ansible python3 modules not available, '%s'",
+                PROG, exc)
+        sys.exit(1)
 
 try:
     data_loader = DataLoader()

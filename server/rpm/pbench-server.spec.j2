@@ -8,10 +8,18 @@ URL:            http://github.com/distributed-systems-analysis/pbench
 Source0:        pbench-server-%{version}.tar.gz
 Buildarch:      noarch
 
-# NOTE: we add the "six" and "urllib3" Python 3.8 RPM requirements so that
-# we don't end up pip installing those modules in the /opt/pbench-server/lib
-# tree.
-Requires: python38 python38-six python38-urllib3
+# NOTE: The Pbench Server requires a RHEL 8 environment with the Python 3.9
+# module enabled.  We add the "six" and "urllib3" Python 3.9 RPM requirements
+# so that we don't end up pip installing those modules in the
+# /opt/pbench-server/lib tree.
+Requires: python39 python39-six python39-urllib3
+
+# NOTE: these are build requirements which do NOT use `python39` because they
+# are packages that need to be present on the host building RPMs, which is not
+# running RHEL 8.
+BuildRequires: python3-rpm-macros python3-devel
+
+%define __python3  /usr/bin/python3.9
 
 # policycoreutils for semanage and restorecon - used in pbench-server-activate-create-results-dir
 Requires: policycoreutils
@@ -28,8 +36,6 @@ Requires: npm
 
 %define installdir opt/pbench-server
 %define static html/static
-
-%define __python python3
 
 %description
 The pbench server scripts.
@@ -52,9 +58,11 @@ cp -a ./web-server/* %{buildroot}/%{installdir}/%{static}
 # for the npm install below
 mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 
+%py3_shebang_fix  %{buildroot}/%{installdir}/bin %{buildroot}/%{installdir}/bin/pbench-pp-status
+
 %post
 # Install python dependencies
-pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log
+pip3.9 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3.9-install.log
 
 # install node.js modules under the installation directory
 cd /%{installdir}
