@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Optional
 
 import pytest
 
@@ -110,7 +111,7 @@ class Test_ToolGroup:
     """Verify ToolGroup class"""
 
     @staticmethod
-    def mock_verify_tool_group(name: str, pbench_run: str) -> Path:
+    def mock_verify_tool_group(name: str, pbench_run: Optional[str] = None) -> Path:
         return Path("/mock/pbench-agent")
 
     def mock_is_dir(self: Path) -> bool:
