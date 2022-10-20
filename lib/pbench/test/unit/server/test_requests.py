@@ -327,7 +327,6 @@ class TestUpload:
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload(
         self,
-        caplog,
         client,
         pbench_token,
         server_config,
