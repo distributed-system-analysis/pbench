@@ -328,13 +328,18 @@ class TestUpload:
     def test_upload(
         self,
         caplog,
-        freezer,
         client,
+        pbench_token,
         server_config,
         setup_ctrl,
-        pbench_token,
-        tarball,
+        tarball
     ):
+        """Test a successful dataset upload and validate the metadata and audit
+        information. NOTE: in order to have a guaranteed timestamp to verify,
+        we freeze time. This seems to make the standard fixture authentication
+        tokens (generated in "real time") fail validation as "not yet valid";
+        so we log in here under the time freeze rather than use the fixture.
+        """
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -384,9 +389,6 @@ class TestUpload:
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
         assert audit[1].attributes is None
-
-        # for record in caplog.records:
-        #     assert record.levelname in ["DEBUG", "INFO"]
 
     def test_upload_duplicate(
         self,
