@@ -16,7 +16,7 @@ shift
 
 major="${1}"
 shift
-major_list="agent client server"
+major_list="agent server client"
 if [[ -n "${major}" ]]; then
     if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "client" && "${major}" != "all" ]]; then
         printf -- "Expected major sub-system to be 'agent', 'client', 'server', or 'all', got '%s'\n" "${major}" >&2
@@ -127,8 +127,18 @@ fi
 _cov_report="${_cov_report_kind}:${_cov_report_name}"
 
 if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
-    _pytest_majors="pbench.test.unit.common"
+    _python_majors=""
+    _pytest_majors=""
     for _major in ${major_list}; do
+        if [[ ${_major} == "client" ]]; then
+            # No python tests for client major sub-system
+            continue
+        fi
+        if [[ -z "${_python_majors}" ]]; then
+            _python_majors="${_major}"
+        else
+            _python_majors="${_python_majors} ${_major}"
+        fi
         _pytest_majors="${_pytest_majors} pbench.test.unit.${_major}"
         if [[ "${_major}" == "agent" ]]; then
             # TODO: real functional tests require a deployed instance. Current
@@ -138,26 +148,29 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
         fi
     done
 
-    printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${major_list// /,}"
-    _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent)')
-    _PBENCH_COV_DIR="${_toxenvdir}/cov" _time pytest \
-        ${pytest_jobs_arg} \
-        --basetemp="${_toxenvdir}/tmp" \
-        --cov=${_pbench_sources} \
-        --cov-report ${_cov_report} \
-        ${posargs} \
-        --pyargs ${_pytest_majors}
-    rc=${?}
-    if [[ ${rc} -ne 0 ]]; then
-        printf -- "\n%s pytest command failed with '%s'\n\n" "${_major^}" "${rc}"
-    else
-        printf -- "\n%s pytest command succeeded\n\n" "${_major^}"
-    fi
+    if [[ -n "${_pytest_majors}" ]]; then
+        _pytest_majors="pbench.test.unit.common${_pytest_majors}"
+        printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${_python_majors// /,}"
+        _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent)')
+        _PBENCH_COV_DIR="${_toxenvdir}/cov" _time pytest \
+            ${pytest_jobs_arg} \
+            --basetemp="${_toxenvdir}/tmp" \
+            --cov=${_pbench_sources} \
+            --cov-report ${_cov_report} \
+            ${posargs} \
+            --pyargs ${_pytest_majors}
+        rc=${?}
+        if [[ ${rc} -ne 0 ]]; then
+            printf -- "\n%s pytest command failed with '%s'\n\n" "${_python_majors// /,}" "${rc}"
+        else
+            printf -- "\n%s pytest command succeeded\n\n" "${_python_majors// /,}"
+        fi
 
-    if [[ "${_cov_report_kind}" == "xml" && -n "${WORKSPACE}" ]]; then
-        # For the Jenkins CI we need to adjust the generated XML report to
-        # use WORKSPACE relative file name paths in the report.
-        sed -i "s;${_pbench_sources};${WORKSPACE}/lib/pbench;" ${_cov_report_name}
+        if [[ "${_cov_report_kind}" == "xml" && -n "${WORKSPACE}" ]]; then
+            # For the Jenkins CI we need to adjust the generated XML report to
+            # use WORKSPACE relative file name paths in the report.
+            sed -i "s;${_pbench_sources};${WORKSPACE}/lib/pbench;" ${_cov_report_name}
+        fi
     fi
 fi
 
@@ -167,40 +180,54 @@ _para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
 trap "rm -f ${_para_jobs_file}" EXIT INT TERM
 
 for _major in ${major_list}; do
-    # Verify the Agent or Server Makefile functions correctly.
-    if [[ "${_major}" == "agent" || "${_major}" == "server" ]]; then
-        verify_make_source_tree ${_major} || rc=1
-    fi
-
     if [[ "${_major}" == "agent" ]]; then
-        # The parallel program is really cool.  The usage of `parallel` is
-        # internal and automated; only test code depends on this tool, and we,
-        # as developers, have viewed the citation and are justified in
-        # suppressing future displays of it in our development processes (use of
-        # --will-cite below).
-
-        let count=0
+        if [[ "${subtst:-legacy}" == "python" ]]; then
+            continue
+        fi
         for _subtst in ${_subtst_list}; do
             if [[ "${subtst:-legacy}" == "legacy" || "${subtst}" == "$(basename ${_subtst})" ]]; then
                 echo "${_major} ${_subtst} ${posargs}"
-                (( count++ ))
             fi
         done > ${_para_jobs_file}
-        parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
-        if [[ ${?} -ne 0 ]]; then
-            rc=1
+        if [[ -s ${_para_jobs_file} ]]; then
+            # The parallel program is really cool.  The usage of `parallel` is
+            # internal and automated; only test code depends on this tool, and we,
+            # as developers, have viewed the citation and are justified in
+            # suppressing future displays of it in our development processes (use of
+            # --will-cite below).
+            parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
+            if [[ ${?} -ne 0 ]]; then
+                rc=1
+            fi
+        else
+            if [[ "${subtst:-srcbld}" != "srcbld" ]]; then
+                printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
+                rc=1
+            fi
         fi
-        if [[ ${count} -eq 0 && "${subtst}" != "python" ]]; then
-            printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
-            rc=1
+
+        # Verify the Agent Makefile source build functions correctly.
+        if [[ "${subtst:-srcbld}" == "srcbld" && ${rc} -eq 0 ]]; then
+            verify_make_source_tree ${_major} || rc=1
         fi
     elif [[ "${_major}" == "server" ]]; then
+        if [[ "${subtst:-legacy}" == "python" ]]; then
+            continue
+        fi
         if [[ "${subtst}" == "legacy" ]]; then
             printf -- "Warning - server legacy tests are no longer executed\n" >&2
+        fi
+
+        # Verify the Server Makefile source build functions correctly.
+        if [[ "${subtst:-srcbld}" == "srcbld" ]]; then
+            verify_make_source_tree ${_major} || rc=1
         fi
     elif [[ "${_major}" != "client" ]]; then
         printf -- "Error - unrecognized major test sub-set, '%s'\n" "${_major}" >&2
         rc=1
+    fi
+    if [[ ${rc} -eq 1 ]]; then
+        break
     fi
 done
 
