@@ -76,7 +76,6 @@ class Upload(Resource):
         # Used to record what steps have been completed during the upload, and
         # need to be undone on failure
         recovery = Cleanup(self.logger)
-        user: Optional[User] = None
         audit: Optional[Audit] = None
 
         try:
@@ -212,7 +211,8 @@ class Upload(Resource):
             audit = Audit.create(
                 operation=OperationCode.CREATE,
                 name="upload",
-                user=user,
+                user_id=user_id,
+                user_name=username,
                 dataset=dataset,
                 status=AuditStatus.BEGIN,
             )
