@@ -4,7 +4,6 @@ from pathlib import Path
 import socket
 from typing import Any
 
-from freezegun.api import freeze_time
 import pytest
 
 from pbench.server import PbenchServerConfig
@@ -339,17 +338,19 @@ class TestUpload:
         assert not self.filetree_create_path.exists()
         assert not Path(str(self.filetree_create_path) + ".md5").exists()
 
+    @pytest.mark.freeze_time("1970-01-01")
     def test_upload(
         self,
-        client,
         caplog,
+        freezer,
+        client,
         server_config,
         setup_ctrl,
         pbench_token,
         tarball,
     ):
         datafile, _, md5 = tarball
-        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+        with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
                 data=data_fp,
@@ -383,7 +384,7 @@ class TestUpload:
         tarball,
     ):
         datafile, _, md5 = tarball
-        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+        with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
                 data=data_fp,
@@ -395,7 +396,7 @@ class TestUpload:
         # Reset manually since we upload twice in this test
         TestUpload.filetree_created = None
 
-        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
+        with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
                 data=data_fp,
