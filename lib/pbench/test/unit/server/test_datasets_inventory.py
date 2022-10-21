@@ -6,7 +6,7 @@ import requests
 import werkzeug.utils
 
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
-from pbench.server.filetree import FileTree
+from pbench.server.cache_manager import CacheManager
 
 
 class TestDatasetsAccess:
@@ -59,7 +59,7 @@ class TestDatasetsAccess:
     def test_dataset_not_present(self, query_get_as):
         response = query_get_as("fio_2", "metadata.log", HTTPStatus.NOT_FOUND)
         assert response.json == {
-            "message": "The dataset tarball named 'random_md5_string4' is not present in the file tree"
+            "message": "The dataset tarball named 'random_md5_string4' is not present in the cache manager"
         }
 
     def test_unauthorized_access(self, query_get_as):
@@ -77,13 +77,13 @@ class TestDatasetsAccess:
             Dataset.query(resource_id=dataset)
             return Tarball
 
-        monkeypatch.setattr(FileTree, "find_dataset", mock_find_not_unpacked)
+        monkeypatch.setattr(CacheManager, "find_dataset", mock_find_not_unpacked)
 
         response = query_get_as("fio_2", "1-default", HTTPStatus.NOT_FOUND)
         assert response.json == {"message": "The dataset is not unpacked"}
 
     def test_path_is_directory(self, query_get_as, monkeypatch):
-        monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
+        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: True)
 
@@ -93,7 +93,7 @@ class TestDatasetsAccess:
         }
 
     def test_not_a_file(self, query_get_as, monkeypatch):
-        monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
+        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Path, "is_file", lambda self: False)
         monkeypatch.setattr(Path, "exists", lambda self: False)
 
@@ -110,7 +110,7 @@ class TestDatasetsAccess:
             file_sent = path_or_file
             return {"status": "OK"}
 
-        monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
+        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Path, "is_file", lambda self: True)
         monkeypatch.setattr(werkzeug.utils, "send_file", mock_send_file)
 
@@ -127,7 +127,7 @@ class TestDatasetsAccess:
             file_sent = path_or_file
             return {"status": "OK"}
 
-        monkeypatch.setattr(FileTree, "find_dataset", self.mock_find_dataset)
+        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
         monkeypatch.setattr(Path, "is_file", lambda self: True)
         monkeypatch.setattr(werkzeug.utils, "send_file", mock_send_file)
 

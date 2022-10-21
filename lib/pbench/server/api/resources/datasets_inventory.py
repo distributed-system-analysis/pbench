@@ -17,7 +17,7 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.filetree import FileTree, TarballNotFound
+from pbench.server.cache_manager import CacheManager, TarballNotFound
 
 
 class DatasetsInventory(ApiBase):
@@ -57,9 +57,9 @@ class DatasetsInventory(ApiBase):
         dataset = params.uri["dataset"]
         target = params.uri.get("target")
 
-        file_tree = FileTree(self.config, self.logger)
+        cache_m = CacheManager(self.config, self.logger)
         try:
-            tarball = file_tree.find_dataset(dataset.resource_id)
+            tarball = cache_m.find_dataset(dataset.resource_id)
         except TarballNotFound as e:
             raise APIAbort(HTTPStatus.NOT_FOUND, str(e))
 
