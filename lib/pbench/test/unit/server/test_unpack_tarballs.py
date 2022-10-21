@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 
 from pbench.common.logger import get_pbench_logger
-from pbench.server.filetree import FileTree, TarballUnpackError
+from pbench.server.cache_manager import CacheManager, TarballUnpackError
 from pbench.server.unpack_tarballs import UnpackTarballs
 
 
@@ -120,9 +120,9 @@ class TestUnpackTarballs:
             mocks_called.append(id)
             return ret_val
 
-        class MockFileTree:
+        class MockCacheManager:
             def unpack(self, dataset_id: str):
-                """Mock of FileTree.unpack(tar_md5) function"""
+                """Mock of CacheManager.unpack(tar_md5) function"""
                 mocks_called.append("mock_unpack")
                 raise TarballUnpackError("tarball", "tar exited with status 1")
 
@@ -132,7 +132,7 @@ class TestUnpackTarballs:
         )
         obj = UnpackTarballs(MockConfig, make_logger)
         with pytest.raises(TarballUnpackError):
-            obj.unpack(self.tar, MockFileTree())
+            obj.unpack(self.tar, MockCacheManager())
             assert (
                 f"Unpacking of tarball {self.tar} failed: An error occurred while unpacking tarball: tar exited with status 1"
                 in caplog.text
@@ -143,9 +143,9 @@ class TestUnpackTarballs:
         """Show that the unpacking of Tarballs proceeds successfully."""
         mocks_called = []
 
-        class MockFileTree:
+        class MockCacheManager:
             def unpack(self, dataset_id: str):
-                """Mock of FileTree.unpack(tar_md5) function"""
+                """Mock of CacheManager.unpack(tar_md5) function"""
                 mocks_called.append("unpack")
 
         def tickmock(id: str, ret_val: Any) -> Any:
@@ -157,7 +157,7 @@ class TestUnpackTarballs:
             lambda tb: tickmock("tarball_md5", "my_md5_string"),
         )
         obj = UnpackTarballs(MockConfig, make_logger)
-        obj.unpack(self.tar, MockFileTree())
+        obj.unpack(self.tar, MockCacheManager())
         assert mocks_called == ["tarball_md5", "unpack"]
 
     def test_unpack_symlinks_creation(self, monkeypatch, make_logger, caplog):
@@ -249,7 +249,7 @@ class TestUnpackTarballs:
             mocks_called.append(id)
             return ret_val
 
-        def mock_unpack(self, tb, file_tree):
+        def mock_unpack(self, tb, cache_m):
             """
             Mock of UnpackTarballs.unpack(self.min_size, self.max_size) function
 
@@ -273,9 +273,9 @@ class TestUnpackTarballs:
             Path, "resolve", lambda path, strict: tickmock("resolve", self)
         )
         monkeypatch.setattr(
-            FileTree,
+            CacheManager,
             "__init__",
-            lambda self, config, logger: tickmock("filetree", None),
+            lambda self, config, logger: tickmock("cachemanager", None),
         )
         monkeypatch.setattr(
             Path,
@@ -292,7 +292,7 @@ class TestUnpackTarballs:
             "glob",
             "stat",
             "stat",
-            "filetree",
+            "cachemanager",
             "resolve",
             "mock_unpack",
             "resolve",
@@ -330,9 +330,9 @@ class TestUnpackTarballs:
             Path, "resolve", lambda path, strict: tickmock("resolve", self)
         )
         monkeypatch.setattr(
-            FileTree,
+            CacheManager,
             "__init__",
-            lambda self, config, logger: tickmock("filetree", None),
+            lambda self, config, logger: tickmock("cachemanager", None),
         )
         monkeypatch.setattr(
             Path,
@@ -351,7 +351,7 @@ class TestUnpackTarballs:
             "glob",
             "stat",
             "stat",
-            "filetree",
+            "cachemanager",
             "resolve",
             "unpack",
             "mock_update_symlink",
@@ -385,9 +385,9 @@ class TestUnpackTarballs:
             Path, "resolve", lambda path, strict: tickmock("resolve", self)
         )
         monkeypatch.setattr(
-            FileTree,
+            CacheManager,
             "__init__",
-            lambda self, config, logger: tickmock("filetree", None),
+            lambda self, config, logger: tickmock("cachemanager", None),
         )
         monkeypatch.setattr(
             UnpackTarballs, "unpack", lambda self, *args: tickmock("unpack", None)
@@ -403,7 +403,7 @@ class TestUnpackTarballs:
             "glob",
             "stat",
             "stat",
-            "filetree",
+            "cachemanager",
             "resolve",
             "unpack",
             "update_symlink",

@@ -5,7 +5,7 @@ import tempfile
 from typing import NamedTuple
 
 from pbench.server import PbenchServerConfig
-from pbench.server.filetree import FileTree
+from pbench.server.cache_manager import CacheManager
 from pbench.server.report import Report
 from pbench.server.utils import get_tarball_md5
 
@@ -29,12 +29,12 @@ class UnpackTarballs:
         self.config = config
         self.logger = logger
 
-    def unpack(self, tb: Path, file_tree: FileTree):
+    def unpack(self, tb: Path, cache_m: CacheManager):
         """Getting md5 value of the tarball and Unpacking Tarball.
 
         Args:
             tb: Tarball Path
-            file_tree: FileTree object
+            cache_m: CacheManager object
         """
         try:
             tar_md5 = get_tarball_md5(tb)
@@ -48,7 +48,7 @@ class UnpackTarballs:
             raise
 
         try:
-            file_tree.unpack(tar_md5)
+            cache_m.unpack(tar_md5)
         except Exception as exc:
             self.logger.error(
                 "{}: Unpacking of tarball {} failed: {}",
@@ -91,7 +91,7 @@ class UnpackTarballs:
 
     def unpack_tarballs(self, min_size: float, max_size: float) -> Results:
         """Scans for tarballs in the TO-UNPACK subdirectories of the
-        ARCHIVE directory and unpacks them using FileTree.unpack() function.
+        ARCHIVE directory and unpacks them using CacheManager.unpack() function.
 
         Args:
             min_size: minimum size of tarball for this Bucket
@@ -107,7 +107,7 @@ class UnpackTarballs:
         ]
 
         ntotal = nsuccess = 0
-        file_tree = FileTree(self.config, self.logger)
+        cache_m = CacheManager(self.config, self.logger)
 
         for tarball in sorted(tarlist):
             ntotal += 1
@@ -123,7 +123,7 @@ class UnpackTarballs:
                         exc,
                     )
                     raise
-                self.unpack(tb, file_tree)
+                self.unpack(tb, cache_m)
                 self.update_symlink(tb)
             except Exception:
                 continue
