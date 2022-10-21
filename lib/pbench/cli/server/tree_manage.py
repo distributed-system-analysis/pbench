@@ -6,10 +6,10 @@ from pbench.cli.server import config_setup, pass_cli_context
 from pbench.cli.server.options import common_options
 from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig
-from pbench.server.filetree import FileTree
+from pbench.server.cache_manager import CacheManager
 
 
-def print_tree(tree: FileTree):
+def print_tree(tree: CacheManager):
     print(f"Tree anchored at {tree.archive_root}\n")
 
     if len(tree.datasets) == 0 and len(tree.controllers) == 0:
@@ -48,7 +48,7 @@ def tree_manage(context: object, display: bool):
     Discover, display, and manipulate the on-disk representation of controllers
     and datasets.
 
-    This primarily exposes the FileTree object hierarchy, and provides a simple
+    This primarily exposes the CacheManager object hierarchy, and provides a simple
     hierarchical display of controllers and datasets.
     \f
 
@@ -58,11 +58,11 @@ def tree_manage(context: object, display: bool):
     """
     try:
         config = config_setup(context)
-        logger = get_pbench_logger("filetree", config)
-        file_tree = FileTree(config, logger)
-        file_tree.full_discovery()
+        logger = get_pbench_logger("cachemanager", config)
+        cache_m = CacheManager(config, logger)
+        cache_m.full_discovery()
         if display:
-            print_tree(file_tree)
+            print_tree(cache_m)
         rv = 0
     except Exception as exc:
         logger.exception("An error occurred discovering the file tree: {}", exc)
