@@ -1,7 +1,7 @@
 import pathlib
 import sys
 from typing import Any, Callable, Iterable, List, Optional, Tuple
-from unittest import mock
+from unittest.mock import MagicMock
 
 from click.testing import CliRunner
 import psutil
@@ -72,19 +72,21 @@ class TestPidSource:
         assert ps.load(mydir, "uuid1") is True
 
     @staticmethod
-    @mock.patch("pbench.cli.agent.commands.tools.kill.kill_family")
-    def test_noop_killem(mock_kf):
+    def test_noop_killem(monkeypatch):
+        mock_kf = MagicMock()
+        monkeypatch.setattr(kill, "kill_family", mock_kf)
         ps = kill.PidSource("this.pid", "display this")
         ps.killem(ourecho)
         assert not mock_kf.called
 
     @staticmethod
-    @mock.patch("pbench.cli.agent.commands.tools.kill.kill_family")
-    def test_killem(mock_kf, monkeypatch):
-        ps = kill.PidSource("this.pid", "display this")
+    def test_killem(monkeypatch):
+        mock_kf = MagicMock()
+        monkeypatch.setattr(kill, "kill_family", mock_kf)
         monkeypatch.setattr(
             "pbench.cli.agent.commands.tools.kill.psutil.Process", MyProcess
         )
+        ps = kill.PidSource("this.pid", "display this")
         ps.load(AnotherPath("fake_dir1", "123"), "uuid1")
         ps.load(AnotherPath("fake_dir2", "456"), "uuid2")
         ps.load(AnotherPath("fake_dir3", "789"), "uuid3")
