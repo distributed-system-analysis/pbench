@@ -159,7 +159,11 @@ class KillTools(BaseCommand):
         discovered run directories.
 
         All the Redis server PIDs are killed first, then the Tool Data Sinks,
-        and finally the local Tool Meisters.
+        and finally the local Tool Meisters.  We kill all the Redis Servers
+        first in case killing them causes all the other processes to just exit
+        on their own.  Then we kill all the Tool Data Sinks, and their
+        children.  Then we kill all the (local) Tool Meisters, and their
+        children.
 
         We then remotely kill (via `ssh`) all the Tool Meisters by invoking
         this same command on a remote host with the list of UUIDs found across
@@ -206,10 +210,6 @@ class KillTools(BaseCommand):
 
         # Kill all the local PIDs (and their children).
 
-        # We kill all the Redis Servers first in case killing them causes all
-        # the other processes to just exit on their own.  Then we kill all the
-        # Tool Data Sinks, and their children.  Then we kill all the (local)
-        # Tool Meisters, and their children.
         for pidsrc in all_pids:
             pidsrc.killem(click.echo)
 
