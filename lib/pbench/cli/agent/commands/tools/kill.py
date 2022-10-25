@@ -195,10 +195,7 @@ class KillTools(BaseCommand):
             # If a run directory has any dangling components of the Tool
             # Meister sub-system active, that is PID files for any local
             # component, record those components.
-            for pidsrc in all_pids:
-                found = pidsrc.load(tm_dir, uuid)
-                if found:
-                    local_pids = True
+            local_pids |= any([pidsrc.load(tm_dir, uuid) for pidsrc in all_pids])
             # Find all the remotes for this run that need to be tracked down.
             for host in gen_host_names(tm_dir.parent):
                 remote_tms[host].append(uuid)
