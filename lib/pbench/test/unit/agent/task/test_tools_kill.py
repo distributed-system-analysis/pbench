@@ -20,7 +20,14 @@ class AnotherPath:
     """
 
     def __init__(self, name: str, val: Optional[str] = None):
-        self.name = name
+        """Approximate mocked behavior of a Path object where the"""
+        p = pathlib.Path(name)
+        self.parts = p.parts
+        self.name = p.name
+        if p.parent is p or name == ".":
+            self.parent = self
+        else:
+            self.parent = AnotherPath(str(p.parent))
         self.val = val
 
     def is_dir(self):
@@ -102,9 +109,9 @@ class TestKillTools:
     def test_gen_run_directories():
         class FakePbenchRun:
             """A very specific mock for a pbench_run Path object where we
-            leverage the AnotherPath class to yield a series of YAP objects
-            which respond as directories, passing along the value to be read
-            from a file they contain.
+            leverage the AnotherPath class to yield a series of AnotherPath
+            objects which respond as directories, passing along the value to
+            be read from a file they contain.
             """
 
             def __init__(self, dir_pairs: List[Tuple[str, str]]):
@@ -123,8 +130,16 @@ class TestKillTools:
             ]
         )
         pairs = list(kill.gen_run_directories(pr))
-        assert pairs[0][0].name == "run1/tm" and pairs[0][1] == "abcdef"
-        assert pairs[1][0].name == "run2/tm" and pairs[1][1] == "ghijkl"
+        assert (
+            pairs[0][0].parent.name == "run1"
+            and pairs[0][0].name == "tm"
+            and pairs[0][1] == "abcdef"
+        )
+        assert (
+            pairs[1][0].parent.name == "run2"
+            and pairs[1][0].name == "tm"
+            and pairs[1][1] == "ghijkl"
+        )
 
     @staticmethod
     def test_gen_host_names(monkeypatch):
