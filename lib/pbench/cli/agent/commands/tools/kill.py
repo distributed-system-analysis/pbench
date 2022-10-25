@@ -45,7 +45,7 @@ def kill_family(proc: psutil.Process):
     """Kill a parent process and all its children."""
     try:
         # Get the list of children of the parent before killing it.
-        children = list(proc.children())
+        children = list(proc.children(recursive=True))
     except psutil.NoSuchProcess:
         return
     try:

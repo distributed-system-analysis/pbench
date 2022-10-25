@@ -221,7 +221,8 @@ class TestKillTools:
                 self._children = children
                 self._do = do
 
-            def children(self):
+            def children(self, recursive: Optional[bool] = False):
+                assert recursive
                 if not self._children:
                     return
                 for child in self._children:
