@@ -18,7 +18,6 @@ class TestConnect:
         "datasets_values",
         "elasticsearch",
         "endpoints",
-        "graphql",
         "login",
         "logout",
         "register",

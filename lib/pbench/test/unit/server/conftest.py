@@ -39,10 +39,6 @@ db_uri = sqlite:///:memory:
 host = elasticsearch.example.com
 port = 7080
 
-[graphql]
-host = graphql.example.com
-port = 7081
-
 [logging]
 logger_type = file
 # We run with DEBUG level logging during the server unit tests to help
