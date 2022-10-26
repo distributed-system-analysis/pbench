@@ -208,9 +208,11 @@ class TestKillTools:
             ["localhost.example.com", "remote1.example.com"],
             ["remote2.example.com", "remote3.example.com"],
         ]
-        expected_hosts = set(
-            ("remote1.example.com", "remote2.example.com", "remote3.example.com")
-        )
+        expected_hosts = {
+            "remote1.example.com",
+            "remote2.example.com",
+            "remote3.example.com",
+        }
 
         def mock_gen_tool_groups(pbench_run: str) -> Iterable[MockToolGroup]:
             """Override kill.gen_tool_groups definition to return a simple
@@ -251,10 +253,12 @@ class TestKillTools:
         3 UUIDs, one won't be found.  The mocked-out `psutil.process_iter()`
         will generate 3 PIDs, one of which will have child processes, which
         will all operate normally with no exceptions.  Of the other two, one
-        will raise an expected exception, and the other will not be found.
+        will raise an exception, and the other will not be found.
         """
         action_list = []
-        uuid_list = ["uuid1abc", "uuid2def", "uuid3ghi"]
+        uuid_list = ("uuid1abc", "uuid2def", "uuid3ghi")
+
+        MP = TypeVar("MP", bound="MockProcess")  # noqa F821
 
         class MockProcess:
             """Behavior mock for the `psutil.Process` class."""
@@ -268,17 +272,15 @@ class TestKillTools:
             ):
                 self.pid = pid
                 self._uuid = uuid
-                self._children = children
+                self._children = [] if children is None else children
                 self._do = do
 
-            def children(self, recursive: Optional[bool] = False):
+            def children(self, recursive: Optional[bool] = False) -> Iterable[MP]:
                 assert recursive
-                if not self._children:
-                    return
                 for child in self._children:
                     yield child
 
-            def cmdline(self):
+            def cmdline(self) -> List[str]:
                 return [
                     "arg0",
                     "arg1",
@@ -300,6 +302,9 @@ class TestKillTools:
             class with a static method to duck-type it.
             """
 
+            class NoSuchProcess(Exception):
+                pass
+
             @staticmethod
             def process_iter():
                 # First pid has 3 children
@@ -318,21 +323,21 @@ class TestKillTools:
 
         runner = CliRunner(mix_stderr=False)
         monkeypatch.setattr("pbench.cli.agent.commands.tools.kill.psutil", mock_psutil)
-        result = runner.invoke(kill.main, uuid_list)
+        result = runner.invoke(kill.main, list(uuid_list))
         assert result.exit_code == 0
         expected_action_list = [
-            ("kill", 12345, "uuid1abc"),
+            ("kill", 12345, uuid_list[0]),
             ("kill", 12346, None),
             ("kill", 12347, None),
             ("kill-nosuch", 12348, None),
-            ("kill-except", 34567, "uuid2def"),
-            ("kill-nosuch", 45678, "uuid3ghi"),
+            ("kill-except", 34567, uuid_list[1]),
+            ("kill-nosuch", 45678, uuid_list[2]),
         ]
         assert action_list == expected_action_list, (
             f"action_list={action_list!r},"
             f" expected_action_list={expected_action_list!r},"
             f" stdout={result.stdout!r},"
-            f" stderr={result.stdout!r}"
+            f" stderr={result.stderr!r}"
         )
 
     @staticmethod
