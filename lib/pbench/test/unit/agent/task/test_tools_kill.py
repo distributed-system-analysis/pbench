@@ -27,9 +27,10 @@ class AnotherPath:
         object is used provide the `name` and `parts` fields.
         """
         p = pathlib.Path(name)
+        self._str = str(p)
         self.parts = p.parts
         self.name = p.name
-        if p.parent is p or name == ".":
+        if not p.name:
             self.parent = self
         else:
             self.parent = AnotherPath(str(p.parent))
@@ -51,7 +52,10 @@ class AnotherPath:
         """Create a new instance of this object with argument added to the
         path.
         """
-        return AnotherPath(f"{self.name}/{arg}", val=self.val)
+        return AnotherPath(f"{self._str}/{arg}", val=self.val)
+
+    def __str__(self) -> str:
+        return self._str
 
 
 class MyProcess:
@@ -91,29 +95,63 @@ class TestPidSource:
         assert ps.load(mydir, "uuid1") is True
 
     @staticmethod
-    def test_noop_killem(monkeypatch):
+    def test_noop_killem(monkeypatch, capsys):
         mock_kf = MagicMock()
         monkeypatch.setattr(kill, "kill_family", mock_kf)
         ps = kill.PidSource("this.pid", "display this")
         ps.killem(ourecho)
         assert not mock_kf.called
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert captured.err == ""
 
     @staticmethod
-    def test_killem(monkeypatch):
-        mock_kf = MagicMock()
+    def test_killem_raises_exception(monkeypatch, capsys):
+        mock_kf = MagicMock(side_effect=Exception("exception"))
         monkeypatch.setattr(kill, "kill_family", mock_kf)
         monkeypatch.setattr(
             "pbench.cli.agent.commands.tools.kill.psutil.Process", MyProcess
         )
         ps = kill.PidSource("this.pid", "display this")
         ps.load(AnotherPath("fake_dir1", "123"), "uuid1")
-        ps.load(AnotherPath("fake_dir2", "456"), "uuid2")
-        ps.load(AnotherPath("fake_dir3", "789"), "uuid3")
+        ps.killem(ourecho)
+        captured = capsys.readouterr()
+        assert (
+            captured.out
+            == "Killing display this PIDs ...\n\tKilling 123 (from fake_dir1)\n"
+        )
+        assert captured.err == "\t\terror killing 123: exception\n"
+
+    @staticmethod
+    def test_killem(monkeypatch, capsys):
+        mock_kf = MagicMock()
+        monkeypatch.setattr(kill, "kill_family", mock_kf)
+        monkeypatch.setattr(
+            "pbench.cli.agent.commands.tools.kill.psutil.Process", MyProcess
+        )
+        ps = kill.PidSource("this.pid", "display this")
+        pid_data = {
+            "uuid1": {"dirname": "fake_dir1", "pid": "123"},
+            "uuid2": {"dirname": "fake_dir2", "pid": "456"},
+            "uuid3": {"dirname": "fake_dir3", "pid": "789"},
+        }
+        for uuid, vals in pid_data.items():
+            ps.load(AnotherPath(vals["dirname"], vals["pid"]), uuid)
         ps.killem(ourecho)
         assert len(mock_kf.mock_calls) == 3
-        assert mock_kf.mock_calls[0][1][0].pid == 123
-        assert mock_kf.mock_calls[1][1][0].pid == 456
-        assert mock_kf.mock_calls[2][1][0].pid == 789
+        idx = 0
+        for uuid in pid_data.keys():
+            assert mock_kf.mock_calls[idx][1][0].pid == int(pid_data[uuid]["pid"])
+            idx += 1
+        # Verify a second call to killem() is a no-op.
+        ps.killem(ourecho)
+        assert len(mock_kf.mock_calls) == len(pid_data)
+        captured = capsys.readouterr()
+        expected_output = "Killing display this PIDs ...\n"
+        for uuid, vals in pid_data.items():
+            expected_output += f"\tKilling {vals['pid']} (from {vals['dirname']})\n"
+        assert captured.out == expected_output
+        assert captured.err == ""
 
 
 class TestKillTools:
