@@ -17,7 +17,7 @@ from pbench.server.database.models.users import User
 class TestDatasets:
     def test_state_enum(self):
         """Test the States ENUM properties"""
-        assert len(States.__members__) == 7
+        assert len(States.__members__) == 6
         for n, s in States.__members__.items():
             assert str(s) == s.friendly
             assert s.mutating == (

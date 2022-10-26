@@ -3213,13 +3213,10 @@ class PbenchTarBall:
         tb_stat = os.stat(self.tbname)
         mtime = datetime.utcfromtimestamp(tb_stat.st_mtime)
 
-        # TODO: This is curious. Even though we index from the unpacked data in
-        # the INCOMING tree, we traverse the tarball inventory directly using
-        # the (inefficient) Python `tarfile` package. We could instead check
-        # the unpacked files. The unpacker however has already verified that
-        # the data files are all nested under the self-named base directory,
-        # so we likely only need to verify the existence of 'metadata.log' at
-        # the root level.
+        # TODO: [PBENCH-956] Although we index from unpacked files on the file
+        # system, we repeatedly reference the list of TarInfo records from the
+        # Python tarfile package rather than navigating the file tree directly.
+        # This could likely be improved.
         self.tb = tarfile.open(self.tbname)
 
         # Build a map showing the documents in each Elasticsearch index so we

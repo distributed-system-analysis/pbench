@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import signal
 import tempfile
-from typing import List, NamedTuple, Optional, Tuple
+from typing import Callable, List, NamedTuple, Optional, Tuple
 
 from pbench.common.exceptions import (
     BadDate,
@@ -47,6 +47,11 @@ class ErrorCode:
         self.success = value == 0
         self.tarball_error = tarball_error
         self.message = message
+
+    def __repr__(self) -> str:
+        return (
+            f"ErrorCode<name={self.name}, value={self.value}, message={self.message!r}>"
+        )
 
 
 class Errors:
@@ -151,29 +156,28 @@ class Index:
     def collect_tb(self) -> Tuple[int, List[TarballData]]:
         """Collect tarballs that need indexing
 
-        This looks for Datasets marked to require indexing, and returns a tuple
-        consisting of an error number from the 'error_code' attribute and a
-        list of tarball descriptions.
+        This looks for Datasets marked to require indexing, and returns a list
+        of indexing candidates.
+
+        The list is sorted by the size of the tarballs, so that smaller
+        datasets (presumptively faster to index) don't get stalled behind
+        large ones.
 
         Returns:
-            A list of tarball descriptions sorted by tarball size.
+            A tuple consisting of an error number from the 'error_code'
+            attribute and a list of tarball descriptions.
         """
 
         tarballs: List[TarballData] = []
         idxctx = self.idxctx
         error_code = self.error_code
         try:
-            datasets = self.sync.next(self.operation)
-            for dataset in datasets:
+            for dataset in self.sync.next(self.operation):
                 tb = Metadata.getvalue(dataset, Metadata.TARBALL_PATH)
                 if not tb:
                     self.sync.error(dataset, f"{dataset} does not have a tarball-path")
                     continue
 
-                # We use the tarball size to sort the list so that smaller
-                # datasets don't get stalled behind large ones. (Though the
-                # size is at best an indirect indication of "indexing cost",
-                # it's relatively easy to compute.)
                 try:
                     # get size
                     size = os.stat(tb).st_size
@@ -197,9 +201,11 @@ class Index:
             if not tarballs:
                 idxctx.logger.info("No tar balls found that need processing")
 
-        return (error_code["OK"].value, sorted(tarballs, key=lambda x: x.size))
+        return (error_code["OK"].value, sorted(tarballs))
 
-    def emit_error(self, logger_method, error, exception):
+    def emit_error(
+        self, logger_method: Callable, error: str, exception: Exception
+    ) -> ErrorCode:
         """Helper method to write a log message in a standard format from an error code
 
         Args
@@ -219,7 +225,14 @@ class Index:
         logger_method("{}: {}", ec.message, exception)
         return ec
 
-    def load_templates(self) -> int:
+    def load_templates(self) -> ErrorCode:
+        """Load Elasticsearch templates using the template management class,
+        and create an Elasticsearch server-report document on the indexing
+        process.
+
+        Returns:
+            An ErrorCode instance
+        """
         idxctx = self.idxctx
         error_code = self.error_code
         try:
@@ -244,7 +257,7 @@ class Index:
 
         if not res.success:
             # Exit early if we encounter any errors.
-            return res.value
+            return res
 
         self.report = Report(
             idxctx.config,
@@ -268,14 +281,14 @@ class Index:
             raise
         except Exception:
             idxctx.logger.error("Failed to post initial report status")
-            return error_code["GENERIC_ERROR"].value
+            return error_code["GENERIC_ERROR"]
         else:
             idxctx.set_tracking_id(tracking_id)
 
-        return res.value
+        return res
 
     def process_tb(self, tarballs: List[TarballData]) -> int:
-        """Process Tarballs For Indexing and creates report
+        """Process Tarballs For Indexing and create a summary report.
 
         Args:
             tarballs:   List of tarball information tuples
@@ -283,19 +296,17 @@ class Index:
         Returns:
             status code
         """
-        res = 0
+
         idxctx = self.idxctx
         error_code = self.error_code
 
-        # Store the list of tarballs as a deque
         tb_deque = deque(tarballs)
 
         res = self.load_templates()
-        if res:
+        if not res.success:
             idxctx.logger.info("Load templates {!r}", res)
-            return res
+            return res.value
 
-        # tarballs contains a list of tar balls sorted by size.
         idxctx.logger.debug("Preparing to index {:d} tar balls", len(tb_deque))
 
         with tempfile.TemporaryDirectory(
@@ -466,7 +477,7 @@ class Index:
                             )
                             tb_res = error_code["OP_ERROR" if failures > 0 else "OK"]
                         finally:
-                            if dataset and tb_res.success:
+                            if tb_res.success:
                                 try:
                                     dataset.advance(States.INDEXED)
 
@@ -572,11 +583,8 @@ class Index:
                         # Only if the indexing was successful do we request the
                         # next operation (tool indexing). Otherwise we record
                         # the error in the `server.errors.index` metadata and
-                        # leave the dataset in INDEXING state. (FIX-ME: should
-                        # we expose an "INDEX_FAILED" primary state which would
-                        # "trap" the failed dataset but enable a transition to
-                        # INDEXING to re-try?)
-                        if tb_res is error_code["OK"]:
+                        # leave the dataset in INDEXING state.
+                        if tb_res.success:
                             idxctx.logger.info(
                                 "{}: {}: success",
                                 idxctx.TS,

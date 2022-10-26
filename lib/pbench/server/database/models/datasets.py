@@ -318,7 +318,6 @@ class States(enum.Enum):
     INDEXED = ("Indexed", False)
     DELETING = ("Deleting", True)
     DELETED = ("Deleted", False)
-    QUARANTINED = ("Quarantined", False)
 
     def __init__(self, friendly: str, mutating: bool):
         """
@@ -407,14 +406,24 @@ class Dataset(Database.Base):
 
     __tablename__ = "datasets"
 
+    # This dict defines the allowed dataset state transitions through its
+    # lifecycle. We have a set of "-ING" action states while the dataset is
+    # being mutated, and a set of "-ED" states designating the last successful
+    # mutation, from UPLOAD through INDEX and eventually DELETE.
+    #
+    # All "-ING" action states allow self-transitions, which provides for a
+    # failed action to be retried later.
+    #
+    # DELETED does not appear as a key here: we define it for completion, but
+    # (A) if a dataset entered DELETED state it could never leave and (B) on
+    # completion of the dataset delete action the dataset's SQL row has been
+    # deleted so we never actually set it to "DELETED" state.
     transitions = {
-        States.UPLOADING: [States.UPLOADED, States.QUARANTINED],
-        States.UPLOADED: [States.INDEXING, States.QUARANTINED],
-        States.INDEXING: [States.INDEXED, States.QUARANTINED],
-        States.INDEXED: [States.INDEXING, States.DELETING, States.QUARANTINED],
-        States.DELETING: [States.DELETED, States.INDEXED, States.QUARANTINED],
-        # NOTE: DELETED and QUARANTINED do not appear as keys in the table
-        # because they're terminal states that cannot be exited.
+        States.UPLOADING: [States.UPLOADED, States.UPLOADING, States.DELETING],
+        States.UPLOADED: [States.INDEXING, States.DELETING],
+        States.INDEXING: [States.INDEXED, States.INDEXING, States.DELETING],
+        States.INDEXED: [States.INDEXING, States.DELETING],
+        States.DELETING: [States.DELETED, States.INDEXED, States.DELETING],
     }
 
     # "Virtual" metadata key paths to access Dataset column data
