@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 from click.testing import CliRunner
 import psutil
 
+from pbench.agent.tool_group import ToolGroup
 from pbench.cli.agent.commands.tools import kill
 
 
@@ -192,7 +193,30 @@ class TestKillTools:
         )
 
     @staticmethod
+    def test_gen_host_names_no_tool_groups(monkeypatch):
+        """Verify kill.gen_host_names() is a no-op when we have no tool groups
+        present.
+        """
+
+        def mock_gen_tool_groups(pbench_run: str) -> Iterable[ToolGroup]:
+            """Override kill.gen_tool_groups definition to yield no ToolGroup
+            objects.
+            """
+            for hosts in []:
+                yield ToolGroup(hosts)
+
+        monkeypatch.setattr(
+            "pbench.cli.agent.commands.tools.kill.gen_tool_groups", mock_gen_tool_groups
+        )
+        hosts = list(kill.gen_host_names(pathlib.Path("no-tool-group-dirs")))
+        assert len(hosts) == 0
+
+    @staticmethod
     def test_gen_host_names(monkeypatch):
+        """Verify kill.gen_host_names() yields the expected list of hosts from
+        the discovered ToolGroups.
+        """
+
         class MockToolGroup:
             """A simplified tool group object which only provides the
             `hostnames` dictionary.
@@ -227,11 +251,6 @@ class TestKillTools:
             def is_local(self, host_name: str):
                 return host_name.startswith("localhost")
 
-        # To verify the case where there are no tool groups created, we make a
-        # special Path object which will expose no tool groups.
-        hosts = list(kill.gen_host_names(pathlib.Path("no-tool-group-dirs")))
-        assert len(hosts) == 0
-
         monkeypatch.setattr(
             "pbench.cli.agent.commands.tools.kill.gen_tool_groups", mock_gen_tool_groups
         )
@@ -239,9 +258,6 @@ class TestKillTools:
             "pbench.cli.agent.commands.tools.kill.LocalRemoteHost", MockLocalRemoteHost
         )
 
-        # Using the special Path object which does have tool groups, we
-        # verify that the expected generated list of remote hosts are all
-        # the expected hosts listed in the MockToolGroup class above.
         hosts = set(kill.gen_host_names(pathlib.Path("have-tool-group-dirs")))
         assert hosts == expected_hosts
 
@@ -346,13 +362,6 @@ class TestKillTools:
         is nothing to kill.
         """
 
-        class MockPidSource:
-            """No-op mock for PidSource."""
-
-            def __init__(self, file_name: str, display_name: str):
-                self.file_name = file_name
-                self.display_name = display_name
-
         def mock_gen_run_directories(
             run_dir: pathlib.Path,
         ) -> Iterable[Tuple[pathlib.Path, str]]:
@@ -361,9 +370,7 @@ class TestKillTools:
                 yield run_dir, "uuid"
 
         runner = CliRunner(mix_stderr=False)
-        monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.PidSource", MockPidSource
-        )
+        monkeypatch.setattr("pbench.cli.agent.commands.tools.kill.PidSource", MagicMock)
         monkeypatch.setattr(
             "pbench.cli.agent.commands.tools.kill.gen_run_directories",
             mock_gen_run_directories,
