@@ -1,6 +1,6 @@
 import pathlib
 import sys
-from typing import Any, Callable, Iterable, List, Optional, Tuple
+from typing import Any, Callable, Iterable, List, Optional, Tuple, TypeVar
 from unittest.mock import MagicMock
 
 from click.testing import CliRunner
@@ -14,13 +14,18 @@ def ourecho(msg: str, err: bool = False):
     print(msg, file=(sys.stderr if err else sys.stdout))
 
 
+AP = TypeVar("AP", bound="AnotherPath")
+
+
 class AnotherPath:
     """Another "Path" implementation to help unit tests mock the behavior of
     Path based on the contents of the name argument given in the constructor.
     """
 
     def __init__(self, name: str, val: Optional[str] = None):
-        """Approximate mocked behavior of a Path object where the"""
+        """Approximate mocked behavior of a Path object where an actual Path
+        object is used provide the `name` and `parts` fields.
+        """
         p = pathlib.Path(name)
         self.parts = p.parts
         self.name = p.name
@@ -30,15 +35,22 @@ class AnotherPath:
             self.parent = AnotherPath(str(p.parent))
         self.val = val
 
-    def is_dir(self):
+    def is_dir(self) -> bool:
+        """A directory is determined by its suffix NOT being in a known list."""
         return not self.name.endswith((".uuid", ".pid", ".file"))
 
-    def read_text(self):
+    def read_text(self) -> str:
+        """The read text value is return that was provided when the mock'd
+        object was created, otherwise a FileNotFoundError is raised.
+        """
         if self.val is None:
             raise FileNotFoundError(self.name)
         return self.val
 
-    def __truediv__(self, arg: str):
+    def __truediv__(self, arg: str) -> AP:
+        """Create a new instance of this object with argument added to the
+        path.
+        """
         return AnotherPath(f"{self.name}/{arg}", val=self.val)
 
 
