@@ -25,7 +25,9 @@ export const showFailureToast = () => async (dispatch) => {
 export const showToast =
   (variant, title, message = "") =>
   (dispatch, getState) => {
-    const alerts = getState().toastReducer.alerts;
+    const alerts = getState()?.toastReducer?.alerts
+      ? getState().toastReducer.alerts
+      : [];
     const obj = {
       variant: variant,
       title: title,

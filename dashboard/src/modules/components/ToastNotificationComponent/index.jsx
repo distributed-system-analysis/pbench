@@ -18,26 +18,27 @@ const ToastComponent = () => {
   };
   return (
     <AlertGroup isToast>
-      {alerts.map((item) => {
-        return (
-          <Alert
-            variant={AlertVariant[item.variant]}
-            title={item.title}
-            key={item.key}
-            timeout={true}
-            onTimeout={() => removeToast(item.key)}
-            actionClose={
-              <AlertActionCloseButton
-                title={item.title}
-                variantLabel={`${item.variant} alert`}
-                onClose={() => removeToast(item.key)}
-              />
-            }
-          >
-            {item?.message && <p>{item?.message}</p>}
-          </Alert>
-        );
-      })}
+      {alerts &&
+        alerts.map((item) => {
+          return (
+            <Alert
+              variant={AlertVariant[item.variant]}
+              title={item.title}
+              key={item.key}
+              timeout={true}
+              onTimeout={() => removeToast(item.key)}
+              actionClose={
+                <AlertActionCloseButton
+                  title={item.title}
+                  variantLabel={`${item.variant} alert`}
+                  onClose={() => removeToast(item.key)}
+                />
+              }
+            >
+              {item?.message && <p>{item?.message}</p>}
+            </Alert>
+          );
+        })}
     </AlertGroup>
   );
 };
