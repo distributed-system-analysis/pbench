@@ -19,7 +19,7 @@ from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
-from pbench.server.api.resources.graphql_api import GraphQL
+
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
     DatasetsContents,
 )
@@ -138,14 +138,6 @@ def register_endpoints(api, app, config):
         endpoint="endpoints",
         resource_class_args=(config, logger),
     )
-
-    api.add_resource(
-        GraphQL,
-        f"{base_uri}/graphql",
-        endpoint="graphql",
-        resource_class_args=(config, logger),
-    )
-
     api.add_resource(
         Login,
         f"{base_uri}/login",
