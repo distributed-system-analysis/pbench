@@ -198,7 +198,9 @@ class KillTools(BaseCommand):
         for tm_dir, uuid in gen_run_directories(self.pbench_run):
             # If a run directory has any dangling components of the Tool
             # Meister sub-system active, that is PID files for any local
-            # component, record those components.
+            # component, record those components.  NOTE: we use a list
+            # comprehension here to ensure that the .load() method is invoked
+            # on each PidSource object.
             local_pids |= any([pidsrc.load(tm_dir, uuid) for pidsrc in all_pids])
             # Find all the remotes for this run that need to be tracked down.
             for host in gen_host_names(tm_dir.parent):
