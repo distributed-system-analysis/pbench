@@ -10,12 +10,12 @@ distributed system state of the Pbench Agent not working correctly.
 
 The algorithm is fairly straight-forward:
 
-  For each pbench run directory in ${pbench_run}
-  1. If the run was NOT orchestrated by pbench-tool-meister-start, ignore
+  For each pbench result directory in ${pbench_run}
+  1. If the result was NOT orchestrated by pbench-tool-meister-start, ignore
   2. Find the recorded pids for the Redis Server, Tool Data Sink, and local
      Tool Meister in their respective pid files, and stop those processes
      from running
-  3. Determine all the remote hosts used for that run
+  3. Determine all the remote hosts used for that result
   4. For each remote host:
      a. `ssh` to that remote host
      b. Stop the Tool Meister running on that host
@@ -107,12 +107,13 @@ class PidSource:
                 echo(f"\t\terror killing {pid}: {exc}", err=True)
 
 
-def gen_run_directories(pbench_run: pathlib.Path) -> Iterable[Tuple[pathlib.Path, str]]:
-    """Generate the list of run directories available under ${pbench_run},
-    yielding a Path object for that directory, along with its recorded
-    UUID.
+def gen_result_tm_directories(
+    pbench_run: pathlib.Path,
+) -> Iterable[Tuple[pathlib.Path, str]]:
+    """Generate the list of result directories available under ${pbench_run},
+    yielding a Path object for that directory, along with its recorded UUID.
 
-    Yields a tuple of the run directory Path object and associated UUID.
+    Yields a tuple of the result directory Path object and associated UUID.
     """
     for entry in pbench_run.iterdir():
         if not entry.is_dir():
@@ -121,19 +122,18 @@ def gen_run_directories(pbench_run: pathlib.Path) -> Iterable[Tuple[pathlib.Path
         try:
             uuid = (tm_dir / ".uuid").read_text()
         except FileNotFoundError:
-            # This is either not a pbench run directory, or the Tool Meister
-            # sub-system was not orchestrated by pbench-tool-meister-start
-            # for this run.
+            # This is either not a pbench result directory, or the Tool
+            # Meister sub-system was not orchestrated by
+            # pbench-tool-meister-start for this result.
             continue
         yield tm_dir, uuid
 
 
-def gen_host_names(tm_dir: pathlib.Path) -> Iterable[str]:
-    """Read the registered tool data saved for this run and return the list
-    of remote hosts.
+def gen_host_names(result_dir: pathlib.Path) -> Iterable[str]:
+    """Read the registered tool data saved for this result directory and
+    return the list of remote hosts.
     """
-    run_dir = tm_dir.parent
-    tool_groups = list(gen_tool_groups(run_dir))
+    tool_groups = list(gen_tool_groups(result_dir))
     if not tool_groups:
         return
 
@@ -156,7 +156,7 @@ class KillTools(BaseCommand):
         locally kill, processes having those UUIDs.
 
         Without command line arguments, kill all the local PIDs from all the
-        discovered run directories.
+        discovered result directories.
 
         All the Redis server PIDs are killed first, then the Tool Data Sinks,
         and finally the local Tool Meisters.  We kill all the Redis Servers
@@ -167,7 +167,7 @@ class KillTools(BaseCommand):
 
         We then remotely kill (via `ssh`) all the Tool Meisters by invoking
         this same command on a remote host with the list of UUIDs found across
-        all runs involving that host.
+        all results involving that host.
         """
         if uuids:
             # We have a list of UUIDs to kill, implying that we search locally
@@ -195,14 +195,15 @@ class KillTools(BaseCommand):
         ]
         local_pids = False
         remote_tms = defaultdict(list)
-        for tm_dir, uuid in gen_run_directories(self.pbench_run):
-            # If a run directory has any dangling components of the Tool
+        for tm_dir, uuid in gen_result_tm_directories(self.pbench_run):
+            # If a result directory has any dangling components of the Tool
             # Meister sub-system active, that is PID files for any local
             # component, record those components.  NOTE: we use a list
             # comprehension here to ensure that the .load() method is invoked
             # on each PidSource object.
             local_pids |= any([pidsrc.load(tm_dir, uuid) for pidsrc in all_pids])
-            # Find all the remotes for this run that need to be tracked down.
+            # Find all the remotes for this result that need to be tracked
+            # down.
             for host in gen_host_names(tm_dir.parent):
                 remote_tms[host].append(uuid)
 

@@ -157,7 +157,7 @@ class TestPidSource:
 
 class TestKillTools:
     @staticmethod
-    def test_gen_run_directories():
+    def test_gen_result_tm_directories():
         class FakePbenchRun:
             """A very specific mock for a pbench_run Path object where we
             leverage the AnotherPath class to yield a series of AnotherPath
@@ -176,18 +176,18 @@ class TestKillTools:
             [
                 ("abc.file", None),  # top level file
                 ("filenotf", None),  # directory with no .uuid file
-                ("run1", "abcdef"),  # directory with a file
-                ("run2", "ghijkl"),  # directory with a file
+                ("res1", "abcdef"),  # directory with a file
+                ("res2", "ghijkl"),  # directory with a file
             ]
         )
-        pairs = list(kill.gen_run_directories(pr))
+        pairs = list(kill.gen_result_tm_directories(pr))
         assert (
-            pairs[0][0].parent.name == "run1"
+            pairs[0][0].parent.name == "res1"
             and pairs[0][0].name == "tm"
             and pairs[0][1] == "abcdef"
         )
         assert (
-            pairs[1][0].parent.name == "run2"
+            pairs[1][0].parent.name == "res2"
             and pairs[1][0].name == "tm"
             and pairs[1][1] == "ghijkl"
         )
@@ -357,11 +357,11 @@ class TestKillTools:
 
     @staticmethod
     def test_without_uuids_no_action(monkeypatch):
-        """Exercise the code path where no run directories are found, so there
-        is nothing to kill.
+        """Exercise the code path where no result directories are found, so
+        there is nothing to kill.
         """
 
-        def mock_gen_run_directories(
+        def mock_gen_result_tm_directories(
             run_dir: pathlib.Path,
         ) -> Iterable[Tuple[pathlib.Path, str]]:
             """Intentional generator which does not yield anything."""
@@ -371,8 +371,8 @@ class TestKillTools:
         runner = CliRunner(mix_stderr=False)
         monkeypatch.setattr("pbench.cli.agent.commands.tools.kill.PidSource", MagicMock)
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.gen_run_directories",
-            mock_gen_run_directories,
+            "pbench.cli.agent.commands.tools.kill.gen_result_tm_directories",
+            mock_gen_result_tm_directories,
         )
         result = runner.invoke(kill.main)
         assert (
@@ -410,19 +410,19 @@ class TestKillTools:
             def killem(self, echo: Callable[[str], None]) -> None:
                 action_list.append(("killem", self.display_name))
 
-        def mock_gen_run_directories(
+        def mock_gen_result_tm_directories(
             pbench_run_dir: pathlib.Path,
         ) -> Iterable[Tuple[pathlib.Path, str]]:
-            for run_dir in [
-                (pathlib.Path("run0/tm"), "uuid1abc"),
-                (pathlib.Path("run1/tm"), "uuid2def"),
-                (pathlib.Path("run2/tm"), "uuid3ghi"),
+            for tm_dir in [
+                (pathlib.Path("res0/tm"), "uuid1abc"),
+                (pathlib.Path("res1/tm"), "uuid2def"),
+                (pathlib.Path("res2/tm"), "uuid3ghi"),
             ]:
-                yield run_dir
+                yield tm_dir
 
-        def mock_gen_host_names(run_dir: pathlib.Path) -> str:
-            hosts = {"run0": ["hostA", "hostB"], "run2": ["host3"]}
-            for host in hosts.get(run_dir.name, []):
+        def mock_gen_host_names(res_dir: pathlib.Path) -> str:
+            hosts = {"res0": ["hostA", "hostB"], "res2": ["host3"]}
+            for host in hosts.get(res_dir.name, []):
                 yield host
 
         class MockTemplateSsh:
@@ -442,8 +442,8 @@ class TestKillTools:
             "pbench.cli.agent.commands.tools.kill.PidSource", MockPidSource
         )
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.gen_run_directories",
-            mock_gen_run_directories,
+            "pbench.cli.agent.commands.tools.kill.gen_result_tm_directories",
+            mock_gen_result_tm_directories,
         )
         monkeypatch.setattr(
             "pbench.cli.agent.commands.tools.kill.gen_host_names",
@@ -458,15 +458,15 @@ class TestKillTools:
             result.exit_code == 0
         ), f"stdout={result.stdout!r}, stderr={result.stderr!r}"
         expected_action_list = [
-            ("load", "redis.pid", "run0/tm", "uuid1abc"),
-            ("load", "pbench-tool-data-sink.pid", "run0/tm", "uuid1abc"),
-            ("load", "tm.pid", "run0/tm", "uuid1abc"),
-            ("load", "redis.pid", "run1/tm", "uuid2def"),
-            ("load", "pbench-tool-data-sink.pid", "run1/tm", "uuid2def"),
-            ("load", "tm.pid", "run1/tm", "uuid2def"),
-            ("load", "redis.pid", "run2/tm", "uuid3ghi"),
-            ("load", "pbench-tool-data-sink.pid", "run2/tm", "uuid3ghi"),
-            ("load", "tm.pid", "run2/tm", "uuid3ghi"),
+            ("load", "redis.pid", "res0/tm", "uuid1abc"),
+            ("load", "pbench-tool-data-sink.pid", "res0/tm", "uuid1abc"),
+            ("load", "tm.pid", "res0/tm", "uuid1abc"),
+            ("load", "redis.pid", "res1/tm", "uuid2def"),
+            ("load", "pbench-tool-data-sink.pid", "res1/tm", "uuid2def"),
+            ("load", "tm.pid", "res1/tm", "uuid2def"),
+            ("load", "redis.pid", "res2/tm", "uuid3ghi"),
+            ("load", "pbench-tool-data-sink.pid", "res2/tm", "uuid3ghi"),
+            ("load", "tm.pid", "res2/tm", "uuid3ghi"),
             ("killem", "redis server"),
             ("killem", "tool data sink"),
             ("killem", "local tool meister"),
