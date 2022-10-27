@@ -4,8 +4,8 @@ from pathlib import Path
 import tempfile
 
 from pbench.server import PbenchServerConfig
-from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.cache_manager import CacheManager
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.report import Report
 from pbench.server.sync import Operation, Sync
 
@@ -34,7 +34,7 @@ class UnpackTarballs:
         self.config = config
         self.logger = logger
         self.sync = Sync(logger=logger, component="unpack")
-        self.file_tree = FileTree(config, logger)
+        self.cache_manager = CacheManager(config, logger)
 
     def unpack(self, tb: Target):
         """Isolate the call to the FileTree unpacker.
@@ -44,7 +44,7 @@ class UnpackTarballs:
         """
 
         try:
-            self.file_tree.unpack(tb.dataset.resource_id)
+            self.cache_manager.unpack(tb.dataset.resource_id)
         except Exception as exc:
             self.logger.error(
                 "{}: Unpacking of tarball {} failed: {}",

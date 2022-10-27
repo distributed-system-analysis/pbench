@@ -15,6 +15,7 @@ from pbench.common.exceptions import (
     UnsupportedTarballFormat,
 )
 from pbench.server import tstos
+from pbench.server.cache_manager import CacheManager, TarballNotFound
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetError,
@@ -22,7 +23,6 @@ from pbench.server.database.models.datasets import (
     Metadata,
     States,
 )
-from pbench.server.filetree import FileTree, TarballNotFound
 from pbench.server.indexer import es_index, IdxContext, PbenchTarBall, VERSION
 from pbench.server.report import Report
 from pbench.server.sync import Operation, Sync
@@ -146,9 +146,9 @@ class Index:
         # An Elasticsearch status Report object
         self.report: Optional[Report] = None
 
-        # We'll use a FileTree in order to find the INCOMING directory for the
+        # We'll use a cache manager instance to find the INCOMING directory for the
         # unpacked tarballs.
-        self.filetree: FileTree = FileTree(idxctx.config, idxctx.logger)
+        self.cache_manager: CacheManager = CacheManager(idxctx.config, idxctx.logger)
 
         # Manage synchronization between components
         self.sync: Sync = Sync(idxctx.logger, "index")  # Build a sync object
@@ -367,7 +367,9 @@ class Index:
                             # INCOMING tree. If it's not there, record an error
                             # but skip the dataset to be re-tried later.
                             try:
-                                tarobj = self.filetree.find_dataset(dataset.resource_id)
+                                tarobj = self.cache_manager.find_dataset(
+                                    dataset.resource_id
+                                )
                                 if not tarobj.unpacked:
                                     idxctx.logger.warning(
                                         "{} has not been unpacked", dataset
@@ -377,7 +379,7 @@ class Index:
                             except TarballNotFound as e:
                                 self.sync.error(
                                     dataset,
-                                    f"Unable to find dataset in file tree: {e!r}",
+                                    f"Unable to find dataset in cache manager: {e!r}",
                                 )
                                 continue
 

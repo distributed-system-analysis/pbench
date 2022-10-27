@@ -211,7 +211,7 @@ class FakeTarball:
         self.unpacked = f"/incoming/{path.name}"
 
 
-class FakeFileTree:
+class FakeCacheManager:
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         self.config = config
         self.logger = logger
@@ -235,7 +235,7 @@ def mocks(monkeypatch, make_logger):
         m.setattr("pbench.server.indexing_tarballs.Report", FakeReport)
         m.setattr("pbench.server.indexing_tarballs.Dataset", FakeDataset)
         m.setattr("pbench.server.indexing_tarballs.Metadata", FakeMetadata)
-        m.setattr("pbench.server.indexing_tarballs.FileTree", FakeFileTree)
+        m.setattr("pbench.server.indexing_tarballs.CacheManager", FakeCacheManager)
         yield m
     FakeSync.reset()
     FakePbenchTarBall.reset()
