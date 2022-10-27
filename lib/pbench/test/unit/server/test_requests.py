@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 
 from pbench.server import PbenchServerConfig
+from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
@@ -14,7 +15,6 @@ from pbench.server.database.models.datasets import (
     MetadataKeyError,
     States,
 )
-from pbench.server.cache_manager import CacheManager
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
 

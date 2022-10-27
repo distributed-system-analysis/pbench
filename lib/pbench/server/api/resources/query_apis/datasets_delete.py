@@ -13,8 +13,8 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.api.resources.query_apis import ElasticBulkBase
-from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.cache_manager import CacheManager
+from pbench.server.database.models.datasets import Dataset, Metadata, States
 
 
 class DatasetsDelete(ElasticBulkBase):

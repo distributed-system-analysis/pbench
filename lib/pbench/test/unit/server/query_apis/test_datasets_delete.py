@@ -6,8 +6,8 @@ import elasticsearch
 import pytest
 
 from pbench.server import JSON, PbenchServerConfig
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 from pbench.server.cache_manager import CacheManager
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 

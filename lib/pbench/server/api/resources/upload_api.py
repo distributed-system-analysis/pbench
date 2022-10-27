@@ -10,6 +10,7 @@ import humanize
 
 from pbench.common.utils import Cleanup, validate_hostname
 from pbench.server.auth.auth import Auth
+from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetDuplicate,
@@ -18,7 +19,6 @@ from pbench.server.database.models.datasets import (
     States,
 )
 from pbench.server.database.models.server_config import ServerConfig
-from pbench.server.cache_manager import CacheManager
 from pbench.server.utils import filesize_bytes, UtcTimeHelper
 
 
