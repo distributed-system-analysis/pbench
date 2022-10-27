@@ -75,6 +75,10 @@ const App = () => {
                   element={<ProfileComponent />}
                 />
                 <Route
+                  path={APP_ROUTES.RESULTS}
+                  element={<TableWithFavorite />}
+                />
+                <Route
                   path={APP_ROUTES.OVERVIEW}
                   element={<OverviewComponent />}
                 />
