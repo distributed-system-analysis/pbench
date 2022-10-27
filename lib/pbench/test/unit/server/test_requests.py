@@ -325,14 +325,7 @@ class TestUpload:
         assert not Path(str(self.cachemanager_create_path) + ".md5").exists()
 
     @pytest.mark.freeze_time("1970-01-01")
-    def test_upload(
-        self,
-        client,
-        pbench_token,
-        server_config,
-        setup_ctrl,
-        tarball
-    ):
+    def test_upload(self, client, pbench_token, server_config, setup_ctrl, tarball):
         """Test a successful dataset upload and validate the metadata and audit
         information. NOTE: in order to have a guaranteed timestamp to verify,
         we freeze time. This seems to make the standard fixture authentication

@@ -12,8 +12,8 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
-from pbench.server.database.models.audit import AuditType
 from pbench.server.cache_manager import CacheManager
+from pbench.server.database.models.audit import AuditType
 from pbench.server.database.models.datasets import Dataset, States
 
 
