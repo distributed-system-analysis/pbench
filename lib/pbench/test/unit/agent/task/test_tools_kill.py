@@ -25,7 +25,7 @@ class AnotherPath:
 
     def __init__(self, name: str, val: Optional[str] = None):
         """Approximate mocked behavior of a Path object where an actual Path
-        object is used provide the `name` and `parts` fields.
+        object is used to provide the `name` and `parts` fields.
         """
         p = pathlib.Path(name)
         self._str = str(p)
@@ -42,8 +42,9 @@ class AnotherPath:
         return not self.name.endswith((".uuid", ".pid", ".file"))
 
     def read_text(self) -> str:
-        """The read text value is return that was provided when the mock'd
-        object was created, otherwise a FileNotFoundError is raised.
+        """The read text value is returned using the value that was provided
+        when the mock'd object was created, otherwise a FileNotFoundError is
+        raised.
         """
         if self.val is None:
             raise FileNotFoundError(self.name)
@@ -202,8 +203,8 @@ class TestKillTools:
             """Override kill.gen_tool_groups definition to yield no ToolGroup
             objects.
             """
-            for hosts in []:
-                yield ToolGroup(hosts)
+            for group in []:
+                yield ToolGroup(group)
 
         monkeypatch.setattr(
             "pbench.cli.agent.commands.tools.kill.gen_tool_groups", mock_gen_tool_groups
