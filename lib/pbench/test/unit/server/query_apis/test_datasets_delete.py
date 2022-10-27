@@ -6,8 +6,8 @@ import elasticsearch
 import pytest
 
 from pbench.server import JSON, PbenchServerConfig
+from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
-from pbench.server.filetree import FileTree
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -94,7 +94,7 @@ class TestDatasetsDelete:
 
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
-    def fake_filetree(self, monkeypatch):
+    def fake_cache_manager(self, monkeypatch):
         def fake_constructor(self, options: PbenchServerConfig, logger: Logger):
             pass
 
@@ -102,8 +102,8 @@ class TestDatasetsDelete:
             TestDatasetsDelete.tarball_deleted = dataset_id
 
         TestDatasetsDelete.tarball_deleted = None
-        monkeypatch.setattr(FileTree, "__init__", fake_constructor)
-        monkeypatch.setattr(FileTree, "delete", fake_delete)
+        monkeypatch.setattr(CacheManager, "__init__", fake_constructor)
+        monkeypatch.setattr(CacheManager, "delete", fake_delete)
 
     @pytest.mark.parametrize("owner", ("drb", "test"))
     def test_query(
@@ -122,7 +122,7 @@ class TestDatasetsDelete:
         user (managed by the build_auth_header fixture).
         """
         self.fake_elastic(monkeypatch, get_document_map, False)
-        self.fake_filetree(monkeypatch)
+        self.fake_cache_manager(monkeypatch)
 
         is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
         if not HeaderTypes.is_valid(build_auth_header["header_param"]):
@@ -159,7 +159,7 @@ class TestDatasetsDelete:
         internal error with a report of success and failure counts.
         """
         self.fake_elastic(monkeypatch, get_document_map, True)
-        self.fake_filetree(monkeypatch)
+        self.fake_cache_manager(monkeypatch)
         ds = Dataset.query(name="drb")
         response = client.post(
             f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",

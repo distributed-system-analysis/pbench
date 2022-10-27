@@ -13,8 +13,8 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.api.resources.query_apis import ElasticBulkBase
+from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import Dataset, Metadata, States
-from pbench.server.filetree import FileTree
 
 
 class DatasetsDelete(ElasticBulkBase):
@@ -88,7 +88,7 @@ class DatasetsDelete(ElasticBulkBase):
         # column; a "partial success" will remain in the previous state.
         if summary["failure"] == 0:
             self.logger.info("Deleting dataset {} file system representation", dataset)
-            file_tree = FileTree(self.config, self.logger)
-            file_tree.delete(dataset.resource_id)
+            cache_m = CacheManager(self.config, self.logger)
+            cache_m.delete(dataset.resource_id)
             self.logger.info("Deleting dataset {} PostgreSQL representation", dataset)
             dataset.delete()

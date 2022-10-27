@@ -10,6 +10,7 @@ import humanize
 
 from pbench.common.utils import Cleanup, validate_hostname
 from pbench.server.auth.auth import Auth
+from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetDuplicate,
@@ -18,7 +19,6 @@ from pbench.server.database.models.datasets import (
     States,
 )
 from pbench.server.database.models.server_config import ServerConfig
-from pbench.server.filetree import FileTree
 from pbench.server.utils import filesize_bytes, UtcTimeHelper
 
 
@@ -54,7 +54,7 @@ class Upload(Resource):
                 __name__, "pbench-server", "rest_max_content_length", self.logger
             )
         )
-        self.temporary = config.ARCHIVE / FileTree.TEMPORARY
+        self.temporary = config.ARCHIVE / CacheManager.TEMPORARY
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
         self.logger.info("Configured PUT temporary directory as {}", self.temporary)
 
@@ -259,25 +259,25 @@ class Upload(Resource):
                         f"Failed to write .md5 file '{md5_full_path}'",
                     )
 
-            # Create a file tree object
+            # Create a cache manager object
             try:
-                file_tree = FileTree(self.config, self.logger)
+                cache_m = CacheManager(self.config, self.logger)
             except Exception:
                 raise CleanupTime(
-                    HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the file tree"
+                    HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the cache manager"
                 )
 
             # Move the files to their final location
             try:
-                tarball = file_tree.create(controller, tar_full_path)
+                tarball = cache_m.create(controller, tar_full_path)
             except Exception:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     f"Unable to create dataset in file system for {tar_full_path}",
                 )
 
-            # From this point, failure will remove the tarball from the file
-            # tree.
+            # From this point, failure will remove the tarball from the cache
+            # manager.
             #
             # NOTE: the Tarball.delete method won't clean up empty controller
             # directories. This isn't ideal, but we don't want to deal with the

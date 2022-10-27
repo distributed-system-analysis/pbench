@@ -14,16 +14,16 @@ from pbench.server.database.models.datasets import Dataset
 from pbench.server.utils import get_tarball_md5
 
 
-class FiletreeError(Exception):
+class CacheManagerError(Exception):
     """
     Base class for exceptions raised from this code.
     """
 
     def __str__(self) -> str:
-        return "Generic file tree exception"
+        return "Generic cache manager exception"
 
 
-class BadFilename(FiletreeError):
+class BadFilename(CacheManagerError):
     """
     A bad path is given for a tarball.
     """
@@ -35,7 +35,7 @@ class BadFilename(FiletreeError):
         return f"The file path {self.path!r} is not a tarball"
 
 
-class TarballNotFound(FiletreeError):
+class TarballNotFound(CacheManagerError):
     """
     The on-disk representation of a dataset (tarball and MD5 companion) were
     not found in the ARCHIVE tree.
@@ -45,10 +45,10 @@ class TarballNotFound(FiletreeError):
         self.tarball = tarball
 
     def __str__(self) -> str:
-        return f"The dataset tarball named {self.tarball!r} is not present in the file tree"
+        return f"The dataset tarball named {self.tarball!r} is not present in the cache manager"
 
 
-class DuplicateTarball(FiletreeError):
+class DuplicateTarball(CacheManagerError):
     """
     A duplicate tarball name was detected.
     """
@@ -57,10 +57,10 @@ class DuplicateTarball(FiletreeError):
         self.tarball = tarball
 
     def __str__(self) -> str:
-        return f"A dataset tarball named {self.tarball!r} is already present in the file tree"
+        return f"A dataset tarball named {self.tarball!r} is already present in the cache manager"
 
 
-class MetadataError(FiletreeError):
+class MetadataError(CacheManagerError):
     """
     A problem was found locating or processing a tarball's metadata.log file.
     """
@@ -73,7 +73,7 @@ class MetadataError(FiletreeError):
         return f"A problem occurred processing metadata.log from {self.tarball!s}: {self.error!r}"
 
 
-class TarballUnpackError(FiletreeError):
+class TarballUnpackError(CacheManagerError):
     """
     An error occured while trying to unpack tarball in Unpacked Directory.
     """
@@ -86,7 +86,7 @@ class TarballUnpackError(FiletreeError):
         return f"An error occurred while unpacking {self.tarball}: {self.error}"
 
 
-class TarballModeChangeError(FiletreeError):
+class TarballModeChangeError(CacheManagerError):
     """
     An error occurred while trying to change the file permissions of
     unpacked tarball files.
@@ -185,8 +185,8 @@ class Tarball:
         return False
 
     # Most of the "operational" methods below this point should be called only
-    # through Controller and/or FileTree methods, in order to properly manage
-    # aspects of the file tree structure outside the scope of the Tarball.
+    # through Controller and/or CacheManager methods, in order to properly manage
+    # aspects of the cache manager structure outside the scope of the Tarball.
     #
     # create
     #   Alternate constructor to create a Tarball object and move an incoming
@@ -322,7 +322,7 @@ class Tarball:
 
     @staticmethod
     def subprocess_run(
-        command: str, working_dir: Path, exception: type[FiletreeError], ctx: Path
+        command: str, working_dir: Path, exception: type[CacheManagerError], ctx: Path
     ):
         """
         Runs command under subprocess.run
@@ -333,7 +333,7 @@ class Tarball:
             exception: A reference to a class (e.g., TarballUnpackError or
                         TarballModeChangeError) to be raised in the event of an error.
             ctx: tarball path/unpack directory path. This is only used at
-                the event of an error as a parameter to the FiletreeError Exception.
+                the event of an error as a parameter to the CacheManagerError Exception.
 
         Raises:
             In the event of an error, will raise an instance of the class specified
@@ -365,7 +365,7 @@ class Tarball:
             src: source directory to move contents from.
             dest: destinations directory to move contents to.
             ctx: tarball path/unpack directory path. This is only used at
-                the event of an error as a parameter to the FiletreeError Exception.
+                the event of an error as a parameter to the CacheManagerError Exception.
 
         Raises:
             TarballUnpackError if an exception/failure occurs while unpacking
@@ -466,7 +466,7 @@ class Controller:
     """
 
     # List of the state directories under controller in which we record the
-    # "state" of tarballs via symlinks. The FileTree package can discover,
+    # "state" of tarballs via symlinks. The CacheManager package can discover,
     # validate, and report on these.
     STATE_DIRS = [
         "BACKED-UP",
@@ -680,7 +680,7 @@ class Controller:
         del self.tarballs[name]
 
 
-class FileTree:
+class CacheManager:
     """
     A hierarchical representation of the Pbench Server's file structure.
 
@@ -767,13 +767,13 @@ class FileTree:
         schema.
     """
 
-    # The FileTree class provides a definition of a directory at the same level
+    # The CacheManager class provides a definition of a directory at the same level
     # as "controller" directories, where `PUT` will temporarily store uploaded
     # tarballs and generated MD5 files.
     #
     # Placing this within the ARCHIVE tree ensures that we can rename files to
     # a controller directory instead of copying them, and the upload will
-    # already fail if the file system has insufficient space. FileTree
+    # already fail if the file system has insufficient space. CacheManager
     # discovery will ignore this directory.
     TEMPORARY = "UPLOAD"
 
@@ -795,7 +795,7 @@ class FileTree:
 
     def __init__(self, options: PbenchServerConfig, logger: Logger):
         """
-        Construct a FileTree object. We don't do any discovery here, because
+        Construct a CacheManager object. We don't do any discovery here, because
         the mutation operations allow dynamic minimal discovery to save on
         some time. The `full_discovery` method allows full discovery when
         desired.
@@ -843,7 +843,7 @@ class FileTree:
 
     def __contains__(self, dataset_id: str) -> bool:
         """
-        Allow asking whether a FileTree contains an entry for a specific
+        Allow asking whether a CacheManager contains an entry for a specific
         dataset.
 
         Args:
@@ -914,7 +914,7 @@ class FileTree:
         and the server chain "state" directories.
         """
         for file in self.archive_root.iterdir():
-            if file.is_dir() and file.name != FileTree.TEMPORARY:
+            if file.is_dir() and file.name != CacheManager.TEMPORARY:
                 self._add_controller(file)
 
     def find_dataset(self, dataset_id: str) -> Tarball:
@@ -933,11 +933,11 @@ class FileTree:
 
         Args:
             dataset_id: The resource ID of a dataset that might exist somewhere
-                in the file tree
+                in the cache manager.
 
         Raises:
             TarballNotFound: the ARCHIVE tree does not contain a tarball that
-                corresponds to the dataset name
+                corresponds to the dataset name.
 
         Returns:
             A Tarball object representing the dataset that was found.
@@ -957,7 +957,7 @@ class FileTree:
         raise TarballNotFound(dataset_id)
 
     # These are wrappers for controller and tarball operations which need to be
-    # aware of higher-level constructs in the Pbench Server file tree such as
+    # aware of higher-level constructs in the Pbench Server cache manager such as
     # the ARCHIVE, INCOMING, and RESULTS directory branches. These will manage
     # the higher level environment surrounding the encapsulated class methods.
     #
