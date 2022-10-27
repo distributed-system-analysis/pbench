@@ -140,14 +140,13 @@ class TestPidSource:
         for uuid, vals in pid_data.items():
             ps.load(AnotherPath(vals["dirname"], vals["pid"]), uuid)
         ps.killem(ourecho)
-        assert len(mock_kf.mock_calls) == 3
-        idx = 0
-        for uuid in pid_data.keys():
-            assert mock_kf.mock_calls[idx][1][0].pid == int(pid_data[uuid]["pid"])
-            idx += 1
-        # Verify a second call to killem() is a no-op.
-        ps.killem(ourecho)
         assert len(mock_kf.mock_calls) == len(pid_data)
+        for idx, uuid in enumerate(pid_data.keys()):
+            assert mock_kf.mock_calls[idx][1][0].pid == int(pid_data[uuid]["pid"])
+        # Verify a second call to killem() is a no-op.
+        mock_kf.reset_mock()
+        ps.killem(ourecho)
+        mock_kf.assert_not_called()
         captured = capsys.readouterr()
         expected_output = "Killing display this PIDs ...\n"
         for uuid, vals in pid_data.items():
@@ -209,8 +208,7 @@ class TestKillTools:
         monkeypatch.setattr(
             "pbench.cli.agent.commands.tools.kill.gen_tool_groups", mock_gen_tool_groups
         )
-        hosts = list(kill.gen_host_names(pathlib.Path("no-tool-group-dirs")))
-        assert len(hosts) == 0
+        assert not any(kill.gen_host_names(pathlib.Path("no-tool-group-dirs")))
 
     @staticmethod
     def test_gen_host_names(monkeypatch):
