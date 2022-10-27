@@ -130,10 +130,6 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
     _python_majors=""
     _pytest_majors=""
     for _major in ${major_list}; do
-        if [[ ${_major} == "client" ]]; then
-            # No python tests for client major sub-system
-            continue
-        fi
         if [[ -z "${_python_majors}" ]]; then
             _python_majors="${_major}"
         else
