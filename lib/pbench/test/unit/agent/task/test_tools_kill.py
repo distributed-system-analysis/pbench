@@ -43,7 +43,7 @@ class AnotherPath:
 
     def read_text(self) -> str:
         """The read text value is returned using the value that was provided
-        when the mock'd object was created, otherwise a FileNotFoundError is
+        when the mocked object was created, otherwise a FileNotFoundError is
         raised.
         """
         if self.val is None:
