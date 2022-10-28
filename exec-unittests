@@ -16,7 +16,7 @@ shift
 
 major="${1}"
 shift
-major_list="agent server client"
+major_list="agent client server"
 if [[ -n "${major}" ]]; then
     if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "client" && "${major}" != "all" ]]; then
         printf -- "Expected major sub-system to be 'agent', 'client', 'server', or 'all', got '%s'\n" "${major}" >&2
@@ -33,6 +33,11 @@ shift
 
 # Remaining positional arguments passed along to whatever test is run.
 posargs="${@}"
+
+# The DEBUG_EXEC_UNITTESTS variable can be set to "echo" to cause the
+# particular command line actions taken to be echoed to stdout instead of
+# actually executed.  This helps in debugging the operation of this script.
+_ECHO=${DEBUG_EXEC_UNITTESTS}
 
 parallel=${PBENCH_UNITTEST_PARALLEL:-auto}
 if [[ "${parallel}" == "serial" ]]; then
@@ -91,7 +96,7 @@ function verify_make_source_tree {
     #     _major -- Name of the sub-tree to execute the "make install"
     #
     # Returns the exit status of the "make install" execution, or the exit
-    # status dependent command steps (e.g. make, cd, etc.). 
+    # status dependent command steps (e.g. make, cd, etc.).
     local _major=${1}
     local _rc
 
@@ -126,15 +131,9 @@ else
 fi
 _cov_report="${_cov_report_kind}:${_cov_report_name}"
 
-if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
-    _python_majors=""
-    _pytest_majors=""
+if [[ "${subtst:-python}" == "python" ]]; then
+    _pytest_majors="pbench.test.unit.common"
     for _major in ${major_list}; do
-        if [[ -z "${_python_majors}" ]]; then
-            _python_majors="${_major}"
-        else
-            _python_majors="${_python_majors} ${_major}"
-        fi
         _pytest_majors="${_pytest_majors} pbench.test.unit.${_major}"
         if [[ "${_major}" == "agent" ]]; then
             # TODO: real functional tests require a deployed instance. Current
@@ -144,33 +143,30 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
         fi
     done
 
-    if [[ -n "${_pytest_majors}" ]]; then
-        _pytest_majors="pbench.test.unit.common${_pytest_majors}"
-        printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${_python_majors// /,}"
-        _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent)')
-        _PBENCH_COV_DIR="${_toxenvdir}/cov" _time pytest \
-            ${pytest_jobs_arg} \
-            --basetemp="${_toxenvdir}/tmp" \
-            --cov=${_pbench_sources} \
-            --cov-report ${_cov_report} \
-            ${posargs} \
-            --pyargs ${_pytest_majors}
-        rc=${?}
-        if [[ ${rc} -ne 0 ]]; then
-            printf -- "\n%s pytest command failed with '%s'\n\n" "${_python_majors// /,}" "${rc}"
-        else
-            printf -- "\n%s pytest command succeeded\n\n" "${_python_majors// /,}"
-        fi
+    printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${major_list// /,}"
+    _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent)')
+    _PBENCH_COV_DIR="${_toxenvdir}/cov" ${_ECHO} _time pytest \
+        ${pytest_jobs_arg} \
+        --basetemp="${_toxenvdir}/tmp" \
+        --cov=${_pbench_sources} \
+        --cov-report ${_cov_report} \
+        ${posargs} \
+        --pyargs ${_pytest_majors}
+    rc=${?}
+    if [[ ${rc} -ne 0 ]]; then
+        printf -- "\n%s pytest command failed with '%s'\n\n" "${major_list// /,}" "${rc}"
+    else
+        printf -- "\n%s pytest command succeeded\n\n" "${major_list// /,}"
+    fi
 
-        if [[ "${_cov_report_kind}" == "xml" && -n "${WORKSPACE}" ]]; then
-            # For the Jenkins CI we need to adjust the generated XML report to
-            # use WORKSPACE relative file name paths in the report.
-            sed -i "s;${_pbench_sources};${WORKSPACE}/lib/pbench;" ${_cov_report_name}
-        fi
+    if [[ "${_cov_report_kind}" == "xml" && -n "${WORKSPACE}" ]]; then
+        # For the Jenkins CI we need to adjust the generated XML report to
+        # use WORKSPACE relative file name paths in the report.
+        sed -i "s;${_pbench_sources};${WORKSPACE}/lib/pbench;" ${_cov_report_name}
     fi
 fi
 
-_subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-scripts bench-scripts"
+_agent_subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-scripts bench-scripts"
 
 _para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
 trap "rm -f ${_para_jobs_file}" EXIT INT TERM
@@ -180,7 +176,7 @@ for _major in ${major_list}; do
         if [[ "${subtst:-legacy}" == "python" ]]; then
             continue
         fi
-        for _subtst in ${_subtst_list}; do
+        for _subtst in ${_agent_subtst_list}; do
             if [[ "${subtst:-legacy}" == "legacy" || "${subtst}" == "$(basename ${_subtst})" ]]; then
                 echo "${_major} ${_subtst} ${posargs}"
             fi
@@ -191,39 +187,39 @@ for _major in ${major_list}; do
             # as developers, have viewed the citation and are justified in
             # suppressing future displays of it in our development processes (use of
             # --will-cite below).
-            parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
+            if [[ ${_ECHO} == "echo" ]]; then
+                cat ${_para_jobs_file}
+            fi
+            ${_ECHO} parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
             if [[ ${?} -ne 0 ]]; then
                 rc=1
             fi
-        else
-            if [[ "${subtst:-srcbld}" != "srcbld" ]]; then
-                printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
-                rc=1
-            fi
+        elif [[ "${subtst:-srcbld}" != "srcbld" ]]; then
+            printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
+            rc=1
         fi
 
         # Verify the Agent Makefile source build functions correctly.
         if [[ "${subtst:-srcbld}" == "srcbld" && ${rc} -eq 0 ]]; then
-            verify_make_source_tree ${_major} || rc=1
+            ${_ECHO} verify_make_source_tree ${_major} || rc=1
         fi
     elif [[ "${_major}" == "server" ]]; then
         if [[ "${subtst:-legacy}" == "python" ]]; then
             continue
         fi
+
         if [[ "${subtst}" == "legacy" ]]; then
+            # Emit this warning since `legacy` was explicitly requested.
             printf -- "Warning - server legacy tests are no longer executed\n" >&2
         fi
 
         # Verify the Server Makefile source build functions correctly.
         if [[ "${subtst:-srcbld}" == "srcbld" ]]; then
-            verify_make_source_tree ${_major} || rc=1
+            ${_ECHO} verify_make_source_tree ${_major} || rc=1
         fi
     elif [[ "${_major}" != "client" ]]; then
         printf -- "Error - unrecognized major test sub-set, '%s'\n" "${_major}" >&2
         rc=1
-    fi
-    if [[ ${rc} -eq 1 ]]; then
-        break
     fi
 done
 
