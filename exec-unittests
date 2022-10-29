@@ -173,7 +173,7 @@ trap "rm -f ${_para_jobs_file}" EXIT INT TERM
 
 for _major in ${major_list}; do
     if [[ "${_major}" == "agent" ]]; then
-        if [[ "${subtst:-legacy}" == "python" ]]; then
+        if [[ "${subtst}" == "python" ]]; then
             continue
         fi
         for _subtst in ${_agent_subtst_list}; do
@@ -204,7 +204,7 @@ for _major in ${major_list}; do
             ${_ECHO} verify_make_source_tree ${_major} || rc=1
         fi
     elif [[ "${_major}" == "server" ]]; then
-        if [[ "${subtst:-legacy}" == "python" ]]; then
+        if [[ "${subtst}" == "python" ]]; then
             continue
         fi
 
