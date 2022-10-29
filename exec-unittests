@@ -199,7 +199,7 @@ if [[ ( "${major}" == "all" || "${major}" == "agent" ) && "${subtst}" != "python
 
     # Verify the Agent Makefile source build functions correctly.
     if [[ "${subtst:-srcbld}" == "srcbld" && ${rc} -eq 0 ]]; then
-        ${_ECHO} verify_make_source_tree ${major} || rc=1
+        ${_ECHO} verify_make_source_tree agent || rc=1
     fi
 fi
 
@@ -212,7 +212,7 @@ if [[ "${major}" == "all" || "${major}" == "server" ]]; then
 
     # Verify the Server Makefile source build functions correctly.
     if [[ "${subtst:-srcbld}" == "srcbld" ]]; then
-        ${_ECHO} verify_make_source_tree ${major} || rc=1
+        ${_ECHO} verify_make_source_tree server || rc=1
     fi
 fi
 
