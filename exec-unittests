@@ -34,10 +34,10 @@ shift
 # Remaining positional arguments passed along to whatever test is run.
 posargs="${@}"
 
-# The DEBUG_EXEC_UNITTESTS variable can be set to "echo" to cause the
-# particular command line actions taken to be echoed to stdout instead of
-# actually executed.  This helps in debugging the operation of this script.
-_ECHO=${DEBUG_EXEC_UNITTESTS}
+# The DEBUG_EXEC_UNITTESTS variable can be set to cause the particular
+# command line actions taken to be echoed to stdout instead of actually
+# executed.  This helps in debugging the operation of this script.
+_ECHO=${DEBUG_EXEC_UNITTESTS:+echo}
 
 parallel=${PBENCH_UNITTEST_PARALLEL:-auto}
 if [[ "${parallel}" == "serial" ]]; then
