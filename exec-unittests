@@ -34,6 +34,9 @@ shift
 # Remaining positional arguments passed along to whatever test is run.
 posargs="${@}"
 
+# List of available agent sub-tests.
+_agent_subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-scripts bench-scripts"
+
 # The DEBUG_EXEC_UNITTESTS variable can be set to cause the particular
 # command line actions taken to be echoed to stdout instead of actually
 # executed.  This helps in debugging the operation of this script.
@@ -165,8 +168,6 @@ if [[ "${subtst:-python}" == "python" ]]; then
         sed -i "s;${_pbench_sources};${WORKSPACE}/lib/pbench;" ${_cov_report_name}
     fi
 fi
-
-_agent_subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-scripts bench-scripts"
 
 _para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
 trap "rm -f ${_para_jobs_file}" EXIT INT TERM
