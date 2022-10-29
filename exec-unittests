@@ -184,14 +184,14 @@ for _major in ${major_list}; do
             fi
         done > ${_para_jobs_file}
         if [[ -s ${_para_jobs_file} ]]; then
+            if [[ -n ${_ECHO} ]]; then
+                cat ${_para_jobs_file}
+            fi
             # The parallel program is really cool.  The usage of `parallel` is
             # internal and automated; only test code depends on this tool, and we,
             # as developers, have viewed the citation and are justified in
             # suppressing future displays of it in our development processes (use of
             # --will-cite below).
-            if [[ ${_ECHO} == "echo" ]]; then
-                cat ${_para_jobs_file}
-            fi
             ${_ECHO} parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
             if [[ ${?} -ne 0 ]]; then
                 rc=1
