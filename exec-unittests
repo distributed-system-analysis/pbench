@@ -177,9 +177,10 @@ for _major in ${major_list}; do
         if [[ "${subtst}" == "python" ]]; then
             continue
         fi
-        for _subtst in ${_agent_subtst_list}; do
-            if [[ "${subtst:-legacy}" == "legacy" || "${subtst}" == "$(basename ${_subtst})" ]]; then
-                echo "${_major} ${_subtst} ${posargs}"
+        for st in ${_agent_subtst_list}; do
+            st_name=$(basename ${st})
+            if [[ "${subtst:-${st_name}}" == "${st_name}" ]]; then
+                echo "${_major} ${st} ${posargs}"
             fi
         done > ${_para_jobs_file}
         if [[ -s ${_para_jobs_file} ]]; then
