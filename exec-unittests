@@ -14,17 +14,17 @@ shift
 # The first argument will be which major sub-system to run tests for: the
 # agent code, the functional test client code, or the server code.
 
-major="${1}"
+major="${1:-all}"
 shift
-major_list="agent client server"
-if [[ -n "${major}" ]]; then
-    if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "client" && "${major}" != "all" ]]; then
-        printf -- "Expected major sub-system to be 'agent', 'client', 'server', or 'all', got '%s'\n" "${major}" >&2
-        exit 2
-    fi
-    if [[ "${major}" != "all" ]]; then
-        major_list="${major}"
-    fi
+
+if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "client" && "${major}" != "all" ]]; then
+    printf -- "Expected major sub-system to be 'agent', 'client', 'server', or 'all', got '%s'\n" "${major}" >&2
+    exit 2
+fi
+if [[ "${major}" != "all" ]]; then
+    major_list="${major}"
+else
+    major_list="agent client server"
 fi
 
 # Sub-test of the major test.
@@ -169,60 +169,51 @@ if [[ "${subtst:-python}" == "python" ]]; then
     fi
 fi
 
-_para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
-trap "rm -f ${_para_jobs_file}" EXIT INT TERM
+if [[ ( "${major}" == "all" || "${major}" == "agent" ) && "${subtst}" != "python" ]]; then
+    _para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
+    trap "rm -f ${_para_jobs_file}" EXIT INT TERM
 
-for _major in ${major_list}; do
-    if [[ "${_major}" == "agent" ]]; then
-        if [[ "${subtst}" == "python" ]]; then
-            continue
+    for st in ${_agent_subtst_list}; do
+        st_name=$(basename ${st})
+        if [[ "${subtst}" == "legacy" || "${subtst:-${st_name}}" == "${st_name}" ]]; then
+            echo "agent ${st} ${posargs}"
         fi
-        for st in ${_agent_subtst_list}; do
-            st_name=$(basename ${st})
-            if [[ "${subtst:-${st_name}}" == "${st_name}" ]]; then
-                echo "${_major} ${st} ${posargs}"
-            fi
-        done > ${_para_jobs_file}
-        if [[ -s ${_para_jobs_file} ]]; then
-            if [[ -n ${_ECHO} ]]; then
-                cat ${_para_jobs_file}
-            fi
-            # The parallel program is really cool.  The usage of `parallel` is
-            # internal and automated; only test code depends on this tool, and we,
-            # as developers, have viewed the citation and are justified in
-            # suppressing future displays of it in our development processes (use of
-            # --will-cite below).
-            ${_ECHO} parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
-            if [[ ${?} -ne 0 ]]; then
-                rc=1
-            fi
-        elif [[ "${subtst:-srcbld}" != "srcbld" ]]; then
-            printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
+    done > ${_para_jobs_file}
+    if [[ -s ${_para_jobs_file} ]]; then
+        if [[ -n ${_ECHO} ]]; then
+            cat ${_para_jobs_file}
+        fi
+        # The parallel program is really cool.  The usage of `parallel` is
+        # internal and automated; only test code depends on this tool, and we,
+        # as developers, have viewed the citation and are justified in
+        # suppressing future displays of it in our development processes (use of
+        # --will-cite below).
+        ${_ECHO} parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
+        if [[ ${?} -ne 0 ]]; then
             rc=1
         fi
-
-        # Verify the Agent Makefile source build functions correctly.
-        if [[ "${subtst:-srcbld}" == "srcbld" && ${rc} -eq 0 ]]; then
-            ${_ECHO} verify_make_source_tree ${_major} || rc=1
-        fi
-    elif [[ "${_major}" == "server" ]]; then
-        if [[ "${subtst}" == "python" ]]; then
-            continue
-        fi
-
-        if [[ "${subtst}" == "legacy" ]]; then
-            # Emit this warning since `legacy` was explicitly requested.
-            printf -- "Warning - server legacy tests are no longer executed\n" >&2
-        fi
-
-        # Verify the Server Makefile source build functions correctly.
-        if [[ "${subtst:-srcbld}" == "srcbld" ]]; then
-            ${_ECHO} verify_make_source_tree ${_major} || rc=1
-        fi
-    elif [[ "${_major}" != "client" ]]; then
-        printf -- "Error - unrecognized major test sub-set, '%s'\n" "${_major}" >&2
+    elif [[ "${subtst:-srcbld}" != "srcbld" ]]; then
+        printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
         rc=1
     fi
-done
+
+    # Verify the Agent Makefile source build functions correctly.
+    if [[ "${subtst:-srcbld}" == "srcbld" && ${rc} -eq 0 ]]; then
+        ${_ECHO} verify_make_source_tree ${major} || rc=1
+    fi
+fi
+
+if [[ "${major}" == "all" || "${major}" == "server" ]]; then
+    if [[ "${subtst}" == "legacy" ]]; then
+        # Emit this warning since `legacy` was explicitly requested.
+        printf -- "Warning - server legacy tests are no longer executed\n" >&2
+        rc=1
+    fi
+
+    # Verify the Server Makefile source build functions correctly.
+    if [[ "${subtst:-srcbld}" == "srcbld" ]]; then
+        ${_ECHO} verify_make_source_tree ${major} || rc=1
+    fi
+fi
 
 exit ${rc}
