@@ -181,16 +181,17 @@ class TestKillTools:
             ]
         )
         pairs = list(kill.gen_result_tm_directories(pr))
+        assert len(pairs) == 2, f"Expected 2 TM directories, got: {pairs!r}"
         assert (
             pairs[0][0].parent.name == "res1"
             and pairs[0][0].name == "tm"
             and pairs[0][1] == "abcdef"
-        )
+        ), f"Unexpected TM directories: {pairs!r}"
         assert (
             pairs[1][0].parent.name == "res2"
             and pairs[1][0].name == "tm"
             and pairs[1][1] == "ghijkl"
-        )
+        ), f"Unexpected TM directories: {pairs!r}"
 
     @staticmethod
     def test_gen_host_names_no_tool_groups(monkeypatch):
