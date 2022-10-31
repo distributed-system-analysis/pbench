@@ -14,17 +14,17 @@ shift
 # The first argument will be which major sub-system to run tests for: the
 # agent code, the functional test client code, or the server code.
 
-major="${1}"
+major="${1:-all}"
 shift
-major_list="agent client server"
-if [[ -n "${major}" ]]; then
-    if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "client" && "${major}" != "all" ]]; then
-        printf -- "Expected major sub-system to be 'agent', 'client', 'server', or 'all', got '%s'\n" "${major}" >&2
-        exit 2
-    fi
-    if [[ "${major}" != "all" ]]; then
-        major_list="${major}"
-    fi
+
+if [[ "${major}" != "agent" && "${major}" != "server" && "${major}" != "client" && "${major}" != "all" ]]; then
+    printf -- "Expected major sub-system to be 'agent', 'client', 'server', or 'all', got '%s'\n" "${major}" >&2
+    exit 2
+fi
+if [[ "${major}" != "all" ]]; then
+    major_list="${major}"
+else
+    major_list="agent client server"
 fi
 
 # Sub-test of the major test.
@@ -33,6 +33,14 @@ shift
 
 # Remaining positional arguments passed along to whatever test is run.
 posargs="${@}"
+
+# List of available agent sub-tests.
+_agent_subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-scripts bench-scripts"
+
+# The DEBUG_EXEC_UNITTESTS variable can be set to cause the particular
+# command line actions taken to be echoed to stdout instead of actually
+# executed.  This helps in debugging the operation of this script.
+_ECHO=${DEBUG_EXEC_UNITTESTS:+echo}
 
 parallel=${PBENCH_UNITTEST_PARALLEL:-auto}
 if [[ "${parallel}" == "serial" ]]; then
@@ -91,7 +99,7 @@ function verify_make_source_tree {
     #     _major -- Name of the sub-tree to execute the "make install"
     #
     # Returns the exit status of the "make install" execution, or the exit
-    # status dependent command steps (e.g. make, cd, etc.). 
+    # status dependent command steps (e.g. make, cd, etc.).
     local _major=${1}
     local _rc
 
@@ -126,7 +134,7 @@ else
 fi
 _cov_report="${_cov_report_kind}:${_cov_report_name}"
 
-if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
+if [[ "${subtst:-python}" == "python" ]]; then
     _pytest_majors="pbench.test.unit.common"
     for _major in ${major_list}; do
         _pytest_majors="${_pytest_majors} pbench.test.unit.${_major}"
@@ -140,7 +148,7 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
 
     printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${major_list// /,}"
     _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent)')
-    _PBENCH_COV_DIR="${_toxenvdir}/cov" _time pytest \
+    _PBENCH_COV_DIR="${_toxenvdir}/cov" ${_ECHO} _time pytest \
         ${pytest_jobs_arg} \
         --basetemp="${_toxenvdir}/tmp" \
         --cov=${_pbench_sources} \
@@ -149,9 +157,9 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
         --pyargs ${_pytest_majors}
     rc=${?}
     if [[ ${rc} -ne 0 ]]; then
-        printf -- "\n%s pytest command failed with '%s'\n\n" "${_major^}" "${rc}"
+        printf -- "\n%s pytest command failed with '%s'\n\n" "${major_list// /,}" "${rc}"
     else
-        printf -- "\n%s pytest command succeeded\n\n" "${_major^}"
+        printf -- "\n%s pytest command succeeded\n\n" "${major_list// /,}"
     fi
 
     if [[ "${_cov_report_kind}" == "xml" && -n "${WORKSPACE}" ]]; then
@@ -161,47 +169,51 @@ if [[ -z "${subtst}" || "${subtst}" == "python" ]]; then
     fi
 fi
 
-_subtst_list="tool-scripts/datalog tool-scripts/postprocess tool-scripts util-scripts bench-scripts"
+if [[ ( "${major}" == "all" || "${major}" == "agent" ) && "${subtst}" != "python" ]]; then
+    _para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
+    trap "rm -f ${_para_jobs_file}" EXIT INT TERM
 
-_para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
-trap "rm -f ${_para_jobs_file}" EXIT INT TERM
-
-for _major in ${major_list}; do
-    # Verify the Agent or Server Makefile functions correctly.
-    if [[ "${_major}" == "agent" || "${_major}" == "server" ]]; then
-        verify_make_source_tree ${_major} || rc=1
-    fi
-
-    if [[ "${_major}" == "agent" ]]; then
+    for st in ${_agent_subtst_list}; do
+        st_name=$(basename ${st})
+        if [[ "${subtst}" == "legacy" || "${subtst:-${st_name}}" == "${st_name}" ]]; then
+            echo "agent ${st} ${posargs}"
+        fi
+    done > ${_para_jobs_file}
+    if [[ -s ${_para_jobs_file} ]]; then
+        if [[ -n ${_ECHO} ]]; then
+            cat ${_para_jobs_file}
+        fi
         # The parallel program is really cool.  The usage of `parallel` is
         # internal and automated; only test code depends on this tool, and we,
         # as developers, have viewed the citation and are justified in
         # suppressing future displays of it in our development processes (use of
         # --will-cite below).
-
-        let count=0
-        for _subtst in ${_subtst_list}; do
-            if [[ "${subtst:-legacy}" == "legacy" || "${subtst}" == "$(basename ${_subtst})" ]]; then
-                echo "${_major} ${_subtst} ${posargs}"
-                (( count++ ))
-            fi
-        done > ${_para_jobs_file}
-        parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
+        ${_ECHO} parallel --will-cite -k --lb -a ${_para_jobs_file} ${para_jobs_arg} para_run_legacy
         if [[ ${?} -ne 0 ]]; then
             rc=1
         fi
-        if [[ ${count} -eq 0 && "${subtst}" != "python" ]]; then
-            printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
-            rc=1
-        fi
-    elif [[ "${_major}" == "server" ]]; then
-        if [[ "${subtst}" == "legacy" ]]; then
-            printf -- "Warning - server legacy tests are no longer executed\n" >&2
-        fi
-    elif [[ "${_major}" != "client" ]]; then
-        printf -- "Error - unrecognized major test sub-set, '%s'\n" "${_major}" >&2
+    elif [[ "${subtst:-srcbld}" != "srcbld" ]]; then
+        printf -- "Error - unrecognized sub-test, '%s'\n" "${subtst}" >&2
         rc=1
     fi
-done
+
+    # Verify the Agent Makefile source build functions correctly.
+    if [[ "${subtst:-srcbld}" == "srcbld" && ${rc} -eq 0 ]]; then
+        ${_ECHO} verify_make_source_tree agent || rc=1
+    fi
+fi
+
+if [[ "${major}" == "all" || "${major}" == "server" ]]; then
+    if [[ "${subtst}" == "legacy" ]]; then
+        # Emit this warning since `legacy` was explicitly requested.
+        printf -- "Warning - server legacy tests are no longer executed\n" >&2
+        rc=1
+    fi
+
+    # Verify the Server Makefile source build functions correctly.
+    if [[ "${subtst:-srcbld}" == "srcbld" && ${rc} -eq 0 ]]; then
+        ${_ECHO} verify_make_source_tree server || rc=1
+    fi
+fi
 
 exit ${rc}

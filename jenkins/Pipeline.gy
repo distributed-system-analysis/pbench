@@ -66,9 +66,9 @@ pipeline {
         always {
             // Remove the pod which we just created and ran; remove any
             // dangling containers; and then remove any dangling images.
-            sh 'podman pod rm -f ${PB_POD_NAME}'
-            sh 'podman container prune -f'
-            sh 'podman image prune -f'
+            sh 'podman pod rm -f ${PB_POD_NAME} || true'
+            sh 'podman container prune -f || true'
+            sh 'podman image prune -f || true'
         }
         success {
             // Note that jenkins/run-pytests is executed inside the container
