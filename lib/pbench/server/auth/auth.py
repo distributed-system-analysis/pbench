@@ -96,6 +96,11 @@ class Auth:
                 auth_token,
                 os.getenv("SECRET_KEY", "my_precious"),
                 algorithms="HS256",
+                options={
+                    "verify_signature": True,
+                    "verify_aud": False,
+                    "verify_exp": True,
+                },
             )
             user_id = payload["sub"]
             if ActiveTokens.valid(auth_token):
@@ -111,7 +116,9 @@ class Auth:
                     e,
                 )
         except jwt.InvalidTokenError:
-            pass  # Ignore this silently; client is unauthenticated
+            Auth.logger.warning(
+                "Internal token verification failed, trying OIDC token verification"
+            )
         except Exception as e:
             Auth.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {!r}: {}",

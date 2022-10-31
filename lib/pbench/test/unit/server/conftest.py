@@ -1,18 +1,18 @@
 from configparser import ConfigParser
 import datetime
 import hashlib
-from http import HTTPStatus
 import os
 from pathlib import Path
 from posix import stat_result
 import shutil
 from stat import ST_MTIME
 import tarfile
-from typing import Dict
+from typing import Dict, List, Optional
 import uuid
 
 from email_validator import EmailNotValidError, ValidatedEmail
 from freezegun import freeze_time
+import jwt
 import pytest
 
 from pbench.common.logger import get_pbench_logger
@@ -20,6 +20,7 @@ from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 from pbench.server.auth.auth import Auth
 from pbench.server.database.database import Database
+from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
@@ -52,7 +53,7 @@ index_prefix = unit-test
 [authentication]
 server_url = keycloak.example.com:0000
 realm = pbench
-client = pbench-dashboard
+client = pbench-client
 
 ###########################################################################
 # The rest will come from the default config file.
@@ -64,6 +65,7 @@ files = pbench-server-default.cfg
 admin_username = "test_admin"
 admin_email = "test_admin@example.com"
 generic_password = "12345"
+jwt_secret = "my_precious"
 
 
 def do_setup(tmp_d: Path) -> Path:
@@ -172,34 +174,6 @@ def db_session(server_config, make_logger):
     Database.init_db(server_config, make_logger)
     yield
     Database.db_session.remove()
-
-
-def register_user(
-    client, server_config, email, username, password, firstname, lastname
-):
-    """
-    Helper function to register a user using register API
-    """
-    return client.post(
-        f"{server_config.rest_uri}/register",
-        json={
-            "email": email,
-            "password": password,
-            "username": username,
-            "first_name": firstname,
-            "last_name": lastname,
-        },
-    )
-
-
-def login_user(client, server_config, username, password, token_expiry=None):
-    """
-    Helper function to generate a user authentication token
-    """
-    return client.post(
-        f"{server_config.rest_uri}/login",
-        json={"username": username, "password": password, "token_expiry": token_expiry},
-    )
 
 
 @pytest.fixture()
@@ -716,16 +690,6 @@ def find_template(monkeypatch, fake_mtime):
 
 
 @pytest.fixture()
-def pbench_admin_token(client, server_config, create_admin_user):
-    # Login admin user to get valid pbench token
-    response = login_user(client, server_config, admin_username, generic_password)
-    assert response.status_code == HTTPStatus.OK
-    data = response.json
-    assert data["auth_token"]
-    return data["auth_token"]
-
-
-@pytest.fixture()
 def create_drb_user(client, server_config, fake_email_validator):
     # Create a user
     drb = User(
@@ -741,17 +705,109 @@ def create_drb_user(client, server_config, fake_email_validator):
 
 
 @pytest.fixture()
-def pbench_token(client, server_config, create_drb_user):
-    # Login user to get valid pbench token
-    response = login_user(client, server_config, "drb", generic_password)
-    assert response.status_code == HTTPStatus.OK
-    data = response.json
-    assert data["auth_token"]
-    return data["auth_token"]
+def pbench_admin_token(client, create_admin_user):
+    return generate_token(
+        user=create_admin_user,
+        username=admin_username,
+        pbench_client_roles=["ADMIN"],
+    )
+
+
+@pytest.fixture()
+def pbench_token(client, create_drb_user):
+    """
+    OIDC valid token for the 'drb' user.
+    """
+    return generate_token(username="drb", user=create_drb_user)
+
+
+@pytest.fixture()
+def pbench_token_invalid(client, create_drb_user):
+    """
+    OIDC invalid token for the 'drb' user
+    """
+    return generate_token(username="drb", user=create_drb_user, valid=False)
+
+
+def generate_token(
+    username: str,
+    user: Optional[User] = None,
+    pbench_client_roles: Optional[List[str]] = None,
+    valid: Optional[bool] = True,
+):
+    """
+    Generates an OIDC JWT token that mimics the real OIDC token obtained
+    from the OIDC complaint client login.
+    Args:
+        username: username to include in the token payload
+        user: user attributes will be extracted from the user to include in
+            the token payload, if not provided it will be queried from the User
+            table. It is a responsibility of the consumer to make sure the
+            user exists in the 'User' table until we remove the User table
+            completely.
+        pbench_client_roles: List of any roles to add in the token payload
+        valid: If True, the generated token will be valid for 10 mins.
+               If False, generated token would be invalid and expired
+    TODO: When we remove the User table we need to update this functionality's
+        dependance on user table.
+    :return:
+    """
+    current_utc = datetime.datetime.utcnow()
+    if not user:
+        user = User.query(username=username)
+    if valid:
+        exp = current_utc + datetime.timedelta(minutes=10)
+    else:
+        exp = "1667187770"
+    payload = {
+        "exp": exp,
+        "iat": current_utc,
+        "jti": "541777b5-7127-408d-9dfb-71790f36c4c2",
+        "iss": "https://auth-server.com/realms/pbench",
+        "aud": ["broker", "account", "pbench-client"],
+        "sub": user.id,
+        "typ": "Bearer",
+        "azp": "pbench-client",
+        "session_state": "1988612e-774d-43b8-8d4a-bbc05ee55edb",
+        "acr": "1",
+        "realm_access": {
+            "roles": ["default-roles-pbench-cli", "offline_access", "uma_authorization"]
+        },
+        "resource_access": {
+            "broker": {"roles": ["read-token"]},
+            "account": {
+                "roles": ["manage-account", "manage-account-links", "view-profile"]
+            },
+        },
+        "scope": "openid profile email",
+        "sid": "1988612e-774d-43b8-8d4a-bbc05ee55edb",
+        "email_verified": True,
+        "name": user.first_name + " " + user.last_name,
+        "preferred_username": username,
+        "given_name": user.first_name,
+        "family_name": user.last_name,
+        "email": user.email,
+    }
+    if pbench_client_roles:
+        payload.update()
+        payload["resource_access"].update(
+            {"pbench-client": {"roles": pbench_client_roles}}
+        )
+    token_str = jwt.encode(payload, jwt_secret, algorithm="HS256")
+    token = ActiveTokens(token=token_str)
+    user.update(auth_tokens=token)
+    return token_str
 
 
 @pytest.fixture(params=[header for header in HeaderTypes])
-def build_auth_header(request, server_config, pbench_token, pbench_admin_token, client):
+def build_auth_header(
+    request,
+    server_config,
+    pbench_token,
+    pbench_admin_token,
+    pbench_token_invalid,
+    client,
+):
     if request.param == HeaderTypes.VALID_ADMIN:
         header = {"Authorization": "Bearer " + pbench_admin_token}
 
@@ -759,13 +815,7 @@ def build_auth_header(request, server_config, pbench_token, pbench_admin_token, 
         header = {"Authorization": "Bearer " + pbench_token}
 
     elif request.param == HeaderTypes.INVALID:
-        # Create an invalid token by logging the user out
-        response = client.post(
-            f"{server_config.rest_uri}/logout",
-            headers=dict(Authorization="Bearer " + pbench_token),
-        )
-        assert response.status_code == HTTPStatus.OK
-        header = {"Authorization": "Bearer " + pbench_token}
+        header = {"Authorization": "Bearer " + pbench_token_invalid}
 
     elif request.param == HeaderTypes.EMPTY:
         header = {}

@@ -3,8 +3,9 @@ from http import HTTPStatus
 import pytest
 import requests
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSON
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.test.unit.server.conftest import generate_token
 
 
 class TestDatasetsMetadata:
@@ -30,7 +31,7 @@ class TestDatasetsMetadata:
             except DatasetNotFound:
                 dataset = ds_name  # Allow passing deliberately bad value
             if username:
-                token = self.token(client, server_config, username)
+                token = self.token(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
                 f"{server_config.rest_uri}/datasets/metadata/{dataset}",
@@ -72,7 +73,7 @@ class TestDatasetsMetadata:
             except DatasetNotFound:
                 dataset = ds_name  # Allow passing deliberately bad value
             if username:
-                token = self.token(client, server_config, username)
+                token = self.token(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.put(
                 f"{server_config.rest_uri}/datasets/metadata/{dataset}",
@@ -92,15 +93,11 @@ class TestDatasetsMetadata:
 
         return query_api
 
-    def token(self, client, config: PbenchServerConfig, user: str) -> str:
-        response = client.post(
-            f"{config.rest_uri}/login",
-            json={"username": user, "password": "12345"},
-        )
-        assert response.status_code == HTTPStatus.OK
-        data = response.json
-        assert data["auth_token"]
-        return data["auth_token"]
+    def token(self, user: str) -> str:
+        roles = None
+        if user == "test_admin":
+            roles = ["ADMIN"]
+        return generate_token(username=user, pbench_client_roles=roles)
 
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as(

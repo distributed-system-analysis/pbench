@@ -5,8 +5,9 @@ from typing import Dict, List
 import pytest
 import requests
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSON
 from pbench.server.database.models.datasets import Dataset
+from pbench.test.unit.server.conftest import generate_token
 
 
 class TestDatasetsDateRange:
@@ -32,7 +33,7 @@ class TestDatasetsDateRange:
         def query_api(
             payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
-            token = self.token(client, server_config, username)
+            token = self.token(username)
             response = client.get(
                 f"{server_config.rest_uri}/datasets/daterange",
                 headers={"authorization": f"bearer {token}"},
@@ -43,15 +44,11 @@ class TestDatasetsDateRange:
 
         return query_api
 
-    def token(self, client, config: PbenchServerConfig, user: str) -> str:
-        response = client.post(
-            f"{config.rest_uri}/login",
-            json={"username": user, "password": "12345"},
-        )
-        assert response.status_code == HTTPStatus.OK
-        data = response.json
-        assert data["auth_token"]
-        return data["auth_token"]
+    def token(self, user: str) -> str:
+        roles = None
+        if user == "test_admin":
+            roles = ["ADMIN"]
+        return generate_token(username=user, pbench_client_roles=roles)
 
     def get_results(self, name_list: List[str]) -> Dict[str, datetime.datetime]:
         """

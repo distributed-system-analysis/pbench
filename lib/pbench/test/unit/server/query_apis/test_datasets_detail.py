@@ -6,8 +6,8 @@ from pbench.server.api.resources import API_METHOD
 from pbench.server.api.resources.query_apis.datasets.datasets_detail import (
     DatasetsDetail,
 )
+from pbench.test.unit.server.conftest import generate_token
 from pbench.test.unit.server.query_apis.commons import Commons
-from pbench.test.unit.server.test_user_auth import login_user
 
 
 class TestDatasetsDetail(Commons):
@@ -61,9 +61,7 @@ class TestDatasetsDetail(Commons):
             if user == "test_admin":
                 token = pbench_admin_token
             else:
-                response = login_user(client, server_config, user, "12345")
-                assert response.status_code == HTTPStatus.OK
-                token = response.json["auth_token"]
+                token = generate_token(username=user)
             assert token
             headers = {"authorization": f"bearer {token}"}
 

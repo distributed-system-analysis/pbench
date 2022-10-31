@@ -5,7 +5,35 @@ import time
 from pbench.server.database.database import Database
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
-from pbench.test.unit.server.conftest import admin_username, login_user, register_user
+from pbench.test.unit.server.conftest import admin_username
+
+
+def register_user(
+    client, server_config, email, username, password, firstname, lastname
+):
+    """
+    Helper function to register a user using register API
+    """
+    return client.post(
+        f"{server_config.rest_uri}/register",
+        json={
+            "email": email,
+            "password": password,
+            "username": username,
+            "first_name": firstname,
+            "last_name": lastname,
+        },
+    )
+
+
+def login_user(client, server_config, username, password, token_expiry=None):
+    """
+    Helper function to generate a user authentication token
+    """
+    return client.post(
+        f"{server_config.rest_uri}/login",
+        json={"username": username, "password": password, "token_expiry": token_expiry},
+    )
 
 
 class TestUserAuthentication:

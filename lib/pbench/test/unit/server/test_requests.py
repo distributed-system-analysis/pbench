@@ -15,28 +15,6 @@ from pbench.server.database.models.datasets import (
     MetadataKeyError,
     States,
 )
-from pbench.test.unit.server.test_user_auth import login_user, register_user
-
-
-def get_pbench_token(client, server_config):
-    # First create a user
-    response = register_user(
-        client,
-        server_config,
-        username="user",
-        firstname="firstname",
-        lastname="lastName",
-        email="user@domain.com",
-        password="12345",
-    )
-    assert response.status_code == HTTPStatus.CREATED
-
-    # Login user to get valid pbench token
-    response = login_user(client, server_config, "user", "12345")
-    assert response.status_code == HTTPStatus.OK
-    data = response.json
-    assert data["auth_token"]
-    return data["auth_token"]
 
 
 class TestUpload:
@@ -255,22 +233,16 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_invalid_authorization_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_token
+        self, client, caplog, server_config, setup_ctrl, pbench_token_invalid
     ):
-        # Log out the user
-        response = client.post(
-            f"{server_config.rest_uri}/logout",
-            headers={"Authorization": "Bearer " + pbench_token},
-        )
-
         # Upload with invalid token
         response = client.put(
             self.gen_uri(server_config),
-            headers=self.gen_headers(pbench_token, "md5sum"),
+            headers=self.gen_headers(pbench_token_invalid, "md5sum"),
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         for record in caplog.records:
-            assert record.levelname in ["DEBUG", "INFO"]
+            assert record.levelname in ["DEBUG", "INFO", "ERROR"]
         assert not self.cachemanager_created
 
     def test_empty_upload(
@@ -363,7 +335,7 @@ class TestUpload:
         assert dataset.name in self.cachemanager_created
 
         for record in caplog.records:
-            assert record.levelname in ["DEBUG", "INFO"]
+            assert record.levelname in ["WARNING", "DEBUG", "INFO"]
 
     def test_upload_duplicate(
         self,
