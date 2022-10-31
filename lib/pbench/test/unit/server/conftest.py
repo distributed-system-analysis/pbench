@@ -22,9 +22,8 @@ from pbench.common import MetadataLog
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
-from pbench.server.auth.auth import Auth
+from pbench.server.auth.auth import Auth, OpenIDClient
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
@@ -130,7 +129,18 @@ def server_config(on_disk_server_config, monkeypatch) -> PbenchServerConfig:
 
 
 @pytest.fixture()
-def client(server_config, fake_email_validator):
+def fake_well_known_auth_endpoints(monkeypatch):
+    def fake_well_known(oidc_client):
+
+        oidc_client.USERINFO_ENDPOINT = "https://oidc_userinfo_endpoint.example.com"
+        oidc_client.TOKENINFO_ENDPOINT = "https://oidc_token_introspection.example.com"
+        oidc_client.JWKS_URI = "https://oidc_jwks_endpoint.example.com"
+
+    monkeypatch.setattr(OpenIDClient, "set_well_known_endpoints", fake_well_known)
+
+
+@pytest.fixture()
+def client(server_config, fake_email_validator, fake_well_known_auth_endpoints):
     """A test client for the app.
 
     Fixtures:
@@ -875,8 +885,6 @@ def generate_token(
             {"pbench-client": {"roles": pbench_client_roles}}
         )
     token_str = jwt.encode(payload, jwt_secret, algorithm="HS256")
-    token = ActiveTokens(token=token_str)
-    user.update(auth_tokens=token)
     return token_str
 
 

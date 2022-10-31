@@ -1,3 +1,4 @@
+from configparser import NoOptionError
 import datetime
 from http import HTTPStatus
 import os
@@ -8,18 +9,72 @@ from flask_httpauth import HTTPTokenAuth
 from flask_restful import abort
 import jwt
 
+from pbench.server import PbenchServerConfig
 from pbench.server.auth import OpenIDClient, OpenIDClientError
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
 
 
+class InternalUser:
+    """
+    Internal user class for storing user related fields fetch
+    from OIDC token decode.
+    """
+
+    def __init__(
+        self,
+        id: str,
+        username: str,
+        email: str,
+        first_name: str = None,
+        last_name: str = None,
+        roles: list[str] = None,
+    ):
+        self.id = id
+        self.username = username
+        self.email = email
+        self.first_name = first_name
+        self.last_name = last_name
+        self.roles = roles
+
+    def __str__(self):
+        return f"User, id: {self.id}, username: {self.username}"
+
+    def is_admin(self):
+        return "ADMIN" in self.roles
+
+
 class Auth:
     token_auth = HTTPTokenAuth("Bearer")
+    oidc_client: OpenIDClient = None
 
     @staticmethod
     def set_logger(logger):
         # Logger gets set at the time of auth module initialization
         Auth.logger = logger
+
+    @staticmethod
+    def set_oidc_client(server_config: PbenchServerConfig):
+        """
+        OIDC client initialization for third party token verification
+        Args:
+            server_config: Parsed Pbench server configuration
+        """
+        server_url = server_config.get("authentication", "server_url")
+        client = server_config.get("authentication", "client")
+        realm = server_config.get("authentication", "realm")
+        try:
+            secret = server_config.get("authentication", "secret")
+        except NoOptionError:
+            secret = None
+        Auth.oidc_client = OpenIDClient(
+            server_url=server_url,
+            client_id=client,
+            logger=Auth.logger,
+            realm_name=realm,
+            client_secret_key=secret,
+            verify=False,
+        )
 
     @staticmethod
     def get_user_id() -> Optional[str]:
@@ -97,6 +152,8 @@ class Auth:
         :param auth_token:
         :return: User object/None
         """
+        if not Auth.oidc_client.USERINFO_ENDPOINT:
+            Auth.oidc_client.set_well_known_endpoints()
         try:
             payload = jwt.decode(
                 auth_token,
@@ -104,7 +161,7 @@ class Auth:
                 algorithms="HS256",
                 options={
                     "verify_signature": True,
-                    "verify_aud": False,
+                    "verify_aud": True,
                     "verify_exp": True,
                 },
             )
@@ -122,7 +179,12 @@ class Auth:
                     e,
                 )
         except jwt.InvalidTokenError:
-            pass  # Ignore this silently; client is unauthenticated
+            Auth.logger.warning(
+                "Internal token verification failed, trying OIDC token verification"
+            )
+            return Auth.verify_third_party_token(
+                auth_token, Auth.oidc_client, ["HS256"]
+            )
         except Exception as e:
             Auth.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {!r}: {}",
@@ -132,7 +194,9 @@ class Auth:
         return None
 
     @staticmethod
-    def verify_third_party_token(auth_token: str, oidc_client: OpenIDClient) -> bool:
+    def verify_third_party_token(
+        auth_token: str, oidc_client: OpenIDClient, algorithms: list[str]
+    ) -> "InternalUser":
         """
         Verify a token provided to the Pbench server which was obtained from a
         third party identity provider.
@@ -143,24 +207,41 @@ class Auth:
             True if the verification succeeds else False
         """
         try:
-            oidc_client.token_introspect_offline(
+            identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
+        except Exception:
+            Auth.logger.warning("Identity provider public key fetch failed")
+            identity_provider_pubkey = Auth().get_secret_key()
+        try:
+            audience = oidc_client.client_id if oidc_client else None
+            token_decode = oidc_client.token_introspect_offline(
                 token=auth_token,
-                key=oidc_client.get_oidc_public_key(),
-                audience=oidc_client.client_id,
+                key=identity_provider_pubkey,
+                audience=audience,
+                algorithms=algorithms,
                 options={
                     "verify_signature": True,
                     "verify_aud": True,
                     "verify_exp": True,
                 },
             )
-            return True
+            roles = []
+            if audience in token_decode.get("resource_access"):
+                roles = token_decode.get("resource_access").get(audience).get("roles")
+            return InternalUser(
+                id=token_decode.get("sub"),
+                username=token_decode.get("preferred_username"),
+                email=token_decode.get("email"),
+                first_name=token_decode.get("given_name"),
+                last_name=token_decode.get("family_name"),
+                roles=roles,
+            )
         except (
             jwt.ExpiredSignatureError,
             jwt.InvalidTokenError,
             jwt.InvalidAudienceError,
         ):
             Auth.logger.error("OIDC token verification failed")
-            return False
+            return None
         except Exception:
             Auth.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {}",
@@ -169,13 +250,13 @@ class Auth:
 
         if not oidc_client.TOKENINFO_ENDPOINT:
             Auth.logger.warning("Can not perform OIDC online token verification")
-            return False
+            return None
 
         try:
             token_payload = oidc_client.token_introspect_online(
                 token=auth_token, token_info_uri=oidc_client.TOKENINFO_ENDPOINT
             )
         except OpenIDClientError:
-            return False
+            return None
 
         return "aud" in token_payload and oidc_client.client_id in token_payload["aud"]
