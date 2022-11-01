@@ -8,7 +8,7 @@ import requests
 
 from pbench.server import JSON
 from pbench.server.database.models.datasets import Dataset
-from pbench.test.unit.server.conftest import generate_token, admin_username
+from pbench.test.unit.server.conftest import admin_username, generate_token
 
 
 class TestDatasetsList:
