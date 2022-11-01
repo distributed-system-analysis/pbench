@@ -7,7 +7,7 @@ import requests
 
 from pbench.server import JSON
 from pbench.server.database.models.datasets import Dataset
-from pbench.test.unit.server.conftest import generate_token
+from pbench.test.unit.server.conftest import generate_token, admin_username
 
 
 class TestDatasetsDateRange:
@@ -33,7 +33,10 @@ class TestDatasetsDateRange:
         def query_api(
             payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
-            token = self.token(username)
+            token = generate_token(
+                username=username,
+                pbench_client_roles=["ADMIN"] if username == admin_username else None,
+            )
             response = client.get(
                 f"{server_config.rest_uri}/datasets/daterange",
                 headers={"authorization": f"bearer {token}"},
@@ -43,12 +46,6 @@ class TestDatasetsDateRange:
             return response
 
         return query_api
-
-    def token(self, user: str) -> str:
-        roles = None
-        if user == "test_admin":
-            roles = ["ADMIN"]
-        return generate_token(username=user, pbench_client_roles=roles)
 
     def get_results(self, name_list: List[str]) -> Dict[str, datetime.datetime]:
         """

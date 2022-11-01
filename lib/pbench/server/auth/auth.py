@@ -41,7 +41,7 @@ class Auth:
         Returns:
             JWT token string
         """
-        current_utc = datetime.datetime.utcnow()
+        current_utc = datetime.datetime.now(datetime.timezone.utc)
         payload = {
             "iat": current_utc,
             "exp": current_utc + time_delta,
@@ -87,7 +87,11 @@ class Auth:
     @token_auth.verify_token
     def verify_auth(auth_token):
         """
-        Validates the auth token
+        Validates the auth token.
+        Note: Since we are not encoding 'aud' claim in our JWT tokens
+        we need to set 'verify_aud' to False while validating the token.
+        With issue https://issues.redhat.com/browse/PBENCH-895 we can
+        set it to True when we start validating third party OIDC tokens.
         :param auth_token:
         :return: User object/None
         """
@@ -116,9 +120,7 @@ class Auth:
                     e,
                 )
         except jwt.InvalidTokenError:
-            Auth.logger.warning(
-                "Internal token verification failed, trying OIDC token verification"
-            )
+            pass  # Ignore this silently; client is unauthenticated
         except Exception as e:
             Auth.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {!r}: {}",

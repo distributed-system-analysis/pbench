@@ -7,7 +7,7 @@ from posix import stat_result
 import shutil
 from stat import ST_MTIME
 import tarfile
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 import uuid
 
 from email_validator import EmailNotValidError, ValidatedEmail
@@ -732,12 +732,13 @@ def pbench_token_invalid(client, create_drb_user):
 def generate_token(
     username: str,
     user: Optional[User] = None,
-    pbench_client_roles: Optional[List[str]] = None,
+    pbench_client_roles: Optional[list[str]] = None,
     valid: Optional[bool] = True,
-):
+) -> str:
     """
     Generates an OIDC JWT token that mimics the real OIDC token obtained
     from the OIDC complaint client login.
+
     Args:
         username: username to include in the token payload
         user: user attributes will be extracted from the user to include in
@@ -748,17 +749,31 @@ def generate_token(
         pbench_client_roles: List of any roles to add in the token payload
         valid: If True, the generated token will be valid for 10 mins.
                If False, generated token would be invalid and expired
+
     TODO: When we remove the User table we need to update this functionality's
         dependance on user table.
-    :return:
+        Refer related Jira issues:
+            https://issues.redhat.com/browse/PBENCH-934,
+            https://issues.redhat.com/browse/PBENCH-900,
+            https://issues.redhat.com/browse/PBENCH-895,
+            https://issues.redhat.com/browse/PBENCH-962
+
+    Returns
+        JWT token string
     """
-    current_utc = datetime.datetime.utcnow()
+    # Current time to encode in the token payload
+    current_utc = datetime.datetime.now(datetime.timezone.utc)
+
+    # Expired epoch time to use as a token expiry in case the caller
+    # wants an invalid token.
+    EXPIRY = "1667187770"
+
     if not user:
         user = User.query(username=username)
     if valid:
         exp = current_utc + datetime.timedelta(minutes=10)
     else:
-        exp = "1667187770"
+        exp = EXPIRY
     payload = {
         "exp": exp,
         "iat": current_utc,
@@ -789,7 +804,6 @@ def generate_token(
         "email": user.email,
     }
     if pbench_client_roles:
-        payload.update()
         payload["resource_access"].update(
             {"pbench-client": {"roles": pbench_client_roles}}
         )

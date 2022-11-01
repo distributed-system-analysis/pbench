@@ -8,7 +8,7 @@ import requests
 
 from pbench.server import JSON
 from pbench.server.database.models.datasets import Dataset
-from pbench.test.unit.server.conftest import generate_token
+from pbench.test.unit.server.conftest import generate_token, admin_username
 
 
 class TestDatasetsList:
@@ -49,7 +49,12 @@ class TestDatasetsList:
             """
             headers = None
             if username:
-                token = self.token(username)
+                token = generate_token(
+                    username=username,
+                    pbench_client_roles=["ADMIN"]
+                    if username == admin_username
+                    else None,
+                )
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
                 f"{server_config.rest_uri}/datasets/list",

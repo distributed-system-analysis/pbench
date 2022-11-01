@@ -242,7 +242,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         for record in caplog.records:
-            assert record.levelname in ["DEBUG", "INFO", "ERROR"]
+            assert record.levelname in ["DEBUG", "INFO"]
         assert not self.cachemanager_created
 
     def test_empty_upload(
@@ -335,7 +335,7 @@ class TestUpload:
         assert dataset.name in self.cachemanager_created
 
         for record in caplog.records:
-            assert record.levelname in ["WARNING", "DEBUG", "INFO"]
+            assert record.levelname in ["DEBUG", "INFO"]
 
     def test_upload_duplicate(
         self,
