@@ -37,7 +37,7 @@ class UnpackTarballs:
         self.cache_manager = CacheManager(config, logger)
 
     def unpack(self, tb: Target):
-        """Isolate the call to the FileTree unpacker.
+        """Encapsulate the call to the CacheManager unpacker.
 
         Args:
             tb: Identify the Dataset and Tarball
@@ -55,8 +55,8 @@ class UnpackTarballs:
             raise
 
     def unpack_tarballs(self, min_size: float, max_size: float) -> Results:
-        """Scans for tarballs in the TO-UNPACK subdirectories of the
-        ARCHIVE directory and unpacks them using CacheManager.unpack() function.
+        """Scans for datasets ready to be unpacked, and unpacks them using the
+        CacheManager.unpack() method.
 
         Args:
             min_size: minimum size of tarball for this Bucket
@@ -74,7 +74,7 @@ class UnpackTarballs:
                     p = Path(t).resolve(strict=True)
                     s = p.stat().st_size
                 except FileNotFoundError as exc:
-                    self.logger.exception(
+                    self.logger.error(
                         "{}: Tarball '{}' does not resolve to a file: {}",
                         self.config.TS,
                         t,
@@ -86,7 +86,7 @@ class UnpackTarballs:
                     continue
 
                 if min_size <= s < max_size:
-                    tarlist.append(Target(d, p))
+                    tarlist.append(Target(dataset=d, tarball=p))
 
         ntotal = nsuccess = 0
 

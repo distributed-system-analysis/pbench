@@ -2,6 +2,7 @@ from enum import auto, Enum
 from logging import DEBUG, Logger
 from typing import List, Optional
 
+from pbench.server import JSONVALUE
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata
 
@@ -40,7 +41,7 @@ class Sync:
         self.component = component
 
     def __str__(self) -> str:
-        return f"<Synchronizer for component {self.component!r}"
+        return f"<Synchronizer for component {self.component!r}>"
 
     def next(self, operation: Operation) -> List[Dataset]:
         """
@@ -52,8 +53,8 @@ class Sync:
 
         This can be considered a prototype for a general "query by metadata"
         mechanism (PBENCH-825), however I haven't attempted to work out a full
-        generalization. At this point I'm happen enough to have a relatively
-        simple special purpose query; but it bring hope that the general query
+        generalization. At this point I'm happy enough to have a relatively
+        simple special purpose query; but it gives me hope that a general query
         is achievable.
 
         Args:
@@ -66,18 +67,13 @@ class Sync:
         """
         try:
             query = Database.db_session.query(Dataset).join(Metadata)
-            query = (
-                query.filter(Metadata.key == Metadata.SERVER)
-                .filter(
-                    Metadata.value["operation"].as_string().contains(operation.name)
-                )
-                .order_by(Dataset.name)
-            )
+            query = query.filter(Metadata.key == Metadata.SERVER)
+            term = Metadata.value["operation"].as_string().contains(operation.name)
+            query = query.filter(term)
+            query = query.order_by(Dataset.name)
             if self.logger.isEnabledFor(DEBUG):
-                self.logger.debug(
-                    "QUERY {}",
-                    query.statement.compile(compile_kwargs={"literal_binds": True}),
-                )
+                q_str = query.statement.compile(compile_kwargs={"literal_binds": True})
+                self.logger.debug("QUERY {}", q_str)
             return list(query.all())
         except Exception as e:
             self.logger.exception("Failed to query for {}", operation)
@@ -100,30 +96,29 @@ class Sync:
 
         Args:
             dataset: The dataset
-            did: The operation (if any) just completed, which will marked done
+            did: The operation (if any) just completed, which will be removed
+                from the list of eligible operations.
             enabled: A list (if any) of operations for which the dataset is now
                 eligible.
             status: A status message (if not specified, and enabling new
                 operation(s), the default is "ok")
         """
-        operations: List[str] = Metadata.getvalue(dataset, Metadata.OPERATION)
+        ops: JSONVALUE = Metadata.getvalue(dataset, Metadata.OPERATION)
         message = status
 
-        if not operations:
-            operations = []
-        elif did:
-            try:
-                operations.remove(did.name)
-            except ValueError:
-                pass
+        if not ops:
+            operations = set()
+        else:
+            operations = set(ops)
+            if did:
+                operations.discard(did.name)
 
         if enabled:
-            operations.extend([o.name for o in enabled if o.name not in operations])
-            operations.sort()
+            operations.update(o.name for o in enabled)
             if not message:
                 message = "ok"
 
-        Metadata.setvalue(dataset, Metadata.OPERATION, operations)
+        Metadata.setvalue(dataset, Metadata.OPERATION, sorted(operations))
         if message:
             Metadata.setvalue(dataset, "server.status." + self.component, message)
 

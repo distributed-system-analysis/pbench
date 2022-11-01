@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
+from dataclasses import dataclass
 import os
 from pathlib import Path
 import shutil
@@ -16,7 +17,6 @@ from pbench.server.database.models.datasets import Dataset, DatasetError, Metada
 from pbench.server.report import Report
 from pbench.server.s3backup import NoSuchKey, S3Config, Status
 from pbench.server.sync import Operation, Sync
-from pbench.server.utils import get_tarball_md5
 
 _NAME_ = "pbench-backup-tarballs"
 
@@ -31,22 +31,14 @@ class LocalBackupObject:
         self.backup_dir = config.BACKUP
 
 
+@dataclass
 class Results:
-    def __init__(
-        self,
-        ntotal=0,
-        nbackup_success=0,
-        nbackup_fail=0,
-        ns3_success=0,
-        ns3_fail=0,
-        nquaran=0,
-    ):
-        self.ntotal = ntotal
-        self.nbackup_success = nbackup_success
-        self.nbackup_fail = nbackup_fail
-        self.ns3_success = ns3_success
-        self.ns3_fail = ns3_fail
-        self.nquaran = nquaran
+    ntotal: int = 0
+    nbackup_success: int = 0
+    nbackup_fail: int = 0
+    ns3_success: int = 0
+    ns3_fail: int = 0
+    process_fail: int = 0
 
 
 def sanity_check(lb_obj, s3_obj, config, logger):
@@ -269,7 +261,7 @@ def backup_to_s3(
 def backup_data(lb_obj, s3_obj, config, logger):
     sync = Sync(logger, "backup")
     datasets = sync.next(Operation.BACKUP)
-    ntotal = nbackup_success = nbackup_fail = ns3_success = ns3_fail = nquaran = 0
+    ntotal = nbackup_success = nbackup_fail = ns3_success = ns3_fail = process_fail = 0
 
     for dataset in datasets:
         tb = Metadata.getvalue(dataset, Metadata.TARBALL_PATH)
@@ -278,14 +270,15 @@ def backup_data(lb_obj, s3_obj, config, logger):
         try:
             tar = Path(tb).resolve(strict=True)
         except FileNotFoundError:
+            tar = None
             logger.error("Tarball link, '{}', does not resolve to a real location", tb)
 
         logger.debug("Start backup of {}.", tar)
         # check tarball exists and it is a regular file
-        if not (tar.exists() and tar.is_file()):
+        if not (tar and tar.exists() and tar.is_file()):
             # tarball does not exist or it is not a regular file
             sync.error(dataset, f"tarball {tb} does not exist")
-            nquaran += 1
+            process_fail += 1
             continue
 
         archive_md5 = Path(f"{tar}.md5")
@@ -293,7 +286,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         if not (archive_md5.exists() and archive_md5.is_file()):
             # md5 file does not exist or it is not a regular file
             sync.error(dataset, f"MD5 file {archive_md5} does not exist")
-            nquaran += 1
+            process_fail += 1
             continue
 
         # read the md5sum from md5 file
@@ -302,9 +295,10 @@ def backup_data(lb_obj, s3_obj, config, logger):
                 archive_md5_hex_value = f.readline().split(" ")[0]
         except Exception:
             # Could not read file.
-            sync.error(dataset, f"can't read MD5 file {archive_md5}")
-            nquaran += 1
-            logger.exception("Quarantine: {}, Could not read {}", tb, archive_md5)
+            error = f"can't read MD5 file {archive_md5}"
+            sync.error(dataset, error)
+            process_fail += 1
+            logger.exception(error)
             continue
 
         # match md5sum of the tarball to its md5 file
@@ -312,32 +306,30 @@ def backup_data(lb_obj, s3_obj, config, logger):
             (_, archive_tar_hex_value) = md5sum(tar)
         except Exception:
             # Could not read file.
-            sync.error(dataset, "can't compute tarfile MD5")
-            nquaran += 1
-            logger.exception("Quarantine: {}, Could not read {}", tb, tar)
+            error = f"can't compute tarfile {tar} MD5"
+            sync.error(dataset, error)
+            process_fail += 1
+            logger.exception(error)
             continue
 
         if archive_tar_hex_value != archive_md5_hex_value:
-            sync.error(
-                dataset,
-                f"MD5 file {archive_md5_hex_value!r} does not match tarball MD5 {archive_tar_hex_value!r}",
-            )
-            nquaran += 1
-            logger.error(
-                "Quarantine: {}, md5sum of {} does not match with its md5 file {}",
-                tb,
-                tar,
-                archive_md5,
-            )
+            error = f"Recorded MD5 {archive_md5_hex_value!r} does not match tarball MD5 {archive_tar_hex_value!r}"
+            sync.error(dataset, error)
+            process_fail += 1
+            logger.error(error)
             continue
 
         resultname = tar.name
         controller_path = tar.parent
         controller = controller_path.name
         try:
-            dataset = Dataset.attach(resource_id=get_tarball_md5(tar))
+            dataset = Dataset.attach(resource_id=archive_md5_hex_value)
         except DatasetError as e:
-            logger.error("Unable to find dataset {}: {}", resultname, str(e))
+            logger.error(
+                "Unable to find dataset with resource ID {!r}: {}",
+                archive_md5_hex_value,
+                str(e),
+            )
             continue
 
         # This will handle all the local backup related
@@ -408,7 +400,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         nbackup_fail=nbackup_fail,
         ns3_success=ns3_success,
         ns3_fail=ns3_fail,
-        nquaran=nquaran,
+        process_fail=process_fail,
     )
 
 
@@ -459,7 +451,7 @@ def main(cfg_name):
         f" Local backup failures: {counts.nbackup_fail},"
         f" S3 upload successes: {counts.ns3_success},"
         f" S3 upload failures: {counts.ns3_fail},"
-        f" Quarantined: {counts.nquaran}"
+        f" Unable to process: {counts.process_fail}"
     )
 
     logger.info(result_string)

@@ -30,6 +30,13 @@ _NAME_ = "pbench-state-manager"
 
 def main(options) -> int:
     try:
+        if not options.cfg_name:
+            print(
+                f"{_NAME_}: ERROR: No config file specified; set"
+                " _PBENCH_SERVER_CONFIG env variable",
+                file=sys.stderr,
+            )
+            return 2
         config = PbenchServerConfig(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
@@ -38,21 +45,13 @@ def main(options) -> int:
     logger = get_pbench_logger(_NAME_, config)
 
     try:
-        if not options.cfg_name:
-            print(
-                f"{_NAME_}: ERROR: No config file specified; set"
-                " _PBENCH_SERVER_CONFIG env variable",
-                file=sys.stderr,
-            )
-            return 2
 
         # We're going to need the Postgres DB to track dataset state, so setup
         # DB access.
         init_db(config, logger)
 
         # Construct a sync object to manage dataset operational sequencing.
-        name = options.sync if options.sync else _NAME_
-        sync = Sync(logger, name)
+        sync = Sync(logger, options.sync if options.sync else _NAME_)
 
         if options.query_operation:
             if (
@@ -69,7 +68,7 @@ def main(options) -> int:
                 return 2
             try:
                 operator = Operation[options.query_operation.upper()]
-                list = sync.next(operator)
+                datasets = sync.next(operator)
             except KeyError as e:
                 print(
                     f"{_NAME_}: Specified operation {e!r} is not a valid operator.",
@@ -77,7 +76,7 @@ def main(options) -> int:
                 )
                 return 1
 
-            for dataset in list:
+            for dataset in datasets:
                 tarfile = Metadata.getvalue(dataset, Metadata.TARBALL_PATH)
                 print(tarfile)
 
@@ -147,14 +146,15 @@ def main(options) -> int:
         set_metadata = {}
         if options.set_metadata:
             for m in options.set_metadata:
-                key, value = m.split("=")
+                key, value = m.split("=", 1)
                 if not Metadata.is_key_path(key, Metadata.METADATA_KEYS):
                     print(
                         f"{_NAME_}: Set metadata key {key!r} is not valid",
                         file=sys.stderr,
                     )
                     return 2
-                if "{" in value:
+
+                if value.startswith("{"):
                     try:
                         value = json.loads(value)
                     except json.JSONDecodeError as e:
@@ -168,8 +168,7 @@ def main(options) -> int:
         get_metadata = []
         if options.get_metadata:
             for metaval in options.get_metadata:
-                metas = metaval.split(",")
-                for m in metas:
+                for m in metaval.split(","):
                     if not Metadata.is_key_path(m, Metadata.METADATA_KEYS):
                         print(
                             f"{_NAME_}: Get metadata key {m!r} is not valid",
@@ -184,7 +183,7 @@ def main(options) -> int:
         # Find or create the specified dataset.
         dataset = doit(**args)
 
-        if operators or did or options.error:
+        if did or operators or options.error:
             sync.update(
                 dataset=dataset, did=did, enabled=operators, status=options.error
             )
@@ -207,7 +206,7 @@ def main(options) -> int:
             else "attach"
         )
         logger.exception("Failed to {} {}", what, options)
-        print(f"{_NAME_}: {e}: {e.with_traceback(None)}", file=sys.stderr)
+        print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1
     else:
         return 0
@@ -228,50 +227,59 @@ if __name__ == "__main__":
         dest="create",
         action="store",
         type=str,
-        help="Specify owning user to create a new Dataset",
+        help="Specify owning username to create a new Dataset",
     )
     parser.add_argument(
         "--did",
         dest="did",
         help=(
-            "Specify a completed sequence operator to be removed from the"
-            " pending set"
+            "Specify a completed dataset operator to be removed from the" " pending set"
         ),
     )
     parser.add_argument(
-        "--error", dest="error", help="Specify an error message to be recorded"
+        "--error",
+        dest="error",
+        help=("Specify an error message to be recorded" " for a dataset"),
     )
     parser.add_argument(
         "-g",
         "--get-metadata",
         action="append",
         dest="get_metadata",
-        help="Print metadata values as key=value",
+        help=(
+            "Print metadata values for a specified comma-separate list "
+            "of keys. This option can be repeated."
+        ),
     )
     parser.add_argument(
         "-m",
         "--set-metadata",
         action="append",
         dest="set_metadata",
-        help="Specify metadata values to set as key=value",
+        help=(
+            "Specify a metadata value to set as key=value. "
+            "This option can be repeated to set multiple keys"
+        ),
     )
     parser.add_argument(
         "--name",
         dest="name",
-        help="Specify dataset name",
+        help="Specify the dataset name",
     )
     parser.add_argument(
         "--operations",
         dest="operation",
         help=(
             "Specify sequence operators to trigger server behaviors: "
-            "BACKUP, UNPACK, INDEX"
+            "for example, 'BACKUP,UNPACK,INDEX'"
         ),
     )
     parser.add_argument(
         "--path",
         dest="path",
-        help="Specify a tarball filename (from which controller and name will be derived)",
+        help=(
+            "Specify a tarball file path (from which " "a dataset name will be derived)"
+        ),
     )
     parser.add_argument(
         "--query-operation",

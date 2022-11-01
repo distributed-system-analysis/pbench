@@ -181,8 +181,10 @@ class Index:
                 try:
                     # get size
                     size = os.stat(tb).st_size
-                except OSError:
-                    self.sync.error(dataset, f"Could not fetch tar ball size for {tb}")
+                except OSError as e:
+                    self.sync.error(
+                        dataset, f"Could not fetch tar ball size for {tb}: {e}"
+                    )
                     continue
                 else:
                     tarballs.append(TarballData(dataset=dataset, tarball=tb, size=size))
@@ -190,10 +192,11 @@ class Index:
             # Re-raise a SIGTERM to avoid it being lumped in with general
             # exception handling below.
             raise
-        except Exception:
-            idxctx.logger.exception(
-                "{} generating list of tar balls to process",
+        except Exception as e:
+            idxctx.logger.error(
+                "{} generating list of tar balls to process: {}",
                 error_code["GENERIC_ERROR"].message,
+                str(e),
             )
             # Return catch-all error and no tarballs
             return (error_code["GENERIC_ERROR"].value, [])

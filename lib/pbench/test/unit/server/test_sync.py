@@ -7,6 +7,7 @@ class TestSync:
         sync = Sync(make_logger, "test")
         assert sync.logger is make_logger
         assert sync.component == "test"
+        assert str(sync) == "<Synchronizer for component 'test'>"
 
     def test_next(self, make_logger, more_datasets):
         drb = Dataset.query(name="drb")
