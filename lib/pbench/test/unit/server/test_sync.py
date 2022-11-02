@@ -1,5 +1,7 @@
+import pytest
+
 from pbench.server.database.models.datasets import Dataset, Metadata
-from pbench.server.sync import Operation, Sync
+from pbench.server.sync import Operation, Sync, SyncSqlError
 
 
 class TestSync:
@@ -18,7 +20,16 @@ class TestSync:
         Metadata.setvalue(fio_1, Metadata.OPERATION, ["UNPACK"])
         Metadata.setvalue(fio_2, Metadata.OPERATION, ["BACKUP"])
         list = sync.next(Operation.UNPACK)
-        assert ["drb", "fio_1"] == sorted([d.name for d in list])
+        assert ["drb", "fio_1"] == sorted(d.name for d in list)
+
+    def test_next_failure(self, monkeypatch, make_logger):
+        def fake_query(self, *entities, **kwargs):
+            raise Exception("nothing happened")
+
+        sync = Sync(make_logger, "test")
+        monkeypatch.setattr("pbench.server.sync.Database.db_session.query", fake_query)
+        with pytest.raises(SyncSqlError):
+            sync.next(Operation.UNPACK)
 
     def test_error(self, make_logger, more_datasets):
         drb = Dataset.query(name="drb")
@@ -33,6 +44,14 @@ class TestSync:
         sync.update(drb, did=Operation.BACKUP)
         assert Metadata.getvalue(drb, "server.status.test") is None
         assert Metadata.getvalue(drb, Metadata.OPERATION) == ["UNPACK"]
+
+    def test_update_did_not(self, make_logger, more_datasets):
+        drb = Dataset.query(name="drb")
+        sync = Sync(make_logger, "test")
+        Metadata.setvalue(drb, Metadata.OPERATION, ["UNPACK", "BACKUP"])
+        sync.update(drb, did=Operation.INDEX)
+        assert Metadata.getvalue(drb, "server.status.test") is None
+        assert Metadata.getvalue(drb, Metadata.OPERATION) == ["BACKUP", "UNPACK"]
 
     def test_update_did_status(self, make_logger, more_datasets):
         drb = Dataset.query(name="drb")

@@ -69,24 +69,29 @@ class UnpackTarballs:
         tarlist: list[Target] = []
         for d in datasets:
             t = Metadata.getvalue(d, Metadata.TARBALL_PATH)
-            if t:
-                try:
-                    p = Path(t).resolve(strict=True)
-                    s = p.stat().st_size
-                except FileNotFoundError as exc:
-                    self.logger.error(
-                        "{}: Tarball '{}' does not resolve to a file: {}",
-                        self.config.TS,
-                        t,
-                        exc,
-                    )
-                    continue
-                except Exception:
-                    self.logger.exception("Unexpected exception on {}", t)
-                    continue
+            if not t:
+                self.logger.error(
+                    "Dataset {} is missing a value for {}", d, Metadata.TARBALL_PATH
+                )
+                continue
 
-                if min_size <= s < max_size:
-                    tarlist.append(Target(dataset=d, tarball=p))
+            try:
+                p = Path(t).resolve(strict=True)
+                s = p.stat().st_size
+            except FileNotFoundError as exc:
+                self.logger.error(
+                    "{}: Tarball '{}' does not resolve to a file: {}",
+                    self.config.TS,
+                    t,
+                    exc,
+                )
+                continue
+            except Exception:
+                self.logger.exception("Unexpected exception on {}", t)
+                continue
+
+            if min_size <= s < max_size:
+                tarlist.append(Target(dataset=d, tarball=p))
 
         ntotal = nsuccess = 0
 
