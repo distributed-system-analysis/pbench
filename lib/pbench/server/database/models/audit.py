@@ -297,7 +297,6 @@ class Audit(Database.Base):
         start: Optional[datetime] = None,
         end: Optional[datetime] = None,
         dataset: Optional[Dataset] = None,
-        user: Optional[str] = None,
         **kwargs,
     ) -> "list[Audit]":
 
@@ -311,7 +310,6 @@ class Audit(Database.Base):
             start: The earliest timestamp of interest
             end: The most recent timestamp of interest
             dataset: Shortcut to match the type and object_id
-            user: Alias for user_id
             operation, object_type, object_id, etc: exact match on column
 
         Raises:
@@ -327,8 +325,6 @@ class Audit(Database.Base):
                 query = query.filter(Audit.timestamp >= start)
             if end:
                 query = query.filter(Audit.timestamp <= end)
-            if user:
-                query = query.filter(Audit.user_id == user)
             if dataset:
                 query = query.filter(
                     Audit.object_type == AuditType.DATASET,
@@ -345,7 +341,6 @@ class Audit(Database.Base):
                     ("start", start),
                     ("end", end),
                     ("dataset", dataset),
-                    ("user", user),
                     *kwargs.items(),
                 )
                 if v is not None

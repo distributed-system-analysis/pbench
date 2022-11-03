@@ -1595,10 +1595,7 @@ class ApiBase(Resource):
         if schema.operation is not OperationCode.READ:
             user = Auth.token_auth.current_user()
             dataset_found = schema.get_param_by_type(ParamType.DATASET, params)
-            if dataset_found:
-                dataset = dataset_found.value
-            else:
-                dataset = None
+            dataset = dataset_found.value if dataset_found else None
 
             audit = Audit.create(
                 operation=schema.operation,

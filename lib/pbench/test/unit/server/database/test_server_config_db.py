@@ -26,10 +26,9 @@ class TestServerConfig:
         done during DB initialization) because that can't be monkeypatched.
         """
         self.session = FakeSession(ServerConfig)
-        with monkeypatch.context() as m:
-            m.setattr(Database, "db_session", self.session)
-            Database.Base.config = server_config
-            yield
+        monkeypatch.setattr(Database, "db_session", self.session)
+        Database.Base.config = server_config
+        yield
 
     def test_bad_key(self):
         """Test server config parameter key validation"""
@@ -175,15 +174,19 @@ class TestServerConfig:
         """
         Set values and make sure they're all reported correctly
         """
-        ServerConfig.create(key="dataset-lifetime", value="2")
-        ServerConfig.create(key="server-state", value={"status": "enabled"})
-        ServerConfig.create(key="server-banner", value={"message": "Mine"})
+        c1 = ServerConfig.create(key="dataset-lifetime", value="2")
+        c2 = ServerConfig.create(key="server-state", value={"status": "enabled"})
+        c3 = ServerConfig.create(key="server-banner", value={"message": "Mine"})
         assert ServerConfig.get_all() == {
             "dataset-lifetime": "2",
             "server-state": {"status": "enabled"},
             "server-banner": {"message": "Mine"},
         }
-        self.session.check_session(queries=1, filters=[])
+        self.session.check_session(
+            queries=1,
+            committed=[FakeRow.clone(c1), FakeRow.clone(c2), FakeRow.clone(c3)],
+            filters=[],
+        )
 
     @pytest.mark.parametrize(
         "value,expected",

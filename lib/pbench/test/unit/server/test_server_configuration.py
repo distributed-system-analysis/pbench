@@ -163,11 +163,14 @@ class TestServerConfiguration:
         assert audit[0].name == "config"
         assert audit[0].object_type == AuditType.CONFIG
         assert audit[0].object_name is None
+        assert audit[0].object_id is None
+        assert audit[0].attributes is None
         assert audit[1].operation == OperationCode.UPDATE
         assert audit[1].status == AuditStatus.SUCCESS
         assert audit[1].name == "config"
         assert audit[1].object_type == AuditType.CONFIG
         assert audit[1].object_name is None
+        assert audit[1].object_id is None
         assert audit[1].attributes["updated"] == {"dataset-lifetime": "2"}
 
     def test_put_value(self, query_put):
@@ -179,9 +182,15 @@ class TestServerConfiguration:
         assert audit[0].status == AuditStatus.BEGIN
         assert audit[0].name == "config"
         assert audit[0].object_type == AuditType.CONFIG
+        assert audit[0].object_name is None
+        assert audit[0].object_id is None
+        assert audit[0].attributes is None
         assert audit[1].operation == OperationCode.UPDATE
         assert audit[1].status == AuditStatus.SUCCESS
         assert audit[1].name == "config"
+        assert audit[1].object_type == AuditType.CONFIG
+        assert audit[1].object_name is None
+        assert audit[1].object_id is None
         assert audit[1].attributes["updated"] == {"dataset-lifetime": "2"}
 
     def test_put_value_unauth(self, query_put):
@@ -231,11 +240,14 @@ class TestServerConfiguration:
         assert audit[0].name == "config"
         assert audit[0].object_type == AuditType.CONFIG
         assert audit[0].object_name is None
+        assert audit[0].object_id is None
+        assert audit[0].attributes is None
         assert audit[1].operation == OperationCode.UPDATE
         assert audit[1].status == AuditStatus.SUCCESS
         assert audit[1].name == "config"
         assert audit[1].object_type == AuditType.CONFIG
         assert audit[1].object_name is None
+        assert audit[1].object_id is None
         assert audit[1].attributes["updated"] == {
             "dataset-lifetime": "2",
             "server-state": {"status": "enabled"},

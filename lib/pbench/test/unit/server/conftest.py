@@ -166,11 +166,9 @@ def db_session(server_config, make_logger):
 
     NOTE: the client fixture does something similar, but without the implicit
     cleanup, and with the addition of a Flask context that non-API tests don't
-    require. These two fixtures are NOT COMPATIBLE as both init the database.
-    (For example, if client is used to create a login session and then
-    db_session is used to create test records, the login session will be lost.)
-    This fixture will do nothing on load if the client fixture is selected, but
-    we'll still remove the DB afterwards.
+    require. We can't let both initialize the database, or we may lose some
+    fixture setup between calls. This fixture will do nothing on load if the
+    client fixture is also selected, but we'll still remove the DB afterwards.
 
     Args:
         server_config: pbench-server.cfg fixture

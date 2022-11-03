@@ -173,9 +173,7 @@ class FakeQuery:
         """
         filters = []
         for c in criteria:
-            op = (
-                __class__.OPS[c.operator] if c.operator in __class__.OPS else c.operator
-            )
+            op = self.OPS[c.operator] if c.operator in self.OPS else c.operator
             f = f"{c.left} {op} {c.right.value}"
             filters.append(f)
         self.session.filters.append(", ".join(filters))
@@ -303,26 +301,32 @@ class FakeSession:
 
     def check_session(
         self,
-        queries: Optional[int] = None,
-        committed: Optional[list[FakeRow]] = None,
-        filters: Optional[list[str]] = None,
+        queries: int = 0,
+        committed: Optional[list[FakeRow]] = [],
+        filters: Optional[list[str]] = [],
         rolledback=0,
     ):
         """
         Encapsulate the common checks we want to make after running test cases.
 
+        NOTE: The queries and rolledback checks default to 0 count, and will
+        fail if queries or rolled back commits have occurred. The committed and
+        filters checks default to an empty list; these will also fail if any
+        commits or filtered queries have occurred, but these checks can be
+        disabled by specifying None.
+
         Args:
             queries: A count of queries we expect to have been made
             committed: A list of FakeRow objects we expect to have been
                 committed
+            filters: A list of expected filter terms
             rolledback: True if we expect rollback to have been called
         """
 
         # Check the number of queries we've created, if specified
-        if queries is not None:
-            assert (
-                len(self.queries) == queries
-            ), f"Expected {queries} query object constructors, got {len(self.queries)}"
+        assert (
+            len(self.queries) == queries
+        ), f"Expected {queries} queries, got {len(self.queries)}"
 
         # Check the filters we imposed. We sort the filters because normally
         # the end result doesn't depend on the order they're applied.
@@ -331,8 +335,7 @@ class FakeSession:
         # important for testing some DB object, we'd need to make the filters
         # parameter into a list of lists to be compared against individual
         # queries.
-        if filters is not None:
-            assert sorted(filters) == sorted(self.filters)
+        assert filters is None or sorted(filters) == sorted(self.filters)
 
         # 'added' is an internal "dirty" list between 'add' and 'commit' or
         # 'rollback'. We test that 'commit' moves elements to the committed
@@ -342,8 +345,7 @@ class FakeSession:
 
         # Check that the 'committed' list (which stands in for the actual DB
         # table) contains the expected rows.
-        if committed is not None:
-            assert sorted(list(self.committed.values())) == sorted(committed)
+        assert committed is None or sorted(self.committed.values()) == sorted(committed)
 
         # Check whether we've rolled back a transaction due to failure.
         assert self.rolledback == rolledback

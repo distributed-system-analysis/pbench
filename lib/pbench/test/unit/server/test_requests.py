@@ -327,10 +327,7 @@ class TestUpload:
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload(self, client, pbench_token, server_config, setup_ctrl, tarball):
         """Test a successful dataset upload and validate the metadata and audit
-        information. NOTE: in order to have a guaranteed timestamp to verify,
-        we freeze time. This seems to make the standard fixture authentication
-        tokens (generated in "real time") fail validation as "not yet valid";
-        so we log in here under the time freeze rather than use the fixture.
+        information.
         """
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp:
@@ -341,11 +338,12 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
+        name = Dataset.stem(datafile)
 
         dataset = Dataset.query(resource_id=md5)
         assert dataset is not None
         assert dataset.resource_id == md5
-        assert dataset.name == datafile.name[:-7]
+        assert dataset.name == name
         assert dataset.state == States.UPLOADED
         assert dataset.created.isoformat() == "2002-05-16T00:00:00+00:00"
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
@@ -364,7 +362,7 @@ class TestUpload:
         assert audit[0].name == "upload"
         assert audit[0].object_type == AuditType.DATASET
         assert audit[0].object_id == md5
-        assert audit[0].object_name == datafile.name[:-7]
+        assert audit[0].object_name == name
         assert audit[0].user_id == "3"
         assert audit[0].user_name == "drb"
         assert audit[0].reason is None
@@ -376,7 +374,7 @@ class TestUpload:
         assert audit[1].name == "upload"
         assert audit[1].object_type == AuditType.DATASET
         assert audit[1].object_id == md5
-        assert audit[1].object_name == datafile.name[:-7]
+        assert audit[1].object_name == name
         assert audit[1].user_id == "3"
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
@@ -414,9 +412,6 @@ class TestUpload:
         assert response.status_code == HTTPStatus.OK, repr(response)
         assert response.json.get("message") == "Dataset already exists"
 
-        # for record in caplog.records:
-        #     assert record.levelname in ["DEBUG", "INFO", "WARNING"]
-
         # We didn't get far enough to create a CacheManager
         assert TestUpload.cachemanager_created is None
 
@@ -449,6 +444,7 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+        name = Dataset.stem(datafile)
 
         with pytest.raises(DatasetNotFound):
             Dataset.query(resource_id=md5)
@@ -467,7 +463,7 @@ class TestUpload:
         assert audit[0].name == "upload"
         assert audit[0].object_type == AuditType.DATASET
         assert audit[0].object_id == md5
-        assert audit[0].object_name == datafile.name[:-7]
+        assert audit[0].object_name == name
         assert audit[0].user_id == "3"
         assert audit[0].user_name == "drb"
         assert audit[0].reason is None
@@ -479,7 +475,7 @@ class TestUpload:
         assert audit[1].name == "upload"
         assert audit[1].object_type == AuditType.DATASET
         assert audit[1].object_id == md5
-        assert audit[1].object_name == datafile.name[:-7]
+        assert audit[1].object_name == name
         assert audit[1].user_id == "3"
         assert audit[1].user_name == "drb"
         assert audit[1].reason == AuditReason.INTERNAL

@@ -73,10 +73,10 @@ class TestServerAudit:
         audits = response.json
         assert len(audits) == 4
         assert audits[0]["status"] == "BEGIN"
-        assert audits[0]["operation"]
-        assert audits[0]["name"]
-        assert audits[0]["user_id"]
-        assert audits[0]["user_name"]
+        assert audits[0]["operation"] == "CREATE"
+        assert audits[0]["name"] == "first"
+        assert audits[0]["user_id"] == "2"
+        assert audits[0]["user_name"] == "test"
         assert audits[1]["status"] == "SUCCESS"
         assert audits[1]["operation"] == "CREATE"
         assert audits[1]["name"] == "first"
@@ -112,16 +112,8 @@ class TestServerAudit:
         response = query_get(params={"name": "first"}, expected_status=HTTPStatus.OK)
         audits = response.json
         assert len(audits) == 2
-        assert audits[0]["status"] == "BEGIN"
-        assert audits[0]["operation"] == "CREATE"
         assert audits[0]["name"] == "first"
-        assert audits[0]["user_id"] == "2"
-        assert audits[0]["user_name"] == "test"
-        assert audits[1]["status"] == "SUCCESS"
-        assert audits[1]["operation"] == "CREATE"
         assert audits[1]["name"] == "first"
-        assert audits[1]["user_id"] == "2"
-        assert audits[1]["user_name"] == "test"
 
     def test_get_operation(self, query_get, make_audits):
         """Get all audit records matching a specific operation"""
@@ -130,28 +122,16 @@ class TestServerAudit:
         )
         audits = response.json
         assert len(audits) == 2
-        assert audits[0]["status"] == "BEGIN"
         assert audits[0]["operation"] == "CREATE"
-        assert audits[0]["name"] == "first"
-        assert audits[0]["user_id"] == "2"
-        assert audits[0]["user_name"] == "test"
-        assert audits[1]["status"] == "SUCCESS"
         assert audits[1]["operation"] == "CREATE"
-        assert audits[1]["name"] == "first"
-        assert audits[1]["user_id"] == "2"
-        assert audits[1]["user_name"] == "test"
 
     def test_get_status_begin(self, query_get, make_audits):
         """Get all audit records matching a specific status"""
         response = query_get(params={"status": "BEGIN"}, expected_status=HTTPStatus.OK)
         audits = response.json
         assert len(audits) == 2
-        assert audits[0]["operation"] == "CREATE"
         assert audits[0]["status"] == "BEGIN"
-        assert audits[0]["name"] == "first"
-        assert audits[1]["operation"] == "UPDATE"
         assert audits[1]["status"] == "BEGIN"
-        assert audits[1]["name"] == "second"
 
     def test_get_status_failure(self, query_get, make_audits):
         """Get all audit records showing a failure"""
@@ -161,8 +141,6 @@ class TestServerAudit:
         audits = response.json
         assert len(audits) == 1
         assert audits[0]["status"] == "FAILURE"
-        assert audits[0]["operation"] == "UPDATE"
-        assert audits[0]["name"] == "second"
 
     def test_get_status_start(self, query_get, make_audits):
         response = query_get(
@@ -172,13 +150,7 @@ class TestServerAudit:
         audits = response.json
         assert len(audits) == 2
         assert audits[0]["timestamp"] == "2022-01-01T05:00:00+00:00"
-        assert audits[0]["operation"] == "UPDATE"
-        assert audits[0]["status"] == "BEGIN"
-        assert audits[0]["name"] == "second"
         assert audits[1]["timestamp"] == "2022-01-01T05:00:05+00:00"
-        assert audits[1]["operation"] == "UPDATE"
-        assert audits[1]["status"] == "FAILURE"
-        assert audits[1]["name"] == "second"
 
     def test_get_status_end(self, query_get, make_audits):
         response = query_get(
@@ -188,13 +160,7 @@ class TestServerAudit:
         audits = response.json
         assert len(audits) == 2
         assert audits[0]["timestamp"] == "2022-01-01T00:00:00+00:00"
-        assert audits[0]["operation"] == "CREATE"
-        assert audits[0]["status"] == "BEGIN"
-        assert audits[0]["name"] == "first"
         assert audits[1]["timestamp"] == "2022-01-01T00:00:02+00:00"
-        assert audits[1]["operation"] == "CREATE"
-        assert audits[1]["status"] == "SUCCESS"
-        assert audits[1]["name"] == "first"
 
     def test_get_status_between(self, query_get, make_audits):
         response = query_get(
@@ -207,10 +173,4 @@ class TestServerAudit:
         audits = response.json
         assert len(audits) == 2
         assert audits[0]["timestamp"] == "2022-01-01T00:00:02+00:00"
-        assert audits[0]["operation"] == "CREATE"
-        assert audits[0]["status"] == "SUCCESS"
-        assert audits[0]["name"] == "first"
         assert audits[1]["timestamp"] == "2022-01-01T05:00:00+00:00"
-        assert audits[1]["operation"] == "UPDATE"
-        assert audits[1]["status"] == "BEGIN"
-        assert audits[1]["name"] == "second"

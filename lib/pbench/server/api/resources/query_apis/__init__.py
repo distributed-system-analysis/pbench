@@ -4,7 +4,7 @@ from datetime import datetime
 from http import HTTPStatus
 from logging import Logger
 import re
-from typing import Any, Callable, Iterator, List, NoReturn, Optional
+from typing import Any, Callable, Iterator, List, Optional
 from urllib.parse import urljoin
 from urllib.request import Request
 
@@ -302,7 +302,7 @@ class ElasticBase(ApiBase):
             )
         return indices
 
-    def preprocess(self, params: ApiParams, context: ApiContext) -> NoReturn:
+    def preprocess(self, params: ApiParams, context: ApiContext) -> None:
         """
         Given the client Request payload, perform any preprocessing activities
         necessary prior to constructing an Elasticsearch query.
