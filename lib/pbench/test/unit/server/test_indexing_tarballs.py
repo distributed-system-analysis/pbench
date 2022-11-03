@@ -17,7 +17,12 @@ from pbench.server.database.models.datasets import (
     MetadataBadKey,
     States,
 )
-from pbench.server.indexing_tarballs import Index, SigTermException, TarballData
+from pbench.server.indexing_tarballs import (
+    Index,
+    SigIntException,
+    SigTermException,
+    TarballData,
+)
 from pbench.server.sync import Operation
 from pbench.server.templates import TemplateError
 
@@ -64,11 +69,7 @@ class FakeMetadata:
             else:
                 return f"{dataset.name}.tar.xz"
         elif key == Metadata.INDEX_MAP:
-            if dataset.name in __class__.index_map:
-                return __class__.index_map[dataset.name]
-            else:
-                return None
-            return None
+            return __class__.index_map.get(dataset.name)
         else:
             raise MetadataBadKey(key)
 
@@ -342,10 +343,12 @@ class TestIndexingTarballs:
         error = index.load_templates()
         assert error == index.error_code["TEMPLATE_CREATION_ERROR"]
         assert FakePbenchTemplates.templates_updated
+        FakePbenchTemplates.reset()
 
         FakePbenchTemplates.failure = Exception("erroneous")
         error = index.load_templates()
         assert error == index.error_code["GENERIC_ERROR"]
+        FakePbenchTemplates.reset()
 
         FakePbenchTemplates.failure = SigTermException("abort! abort!")
         with pytest.raises(SigTermException):
@@ -399,7 +402,7 @@ class TestIndexingTarballs:
         __class__.stat_failure = {}
 
     def test_collect_tb(self, mocks, index):
-        mocks.setattr("os.stat", self.mock_stat)
+        mocks.setattr("pbench.server.indexing_tarballs.os.stat", self.mock_stat)
         FakeSync.tarballs[Operation.INDEX] = [ds1, ds2]
         tb_list = index.collect_tb()
         assert FakeSync.called == ["next-INDEX"]
@@ -429,7 +432,7 @@ class TestIndexingTarballs:
 
     def test_process_tb_interrupt(self, mocks, index):
         def fake_es_index(es, actions, errorsfp, logger, _dbg=0):
-            raise SigTermException("ter-min-ate; ter-min-ate")
+            raise SigIntException("cease. also desist. and stop. that too.")
 
         mocks.setattr("pbench.server.indexing_tarballs.es_index", fake_es_index)
         stat = index.process_tb(tarballs=[tarball_2, tarball_1])

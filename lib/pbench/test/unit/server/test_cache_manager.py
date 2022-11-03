@@ -584,10 +584,6 @@ class TestCacheManager:
         assert tarfile.exists()
         assert md5file.exists()
 
-        # todo_state = archive / "TODO" / tarfile.name
-        # assert todo_state.is_symlink()
-        # assert todo_state.samefile(tarfile)
-
         assert md5 == md5file.read_text()
         hash = hashlib.md5()
         hash.update(tarfile.read_bytes())

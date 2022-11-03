@@ -23,6 +23,10 @@ class TestDatasets:
                 "ing" in s.friendly
             ), f"Enum {n} name and state don't match"
 
+            # We have no "terminal" states: every state must be a key in the
+            # transitions table!
+            assert s in Dataset.transitions
+
     def test_construct(self, db_session, create_user):
         """Test dataset contructor"""
         user = create_user

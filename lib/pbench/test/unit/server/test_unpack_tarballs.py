@@ -278,7 +278,7 @@ class TestUnpackTarballs:
 
         # FIXME [PBENCH-961] The unpack_tarballs loop should handle unpack
         # exceptions and continue with the loop without exposing the exception
-        # to the caller. When this bug is fixed, remote `with pytest.raises`
+        # to the caller. When this bug is fixed, remove `with pytest.raises`
         # here and dedent the following code, which is analogous to the above
         # test_failures case for Path errors.
         with pytest.raises(TarballUnpackError):

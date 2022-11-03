@@ -29,14 +29,15 @@ _NAME_ = "pbench-state-manager"
 
 
 def main(options) -> int:
+    if not options.cfg_name:
+        print(
+            f"{_NAME_}: ERROR: No config file specified; set"
+            " _PBENCH_SERVER_CONFIG env variable",
+            file=sys.stderr,
+        )
+        return 2
+
     try:
-        if not options.cfg_name:
-            print(
-                f"{_NAME_}: ERROR: No config file specified; set"
-                " _PBENCH_SERVER_CONFIG env variable",
-                file=sys.stderr,
-            )
-            return 2
         config = PbenchServerConfig(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
@@ -232,14 +233,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--did",
         dest="did",
-        help=(
-            "Specify a completed dataset operator to be removed from the" " pending set"
-        ),
+        help="Specify a completed dataset operator to be removed from the pending set",
     )
     parser.add_argument(
         "--error",
         dest="error",
-        help=("Specify an error message to be recorded" " for a dataset"),
+        help="Specify an error message to be recorded for a dataset",
     )
     parser.add_argument(
         "-g",
@@ -277,9 +276,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--path",
         dest="path",
-        help=(
-            "Specify a tarball file path (from which " "a dataset name will be derived)"
-        ),
+        help="Specify a tarball file path (from which a dataset name will be derived)",
     )
     parser.add_argument(
         "--query-operation",
@@ -294,8 +291,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--sync",
         dest="sync",
-        help="Specify a name for the 'sync' object used for --query_operation, "
-        "--operations, --did, and --error",
+        help=(
+            "Specify a name for the 'sync' object used for --query_operation, "
+            "--operations, --did, and --error"
+        ),
     )
     parser.add_argument("--md5", dest="md5", help="Specify dataset MD5 hash")
     parsed = parser.parse_args()
