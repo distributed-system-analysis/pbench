@@ -25,14 +25,12 @@ prune agent/util-scripts/samples
 prune agent/util-scripts/test-bin
 exclude agent/util-scripts/unittests
 prune contrib
-prune doc
 prune docs
 exclude exec-unittests
 prune jenkins
 prune lib/pbench.egg-info
 exclude lint-requirements.txt
 exclude server/Makefile
-prune server/ansible
 prune server/bin/gold
 prune server/bin/state
 prune server/bin/test-bin
