@@ -103,28 +103,7 @@ buildah run $container chown --recursive pbench:pbench /srv/pbench
 
 buildah run $container crontab -u pbench ${SERVER_LIB}/crontab/crontab
 
-echo >/tmp/pbench.conf.${$} \
-"<VirtualHost *:80>
-    ProxyPreserveHost On
-    ProxyPass /api/ http://${HOSTNAME_F}:8001/api/
-    ProxyPassReverse /api/ http://${HOSTNAME_F}:8001/api/
-    ProxyPass / !
-
-    # Route all dashboard React component paths to the dashboard App; e.g.,
-    # http//<host>/dashboard/login
-    <Directory "/var/www/html/dashboard" >
-            Options FollowSymLinks MultiViews
-            AllowOverride None
-            Order allow,deny
-            allow from all
-
-        RewriteEngine on
-        RewriteCond %{REQUEST_FILENAME} -f [OR]
-        RewriteCond %{REQUEST_FILENAME} -d
-        RewriteRule ^ - [L]
-        RewriteRule ^ index.html [L]
-    </Directory>
-</VirtualHost>"
+sed -e "s/localhost/${HOSTNAME_F}/" server/lib/config/pbench.httpd.conf >/tmp/pbench.conf.${$}
 buildah copy --chown root:root --chmod 0644 $container \
     /tmp/pbench.conf.${$} /etc/httpd/conf.d/pbench.conf
 rm /tmp/pbench.conf.${$}
