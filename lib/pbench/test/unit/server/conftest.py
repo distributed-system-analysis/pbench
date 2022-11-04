@@ -764,10 +764,6 @@ def generate_token(
     # Current time to encode in the token payload
     current_utc = datetime.datetime.now(datetime.timezone.utc)
 
-    # Expired epoch time to use as a token expiry in case the caller
-    # wants an invalid token.
-    EXPIRY = "1667187770"
-
     if not user:
         user = User.query(username=username)
     assert user
