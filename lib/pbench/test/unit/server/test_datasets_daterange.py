@@ -18,7 +18,9 @@ class TestDatasetsDateRange:
     """
 
     @pytest.fixture()
-    def query_as(self, client, server_config, more_datasets, provide_metadata):
+    def query_as(
+        self, client, server_config, more_datasets, provide_metadata, pbench_admin_token
+    ):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
@@ -33,10 +35,7 @@ class TestDatasetsDateRange:
         def query_api(
             payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
-            token = generate_token(
-                username=username,
-                pbench_client_roles=["ADMIN"] if username == admin_username else None,
-            )
+            token = self.token(pbench_admin_token, username)
             response = client.get(
                 f"{server_config.rest_uri}/datasets/daterange",
                 headers={"authorization": f"bearer {token}"},
@@ -67,6 +66,13 @@ class TestDatasetsDateRange:
             to_time = max(dataset.created, to_time)
             from_time = min(dataset.created, from_time)
         return {"from": from_time.isoformat(), "to": to_time.isoformat()}
+
+    def token(self, pbench_admin_token, user: str) -> str:
+        return (
+            pbench_admin_token
+            if user == admin_username
+            else generate_token(username=user)
+        )
 
     @pytest.mark.parametrize(
         "login,query,results",

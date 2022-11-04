@@ -10,7 +10,9 @@ from pbench.test.unit.server.conftest import admin_username, generate_token
 
 class TestDatasetsMetadata:
     @pytest.fixture()
-    def query_get_as(self, client, server_config, more_datasets, provide_metadata):
+    def query_get_as(
+        self, client, server_config, more_datasets, provide_metadata, pbench_admin_token
+    ):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
@@ -31,12 +33,7 @@ class TestDatasetsMetadata:
             except DatasetNotFound:
                 dataset = ds_name  # Allow passing deliberately bad value
             if username:
-                token = generate_token(
-                    username=username,
-                    pbench_client_roles=["ADMIN"]
-                    if username == admin_username
-                    else None,
-                )
+                token = self.token(pbench_admin_token, username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
                 f"{server_config.rest_uri}/datasets/metadata/{dataset}",
@@ -57,7 +54,9 @@ class TestDatasetsMetadata:
         return query_api
 
     @pytest.fixture()
-    def query_put_as(self, client, server_config, more_datasets, provide_metadata):
+    def query_put_as(
+        self, client, server_config, more_datasets, provide_metadata, pbench_admin_token
+    ):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
@@ -78,12 +77,7 @@ class TestDatasetsMetadata:
             except DatasetNotFound:
                 dataset = ds_name  # Allow passing deliberately bad value
             if username:
-                token = generate_token(
-                    username=username,
-                    pbench_client_roles=["ADMIN"]
-                    if username == admin_username
-                    else None,
-                )
+                token = self.token(pbench_admin_token, username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.put(
                 f"{server_config.rest_uri}/datasets/metadata/{dataset}",
@@ -102,6 +96,13 @@ class TestDatasetsMetadata:
             return response
 
         return query_api
+
+    def token(self, pbench_admin_token, user: str) -> str:
+        return (
+            pbench_admin_token
+            if user == admin_username
+            else generate_token(username=user)
+        )
 
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as(

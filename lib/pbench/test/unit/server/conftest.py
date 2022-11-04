@@ -733,19 +733,20 @@ def generate_token(
     username: str,
     user: Optional[User] = None,
     pbench_client_roles: Optional[list[str]] = None,
-    valid: Optional[bool] = True,
+    valid: bool = True,
 ) -> str:
     """
-    Generates an OIDC JWT token that mimics the real OIDC token obtained
-    from the OIDC complaint client login.
+    Generates an OIDC JWT token that mimics a real OIDC token obtained
+    from an OIDC compliant client login.
 
     Args:
         username: username to include in the token payload
-        user: user attributes will be extracted from the user to include in
-            the token payload, if not provided it will be queried from the User
-            table. It is a responsibility of the consumer to make sure the
-            user exists in the 'User' table until we remove the User table
-            completely.
+        user: user attributes will be extracted from the user object to include
+            in the token payload.
+            If not provided, user object will be queried from the User table
+            using username as the key.
+            It is a responsibility of the caller to make sure the user exists
+            in the 'User' table until we remove the User table completely.
         pbench_client_roles: List of any roles to add in the token payload
         valid: If True, the generated token will be valid for 10 mins.
                If False, generated token would be invalid and expired
@@ -753,7 +754,6 @@ def generate_token(
     TODO: When we remove the User table we need to update this functionality's
         dependance on user table.
         Refer related Jira issues:
-            https://issues.redhat.com/browse/PBENCH-934,
             https://issues.redhat.com/browse/PBENCH-900,
             https://issues.redhat.com/browse/PBENCH-895,
             https://issues.redhat.com/browse/PBENCH-962
@@ -770,10 +770,9 @@ def generate_token(
 
     if not user:
         user = User.query(username=username)
-    if valid:
-        exp = current_utc + datetime.timedelta(minutes=10)
-    else:
-        exp = EXPIRY
+    assert user
+    offset = datetime.timedelta(minutes=10)
+    exp = current_utc + (offset if valid else -offset)
     payload = {
         "exp": exp,
         "iat": current_utc,
