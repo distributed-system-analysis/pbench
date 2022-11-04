@@ -21,6 +21,7 @@ class TestConnect:
         "login",
         "logout",
         "register",
+        "server_configuration",
         "upload",
         "user",
     )

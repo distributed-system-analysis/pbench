@@ -50,14 +50,16 @@ pipeline {
                 sh 'buildah push localhost/pbench-server:${PB_SERVER_IMAGE_TAG} ${PB_SERVER_IMAGE}:${PB_SERVER_IMAGE_TAG}'
             }
         }
-        stage('Start, test, and stop the Pbench Server pod') {
+        stage('Deploy server and Run functional tests') {
             steps {
                 sh 'envsubst < server/pbenchinacan/pod-nodata.yml | podman play kube -'
                 sleep 30
+                // Use curl to check when server is responding to API requests
                 retry(count: 10) {
                     sleep 10
-                    sh 'curl localhost:8001/api/v1/endpoints'
+                    sh 'curl --silent localhost:8080/api/v1/endpoints >/dev/null'
                 }
+                sh 'EXTRA_PODMAN_SWITCHES="--network host" jenkins/run server/exec_functests http://localhost:8080'
                 sh 'podman pod stop ${PB_POD_NAME}'
             }
         }
@@ -66,9 +68,10 @@ pipeline {
         always {
             // Remove the pod which we just created and ran; remove any
             // dangling containers; and then remove any dangling images.
-            sh 'podman pod rm -f ${PB_POD_NAME} || true'
+            sh 'podman pod rm --force --ignore ${PB_POD_NAME} || true'
             sh 'podman container prune -f || true'
             sh 'podman image prune -f || true'
+            sh 'podman container cleanup --all --rm'
         }
         success {
             // Note that jenkins/run-pytests is executed inside the container

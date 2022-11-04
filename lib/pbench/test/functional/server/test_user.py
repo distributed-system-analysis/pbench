@@ -39,14 +39,14 @@ class TestUser:
                 "first_name": "Test",
                 "last_name": "Account",
                 "password": PASSWORD,
-                "email": f"{USERNAME1}@example.com",
+                "email": f"{USERNAME1}@gmail.com",
             },
             {
                 "username": USERNAME2,
                 "first_name": "Tester",
                 "last_name": "Accountant",
                 "password": PASSWORD,
-                "email": f"{USERNAME2}@example.com",
+                "email": f"{USERNAME2}@gmail.com",
             },
         ],
     )
@@ -56,8 +56,10 @@ class TestUser:
 
         NOTE: This will fail if the username already exists.
         """
-        response = pbench_server_client.post("register", json=json)
-        assert response.status_code == HTTPStatus.CREATED
+        response = pbench_server_client.post("register", json=json, raise_error=False)
+        assert (
+            response.status_code == HTTPStatus.CREATED
+        ), f"Register failed with {response.json()}"
 
     def test_register_redux(self, pbench_server_client: PbenchServerClient):
         """
@@ -68,7 +70,7 @@ class TestUser:
             "first_name": "Repeat",
             "last_name": "Redux",
             "password": PASSWORD,
-            "email": f"{USERNAME1}@example.com",
+            "email": f"{USERNAME1}@gmail.com",
         }
         with pytest.raises(
             HTTPError,

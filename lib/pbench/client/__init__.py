@@ -115,6 +115,7 @@ class PbenchServerClient:
         uri_params: Optional[JSONOBJECT] = None,
         *,
         headers: Optional[Dict[str, str]] = None,
+        raise_error: bool = True,
         **kwargs,
     ) -> requests.Response:
         """
@@ -135,7 +136,8 @@ class PbenchServerClient:
         """
         url = self._uri(api, uri_params)
         response = self.session.get(url, headers=self._headers(headers), **kwargs)
-        response.raise_for_status()
+        if raise_error:
+            response.raise_for_status()
         return response
 
     def head(
@@ -144,6 +146,7 @@ class PbenchServerClient:
         uri_params: Optional[JSONOBJECT] = None,
         *,
         headers: Optional[Dict[str, str]] = None,
+        raise_error: bool = True,
         **kwargs,
     ) -> requests.Response:
         """
@@ -165,7 +168,8 @@ class PbenchServerClient:
         """
         url = self._uri(api, uri_params)
         response = self.session.head(url, headers=self._headers(headers), **kwargs)
-        response.raise_for_status()
+        if raise_error:
+            response.raise_for_status()
         return response
 
     def put(
@@ -175,6 +179,7 @@ class PbenchServerClient:
         *,
         json: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, str]] = None,
+        raise_error: bool = True,
         **kwargs,
     ) -> requests.Response:
         """
@@ -199,7 +204,8 @@ class PbenchServerClient:
         response = self.session.put(
             url, json=json, headers=self._headers(headers), **kwargs
         )
-        response.raise_for_status()
+        if raise_error:
+            response.raise_for_status()
         return response
 
     def post(
@@ -209,6 +215,7 @@ class PbenchServerClient:
         *,
         json: Optional[Dict[str, str]] = None,
         headers: Optional[Dict[str, str]] = None,
+        raise_error: bool = True,
         **kwargs,
     ) -> requests.Response:
         """
@@ -233,7 +240,8 @@ class PbenchServerClient:
         response = self.session.post(
             url, json=json, headers=self._headers(headers), **kwargs
         )
-        response.raise_for_status()
+        if raise_error:
+            response.raise_for_status()
         return response
 
     def delete(
@@ -242,6 +250,7 @@ class PbenchServerClient:
         uri_params: Optional[JSONOBJECT] = None,
         *,
         headers: Optional[Dict[str, str]] = None,
+        raise_error: bool = True,
         **kwargs,
     ) -> requests.Response:
         """
@@ -262,7 +271,8 @@ class PbenchServerClient:
         """
         url = self._uri(api, uri_params)
         response = self.session.delete(url, headers=self._headers(headers), **kwargs)
-        response.raise_for_status()
+        if raise_error:
+            response.raise_for_status()
         return response
 
     def connect(self, headers: Optional[Dict[str, str]] = None) -> None:
