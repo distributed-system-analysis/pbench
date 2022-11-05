@@ -5,8 +5,7 @@ from typing import Any, Dict, List
 
 import pytest
 
-from pbench import PbenchConfig
-from pbench.common import configtools
+from pbench.common import configtools, PbenchConfig
 from pbench.common.exceptions import BadConfig
 
 

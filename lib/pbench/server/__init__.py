@@ -9,8 +9,11 @@ from pathlib import Path
 from time import time as _time
 from typing import Dict, List, Union
 
-from pbench import _STD_DATETIME_FMT, PbenchConfig
+from pbench.common import PbenchConfig
 from pbench.common.exceptions import BadConfig
+
+# Standard normalized date/time format
+STD_DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 # A type defined to conform to the semantic definition of a JSON structure
 # with Python syntax.
@@ -151,7 +154,7 @@ class PbenchServerConfig(PbenchConfig):
                 ref_dt_str = self.conf.get("pbench-server", "debug_ref_datetime")
             except Exception:
                 ref_dt_str = "1970-01-02T00:00:00.000000"
-            return datetime.strptime(ref_dt_str, _STD_DATETIME_FMT)
+            return datetime.strptime(ref_dt_str, STD_DATETIME_FMT)
         else:
             return None
 

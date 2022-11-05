@@ -1,7 +1,7 @@
 from configparser import NoOptionError, NoSectionError
 from pathlib import Path
 
-from pbench import PbenchConfig
+from pbench.common import PbenchConfig
 from pbench.common.constants import (
     DEFAULT_PBENCH_AGENT_INSTALL_DIR,
     DEFAULT_PBENCH_AGENT_RUN_DIR,

@@ -7,7 +7,7 @@ import tempfile
 
 import pytest
 
-from pbench import PbenchConfig
+from pbench.common import PbenchConfig
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import _handlers, get_pbench_logger
 

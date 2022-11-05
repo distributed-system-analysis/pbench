@@ -76,7 +76,7 @@ import pyesbulk
 VERSION = "4.0.0"
 
 # Standard normalized date/time format
-_STD_DATETIME_FMT = pbench._STD_DATETIME_FMT
+STD_DATETIME_FMT = pbench.server.STD_DATETIME_FMT
 
 # Maximum length of messages logged by es_index()
 _MAX_ERRMSG_LENGTH = 16384
@@ -308,7 +308,7 @@ class PbenchData:
                 "{} ({!r}) is after the end of the"
                 " run ({})".format(ts, orig_ts, self.ptb.end_run_ts)
             )
-        return ts.strftime(_STD_DATETIME_FMT)
+        return ts.strftime(STD_DATETIME_FMT)
 
     def generate_index_name(self, template_name, source, toolname=None):
         """Return a fully formed index name given its template, prefix, source
@@ -538,7 +538,7 @@ class ResultData(PbenchData):
 
     @staticmethod
     def _normalize_timestamp(ts_format, ts):
-        return datetime.strptime(ts, ts_format).strftime(_STD_DATETIME_FMT)
+        return datetime.strptime(ts, ts_format).strftime(STD_DATETIME_FMT)
 
     def _make_user_benchmark_json(self):
         """Find all of the user-benchmark-result.csv files, and build up sample
@@ -2693,7 +2693,7 @@ class ToolData(PbenchData):
                     # so assume that payload_source[@timestamp] is already in
                     # the expected format; validate it.
                     try:
-                        ts = datetime.strptime(ts_val, _STD_DATETIME_FMT)
+                        ts = datetime.strptime(ts_val, STD_DATETIME_FMT)
                     except ValueError:
                         if not invalid_ts:
                             invalid_ts = True
@@ -2725,7 +2725,7 @@ class ToolData(PbenchData):
 
                 source = _dict_const()
                 # Convert the validated timestamp into ISO format.
-                source["@timestamp"] = ts.strftime(_STD_DATETIME_FMT)
+                source["@timestamp"] = ts.strftime(STD_DATETIME_FMT)
                 source["@timestamp_original"] = str(ts_val)
                 # Add the run metadata
                 source["run"] = self.run_metadata
@@ -3616,7 +3616,7 @@ class PbenchTarBall:
     # conversions (e.g. Elasticsearch ignores it, and python std lib
     # does not offer a way to handle nanoseconds).
     _formats = [
-        _STD_DATETIME_FMT,
+        STD_DATETIME_FMT,
         "%Y%m%dT%H:%M:%S.%f",
         "%Y-%m-%dT%H:%M:%S",
         "%Y%m%dT%H:%M:%S",

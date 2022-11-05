@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from pbench import PbenchConfig
 from pbench.agent import PbenchAgentConfig
+from pbench.common import PbenchConfig
 from pbench.common.exceptions import BadConfig
 
 
