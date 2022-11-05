@@ -6,10 +6,10 @@ import tempfile
 import click
 
 from pbench.agent.base import BaseCommand
+from pbench.agent.cli import CliContext, pass_cli_context
+from pbench.agent.cli.commands.results.results_options import results_common_options
+from pbench.agent.cli.options import common_options
 from pbench.agent.results import CopyResultTb, MakeResultTb
-from pbench.cli.agent import CliContext, pass_cli_context
-from pbench.cli.agent.commands.results.results_options import results_common_options
-from pbench.cli.agent.options import common_options
 from pbench.common.exceptions import BadMDLogFormat
 from pbench.common.utils import validate_hostname
 

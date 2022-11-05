@@ -1,4 +1,4 @@
-from pbench.cli.agent.commands.tools.base import ToolCommand  # needed for groups, tools
+from pbench.agent.cli.commands.tools.base import ToolCommand  # needed for groups, tools
 
 
 class TriggerCommand(ToolCommand):

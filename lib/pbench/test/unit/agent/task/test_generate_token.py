@@ -4,7 +4,7 @@ from click.testing import CliRunner
 import requests
 import responses
 
-from pbench.cli.agent.commands import generate_token
+from pbench.agent.cli.commands import generate_token
 
 
 class TestGenerateToken:

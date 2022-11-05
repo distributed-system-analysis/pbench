@@ -3,7 +3,7 @@ import datetime
 from click.testing import CliRunner
 import pytest
 
-import pbench.cli.server.user_management as cli
+import pbench.server.cli.user_management as cli
 from pbench.server.database.models.users import User
 
 

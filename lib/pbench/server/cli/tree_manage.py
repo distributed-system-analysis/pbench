@@ -1,10 +1,10 @@
 import click
 
-from pbench.cli.server import config_setup, pass_cli_context
-from pbench.cli.server.options import common_options
 from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig
 from pbench.server.cache_manager import CacheManager
+from pbench.server.cli import config_setup, pass_cli_context
+from pbench.server.cli.options import common_options
 
 
 def print_tree(tree: CacheManager):

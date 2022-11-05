@@ -4,7 +4,7 @@ import logging
 from click.testing import CliRunner
 import responses
 
-from pbench.cli.agent.commands.results.move import main
+from pbench.agent.cli.commands.results.move import main
 from pbench.test.unit.agent.task.common import MockDatetime
 
 # Template for a mocked "metadata.log" file; the caller needs to

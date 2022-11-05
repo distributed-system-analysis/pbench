@@ -12,9 +12,9 @@ from typing import Dict, Tuple
 
 import click
 
-from pbench.cli.agent import CliContext, pass_cli_context
-from pbench.cli.agent.commands.tools.base import ToolCommand
-from pbench.cli.agent.options import common_options
+from pbench.agent.cli import CliContext, pass_cli_context
+from pbench.agent.cli.commands.tools.base import ToolCommand
+from pbench.agent.cli.options import common_options
 
 
 class ClearTools(ToolCommand):

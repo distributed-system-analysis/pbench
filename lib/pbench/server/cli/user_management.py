@@ -1,8 +1,8 @@
 import click
 
-from pbench.cli.server import config_setup, pass_cli_context
-from pbench.cli.server.options import common_options
 from pbench.common import BadConfig
+from pbench.server.cli import config_setup, pass_cli_context
+from pbench.server.cli.options import common_options
 from pbench.server.database.models.users import Roles, User
 
 USER_LIST_ROW_FORMAT = "{0:15}\t{1:15}\t{2:15}\t{3:15}\t{4:20}"

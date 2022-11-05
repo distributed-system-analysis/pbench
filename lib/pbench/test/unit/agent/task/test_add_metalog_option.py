@@ -1,4 +1,4 @@
-from pbench.cli.agent.commands.log import add_metalog_option
+from pbench.agent.cli.commands.log import add_metalog_option
 from pbench.common import MetadataLog
 
 

@@ -9,9 +9,9 @@ import sys
 
 import click
 
-from pbench.cli.agent import CliContext, pass_cli_context
-from pbench.cli.agent.commands.triggers.base import TriggerCommand
-from pbench.cli.agent.options import common_options
+from pbench.agent.cli import CliContext, pass_cli_context
+from pbench.agent.cli.commands.triggers.base import TriggerCommand
+from pbench.agent.cli.options import common_options
 
 
 class TriggerList(TriggerCommand):

@@ -1,6 +1,6 @@
 import click
 
-from pbench.cli.agent import CliContext
+from pbench.agent.cli import CliContext
 
 
 def common_options(f):

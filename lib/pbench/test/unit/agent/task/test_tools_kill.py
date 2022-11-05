@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 from click.testing import CliRunner
 import psutil
 
+from pbench.agent.cli.commands.tools import kill
 from pbench.agent.tool_group import ToolGroup
-from pbench.cli.agent.commands.tools import kill
 
 
 def ourecho(msg: str, err: bool = False):
@@ -83,7 +83,7 @@ class TestPidSource:
         mydir = AnotherPath("fake_dir", "12345")
         ps = kill.PidSource("that.pid", "display that")
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.psutil.Process", MyNoSuchProcess
+            "pbench.agent.cli.commands.tools.kill.psutil.Process", MyNoSuchProcess
         )
         assert ps.load(mydir, "uuid1") is False
 
@@ -92,7 +92,7 @@ class TestPidSource:
         mydir = AnotherPath("fake_dir", "67890")
         ps = kill.PidSource("that.pid", "display that")
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.psutil.Process", MyProcess
+            "pbench.agent.cli.commands.tools.kill.psutil.Process", MyProcess
         )
         assert ps.load(mydir, "uuid1") is True
 
@@ -112,7 +112,7 @@ class TestPidSource:
         mock_kf = MagicMock(side_effect=Exception("exception"))
         monkeypatch.setattr(kill, "kill_family", mock_kf)
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.psutil.Process", MyProcess
+            "pbench.agent.cli.commands.tools.kill.psutil.Process", MyProcess
         )
         ps = kill.PidSource("this.pid", "display this")
         ps.load(AnotherPath("fake_dir1", "123"), "uuid1")
@@ -129,7 +129,7 @@ class TestPidSource:
         mock_kf = MagicMock()
         monkeypatch.setattr(kill, "kill_family", mock_kf)
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.psutil.Process", MyProcess
+            "pbench.agent.cli.commands.tools.kill.psutil.Process", MyProcess
         )
         ps = kill.PidSource("this.pid", "display this")
         pid_data = {
@@ -207,7 +207,7 @@ class TestKillTools:
                 yield ToolGroup(group)
 
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.gen_tool_groups", mock_gen_tool_groups
+            "pbench.agent.cli.commands.tools.kill.gen_tool_groups", mock_gen_tool_groups
         )
         assert not any(kill.gen_host_names(pathlib.Path("no-tool-group-dirs")))
 
@@ -252,10 +252,10 @@ class TestKillTools:
                 return host_name.startswith("localhost")
 
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.gen_tool_groups", mock_gen_tool_groups
+            "pbench.agent.cli.commands.tools.kill.gen_tool_groups", mock_gen_tool_groups
         )
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.LocalRemoteHost", MockLocalRemoteHost
+            "pbench.agent.cli.commands.tools.kill.LocalRemoteHost", MockLocalRemoteHost
         )
 
         hosts = set(kill.gen_host_names(pathlib.Path("have-tool-group-dirs")))
@@ -338,7 +338,7 @@ class TestKillTools:
                 yield MockProcess(45678, uuid=uuid_list[2], do="nosuch")
 
         runner = CliRunner(mix_stderr=False)
-        monkeypatch.setattr("pbench.cli.agent.commands.tools.kill.psutil", mock_psutil)
+        monkeypatch.setattr("pbench.agent.cli.commands.tools.kill.psutil", mock_psutil)
         result = runner.invoke(kill.main, list(uuid_list))
         assert result.exit_code == 0
         expected_action_list = [
@@ -370,9 +370,9 @@ class TestKillTools:
                 yield run_dir, "uuid"
 
         runner = CliRunner(mix_stderr=False)
-        monkeypatch.setattr("pbench.cli.agent.commands.tools.kill.PidSource", MagicMock)
+        monkeypatch.setattr("pbench.agent.cli.commands.tools.kill.PidSource", MagicMock)
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.gen_result_tm_directories",
+            "pbench.agent.cli.commands.tools.kill.gen_result_tm_directories",
             mock_gen_result_tm_directories,
         )
         result = runner.invoke(kill.main)
@@ -440,18 +440,18 @@ class TestKillTools:
 
         runner = CliRunner(mix_stderr=False)
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.PidSource", MockPidSource
+            "pbench.agent.cli.commands.tools.kill.PidSource", MockPidSource
         )
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.gen_result_tm_directories",
+            "pbench.agent.cli.commands.tools.kill.gen_result_tm_directories",
             mock_gen_result_tm_directories,
         )
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.gen_host_names",
+            "pbench.agent.cli.commands.tools.kill.gen_host_names",
             mock_gen_host_names,
         )
         monkeypatch.setattr(
-            "pbench.cli.agent.commands.tools.kill.TemplateSsh",
+            "pbench.agent.cli.commands.tools.kill.TemplateSsh",
             MockTemplateSsh,
         )
         result = runner.invoke(kill.main, catch_exceptions=False)
