@@ -43,4 +43,4 @@ prune server/rpm
 exclude server/test-requirements.txt
 exclude tox.ini
 prune utils
-exclude web-server/Makefile
+exclude server/legacy/web-server/Makefile

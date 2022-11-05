@@ -31,9 +31,9 @@ click-scripts = \
 	install-dirs \
 	install-bin \
 	install-lib \
-	install-server-lib
+	install-web-server
 
-install: install-dirs install-python3-setup
+install: install-dirs install-python3-setup install-web-server
 	${COPY} VERSION ${DESTDIR}
 
 install-dirs:
@@ -61,6 +61,9 @@ install-bin:
 
 install-lib:
 	${COPY} lib ${DESTDIR}
+
+install-web-server:
+	make -C legacy/web-server DESTDIR=${DESTDIR}/html/static install
 
 clean:
 	${RM} -rf ${DESTDIR}

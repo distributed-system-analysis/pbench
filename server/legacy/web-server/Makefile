@@ -1,5 +1,5 @@
 # settings - hardwired, but they could be set from the config file.
-DESTDIR=/opt/pbench-web-server
+DESTDIR=/dev/null
 
 OWNER=pbench
 GROUP=pbench
@@ -24,7 +24,6 @@ INSTALLOPTS = --directory
 
 install: install-dirs install-v0.2 install-v0.3
 	${COPY} package.json ${DESTDIR}
-	${COPY} VERSION ${DESTDIR}
 
 install-dirs:
 	${INSTALL} ${INSTALLOPTS} ${DESTDIR}

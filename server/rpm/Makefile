@@ -19,7 +19,7 @@
 #           --chroot epel-9-aarch64
 CHROOTS = --chroot rhel-9.dev-x86_64
 component = server
-subcomps = server web-server
+subcomps = server
 
 include ../../utils/utils.mk
 
