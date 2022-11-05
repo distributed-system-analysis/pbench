@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+"""Dump version number from setup.cfg.
+
+This is a very specific implementation that is used to ensure we have one
+source of truth for the package version number.
+"""
+import configparser
+import pathlib
+import sys
+
+setup_cfg_f = pathlib.Path(sys.argv[0]).parent.parent / "setup.cfg"
+setup_cfg = configparser.ConfigParser()
+setup_cfg.read(str(setup_cfg_f))
+print(setup_cfg["metadata"]["version"])

@@ -26,8 +26,9 @@ PBENCHTOP := $(shell git rev-parse --show-toplevel)
 include ${PBENCHTOP}/utils/utils.mk
 
 prog = pbench-${component}
-VERSION := $(shell cat ${PBENCHTOP}/${component}/VERSION)
-MAJORMINOR := $(shell grep -oE '[0-9]+\.[0-9]+' ${PBENCHTOP}/${component}/VERSION)
+VERSION := $(shell ${PBENCHTOP}/utils/ver)
+MAJORMINOR := $(shell ${PBENCHTOP}/utils/ver | grep -oE '[0-9]+\.[0-9]+')
+TBDIR = ${RPMTMP}/${prog}-${VERSION}
 
 # If we are building for a distro, use a distro-specific suffix on the build and
 # temporary directories, so that builds can be done in parallel and so that the

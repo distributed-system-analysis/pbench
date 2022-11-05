@@ -34,7 +34,7 @@ click-scripts = \
 	install-web-server
 
 install: install-dirs install-python3-setup install-web-server
-	${COPY} VERSION ${DESTDIR}
+	../utils/ver > ${DESTDIR}/VERSION 
 
 install-dirs:
 	${INSTALL} ${INSTALLOPTS} ${DESTDIR}

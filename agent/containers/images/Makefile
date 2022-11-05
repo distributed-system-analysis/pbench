@@ -5,8 +5,8 @@
 
 _PBENCH_TOP := $(shell git rev-parse --show-toplevel)
 _LOCAL_GIT_HASH := $(shell git rev-parse --short=9 HEAD)
-_LOCAL_VERSION := $(shell cat ${_PBENCH_TOP}/agent/VERSION)
-_LOCAL_MAJORMINOR := $(shell grep -oE '[0-9]+\.[0-9]+' ${_PBENCH_TOP}/agent/VERSION)
+_LOCAL_VERSION := $(shell ${_PBENCH_TOP}/utils/ver)
+_LOCAL_MAJORMINOR := $(shell ${_PBENCH_TOP}/utils/ver | grep -oE '[0-9]+\.[0-9]+')
 _LOCAL_MAJOR_VER := $(firstword $(subst ., ,${_LOCAL_VERSION}))
 
 # Include definition of _DISTROS

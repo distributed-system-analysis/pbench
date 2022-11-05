@@ -218,7 +218,7 @@ tool-postprocess = \
 # so we provide a target for the spec file to invoke. This
 # is *NOT* meant to be invoked interactively.
 install: install-destdir install-python3-setup install-bench-scripts install-tool-scripts install-ansible
-	${COPY} VERSION ${DESTDIR}
+	../utils/ver > ${DESTDIR}/VERSION 
 	${COPY} base ${DESTDIR}
 	${COPY} profile ${DESTDIR}
 	${INSTALL} ${INSTALLOPTS} ${CONFIGDIR}
