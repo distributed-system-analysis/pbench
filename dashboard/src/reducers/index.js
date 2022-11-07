@@ -1,13 +1,14 @@
-import { combineReducers } from "redux";
-import ToastReducer from "./toastReducer";
-import LoadingReducer from "./loadingReducer";
 import AuthReducer from "./authReducer";
-import NavbarReducer from "./navbarReducer";
 import DatasetListReducer from "./datasetListReducer";
 import EndpointReducer from "./endpointReducer";
-import UserProfileReducer from "./userProfileReducer";
+import LoadingReducer from "./loadingReducer";
+import NavbarReducer from "./navbarReducer";
 import OverviewReducer from "./overviewReducer";
+import SidebarReducer from "./sidebarReducer";
 import TableOfContentReducer from "./tableOfContentReducer";
+import ToastReducer from "./toastReducer";
+import UserProfileReducer from "./userProfileReducer";
+import { combineReducers } from "redux";
 
 export default combineReducers({
   toastReducer: ToastReducer,
@@ -18,5 +19,6 @@ export default combineReducers({
   datasetlist: DatasetListReducer,
   apiEndpoint: EndpointReducer,
   overview: OverviewReducer,
-  tableOfContent:TableOfContentReducer
+  tableOfContent: TableOfContentReducer,
+  sidebar: SidebarReducer,
 });

@@ -1,14 +1,17 @@
 import { Nav, NavGroup, NavItem, PageSidebar } from "@patternfly/react-core";
-import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
+import React from "react";
 import { menuOptions } from "./sideMenuOptions";
-import { useSelector } from "react-redux";
+import { setActiveItem } from "actions/sideBarActions";
 
 const Menu = () => {
-  const [activeItem, setActiveItem] = useState("overview");
+  const dispatch = useDispatch();
   const onSelect = (result) => {
-    setActiveItem(result.itemId);
+    dispatch(setActiveItem(result.itemId));
   };
+  const activeItem = useSelector((state) => state.sidebar.activeMenuItem);
+
   return (
     <Nav onSelect={onSelect}>
       {menuOptions.map((item) => {
