@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+from typing import Iterable, Optional
 
 
 class BadToolGroup(Exception):
@@ -19,7 +20,7 @@ class ToolGroup:
     TOOL_GROUP_PREFIX = "tools-v1"
 
     @staticmethod
-    def verify_tool_group(name, pbench_run=None):
+    def verify_tool_group(name: str, pbench_run: Optional[str] = None) -> Path:
         """verify_tool_group - given a tool group name, verify it exists in the
         ${pbench_run} directory as a properly prefixed tool group directory
         name.
@@ -56,7 +57,7 @@ class ToolGroup:
             else:
                 return tg_dir
 
-    def __init__(self, name):
+    def __init__(self, name: str, pbench_run: Optional[str] = None):
         """Construct a ToolGroup object from the on-disk data of the given
         tool group.
 
@@ -75,7 +76,7 @@ class ToolGroup:
 
         Raises BadToolGroup via the verify_tool_group() method on error.
         """
-        self.tg_dir = self.verify_tool_group(name)
+        self.tg_dir = self.verify_tool_group(name, pbench_run)
         self.name = name
 
         # __trigger__
@@ -173,3 +174,13 @@ class ToolGroup:
             0
         """
         shutil.copytree(str(self.tg_dir), target_dir / self.tg_dir.name, symlinks=False)
+
+
+def gen_tool_groups(pbench_run: str) -> Iterable[ToolGroup]:
+    """Generate a series of ToolGroup objects for each on-disk tool group
+    found in the given pbench run directory.
+    """
+    for tg_dir in Path(pbench_run).glob(f"{ToolGroup.TOOL_GROUP_PREFIX}-*"):
+        # All on-disk tool group directories will have names that look like
+        # above.
+        yield ToolGroup(tg_dir.name[len(ToolGroup.TOOL_GROUP_PREFIX) + 1 :], pbench_run)

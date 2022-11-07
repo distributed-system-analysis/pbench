@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
+from typing import Optional
 
 import pytest
 
-from pbench.agent.tool_group import BadToolGroup, ToolGroup
+from pbench.agent.tool_group import BadToolGroup, gen_tool_groups, ToolGroup
 
 
 class Test_VerifyToolGroup:
@@ -109,10 +110,11 @@ class Test_VerifyToolGroup:
 class Test_ToolGroup:
     """Verify ToolGroup class"""
 
-    def mock_verify_tool_group(name: str, pbench_run: Path):
+    @staticmethod
+    def mock_verify_tool_group(name: str, pbench_run: Optional[str] = None) -> Path:
         return Path("/mock/pbench-agent")
 
-    def mock_is_dir(self: Path):
+    def mock_is_dir(self: Path) -> bool:
         """Mocked directory check"""
         return True
 
@@ -123,7 +125,9 @@ class Test_ToolGroup:
             """Mocked directory check"""
             raise FileNotFoundError("Mock Path.resolve()")
 
-        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(
+            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
+        )
         monkeypatch.setattr(os, "listdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
         monkeypatch.setattr(Path, "read_text", mock_read_text)
@@ -132,7 +136,9 @@ class Test_ToolGroup:
 
     def test_target_trigger_empty_file(self, monkeypatch):
         """verify if the trigger file is empty"""
-        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(
+            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
+        )
         monkeypatch.setattr(os, "listdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
         monkeypatch.setattr(Path, "read_text", lambda path: "")
@@ -147,7 +153,9 @@ class Test_ToolGroup:
             """Mocked read file check"""
             return trigger_file_content
 
-        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(
+            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
+        )
         monkeypatch.setattr(os, "listdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", self.mock_is_dir)
         monkeypatch.setattr(Path, "read_text", mock_read_text)
@@ -164,7 +172,9 @@ class Test_ToolGroup:
             """Mocked directory check"""
             raise FileNotFoundError("Mock Path.resolve()")
 
-        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(
+            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
+        )
         monkeypatch.setattr(os, "listdir", lambda path: [])
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
         monkeypatch.setattr(Path, "read_text", mock_read_text)
@@ -242,7 +252,9 @@ class Test_ToolGroup:
                 return opt_template.format(path.parent.name, path.name)
             raise AssertionError(f"Unexpected file in read_text() mock: {str(path)!r}")
 
-        monkeypatch.setattr(ToolGroup, "verify_tool_group", self.mock_verify_tool_group)
+        monkeypatch.setattr(
+            ToolGroup, "verify_tool_group", staticmethod(self.mock_verify_tool_group)
+        )
         monkeypatch.setattr(os, "listdir", mock_listdir)
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
         monkeypatch.setattr(Path, "read_text", mock_read_text)
@@ -255,3 +267,56 @@ class Test_ToolGroup:
             assert tg.get_label(host) == labels[host]
         assert tg.get_tools("bad-host") == {}
         assert tg.get_label("bad-host") == ""
+
+
+def test_gen_tool_groups(monkeypatch):
+    """Verify the tool group directory generator."""
+
+    class MockPath:
+        """A simple ToolGroup mock to generate host names from different
+        tool group directories.
+        """
+
+        # The path name determines the behavior.
+        NO_TOOL_GROUP_DIRS = "ntgd"
+        # Tool group names that will be found by the `.glob()` method.
+        _names = {"heavy", "light", "medium"}
+
+        def __init__(self, name: str):
+            self._name = name
+
+        def glob(self, prefix: str):
+            if self._name == self.NO_TOOL_GROUP_DIRS:
+                # The special name which for a directory which "does not
+                # have tool groups".
+                return
+            for n in self._names:
+                # Return the 3 tools groups that are found with the prefix
+                # attached, stripping the `*` and replacing it with the value
+                # of `n`.
+                yield Path(f"{prefix[:-1]}{n}")
+
+    class MockToolGroup:
+        """A simple no-op ToolGroup class which just stores the constructor
+        arguments.
+        """
+
+        TOOL_GROUP_PREFIX = "tests-vX"
+
+        def __init__(self, name: str, pbench_run: str):
+            self.name = name
+            self.pbench_run = pbench_run
+
+    monkeypatch.setattr("pbench.agent.tool_group.Path", MockPath)
+    monkeypatch.setattr("pbench.agent.tool_group.ToolGroup", MockToolGroup)
+
+    # To verify the case where there are no tool groups created, we make
+    # a special Path object which will expose no tool groups.
+    tgs = list(gen_tool_groups(MockPath.NO_TOOL_GROUP_DIRS))
+    assert len(tgs) == 0
+
+    # Using a Path object which does have tool groups, we verify that
+    # the expected generated list of Tool Group objects matches the list
+    # of names we expect.
+    names = {tg.name for tg in gen_tool_groups("some-pbench-run-dir")}
+    assert names == MockPath._names

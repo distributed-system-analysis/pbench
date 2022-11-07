@@ -38,7 +38,10 @@ def get_pbench_token(client, server_config):
     assert data["auth_token"]
     return data["auth_token"]
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> bec3f641b8bd6b6d7eac53c62cc1f7532e6c0fdd
 class TestUpload:
     cachemanager_created = None
     cachemanager_create_fail = False
