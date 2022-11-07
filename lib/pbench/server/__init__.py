@@ -106,28 +106,6 @@ class PbenchServerConfig(PbenchConfig):
 
         # Initial common timestamp format
         self.TS = f"run-{self.timestamp()}"
-        # Make all the state directories for the pipeline and any others
-        # needed.  Every related state directories are paired together with
-        # their final state at the end.
-        self.LINKDIRS = (
-            "TODO BAD-MD5"
-            " TO-UNPACK UNPACKED WONT-UNPACK"
-            " TO-SYNC SYNCED"
-            " TO-LINK"
-            " TO-INDEX TO-RE-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX"
-            " TO-COPY-SOS COPIED-SOS"
-            " TO-BACKUP BACKED-UP BACKUP-FAILED"
-            " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED"
-            " TO-DELETE SATELLITE-DONE"
-        )
-        # List of the state directories which will be excluded during rsync.
-        # Note that range(1,12) generates the sequence [1..11] inclusively.
-        self.EXCLUDE_DIRS = (
-            "_QUARANTINED "
-            + self.LINKDIRS
-            + " "
-            + " ".join([f"WONT-INDEX.{i:d}" for i in range(1, 12)])
-        )
 
     @property
     def server_config(self):

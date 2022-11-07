@@ -58,8 +58,10 @@ echo "Clearing PostgreSQL ${ps_server}, database '${ps_db}'"
 psql ${ps_server} -c "drop database ${ps_db}"
 
 archive=$(pbench-config pbench-archive-dir pbench-server)
+backup=$(pbench-config pbench-backup-dir pbench-server)
 incoming=$(pbench-config pbench-incoming-dir pbench-server)
 results=$(dirname ${incoming})/results
+logs=$(pbench-config pbench-logs-dir pbench-server)
 
 if [[ ! -d ${archive} || ! -d ${incoming} || ! -d ${results} ]] ;then
     echo "Host archive (${archive}), incoming (${incoming}) or results (${results}) is missing" >&2
@@ -68,9 +70,11 @@ fi
 
 # Remove the archived and unpacked tarballs
 
-echo "Clearing tarballs..."
+echo "Clearing file system..."
 echo "  ${archive}"
+echo "  ${backup}"
 echo "  ${incoming}"
 echo "  ${results}"
+echo "  ${logs}"
 
-rm -rf ${archive}/* ${incoming}/* ${results}/*
+rm -rf ${archive}/* ${backup}/* ${incoming}/* ${results}/* ${logs}/*

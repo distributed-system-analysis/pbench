@@ -1,11 +1,12 @@
 """Initialising Indexing class"""
 
+from argparse import Namespace
 from collections import deque
-import glob
 import os
 from pathlib import Path
 import signal
 import tempfile
+from typing import Callable, List, NamedTuple, Optional, Tuple
 
 from pbench.common.exceptions import (
     BadDate,
@@ -14,17 +15,17 @@ from pbench.common.exceptions import (
     UnsupportedTarballFormat,
 )
 from pbench.server import tstos
+from pbench.server.cache_manager import CacheManager, TarballNotFound
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetError,
-    DatasetNotFound,
     DatasetTransitionError,
     Metadata,
     States,
 )
-from pbench.server.indexer import es_index, PbenchTarBall, VERSION
+from pbench.server.indexer import es_index, IdxContext, PbenchTarBall, VERSION
 from pbench.server.report import Report
-from pbench.server.utils import get_tarball_md5, quarantine, rename_tb_link
+from pbench.server.sync import Operation, Sync
 
 
 class SigIntException(Exception):
@@ -47,6 +48,11 @@ class ErrorCode:
         self.tarball_error = tarball_error
         self.message = message
 
+    def __repr__(self) -> str:
+        return (
+            f"ErrorCode<name={self.name}, value={self.value}, message={self.message!r}>"
+        )
+
 
 class Errors:
     def __init__(self, *codes):
@@ -66,8 +72,21 @@ def _count_lines(fname):
     return cnt
 
 
+class TarballData(NamedTuple):
+    """
+    Maintain data about a tarball. We put the tarball size first:
+    this is a sort key to ensure that we tackle smaller tarballs
+    first rather than stick them behind larger tarballs which are
+    presumably slower to index.
+    """
+
+    size: int
+    dataset: Dataset
+    tarball: str
+
+
 class Index:
-    """class used to collect tarballs and index them
+    """class used to identify and process tarballs selected for indexing.
 
     Status codes used by es_index and the error below are defined to
     maintain compatibility with the previous code base when pbench-index
@@ -103,79 +122,83 @@ class Index:
         ErrorCode("GENERIC_ERROR", 12, False, "Unexpected error encountered"),
     )
 
-    def __init__(self, name, options, idxctx, incoming, archive, qdir):
+    def __init__(self, name: str, options: Namespace, idxctx: IdxContext):
 
-        self.options = options
-        _re_idx = "RE-" if options.re_index else ""
+        # pbench-index command options
+        self.options: Namespace = options
         if options.index_tool_data:
             # The link source and destination for the operation of this script
             # when it only indexes tool data.
-            self.linksrc = "TO-INDEX-TOOL"
-            self.linkdest = "INDEXED"
+            self.operation = Operation.INDEX_TOOL
+            self.enabled = None
         else:
             # The link source and destination for the operation of this script
             # when it indexes run, table-of-contents, and result data.
-            self.linksrc = f"TO-{_re_idx}INDEX"
-            self.linkdest = "TO-INDEX-TOOL"
-        # We only ever use a symlink'd error destination for indexing
-        # problems.
-        self.linkerrdest = "WONT-INDEX"
-        self.idxctx = idxctx
-        self.incoming = incoming
-        self.name = name
-        self.archive = archive
-        self.qdir = qdir
+            self.operation = Operation.RE_INDEX if options.re_index else Operation.INDEX
+            self.enabled = [Operation.INDEX_TOOL]
 
-    def collect_tb(self):
-        """Collect tarballs that needs indexing"""
+        # indexing context
+        self.idxctx: IdxContext = idxctx
 
-        # find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
-        tarballs = []
+        # Index context name
+        self.name: str = name
+
+        # An Elasticsearch status Report object
+        self.report: Optional[Report] = None
+
+        # We'll use a cache manager instance to find the INCOMING directory for the
+        # unpacked tarballs.
+        self.cache_manager: CacheManager = CacheManager(idxctx.config, idxctx.logger)
+
+        # Manage synchronization between components
+        self.sync: Sync = Sync(idxctx.logger, "index")  # Build a sync object
+
+    def collect_tb(self) -> Tuple[int, List[TarballData]]:
+        """Collect tarballs that need indexing
+
+        This looks for Datasets marked to require indexing, and returns a list
+        of indexing candidates.
+
+        The list is sorted by the size of the tarballs, so that smaller
+        datasets (presumptively faster to index) don't get stalled behind
+        large ones.
+
+        Returns:
+            A tuple consisting of an error number from the 'error_code'
+            attribute and a list of tarball descriptions.
+        """
+
+        tarballs: List[TarballData] = []
         idxctx = self.idxctx
         error_code = self.error_code
         try:
-            tb_glob = os.path.join(self.archive, "*", self.linksrc, "*.tar.xz")
-            for tb in glob.iglob(tb_glob):
-                try:
-                    rp = Path(tb).resolve(strict=True)
-                except OSError:
-                    idxctx.logger.warning("{} does not resolve to a real path", tb)
-                    quarantine(self.qdir, idxctx.logger, tb)
+            for dataset in self.sync.next(self.operation):
+                tb = Metadata.getvalue(dataset, Metadata.TARBALL_PATH)
+                if not tb:
+                    self.sync.error(dataset, f"{dataset} does not have a tarball-path")
                     continue
-                controller_path = rp.parent
-                controller = controller_path.name
-                archive_path = controller_path.parent
-                if str(archive_path) != str(self.archive):
-                    idxctx.logger.warning(
-                        "For tar ball {}, original home is not {}", tb, self.archive
-                    )
-                    quarantine(self.qdir, idxctx.logger, tb)
-                    continue
-                if not Path(f"{rp}.md5").is_file():
-                    idxctx.logger.warning("Missing .md5 file for {}", tb)
-                    quarantine(self.qdir, idxctx.logger, tb)
-                    # Audit should pick up missing .md5 file in ARCHIVE directory.
-                    continue
+
                 try:
                     # get size
-                    size = rp.stat().st_size
-                except OSError:
-                    idxctx.logger.warning("Could not fetch tar ball size for {}", tb)
-                    quarantine(self.qdir, idxctx.logger, tb)
-                    # Audit should pick up missing .md5 file in ARCHIVE directory.
+                    size = os.stat(tb).st_size
+                except OSError as e:
+                    self.sync.error(
+                        dataset, f"Could not fetch tar ball size for {tb}: {e}"
+                    )
                     continue
                 else:
-                    tarballs.append((size, controller, tb))
+                    tarballs.append(TarballData(dataset=dataset, tarball=tb, size=size))
         except SigTermException:
             # Re-raise a SIGTERM to avoid it being lumped in with general
             # exception handling below.
             raise
-        except Exception:
-            idxctx.logger.exception(
-                "{} generating list of tar balls to process",
+        except Exception as e:
+            idxctx.logger.error(
+                "{} generating list of tar balls to process: {}",
                 error_code["GENERIC_ERROR"].message,
+                str(e),
             )
-            # tuple to return the status and return value
+            # Return catch-all error and no tarballs
             return (error_code["GENERIC_ERROR"].value, [])
         else:
             if not tarballs:
@@ -183,7 +206,9 @@ class Index:
 
         return (error_code["OK"].value, sorted(tarballs))
 
-    def emit_error(self, logger_method, error, exception):
+    def emit_error(
+        self, logger_method: Callable, error: str, exception: Exception
+    ) -> ErrorCode:
         """Helper method to write a log message in a standard format from an error code
 
         Args
@@ -203,21 +228,16 @@ class Index:
         logger_method("{}: {}", ec.message, exception)
         return ec
 
-    def process_tb(self, tarballs):
-        """Process Tarballs For Indexing and creates report
+    def load_templates(self) -> ErrorCode:
+        """Load Elasticsearch templates using the template management class,
+        and create an Elasticsearch server-report document on the indexing
+        process.
 
-        "tarballs" - List of tarball, it is the second value of
-            the tuple returned by collect_tb()"""
-        res = 0
+        Returns:
+            An ErrorCode instance
+        """
         idxctx = self.idxctx
         error_code = self.error_code
-
-        tb_deque = deque(sorted(tarballs))
-
-        # At this point, tarballs contains a list of tar balls sorted by size
-        # that were available as symlinks in the various 'linksrc' directories.
-        idxctx.logger.debug("Preparing to index {:d} tar balls", len(tb_deque))
-
         try:
             # Now that we are ready to begin the actual indexing step, ensure we
             # have the proper index templates in place.
@@ -240,9 +260,9 @@ class Index:
 
         if not res.success:
             # Exit early if we encounter any errors.
-            return res.value
+            return res
 
-        report = Report(
+        self.report = Report(
             idxctx.config,
             self.name,
             es=idxctx.es,
@@ -253,19 +273,44 @@ class Index:
             version=VERSION,
             templates=idxctx.templates,
         )
+
         # We use the "start" report ID as the tracking ID for all indexed
         # documents.
         try:
-            tracking_id = report.post_status(tstos(idxctx.time()), "start")
+            tracking_id = self.report.post_status(tstos(idxctx.time()), "start")
         except SigTermException:
             # Re-raise a SIGTERM to avoid it being lumped in with general
             # exception handling below.
             raise
         except Exception:
             idxctx.logger.error("Failed to post initial report status")
-            return error_code["GENERIC_ERROR"].value
+            return error_code["GENERIC_ERROR"]
         else:
             idxctx.set_tracking_id(tracking_id)
+
+        return res
+
+    def process_tb(self, tarballs: List[TarballData]) -> int:
+        """Process Tarballs For Indexing and create a summary report.
+
+        Args:
+            tarballs:   List of tarball information tuples
+
+        Returns:
+            status code
+        """
+
+        idxctx = self.idxctx
+        error_code = self.error_code
+
+        tb_deque = deque(tarballs)
+
+        res = self.load_templates()
+        if not res.success:
+            idxctx.logger.info("Load templates {!r}", res)
+            return res.value
+
+        idxctx.logger.debug("Preparing to index {:d} tar balls", len(tb_deque))
 
         with tempfile.TemporaryDirectory(
             prefix=f"{self.name}.", dir=idxctx.config.TMP
@@ -276,8 +321,8 @@ class Index:
                 with tb_list.open(mode="w") as lfp:
                     # Write out all the tar balls we are processing so external
                     # viewers can follow along from home.
-                    for size, controller, tb in tarballs:
-                        print(f"{size:20d} {controller} {tb}", file=lfp)
+                    for size, dataset, tb in tarballs:
+                        print(f"{size:20d} {dataset.name} {tb}", file=lfp)
 
                 indexed = Path(tmpdir, f"{self.name}.{idxctx.TS}.indexed")
                 erred = Path(tmpdir, f"{self.name}.{idxctx.TS}.erred")
@@ -305,42 +350,54 @@ class Index:
 
                 try:
                     while len(tb_deque) > 0:
-                        size, controller, tb = tb_deque.popleft()
-                        # Sanity check source tar ball path
-                        linksrc_dir = Path(tb).parent
-                        linksrc_dirname = linksrc_dir.name
+                        tbinfo: TarballData = tb_deque.popleft()
+                        size = tbinfo.size
+                        dataset = tbinfo.dataset
+                        tb = tbinfo.tarball
                         count_processed_tb += 1
-                        assert linksrc_dirname == self.linksrc, (
-                            f"Logic error!  tar ball "
-                            f"path {tb} does not contain {self.linksrc}"
-                        )
 
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
-                        dataset = None
                         ptb = None
                         userid = None
+                        unpacked = None
+                        tb_res = error_code["OK"]
+
+                        # Sanity check source tar ball path
                         try:
                             path = os.path.realpath(tb)
 
+                            # First, find the unpacked tarball directory in the
+                            # INCOMING tree. If it's not there, record an error
+                            # but skip the dataset to be re-tried later.
                             try:
-                                dataset = Dataset.attach(
-                                    resource_id=get_tarball_md5(path),
-                                    state=States.INDEXING,
+                                tarobj = self.cache_manager.find_dataset(
+                                    dataset.resource_id
                                 )
-                            except DatasetNotFound:
-                                idxctx.logger.warn(
-                                    "Unable to locate Dataset {}",
-                                    path,
+                                if not tarobj.unpacked:
+                                    idxctx.logger.warning(
+                                        "{} has not been unpacked", dataset
+                                    )
+                                    continue
+                                unpacked = tarobj.controller.results
+                            except TarballNotFound as e:
+                                self.sync.error(
+                                    dataset,
+                                    f"Unable to find dataset in cache manager: {e!r}",
                                 )
+                                continue
+
+                            try:
+                                dataset.advance(States.INDEXING)
                             except DatasetTransitionError as e:
                                 # TODO: This means the Dataset is known, but not in a
                                 # state where we'd expect to be indexing it. So what do
                                 # we do with it? (Note: this is where an audit log will
                                 # be handy; i.e., how did we get here?) For now, just
-                                # let it go.
-                                idxctx.logger.warn(
-                                    "Unable to advance dataset state: {}", str(e)
+                                # record the error and let it go.
+                                self.sync.error(
+                                    dataset, f"Unable to advance dataset state: {e!r}"
                                 )
+                                continue
                             else:
                                 # NOTE: we index the owner_id foreign key not the username.
                                 # Although this is technically an integer, I'm clinging to
@@ -350,26 +407,21 @@ class Index:
 
                             # "Open" the tar ball represented by the tar ball object
                             idxctx.logger.debug("open tar ball")
-                            ptb = PbenchTarBall(
-                                idxctx,
-                                userid,
-                                path,
-                                tmpdir,
-                                Path(self.incoming, controller),
-                            )
+                            ptb = PbenchTarBall(idxctx, userid, path, tmpdir, unpacked)
 
-                            # Construct the generator for emitting all actions.  The
-                            # `idxctx` dictionary is passed along to each generator so
-                            # that it can add its context for error handling to the
-                            # list.
+                            # Construct the generator for emitting all actions.
+                            # The `idxctx` dictionary is passed along to each
+                            # generator so that it can add its context for
+                            # error handling to the list.
                             idxctx.logger.debug("generator setup")
                             if self.options.index_tool_data:
                                 actions = ptb.mk_tool_data_actions()
                             else:
                                 actions = ptb.make_all_actions()
 
-                            # File name for containing all indexing errors that
-                            # can't/won't be retried.
+                            # Create a file where the pyesbulk package will
+                            # record all indexing errors that can't/won't be
+                            # retried.
                             with ie_filepath.open(mode="w") as fp:
                                 idxctx.logger.debug("begin indexing")
                                 try:
@@ -430,13 +482,9 @@ class Index:
                             )
                             tb_res = error_code["OP_ERROR" if failures > 0 else "OK"]
                         finally:
-                            if dataset:
+                            if tb_res.success:
                                 try:
-                                    dataset.advance(
-                                        States.INDEXED
-                                        if tb_res.success
-                                        else States.QUARANTINED
-                                    )
+                                    dataset.advance(States.INDEXED)
 
                                     # In case this was a re-index, clear the
                                     # REINDEX tag.
@@ -505,7 +553,7 @@ class Index:
                             # Success fetching indexing error file size.
                             if ie_len > len(tb) + 1:
                                 try:
-                                    report.post_status(
+                                    self.report.post_status(
                                         tstos(end), "errors", ie_filepath
                                     )
                                 except Exception:
@@ -524,67 +572,46 @@ class Index:
                                 raise
                             except Exception:
                                 pass
-                        # Distinguish failure cases, so we can retry the indexing
-                        # easily if possible.  Different `linkerrdest` directories for
-                        # different failures; the rest are going to end up in
-                        # `linkerrdest` for later retry.
-                        controller_path = linksrc_dir.parent
 
-                        if tb_res is error_code["OK"]:
+                        # Distinguish failure cases, so we can retry the indexing
+                        # easily if possible.
+                        #
+                        # Only if the indexing was successful do we request the
+                        # next operation (tool indexing). Otherwise we record
+                        # the error in the `server.errors.index` metadata and
+                        # leave the dataset in INDEXING state.
+                        if tb_res.success:
                             idxctx.logger.info(
-                                "{}: {}/{}: success",
+                                "{}: {}: success",
                                 idxctx.TS,
-                                controller_path.name,
                                 os.path.basename(tb),
                             )
                             # Success
                             with indexed.open(mode="a") as fp:
                                 print(tb, file=fp)
-                            rename_tb_link(
-                                tb, Path(controller_path, self.linkdest), idxctx.logger
+                            self.sync.update(
+                                dataset=dataset,
+                                did=self.operation,
+                                enabled=self.enabled,
                             )
                         elif tb_res is error_code["OP_ERROR"]:
-                            idxctx.logger.warning(
-                                "{}: index failures encountered on {}", idxctx.TS, tb
-                            )
                             with erred.open(mode="a") as fp:
                                 print(tb, file=fp)
-                            rename_tb_link(
-                                tb,
-                                Path(controller_path, f"{self.linkerrdest}.1"),
-                                idxctx.logger,
-                            )
+                            self.sync.error(dataset, f"{tb_res.value}:{tb_res.message}")
                         elif tb_res in (error_code["CFG_ERROR"], error_code["BAD_CFG"]):
                             assert False, (
-                                f"Logic error!  Unexpected tar ball handling "
-                                f"result status {tb_res.value:d} for tar ball {tb}"
+                                f"Unexpected tar ball handling "
+                                f"result status {tb_res.value:d} for dataset {dataset}"
                             )
                         elif tb_res.tarball_error:
                             # # Quietly skip these errors
                             with skipped.open(mode="a") as fp:
                                 print(tb, file=fp)
-                            rename_tb_link(
-                                tb,
-                                Path(
-                                    controller_path,
-                                    f"{self.linkerrdest}.{tb_res.value:d}",
-                                ),
-                                idxctx.logger,
-                            )
+                            self.sync.error(dataset, f"{tb_res.value}:{tb_res.message}")
                         else:
-                            idxctx.logger.error(
-                                "{}: index error {:d} encountered on {}",
-                                idxctx.TS,
-                                tb_res.value,
-                                tb,
-                            )
                             with erred.open(mode="a") as fp:
                                 print(tb, file=fp)
-                            rename_tb_link(
-                                tb,
-                                Path(controller_path, self.linkerrdest),
-                                idxctx.logger,
-                            )
+                            self.sync.error(dataset, f"{tb_res.value}:{tb_res.message}")
                         idxctx.logger.info(
                             "Finished{} {} (size {:d})",
                             "[SIGQUIT]" if sigquit_interrupt[0] else "",
@@ -599,7 +626,7 @@ class Index:
                             if status == 0:
                                 if not set(new_tb).issuperset(tb_deque):
                                     idxctx.logger.info(
-                                        "Tarballs supposed to be in 'TO-INDEX' are no longer present",
+                                        "Tarballs previously marked for indexing are no longer present",
                                         set(tb_deque).difference(new_tb),
                                     )
                                 tb_deque = deque(sorted(new_tb))
@@ -629,7 +656,7 @@ class Index:
                 idxctx.logger.exception(error_code["GENERIC_ERROR"].message)
                 res = error_code["GENERIC_ERROR"]
             else:
-                # No exceptions while processing tar ball, success.
+                # No exceptions while processing tar balls, success.
                 res = error_code["OK"]
             finally:
                 if idxctx:
@@ -688,7 +715,9 @@ class Index:
                             for line in sorted(sfp):
                                 print(line.strip(), file=fp)
                 try:
-                    report.post_status(tstos(idxctx.time()), "status", report_fname)
+                    self.report.post_status(
+                        tstos(idxctx.time()), "status", report_fname
+                    )
                 except SigTermException:
                     # Re-raise a SIGTERM to avoid it being lumped in with general
                     # exception handling below.

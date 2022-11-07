@@ -358,6 +358,7 @@ class TestUpload:
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
         assert Metadata.getvalue(dataset, "global") is None
         assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-02"
+        assert Metadata.getvalue(dataset, Metadata.OPERATION) == ["BACKUP", "UNPACK"]
         assert self.cachemanager_created
         assert dataset.name in self.cachemanager_created
 

@@ -1,5 +1,3 @@
-from typing import List
-
 import click
 
 from pbench.cli.server import config_setup, pass_cli_context
@@ -27,14 +25,6 @@ def print_tree(tree: CacheManager):
             print(f"    Tarball {tarball.name}")
             if tarball.unpacked:
                 print(f"      Unpacked in {tarball.unpacked}")
-                states: List[str] = []
-                for name, path in controller.state_dirs.items():
-                    for link in path.iterdir():
-                        if tarball.name in link.name:
-                            states.append(name)
-                if states:
-                    states.sort()
-                    print(f"        States: {', '.join(states)}")
 
 
 @click.command(name="pbench-tree-manager")

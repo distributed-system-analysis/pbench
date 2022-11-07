@@ -6,7 +6,6 @@ import subprocess
 
 import pytest
 
-from pbench.common.logger import get_pbench_logger
 from pbench.server.cache_manager import (
     BadFilename,
     CacheManager,
@@ -17,14 +16,6 @@ from pbench.server.cache_manager import (
     TarballUnpackError,
 )
 from pbench.server.database.models.datasets import Dataset, DatasetBadName
-
-
-@pytest.fixture()
-def make_logger(server_config):
-    """
-    Construct a Pbench Logger object
-    """
-    return get_pbench_logger("TEST", server_config)
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -592,10 +583,6 @@ class TestCacheManager:
         md5file = archive / source_md5.name
         assert tarfile.exists()
         assert md5file.exists()
-
-        todo_state = archive / "TODO" / tarfile.name
-        assert todo_state.is_symlink()
-        assert todo_state.samefile(tarfile)
 
         assert md5 == md5file.read_text()
         hash = hashlib.md5()

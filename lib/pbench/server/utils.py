@@ -1,38 +1,10 @@
 import datetime
-import os
 from pathlib import Path
-import shutil
-import sys
 from typing import Union
 
 from dateutil import parser as date_parser
 
 from pbench.common.utils import md5sum
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound, States
-
-
-def rename_tb_link(tb, dest, logger):
-    try:
-        os.mkdir(dest)
-    except FileExistsError:
-        # directory already exists, ignore
-        pass
-    except Exception:
-        logger.exception(
-            "os.mkdir: Unable to create tar ball destination directory: {}".format(dest)
-        )
-        raise
-    tbname = os.path.basename(tb)
-    tbnewname = os.path.join(dest, tbname)
-    try:
-        os.rename(tb, tbnewname)
-    except Exception:
-        logger.exception(
-            "os.rename: Unable to move tar ball link {} to destination directory: {}".format(
-                tb, dest
-            )
-        )
-        raise
 
 
 def filesize_bytes(size):
@@ -80,41 +52,6 @@ def get_tarball_md5(tarball: Union[Path, str]) -> str:
     if md5_file.is_file():
         return md5_file.read_text().split()[0]
     return md5sum(tarball).md5_hash
-
-
-def quarantine(dest, logger, *files):
-    """Quarantine problematic tarballs.
-
-    Errors here are fatal but we log an error message to help diagnose
-    problems.
-    """
-    try:
-        os.mkdir(dest)
-    except FileExistsError:
-        # directory already exists, ignore
-        pass
-    except Exception:
-        logger.exception('quarantine {} {!r}: "mkdir -p {}/" failed', dest, files, dest)
-        sys.exit(101)
-
-    for afile in files:
-        if not os.path.exists(afile) and not os.path.islink(afile):
-            continue
-        try:
-            # If the file we're moving is a tarball, update the dataset
-            # state. (If it's the associated MD5 file, skip that.)
-            if Dataset.is_tarball(afile):
-                id = get_tarball_md5(afile)
-                try:
-                    Dataset.attach(resource_id=id, state=States.QUARANTINED)
-                except DatasetNotFound:
-                    logger.debug("quarantine dataset {} not found", afile)
-            shutil.move(afile, os.path.join(dest, os.path.basename(afile)))
-        except Exception:
-            logger.exception(
-                'quarantine {} {!r}: "mv {} {}/" failed', dest, files, afile, dest
-            )
-            sys.exit(102)
 
 
 class UtcTimeHelper:

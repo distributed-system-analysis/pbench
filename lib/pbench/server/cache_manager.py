@@ -1,7 +1,6 @@
 from configparser import ConfigParser
 from logging import Logger
 from pathlib import Path
-import re
 import shlex
 import shutil
 import subprocess
@@ -259,21 +258,6 @@ class Tarball:
             # log it but do not abort
             controller.logger.error("Unable to set SELINUX context for {}: {}", name, e)
 
-        # To get the new tarball into the server pipeline, we start with a
-        # symlink in the TODO state directory.
-        #
-        # NOTE: there's not much we can do if the link fails, except report it.
-        # The solution is for someone to manually create the link to oil the
-        # tool chain machinery. It doesn't make sense to fail and back out at
-        # this point, and there's no place to report the error aside from the
-        # log.
-        try:
-            controller.link(destination, "TODO")
-        except Exception as e:
-            controller.logger.error(
-                "Failed to link dataset {} into TODO state directory: {}", name, e
-            )
-
         # If we were able to copy both files, remove the originals
         try:
             tarball.unlink()
@@ -465,31 +449,6 @@ class Controller:
     report generator will flag it.
     """
 
-    # List of the state directories under controller in which we record the
-    # "state" of tarballs via symlinks. The CacheManager package can discover,
-    # validate, and report on these.
-    STATE_DIRS = [
-        "BACKED-UP",
-        "BACKUP-FAILED",
-        "BAD-MD5",
-        "COPIED-SOS",
-        "INDEXED",
-        "TO-BACKUP",
-        "TO-COPY-SOS",
-        "TO-DELETE",
-        "TODO",
-        "TO-INDEX",
-        "TO-INDEX-TOOL",
-        "TO-LINK",
-        "TO-RE-INDEX",
-        "TO-UNPACK",
-        "TO-SYNC",
-        "SYNCED",
-        "UNPACKED",
-        r"WONT-INDEX(\.\d+)",
-        "WONT-UNPACK",
-    ]
-
     @staticmethod
     def delete_if_empty(directory: Path) -> None:
         """
@@ -505,29 +464,6 @@ class Controller:
         """
         if directory.exists() and not any(directory.iterdir()):
             directory.rmdir()
-
-    @staticmethod
-    def is_statedir(directory: Path) -> bool:
-        """
-        Determine whether the path represents a known state directory.
-
-        Most of the standard Pbench state directories are fixed strings, but
-        `WONT-INDEX` can be suffixed with ".n" where "n" is a pbench_index
-        error exit code.
-
-        Args:
-            directory: A directory path
-
-        Returns:
-            True if the path represents a Pbench state directory
-        """
-        if not directory.is_dir():
-            return False
-        name = directory.name
-        for state in Controller.STATE_DIRS:
-            if re.fullmatch(state, name):
-                return True
-        return False
 
     def __init__(self, path: Path, incoming: Path, results: Path, logger: Logger):
         """
@@ -554,32 +490,27 @@ class Controller:
         # The full controller path in the ARCHIVE tree
         self.path = path
 
-        # The set of state directories associated with the controller
-        self.state_dirs: Dict[str, Path] = {}
-
         # Provide a mapping from Tarball file name to object
         self.tarballs: Dict[str, Tarball] = {}
 
         # Provide a mapping from Dataset resource ID to object
         self.datasets: Dict[str, Tarball] = {}
 
-        # The directory where the tarball will be unpacked
+        # The directory where the controller's tarballs will be unpacked
         self.incoming: Path = incoming / self.name
 
-        # A path that will link to the unpacked tarball
+        # A path that will link to the controller's unpacked tarballs
         self.results: Path = results / self.name
         self._discover_tarballs()
 
     def _discover_tarballs(self):
         """
-        Discover the tarballs and state directories within the ARCHIVE tree's
-        controller directory. Check for an unpacked tarball in the INCOMING
-        tree and if that's present also check for a RESULTS tree link.
+        Discover the tarballs within the ARCHIVE tree's controller directory.
+        Check for an unpacked tarball in the INCOMING tree and if that's
+        present also check for a RESULTS tree link.
         """
         for file in self.path.iterdir():
-            if self.is_statedir(file):
-                self.state_dirs[file.name] = file
-            elif file.is_file() and Dataset.is_tarball(file):
+            if file.is_file() and Dataset.is_tarball(file):
                 tarball = Tarball(file, self)
                 self.tarballs[tarball.name] = tarball
                 self.datasets[tarball.resource_id] = tarball
@@ -599,7 +530,6 @@ class Controller:
         """
         controller_dir = options.ARCHIVE / name
         controller_dir.mkdir(exist_ok=True, mode=0o755)
-        (controller_dir / "TODO").mkdir(exist_ok=True)
         return cls(controller_dir, options.INCOMING, options.RESULTS, logger)
 
     def create_tarball(self, tarfile: Path) -> Tarball:
@@ -617,16 +547,6 @@ class Controller:
         self.datasets[tarball.resource_id] = tarball
         self.tarballs[tarball.name] = tarball
         return tarball
-
-    def link(self, tarfile: Path, state: str):
-        """
-        Create a state link within the controller sub-tree.
-
-        Args:
-            tarball: Tarball path
-            state: State directory name (e.g., "TODO")
-        """
-        (self.state_dirs[state] / tarfile.name).symlink_to(tarfile)
 
     def unpack(self, dataset_id: str):
         """
@@ -670,11 +590,6 @@ class Controller:
         """
         tarball = self.datasets[dataset_id]
         name = tarball.name
-        for file in self.path.iterdir():
-            if Controller.is_statedir(file):
-                for link in file.iterdir():
-                    if link.samefile(tarball.tarball_path):
-                        link.unlink()
         tarball.delete()
         del self.datasets[dataset_id]
         del self.tarballs[name]
@@ -704,24 +619,6 @@ class CacheManager:
             A set of Pbench Agent dataset results, each comprising a ".tar.xz"
             tar archive (conventionally referred to as a "tarball") and a
             ".tar.xz.md5" MD5 file with the same base name.
-
-            A set of "state" directories (TODO, etc.) which are used by the
-            server tool chain to track the progression of datasets. Each will
-            contain absolute symlinks to a tarball within the controller
-            directory. There are many, but the main ones are
-
-                TODO indicates an action for the dispatcher, including when a
-                tarball is first uploaded;
-
-                TO-UNPACK indicates a tarball that needs to be unpacked;
-
-                TO-INDEX indicates a tarball that needs to be indexed;
-
-                TO-INDEX-TOOLS indicates a tarball that's had its basic content
-                indexed but needs extended tools data indexed. (We don't
-                routinely do tool indexing, so this will generally have links
-                for each tarball in the controller, which are created but then
-                ignored.)
 
     INCOMING
 
@@ -885,9 +782,6 @@ class CacheManager:
         self.delete_if_empty(incoming)
         archive = self.options.ARCHIVE / controller
         if archive.exists() and not any(archive.glob(f"*{Dataset.TARBALL_SUFFIX}")):
-            for file in archive.iterdir():
-                if Controller.is_statedir(file):
-                    self.delete_if_empty(file)
             self.delete_if_empty(archive)
             del self.controllers[controller]
 
@@ -925,8 +819,7 @@ class CacheManager:
         already exist.
 
         FIXME: This builds the entire Controller, which will discover all
-        datasets within the controller. This could be streamlined... however
-        for create and delete, we need to know the state link directories.
+        datasets within the controller. This could be streamlined.
 
         This allows a targeted minimal entry for mutation without discovering
         the entire tree.

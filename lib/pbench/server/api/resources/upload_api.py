@@ -19,6 +19,7 @@ from pbench.server.database.models.datasets import (
     States,
 )
 from pbench.server.database.models.server_config import ServerConfig
+from pbench.server.sync import Operation, Sync
 from pbench.server.utils import filesize_bytes, UtcTimeHelper
 
 
@@ -353,6 +354,9 @@ class Upload(Resource):
             # and state change.
             try:
                 dataset.advance(States.UPLOADED)
+                Sync(self.logger, "upload").update(
+                    dataset=dataset, enabled=[Operation.BACKUP, Operation.UNPACK]
+                )
             except Exception as exc:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,

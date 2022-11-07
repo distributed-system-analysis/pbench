@@ -107,23 +107,6 @@ class DatasetTransitionError(DatasetError):
     pass
 
 
-class DatasetTerminalStateViolation(DatasetTransitionError):
-    """
-    An attempt was made to change the state of a dataset currently in a
-    terminal state.
-
-    The error text will identify the dataset by name, and both the current and
-    requested new states.
-    """
-
-    def __init__(self, dataset: "Dataset", requested_state: "States"):
-        self.dataset = dataset
-        self.requested_state = requested_state
-
-    def __str__(self) -> str:
-        return f"Dataset {self.dataset} state {self.dataset.state} is terminal and cannot be advanced to {self.requested_state}"
-
-
 class DatasetBadStateTransition(DatasetTransitionError):
     """
     An attempt was made to advance a dataset to a new state that's not
@@ -169,7 +152,8 @@ class MetadataSqlError(MetadataError):
         super().__init__(dataset, key)
 
     def __str__(self) -> str:
-        return f"Error {self.operation} {self.dataset} key {self.key}"
+        ds = str(self.dataset) if self.dataset else "no dataset"
+        return f"Error {self.operation} {ds} key {self.key}"
 
 
 class MetadataNotFound(MetadataError):
@@ -307,8 +291,8 @@ class MetadataDuplicateKey(MetadataError):
 
 class States(enum.Enum):
     """
-    States: Track the progress of a dataset (tarball) through the various
-    stages and operation of the Pbench server.
+    Track the progress of a dataset (tarball) through the various stages and
+    operation of the Pbench server.
     """
 
     UPLOADING = ("Uploading", True)
@@ -317,7 +301,6 @@ class States(enum.Enum):
     INDEXED = ("Indexed", False)
     DELETING = ("Deleting", True)
     DELETED = ("Deleted", False)
-    QUARANTINED = ("Quarantined", False)
 
     def __init__(self, friendly: str, mutating: bool):
         """
@@ -406,14 +389,27 @@ class Dataset(Database.Base):
 
     __tablename__ = "datasets"
 
+    # This dict defines the allowed dataset state transitions through its
+    # lifecycle. We have a set of "-ING" action states while the dataset is
+    # being mutated, and a set of "-ED" states designating the last successful
+    # mutation, from UPLOAD through INDEX and eventually DELETE.
+    #
+    # All "-ING" action states allow self-transitions, which provides for a
+    # failed action to be retried later.
+    #
+    # DELETED is a "marker" state, for completeness. When we complete a dataset
+    # delete, we remove the SQL row entirely rather than transitioning from
+    # DELETING to DELETE. A failed delete will leave the dataset in DELETING
+    # state, which allows retry. If we actually set DELETED state, retaining
+    # the SQL row, we would allow "re-activation" via a PUT operation, so we
+    # allow the theoretical transition to UPLOADING.
     transitions = {
-        States.UPLOADING: [States.UPLOADED, States.QUARANTINED],
-        States.UPLOADED: [States.INDEXING, States.QUARANTINED],
-        States.INDEXING: [States.INDEXED, States.QUARANTINED],
-        States.INDEXED: [States.INDEXING, States.DELETING, States.QUARANTINED],
-        States.DELETING: [States.DELETED, States.INDEXED, States.QUARANTINED],
-        # NOTE: DELETED and QUARANTINED do not appear as keys in the table
-        # because they're terminal states that cannot be exited.
+        States.UPLOADING: [States.UPLOADED, States.UPLOADING, States.DELETING],
+        States.UPLOADED: [States.INDEXING, States.DELETING],
+        States.INDEXING: [States.INDEXED, States.INDEXING, States.DELETING],
+        States.INDEXED: [States.INDEXING, States.DELETING],
+        States.DELETING: [States.DELETED, States.DELETING],
+        States.DELETED: [States.UPLOADING],
     }
 
     # "Virtual" metadata key paths to access Dataset column data
@@ -673,18 +669,11 @@ class Dataset(Database.Base):
 
         Raises:
             DatasetBadParameterType: The state parameter isn't a States ENUM
-            DatasetTerminalStateViolation: The dataset is in a terminal state
-                that cannot be changed.
             DatasetBadStateTransition: The dataset does not support transition
                 from the current state to the desired state.
         """
         if type(new_state) is not States:
             raise DatasetBadParameterType(new_state, States)
-        if self.state not in self.transitions:
-            self.logger.error(
-                "Terminal state {} can't advance to {}", self.state, new_state
-            )
-            raise DatasetTerminalStateViolation(self, new_state)
         elif new_state not in self.transitions[self.state]:
             self.logger.error(
                 "Current state {} can't advance to {}", self.state, new_state
@@ -835,6 +824,10 @@ class Metadata(Database.Base):
     #
     # {"server.archived": True}
     ARCHIVED = "server.archived"
+
+    # OPERATION tag to tell the Pbench Server cron tools which operation needs
+    # to be performed next, replacing the old STATE symlink subdirectories.
+    OPERATION = "server.operation"
 
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
     # to record an S3 object store key.) NOT YET USED.

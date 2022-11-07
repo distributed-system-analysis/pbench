@@ -116,42 +116,6 @@ function log_exit {
     fi
 }
 
-# Function used by the shims to quarantine problematic tarballs.  It
-# is assumed that the function is called within a log_init/log_finish
-# context.  Errors here are fatal but we log an error message to help
-# diagnose problems.
-function quarantine () {
-    dest=$1
-    shift
-    files="$@"
-
-    mkdir -p $dest > /dev/null 2>&1
-    sts=$?
-    if [ $sts -ne 0 ] ;then
-        # log error
-        log_exit "$TS: quarantine $dest $files: \"mkdir -p $dest/\" failed with status $sts" 101
-    fi
-    for afile in ${files} ;do
-        if [ ! -e $afile -a ! -L $afile ] ;then
-            continue
-        fi
-        # Update dataset state if we're quarantining a tarball (not an MD5)
-        if [ ${afile} != ${afile%.tar.xz} ] ;then
-            pbench-state-manager --path="${afile}" --state=quarantined
-            sts=${?}
-            if [[ ${sts} -ne 0 ]]; then
-                log_error "$TS: quarantine $afile: \"set state\" failed with status $sts"
-            fi
-        fi
-        mv $afile $dest/ > /dev/null 2>&1
-        sts=$?
-        if [ $sts -ne 0 ] ;then
-            # log error
-            log_exit "$TS: quarantine $dest $files: \"mv $afile $dest/\" failed with status $sts" 102
-        fi
-    done
-}
-
 function log_info {
     if [[ -z "${2}" ]]; then
         printf -- "%b\n" "${1}"

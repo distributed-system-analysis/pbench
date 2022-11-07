@@ -1,24 +1,29 @@
+from dataclasses import dataclass
 from logging import Logger
-import os
 from pathlib import Path
 import tempfile
-from typing import NamedTuple
 
 from pbench.server import PbenchServerConfig
 from pbench.server.cache_manager import CacheManager
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.report import Report
-from pbench.server.utils import get_tarball_md5
+from pbench.server.sync import Operation, Sync
 
 
-class Results(NamedTuple):
+@dataclass(frozen=True)
+class Target:
+    dataset: Dataset
+    tarball: Path
+
+
+@dataclass(frozen=True)
+class Results:
     total: int
     success: int
 
 
 class UnpackTarballs:
     """Unpacks Tarball in the INCOMING Directory"""
-
-    LINKSRC = "TO-UNPACK"
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         """
@@ -28,70 +33,30 @@ class UnpackTarballs:
         """
         self.config = config
         self.logger = logger
+        self.sync = Sync(logger=logger, component="unpack")
+        self.cache_manager = CacheManager(config, logger)
 
-    def unpack(self, tb: Path, cache_m: CacheManager):
-        """Getting md5 value of the tarball and Unpacking Tarball.
+    def unpack(self, tb: Target):
+        """Encapsulate the call to the CacheManager unpacker.
 
         Args:
-            tb: Tarball Path
-            cache_m: CacheManager object
+            tb: Identify the Dataset and Tarball
         """
-        try:
-            tar_md5 = get_tarball_md5(tb)
-        except FileNotFoundError as exc:
-            self.logger.error(
-                "{}: Getting md5 value of tarball '{}' failed: {}",
-                self.config.TS,
-                tb,
-                exc,
-            )
-            raise
 
         try:
-            cache_m.unpack(tar_md5)
+            self.cache_manager.unpack(tb.dataset.resource_id)
         except Exception as exc:
             self.logger.error(
                 "{}: Unpacking of tarball {} failed: {}",
                 self.config.TS,
-                tb,
-                exc,
-            )
-            raise
-
-    def update_symlink(self, tarball: Path):
-        """Creates the symlink in state directories. Removes symlink
-        from `TO-UNPACK` state directory after successful unpacking of Tarball.
-
-        Args:
-            tarball: Tarball Path
-        """
-        linkdestlist = self.config.get("pbench-server", "unpacked-states").split(", ")
-        controller_name = tarball.parent.parent.name
-        dest = self.config.ARCHIVE / controller_name
-
-        for state in linkdestlist:
-            try:
-                os.symlink(dest / tarball.name, dest / state / tarball.name)
-            except Exception as exc:
-                self.logger.error(
-                    "{}: Error in creation of symlink. {}", self.config.TS, exc
-                )
-                raise
-
-        try:
-            os.unlink(dest / self.LINKSRC / tarball.name)
-        except Exception as exc:
-            self.logger.error(
-                "{}: Error in removing symlink from {} state. {}",
-                self.config.TS,
-                self.LINKSRC,
+                tb.tarball,
                 exc,
             )
             raise
 
     def unpack_tarballs(self, min_size: float, max_size: float) -> Results:
-        """Scans for tarballs in the TO-UNPACK subdirectories of the
-        ARCHIVE directory and unpacks them using CacheManager.unpack() function.
+        """Scans for datasets ready to be unpacked, and unpacks them using the
+        CacheManager.unpack() method.
 
         Args:
             min_size: minimum size of tarball for this Bucket
@@ -100,34 +65,44 @@ class UnpackTarballs:
         Returns:
             Results tuple containing the counts of Total and Successful tarballs.
         """
-        tarlist = [
-            tarball
-            for tarball in self.config.ARCHIVE.glob(f"*/{self.LINKSRC}/*.tar.xz")
-            if min_size <= Path(tarball).stat().st_size < max_size
-        ]
-
-        ntotal = nsuccess = 0
-        cache_m = CacheManager(self.config, self.logger)
-
-        for tarball in sorted(tarlist):
-            ntotal += 1
-
-            try:
-                try:
-                    tb = Path(tarball).resolve(strict=True)
-                except FileNotFoundError as exc:
-                    self.logger.error(
-                        "{}: Tarball link, '{}', does not resolve to a real location: {}",
-                        self.config.TS,
-                        tarball,
-                        exc,
-                    )
-                    raise
-                self.unpack(tb, cache_m)
-                self.update_symlink(tb)
-            except Exception:
+        datasets = self.sync.next(Operation.UNPACK)
+        tarlist: list[Target] = []
+        for d in datasets:
+            t = Metadata.getvalue(d, Metadata.TARBALL_PATH)
+            if not t:
+                self.logger.error(
+                    "Dataset {} is missing a value for {}", d, Metadata.TARBALL_PATH
+                )
                 continue
 
+            try:
+                p = Path(t).resolve(strict=True)
+                s = p.stat().st_size
+            except FileNotFoundError as exc:
+                self.logger.error(
+                    "{}: Tarball '{}' does not resolve to a file: {}",
+                    self.config.TS,
+                    t,
+                    exc,
+                )
+                continue
+            except Exception:
+                self.logger.exception("Unexpected exception on {}", t)
+                continue
+
+            if min_size <= s < max_size:
+                tarlist.append(Target(dataset=d, tarball=p))
+
+        ntotal = nsuccess = 0
+
+        for tarball in sorted(tarlist, key=lambda e: str(e.tarball)):
+            ntotal += 1
+            self.unpack(tarball)
+            self.sync.update(
+                dataset=tarball.dataset,
+                did=Operation.UNPACK,
+                enabled=[Operation.COPY_SOS, Operation.INDEX],
+            )
             nsuccess += 1
 
         return Results(total=ntotal, success=nsuccess)

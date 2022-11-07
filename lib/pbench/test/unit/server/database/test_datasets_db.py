@@ -8,7 +8,6 @@ from pbench.server.database.models.datasets import (
     DatasetBadParameterType,
     DatasetBadStateTransition,
     DatasetNotFound,
-    DatasetTerminalStateViolation,
     States,
 )
 from pbench.server.database.models.users import User
@@ -17,12 +16,16 @@ from pbench.server.database.models.users import User
 class TestDatasets:
     def test_state_enum(self):
         """Test the States ENUM properties"""
-        assert len(States.__members__) == 7
+        assert len(States.__members__) == 6
         for n, s in States.__members__.items():
             assert str(s) == s.friendly
             assert s.mutating == (
                 "ing" in s.friendly
             ), f"Enum {n} name and state don't match"
+
+            # We have no "terminal" states: every state must be a key in the
+            # transitions table!
+            assert s in Dataset.transitions
 
     def test_construct(self, db_session, create_user):
         """Test dataset contructor"""
@@ -181,18 +184,6 @@ class TestDatasets:
         ds.add()
         with pytest.raises(DatasetBadStateTransition):
             ds.advance(States.DELETED)
-
-    def test_advanced_terminal(self, db_session, create_user):
-        """Test that we can't advance from a terminal state"""
-        ds = Dataset(
-            owner_id=str(create_user.id),
-            name="fio",
-            resource_id="beadde",
-            state=States.DELETED,
-        )
-        ds.add()
-        with pytest.raises(DatasetTerminalStateViolation):
-            ds.advance(States.UPLOADING)
 
     def test_lifecycle(self, db_session, create_user):
         """Advance a dataset through the entire lifecycle using the state
