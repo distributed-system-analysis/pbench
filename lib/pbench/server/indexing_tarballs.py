@@ -535,15 +535,6 @@ class Index:
                                         "Unexpected error on {}: {}", ptb.tbname, e
                                     )
 
-                        # TODO: What does this really mean? The id_filepath is
-                        # used (by pyesbulk) to log Elasticsearch 400 and 403
-                        # (index closed) errors as JSON objects. Here, we're
-                        # determining the size of that file and comparing it
-                        # against the length of the tarball filename to decide
-                        # whether the indexing failed? That makes no sense at
-                        # all: the size should be 0 unless an error occurred
-                        # (though it's likely that a single JSON object will
-                        # exceed the size of a typical file name)
                         try:
                             ie_len = ie_filepath.stat().st_size
                         except FileNotFoundError:
