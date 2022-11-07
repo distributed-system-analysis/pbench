@@ -126,7 +126,7 @@ class TestEndpointConfig:
                         "dataset_view": {"type": "string"},
                     },
                 },
-                "endpoints": {"template": f"{uri}/endpoints", "params": {}},                
+                "endpoints": {"template": f"{uri}/endpoints", "params": {}},
                 "login": {"template": f"{uri}/login", "params": {}},
                 "logout": {"template": f"{uri}/logout", "params": {}},
                 "register": {"template": f"{uri}/register", "params": {}},
