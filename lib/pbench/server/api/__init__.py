@@ -19,7 +19,6 @@ from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
-
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
     DatasetsContents,
 )
