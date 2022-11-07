@@ -39,16 +39,6 @@ def get_pbench_token(client, server_config):
     return data["auth_token"]
 
 
-class TestGraphQL:
-    @staticmethod
-    def test_json_object(client, caplog, server_config):
-        response = client.post(f"{server_config.rest_uri}/graphql")
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == "Invalid json object"
-        assert len(caplog.records) == 1
-        assert caplog.records[0].levelname == "WARNING"
-
-
 class TestUpload:
     cachemanager_created = None
     cachemanager_create_fail = False

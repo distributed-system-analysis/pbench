@@ -34,10 +34,6 @@ bulk_action_count = 2000
 host = elasticsearch.example.com
 port = 0000
 
-[graphql]
-host = graphql.example.com
-port = 0000
-
 ## User authentication section to use when authorizing the user with an OIDC identity provider
 [authentication]
 
