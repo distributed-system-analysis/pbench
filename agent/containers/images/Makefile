@@ -24,6 +24,30 @@ COPR_USER = ndokos
 # using an environment variable as appropriate.
 URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${COPR_USER}
 
+# When run under the CI,
+#   - ${CI_RPM_ROOT}:  the root of the directory tree for the Agent RPM package
+#     file -- set to ${HOME} if not specified on the Make command line
+#   - ${CI_RPM_LOC}:  the local directory tree for the Agent RPM package file
+#   - ${_RPM_PATH}:  the full path to the package file
+#   - ${_RPM_FILE}:  the name of the package file, without the directory path
+# (otherwise, these variables are not used).
+#
+# When run under the CI, we will copy the package from ${_RPM_PATH} to the
+# current directory and name it ${_RPM_FILE} -- this is necessary to make it
+# available to the container build, which is limited to just the current
+# directory tree -- the container build will copy the RPM file from the build
+# context into the container.
+#
+# The package manager installs the Agent, either from the local file (when run
+# under the CI) or (when not running under the CI) by looking up the package by
+# name in the repository pointed at by the .repo file (e.g., from COPR).
+ifdef CI
+CI_RPM_ROOT ?= ${HOME}
+CI_RPM_LOC = ${CI_RPM_ROOT}/rpmbuild-${DIST_NAME}-${DIST_VERSION}/RPMS/noarch
+_RPM_PATH = $(wildcard ${CI_RPM_LOC}/pbench-agent-${_LOCAL_MAJORMINOR}*${_LOCAL_GIT_HASH}.noarch.rpm)
+_RPM_FILE = $(notdir ${_RPM_PATH})
+endif
+
 # By default we use non-"test" COPR repos named "pbench".  We expect
 # test COPR repos to have a suffix added, typically "test", so that
 # the final repo name would be "pbench-test".
@@ -128,7 +152,12 @@ $(_DISTROS:%=%-baseimage): %-baseimage: pkgmgr-clean %-base-tagged
 
 # For any given target, extract the distribution name and version from the
 # first two fields, e.g., fedora-35-tds would yield values "fedora" and "35"
-# for DIST_NAME and DIST_VERSION, respectively.
+# for DIST_NAME and DIST_VERSION, respectively.  NOTE:  in these definitions,
+# the '%' is a wildcard for the (entire) current target, and it does NOT
+# contribute to the value of $* used here -- that value is provided by the '%'
+# in the target of the pattern rule whose recipe is referencing these values;
+# so, these definitions only work properly when that target's '%' matches
+# something which starts with <dist>-<version>.
 %: DIST_NAME = $(wordlist 1, 1, $(subst -, ,$*))
 %: DIST_VERSION = $(wordlist 2, 2, $(subst -, ,$*))
 
@@ -232,7 +261,15 @@ $(_ALL_fedora_VERSIONS:%=%-tools) centos-7-tools centos-8-tools: %-tools: %-pcp.
 	./apply-tags pbench-agent-base-$* $*-tags.lis
 
 %-base: %-base.Dockerfile %-pbench.repo %-tags.lis
+ifdef CI
+	if [[ -z "${_RPM_PATH}" ]] ; then echo "No RPM found with ID ${_LOCAL_GIT_HASH} for ${_LOCAL_MAJORMINOR} in ${CI_RPM_LOC}" >&2 ; exit 2 ; fi
+	if grep ' ' <<< ${_RPM_PATH} ; then echo "Multiple RPMs found:  ${_RPM_PATH}" >&2 ; exit 2 ; fi
+	cp ${_RPM_PATH} ./${_RPM_FILE}.${*}
+endif
 	./build-image base $* $*-tags.lis
+ifdef CI
+	rm -f ./${_RPM_FILE}.${*}
+endif
 
 _PKGMGR = dnf
 centos-7-base.Dockerfile: _PKGMGR = yum
@@ -245,7 +282,9 @@ centos-7-base.Dockerfile: _PKGMGR = yum
         -D image_repo=quay.io/${DIST_NAME} \
         -D image_rev=${DIST_VERSION} \
         -D pbench_repo_file=${DIST_NAME}-${DIST_VERSION}-pbench.repo \
-        -D pkgmgr=${_PKGMGR}
+        -D pkgmgr=${_PKGMGR} \
+        -D rpm_host_file="$(if ${_RPM_FILE},./${_RPM_FILE}.${*},)" \
+        -D rpm_path=$(if ${_RPM_FILE},./${_RPM_FILE},pbench-agent)
 
 #+
 # Push local images for the given tag and distribution.
@@ -284,7 +323,15 @@ $(foreach tagtype,${_TAG_TYPES},$(eval $(call _TAG_RULE,${tagtype})))  # Define 
 
 # Build the tags file for the given distribution. (We rename "centos" to "epel".)
 %-tags.lis:
+ifdef CI
+	if [[ -z "${_RPM_PATH}" ]] ; then echo "No RPM found with ID ${_LOCAL_GIT_HASH} for ${_LOCAL_MAJORMINOR} in ${CI_RPM_LOC}" >&2 ; exit 2 ; fi
+	if grep ' ' <<< ${_RPM_PATH} ; then echo "Multiple RPMs found:  ${_RPM_PATH}" >&2 ; exit 2 ; fi
+	printf -- "%s\n" ${_LOCAL_GIT_HASH} > ${@}
+	printf -- "v%s\n" "$(shell grep -Eo '[0-9]+\.[0-9]+\.([0-9]+(-[0-9]+)?)?' <<< "${_RPM_PATH}")" >> ${@}
+	printf -- "v%s-latest v%s-latest\n" ${_LOCAL_MAJOR_VER} ${_LOCAL_MAJORMINOR} >> ${@}
+else
 	./gen-tags-from-rpm "${URL_PREFIX}" "$(subst centos,epel,$*)" "${_ARCH}" "${_PBENCH_REPO_NAME}" > ${@}
+endif
 
 # This file takes a long time to generate, so preserve it between builds (it can
 # be removed explicitly via the `clean` target).
