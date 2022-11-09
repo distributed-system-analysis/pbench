@@ -23,8 +23,8 @@ CHROOTS =
 # These targets build the binary RPM for the specified distro version; the "ci"
 # target builds them all.
 RHEL_RPMS = rhel-9-rpm rhel-8-rpm rhel-7-rpm
-CENTOS_RPMS = centos-9-rpm centos-8-rpm
-FEDORA_RPMS = fedora-34-rpm fedora-35-rpm fedora-36-rpm
+CENTOS_RPMS = centos-9-rpm centos-8-rpm centos-7-rpm
+FEDORA_RPMS = fedora-36-rpm fedora-35-rpm
 ALL_RPMS = ${RHEL_RPMS} ${CENTOS_RPMS} ${FEDORA_RPMS}
 
 component = agent

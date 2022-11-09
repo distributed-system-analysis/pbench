@@ -60,7 +60,7 @@ RPMSRPM = ${BLD_DIR}/SRPMS
 RPMSPEC = ${BLD_DIR}/SPECS
 RPMTMP = ${BLD_DIR}/TMP
 
-sha1 := $(shell git rev-parse --short HEAD)
+sha1 := $(shell git rev-parse --short=9 HEAD)
 seqno := $(shell if [ -e ./seqno ] ;then cat ./seqno ;else echo "1" ;fi)
 
 $(info Building ${MAKECMDGOALS} for ${prog}-${VERSION} from ${TBDIR} to ${BLD_DIR})

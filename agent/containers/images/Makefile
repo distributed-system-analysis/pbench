@@ -80,7 +80,10 @@ _WORKLOAD_RPMS = fio uperf
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
 # By default we only build images for the following distributions.
-_DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35 fedora-36
+_DEFAULT_DISTROS = \
+	centos-9 centos-8 centos-7 \
+	fedora-36 fedora-35
+#	rhel-9 rhel-8 rhel-7
 
 # By default we build the Tool Data Sink and Tool Meister images as well.
 everything: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
@@ -94,6 +97,9 @@ tds: all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
 
 # Convenience target to only build the Tool Meister images.
 tm: all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
+
+# Convenience target to only build the base images.
+baseimage: all-tags $(_DEFAULT_DISTROS:%=%-base-tagged)
 
 #+
 # For the following rule patterns, the "%" represents the "distribution" name,
@@ -113,6 +119,8 @@ $(_DISTROS:%=%-everything): %-everything: pkgmgr-clean %-all-tagged
 $(_DISTROS:%=%-tds): %-tds: pkgmgr-clean %-tool-data-sink-tagged
 
 $(_DISTROS:%=%-tm): %-tm: pkgmgr-clean %-tool-meister-tagged
+
+$(_DISTROS:%=%-baseimage): %-baseimage: pkgmgr-clean %-base-tagged
 
 # For any given target, extract the distribution name and version from the
 # first two fields, e.g., fedora-35-tds would yield values "fedora" and "35"
