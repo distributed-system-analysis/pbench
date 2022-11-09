@@ -4,6 +4,10 @@
 #
 
 _PBENCH_TOP := $(shell git rev-parse --show-toplevel)
+_LOCAL_GIT_HASH := $(shell git rev-parse --short=9 HEAD)
+_LOCAL_VERSION := $(shell cat ${_PBENCH_TOP}/agent/VERSION)
+_LOCAL_MAJORMINOR := $(shell grep -oE '[0-9]+\.[0-9]+' ${_PBENCH_TOP}/agent/VERSION)
+_LOCAL_MAJOR_VER := $(firstword $(subst ., ,${_LOCAL_VERSION}))
 
 # Include definition of _DISTROS
 include ${_PBENCH_TOP}/utils/utils.mk
@@ -25,7 +29,7 @@ URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${COPR_USER}
 # the final repo name would be "pbench-test".
 TEST =
 _TEST_SUFFIX = $(if $(TEST),-$(TEST),)
-_PBENCH_REPO_NAME = pbench-$(shell grep -oE '[0-9]+\.[0-9]+' ${_PBENCH_TOP}/agent/VERSION)${_TEST_SUFFIX}
+_PBENCH_REPO_NAME = pbench-${_LOCAL_MAJORMINOR}${_TEST_SUFFIX}
 
 # By default we use the pbench Quay.io organization for the image
 # repository.  You can override this default using an environment
@@ -230,6 +234,19 @@ $(_ALL_fedora_VERSIONS:%=%-tools) centos-7-tools centos-8-tools: %-tools: %-pcp.
 %-base: %-base.Dockerfile %-pbench.repo %-tags.lis
 	./build-image base $* $*-tags.lis
 
+_PKGMGR = dnf
+centos-7-base.Dockerfile: _PKGMGR = yum
+%-base.Dockerfile: _FANCY_NAME = $(if $(filter fedora,${DIST_NAME}),Fedora,$(if $(filter centos,${DIST_NAME}),CentOS,${DISTNAME}))
+
+%-base.Dockerfile: Dockerfile.base.j2
+	jinja2 Dockerfile.base.j2 -o $@ \
+        -D distro_name="${_FANCY_NAME} ${DIST_VERSION}" \
+        -D image_name=${DIST_NAME} \
+        -D image_repo=quay.io/${DIST_NAME} \
+        -D image_rev=${DIST_VERSION} \
+        -D pbench_repo_file=${DIST_NAME}-${DIST_VERSION}-pbench.repo \
+        -D pkgmgr=${_PKGMGR}
+
 #+
 # Push local images for the given tag and distribution.
 #-
@@ -277,26 +294,6 @@ $(foreach tagtype,${_TAG_TYPES},$(eval $(call _TAG_RULE,${tagtype})))  # Define 
 pkgmgr-clean:
 	dnf clean all
 
-#+
-# For the following rules, the various CentOS "base" images need a mapping
-# between the distribution name and the repo name, which for CentOS images
-# is "epel".  And for both CentOS and Fedora, the distribution image
-# reference, the package manager (dnf vs yum), and image name, also require
-# mappings (e.g. centos-7 -> yum, centos:7, CentOS 7; or fedora-## -> dnf,
-# fedora:##, Fedora ##).
-#-
-_PKGMGR = dnf
-centos-7-base.Dockerfile: _PKGMGR = yum
-
-centos-%-base.Dockerfile: Dockerfile.base.j2
-	jinja2 Dockerfile.base.j2 -D pbench_repo_file=centos-$*-pbench.repo \
-        -D pkgmgr=${_PKGMGR} -D distro_name="CentOS $*" -o $@ \
-        -D image_repo=quay.io/centos -D image_name=centos -D image_rev=$*
-
-fedora-%-base.Dockerfile: Dockerfile.base.j2
-	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-$*-pbench.repo \
-        -D pkgmgr=dnf -D distro_name="Fedora $*" -o $@ \
-        -D image_repo=quay.io/fedora -D image_name=fedora -D image_rev=$*
 
 # Helper target to build each distro's ".repo" and ".Dockerfile"
 all-dockerfiles: \
