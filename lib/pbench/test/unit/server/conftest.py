@@ -729,6 +729,21 @@ def pbench_token_invalid(client, create_drb_user):
     return generate_token(username="drb", user=create_drb_user, valid=False)
 
 
+@pytest.fixture()
+def get_token(pbench_admin_token):
+    """
+    Get OIDC token for any user specified by the username.
+    """
+
+    def token(username: str) -> str:
+        val = pbench_admin_token
+        if username != admin_username:
+            val = generate_token(username=username)
+        return val
+
+    return token
+
+
 def generate_token(
     username: str,
     user: Optional[User] = None,
