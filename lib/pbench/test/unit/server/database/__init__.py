@@ -6,6 +6,7 @@ import operator
 from typing import Any, Callable, Iterable, Optional
 
 from sqlalchemy import Column
+from sqlalchemy.exc import SQLAlchemyError
 
 from pbench.server.database.database import Database
 
@@ -202,6 +203,8 @@ class FakeSession:
     Mock a SQLAlchemy Session for testing.
     """
 
+    throw_query = False
+
     def __init__(self, cls):
         """
         Initialize the context of the session.
@@ -227,6 +230,7 @@ class FakeSession:
         self.queries = []
         self.filters = []
         self.raise_on_commit = None
+        __class__.throw_query = False
 
     def query(self, *entities, **kwargs) -> FakeQuery:
         """
@@ -240,6 +244,8 @@ class FakeSession:
         Returns:
             A mocked query object
         """
+        if self.throw_query:
+            raise SQLAlchemyError("test", "because")
         q = FakeQuery(self)
         self.queries.append(q)
         return q

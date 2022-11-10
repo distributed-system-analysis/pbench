@@ -310,7 +310,7 @@ class Audit(Database.Base):
             start: The earliest timestamp of interest
             end: The most recent timestamp of interest
             dataset: Shortcut to match the type and object_id
-            operation, object_type, object_id, etc: exact match on column
+            kwargs: SQL column names (e.g., operation, object_type, object_id)
 
         Raises:
             AuditSqlError: problem interacting with Database

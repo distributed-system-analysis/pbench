@@ -15,6 +15,7 @@ from pbench.common.exceptions import (
     UnsupportedTarballFormat,
 )
 from pbench.server import OperationCode, tstos
+from pbench.server.cache_manager import CacheManager, TarballNotFound
 from pbench.server.database.models.audit import Audit, AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -357,7 +358,6 @@ class Index:
                         count_processed_tb += 1
 
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
-                        dataset = None
                         audit = None
                         ptb = None
                         userid = None

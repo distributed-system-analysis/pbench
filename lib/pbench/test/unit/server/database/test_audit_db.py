@@ -32,9 +32,9 @@ class TestAudit:
         done during DB initialization) because that can't be monkeypatched.
         """
         __class__.session = FakeSession(Audit)
-        monkeypatch.setattr(Database, "db_session", self.session)
+        monkeypatch.setattr(Database, "db_session", __class__.session)
         Database.Base.config = server_config
-        yield
+        yield monkeypatch
 
     def test_construct(self, fake_db):
         """Test Audit record constructor"""
@@ -136,6 +136,15 @@ class TestAudit:
         self.session.check_session(
             committed=[FakeRow.clone(root), FakeRow.clone(other)]
         )
+
+    def test_exceptional_query(self, fake_db):
+        FakeSession.throw_query = True
+        with pytest.raises(
+            AuditSqlError,
+            match=r"Error finding {'user_name': 'imme'}: \('test', 'because'\)",
+        ):
+            Audit.query(user_name="imme")
+        self.session.reset_context()
 
     def test_queries(self, fake_db):
         attr1 = {"message": "the framistan is borked"}

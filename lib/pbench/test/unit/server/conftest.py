@@ -159,7 +159,7 @@ def make_logger(server_config):
 
 
 @pytest.fixture()
-def db_session(server_config, make_logger):
+def db_session(request, server_config, make_logger):
     """
     Construct a temporary DB session for the test case that will reset on
     completion.
