@@ -203,7 +203,7 @@ class Commons:
         ("drb", "pp"),
     )
     def test_accessing_user_data_with_invalid_token(
-        self, client, server_config, pbench_token, user
+        self, client, server_config, pbench_token_invalid, user
     ):
         """
         Test behavior when expired authentication token is provided.
@@ -224,18 +224,11 @@ class Commons:
             pytest.skip(
                 "skipping " + self.test_accessing_user_data_with_invalid_token.__name__
             )
-        # valid token logout
-        response = self.make_request_call(
-            client,
-            server_config.rest_uri + "/logout",
-            {"Authorization": "Bearer " + pbench_token},
-        )
-        assert response.status_code == HTTPStatus.OK
         self.payload[userp.parameter.name] = user
         response = self.make_request_call(
             client,
             server_config.rest_uri + self.pbench_endpoint,
-            {"Authorization": "Bearer " + pbench_token},
+            {"Authorization": "Bearer " + pbench_token_invalid},
             json=self.payload,
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED

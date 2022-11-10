@@ -41,7 +41,7 @@ class Auth:
         Returns:
             JWT token string
         """
-        current_utc = datetime.datetime.utcnow()
+        current_utc = datetime.datetime.now(datetime.timezone.utc)
         payload = {
             "iat": current_utc,
             "exp": current_utc + time_delta,
@@ -87,7 +87,11 @@ class Auth:
     @token_auth.verify_token
     def verify_auth(auth_token):
         """
-        Validates the auth token
+        Validates the auth token.
+        Note: Since we are not encoding 'aud' claim in our JWT tokens
+        we need to set 'verify_aud' to False while validating the token.
+        With issue https://issues.redhat.com/browse/PBENCH-895 we can
+        set it to True when we start validating third party OIDC tokens.
         :param auth_token:
         :return: User object/None
         """
@@ -96,6 +100,11 @@ class Auth:
                 auth_token,
                 os.getenv("SECRET_KEY", "my_precious"),
                 algorithms="HS256",
+                options={
+                    "verify_signature": True,
+                    "verify_aud": False,
+                    "verify_exp": True,
+                },
             )
             user_id = payload["sub"]
             if ActiveTokens.valid(auth_token):

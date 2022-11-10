@@ -3,13 +3,15 @@ from http import HTTPStatus
 import pytest
 import requests
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSON
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
 class TestDatasetsMetadata:
     @pytest.fixture()
-    def query_get_as(self, client, server_config, more_datasets, provide_metadata):
+    def query_get_as(
+        self, client, server_config, more_datasets, provide_metadata, get_token
+    ):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
@@ -19,6 +21,7 @@ class TestDatasetsMetadata:
             server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
+            get_token: Pbench token fixture
         """
 
         def query_api(
@@ -30,7 +33,7 @@ class TestDatasetsMetadata:
             except DatasetNotFound:
                 dataset = ds_name  # Allow passing deliberately bad value
             if username:
-                token = self.token(client, server_config, username)
+                token = get_token(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
                 f"{server_config.rest_uri}/datasets/metadata/{dataset}",
@@ -51,7 +54,9 @@ class TestDatasetsMetadata:
         return query_api
 
     @pytest.fixture()
-    def query_put_as(self, client, server_config, more_datasets, provide_metadata):
+    def query_put_as(
+        self, client, server_config, more_datasets, provide_metadata, get_token
+    ):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
@@ -61,6 +66,7 @@ class TestDatasetsMetadata:
             server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
+            get_token: Pbench token fixture
         """
 
         def query_api(
@@ -72,7 +78,7 @@ class TestDatasetsMetadata:
             except DatasetNotFound:
                 dataset = ds_name  # Allow passing deliberately bad value
             if username:
-                token = self.token(client, server_config, username)
+                token = get_token(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.put(
                 f"{server_config.rest_uri}/datasets/metadata/{dataset}",
@@ -91,16 +97,6 @@ class TestDatasetsMetadata:
             return response
 
         return query_api
-
-    def token(self, client, config: PbenchServerConfig, user: str) -> str:
-        response = client.post(
-            f"{config.rest_uri}/login",
-            json={"username": user, "password": "12345"},
-        )
-        assert response.status_code == HTTPStatus.OK
-        data = response.json
-        assert data["auth_token"]
-        return data["auth_token"]
 
     def test_get_no_dataset(self, query_get_as):
         response = query_get_as(
