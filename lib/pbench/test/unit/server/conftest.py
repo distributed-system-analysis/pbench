@@ -731,17 +731,12 @@ def pbench_token_invalid(client, create_drb_user):
 
 @pytest.fixture()
 def get_token(pbench_admin_token):
+    """This fixture yields a function value which can be called to get
+    an OIDC token for the user corresponding to the specified username.
     """
-    Get OIDC token for any user specified by the username.
-    """
-
-    def token(username: str) -> str:
-        val = pbench_admin_token
-        if username != admin_username:
-            val = generate_token(username=username)
-        return val
-
-    return token
+    return lambda user: (
+        pbench_admin_token if user == admin_username else generate_token(username=user)
+    )
 
 
 def generate_token(
@@ -781,7 +776,7 @@ def generate_token(
 
     if not user:
         user = User.query(username=username)
-    assert user
+        assert user
     offset = datetime.timedelta(minutes=10)
     exp = current_utc + (offset if valid else -offset)
     payload = {
