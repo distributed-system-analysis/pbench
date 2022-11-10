@@ -25,7 +25,8 @@ HOSTNAME_F=pbenchinacan
 
 # Locations on the host
 GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
-PBINC_DIR=${GITTOP}/server/pbenchinacan
+PBINC_SERVER=${GITTOP}/server
+PBINC_DIR=${PBINC_SERVER}/pbenchinacan
 
 # Image tag determined from jenkins/branch.name
 PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
@@ -54,7 +55,7 @@ then
 fi
 
 buildah copy $container ${RPM_PATH} /tmp/pbench-server.rpm
-buildah copy $container server/requirements.txt /tmp
+buildah copy $container ${PBINC_SERVER}/requirements.txt /tmp
 buildah run $container dnf update -y
 buildah run $container dnf install -y --setopt=tsflags=nodocs \
         https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
@@ -103,13 +104,7 @@ buildah run $container chown --recursive pbench:pbench /srv/pbench
 
 buildah run $container crontab -u pbench ${SERVER_LIB}/crontab/crontab
 
-echo >/tmp/pbench.conf.${$} \
-"<VirtualHost *:80>
-    ProxyPreserveHost On
-    ProxyPass /api/ http://${HOSTNAME_F}:8001/api/
-    ProxyPassReverse /api/ http://${HOSTNAME_F}:8001/api/
-    ProxyPass / !
-</VirtualHost>"
+sed -e "s/localhost/${HOSTNAME_F}/" ${PBINC_SERVER}/lib/config/pbench.httpd.conf >/tmp/pbench.conf.${$}
 buildah copy --chown root:root --chmod 0644 $container \
     /tmp/pbench.conf.${$} /etc/httpd/conf.d/pbench.conf
 rm /tmp/pbench.conf.${$}
