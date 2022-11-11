@@ -61,7 +61,7 @@ RPMSPEC = ${BLD_DIR}/SPECS
 RPMTMP = ${BLD_DIR}/TMP
 
 sha1 := $(shell git rev-parse --short=9 HEAD)
-seqno := $(shell if [ -e ./seqno ] ;then cat ./seqno ;else echo "1" ;fi)
+seqno ?= 1
 
 $(info Building ${MAKECMDGOALS} for ${prog}-${VERSION} from ${TBDIR} to ${BLD_DIR})
 
@@ -129,23 +129,18 @@ pwdr = $(subst ${PBENCHTOP}/,,${CURDIR})
 # "normal" `rpm` target in a sub-make that is run inside a container built from
 # the distro for which the RPM is targeted.  We override the definitions for
 # `${BLD_ROOT}` and `${BLD_SUBDIR}` so that they point to the distro-specific
-# directory inside the container.
+# directory inside the container, and we provide a definition for `${seqno}`
+# so that it doesn't get incremented for each individual build.
 #
 # Each sub-make is self contained -- it builds its own SRPM and binary RPM --
 # putting the output in the file system mapped in from the host.  So, the
 # pattern target here only needs to create the output directories which will be
 # mapped into the containers.
-#
-# TODO:  When building more than one container, we should probably build the
-#        SRPM exactly once (on the host) and then map it into the container(s).
-#        And, we should presumably share the values of $(VERSION), $(seqno),
-#        and $(sha1), as well.
-.PHONY: %-rpm
-%-rpm: rpm-dirs
+%-rpm: | rpm-dirs
 	cd ${PBENCHTOP} && \
 	  IMAGE=${BUILD_CONTAINER} \
 	    jenkins/run \
-	      make BLD_ROOT=${BLD_ROOT} BLD_SUBDIR=${BLD_SUBDIR} -C ${pwdr} rpm
+	      make BLD_ROOT=${BLD_ROOT} BLD_SUBDIR=${BLD_SUBDIR} seqno=${seqno} -C ${pwdr} rpm
 
 .PHONY: distclean
 distclean:

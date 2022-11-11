@@ -30,6 +30,23 @@ ALL_RPMS = ${RHEL_RPMS} ${CENTOS_RPMS} ${FEDORA_RPMS}
 component = agent
 subcomps = agent
 
+# Generate a sequence number to be used for the RPMs:  by default, the number
+# will be 1; if the ./seqno file exists, use the number from the file and
+# increment it.  However, do this only if `seqno` is not already defined, and
+# use a "simple assignment" to ensure that it is not incremented more than once.
+# ("Conditional assignment" (?=) apparently produces a "recursive assignment",
+# which gets re-evaluated each time the variable is referenced, which results in
+# multiple increments.)
+ifeq ($(origin seqno), undefined)
+  seqno := $(shell \
+	s=1 ; \
+	if [[ -e ./seqno ]] ; then \
+	  s=$$(< ./seqno) ; \
+	  echo $$((s+1)) >./seqno ; \
+	fi ; \
+	echo $$s )
+endif
+
 export  # Export the definitions above in the invocation of the sub-make.
 
 # For historical compatibility, this is the default target.
@@ -52,3 +69,7 @@ ci: ${ALL_RPMS} ;
 
 # This recipe does nothing, other than to force the previous one to run.
 FORCE: ;
+
+# This recipe does nothing, other than to avoid running the catch-all recipe
+# when Make does the implicit Makefile target check.
+Makefile: ;
