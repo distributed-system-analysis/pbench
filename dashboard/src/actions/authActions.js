@@ -25,14 +25,12 @@ export const makeLoginRequest =
         const expiryTime = keepUser
           ? CONSTANTS.EXPIRY_KEEPUSER_DAYS
           : CONSTANTS.EXPIRY_DEFAULT_DAYS;
-        Cookies.set("isLoggedIn", true, { expires: expiryTime, secure: true });
+        Cookies.set("isLoggedIn", true, { expires: expiryTime });
         Cookies.set("token", response.data?.auth_token, {
           expires: expiryTime,
-          secure: true,
         });
         Cookies.set("username", response.data?.username, {
           expires: expiryTime,
-          secure: true,
         });
         const loginDetails = {
           isLoggedIn: true,
