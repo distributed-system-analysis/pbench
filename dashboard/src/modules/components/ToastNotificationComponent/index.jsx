@@ -7,14 +7,14 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 import React from "react";
-import { clearToast } from "actions/toastActions";
+import { hideToast } from "actions/toastActions";
 
 const ToastComponent = () => {
   const { alerts } = useSelector((state) => state.toastReducer);
   const dispatch = useDispatch();
 
   const removeToast = (key) => {
-    dispatch(clearToast(key));
+    dispatch(hideToast(key));
   };
   return (
     <AlertGroup isToast>

@@ -25,9 +25,7 @@ export const showFailureToast = () => async (dispatch) => {
 export const showToast =
   (variant, title, message = "") =>
   (dispatch, getState) => {
-    const alerts = getState()?.toastReducer?.alerts
-      ? getState().toastReducer.alerts
-      : [];
+    const alerts = getState().toastReducer.alerts;
     const obj = {
       variant: variant,
       title: title,
@@ -42,12 +40,16 @@ export const showToast =
     });
   };
 
-export const clearToast = (key) => (dispatch, getState) => {
-  const alerts = getState().toastReducer.alerts;
+export const hideToast = (key) => (dispatch, getState) => {
+  const alerts = [...getState().toastReducer.alerts];
   const activeAlert = alerts.filter((item) => item.key !== key);
 
   dispatch({
-    type: TYPES.CLEAR_TOAST,
+    type: TYPES.SHOW_TOAST,
     payload: activeAlert,
   });
+};
+
+export const clearToast = () => (dispatch) => {
+  dispatch({ type: TYPES.CLEAR_TOAST });
 };

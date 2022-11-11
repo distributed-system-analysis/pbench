@@ -48,7 +48,8 @@
     "eject": "react-scripts eject",
     "server": "node server",
     "start": "react-app-rewired start",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "coverage": "npm run test -- --coverage"
   },
   "proxy": "http://localhost:3001",
   "homepage": ".",
