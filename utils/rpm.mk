@@ -28,7 +28,6 @@ include ${PBENCHTOP}/utils/utils.mk
 prog = pbench-${component}
 VERSION := $(shell cat ${PBENCHTOP}/${component}/VERSION)
 MAJORMINOR := $(shell grep -oE '[0-9]+\.[0-9]+' ${PBENCHTOP}/${component}/VERSION)
-TBDIR = ${RPMTMP}/${prog}-${VERSION}
 
 # If we are building for a distro, use a distro-specific suffix on the build and
 # temporary directories, so that builds can be done in parallel and so that the
@@ -55,6 +54,7 @@ BLD_DIR := ${BLD_ROOT}/${BLD_SUBDIR}
 
 RPMDIRS = BUILD BUILDROOT SPECS SOURCES SRPMS RPMS TMP
 
+RPMBIN = ${BLD_DIR}/RPMS/noarch/
 RPMSRC = ${BLD_DIR}/SOURCES
 RPMSRPM = ${BLD_DIR}/SRPMS
 RPMSPEC = ${BLD_DIR}/SPECS
@@ -63,36 +63,51 @@ RPMTMP = ${BLD_DIR}/TMP
 sha1 := $(shell git rev-parse --short=9 HEAD)
 seqno ?= 1
 
-$(info Building ${MAKECMDGOALS} for ${prog}-${VERSION} from ${TBDIR} to ${BLD_DIR})
+RPM_NAME = ${prog}-${VERSION}-${seqno}g${sha1}
+PATCH_FILES = $(wildcard ./patches/*)
 
-# By default we only build a source RPM
-all: srpm
+TARGET_PATCHES = $(patsubst ./patches/%,${RPMTMP}/%,${PATCH_FILES})
+TARGET_RPM = ${RPMBIN}/${RPM_NAME}.noarch.rpm
+TARGET_SRPM = ${RPMSRPM}/${RPM_NAME}.src.rpm
+TARGET_SPEC = ${RPMSPEC}/${prog}.spec
+TARGET_TARBALL = ${RPMSRC}/${prog}-${VERSION}.tar.gz
 
-.PHONY: rpm
-rpm: spec srpm
-	rpmbuild --define "_topdir ${BLD_DIR}" -bb ${RPMSPEC}/${prog}.spec
+$(info Building ${MAKECMDGOALS} for ${RPM_NAME} from ${RPMTMP} to ${BLD_DIR})
 
-.PHONY: srpm
-srpm: spec patches tarball
-	rm -f ${RPMSRPM}/$(prog)-*.src.rpm
-	rpmbuild --define "_topdir ${BLD_DIR}" -bs ${RPMSPEC}/${prog}.spec
+# By default we only build a source RPM.  We provide convenience targets for
+# building a source or binary RPM.
+all: ${TARGET_SRPM}
+rpm: ${TARGET_RPM}
+srpm: ${TARGET_SRPM}
+.PHONY: all rpm srpm
 
-.PHONY: spec
-spec: rpm-dirs ${prog}.spec.j2
-	if [ -e ./seqno ] ;then expr ${seqno} + 1 > ./seqno ;fi
-	jinja2 ${prog}.spec.j2 -D version=${VERSION} -D gdist=g${sha1} -D seqno=${seqno} > ${RPMSPEC}/${prog}.spec
+${TARGET_RPM}: ${TARGET_SPEC} ${TARGET_PATCHES} ${TARGET_TARBALL}
+	rpmbuild --define "_topdir ${BLD_DIR}" -bb ${TARGET_SPEC}
+
+${TARGET_SRPM}: ${TARGET_SPEC} ${TARGET_PATCHES} ${TARGET_TARBALL}
+	rm -f ${RPMSRPM}/${prog}-*.src.rpm
+	rpmbuild --define "_topdir ${BLD_DIR}" -bs ${TARGET_SPEC}
+
+${TARGET_SPEC}: ${prog}.spec.j2 ${PBENCHTOP}/utils/rpmlint | rpm-dirs
+	jinja2 ${prog}.spec.j2 -D version=${VERSION} -D gdist=g${sha1} -D seqno=${seqno} > $@
 	cp ${PBENCHTOP}/utils/rpmlint ${RPMSPEC}/pbench-common.rpmlintrc
-	XDG_CONFIG_HOME=${PBENCHTOP}/utils rpmlint ${RPMSPEC}/${prog}.spec
+	XDG_CONFIG_HOME=${PBENCHTOP}/utils rpmlint $@
 
+# The phony target, "patches", is a placeholder, in case ${TARGET_PATCHES} is
+# empty -- it doesn't have any other purpose.  Note that this is a "grouped
+# target" rule, (note the `&:`) so it will trigger only once and update all
+# the patches.
 .PHONY: patches
-patches: rpm-dirs
-	if [ -d ./patches ] ;then cp ./patches/* ${RPMSRC}/ ;fi
+patches ${TARGET_PATCHES} &: ${PATCH_FILES} | rpm-dirs
+	cp $^ ${RPMSRC}/
 
-.PHONY: tarball
-tarball: rpm-dirs submodules ${subcomps}
-	echo "${sha1}" > ${TBDIR}/${component}/SHA1
-	echo "${seqno}" > ${TBDIR}/${component}/SEQNO
-	tar zcf ${RPMSRC}/${prog}-${VERSION}.tar.gz -C ${RPMTMP} ${prog}-${VERSION}
+# The tarball source tree, ${RPMTMP}/${prog}-${VERSION}, is created by the
+# ${subcomps} target(s).  Because those are phony targets, this rule will always
+# be run.
+${TARGET_TARBALL}: ${subcomps}
+	echo "${sha1}" > ${RPMTMP}/${prog}-${VERSION}/${component}/SHA1
+	echo "${seqno}" > ${RPMTMP}/${prog}-${VERSION}/${component}/SEQNO
+	tar zcf $@ -C ${RPMTMP} ${prog}-${VERSION}
 	rm -rf ${RPMTMP}/*
 
 .PHONY: rpm-dirs
@@ -104,10 +119,8 @@ submodules:
 	cd ${PBENCHTOP} && git submodule update --init --recursive
 
 .PHONY: ${subcomps}
-${subcomps}:
-	make -C ${PBENCHTOP}/$@ DESTDIR=${TBDIR}/$@ install
-
-$(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm: srpm
+${subcomps}: submodules | rpm-dirs
+	make -C ${PBENCHTOP}/$@ DESTDIR=${RPMTMP}/${prog}-${VERSION}/$@ install
 
 ifdef COPR_USER
 _copr_user = ${COPR_USER}
@@ -117,8 +130,8 @@ endif
 
 COPR_TARGETS = copr copr-test
 .PHONY: ${COPR_TARGETS}
-${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
-	copr-cli build ${CHROOTS} $(_copr_user)/$(subst copr,pbench-$(MAJORMINOR),$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
+${COPR_TARGETS}: ${TARGET_SRPM}
+	copr-cli build ${CHROOTS} ${_copr_user}/$(subst copr,pbench-${MAJORMINOR},$@) $<
 
 # Determine the present working directory relative to ${PBENCHTOP} so that we
 # can find it inside the container, where the source tree might be in a
