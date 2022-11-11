@@ -3,7 +3,7 @@ from http import HTTPStatus
 import pytest
 import requests
 
-from pbench.server import JSON, OperationCode, PbenchServerConfig
+from pbench.server import JSON, OperationCode
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
