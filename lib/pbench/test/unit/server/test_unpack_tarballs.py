@@ -6,9 +6,8 @@ from typing import Optional, Union
 
 import pytest
 
-from pbench.client import JSON, JSONOBJECT
 from pbench.common.logger import get_pbench_logger
-from pbench.server import PbenchServerConfig
+from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
 from pbench.server.cache_manager import TarballUnpackError
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.users import User

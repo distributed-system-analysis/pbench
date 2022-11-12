@@ -1,28 +1,27 @@
-from typing import Dict, List, Optional, Union
+from configparser import ConfigParser
+from enum import Enum
+from pathlib import Path
+import tarfile
+from typing import Iterator, Optional
 from urllib import parse
 
 import requests
 from requests.structures import CaseInsensitiveDict
 
-# A type defined to conform to the semantic definition of a JSON structure
-# with Python syntax.
-JSONSTRING = str
-JSONNUMBER = Union[int, float]
-JSONVALUE = Union["JSONOBJECT", "JSONARRAY", JSONSTRING, JSONNUMBER, bool, None]
-JSONARRAY = List[JSONVALUE]
-JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
-JSON = JSONVALUE
+from pbench.client.types import Dataset, JSONMap, JSONOBJECT
 
 
 class PbenchClientError(Exception):
-    """
-    Base class for exceptions reported by the Pbench Server client.
-    """
+    """Base class for exceptions reported by the Pbench Server client."""
 
     pass
 
 
 class IncorrectParameterCount(PbenchClientError):
+    """This exception is raised when a URI template is used and the provided
+    parameter count doesn't match the template's expected count.
+    """
+
     def __init__(self, api: str, cnt: int, uri_params: Optional[JSONOBJECT]):
         self.api = api
         self.cnt = cnt
@@ -32,12 +31,40 @@ class IncorrectParameterCount(PbenchClientError):
         return f"API template {self.api} requires {self.cnt} parameters ({self.uri_params})"
 
 
+class API(Enum):
+    """Define the supported Pbench Server V1 API endpoints.
+
+    Using an ENUM instead of string values allows IDE syntax checking and
+    name completion.
+    """
+
+    DATASETS_CONTENTS = "datasets_contents"
+    DATASETS_DATERANGE = "datasets_daterange"
+    DATASETS_DELETE = "datasets_delete"
+    DATASETS_DETAIL = "datasets_detail"
+    DATASETS_INVENTORY = "datasets_inventory"
+    DATASETS_LIST = "datasets_list"
+    DATASETS_MAPPINGS = "datasets_mappings"
+    DATASETS_METADATA = "datasets_metadata"
+    DATASETS_NAMESPACE = "datasets_namespace"
+    DATASETS_PUBLISH = "datasets_publish"
+    DATASETS_SEARCH = "datasets_search"
+    DATASETS_VALUES = "datasets_values"
+    ENDPOINTS = "endpoints"
+    LOGIN = "login"
+    LOGOUT = "logout"
+    REGISTER = "register"
+    SERVER_CONFIGURATION = "server_configuration"
+    UPLOAD = "upload"
+    USER = "user"
+
+
 class PbenchServerClient:
     DEFAULT_SCHEME = "http"
+    DEFAULT_PAGE_SIZE = 100
 
     def __init__(self, host: str):
-        """
-        Create a Pbench Server client object.
+        """Create a Pbench Server client object.
 
         The connect method should be called to establish a connection and set
         up the endpoints map before using any other methods.
@@ -60,10 +87,9 @@ class PbenchServerClient:
         self.endpoints: Optional[JSONOBJECT] = None
 
     def _headers(
-        self, user_headers: Optional[Dict[str, str]] = None
+        self, user_headers: Optional[dict[str, str]] = None
     ) -> CaseInsensitiveDict:
-        """
-        Create an HTTP request headers dictionary.
+        """Create an HTTP request headers dictionary.
 
         The connect method can set default HTTP headers which apply to all
         server calls. This method implicitly adds an authentication token
@@ -85,24 +111,23 @@ class PbenchServerClient:
             headers.update(user_headers)
         return headers
 
-    def _uri(self, api: str, uri_params: Optional[JSONOBJECT] = None) -> str:
-        """
-        Compute the Pbench Server URI for an operation. This uses the endpoints
-        definition stored by connect. If parameters are given, then it will use
-        the template "uri" object to find the named URI template and format it
-        with the provided parameter values.
+    def _uri(self, api: API, uri_params: Optional[JSONOBJECT] = None) -> str:
+        """Compute the Pbench Server URI for an operation. This uses the
+        endpoints definition stored by connect. If parameters are given, then
+        it will use the template "uri" object to find the named URI template
+        and format it with the provided parameter values.
 
         Args:
-            api: The name of the API
+            api: The API enum value
             uri_params: A dictionary of named parameter values for the template
 
         Returns:
             A fully specified URI
         """
         if not uri_params:
-            return self.endpoints["api"][api]
+            return self.endpoints["api"][api.value]
         else:
-            description = self.endpoints["uri"][api]
+            description = self.endpoints["uri"][api.value]
             template = description["template"]
             cnt = len(description["params"])
             if cnt != len(uri_params):
@@ -111,30 +136,34 @@ class PbenchServerClient:
 
     def get(
         self,
-        api: str,
+        api: Optional[API] = None,
         uri_params: Optional[JSONOBJECT] = None,
         *,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
+        uri: Optional[str] = None,
         raise_error: bool = True,
         **kwargs,
     ) -> requests.Response:
-        """
-        Issue a get HTTP operation through the cached session, constructing a
-        URI from the "api" name and parameters, adding or overwriting HTTP
+        """Issue a get HTTP operation through the cached session, constructing
+        a URI from the "api" name and parameters, adding or overwriting HTTP
         request headers as specified.
+
+        A "raw" unprocessed URI can be used by specifying the optional "uri"
+        parameter, instead of "api" and "uri_params".
 
         HTTP errors are raised by exception to ensure they're not overlooked.
 
         Args:
-            api: The name of the Pbench Server API
+            api: The Pbench Server API
             uri_params: A dictionary of named parameters to expand a URI template
             headers: A dictionary of header/value pairs
+            uri: Specify a full URI instead of api and uri_params
             kwargs: Additional `requests` parameters (e.g., params)
 
         Returns:
             An HTTP Response object
         """
-        url = self._uri(api, uri_params)
+        url = uri if uri else self._uri(api, uri_params)
         response = self.session.get(url, headers=self._headers(headers), **kwargs)
         if raise_error:
             response.raise_for_status()
@@ -142,16 +171,15 @@ class PbenchServerClient:
 
     def head(
         self,
-        api: str,
+        api: API,
         uri_params: Optional[JSONOBJECT] = None,
         *,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         raise_error: bool = True,
         **kwargs,
     ) -> requests.Response:
-        """
-        Issue a head HTTP operation through the cached session, constructing a
-        URI from the "api" name and parameters, adding or overwriting HTTP
+        """Issue a head HTTP operation through the cached session, constructing
+        a URI from the "api" name and parameters, adding or overwriting HTTP
         request headers as specified. `head` is a GET that returns only status
         and headers, without a response payload.
 
@@ -174,17 +202,16 @@ class PbenchServerClient:
 
     def put(
         self,
-        api: str,
+        api: API,
         uri_params: Optional[JSONOBJECT] = None,
         *,
-        json: Optional[Dict[str, str]] = None,
-        headers: Optional[Dict[str, str]] = None,
+        json: Optional[dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         raise_error: bool = True,
         **kwargs,
     ) -> requests.Response:
-        """
-        Issue a put HTTP operation through the cached session, constructing a
-        URI from the "api" name and parameters, adding or overwriting HTTP
+        """Issue a put HTTP operation through the cached session, constructing
+        a URI from the "api" name and parameters, adding or overwriting HTTP
         request headers as specified, and optionally passing a JSON request
         payload.
 
@@ -210,17 +237,16 @@ class PbenchServerClient:
 
     def post(
         self,
-        api: str,
+        api: API,
         uri_params: Optional[JSONOBJECT] = None,
         *,
-        json: Optional[Dict[str, str]] = None,
-        headers: Optional[Dict[str, str]] = None,
+        json: Optional[dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         raise_error: bool = True,
         **kwargs,
     ) -> requests.Response:
-        """
-        Issue a post HTTP operation through the cached session, constructing a
-        URI from the "api" name and parameters, adding or overwriting HTTP
+        """Issue a post HTTP operation through the cached session, constructing
+        a URI from the "api" name and parameters, adding or overwriting HTTP
         request headers as specified, and optionally passing a JSON request
         payload.
 
@@ -246,17 +272,16 @@ class PbenchServerClient:
 
     def delete(
         self,
-        api: str,
+        api: API,
         uri_params: Optional[JSONOBJECT] = None,
         *,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         raise_error: bool = True,
         **kwargs,
     ) -> requests.Response:
-        """
-        Issue a delete HTTP operation through the cached session, constructing
-        a URI from the "api" name and parameters, adding or overwriting HTTP
-        request headers as specified.
+        """Issue a delete HTTP operation through the cached session,
+        constructing a URI from the "api" name and parameters, adding or
+        overwriting HTTP request headers as specified.
 
         HTTP errors are raised by exception to ensure they're not overlooked.
 
@@ -275,9 +300,8 @@ class PbenchServerClient:
             response.raise_for_status()
         return response
 
-    def connect(self, headers: Optional[Dict[str, str]] = None) -> None:
-        """
-        Connect to the Pbench Server host using the endpoints API to be sure
+    def connect(self, headers: Optional[dict[str, str]] = None) -> None:
+        """Connect to the Pbench Server host using the endpoints API to be sure
         that it responds, and cache the endpoints response payload.
 
         This also allows the client to add default HTTP headers to the session
@@ -296,26 +320,146 @@ class PbenchServerClient:
         self.endpoints = response.json()
         assert self.endpoints
 
-    def login(self, user: str, password: str) -> None:
-        """
-        Login to a specified username with the password, and store the
+    def login(self, user: str, password: str) -> JSONMap:
+        """Login to a specified username with the password, and store the
         resulting authentication token.
 
         Args:
             user:       Account username
             password:   Account password
+
+        Returns:
+            The login response
         """
-        response = self.post("login", json={"username": user, "password": password})
+        response = self.post(API.LOGIN, json={"username": user, "password": password})
         response.raise_for_status()
         json = response.json()
         self.username = json["username"]
         self.auth_token = json["auth_token"]
+        return JSONMap(json)
 
     def logout(self) -> None:
+        """Logout the currently authenticated user and remove the
+        authentication token.
         """
-        Logout the currently authenticated user and remove the authentication
-        token.
-        """
-        self.post("logout")
+        self.post(API.LOGOUT)
         self.username = None
         self.auth_token = None
+
+    def upload(self, tarball: Path, **kwargs) -> requests.Response:
+        """Upload a tarball to the server.
+
+        This requires that the "tarball" path have a companion {tarball}.md5
+        file containing the MD5. It also requires that a user session be logged
+        in on the PbenchServerClient.
+
+        Args:
+            tarball: path to a tarball file with a companion MD5 file
+            kwargs: Use to override automatically generated headers
+                md5: override companion MD5 value
+                content-length: override computed content-length
+                controller: override metadata.log controller
+
+        Raises:
+            FileNotFound: The file or the companion MD5 file is missing
+            HttpError: An HTTP or PUT API error occurs
+
+        Returns:
+            The PUT response object
+        """
+        if "md5" in kwargs:
+            md5 = kwargs["md5"]
+        else:
+            md5 = Dataset.md5(tarball)
+        if "controller" in kwargs:
+            controller = kwargs["controller"]
+        else:
+            with tarfile.open(tarball) as t:
+                metafile = (
+                    t.extractfile(f"{Dataset.stem(tarball)}/metadata.log")
+                    .read()
+                    .decode()
+                )
+            metadata = ConfigParser()
+            metadata.read_string(metafile)
+            controller = metadata.get("run", "controller", fallback=None)
+
+        headers = {"Content-MD5": md5, "controller": controller}
+
+        with tarball.open("rb") as f:
+            return self.put(
+                api=API.UPLOAD,
+                uri_params={"filename": tarball.name},
+                headers=headers,
+                data=f,
+                raise_error=False,
+            )
+
+    def get_list(self, **kwargs) -> Iterator[Dataset]:
+        """Return a list of datasets matching the specific search criteria and
+        with the requested metadata items.
+
+        This is a generator, which will page through all selected datasets in a
+        series of paginated GET calls. If the "limit" keyword isn't specified,
+        the default is PbenchServerClient.DEFAULT_PAGE_SIZE.
+
+        Normally it makes no sense to specify "offset": the default is to page
+        through all matches. However, if "offset" is specified, then a single
+        call is made returning "limit" matches (or DEFAULT_PAGE_SIZE if not
+        specified) at the specified offset in the list of matches. (As if a
+        direct call to the raw GET API had been made.)
+
+        Args:
+            kwargs: query criteria
+                metadata: list of requested metadata paths
+                name:   name substring
+                owner:  username of dataset owner
+                access: dataset access setting
+                start:  earliest creation date
+                end:    latest creation date
+                limit:  page size to override default
+
+        Returns:
+            A list of Dataset objects
+        """
+        args = kwargs.copy()
+        if "limit" not in args:
+            args["limit"] = self.DEFAULT_PAGE_SIZE
+        json = self.get(api=API.DATASETS_LIST, params=args).json()
+        while True:
+            for d in json["results"]:
+                yield Dataset(d)
+            next = json.get("next_url")
+            if "offset" in args or not next:
+                break
+            json = self.get(uri=next).json()
+
+    def get_metadata(self, dataset_id: str, metadata: list[str]) -> JSONOBJECT:
+        """Return requested metadata for a specified dataset.
+
+        Args:
+            dataset_id: the resource ID of the targeted dataset
+            metadata: a list of metadata keys to return
+
+        Returns:
+            A JSON document containing the requested key values
+        """
+        return self.get(
+            api=API.DATASETS_METADATA,
+            uri_params={"dataset": dataset_id},
+            params={"metadata": metadata},
+        ).json()
+
+    def set_metadata(self, dataset_id: str, metadata: JSONOBJECT) -> JSONOBJECT:
+        """Set the requested metadata for a specified dataset.
+
+        Args:
+            dataset_id: the resource ID of the targeted dataset
+            metadata: a JSON object with a value for each key
+
+        Returns:
+            A JSON document containing the new key values
+        """
+        return self.put(
+            api=API.DATASETS_METADATA, uri_params={"dataset": dataset_id}, json=metadata
+        ).json()

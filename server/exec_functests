@@ -1,14 +1,15 @@
 #!/bin/bash
 
-# Very simple server functional test script
+# Very simple Pbench Server functional test script
 #
 # Install the Pbench package inside a temporary virtual environment, activate
 # that virtual environment to get access to the pbench.client package (we have
 # no other dependencies here), run the server functional tests, and then
 # deactivate the virtual environment.
-# 
-virtualenv -p /usr/bin/python3 /var/tmp/venv
-source /var/tmp/venv/bin/activate
+#
+echo "Using virtual environment ${VENV:=/var/tmp/venv}"
+virtualenv -p /usr/bin/python3 ${VENV}
+source ${VENV}/bin/activate
 python3 -m pip install . -r client/requirements.txt
 
 PBENCH_SERVER=${1} python3 -m pytest ${PWD}/lib/pbench/test/functional/server
