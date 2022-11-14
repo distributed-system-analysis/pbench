@@ -1,7 +1,7 @@
 import logging
 
 from pbench.client import API, PbenchServerClient
-from pbench.server.auth.auth import OpenIDClient
+from pbench.server.auth import OpenIDClient
 
 
 class TestConnect:
