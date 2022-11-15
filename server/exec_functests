@@ -12,5 +12,8 @@ source /var/tmp/venv/bin/activate
 python3 -m pip install . -r client/requirements.txt
 
 PBENCH_SERVER=${1} python3 -m pytest ${PWD}/lib/pbench/test/functional/server
+rc=${?}
 
 deactivate
+
+exit $rc
