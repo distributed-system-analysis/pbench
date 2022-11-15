@@ -181,9 +181,7 @@ class EndpointConfig(Resource):
         try:
             client = self.server_config.get("authentication", "client")
             realm = self.server_config.get("authentication", "realm")
-            issuer = (
-                self.server_config.get("authentication", "server_url")
-            ) + f"/{realm}"
+            issuer = self.server_config.get("authentication", "server_url")
             endpoints = {
                 "authentication": {
                     "client": client,

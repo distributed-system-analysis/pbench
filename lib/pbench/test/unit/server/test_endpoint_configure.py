@@ -39,9 +39,7 @@ class TestEndpointConfig:
         host = "http://" + host
         uri = urljoin(host, uri_prefix)
         auth_realm = server_config.get("authentication", "realm")
-        auth_issuer = (
-            server_config.get("authentication", "server_url") + f"/{auth_realm}"
-        )
+        auth_issuer = server_config.get("authentication", "server_url")
         expected_results = {
             "authentication": {
                 "realm": auth_realm,
