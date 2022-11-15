@@ -133,6 +133,24 @@ class TestUpload:
         self.verify_logs(caplog, expected_message)
         assert not self.cachemanager_created
 
+    def test_missing_filename_extension(
+        self, client, caplog, server_config, setup_ctrl, pbench_token
+    ):
+        """Test with URL uploading a file named "f" which is missing the
+        required filename extension"""
+        expected_message = "File extension not supported, must be .tar.xz"
+        response = client.put(
+            f"{server_config.rest_uri}/upload/f",
+            headers={
+                "Authorization": "Bearer " + pbench_token,
+                "controller": self.controller,
+            },
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json.get("message") == expected_message
+        self.verify_logs(caplog, expected_message)
+        assert not self.cachemanager_created
+
     def test_missing_length_header_upload(
         self, client, caplog, server_config, setup_ctrl, pbench_token
     ):
