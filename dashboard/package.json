@@ -49,6 +49,7 @@
     "test": "react-scripts test"
   },
   "proxy": "http://localhost:3001",
+  "homepage": ".",
   "eslintConfig": {
     "extends": [
       "react-app",
