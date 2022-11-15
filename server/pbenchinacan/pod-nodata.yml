@@ -1,12 +1,12 @@
 #
 # This configuration is intended to create a brand new (empty) Pbench Server
 # deployment.  The resulting pod consists of four containers: the Pbench Server
-# and its associated Elasticsearch, PostgreSQL database servers and a Keycloak
-# authentication server.
+# and its associated Elasticsearch, PostgreSQL database, and Keycloak
+# authentication servers.
 #
-# Note: Even though this pod is for creating empty containers, the Keycloak
-# container does come with some basic pre-configuration like a realm and client
-# that pbench-server expects to be there before the startup.
+# Note: This pod produces an initial Pbench Server deployment which is
+# pre-configured with a Keycloak realm and administrative user but which
+# contains no Pbench assets.
 #
 # The Elasticsearch, PostgreSQL and Keycloak container images have specific
 # versions and are pulled from cached images in an internal registry; the Pbench

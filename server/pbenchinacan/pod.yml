@@ -1,10 +1,10 @@
 #
 # This configuration is intended to create a Pbench Server deployment containing
 # pre-created users and data.  The resulting pod consists of four containers:
-# the Pbench Server and its associated Elasticsearch PostgreSQL database, and
+# the Pbench Server and its associated Elasticsearch, PostgreSQL database, and
 # keycloak authentication servers.  The expectation is that the servers have
-#  been pre-populated with data which has been persisted in their respective
-# container images and that the images have been pushed to a common repository
+# been pre-populated with data which has been persisted in their respective
+# container images and that the images have been pushed to a common repository 
 # using a common tag.
 #
 # The four container images are named
@@ -12,7 +12,7 @@
 #   pbenchinacan-pbenchserver
 #   pbenchinacan-elasticsearch
 #   pbenchinacan-postgresql
-#   pbenchinacan-keyclaok
+#   pbenchinacan-keycloak
 #
 # and they are pulled from the `pbench` repository in a configurable registry.
 #
@@ -82,17 +82,15 @@ spec:
     - /opt/keycloak/bin/kc.sh
     - start-dev
     env:
-    - name: KEYCLOAK_ADMIN
-      value: admin
-    - name: KEYCLOAK_ADMIN_PASSWORD
-      value: admin
+    - name: DESCRIPTION
+      value: Keycloak container image based off of 
+        quay.io/keycloak/keycloak:20.0.0 with pre-configured realm and client
     image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-keycloak:latest
     name: keycloak
     ports:
       - containerPort: 8080
         hostPort: 8090
-    depends_on:
-      - postgresql
+    workingDir: /opt/keycloak
   - args:
     - run-postgresql
     command:
