@@ -168,6 +168,8 @@ fi
 
 %files
 
+%defattr(644, pbench, pbench, 755)
+
 /%{installdir}
 %attr(755, pbench, pbench) /%{installdir}/bin
 %attr(644, pbench, pbench) /%{installdir}/bin/pbench-base.sh
