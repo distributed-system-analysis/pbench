@@ -79,17 +79,15 @@ spec:
     - /opt/keycloak/bin/kc.sh
     - start-dev
     env:
-    - name: KEYCLOAK_ADMIN
-      value: admin
-    - name: KEYCLOAK_ADMIN_PASSWORD
-      value: admin
+    - name: DESCRIPTION
+      value: Keycloak container image based off of 
+        quay.io/keycloak/keycloak:20.0.0 with pre-configured realm and client
     image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-keycloak:latest
     name: keycloak
     ports:
       - containerPort: 8080
         hostPort: 8090
-    depends_on:
-      - postgresql
+    workingDir: /opt/keycloak
   - args:
     - run-postgresql
     command:
