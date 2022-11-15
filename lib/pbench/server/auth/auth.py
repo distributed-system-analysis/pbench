@@ -29,7 +29,7 @@ class Auth:
         user_id = None
         user = Auth.token_auth.current_user()
         if user:
-            user_id = user.id
+            user_id = str(user.id)
         return user_id
 
     def encode_auth_token(self, time_delta: datetime.timedelta, user_id: int) -> str:
