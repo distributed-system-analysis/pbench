@@ -878,7 +878,7 @@ def tarball(tmp_path):
     """
     filename = "pbench-user-benchmark_some + config_2021.05.01T12.42.42.tar.xz"
     datafile = tmp_path / filename
-    metadata = ConfigParser()
+    metadata = ConfigParser(interpolation=None)
     metadata.add_section("pbench")
     metadata.set("pbench", "date", "2002-05-16")
     metadata_file = tmp_path / "metadata.log"
