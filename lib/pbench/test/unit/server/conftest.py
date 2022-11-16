@@ -1,4 +1,3 @@
-from configparser import ConfigParser
 import datetime
 import hashlib
 import os
@@ -15,6 +14,7 @@ from freezegun import freeze_time
 import jwt
 import pytest
 
+from pbench.common import MetadataLog
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
@@ -878,7 +878,7 @@ def tarball(tmp_path):
     """
     filename = "pbench-user-benchmark_some + config_2021.05.01T12.42.42.tar.xz"
     datafile = tmp_path / filename
-    metadata = ConfigParser(interpolation=None)
+    metadata = MetadataLog()
     metadata.add_section("pbench")
     metadata.set("pbench", "date", "2002-05-16")
     metadata_file = tmp_path / "metadata.log"

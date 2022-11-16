@@ -1,4 +1,3 @@
-from configparser import ConfigParser
 from logging import Logger
 from pathlib import Path
 import shlex
@@ -7,7 +6,7 @@ import subprocess
 import tarfile
 from typing import Dict, Optional, Union
 
-from pbench.common import selinux
+from pbench.common import MetadataLog, selinux
 from pbench.server import JSONOBJECT, PbenchServerConfig
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.utils import get_tarball_md5
@@ -299,7 +298,7 @@ class Tarball:
         """
         if not self.metadata:
             data = self.extract(f"{self.name}/metadata.log")
-            metadata = ConfigParser(interpolation=None)
+            metadata = MetadataLog()
             metadata.read_string(data)
             self.metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
         return self.metadata

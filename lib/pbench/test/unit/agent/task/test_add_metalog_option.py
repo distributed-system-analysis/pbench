@@ -1,6 +1,5 @@
-import configparser
-
 from pbench.cli.agent.commands.log import add_metalog_option
+from pbench.common import MetadataLog
 
 
 class TestAddMetalogOption:
@@ -15,7 +14,7 @@ class TestAddMetalogOption:
         # New section, new option
         add_metalog_option(mdlog, "new", "new_option", "420")
 
-        cfg = configparser.ConfigParser()
+        cfg = MetadataLog()
         cfg.read(mdlog)
 
         sections = cfg.sections()
@@ -32,7 +31,7 @@ class TestAddMetalogOption:
         # Existing section, new option
         add_metalog_option(mdlog, "existing", "new_option", "142")
 
-        cfg = configparser.ConfigParser()
+        cfg = MetadataLog()
         cfg.read(mdlog)
 
         sections = cfg.sections()
@@ -50,7 +49,7 @@ class TestAddMetalogOption:
         # Existing section, existing option
         add_metalog_option(mdlog, "existing", "existing_option", "42")
 
-        cfg = configparser.ConfigParser()
+        cfg = MetadataLog()
         cfg.read(mdlog)
 
         sections = cfg.sections()
