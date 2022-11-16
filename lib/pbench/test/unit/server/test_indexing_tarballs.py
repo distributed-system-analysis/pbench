@@ -9,8 +9,7 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 
-from pbench.client import JSONARRAY, JSONOBJECT, JSONVALUE
-from pbench.server import PbenchServerConfig
+from pbench.server import JSONARRAY, JSONOBJECT, JSONVALUE, PbenchServerConfig
 from pbench.server.database.models.datasets import (
     Dataset,
     Metadata,
