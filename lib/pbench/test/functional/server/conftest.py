@@ -25,7 +25,7 @@ def server_client():
 
 
 @pytest.fixture
-def test_user(server_client: PbenchServerClient):
+def register_test_user(server_client: PbenchServerClient):
     """Create a test user for functional tests."""
 
     response = server_client.post(
@@ -48,7 +48,7 @@ def test_user(server_client: PbenchServerClient):
 
 
 @pytest.fixture
-def login_user(server_client, test_user):
+def login_user(server_client, register_test_user):
     """Log in the test user and return the authentication token"""
     server_client.login("tester", "123456")
     assert server_client.auth_token

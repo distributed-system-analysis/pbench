@@ -22,7 +22,7 @@ class JSONMap:
     key which isn't a Python symbol.
     """
 
-    SYMBOL = re.compile(r"^[\w_]+$")
+    SYMBOL = re.compile(r"^\w+$")
 
     def __init__(self, json: JSONOBJECT):
         """Save the JSON payload; if all JSON keys are legal Python symbols,
@@ -37,8 +37,9 @@ class JSONMap:
                 setattr(self, k, JSONMap(v) if isinstance(v, dict) else v)
 
     def __getitem__(self, key: str) -> Any:
-        """Regardless of possible attribute mapping, allow access to any JSON
-        key by index.
+        """The JSONMap constructor maps JSON keys to attributes where the key
+        name is a legal Python identifier, but all keys are accessible through
+        normal dict-style indexing.
 
         Args:
             key:    JSON key
@@ -50,9 +51,10 @@ class JSONMap:
 
 
 class Dataset(JSONMap):
+
     @staticmethod
     def stem(tarball: Union[str, Path]) -> str:
-        return Path(tarball).name[:-7]
+        return Path(tarball).name.removesuffix(".tar.xz")
 
     @staticmethod
     def md5(tarball: Path) -> str:

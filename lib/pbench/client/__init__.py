@@ -357,7 +357,6 @@ class PbenchServerClient:
             tarball: path to a tarball file with a companion MD5 file
             kwargs: Use to override automatically generated headers
                 md5: override companion MD5 value
-                content-length: override computed content-length
                 controller: override metadata.log controller
 
         Raises:
@@ -367,10 +366,7 @@ class PbenchServerClient:
         Returns:
             The PUT response object
         """
-        if "md5" in kwargs:
-            md5 = kwargs["md5"]
-        else:
-            md5 = Dataset.md5(tarball)
+        md5 = kwargs.get("md5", Dataset.md5(tarball))
         if "controller" in kwargs:
             controller = kwargs["controller"]
         else:
