@@ -299,7 +299,7 @@ class Tarball:
         """
         if not self.metadata:
             data = self.extract(f"{self.name}/metadata.log")
-            metadata = ConfigParser()
+            metadata = ConfigParser(interpolation=None)
             metadata.read_string(data)
             self.metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
         return self.metadata
