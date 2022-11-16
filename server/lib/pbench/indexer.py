@@ -3929,7 +3929,7 @@ class PbenchTarBall(object):
         md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
         # Construct the @metadata and run metadata dictionaries from the
         # metadata.log file.
-        self.mdconf = ConfigParser()
+        self.mdconf = ConfigParser(interpolation=None)
         mdf = os.path.join(self.extracted_root, metadata_log_path)
         try:
             # Read and parse the metadata.log file.

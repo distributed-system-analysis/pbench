@@ -13,7 +13,7 @@ import sys
 from configparser import ConfigParser, NoSectionError
 
 def main(lfile, section, option):
-    config = ConfigParser()
+    config = ConfigParser(interpolation=None)
     config.read(lfile)
     # python3
     # config[section][option] = ', '.join(sys.stdin.read().split())

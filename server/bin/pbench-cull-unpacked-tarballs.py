@@ -86,7 +86,7 @@ def fetch_username(tb_incoming_dir):
     """fetch_username - Return the pbench "run"'s "user" value from the
     `metadata.log` file, if it exists.
     """
-    config = ConfigParser()
+    config = ConfigParser(interpolation=None)
     try:
         config.read(os.path.join(tb_incoming_dir, "metadata.log"))
     except Exception:
