@@ -51,7 +51,6 @@ class JSONMap:
 
 
 class Dataset(JSONMap):
-
     @staticmethod
     def stem(tarball: Union[str, Path]) -> str:
         return Path(tarball).name.removesuffix(".tar.xz")

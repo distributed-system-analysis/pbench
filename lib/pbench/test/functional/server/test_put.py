@@ -62,8 +62,6 @@ class TestPut:
                     assert metadata["server.status"]["index"] == "ok"
                     break
                 print(f"Dataset {dataset.name} [{state}]", file=sys.stderr)
-                assert (
-                    time.time() < timeout
-                ), "Exceeded timeout waiting for indexing"
+                assert time.time() < timeout, "Exceeded timeout waiting for indexing"
                 time.sleep(30.0)  # sleep for half a minute
         assert count == len(self.tarballs), "Didn't find all expected datasets"
