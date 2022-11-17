@@ -42,6 +42,7 @@ class DatasetsDelete(ElasticBulkBase):
                 authorization=API_AUTHORIZATION.DATASET,
             ),
             action="delete",
+            require_stable=True,
         )
 
     def generate_actions(self, params: ApiParams, dataset: Dataset) -> Iterator[dict]:
@@ -56,8 +57,14 @@ class DatasetsDelete(ElasticBulkBase):
         Returns:
             A generator for Elasticsearch bulk delete actions
         """
+
         dataset.advance(States.DELETING)
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
+
+        # If we don't have an Elasticsearch index-map, then the dataset isn't
+        # indexed and we skip the actions.
+        if not map:
+            return None
 
         self.logger.info("Starting delete operation for dataset {}", dataset)
 

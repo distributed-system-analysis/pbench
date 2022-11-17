@@ -188,6 +188,26 @@ class TestDatasetsDelete:
         assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json["message"] == "Dataset 'badwolf' not found"
 
+    def test_no_index(
+        self, client, monkeypatch, attach_dataset, pbench_token, server_config
+    ):
+        """
+        Check the delete API if the dataset has no INDEX_MAP. It should
+        succeed without tripping over Elasticsearch.
+        """
+        self.fake_cache_manager(monkeypatch)
+        ds = Dataset.query(name="drb")
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
+            headers={"authorization": f"Bearer {pbench_token}"},
+        )
+
+        # Verify the report and status
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {"ok": 0, "failure": 0}
+        with pytest.raises(DatasetNotFound):
+            Dataset.query(name="drb")
+
     def test_exception(
         self, attach_dataset, client, monkeypatch, pbench_token, server_config
     ):
