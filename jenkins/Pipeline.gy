@@ -24,6 +24,7 @@ pipeline {
             )}"""
         PB_SERVER_IMAGE="${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-pbenchserver"
         PB_POD_NAME="pbenchinacan_${PB_SERVER_IMAGE_TAG}"
+        PB_DASHBOARD_DIR="${WORKSPACE}/dashboard/build/"
     }
     stages {
         stage('Agent Python3.6 Check') {

@@ -61,6 +61,7 @@ spec:
     - name: xpack.security.enabled
       value: "false"
     image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-elasticsearch:${PB_SERVER_IMAGE_TAG}
+    imagePullPolicy: Always
     name: elasticsearch
     ports:
       - containerPort: 9200
@@ -119,6 +120,7 @@ spec:
     - name: POSTGRESQL_DATABASE
       value: pbenchcontainer
     image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-postgresql:${PB_SERVER_IMAGE_TAG}
+    imagePullPolicy: Always
     name: postgresql
     ports:
       - containerPort: 5432
@@ -142,6 +144,7 @@ spec:
     - name: container
       value: oci
     image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-pbenchserver:${PB_SERVER_IMAGE_TAG}
+    imagePullPolicy: Always
     name: pbenchserver
     ports:
       - containerPort: 22
@@ -157,6 +160,14 @@ spec:
       privileged: false
       readOnlyRootFilesystem: false
       seLinuxOptions: {}
+    volumeMounts:
+    - mountPath: /var/www/html/dashboard
+      name: dashboard_deployment
+  volumes:
+  - name: dashboard_deployment
+    hostPath:
+      path: ${PB_DASHBOARD_DIR}
+      type: DirectoryOrCreate
     workingDir: /
   dnsConfig: {}
   restartPolicy: Never

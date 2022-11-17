@@ -136,6 +136,7 @@ spec:
     - name: container
       value: oci
     image: ${PB_SERVER_IMAGE}:${PB_SERVER_IMAGE_TAG}
+    imagePullPolicy: Always
     name: pbenchserver
     ports:
       - containerPort: 22
@@ -151,6 +152,14 @@ spec:
       privileged: false
       readOnlyRootFilesystem: false
       seLinuxOptions: {}
+    volumeMounts:
+    - mountPath: /var/www/html/dashboard
+      name: dashboard_deployment
+  volumes:
+  - name: dashboard_deployment
+    hostPath:
+      path: ${PB_DASHBOARD_DIR}
+      type: DirectoryOrCreate
     workingDir: /
   dnsConfig: {}
   restartPolicy: Never
