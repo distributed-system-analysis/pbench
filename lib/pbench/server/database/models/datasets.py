@@ -820,11 +820,6 @@ class Metadata(Database.Base):
     # {"server.reindex": True}
     REINDEX = "server.reindex"
 
-    # ARCHIVED boolean flag to indicate when a tarball has been archived
-    #
-    # {"server.archived": True}
-    ARCHIVED = "server.archived"
-
     # OPERATION tag to tell the Pbench Server cron tools which operation needs
     # to be performed next, replacing the old STATE symlink subdirectories.
     OPERATION = "server.operation"
@@ -983,7 +978,9 @@ class Metadata(Database.Base):
         return bool(re.fullmatch(Metadata._valid_key_charset, k))
 
     @staticmethod
-    def getvalue(dataset: Dataset, key: str, user_id: Optional[str] = None) -> JSON:
+    def getvalue(
+        dataset: Dataset, key: str, user_id: Optional[str] = None
+    ) -> Optional[JSON]:
         """
         Returns the value of the specified key, which may be a dotted
         hierarchical path (e.g., "server.deleted").
@@ -1027,7 +1024,9 @@ class Metadata(Database.Base):
         else:
             try:
                 meta = Metadata.get(dataset, native_key, user_id)
-            except MetadataNotFound:
+            except Exception as e:
+                if not isinstance(e, MetadataNotFound):
+                    Metadata.logger.error("Unexpected exception {}", str(e))
                 return None
             value = meta.value
         name = native_key
@@ -1143,7 +1142,9 @@ class Metadata(Database.Base):
             # Python object reference. We make a copy here to ensure that it
             # sees we've made a change.
             meta_value = copy.deepcopy(meta.value)
-        except MetadataNotFound:
+        except Exception as e:
+            if not isinstance(e, MetadataNotFound):
+                Metadata.logger.error("Unexpected exeception {}", str(e))
             found = False
             meta_value = {}
 

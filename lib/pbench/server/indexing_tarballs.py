@@ -204,7 +204,7 @@ class Index:
             if not tarballs:
                 idxctx.logger.info("No tar balls found that need processing")
 
-        return (error_code["OK"].value, sorted(tarballs))
+        return (error_code["OK"].value, sorted(tarballs, key=lambda t: t.size))
 
     def emit_error(
         self, logger_method: Callable, error: str, exception: Exception

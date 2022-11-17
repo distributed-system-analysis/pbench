@@ -373,8 +373,9 @@ class Tarball:
             incoming: Controller's directory in the INCOMING tree
             results: Controller's directory in the RESULTS tree
         """
+        incoming = incoming / self.name
+        results_link = results / self.name
         unpacked = incoming / f"{self.name}.unpack"
-        unpacked.mkdir(parents=True)
 
         try:
             tar_command = f"tar -x --no-same-owner --delay-directory-restore --force-local --file='{str(self.tarball_path)}'"
@@ -391,8 +392,7 @@ class Tarball:
         finally:
             shutil.rmtree(unpacked, ignore_errors=True)
 
-        self.unpacked = incoming / self.name
-        results_link = results / self.name
+        self.unpacked = incoming
         results_link.symlink_to(self.unpacked)
         self.results_link = results_link
 

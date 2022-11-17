@@ -96,13 +96,16 @@ class UnpackTarballs:
         ntotal = nsuccess = 0
 
         for tarball in sorted(tarlist, key=lambda e: str(e.tarball)):
-            ntotal += 1
-            self.unpack(tarball)
-            self.sync.update(
-                dataset=tarball.dataset,
-                did=Operation.UNPACK,
-                enabled=[Operation.COPY_SOS, Operation.INDEX],
-            )
+            try:
+                ntotal += 1
+                self.unpack(tarball)
+                self.sync.update(
+                    dataset=tarball.dataset,
+                    did=Operation.UNPACK,
+                    enabled=[Operation.INDEX],
+                )
+            except Exception:
+                self.logger.exception("Error processing {}", tarball.tarball.name)
             nsuccess += 1
 
         return Results(total=ntotal, success=nsuccess)
