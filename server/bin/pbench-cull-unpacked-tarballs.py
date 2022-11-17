@@ -110,8 +110,6 @@ def remove_symlinks(tgt_p, tb_incoming_dir, logger, dry_run):
     errors = 0
     actions_taken = []
     for dir_n, subdir_l, file_l in os.walk(tgt_p):
-        # NOTE: we ignore any files found, as pbench-audit-server should flag
-        # subject objects.
         for subdir_n in subdir_l:
             full_p = Path(dir_n, subdir_n)
             try:
@@ -268,8 +266,6 @@ def gen_list_unpacked_aged(incoming, archive, curr_dt, max_unpacked_age):
             if c_entry.name.startswith(".") and c_entry.is_dir(follow_symlinks=False):
                 continue
             if not c_entry.is_dir(follow_symlinks=False):
-                # NOTE: the pbench-audit-server should pick up and flag this
-                # unwanted condition.
                 continue
             # We have a controller directory.
             with os.scandir(c_entry.path) as controller_scan:
@@ -279,21 +275,15 @@ def gen_list_unpacked_aged(incoming, archive, curr_dt, max_unpacked_age):
                     ):
                         continue
                     if not entry.is_dir(follow_symlinks=False):
-                        # NOTE: the pbench-audit-server should pick up and
-                        # flag this unwanted condition.
                         continue
                     match = tb_pat.fullmatch(entry.name)
                     if not match:
                         # Does not appear to be a valid tar ball directory
                         # name.
-                        # NOTE: the pbench-audit-server should pick up and
-                        # flag this unwanted condition.
                         continue
                     # We have a tar ball directory name, validate it.
                     tb_path = Path(archive, c_entry.name, f"{entry.name}.tar.xz")
                     if not tb_path.exists():
-                        # NOTE: the pbench-audit-server should pick up and
-                        # flag this unwanted condition.
                         continue
                     # Turn the pattern components of the match into a datetime
                     # object.

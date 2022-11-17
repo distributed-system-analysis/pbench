@@ -123,8 +123,6 @@ def gen_reindex_list(archive, oldest_dt, newest_dt):
                 # Ignore the ".", "..", and any other ".*" subdirectories.
                 continue
             if not c_entry.is_dir(follow_symlinks=False):
-                # NOTE: the pbench-audit-server should pick up and flag this
-                # unwanted condition.
                 continue
             # We have a controller directory, now we scan the controller
             # directory for all tar balls.
@@ -139,8 +137,7 @@ def gen_reindex_list(archive, oldest_dt, newest_dt):
                     match = tb_pat.fullmatch(entry.name)
                     if not match:
                         # Ignore any directory entries which do not match the
-                        # tar ball pattern.  Such entries should be flagged by
-                        # the server audit process.
+                        # tar ball pattern.
                         continue
                     # Turn the pattern components of the match into a datetime
                     # object.
@@ -151,8 +148,6 @@ def gen_reindex_list(archive, oldest_dt, newest_dt):
                             int(match.group(3)),
                         )
                     except ValueError:
-                        # Tar ball has a bad date timestamp, the server audit
-                        # process should flag those.
                         continue
                     if tb_dt < oldest_dt or newest_dt < tb_dt:
                         # This tar ball is outside the given range, ignore it.

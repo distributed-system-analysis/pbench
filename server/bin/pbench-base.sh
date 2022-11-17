@@ -63,19 +63,6 @@ else
     }
 fi
 
-function mk_dirs {
-    hostname=$1
-
-    for d in $LINKDIRS ;do
-        thedir=$ARCHIVE/$hostname/$d
-        mkdir -p $thedir
-        if [[ $? -ne 0 || ! -d "$thedir" ]]; then
-            return 1
-        fi
-    done
-    return 0
-}
-
 function log_init {
     LOG_DIR=$LOGSDIR/${1}
     mkdir -p $LOG_DIR

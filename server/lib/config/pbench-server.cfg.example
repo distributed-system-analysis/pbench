@@ -12,8 +12,7 @@ install-dir = /opt/pbench-server
 pbench-top-dir = /srv/pbench
 # Backup dir may be remote NFS mounted
 pbench-backup-dir = /mnt/pbench.archive.backup
-# Add role for sync'ing with satellites
-roles = pbench-maintenance, pbench-prep, pbench-results, pbench-backup, pbench-sync-satellites
+roles = pbench-maintenance, pbench-prep, pbench-results, pbench-backup
 # pbench-server rest api variables
 bind_port = 8001
 rest_version = 1
@@ -51,27 +50,6 @@ secret = client-secret
 
 ###########################################################################
 # crontab roles
-
-# The definition of the crontab role for sync'ing satellite pbench servers.
-[pbench-sync-satellites]
-host = %(default-host)s
-satellites = satellite-one, satellite-two
-tasks = pbench-sync
-
-# Template values for this satellite
-[satellite-one]
-satellite-host = satellite-one.example.com
-satellite-prefix = ONE
-satellite-lock = pbench-sync-satellite-%(satellite-prefix)s.lock
-satellite-archive = /pbench/archive/fs-version-001
-satellite-opt = /opt/pbench-server
-
-[satellite-two]
-satellite-host = satellite-two.example.com
-satellite-prefix = TWO
-satellite-lock = pbench-sync-satellite-%(satellite-prefix)s.lock
-satellite-archive = /pbench/archive/fs-version-001
-satellite-opt = /opt/pbench-server
 
 ###########################################################################
 # The rest will come from the default config file.
