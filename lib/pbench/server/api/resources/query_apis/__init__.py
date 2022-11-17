@@ -619,15 +619,7 @@ class ElasticBulkBase(ApiBase):
 
         Args:
             dataset: The associated Dataset object.
-            params: Type-normalized client parameters            except Exception as e:
-                self.logger.exception(
-                    "{}: exception {} occurred during the Elasticsearch request: report {}",
-                    klasname,
-                    type(e).__name__,
-                    report,
-                )
-                raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
-
+            params: Type-normalized client parameters
             summary: The summary document of the operation:
                 ok      Count of successful actions
                 failure Count of failing actions
