@@ -30,12 +30,8 @@ class TestConnect:
             assert e in endpoints["api"].keys()
             assert e in endpoints["uri"].keys()
 
-    def test_keycloak(self, pbench_server_client: PbenchServerClient):
-        assert pbench_server_client.session
-        assert pbench_server_client.session.headers["Accept"] == "application/json"
-        endpoints = pbench_server_client.endpoints
-        assert endpoints
-        assert "api" in endpoints
+    def test_keycloak(self, server_client: PbenchServerClient):
+        endpoints = server_client.endpoints
         assert "authentication" in endpoints
         logger = logging.getLogger("FUNCTIONAL_TEST")
         oidc_client = OpenIDClient(
@@ -45,6 +41,15 @@ class TestConnect:
             client_secret_key=endpoints["authentication"]["secret"],
             logger=logger,
         )
-        assert oidc_client.TOKENINFO_ENDPOINT
-        assert oidc_client.USERINFO_ENDPOINT
-        assert oidc_client.JWKS_URI
+        assert (
+            oidc_client.TOKENINFO_ENDPOINT
+            == "http://localhost:8090/realms/pbench/protocol/openid-connect/token/introspect"
+        )
+        assert (
+            oidc_client.USERINFO_ENDPOINT
+            == "http://localhost:8090/realms/pbench/protocol/openid-connect/userinfo"
+        )
+        assert (
+            oidc_client.JWKS_URI
+            == "http://localhost:8090/realms/pbench/protocol/openid-connect/certs"
+        )

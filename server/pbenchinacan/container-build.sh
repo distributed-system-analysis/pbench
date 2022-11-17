@@ -84,8 +84,13 @@ buildah run $container bash -c "sed -i -e '/pam_loginuid/ s/^/#/' /etc/pam.d/cro
 # Copy the Pbench Server config file; then correct the hostname configuration.
 buildah copy --chown pbench:pbench --chmod 0644 $container \
     ${PBINC_DIR}/etc/pbench-server/pbench-server.cfg ${CONF_PATH}
+
+KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-"client-secret"}
+
 buildah run $container sed -Ei \
-    -e "/^default-host[[:space:]]*=/ s/=.*/= ${HOSTNAME_F}/" ${CONF_PATH}
+    -e "/^default-host[[:space:]]*=/ s/=.*/= ${HOSTNAME_F}/" \
+    -e "s/<keycloak_secret>/${KEYCLOAK_CLIENT_SECRET}/" \
+    ${CONF_PATH}
 
 buildah run $container su -l pbench \
     -c "_PBENCH_SERVER_CONFIG=${CONF_PATH} PATH=$SERVER_BIN:$PATH pbench-server-activate-create-crontab ${SERVER_LIB}/crontab"

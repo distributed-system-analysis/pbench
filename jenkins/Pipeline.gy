@@ -6,6 +6,7 @@ pipeline {
         IMAGE_REPO="quay.io/pbench"
         IMAGE_ROLE="ci"
         NO_COLORS=0
+        KEYCLOAK_CLIENT_SECRET=credentials('5cf0304d-8a00-48a4-ade5-9f59cb37ba68')
         PB_EXTERNAL_CONTAINER_REG=credentials('24a93506-ecd6-403a-b4f0-386f9cc943e9')
         PB_INTERNAL_CONTAINER_REG=credentials('c3e2d737-0e56-4c1e-a945-d86bc644384c')
         PODMAN_EXTERNAL=credentials('87ad2797-02eb-464f-989f-8ab78d63cdf3')
