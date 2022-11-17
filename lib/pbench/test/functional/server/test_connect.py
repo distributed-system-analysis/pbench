@@ -34,12 +34,8 @@ class TestConnect:
         endpoints = server_client.endpoints
         assert "authentication" in endpoints
         logger = logging.getLogger("FUNCTIONAL_TEST")
-        # Update the server url to use host port of the Keycloak service
-        server_url = endpoints["authentication"]["issuer"][:-4] + str(
-            server_client.KEYCLOAK_HOST_PORT
-        )
         oidc_client = OpenIDClient(
-            server_url=server_url,
+            server_url=endpoints["authentication"]["issuer"],
             client_id=endpoints["authentication"]["client"],
             realm_name=endpoints["authentication"]["realm"],
             client_secret_key=endpoints["authentication"]["secret"],

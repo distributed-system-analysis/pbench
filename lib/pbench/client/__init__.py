@@ -62,7 +62,6 @@ class API(Enum):
 class PbenchServerClient:
     DEFAULT_SCHEME = "http"
     DEFAULT_PAGE_SIZE = 100
-    KEYCLOAK_HOST_PORT = 8090
 
     def __init__(self, host: str):
         """Create a Pbench Server client object.
