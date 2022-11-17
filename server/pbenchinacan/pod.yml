@@ -166,7 +166,7 @@ spec:
   volumes:
   - name: dashboard_deployment
     hostPath:
-      path: /home/pbench/html/dashboard
+      path: ${PB_DASHBOARD_DIR}
       type: DirectoryOrCreate
     workingDir: /
   dnsConfig: {}
