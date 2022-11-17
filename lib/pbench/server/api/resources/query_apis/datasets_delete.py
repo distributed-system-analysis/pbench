@@ -14,7 +14,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import ElasticBulkBase
 from pbench.server.cache_manager import CacheManager
-from pbench.server.database.models.datasets import Dataset, Metadata, States
+from pbench.server.database.models.datasets import Dataset, States
 
 
 class DatasetsDelete(ElasticBulkBase):
@@ -45,7 +45,9 @@ class DatasetsDelete(ElasticBulkBase):
             require_stable=True,
         )
 
-    def generate_actions(self, params: ApiParams, dataset: Dataset) -> Iterator[dict]:
+    def generate_actions(
+        self, params: ApiParams, dataset: Dataset, map: dict[str, list[str]]
+    ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk delete actions driven by the
         dataset document map.
@@ -53,19 +55,13 @@ class DatasetsDelete(ElasticBulkBase):
         Args:
             params: API parameters
             dataset: the Dataset object
+            map: Elasticsearch index document map
 
         Returns:
             A generator for Elasticsearch bulk delete actions
         """
 
         dataset.advance(States.DELETING)
-        map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
-
-        # If we don't have an Elasticsearch index-map, then the dataset isn't
-        # indexed and we skip the actions.
-        if not map:
-            return None
-
         self.logger.info("Starting delete operation for dataset {}", dataset)
 
         # Generate a series of bulk delete documents, which will be passed to

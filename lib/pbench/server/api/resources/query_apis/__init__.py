@@ -27,7 +27,7 @@ from pbench.server.api.resources import (
     UnauthorizedAccess,
 )
 from pbench.server.auth.auth import Auth
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 
@@ -523,6 +523,7 @@ class ElasticBulkBase(ApiBase):
         *schemas: ApiSchema,
         action: Optional[str] = None,
         require_stable: bool = False,
+        require_map: bool = False,
     ):
         """
         Base class constructor.
@@ -549,6 +550,7 @@ class ElasticBulkBase(ApiBase):
                 )
             action: bulk Elasticsearch action (delete, create, update)
             require_stable: if True, fail if dataset state is mutating (-ing state)
+            require_map: if True, fail if the dataset has no index map
         """
         super().__init__(config, logger, *schemas)
         host = config.get("elasticsearch", "host")
@@ -564,6 +566,7 @@ class ElasticBulkBase(ApiBase):
         self.config = config
         self.action = action
         self.require_stable = require_stable
+        self.require_map = require_map
 
         # Look for a parameter of type DATASET. It may be defined in any of the
         # three schemas (uri, query parameter, or request body), and we don't
@@ -586,7 +589,9 @@ class ElasticBulkBase(ApiBase):
                 api_name, "schema authorization is not by dataset"
             )
 
-    def generate_actions(self, params: ApiParams, dataset: Dataset) -> Iterator[dict]:
+    def generate_actions(
+        self, params: ApiParams, dataset: Dataset, map: dict[str, list[str]]
+    ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk operation actions driven by the
         dataset document map. For example:
@@ -603,6 +608,7 @@ class ElasticBulkBase(ApiBase):
         Args:
             params: Type-normalized client parameters
             dataset: The associated Dataset object
+            map: Elasticsearch index document map
 
         Returns:
             Sequence of Elasticsearch bulk action dict objects
@@ -658,48 +664,47 @@ class ElasticBulkBase(ApiBase):
                 HTTPStatus.CONFLICT, f"Dataset state {dataset.state.name} is mutating"
             )
 
-        # Build an Elasticsearch instance to manage the bulk update
-        elastic = Elasticsearch(self.elastic_uri)
-        self.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
+        map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
 
-        # Internally report a summary of successes and Elasticsearch failure
-        # reasons: this will look something like
-        #
-        # {
-        #   "ok": {
-        #     "index1": 1,
-        #     "index2": 500,
-        #     ...
-        #   },
-        #   "elasticsearch failure reason 1": {
-        #     "index2": 5,
-        #     "index5": 10
-        #     ...
-        #   },
-        #   "elasticsearch failure reason 2": {
-        #     "index3": 2,
-        #     "index4": 15
-        #     ...
-        #   }
-        # }
         report = defaultdict(Counter)
         count = 0
         error_count = 0
 
-        # NOTE: because streaming_bulk is given a generator, and also
-        # returns a generator, we consume the entire sequence within the
-        # `try` block to catch failures.
-        try:
-            # Pass the bulk command generator to the helper
-            actions = self.generate_actions(params.body, dataset)
+        # If we don't have an Elasticsearch index-map, then the dataset isn't
+        # indexed and we skip the Elasticsearch actions.
+        if map:
+            # Build an Elasticsearch instance to manage the bulk update
+            elastic = Elasticsearch(self.elastic_uri)
+            self.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
 
-            # If generate_actions returns None then no Elasticsearch operations
-            # are required. (For example, the subclass finds no Elasticsearch
-            # documents.)
-            if actions:
+            # Internally report a summary of successes and Elasticsearch failure
+            # reasons: this will look something like
+            #
+            # {
+            #   "ok": {
+            #     "index1": 1,
+            #     "index2": 500,
+            #     ...
+            #   },
+            #   "elasticsearch failure reason 1": {
+            #     "index2": 5,
+            #     "index5": 10
+            #     ...
+            #   },
+            #   "elasticsearch failure reason 2": {
+            #     "index3": 2,
+            #     "index4": 15
+            #     ...
+            #   }
+            # }
+
+            # NOTE: because streaming_bulk is given a generator, and also
+            # returns a generator, we consume the entire sequence within the
+            # `try` block to catch failures.
+            try:
                 results = helpers.streaming_bulk(
                     elastic,
-                    actions,
+                    self.generate_actions(params.body, dataset, map),
                     raise_on_exception=False,
                     raise_on_error=False,
                 )
@@ -743,14 +748,19 @@ class ElasticBulkBase(ApiBase):
                             status = str(e)
                         error_count += 1
                     report[status][u["_index"]] += 1
-        except Exception as e:
-            self.logger.exception(
-                "{}: exception {} occurred during the Elasticsearch request: report {}",
-                klasname,
-                type(e).__name__,
-                report,
+            except Exception as e:
+                self.logger.exception(
+                    "{}: exception {} occurred during the Elasticsearch request: report {}",
+                    klasname,
+                    type(e).__name__,
+                    report,
+                )
+                raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+        elif self.require_map:
+            raise APIAbort(
+                HTTPStatus.CONFLICT,
+                f"Dataset {self.action} requires Indexed state ({dataset.state.name})",
             )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
         summary = {"ok": count - error_count, "failure": error_count}
 

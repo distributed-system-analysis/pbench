@@ -12,7 +12,7 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.api.resources.query_apis import ElasticBulkBase
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset
 
 
 class DatasetsPublish(ElasticBulkBase):
@@ -38,9 +38,13 @@ class DatasetsPublish(ElasticBulkBase):
                 authorization=API_AUTHORIZATION.DATASET,
             ),
             action="update",
+            require_stable=True,
+            require_map=True,
         )
 
-    def generate_actions(self, params: JSON, dataset: Dataset) -> Iterator[dict]:
+    def generate_actions(
+        self, params: JSON, dataset: Dataset, map: dict[str, list[str]]
+    ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk update actions driven by the
         dataset document map.
@@ -48,13 +52,12 @@ class DatasetsPublish(ElasticBulkBase):
         Args:
             params: API request body parameters
             dataset: the Dataset object
+            map: Elasticsearch index document map
 
         Returns:
             A generator for Elasticsearch bulk update actions
         """
         access = params["access"]
-        map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
-
         self.logger.info("Starting publish operation for dataset {}", dataset)
 
         # Generate a series of bulk update documents, which will be passed to

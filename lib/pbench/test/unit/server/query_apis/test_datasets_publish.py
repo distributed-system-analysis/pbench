@@ -187,8 +187,36 @@ class TestDatasetsPublish:
         assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json["message"] == "Dataset 'badwolf' not found"
 
+    def test_no_index(
+        self, client, monkeypatch, attach_dataset, pbench_token, server_config
+    ):
+        """
+        Check the publish API if the dataset has no INDEX_MAP. It should
+        fail with a CONFLICT error.
+        """
+        self.fake_elastic(monkeypatch, {}, True)
+
+        ds = Dataset.query(name="drb")
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/publish/{ds.resource_id}",
+            headers={"authorization": f"Bearer {pbench_token}"},
+            json=self.PAYLOAD,
+        )
+
+        # Verify the report and status
+        assert response.status_code == HTTPStatus.CONFLICT
+        assert response.json == {
+            "message": "Dataset update requires Indexed state (INDEXED)"
+        }
+
     def test_exception(
-        self, attach_dataset, client, monkeypatch, pbench_token, server_config
+        self,
+        attach_dataset,
+        client,
+        monkeypatch,
+        get_document_map,
+        pbench_token,
+        server_config,
     ):
         """
         Check the publish API response if the bulk helper throws an exception.

@@ -209,7 +209,13 @@ class TestDatasetsDelete:
             Dataset.query(name="drb")
 
     def test_exception(
-        self, attach_dataset, client, monkeypatch, pbench_token, server_config
+        self,
+        attach_dataset,
+        client,
+        monkeypatch,
+        get_document_map,
+        pbench_token,
+        server_config,
     ):
         """
         Check the delete API response if the bulk helper throws an exception.
