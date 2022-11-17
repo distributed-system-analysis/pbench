@@ -16,6 +16,7 @@ class TestConnect:
         endpoints = server_client.endpoints
         assert endpoints
         assert "api" in endpoints
+        assert "authentication" in endpoints
         assert "identification" in endpoints
         assert "uri" in endpoints
 
@@ -32,7 +33,6 @@ class TestConnect:
 
     def test_keycloak(self, server_client: PbenchServerClient):
         endpoints = server_client.endpoints
-        assert "authentication" in endpoints
         logger = logging.getLogger("FUNCTIONAL_TEST")
         oidc_client = OpenIDClient(
             server_url=endpoints["authentication"]["issuer"],

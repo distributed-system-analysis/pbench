@@ -12,10 +12,12 @@
 # This script assumes that Keycloak server is running and the master realm
 # username/password are admin/admin
 
-KEYCLOAK_HOST_PORT=${1:-"localhost:8080"}
-KEYCLOAK_REDIRECT_URI=${2:-"http://localhost:8080/*"}
-ADMIN_USERNAME="admin"
-ADMIN_PASSWORD="admin"
+KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"localhost:8090"}
+KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"http://localhost:8080/*"}
+ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
+ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
+REALM=${KEYCLOAK_REALM:-"pbench"}
+CLIENT=${KEYCLOAK_CLIENT:-"pbench-server"}
 
 echo
 echo "KEYCLOAK_HOST_PORT: ${KEYCLOAK_HOST_PORT}"
@@ -40,15 +42,16 @@ echo "--------------"
 curl -i -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"realm": "pbench", "enabled": true}'
+  -d '{"realm": "'${REALM}'", "enabled": true}'
 
 echo "Creating client"
 echo "---------------"
 
-CLIENT_CONF=$(curl -si -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms/pbench/clients" \
+CLIENT_CONF=$(curl -si -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"clientId": "pbench-client", "directAccessGrantsEnabled": true, "serviceAccountsEnabled": true, "redirectUris": "'"${KEYCLOAK_REDIRECT_URI}"'"]}')
+   -d '{"clientId": "'${CLIENT}'", "directAccessGrantsEnabled": true, "serviceAccountsEnabled": true, "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
+
 
 CLIENT_ID=$(grep -o -e 'http://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
 echo "client_id=${CLIENT_ID}"
@@ -57,42 +60,42 @@ echo
 echo "Getting client secret"
 echo "---------------------"
 
-PBENCH_CLIENT_SECRET=$(curl -s -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms/pbench/clients/${CLIENT_ID}/client-secret" \
+PBENCH_CLIENT_SECRET=$(curl -s -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/client-secret" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" | jq -r '.value')
 
 echo "PBENCH_CLIENT_SECRET=${PBENCH_CLIENT_SECRET}"
 echo
 
-echo "Creating an 'ADMIN' role under pbench-server client of the pbench realm"
+echo "Creating an 'ADMIN' role under ${CLIENT} client of the ${REALM} realm"
 echo "--------------------"
 
-curl -i -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms/pbench/clients/${CLIENT_ID}/roles" \
+curl -i -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"name": "ADMIN"}'
 
-ROLE_ID=$(curl -s "http://${KEYCLOAK_HOST_PORT}/admin/realms/pbench/clients/${CLIENT_ID}/roles" \
+ROLE_ID=$(curl -s "http://${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" | jq -r '.[0].id')
 
 echo "ROLE_ID=${ROLE_ID}"
 echo
 
-echo "Creating user"
+echo "Creating a user inside ${REALM} realm"
 echo "-------------"
 
-USER=$(curl -si -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms/pbench/users" \
+USER=$(curl -si -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"username": "test_user", "enabled": true, "credentials": [{"type": "password", "value": "123", "temporary": false}]}')
+  -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "123", "temporary": false}]}')
 
 USER_ID=$(grep -o -e 'http://[^[:space:]]*' <<< ${USER} | sed -e 's|.*/||')
 echo "USER_ID=${USER_ID}"
 echo
 
-echo "Setting pbench-serve client role to the user created above"
+echo "Setting ${CLIENT} client role to the user created above"
 echo "---------------------------"
 
-curl -i -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms/pbench/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
+curl -i -X POST "http://${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '[{"id":"'"${ROLE_ID}"'","name":"ADMIN"}]'
+  -d '[{"id":"'${ROLE_ID}'","name":"ADMIN"}]'
