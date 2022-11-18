@@ -5,11 +5,14 @@ from pathlib import Path
 import site
 import subprocess
 import sys
+import time
 
+import requests
 from sqlalchemy_utils import create_database, database_exists
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
+from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 from pbench.server.database.database import Database
 
@@ -37,6 +40,57 @@ def find_the_unicorn(logger: Logger):
             )
 
 
+def keycloak_connection(config: PbenchServerConfig, logger: Logger):
+    """
+     Checks if the Keycloak server is up and accepting the connections.
+     The connection check does the GET request on the oidc server /health
+     endpoint and the sample response returned by the /health endpoint looks
+     like the following:
+        {
+            "status": "UP", # if the server is up
+            "checks": []
+        }
+     Note: The Keycloak server need to be started with health-enabled on.
+     Args:
+        config: PbenchServerConfig
+        logger: logger
+    Returns:
+        0 if successful
+    """
+    try:
+        oidc_server = str(config.get("authentication", "internal_server_url"))
+    except (NoSectionError):
+        logger.exception("Error fetching required configuration")
+        sys.exit(1)
+    except (NoOptionError):
+        try:
+            oidc_server = str(config.get("authentication", "server_url"))
+        except (NoOptionError):
+            logger.exception("Error fetching required configuration")
+            sys.exit(1)
+
+    # The connection check will run for a minute, and if the connection is
+    # successful it will break the look.
+    t_end = time.time() + 60
+    while time.time() <= t_end:
+        try:
+            response = requests.session().request(
+                "GET", f"{oidc_server}/health", verify=False
+            )
+            response.raise_for_status()
+            if response.json()["status"] == "UP":
+                return
+            else:
+                time.sleep(10)
+                continue
+        except Exception:
+            logger.exception("Exception while initializing OIDC client")
+            time.sleep(10)
+
+    logger.error("Could not connect to OIDC client")
+    sys.exit(1)
+
+
 def main():
     os.environ[
         "_PBENCH_SERVER_CONFIG"
@@ -47,6 +101,7 @@ def main():
         print(e)
         sys.exit(1)
     logger = get_pbench_logger(PROG, server_config)
+    keycloak_connection(config=server_config, logger=logger)
     find_the_unicorn(logger)
     try:
         host = str(server_config.get("pbench-server", "bind_host"))

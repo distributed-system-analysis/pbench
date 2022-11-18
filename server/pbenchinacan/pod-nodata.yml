@@ -78,6 +78,7 @@ spec:
   - command:
     - /opt/keycloak/bin/kc.sh
     - start-dev
+    - --health-enabled=true
     image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-keycloak:latest
     name: keycloak
     ports:

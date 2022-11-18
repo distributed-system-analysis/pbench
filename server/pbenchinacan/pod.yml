@@ -81,7 +81,8 @@ spec:
   - command:
     - /opt/keycloak/bin/kc.sh
     - start-dev
-    image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-keycloak:latest
+    - --health-enabled=true
+    image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-keycloak:${PB_SERVER_IMAGE_TAG}
     name: keycloak
     ports:
       - containerPort: 8080
