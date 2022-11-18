@@ -120,10 +120,11 @@ class Sync:
 
         try:
             Metadata.setvalue(dataset, Metadata.OPERATION, sorted(operations))
+            if message:
+                Metadata.setvalue(dataset, "server.status." + self.component, message)
         except Exception as e:
             self.logger.warning("{} error updating ops: {}", dataset.name, str(e))
-        if message:
-            Metadata.setvalue(dataset, "server.status." + self.component, message)
+            raise
 
     def error(self, dataset: Dataset, message: str):
         """

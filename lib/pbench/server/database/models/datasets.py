@@ -1027,6 +1027,7 @@ class Metadata(Database.Base):
             except Exception as e:
                 if not isinstance(e, MetadataNotFound):
                     Metadata.logger.error("Unexpected exception {}", str(e))
+                    raise
                 return None
             value = meta.value
         name = native_key
