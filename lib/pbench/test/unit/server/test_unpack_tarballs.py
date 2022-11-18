@@ -73,6 +73,7 @@ class MockPath:
 
     def __init__(self, path: Union[str, Path, "MockPath"]):
         self.path = str(path)
+        self.name = Path(path).name
 
     def resolve(self, strict: bool = False) -> "MockPath":
         assert strict
@@ -241,7 +242,7 @@ class TestUnpackTarballs:
         assert sorted(MockSync.record.keys()) == sorted(targets)
         for actions in MockSync.record.values():
             assert actions["did"] == Operation.UNPACK
-            assert actions["enabled"] == [Operation.COPY_SOS, Operation.INDEX]
+            assert actions["enabled"] == [Operation.INDEX]
 
     @pytest.mark.parametrize(
         "fail", [["md5.1"], ["md5.1", "md5.2"], ["md5.1", "md5.2", "md5.3"]]
@@ -275,24 +276,18 @@ class TestUnpackTarballs:
         obj = UnpackTarballs(MockConfig, make_logger)
         MockCacheManager._fail_on(fail)
 
-        # FIXME [PBENCH-961] The unpack_tarballs loop should handle unpack
-        # exceptions and continue with the loop without exposing the exception
-        # to the caller. When this bug is fixed, remove `with pytest.raises`
-        # here and dedent the following code, which is analogous to the above
-        # test_failures case for Path errors.
-        with pytest.raises(TarballUnpackError):
-            result = obj.unpack_tarballs(0.0, float("inf"))
-            assert result.total == len(datasets) - len(fail)
-            assert result.success == result.total
-            ids = sorted(
-                [
-                    t.dataset.resource_id
-                    for t in datasets
-                    if t.dataset.resource_id not in fail
-                ]
-            )
-            assert sorted(MockCacheManager.unpacked) == ids
-            assert sorted(MockSync.record.keys()) == ids
+        result = obj.unpack_tarballs(0.0, float("inf"))
+        assert result.success == len(datasets) - len(fail)
+        assert result.total == len(datasets)
+        ids = sorted(
+            [
+                t.dataset.resource_id
+                for t in datasets
+                if t.dataset.resource_id not in fail
+            ]
+        )
+        assert sorted(MockCacheManager.unpacked) == ids
+        assert sorted(MockSync.record.keys()) == ids
 
     def test_unpack_report(self, make_logger, mocks):
         obj = UnpackTarballs(MockConfig, make_logger)

@@ -106,6 +106,7 @@ class UnpackTarballs:
                 )
             except Exception:
                 self.logger.exception("Error processing {}", tarball.tarball.name)
+                continue
             nsuccess += 1
 
         return Results(total=ntotal, success=nsuccess)
