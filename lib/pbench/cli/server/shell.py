@@ -1,13 +1,15 @@
 from configparser import NoOptionError, NoSectionError
+from http import HTTPStatus
 from logging import Logger
 import os
 from pathlib import Path
 import site
 import subprocess
 import sys
-import time
 
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from sqlalchemy_utils import create_database, database_exists
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
@@ -58,36 +60,36 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger):
         0 if successful
     """
     try:
-        oidc_server = str(config.get("authentication", "internal_server_url"))
+        oidc_server = config.get(
+            "authentication",
+            "internal_server_url",
+            fallback=config.get("authentication", "server_url"),
+        )
     except (NoSectionError):
-        logger.exception("Error fetching required configuration")
+        logger.exception("Bad config file:  missing 'authentication' section")
         sys.exit(1)
     except (NoOptionError):
-        try:
-            oidc_server = str(config.get("authentication", "server_url"))
-        except (NoOptionError):
-            logger.exception("Error fetching required configuration")
-            sys.exit(1)
+        logger.error("Bad config file:  no 'server_url' in  'authentication' section")
+        sys.exit(1)
 
-    # The connection check will run for a minute, and if the connection is
-    # successful it will break the look.
-    t_end = time.time() + 60
-    while time.time() <= t_end:
-        try:
-            response = requests.session().request(
-                "GET", f"{oidc_server}/health", verify=False
-            )
-            response.raise_for_status()
-            if response.json()["status"] == "UP":
-                return
-            else:
-                time.sleep(10)
-                continue
-        except Exception:
-            logger.exception("Exception while initializing OIDC client")
-            time.sleep(10)
+    session = requests.Session()
+    # The connection check will retry thrice unless successful, viz.,
+    # [0.0s, 20.0s, 40.0s]. urllib3 will sleep for:
+    # {backoff factor} * (2 ^ ({number of total retries} - 1)) seconds between
+    # the retries. More detailed documentation on Retry and backoff_factor can
+    # be found at:
+    # https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry
+    retry = Retry(total=3, backoff_factor=10)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+    response = session.get(f"{oidc_server}/health")
+    if response.status_code == HTTPStatus.OK and response.json()["status"] == "UP":
+        logger.info("Keycloak connection successful")
+        return
 
-    logger.error("Could not connect to OIDC client")
+    logger.error(
+        "Could not connect to OIDC client, OIDC server response: {}", response.json()
+    )
     sys.exit(1)
 
 
