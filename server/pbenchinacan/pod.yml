@@ -1,20 +1,10 @@
 #
-# This configuration is intended to create a Pbench Server deployment containing
-# pre-created users and data.  The resulting pod consists of four containers:
-# the Pbench Server and its associated Elasticsearch, PostgreSQL database, and
-# keycloak authentication servers.  The expectation is that the servers have
-# been pre-populated with data which has been persisted in their respective
-# container images and that the images have been pushed to a common repository
-# using a common tag.
+# Pod Specification for a self-contained Pbench Server Environment.
 #
-# The four container images are named
-#
-#   pbenchinacan-pbenchserver
-#   pbenchinacan-elasticsearch
-#   pbenchinacan-postgresql
-#   pbenchinacan-keycloak
-#
-# and they are pulled from the `pbench` repository in a configurable registry.
+# This configuration creates a pod for the Pbench Server deployment using
+# four separate containers: the Pbench Server and its associated
+# Elasticsearch instance, PostgreSQL database instance, and KeyCloak broker
+# instance.
 #
 # The pod should be invoked via the following command
 #
@@ -23,8 +13,16 @@
 # with the following environment variables defined:
 #
 #  PB_POD_NAME - the name to be used for the pod
-#  PB_INTERNAL_CONTAINER_REG - the FQDN of the container registry
-#  PB_SERVER_IMAGE_TAG - the tag for all three container images
+#  PB_CONTAINER_REG - the FQDN of the container registry
+#  PB_ORG_NAME - the organization name of the image repository in the container
+#                registry
+#  PB_<name>_IMAGE_TAG - the tag container image
+#  PB_<name>_IMAGE_NAME - the image name to use
+#  PB_<name>_IMAGE_PULL_POLICY - pull policy to use
+#      For each of the above, replace <name> with one of:
+#          ELASTICSEARCH | KEYCLOAK | POSTGRESQL | SERVER
+#  PB_DASHBOARD_DIR - the directory to mount into the pbench server container
+#                     containing the dashboard code to use
 #
 # The resulting pod maps the following ports:
 #
@@ -36,7 +34,6 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  creationTimestamp: "2021-10-29T21:13:14Z"
   labels:
     app: pbenchserverinacan
   name: ${PB_POD_NAME}
@@ -62,8 +59,8 @@ spec:
       value: "single-node"
     - name: xpack.security.enabled
       value: "false"
-    image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-elasticsearch:${PB_SERVER_IMAGE_TAG}
-    imagePullPolicy: Always
+    image: ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_ELASTICSEARCH_IMAGE_NAME}:${PB_ELASTICSEARCH_IMAGE_TAG}
+    imagePullPolicy: ${PB_ELASTICSEARCH_IMAGE_PULL_POLICY}
     name: elasticsearch
     ports:
       - containerPort: 9200
@@ -84,7 +81,8 @@ spec:
     - start-dev
     - --http-port=8090
     - --health-enabled=true
-    image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-keycloak:${PB_SERVER_IMAGE_TAG}
+    image: ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_KEYCLOAK_IMAGE_NAME}:${PB_KEYCLOAK_IMAGE_TAG}
+    imagePullPolicy: ${PB_KEYCLOAK_IMAGE_PULL_POLICY}
     name: keycloak
     ports:
       - containerPort: 8090
@@ -132,8 +130,8 @@ spec:
       value: pbench
     - name: POSTGRESQL_DATABASE
       value: pbenchcontainer
-    image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-postgresql:${PB_SERVER_IMAGE_TAG}
-    imagePullPolicy: Always
+    image: ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_POSTGRESQL_IMAGE_NAME}:${PB_POSTGRESQL_IMAGE_TAG}
+    imagePullPolicy: ${PB_POSTGRESQL_IMAGE_PULL_POLICY}
     name: postgresql
     ports:
       - containerPort: 5432
@@ -157,8 +155,8 @@ spec:
       value: xterm
     - name: container
       value: oci
-    image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-pbenchserver:${PB_SERVER_IMAGE_TAG}
-    imagePullPolicy: Always
+    image: ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
+    imagePullPolicy: ${PB_SERVER_IMAGE_PULL_POLICY}
     name: pbenchserver
     ports:
       - containerPort: 8080

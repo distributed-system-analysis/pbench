@@ -1,0 +1,80 @@
+#!/bin/bash
+
+export EXTRA_PODMAN_SWITCHES=${EXTRA_PODMAN_SWITCHES:-"--pull=always -e=COV_REPORT_XML=yes"}
+export IMAGE_KIND=${IMAGE_KIND:-"fedora"}
+export IMAGE_REPO=${IMAGE_REPO:-"quay.io/pbench"}
+export IMAGE_ROLE=${IMAGE_ROLE:-"ci"}
+
+export PB_CONTAINER_REG=${PB_CONTAINER_REG:-"images.paas.redhat.com"}
+export PB_ORG_NAME=${PB_ORG_NAME:-"pbench"}
+
+export PB_ELASTICSEARCH_IMAGE_NAME=${PB_ELASTICSEARCH_IMAGE_NAME:-"elasticsearch"}
+export PB_ELASTICSEARCH_IMAGE_TAG=${PB_ELASTICSEARCH_IMAGE_TAG:-"7.13.3"}
+export PB_POSTGRESQL_IMAGE_NAME=${PB_POSTGRESQL_IMAGE_NAME:-"postgresql-13"}
+export PB_POSTGRESQL_IMAGE_TAG=${PB_POSTGRESQL_IMAGE_TAG:-"latest"}
+export PB_KEYCLOAK_IMAGE_NAME=${PB_KEYCLOAK_IMAGE_NAME:-"pbenchinacan-keycloak"}
+export PB_KEYCLOAK_IMAGE_TAG=${PB_KEYCLOAK_IMAGE_TAG:-"latest"}
+export PB_SERVER_IMAGE_NAME=${PB_SERVER_IMAGE_NAME:-"pbench-server-ci"}
+export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
+export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
+
+export PB_COMMON_IMAGE_PULL_POLICY=${PB_COMMON_IMAGE_PULL_POLICY:-"Always"}
+export PB_ELASTICSEARCH_IMAGE_PULL_POLICY="${PB_ELASTICSEARCH_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
+export PB_POSTGRESQL_IMAGE_PULL_POLICY="${PB_POSTGRESQL_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
+export PB_KEYCLOAK_IMAGE_PULL_POLICY="${PB_KEYCLOAK_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
+export PB_SERVER_IMAGE_PULL_POLICY="${PB_SERVER_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
+
+export PB_DASHBOARD_DIR="${PB_DASHBOARD_DIR:-${PWD}/dashboard/build/}"
+
+function cleanup {
+    # Remove the pod which we just created and ran; remove any dangling
+    # containers; and then remove any dangling images.
+    podman pod rm --force --ignore ${1}
+    podman container prune -f
+    podman container cleanup --all --rm
+    podman image prune -f
+}
+
+if [[ ${1} == "--cleanup" ]]; then
+    trap "cleanup ${PB_POD_NAME}" INT QUIT ERR EXIT
+fi
+
+envsubst < server/pbenchinacan/pod.yml | podman play kube -
+
+SERVER_URL="http://localhost:8080"
+SERVER_API_ENDPOINTS="${SERVER_URL}/api/v1/endpoints"
+
+echo "Waiting for pod's httpd to show up ..."
+until curl -s -o /dev/null ${SERVER_API_ENDPOINTS}; do
+    sleep 1
+done
+echo "Waiting for pod's Pbench Server to show up ..."
+status_code=$(curl -s -o /dev/null -w "%{http_code}" ${SERVER_API_ENDPOINTS})
+while [[ "${status_code}" == "503" ]]; do
+    sleep 1
+    status_code=$(curl -s -o /dev/null -w "%{http_code}" ${SERVER_API_ENDPOINTS})
+done
+if [[ "${status_code}" != "200" ]]; then
+    curl ${SERVER_API_ENDPOINTS}
+    exit 1
+fi
+
+EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" jenkins/run server/exec_functests ${SERVER_URL}
+exit_status=${?}
+if [[ ${exit_status} -ne 0 ]]; then
+    # Try to capture the functional test container's log on completion.
+    # On success, the pod has already been shut down, so ignore errors.
+    # TODO: is there a more elegant way to do this?
+    podman exec ${PB_POD_NAME}-pbenchserver journalctl
+fi
+podman pod stop ${PB_POD_NAME}
+stop_status=${?}
+if [[ ${exit_status} -eq 0 ]]; then
+    exit_status=${stop_status}
+fi
+podman pod rm ${PB_POD_NAME}
+stop_status=${?}
+if [[ ${exit_status} -eq 0 ]]; then
+    exit_status=${stop_status}
+fi
+exit ${exit_status}
