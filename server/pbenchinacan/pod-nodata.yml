@@ -21,9 +21,7 @@
 # The resulting pod maps the following ports:
 #
 #   8080 - HTTP web server (and Pbench Dashboard)
-#   8001 - Pbench Server RESTful API
 #   9200 - Elasticsearch
-#  55555 - ssh
 #
 apiVersion: v1
 kind: Pod
@@ -139,12 +137,8 @@ spec:
     imagePullPolicy: Always
     name: pbenchserver
     ports:
-      - containerPort: 22
-        hostPort: 55555
       - containerPort: 80
         hostPort: 8080
-      - containerPort: 8001
-        hostPort: 8001
     resources: {}
     securityContext:
       allowPrivilegeEscalation: true
@@ -155,12 +149,12 @@ spec:
     volumeMounts:
     - mountPath: /var/www/html/dashboard
       name: dashboard_deployment
+    workingDir: /
   volumes:
   - name: dashboard_deployment
     hostPath:
       path: ${PB_DASHBOARD_DIR}
       type: DirectoryOrCreate
-    workingDir: /
   dnsConfig: {}
   restartPolicy: Never
 status: {}
