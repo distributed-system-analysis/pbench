@@ -2,17 +2,21 @@
 #
 # This script builds a container which, when run, starts a Pbench Server.
 #
-# Note:  successfully running this script required adding AUDIT_WRITE (for the
-#        operation of sshd) and CAP_SETFCAP (for the installation of httpd) to
-#        the list of default capabilities in /etc/containers/containers.conf
-#        (and, if that file doesn't exist, you'll need to create it with the
-#        other default capabilities, e.g., see
+# Note:  successfully running this script required adding CAP_SETFCAP (for the
+#        installation of httpd) to the list of default capabilities in
+#        /etc/containers/containers.conf (and, if that file doesn't exist,
+#        you'll need to create it with the other default capabilities, e.g., see
 #        https://man.archlinux.org/man/containers.conf.5.en#CONTAINERS_TABLE and
 #        https://github.com/containers/common/blob/da56e470c0c57c27e91bdc844b32c5dab6611394/pkg/config/containers.conf#L48)
 #
 
 set -o errexit
 
+#+
+# Configuration definition section.
+#-
+
+# Main inputs to the container build process
 BASE_IMAGE=${BASE_IMAGE:-registry.access.redhat.com/ubi9:latest}
 RPM_PATH=${RPM_PATH:-/root/sandbox/rpmbuild/RPMS/noarch/pbench-server-*.rpm}
 
@@ -28,8 +32,22 @@ GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PBINC_SERVER=${GITTOP}/server
 PBINC_DIR=${PBINC_SERVER}/pbenchinacan
 
-# Image tag determined from jenkins/branch.name
+# Image tag to use, default determined from jenkins/branch.name
 PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
+
+#+
+# Configuration verification section.
+#-
+
+if (( $(ls ${RPM_PATH} 2>/dev/null | wc -l) != 1 ))
+then
+    echo "RPM_PATH (${RPM_PATH}) does not uniquely identify the RPM file" >&2
+    exit 2
+fi
+
+#+
+# Container build section.
+#-
 
 # Open a copy of the base container.  Docker format is required in order to set
 # the hostname.
@@ -44,15 +62,8 @@ buildah config \
     --label maintainer="Webb Scales <wscales@redhat.com>" \
     --hostname $HOSTNAME_F \
     --stop-signal SIGINT \
-    --port 22        `# sshd` \
     --port 8001      `# pbench-server` \
     $container
-
-if (( $(ls ${RPM_PATH} 2>/dev/null | wc -l) != 1 ))
-then
-    echo "RPM_PATH (${RPM_PATH}) does not uniquely identify the RPM file" >&2
-    exit 2
-fi
 
 buildah copy $container ${RPM_PATH} /tmp/pbench-server.rpm
 buildah copy $container ${PBINC_SERVER}/requirements.txt /tmp
