@@ -43,7 +43,12 @@ include = '''
 | ^/agent/util-scripts/validate-hostname$
 | ^/agent/util-scripts/validate-ipaddress$
 | ^/agent/util-scripts/pbench-tool-meister-start$
-| ^/server/bin/pbench-pp-status$
+| ^/server/bin/pbench-backup-tarballs$
+| ^/server/bin/pbench-cull-unpacked-tarballs$
+| ^/server/bin/pbench-index$
+| ^/server/bin/pbench-reindex$
+| ^/server/bin/pbench-unpack-tarballs$
+| ^/server/bin/pbench-verify-backup-tarballs$
 | ^/utils/fetch-curr-commit-id$
 '''
 extend-exclude = '''
