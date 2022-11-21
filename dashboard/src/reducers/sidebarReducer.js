@@ -1,7 +1,7 @@
 import { SET_ACTIVE_MENU_ITEM } from "../actions/types";
 
 const initialState = {
-  activeMenuItem: "overview",
+  activeMenuItem: "",
 };
 const SidebarReducer = (state = initialState, action = {}) => {
   const { type, payload } = action;

@@ -1,6 +1,6 @@
 export const menuOptions = [
   {
-    group: "dashboard",
+    group: { key: "dashboard", title: "Dashboard" },
     submenu: [
       {
         name: "Overview",
