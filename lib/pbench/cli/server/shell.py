@@ -6,6 +6,7 @@ from pathlib import Path
 import site
 import subprocess
 import sys
+from typing import NoReturn, Optional
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -42,7 +43,9 @@ def find_the_unicorn(logger: Logger):
             )
 
 
-def keycloak_connection(config: PbenchServerConfig, logger: Logger):
+def keycloak_connection(
+    config: PbenchServerConfig, logger: Logger
+) -> Optional[NoReturn]:
     """
      Checks if the Keycloak server is up and accepting the connections.
      The connection check does the GET request on the oidc server /health
@@ -74,10 +77,11 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger):
 
     session = requests.Session()
     # The connection check will retry multiple times unless successful, viz.,
-    # [0.0s, 4.0s, 8.0s, 16.0s, ..., 256.0s]. urllib3 will sleep for:
+    # [0.0s, 4.0s, 8.0s, 16.0s, ..., 120.0s]. urllib3 will sleep for:
     # {backoff factor} * (2 ^ ({number of total retries} - 1)) seconds between
-    # the retries. More detailed documentation on Retry and backoff_factor can
-    # be found at:
+    # the retries. However, the sleep will never be longer than backoff_max
+    # which defaults to 120.0s More detailed documentation on Retry and
+    # backoff_factor can be found at:
     # https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry
     try:
         retry = Retry(total=8, backoff_factor=2)
