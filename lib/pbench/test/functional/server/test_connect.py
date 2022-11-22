@@ -1,7 +1,4 @@
-import logging
-
 from pbench.client import API, PbenchServerClient
-from pbench.server.auth import OpenIDClient
 
 
 class TestConnect:
@@ -30,26 +27,3 @@ class TestConnect:
         for e in expected:
             assert e in endpoints["api"].keys()
             assert e in endpoints["uri"].keys()
-
-    def test_keycloak(self, server_client: PbenchServerClient):
-        endpoints = server_client.endpoints
-        logger = logging.getLogger("FUNCTIONAL_TEST")
-        oidc_client = OpenIDClient(
-            server_url=endpoints["authentication"]["issuer"],
-            client_id=endpoints["authentication"]["client"],
-            realm_name=endpoints["authentication"]["realm"],
-            client_secret_key=endpoints["authentication"]["secret"],
-            logger=logger,
-        )
-        assert (
-            oidc_client.TOKENINFO_ENDPOINT
-            == "http://localhost:8090/realms/pbench/protocol/openid-connect/token/introspect"
-        )
-        assert (
-            oidc_client.USERINFO_ENDPOINT
-            == "http://localhost:8090/realms/pbench/protocol/openid-connect/userinfo"
-        )
-        assert (
-            oidc_client.JWKS_URI
-            == "http://localhost:8090/realms/pbench/protocol/openid-connect/certs"
-        )

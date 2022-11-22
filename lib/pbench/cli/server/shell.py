@@ -52,7 +52,7 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger):
             "status": "UP", # if the server is up
             "checks": []
         }
-     Note: The Keycloak server need to be started with health-enabled on.
+     Note: The Keycloak server needs to be started with health-enabled on.
      Args:
         config: PbenchServerConfig
         logger: logger
@@ -73,23 +73,26 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger):
         sys.exit(1)
 
     session = requests.Session()
-    # The connection check will retry thrice unless successful, viz.,
-    # [0.0s, 20.0s, 40.0s]. urllib3 will sleep for:
+    # The connection check will retry multiple times unless successful, viz.,
+    # [0.0s, 4.0s, 8.0s, 16.0s, ..., 256.0s]. urllib3 will sleep for:
     # {backoff factor} * (2 ^ ({number of total retries} - 1)) seconds between
     # the retries. More detailed documentation on Retry and backoff_factor can
     # be found at:
     # https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry
-    retry = Retry(total=3, backoff_factor=10)
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount("http://", adapter)
-    response = session.get(f"{oidc_server}/health")
-    if response.status_code == HTTPStatus.OK and response.json()["status"] == "UP":
-        logger.info("Keycloak connection successful")
-        return
-
-    logger.error(
-        "Could not connect to OIDC client, OIDC server response: {}", response.json()
-    )
+    try:
+        retry = Retry(total=8, backoff_factor=2)
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount("http://", adapter)
+        response = session.get(f"{oidc_server}/health")
+        if response.status_code == HTTPStatus.OK and response.json()["status"] == "UP":
+            logger.info("Keycloak connection successful")
+            return
+    except Exception:
+        logger.exception("Error connecting to the OIDC client")
+    else:
+        logger.error(
+            "OIDC client not running, OIDC server response: {}", response.json()
+        )
     sys.exit(1)
 
 
