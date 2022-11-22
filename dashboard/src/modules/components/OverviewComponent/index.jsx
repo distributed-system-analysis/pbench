@@ -18,6 +18,7 @@ import {
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { EmptyTable } from "../TableComponent/common-components";
 import ExpiringSoonComponent from "./ExpiringSoonComponent";
 import NewRunsComponent from "./NewRunsComponent";
 import SavedRunsComponent from "./SavedRunsComponent";
@@ -27,7 +28,9 @@ const OverviewComponent = () => {
   const dispatch = useDispatch();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { loginDetails } = useSelector((state) => state.userAuth);
-  const { expiringRuns } = useSelector((state) => state.overview);
+  const { expiringRuns, savedRuns, newRuns } = useSelector(
+    (state) => state.overview
+  );
   const [expanded, setExpanded] = React.useState(
     new Set(["expired", "newRuns"])
   );
@@ -84,8 +87,14 @@ const OverviewComponent = () => {
                 New and Unmanaged
               </AccordionToggle>
               <AccordionContent isHidden={!expanded.has("newRuns")}>
-                <NewRunsHeading />
-                <NewRunsComponent />
+                {newRuns.length > 0 ? (
+                  <>
+                    <NewRunsHeading />
+                    <NewRunsComponent />
+                  </>
+                ) : (
+                  <EmptyTable />
+                )}
               </AccordionContent>
             </AccordionItem>
           </GridItem>
@@ -94,7 +103,7 @@ const OverviewComponent = () => {
       <Separator />
       <Card className={`bordered saved-runs-container ${isExpandedClass}`}>
         <Heading title="Saved Runs" />
-        <SavedRunsComponent />
+        {savedRuns.length > 0 ? <SavedRunsComponent /> : <EmptyTable />}
       </Card>
     </div>
   );

@@ -92,6 +92,7 @@ const SavedRunsComponent = () => {
             <Thead>
               <Tr>
                 <Th
+                  width={10}
                   select={{
                     onSelect: (_event, isSelecting) =>
                       selectAllRuns(isSelecting),
