@@ -162,24 +162,6 @@ if [[ "${PBENCH_RPM_REQUIREMENT_MODE}" != "strict" && "${PBENCH_RPM_REQUIREMENT_
     exit 1
 fi
 
-#+
-# Helper functions
-#-
-
-function is_redhat() {
-    grep -q 'Red Hat' /etc/redhat-release
-    return $?
-}
-
-function is_fedora() {
-    grep -q 'Fedora' /etc/redhat-release
-    return $?
-}
-
-function get_redhat_version() {
-    cat /etc/redhat-release | awk '{ print $7 }'
-}
-
 # Constants
 tools_group_prefix="tools-v1-"
 
