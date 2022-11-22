@@ -127,9 +127,9 @@ const NewRunsComponent = () => {
           <TableComposable isStickyHeader variant={"compact"}>
             <Thead>
               <Tr>
-                <Th width={2} />
+                <Th />
                 <Th
-                  width={2}
+                  width={10}
                   select={{
                     onSelect: (_event, isSelecting) =>
                       selectAllRuns(isSelecting),
@@ -148,7 +148,7 @@ const NewRunsComponent = () => {
               const isItemFavorited = !!item?.metadata?.[USER_FAVORITE];
               const isItemSeen = !!item?.metadata?.[DASHBOARD_SEEN];
               return (
-                <Tbody key={rowIndex}>
+                <Tbody key={rowIndex} isExpanded={isRunExpanded(item)}>
                   <Tr
                     key={item.name}
                     className={isItemSeen ? "seen-row" : "unseen-row"}
@@ -161,6 +161,7 @@ const NewRunsComponent = () => {
                               isExpanded: isRunExpanded(item),
                               onToggle: () =>
                                 setRunExpanded(item, !isRunExpanded(item)),
+                              expandId: "composable-expandable-example",
                             }
                           : undefined
                       }

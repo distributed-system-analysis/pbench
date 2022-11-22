@@ -82,7 +82,7 @@ export const NewRunsHeading = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
-
+  const { selectedRuns } = useSelector((state) => state.overview);
   const dropdownItems = actions.map((item) => {
     return (
       <DropdownItem
@@ -119,6 +119,7 @@ export const NewRunsHeading = () => {
               toggleIndicator={CaretDownIcon}
               isPrimary
               id="manage-runs-toggle"
+              isDisabled={selectedRuns.length <= 0}
             >
               Manage
             </DropdownToggle>
