@@ -52,3 +52,9 @@ export const menuOptions = [
     ],
   },
 ];
+
+export const menuOptionsNonLoggedIn = [
+  { key: "dashboard", link: "dashboard", name: "Dashboard" },
+  { key: "search", link: "#", name: "Search" },
+  { key: "expore", link: "#", name: "Explore" },
+];
