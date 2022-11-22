@@ -42,13 +42,6 @@ export const menuOptions = [
         submenuOf: "tools",
         link: "search",
       },
-      {
-        name: "Pbench Kibana",
-        submenu: true,
-        key: "pbench_kibana",
-        submenuOf: "tools",
-        link: "#",
-      },
     ],
   },
 ];
