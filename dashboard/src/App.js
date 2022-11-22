@@ -15,6 +15,7 @@ import React, { useEffect } from "react";
 
 import { AuthForm } from "modules/components/AuthComponent/common-components";
 import AuthLayout from "modules/containers/AuthLayout";
+import { ComingSoonComponent } from "modules/components/ComingSoonComponent";
 import Cookies from "js-cookie";
 import EmptyPage from "modules/components/EmptyPageComponent";
 import LoginForm from "modules/components/AuthComponent/LoginForm";
@@ -91,6 +92,7 @@ const App = () => {
                   element={<EmptyPage text={COMING_SOON} />}
                 />
               </Route>
+              <Route path="*" element={<ComingSoonComponent />} />
             </Route>
             <Route
               path={APP_ROUTES.SEARCH}
