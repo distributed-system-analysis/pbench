@@ -14,6 +14,7 @@ import React, { useEffect } from "react";
 
 import { AuthForm } from "modules/components/AuthComponent/common-components";
 import AuthLayout from "modules/containers/AuthLayout";
+import { ComingSoonComponent } from "modules/components/ComingSoonComponent";
 import Cookies from "js-cookie";
 import LoginForm from "modules/components/AuthComponent/LoginForm";
 import MainLayout from "modules/containers/MainLayout";
@@ -81,6 +82,7 @@ const App = () => {
                   element={<TableOfContent />}
                 />
               </Route>
+              <Route path="*" element={<ComingSoonComponent />} />
             </Route>
           </Route>
         </Routes>
