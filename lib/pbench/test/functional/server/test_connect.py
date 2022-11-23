@@ -19,7 +19,6 @@ class TestConnect:
 
         # verify all the required authentication fields are present
         auth_fields = ["issuer", "client", "realm"]
-        assert all(e in auth_fields for e in endpoints["authentication"].keys())
         assert all(e in endpoints["authentication"].keys() for e in auth_fields)
 
         # Verify that all expected endpoints are reported

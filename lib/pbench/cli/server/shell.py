@@ -6,7 +6,7 @@ from pathlib import Path
 import site
 import subprocess
 import sys
-from typing import NoReturn, Optional
+import time
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -43,9 +43,7 @@ def find_the_unicorn(logger: Logger):
             )
 
 
-def keycloak_connection(
-    config: PbenchServerConfig, logger: Logger
-) -> Optional[NoReturn]:
+def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
     """
      Checks if the Keycloak server is up and accepting the connections.
      The connection check does the GET request on the oidc server /health
@@ -61,7 +59,9 @@ def keycloak_connection(
         logger: logger
     Returns:
         0 if successful
+        > 0 if unsuccessful
     """
+    return_val = 1
     try:
         oidc_server = config.get(
             "authentication",
@@ -70,10 +70,10 @@ def keycloak_connection(
         )
     except (NoSectionError):
         logger.exception("Bad config file:  missing 'authentication' section")
-        sys.exit(1)
+        return return_val
     except (NoOptionError):
         logger.error("Bad config file:  no 'server_url' in  'authentication' section")
-        sys.exit(1)
+        return return_val
 
     session = requests.Session()
     # The connection check will retry multiple times unless successful, viz.,
@@ -83,21 +83,27 @@ def keycloak_connection(
     # which defaults to 120.0s More detailed documentation on Retry and
     # backoff_factor can be found at:
     # https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry
-    try:
-        retry = Retry(total=8, backoff_factor=2)
-        adapter = HTTPAdapter(max_retries=retry)
-        session.mount("http://", adapter)
-        response = session.get(f"{oidc_server}/health")
+    retry = Retry(total=8, backoff_factor=2)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+
+    # We will also need to retry the connection if the health status is not UP
+    for i in range(5):
+        try:
+            response = session.get(f"{oidc_server}/health")
+        except Exception:
+            logger.exception("Error connecting to the OIDC client")
+            return return_val + i
         if response.status_code == HTTPStatus.OK and response.json()["status"] == "UP":
-            logger.info("Keycloak connection successful")
-            return
-    except Exception:
-        logger.exception("Error connecting to the OIDC client")
-    else:
-        logger.error(
-            "OIDC client not running, OIDC server response: {}", response.json()
-        )
-    sys.exit(1)
+            logger.debug("OIDC server connection verified")
+            return 0
+        else:
+            return_val += i
+            logger.error(
+                "OIDC client not running, OIDC server response: {}", response.json()
+            )
+            time.sleep(10)
+    return return_val
 
 
 def main():
@@ -110,7 +116,9 @@ def main():
         print(e)
         sys.exit(1)
     logger = get_pbench_logger(PROG, server_config)
-    keycloak_connection(config=server_config, logger=logger)
+    ret_val = keycloak_connection(config=server_config, logger=logger)
+    if ret_val != 0:
+        sys.exit(ret_val)
     find_the_unicorn(logger)
     try:
         host = str(server_config.get("pbench-server", "bind_host"))
