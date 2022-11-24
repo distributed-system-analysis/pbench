@@ -48,6 +48,6 @@ export const menuOptions = [
 
 export const menuOptionsNonLoggedIn = [
   { key: "dashboard", link: "dashboard", name: "Dashboard" },
-  { key: "search", link: "#", name: "Search" },
-  { key: "expore", link: "#", name: "Explore" },
+  { key: "search", link: "search", name: "Search" },
+  { key: "expore", link: "explore", name: "Explore" },
 ];
