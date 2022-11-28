@@ -1,4 +1,5 @@
 from configparser import NoOptionError, NoSectionError
+from http import HTTPStatus
 from logging import Logger
 import os
 from pathlib import Path
@@ -83,7 +84,7 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
     retry = Retry(
         total=8,
         backoff_factor=2,
-        status_forcelist=tuple(x for x in requests.status_codes._codes if x != 200),
+        status_forcelist=tuple(int(x) for x in HTTPStatus if x != 200),
     )
     adapter = HTTPAdapter(max_retries=retry)
     session.mount("http://", adapter)
@@ -92,6 +93,7 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
     for _ in range(5):
         try:
             response = session.get(f"{oidc_server}/health")
+            response.raise_for_status()
         except Exception:
             logger.exception("Error connecting to the OIDC client")
             return 1
