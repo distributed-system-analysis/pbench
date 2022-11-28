@@ -10,15 +10,17 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import { COMING_SOON, NO_MATCH } from "assets/constants/navigationConstants";
 import React, { useEffect } from "react";
 
 import { AuthForm } from "modules/components/AuthComponent/common-components";
 import AuthLayout from "modules/containers/AuthLayout";
+import { COMING_SOON } from "assets/constants/navigationConstants";
+import ComingSoonPage from "modules/components/EmptyPageComponent/ComingSoon";
 import Cookies from "js-cookie";
 import EmptyPage from "modules/components/EmptyPageComponent";
 import LoginForm from "modules/components/AuthComponent/LoginForm";
 import MainLayout from "modules/containers/MainLayout";
+import NoMatchingComponent from "modules/components/EmptyPageComponent/NoMatchingComponent";
 import OverviewComponent from "modules/components/OverviewComponent";
 import ProfileComponent from "modules/components/ProfileComponent";
 import SignupForm from "modules/components/AuthComponent/SignupForm";
@@ -91,16 +93,10 @@ const App = () => {
                   element={<EmptyPage text={COMING_SOON} />}
                 />
               </Route>
+              <Route path={APP_ROUTES.SEARCH} element={<ComingSoonPage />} />
             </Route>
-            <Route
-              path={APP_ROUTES.SEARCH}
-              element={<EmptyPage text={COMING_SOON} />}
-            />
-            <Route
-              path={APP_ROUTES.EXPLORE}
-              element={<EmptyPage text={COMING_SOON} />}
-            />
-            <Route path="*" element={<EmptyPage text={NO_MATCH} />} />
+
+            <Route path="*" element={<NoMatchingComponent />} />
           </Route>
         </Routes>
       </BrowserRouter>
