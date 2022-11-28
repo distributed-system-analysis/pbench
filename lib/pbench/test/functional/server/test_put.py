@@ -1,5 +1,4 @@
 from pathlib import Path
-import sys
 import time
 
 from pbench.client import PbenchServerClient
@@ -55,13 +54,19 @@ class TestPut:
                     dataset.resource_id, ["dataset.state", "server.status"]
                 )
                 state = metadata["dataset.state"]
-                assert state in ["Uploaded", "Indexing", "Indexed"]
-                if state == "Indexed":
-                    assert metadata["server.status"]["backup"] == "ok"
-                    assert metadata["server.status"]["unpack"] == "ok"
-                    assert metadata["server.status"]["index"] == "ok"
+                status = metadata["server.status"]
+                stats = set(status.keys())
+                if state == "Indexed" and {"unpack", "index"} <= stats:
+                    # Don't wait for backup, and don't fail if we haven't as
+                    # it's completely independent from unpack/index; but if we
+                    # have backed up, check that the status was successful.
+                    if "backup" in stats:
+                        assert status["backup"] == "ok"
+                    assert status["unpack"] == "ok"
+                    assert status["index"] == "ok"
                     break
-                print(f"Dataset {dataset.name} [{state}]", file=sys.stderr)
-                assert time.time() < timeout, "Exceeded timeout waiting for indexing"
+                assert (
+                    time.time() < timeout
+                ), f"Exceeded timeout: state {state}, status {status}"
                 time.sleep(30.0)  # sleep for half a minute
         assert count == len(self.tarballs), "Didn't find all expected datasets"

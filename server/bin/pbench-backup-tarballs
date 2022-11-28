@@ -380,13 +380,15 @@ def backup_data(lb_obj, s3_obj, config, logger):
         if local_backup_result == Status.SUCCESS and (
             s3_obj is None or s3_backup_result == Status.SUCCESS
         ):
-            # Mark the dataset as archived, and request that it be unpacked
-            Metadata.setvalue(dataset=dataset, key=Metadata.ARCHIVED, value=True)
-            sync.update(
-                dataset=dataset,
-                did=Operation.BACKUP,
-                enabled=[Operation.COPY_SOS, Operation.UNPACK],
+            # Record that the BACKUP operation is complete
+            usage = shutil.disk_usage(tar.parent)
+            logger.info(
+                "{} backup: {}% full, {} bytes remaining",
+                tar.name,
+                float(usage.used) / float(usage.total) * 100.0,
+                usage.free,
             )
+            sync.update(dataset=dataset, did=Operation.BACKUP)
         else:
             # Do nothing when the backup fails, allowing us to retry on a
             # future pass.
