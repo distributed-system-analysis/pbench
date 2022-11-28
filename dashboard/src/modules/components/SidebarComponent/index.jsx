@@ -51,21 +51,19 @@ const Menu = () => {
   return (
     <Nav onSelect={onSelect}>
       {isLoggedIn ? (
-        <>
-          {menuOptions.map((item, index) => (
-            <NavGroup
-              key={index}
-              aria-label={item.group.title}
-              title={item.group.title}
-            >
-              <MenuItem
-                data={item.submenu}
-                context={navigate}
-                activeItem={activeItem}
-              />
-            </NavGroup>
-          ))}
-        </>
+        menuOptions.map((item, index) => (
+          <NavGroup
+            key={index}
+            aria-label={item.group.title}
+            title={item.group.title}
+          >
+            <MenuItem
+              data={item.submenu}
+              context={navigate}
+              activeItem={activeItem}
+            />
+          </NavGroup>
+        ))
       ) : (
         <NavList>
           <MenuItem
