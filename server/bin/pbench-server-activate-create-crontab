@@ -93,25 +93,8 @@ function crontab_normal() {
 
 # This function expands a crontab template from a task in the config file
 # with values from a specific section that specifies replacements.
-# E.g. the crontab option in the task [pbench-sync] might have this
-# value:
-#   * * * * * flock -n %(deploy-lock-dir)s/$SATELLITE_LOCK %(deploy-script-dir)s/pbench-sync-satellite\
-#                    $SATELLITE_PREFIX $SATELLITE_HOST $SATELLITE_ARCHIVE
 # The placeholders (the $-prefixed names) are replaced from the section
-# that is passed in as the first argument. E.g if the section is "satellite-testing"
-# and the [satellite-testing] section looks like this:
-#
-# [satellite-testing]
-# satellite-host = dhcp31-38.example.com
-# satellite-prefix = TESTING
-# satellite-lock = pbench-sync-satellite-%(satellite-prefix)s.lock
-# satellite-archive = /pbench/archive/fs-version-001
-# satellite-opt = /opt/pbench-server
-#
-# the (admittedly obscure) last line substitutes for $SATELLITE_HOST the
-# value of satellite-host in the section and similarly for all the other
-# options in the section.
-#
+# that is passed in as the first argument.
 function crontab_with_substitutions() {
     local section=$1
     local task=$2
@@ -121,7 +104,6 @@ function crontab_with_substitutions() {
         echo "No 'crontab' specified in [$task] section of the config file $_PBENCH_SERVER_CONFIG"
     else
         echo "$crontabline" |
-                sed "s;\$SATELLITE_CONFIG;$section;g" |
                 sed "$(pbench-config -a $section | grep = | awk -F' = ' '{gsub(/-/, "_", $1); printf "s;$%s;%s;g\n", toupper($1) , $2;}')" >> $crontab
     fi
 }
@@ -140,15 +122,6 @@ for role in $roles ;do
         continue
     fi
     case $role in
-        pbench-sync-satellites)
-            satellites=$(pbench-config -l satellites $role)
-            tasks=$(pbench-config -l tasks $role)
-            for satellite in $satellites ;do
-                for task in $tasks; do
-                    crontab_with_substitutions $satellite $task
-                done
-            done
-            ;;
         pbench-prep)
             versions=$(pbench-config -l pbench-move-results-receive-versions pbench-server)
             tasks=$(pbench-config -l tasks $role)
