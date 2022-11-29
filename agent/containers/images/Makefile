@@ -30,17 +30,10 @@ URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${COPR_USER}
 #   - ${CI_RPM_LOC}:  the local directory tree for the Agent RPM package file
 #   - ${_RPM_PATH}:  the full path to the package file
 #   - ${_RPM_FILE}:  the name of the package file, without the directory path
-# (otherwise, these variables are not used).
 #
-# When run under the CI, we will copy the package from ${_RPM_PATH} to the
-# current directory and name it ${_RPM_FILE} -- this is necessary to make it
-# available to the container build, which is limited to just the current
-# directory tree -- the container build will copy the RPM file from the build
-# context into the container.
-#
-# The package manager installs the Agent, either from the local file (when run
-# under the CI) or (when not running under the CI) by looking up the package by
-# name in the repository pointed at by the .repo file (e.g., from COPR).
+# When not run under the CI, these variables are not used; however, ${_RPM_FILE}
+# is tested (and found to be "false"), which results in appropriate default
+# values being used, instead.
 ifdef CI
 CI_RPM_ROOT ?= ${HOME}
 CI_RPM_LOC = ${CI_RPM_ROOT}/rpmbuild-${DIST_NAME}-${DIST_VERSION}/RPMS/noarch
@@ -260,6 +253,16 @@ $(_ALL_fedora_VERSIONS:%=%-tools) centos-7-tools centos-8-tools: %-tools: %-pcp.
 %-base-tagged: %-base %-tags.lis
 	./apply-tags pbench-agent-base-$* $*-tags.lis
 
+# When run under the CI, we copy the package file from ${_RPM_PATH} to the
+# current directory and name it ${_RPM_FILE}.<distro> -- this is necessary to
+# make it available to the container build, which is limited to just the current
+# directory tree -- the container build will copy the RPM file from the build
+# context into the container.  (Adding the distro-specific suffix allows builds
+# of different distros to proceed without interfering with each other.)
+#
+# The package manager installs the Agent, either from the local file (when run
+# under the CI) or (when not running under the CI) by looking up the package by
+# name in the repository pointed at by the .repo file (e.g., from COPR).
 %-base: %-base.Dockerfile %-pbench.repo %-tags.lis
 ifdef CI
 	if [[ -z "${_RPM_PATH}" ]] ; then echo "No RPM found with ID ${_LOCAL_GIT_HASH} for ${_LOCAL_MAJORMINOR} in ${CI_RPM_LOC}" >&2 ; exit 2 ; fi

@@ -7,6 +7,11 @@ FROM {{ image_repo }}/{{ image_name }}:{{ image_tag }}
 # Install the appropriate pbench repository file for {{ distro_name }}.
 COPY ./{{ pbench_repo_file }} /etc/yum.repos.d/pbench.repo
 
+# The package manager will install the Pbench Agent from {{ rpm_path }}:  that
+# reference can be either a local file in the container or a package name which
+# the package manager will look up in the repository which we set up above.  If
+# rpm_host_file is defined, then it points to a local binary RPM package file,
+# and we copy it from the build context to the right spot for the installation.
 {% if rpm_host_file %}
 COPY ./{{ rpm_host_file }} {{ rpm_path }}
 {% endif %}
