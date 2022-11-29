@@ -56,7 +56,7 @@ class TestSync:
         sync = Sync(make_logger, "test")
         Metadata.setvalue(drb, Metadata.OPERATION, ["UNPACK", "BACKUP"])
         sync.update(drb, did=Operation.BACKUP)
-        assert Metadata.getvalue(drb, "server.status.test") is None
+        assert Metadata.getvalue(drb, "server.status.test") == "ok"
         assert Metadata.getvalue(drb, Metadata.OPERATION) == ["UNPACK"]
 
     def test_update_did_not_enabled(self, make_logger, more_datasets):
@@ -67,7 +67,7 @@ class TestSync:
         sync = Sync(make_logger, "test")
         Metadata.setvalue(drb, Metadata.OPERATION, ["UNPACK", "BACKUP"])
         sync.update(drb, did=Operation.INDEX)
-        assert Metadata.getvalue(drb, "server.status.test") is None
+        assert Metadata.getvalue(drb, "server.status.test") == "ok"
         assert Metadata.getvalue(drb, Metadata.OPERATION) == ["BACKUP", "UNPACK"]
 
     def test_update_did_status(self, make_logger, more_datasets):
@@ -85,7 +85,7 @@ class TestSync:
         sync = Sync(make_logger, "test")
         Metadata.setvalue(drb, Metadata.OPERATION, ["UNPACK"])
         sync.update(drb, enabled=[Operation.BACKUP, Operation.COPY_SOS])
-        assert Metadata.getvalue(drb, "server.status.test") == "ok"
+        assert Metadata.getvalue(drb, "server.status.test") is None
         assert Metadata.getvalue(drb, Metadata.OPERATION) == [
             "BACKUP",
             "COPY_SOS",

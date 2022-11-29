@@ -55,7 +55,7 @@ class TestPut:
                 )
                 state = metadata["dataset.state"]
                 status = metadata["server.status"]
-                stats = set(status.keys())
+                stats = set(status.keys()) if status else set()
                 if state == "Indexed" and {"unpack", "index"} <= stats:
                     # Don't wait for backup, and don't fail if we haven't as
                     # it's completely independent from unpack/index; but if we

@@ -60,11 +60,7 @@ pipeline {
                     sleep 10
                     sh 'curl --silent localhost:8080/api/v1/endpoints >/dev/null'
                 }
-                sh 'podman ps'
-                sh 'podman exec pbenchinacan_3078-pbenchserver df -h /'
-                sh 'EXTRA_PODMAN_SWITCHES="--network host" jenkins/run server/exec_functests http://localhost:8080 || true'
-                sh 'podman exec pbenchinacan_3078-pbenchserver df -h /'
-                sh 'podman exec pbenchinacan_3078-pbenchserver journalctl'
+                sh 'EXTRA_PODMAN_SWITCHES="--network host" jenkins/run server/exec_functests http://localhost:8080'
                 sh 'podman pod stop ${PB_POD_NAME}'
             }
         }
