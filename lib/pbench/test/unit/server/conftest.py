@@ -33,7 +33,6 @@ from pbench.test.unit.server.headertypes import HeaderTypes
 
 server_cfg_tmpl = """[DEFAULT]
 install-dir = {TMP}/opt/pbench-server
-default-host = pbench.example.com
 
 [pbench-server]
 pbench-top-dir = {TMP}/srv/pbench

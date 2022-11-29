@@ -38,7 +38,6 @@ buildah copy --chown pbench:pbench --chmod 0644 $container \
 KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-"client-secret"}
 
 buildah run $container sed -Ei \
-    -e "/^default-host[[:space:]]*=/ s/=.*/= ${HOSTNAME_F}/" \
     -e "s/<keycloak_secret>/${KEYCLOAK_CLIENT_SECRET}/" \
     ${CONF_PATH}
 
