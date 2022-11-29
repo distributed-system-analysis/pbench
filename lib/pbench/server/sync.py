@@ -113,10 +113,12 @@ class Sync:
             if did:
                 operations.discard(did.name)
 
+                # If we "did" something, the default message is "ok"
+                if not message:
+                    message = "ok"
+
         if enabled:
             operations.update(o.name for o in enabled)
-            if not message:
-                message = "ok"
 
         try:
             Metadata.setvalue(dataset, Metadata.OPERATION, sorted(operations))
