@@ -3,6 +3,7 @@ import errno
 import hashlib
 from http import HTTPStatus
 import os
+import shutil
 
 from flask import jsonify, request
 from flask_restful import abort, Resource
@@ -141,6 +142,13 @@ class Upload(Resource):
             tar_full_path = self.temporary / filename
             md5_full_path = self.temporary / f"{filename}.md5"
             bytes_received = 0
+            usage = shutil.disk_usage(tar_full_path.parent)
+            self.logger.info(
+                "{} UPLOAD (pre): {}% full, {} bytes remaining",
+                tar_full_path.name,
+                float(usage.used) / float(usage.total) * 100.0,
+                usage.free,
+            )
 
             self.logger.info(
                 "PUT uploading {}:{} for user = (user_id: {}, username: {}) to {}",
@@ -276,6 +284,14 @@ class Upload(Resource):
                     HTTPStatus.INTERNAL_SERVER_ERROR,
                     f"Unable to create dataset in file system for {tar_full_path}",
                 )
+
+            usage = shutil.disk_usage(tar_full_path.parent)
+            self.logger.info(
+                "{} UPLOAD (post): {}% full, {} bytes remaining",
+                tar_full_path.name,
+                float(usage.used) / float(usage.total) * 100.0,
+                usage.free,
+            )
 
             # From this point, failure will remove the tarball from the cache
             # manager.

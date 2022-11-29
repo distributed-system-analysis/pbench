@@ -113,14 +113,20 @@ class Sync:
             if did:
                 operations.discard(did.name)
 
+                # If we "did" something, the default message is "ok"
+                if not message:
+                    message = "ok"
+
         if enabled:
             operations.update(o.name for o in enabled)
-            if not message:
-                message = "ok"
 
-        Metadata.setvalue(dataset, Metadata.OPERATION, sorted(operations))
-        if message:
-            Metadata.setvalue(dataset, "server.status." + self.component, message)
+        try:
+            Metadata.setvalue(dataset, Metadata.OPERATION, sorted(operations))
+            if message:
+                Metadata.setvalue(dataset, "server.status." + self.component, message)
+        except Exception as e:
+            self.logger.warning("{} error updating ops: {}", dataset.name, str(e))
+            raise
 
     def error(self, dataset: Dataset, message: str):
         """

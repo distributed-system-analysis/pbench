@@ -373,26 +373,27 @@ class Tarball:
             incoming: Controller's directory in the INCOMING tree
             results: Controller's directory in the RESULTS tree
         """
-        unpacked = incoming / f"{self.name}.unpack"
-        unpacked.mkdir(parents=True)
+        unpacked = incoming / self.name
+        results_link = results / self.name
+        unpacked_temp = incoming / f"{self.name}.unpack"
+        unpacked_temp.mkdir(parents=True)
 
         try:
             tar_command = f"tar -x --no-same-owner --delay-directory-restore --force-local --file='{str(self.tarball_path)}'"
             self.subprocess_run(
-                tar_command, unpacked, TarballUnpackError, self.tarball_path
+                tar_command, unpacked_temp, TarballUnpackError, self.tarball_path
             )
 
             find_command = "find . ( -type d -exec chmod ugo+rx {} + ) -o ( -type f -exec chmod ugo+r {} + )"
             self.subprocess_run(
-                find_command, unpacked, TarballModeChangeError, unpacked
+                find_command, unpacked_temp, TarballModeChangeError, unpacked_temp
             )
 
-            self.do_move(unpacked / self.name, incoming, self.tarball_path)
+            self.do_move(unpacked_temp / self.name, unpacked, self.tarball_path)
         finally:
-            shutil.rmtree(unpacked, ignore_errors=True)
+            shutil.rmtree(unpacked_temp, ignore_errors=True)
 
-        self.unpacked = incoming / self.name
-        results_link = results / self.name
+        self.unpacked = unpacked
         results_link.symlink_to(self.unpacked)
         self.results_link = results_link
 
