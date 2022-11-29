@@ -4,8 +4,11 @@ from logging import Logger
 import os
 from pathlib import Path
 import site
+import socket
 import subprocess
 import sys
+import time
+from urllib.parse import urlparse
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -22,6 +25,7 @@ PROG = "pbench-shell"
 
 
 def app():
+    """External gunicorn application entry point."""
     try:
         server_config = get_server_config()
     except (ConfigFileNotSpecified, BadConfig) as e:
@@ -30,16 +34,61 @@ def app():
     return create_app(server_config)
 
 
+def add_to_path(path_el: str, path: str) -> str:
+    """Convenience function to hide f-string syntax used to construct a new
+    PATH environment variable.
+
+    Arguments:
+
+        path_el - a new path element string to be pre-pended to `path`
+        path - the exiting PATH environment variable value
+
+    Returns:
+
+        A string representing the newly constructed PATH value
+    """
+    return f"{path_el}:{path}"
+
+
 def find_the_unicorn(logger: Logger):
-    if site.ENABLE_USER_SITE:
-        local = Path(site.getuserbase()) / "bin"
-        if (local / "gunicorn").exists():
-            # Use a `pip install --user` version of gunicorn
-            os.environ["PATH"] = str(local) + ":" + os.environ["PATH"]
-            logger.info(
-                "Found a local unicorn: augmenting server PATH to {}",
-                os.environ["PATH"],
-            )
+    """Add the location of the `pip install --user` version of gunicorn to the
+    PATH if it exists.
+    """
+    local = Path(site.getuserbase()) / "bin"
+    if (local / "gunicorn").exists():
+        # Use a `pip install --user` version of gunicorn
+        os.environ["PATH"] = add_to_path(local, os.environ["PATH"])
+        logger.info(
+            "Found a local unicorn: augmenting server PATH to {}",
+            os.environ["PATH"],
+        )
+
+
+def wait_for_database(db_uri: str, timeout: int):
+    """Wait for the database server to become available.  While we encounter
+    "connection refused", sleep one second, and then try again.
+
+    The timeout argument to `create_connection()` does not play into the retry
+    logic, see:
+
+      https://docs.python.org/3.9/library/socket.html#socket.create_connection
+
+    Arguments:
+
+        timeout: integer number of seconds to wait before giving up attempts to
+                 connect to the database
+
+    Raises a ConnectionRefusedError on failure.
+    """
+    url = urlparse(db_uri)
+    port = url.port if url.port is not None else 5432
+    while timeout >= 0:
+        try:
+            with socket.create_connection((url.hostname, port), timeout=1):
+                break
+        except ConnectionRefusedError:
+            time.sleep(1)
+            timeout -= 1
 
 
 def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
@@ -109,6 +158,13 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
 
 
 def main():
+    """The Pbench Server is always executed in a containerized environment where
+    the pbench server configuration is in a fixed location.
+
+    If an error is encountered during setup, system exit is invoked with an
+    exit code of 1.  Otherwise, the exit code of the gunicorn subprocess is
+    used.
+    """
     os.environ[
         "_PBENCH_SERVER_CONFIG"
     ] = "/opt/pbench-server/lib/config/pbench-server.cfg"
@@ -121,30 +177,59 @@ def main():
     ret_val = keycloak_connection(config=server_config, logger=logger)
     if ret_val != 0:
         sys.exit(ret_val)
-    find_the_unicorn(logger)
+    if site.ENABLE_USER_SITE:
+        find_the_unicorn(logger)
     try:
         host = str(server_config.get("pbench-server", "bind_host"))
         port = str(server_config.get("pbench-server", "bind_port"))
-        db = str(server_config.get("database", "db_uri"))
+        db_uri = str(server_config.get("database", "db_uri"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
-        pbench_top_dir = server_config.get("pbench-server", "pbench-top-dir")
-        pbench_install = server_config.get("pbench-server", "install-dir")
-        logger.info("Pbench server using database {}", db)
-
-        # Multiple gunicorn workers will attempt to connect to the DB; rather
-        # than attempt to synchronize them, detect a missing DB (from the
-        # database URI) and create it here. It's safer to do this here,
-        # where we're single-threaded.
-        if not database_exists(db):
-            logger.info("Database {} doesn't exist", db)
-            create_database(db)
-            logger.info("Created database {}", db)
-        Database.init_db(server_config, logger)
+        crontab_dir = server_config.get("pbench-server", "crontab-dir")
     except (NoOptionError, NoSectionError):
         logger.exception("Error fetching required configuration")
         sys.exit(1)
 
+    logger.info("Pbench server using database {}", db_uri)
+
+    logger.debug("Waiting for database instance to become available.")
+    try:
+        wait_for_database(db_uri, 120)
+    except ConnectionRefusedError:
+        logger.error("Database instance not responding")
+        sys.exit(1)
+
+    # Multiple gunicorn workers will attempt to connect to the DB; rather than
+    # attempt to synchronize them, detect a missing DB (from the database URI)
+    # and create it here. It's safer to do this here, where we're
+    # single-threaded.
+    if not database_exists(db_uri):
+        logger.info("Database {} doesn't exist", db_uri)
+        create_database(db_uri)
+        logger.info("Created database {}", db_uri)
+    Database.init_db(server_config, logger)
+
+    # Create the crontab file from the server configuration.
+    os.environ["PATH"] = add_to_path(server_config.BINDIR, os.environ["PATH"])
+    cp = subprocess.run(
+        ["pbench-create-crontab", crontab_dir],
+        cwd=server_config.log_dir,
+    )
+    if cp.returncode != 0:
+        logger.error(
+            "Failed to create crontab file from configuration: {}", cp.returncode
+        )
+        sys.exit(1)
+
+    # Install the created crontab file.
+    cp = subprocess.run(
+        ["crontab", f"{crontab_dir}/crontab"], cwd=server_config.log_dir
+    )
+    if cp.returncode != 0:
+        logger.error("Failed to install crontab file: {}", cp.returncode)
+        sys.exit(1)
+
+    # Beginning of the gunicorn command to start the pbench-server.
     cmd_line = [
         "gunicorn",
         "--workers",
@@ -173,8 +258,9 @@ def main():
     # packages as well as the pbench.pth file which points to the Pbench Server
     # package.
     if site.ENABLE_USER_SITE:
-        adds = site.getusersitepackages() + "," + f"{pbench_install}/lib"
+        adds = f"{site.getusersitepackages()},{server_config.LIBDIR}"
         cmd_line += ["--pythonpath", adds]
 
     cmd_line.append("pbench.cli.server.shell:app()")
-    subprocess.run(cmd_line, cwd=f"{pbench_top_dir}/logs")
+    cp = subprocess.run(cmd_line, cwd=server_config.log_dir)
+    sys.exit(cp.returncode)
