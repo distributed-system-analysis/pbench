@@ -1024,10 +1024,7 @@ class Metadata(Database.Base):
         else:
             try:
                 meta = Metadata.get(dataset, native_key, user_id)
-            except Exception as e:
-                if not isinstance(e, MetadataNotFound):
-                    Metadata.logger.error("Unexpected exception {}", str(e))
-                    raise
+            except MetadataNotFound:
                 return None
             value = meta.value
         name = native_key
@@ -1143,9 +1140,7 @@ class Metadata(Database.Base):
             # Python object reference. We make a copy here to ensure that it
             # sees we've made a change.
             meta_value = copy.deepcopy(meta.value)
-        except Exception as e:
-            if not isinstance(e, MetadataNotFound):
-                Metadata.logger.error("Unexpected exeception {}", str(e))
+        except MetadataNotFound:
             found = False
             meta_value = {}
 
