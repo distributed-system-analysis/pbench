@@ -6,6 +6,7 @@ from pbench.server.api.resources import (
     API_AUTHORIZATION,
     API_METHOD,
     API_OPERATION,
+    ApiParams,
     ApiSchema,
     Parameter,
     ParamType,
@@ -43,7 +44,7 @@ class DatasetsPublish(ElasticBulkBase):
         )
 
     def generate_actions(
-        self, params: JSON, dataset: Dataset, map: dict[str, list[str]]
+        self, params: ApiParams, dataset: Dataset, map: dict[str, list[str]]
     ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk update actions driven by the
