@@ -1,6 +1,5 @@
 import os
 import subprocess
-
 from collections import namedtuple
 from logging import Logger
 from pathlib import Path
@@ -61,13 +60,19 @@ class ProcessTb:
             token -- generated authorised token for Pbench user
 
         Importance of this function is while running tests we get the
-        ability to mock this function and test it easily
+        ability to mock this function and test it easily.
         """
-
         res = subprocess.run(
-            ["pbench-results-push", controller, tb, token], capture_output=True
+            [
+                "bash",
+                "-l",
+                "-c",
+                f"pbench-results-push {controller} {tb} --token={token}",
+            ],
+            capture_output=True,
         )
         error = res.stderr
+
         if res.returncode > 0:
             raise RuntimeError(error)
 
