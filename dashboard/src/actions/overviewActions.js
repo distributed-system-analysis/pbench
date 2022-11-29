@@ -17,7 +17,7 @@ import { findNoOfDays } from "utils/dateFunctions";
 
 export const getDatasets = () => async (dispatch, getState) => {
   try {
-    dispatch({ type: TYPES.LOADING });
+    dispatch({ type: TYPES.DASHBOARD_LOADING });
 
     const username = getState().userAuth.loginDetails.username;
 

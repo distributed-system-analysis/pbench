@@ -1,14 +1,10 @@
 import "./index.less";
 
 import { Outlet, useNavigate } from "react-router-dom";
-import {
-  Page,
-  PageSection,
-  PageSectionVariants,
-  Spinner,
-} from "@patternfly/react-core";
+import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core";
 
 import HeaderComponent from "modules/components/HeaderComponent";
+import LoadingComponent from "modules/components/LoadingComponent";
 import React from "react";
 import Sidebar from "modules/components/SidebarComponent";
 import ToastComponent from "modules/components/ToastNotificationComponent";
@@ -16,7 +12,6 @@ import { useSelector } from "react-redux";
 
 const MainLayout = () => {
   const { alerts } = useSelector((state) => state.toastReducer);
-  const isLoading = useSelector((state) => state.loading.isLoading);
   const navigate = useNavigate();
   return (
     <>
@@ -26,9 +21,9 @@ const MainLayout = () => {
           variant={PageSectionVariants.light}
           padding={{ default: "noPadding" }}
         >
-          {isLoading && <Spinner className="spinner" />}
-
-          <Outlet context={navigate} />
+          <LoadingComponent>
+            <Outlet context={navigate} />
+          </LoadingComponent>
         </PageSection>
       </Page>
     </>

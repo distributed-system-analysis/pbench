@@ -5,9 +5,11 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionToggle,
+  Bullseye,
   Card,
   Grid,
   GridItem,
+  Spinner,
 } from "@patternfly/react-core";
 import {
   Heading,
@@ -34,7 +36,7 @@ const OverviewComponent = () => {
   const [expanded, setExpanded] = React.useState(
     new Set(["expired", "newRuns"])
   );
-
+  const { isDashboardLoading } = useSelector((state) => state.loading);
   useEffect(() => {
     if (Object.keys(endpoints).length > 0) {
       dispatch(getDatasets());
@@ -52,59 +54,72 @@ const OverviewComponent = () => {
   const isExpandedClass = expanded.size === 0 ? "not-expanded" : "";
   return (
     <div className="overview-container">
-      <Heading title="Overview" />
-      <Accordion isBordered>
-        <Grid hasGutter>
-          <GridItem span={4}>
-            <AccordionItem>
-              <AccordionToggle
-                onClick={() => {
-                  onToggle("expired");
-                }}
-                isExpanded={expanded.has("expired")}
-                id="expired"
-              >
-                Expiring soon
-              </AccordionToggle>
-              <AccordionContent isHidden={!expanded.has("expired")}>
-                {expiringRuns.length > 0 ? (
-                  <ExpiringSoonComponent />
-                ) : (
-                  <NoExpiringRuns />
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          </GridItem>
-          <GridItem span={8} className="new-runs-container ">
-            <AccordionItem>
-              <AccordionToggle
-                onClick={() => {
-                  onToggle("newRuns");
-                }}
-                isExpanded={expanded.has("newRuns")}
-                id="newRuns"
-              >
-                New and Unmanaged
-              </AccordionToggle>
-              <AccordionContent isHidden={!expanded.has("newRuns")}>
-                {newRuns.length > 0 ? (
-                  <>
-                    <NewRunsHeading />
-                    <NewRunsComponent />
-                  </>
-                ) : (
-                  <EmptyTable />
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          </GridItem>
-        </Grid>
-      </Accordion>
-      <Separator />
-      <Card className={`bordered saved-runs-container ${isExpandedClass}`}>
-        <Heading title="Saved Runs" />
-        {savedRuns.length > 0 ? <SavedRunsComponent /> : <EmptyTable />}
-      </Card>
+      {isDashboardLoading ? (
+        <Bullseye>
+          <Spinner isSVG />
+          <h2>Preparing dashboard</h2>
+
+          <p>
+            If page doesn`&apost` load, try refreshing it or retrying later.
+          </p>
+        </Bullseye>
+      ) : (
+        <>
+          <Heading title="Overview" />
+          <Accordion isBordered>
+            <Grid hasGutter>
+              <GridItem span={4}>
+                <AccordionItem>
+                  <AccordionToggle
+                    onClick={() => {
+                      onToggle("expired");
+                    }}
+                    isExpanded={expanded.has("expired")}
+                    id="expired"
+                  >
+                    Expiring soon
+                  </AccordionToggle>
+                  <AccordionContent isHidden={!expanded.has("expired")}>
+                    {expiringRuns.length > 0 ? (
+                      <ExpiringSoonComponent />
+                    ) : (
+                      <NoExpiringRuns />
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              </GridItem>
+              <GridItem span={8} className="new-runs-container ">
+                <AccordionItem>
+                  <AccordionToggle
+                    onClick={() => {
+                      onToggle("newRuns");
+                    }}
+                    isExpanded={expanded.has("newRuns")}
+                    id="newRuns"
+                  >
+                    New and Unmanaged
+                  </AccordionToggle>
+                  <AccordionContent isHidden={!expanded.has("newRuns")}>
+                    {newRuns.length > 0 ? (
+                      <>
+                        <NewRunsHeading />
+                        <NewRunsComponent />
+                      </>
+                    ) : (
+                      <EmptyTable />
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              </GridItem>
+            </Grid>
+          </Accordion>
+          <Separator />
+          <Card className={`bordered saved-runs-container ${isExpandedClass}`}>
+            <Heading title="Saved Runs" />
+            {savedRuns.length > 0 ? <SavedRunsComponent /> : <EmptyTable />}
+          </Card>
+        </>
+      )}
     </div>
   );
 };
