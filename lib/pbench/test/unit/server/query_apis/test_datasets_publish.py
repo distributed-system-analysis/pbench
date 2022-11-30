@@ -224,7 +224,7 @@ class TestDatasetsPublish:
             raise_on_error: bool = True,
             raise_on_exception: bool = True,
         ):
-            raise elasticsearch.helpers.BulkIndexError
+            raise elasticsearch.helpers.BulkIndexError("test")
 
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
@@ -236,4 +236,4 @@ class TestDatasetsPublish:
 
         # Verify the failure
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == HTTPStatus.INTERNAL_SERVER_ERROR.phrase
+        assert response.json["message"] == "Unexpected backend error 'test'"

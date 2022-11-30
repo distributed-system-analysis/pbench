@@ -386,7 +386,10 @@ class ElasticBase(ApiBase):
             raise APIAbort(e.http_status, str(e))
         except KeyError as e:
             self.logger.exception("{} problem in preprocess, missing {}", klasname, e)
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Missing expected backend data: {str(e)}",
+            )
         try:
             # prepare payload for Elasticsearch query
             es_request = self.assemble(params, context)
@@ -399,7 +402,9 @@ class ElasticBase(ApiBase):
             )
         except Exception as e:
             self.logger.exception("{} assembly failed: {}", klasname, e)
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR, f"Unexpected exception {str(e)!r}"
+            )
 
         try:
             # perform the Elasticsearch query
@@ -441,14 +446,17 @@ class ElasticBase(ApiBase):
             self.logger.exception(
                 "{}: invalid url {} during the Elasticsearch request", klasname, url
             )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, "Invalid backend URL")
         except Exception as e:
             self.logger.exception(
                 "{}: exception {} occurred during the Elasticsearch request",
                 klasname,
                 type(e).__name__,
             )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Unexpected backend exception {str(e)!r}",
+            )
 
         try:
             # postprocess Elasticsearch response
@@ -469,7 +477,10 @@ class ElasticBase(ApiBase):
                 json_response,
                 e,
             )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Unexpected backend exception {str(e)!r}",
+            )
 
     def _post(
         self, params: ApiParams, request: Request, context: ApiContext
@@ -780,7 +791,9 @@ class ElasticBulkBase(ApiBase):
                     klasname,
                     type(e).__name__,
                 )
-                raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+                raise APIAbort(
+                    HTTPStatus.INTERNAL_SERVER_ERROR, f"Unexpected backend error {str(e)!r}"
+                )
         elif self.require_map:
             raise APIAbort(
                 HTTPStatus.CONFLICT,
@@ -809,7 +822,9 @@ class ElasticBulkBase(ApiBase):
                 klasname,
                 type(e).__name__,
             )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR, f"Unexpected error {str(e)!r}"
+            )
 
         # Return the summary document as the success response, or abort with an
         # internal error if we weren't 100% successful. Some elasticsearch

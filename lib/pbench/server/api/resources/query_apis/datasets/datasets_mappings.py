@@ -117,4 +117,7 @@ class DatasetsMappings(ApiBase):
             return jsonify(result)
         except TemplateNotFound as e:
             self.logger.exception(str(e))
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Unexpected template error: {str(e)!r}",
+            )

@@ -80,11 +80,14 @@ class SampleNamespace(IndexMapBase):
 
         try:
             mappings = self.get_mappings(document)
-        except TemplateNotFound:
+        except TemplateNotFound as e:
             self.logger.exception(
                 f"Document template {document_index!r} not found in the database."
             )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Unexpected template error: {str(e)!r}",
+            )
 
         result = self.get_aggregatable_fields(mappings)
 
@@ -277,11 +280,14 @@ class SampleValues(IndexMapBase):
 
         try:
             mappings = self.get_mappings(document)
-        except TemplateNotFound:
+        except TemplateNotFound as e:
             self.logger.exception(
                 f"Document template {document_index!r} not found in the database."
             )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIAbort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Unexpected template error: {str(e)!r}",
+            )
 
         # Prepare list of filters to apply for ES query
         es_filter = [{"match": {"run.id": dataset.resource_id}}]
