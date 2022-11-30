@@ -138,126 +138,118 @@ const TableWithFavorite = () => {
 
   return (
     <>
-      {!loginDetails?.isLoggedIn && (
-        <>
-          {loginHintVisible && (
-            <LoginHint
-              message="Want to see your own data?"
-              link="Login or Create an account"
-              onCloseMethod={onCloseLoginHint}
-              redirect={APP_ROUTES.AUTH}
-            />
-          )}
-          <div className="table-container">
-            <PathBreadCrumb pathList={datasetBreadcrumb} />
-            <Heading
-              containerClass="publicDataPageTitle"
-              headingTitle="Results"
-            ></Heading>
-            <div className="filterContainer">
-              <SearchBox
-                dataArray={tableData}
-                setPublicData={setPublicData}
-                startDate={startDate}
-                endDate={endDate}
-                setDatasetName={setDatasetName}
-                aria-label="search box"
-              />
-              <DatePickerWidget
-                dataArray={tableData}
-                setPublicData={setPublicData}
-                datasetName={datasetName}
-                setDateRange={setDateRange}
-                aria-label="date picker"
-              />
-            </div>
-            <ToggleGroup aria-label="Result Selection Options">
-              <ToggleGroupItem
-                text={`All Results(${publicData?.length})`}
-                buttonId="datasetListButton"
-                isSelected={isSelected === "datasetListButton"}
-                onChange={handleButtonClick}
-                className="datasetListButton"
-                aria-label="see dataset button"
-              />
-              <ToggleGroupItem
-                text={`Favorites(${favoriteRepoNames?.length})`}
-                buttonId="favoriteListButton"
-                isSelected={isSelected === "favoriteListButton"}
-                onChange={handleButtonClick}
-                className="favoriteListButton"
-                aria-label="see favorites button"
-              />
-            </ToggleGroup>
-            <div className="table-scroll-container">
-              <OuterScrollContainer>
-                <InnerScrollContainer>
-                  <TableComposable
-                    aria-label="Favoritable table"
-                    variant="compact"
-                    isStickyHeader
-                  >
-                    <Thead>
-                      <Tr>
-                        <Th sort={getSortParams(0)}>{columnNames.name}</Th>
-                        <Th sort={getSortParams(1)}>
-                          {columnNames.creationDate}
-                        </Th>
-                        <Th sort={getSortParams(2)}></Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {selectedArray.length > 0 ? (
-                        selectedArray.map((repo, rowIndex) => (
-                          <Tr key={rowIndex}>
-                            <Td
-                              dataLabel={columnNames.name}
-                              onClick={() =>
-                                navigate(`${TOC}/${repo.resource_id}`)
-                              }
-                            >
-                              {repo.name}
-                            </Td>
-                            <Td dataLabel={columnNames.creationDate}>
-                              {repo.metadata[DATASET_CREATED]}
-                            </Td>
-                            <Td
-                              favorites={{
-                                isFavorited: isRepoFavorited(repo),
-                                onFavorite: (_event, isFavoriting) => {
-                                  markRepoFavorited(repo, isFavoriting);
-                                },
-                                rowIndex,
-                              }}
-                            />
-                          </Tr>
-                        ))
-                      ) : (
-                        <Tr>
-                          <Td colSpan={8}>
-                            <EmptyTable />
-                          </Td>
-                        </Tr>
-                      )}
-                    </Tbody>
-                  </TableComposable>
-                </InnerScrollContainer>
-              </OuterScrollContainer>
-            </div>
-          </div>
-          <TablePagination
-            numberOfRows={
-              isSelected === "datasetListButton"
-                ? tableData.length
-                : favoriteRepoNames.length
-            }
-            page={page}
-            setPage={setPage}
-            perPage={perPage}
-            setPerPage={setPerPage}
-          />
-        </>
+      {!loginDetails?.isLoggedIn && loginHintVisible && (
+        <LoginHint
+          message="Want to see your own data?"
+          link="Login or Create an account"
+          onCloseMethod={onCloseLoginHint}
+          redirect={APP_ROUTES.AUTH}
+        />
       )}
+      <div className="table-container">
+        <PathBreadCrumb pathList={datasetBreadcrumb} />
+        <Heading
+          containerClass="publicDataPageTitle"
+          headingTitle="Results"
+        ></Heading>
+        <div className="filterContainer">
+          <SearchBox
+            dataArray={tableData}
+            setPublicData={setPublicData}
+            startDate={startDate}
+            endDate={endDate}
+            setDatasetName={setDatasetName}
+            aria-label="search box"
+          />
+          <DatePickerWidget
+            dataArray={tableData}
+            setPublicData={setPublicData}
+            datasetName={datasetName}
+            setDateRange={setDateRange}
+            aria-label="date picker"
+          />
+        </div>
+        <ToggleGroup aria-label="Result Selection Options">
+          <ToggleGroupItem
+            text={`All Results(${publicData?.length})`}
+            buttonId="datasetListButton"
+            isSelected={isSelected === "datasetListButton"}
+            onChange={handleButtonClick}
+            className="datasetListButton"
+            aria-label="see dataset button"
+          />
+          <ToggleGroupItem
+            text={`Favorites(${favoriteRepoNames?.length})`}
+            buttonId="favoriteListButton"
+            isSelected={isSelected === "favoriteListButton"}
+            onChange={handleButtonClick}
+            className="favoriteListButton"
+            aria-label="see favorites button"
+          />
+        </ToggleGroup>
+        <div className="table-scroll-container">
+          <OuterScrollContainer>
+            <InnerScrollContainer>
+              <TableComposable
+                aria-label="Favoritable table"
+                variant="compact"
+                isStickyHeader
+              >
+                <Thead>
+                  <Tr>
+                    <Th sort={getSortParams(0)}>{columnNames.name}</Th>
+                    <Th sort={getSortParams(1)}>{columnNames.creationDate}</Th>
+                    <Th sort={getSortParams(2)}></Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {selectedArray.length > 0 ? (
+                    selectedArray.map((repo, rowIndex) => (
+                      <Tr key={rowIndex}>
+                        <Td
+                          dataLabel={columnNames.name}
+                          onClick={() => navigate(`${TOC}/${repo.resource_id}`)}
+                        >
+                          {repo.name}
+                        </Td>
+                        <Td dataLabel={columnNames.creationDate}>
+                          {repo.metadata[DATASET_CREATED]}
+                        </Td>
+                        <Td
+                          favorites={{
+                            isFavorited: isRepoFavorited(repo),
+                            onFavorite: (_event, isFavoriting) => {
+                              markRepoFavorited(repo, isFavoriting);
+                            },
+                            rowIndex,
+                          }}
+                        />
+                      </Tr>
+                    ))
+                  ) : (
+                    <Tr>
+                      <Td colSpan={8}>
+                        <EmptyTable />
+                      </Td>
+                    </Tr>
+                  )}
+                </Tbody>
+              </TableComposable>
+            </InnerScrollContainer>
+          </OuterScrollContainer>
+        </div>
+      </div>
+      <TablePagination
+        numberOfRows={
+          isSelected === "datasetListButton"
+            ? tableData.length
+            : favoriteRepoNames.length
+        }
+        page={page}
+        setPage={setPage}
+        perPage={perPage}
+        setPerPage={setPerPage}
+      />
     </>
   );
 };
