@@ -1,4 +1,5 @@
 from configparser import NoOptionError, NoSectionError
+from http import HTTPStatus
 from logging import Logger
 import os
 from pathlib import Path
@@ -6,10 +7,14 @@ import site
 import subprocess
 import sys
 
+import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from sqlalchemy_utils import create_database, database_exists
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
+from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 from pbench.server.database.database import Database
 
@@ -37,6 +42,72 @@ def find_the_unicorn(logger: Logger):
             )
 
 
+def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
+    """
+     Checks if the Keycloak server is up and accepting the connections.
+     The connection check does the GET request on the oidc server /health
+     endpoint and the sample response returned by the /health endpoint looks
+     like the following:
+        {
+            "status": "UP", # if the server is up
+            "checks": []
+        }
+     Note: The Keycloak server needs to be started with health-enabled on.
+     Args:
+        config: PbenchServerConfig
+        logger: logger
+    Returns:
+        0 if successful
+        1 if unsuccessful
+    """
+    try:
+        oidc_server = config.get(
+            "authentication",
+            "internal_server_url",
+            fallback=config.get("authentication", "server_url"),
+        )
+    except (NoSectionError):
+        logger.exception("Bad config file: missing 'authentication' section")
+        return 1
+    except (NoOptionError):
+        logger.error("Bad config file: no 'server_url' in 'authentication' section")
+        return 1
+
+    session = requests.Session()
+    # The connection check will retry multiple times unless successful, viz.,
+    # [0.0s, 4.0s, 8.0s, 16.0s, ..., 120.0s]. urllib3 will sleep for:
+    # {backoff factor} * (2 ^ ({number of total retries} - 1)) seconds between
+    # the retries. However, the sleep will never be longer than backoff_max
+    # which defaults to 120.0s More detailed documentation on Retry and
+    # backoff_factor can be found at:
+    # https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry
+    retry = Retry(
+        total=8,
+        backoff_factor=2,
+        status_forcelist=tuple(int(x) for x in HTTPStatus if x != 200),
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+
+    # We will also need to retry the connection if the health status is not UP
+    for _ in range(5):
+        try:
+            response = session.get(f"{oidc_server}/health")
+            response.raise_for_status()
+        except Exception:
+            logger.exception("Error connecting to the OIDC client")
+            return 1
+        if response.json().get("status") == "UP":
+            logger.debug("OIDC server connection verified")
+            return 0
+        else:
+            logger.error(
+                "OIDC client not running, OIDC server response: {}", response.json()
+            )
+            retry.sleep()
+    return 1
+
+
 def main():
     os.environ[
         "_PBENCH_SERVER_CONFIG"
@@ -47,6 +118,9 @@ def main():
         print(e)
         sys.exit(1)
     logger = get_pbench_logger(PROG, server_config)
+    ret_val = keycloak_connection(config=server_config, logger=logger)
+    if ret_val != 0:
+        sys.exit(ret_val)
     find_the_unicorn(logger)
     try:
         host = str(server_config.get("pbench-server", "bind_host"))

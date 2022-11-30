@@ -1,11 +1,17 @@
 #
 # This configuration is intended to create a brand new (empty) Pbench Server
-# deployment.  The resulting pod consists of three containers: the Pbench Server
-# and its associated Elasticsearch and PostgreSQL database servers.
+# deployment.  The resulting pod consists of four containers: the Pbench Server
+# and its associated Elasticsearch, PostgreSQL database, and Keycloak
+# authentication servers.
 #
-# The Elasticsearch and PostgreSQL container images have specific versions and
-# are pulled from cached images in an internal registry; the Pbench Server
-# container image is pulled from the same registry with a configurable tag.
+# Note: This pod produces an initial Pbench Server deployment which is
+# pre-configured with a Keycloak realm and administrative user but which
+# contains no Pbench assets.
+#
+# The Elasticsearch, PostgreSQL and Keycloak container images have specific
+# versions and are pulled from cached images in an internal registry; the Pbench
+# Server container image is pulled from the same registry with a configurable
+# tag.
 #
 # The pod should be invoked via the following command
 #
@@ -20,6 +26,7 @@
 #
 # The resulting pod maps the following ports:
 #
+#   8090 - Keycloak authentication server
 #   8080 - HTTP web server (and Pbench Dashboard)
 #   9200 - Elasticsearch
 #
@@ -68,6 +75,16 @@ spec:
       - name: vm.max_map_count
         value: "262144"
     workingDir: /usr/share/elasticsearch
+  - command:
+    - /opt/keycloak/bin/kc.sh
+    - start-dev
+    - --health-enabled=true
+    image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-keycloak:latest
+    name: keycloak
+    ports:
+      - containerPort: 8080
+        hostPort: 8090
+    workingDir: /opt/keycloak
   - args:
     - run-postgresql
     command:

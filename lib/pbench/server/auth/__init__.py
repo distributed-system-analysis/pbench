@@ -96,14 +96,16 @@ class OpenIDClient:
         ref: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig
         """
         well_known_endpoint = "/.well-known/openid-configuration"
-        well_known_uri = f"{self.server_url}{self.realm_name}{well_known_endpoint}"
+        well_known_uri = (
+            f"{self.server_url}/realms/{self.realm_name}{well_known_endpoint}"
+        )
         endpoints_json = self._get(well_known_uri).json()
         try:
             OpenIDClient.USERINFO_ENDPOINT = endpoints_json.get("userinfo_endpoint")
             OpenIDClient.TOKENINFO_ENDPOINT = endpoints_json.get(
                 "introspection_endpoint"
             )
-            OpenIDClient.JWKS_ENDPOINT = endpoints_json.get("jwks_uri")
+            OpenIDClient.JWKS_URI = endpoints_json.get("jwks_uri")
         except KeyError as e:
             self.logger.exception(
                 "Missing endpoint {!r} at {}; Endpoints found: {}",
