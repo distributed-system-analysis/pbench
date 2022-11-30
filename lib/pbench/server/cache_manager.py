@@ -924,12 +924,17 @@ class CacheManager:
         """
         Delete the tarball and MD5 file as well as all unpacked artifacts.
 
+        This does nothing if the dataset hasn't been unpacked.
+
         Args:
             dataset_id: Dataset resource ID to delete
         """
-        tarball = self.find_dataset(dataset_id)
-        name = tarball.name
-        tarball.controller.delete(dataset_id)
-        del self.datasets[dataset_id]
-        del self.tarballs[name]
-        self._clean_empties(tarball.controller_name)
+        try:
+            tarball = self.find_dataset(dataset_id)
+            name = tarball.name
+            tarball.controller.delete(dataset_id)
+            del self.datasets[dataset_id]
+            del self.tarballs[name]
+            self._clean_empties(tarball.controller_name)
+        except TarballNotFound:
+            return
