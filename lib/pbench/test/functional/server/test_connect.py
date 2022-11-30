@@ -18,8 +18,7 @@ class TestConnect:
         assert "uri" in endpoints
 
         # verify all the required authentication fields are present
-        auth_fields = ["issuer", "client", "realm"]
-        assert all(e in endpoints["authentication"].keys() for e in auth_fields)
+        assert set(endpoints["authentication"]) >= {"issuer", "client", "realm"}
 
         # Verify that all expected endpoints are reported
         for a in endpoints["api"].keys():

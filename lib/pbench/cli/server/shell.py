@@ -67,10 +67,10 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
             fallback=config.get("authentication", "server_url"),
         )
     except (NoSectionError):
-        logger.exception("Bad config file:  missing 'authentication' section")
+        logger.exception("Bad config file: missing 'authentication' section")
         return 1
     except (NoOptionError):
-        logger.error("Bad config file:  no 'server_url' in  'authentication' section")
+        logger.error("Bad config file: no 'server_url' in 'authentication' section")
         return 1
 
     session = requests.Session()
@@ -97,7 +97,7 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
         except Exception:
             logger.exception("Error connecting to the OIDC client")
             return 1
-        if response.json()["status"] == "UP":
+        if response.json().get("status") == "UP":
             logger.debug("OIDC server connection verified")
             return 0
         else:
