@@ -54,7 +54,7 @@ buildah copy $container ${RPM_PATH} /tmp/pbench-server.rpm
 buildah run $container dnf update -y
 buildah run $container dnf install -y --setopt=tsflags=nodocs \
         https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-buildah run $container dnf install -y /tmp/pbench-server.rpm httpd less
+buildah run $container dnf install -y /tmp/pbench-server.rpm httpd less rsyslog
 buildah run $container dnf clean all
 buildah run $container rm -f /tmp/pbench-server.rpm
 
@@ -75,6 +75,7 @@ buildah run $container cp ${SERVER_LIB}/systemd/pbench-server.service \
     /etc/systemd/system/pbench-server.service
 
 buildah run $container systemctl enable httpd
+buildah run $container systemctl enable rsyslog
 buildah run $container systemctl enable pbench-server
 
 # Create the container image
