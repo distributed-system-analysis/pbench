@@ -371,3 +371,5 @@ all-tags: pkgmgr-clean $(_DEFAULT_DISTROS:%=%-tags.lis)
 
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis pbench-agent-*-*.noarch.rpm.*
+
+.PHONY: all baseimage clean everything push repofix tds tm
