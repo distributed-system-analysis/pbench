@@ -672,7 +672,7 @@ class ElasticBulkBase(ApiBase):
           }
         }
         """
-        report = defaultdict(dict)
+        report = defaultdict(lambda: defaultdict(int))
         errors = 0
         count = 0
 
@@ -706,8 +706,6 @@ class ElasticBulkBase(ApiBase):
                     status = str(e)
                 errors += 1
             index = u["_index"]
-            if index not in report[status]:
-                report[status][index] = 0
             report[status][index] += 1
         return BulkResults(errors=errors, count=count, report=report)
 
