@@ -14,13 +14,11 @@ import React, { useEffect } from "react";
 
 import { AuthForm } from "modules/components/AuthComponent/common-components";
 import AuthLayout from "modules/containers/AuthLayout";
-import { COMING_SOON } from "assets/constants/navigationConstants";
 import ComingSoonPage from "modules/components/EmptyPageComponent/ComingSoon";
 import Cookies from "js-cookie";
-import EmptyPage from "modules/components/EmptyPageComponent";
 import LoginForm from "modules/components/AuthComponent/LoginForm";
 import MainLayout from "modules/containers/MainLayout";
-import NoMatchingComponent from "modules/components/EmptyPageComponent/NoMatchingComponent";
+import NoMatchingPage from "modules/components/EmptyPageComponent/NoMatchingPage";
 import OverviewComponent from "modules/components/OverviewComponent";
 import ProfileComponent from "modules/components/ProfileComponent";
 import SignupForm from "modules/components/AuthComponent/SignupForm";
@@ -90,13 +88,12 @@ const App = () => {
                 />
                 <Route
                   path={APP_ROUTES.ANALYSIS}
-                  element={<EmptyPage text={COMING_SOON} />}
+                  element={<ComingSoonPage />}
                 />
               </Route>
               <Route path={APP_ROUTES.SEARCH} element={<ComingSoonPage />} />
             </Route>
-
-            <Route path="*" element={<NoMatchingComponent />} />
+            <Route path="*" element={<NoMatchingPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

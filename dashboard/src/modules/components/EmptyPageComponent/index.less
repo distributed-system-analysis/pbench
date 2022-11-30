@@ -1,74 +1,76 @@
 .comingsoon-page-container {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    -webkit-transform: translate(-50%, -50%);
-    animation: fadeIn 2000ms ease-in-out;
-    -webkit-animation: fadeIn 2000ms ease-in-out;
-  
-    h1 {
-      font-size: 50px;
-      margin-bottom: 0;
-      line-height: 1;
-      font-weight: 700;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  animation: fadeIn 2000ms ease-in-out;
+  -webkit-animation: fadeIn 2000ms ease-in-out;
+  h1 {
+    font-size: 50px;
+    margin-bottom: 0;
+    line-height: 1;
+    font-weight: 700;
+  }
+  .dot {
+    color: #4febfe;
+  }
+  button {
+    display: flex;
+    justify-content: center;
+    margin: 2vh auto;
+    text-decoration: underline;
+  }
+  @keyframes fadeIn {
+    from {
+      top: 20%;
+      opacity: 0;
     }
-  
-    .dot {
-      color: #4febfe;
+    to {
+      top: 100;
+      opacity: 1;
     }
-  
-    button {     
+  }
+  @-webkit-keyframes fadeIn {
+    from {
+      top: 20%;
+      opacity: 0;
+    }
+    to {
+      top: 100;
+      opacity: 1;
+    }
+  }
+}
+.logo-container {
+  background: black;
+  padding: 0 2vh;
+  .pbench-logo {
+    height: 50px;
+    width: 50px;
+    cursor: pointer;
+  }
+}
+.nomatch-container {
+  .main-content {
+    .bg-img-wrapper {
       display: flex;
+      align-content: center;
       justify-content: center;
-      margin: 2vh auto;
-      text-decoration: underline;
-    }
-  
-    @keyframes fadeIn {
-      from {
-        top: 20%;
-        opacity: 0;
-      }
-      to {
-        top: 100;
-        opacity: 1;
+      .not-found-img {
+        height: 50vh;
+        width: 50vh;
       }
     }
-  
-    @-webkit-keyframes fadeIn {
-      from {
-        top: 20%;
-        opacity: 0;
-      }
-      to {
-        top: 100;
-        opacity: 1;
-      }
+    .not-found-text {
+      margin: 2vh 0;
+      font-size: 1.5rem;
     }
   }
-  
-  .nomatch-container {
-      
-      .main-content {
-        width: 50%;
-        text-align: center;
-        margin: 0 auto;
-        .bg-img-wrapper {
-            background-image: url("assets/images/404-Error.gif");
-            height: 50vh;
-            background-position: center;
-            background-repeat: no-repeat;
-          }
-        .not-found-text {
-            margin: 2vh 0;
-            font-size: 1.5rem;
-        }
-      }
-      button {     
-        display: flex;
-        justify-content: center;
-        margin: 2vh auto;
-        text-decoration: underline;
-      }
+  button {
+    display: flex;
+    justify-content: center;
+    margin: 2vh auto;
+    text-decoration: underline;
   }
+}
