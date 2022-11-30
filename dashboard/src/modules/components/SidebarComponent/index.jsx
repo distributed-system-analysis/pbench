@@ -8,21 +8,20 @@ import {
 import React, { useEffect } from "react";
 import { menuOptions, menuOptionsNonLoggedIn } from "./sideMenuOptions";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Cookies from "js-cookie";
 import { setActiveItem } from "actions/sideBarActions";
 
-const MenuItem = (props) => {
-  const { data } = props;
-  const navigate = useOutletContext();
+const MenuItem = ({ data, activeItem }) => {
+  const navigate = useNavigate();
   return data.map((option) => (
     <NavItem
       preventDefault
       onClick={() => navigate(option.link)}
       key={option.key}
       itemId={option.key}
-      isActive={props.activeItem === option.key}
+      isActive={activeItem === option.key}
     >
       {option.name}
     </NavItem>
@@ -31,7 +30,7 @@ const MenuItem = (props) => {
 
 const Menu = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+
   const { pathname } = useLocation();
 
   const activeItem = useSelector((state) => state.sidebar.activeMenuItem);
@@ -57,20 +56,12 @@ const Menu = () => {
             aria-label={item.group.title}
             title={item.group.title}
           >
-            <MenuItem
-              data={item.submenu}
-              context={navigate}
-              activeItem={activeItem}
-            />
+            <MenuItem data={item.submenu} activeItem={activeItem} />
           </NavGroup>
         ))
       ) : (
         <NavList>
-          <MenuItem
-            data={menuOptionsNonLoggedIn}
-            context={navigate}
-            activeItem={activeItem}
-          />
+          <MenuItem data={menuOptionsNonLoggedIn} activeItem={activeItem} />
         </NavList>
       )}
     </Nav>

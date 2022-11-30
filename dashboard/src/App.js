@@ -90,12 +90,16 @@ const App = () => {
                   path={APP_ROUTES.ANALYSIS}
                   element={<EmptyPage text={COMING_SOON} />}
                 />
-                <Route
-                  path={APP_ROUTES.SEARCH}
-                  element={<EmptyPage text={COMING_SOON} />}
-                />
               </Route>
             </Route>
+            <Route
+              path={APP_ROUTES.SEARCH}
+              element={<EmptyPage text={COMING_SOON} />}
+            />
+            <Route
+              path={APP_ROUTES.EXPLORE}
+              element={<EmptyPage text={COMING_SOON} />}
+            />
             <Route path="*" element={<EmptyPage text={NO_MATCH} />} />
           </Route>
         </Routes>

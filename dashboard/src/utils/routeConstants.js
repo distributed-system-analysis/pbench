@@ -9,3 +9,4 @@ export const USER_PROFILE = "user-profile";
 export const ANALYSIS = "analysis";
 export const SEARCH = "search";
 export const RESULTS = "results";
+export const EXPLORE = "explore";
