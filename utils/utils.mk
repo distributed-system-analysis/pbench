@@ -24,3 +24,15 @@ _DISTROS := $(foreach d,${_ALL_DISTRO_NAMES},${_ALL_${d}_VERSIONS})
 # then use that as a delimiter around a space character, and viola.
 _empty:=
 _space:= ${_empty} ${_empty}
+
+# This is a "function" which is intended to produce a sequence number managed in
+# in the specified file.  If the file does not exist, the function returns 1;
+# otherwise, it reads the current value from the file, increments it, writes it
+# back to the file, and returns the originally read number.
+get_sequence_number = $(shell \
+	s=1 ; \
+	if [[ -e $(1) ]] ; then \
+	  s=$$(< $(1)) ; \
+	  echo $$((s+1)) >$(1) ; \
+	fi ; \
+	echo $$s )

@@ -61,7 +61,9 @@ RPMSPEC = ${BLD_DIR}/SPECS
 RPMTMP = ${BLD_DIR}/TMP
 
 sha1 := $(shell git rev-parse --short=9 HEAD)
-seqno ?= 1
+ifeq ($(origin seqno), undefined)
+  seqno := 1
+endif
 
 RPM_NAME = ${prog}-${VERSION}-${seqno}g${sha1}
 PATCH_FILES = $(wildcard ./patches/*)
