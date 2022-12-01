@@ -195,7 +195,6 @@ class DatasetsMetadata(ApiBase):
             try:
                 Metadata.setvalue(key=k, value=v, dataset=dataset, user_id=user_id)
             except MetadataError as e:
-                self.logger.warning("Unable to update key {} = {!r}: {}", k, v, str(e))
                 fail.append(str(e))
 
         if fail:

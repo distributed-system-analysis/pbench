@@ -1,16 +1,10 @@
 from http import HTTPStatus
-from typing import Any
 
 import pytest
 import requests
 
 from pbench.server import JSON
-from pbench.server.database.models.datasets import (
-    Dataset,
-    DatasetNotFound,
-    Metadata,
-    MetadataBadStructure,
-)
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
 class TestDatasetsMetadataGet:
@@ -410,36 +404,43 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         }
 
     def test_put_set_errors(self, monkeypatch, query_get_as, query_put_as):
-        real_set = Metadata.setvalue
-
-        @staticmethod
-        def fake_set(dataset: Dataset, key: str, value: Any, user_id: str):
-            if key in ("global.dashboard.seen", "dataset.name"):
-                raise MetadataBadStructure(dataset, key, key)
-            real_set(dataset, key, value, user_id)
-
-        monkeypatch.setattr(Metadata, "setvalue", fake_set)
+        """Test a partial success. We set a scalar value on a key and then try
+        to set a nested value: i.e., with "global.dashboard.nested = False", we
+        attempt to set "global.dashboard.nested.dummy". We expect this to fail,
+        but we expect other values to succeed. This partial success is reported
+        as an "internal error" (for lack of any better representation in HTTP)
+        with a message indicating the specific failures.
+        """
+        query_put_as(
+            "drb",
+            {"metadata": {"global.dashboard.nested": False}},
+            "drb",
+            HTTPStatus.OK,
+        )
         response = query_put_as(
             "drb",
             {
                 "metadata": {
                     "global.dashboard.seen": False,
+                    "global.dashboard.nested.dummy": True,
                     "dataset.name": "foo",
-                    "global.dashboard.saved": True,
                 }
             },
             "drb",
             HTTPStatus.INTERNAL_SERVER_ERROR,
         )
         assert response.json == {
-            "message": "Key 'dataset.name' value for 'dataset.name' in (3)|drb is not a JSON object, Key 'global.dashboard.seen' value for 'global.dashboard.seen' in (3)|drb is not a JSON object"
+            "message": "Key 'nested' value for 'global.dashboard.nested.dummy' in (3)|foo is not a JSON object"
         }
         response = query_get_as(
-            "drb", {"metadata": "global,dataset.name"}, "drb", HTTPStatus.OK
+            "foo", {"metadata": "global,dataset.name"}, "drb", HTTPStatus.OK
         )
         assert response.json == {
-            "global": {"contact": "me@example.com", "dashboard": {"saved": True}},
-            "dataset.name": "drb",
+            "global": {
+                "contact": "me@example.com",
+                "dashboard": {"seen": False, "nested": False},
+            },
+            "dataset.name": "foo",
         }
 
     def test_put(self, query_get_as, query_put_as):

@@ -29,8 +29,7 @@ from pbench.server.api.resources import (
     UnauthorizedAccess,
 )
 from pbench.server.auth.auth import Auth
-from pbench.server.database.models.audit import AuditReason, AuditStatus
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 
@@ -461,9 +460,9 @@ class ElasticBase(ApiBase):
             # postprocess Elasticsearch response
             return self.postprocess(json_response, context)
         except PostprocessError as e:
-            msg = f"{klasname}: the query postprocessor was unable to complete: {str(e)!r}"
+            msg = f"{klasname}: {str(e)}"
             self.logger.error("{}", msg)
-            raise APIAbort(e.status, str(e.message))
+            raise APIAbort(e.status, msg)
         except KeyError as e:
             self.logger.error("{}: missing Elasticsearch key {}", klasname, e)
             raise APIAbort(
@@ -763,7 +762,8 @@ class ElasticBulkBase(ApiBase):
 
         if self.require_stable and dataset.state.mutating:
             raise APIAbort(
-                HTTPStatus.CONFLICT, f"Dataset state {dataset.state.name} is mutating"
+                HTTPStatus.CONFLICT,
+                f"Dataset state {dataset.state.friendly!r} is mutating",
             )
 
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
@@ -798,7 +798,8 @@ class ElasticBulkBase(ApiBase):
         elif self.require_map:
             raise APIAbort(
                 HTTPStatus.CONFLICT,
-                f"Dataset {self.action} requires Indexed dataset but state is {dataset.state.friendly}",
+                f"Dataset {self.action} requires {States.INDEXED.friendly!r} "
+                f"dataset but state is {dataset.state.friendly!r}",
             )
         else:
             report = BulkResults(errors=0, count=0, report={})

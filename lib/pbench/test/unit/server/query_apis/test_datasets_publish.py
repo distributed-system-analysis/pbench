@@ -199,7 +199,7 @@ class TestDatasetsPublish:
         # Verify the report and status
         assert response.status_code == HTTPStatus.CONFLICT
         assert response.json == {
-            "message": "Dataset update requires Indexed dataset but state is Indexed"
+            "message": "Dataset update requires 'Indexed' dataset but state is 'Indexed'"
         }
 
     def test_exception(
