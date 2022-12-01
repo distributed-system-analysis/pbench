@@ -1,4 +1,3 @@
-from configparser import NoOptionError
 import datetime
 from http import HTTPStatus
 import os
@@ -17,7 +16,7 @@ from pbench.server.database.models.users import User
 
 class InternalUser:
     """
-    Internal user class for storing user related fields fetch
+    Internal user class for storing user related fields fetched
     from OIDC token decode.
     """
 
@@ -60,13 +59,14 @@ class Auth:
         Args:
             server_config: Parsed Pbench server configuration
         """
-        server_url = server_config.get("authentication", "server_url")
+        server_url = server_config.get(
+            "authentication",
+            "internal_server_url",
+            fallback=server_config.get("authentication", "server_url"),
+        )
         client = server_config.get("authentication", "client")
         realm = server_config.get("authentication", "realm")
-        try:
-            secret = server_config.get("authentication", "secret")
-        except NoOptionError:
-            secret = None
+        secret = server_config.get("authentication", "secret", fallback=None)
         Auth.oidc_client = OpenIDClient(
             server_url=server_url,
             client_id=client,
@@ -182,9 +182,7 @@ class Auth:
             Auth.logger.warning(
                 "Internal token verification failed, trying OIDC token verification"
             )
-            return Auth.verify_third_party_token(
-                auth_token, Auth.oidc_client, ["HS256"]
-            )
+            return Auth.verify_third_party_token(auth_token, Auth.oidc_client)
         except Exception as e:
             Auth.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {!r}: {}",
@@ -195,7 +193,9 @@ class Auth:
 
     @staticmethod
     def verify_third_party_token(
-        auth_token: str, oidc_client: OpenIDClient, algorithms: list[str]
+        auth_token: str,
+        oidc_client: OpenIDClient,
+        algorithms: Optional[list[str]] = ["HS256"],
     ) -> "InternalUser":
         """
         Verify a token provided to the Pbench server which was obtained from a
@@ -203,6 +203,8 @@ class Auth:
         Args:
             auth_token: Token to authenticate
             oidc_client: OIDC client to call to authenticate the token
+            algorithms: Optional token signature algorithm argument,
+                        defaults to HS256
         Returns:
             True if the verification succeeds else False
         """
@@ -240,7 +242,7 @@ class Auth:
             jwt.InvalidTokenError,
             jwt.InvalidAudienceError,
         ):
-            Auth.logger.error("OIDC token verification failed")
+            Auth.logger.warning("OIDC token verification failed")
             return None
         except Exception:
             Auth.logger.exception(
