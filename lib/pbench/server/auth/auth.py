@@ -45,7 +45,7 @@ class Auth:
         Auth.logger = logger
 
     @staticmethod
-    def get_oidc_client(server_config: PbenchServerConfig):
+    def set_oidc_client(server_config: PbenchServerConfig):
         """OIDC client initialization for third party token verification
 
         Args:
@@ -59,7 +59,7 @@ class Auth:
         client = server_config.get("authentication", "client")
         realm = server_config.get("authentication", "realm")
         secret = server_config.get("authentication", "secret", fallback=None)
-        return OpenIDClient(
+        Auth.oidc_client = OpenIDClient(
             server_url=server_url,
             client_id=client,
             logger=Auth.logger,
@@ -211,9 +211,9 @@ class Auth:
                  InternalUser object
             """
             roles = []
-            audiences = token_payload.get("resource_access")
+            audiences = token_payload.get("resource_access", {})
             if client_id in audiences:
-                roles = audiences.get(client_id).get("roles")
+                roles = audiences[client_id].get("roles")
             return InternalUser(
                 id=token_payload.get("sub"),
                 username=token_payload.get("preferred_username"),

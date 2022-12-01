@@ -54,7 +54,7 @@ def register_endpoints(api, app, config):
     # Init the the authentication module
     token_auth = Auth()
     Auth.set_logger(logger)
-    Auth.oidc_client = Auth.get_oidc_client(server_config=config)
+    Auth.set_oidc_client(server_config=config)
 
     logger.info("Registering service endpoints with base URI {}", base_uri)
 
