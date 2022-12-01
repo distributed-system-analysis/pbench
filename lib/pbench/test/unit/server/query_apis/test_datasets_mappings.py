@@ -112,6 +112,5 @@ class TestDatasetsMappings:
             response = client.get(f"{server_config.rest_uri}/datasets/mappings/summary")
             assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
             assert (
-                response.json["message"]
-                == "Unexpected template error: \"Document template for index 'run' not found in the database\""
+                response.json["message"] == "Unexpected template error for index 'run'"
             )

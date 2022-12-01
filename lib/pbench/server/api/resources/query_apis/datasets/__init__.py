@@ -129,14 +129,14 @@ class IndexMapBase(ElasticBase):
         try:
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
         except MetadataError as exc:
-            self.logger.error("{}", str(exc))
+            self.logger.warning("{}", str(exc))
             raise APIAbort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
                 f"Required metadata missing: {str(exc)!r}",
             )
 
         if index_map is None:
-            self.logger.error("Index map metadata has no value")
+            self.logger.warning("Index map metadata has no value")
             raise APIAbort(
                 HTTPStatus.INTERNAL_SERVER_ERROR, "Required metadata missing"
             )

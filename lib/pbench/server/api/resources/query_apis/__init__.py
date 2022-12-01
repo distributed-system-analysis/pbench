@@ -382,13 +382,12 @@ class ElasticBase(ApiBase):
             self.preprocess(params, context)
             self.logger.debug("PREPROCESS returns {}", context)
         except UnauthorizedAccess as e:
-            self.logger.warning("{}", e)
             raise APIAbort(e.http_status, str(e))
         except KeyError as e:
             self.logger.exception("{} problem in preprocess, missing {}", klasname, e)
             raise APIAbort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Missing expected backend data: {str(e)}",
+                f"Missing expected backend data: {str(e)!r}",
             )
         try:
             # prepare payload for Elasticsearch query
@@ -417,7 +416,7 @@ class ElasticBase(ApiBase):
             es_response.raise_for_status()
             json_response = es_response.json()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception(
+            self.logger.error(
                 "{} HTTP error {} from Elasticsearch request: {}",
                 klasname,
                 e,
@@ -428,14 +427,14 @@ class ElasticBase(ApiBase):
                 f"Elasticsearch query failure {e.response.reason} ({e.response.status_code})",
             )
         except requests.exceptions.ConnectionError:
-            self.logger.exception(
+            self.logger.error(
                 "{}: connection refused during the Elasticsearch request", klasname
             )
             raise APIAbort(
                 HTTPStatus.BAD_GATEWAY, "Network problem, could not reach Elasticsearch"
             )
         except requests.exceptions.Timeout:
-            self.logger.exception(
+            self.logger.error(
                 "{}: connection timed out during the Elasticsearch request", klasname
             )
             raise APIAbort(
@@ -443,7 +442,7 @@ class ElasticBase(ApiBase):
                 "Connection timed out, could reach Elasticsearch",
             )
         except requests.exceptions.InvalidURL:
-            self.logger.exception(
+            self.logger.error(
                 "{}: invalid url {} during the Elasticsearch request", klasname, url
             )
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, "Invalid backend URL")
@@ -462,13 +461,14 @@ class ElasticBase(ApiBase):
             # postprocess Elasticsearch response
             return self.postprocess(json_response, context)
         except PostprocessError as e:
-            msg = f"{klasname}: the query postprocessor was unable to complete: {e}"
-            self.logger.warning("{}", msg)
+            msg = f"{klasname}: the query postprocessor was unable to complete: {str(e)!r}"
+            self.logger.error("{}", msg)
             raise APIAbort(e.status, str(e.message))
         except KeyError as e:
             self.logger.error("{}: missing Elasticsearch key {}", klasname, e)
             raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR, f"Missing Elasticsearch key {e}"
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Missing Elasticsearch key {str(e)!r}",
             )
         except Exception as e:
             self.logger.exception(
@@ -792,12 +792,13 @@ class ElasticBulkBase(ApiBase):
                     type(e).__name__,
                 )
                 raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR, f"Unexpected backend error {str(e)!r}"
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    f"Unexpected backend error {str(e)!r}",
                 )
         elif self.require_map:
             raise APIAbort(
                 HTTPStatus.CONFLICT,
-                f"Dataset {self.action} requires Indexed state ({dataset.state.name})",
+                f"Dataset {self.action} requires Indexed dataset but state is {dataset.state.friendly}",
             )
         else:
             report = BulkResults(errors=0, count=0, report={})
@@ -842,10 +843,4 @@ class ElasticBulkBase(ApiBase):
                 HTTPStatus.INTERNAL_SERVER_ERROR,
                 f"Failed to update {report.errors} out of {report.count} documents",
             )
-        self.logger.info(
-            "{}:dataset {}: {} successful document actions",
-            klasname,
-            dataset,
-            report.count,
-        )
         return jsonify(summary)
