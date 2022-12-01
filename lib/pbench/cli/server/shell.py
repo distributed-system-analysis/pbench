@@ -17,7 +17,6 @@ from sqlalchemy_utils import create_database, database_exists
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
-from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 from pbench.server.database.database import Database
 
@@ -34,22 +33,6 @@ def app():
     return create_app(server_config)
 
 
-def add_to_path(path_el: str, path: str) -> str:
-    """Convenience function to hide f-string syntax used to construct a new
-    PATH environment variable.
-
-    Arguments:
-
-        path_el - a new path element string to be pre-pended to `path`
-        path - the exiting PATH environment variable value
-
-    Returns:
-
-        A string representing the newly constructed PATH value
-    """
-    return f"{path_el}:{path}"
-
-
 def find_the_unicorn(logger: Logger):
     """Add the location of the `pip install --user` version of gunicorn to the
     PATH if it exists.
@@ -57,7 +40,7 @@ def find_the_unicorn(logger: Logger):
     local = Path(site.getuserbase()) / "bin"
     if (local / "gunicorn").exists():
         # Use a `pip install --user` version of gunicorn
-        os.environ["PATH"] = add_to_path(local, os.environ["PATH"])
+        os.environ["PATH"] = ":".join(str(local), os.environ["PATH"])
         logger.info(
             "Found a local unicorn: augmenting server PATH to {}",
             os.environ["PATH"],
@@ -82,16 +65,18 @@ def wait_for_database(db_uri: str, timeout: int):
     """
     url = urlparse(db_uri)
     port = url.port if url.port is not None else 5432
-    while timeout >= 0:
+    end = time.time() + timeout
+    while True:
         try:
             with socket.create_connection((url.hostname, port), timeout=1):
                 break
         except ConnectionRefusedError:
+            if end > time.time():
+                raise
             time.sleep(1)
-            timeout -= 1
 
 
-def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
+def keycloak_connection(oidc_server: str, logger: Logger) -> int:
     """
      Checks if the Keycloak server is up and accepting the connections.
      The connection check does the GET request on the oidc server /health
@@ -103,25 +88,12 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
         }
      Note: The Keycloak server needs to be started with health-enabled on.
      Args:
-        config: PbenchServerConfig
+        oidc_server: OIDC server to verify
         logger: logger
     Returns:
         0 if successful
         1 if unsuccessful
     """
-    try:
-        oidc_server = config.get(
-            "authentication",
-            "internal_server_url",
-            fallback=config.get("authentication", "server_url"),
-        )
-    except (NoSectionError):
-        logger.exception("Bad config file: missing 'authentication' section")
-        return 1
-    except (NoOptionError):
-        logger.error("Bad config file: no 'server_url' in 'authentication' section")
-        return 1
-
     session = requests.Session()
     # The connection check will retry multiple times unless successful, viz.,
     # [0.0s, 4.0s, 8.0s, 16.0s, ..., 120.0s]. urllib3 will sleep for:
@@ -138,14 +110,14 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
     adapter = HTTPAdapter(max_retries=retry)
     session.mount("http://", adapter)
 
-    # We will also need to retry the connection if the health status is not UP
+    # We will also need to retry the connection if the health status is not UP.
     for _ in range(5):
         try:
             response = session.get(f"{oidc_server}/health")
             response.raise_for_status()
         except Exception:
             logger.exception("Error connecting to the OIDC client")
-            return 1
+            break
         if response.json().get("status") == "UP":
             logger.debug("OIDC server connection verified")
             return 0
@@ -158,25 +130,18 @@ def keycloak_connection(config: PbenchServerConfig, logger: Logger) -> int:
 
 
 def main():
-    """The Pbench Server is always executed in a containerized environment where
-    the pbench server configuration is in a fixed location.
+    """Setup of the Gunicorn Pbench Server Flask application.
 
     If an error is encountered during setup, system exit is invoked with an
     exit code of 1.  Otherwise, the exit code of the gunicorn subprocess is
     used.
     """
-    os.environ[
-        "_PBENCH_SERVER_CONFIG"
-    ] = "/opt/pbench-server/lib/config/pbench-server.cfg"
     try:
         server_config = get_server_config()
     except (ConfigFileNotSpecified, BadConfig) as e:
         print(e)
         sys.exit(1)
     logger = get_pbench_logger(PROG, server_config)
-    ret_val = keycloak_connection(config=server_config, logger=logger)
-    if ret_val != 0:
-        sys.exit(ret_val)
     if site.ENABLE_USER_SITE:
         find_the_unicorn(logger)
     try:
@@ -185,7 +150,11 @@ def main():
         db_uri = str(server_config.get("database", "db_uri"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
-        crontab_dir = server_config.get("pbench-server", "crontab-dir")
+        oidc_server = server_config.get(
+            "authentication",
+            "internal_server_url",
+            fallback=server_config.get("authentication", "server_url"),
+        )
     except (NoOptionError, NoSectionError):
         logger.exception("Error fetching required configuration")
         sys.exit(1)
@@ -199,6 +168,13 @@ def main():
         logger.error("Database instance not responding")
         sys.exit(1)
 
+    logger.info("Pbench server using OIDC server {}", oidc_server)
+
+    logger.debug("Waiting for OIDC server to become available.")
+    ret_val = keycloak_connection(oidc_server, logger)
+    if ret_val != 0:
+        sys.exit(ret_val)
+
     # Multiple gunicorn workers will attempt to connect to the DB; rather than
     # attempt to synchronize them, detect a missing DB (from the database URI)
     # and create it here. It's safer to do this here, where we're
@@ -208,26 +184,6 @@ def main():
         create_database(db_uri)
         logger.info("Created database {}", db_uri)
     Database.init_db(server_config, logger)
-
-    # Create the crontab file from the server configuration.
-    os.environ["PATH"] = add_to_path(server_config.BINDIR, os.environ["PATH"])
-    cp = subprocess.run(
-        ["pbench-create-crontab", crontab_dir],
-        cwd=server_config.log_dir,
-    )
-    if cp.returncode != 0:
-        logger.error(
-            "Failed to create crontab file from configuration: {}", cp.returncode
-        )
-        sys.exit(1)
-
-    # Install the created crontab file.
-    cp = subprocess.run(
-        ["crontab", f"{crontab_dir}/crontab"], cwd=server_config.log_dir
-    )
-    if cp.returncode != 0:
-        logger.error("Failed to install crontab file: {}", cp.returncode)
-        sys.exit(1)
 
     # Beginning of the gunicorn command to start the pbench-server.
     cmd_line = [
