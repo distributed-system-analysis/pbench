@@ -51,6 +51,8 @@ def wait_for_database(db_uri: str, timeout: int):
     """Wait for the database server to become available.  While we encounter
     "connection refused", sleep one second, and then try again.
 
+    If the database URI is for a sqlite instance, no connection is attempted.
+
     The timeout argument to `create_connection()` does not play into the retry
     logic, see:
 
@@ -64,6 +66,8 @@ def wait_for_database(db_uri: str, timeout: int):
     Raises a ConnectionRefusedError on failure.
     """
     url = urlparse(db_uri)
+    if url.scheme == "sqlite":
+        return
     port = url.port if url.port is not None else 5432
     end = time.time() + timeout
     while True:
@@ -147,7 +151,8 @@ def main():
     try:
         host = str(server_config.get("pbench-server", "bind_host"))
         port = str(server_config.get("pbench-server", "bind_port"))
-        db_uri = str(server_config.get("database", "db_uri"))
+        db_uri = str(server_config.get("database", "uri"))
+        db_wait_timeout = str(server_config.get("database", "wait_timeout"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
         oidc_server = server_config.get(
@@ -163,9 +168,9 @@ def main():
 
     logger.debug("Waiting for database instance to become available.")
     try:
-        wait_for_database(db_uri, 120)
+        wait_for_database(db_uri, db_wait_timeout)
     except ConnectionRefusedError:
-        logger.error("Database instance not responding")
+        logger.error("Database {} not responding", db_uri)
         sys.exit(1)
 
     logger.info("Pbench server using OIDC server {}", oidc_server)

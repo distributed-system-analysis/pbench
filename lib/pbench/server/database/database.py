@@ -16,11 +16,11 @@ class Database:
     def get_engine_uri(config, logger):
         engine_uri = None
         try:
-            engine_uri = config.get("database", "db_uri")
+            engine_uri = config.get("database", "uri")
         except NoSectionError:
             msg = "Failed to find [database] section in configuration file."
         except NoOptionError:
-            msg = "Failed to find 'db_uri' value in [database] section of configuration file."
+            msg = "Failed to find 'uri' value in [database] section of configuration file."
         if engine_uri is None:
             if logger:
                 logger.error(msg)
