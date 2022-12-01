@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import datetime
 from http import HTTPStatus
 import os
@@ -14,29 +15,20 @@ from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
 
 
+@dataclass
 class InternalUser:
-    """
-    Internal user class for storing user related fields fetched
+    """Internal user class for storing user related fields fetched
     from OIDC token decode.
     """
 
-    def __init__(
-        self,
-        id: str,
-        username: str,
-        email: str,
-        first_name: str = None,
-        last_name: str = None,
-        roles: list[str] = None,
-    ):
-        self.id = id
-        self.username = username
-        self.email = email
-        self.first_name = first_name
-        self.last_name = last_name
-        self.roles = roles
+    id: str
+    username: str
+    email: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    roles: Optional[list[str]] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"User, id: {self.id}, username: {self.username}"
 
     def is_admin(self):
@@ -53,9 +45,9 @@ class Auth:
         Auth.logger = logger
 
     @staticmethod
-    def set_oidc_client(server_config: PbenchServerConfig):
-        """
-        OIDC client initialization for third party token verification
+    def get_oidc_client(server_config: PbenchServerConfig):
+        """OIDC client initialization for third party token verification
+
         Args:
             server_config: Parsed Pbench server configuration
         """
@@ -67,7 +59,7 @@ class Auth:
         client = server_config.get("authentication", "client")
         realm = server_config.get("authentication", "realm")
         secret = server_config.get("authentication", "secret", fallback=None)
-        Auth.oidc_client = OpenIDClient(
+        return OpenIDClient(
             server_url=server_url,
             client_id=client,
             logger=Auth.logger,
@@ -179,7 +171,7 @@ class Auth:
                     e,
                 )
         except jwt.InvalidTokenError:
-            Auth.logger.warning(
+            Auth.logger.debug(
                 "Internal token verification failed, trying OIDC token verification"
             )
             return Auth.verify_third_party_token(auth_token, Auth.oidc_client)
@@ -206,19 +198,41 @@ class Auth:
             algorithms: Optional token signature algorithm argument,
                         defaults to HS256
         Returns:
-            True if the verification succeeds else False
+            InternalUser object if the verification succeeds else None
         """
+
+        def get_internal_user(client_id: str, token_payload: dict) -> "InternalUser":
+            """Helper method to return the Internal User object
+
+            Args:
+                client_id: authorized client id string
+                token_payload: Dict representation of decoded token
+            Returns:
+                 InternalUser object
+            """
+            roles = []
+            audiences = token_payload.get("resource_access")
+            if client_id in audiences:
+                roles = audiences.get(client_id).get("roles")
+            return InternalUser(
+                id=token_payload.get("sub"),
+                username=token_payload.get("preferred_username"),
+                email=token_payload.get("email"),
+                first_name=token_payload.get("given_name"),
+                last_name=token_payload.get("family_name"),
+                roles=roles,
+            )
+
         try:
             identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
         except Exception:
             Auth.logger.warning("Identity provider public key fetch failed")
             identity_provider_pubkey = Auth().get_secret_key()
         try:
-            audience = oidc_client.client_id if oidc_client else None
             token_decode = oidc_client.token_introspect_offline(
                 token=auth_token,
                 key=identity_provider_pubkey,
-                audience=audience,
+                audience=oidc_client.client_id,
                 algorithms=algorithms,
                 options={
                     "verify_signature": True,
@@ -226,16 +240,8 @@ class Auth:
                     "verify_exp": True,
                 },
             )
-            roles = []
-            if audience in token_decode.get("resource_access"):
-                roles = token_decode.get("resource_access").get(audience).get("roles")
-            return InternalUser(
-                id=token_decode.get("sub"),
-                username=token_decode.get("preferred_username"),
-                email=token_decode.get("email"),
-                first_name=token_decode.get("given_name"),
-                last_name=token_decode.get("family_name"),
-                roles=roles,
+            return get_internal_user(
+                client_id=oidc_client.client_id, token_payload=token_decode
             )
         except (
             jwt.ExpiredSignatureError,
@@ -250,6 +256,10 @@ class Auth:
                 auth_token,
             )
 
+        # If offline token verification results in some unexpected errors, we
+        # will perform the online token verification.
+        # Note: Online verification should NOT be performed frequently, and it
+        # is only allowed for non-public clients.
         if not oidc_client.TOKENINFO_ENDPOINT:
             Auth.logger.warning("Can not perform OIDC online token verification")
             return None
@@ -258,7 +268,13 @@ class Auth:
             token_payload = oidc_client.token_introspect_online(
                 token=auth_token, token_info_uri=oidc_client.TOKENINFO_ENDPOINT
             )
+            if oidc_client.client_id in token_payload.get("aud"):
+                return get_internal_user(
+                    client_id=oidc_client.client_id, token_payload=token_payload
+                )
+            else:
+                # If our client is not an intended audience for the token,
+                # we will not verify the token.
+                return None
         except OpenIDClientError:
             return None
-
-        return "aud" in token_payload and oidc_client.client_id in token_payload["aud"]
