@@ -117,9 +117,9 @@ class ElasticBase(ApiBase):
         port = config.get("elasticsearch", "port")
 
         # TODO: For future flexibility, we should consider reading this entire
-        # Elasticsearch URI from the config file as we do for PostgreSQL rather
-        # than stitching it together. This would allow backend control over
-        # authentication and http vs https for example.
+        # Elasticsearch URI from the config file as we do for the database
+        # rather than stitching it together. This would allow backend control
+        # over authentication and http vs https for example.
         self.es_url = f"http://{host}:{port}"
 
     def _build_elasticsearch_query(
@@ -567,9 +567,9 @@ class ElasticBulkBase(ApiBase):
         api_name = self.__class__.__name__
 
         # TODO: For future flexibility, we should consider reading this entire
-        # Elasticsearch URI from the config file as we do for PostgreSQL rather
-        # than stitching it together. This would allow backend control over
-        # authentication and http vs https for example.
+        # Elasticsearch URI from the config file as we do for the database
+        # rather than stitching it together. This would allow backend control
+        # over authentication and http vs https for example.
         self.elastic_uri = f"http://{host}:{port}"
         self.config = config
         self.action = action

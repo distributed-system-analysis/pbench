@@ -125,7 +125,7 @@ def main():
     try:
         host = str(server_config.get("pbench-server", "bind_host"))
         port = str(server_config.get("pbench-server", "bind_port"))
-        db = str(server_config.get("Postgres", "db_uri"))
+        db = str(server_config.get("database", "db_uri"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
         pbench_top_dir = server_config.get("pbench-server", "pbench-top-dir")
@@ -134,12 +134,12 @@ def main():
 
         # Multiple gunicorn workers will attempt to connect to the DB; rather
         # than attempt to synchronize them, detect a missing DB (from the
-        # postgres URI) and create it here. It's safer to do this here,
+        # database URI) and create it here. It's safer to do this here,
         # where we're single-threaded.
         if not database_exists(db):
-            logger.info("Postgres DB {} doesn't exist", db)
+            logger.info("Database {} doesn't exist", db)
             create_database(db)
-            logger.info("Created DB {}", db)
+            logger.info("Created database {}", db)
         Database.init_db(server_config, logger)
     except (NoOptionError, NoSectionError):
         logger.exception("Error fetching required configuration")

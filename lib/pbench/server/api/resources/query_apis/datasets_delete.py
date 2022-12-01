@@ -22,7 +22,7 @@ class DatasetsDelete(ElasticBulkBase):
     Delete the specified dataset.
 
     This includes all Elasticsearch documents associated with the dataset, plus
-    the PostgreSQL representation, the tarball and MD5 file in the ARCHIVE file
+    the database representation, the tarball and MD5 file in the ARCHIVE file
     system tree, the unpacked tarball from the INCOMING file system tree, and the
     reference link in the RESULTS file system tree. If there is a BACKUP of the
     tarball file (which there should be, if configured), this will not touch the
@@ -93,5 +93,5 @@ class DatasetsDelete(ElasticBulkBase):
             self.logger.info("Deleting dataset {} file system representation", dataset)
             cache_m = CacheManager(self.config, self.logger)
             cache_m.delete(dataset.resource_id)
-            self.logger.info("Deleting dataset {} PostgreSQL representation", dataset)
+            self.logger.info("Deleting dataset {} database representation", dataset)
             dataset.delete()

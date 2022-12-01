@@ -801,11 +801,10 @@ class Metadata(Database.Base):
     # {"user.dashboard.favorite": True}
     USER = "user"
 
-    # "Native" keys are the value of the PostgreSQL "key" column in the SQL
-    # table. We support hierarchical nested keys of the form "server.indexed",
-    # but the first element of any nested key path must be one of these. The
-    # METALOG key is special, representing the Metadata table portion of the
-    # DATASET
+    # "Native" keys are the value of the database "key" column in the SQL table.
+    # We support hierarchical nested keys of the form "server.indexed", but the
+    # first element of any nested key path must be one of these. The METALOG key
+    # is special, representing the Metadata table portion of the DATASET.
     METALOG = "metalog"
     NATIVE_KEYS = [GLOBAL, METALOG, SERVER, USER]
 

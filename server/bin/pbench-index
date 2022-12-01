@@ -100,10 +100,10 @@ def main(options, name):
 
     idxctx = None
     try:
-        # We're going to need the Postgres DB to track dataset state, so setup
-        # DB access. We need to do this before we create the IdxContext, since
-        # that will need the template DB; so we create a PbenchServerConfig and
-        # Logger independently.
+        # We're going to need the DB to track dataset state, so setup DB access.
+        # We need to do this before we create the IdxContext, since that will
+        # need the template DB; so we create a PbenchServerConfig and Logger
+        # independently.
         config = PbenchServerConfig(options.cfg_name)
         logger = get_pbench_logger(name, config)
         init_db(config, logger)

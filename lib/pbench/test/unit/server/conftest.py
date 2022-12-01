@@ -34,7 +34,7 @@ default-host = pbench.example.com
 [pbench-server]
 pbench-top-dir = {TMP}/srv/pbench
 
-[Postgres]
+[database]
 db_uri = sqlite:///:memory:
 
 [elasticsearch]
