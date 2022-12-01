@@ -23,9 +23,7 @@ from pbench.server.database.models.datasets import Dataset, Metadata, MetadataEr
 
 
 class DatasetsList(ApiBase):
-    """
-    API class to list datasets based on PostgreSQL metadata
-    """
+    """API class to list datasets based on database metadata."""
 
     def __init__(self, config: PbenchServerConfig, logger: logging.Logger):
         super().__init__(

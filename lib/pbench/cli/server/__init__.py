@@ -26,7 +26,6 @@ pass_cli_context = click.make_pass_decorator(CliContext, ensure=True)
 
 def config_setup(context: object) -> PbenchServerConfig:
     config = PbenchServerConfig(context.config)
-    # We're going to need the Postgres DB to track dataset state, so setup
-    # DB access.
+    # We're going to need the DB to track dataset state, so setup DB access.
     init_db(config, None)
     return config

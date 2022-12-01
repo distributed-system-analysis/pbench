@@ -192,11 +192,10 @@ class TestDatasetsDetail(Commons):
         provide_metadata,
         pbench_token,
     ):
-        """
-        This is nearly a repeat of the basic `test_query`; while that focuses
+        """This is nearly a repeat of the basic `test_query`; while that focuses
         on validating the transformation of Elasticsearch data, this tries to
-        focus on the PostgreSQL dataset metadata... but necessarily has to
-        borrow much of the setup.
+        focus on the database dataset metadata... but necessarily has to borrow
+        much of the setup.
         """
         query_params = {"metadata": ["global.seen", "server.deletion"]}
 

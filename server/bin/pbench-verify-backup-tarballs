@@ -290,8 +290,7 @@ def main():
 
     logger = get_pbench_logger(_NAME_, config)
 
-    # We're going to need the Postgres DB to track dataset state, so setup
-    # DB access.
+    # We're going to need the DB to track dataset state, so setup DB access.
     init_db(config, logger)
 
     # add a BACKUP field to the config object
