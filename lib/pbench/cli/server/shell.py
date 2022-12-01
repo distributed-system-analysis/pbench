@@ -40,7 +40,7 @@ def find_the_unicorn(logger: Logger):
     local = Path(site.getuserbase()) / "bin"
     if (local / "gunicorn").exists():
         # Use a `pip install --user` version of gunicorn
-        os.environ["PATH"] = ":".join(str(local), os.environ["PATH"])
+        os.environ["PATH"] = ":".join([str(local), os.environ["PATH"]])
         logger.info(
             "Found a local unicorn: augmenting server PATH to {}",
             os.environ["PATH"],
@@ -51,7 +51,7 @@ def wait_for_database(db_uri: str, timeout: int):
     """Wait for the database server to become available.  While we encounter
     "connection refused", sleep one second, and then try again.
 
-    If the database URI is for a sqlite instance, no connection is attempted.
+    No connection attempt is made for a database URI without a hostname.
 
     The timeout argument to `create_connection()` does not play into the retry
     logic, see:
@@ -63,19 +63,21 @@ def wait_for_database(db_uri: str, timeout: int):
         timeout: integer number of seconds to wait before giving up attempts to
                  connect to the database
 
-    Raises a ConnectionRefusedError on failure.
+    Raises a BadConfig exception if the DB URI specifies a host without a port,
+    and the ConnectionRefusedError enountered after the timeout.
     """
     url = urlparse(db_uri)
-    if url.scheme == "sqlite":
+    if not url.hostname:
         return
-    port = url.port if url.port is not None else 5432
+    if not url.port:
+        raise BadConfig("Database URI must contain a port number")
     end = time.time() + timeout
     while True:
         try:
-            with socket.create_connection((url.hostname, port), timeout=1):
+            with socket.create_connection((url.hostname, url.port), timeout=1):
                 break
         except ConnectionRefusedError:
-            if end > time.time():
+            if time.time() > end:
                 raise
             time.sleep(1)
 
@@ -115,6 +117,7 @@ def keycloak_connection(oidc_server: str, logger: Logger) -> int:
     session.mount("http://", adapter)
 
     # We will also need to retry the connection if the health status is not UP.
+    ret_val = 1
     for _ in range(5):
         try:
             response = session.get(f"{oidc_server}/health")
@@ -124,13 +127,14 @@ def keycloak_connection(oidc_server: str, logger: Logger) -> int:
             break
         if response.json().get("status") == "UP":
             logger.debug("OIDC server connection verified")
-            return 0
+            ret_val = 0
+            break
         else:
             logger.error(
                 "OIDC client not running, OIDC server response: {}", response.json()
             )
             retry.sleep()
-    return 1
+    return ret_val
 
 
 def main():
@@ -160,8 +164,8 @@ def main():
             "internal_server_url",
             fallback=server_config.get("authentication", "server_url"),
         )
-    except (NoOptionError, NoSectionError):
-        logger.exception("Error fetching required configuration")
+    except (NoOptionError, NoSectionError) as exc:
+        logger.error("Error fetching required configuration: {}", exc)
         sys.exit(1)
 
     logger.info("Pbench server using database {}", db_uri)
