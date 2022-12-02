@@ -370,4 +370,4 @@ all-tags: pkgmgr-clean $(_DEFAULT_DISTROS:%=%-tags.lis)
 	curl -sSf "${_PROMETHEUS_REPO_URL}" > $@
 
 clean:
-	rm -f *.Dockerfile *.repo *.yml *-tags.lis
+	rm -f *.Dockerfile *.repo *.yml *-tags.lis pbench-agent-*-*.noarch.rpm.*
