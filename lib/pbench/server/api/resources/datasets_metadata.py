@@ -18,7 +18,7 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.auth.auth import Auth
+from pbench.server.auth.auth import Auth, get_current_user_id
 from pbench.server.database.models.audit import AuditType
 from pbench.server.database.models.datasets import (
     Metadata,
@@ -191,7 +191,7 @@ class DatasetsMetadata(ApiBase):
             native_key = Metadata.get_native_key(k)
             user_id = None
             if native_key == Metadata.USER:
-                user_id = Auth.get_user_id()
+                user_id = get_current_user_id()
             try:
                 Metadata.setvalue(key=k, value=v, dataset=dataset, user_id=user_id)
             except MetadataError as e:

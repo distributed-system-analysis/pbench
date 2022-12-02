@@ -51,9 +51,8 @@ def register_endpoints(api, app, config):
     base_uri = config.rest_uri
     logger = app.logger
 
-    # Init the the authentication module
-    token_auth = Auth()
-    Auth.set_logger(logger)
+    # Init the the authentication logger
+    Auth.logger = logger
 
     logger.info("Registering service endpoints with base URI {}", base_uri)
 
@@ -142,13 +141,13 @@ def register_endpoints(api, app, config):
         Login,
         f"{base_uri}/login",
         endpoint="login",
-        resource_class_args=(config, logger, token_auth),
+        resource_class_args=(config, logger),
     )
     api.add_resource(
         Logout,
         f"{base_uri}/logout",
         endpoint="logout",
-        resource_class_args=(config, logger, token_auth),
+        resource_class_args=(config, logger),
     )
     api.add_resource(
         RegisterUser,
@@ -174,7 +173,7 @@ def register_endpoints(api, app, config):
         UserAPI,
         f"{base_uri}/user/<string:target_username>",
         endpoint="user",
-        resource_class_args=(logger, token_auth),
+        resource_class_args=(logger,),
     )
     api.add_resource(
         Upload,

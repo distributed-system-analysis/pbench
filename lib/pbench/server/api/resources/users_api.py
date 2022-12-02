@@ -9,7 +9,7 @@ from flask_restful import abort, Resource
 import jwt
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from pbench.server.auth.auth import Auth
+from pbench.server.auth.auth import Auth, encode_auth_token, get_auth_token, verify_auth
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
@@ -140,10 +140,9 @@ class Login(Resource):
     Pbench API for User Login or generating an auth token
     """
 
-    def __init__(self, config, logger, auth):
+    def __init__(self, config, logger):
         self.server_config = config
         self.logger = logger
-        self.auth = auth
         self.token_expire_duration = self.server_config.get(
             "pbench-server", "token_expiration_duration"
         )
@@ -211,7 +210,7 @@ class Login(Resource):
             abort(HTTPStatus.UNAUTHORIZED, message="Bad login")
 
         try:
-            auth_token = self.auth.encode_auth_token(
+            auth_token = encode_auth_token(
                 time_delta=timedelta(minutes=int(self.token_expire_duration)),
                 user_id=user.id,
             )
@@ -262,10 +261,9 @@ class Logout(Resource):
     Pbench API for User logout and deleting an auth token
     """
 
-    def __init__(self, config, logger, auth):
+    def __init__(self, config, logger):
         self.server_config = config
         self.logger = logger
-        self.auth = auth
 
     def post(self):
         """
@@ -282,8 +280,8 @@ class Logout(Resource):
                         "message": "failure message"
                     }
         """
-        auth_token = self.auth.get_auth_token(self.logger)
-        user = Auth.verify_auth(auth_token=auth_token)
+        auth_token = get_auth_token()
+        user = verify_auth(auth_token=auth_token)
 
         # "None" user represents that either the token is not present in our database or it is an expired token.
         # Expired token is already deleted by now if we reach here.
@@ -313,9 +311,8 @@ class UserAPI(Resource):
         [("target_user", User), ("http_status", HTTPStatus), ("http_message", str)],
     )
 
-    def __init__(self, logger, auth):
+    def __init__(self, logger):
         self.logger = logger
-        self.auth = auth
 
     def get_valid_target_user(
         self, target_username: str, request_type: str
@@ -326,7 +323,7 @@ class UserAPI(Resource):
         This returns a target User on success or None on failure; in the case of failure,
         also returns the corresponding HTTP status code and message string
         """
-        current_user = self.auth.token_auth.current_user()
+        current_user = Auth.token_auth.current_user()
         if current_user.username == target_username:
             return UserAPI.TargetUser(
                 target_user=current_user, http_status=HTTPStatus.OK, http_message=""
@@ -463,8 +460,8 @@ class UserAPI(Resource):
         # This is done to prevent last admin user from de-admining him/herself
         protected_db_fields = User.get_protected()
         if (
-            not self.auth.token_auth.current_user().is_admin()
-            or self.auth.token_auth.current_user() == result.target_user
+            not Auth.token_auth.current_user().is_admin()
+            or Auth.token_auth.current_user() == result.target_user
         ):
             protected_db_fields.append("role")
 
@@ -515,7 +512,7 @@ class UserAPI(Resource):
         # Do not allow admin user to get self deleted via API
         if (
             result.target_user.is_admin()
-            and self.auth.token_auth.current_user() == result.target_user
+            and Auth.token_auth.current_user() == result.target_user
         ):
             self.logger.warning(
                 "Admin user is not allowed to self delete via API call. Username: {}",
@@ -529,7 +526,7 @@ class UserAPI(Resource):
             self.logger.info(
                 "User entry deleted for user with username: {}, by user: {}",
                 target_username,
-                self.auth.token_auth.current_user().username,
+                Auth.token_auth.current_user().username,
             )
         except Exception:
             self.logger.exception(
