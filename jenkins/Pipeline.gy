@@ -22,7 +22,7 @@ pipeline {
         PB_SERVER_IMAGE_TAG="""${sh(
             returnStdout: true,
             script: 'echo ${CHANGE_ID:-${BRANCH_NAME}}'
-            )}"""
+            )}""".trim()
         PB_SERVER_IMAGE="${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-pbenchserver"
         PB_POD_NAME="pbenchinacan_${PB_SERVER_IMAGE_TAG}"
         PB_DASHBOARD_DIR="${WORKSPACE}/dashboard/build/"
@@ -68,6 +68,11 @@ pipeline {
     }
     post {
         always {
+            // Try to capture the functional test container's log on completion.
+            // On success, the pod has already been shut down, so ignore errors.
+            // TODO: is there a more elegant way to do this?
+            sh 'podman exec ${PB_POD_NAME}-pbenchserver journalctl || true'
+
             // Remove the pod which we just created and ran; remove any
             // dangling containers; and then remove any dangling images.
             sh 'podman pod rm --force --ignore ${PB_POD_NAME} || true'
