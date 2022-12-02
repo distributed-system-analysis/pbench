@@ -122,16 +122,12 @@ class OpenIDClient:
 
         Raises:
             KeyError: if public key not found in response payload
-            Requests session object Exceptions
+            requests.exceptions: Requests session Exceptions
         """
 
         realm_public_key_uri = f"{self.server_url}/realms/{self.realm_name}"
         response_json = self._get(realm_public_key_uri).json()
-        try:
-            public_key = response_json["public_key"]
-        except KeyError:
-            self.logger.warning("OIDC Public key not found in {}", response_json)
-            raise
+        public_key = response_json["public_key"]
         OpenIDClient.PUBLIC_KEY = (
             "-----BEGIN PUBLIC KEY-----\n" + public_key + "\n-----END PUBLIC KEY-----"
         )
