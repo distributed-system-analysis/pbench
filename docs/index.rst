@@ -26,7 +26,6 @@ A Benchmarking and Performance Analysis Framework
     Lastly, the Dashboard is used to display visualizations in graphical and other forms of the results that were collected 
     by the Agent and indexed by the Server.
 
-The pbench Dashboard code lives in its own `repository <https://github.com/distributed-system-analysis/pbench-dashboard>`_.
 
 **Table of Contents**
 
