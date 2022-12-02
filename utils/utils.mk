@@ -26,7 +26,7 @@ _empty:=
 _space:= ${_empty} ${_empty}
 
 # This is a "function" which is intended to produce a sequence number managed in
-# in the specified file.  If the file does not exist, the function returns 1;
+# the specified file.  If the file does not exist, the function returns 1;
 # otherwise, it reads the current value from the file, increments it, writes it
 # back to the file, and returns the originally read number.
 get_sequence_number = $(shell \
