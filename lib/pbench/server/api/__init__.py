@@ -39,7 +39,7 @@ from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
 
@@ -51,7 +51,7 @@ def register_endpoints(api, app, config):
     base_uri = config.rest_uri
     logger = app.logger
 
-    # Init the the authentication logger
+    # Init the authentication logger
     Auth.logger = logger
 
     logger.info("Registering service endpoints with base URI {}", base_uri)

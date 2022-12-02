@@ -11,7 +11,7 @@ from flask_restful import abort, Resource
 import humanize
 
 from pbench.common.utils import Cleanup, validate_hostname
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.audit import (
     Audit,

@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import datetime
 from http import HTTPStatus
 from logging import Logger
@@ -13,11 +12,8 @@ from pbench.server.auth import OpenIDClient, OpenIDClientError
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
 
-
-@dataclass
-class Auth:
-    token_auth = HTTPTokenAuth("Bearer")
-    logger: Optional[Logger] = None
+token_auth = HTTPTokenAuth("Bearer")
+logger: Optional[Logger] = None
 
 
 def get_current_user_id() -> Optional[str]:
@@ -26,7 +22,7 @@ def get_current_user_id() -> Optional[str]:
     If the user not authenticated this would return None
     """
     user_id = None
-    user = Auth.token_auth.current_user()
+    user = token_auth.current_user()
     if user:
         user_id = str(user.id)
     return user_id
@@ -58,7 +54,7 @@ def get_secret_key() -> str:
     try:
         return os.getenv("SECRET_KEY", "my_precious")
     except Exception as e:
-        Auth.logger.exception("Error {} getting JWT secret", e)
+        logger.exception("Error {} getting JWT secret", e)
 
 
 def get_auth_token():
@@ -87,7 +83,7 @@ def get_auth_token():
         return auth_token
 
 
-@Auth.token_auth.verify_token
+@token_auth.verify_token
 def verify_auth(auth_token):
     """
     Validates the auth token.
@@ -117,7 +113,7 @@ def verify_auth(auth_token):
         try:
             ActiveTokens.delete(auth_token)
         except Exception as e:
-            Auth.logger.error(
+            logger.error(
                 "User passed expired token but we could not delete the token from the database. token: {!r}: {}",
                 auth_token,
                 e,
@@ -125,7 +121,7 @@ def verify_auth(auth_token):
     except jwt.InvalidTokenError:
         pass  # Ignore this silently; client is unauthenticated
     except Exception as e:
-        Auth.logger.exception(
+        logger.exception(
             "Unexpected exception occurred while verifying the auth token {!r}: {}",
             auth_token,
             e,
@@ -161,16 +157,16 @@ def verify_third_party_token(auth_token: str, oidc_client: OpenIDClient) -> bool
         jwt.InvalidTokenError,
         jwt.InvalidAudienceError,
     ):
-        Auth.logger.error("OIDC token verification failed")
+        logger.error("OIDC token verification failed")
         return False
     except Exception:
-        Auth.logger.exception(
+        logger.exception(
             "Unexpected exception occurred while verifying the auth token {}",
             auth_token,
         )
 
     if not oidc_client.TOKENINFO_ENDPOINT:
-        Auth.logger.warning("Can not perform OIDC online token verification")
+        logger.warning("Can not perform OIDC online token verification")
         return False
 
     try:

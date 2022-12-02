@@ -18,7 +18,7 @@ from pbench.common import MetadataLog
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.datasets import Dataset, Metadata, States

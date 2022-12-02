@@ -9,7 +9,7 @@ from flask_restful import abort, Resource
 import jwt
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from pbench.server.auth.auth import Auth, encode_auth_token, get_auth_token, verify_auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
@@ -210,7 +210,7 @@ class Login(Resource):
             abort(HTTPStatus.UNAUTHORIZED, message="Bad login")
 
         try:
-            auth_token = encode_auth_token(
+            auth_token = Auth.encode_auth_token(
                 time_delta=timedelta(minutes=int(self.token_expire_duration)),
                 user_id=user.id,
             )
@@ -280,8 +280,8 @@ class Logout(Resource):
                         "message": "failure message"
                     }
         """
-        auth_token = get_auth_token()
-        user = verify_auth(auth_token=auth_token)
+        auth_token = Auth.get_auth_token()
+        user = Auth.verify_auth(auth_token=auth_token)
 
         # "None" user represents that either the token is not present in our database or it is an expired token.
         # Expired token is already deleted by now if we reach here.

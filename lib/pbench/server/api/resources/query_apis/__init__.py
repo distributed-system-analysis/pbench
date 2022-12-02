@@ -28,7 +28,7 @@ from pbench.server.api.resources import (
     SchemaError,
     UnauthorizedAccess,
 )
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database.models.audit import AuditReason, AuditStatus
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
