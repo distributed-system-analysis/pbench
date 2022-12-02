@@ -43,7 +43,8 @@ ifeq ($(origin seqno), undefined)
   seqno := $(call get_sequence_number,./seqno)
 endif
 
-export  # Export the definitions above in the invocation of the sub-make.
+# Export the definitions above in the invocation of the sub-make.
+export CHROOTS component subcomps seqno
 
 # For historical compatibility, this is the default target.
 all: srpm

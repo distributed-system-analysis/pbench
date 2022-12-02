@@ -36,3 +36,8 @@ get_sequence_number = $(shell \
 	  echo $$((s+1)) >$(1) ; \
 	fi ; \
 	echo $$s )
+
+# Make sure that the get_sequence_number variable is _not_ exported to any
+# sub-makes:  the process of exporting a variable includes evaluating it, and
+# we don't want it evaluated except when it is explicitly $(CALL)'d.
+unexport get_sequence_number
