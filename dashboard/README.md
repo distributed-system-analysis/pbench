@@ -24,7 +24,7 @@ Assets placed in the `src/assets/images` directory are only referenced within co
 
 #### [`src/modules`](src/modules/)
 
-`modules` directory has all containers (patent layouts) and components (react components). 
+`modules` directory has all containers (patent layouts) and components (react components).
 
 #### [`src/utils`](src/utils/)
 
@@ -37,12 +37,12 @@ The `utils` directory has all helper/utility scripts.
 2. Clone the [Pbench repo](https://github.com/distributed-system-analysis/pbench)
 
 3. Install all the npm packages.
-Navigate to `dashboard` directory and run following command 
+Navigate to `dashboard` directory and run following command
 	```bash
 	$ npm install
 	```
 
-## Development and Test 
+## Development and Test
 
 Create a `.env` file in the root directory (`/dashboard/`) and declare the environment variable `PBENCH_SERVER`.
 This `PBENCH_SERVER` environment variable is the base URL for all API calls and it should point to a real pbench server.
@@ -50,7 +50,7 @@ This `PBENCH_SERVER` environment variable is the base URL for all API calls and 
 PBENCH_SERVER=<pbench server url>
 ```
 
-In order to start the development express server and run the application use the following command 
+In order to start the development express server and run the application use the following command
 ```bash
 $ npm run dev
 ```
@@ -71,7 +71,7 @@ Then, copy the `build` folder to the proper place on the server for deployment.
 
 Both the production and development builds of the dashboard require API endpoint configurations in order to query data from specific datastores.
 
-In the production environment, the dashboard code is loaded directly from the Pbench Server and is able to get the endpoint definitions implicitly from that host. 
+In the production environment, the dashboard code is loaded directly from the Pbench Server and is able to get the endpoint definitions implicitly from that host.
 
 When running locally, the express passthrough server uses the environment variable to get the endpoints from a remote server.
 
@@ -83,8 +83,8 @@ This application is based on v4 of PatternFly which is a production-ready UI sol
 
 ## Resources
 
-- [create-react-app](https://github.com/facebook/create-react-app)   
+- [create-react-app](https://github.com/facebook/create-react-app)
 
-- [ReactJS](https://reactjs.org/) 
+- [ReactJS](https://reactjs.org/)
 
 - [React-Redux](https://github.com/reduxjs/react-redux)
