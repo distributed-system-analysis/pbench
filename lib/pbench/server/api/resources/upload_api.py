@@ -26,7 +26,7 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.audit import (
     Audit,

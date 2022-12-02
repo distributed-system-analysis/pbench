@@ -14,7 +14,7 @@ from flask_restful import abort, Resource
 from sqlalchemy.orm.query import Query
 
 from pbench.server import JSON, JSONOBJECT, JSONVALUE, OperationCode, PbenchServerConfig
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database.models.audit import (
     Audit,
     AuditReason,
@@ -1477,7 +1477,7 @@ class ApiBase(Resource):
                 native_key = Metadata.get_native_key(i)
                 user_id = None
                 if native_key == Metadata.USER:
-                    user_id = Auth.get_user_id()
+                    user_id = Auth.get_current_user_id()
                 try:
                     metadata[i] = Metadata.getvalue(
                         dataset=dataset, key=i, user_id=user_id

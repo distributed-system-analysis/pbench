@@ -1,4 +1,3 @@
-from configparser import NoOptionError, NoSectionError
 from http import HTTPStatus
 from logging import Logger
 import os
@@ -182,20 +181,20 @@ def main():
     try:
         server_config = get_server_config()
     except (ConfigFileNotSpecified, BadConfig) as e:
-        print(e)
+        print(e, file=sys.stderr)
         sys.exit(1)
     logger = get_pbench_logger(PROG, server_config)
     if site.ENABLE_USER_SITE:
         find_the_unicorn(logger)
     try:
-        host = server_config.get("pbench-server", "bind_host")
-        port = str(server_config.get("pbench-server", "bind_port"))
-        db_uri = server_config.get("database", "uri")
-        db_wait_timeout = int(server_config.get("database", "wait_timeout"))
-        workers = str(server_config.get("pbench-server", "workers"))
-        worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
-        crontab_dir = server_config.get("pbench-server", "crontab-dir")
-    except (NoOptionError, NoSectionError) as exc:
+        host = server_config._get_conf("pbench-server", "bind_host")
+        port = str(server_config._get_conf("pbench-server", "bind_port"))
+        db_uri = server_config._get_conf("database", "uri")
+        db_wait_timeout = int(server_config._get_conf("database", "wait_timeout"))
+        workers = str(server_config._get_conf("pbench-server", "workers"))
+        worker_timeout = str(server_config._get_conf("pbench-server", "worker_timeout"))
+        crontab_dir = server_config._get_conf("pbench-server", "crontab-dir")
+    except BadConfig as exc:
         logger.error("Error fetching required configuration: {}", exc)
         sys.exit(1)
 
@@ -209,8 +208,8 @@ def main():
         sys.exit(1)
 
     try:
-        oidc_server = server_config.get("authentication", "server_url")
-    except (NoOptionError, NoSectionError) as exc:
+        oidc_server = server_config._get_conf("authentication", "server_url")
+    except BadConfig as exc:
         logger.warning("KeyCloak not configured, {}", exc)
     else:
         logger.debug("Waiting for OIDC server to become available.")

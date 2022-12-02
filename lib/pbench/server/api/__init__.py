@@ -39,6 +39,7 @@ from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
+from pbench.server.auth import auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
 
@@ -202,8 +203,7 @@ def create_app(server_config):
 
     app.logger = get_pbench_logger(__name__, server_config)
 
-    app.config["DEBUG"] = False
-    app.config["TESTING"] = False
+    auth.setup_app(app, server_config)
 
     api = Api(app)
 

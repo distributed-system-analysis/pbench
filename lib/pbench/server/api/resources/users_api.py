@@ -9,7 +9,7 @@ from flask_restful import abort, Resource
 import jwt
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
