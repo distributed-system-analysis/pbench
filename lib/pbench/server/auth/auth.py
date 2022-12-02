@@ -54,11 +54,7 @@ class Auth:
 
     def get_secret_key(self):
         try:
-            return (
-                OpenIDClient.PUBLIC_KEY
-                if OpenIDClient.PUBLIC_KEY
-                else os.getenv("SECRET_KEY", "my_precious")
-            )
+            return os.getenv("SECRET_KEY", "my_precious")
         except Exception as e:
             Auth.logger.exception("Error {} getting JWT secret", e)
 
@@ -147,7 +143,7 @@ class Auth:
         try:
             oidc_client.token_introspect_offline(
                 token=auth_token,
-                key=Auth().get_secret_key(),
+                key=oidc_client.get_oidc_public_key(),
                 audience=oidc_client.client_id,
                 options={
                     "verify_signature": True,

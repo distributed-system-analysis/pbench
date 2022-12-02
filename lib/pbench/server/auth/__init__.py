@@ -62,6 +62,8 @@ class OpenIDClient:
         self.headers = CaseInsensitiveDict([] if headers is None else headers)
         self.verify = verify
         self.connection = requests.session()
+        # Note: At this point the OpenIDClient object variables initialization
+        # is done, and we start initializing the class variables.
         self.set_well_known_endpoints()
         self.set_oidc_public_key()
 
@@ -116,15 +118,23 @@ class OpenIDClient:
             raise
 
     def set_oidc_public_key(self):
-        """Sets the public key of the current OIDC client"""
+        """Sets the public key of the current OIDC client.
+
+        Raises:
+            KeyError: if public key not found in response payload
+            Requests session object Exceptions
+        """
 
         realm_public_key_uri = f"{self.server_url}/realms/{self.realm_name}"
-        public_key = (
-            "-----BEGIN PUBLIC KEY-----\n"
-            + self._get(realm_public_key_uri).json()["public_key"]
-            + "\n-----END PUBLIC KEY-----"
+        response_json = self._get(realm_public_key_uri).json()
+        try:
+            public_key = response_json["public_key"]
+        except KeyError:
+            self.logger.warning("OIDC Public key not found in {}", response_json)
+            raise
+        OpenIDClient.PUBLIC_KEY = (
+            "-----BEGIN PUBLIC KEY-----\n" + public_key + "\n-----END PUBLIC KEY-----"
         )
-        OpenIDClient.PUBLIC_KEY = public_key
 
     @staticmethod
     def get_oidc_public_key():
