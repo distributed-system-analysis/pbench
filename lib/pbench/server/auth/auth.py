@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import datetime
 from http import HTTPStatus
 import os
-from typing import Optional
+from typing import Optional, Union
 
 from flask import request
 from flask_httpauth import HTTPTokenAuth
@@ -33,6 +33,29 @@ class InternalUser:
 
     def is_admin(self):
         return "ADMIN" in self.roles
+
+    @classmethod
+    def get_internal_user(cls, client_id: str, token_payload: dict) -> "InternalUser":
+        """Helper method to return the Internal User object
+
+        Args:
+            client_id: authorized client id string
+            token_payload: Dict representation of decoded token
+        Returns:
+             InternalUser object
+        """
+        roles = []
+        audiences = token_payload.get("resource_access", {})
+        if client_id in audiences:
+            roles = audiences[client_id].get("roles", [])
+        return InternalUser(
+            id=token_payload["sub"],
+            username=token_payload.get("preferred_username"),
+            email=token_payload.get("email"),
+            first_name=token_payload.get("given_name"),
+            last_name=token_payload.get("family_name"),
+            roles=roles,
+        )
 
 
 class Auth:
@@ -136,20 +159,24 @@ class Auth:
 
     @staticmethod
     @token_auth.verify_token
-    def verify_auth(auth_token):
+    def verify_auth(auth_token: str) -> Union["User", InternalUser]:
         """
         Validates the auth token.
-        Note: Since we are not encoding 'aud' claim in our JWT tokens
-        we need to set 'verify_aud' to False while validating the token.
+
         :param auth_token:
         :return: User object/None
+
+        Args:
+            auth_token: Authentication token string
+        Returns:
+            User object/None
         """
         if not Auth.oidc_client.USERINFO_ENDPOINT:
             Auth.oidc_client.set_well_known_endpoints()
         try:
             payload = jwt.decode(
                 auth_token,
-                os.getenv("SECRET_KEY", "my_precious"),
+                Auth().get_secret_key(),
                 algorithms="HS256",
                 options={
                     "verify_signature": True,
@@ -187,8 +214,8 @@ class Auth:
     def verify_third_party_token(
         auth_token: str,
         oidc_client: OpenIDClient,
-        algorithms: Optional[list[str]] = ["HS256"],
-    ) -> "InternalUser":
+        algorithms: Optional[list[str]] = None,
+    ) -> Optional[InternalUser]:
         """
         Verify a token provided to the Pbench server which was obtained from a
         third party identity provider.
@@ -200,47 +227,24 @@ class Auth:
         Returns:
             InternalUser object if the verification succeeds else None
         """
-
-        def get_internal_user(client_id: str, token_payload: dict) -> "InternalUser":
-            """Helper method to return the Internal User object
-
-            Args:
-                client_id: authorized client id string
-                token_payload: Dict representation of decoded token
-            Returns:
-                 InternalUser object
-            """
-            roles = []
-            audiences = token_payload.get("resource_access", {})
-            if client_id in audiences:
-                roles = audiences[client_id].get("roles")
-            return InternalUser(
-                id=token_payload.get("sub"),
-                username=token_payload.get("preferred_username"),
-                email=token_payload.get("email"),
-                first_name=token_payload.get("given_name"),
-                last_name=token_payload.get("family_name"),
-                roles=roles,
-            )
-
         try:
             identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
         except Exception:
-            Auth.logger.warning("Identity provider public key fetch failed")
+            Auth.logger.info("Identity provider public key fetch failed")
             identity_provider_pubkey = Auth().get_secret_key()
         try:
             token_decode = oidc_client.token_introspect_offline(
                 token=auth_token,
                 key=identity_provider_pubkey,
                 audience=oidc_client.client_id,
-                algorithms=algorithms,
+                algorithms=["HS256"] if not algorithms else algorithms,
                 options={
                     "verify_signature": True,
                     "verify_aud": True,
                     "verify_exp": True,
                 },
             )
-            return get_internal_user(
+            return InternalUser.get_internal_user(
                 client_id=oidc_client.client_id, token_payload=token_decode
             )
         except (
@@ -248,7 +252,6 @@ class Auth:
             jwt.InvalidTokenError,
             jwt.InvalidAudienceError,
         ):
-            Auth.logger.warning("OIDC token verification failed")
             return None
         except Exception:
             Auth.logger.exception(
@@ -261,7 +264,7 @@ class Auth:
         # Note: Online verification should NOT be performed frequently, and it
         # is only allowed for non-public clients.
         if not oidc_client.TOKENINFO_ENDPOINT:
-            Auth.logger.warning("Can not perform OIDC online token verification")
+            Auth.logger.debug("Can not perform OIDC online token verification")
             return None
 
         try:
@@ -269,7 +272,7 @@ class Auth:
                 token=auth_token, token_info_uri=oidc_client.TOKENINFO_ENDPOINT
             )
             if oidc_client.client_id in token_payload.get("aud"):
-                return get_internal_user(
+                return InternalUser.get_internal_user(
                     client_id=oidc_client.client_id, token_payload=token_payload
                 )
             else:
