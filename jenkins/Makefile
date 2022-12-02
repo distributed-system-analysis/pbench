@@ -22,7 +22,7 @@ include ../utils/utils.mk
 RPMBUILD_BASEIMAGE_DEFAULTS = \
 	rhel-9 rhel-8 rhel-7 \
 	fedora-36 fedora-35 \
-	centos-9 centos-8
+	centos-9 centos-8 centos-7
 
 # All Fedora images are based on Fedora 35
 FEDORA_BASE_IMAGE_REF = quay.io/fedora/fedora:35
@@ -89,6 +89,9 @@ ${_DISTROS:%=push-rpmbuild-%}: push-rpmbuild-%:
 	buildah push localhost/pbench-rpmbuild:${*} ${RPMBUILD_IMAGE_REPO}/pbench-rpmbuild:${*}
 
 image-rpmbuild-rhel-7 : PKGMGR = yum
+image-rpmbuild-centos-7 : PKGMGR = yum
+image-rpmbuild-centos-7 : RPMBUILD_BASEIMAGE_centos = quay.io/centos/centos:centos7
+
 ${_DISTROS:%=image-rpmbuild-%}: image-rpmbuild-%:
 	container=$$(buildah from ${RPMBUILD_BASEIMAGE_REPO}) && \
 		buildah run $$container ${PKGMGR} install -y ${RPMBUILD_PACKAGES} && \

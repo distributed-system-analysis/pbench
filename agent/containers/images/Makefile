@@ -4,6 +4,10 @@
 #
 
 _PBENCH_TOP := $(shell git rev-parse --show-toplevel)
+_LOCAL_GIT_HASH := $(shell git rev-parse --short=9 HEAD)
+_LOCAL_VERSION := $(shell cat ${_PBENCH_TOP}/agent/VERSION)
+_LOCAL_MAJORMINOR := $(shell grep -oE '[0-9]+\.[0-9]+' ${_PBENCH_TOP}/agent/VERSION)
+_LOCAL_MAJOR_VER := $(firstword $(subst ., ,${_LOCAL_VERSION}))
 
 # Include definition of _DISTROS
 include ${_PBENCH_TOP}/utils/utils.mk
@@ -20,12 +24,29 @@ COPR_USER = ndokos
 # using an environment variable as appropriate.
 URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${COPR_USER}
 
+# When run under the CI,
+#   - ${CI_RPM_ROOT}:  the root of the directory tree for the Agent RPM package
+#     file -- set to ${HOME} if not specified on the Make command line
+#   - ${CI_RPM_LOC}:  the local directory tree for the Agent RPM package file
+#   - ${_RPM_PATH}:  the full path to the package file
+#   - ${_RPM_FILE}:  the name of the package file, without the directory path
+#
+# When not run under the CI, these variables are not used; however, ${_RPM_FILE}
+# is tested (and found to be "false"), which results in appropriate default
+# values being used, instead.
+ifdef CI
+CI_RPM_ROOT ?= ${HOME}
+CI_RPM_LOC = ${CI_RPM_ROOT}/rpmbuild-${DIST_NAME}-${DIST_VERSION}/RPMS/noarch
+_RPM_PATH = $(wildcard ${CI_RPM_LOC}/pbench-agent-${_LOCAL_MAJORMINOR}*${_LOCAL_GIT_HASH}.noarch.rpm)
+_RPM_FILE = $(notdir ${_RPM_PATH})
+endif
+
 # By default we use non-"test" COPR repos named "pbench".  We expect
 # test COPR repos to have a suffix added, typically "test", so that
 # the final repo name would be "pbench-test".
 TEST =
 _TEST_SUFFIX = $(if $(TEST),-$(TEST),)
-_PBENCH_REPO_NAME = pbench-$(shell grep -oE '[0-9]+\.[0-9]+' ${_PBENCH_TOP}/agent/VERSION)${_TEST_SUFFIX}
+_PBENCH_REPO_NAME = pbench-${_LOCAL_MAJORMINOR}${_TEST_SUFFIX}
 
 # By default we use the pbench Quay.io organization for the image
 # repository.  You can override this default using an environment
@@ -80,7 +101,10 @@ _WORKLOAD_RPMS = fio uperf
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
 # By default we only build images for the following distributions.
-_DEFAULT_DISTROS = centos-7 centos-8 centos-9 fedora-35 fedora-36
+_DEFAULT_DISTROS = \
+	centos-9 centos-8 centos-7 \
+	fedora-36 fedora-35
+#	rhel-9 rhel-8 rhel-7
 
 # By default we build the Tool Data Sink and Tool Meister images as well.
 everything: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
@@ -94,6 +118,9 @@ tds: all-tags $(_DEFAULT_DISTROS:%=%-tool-data-sink-tagged)
 
 # Convenience target to only build the Tool Meister images.
 tm: all-tags $(_DEFAULT_DISTROS:%=%-tool-meister-tagged)
+
+# Convenience target to only build the base images.
+baseimage: all-tags $(_DEFAULT_DISTROS:%=%-base-tagged)
 
 #+
 # For the following rule patterns, the "%" represents the "distribution" name,
@@ -114,9 +141,16 @@ $(_DISTROS:%=%-tds): %-tds: pkgmgr-clean %-tool-data-sink-tagged
 
 $(_DISTROS:%=%-tm): %-tm: pkgmgr-clean %-tool-meister-tagged
 
+$(_DISTROS:%=%-baseimage): %-baseimage: pkgmgr-clean %-base-tagged
+
 # For any given target, extract the distribution name and version from the
 # first two fields, e.g., fedora-35-tds would yield values "fedora" and "35"
-# for DIST_NAME and DIST_VERSION, respectively.
+# for DIST_NAME and DIST_VERSION, respectively.  NOTE:  in these definitions,
+# the '%' is a wildcard for the (entire) current target, and it does NOT
+# contribute to the value of $* used here -- that value is provided by the '%'
+# in the target of the pattern rule whose recipe is referencing these values;
+# so, these definitions only work properly when that target's '%' matches
+# something which starts with <dist>-<version>.
 %: DIST_NAME = $(wordlist 1, 1, $(subst -, ,$*))
 %: DIST_VERSION = $(wordlist 2, 2, $(subst -, ,$*))
 
@@ -219,8 +253,41 @@ $(_ALL_fedora_VERSIONS:%=%-tools) centos-7-tools centos-8-tools: %-tools: %-pcp.
 %-base-tagged: %-base %-tags.lis
 	./apply-tags pbench-agent-base-$* $*-tags.lis
 
+# When run under the CI, we copy the package file from ${_RPM_PATH} to the
+# current directory and name it ${_RPM_FILE}.<distro> -- this is necessary to
+# make it available to the container build, which is limited to just the current
+# directory tree -- the container build will copy the RPM file from the build
+# context into the container.  (Adding the distro-specific suffix allows builds
+# of different distros to proceed without interfering with each other.)
+#
+# The package manager installs the Agent, either from the local file (when run
+# under the CI) or (when not running under the CI) by looking up the package by
+# name in the repository pointed at by the .repo file (e.g., from COPR).
 %-base: %-base.Dockerfile %-pbench.repo %-tags.lis
+ifdef CI
+	if [[ -z "${_RPM_PATH}" ]] ; then echo "No RPM found with ID ${_LOCAL_GIT_HASH} for ${_LOCAL_MAJORMINOR} in ${CI_RPM_LOC}" >&2 ; exit 2 ; fi
+	if grep ' ' <<< ${_RPM_PATH} ; then echo "Multiple RPMs found:  ${_RPM_PATH}" >&2 ; exit 2 ; fi
+	cp ${_RPM_PATH} ./${_RPM_FILE}.${*}
+endif
 	./build-image base $* $*-tags.lis
+ifdef CI
+	rm -f ./${_RPM_FILE}.${*}
+endif
+
+_PKGMGR = dnf
+centos-7-base.Dockerfile: _PKGMGR = yum
+%-base.Dockerfile: _FANCY_NAME = $(if $(filter fedora,${DIST_NAME}),Fedora,$(if $(filter centos,${DIST_NAME}),CentOS,${DISTNAME}))
+
+%-base.Dockerfile: Dockerfile.base.j2
+	jinja2 Dockerfile.base.j2 -o $@ \
+        -D distro_name="${_FANCY_NAME} ${DIST_VERSION}" \
+        -D image_name=${DIST_NAME} \
+        -D image_repo=quay.io/${DIST_NAME} \
+        -D image_rev=${DIST_VERSION} \
+        -D pbench_repo_file=${DIST_NAME}-${DIST_VERSION}-pbench.repo \
+        -D pkgmgr=${_PKGMGR} \
+        -D rpm_host_file="$(if ${_RPM_FILE},./${_RPM_FILE}.${*},)" \
+        -D rpm_path=$(if ${_RPM_FILE},./${_RPM_FILE},pbench-agent)
 
 #+
 # Push local images for the given tag and distribution.
@@ -259,7 +326,15 @@ $(foreach tagtype,${_TAG_TYPES},$(eval $(call _TAG_RULE,${tagtype})))  # Define 
 
 # Build the tags file for the given distribution. (We rename "centos" to "epel".)
 %-tags.lis:
+ifdef CI
+	if [[ -z "${_RPM_PATH}" ]] ; then echo "No RPM found with ID ${_LOCAL_GIT_HASH} for ${_LOCAL_MAJORMINOR} in ${CI_RPM_LOC}" >&2 ; exit 2 ; fi
+	if grep ' ' <<< ${_RPM_PATH} ; then echo "Multiple RPMs found:  ${_RPM_PATH}" >&2 ; exit 2 ; fi
+	printf -- "%s\n" ${_LOCAL_GIT_HASH} > ${@}
+	printf -- "v%s\n" "$(shell grep -Eo '[0-9]+\.[0-9]+\.([0-9]+(-[0-9]+)?)?' <<< "${_RPM_PATH}")" >> ${@}
+	printf -- "v%s-latest v%s-latest\n" ${_LOCAL_MAJOR_VER} ${_LOCAL_MAJORMINOR} >> ${@}
+else
 	./gen-tags-from-rpm "${URL_PREFIX}" "$(subst centos,epel,$*)" "${_ARCH}" "${_PBENCH_REPO_NAME}" > ${@}
+endif
 
 # This file takes a long time to generate, so preserve it between builds (it can
 # be removed explicitly via the `clean` target).
@@ -269,26 +344,6 @@ $(foreach tagtype,${_TAG_TYPES},$(eval $(call _TAG_RULE,${tagtype})))  # Define 
 pkgmgr-clean:
 	dnf clean all
 
-#+
-# For the following rules, the various CentOS "base" images need a mapping
-# between the distribution name and the repo name, which for CentOS images
-# is "epel".  And for both CentOS and Fedora, the distribution image
-# reference, the package manager (dnf vs yum), and image name, also require
-# mappings (e.g. centos-7 -> yum, centos:7, CentOS 7; or fedora-## -> dnf,
-# fedora:##, Fedora ##).
-#-
-_PKGMGR = dnf
-centos-7-base.Dockerfile: _PKGMGR = yum
-
-centos-%-base.Dockerfile: Dockerfile.base.j2
-	jinja2 Dockerfile.base.j2 -D pbench_repo_file=centos-$*-pbench.repo \
-        -D pkgmgr=${_PKGMGR} -D distro_name="CentOS $*" -o $@ \
-        -D image_repo=quay.io/centos -D image_name=centos -D image_rev=$*
-
-fedora-%-base.Dockerfile: Dockerfile.base.j2
-	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-$*-pbench.repo \
-        -D pkgmgr=dnf -D distro_name="Fedora $*" -o $@ \
-        -D image_repo=quay.io/fedora -D image_name=fedora -D image_rev=$*
 
 # Helper target to build each distro's ".repo" and ".Dockerfile"
 all-dockerfiles: \
@@ -315,4 +370,4 @@ all-tags: pkgmgr-clean $(_DEFAULT_DISTROS:%=%-tags.lis)
 	curl -sSf "${_PROMETHEUS_REPO_URL}" > $@
 
 clean:
-	rm -f *.Dockerfile *.repo *.yml *-tags.lis
+	rm -f *.Dockerfile *.repo *.yml *-tags.lis pbench-agent-*-*.noarch.rpm.*

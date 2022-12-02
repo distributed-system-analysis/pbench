@@ -108,6 +108,7 @@ enough to push the actual image only once.
 These act on the default platforms' containers:
 
  * `everything` (default):  make every image for the default platforms
+ * `baseimage`: make Agent base images for the default platforms
  * `tds`:  make Tool Data Sink images for the default platforms
  * `tm`:  make Tool Meister images for the default platforms
  * `tag-<TYPE>` (e.g., "tag-latest"):  apply specified tag to every image for
@@ -120,6 +121,7 @@ These act on the default platforms' containers:
 These act on the indicated distribution's containers:
 
  * `<DISTRO>` (e.g., "fedora-34"):  make every image kind for the distribution
+ * `<DISTRO>-baseimage` (e.g., "fedora-34-baseimage"):  make the Agent base image for the distro
  * `<DISTRO>-tds` (e.g., "fedora-34-tds"):  make the TDS image for the distro
  * `<DISTRO>-tm` (e.g., "fedora-34-tm"):  make the TM image for the distro
  * `<DISTRO>-tag-<TYPE>` (e.g., "fedora-34-tag-alpha"):  apply the specified

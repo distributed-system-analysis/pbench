@@ -23,14 +23,28 @@ CHROOTS =
 # These targets build the binary RPM for the specified distro version; the "ci"
 # target builds them all.
 RHEL_RPMS = rhel-9-rpm rhel-8-rpm rhel-7-rpm
-CENTOS_RPMS = centos-9-rpm centos-8-rpm
-FEDORA_RPMS = fedora-34-rpm fedora-35-rpm fedora-36-rpm
+CENTOS_RPMS = centos-9-rpm centos-8-rpm centos-7-rpm
+FEDORA_RPMS = fedora-36-rpm fedora-35-rpm
 ALL_RPMS = ${RHEL_RPMS} ${CENTOS_RPMS} ${FEDORA_RPMS}
 
 component = agent
 subcomps = agent
 
-export  # Export the definitions above in the invocation of the sub-make.
+include ../../utils/utils.mk
+
+# Generate a sequence number to be used for the RPMs:  by default, the number
+# will be 1; if the ./seqno file exists, use the number from the file and then
+# increment it.  However, do this only if `seqno` is not already defined, and
+# use a "simple assignment" to ensure that it is not incremented more than once.
+# ("Conditional assignment" (?=) apparently produces a "recursive assignment",
+# which gets re-evaluated each time the variable is referenced, which results in
+# multiple increments.)
+ifeq ($(origin seqno), undefined)
+  seqno := $(call get_sequence_number,./seqno)
+endif
+
+# Export the definitions above in the invocation of the sub-make.
+export CHROOTS component subcomps seqno
 
 # For historical compatibility, this is the default target.
 all: srpm
@@ -52,3 +66,7 @@ ci: ${ALL_RPMS} ;
 
 # This recipe does nothing, other than to force the previous one to run.
 FORCE: ;
+
+# This recipe does nothing, other than to avoid running the catch-all recipe
+# when Make does the implicit Makefile target check.
+Makefile ../../utils/utils.mk: ;
