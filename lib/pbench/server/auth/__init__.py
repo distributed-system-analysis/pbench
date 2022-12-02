@@ -33,7 +33,6 @@ class OpenIDClient:
 
     USERINFO_ENDPOINT: Optional[str] = None
     TOKENINFO_ENDPOINT: Optional[str] = None
-    PUBLIC_KEY: Optional[str] = None
 
     def __init__(
         self,
@@ -62,10 +61,9 @@ class OpenIDClient:
         self.headers = CaseInsensitiveDict([] if headers is None else headers)
         self.verify = verify
         self.connection = requests.session()
-        # Note: At this point the OpenIDClient object variables initialization
-        # is done, and we start initializing the class variables.
+        self.public_key = self._get_oidc_public_key()
+        # TODO: Think about a better way to set well known endpoints
         self.set_well_known_endpoints()
-        self.set_oidc_public_key()
 
     def __repr__(self):
         return (
@@ -117,8 +115,11 @@ class OpenIDClient:
             )
             raise
 
-    def set_oidc_public_key(self):
-        """Sets the public key of the current OIDC client.
+    def _get_oidc_public_key(self) -> str:
+        """Returns the public key of the current OIDC client.
+
+        Returns:
+            public key string
 
         Raises:
             KeyError: if public key not found in response payload
@@ -128,17 +129,16 @@ class OpenIDClient:
         realm_public_key_uri = f"{self.server_url}/realms/{self.realm_name}"
         response_json = self._get(realm_public_key_uri).json()
         public_key = response_json["public_key"]
-        OpenIDClient.PUBLIC_KEY = (
+        return (
             "-----BEGIN PUBLIC KEY-----\n" + public_key + "\n-----END PUBLIC KEY-----"
         )
 
-    @staticmethod
-    def get_oidc_public_key():
+    def get_oidc_public_key(self):
         """
         Returns the OIDC client public key that can be used for decoding
         tokens offline.
         """
-        return OpenIDClient.PUBLIC_KEY
+        return self.public_key
 
     def token_introspect_online(self, token: str, token_info_uri: str) -> JSON:
         """
