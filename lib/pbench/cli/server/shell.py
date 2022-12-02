@@ -156,7 +156,7 @@ def main():
         host = str(server_config.get("pbench-server", "bind_host"))
         port = str(server_config.get("pbench-server", "bind_port"))
         db_uri = str(server_config.get("database", "uri"))
-        db_wait_timeout = str(server_config.get("database", "wait_timeout"))
+        db_wait_timeout = int(server_config.get("database", "wait_timeout"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
         oidc_server = server_config.get(
