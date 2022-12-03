@@ -58,7 +58,6 @@ install-python3-setup: install-bin install-lib
 
 install-bin:
 	${COPY} bin/pbench-* ${BINDIR}/
-	for i in pbench-server-activate pbench-server-activate-create-results-dir-structure pbench-server-activate-setup-results-host-info pbench-server-activate-setup-web-server pbench-server-activate-start-httpd pbench-server-config-activate ;do rm ${BINDIR}/$${i} ;done
 
 install-lib:
 	${COPY} lib ${DESTDIR}

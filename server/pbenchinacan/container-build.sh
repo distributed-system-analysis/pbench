@@ -95,7 +95,7 @@ buildah run $container sed -Ei \
     ${CONF_PATH}
 
 buildah run $container su -l pbench \
-    -c "_PBENCH_SERVER_CONFIG=${CONF_PATH} PATH=$SERVER_BIN:$PATH pbench-server-activate-create-crontab ${SERVER_LIB}/crontab"
+    -c "_PBENCH_SERVER_CONFIG=${CONF_PATH} PATH=$SERVER_BIN:$PATH pbench-create-crontab ${SERVER_LIB}/crontab"
 
 buildah run $container mkdir -p -m 0755  \
     /srv/pbench/archive/fs-version-001 \
