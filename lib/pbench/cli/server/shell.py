@@ -164,6 +164,7 @@ def main():
             "internal_server_url",
             fallback=server_config.get("authentication", "server_url"),
         )
+        crontab_dir = server_config.get("pbench-server", "crontab-dir")
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Error fetching required configuration: {}", exc)
         sys.exit(1)
@@ -193,6 +194,26 @@ def main():
         create_database(db_uri)
         logger.info("Created database {}", db_uri)
     Database.init_db(server_config, logger)
+
+    # Create the crontab file from the server configuration.
+    os.environ["PATH"] = ":".join([server_config.BINDIR, os.environ["PATH"]])
+    cp = subprocess.run(
+        ["pbench-create-crontab", crontab_dir],
+        cwd=server_config.log_dir,
+    )
+    if cp.returncode != 0:
+        logger.error(
+            "Failed to create crontab file from configuration: {}", cp.returncode
+        )
+        sys.exit(1)
+
+    # Install the created crontab file.
+    cp = subprocess.run(
+        ["crontab", f"{crontab_dir}/crontab"], cwd=server_config.log_dir
+    )
+    if cp.returncode != 0:
+        logger.error("Failed to install crontab file: {}", cp.returncode)
+        sys.exit(1)
 
     # Beginning of the gunicorn command to start the pbench-server.
     cmd_line = [

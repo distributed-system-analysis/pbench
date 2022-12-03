@@ -94,9 +94,6 @@ buildah run $container sed -Ei \
     -e "s/<keycloak_secret>/${KEYCLOAK_CLIENT_SECRET}/" \
     ${CONF_PATH}
 
-buildah run $container su -l pbench \
-    -c "_PBENCH_SERVER_CONFIG=${CONF_PATH} PATH=$SERVER_BIN:$PATH pbench-create-crontab ${SERVER_LIB}/crontab"
-
 buildah run $container mkdir -p -m 0755  \
     /srv/pbench/archive/fs-version-001 \
     /srv/pbench/public_html/incoming \
@@ -118,8 +115,6 @@ buildah run $container chown --recursive pbench:pbench /srv/pbench
 # buildah run $container semanage fcontext -a -t httpd_sys_content_t /srv/pbench/public_html/users
 # buildah run $container semanage fcontext -a -t httpd_sys_content_t /srv/pbench/public_html/static
 # buildah run $container restorecon -v -r /srv/pbench/archive /srv/pbench/public_html
-
-buildah run $container crontab -u pbench ${SERVER_LIB}/crontab/crontab
 
 sed -e "s/localhost/${HOSTNAME_F}/" ${PBINC_SERVER}/lib/config/pbench.httpd.conf >/tmp/pbench.conf.${$}
 buildah copy --chown root:root --chmod 0644 $container \
