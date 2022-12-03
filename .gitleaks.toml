@@ -1,0 +1,13 @@
+[allowlist]
+  description = "Global Allow List"
+
+  # Ignore based on any subset of the file path
+  paths = [
+    # Ignore the Pbench-in-a-Can server configuration file because the user
+    # name and password contained there-in is only for accessing the PostgreSQL
+    # instance inside the created ephemeral container.
+    '''server\/pbenchinacan\/etc\/pbench-server\/pbench-server\.cfg$''',
+
+    # Ignore the .gitleaks.toml (this file).
+    '''\.gitleaks\.toml$''',
+  ]
