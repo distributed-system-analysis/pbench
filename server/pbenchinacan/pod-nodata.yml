@@ -24,11 +24,7 @@
 #  PB_SERVER_IMAGE - the <registry>/<repo>/<img_name> of the Pbench Server image
 #  PB_SERVER_IMAGE_TAG - the tag for the Pbench Server image
 #
-# The resulting pod maps the following ports:
-#
-#   8090 - Keycloak authentication server
-#   8080 - HTTP web server (and Pbench Dashboard)
-#   9200 - Elasticsearch
+# The resulting pod exposes port 8080 for the Pbench Server and Dashboard.
 #
 apiVersion: v1
 kind: Pod
@@ -63,7 +59,6 @@ spec:
     name: elasticsearch
     ports:
       - containerPort: 9200
-        hostPort: 9200
     resources: {}
     securityContext:
       allowPrivilegeEscalation: true
@@ -78,12 +73,12 @@ spec:
   - command:
     - /opt/keycloak/bin/kc.sh
     - start-dev
+    - --http-port=8090
     - --health-enabled=true
     image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-keycloak:latest
     name: keycloak
     ports:
-      - containerPort: 8080
-        hostPort: 8090
+      - containerPort: 8090
     workingDir: /opt/keycloak
   - args:
     - run-postgresql
@@ -154,7 +149,7 @@ spec:
     imagePullPolicy: Always
     name: pbenchserver
     ports:
-      - containerPort: 80
+      - containerPort: 8080
         hostPort: 8080
     resources: {}
     securityContext:

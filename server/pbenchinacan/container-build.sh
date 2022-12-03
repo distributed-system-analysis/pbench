@@ -120,6 +120,9 @@ sed -e "s/localhost/${HOSTNAME_F}/" ${PBINC_SERVER}/lib/config/pbench.httpd.conf
 buildah copy --chown root:root --chmod 0644 $container \
     /tmp/pbench.conf.${$} /etc/httpd/conf.d/pbench.conf
 rm /tmp/pbench.conf.${$}
+# We need to ensure HTTPD listens on port 8080 so container can be optionally
+# run with host networking from a non-root user.
+buildah run $container bash -c "sed -i -e 's/^Listen 80$/Listen 8080/' /etc/httpd/conf/httpd.conf"
 
 buildah run $container cp ${SERVER_LIB}/systemd/pbench-server.service \
     /etc/systemd/system/pbench-server.service

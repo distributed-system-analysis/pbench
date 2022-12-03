@@ -55,10 +55,9 @@ pipeline {
         stage('Deploy server and run functional tests') {
             steps {
                 sh 'envsubst < server/pbenchinacan/pod-nodata.yml | podman play kube -'
-                sleep 30
                 // Use curl to check when server is responding to API requests
-                retry(count: 10) {
-                    sleep 10
+                retry(count: 600) {
+                    sleep 1
                     sh 'curl --silent localhost:8080/api/v1/endpoints >/dev/null'
                 }
                 sh 'EXTRA_PODMAN_SWITCHES="--network host" jenkins/run server/exec_functests http://localhost:8080'
