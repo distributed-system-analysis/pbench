@@ -80,6 +80,8 @@ buildah run $container rm -f /tmp/pbench-server.rpm /tmp/requirements.txt
 
 # Work around a problem with cron running jobs as other users in a container.
 buildah run $container bash -c "sed -i -e '/pam_loginuid/ s/^/#/' /etc/pam.d/crond"
+# Keep cron from complaining about in-ability to connect to systemd-logind
+buildah run $container bash -c "sed -i -e '/pam_systemd/ s/^/#/' /etc/pam.d/system-auth"
 
 # Copy the Pbench Server config file; then correct the hostname configuration.
 buildah copy --chown pbench:pbench --chmod 0644 $container \
