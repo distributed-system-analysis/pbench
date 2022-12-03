@@ -70,7 +70,7 @@ buildah copy $container ${PBINC_SERVER}/requirements.txt /tmp
 buildah run $container dnf update -y
 buildah run $container dnf install -y --setopt=tsflags=nodocs \
         https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-buildah run $container dnf install -y /tmp/pbench-server.rpm httpd
+buildah run $container dnf install -y /tmp/pbench-server.rpm httpd less
 # FIXME:  Should we be running Pip with the --user switch under the `pbench` user?
 buildah run $container pip install -r /tmp/requirements.txt
 buildah run $container dnf clean all
