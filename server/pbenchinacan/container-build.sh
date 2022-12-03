@@ -105,7 +105,6 @@ buildah run $container mkdir -p -m 0755  \
     /srv/pbench/public_html/static \
     /srv/pbench/logs \
     /srv/pbench/tmp \
-    /srv/pbench/quarantine \
     /srv/pbench/pbench-move-results-receive/fs-version-002
 buildah run $container chown --recursive pbench:pbench /srv/pbench
 
