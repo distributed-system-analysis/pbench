@@ -384,11 +384,8 @@ class ElasticBase(ApiBase):
         except UnauthorizedAccess as e:
             raise APIAbort(e.http_status, str(e))
         except KeyError as e:
-            self.logger.exception("{} problem in preprocess, missing {}", klasname, e)
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Missing expected backend data: {str(e)!r}",
-            )
+            self.logger.error("{} problem in preprocess, missing {}", klasname, e)
+            raise APIInternalError(self.logger, "Missing expected backend data")
         try:
             # prepare payload for Elasticsearch query
             es_request = self.assemble(params, context)

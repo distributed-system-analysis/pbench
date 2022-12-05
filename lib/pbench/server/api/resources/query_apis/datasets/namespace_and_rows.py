@@ -81,7 +81,7 @@ class SampleNamespace(IndexMapBase):
         try:
             mappings = self.get_mappings(document)
         except TemplateNotFound as e:
-            self.logger.error("{}", str(e))
+            self.logger.error("{}", e)
             raise APIInternalError(self.logger, "Unexpected template error")
 
         result = self.get_aggregatable_fields(mappings)
@@ -276,7 +276,7 @@ class SampleValues(IndexMapBase):
         try:
             mappings = self.get_mappings(document)
         except TemplateNotFound as e:
-            self.logger.error("{}", str(e))
+            self.logger.error("{}", e)
             raise APIInternalError(self.logger, "Unexpected template error")
 
         # Prepare list of filters to apply for ES query
