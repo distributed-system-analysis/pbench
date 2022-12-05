@@ -210,6 +210,7 @@ class TestDatasetsPublish:
         get_document_map,
         pbench_token,
         server_config,
+        capinternal,
     ):
         """
         Check the publish API response if the bulk helper throws an exception.
@@ -235,5 +236,4 @@ class TestDatasetsPublish:
         )
 
         # Verify the failure
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == "Unexpected backend error 'test'"
+        capinternal("Unexpected backend error", response)

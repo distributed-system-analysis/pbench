@@ -1,4 +1,3 @@
-from http import HTTPStatus
 from logging import Logger
 
 from flask import jsonify
@@ -6,11 +5,11 @@ from flask.wrappers import Request, Response
 
 from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    APIAbort,
     ApiAuthorizationType,
     ApiBase,
     ApiContext,
     ApiMethod,
+    APIInternalError,
     ApiParams,
     ApiSchema,
     Parameter,
@@ -117,7 +116,4 @@ class DatasetsMappings(ApiBase):
             return jsonify(result)
         except TemplateNotFound as e:
             self.logger.error("{}", str(e))
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Unexpected template error for index {index['index']!r}",
-            )
+            raise APIInternalError(self.logger, "Unexpected template error")

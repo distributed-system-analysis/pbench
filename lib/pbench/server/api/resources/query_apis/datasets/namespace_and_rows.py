@@ -3,7 +3,7 @@ from logging import Logger
 
 from pbench.server import JSON, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    APIAbort,
+    APIInternalError,
     ApiAuthorizationType,
     ApiMethod,
     ApiParams,
@@ -82,10 +82,7 @@ class SampleNamespace(IndexMapBase):
             mappings = self.get_mappings(document)
         except TemplateNotFound as e:
             self.logger.error("{}", str(e))
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Unexpected template error for index {document_index['index']!r}",
-            )
+            raise APIInternalError(self.logger, "Unexpected template error")
 
         result = self.get_aggregatable_fields(mappings)
 
@@ -280,10 +277,7 @@ class SampleValues(IndexMapBase):
             mappings = self.get_mappings(document)
         except TemplateNotFound as e:
             self.logger.error("{}", str(e))
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Unexpected template error for index {document_index['index']!r}",
-            )
+            raise APIInternalError(self.logger, "Unexpected template error")
 
         # Prepare list of filters to apply for ES query
         es_filter = [{"match": {"run.id": dataset.resource_id}}]

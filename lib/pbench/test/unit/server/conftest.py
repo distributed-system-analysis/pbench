@@ -1,8 +1,11 @@
 import datetime
 import hashlib
+from http import HTTPStatus
+import logging
 import os
 from pathlib import Path
 from posix import stat_result
+import re
 import shutil
 from stat import ST_MTIME
 import tarfile
@@ -13,6 +16,7 @@ from email_validator import EmailNotValidError, ValidatedEmail
 from freezegun import freeze_time
 import jwt
 import pytest
+from requests import Response
 
 from pbench.common import MetadataLog
 from pbench.common.logger import get_pbench_logger
@@ -159,6 +163,24 @@ def make_logger(server_config):
 
 
 @pytest.fixture()
+def capinternal(caplog):
+    def compare(message: str, response: Optional[Response]):
+        pat = re.compile(
+            f"INTERNAL error {message!r}: report error code [a-zA-Z\\d]{{8}}-([a-zA-Z\\d]{{4}}-){{3}}[a-zA-Z\\d]{{12}} to an SRE"
+        )
+        if response:
+            assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+            assert pat.match(response.json["message"]), response.json["message"]
+        for r in caplog.get_records("call"):
+            if r.levelno == logging.ERROR:
+                if pat.match(str(r.msg)):
+                    return
+        assert False, "Expected pattern string not logged at level 'ERROR'"
+
+    return compare
+
+
+@pytest.fixture()
 def db_session(request, server_config, make_logger):
     """
     Construct a temporary DB session for the test case that will reset on
@@ -171,10 +193,12 @@ def db_session(request, server_config, make_logger):
     client fixture is also selected, but we'll still remove the DB afterwards.
 
     Args:
+        request: Access to pytest's request context
         server_config: pbench-server.cfg fixture
+        make_logger: produce a Pbench Server logger
     """
     if "client" not in request.fixturenames:
-        Database.init_db(server_config, None)
+        Database.init_db(server_config, make_logger)
     yield
     Database.db_session.remove()
 

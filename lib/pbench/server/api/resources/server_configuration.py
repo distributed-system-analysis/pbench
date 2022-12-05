@@ -11,6 +11,7 @@ from pbench.server.api.resources import (
     ApiBase,
     ApiContext,
     ApiMethod,
+    APIInternalError,
     ApiParams,
     ApiSchema,
     Parameter,
@@ -102,7 +103,7 @@ class ServerConfiguration(ApiBase):
             else:
                 return jsonify(ServerConfig.get_all())
         except ServerConfigError as e:
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, str(e)) from e
+            raise APIInternalError(self.logger, str(e)) from e
 
     def _put_key(self, params: ApiParams, context: ApiContext) -> Response:
         """
@@ -132,10 +133,7 @@ class ServerConfiguration(ApiBase):
         except KeyError:
             # This "isn't possible" given the Flask mapping rules, but try
             # to report it gracefully instead of letting the KeyError fly.
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Found URI parameters {sorted(params.uri)} not including 'key'",
-            )
+            raise APIAbort(HTTPStatus.BAD_REQUEST, message="Missing parameter 'key'")
 
         # If we have a key in the URL, then we need a "value" for it, which
         # we can take either from a query parameter or from the JSON
@@ -165,7 +163,7 @@ class ServerConfiguration(ApiBase):
         except ServerConfigBadValue as e:
             raise APIAbort(HTTPStatus.BAD_REQUEST, str(e)) from e
         except ServerConfigError as e:
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, str(e)) from e
+            raise APIInternalError(self.logger, str(e)) from e
         return jsonify({key: value})
 
     def _put_body(self, params: ApiParams, context: ApiContext) -> Response:
@@ -195,19 +193,17 @@ class ServerConfiguration(ApiBase):
 
         failures = []
         response = {}
-        fail_status = HTTPStatus.BAD_REQUEST
         for k, v in params.body.items():
             try:
                 c = ServerConfig.set(key=k, value=v)
                 response[c.key] = c.value
             except ServerConfigBadValue as e:
                 failures.append(str(e))
-            except ServerConfigError as e:
-                fail_status = HTTPStatus.INTERNAL_SERVER_ERROR
-                self.logger.warning(str(e))
-                failures.append(str(e))
+            except Exception as e:
+                self.logger.warning("{}", e)
+                raise APIInternalError(self.logger, "Error setting config values")
         if failures:
-            raise APIAbort(fail_status, message=", ".join(failures))
+            raise APIAbort(HTTPStatus.BAD_REQUEST, message=", ".join(failures))
         return jsonify(response)
 
     def _put(

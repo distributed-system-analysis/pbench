@@ -5,6 +5,7 @@ import json
 from json.decoder import JSONDecodeError
 from logging import Logger
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
+import uuid
 
 from dateutil import parser as date_parser
 from flask import request
@@ -32,11 +33,11 @@ from pbench.server.database.models.users import User
 
 
 class APIAbort(Exception):
-    """
-    Used to report an error and abort if there is a failure in processing of API request.
+    """Used to report an error and abort if there is a failure in processing of
+    API request.
     """
 
-    def __init__(self, http_status: int, message: str = None):
+    def __init__(self, http_status: int, message: Optional[str] = None):
         self.http_status = http_status
         self.message = message if message else HTTPStatus(http_status).phrase
 
@@ -47,9 +48,38 @@ class APIAbort(Exception):
         return self.message
 
 
-class UnauthorizedAccess(APIAbort):
+class APIInternalError(APIAbort):
+    """Used to report a server internal error with a UUID value that connects
+    the string reported to the client with a server log entry to aid analysis
+    by an SRE
     """
-    The user is not authorized for the requested operation on the specified
+
+    def __init__(self, logger: Logger, message: str):
+        """Construct an "internal server error" exception object.
+
+        This exception is raised and will be used in the API _dispatch method
+        to generate a JSON error message payload to the client. This message
+        contains a UUID string that uniquely identifies this internal server
+        error context. An internal server log message is generated, with
+        traceback, also containing that UUID value so that a server
+        administrator can investigate the cause of the error.
+
+        NOTE: We want to return minimal explanations of internal errors to the
+        client while capturing detailed information for server developers to
+        determine what happened.
+
+        Args:
+            logger  Python logger
+            message A brief descriptive message for the client and log
+        """
+        self.uuid = uuid.uuid4()
+        msg = f"INTERNAL error {message!r}: report error code {self.uuid} to an SRE"
+        super().__init__(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, message=msg)
+        logger.exception("{}", msg)
+
+
+class UnauthorizedAccess(APIAbort):
+    """The user is not authorized for the requested operation on the specified
     resource.
     """
 
@@ -72,8 +102,7 @@ class UnauthorizedAccess(APIAbort):
 
 
 class UnauthorizedAdminAccess(UnauthorizedAccess):
-    """
-    A refinement of the UnauthorizedAccess exception where ADMIN access is
+    """A refinement of the UnauthorizedAccess exception where ADMIN access is
     required and we have no associated resource owner and access.
     """
 
@@ -96,9 +125,7 @@ class UnauthorizedAdminAccess(UnauthorizedAccess):
 
 
 class SchemaError(APIAbort):
-    """
-    Generic base class for errors in processing a JSON schema.
-    """
+    """Generic base class for errors in processing a JSON schema."""
 
     def __init__(self, http_status: int = HTTPStatus.BAD_REQUEST):
         super().__init__(http_status=http_status)
@@ -108,9 +135,8 @@ class SchemaError(APIAbort):
 
 
 class UnverifiedUser(SchemaError):
-    """
-    Attempt by an unauthenticated client to reference a username in a query. An
-    unauthenticated client does not have the right to look up any username.
+    """Attempt by an unauthenticated client to reference a username in a query.
+    An unauthenticated client does not have the right to look up any username.
 
     HTTPStatus.UNAUTHORIZED tells the client that the operation might succeed
     if the request is retried with authentication. (A UI might redirect to a
@@ -126,17 +152,14 @@ class UnverifiedUser(SchemaError):
 
 
 class InvalidRequestPayload(SchemaError):
-    """
-    A required client JSON input document is missing.
-    """
+    """A required client JSON input document is missing."""
 
     def __str__(self) -> str:
         return "Invalid request payload"
 
 
 class UnsupportedAccessMode(SchemaError):
-    """
-    Unsupported values for user or access, or an unsupported combination of
+    """Unsupported values for user or access, or an unsupported combination of
     both.
     """
 
@@ -150,9 +173,8 @@ class UnsupportedAccessMode(SchemaError):
 
 
 class MissingParameters(SchemaError):
-    """
-    One or more required JSON keys are missing, or the values are unexpectedly
-    empty.
+    """One or more required JSON keys are missing, or the values are
+    unexpectedly empty.
     """
 
     def __init__(self, keys: List[str]):
@@ -164,9 +186,7 @@ class MissingParameters(SchemaError):
 
 
 class BadQueryParam(SchemaError):
-    """
-    One or more unrecognized URL query parameters were specified.
-    """
+    """One or more unrecognized URL query parameters were specified."""
 
     def __init__(self, keys: List[str]):
         super().__init__()
@@ -177,8 +197,8 @@ class BadQueryParam(SchemaError):
 
 
 class RepeatedQueryParam(SchemaError):
-    """
-    A URL query parameter key was repeated, but Pbench supports only one value.
+    """A URL query parameter key was repeated, but Pbench supports only one
+    value.
     """
 
     def __init__(self, key: str):
@@ -190,13 +210,10 @@ class RepeatedQueryParam(SchemaError):
 
 
 class ConversionError(SchemaError):
-    """
-    Used to report an invalid parameter type
-    """
+    """Used to report an invalid parameter type"""
 
     def __init__(self, value: Any, expected_type: str, **kwargs):
-        """
-        Construct a ConversionError exception
+        """Construct a ConversionError exception
 
         Args:
             value: The value we tried to convert
@@ -212,13 +229,10 @@ class ConversionError(SchemaError):
 
 
 class DatasetConversionError(SchemaError):
-    """
-    Used to report an invalid dataset name.
-    """
+    """Used to report an invalid dataset name."""
 
     def __init__(self, value: str, **kwargs):
-        """
-        Construct a DatasetConversionError exception. This is modeled after
+        """Construct a DatasetConversionError exception. This is modeled after
         DatasetNotFound, but is within the SchemaError exception hierarchy.
 
         Args:
@@ -233,9 +247,7 @@ class DatasetConversionError(SchemaError):
 
 
 class KeywordError(SchemaError):
-    """
-    Used to report an unrecognized keyword value.
-    """
+    """Used to report an unrecognized keyword value."""
 
     def __init__(
         self,
@@ -245,8 +257,7 @@ class KeywordError(SchemaError):
         *,
         keywords: List[str] = [],
     ):
-        """
-        Construct a KeywordError exception
+        """Construct a KeywordError exception
 
         Args:
             parameter: The Parameter defining the keywords
@@ -266,13 +277,10 @@ class KeywordError(SchemaError):
 
 
 class ListElementError(SchemaError):
-    """
-    Used to report an unrecognized list element value.
-    """
+    """Used to report an unrecognized list element value."""
 
     def __init__(self, parameter: "Parameter", bad: List[str]):
-        """
-        Construct a ListElementError exception
+        """Construct a ListElementError exception
 
         Args:
             parameter: The Parameter defining the list
@@ -292,8 +300,7 @@ class ListElementError(SchemaError):
 
 
 def convert_date(value: str, _) -> datetime:
-    """
-    Convert a date/time string to a datetime.datetime object.
+    """Convert a date/time string to a datetime.datetime object.
 
     Args:
         value: String representation of date/time
@@ -312,9 +319,8 @@ def convert_date(value: str, _) -> datetime:
 
 
 def convert_username(value: Union[str, None], _) -> Union[str, None]:
-    """
-    Validate that the user object referenced by the username string exists, and
-    return the internal representation of that user.
+    """Validate that the user object referenced by the username string exists,
+    and return the internal representation of that user.
 
     We do not want an unauthenticated client to be able to distinguish between
     "invalid user" (ConversionError here) and "valid user I can't access" (some
@@ -1630,6 +1636,7 @@ class ApiBase(Resource):
                 )
             return response
         except APIAbort as e:
+            self.logger.error("{} {}", api_name, e)
             if auditing["finalize"]:
                 attr = auditing.get("attributes", {"message": str(e)})
                 try:
@@ -1640,7 +1647,7 @@ class ApiBase(Resource):
                         attributes=attr,
                     )
                 except Exception:
-                    self.logger.exception(
+                    self.logger.error(
                         "Unexpected exception on audit: {}", json.dumps(auditing)
                     )
             abort(e.http_status, message=str(e))
@@ -1657,10 +1664,8 @@ class ApiBase(Resource):
                     reason=AuditReason.INTERNAL,
                     attributes=attr,
                 )
-            abort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
-            )
+            x = APIInternalError(self.logger, "Unexpected exception")
+            abort(x.http_status, message=x.message)
 
     def _get(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
         """

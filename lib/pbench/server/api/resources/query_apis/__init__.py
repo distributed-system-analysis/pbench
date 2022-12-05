@@ -22,6 +22,7 @@ from pbench.server.api.resources import (
     ApiBase,
     ApiContext,
     ApiMethod,
+    APIInternalError,
     ApiParams,
     ApiSchema,
     ParamType,
@@ -398,11 +399,8 @@ class ElasticBase(ApiBase):
                 url,
                 es_request.get("kwargs").get("json"),
             )
-        except Exception as e:
-            self.logger.exception("{} assembly failed: {}", klasname, e)
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR, f"Unexpected exception {str(e)!r}"
-            )
+        except Exception:
+            raise APIInternalError(self.logger, "Assembly error")
 
         try:
             # perform the Elasticsearch query
@@ -444,17 +442,14 @@ class ElasticBase(ApiBase):
             self.logger.error(
                 "{}: invalid url {} during the Elasticsearch request", klasname, url
             )
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, "Invalid backend URL")
+            raise APIInternalError(self.logger, "Invalid backend URL")
         except Exception as e:
             self.logger.exception(
                 "{}: exception {} occurred during the Elasticsearch request",
                 klasname,
                 type(e).__name__,
             )
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Unexpected backend exception {str(e)!r}",
-            )
+            raise APIInternalError(self.logger, "Unexpected backend error")
 
         try:
             # postprocess Elasticsearch response
@@ -463,23 +458,8 @@ class ElasticBase(ApiBase):
             msg = f"{klasname}: {str(e)}"
             self.logger.error("{}", msg)
             raise APIAbort(e.status, msg)
-        except KeyError as e:
-            self.logger.error("{}: missing Elasticsearch key {}", klasname, e)
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Missing Elasticsearch key {str(e)!r}",
-            )
-        except Exception as e:
-            self.logger.exception(
-                "{}: unexpected problem postprocessing Elasticsearch response {}: {}",
-                klasname,
-                json_response,
-                e,
-            )
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Unexpected backend exception {str(e)!r}",
-            )
+        except Exception:
+            raise APIInternalError(self.logger, "Unexpected backend exception")
 
     def _post(
         self, params: ApiParams, request: Request, context: ApiContext
@@ -785,16 +765,8 @@ class ElasticBulkBase(ApiBase):
                     raise_on_error=False,
                 )
                 report = self._analyze_bulk(results)
-            except Exception as e:
-                self.logger.exception(
-                    "{}: exception {} occurred during the Elasticsearch request",
-                    klasname,
-                    type(e).__name__,
-                )
-                raise APIAbort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    f"Unexpected backend error {str(e)!r}",
-                )
+            except Exception:
+                raise APIInternalError(self.logger, "Unexpected backend error")
         elif self.require_map:
             raise APIAbort(
                 HTTPStatus.CONFLICT,
@@ -815,18 +787,11 @@ class ElasticBulkBase(ApiBase):
         # Let the subclass complete the operation
         try:
             self.complete(dataset, context, summary)
-        except Exception as e:
+        except Exception:
             attributes["message"] = str(e)
             auditing["status"] = AuditStatus.WARNING
             auditing["reason"] = AuditReason.INTERNAL
-            self.logger.exception(
-                "{}: exception {} occurred during bulk operation completion",
-                klasname,
-                type(e).__name__,
-            )
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR, f"Unexpected error {str(e)!r}"
-            )
+            raise APIInternalError("Unexpected completion error")
 
         # Return the summary document as the success response, or abort with an
         # internal error if we weren't 100% successful. Some elasticsearch
@@ -840,8 +805,5 @@ class ElasticBulkBase(ApiBase):
             auditing["status"] = AuditStatus.WARNING
             auditing["reason"] = AuditReason.INTERNAL
             attributes["message"] = f"Unable to {self.action} some indexed documents"
-            raise APIAbort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failed to update {report.errors} out of {report.count} documents",
-            )
+            raise APIInternalError(self.logger, f"Failed to {self.action} documents")
         return jsonify(summary)

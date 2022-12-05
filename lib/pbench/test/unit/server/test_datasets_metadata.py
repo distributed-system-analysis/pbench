@@ -403,7 +403,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "user.one": None,
         }
 
-    def test_put_set_errors(self, monkeypatch, query_get_as, query_put_as):
+    def test_put_set_errors(self, capinternal, monkeypatch, query_get_as, query_put_as):
         """Test a partial success. We set a scalar value on a key and then try
         to set a nested value: i.e., with "global.dashboard.nested = False", we
         attempt to set "global.dashboard.nested.dummy". We expect this to fail,
@@ -429,9 +429,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "drb",
             HTTPStatus.INTERNAL_SERVER_ERROR,
         )
-        assert response.json == {
-            "message": "Key 'nested' value for 'global.dashboard.nested.dummy' in (3)|foo is not a JSON object"
-        }
+        capinternal("Error setting metadata keys", response)
         response = query_get_as(
             "foo", {"metadata": "global,dataset.name"}, "drb", HTTPStatus.OK
         )

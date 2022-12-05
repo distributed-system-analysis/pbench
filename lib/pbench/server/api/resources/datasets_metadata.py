@@ -12,6 +12,7 @@ from pbench.server.api.resources import (
     ApiBase,
     ApiContext,
     ApiMethod,
+    APIInternalError,
     ApiParams,
     ApiSchema,
     Parameter,
@@ -198,6 +199,7 @@ class DatasetsMetadata(ApiBase):
                 fail.append(str(e))
 
         if fail:
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR, ", ".join(fail))
+            self.logger.error("Error setting metadata keys: {}", ", ".join(fail))
+            raise APIInternalError(self.logger, "Error setting metadata keys")
         results = self._get_dataset_metadata(dataset, list(metadata.keys()))
         return jsonify(results)

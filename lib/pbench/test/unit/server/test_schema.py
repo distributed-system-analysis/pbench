@@ -7,6 +7,7 @@ import pytest
 from pbench.server import OperationCode
 from pbench.server.api.resources import (
     APIAbort,
+    APIInternalError,
     ConversionError,
     InvalidRequestPayload,
     KeywordError,
@@ -74,6 +75,10 @@ class TestExceptions:
         p = PostprocessError(HTTPStatus.BAD_REQUEST, "really bad", None)
         assert str(p) == "Postprocessing error returning 400: 'really bad' [None]"
         assert p.status == HTTPStatus.BAD_REQUEST
+
+    def test_internal_error(self, capinternal, make_logger):
+        APIInternalError(make_logger, "my error")
+        capinternal("my error", None)
 
 
 class TestParamType:

@@ -152,7 +152,13 @@ class TestDatasetsDelete:
             Dataset.query(name=owner)
 
     def test_partial(
-        self, client, get_document_map, monkeypatch, server_config, pbench_token
+        self,
+        client,
+        capinternal,
+        get_document_map,
+        monkeypatch,
+        server_config,
+        pbench_token,
     ):
         """
         Check the delete API when some document updates fail. We expect an
@@ -167,8 +173,7 @@ class TestDatasetsDelete:
         )
 
         # Verify the report and status
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == "Failed to update 3 out of 31 documents"
+        capinternal("Failed to delete documents", response)
 
         # Verify that the Dataset still exists
         Dataset.query(name="drb")
@@ -211,6 +216,7 @@ class TestDatasetsDelete:
     def test_exception(
         self,
         attach_dataset,
+        capinternal,
         client,
         monkeypatch,
         get_document_map,
@@ -240,5 +246,4 @@ class TestDatasetsDelete:
         )
 
         # Verify the failure
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == "Unexpected backend error 'test'"
+        capinternal("Unexpected backend error", response)

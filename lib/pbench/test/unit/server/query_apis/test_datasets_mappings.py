@@ -104,13 +104,10 @@ class TestDatasetsMappings:
                 == "Unrecognized keyword ['bad_data_object_view'] given for parameter dataset_view; allowed keywords are ['contents', 'iterations', 'summary', 'timeseries']"
             )
 
-    def test_with_db_error(self, client, server_config):
+    def test_with_db_error(self, capinternal, client, server_config):
         """
         Check the index mappings API if there is an error connecting to sql database.
         """
         with client:
             response = client.get(f"{server_config.rest_uri}/datasets/mappings/summary")
-            assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-            assert (
-                response.json["message"] == "Unexpected template error for index 'run'"
-            )
+            capinternal("Unexpected template error", response)
