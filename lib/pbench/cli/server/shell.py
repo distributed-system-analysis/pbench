@@ -195,25 +195,31 @@ def main():
         logger.info("Created database {}", db_uri)
     Database.init_db(server_config, logger)
 
-    # Create the crontab file from the server configuration.
+    # Add the Pbench Server binaries to the PATH.
     os.environ["PATH"] = ":".join([server_config.BINDIR, os.environ["PATH"]])
-    cp = subprocess.run(
-        ["pbench-create-crontab", crontab_dir],
-        cwd=server_config.log_dir,
-    )
-    if cp.returncode != 0:
-        logger.error(
-            "Failed to create crontab file from configuration: {}", cp.returncode
-        )
-        sys.exit(1)
 
-    # Install the created crontab file.
-    cp = subprocess.run(
-        ["crontab", f"{crontab_dir}/crontab"], cwd=server_config.log_dir
-    )
-    if cp.returncode != 0:
-        logger.error("Failed to install crontab file: {}", cp.returncode)
-        sys.exit(1)
+    crontab_f = Path(crontab_dir) / "crontab"
+    if not crontab_f.exists():
+        # Create the crontab file from the server configuration.
+        cp = subprocess.run(
+            ["pbench-create-crontab", crontab_dir],
+            cwd=server_config.log_dir,
+        )
+        if cp.returncode != 0:
+            logger.error(
+                "Failed to create crontab file from configuration: {}", cp.returncode
+            )
+            crontab_f.unlink(missing_ok=True)
+            sys.exit(1)
+
+        # Install the created crontab file.
+        cp = subprocess.run(
+            ["crontab", f"{crontab_dir}/crontab"], cwd=server_config.log_dir
+        )
+        if cp.returncode != 0:
+            logger.error("Failed to install crontab file: {}", cp.returncode)
+            crontab_f.unlink(missing_ok=True)
+            sys.exit(1)
 
     # Beginning of the gunicorn command to start the pbench-server.
     cmd_line = [
