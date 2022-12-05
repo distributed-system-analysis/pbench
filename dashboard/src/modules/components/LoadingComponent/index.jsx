@@ -6,8 +6,9 @@ import { useSelector } from "react-redux";
 
 const LoadingComponent = ({ children }) => {
   const isLoading = useSelector((state) => state.loading.isLoading);
+  const parentClass = isLoading ? "main-with-spinner" : "";
   return (
-    <div className="main-with-spinner">
+    <div className={`main-page-container ${parentClass}`}>
       {children}
       {isLoading && (
         <div className="spinner-container">
