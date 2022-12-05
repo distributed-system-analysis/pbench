@@ -2,7 +2,7 @@ import "./index.less";
 
 import { Button } from "@patternfly/react-core";
 import React from "react";
-import logo from "assets/images/404-Error-Not-found.png";
+import logo from "assets/images/page_not_found.png";
 import pbenchLogo from "assets/logo/pbench_logo.svg";
 import { useNavigate } from "react-router-dom";
 
@@ -21,7 +21,7 @@ const NoMatchingPage = () => {
       <div className="nomatch-container">
         <div className="main-content">
           <div className="bg-img-wrapper">
-            <img className="not-found-img" alt="404 error image" src={logo} />
+            <img className="not-found-img" alt="not found image" src={logo} />
           </div>
         </div>
         <Button variant="link" onClick={() => navigate("/")}>
