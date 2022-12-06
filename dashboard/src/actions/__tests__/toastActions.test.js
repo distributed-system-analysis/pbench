@@ -91,41 +91,37 @@ describe("Toast Actions", () => {
     const actions = bestMacth(givenPayload);
     expect(actions).toEqual(expectedOutput);
   });
-  // test("Show Session Expired", () => {
-  //   const expectedActions = [
-  //     {
-  //       type: "SHOW_TOAST",
-  //       payload: [
-  //         {
-  //           key: expect.anything(),
-  //           variant: "danger",
-  //           title: "Session Expired",
-  //           message: "Please login to continue",
-  //         },
-  //       ],
-  //     },
-  //     { type: "LOADING" },
-  //     { type: "COMPLETED" },
-  //   ];
+  test("Show Session Expired", () => {
+    const expectedOutput = {
+      key: expect.anything(),
+      variant: "danger",
+      title: "Session Expired",
+      message: "Please login to continue",
+    };
 
-  //   store.dispatch(ACTIONS.showSessionExpired());
-  //   expect(store.getActions()).toEqual(expectedActions);
-  // });
-  // test("Hide toast", async () => {
-  //   await store.dispatch(ACTIONS.hideToast("test2"));
-  //   const expectedActions = [
-  //     {
-  //       type: "SHOW_TOAST",
-  //       payload: [
-  //         {
-  //           variant: "success",
-  //           title: "Logged in successfully!",
-  //           key: "test1",
-  //           message: "",
-  //         },
-  //       ],
-  //     },
-  //   ];
-  //   expect(store.getActions()).toEqual(expectedActions);
-  // });
+    store.dispatch(ACTIONS.showSessionExpired());
+    const bestMatch = (output) => {
+      return output.find((item) => item.title === "Session Expired");
+    };
+    const givenPayload = store.getActions()[0].payload;
+    const actions = bestMatch(givenPayload);
+    expect(actions).toEqual(expectedOutput);
+  });
+  test("Hide toast", async () => {
+    await store.dispatch(ACTIONS.hideToast("test2"));
+    const expectedActions = [
+      {
+        type: "SHOW_TOAST",
+        payload: [
+          {
+            variant: "success",
+            title: "Logged in successfully!",
+            key: "test1",
+            message: "",
+          },
+        ],
+      },
+    ];
+    expect(store.getActions()).toEqual(expectedActions);
+  });
 });
