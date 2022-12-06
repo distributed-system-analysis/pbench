@@ -11,6 +11,7 @@ filename =
 exclude = .venv,.git,.tox,dist,doc,*lib/python*,*egg,build,*web-server/*,
         *agent/bench-scripts/test-bin/fio-histo-log-pctiles.py,
         *agent/bench-scripts/tests/pbench-trafficgen/test-39.trafficgen/*,
-        *agent/bench-scripts/tests/pbench-trafficgen/test-40.trafficgen/*
+        *agent/bench-scripts/tests/pbench-trafficgen/test-40.trafficgen/*,
+        *dashboard/node_modules/*
 ignore = E121,E123,E126,E203,E226,E501,W503,E704
 max-line-length = 88

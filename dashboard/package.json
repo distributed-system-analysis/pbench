@@ -50,12 +50,6 @@
   },
   "proxy": "http://localhost:3001",
   "homepage": ".",
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "jest": {
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"
