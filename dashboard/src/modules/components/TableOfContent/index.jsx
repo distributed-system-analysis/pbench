@@ -103,10 +103,9 @@ const TableOfContent = () => {
     setActiveMenu(toMenuId);
   };
   const getDropDown = (moreBreadCrumbs) => {
-    const dropDownArray = moreBreadCrumbs.map((label, index) => {
-      if (index < moreBreadCrumbs.length - 1) {
-        return (
-          <DropdownItem
+    const dropDownArray = moreBreadCrumbs.map((label, index) =>
+      index < moreBreadCrumbs.length - 1 ? (
+        <DropdownItem
             key="dropdown-start"
             component="button"
             icon={<AngleLeftIcon />}
@@ -129,12 +128,13 @@ const TableOfContent = () => {
                   appGroupingBreadcrumb(false, updatedBreadCrumbLabels)
                 );
             }}
-          >
+        >
             {label}
-          </DropdownItem>
-        );
-      }
-    });
+        </DropdownItem>
+      ) : (
+        <></>
+      )
+    );
     dropDownArray.pop();
     return dropDownArray;
   };
@@ -202,7 +202,7 @@ const TableOfContent = () => {
   };
   const updateHighlightedRow = (index) => {
     const newPage = Math.floor(index / perPage);
-    if (newPage + 1 != page) {
+    if (newPage + 1 !== page) {
       setPage(newPage + 1);
     }
     setActiveFile(index);
@@ -262,6 +262,8 @@ const TableOfContent = () => {
                                     {data}
                                   </MenuItem>
                                 );
+                              } else {
+                                return <></>;
                               }
                             })}
 
@@ -278,6 +280,8 @@ const TableOfContent = () => {
                                     {data.name}
                                   </MenuItem>
                                 );
+                              } else {
+                                return <></>;
                               }
                             })}
                           </DrilldownMenu>
