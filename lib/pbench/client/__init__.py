@@ -358,6 +358,7 @@ class PbenchServerClient:
             kwargs: Use to override automatically generated headers
                 md5: override companion MD5 value
                 controller: override metadata.log controller
+                filename: override the actual filename to provoke an error
 
         Raises:
             FileNotFound: The file or the companion MD5 file is missing
@@ -376,7 +377,7 @@ class PbenchServerClient:
                     .read()
                     .decode()
                 )
-            metadata = ConfigParser()
+            metadata = ConfigParser(interpolation=None)
             metadata.read_string(metafile)
             controller = metadata.get("run", "controller", fallback=None)
 
@@ -385,7 +386,7 @@ class PbenchServerClient:
         with tarball.open("rb") as f:
             return self.put(
                 api=API.UPLOAD,
-                uri_params={"filename": tarball.name},
+                uri_params={"filename": kwargs.get("filename", tarball.name)},
                 headers=headers,
                 data=f,
                 raise_error=False,

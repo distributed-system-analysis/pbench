@@ -24,7 +24,7 @@ def server_client():
     return client
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def register_test_user(server_client: PbenchServerClient):
     """Create a test user for functional tests."""
 
@@ -47,7 +47,7 @@ def register_test_user(server_client: PbenchServerClient):
     ), f"Register failed with {response.json()}"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def login_user(server_client, register_test_user):
     """Log in the test user and return the authentication token"""
     server_client.login("tester", "123456")

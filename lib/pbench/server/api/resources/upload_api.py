@@ -4,6 +4,7 @@ import hashlib
 from http import HTTPStatus
 import os
 import shutil
+from typing import IO
 
 from flask import jsonify, request
 from flask_restful import abort, Resource
@@ -60,6 +61,16 @@ class Upload(Resource):
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
         self.logger.info("Configured PUT temporary directory as {}", self.temporary)
 
+    def drain(self, stream: IO[bytes]):
+        self.logger.info("Draining input stream")
+        total = 0
+        while True:
+            chunk = stream.read(self.CHUNK_SIZE)
+            if len(chunk) == 0:
+                break
+            total += len(chunk)
+        self.logger.info("Drained {} bytes on error", total)
+
     @Auth.token_auth.login_required()
     def put(self, filename: str):
         disabled = ServerConfig.get_disabled()
@@ -69,6 +80,11 @@ class Upload(Resource):
         # Used to record what steps have been completed during the upload, and
         # need to be undone on failure
         recovery = Cleanup(self.logger)
+
+        # We don't want to abandon the uploaded file stream: so on any error,
+        # the last thing we'll do is drain and close the stream so that a
+        # proxy relay knows we're done.
+        recovery.add(lambda: self.drain(request.stream))
 
         try:
             try:
@@ -185,11 +201,13 @@ class Upload(Resource):
                         username,
                     )
                     raise CleanupTime(
-                        HTTPStatus.INTERNAL_SERVER_ERROR, "INTERNAL ERROR"
+                        HTTPStatus.INTERNAL_SERVER_ERROR,
+                        "Duplicate dataset ID not found",
                     )
                 else:
                     response = jsonify(dict(message="Dataset already exists"))
                     response.status_code = HTTPStatus.OK
+                    self.drain(request.stream)
                     return response
             except CleanupTime:
                 raise  # Propagate a CleanupTime exception to the outer block
