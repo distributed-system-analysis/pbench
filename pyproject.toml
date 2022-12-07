@@ -54,6 +54,7 @@ include = '''
 extend-exclude = '''
 (
 fio-histo-log-pctiles\.py$
-| web-server/v0\.3/demo\.py$
+| ^/dashboard/node_modules/
+| ^/web-server/v0\.3/demo\.py$
 )
 '''

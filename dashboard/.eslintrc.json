@@ -7,7 +7,9 @@
         "plugin:react/recommended",
         "google",
         "plugin:react-hooks/recommended",
-        "prettier"
+        "prettier",
+        "react-app",
+        "react-app/jest"
     ],
     "parserOptions": {
         "ecmaFeatures": {

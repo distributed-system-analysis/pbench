@@ -24,11 +24,13 @@ fi
 mkdir -p ${HOME}/.config
 ( cd dashboard && rm -rf node_modules package-lock.json && npm install )
 
-# Test for code style and lint
+# Test for code style and lint (echo the commands before executing them)
+set -x
 black --check .
 flake8 .
 isort --check .
-( cd dashboard && npx eslint "src/**" --max-warnings 0 )
+( cd dashboard && npx eslint --max-warnings 0 "src/**" )
+set +x
 
 # Run unit tests
 tox                                     # Agent and Server unit tests and legacy tests
