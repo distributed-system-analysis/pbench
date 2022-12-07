@@ -2,10 +2,11 @@ from collections import Counter
 import copy
 from datetime import datetime
 import json
+import logging
 from pathlib import Path
 import re
 import sys
-from typing import Any, AnyStr, Dict
+from typing import Any, AnyStr, Dict, Optional
 
 import pyesbulk
 from sqlalchemy.sql.sqltypes import JSON
@@ -17,7 +18,11 @@ from pbench.common.exceptions import (
     TemplateError,
 )
 from pbench.server import tstos
-from pbench.server.database.models.template import Template, TemplateNotFound
+from pbench.server.database.models.template import (
+    Template,
+    TemplateDuplicate,
+    TemplateNotFound,
+)
 
 
 class JsonFile:
@@ -314,8 +319,9 @@ class TemplateFile:
         prefix: str,
         mappings: Path,
         settings: JsonFile,
-        skeleton: JsonFile = None,
-        tool: str = None,
+        logger: logging.Logger,
+        skeleton: Optional[JsonFile] = None,
+        tool: Optional[str] = None,
     ):
         """
         Describe an Elasticsearch template including a JSON document mappings
@@ -338,6 +344,7 @@ class TemplateFile:
         """
         self.prefix = prefix
         self.settings = settings
+        self.logger = logger
         if tool:
             self.mappings = JsonToolFile(mappings)
             self.key = tool
@@ -399,6 +406,7 @@ class TemplateFile:
             prefix=self.prefix, version=idxver, idxname=self.idxname
         )
         self.index_template = ip["template"]
+        self.logger.info("Loaded template {} version {}", self.name, self.version)
 
         # Add a standard "authorization" sub-document into the document
         # template if this document type is "owned" by a Pbench user.
@@ -478,7 +486,14 @@ class TemplateFile:
                 mtime=self.modified,
                 version=self.version,
             )
-            template.add()
+            try:
+                template.add()
+            except TemplateDuplicate:
+                # This probably means two tasks were loading templates at the
+                # same time. They'll be identical, so ignoring the error is
+                # safe; we log a warning just to record that it happened since
+                # this has caused problems.
+                self.logger.warning("Duplicate add for {}", self.name)
         else:
             template.version = self.version
             template.mappings = self.mappings.json
@@ -580,6 +595,7 @@ class PbenchTemplates:
                 prefix=idx_prefix,
                 mappings=mapping_dir / "server-reports.json",
                 settings=JsonFile(setting_dir / "server-reports.json"),
+                logger=self.logger,
             )
         )
 
@@ -590,6 +606,7 @@ class PbenchTemplates:
                     prefix=idx_prefix,
                     mappings=mapping_dir / mapping_fn,
                     settings=run_settings,
+                    logger=self.logger,
                 )
             )
 
@@ -600,6 +617,7 @@ class PbenchTemplates:
                     prefix=idx_prefix,
                     mappings=mapping_dir / mapping_fn,
                     settings=result_settings,
+                    logger=self.logger,
                 )
             )
 
@@ -611,6 +629,7 @@ class PbenchTemplates:
                     prefix=idx_prefix,
                     mappings=mapping_dir / mapping_fn,
                     settings=tool_settings,
+                    logger=self.logger,
                     skeleton=skeleton,
                     tool="tool-data",
                 )
