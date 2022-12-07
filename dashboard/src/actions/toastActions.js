@@ -25,14 +25,13 @@ export const showFailureToast = () => async (dispatch) => {
 export const showToast =
   (variant, title, message = "") =>
   (dispatch, getState) => {
-    const alerts = getState().toastReducer.alerts;
     const obj = {
       variant: variant,
       title: title,
       message: message,
       key: uid(),
     };
-    alerts.push(obj);
+    const alerts = [...getState().toastReducer.alerts, obj];
 
     dispatch({
       type: TYPES.SHOW_TOAST,

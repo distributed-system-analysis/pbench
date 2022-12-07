@@ -21,9 +21,8 @@ describe("Toast Actions", () => {
       title: "Something went wrong",
     };
     store.dispatch(ACTIONS.showFailureToast());
-    const bestMatch = (output) => {
-      return output.find((item) => item.title.includes("Something went wrong"));
-    };
+    const bestMatch = (output) =>
+      output.find((item) => item.title.includes("Something went wrong"));
 
     const givenPayload = store.getActions()[0].payload;
     const actions = bestMatch(givenPayload);
@@ -39,9 +38,8 @@ describe("Toast Actions", () => {
     };
 
     store.dispatch(ACTIONS.showToast("success", "Data updated!"));
-    const bestMatch = (output) => {
-      return output.find((item) => item.title === "Data updated!");
-    };
+    const bestMatch = (output) =>
+      output.find((item) => item.title === "Data updated!");
 
     const givenPayload = store.getActions()[0].payload;
     const actions = bestMatch(givenPayload);
@@ -56,9 +54,9 @@ describe("Toast Actions", () => {
     };
 
     store.dispatch(ACTIONS.showSessionExpired());
-    const bestMatch = (output) => {
-      return output.find((item) => item.title === "Session Expired");
-    };
+    const bestMatch = (output) =>
+      output.find((item) => item.title === "Session Expired");
+
     const givenPayload = store.getActions()[0].payload;
     const actions = bestMatch(givenPayload);
     expect(actions).toEqual(expectedOutput);
@@ -74,9 +72,9 @@ describe("Toast Actions", () => {
       },
     ];
     store.dispatch(ACTIONS.hideToast(keyToHide));
-    const bestMatch = (output) => {
-      return output.filter((item) => item.filter !== keyToHide);
-    };
+    const bestMatch = (output) =>
+      output.filter((item) => item.filter !== keyToHide);
+
     const givenPayload = store.getActions()[0].payload;
     const actions = bestMatch(givenPayload);
     expect(actions).toEqual(expect.not.arrayContaining(expected));
