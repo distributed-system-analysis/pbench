@@ -48,7 +48,11 @@ class DatasetsDelete(ElasticBulkBase):
         )
 
     def generate_actions(
-        self, params: ApiParams, dataset: Dataset, context: ApiContext, map: dict[str, list[str]]
+        self,
+        params: ApiParams,
+        dataset: Dataset,
+        context: ApiContext,
+        map: dict[str, list[str]],
     ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk delete actions driven by the

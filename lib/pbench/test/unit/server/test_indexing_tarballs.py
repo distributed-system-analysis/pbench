@@ -9,8 +9,13 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 
-from pbench.client import JSONARRAY, JSONOBJECT, JSONVALUE
-from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server import (
+    JSONARRAY,
+    JSONOBJECT,
+    JSONVALUE,
+    OperationCode,
+    PbenchServerConfig,
+)
 from pbench.server.database.models.audit import AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -286,7 +291,7 @@ class FakeAudit:
             __class__.sequence += 1
 
     def as_json(self) -> JSONOBJECT:
-        return {k: v for k, v in self.__dict__.items()}
+        return dict(self.__dict__.items())
 
     @classmethod
     def create(cls, root: Optional["FakeAudit"] = None, **kwargs) -> "FakeAudit":

@@ -602,7 +602,11 @@ class ElasticBulkBase(ApiBase):
             )
 
     def generate_actions(
-        self, params: ApiParams, dataset: Dataset, map: dict[str, list[str]]
+        self,
+        params: ApiParams,
+        dataset: Dataset,
+        context: ApiContext,
+        map: dict[str, list[str]],
     ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk operation actions driven by the
@@ -715,7 +719,9 @@ class ElasticBulkBase(ApiBase):
             report[status][index] += 1
         return BulkResults(errors=errors, count=count, report=report)
 
-    def _post(self, params: ApiParams, _) -> Response:
+    def _post(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
         """
         Perform the requested POST operation, and handle any exceptions.
 
@@ -729,7 +735,8 @@ class ElasticBulkBase(ApiBase):
 
         Args:
             params: Type-normalized client parameters
-            _: Original incoming Request object (not used)
+            request: Original incoming Request object (not used)
+            context: API context
 
         Returns:
             Response to return to client
@@ -761,7 +768,7 @@ class ElasticBulkBase(ApiBase):
             try:
                 results = helpers.streaming_bulk(
                     elastic,
-                    self.generate_actions(params, dataset, map),
+                    self.generate_actions(params, dataset, context, map),
                     raise_on_exception=False,
                     raise_on_error=False,
                 )
@@ -781,7 +788,10 @@ class ElasticBulkBase(ApiBase):
         else:
             report = BulkResults(errors=0, count=0, report={})
 
-        summary: JSONOBJECT = {"ok": report.count - report.errors, "failure": report.errors}
+        summary: JSONOBJECT = {
+            "ok": report.count - report.errors,
+            "failure": report.errors,
+        }
         auditing: dict[str, Any] = context["auditing"]
         attributes: JSONOBJECT = {"summary": summary}
         auditing["attributes"] = attributes

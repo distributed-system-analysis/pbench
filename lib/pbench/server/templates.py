@@ -2,7 +2,7 @@ from collections import Counter
 import copy
 from datetime import datetime
 import json
-import logging
+from logging import Logger
 from pathlib import Path
 import re
 import sys
@@ -17,7 +17,8 @@ from pbench.common.exceptions import (
     MappingFileError,
     TemplateError,
 )
-from pbench.server import tstos
+from pbench.server import JSONOBJECT, OperationCode, tstos
+from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.template import (
     Template,
     TemplateDuplicate,
@@ -319,7 +320,7 @@ class TemplateFile:
         prefix: str,
         mappings: Path,
         settings: JsonFile,
-        logger: logging.Logger,
+        logger: Logger,
         skeleton: Optional[JsonFile] = None,
         tool: Optional[str] = None,
     ):

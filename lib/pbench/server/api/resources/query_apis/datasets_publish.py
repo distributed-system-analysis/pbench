@@ -1,7 +1,7 @@
 from logging import Logger
 from typing import Any, Iterator
 
-from pbench.server import JSON, JSONOBJECT, OperationCode, PbenchServerConfig
+from pbench.server import JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiMethod,
@@ -13,7 +13,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
 from pbench.server.database.models.audit import AuditType
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import Dataset, Metadata
 
 
 class DatasetsPublish(ElasticBulkBase):
@@ -48,8 +48,11 @@ class DatasetsPublish(ElasticBulkBase):
         )
 
     def generate_actions(
-        
-        self, params: ApiParams, dataset: Dataset, context: ApiContext, map: dict[str, list[str]]
+        self,
+        params: ApiParams,
+        dataset: Dataset,
+        context: ApiContext,
+        map: dict[str, list[str]],
     ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk update actions driven by the
