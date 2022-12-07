@@ -755,7 +755,7 @@ class ElasticBulkBase(ApiBase):
             try:
                 results = helpers.streaming_bulk(
                     elastic,
-                    self.generate_actions(params.body, dataset, map),
+                    self.generate_actions(params, dataset, map),
                     raise_on_exception=False,
                     raise_on_error=False,
                 )
@@ -779,7 +779,7 @@ class ElasticBulkBase(ApiBase):
 
         # Let the subclass complete the operation
         try:
-            self.complete(dataset, params.body, summary)
+            self.complete(dataset, params, summary)
         except Exception as e:
             self.logger.exception(
                 "{}: exception {} occurred during bulk operation completion",

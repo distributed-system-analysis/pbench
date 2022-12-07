@@ -127,7 +127,7 @@ class TestDatasetsPublish:
         response = client.post(
             f"{server_config.rest_uri}/datasets/publish/{ds.resource_id}",
             headers=build_auth_header["header"],
-            json=self.PAYLOAD,
+            query_string=self.PAYLOAD,
         )
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
@@ -154,7 +154,7 @@ class TestDatasetsPublish:
         response = client.post(
             f"{server_config.rest_uri}/datasets/publish/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_token}"},
-            json=self.PAYLOAD,
+            query_string=self.PAYLOAD,
         )
 
         # Verify the report and status
@@ -180,7 +180,7 @@ class TestDatasetsPublish:
         response = client.post(
             f"{server_config.rest_uri}/datasets/publish/badwolf",
             headers={"authorization": f"Bearer {pbench_token}"},
-            json=self.PAYLOAD,
+            query_string=self.PAYLOAD,
         )
 
         # Verify the report and status
@@ -200,7 +200,7 @@ class TestDatasetsPublish:
         response = client.post(
             f"{server_config.rest_uri}/datasets/publish/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_token}"},
-            json=self.PAYLOAD,
+            query_string=self.PAYLOAD,
         )
 
         # Verify the report and status
@@ -238,7 +238,7 @@ class TestDatasetsPublish:
         response = client.post(
             f"{server_config.rest_uri}/datasets/publish/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_token}"},
-            json=self.PAYLOAD,
+            query_string=self.PAYLOAD,
         )
 
         # Verify the failure
