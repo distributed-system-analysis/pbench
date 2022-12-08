@@ -21,6 +21,8 @@ class DatasetsPublish(ElasticBulkBase):
     Change the "access" authorization of a Pbench dataset by modifying the
     "authorization": {"access": value} subdocument of each Elasticsearch
     document associated with the specified dataset.
+
+    Called as `POST /api/v1/datasets/publish/{resource_id}?access=public`
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
@@ -33,7 +35,7 @@ class DatasetsPublish(ElasticBulkBase):
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True)
                 ),
-                body_schema=Schema(
+                query_schema=Schema(
                     Parameter("access", ParamType.ACCESS, required=True),
                 ),
                 authorization=API_AUTHORIZATION.DATASET,
@@ -51,14 +53,14 @@ class DatasetsPublish(ElasticBulkBase):
         dataset document map.
 
         Args:
-            params: API request body parameters
+            params: API parameters
             dataset: the Dataset object
             map: Elasticsearch index document map
 
         Returns:
             A generator for Elasticsearch bulk update actions
         """
-        access = params["access"]
+        access = params.query["access"]
         self.logger.info("Starting publish operation for dataset {}", dataset)
 
         # Generate a series of bulk update documents, which will be passed to
@@ -93,5 +95,5 @@ class DatasetsPublish(ElasticBulkBase):
                 failure: count of failures
         """
         if summary["failure"] == 0:
-            dataset.access = params["access"]
+            dataset.access = params.query["access"]
             dataset.update()
