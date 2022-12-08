@@ -13,7 +13,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
 from pbench.server.database.models.audit import AuditType
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset
 
 
 class DatasetsPublish(ElasticBulkBase):
@@ -69,7 +69,6 @@ class DatasetsPublish(ElasticBulkBase):
         """
         access = params.query["access"]
         context["access"] = access
-        map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
 
         self.logger.info("Starting publish operation for dataset {}", dataset)
 
