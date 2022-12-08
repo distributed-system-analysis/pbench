@@ -26,7 +26,8 @@
 #  PB_INTERNAL_CONTAINER_REG - the FQDN of the container registry
 #  PB_SERVER_IMAGE_TAG - the tag for all three container images
 #
-# The resulting pod exposes port 8080 for the Pbench Server and Dashboard.
+# The resulting pod exposes port 8080 for the Pbench Server and Dashboard, and
+# port 8090 for the KeyCloak broker.
 #
 apiVersion: v1
 kind: Pod
@@ -82,6 +83,7 @@ spec:
     name: keycloak
     ports:
       - containerPort: 8090
+        hostPort: 8090
     workingDir: /opt/keycloak
   - args:
     - run-postgresql

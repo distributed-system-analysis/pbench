@@ -24,7 +24,8 @@
 #  PB_SERVER_IMAGE - the <registry>/<repo>/<img_name> of the Pbench Server image
 #  PB_SERVER_IMAGE_TAG - the tag for the Pbench Server image
 #
-# The resulting pod exposes port 8080 for the Pbench Server and Dashboard.
+# The resulting pod exposes port 8080 for the Pbench Server and Dashboard, and
+# port 8090 for the KeyCloak broker.
 #
 apiVersion: v1
 kind: Pod
@@ -79,6 +80,7 @@ spec:
     name: keycloak
     ports:
       - containerPort: 8090
+        hostPort: 8090
     workingDir: /opt/keycloak
   - args:
     - run-postgresql
