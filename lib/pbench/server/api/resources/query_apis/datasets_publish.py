@@ -61,8 +61,8 @@ class DatasetsPublish(ElasticBulkBase):
         Args:
             params: API parameters
             dataset: the Dataset object
-            map: Elasticsearch index document map
             context: CONTEXT to pass to complete
+            map: Elasticsearch index document map
 
         Returns:
             A generator for Elasticsearch bulk update actions
@@ -101,7 +101,6 @@ class DatasetsPublish(ElasticBulkBase):
 
         Args:
             dataset: Dataset object
-            params: API parameters
             context: CONTEXT dictionary
             summary: summary of the bulk operation
                 ok: count of successful updates

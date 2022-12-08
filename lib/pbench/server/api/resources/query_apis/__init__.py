@@ -624,6 +624,7 @@ class ElasticBulkBase(ApiBase):
         Args:
             params: Type-normalized client request body JSON
             dataset: The associated Dataset object
+            context: The operation's ApiContext
             map: Elasticsearch index document map
 
         Returns:

@@ -113,14 +113,14 @@ class FakeRow:
 
     def __eq__(self, entity) -> bool:
         """Compare this object with another for equality. The other object must
-        be either a FakeRow or a Database proxy class matching the class
-        association of the fake.
+        be either an instance of this class, or an instance of the corresponding
+        Database proxy class.
 
         Args:
             entity: A second object to compare
 
         Returns:
-            True if the two object are equal
+            True if the two objects are equal
         """
         return (type(self) is type(entity) or type(entity) is self.cls) and all(
             getattr(self, x) == getattr(entity, x) for x in self._columns()
@@ -353,7 +353,7 @@ class FakeSession:
             rolledback: Expected rollback count (usually 0 or 1)
         """
 
-        # Check the number of queries we've created, if specified
+        # Check the number of queries we've created
         assert (
             len(self.queries) == queries
         ), f"Expected {queries} queries, got {len(self.queries)}"
