@@ -196,7 +196,7 @@ def main():
     Database.init_db(server_config, logger)
 
     # Add the Pbench Server binaries to the PATH.
-    os.environ["PATH"] = ":".join([server_config.BINDIR, os.environ["PATH"]])
+    os.environ["PATH"] = ":".join([str(server_config.BINDIR), os.environ["PATH"]])
 
     crontab_f = Path(crontab_dir) / "crontab"
     if not crontab_f.exists():
