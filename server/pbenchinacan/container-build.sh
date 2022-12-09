@@ -70,7 +70,7 @@ buildah copy $container ${PBINC_SERVER}/requirements.txt /tmp
 buildah run $container dnf update -y
 buildah run $container dnf install -y --setopt=tsflags=nodocs \
         https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-buildah run $container dnf install -y /tmp/pbench-server.rpm httpd
+buildah run $container dnf install -y /tmp/pbench-server.rpm httpd less
 # FIXME:  Should we be running Pip with the --user switch under the `pbench` user?
 buildah run $container pip install -r /tmp/requirements.txt
 buildah run $container dnf clean all
@@ -80,6 +80,8 @@ buildah run $container rm -f /tmp/pbench-server.rpm /tmp/requirements.txt
 
 # Work around a problem with cron running jobs as other users in a container.
 buildah run $container bash -c "sed -i -e '/pam_loginuid/ s/^/#/' /etc/pam.d/crond"
+# Keep cron from complaining about inability to connect to systemd-logind
+buildah run $container bash -c "sed -i -e '/pam_systemd/ s/^/#/' /etc/pam.d/system-auth"
 
 # Copy the Pbench Server config file; then correct the hostname configuration.
 buildah copy --chown pbench:pbench --chmod 0644 $container \
@@ -92,9 +94,6 @@ buildah run $container sed -Ei \
     -e "s/<keycloak_secret>/${KEYCLOAK_CLIENT_SECRET}/" \
     ${CONF_PATH}
 
-buildah run $container su -l pbench \
-    -c "_PBENCH_SERVER_CONFIG=${CONF_PATH} PATH=$SERVER_BIN:$PATH pbench-server-activate-create-crontab ${SERVER_LIB}/crontab"
-
 buildah run $container mkdir -p -m 0755  \
     /srv/pbench/archive/fs-version-001 \
     /srv/pbench/public_html/incoming \
@@ -103,7 +102,6 @@ buildah run $container mkdir -p -m 0755  \
     /srv/pbench/public_html/static \
     /srv/pbench/logs \
     /srv/pbench/tmp \
-    /srv/pbench/quarantine \
     /srv/pbench/pbench-move-results-receive/fs-version-002
 buildah run $container chown --recursive pbench:pbench /srv/pbench
 
@@ -117,8 +115,6 @@ buildah run $container chown --recursive pbench:pbench /srv/pbench
 # buildah run $container semanage fcontext -a -t httpd_sys_content_t /srv/pbench/public_html/users
 # buildah run $container semanage fcontext -a -t httpd_sys_content_t /srv/pbench/public_html/static
 # buildah run $container restorecon -v -r /srv/pbench/archive /srv/pbench/public_html
-
-buildah run $container crontab -u pbench ${SERVER_LIB}/crontab/crontab
 
 sed -e "s/localhost/${HOSTNAME_F}/" ${PBINC_SERVER}/lib/config/pbench.httpd.conf >/tmp/pbench.conf.${$}
 buildah copy --chown root:root --chmod 0644 $container \

@@ -45,7 +45,7 @@ class TestPut:
         # For each dataset we find, poll the state until it reaches Indexed
         # state, or until we time out.
         start = time.time()
-        timeout = start + (60.0 * 5.0)
+        timeout = start + (60.0 * 10.0)
 
         for dataset in datasets:
             count += 1

@@ -137,6 +137,41 @@ def keycloak_connection(oidc_server: str, logger: Logger) -> int:
     return ret_val
 
 
+def generate_crontab_if_necessary(
+    crontab_dir: str, bin_dir: Path, cwd: str, logger: Logger
+) -> int:
+    """Generate and install the crontab for the Pbench Server.
+
+    If a crontab file already exists, no action is taken, otherwise a crontab
+    file is created using `pbench-create-crontab` and then installed using the
+    `crontab` command.
+
+    If either of those operations fail, the crontab file is removed.
+
+    Return 0 on success, 1 on failure.
+    """
+    ret_val = 0
+    crontab_f = Path(crontab_dir) / "crontab"
+    if not crontab_f.exists():
+        os.environ["PATH"] = ":".join([str(bin_dir), os.environ["PATH"]])
+        # Create the crontab file from the server configuration.
+        cp = subprocess.run(["pbench-create-crontab", crontab_dir], cwd=cwd)
+        if cp.returncode != 0:
+            logger.error(
+                "Failed to create crontab file from configuration: {}", cp.returncode
+            )
+            ret_val = 1
+        else:
+            # Install the created crontab file.
+            cp = subprocess.run(["crontab", f"{crontab_dir}/crontab"], cwd=cwd)
+            if cp.returncode != 0:
+                logger.error("Failed to install crontab file: {}", cp.returncode)
+                ret_val = 1
+    if ret_val != 0:
+        crontab_f.unlink(missing_ok=True)
+    return ret_val
+
+
 def main():
     """Setup of the Gunicorn Pbench Server Flask application.
 
@@ -164,6 +199,7 @@ def main():
             "internal_server_url",
             fallback=server_config.get("authentication", "server_url"),
         )
+        crontab_dir = server_config.get("pbench-server", "crontab-dir")
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Error fetching required configuration: {}", exc)
         sys.exit(1)
@@ -193,6 +229,12 @@ def main():
         create_database(db_uri)
         logger.info("Created database {}", db_uri)
     Database.init_db(server_config, logger)
+
+    ret_val = generate_crontab_if_necessary(
+        crontab_dir, server_config.BINDIR, server_config.log_dir, logger
+    )
+    if ret_val != 0:
+        sys.exit(ret_val)
 
     # Beginning of the gunicorn command to start the pbench-server.
     cmd_line = [
