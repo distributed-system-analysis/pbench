@@ -233,7 +233,7 @@ class Auth:
             Auth.logger.info("Identity provider public key fetch failed")
             identity_provider_pubkey = Auth().get_secret_key()
         try:
-            token_decode = oidc_client.token_introspect_offline(
+            token_payload = oidc_client.token_introspect_offline(
                 token=auth_token,
                 key=identity_provider_pubkey,
                 audience=oidc_client.client_id,
@@ -243,9 +243,6 @@ class Auth:
                     "verify_aud": True,
                     "verify_exp": True,
                 },
-            )
-            return InternalUser.get_internal_user(
-                client_id=oidc_client.client_id, token_payload=token_decode
             )
         except (
             jwt.ExpiredSignatureError,
@@ -259,25 +256,24 @@ class Auth:
                 auth_token,
             )
 
-        # If offline token verification results in some unexpected errors, we
-        # will perform the online token verification.
-        # Note: Online verification should NOT be performed frequently, and it
-        # is only allowed for non-public clients.
-        if not oidc_client.TOKENINFO_ENDPOINT:
-            Auth.logger.debug("Can not perform OIDC online token verification")
-            return None
-
-        try:
-            token_payload = oidc_client.token_introspect_online(
-                token=auth_token, token_info_uri=oidc_client.TOKENINFO_ENDPOINT
-            )
-            if oidc_client.client_id in token_payload.get("aud"):
-                return InternalUser.get_internal_user(
-                    client_id=oidc_client.client_id, token_payload=token_payload
-                )
-            else:
-                # If our client is not an intended audience for the token,
-                # we will not verify the token.
+            # If offline token verification results in some unexpected errors,
+            # we will perform the online token verification.
+            # Note: Online verification should NOT be performed frequently, and
+            # it is only allowed for non-public clients.
+            if not oidc_client.TOKENINFO_ENDPOINT:
+                Auth.logger.debug("Can not perform OIDC online token verification")
                 return None
-        except OpenIDClientError:
-            return None
+
+            try:
+                token_payload = oidc_client.token_introspect_online(
+                    token=auth_token, token_info_uri=oidc_client.TOKENINFO_ENDPOINT
+                )
+                if oidc_client.client_id not in token_payload.get("aud"):
+                    # If our client is not an intended audience for the token,
+                    # we will not verify the token.
+                    return None
+            except OpenIDClientError:
+                return None
+        return InternalUser.get_internal_user(
+            client_id=oidc_client.client_id, token_payload=token_payload
+        )
