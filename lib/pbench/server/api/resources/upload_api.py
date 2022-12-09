@@ -388,7 +388,9 @@ class Upload(Resource):
             try:
                 dataset.advance(States.UPLOADED)
                 Sync(self.logger, "upload").update(
-                    dataset=dataset, enabled=[Operation.BACKUP, Operation.UNPACK]
+                    dataset=dataset,
+                    enabled=[Operation.BACKUP, Operation.UNPACK],
+                    status="ok",
                 )
                 Audit.create(root=audit, status=AuditStatus.SUCCESS)
             except Exception as exc:

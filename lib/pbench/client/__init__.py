@@ -377,7 +377,7 @@ class PbenchServerClient:
                     .read()
                     .decode()
                 )
-            metadata = ConfigParser()
+            metadata = ConfigParser(interpolation=None)
             metadata.read_string(metafile)
             controller = metadata.get("run", "controller", fallback=None)
 
