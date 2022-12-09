@@ -129,4 +129,4 @@ class UnpackTarballs:
             try:
                 report.post_status(self.config.timestamp(), "status", reportfp.name)
             except Exception:
-                pass
+                self.logger.exception("{}: failure posting report", prog)
