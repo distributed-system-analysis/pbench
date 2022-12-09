@@ -67,6 +67,6 @@ class TestPut:
                     break
                 assert (
                     time.time() < timeout
-                ), f"Exceeded timeout: state {state}, status {status}"
+                ), f"Exceeded timeout: {dataset.name} state {state}, status {status}"
                 time.sleep(30.0)  # sleep for half a minute
         assert count == len(self.tarballs), "Didn't find all expected datasets"

@@ -35,6 +35,7 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
 from pbench.server.api.resources.query_apis.datasets_delete import DatasetsDelete
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
+from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
@@ -156,6 +157,12 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, logger),
     )
     api.add_resource(
+        ServerAudit,
+        f"{base_uri}/server/audit",
+        endpoint="server_audit",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
         ServerConfiguration,
         f"{base_uri}/server/configuration",
         f"{base_uri}/server/configuration/",
@@ -208,7 +215,7 @@ def create_app(server_config):
     register_endpoints(api, app, server_config)
 
     try:
-        init_db(server_config=server_config, logger=app.logger)
+        init_db(configuration=server_config, logger=app.logger)
     except Exception:
         app.logger.exception("Exception while initializing sqlalchemy database")
         sys.exit(1)

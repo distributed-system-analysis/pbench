@@ -4,6 +4,7 @@ import hashlib
 from http import HTTPStatus
 import os
 import shutil
+from typing import Optional
 
 from flask import jsonify, request
 from flask_restful import abort, Resource
@@ -12,6 +13,12 @@ import humanize
 from pbench.common.utils import Cleanup, validate_hostname
 from pbench.server.auth.auth import Auth
 from pbench.server.cache_manager import CacheManager
+from pbench.server.database.models.audit import (
+    Audit,
+    AuditReason,
+    AuditStatus,
+    OperationCode,
+)
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetDuplicate,
@@ -69,6 +76,7 @@ class Upload(Resource):
         # Used to record what steps have been completed during the upload, and
         # need to be undone on failure
         recovery = Cleanup(self.logger)
+        audit: Optional[Audit] = None
 
         try:
             try:
@@ -141,6 +149,8 @@ class Upload(Resource):
 
             tar_full_path = self.temporary / filename
             md5_full_path = self.temporary / f"{filename}.md5"
+            dataset_name = Dataset.stem(tar_full_path)
+
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
             self.logger.info(
@@ -168,7 +178,6 @@ class Upload(Resource):
                 )
                 dataset.add()
             except DatasetDuplicate:
-                dataset_name = Dataset.stem(tar_full_path)
                 self.logger.info(
                     "Dataset already exists, user = (user_id: {}, username: {}), file = {!a}",
                     user_id,
@@ -199,6 +208,14 @@ class Upload(Resource):
                     message="Unable to create dataset",
                 )
 
+            audit = Audit.create(
+                operation=OperationCode.CREATE,
+                name="upload",
+                user_id=user_id,
+                user_name=username,
+                dataset=dataset,
+                status=AuditStatus.BEGIN,
+            )
             recovery.add(dataset.delete)
 
             self.logger.info(
@@ -373,6 +390,7 @@ class Upload(Resource):
                 Sync(self.logger, "upload").update(
                     dataset=dataset, enabled=[Operation.BACKUP, Operation.UNPACK]
                 )
+                Audit.create(root=audit, status=AuditStatus.SUCCESS)
             except Exception as exc:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -401,6 +419,23 @@ class Upload(Resource):
                 status = e.status
             else:
                 self.logger.exception("Unexpected exception in outer try")
+
+            # NOTE: there are nested try blocks so we can't be 100% confident
+            # here that an audit "root" object was created. We don't audit on
+            # header validation/consistency errors caught before we decide that
+            # we have a "resource" to track. We won't try to audit failure if
+            # we didn't create the root object.
+            if audit:
+                if status == HTTPStatus.INTERNAL_SERVER_ERROR:
+                    reason = AuditReason.INTERNAL
+                else:
+                    reason = AuditReason.CONSISTENCY
+                Audit.create(
+                    root=audit,
+                    status=AuditStatus.FAILURE,
+                    reason=reason,
+                    attributes={"message": abort_msg},
+                )
             recovery.cleanup()
             abort(status, message=abort_msg)
 

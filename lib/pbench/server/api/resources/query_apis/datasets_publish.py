@@ -1,18 +1,18 @@
 from logging import Logger
-from typing import Iterator
+from typing import Any, Iterator
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
-    API_OPERATION,
+    ApiAuthorizationType,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     Parameter,
     ParamType,
     Schema,
 )
-from pbench.server.api.resources.query_apis import ElasticBulkBase
+from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
+from pbench.server.database.models.audit import AuditType
 from pbench.server.database.models.datasets import Dataset
 
 
@@ -30,15 +30,17 @@ class DatasetsPublish(ElasticBulkBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.POST,
-                API_OPERATION.UPDATE,
+                ApiMethod.POST,
+                OperationCode.UPDATE,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True)
                 ),
                 query_schema=Schema(
                     Parameter("access", ParamType.ACCESS, required=True),
                 ),
-                authorization=API_AUTHORIZATION.DATASET,
+                audit_type=AuditType.DATASET,
+                audit_name="publish",
+                authorization=ApiAuthorizationType.DATASET,
             ),
             action="update",
             require_stable=True,
@@ -46,7 +48,11 @@ class DatasetsPublish(ElasticBulkBase):
         )
 
     def generate_actions(
-        self, params: ApiParams, dataset: Dataset, map: dict[str, list[str]]
+        self,
+        params: ApiParams,
+        dataset: Dataset,
+        context: ApiContext,
+        map: dict[str, list[str]],
     ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk update actions driven by the
@@ -55,12 +61,15 @@ class DatasetsPublish(ElasticBulkBase):
         Args:
             params: API parameters
             dataset: the Dataset object
+            context: CONTEXT to pass to complete
             map: Elasticsearch index document map
 
         Returns:
             A generator for Elasticsearch bulk update actions
         """
         access = params.query["access"]
+        context["access"] = access
+
         self.logger.info("Starting publish operation for dataset {}", dataset)
 
         # Generate a series of bulk update documents, which will be passed to
@@ -79,7 +88,9 @@ class DatasetsPublish(ElasticBulkBase):
                     "doc": {"authorization": {"access": access}},
                 }
 
-    def complete(self, dataset: Dataset, params: JSON, summary: JSON) -> None:
+    def complete(
+        self, dataset: Dataset, context: ApiContext, summary: JSONOBJECT
+    ) -> None:
         """
         Complete the publish operation by updating the access of the Dataset
         object.
@@ -89,11 +100,14 @@ class DatasetsPublish(ElasticBulkBase):
 
         Args:
             dataset: Dataset object
-            params: API parameters
+            context: CONTEXT dictionary
             summary: summary of the bulk operation
                 ok: count of successful updates
                 failure: count of failures
         """
+        auditing: dict[str, Any] = context["auditing"]
+        attributes = auditing["attributes"]
+        attributes["access"] = context["access"]
         if summary["failure"] == 0:
-            dataset.access = params.query["access"]
+            dataset.access = context["access"]
             dataset.update()

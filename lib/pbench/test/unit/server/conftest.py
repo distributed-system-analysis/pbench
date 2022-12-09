@@ -159,19 +159,22 @@ def make_logger(server_config):
 
 
 @pytest.fixture()
-def db_session(server_config, make_logger):
+def db_session(request, server_config, make_logger):
     """
     Construct a temporary DB session for the test case that will reset on
     completion.
 
     NOTE: the client fixture does something similar, but without the implicit
     cleanup, and with the addition of a Flask context that non-API tests don't
-    require.
+    require. We can't let both initialize the database, or we may lose some
+    fixture setup between calls. This fixture will do nothing on load if the
+    client fixture is also selected, but we'll still remove the DB afterwards.
 
     Args:
         server_config: pbench-server.cfg fixture
     """
-    Database.init_db(server_config, make_logger)
+    if "client" not in request.fixturenames:
+        Database.init_db(server_config, None)
     yield
     Database.db_session.remove()
 

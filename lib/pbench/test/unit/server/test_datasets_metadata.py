@@ -3,7 +3,8 @@ from http import HTTPStatus
 import pytest
 import requests
 
-from pbench.server import JSON
+from pbench.server import JSON, OperationCode
+from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
@@ -429,6 +430,34 @@ class TestDatasetsMetadata:
             "global.seen": False,
             "dataset.access": "private",
         }
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].id == 1
+        assert audit[0].root_id is None
+        assert audit[0].operation == OperationCode.UPDATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "metadata"
+        assert audit[0].object_type == AuditType.DATASET
+        assert audit[0].object_id == "random_md5_string1"
+        assert audit[0].object_name == "drb"
+        assert audit[0].user_id == "3"
+        assert audit[0].user_name == "drb"
+        assert audit[0].reason is None
+        assert audit[0].attributes is None
+        assert audit[1].id == 2
+        assert audit[1].root_id == 1
+        assert audit[1].operation == OperationCode.UPDATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "metadata"
+        assert audit[1].object_type == AuditType.DATASET
+        assert audit[1].object_id == "random_md5_string1"
+        assert audit[1].object_name == "drb"
+        assert audit[1].user_id == "3"
+        assert audit[1].user_name == "drb"
+        assert audit[1].reason is None
+        assert audit[1].attributes == {
+            "updated": {"global.seen": False, "global.saved": True}
+        }
 
     def test_put_user(self, query_get_as, query_put_as):
         response = query_put_as(
@@ -438,6 +467,35 @@ class TestDatasetsMetadata:
             HTTPStatus.OK,
         )
         assert response.json == {"user.favorite": True, "user.tag": "AWS"}
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].id == 1
+        assert audit[0].root_id is None
+        assert audit[0].operation == OperationCode.UPDATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "metadata"
+        assert audit[0].object_type == AuditType.DATASET
+        assert audit[0].object_id == "random_md5_string3"
+        assert audit[0].object_name == "fio_1"
+        assert audit[0].user_id == "3"
+        assert audit[0].user_name == "drb"
+        assert audit[0].reason is None
+        assert audit[0].attributes is None
+        assert audit[1].id == 2
+        assert audit[1].root_id == 1
+        assert audit[1].operation == OperationCode.UPDATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "metadata"
+        assert audit[1].object_type == AuditType.DATASET
+        assert audit[1].object_id == "random_md5_string3"
+        assert audit[1].object_name == "fio_1"
+        assert audit[1].user_id == "3"
+        assert audit[1].user_name == "drb"
+        assert audit[1].reason is None
+        assert audit[1].attributes == {
+            "updated": {"user.favorite": True, "user.tag": "AWS"}
+        }
+
         response = query_put_as(
             "fio_1",
             {"metadata": {"user.favorite": False, "user.tag": "RHEL"}},

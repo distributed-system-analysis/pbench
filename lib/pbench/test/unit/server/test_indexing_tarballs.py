@@ -9,7 +9,14 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 
-from pbench.server import JSONARRAY, JSONOBJECT, JSONVALUE, PbenchServerConfig
+from pbench.server import (
+    JSONARRAY,
+    JSONOBJECT,
+    JSONVALUE,
+    OperationCode,
+    PbenchServerConfig,
+)
+from pbench.server.database.models.audit import AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
     Metadata,
@@ -271,6 +278,35 @@ class FakeCacheManager:
         )
 
 
+class FakeAudit:
+    BACKGROUND_USER = "test"
+    audits: list["FakeAudit"] = []
+    sequence: int = 1
+
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        if not hasattr(self, "id"):
+            self.id = self.sequence
+            __class__.sequence += 1
+
+    def as_json(self) -> JSONOBJECT:
+        return dict(self.__dict__.items())
+
+    @classmethod
+    def create(cls, root: Optional["FakeAudit"] = None, **kwargs) -> "FakeAudit":
+        obj = cls(**kwargs)
+        if root:
+            obj.root = root.id
+        cls.audits.append(obj)
+        return obj
+
+    @classmethod
+    def reset(cls):
+        cls.audits.clear()
+        cls.sequence = 1
+
+
 @pytest.fixture()
 def mocks(monkeypatch, make_logger):
     FakeDataset.logger = make_logger
@@ -281,7 +317,9 @@ def mocks(monkeypatch, make_logger):
         m.setattr("pbench.server.indexing_tarballs.Dataset", FakeDataset)
         m.setattr("pbench.server.indexing_tarballs.Metadata", FakeMetadata)
         m.setattr("pbench.server.indexing_tarballs.CacheManager", FakeCacheManager)
+        m.setattr("pbench.server.indexing_tarballs.Audit", FakeAudit)
         yield m
+    FakeAudit.reset()
     FakeDataset.reset()
     FakeMetadata.reset()
     FakePbenchTemplates.reset()
@@ -510,4 +548,24 @@ class TestIndexingTarballs:
         assert index_actions == [
             [{"action": "make_all_actions", "name": f"{ds2.name}.tar.xz"}],
             [{"action": "make_all_actions", "name": f"{ds1.name}.tar.xz"}],
+        ]
+        assert [a.as_json() for a in FakeAudit.audits] == [
+            {
+                "dataset": ds2,
+                "id": 1,
+                "name": "index",
+                "operation": OperationCode.UPDATE,
+                "status": AuditStatus.BEGIN,
+                "user_name": "test",
+            },
+            {"attributes": None, "id": 2, "root": 1, "status": AuditStatus.SUCCESS},
+            {
+                "dataset": ds1,
+                "id": 3,
+                "name": "index",
+                "operation": OperationCode.UPDATE,
+                "status": AuditStatus.BEGIN,
+                "user_name": "test",
+            },
+            {"attributes": None, "id": 4, "root": 3, "status": AuditStatus.SUCCESS},
         ]

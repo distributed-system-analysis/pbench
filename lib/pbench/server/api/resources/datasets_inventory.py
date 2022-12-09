@@ -1,16 +1,17 @@
 from http import HTTPStatus
 from logging import Logger
+from urllib.request import Request
 
 from flask import send_file
 from flask.wrappers import Response
 
-from pbench.server import PbenchServerConfig
+from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
-    API_OPERATION,
     APIAbort,
+    ApiAuthorizationType,
     ApiBase,
+    ApiContext,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     Parameter,
@@ -30,22 +31,26 @@ class DatasetsInventory(ApiBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.GET,
-                API_OPERATION.READ,
+                ApiMethod.GET,
+                OperationCode.READ,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True),
                     Parameter("target", ParamType.STRING, required=False),
                 ),
-                authorization=API_AUTHORIZATION.DATASET,
+                authorization=ApiAuthorizationType.DATASET,
             ),
         )
 
-    def _get(self, params: ApiParams, _) -> Response:
+    def _get(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
         """
         This function returns the contents of the requested file as a byte stream.
 
         Args:
-            ApiParams includes the uri parameters, which provide the dataset and target.
+            params: includes the uri parameters, which provide the dataset and target.
+            request: Original incoming Request object
+            context: API context dictionary
 
         Raises:
             APIAbort, reporting either "NOT_FOUND" or "UNSUPPORTED_MEDIA_TYPE"

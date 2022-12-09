@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from logging import ERROR
 from typing import Iterator
 
 import elasticsearch
@@ -138,7 +137,6 @@ class TestDatasetsPublish:
     def test_partial(
         self,
         attach_dataset,
-        caplog,
         client,
         get_document_map,
         monkeypatch,
@@ -160,11 +158,6 @@ class TestDatasetsPublish:
         # Verify the report and status
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
         assert response.json["message"] == "Failed to update 3 out of 31 documents"
-        assert (
-            "pbench.server.api",
-            ERROR,
-            'DatasetsPublish:dataset (3)|drb: 28 successful document actions and 3 failures: {"Just kidding": {"unit-test.v6.run-data.2021-06": 1, "unit-test.v6.run-toc.2021-06": 1, "unit-test.v5.result-data-sample.2021-06": 1}, "ok": {"unit-test.v6.run-toc.2021-06": 9, "unit-test.v5.result-data-sample.2021-06": 19}}',
-        ) in caplog.record_tuples
 
         # Verify that the Dataset access didn't change
         dataset = Dataset.query(name="drb")

@@ -113,14 +113,20 @@ class Sync:
             if did:
                 operations.discard(did.name)
 
-                # If we "did" something, the default message is "ok"
-                if not message:
-                    message = "ok"
+        # If we "did" something, the default message is "ok"
+        if did and not message:
+            message = "ok"
 
         if enabled:
             operations.update(o.name for o in enabled)
 
         try:
+            self.logger.info(
+                "Did {}, enabling {} with message {!r}",
+                did.name if did else "nothing",
+                [e.name for e in enabled] if enabled else "none",
+                message,
+            )
             Metadata.setvalue(dataset, Metadata.OPERATION, sorted(operations))
             if message:
                 Metadata.setvalue(dataset, "server.status." + self.component, message)

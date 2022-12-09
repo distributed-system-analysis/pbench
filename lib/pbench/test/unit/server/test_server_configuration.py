@@ -4,8 +4,10 @@ import logging
 import pytest
 import requests
 
+from pbench.server import OperationCode
 from pbench.server.api.resources import APIAbort, ApiParams
 from pbench.server.api.resources.server_configuration import ServerConfiguration
+from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 
 
 class TestServerConfiguration:
@@ -91,7 +93,7 @@ class TestServerConfiguration:
         """
         put = ServerConfiguration(server_config, logging.getLogger("test"))
         with pytest.raises(APIAbort, match=r"Found URI parameters \['foo', 'plugh'\]"):
-            put._put_key(ApiParams(uri={"plugh": "xyzzy", "foo": "bar"}))
+            put._put_key(ApiParams(uri={"plugh": "xyzzy", "foo": "bar"}), context=None)
 
     def test_put_missing_value(self, query_put):
         """
@@ -154,10 +156,42 @@ class TestServerConfiguration:
     def test_put_param(self, query_put):
         response = query_put(key="dataset-lifetime", query_string={"value": "2"})
         assert response.json == {"dataset-lifetime": "2"}
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].operation == OperationCode.UPDATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "config"
+        assert audit[0].object_type == AuditType.CONFIG
+        assert audit[0].object_name is None
+        assert audit[0].object_id is None
+        assert audit[0].attributes is None
+        assert audit[1].operation == OperationCode.UPDATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "config"
+        assert audit[1].object_type == AuditType.CONFIG
+        assert audit[1].object_name is None
+        assert audit[1].object_id is None
+        assert audit[1].attributes["updated"] == {"dataset-lifetime": "2"}
 
     def test_put_value(self, query_put):
         response = query_put(key="dataset-lifetime", json={"value": "2"})
         assert response.json == {"dataset-lifetime": "2"}
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].operation == OperationCode.UPDATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "config"
+        assert audit[0].object_type == AuditType.CONFIG
+        assert audit[0].object_name is None
+        assert audit[0].object_id is None
+        assert audit[0].attributes is None
+        assert audit[1].operation == OperationCode.UPDATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "config"
+        assert audit[1].object_type == AuditType.CONFIG
+        assert audit[1].object_name is None
+        assert audit[1].object_id is None
+        assert audit[1].attributes["updated"] == {"dataset-lifetime": "2"}
 
     def test_put_value_unauth(self, query_put):
         response = query_put(
@@ -198,6 +232,25 @@ class TestServerConfiguration:
             "dataset-lifetime": "2",
             "server-state": {"status": "enabled"},
             "server-banner": None,
+        }
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].operation == OperationCode.UPDATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "config"
+        assert audit[0].object_type == AuditType.CONFIG
+        assert audit[0].object_name is None
+        assert audit[0].object_id is None
+        assert audit[0].attributes is None
+        assert audit[1].operation == OperationCode.UPDATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "config"
+        assert audit[1].object_type == AuditType.CONFIG
+        assert audit[1].object_name is None
+        assert audit[1].object_id is None
+        assert audit[1].attributes["updated"] == {
+            "dataset-lifetime": "2",
+            "server-state": {"status": "enabled"},
         }
 
     def test_disable_api(self, server_config, client, query_put, create_drb_user):

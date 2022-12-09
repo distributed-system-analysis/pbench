@@ -6,8 +6,14 @@ from typing import Any
 
 import pytest
 
-from pbench.server import PbenchServerConfig
+from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.cache_manager import CacheManager
+from pbench.server.database.models.audit import (
+    Audit,
+    AuditReason,
+    AuditStatus,
+    AuditType,
+)
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
@@ -319,16 +325,10 @@ class TestUpload:
         assert not Path(str(self.cachemanager_create_path) + ".md5").exists()
 
     @pytest.mark.freeze_time("1970-01-01")
-    def test_upload(
-        self,
-        caplog,
-        freezer,
-        client,
-        server_config,
-        setup_ctrl,
-        pbench_token,
-        tarball,
-    ):
+    def test_upload(self, client, pbench_token, server_config, setup_ctrl, tarball):
+        """Test a successful dataset upload and validate the metadata and audit
+        information.
+        """
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -338,11 +338,12 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
+        name = Dataset.stem(datafile)
 
         dataset = Dataset.query(resource_id=md5)
         assert dataset is not None
         assert dataset.resource_id == md5
-        assert dataset.name == datafile.name[:-7]
+        assert dataset.name == name
         assert dataset.state == States.UPLOADED
         assert dataset.created.isoformat() == "2002-05-16T00:00:00+00:00"
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
@@ -352,8 +353,32 @@ class TestUpload:
         assert self.cachemanager_created
         assert dataset.name in self.cachemanager_created
 
-        for record in caplog.records:
-            assert record.levelname in ["DEBUG", "INFO"]
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].id == 1
+        assert audit[0].root_id is None
+        assert audit[0].operation == OperationCode.CREATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "upload"
+        assert audit[0].object_type == AuditType.DATASET
+        assert audit[0].object_id == md5
+        assert audit[0].object_name == name
+        assert audit[0].user_id == "3"
+        assert audit[0].user_name == "drb"
+        assert audit[0].reason is None
+        assert audit[0].attributes is None
+        assert audit[1].id == 2
+        assert audit[1].root_id == 1
+        assert audit[1].operation == OperationCode.CREATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "upload"
+        assert audit[1].object_type == AuditType.DATASET
+        assert audit[1].object_id == md5
+        assert audit[1].object_name == name
+        assert audit[1].user_id == "3"
+        assert audit[1].user_name == "drb"
+        assert audit[1].reason is None
+        assert audit[1].attributes is None
 
     def test_upload_duplicate(
         self,
@@ -387,9 +412,6 @@ class TestUpload:
         assert response.status_code == HTTPStatus.OK, repr(response)
         assert response.json.get("message") == "Dataset already exists"
 
-        for record in caplog.records:
-            assert record.levelname in ["DEBUG", "INFO", "WARNING"]
-
         # We didn't get far enough to create a CacheManager
         assert TestUpload.cachemanager_created is None
 
@@ -422,6 +444,7 @@ class TestUpload:
             )
 
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+        name = Dataset.stem(datafile)
 
         with pytest.raises(DatasetNotFound):
             Dataset.query(resource_id=md5)
@@ -430,3 +453,30 @@ class TestUpload:
         assert not self.cachemanager_create_path.exists()
         assert not Path(str(self.cachemanager_create_path) + ".md5").exists()
         assert self.tarball_deleted == Dataset.stem(datafile)
+
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].id == 1
+        assert audit[0].root_id is None
+        assert audit[0].operation == OperationCode.CREATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "upload"
+        assert audit[0].object_type == AuditType.DATASET
+        assert audit[0].object_id == md5
+        assert audit[0].object_name == name
+        assert audit[0].user_id == "3"
+        assert audit[0].user_name == "drb"
+        assert audit[0].reason is None
+        assert audit[0].attributes is None
+        assert audit[1].id == 2
+        assert audit[1].root_id == 1
+        assert audit[1].operation == OperationCode.CREATE
+        assert audit[1].status == AuditStatus.FAILURE
+        assert audit[1].name == "upload"
+        assert audit[1].object_type == AuditType.DATASET
+        assert audit[1].object_id == md5
+        assert audit[1].object_name == name
+        assert audit[1].user_id == "3"
+        assert audit[1].user_name == "drb"
+        assert audit[1].reason == AuditReason.INTERNAL
+        assert audit[1].attributes == {"message": "INTERNAL ERROR"}

@@ -4,13 +4,13 @@ from logging import Logger
 from flask import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import PbenchServerConfig
+from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
-    API_OPERATION,
     APIAbort,
+    ApiAuthorizationType,
     ApiBase,
+    ApiContext,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     Parameter,
@@ -73,8 +73,8 @@ class DatasetsMappings(ApiBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.GET,
-                API_OPERATION.READ,
+                ApiMethod.GET,
+                OperationCode.READ,
                 uri_schema=Schema(
                     Parameter(
                         "dataset_view",
@@ -83,11 +83,13 @@ class DatasetsMappings(ApiBase):
                         keywords=list(IndexMapBase.ES_INTERNAL_INDEX_NAMES.keys()),
                     )
                 ),
-                authorization=API_AUTHORIZATION.NONE,
+                authorization=ApiAuthorizationType.NONE,
             ),
         )
 
-    def _get(self, params: ApiParams, request: Request) -> Response:
+    def _get(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
         """
         Return mapping properties of the document specified by the dataset view
         specified in the URI parameter (supported dataset views are defined in

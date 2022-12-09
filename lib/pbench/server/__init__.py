@@ -4,6 +4,7 @@ Simple module level convenience functions.
 
 from configparser import NoOptionError, NoSectionError
 from datetime import datetime, timedelta, tzinfo
+from enum import auto, Enum
 from pathlib import Path
 from time import time as _time
 from typing import Dict, List, Union
@@ -19,6 +20,22 @@ JSONVALUE = Union["JSONOBJECT", "JSONARRAY", JSONSTRING, JSONNUMBER, bool, None]
 JSONARRAY = List[JSONVALUE]
 JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
 JSON = JSONVALUE
+
+
+class OperationCode(Enum):
+    """
+    The standard CRUD REST API operations:
+
+        CREATE: Instantiate a new resource
+        READ:   Retrieve the state of a resource
+        UPDATE: Modify the state of a resource
+        DELETE: Remove a resource
+    """
+
+    CREATE = auto()
+    READ = auto()
+    UPDATE = auto()
+    DELETE = auto()
 
 
 class simple_utc(tzinfo):

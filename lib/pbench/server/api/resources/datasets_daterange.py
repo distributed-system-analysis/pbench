@@ -4,12 +4,12 @@ from flask.json import jsonify
 from flask.wrappers import Request, Response
 from sqlalchemy import func
 
-from pbench.server import PbenchServerConfig
+from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
-    API_OPERATION,
+    ApiAuthorizationType,
     ApiBase,
+    ApiContext,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     Parameter,
@@ -30,17 +30,19 @@ class DatasetsDateRange(ApiBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.GET,
-                API_OPERATION.READ,
+                ApiMethod.GET,
+                OperationCode.READ,
                 query_schema=Schema(
                     Parameter("owner", ParamType.USER, required=False),
                     Parameter("access", ParamType.ACCESS, required=False),
                 ),
-                authorization=API_AUTHORIZATION.USER_ACCESS,
+                authorization=ApiAuthorizationType.USER_ACCESS,
             ),
         )
 
-    def _get(self, params: ApiParams, request: Request) -> Response:
+    def _get(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
         """
         Get the date range for which datasets are available to the client based
         on authentication plus optional dataset owner and access criteria.
@@ -48,6 +50,7 @@ class DatasetsDateRange(ApiBase):
         Args:
             json_data: Ignored because GET has no JSON payload
             request: The original Request object containing query parameters
+            context: API context dictionary
 
         GET /api/v1/datasets/daterange?owner=user&access=public
         """

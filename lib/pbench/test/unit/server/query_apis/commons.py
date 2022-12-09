@@ -9,7 +9,7 @@ import pytest
 import requests
 
 from pbench.server import JSON
-from pbench.server.api.resources import API_METHOD, ApiParams, ParamType, SchemaError
+from pbench.server.api.resources import ApiMethod, ApiParams, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.test.unit.server.headertypes import HeaderTypes
@@ -55,12 +55,12 @@ class Commons:
         self.error_payload = error_payload
         self.empty_es_response_payload = empty_es_response_payload
         self.index_from_metadata = index_from_metadata
-        if API_METHOD.GET in self.cls_obj.schemas:
-            self.api_method = API_METHOD.GET
-        elif API_METHOD.POST in self.cls_obj.schemas:
-            self.api_method = API_METHOD.POST
+        if ApiMethod.GET in self.cls_obj.schemas:
+            self.api_method = ApiMethod.GET
+        elif ApiMethod.POST in self.cls_obj.schemas:
+            self.api_method = ApiMethod.POST
         else:
-            assert False, "api_method is neither API_METHOD.GET nor API_METHOD.POST"
+            assert False, "api_method is neither ApiMethod.GET nor ApiMethod.POST"
 
     def build_index(self, server_config, dates):
         """
@@ -138,8 +138,8 @@ class Commons:
     def make_request_call(
         self, client, url, header: JSON, json: JSON = None, data=None
     ):
-        assert self.api_method in (API_METHOD.GET, API_METHOD.POST)
-        if self.api_method == API_METHOD.GET:
+        assert self.api_method in (ApiMethod.GET, ApiMethod.POST)
+        if self.api_method == ApiMethod.GET:
             assert json is None
             assert data is None
             func = client.get
@@ -247,7 +247,7 @@ class Commons:
         """
         Test behavior when payload is not valid JSON
         """
-        if self.api_method != API_METHOD.POST:
+        if self.api_method != ApiMethod.POST:
             pytest.skip("skipping " + self.test_malformed_payload.__name__)
         response = self.make_request_call(
             client,
@@ -286,7 +286,7 @@ class Commons:
                 == f"Missing required parameters: {','.join(missing)}"
             )
 
-        if self.api_method != API_METHOD.POST:
+        if self.api_method != ApiMethod.POST:
             pytest.skip("skipping " + self.test_missing_keys.__name__)
         parameter_items = self.cls_obj.schemas[
             self.api_method
@@ -324,7 +324,7 @@ class Commons:
         """
         Test behavior when a bad date string is given
         """
-        if self.api_method != API_METHOD.POST:
+        if self.api_method != ApiMethod.POST:
             pytest.skip("skipping " + self.test_bad_dates.__name__)
 
         parameter_items = self.cls_obj.schemas[

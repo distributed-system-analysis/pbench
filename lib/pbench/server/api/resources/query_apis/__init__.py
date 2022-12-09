@@ -2,11 +2,11 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from http import HTTPStatus
-import json
 from logging import Logger
 import re
-from typing import Any, Callable, Dict, Iterator, List, Optional
+from typing import Any, Callable, Iterator, List, Optional
 from urllib.parse import urljoin
+from urllib.request import Request
 
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
@@ -15,12 +15,13 @@ from flask import jsonify
 from flask.wrappers import Response
 import requests
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
     APIAbort,
+    ApiAuthorizationType,
     ApiBase,
+    ApiContext,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     ParamType,
@@ -28,13 +29,10 @@ from pbench.server.api.resources import (
     UnauthorizedAccess,
 )
 from pbench.server.auth.auth import Auth
+from pbench.server.database.models.audit import AuditReason, AuditStatus
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
-
-# A type defined to allow the preprocess subclass method to provide shared
-# context with the assemble and postprocess methods.
-CONTEXT = Dict[str, Any]
 
 
 class MissingBulkSchemaParameters(SchemaError):
@@ -304,34 +302,25 @@ class ElasticBase(ApiBase):
             )
         return indices
 
-    def preprocess(self, params: ApiParams) -> CONTEXT:
+    def preprocess(self, params: ApiParams, context: ApiContext) -> None:
         """
         Given the client Request payload, perform any preprocessing activities
         necessary prior to constructing an Elasticsearch query.
 
-        The base class assumes no preprocessing is necessary, and returns an
-        empty dictionary to indicate that the Elasticsearch operation should
-        continue; this can be overridden by subclasses as necessary.
-
-        The value returned here (if not None) will be passed to the "assemble"
-        and "postprocess" methods to provide shared context across the set of
-        operations. Note that "assemble" can modify the CONTEXT dict to pass
-        additional context to "postprocess" if necessary.
+        The base class assumes no preprocessing is necessary; this can be
+        overridden by subclasses as necessary.
 
         Args:
             params: Type-normalized client parameters
+            context: API context dictionary
 
         Raises:
             Any errors in the postprocess method shall be reported by
             exceptions which will be logged and will terminate the operation.
-
-        Returns:
-            None if Elasticsearch query shouldn't proceed, or a CONTEXT dict to
-            provide shared context for the assemble and postprocess methods.
         """
-        return {}
+        pass
 
-    def assemble(self, params: ApiParams, context: CONTEXT) -> JSON:
+    def assemble(self, params: ApiParams, context: ApiContext) -> JSON:
         """
         Assemble the Elasticsearch parameters.
 
@@ -339,7 +328,7 @@ class ElasticBase(ApiBase):
 
         Args:
             params: Type-normalized client parameters
-            context: CONTEXT dict returned by preprocess method
+            context: API context dictionary
 
         Raises:
             Any errors in the assemble method shall be reported by exceptions
@@ -356,7 +345,7 @@ class ElasticBase(ApiBase):
         """
         raise NotImplementedError()
 
-    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
+    def postprocess(self, es_json: JSON, context: ApiContext) -> JSON:
         """
         Given the Elasticsearch Response object, construct a JSON document to
         be returned to the original caller.
@@ -365,7 +354,7 @@ class ElasticBase(ApiBase):
 
         Args:
             es_json: Elasticsearch Response payload
-            context: CONTEXT value returned by preprocess method
+            context: context: API context dictionary
 
         Raises:
             Any errors in the postprocess method shall be reported by
@@ -376,23 +365,22 @@ class ElasticBase(ApiBase):
         """
         raise NotImplementedError()
 
-    def _call(self, method: Callable, params: ApiParams):
+    def _call(self, method: Callable, params: ApiParams, context: ApiContext):
         """
         Perform the requested call to Elasticsearch, and handle any exceptions.
 
         Args:
             method: requests package callable (e.g., requests.get)
             params: Type-normalized client parameters
+            context: API context dictionary
 
         Returns:
             Postprocessed JSON body to return to client
         """
         klasname = self.__class__.__name__
         try:
-            context = self.preprocess(params)
+            self.preprocess(params, context)
             self.logger.debug("PREPROCESS returns {}", context)
-            if context is None:
-                return "", HTTPStatus.NO_CONTENT
         except UnauthorizedAccess as e:
             self.logger.warning("{}", e)
             raise APIAbort(e.http_status, str(e))
@@ -483,7 +471,9 @@ class ElasticBase(ApiBase):
             )
             raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    def _post(self, params: ApiParams, _) -> Response:
+    def _post(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
         """
         Handle a Pbench server POST operation that will involve a call to the
         server's configured Elasticsearch instance. The assembly and
@@ -491,16 +481,30 @@ class ElasticBase(ApiBase):
         subclasses through the assemble() and postprocess() methods;
         we rely on the ApiBase superclass to provide basic JSON parameter
         validation and normalization.
-        """
-        return self._call(requests.post, params)
 
-    def _get(self, params: ApiParams, _) -> Response:
+        Args:
+            method: The API HTTP method
+            request: The flask Request object containing payload and headers
+            uri_params: URI encoded keyword-arg supplied by the Flask
+                framework
+        """
+        return self._call(requests.post, params, context)
+
+    def _get(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
         """
         Handle a GET operation involving a call to the server's Elasticsearch
         instance. The post-processing of the Elasticsearch query is handled
         the subclasses through their postprocess() methods.
+
+        Args:
+            method: The API HTTP method
+            request: The flask Request object containing payload and headers
+            uri_params: URI encoded keyword-arg supplied by the Flask
+                framework
         """
-        return self._call(requests.get, params)
+        return self._call(requests.get, params, context)
 
 
 @dataclass
@@ -584,7 +588,7 @@ class ElasticBulkBase(ApiBase):
         if not schemas:
             raise MissingBulkSchemaParameters(api_name, "no schema provided")
         dset = self.schemas.get_param_by_type(
-            API_METHOD.POST,
+            ApiMethod.POST,
             ParamType.DATASET,
             ApiParams(),
         )
@@ -592,13 +596,17 @@ class ElasticBulkBase(ApiBase):
             raise MissingBulkSchemaParameters(
                 api_name, "dataset parameter is not defined or not required"
             )
-        if self.schemas[API_METHOD.POST].authorization != API_AUTHORIZATION.DATASET:
+        if self.schemas[ApiMethod.POST].authorization != ApiAuthorizationType.DATASET:
             raise MissingBulkSchemaParameters(
                 api_name, "schema authorization is not by dataset"
             )
 
     def generate_actions(
-        self, params: ApiParams, dataset: Dataset, map: dict[str, list[str]]
+        self,
+        params: ApiParams,
+        dataset: Dataset,
+        context: ApiContext,
+        map: dict[str, list[str]],
     ) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk operation actions driven by the
@@ -614,8 +622,9 @@ class ElasticBulkBase(ApiBase):
         This is an abstract method that must be implemented by a subclass.
 
         Args:
-            params: Type-normalized client parameters
+            params: Type-normalized client request body JSON
             dataset: The associated Dataset object
+            context: The operation's ApiContext
             map: Elasticsearch index document map
 
         Returns:
@@ -623,7 +632,9 @@ class ElasticBulkBase(ApiBase):
         """
         raise NotImplementedError()
 
-    def complete(self, dataset: Dataset, params: ApiParams, summary: JSON) -> None:
+    def complete(
+        self, dataset: Dataset, context: ApiContext, summary: JSONOBJECT
+    ) -> None:
         """
         Complete a bulk Elasticsearch operation, perhaps by modifying the
         source Dataset resource.
@@ -633,7 +644,7 @@ class ElasticBulkBase(ApiBase):
 
         Args:
             dataset: The associated Dataset object.
-            params: Type-normalized client parameters
+            context: The operation's ApiContext
             summary: The summary document of the operation:
                 ok      Count of successful actions
                 failure Count of failing actions
@@ -709,7 +720,9 @@ class ElasticBulkBase(ApiBase):
             report[status][index] += 1
         return BulkResults(errors=errors, count=count, report=report)
 
-    def _post(self, params: ApiParams, _) -> Response:
+    def _post(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
         """
         Perform the requested POST operation, and handle any exceptions.
 
@@ -723,7 +736,8 @@ class ElasticBulkBase(ApiBase):
 
         Args:
             params: Type-normalized client parameters
-            _: Original incoming Request object (not used)
+            request: Original incoming Request object (not used)
+            context: API context
 
         Returns:
             Response to return to client
@@ -733,7 +747,7 @@ class ElasticBulkBase(ApiBase):
         # Our schema requires a valid dataset and uses it to authorize access;
         # therefore the unconditional dereference is assumed safe.
         dataset = self.schemas.get_param_by_type(
-            API_METHOD.POST, ParamType.DATASET, params
+            ApiMethod.POST, ParamType.DATASET, params
         ).value
 
         if self.require_stable and dataset.state.mutating:
@@ -755,7 +769,7 @@ class ElasticBulkBase(ApiBase):
             try:
                 results = helpers.streaming_bulk(
                     elastic,
-                    self.generate_actions(params, dataset, map),
+                    self.generate_actions(params, dataset, context, map),
                     raise_on_exception=False,
                     raise_on_error=False,
                 )
@@ -775,12 +789,21 @@ class ElasticBulkBase(ApiBase):
         else:
             report = BulkResults(errors=0, count=0, report={})
 
-        summary = {"ok": report.count - report.errors, "failure": report.errors}
+        summary: JSONOBJECT = {
+            "ok": report.count - report.errors,
+            "failure": report.errors,
+        }
+        auditing: dict[str, Any] = context["auditing"]
+        attributes: JSONOBJECT = {"summary": summary}
+        auditing["attributes"] = attributes
 
         # Let the subclass complete the operation
         try:
-            self.complete(dataset, params, summary)
+            self.complete(dataset, context, summary)
         except Exception as e:
+            attributes["message"] = str(e)
+            auditing["status"] = AuditStatus.WARNING
+            auditing["reason"] = AuditReason.INTERNAL
             self.logger.exception(
                 "{}: exception {} occurred during bulk operation completion",
                 klasname,
@@ -797,14 +820,9 @@ class ElasticBulkBase(ApiBase):
         # non-terminal errors, but this requires some cleanup work on the
         # pyesbulk side.
         if report.errors > 0:
-            self.logger.error(
-                "{}:dataset {}: {} successful document actions and {} failures: {}",
-                klasname,
-                dataset,
-                report.count - report.errors,
-                report.errors,
-                json.dumps(report.report),
-            )
+            auditing["status"] = AuditStatus.WARNING
+            auditing["reason"] = AuditReason.INTERNAL
+            attributes["message"] = f"Unable to {self.action} some indexed documents"
             raise APIAbort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
                 f"Failed to update {report.errors} out of {report.count} documents",

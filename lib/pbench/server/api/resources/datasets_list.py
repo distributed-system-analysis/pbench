@@ -6,12 +6,12 @@ from flask.json import jsonify
 from flask.wrappers import Request, Response
 from sqlalchemy.orm import Query
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSON, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
-    API_OPERATION,
+    ApiAuthorizationType,
     ApiBase,
+    ApiContext,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     Parameter,
@@ -30,8 +30,8 @@ class DatasetsList(ApiBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.GET,
-                API_OPERATION.READ,
+                ApiMethod.GET,
+                OperationCode.READ,
                 query_schema=Schema(
                     Parameter("name", ParamType.STRING),
                     Parameter("owner", ParamType.USER),
@@ -49,7 +49,7 @@ class DatasetsList(ApiBase):
                         string_list=",",
                     ),
                 ),
-                authorization=API_AUTHORIZATION.USER_ACCESS,
+                authorization=ApiAuthorizationType.USER_ACCESS,
             ),
         )
 
@@ -101,7 +101,9 @@ class DatasetsList(ApiBase):
         paginated_result["total"] = total_count
         return items, paginated_result
 
-    def _get(self, params: ApiParams, request: Request) -> Response:
+    def _get(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
         """
         Get a list of datasets matching a set of criteria.
 
@@ -111,6 +113,7 @@ class DatasetsList(ApiBase):
         Args:
             params: API parameters
             request: The original Request object
+            context: API context dictionary
 
         GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen,server.deletion
         """

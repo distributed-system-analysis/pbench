@@ -4,14 +4,14 @@ from logging import Logger
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import PbenchServerConfig
+from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    API_AUTHORIZATION,
-    API_METHOD,
-    API_OPERATION,
     APIAbort,
     ApiAuthorization,
+    ApiAuthorizationType,
     ApiBase,
+    ApiContext,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     Parameter,
@@ -19,6 +19,7 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.auth.auth import Auth
+from pbench.server.database.models.audit import AuditType
 from pbench.server.database.models.datasets import (
     Metadata,
     MetadataBadValue,
@@ -36,8 +37,8 @@ class DatasetsMetadata(ApiBase):
             config,
             logger,
             ApiSchema(
-                API_METHOD.PUT,
-                API_OPERATION.UPDATE,
+                ApiMethod.PUT,
+                OperationCode.UPDATE,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True)
                 ),
@@ -50,11 +51,13 @@ class DatasetsMetadata(ApiBase):
                         key_path=True,
                     )
                 ),
-                authorization=API_AUTHORIZATION.NONE,
+                audit_type=AuditType.DATASET,
+                audit_name="metadata",
+                authorization=ApiAuthorizationType.NONE,
             ),
             ApiSchema(
-                API_METHOD.GET,
-                API_OPERATION.READ,
+                ApiMethod.GET,
+                OperationCode.READ,
                 uri_schema=Schema(
                     Parameter("dataset", ParamType.DATASET, required=True)
                 ),
@@ -68,17 +71,20 @@ class DatasetsMetadata(ApiBase):
                         string_list=",",
                     )
                 ),
-                authorization=API_AUTHORIZATION.DATASET,
+                authorization=ApiAuthorizationType.DATASET,
             ),
         )
 
-    def _get(self, params: ApiParams, request: Request) -> Response:
+    def _get(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
         """
         Get the values of client-accessible dataset metadata keys.
 
         Args:
             params: API parameters
             request: The original Request object containing query parameters
+            context: API context dictionary
 
         GET /api/v1/datasets/metadata?name=dname&metadata=global.seen,server.deletion
         """
@@ -93,9 +99,16 @@ class DatasetsMetadata(ApiBase):
 
         return jsonify(metadata)
 
-    def _put(self, params: ApiParams, _) -> Response:
+    def _put(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
         """
         Set or modify the values of client-accessible dataset metadata keys.
+
+        Args:
+            params: API parameters
+            request: The original Request object containing query parameters
+            context: API context dictionary
 
         PUT /api/v1/datasets/metadata
         {
@@ -123,6 +136,8 @@ class DatasetsMetadata(ApiBase):
         dataset = params.uri["dataset"]
         metadata = params.body["metadata"]
 
+        context["auditing"]["attributes"] = {"updated": metadata}
+
         # Validate the authenticated user's authorization for the combination
         # of "owner" and "access".
         #
@@ -140,16 +155,16 @@ class DatasetsMetadata(ApiBase):
         # * We want to validate authorized users for UPDATE if they're trying
         #   to set anything other than a "user." key because only the owner can
         #   do that...
-        role = API_OPERATION.READ
+        role = OperationCode.READ
         if not Auth.token_auth.current_user():
-            role = API_OPERATION.UPDATE
+            role = OperationCode.UPDATE
         else:
             for k in metadata.keys():
                 if Metadata.get_native_key(k) != Metadata.USER:
-                    role = API_OPERATION.UPDATE
+                    role = OperationCode.UPDATE
         self._check_authorization(
             ApiAuthorization(
-                API_AUTHORIZATION.USER_ACCESS,
+                ApiAuthorizationType.USER_ACCESS,
                 role,
                 str(dataset.owner_id),
                 dataset.access,

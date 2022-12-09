@@ -235,7 +235,7 @@ class Login(Resource):
             # TODO: Decide on the auth token limit per user
             user.update(auth_tokens=token)
 
-            self.logger.info("New auth token registered for user {}", user.email)
+            self.logger.info("New auth token registered for user {}", user.username)
         except IntegrityError:
             self.logger.warning(
                 "Duplicate auth token got created, user might have tried to re-login immediately"
