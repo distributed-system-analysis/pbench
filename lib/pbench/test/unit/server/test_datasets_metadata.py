@@ -4,6 +4,7 @@ import pytest
 import requests
 
 from pbench.server import JSON
+from pbench.server.database.models.audit import Audit
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
@@ -429,7 +430,6 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "drb",
             HTTPStatus.INTERNAL_SERVER_ERROR,
         )
-        capinternal("Error setting metadata keys", response)
         response = query_get_as(
             "foo", {"metadata": "global,dataset.name"}, "drb", HTTPStatus.OK
         )
@@ -448,7 +448,10 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "drb",
             HTTPStatus.OK,
         )
-        assert response.json == {"global.saved": True, "global.seen": False}
+        assert response.json == {
+            "metadata": {"global.saved": True, "global.seen": False},
+            "errors": {},
+        }
         response = query_get_as(
             "drb", {"metadata": "global,dataset.access"}, "drb", HTTPStatus.OK
         )
@@ -505,7 +508,10 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "drb",
             HTTPStatus.OK,
         )
-        assert response.json == {"user.favorite": True, "user.tag": "AWS"}
+        assert response.json == {
+            "metadata": {"user.favorite": True, "user.tag": "AWS"},
+            "errors": {},
+        }
         audit = Audit.query()
         assert len(audit) == 2
         assert audit[0].id == 1
@@ -541,7 +547,10 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "test",
             HTTPStatus.OK,
         )
-        assert response.json == {"user.favorite": False, "user.tag": "RHEL"}
+        assert response.json == {
+            "metadata": {"user.favorite": False, "user.tag": "RHEL"},
+            "errors": {},
+        }
         response = query_put_as(
             "fio_1",
             {"metadata": {"user.favorite": False, "user.tag": "BAD"}},

@@ -171,9 +171,8 @@ class TestDatasetsDelete:
             f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_token}"},
         )
-
-        # Verify the report and status
-        capinternal("Failed to delete documents", response)
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {"ok": 28, "failure": 3}
 
         # Verify that the Dataset still exists
         Dataset.query(name="drb")

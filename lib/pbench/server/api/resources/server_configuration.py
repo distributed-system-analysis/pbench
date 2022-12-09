@@ -103,7 +103,7 @@ class ServerConfiguration(ApiBase):
             else:
                 return jsonify(ServerConfig.get_all())
         except ServerConfigError as e:
-            raise APIInternalError(self.logger, str(e)) from e
+            raise APIInternalError(f"Error reading server configuration {key}") from e
 
     def _put_key(self, params: ApiParams, context: ApiContext) -> Response:
         """
@@ -163,7 +163,7 @@ class ServerConfiguration(ApiBase):
         except ServerConfigBadValue as e:
             raise APIAbort(HTTPStatus.BAD_REQUEST, str(e)) from e
         except ServerConfigError as e:
-            raise APIInternalError(self.logger, str(e)) from e
+            raise APIInternalError(f"Error setting server configuration {key}") from e
         return jsonify({key: value})
 
     def _put_body(self, params: ApiParams, context: ApiContext) -> Response:
@@ -201,7 +201,7 @@ class ServerConfiguration(ApiBase):
                 failures.append(str(e))
             except Exception as e:
                 self.logger.warning("{}", e)
-                raise APIInternalError(self.logger, "Error setting config values")
+                raise APIInternalError(f"Error setting server configuration {k}")
         if failures:
             raise APIAbort(HTTPStatus.BAD_REQUEST, message=", ".join(failures))
         return jsonify(response)

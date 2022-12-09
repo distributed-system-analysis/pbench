@@ -165,17 +165,20 @@ def make_logger(server_config):
 @pytest.fixture()
 def capinternal(caplog):
     def compare(message: str, response: Optional[Response]):
-        pat = re.compile(
-            f"INTERNAL error {message!r}: report error code [a-zA-Z\\d]{{8}}-([a-zA-Z\\d]{{4}}-){{3}}[a-zA-Z\\d]{{12}} to an SRE"
-        )
+        uuid = r"[a-zA-Z\d]{8}-([a-zA-Z\d]{4}-){3}[a-zA-Z\d]{12}"
+        name = r"\w+\s+"
+        external = re.compile(f"Internal Pbench Server Error: log reference {uuid}")
+        internal = re.compile(f"{name}Internal error {uuid}: {message}")
         if response:
             assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-            assert pat.match(response.json["message"]), response.json["message"]
+            assert external.match(response.json["message"])
         for r in caplog.get_records("call"):
             if r.levelno == logging.ERROR:
-                if pat.match(str(r.msg)):
+                if internal.match(str(r.msg)):
                     return
-        assert False, "Expected pattern string not logged at level 'ERROR'"
+        assert (
+            False
+        ), f"Expected pattern {internal.pattern!r} not logged at level 'ERROR': {[str(r.msg) for r in caplog.get_records('call')]}"
 
     return compare
 

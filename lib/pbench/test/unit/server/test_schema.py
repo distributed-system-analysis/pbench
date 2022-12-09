@@ -1,7 +1,9 @@
 from http import HTTPStatus
+import json
 from typing import Callable, Union
 
 from dateutil import parser as date_parser
+from flask.wrappers import Response
 import pytest
 
 from pbench.server import OperationCode
@@ -77,8 +79,14 @@ class TestExceptions:
         assert p.status == HTTPStatus.BAD_REQUEST
 
     def test_internal_error(self, capinternal, make_logger):
-        APIInternalError(make_logger, "my error")
-        capinternal("my error", None)
+        x = APIInternalError("my error")
+        make_logger.error(f"TEST {x.details}")
+        r = Response(
+            response=json.dumps({"message": x.message}),
+            mimetype="application/json",
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
+        capinternal("my error", r)
 
 
 class TestParamType:

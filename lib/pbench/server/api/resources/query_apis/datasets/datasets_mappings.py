@@ -115,5 +115,4 @@ class DatasetsMappings(ApiBase):
             # construct response object
             return jsonify(result)
         except TemplateNotFound as e:
-            self.logger.error("{}", e)
-            raise APIInternalError(self.logger, "Unexpected template error")
+            raise APIInternalError("Unexpected template error") from e

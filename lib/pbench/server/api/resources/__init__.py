@@ -54,7 +54,7 @@ class APIInternalError(APIAbort):
     by an SRE
     """
 
-    def __init__(self, logger: Logger, message: str):
+    def __init__(self, details: str):
         """Construct an "internal server error" exception object.
 
         This exception is raised and will be used in the API _dispatch method
@@ -68,14 +68,19 @@ class APIInternalError(APIAbort):
         client while capturing detailed information for server developers to
         determine what happened.
 
+        NOTE: We use a fully formatted "details" message here for convenience;
+        we will report this with `logger.exception`, which is never disabled,
+        so deferring the formatting would have no value.
+
         Args:
-            logger  Python logger
-            message A brief descriptive message for the client and log
+            details: A detailed message to be logged when this exception is caught
         """
-        self.uuid = uuid.uuid4()
-        msg = f"INTERNAL error {message!r}: report error code {self.uuid} to an SRE"
-        super().__init__(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, message=msg)
-        logger.exception("{}", msg)
+        u = uuid.uuid4()
+        super().__init__(
+            http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            message=f"Internal Pbench Server Error: log reference {u}",
+        )
+        self.details = f"Internal error {u}: {details}"
 
 
 class UnauthorizedAccess(APIAbort):
@@ -1564,15 +1569,18 @@ class ApiBase(Resource):
                     method,
                     ApiParams(body=body_params, query=query_params, uri=uri_params),
                 )
+            except APIInternalError as e:
+                self.logger.exception("{} {}", api_name, e.details)
+                abort(e.http_status, message=str(e))
             except APIAbort as e:
                 self.logger.exception("{} {}", api_name, e)
                 abort(e.http_status, message=str(e))
-            except Exception as e:
-                self.logger.exception("{} API error: {}", api_name, e)
-                abort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
-                )
+            except Exception:
+                # Construct an APIInternalError to get the UUID and standard return
+                # message.
+                x = APIInternalError("Unexpected validation exception")
+                self.logger.exception("{} {}", api_name, x.details)
+                abort(x.http_status, message=str(x))
         else:
             params = ApiParams(None, None, None)
 
@@ -1589,12 +1597,15 @@ class ApiBase(Resource):
             except UnauthorizedAccess as e:
                 self.logger.warning("{}: {}", api_name, e)
                 abort(e.http_status, message=str(e))
-            except Exception as e:
-                self.logger.exception("{}: {}", api_name, e)
-                abort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
-                )
+            except APIInternalError as e:
+                self.logger.exception("{} {}", api_name, e.details)
+                abort(e.http_status, message=str(e))
+            except Exception:
+                # Construct an APIInternalError to get the UUID and standard return
+                # message.
+                x = APIInternalError("Unexpected authorize exception")
+                self.logger.exception("{} {}", api_name, x.details)
+                abort(x.http_status, message=str(x))
 
         audit = None
 
@@ -1635,6 +1646,9 @@ class ApiBase(Resource):
                     attributes=auditing["attributes"],
                 )
             return response
+        except APIInternalError as e:
+            self.logger.exception("{} {}", api_name, e.details)
+            abort(e.http_status, message=str(e))
         except APIAbort as e:
             self.logger.error("{} {}", api_name, e)
             if auditing["finalize"]:
@@ -1664,7 +1678,7 @@ class ApiBase(Resource):
                     reason=AuditReason.INTERNAL,
                     attributes=attr,
                 )
-            x = APIInternalError(self.logger, "Unexpected exception")
+            x = APIInternalError("Unexpected exception")
             abort(x.http_status, message=x.message)
 
     def _get(self, args: ApiParams, request: Request, context: ApiContext) -> Response:

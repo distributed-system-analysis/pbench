@@ -129,11 +129,13 @@ class IndexMapBase(ElasticBase):
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
         except MetadataError as exc:
             self.logger.error("{}", exc)
-            raise APIInternalError(self.logger, "Required metadata missing")
+            raise APIInternalError(f"Required metadata {Metadata.INDEX_MAP} missing")
 
         if index_map is None:
             self.logger.error("Index map metadata has no value")
-            raise APIInternalError(self.logger, "Required metadata missing")
+            raise APIInternalError(
+                f"Required metadata {Metadata.INDEX_MAP} has no value"
+            )
 
         index_keys = [key for key in index_map if root_index_name in key]
         indices = ",".join(index_keys)

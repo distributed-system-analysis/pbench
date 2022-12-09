@@ -30,6 +30,7 @@ from pbench.server.api.resources import (
     UnauthorizedAccess,
 )
 from pbench.server.auth.auth import Auth
+from pbench.server.database.models.audit import AuditReason, AuditStatus
 from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
@@ -384,8 +385,7 @@ class ElasticBase(ApiBase):
         except UnauthorizedAccess as e:
             raise APIAbort(e.http_status, str(e))
         except KeyError as e:
-            self.logger.error("{} problem in preprocess, missing {}", klasname, e)
-            raise APIInternalError(self.logger, "Missing expected backend data")
+            raise APIInternalError(f"problem in preprocess, missing {e}") from e
         try:
             # prepare payload for Elasticsearch query
             es_request = self.assemble(params, context)
@@ -396,8 +396,8 @@ class ElasticBase(ApiBase):
                 url,
                 es_request.get("kwargs").get("json"),
             )
-        except Exception:
-            raise APIInternalError(self.logger, "Assembly error")
+        except Exception as e:
+            raise APIInternalError("Elasticsearch assembly error") from e
 
         try:
             # perform the Elasticsearch query
@@ -435,18 +435,10 @@ class ElasticBase(ApiBase):
                 HTTPStatus.GATEWAY_TIMEOUT,
                 "Connection timed out, could reach Elasticsearch",
             )
-        except requests.exceptions.InvalidURL:
-            self.logger.error(
-                "{}: invalid url {} during the Elasticsearch request", klasname, url
-            )
-            raise APIInternalError(self.logger, "Invalid backend URL")
+        except requests.exceptions.InvalidURL as e:
+            raise APIInternalError(f"Invalid Elasticsearch URL {url}") from e
         except Exception as e:
-            self.logger.exception(
-                "{}: exception {} occurred during the Elasticsearch request",
-                klasname,
-                type(e).__name__,
-            )
-            raise APIInternalError(self.logger, "Unexpected backend error")
+            raise APIInternalError("Unexpected backend error") from e
 
         try:
             # postprocess Elasticsearch response
@@ -455,8 +447,8 @@ class ElasticBase(ApiBase):
             msg = f"{klasname}: {str(e)}"
             self.logger.error("{}", msg)
             raise APIAbort(e.status, msg)
-        except Exception:
-            raise APIInternalError(self.logger, "Unexpected backend exception")
+        except Exception as e:
+            raise APIInternalError("Unexpected backend exception") from e
 
     def _post(
         self, params: ApiParams, request: Request, context: ApiContext
@@ -729,7 +721,6 @@ class ElasticBulkBase(ApiBase):
         Returns:
             Response to return to client
         """
-        klasname = self.__class__.__name__
 
         # Our schema requires a valid dataset and uses it to authorize access;
         # therefore the unconditional dereference is assumed safe.
@@ -762,8 +753,8 @@ class ElasticBulkBase(ApiBase):
                     raise_on_error=False,
                 )
                 report = self._analyze_bulk(results)
-            except Exception:
-                raise APIInternalError(self.logger, "Unexpected backend error")
+            except Exception as e:
+                raise APIInternalError("Unexpected backend error") from e
         elif self.require_map:
             raise APIAbort(
                 HTTPStatus.CONFLICT,
@@ -784,23 +775,25 @@ class ElasticBulkBase(ApiBase):
         # Let the subclass complete the operation
         try:
             self.complete(dataset, context, summary)
-        except Exception:
+        except Exception as e:
             attributes["message"] = str(e)
             auditing["status"] = AuditStatus.WARNING
             auditing["reason"] = AuditReason.INTERNAL
-            raise APIInternalError("Unexpected completion error")
+            raise APIInternalError("Unexpected completion error") from e
 
         # Return the summary document as the success response, or abort with an
-        # internal error if we weren't 100% successful. Some elasticsearch
-        # documents may have been affected, but the client will be able to try
-        # again.
+        # internal error if we tried to operate on Elasticsearch documents but
+        # experienced total failure. Either way, the operation can be retried
+        # if some documents failed to update.
         #
         # TODO: switching to `pyesbulk` will automatically handle retrying on
         # non-terminal errors, but this requires some cleanup work on the
         # pyesbulk side.
-        if report.errors > 0:
+        if report.count and report.errors == report.count:
             auditing["status"] = AuditStatus.WARNING
             auditing["reason"] = AuditReason.INTERNAL
             attributes["message"] = f"Unable to {self.action} some indexed documents"
-            raise APIInternalError(self.logger, f"Failed to {self.action} documents")
+            raise APIInternalError(
+                f"Failed to {self.action} any of {report.count} Elasticsearch documents: {json.dumps(report.report)}"
+            )
         return jsonify(summary)
