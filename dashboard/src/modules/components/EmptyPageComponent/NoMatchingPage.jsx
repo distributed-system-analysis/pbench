@@ -13,6 +13,7 @@ const NoMatchingPage = () => {
       <div className="logo-container">
         <img
           className="pbench-logo"
+          alt="pbench logo"
           onClick={() => navigate("/")}
           src={pbenchLogo}
         />
@@ -21,7 +22,11 @@ const NoMatchingPage = () => {
       <div className="nomatch-container">
         <div className="main-content">
           <div className="bg-img-wrapper">
-            <img className="not-found-img" alt="not found image" src={logo} />
+            <img
+              className="not-found-img"
+              alt="elk with page not found message"
+              src={logo}
+            />
           </div>
         </div>
         <Button variant="link" onClick={() => navigate("/")}>
