@@ -153,8 +153,9 @@ def generate_crontab_if_necessary(
     ret_val = 0
     crontab_f = Path(crontab_dir) / "crontab"
     if not crontab_f.exists():
+        os.environ["PATH"] = ":".join([str(bin_dir), os.environ["PATH"]])
         # Create the crontab file from the server configuration.
-        cp = subprocess.run([f"{bin_dir}/pbench-create-crontab", crontab_dir], cwd=cwd)
+        cp = subprocess.run(["pbench-create-crontab", crontab_dir], cwd=cwd)
         if cp.returncode != 0:
             logger.error(
                 "Failed to create crontab file from configuration: {}", cp.returncode
