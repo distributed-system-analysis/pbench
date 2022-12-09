@@ -24,8 +24,12 @@
 #  PB_SERVER_IMAGE - the <registry>/<repo>/<img_name> of the Pbench Server image
 #  PB_SERVER_IMAGE_TAG - the tag for the Pbench Server image
 #
-# The resulting pod exposes port 8080 for the Pbench Server and Dashboard, and
-# port 8090 for the KeyCloak broker.
+# The resulting pod maps the following ports:
+#
+#   5432 - PostgreSQL
+#   8080 - HTTP web server (and Pbench Dashboard)
+#   8090 - Keycloak authentication server
+#   9200 - Elasticsearch
 #
 apiVersion: v1
 kind: Pod
@@ -60,6 +64,7 @@ spec:
     name: elasticsearch
     ports:
       - containerPort: 9200
+        hostPort: 9200
     resources: {}
     securityContext:
       allowPrivilegeEscalation: true
@@ -128,6 +133,7 @@ spec:
     name: postgresql
     ports:
       - containerPort: 5432
+      - hostPort: 5432
     resources: {}
     securityContext:
       allowPrivilegeEscalation: true

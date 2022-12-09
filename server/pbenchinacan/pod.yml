@@ -4,7 +4,7 @@
 # the Pbench Server and its associated Elasticsearch, PostgreSQL database, and
 # keycloak authentication servers.  The expectation is that the servers have
 # been pre-populated with data which has been persisted in their respective
-# container images and that the images have been pushed to a common repository 
+# container images and that the images have been pushed to a common repository
 # using a common tag.
 #
 # The four container images are named
@@ -26,8 +26,12 @@
 #  PB_INTERNAL_CONTAINER_REG - the FQDN of the container registry
 #  PB_SERVER_IMAGE_TAG - the tag for all three container images
 #
-# The resulting pod exposes port 8080 for the Pbench Server and Dashboard, and
-# port 8090 for the KeyCloak broker.
+# The resulting pod maps the following ports:
+#
+#   5432 - PostgreSQL
+#   8080 - HTTP web server (and Pbench Dashboard)
+#   8090 - keycloak authentication server
+#   9200 - Elasticsearch
 #
 apiVersion: v1
 kind: Pod
@@ -63,6 +67,7 @@ spec:
     name: elasticsearch
     ports:
       - containerPort: 9200
+        hostPort: 9200
     resources: {}
     securityContext:
       allowPrivilegeEscalation: true
@@ -132,6 +137,7 @@ spec:
     name: postgresql
     ports:
       - containerPort: 5432
+      - hostPort: 5432
     resources: {}
     securityContext:
       allowPrivilegeEscalation: true
