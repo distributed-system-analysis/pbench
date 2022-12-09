@@ -188,17 +188,13 @@ def main():
     if site.ENABLE_USER_SITE:
         find_the_unicorn(logger)
     try:
-        host = str(server_config.get("pbench-server", "bind_host"))
+        host = server_config.get("pbench-server", "bind_host")
         port = str(server_config.get("pbench-server", "bind_port"))
-        db_uri = str(server_config.get("database", "uri"))
+        db_uri = server_config.get("database", "uri")
         db_wait_timeout = int(server_config.get("database", "wait_timeout"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
-        oidc_server = server_config.get(
-            "authentication",
-            "internal_server_url",
-            fallback=server_config.get("authentication", "server_url"),
-        )
+        oidc_server = server_config.get("authentication", "server_url")
         crontab_dir = server_config.get("pbench-server", "crontab-dir")
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Error fetching required configuration: {}", exc)

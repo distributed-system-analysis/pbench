@@ -26,8 +26,9 @@
 #
 # The resulting pod maps the following ports:
 #
-#   8090 - Keycloak authentication server
+#   5432 - PostgreSQL
 #   8080 - HTTP web server (and Pbench Dashboard)
+#   8090 - Keycloak authentication server
 #   9200 - Elasticsearch
 #
 apiVersion: v1
@@ -78,11 +79,12 @@ spec:
   - command:
     - /opt/keycloak/bin/kc.sh
     - start-dev
+    - --http-port=8090
     - --health-enabled=true
     image: ${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-keycloak:latest
     name: keycloak
     ports:
-      - containerPort: 8080
+      - containerPort: 8090
         hostPort: 8090
     workingDir: /opt/keycloak
   - args:
@@ -131,6 +133,7 @@ spec:
     name: postgresql
     ports:
       - containerPort: 5432
+      - hostPort: 5432
     resources: {}
     securityContext:
       allowPrivilegeEscalation: true
@@ -154,7 +157,7 @@ spec:
     imagePullPolicy: Always
     name: pbenchserver
     ports:
-      - containerPort: 80
+      - containerPort: 8080
         hostPort: 8080
     resources: {}
     securityContext:
