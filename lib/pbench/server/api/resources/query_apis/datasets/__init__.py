@@ -3,9 +3,9 @@ from typing import AnyStr, List, NoReturn, Union
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
-    APIInternalError,
     ApiAuthorizationType,
     ApiContext,
+    APIInternalError,
     ApiParams,
     ApiSchema,
     ParamType,

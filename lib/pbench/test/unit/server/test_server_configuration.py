@@ -92,7 +92,7 @@ class TestServerConfiguration:
         routing.
         """
         put = ServerConfiguration(server_config, logging.getLogger("test"))
-        with pytest.raises(APIAbort, match=r"Found URI parameters \['foo', 'plugh'\]"):
+        with pytest.raises(APIAbort, match="Missing parameter 'key'"):
             put._put_key(ApiParams(uri={"plugh": "xyzzy", "foo": "bar"}), context=None)
 
     def test_put_missing_value(self, query_put):

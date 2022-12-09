@@ -13,7 +13,6 @@ from pbench.server.api.resources import (
     ApiBase,
     ApiContext,
     ApiMethod,
-    APIInternalError,
     ApiParams,
     ApiSchema,
     Parameter,

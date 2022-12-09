@@ -3,8 +3,8 @@ from logging import Logger
 
 from pbench.server import JSON, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
-    APIInternalError,
     ApiAuthorizationType,
+    APIInternalError,
     ApiMethod,
     ApiParams,
     ApiSchema,

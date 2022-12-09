@@ -2,6 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from http import HTTPStatus
+import json
 from logging import Logger
 import re
 from typing import Any, Callable, Iterator, List, Optional
@@ -21,8 +22,8 @@ from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiBase,
     ApiContext,
-    ApiMethod,
     APIInternalError,
+    ApiMethod,
     ApiParams,
     ApiSchema,
     ParamType,
