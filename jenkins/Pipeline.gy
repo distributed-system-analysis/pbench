@@ -55,6 +55,7 @@ pipeline {
         stage('Deploy server and run functional tests') {
             steps {
                 sh 'envsubst < server/pbenchinacan/pod-nodata.yml | podman play kube -'
+                sleep 39
                 // Use curl to check when server is responding to API requests
                 retry(count: 600) {
                     sleep 1
