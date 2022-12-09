@@ -72,11 +72,8 @@ describe("Toast Actions", () => {
       },
     ];
     store.dispatch(ACTIONS.hideToast(keyToHide));
-    const bestMatch = (output) =>
-      output.filter((item) => item.filter !== keyToHide);
 
     const givenPayload = store.getActions()[0].payload;
-    const actions = bestMatch(givenPayload);
-    expect(actions).toEqual(expect.not.arrayContaining(expected));
+    expect(givenPayload).toEqual(expect.not.arrayContaining(expected));
   });
 });

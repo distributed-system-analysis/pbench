@@ -17,8 +17,7 @@
     "classnames": "^2.3.1",
     "crypto-js": "^4.1.1",
     "customize-cra": "^1.0.0",
-    "dotenv": "^16.0.1",
-    "enzyme-adapter-react-17-updated": "^1.0.2",
+    "dotenv": "^16.0.1",    
     "gulp": "^4.0.2",
     "jest": "^27.5.1",
     "js-cookie": "^3.0.1",
@@ -59,10 +58,8 @@
     },
     "transformIgnorePatterns": [
       "node_modules/(?!@patternfly)/"
-    ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
     ]
+    
   },
   "browserslist": {
     "production": [
@@ -78,9 +75,7 @@
   },
   "devDependencies": {
     "css-loader": "^6.7.1",
-    "customize-cra-less-loader": "^2.0.0",
-    "enzyme": "^3.11.0",
-    "enzyme-to-json": "^3.6.2",
+    "customize-cra-less-loader": "^2.0.0",    
     "eslint": "^8.16.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.5.0",

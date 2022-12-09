@@ -5,8 +5,8 @@ import thunk from "redux-thunk";
 
 // initialise middlewares
 const middlewares = [thunk];
-// initialise MockStore which is only the configureStore method which take middlewares as its parameters
 
+// initialise MockStore which is only the configureStore method which take middlewares as its parameters
 const mockStore = configureStore(middlewares);
 
 export const mockState = {
