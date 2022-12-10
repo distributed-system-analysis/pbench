@@ -14,7 +14,7 @@ def mock_get_oidc_public_key(oidc_client):
 
 
 @pytest.fixture
-def keycloak_oidc(server_config, make_logger, monkeypatch):
+def keycloak_oidc(server_config, monkeypatch):
     monkeypatch.setattr(
         OpenIDClient, "set_well_known_endpoints", mock_set_oidc_auth_endpoints
     )
@@ -23,7 +23,6 @@ def keycloak_oidc(server_config, make_logger, monkeypatch):
         server_url=server_config.get("authentication", "server_url"),
         realm_name="public_test_realm",
         client_id="test_client",
-        logger=make_logger,
     )
     return oidc
 

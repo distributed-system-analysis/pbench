@@ -130,7 +130,6 @@ def server_config(on_disk_server_config) -> PbenchServerConfig:
 @pytest.fixture()
 def set_oidc_well_known_endpoints(monkeypatch):
     def fake_well_known(oidc_client):
-
         oidc_client.USERINFO_ENDPOINT = "https://oidc_userinfo_endpoint.example.com"
         oidc_client.TOKENINFO_ENDPOINT = "https://oidc_token_introspection.example.com"
         oidc_client.JWKS_URI = "https://oidc_jwks_endpoint.example.com"

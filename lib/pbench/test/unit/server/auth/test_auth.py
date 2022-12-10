@@ -1,5 +1,6 @@
 import datetime
 
+from flask import Flask
 import jwt
 from jwt.exceptions import (
     ExpiredSignatureError,
@@ -134,12 +135,14 @@ class TestUserTokenManagement:
         monkeypatch.setattr(
             OpenIDClient, "token_introspect_online", fake_online_token_introspection
         )
-        Auth.set_logger(logger=make_logger)
-        token_payload = Auth.verify_third_party_token(
-            auth_token="",
-            algorithms=["HS256"],
-            oidc_client=keycloak_oidc,
-        )
+        app = Flask("test-verify-third-party-token")
+        app.logger = make_logger
+        with app.app_context():
+            token_payload = Auth.verify_third_party_token(
+                auth_token="",
+                algorithms=["HS256"],
+                oidc_client=keycloak_oidc,
+            )
         assert token_payload == InternalUser(
             id="12345",
             username="username",
