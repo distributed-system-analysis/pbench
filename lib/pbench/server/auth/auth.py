@@ -4,7 +4,7 @@ from http import HTTPStatus
 import os
 from typing import Optional, Union
 
-from flask import request
+from flask import current_app, request
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import abort
 import jwt
@@ -65,11 +65,7 @@ class InternalUser:
 class Auth:
     token_auth = HTTPTokenAuth("Bearer")
     oidc_client: OpenIDClient = None
-
-    @staticmethod
-    def set_logger(logger):
-        # Logger gets set at the time of auth module initialization
-        Auth.logger = logger
+    secret_key = ""
 
     @staticmethod
     def set_oidc_client(server_config: PbenchServerConfig):
@@ -89,7 +85,6 @@ class Auth:
         Auth.oidc_client = OpenIDClient(
             server_url=server_url,
             client_id=client,
-            logger=Auth.logger,
             realm_name=realm,
             client_secret_key=secret,
             verify=False,
@@ -102,11 +97,15 @@ class Auth:
         Returns:
             User ID of the authenticated user, None otherwise.
         """
-        user_id = None
         user = Auth.token_auth.current_user()
-        if user:
-            user_id = str(user.id)
-        return user_id
+        return str(user.id) if user else None
+
+    @staticmethod
+    def _get_secret_key() -> str:
+        """Returns the configured secret key."""
+        if not Auth.secret_key:
+            Auth.secret_key = os.getenv("SECRET_KEY", "my_precious")
+        return Auth.secret_key
 
     def encode_auth_token(self, time_delta: datetime.timedelta, user_id: int) -> str:
         """Generates an authorization token for an internal user ID.
@@ -126,14 +125,8 @@ class Auth:
         }
 
         # Get jwt key
-        jwt_key = self.get_secret_key()
+        jwt_key = Auth._get_secret_key()
         return jwt.encode(payload, jwt_key, algorithm="HS256")
-
-    def get_secret_key(self):
-        try:
-            return os.getenv("SECRET_KEY", "my_precious")
-        except Exception as e:
-            Auth.logger.exception("Error {} getting JWT secret", e)
 
     def get_auth_token(self) -> str:
         """Get the authorization token from the current request.
@@ -190,7 +183,7 @@ class Auth:
         try:
             payload = jwt.decode(
                 auth_token,
-                Auth().get_secret_key(),
+                Auth._get_secret_key(),
                 algorithms="HS256",
                 options={
                     "verify_signature": True,
@@ -206,19 +199,19 @@ class Auth:
             try:
                 ActiveTokens.delete(auth_token)
             except Exception as e:
-                Auth.logger.error(
+                current_app.logger.error(
                     "User passed expired token but we could not delete the"
                     " token from the database. token: {!r}: {}",
                     auth_token,
                     e,
                 )
         except jwt.InvalidTokenError:
-            Auth.logger.debug(
+            current_app.logger.debug(
                 "Internal token verification failed, trying OIDC token verification"
             )
             return Auth.verify_third_party_token(auth_token, Auth.oidc_client)
         except Exception as e:
-            Auth.logger.exception(
+            current_app.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {!r}: {}",
                 auth_token,
                 e,
@@ -246,8 +239,8 @@ class Auth:
         try:
             identity_provider_pubkey = oidc_client.get_oidc_public_key()
         except Exception:
-            Auth.logger.debug("Identity provider public key fetch failed")
-            identity_provider_pubkey = Auth().get_secret_key()
+            current_app.logger.debug("Identity provider public key fetch failed")
+            identity_provider_pubkey = Auth._get_secret_key()
         try:
             token_payload = oidc_client.token_introspect_offline(
                 token=auth_token,
@@ -268,7 +261,7 @@ class Auth:
         ):
             return None
         except Exception:
-            Auth.logger.exception(
+            current_app.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {}",
                 auth_token,
             )
@@ -278,7 +271,9 @@ class Auth:
             # Note: Online verification should NOT be performed frequently, and
             # it is only allowed for non-public clients.
             if not oidc_client.TOKENINFO_ENDPOINT:
-                Auth.logger.debug("Can not perform OIDC online token verification")
+                current_app.logger.debug(
+                    "Can not perform OIDC online token verification"
+                )
                 return None
 
             try:

@@ -6,7 +6,7 @@ or any number of pbench agent users.
 
 import os
 
-from flask import current_app, Flask
+from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 
@@ -55,9 +55,8 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
 
     base_uri = config.rest_uri
 
-    # Init the the authentication module
+    # Init the authentication module
     token_auth = Auth()
-    Auth.set_logger(current_app.logger)
     Auth.set_oidc_client(server_config=config)
 
     app.logger.info("Registering service endpoints with base URI {}", base_uri)

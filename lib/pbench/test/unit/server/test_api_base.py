@@ -88,9 +88,8 @@ class TestApiBase:
         app.testing = True
         app.logger = make_logger
 
-        token_auth = Auth()
-        token_auth.set_logger(app.logger)
-        Auth.set_oidc_client(server_config=server_config)
+        with app.app_context():
+            Auth.set_oidc_client(server_config=server_config)
 
         # Mimic our normal use of ApiBase with our sub-classed instances.
         api = Api(app)

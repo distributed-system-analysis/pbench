@@ -136,26 +136,25 @@ class OpenIDClient:
         self,
         server_url: str,
         client_id: str,
-        logger: logging.Logger,
         realm_name: str = "",
         client_secret_key: Optional[str] = None,
         verify: bool = True,
         headers: Optional[Dict[str, str]] = None,
     ):
-        """
+        """Constructor for an OpenIDClient object.
+
         Args:
-            server_url: OpenID Connect server auth url
-            client_id: client id
-            realm_name: realm name
-            client_secret_key: client secret key
-            verify: True if require valid SSL
-            headers: dict of custom header to pass to each HTML request
+            server_url : OpenID Connect server auth url
+            client_id : client id
+            realm_name : realm name
+            client_secret_key : client secret key
+            verify : True if require valid SSL
+            headers : dict of custom header to pass to each HTML request
         """
         self.server_url = server_url
         self.client_id = client_id
         self.client_secret_key = client_secret_key
         self.realm_name = realm_name
-        self.logger = logger
         self.headers = CaseInsensitiveDict([] if headers is None else headers)
         self.verify = verify
         self.connection = requests.session()
@@ -177,27 +176,27 @@ class OpenIDClient:
         )
 
     def add_header_param(self, key: str, value: str):
-        """
-        Add a single parameter inside the header.
+        """Add a single parameter inside the header.
+
         Args:
-            key: Header parameters key.
-            value: Value to be added for the key.
+            key : Header parameters key.
+            value : Value to be added for the key.
         """
         self.headers[key] = value
 
     def del_header_params(self, key: str):
-        """
-        Remove a specific header parameter.
+        """Remove a specific header parameter.
+
         Args:
-            Key to delete from the headers.
+            key : Key to delete from the headers.
         """
         del self.headers[key]
 
     def set_well_known_endpoints(self):
-        """
-        Sets the well-known configuration endpoints for the current OIDC
+        """Sets the well-known configuration endpoints for the current OIDC
         client. This includes common useful endpoints for decoding tokens,
         getting user information etc.
+
         ref: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig
         """
         well_known_endpoint = "/.well-known/openid-configuration"
@@ -211,13 +210,12 @@ class OpenIDClient:
                 "introspection_endpoint"
             )
         except KeyError as e:
-            self.logger.exception(
+            raise OpenIDClientError(
                 "Missing endpoint {!r} at {}; Endpoints found: {}",
                 str(e),
                 well_known_uri,
                 endpoints_json,
             )
-            raise
 
     def _get_oidc_public_key(self) -> str:
         """Returns the public key of the current OIDC client.
@@ -239,9 +237,8 @@ class OpenIDClient:
             "-----BEGIN PUBLIC KEY-----\n" + public_key + "\n-----END PUBLIC KEY-----"
         )
 
-    def get_oidc_public_key(self):
-        """
-        Returns the OIDC client public key that can be used for decoding
+    def get_oidc_public_key(self) -> str:
+        """Returns the OIDC client public key that can be used for decoding
         tokens offline.
         """
         if not self.public_key:
@@ -249,18 +246,22 @@ class OpenIDClient:
         return self.public_key
 
     def token_introspect_online(self, token: str, token_info_uri: str) -> JSON:
-        """
-        The introspection endpoint is used to retrieve the active state of a
+        """The introspection endpoint is used to retrieve the active state of a
         token.
+
         It can only be invoked by confidential clients.
+
         The introspected JWT token contains the claims specified in
-        https://tools.ietf.org/html/rfc7662
+        https://tools.ietf.org/html/rfc7662.
+
         Note: this is not supposed to be used in production, instead rely on
               offline token validation because of security concerns mentioned in
               https://www.rfc-editor.org/rfc/rfc7662.html#section-4
+
         Args:
-            token: token value to introspect
-            token_info_uri: token introspection uri
+            token : token value to introspect
+            token_info_uri : token introspection uri
+
         Returns:
             Extracted token information
             {
@@ -290,19 +291,21 @@ class OpenIDClient:
         algorithms: List[str] = ["RS256"],
         **kwargs,
     ) -> JSON:
-        """
-        Utility method to decode access/Id tokens using the public key provided
-        by the identity provider.
+        """Utility method to decode access/Id tokens using the public key
+        provided by the identity provider.
+
         The introspected JWT token contains the claims specified in
         https://tools.ietf.org/html/rfc7662
 
         Please refer https://www.rfc-editor.org/rfc/rfc7662.html#section-4 for
         requirements on doing the token introspection offline.
+
         Args:
-            token: token value to introspect
-            key: client public key
-            audience: jwt token audience/client, who this token was intended for
-            algorithms: Algorithm with which this JWT token was encoded
+            token : token value to introspect
+            key : client public key
+            audience : jwt token audience/client, who this token was intended for
+            algorithms : Algorithm with which this JWT token was encoded
+
         Returns:
             Extracted token information
             {
@@ -322,12 +325,14 @@ class OpenIDClient:
         )
 
     def get_userinfo(self, token: str = None) -> JSON:
-        """
-        The userinfo endpoint returns standard claims about the authenticated
+        """The userinfo endpoint returns standard claims about the authenticated
         user, and is protected by a bearer token.
+
         http://openid.net/specs/openid-connect-core-1_0.html#UserInfo
+
         Args:
-            token: Valid token to extract the userinfo
+            token : Valid token to extract the userinfo
+
         Returns:
             Userinfo payload
             {
@@ -351,13 +356,14 @@ class OpenIDClient:
     def _method(
         self, method: str, path: str, data: Dict, **kwargs
     ) -> requests.Response:
-        """
-        Common frontend for the HTTP operations on OIDC client.
+        """Common frontend for the HTTP operations on OIDC client.
+
         Args:
-            method: The API HTTP method
-            path: Path for the request.
-            data: Json data to send with the request in case of the POST
-            kwargs: Additional keyword args
+            method : The API HTTP method
+            path : Path for the request.
+            data : Json data to send with the request in case of the POST
+            kwargs : Additional keyword args
+
         Returns:
             Response from the request.
         """
@@ -375,41 +381,43 @@ class OpenIDClient:
             return response
         except requests.exceptions.HTTPError:
             raise OpenIDCAuthenticationError(response.status_code)
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-            self.logger.exception("Could not connect to the OIDC client {!r}", self)
+        except (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+        ) as exc:
             raise OpenIDClientError(
                 HTTPStatus.BAD_GATEWAY,
-                f"Failure to connect to the OpenID client {e}",
+                f"Failure to connect to the OpenID client, {self!r}: {exc}",
             )
         except Exception as exc:
-            self.logger.exception(
-                "{} request failed for OIDC client {!r}", method, self
-            )
             raise OpenIDClientError(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to complete the {method} request from the OpenID client {exc}",
+                f"Failure to complete the {method} request from the OpenID"
+                f" client, {self!r}: {exc}",
             )
 
     def _get(self, path: str, **kwargs) -> requests.Response:
-        """
-        GET wrapper to handle an authenticated GET operation on the Resource at
-        a given path.
+        """GET wrapper to handle an authenticated GET operation on the Resource
+        at a given path.
+
         Args:
-            path: Path for the request.
-            kwargs: Additional keyword args
+            path : Path for the request.
+            kwargs : Additional keyword args
+
         Returns:
             Response from the request.
         """
         return self._method("GET", path, None, **kwargs)
 
     def _post(self, path: str, data: Dict, **kwargs) -> requests.Response:
-        """
-        POST wrapper to handle an authenticated POST operation on the Resource at
-        a given path
+        """POST wrapper to handle an authenticated POST operation on the
+        Resource at a given path.
+
         Args:
-            path: Path for the request.
-            data: JSON request body
-            kwargs: Additional keyword args
+            path : Path for the request.
+            data : JSON request body
+            kwargs : Additional keyword args
+
         Returns:
             Response from the request.
         """
