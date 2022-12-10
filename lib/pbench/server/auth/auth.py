@@ -140,11 +140,10 @@ class Auth:
         Returns:
             True if the verification succeeds else False
         """
-        identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
         try:
             oidc_client.token_introspect_offline(
                 token=auth_token,
-                key=identity_provider_pubkey,
+                key=oidc_client.get_oidc_public_key(),
                 audience=oidc_client.client_id,
                 options={
                     "verify_signature": True,

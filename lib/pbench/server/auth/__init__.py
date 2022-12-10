@@ -33,7 +33,6 @@ class OpenIDClient:
 
     USERINFO_ENDPOINT: Optional[str] = None
     TOKENINFO_ENDPOINT: Optional[str] = None
-    JWKS_URI: Optional[str] = None
 
     def __init__(
         self,
@@ -62,6 +61,14 @@ class OpenIDClient:
         self.headers = CaseInsensitiveDict([] if headers is None else headers)
         self.verify = verify
         self.connection = requests.session()
+        self.public_key = None
+
+        # Warning: Note that the method we're calling now depends both on
+        # self.realm_name being set plus any attribute dependencies of
+        # self._get(). It is important to call set_well_known_endpoints after
+        # setting all the required instance variables above.
+        # TODO: Think about a better way to set well known endpoints
+        #  https://github.com/distributed-system-analysis/pbench/issues/3102
         self.set_well_known_endpoints()
 
     def __repr__(self):
@@ -105,7 +112,6 @@ class OpenIDClient:
             OpenIDClient.TOKENINFO_ENDPOINT = endpoints_json.get(
                 "introspection_endpoint"
             )
-            OpenIDClient.JWKS_URI = endpoints_json.get("jwks_uri")
         except KeyError as e:
             self.logger.exception(
                 "Missing endpoint {!r} at {}; Endpoints found: {}",
@@ -115,18 +121,34 @@ class OpenIDClient:
             )
             raise
 
-    def get_oidc_public_key(self, token: str):
+    def _get_oidc_public_key(self) -> str:
+        """Returns the public key of the current OIDC client.
+
+        Note: Caller of this method could receive any exceptions
+        raised by self._get() in addition to the ones stated below.
+
+        Returns:
+            public key string
+
+        Raises:
+            KeyError: if public key not found in response payload
+        """
+
+        realm_public_key_uri = f"{self.server_url}/realms/{self.realm_name}"
+        response_json = self._get(realm_public_key_uri).json()
+        public_key = response_json["public_key"]
+        return (
+            "-----BEGIN PUBLIC KEY-----\n" + public_key + "\n-----END PUBLIC KEY-----"
+        )
+
+    def get_oidc_public_key(self):
         """
         Returns the OIDC client public key that can be used for decoding
         tokens offline.
-        Args:
-            token: Third party token to extract the signing key
-        Returns:
-            OIDC client public key
         """
-        jwks_client = jwt.PyJWKClient(self.JWKS_URI)
-        pubkey = jwks_client.get_signing_key_from_jwt(token).key
-        return pubkey
+        if not self.public_key:
+            self.public_key = self._get_oidc_public_key()
+        return self.public_key
 
     def token_introspect_online(self, token: str, token_info_uri: str) -> JSON:
         """
