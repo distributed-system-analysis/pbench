@@ -766,10 +766,6 @@ def generate_token(
 
     TODO: When we remove the User table we need to update this functionality's
         dependance on user table.
-        Refer related Jira issues:
-            https://issues.redhat.com/browse/PBENCH-900,
-            https://issues.redhat.com/browse/PBENCH-895,
-            https://issues.redhat.com/browse/PBENCH-962
 
     Returns
         JWT token string

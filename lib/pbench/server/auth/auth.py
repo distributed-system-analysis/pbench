@@ -90,8 +90,6 @@ class Auth:
         Validates the auth token.
         Note: Since we are not encoding 'aud' claim in our JWT tokens
         we need to set 'verify_aud' to False while validating the token.
-        With issue https://issues.redhat.com/browse/PBENCH-895 we can
-        set it to True when we start validating third party OIDC tokens.
         :param auth_token:
         :return: User object/None
         """
