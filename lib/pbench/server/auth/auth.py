@@ -3,7 +3,7 @@ from http import HTTPStatus
 import os
 from typing import Optional
 
-from flask import request
+from flask import current_app, request
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import abort
 import jwt
@@ -117,7 +117,7 @@ class Auth:
             try:
                 ActiveTokens.delete(auth_token)
             except Exception as e:
-                Auth.logger.error(
+                current_app.logger.error(
                     "User passed expired token but we could not delete the token from the database. token: {!r}: {}",
                     auth_token,
                     e,
@@ -125,7 +125,7 @@ class Auth:
         except jwt.InvalidTokenError:
             pass  # Ignore this silently; client is unauthenticated
         except Exception as e:
-            Auth.logger.exception(
+            current_app.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {!r}: {}",
                 auth_token,
                 e,
