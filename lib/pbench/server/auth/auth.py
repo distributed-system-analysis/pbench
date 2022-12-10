@@ -59,7 +59,7 @@ class Auth:
         except Exception as e:
             Auth.logger.exception("Error {} getting JWT secret", e)
 
-    def get_auth_token(self, logger):
+    def get_auth_token(self):
         # get auth token
         example = (
             "Please add Authorization header with Bearer token as,"
