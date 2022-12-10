@@ -36,7 +36,8 @@ class Auth:
             Auth.secret_key = os.getenv("SECRET_KEY", "my_precious")
         return Auth.secret_key
 
-    def encode_auth_token(self, time_delta: datetime.timedelta, user_id: int) -> str:
+    @staticmethod
+    def encode_auth_token(time_delta: datetime.timedelta, user_id: int) -> str:
         """
         Generates the Auth Token
         Args:
@@ -56,7 +57,8 @@ class Auth:
         jwt_key = Auth._get_secret_key()
         return jwt.encode(payload, jwt_key, algorithm="HS256")
 
-    def get_auth_token(self):
+    @staticmethod
+    def get_auth_token():
         # get auth token
         example = (
             "Please add Authorization header with Bearer token as,"
