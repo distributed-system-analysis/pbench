@@ -15,6 +15,7 @@ from pbench.server.database.models.users import User
 
 class Auth:
     token_auth = HTTPTokenAuth("Bearer")
+    secret_key = ""
 
     @staticmethod
     def set_logger(logger):
@@ -33,6 +34,12 @@ class Auth:
             user_id = str(user.id)
         return user_id
 
+    @staticmethod
+    def _get_secret_key():
+        if not Auth.secret_key:
+            Auth.secret_key = os.getenv("SECRET_KEY", "my_precious")
+        return Auth.secret_key
+
     def encode_auth_token(self, time_delta: datetime.timedelta, user_id: int) -> str:
         """
         Generates the Auth Token
@@ -50,14 +57,8 @@ class Auth:
         }
 
         # Get jwt key
-        jwt_key = self.get_secret_key()
+        jwt_key = Auth._get_secret_key()
         return jwt.encode(payload, jwt_key, algorithm="HS256")
-
-    def get_secret_key(self):
-        try:
-            return os.getenv("SECRET_KEY", "my_precious")
-        except Exception as e:
-            Auth.logger.exception("Error {} getting JWT secret", e)
 
     def get_auth_token(self):
         # get auth token
@@ -100,7 +101,7 @@ class Auth:
         try:
             payload = jwt.decode(
                 auth_token,
-                os.getenv("SECRET_KEY", "my_precious"),
+                Auth._get_secret_key(),
                 algorithms="HS256",
                 options={
                     "verify_signature": True,
