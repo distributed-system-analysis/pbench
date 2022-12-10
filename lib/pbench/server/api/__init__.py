@@ -51,9 +51,8 @@ def register_endpoints(api, app, config):
     base_uri = config.rest_uri
     logger = app.logger
 
-    # Init the the authentication module
+    # Init the authentication module
     token_auth = Auth()
-    Auth.set_logger(logger)
 
     logger.info("Registering service endpoints with base URI {}", base_uri)
 

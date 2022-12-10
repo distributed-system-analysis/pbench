@@ -19,11 +19,6 @@ class Auth:
     secret_key = ""
 
     @staticmethod
-    def set_logger(logger):
-        # Logger gets set at the time of auth module initialization
-        Auth.logger = logger
-
-    @staticmethod
     def get_user_id() -> Optional[str]:
         """
         Returns the user id of the current authenticated user.
