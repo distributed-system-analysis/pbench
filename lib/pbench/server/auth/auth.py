@@ -1,5 +1,6 @@
 import datetime
 from http import HTTPStatus
+from logging import Logger
 import os
 from typing import Optional
 
@@ -133,7 +134,9 @@ class Auth:
         return None
 
     @staticmethod
-    def verify_third_party_token(auth_token: str, oidc_client: OpenIDClient) -> bool:
+    def verify_third_party_token(
+        auth_token: str, oidc_client: OpenIDClient, logger: Logger
+    ) -> bool:
         """
         Verify a token provided to the Pbench server which was obtained from a
         third party identity provider.
@@ -160,16 +163,16 @@ class Auth:
             jwt.InvalidTokenError,
             jwt.InvalidAudienceError,
         ):
-            Auth.logger.error("OIDC token verification failed")
+            logger.error("OIDC token verification failed")
             return False
         except Exception:
-            Auth.logger.exception(
+            logger.exception(
                 "Unexpected exception occurred while verifying the auth token {}",
                 auth_token,
             )
 
         if not oidc_client.TOKENINFO_ENDPOINT:
-            Auth.logger.warning("Can not perform OIDC online token verification")
+            logger.warning("Can not perform OIDC online token verification")
             return False
 
         try:
