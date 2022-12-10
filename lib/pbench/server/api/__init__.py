@@ -38,7 +38,7 @@ from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
 
@@ -54,10 +54,6 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     """
 
     base_uri = config.rest_uri
-
-    # Init the authentication module
-    token_auth = Auth()
-    Auth.set_oidc_client(server_config=config)
 
     app.logger.info("Registering service endpoints with base URI {}", base_uri)
 
@@ -146,13 +142,13 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         Login,
         f"{base_uri}/login",
         endpoint="login",
-        resource_class_args=(config, token_auth),
+        resource_class_args=(config,),
     )
     api.add_resource(
         Logout,
         f"{base_uri}/logout",
         endpoint="logout",
-        resource_class_args=(config, token_auth),
+        resource_class_args=(config,),
     )
     api.add_resource(
         RegisterUser,
@@ -178,7 +174,6 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         UserAPI,
         f"{base_uri}/user/<string:target_username>",
         endpoint="user",
-        resource_class_args=(token_auth,),
     )
     api.add_resource(
         Upload,
@@ -229,8 +224,7 @@ def create_app(server_config: PbenchServerConfig) -> Flask:
 
     app.logger = get_pbench_logger(__name__, server_config)
 
-    app.config["DEBUG"] = False
-    app.config["TESTING"] = False
+    Auth.setup_app(app, server_config)
 
     api = Api(app)
 

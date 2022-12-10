@@ -12,7 +12,7 @@ from pbench.server.api.resources import (
     ApiParams,
     ApiSchema,
 )
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database.models.server_config import ServerConfig
 
 
@@ -79,17 +79,14 @@ class OptionsMethod(ApiBase):
 class TestApiBase:
     """Verify internal methods of the API base class."""
 
-    def test_method_validation(
-        self, server_config, make_logger, monkeypatch, set_oidc_well_known_endpoints
-    ):
+    def test_method_validation(self, server_config, make_logger, monkeypatch):
         # Create the temporary flask application.
         app = Flask("test-api-server")
         app.debug = True
         app.testing = True
         app.logger = make_logger
 
-        with app.app_context():
-            Auth.set_oidc_client(server_config=server_config)
+        Auth.setup_app(app, server_config)
 
         # Mimic our normal use of ApiBase with our sub-classed instances.
         api = Api(app)

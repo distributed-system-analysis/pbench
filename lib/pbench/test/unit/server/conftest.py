@@ -22,9 +22,10 @@ from pbench.common import MetadataLog
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app
-from pbench.server.auth.auth import Auth, OpenIDClient
+import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
+from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
@@ -41,6 +42,9 @@ pbench-top-dir = {TMP}/srv/pbench
 [database]
 uri = sqlite:///:memory:
 
+[flask-app]
+secret-key = my_precious
+
 [elasticsearch]
 host = elasticsearch.example.com
 port = 7080
@@ -53,12 +57,6 @@ logging_level = DEBUG
 
 [Indexing]
 index_prefix = unit-test
-
-[authentication]
-server_url = keycloak.example.com:0000
-realm = pbench
-client = pbench-client
-secret = my_precious
 
 ###########################################################################
 # The rest will come from the default config file.
@@ -127,19 +125,7 @@ def server_config(on_disk_server_config) -> PbenchServerConfig:
 
 
 @pytest.fixture()
-def set_oidc_well_known_endpoints(monkeypatch):
-    def fake_well_known(oidc_client):
-        oidc_client.USERINFO_ENDPOINT = "https://oidc_userinfo_endpoint.example.com"
-        oidc_client.TOKENINFO_ENDPOINT = "https://oidc_token_introspection.example.com"
-        oidc_client.JWKS_URI = "https://oidc_jwks_endpoint.example.com"
-
-    monkeypatch.setattr(OpenIDClient, "set_well_known_endpoints", fake_well_known)
-
-
-@pytest.fixture()
-def client(
-    monkeypatch, server_config, fake_email_validator, set_oidc_well_known_endpoints
-):
+def client(monkeypatch, server_config, fake_email_validator):
     """A test client for the app.
 
     Fixtures:
@@ -153,12 +139,6 @@ def client(
     For test cases that require the DB but not a full Flask app context, use
     the db_session fixture instead, which adds DB cleanup after the test.
     """
-
-    def mock_get_oidc_public_key(_oidc_client):
-        return jwt_secret
-
-    monkeypatch.setattr(OpenIDClient, "_get_oidc_public_key", mock_get_oidc_public_key)
-
     app = create_app(server_config)
 
     app_client = app.test_client()
@@ -797,23 +777,19 @@ def find_template(monkeypatch, fake_mtime):
 
 @pytest.fixture()
 def pbench_admin_token(client, create_admin_user):
-    """OIDC valid token for the 'ADMIN' user"""
-    return generate_token(
-        user=create_admin_user,
-        username=admin_username,
-        pbench_client_roles=["ADMIN"],
-    )
+    """Internal valid token for the 'ADMIN' user"""
+    return generate_token(user=create_admin_user, username=admin_username)
 
 
 @pytest.fixture()
 def pbench_drb_token(client, create_drb_user):
-    """OIDC valid token for the 'drb' user"""
+    """Internal valid token for the 'drb' user"""
     return generate_token(username="drb", user=create_drb_user)
 
 
 @pytest.fixture()
 def pbench_drb_token_invalid(client, create_drb_user):
-    """OIDC invalid token for the 'drb' user"""
+    """Internal invalid token for the 'drb' user"""
     return generate_token(username="drb", user=create_drb_user, valid=False)
 
 
@@ -836,29 +812,19 @@ def get_token_func(pbench_admin_token):
 def generate_token(
     username: str,
     user: Optional[User] = None,
-    pbench_client_roles: Optional[list[str]] = None,
     valid: bool = True,
 ) -> str:
-    """
-    Generates an OIDC JWT token that mimics a real OIDC token obtained
-    from an OIDC compliant client login.
+    """Generates an internal JWT token that mimics a real internal token
+    obtained from an internal user login.
 
     Args:
-        username: username to include in the token payload
-        user: user attributes will be extracted from the user object to include
+        username : username to include in the token payload
+        user : user attributes will be extracted from the user object to include
             in the token payload.
-            If not provided, user object will be queried from the User table
-            using username as the key.
-            It is a responsibility of the caller to make sure the user exists
-            in the 'User' table until we remove the User table completely.
-        pbench_client_roles: List of any roles to add in the token payload
-        valid: If True, the generated token will be valid for 10 mins.
-               If False, generated token would be invalid and expired
+        valid : If True, the generated token will be valid for 10 mins.
+            If False, generated token would be invalid and expired
 
-    TODO: When we remove the User table we need to update this functionality's
-        dependance on user table.
-
-    Returns
+    Returns:
         JWT token string
     """
     # Current time to encode in the token payload
@@ -870,39 +836,13 @@ def generate_token(
     offset = datetime.timedelta(minutes=10)
     exp = current_utc + (offset if valid else -offset)
     payload = {
-        "exp": exp,
         "iat": current_utc,
-        "jti": "541777b5-7127-408d-9dfb-71790f36c4c2",
-        "iss": "https://auth-server.com/realms/pbench",
-        "aud": ["broker", "account", "pbench-client"],
+        "exp": exp,
         "sub": user.id,
-        "typ": "Bearer",
-        "azp": "pbench-client",
-        "session_state": "1988612e-774d-43b8-8d4a-bbc05ee55edb",
-        "acr": "1",
-        "realm_access": {
-            "roles": ["default-roles-pbench-cli", "offline_access", "uma_authorization"]
-        },
-        "resource_access": {
-            "broker": {"roles": ["read-token"]},
-            "account": {
-                "roles": ["manage-account", "manage-account-links", "view-profile"]
-            },
-        },
-        "scope": "openid profile email",
-        "sid": "1988612e-774d-43b8-8d4a-bbc05ee55edb",
-        "email_verified": True,
-        "name": user.first_name + " " + user.last_name,
-        "preferred_username": username,
-        "given_name": user.first_name,
-        "family_name": user.last_name,
-        "email": user.email,
     }
-    if pbench_client_roles:
-        payload["resource_access"].update(
-            {"pbench-client": {"roles": pbench_client_roles}}
-        )
     token_str = jwt.encode(payload, jwt_secret, algorithm="HS256")
+    token = ActiveTokens(auth_token=token_str)
+    user.update(auth_tokens=token)
     return token_str
 
 

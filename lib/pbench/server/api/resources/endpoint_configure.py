@@ -50,7 +50,7 @@ class EndpointConfig(Resource):
         Return server configuration information required by web clients
         including the Pbench dashboard UI. This includes:
 
-        authentication: A JSON object containing the authentication parameters
+        openid-connect: A JSON object containing the OpenID Connect parameters
                         required for the web client to use OIDC authentication.
         identification: The Pbench server name and version
         api:    A dict of the server APIs supported; we give a name, which
@@ -178,14 +178,14 @@ class EndpointConfig(Resource):
         }
 
         try:
-            secret = self.server_config.get("authentication", "secret")
-            client = self.server_config.get("authentication", "client")
-            realm = self.server_config.get("authentication", "realm")
-            issuer = self.server_config.get("authentication", "server_url")
+            secret = self.server_config.get("openid-connect", "secret")
+            client = self.server_config.get("openid-connect", "client")
+            realm = self.server_config.get("openid-connect", "realm")
+            issuer = self.server_config.get("openid-connect", "server_url")
         except (NoOptionError, NoSectionError):
             pass
         else:
-            endpoints["authentication"] = {
+            endpoints["openid-connect"] = {
                 "client": client,
                 "realm": realm,
                 "issuer": issuer,

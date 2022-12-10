@@ -31,7 +31,7 @@ from pbench.server.api.resources import (
     UnauthorizedAccess,
     UnauthorizedAdminAccess,
 )
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database.models.audit import AuditReason, AuditStatus
 from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
