@@ -53,8 +53,8 @@ def get_secret_key() -> str:
     """Returns JWT secret key."""
     try:
         return os.getenv("SECRET_KEY", "my_precious")
-    except Exception as e:
-        logger.exception("Error {} getting JWT secret", e)
+    except Exception:
+        logger.exception("Error getting JWT secret")
 
 
 def get_auth_token():
@@ -112,19 +112,17 @@ def verify_auth(auth_token):
     except jwt.ExpiredSignatureError:
         try:
             ActiveTokens.delete(auth_token)
-        except Exception as e:
+        except Exception:
             logger.error(
-                "User passed expired token but we could not delete the token from the database. token: {!r}: {}",
+                "User passed expired token but we could not delete the token from the database. token: {!r}",
                 auth_token,
-                e,
             )
     except jwt.InvalidTokenError:
         pass  # Ignore this silently; client is unauthenticated
-    except Exception as e:
+    except Exception:
         logger.exception(
-            "Unexpected exception occurred while verifying the auth token {!r}: {}",
+            "Unexpected exception occurred while verifying the auth token {!r}",
             auth_token,
-            e,
         )
     return None
 
