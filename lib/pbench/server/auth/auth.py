@@ -48,16 +48,17 @@ def encode_auth_token(time_delta: datetime.timedelta, user_id: int) -> str:
         time_delta: Token lifetime
         user_id: Authorized user's internal ID
     Returns:
-        JWT token string
+        JWT token string, expiration
     """
     current_utc = datetime.datetime.now(datetime.timezone.utc)
+    expiration = current_utc + time_delta
     payload = {
         "iat": current_utc,
-        "exp": current_utc + time_delta,
+        "exp": expiration,
         "sub": user_id,
     }
 
-    return jwt.encode(payload, current_app.secret_key, algorithm=_TOKEN_ALG)
+    return jwt.encode(payload, current_app.secret_key, algorithm=_TOKEN_ALG), expiration
 
 
 def get_auth_token():
@@ -88,17 +89,12 @@ def get_auth_token():
         return auth_token
 
 
-@token_auth.verify_token
-def verify_auth(auth_token):
-    """
-    Validates the auth token.
-    Note: Since we are not encoding 'aud' claim in our JWT tokens
-    we need to set 'verify_aud' to False while validating the token.
-    :param auth_token:
-    :return: User object/None
+def verify_token_only(auth_token: str) -> str:
+    """Returns "verified", "expired", or "invalid" depending on the state of the
+    given token.
     """
     try:
-        payload = jwt.decode(
+        jwt.decode(
             auth_token,
             current_app.secret_key,
             algorithms=_TOKEN_ALG,
@@ -108,28 +104,34 @@ def verify_auth(auth_token):
                 "verify_exp": True,
             },
         )
-        user_id = payload["sub"]
-        if ActiveTokens.valid(auth_token):
-            user = User.query(id=user_id)
-            return user
-    except jwt.ExpiredSignatureError:
-        try:
-            ActiveTokens.delete(auth_token)
-        except Exception as e:
-            current_app.logger.error(
-                "User passed expired token but we could not delete the token from the database. token: {!r}: {}",
-                auth_token,
-                e,
-            )
     except jwt.InvalidTokenError:
-        pass  # Ignore this silently; client is unauthenticated
-    except Exception as e:
-        current_app.logger.exception(
-            "Unexpected exception occurred while verifying the auth token {!r}: {}",
-            auth_token,
-            e,
-        )
-    return None
+        state = "invalid"
+    except jwt.ExpiredSignatureError:
+        state = "expired"
+    else:
+        state = "verified"
+    return state
+
+
+@token_auth.verify_token
+def verify_auth(auth_token: str) -> Optional[User]:
+    """For APIs requiring a valid token to operate, the token must not only be
+    valid as decoded, but also be associated with a user in the database.
+
+    Note: Since we are not encoding 'aud' claim in our JWT tokens we need to
+    set 'verify_aud' to False while validating the token.
+
+    :param auth_token:
+    :return: User/None
+
+    """
+    state = verify_token_only(auth_token)
+    if state == "verified":
+        token = ActiveTokens.query(auth_token)
+        user = token.user if token else None
+    else:
+        user = None
+    return user
 
 
 def verify_third_party_token(

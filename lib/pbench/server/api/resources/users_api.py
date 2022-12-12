@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from typing import NamedTuple
 
@@ -10,6 +10,7 @@ import jwt
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 import pbench.server.auth.auth as Auth
+from pbench.server.database.database import Database
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
@@ -210,7 +211,7 @@ class Login(Resource):
             abort(HTTPStatus.UNAUTHORIZED, message="Bad login")
 
         try:
-            auth_token = Auth.encode_auth_token(
+            auth_token, expiration = Auth.encode_auth_token(
                 time_delta=timedelta(minutes=int(self.token_expire_duration)),
                 user_id=user.id,
             )
@@ -230,11 +231,8 @@ class Login(Resource):
 
         # Add the new auth token to the database for later access
         try:
-            token = ActiveTokens(token=auth_token)
-            # TODO: Decide on the auth token limit per user
-            user.update(auth_tokens=token)
-
-            self.logger.info("New auth token registered for user {}", user.username)
+            token = ActiveTokens(auth_token, expiration)
+            user.add_token(token)
         except IntegrityError:
             self.logger.warning(
                 "Duplicate auth token got created, user might have tried to re-login immediately"
@@ -248,6 +246,21 @@ class Login(Resource):
         except Exception:
             self.logger.exception("Exception while logging in a user")
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+        else:
+            self.logger.info("New auth token registered for user {}", user.username)
+
+        # Remove any expired tokens for this user
+        try:
+            Database.db_session.query(ActiveTokens).filter_by(user_id=user.id).filter(
+                ActiveTokens.expiration <= datetime.now(timezone.utc)
+            ).delete()
+            Database.db_session.commit()
+        except Exception:
+            Database.db_session.rollback()
+            self.logger.exception(
+                "Error encountered while removing expired tokens for user {}",
+                user.username,
+            )
 
         response_object = {
             "auth_token": auth_token,
@@ -271,7 +284,8 @@ class Logout(Resource):
         This requires a Pbench authentication auth token in the header field
 
         Required headers include
-            Authorization:   Bearer <Pbench authentication token (user received upon login)>
+            Authorization:   Bearer <Pbench authentication token (user received
+                             upon login)>
 
         :return:
             Success: 200 with empty payload
@@ -281,22 +295,49 @@ class Logout(Resource):
                     }
         """
         auth_token = Auth.get_auth_token()
-        user = Auth.verify_auth(auth_token=auth_token)
+        state = Auth.verify_token_only(auth_token)
 
-        # "None" user represents that either the token is not present in our database or it is an expired token.
-        # Expired token is already deleted by now if we reach here.
-        # In either case we will return suceess to a client, since the same token can not be used again.
+        # The only time a token won't be in the database is if the token is
+        # not a valid token.  Valid tokens that are not expired should be in
+        # the database, and expired tokens might or might not be in the
+        # database.  If the valid token is found in the database associated
+        # with user, remove it.
 
-        if user:
-            try:
-                ActiveTokens.delete(auth_token)
-            except Exception:
-                self.logger.exception("Exception occurred deleting an auth token")
-                abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-            else:
-                self.logger.debug("User {} logged out", user.username)
+        if state == "invalid":
+            self.logger.info("User logout with invalid token: {}", auth_token)
         else:
-            self.logger.info("User logout with invalid or expired token")
+            token = ActiveTokens.query(auth_token)
+            if token:
+                user = token.user
+                if not user:
+                    self.logger.info(
+                        "Unknown user logged out with verified or expired token"
+                    )
+                else:
+                    try:
+                        ActiveTokens.delete(auth_token)
+                    except Exception:
+                        self.logger.exception(
+                            "Exception occurred deleting auth token {!r} for user {!r}",
+                            auth_token,
+                            user.username,
+                        )
+                        if state == "verified":
+                            # Only report an internal error to the user if the token
+                            # has been verified.
+                            abort(
+                                HTTPStatus.INTERNAL_SERVER_ERROR,
+                                message="INTERNAL ERROR",
+                            )
+                    else:
+                        if state == "expired":
+                            self.logger.info(
+                                "User {} logged out with expired token", user.username
+                            )
+                        else:
+                            self.logger.debug("User {} logged out", user.username)
+            else:
+                self.logger.debug("User logout with {} token", state)
 
         return "", HTTPStatus.OK
 

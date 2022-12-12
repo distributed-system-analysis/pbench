@@ -875,8 +875,8 @@ def generate_token(
             {"pbench-client": {"roles": pbench_client_roles}}
         )
     token_str = jwt.encode(payload, jwt_secret, algorithm="HS256")
-    token = ActiveTokens(token=token_str)
-    user.update(auth_tokens=token)
+    token = ActiveTokens(token_str, exp)
+    user.add_token(token)
     return token_str
 
 

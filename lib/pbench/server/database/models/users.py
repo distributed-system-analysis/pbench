@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship, validates
 from sqlalchemy.orm.exc import NoResultFound
 
 from pbench.server.database.database import Database
+from pbench.server.database.models.active_tokens import ActiveTokens
 
 
 class Roles(enum.Enum):
@@ -27,7 +28,7 @@ class User(Database.Base):
     registered_on = Column(DateTime, nullable=False, default=datetime.datetime.now())
     email = Column(String(255), unique=True, nullable=False)
     role = Column(Enum(Roles), unique=False, nullable=True)
-    auth_tokens = relationship("ActiveTokens", backref="users")
+    auth_tokens = relationship("ActiveTokens", back_populates="user")
 
     def __str__(self):
         return f"User, id: {self.id}, username: {self.username}"
@@ -43,16 +44,17 @@ class User(Database.Base):
 
     @staticmethod
     def get_protected():
-        """
-        Return protected column names that are not allowed for external updates.
-        auth_tokens is already protected from external updates via PUT api since
-        it is of type sqlalchemy relationship ORM package and not a sqlalchemy column.
+        """Return protected column names that are not allowed for external
+        updates.  auth_tokens is already protected from external updates via
+        PUT api since it is of type sqlalchemy relationship ORM package and
+        not a sqlalchemy column.
         """
         return ["registered_on", "id"]
 
     @staticmethod
     def query(id=None, username=None, email=None) -> "User":
-        # Currently we would only query with single argument. Argument need to be either username/id/email
+        # Currently we would only query with single argument. Argument need to
+        # be either username/id/email
         if username:
             user = Database.db_session.query(User).filter_by(username=username).first()
         elif id:
@@ -98,18 +100,25 @@ class User(Database.Base):
 
         return email
 
+    def add_token(self, token: ActiveTokens):
+        """
+        Add the given token to the database, removing any expired tokens.
+        """
+        try:
+            self.auth_tokens.append(token)
+            Database.db_session.add(token)
+            Database.db_session.commit()
+        except Exception:
+            Database.db_session.rollback()
+            raise
+
     def update(self, **kwargs):
         """
         Update the current user object with given keyword arguments
         """
         try:
             for key, value in kwargs.items():
-                if key == "auth_tokens":
-                    # Insert the auth token
-                    self.auth_tokens.append(value)
-                    Database.db_session.add(value)
-                else:
-                    setattr(self, key, value)
+                setattr(self, key, value)
             Database.db_session.commit()
         except Exception:
             Database.db_session.rollback()
@@ -132,15 +141,17 @@ class User(Database.Base):
             raise
 
     def is_admin(self):
-        """This method checks whether the given user has an admin role.
-        This can be extended to groups as well for example a user belonging to certain group has only those
-        privileges that are assigned to the group.
+        """This method checks whether the given user has an admin role.  This
+        can be extended to groups as well, for example, a user belonging to a
+        certain group has only those privileges that are assigned to the
+        group.
         """
         return self.role is Roles.ADMIN
 
     @staticmethod
     def is_admin_username(username):
-        # TODO: Need to add an interface to fetch admins list instead of hard-coding the names, preferably via sql query
+        # TODO: Need to add an interface to fetch admins list instead of
+        # hard-coding the names, preferably via sql query.
         admins = ["admin"]
         return username in admins
 

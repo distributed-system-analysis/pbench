@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 import time
 
@@ -161,15 +161,20 @@ class TestUserAuthentication:
             assert data["auth_token"]
             assert response.content_type == "application/json"
             assert response.status_code == HTTPStatus.OK
+            first_auth_token = data["auth_token"]
 
             # Re-login with auth header
             time.sleep(1)
             response = client.post(
                 f"{server_config.rest_uri}/login",
-                headers=dict(Authorization="Bearer " + data["auth_token"]),
+                headers=dict(Authorization=f"Bearer {first_auth_token}"),
                 json={"username": "user", "password": "12345"},
             )
             assert response.status_code == HTTPStatus.OK
+            second_auth_token = response.json["auth_token"]
+            assert (
+                first_auth_token != second_auth_token
+            ), "Second login returned first token"
 
             # Re-login without auth header
             time.sleep(1)
@@ -178,6 +183,49 @@ class TestUserAuthentication:
                 json={"username": "user", "password": "12345"},
             )
             assert response.status_code == HTTPStatus.OK
+            third_auth_token = response.json["auth_token"]
+            assert (
+                first_auth_token != third_auth_token
+            ), "Third login returned first token"
+            assert (
+                second_auth_token != third_auth_token
+            ), "Third login returned second token"
+
+    @staticmethod
+    def test_login_removes_expired_tokens(client, server_config):
+        """Test to ensure on a new login previously expired tokens are
+        removed."""
+        with client:
+            # user registration
+            resp_register = register_user(
+                client,
+                server_config,
+                username="me",
+                firstname="first name",
+                lastname="last name",
+                email="me@domain.com",
+                password="12345",
+            )
+            assert resp_register.status_code == HTTPStatus.CREATED
+
+            user = User.query(username="me")
+            # Add 3 expired tokens, values are in "days" old
+            for age in (1, 2, 4):
+                token = ActiveTokens(
+                    f"token-that-is-{age:d}-days-old",
+                    datetime.now(timezone.utc) - timedelta(days=age),
+                )
+                user.add_token(token)
+
+            response = client.post(
+                f"{server_config.rest_uri}/login",
+                json={"username": "me", "password": "12345"},
+            )
+            assert response.status_code == HTTPStatus.OK
+
+            for age in (1, 2, 4):
+                token = ActiveTokens.query(f"token-that-is-{age:d}-days-old")
+                assert token is None
 
     @staticmethod
     def test_user_login_with_wrong_password(client, server_config):
@@ -271,7 +319,7 @@ class TestUserAuthentication:
             assert response.status_code == HTTPStatus.OK
             data_login = response.json
 
-            new_registration_time = datetime.datetime.now()
+            new_registration_time = datetime.now()
             response = client.put(
                 f"{server_config.rest_uri}/user/username",
                 json={"registered_on": new_registration_time, "first_name": "newname"},
