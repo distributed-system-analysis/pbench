@@ -80,7 +80,8 @@ class AuditType(enum.Enum):
     set."""
     CONFIG = enum.auto()
 
-    """A default when no resource is affected"""
+    """A default when no resource is affected, or when auditing will be done
+    internally by an API."""
     NONE = enum.auto()
 
     """An Elasticsearch template. The base template name will be recorded in

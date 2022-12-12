@@ -44,17 +44,14 @@ class TestUpload:
             "Authorization": "Bearer " + auth_token,
             "controller": self.controller,
             "Content-MD5": md5,
+            "Content-Type": "application/octet-stream",
         }
         return headers
 
     @staticmethod
-    def verify_logs(caplog, warning_msg):
-        found = False
+    def verify_logs(caplog):
         for record in caplog.records:
             assert record.levelname not in ("ERROR", "CRITICAL")
-            if record.levelname == "WARNING" and warning_msg in record.message:
-                found = True
-        assert found, f"Failed to find expected warning message, {warning_msg!r}"
 
     @pytest.fixture(scope="function", autouse=True)
     def fake_cache_manager(self, monkeypatch):
@@ -120,7 +117,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog, expected_message)
+        self.verify_logs(caplog)
         assert not self.cachemanager_created
 
     def test_missing_md5sum_header_upload(
@@ -136,7 +133,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog, expected_message)
+        self.verify_logs(caplog)
         assert not self.cachemanager_created
 
     def test_missing_filename_extension(
@@ -154,7 +151,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog, expected_message)
+        self.verify_logs(caplog)
         assert not self.cachemanager_created
 
     def test_missing_length_header_upload(
@@ -171,7 +168,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.LENGTH_REQUIRED
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog, expected_message)
+        self.verify_logs(caplog)
         assert not self.cachemanager_created
 
     def test_bad_length_header_upload(
@@ -189,7 +186,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.LENGTH_REQUIRED
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog, expected_message)
+        self.verify_logs(caplog)
         assert not self.cachemanager_created
 
     def test_bad_controller_upload(
@@ -207,7 +204,7 @@ class TestUpload:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog, expected_message)
+        self.verify_logs(caplog)
         assert not self.cachemanager_created
 
     def test_mismatched_md5sum_header(
@@ -225,7 +222,7 @@ class TestUpload:
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog, expected_message)
+        self.verify_logs(caplog)
         assert not self.cachemanager_created
         with pytest.raises(DatasetNotFound):
             Dataset.query(name="log")
@@ -253,7 +250,7 @@ class TestUpload:
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog, expected_message)
+        self.verify_logs(caplog)
         assert not self.cachemanager_created
 
     def test_invalid_authorization_upload(
@@ -288,7 +285,7 @@ class TestUpload:
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
-        self.verify_logs(caplog, expected_message)
+        self.verify_logs(caplog)
         assert not self.cachemanager_created
 
     def test_upload_cachemanager_error(
