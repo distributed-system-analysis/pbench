@@ -1,5 +1,6 @@
-from logging import Logger
 from typing import AnyStr, List, NoReturn, Union
+
+from flask import current_app
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -81,8 +82,8 @@ class IndexMapBase(ElasticBase):
         "contents": {"index": "run-toc", "whitelist": ["directory", "files"]},
     }
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger, *schemas: ApiSchema):
-        super().__init__(config, logger, *schemas)
+    def __init__(self, config: PbenchServerConfig, *schemas: ApiSchema):
+        super().__init__(config, *schemas)
 
         api_name = self.__class__.__name__
 
@@ -128,18 +129,18 @@ class IndexMapBase(ElasticBase):
         try:
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
         except MetadataError as exc:
-            self.logger.error("{}", exc)
+            current_app.logger.error("{}", exc)
             raise APIInternalError(f"Required metadata {Metadata.INDEX_MAP} missing")
 
         if index_map is None:
-            self.logger.error("Index map metadata has no value")
+            current_app.logger.error("Index map metadata has no value")
             raise APIInternalError(
                 f"Required metadata {Metadata.INDEX_MAP} has no value"
             )
 
         index_keys = [key for key in index_map if root_index_name in key]
         indices = ",".join(index_keys)
-        self.logger.debug(f"Indices from metadata , {indices!r}")
+        current_app.logger.debug(f"Indices from metadata , {indices!r}")
         return indices
 
     def get_aggregatable_fields(

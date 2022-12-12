@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from logging import Logger
+
+from flask import current_app
 
 from pbench.server import OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -24,10 +25,9 @@ class DatasetsContents(IndexMapBase):
 
     MAX_SIZE = 10000
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,
@@ -56,7 +56,7 @@ class DatasetsContents(IndexMapBase):
 
         dataset = context["dataset"]
 
-        self.logger.info(
+        current_app.logger.info(
             "Discover dataset {} Contents, directory {}",
             dataset.name,
             target,

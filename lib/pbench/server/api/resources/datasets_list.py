@@ -2,6 +2,7 @@ import logging
 from typing import Dict, List, Tuple
 from urllib.parse import urlencode, urlparse
 
+from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 from sqlalchemy.orm import Query
@@ -33,10 +34,9 @@ def urlencode_json(json: JSON) -> str:
 class DatasetsList(ApiBase):
     """API class to list datasets based on database metadata."""
 
-    def __init__(self, config: PbenchServerConfig, logger: logging.Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,
@@ -130,23 +130,23 @@ class DatasetsList(ApiBase):
         # Build a SQLAlchemy Query object expressing all of our constraints
         query = Database.db_session.query(Dataset)
         if "start" in json and "end" in json:
-            self.logger.info("Adding start / end query")
+            current_app.logger.info("Adding start / end query")
             query = query.filter(Dataset.created.between(json["start"], json["end"]))
         elif "start" in json:
-            self.logger.info("Adding start query")
+            current_app.logger.info("Adding start query")
             query = query.filter(Dataset.created >= json["start"])
         elif "end" in json:
-            self.logger.info("Adding end query")
+            current_app.logger.info("Adding end query")
             query = query.filter(Dataset.created <= json["end"])
         if "name" in json:
-            self.logger.info("Adding name query")
+            current_app.logger.info("Adding name query")
             query = query.filter(Dataset.name.contains(json["name"]))
         query = self._build_sql_query(json.get("owner"), json.get("access"), query)
 
         # Useful for debugging, but verbose: this displays the fully expanded
         # SQL `SELECT` statement.
-        if self.logger.isEnabledFor(logging.DEBUG):
-            self.logger.debug(
+        if current_app.logger.isEnabledFor(logging.DEBUG):
+            current_app.logger.debug(
                 "QUERY {}",
                 query.statement.compile(compile_kwargs={"literal_binds": True}),
             )
@@ -168,7 +168,7 @@ class DatasetsList(ApiBase):
             try:
                 d["metadata"] = self._get_dataset_metadata(dataset, keys)
             except MetadataError as e:
-                self.logger.warning(
+                current_app.logger.warning(
                     "Error getting metadata {} for dataset {}: {}", keys, dataset, e
                 )
             response.append(d)

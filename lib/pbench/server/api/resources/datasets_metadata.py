@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from logging import Logger
 from typing import Any
 
 from flask.json import jsonify
@@ -33,10 +32,9 @@ class DatasetsMetadata(ApiBase):
     API class to retrieve and mutate Dataset metadata.
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.PUT,
                 OperationCode.UPDATE,

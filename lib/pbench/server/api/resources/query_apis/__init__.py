@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from http import HTTPStatus
 import json
-from logging import Logger
 import re
 from typing import Any, Callable, Iterator, List, Optional
 from urllib.parse import urljoin
@@ -12,7 +11,7 @@ from urllib.request import Request
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 from elasticsearch import Elasticsearch, helpers, VERSION
-from flask import jsonify
+from flask import current_app, jsonify
 from flask.wrappers import Response
 import requests
 
@@ -88,7 +87,6 @@ class ElasticBase(ApiBase):
     def __init__(
         self,
         config: PbenchServerConfig,
-        logger: Logger,
         *schemas: ApiSchema,
     ):
         """
@@ -96,7 +94,6 @@ class ElasticBase(ApiBase):
 
         Args:
             config: server configuration
-            logger: logger object
             schemas: List of API schemas: for example,
                 ApiSchema(
                     ApiSchema.METHOD.GET,
@@ -111,7 +108,7 @@ class ElasticBase(ApiBase):
                     uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
                 )
         """
-        super().__init__(config, logger, *schemas)
+        super().__init__(config, *schemas)
         self.prefix = config.get("Indexing", "index_prefix")
         host = config.get("elasticsearch", "host")
         port = config.get("elasticsearch", "port")
@@ -201,7 +198,7 @@ class ElasticBase(ApiBase):
         is_admin = authorized_user.is_admin() if authorized_user else False
 
         filter = terms.copy()
-        self.logger.debug(
+        current_app.logger.debug(
             "QUERY auth ID {}, user {!r}, access {!r}, admin {}",
             authorized_id,
             user,
@@ -236,12 +233,14 @@ class ElasticBase(ApiBase):
         # constraint or with no constraint at all.
         if not authorized_user or (user and user != authorized_id and not is_admin):
             access_term = {"term": {"authorization.access": Dataset.PUBLIC_ACCESS}}
-            self.logger.debug("QUERY: not self public: {}", access_term)
+            current_app.logger.debug("QUERY: not self public: {}", access_term)
         elif access:
             access_term = {"term": {"authorization.access": access}}
             if not user and access == Dataset.PRIVATE_ACCESS and not is_admin:
                 user_term = {"term": {"authorization.owner": authorized_id}}
-            self.logger.debug("QUERY: user: {}, access: {}", user_term, access_term)
+            current_app.logger.debug(
+                "QUERY: user: {}, access: {}", user_term, access_term
+            )
         elif not user and not is_admin:
             combo_term = {
                 "dis_max": {
@@ -251,11 +250,11 @@ class ElasticBase(ApiBase):
                     ]
                 }
             }
-            self.logger.debug("QUERY: {{}} self + public: {}", combo_term)
+            current_app.logger.debug("QUERY: {{}} self + public: {}", combo_term)
         else:
             # Either "user" was specified and will be added to the filter,
             # or client is ADMIN and no access restrictions are required.
-            self.logger.debug("QUERY: {{}} default, user: {}", user_term)
+            current_app.logger.debug("QUERY: {{}} default, user: {}", user_term)
 
         # We control the order of terms here to allow stable unit testing.
         if combo_term:
@@ -382,7 +381,7 @@ class ElasticBase(ApiBase):
         klasname = self.__class__.__name__
         try:
             self.preprocess(params, context)
-            self.logger.debug("PREPROCESS returns {}", context)
+            current_app.logger.debug("PREPROCESS returns {}", context)
         except UnauthorizedAccess as e:
             raise APIAbort(e.http_status, str(e))
         except KeyError as e:
@@ -392,7 +391,7 @@ class ElasticBase(ApiBase):
             es_request = self.assemble(params, context)
             path = es_request.get("path")
             url = urljoin(self.es_url, path)
-            self.logger.info(
+            current_app.logger.info(
                 "ASSEMBLE returned URL {!r}, {!r}",
                 url,
                 es_request.get("kwargs").get("json"),
@@ -403,7 +402,7 @@ class ElasticBase(ApiBase):
         try:
             # perform the Elasticsearch query
             es_response = method(url, **es_request["kwargs"])
-            self.logger.debug(
+            current_app.logger.debug(
                 "ES query response {}:{}",
                 es_response.reason,
                 es_response.status_code,
@@ -411,7 +410,7 @@ class ElasticBase(ApiBase):
             es_response.raise_for_status()
             json_response = es_response.json()
         except requests.exceptions.HTTPError as e:
-            self.logger.error(
+            current_app.logger.error(
                 "{} HTTP error {} from Elasticsearch request: {}",
                 klasname,
                 e,
@@ -422,14 +421,14 @@ class ElasticBase(ApiBase):
                 f"Elasticsearch query failure {e.response.reason} ({e.response.status_code})",
             )
         except requests.exceptions.ConnectionError:
-            self.logger.error(
+            current_app.logger.error(
                 "{}: connection refused during the Elasticsearch request", klasname
             )
             raise APIAbort(
                 HTTPStatus.BAD_GATEWAY, "Network problem, could not reach Elasticsearch"
             )
         except requests.exceptions.Timeout:
-            self.logger.error(
+            current_app.logger.error(
                 "{}: connection timed out during the Elasticsearch request", klasname
             )
             raise APIAbort(
@@ -446,7 +445,7 @@ class ElasticBase(ApiBase):
             return self.postprocess(json_response, context)
         except PostprocessError as e:
             msg = f"{klasname}: {str(e)}"
-            self.logger.error("{}", msg)
+            current_app.logger.error("{}", msg)
             raise APIAbort(e.status, msg)
         except Exception as e:
             raise APIInternalError("Unexpected backend exception") from e
@@ -511,7 +510,6 @@ class ElasticBulkBase(ApiBase):
     def __init__(
         self,
         config: PbenchServerConfig,
-        logger: Logger,
         *schemas: ApiSchema,
         action: Optional[str] = None,
         require_stable: bool = False,
@@ -526,7 +524,6 @@ class ElasticBulkBase(ApiBase):
 
         Args:
             config: server configuration
-            logger: logger object
             schemas: List of API schemas: for example,
                 ApiSchema(
                     ApiSchema.METHOD.GET,
@@ -544,7 +541,7 @@ class ElasticBulkBase(ApiBase):
             require_stable: if True, fail if dataset state is mutating (-ing state)
             require_map: if True, fail if the dataset has no index map
         """
-        super().__init__(config, logger, *schemas)
+        super().__init__(config, *schemas)
         host = config.get("elasticsearch", "host")
         port = config.get("elasticsearch", "port")
 
@@ -742,7 +739,7 @@ class ElasticBulkBase(ApiBase):
         if map:
             # Build an Elasticsearch instance to manage the bulk update
             elastic = Elasticsearch(self.elastic_uri)
-            self.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
+            current_app.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
 
             # NOTE: because both generate_actions and streaming_bulk return
             # generators, the entire sequence is inside a single try block.

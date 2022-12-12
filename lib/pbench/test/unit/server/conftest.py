@@ -151,7 +151,9 @@ def client(server_config, fake_email_validator):
     app_client.config = app.config
     app_client.debug = True
     app_client.testing = True
-    return app_client
+
+    with app.app_context():
+        yield app_client
 
 
 @pytest.fixture()

@@ -1,5 +1,3 @@
-from logging import Logger
-
 from flask import jsonify
 from flask.wrappers import Request, Response
 
@@ -67,10 +65,9 @@ class DatasetsMappings(ApiBase):
     }
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,

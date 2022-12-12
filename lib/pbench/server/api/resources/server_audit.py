@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from logging import Logger
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
@@ -31,10 +30,9 @@ class ServerAudit(ApiBase):
     API class to retrieve audit records.
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,

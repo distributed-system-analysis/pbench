@@ -1,8 +1,7 @@
 from http import HTTPStatus
-from logging import Logger
 from urllib.request import Request
 
-from flask import send_file
+from flask import current_app, send_file
 from flask.wrappers import Response
 
 from pbench.server import OperationCode, PbenchServerConfig
@@ -26,10 +25,9 @@ class DatasetsInventory(ApiBase):
     API class to retrieve inventory files from a dataset
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,
@@ -62,7 +60,7 @@ class DatasetsInventory(ApiBase):
         dataset = params.uri["dataset"]
         target = params.uri.get("target")
 
-        cache_m = CacheManager(self.config, self.logger)
+        cache_m = CacheManager(self.config, current_app.logger)
         try:
             tarball = cache_m.find_dataset(dataset.resource_id)
         except TarballNotFound as e:

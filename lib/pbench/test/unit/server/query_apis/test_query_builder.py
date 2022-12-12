@@ -16,9 +16,7 @@ USER_ID = "20"  # This is arbitrary, but can't match either fixture
 class TestQueryBuilder:
     @pytest.fixture()
     def elasticbase(self, client) -> ElasticBase:
-        return ElasticBase(
-            client.config, client.logger, ApiSchema(ApiMethod.POST, OperationCode.READ)
-        )
+        return ElasticBase(client.config, ApiSchema(ApiMethod.POST, OperationCode.READ))
 
     @pytest.fixture()
     def current_user_admin(self, monkeypatch):
