@@ -1,12 +1,11 @@
-from http import HTTPStatus
 from logging import Logger
 from typing import AnyStr, List, NoReturn, Union
 
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.api.resources import (
-    APIAbort,
     ApiAuthorizationType,
     ApiContext,
+    APIInternalError,
     ApiParams,
     ApiSchema,
     ParamType,
@@ -129,12 +128,14 @@ class IndexMapBase(ElasticBase):
         try:
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
         except MetadataError as exc:
-            self.logger.error("{}", str(exc))
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            self.logger.error("{}", exc)
+            raise APIInternalError(f"Required metadata {Metadata.INDEX_MAP} missing")
 
         if index_map is None:
             self.logger.error("Index map metadata has no value")
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise APIInternalError(
+                f"Required metadata {Metadata.INDEX_MAP} has no value"
+            )
 
         index_keys = [key for key in index_map if root_index_name in key]
         indices = ",".join(index_keys)

@@ -154,10 +154,8 @@ class TestDatasetsPublish:
             headers={"authorization": f"Bearer {pbench_token}"},
             query_string=self.PAYLOAD,
         )
-
-        # Verify the report and status
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == "Failed to update 3 out of 31 documents"
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {"ok": 28, "failure": 3}
 
         # Verify that the Dataset access didn't change
         dataset = Dataset.query(name="drb")
@@ -199,7 +197,7 @@ class TestDatasetsPublish:
         # Verify the report and status
         assert response.status_code == HTTPStatus.CONFLICT
         assert response.json == {
-            "message": "Dataset update requires Indexed state (INDEXED)"
+            "message": "Dataset update requires 'Indexed' dataset but state is 'Indexed'"
         }
 
     def test_exception(
@@ -210,6 +208,7 @@ class TestDatasetsPublish:
         get_document_map,
         pbench_token,
         server_config,
+        capinternal,
     ):
         """
         Check the publish API response if the bulk helper throws an exception.
@@ -224,7 +223,7 @@ class TestDatasetsPublish:
             raise_on_error: bool = True,
             raise_on_exception: bool = True,
         ):
-            raise elasticsearch.helpers.BulkIndexError
+            raise elasticsearch.helpers.BulkIndexError("test")
 
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
@@ -235,5 +234,4 @@ class TestDatasetsPublish:
         )
 
         # Verify the failure
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == HTTPStatus.INTERNAL_SERVER_ERROR.phrase
+        capinternal("Unexpected backend error", response)

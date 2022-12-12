@@ -152,7 +152,13 @@ class TestDatasetsDelete:
             Dataset.query(name=owner)
 
     def test_partial(
-        self, client, get_document_map, monkeypatch, server_config, pbench_token
+        self,
+        client,
+        capinternal,
+        get_document_map,
+        monkeypatch,
+        server_config,
+        pbench_token,
     ):
         """
         Check the delete API when some document updates fail. We expect an
@@ -165,10 +171,8 @@ class TestDatasetsDelete:
             f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_token}"},
         )
-
-        # Verify the report and status
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == "Failed to update 3 out of 31 documents"
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {"ok": 28, "failure": 3}
 
         # Verify that the Dataset still exists
         Dataset.query(name="drb")
@@ -211,6 +215,7 @@ class TestDatasetsDelete:
     def test_exception(
         self,
         attach_dataset,
+        capinternal,
         client,
         monkeypatch,
         get_document_map,
@@ -230,7 +235,7 @@ class TestDatasetsDelete:
             raise_on_error: bool = True,
             raise_on_exception: bool = True,
         ):
-            raise elasticsearch.helpers.BulkIndexError
+            raise elasticsearch.helpers.BulkIndexError("test")
 
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
@@ -240,5 +245,4 @@ class TestDatasetsDelete:
         )
 
         # Verify the failure
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["message"] == HTTPStatus.INTERNAL_SERVER_ERROR.phrase
+        capinternal("Unexpected backend error", response)

@@ -8,7 +8,7 @@ from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
-class TestDatasetsMetadata:
+class TestDatasetsMetadataGet:
     @pytest.fixture()
     def query_get_as(
         self, client, server_config, more_datasets, provide_metadata, get_token
@@ -45,51 +45,6 @@ class TestDatasetsMetadata:
 
             # We need to log out to avoid "duplicate auth token" errors on the
             # "put" test which does a PUT followed by two GETs.
-            if username:
-                client.post(
-                    f"{server_config.rest_uri}/logout",
-                    headers={"authorization": f"bearer {token}"},
-                )
-            return response
-
-        return query_api
-
-    @pytest.fixture()
-    def query_put_as(
-        self, client, server_config, more_datasets, provide_metadata, get_token
-    ):
-        """
-        Helper fixture to perform the API query and validate an expected
-        return status.
-
-        Args:
-            client: Flask test API client fixture
-            server_config: Pbench config fixture
-            more_datasets: Dataset construction fixture
-            provide_metadata: Dataset metadata fixture
-            get_token: Pbench token fixture
-        """
-
-        def query_api(
-            ds_name: str, payload: JSON, username: str, expected_status: HTTPStatus
-        ) -> requests.Response:
-            headers = None
-            try:
-                dataset = Dataset.query(name=ds_name).resource_id
-            except DatasetNotFound:
-                dataset = ds_name  # Allow passing deliberately bad value
-            if username:
-                token = get_token(username)
-                headers = {"authorization": f"bearer {token}"}
-            response = client.put(
-                f"{server_config.rest_uri}/datasets/metadata/{dataset}",
-                headers=headers,
-                json=payload,
-            )
-            assert response.status_code == expected_status
-
-            # We need to log out to avoid "duplicate auth token" errors on the
-            # test case which does a PUT followed by two GETs.
             if username:
                 client.post(
                     f"{server_config.rest_uri}/logout",
@@ -254,6 +209,53 @@ class TestDatasetsMetadata:
         )
         assert response.json == {"message": "Unknown URL query keys: controller,plugh"}
 
+
+class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
+    @pytest.fixture()
+    def query_put_as(
+        self, client, server_config, more_datasets, provide_metadata, get_token
+    ):
+        """
+        Helper fixture to perform the API query and validate an expected
+        return status.
+
+        Args:
+            client: Flask test API client fixture
+            server_config: Pbench config fixture
+            more_datasets: Dataset construction fixture
+            provide_metadata: Dataset metadata fixture
+            get_token: Pbench token fixture
+        """
+
+        def query_api(
+            ds_name: str, payload: JSON, username: str, expected_status: HTTPStatus
+        ) -> requests.Response:
+            headers = None
+            try:
+                dataset = Dataset.query(name=ds_name).resource_id
+            except DatasetNotFound:
+                dataset = ds_name  # Allow passing deliberately bad value
+            if username:
+                token = get_token(username)
+                headers = {"authorization": f"bearer {token}"}
+            response = client.put(
+                f"{server_config.rest_uri}/datasets/metadata/{dataset}",
+                headers=headers,
+                json=payload,
+            )
+            assert response.status_code == expected_status
+
+            # We need to log out to avoid "duplicate auth token" errors on the
+            # test case which does a PUT followed by two GETs.
+            if username:
+                client.post(
+                    f"{server_config.rest_uri}/logout",
+                    headers={"authorization": f"bearer {token}"},
+                )
+            return response
+
+        return query_api
+
     @pytest.mark.parametrize("uri", ("/datasets/metadata/", "/datasets/metadata"))
     def test_put_missing_uri_param(self, client, server_config, pbench_token, uri):
         """
@@ -402,6 +404,43 @@ class TestDatasetsMetadata:
             "user.one": None,
         }
 
+    def test_put_set_errors(self, capinternal, monkeypatch, query_get_as, query_put_as):
+        """Test a partial success. We set a scalar value on a key and then try
+        to set a nested value: i.e., with "global.dashboard.nested = False", we
+        attempt to set "global.dashboard.nested.dummy". We expect this to fail,
+        but we expect other values to succeed. This partial success is reported
+        as an "internal error" (for lack of any better representation in HTTP)
+        with a message indicating the specific failures.
+        """
+        query_put_as(
+            "drb",
+            {"metadata": {"global.dashboard.nested": False}},
+            "drb",
+            HTTPStatus.OK,
+        )
+        response = query_put_as(
+            "drb",
+            {
+                "metadata": {
+                    "global.dashboard.seen": False,
+                    "global.dashboard.nested.dummy": True,
+                    "dataset.name": "foo",
+                }
+            },
+            "drb",
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
+        response = query_get_as(
+            "foo", {"metadata": "global,dataset.name"}, "drb", HTTPStatus.OK
+        )
+        assert response.json == {
+            "global": {
+                "contact": "me@example.com",
+                "dashboard": {"seen": False, "nested": False},
+            },
+            "dataset.name": "foo",
+        }
+
     def test_put(self, query_get_as, query_put_as):
         response = query_put_as(
             "drb",
@@ -409,7 +448,10 @@ class TestDatasetsMetadata:
             "drb",
             HTTPStatus.OK,
         )
-        assert response.json == {"global.saved": True, "global.seen": False}
+        assert response.json == {
+            "metadata": {"global.saved": True, "global.seen": False},
+            "errors": {},
+        }
         response = query_get_as(
             "drb", {"metadata": "global,dataset.access"}, "drb", HTTPStatus.OK
         )
@@ -466,7 +508,10 @@ class TestDatasetsMetadata:
             "drb",
             HTTPStatus.OK,
         )
-        assert response.json == {"user.favorite": True, "user.tag": "AWS"}
+        assert response.json == {
+            "metadata": {"user.favorite": True, "user.tag": "AWS"},
+            "errors": {},
+        }
         audit = Audit.query()
         assert len(audit) == 2
         assert audit[0].id == 1
@@ -502,7 +547,10 @@ class TestDatasetsMetadata:
             "test",
             HTTPStatus.OK,
         )
-        assert response.json == {"user.favorite": False, "user.tag": "RHEL"}
+        assert response.json == {
+            "metadata": {"user.favorite": False, "user.tag": "RHEL"},
+            "errors": {},
+        }
         response = query_put_as(
             "fio_1",
             {"metadata": {"user.favorite": False, "user.tag": "BAD"}},

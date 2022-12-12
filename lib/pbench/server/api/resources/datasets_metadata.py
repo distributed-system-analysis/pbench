@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from logging import Logger
+from typing import Any
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
@@ -186,7 +187,7 @@ class DatasetsMetadata(ApiBase):
         # Now update the metadata, which may occur in multiple SQL operations
         # across namespaces. Make a best attempt to update all even if we
         # encounter an unexpected error.
-        fail = False
+        fail: dict[str, Any] = {}
         for k, v in metadata.items():
             native_key = Metadata.get_native_key(k)
             user_id = None
@@ -195,10 +196,10 @@ class DatasetsMetadata(ApiBase):
             try:
                 Metadata.setvalue(key=k, value=v, dataset=dataset, user_id=user_id)
             except MetadataError as e:
-                self.logger.warning("Unable to update key {} = {!r}: {}", k, v, str(e))
-                fail = True
+                fail[k] = str(e)
 
-        if fail:
-            raise APIAbort(HTTPStatus.INTERNAL_SERVER_ERROR)
-        results = self._get_dataset_metadata(dataset, list(metadata.keys()))
+        results = {
+            "metadata": self._get_dataset_metadata(dataset, list(metadata.keys())),
+            "errors": fail,
+        }
         return jsonify(results)

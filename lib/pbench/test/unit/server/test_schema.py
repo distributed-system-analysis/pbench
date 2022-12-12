@@ -1,12 +1,15 @@
 from http import HTTPStatus
+import json
 from typing import Callable, Union
 
 from dateutil import parser as date_parser
+from flask.wrappers import Response
 import pytest
 
 from pbench.server import OperationCode
 from pbench.server.api.resources import (
     APIAbort,
+    APIInternalError,
     ConversionError,
     InvalidRequestPayload,
     KeywordError,
@@ -74,6 +77,16 @@ class TestExceptions:
         p = PostprocessError(HTTPStatus.BAD_REQUEST, "really bad", None)
         assert str(p) == "Postprocessing error returning 400: 'really bad' [None]"
         assert p.status == HTTPStatus.BAD_REQUEST
+
+    def test_internal_error(self, capinternal, make_logger):
+        x = APIInternalError("my error")
+        make_logger.error(f"TEST {x.details}")
+        r = Response(
+            response=json.dumps({"message": x.message}),
+            mimetype="application/json",
+            status=HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
+        capinternal("my error", r)
 
 
 class TestParamType:
