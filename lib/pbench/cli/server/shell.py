@@ -17,7 +17,7 @@ from sqlalchemy_utils import create_database, database_exists
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api import create_app, get_server_config
-from pbench.server.database.database import Database
+from pbench.server.database import init_db
 
 PROG = "pbench-shell"
 
@@ -226,7 +226,7 @@ def main():
         logger.info("Database {} doesn't exist", db_uri)
         create_database(db_uri)
         logger.info("Created database {}", db_uri)
-    Database.init_db(server_config, logger)
+    init_db(server_config, logger)
 
     ret_val = generate_crontab_if_necessary(
         crontab_dir, server_config.BINDIR, server_config.log_dir, logger
