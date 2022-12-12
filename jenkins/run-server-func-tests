@@ -62,11 +62,18 @@ fi
 EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" jenkins/run server/exec_functests ${SERVER_URL}
 exit_status=${?}
 if [[ ${exit_status} -ne 0 ]]; then
-    # Try to capture the functional test container's log on completion.
-    # On success, the pod has already been shut down, so ignore errors.
-    # TODO: is there a more elegant way to do this?
+    printf -- "\nFunctional tests exited with code %s\n" ${exit_status}
+    printf -- "+++ journalctl dump +++\n"
+    # Try to capture the functional test container's log on completion.  On
+    # success, the pod has already been shut down, so ignore errors.
     podman exec ${PB_POD_NAME}-pbenchserver journalctl
+    printf -- "\n--- journalctl dump ---\n\n"
 fi
+if [[ -z ${1} ]]; then
+    # No clean up requested.
+    exit ${exit_status}
+fi
+
 podman pod stop ${PB_POD_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
