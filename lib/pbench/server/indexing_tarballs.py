@@ -360,7 +360,6 @@ class Index:
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
                         audit = None
                         ptb = None
-                        userid = None
                         tb_res = error_code["OK"]
                         try:
                             path = os.path.realpath(tb)
