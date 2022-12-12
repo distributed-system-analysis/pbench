@@ -10,7 +10,7 @@ import jwt
 
 from pbench.server import PbenchServerConfig
 from pbench.server.auth import OpenIDClient, OpenIDClientError
-from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.database.models.active_tokens import ActiveToken
 from pbench.server.database.models.users import User
 
 # Module private constants
@@ -127,7 +127,7 @@ def verify_auth(auth_token: str) -> Optional[User]:
     """
     state = verify_token_only(auth_token)
     if state == "verified":
-        token = ActiveTokens.query(auth_token)
+        token = ActiveToken.query(auth_token)
         user = token.user if token else None
     else:
         user = None

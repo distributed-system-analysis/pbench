@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.database.models.active_tokens import ActiveToken
 from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
 
@@ -231,7 +231,7 @@ class Login(Resource):
 
         # Add the new auth token to the database for later access
         try:
-            token = ActiveTokens(auth_token, expiration)
+            token = ActiveToken(auth_token, expiration)
             user.add_token(token)
         except IntegrityError:
             self.logger.warning(
@@ -251,8 +251,8 @@ class Login(Resource):
 
         # Remove any expired tokens for this user
         try:
-            Database.db_session.query(ActiveTokens).filter_by(user_id=user.id).filter(
-                ActiveTokens.expiration <= datetime.now(timezone.utc)
+            Database.db_session.query(ActiveToken).filter_by(user_id=user.id).filter(
+                ActiveToken.expiration <= datetime.now(timezone.utc)
             ).delete()
             Database.db_session.commit()
         except Exception:
@@ -306,7 +306,7 @@ class Logout(Resource):
         if state == "invalid":
             self.logger.info("User logout with invalid token: {}", auth_token)
         else:
-            token = ActiveTokens.query(auth_token)
+            token = ActiveToken.query(auth_token)
             if token:
                 user = token.user
                 if not user:
@@ -315,7 +315,7 @@ class Logout(Resource):
                     )
                 else:
                     try:
-                        ActiveTokens.delete(auth_token)
+                        ActiveToken.delete(auth_token)
                     except Exception:
                         self.logger.exception(
                             "Exception occurred deleting auth token {!r} for user {!r}",

@@ -6,10 +6,10 @@ from sqlalchemy.orm import relationship
 
 from pbench.server.database.database import Database
 
-AT = TypeVar("AT", bound="ActiveTokens")
+AT = TypeVar("AT", bound="ActiveToken")
 
 
-class ActiveTokens(Database.Base):
+class ActiveToken(Database.Base):
     """Token model for storing the active auth tokens.
 
     Each token is associated with a given User object, and stores its
@@ -36,7 +36,7 @@ class ActiveTokens(Database.Base):
     def query(token: str) -> AT:
         # We currently only query token database for a specific token.
         token_model = (
-            Database.db_session.query(ActiveTokens).filter_by(token=token).first()
+            Database.db_session.query(ActiveToken).filter_by(token=token).first()
         )
         return token_model
 
@@ -48,7 +48,7 @@ class ActiveTokens(Database.Base):
         :return:
         """
         try:
-            Database.db_session.query(ActiveTokens).filter_by(token=token).delete()
+            Database.db_session.query(ActiveToken).filter_by(token=token).delete()
             Database.db_session.commit()
         except Exception:
             Database.db_session.rollback()

@@ -24,7 +24,7 @@ from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.database.models.active_tokens import ActiveToken
 from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
@@ -875,7 +875,7 @@ def generate_token(
             {"pbench-client": {"roles": pbench_client_roles}}
         )
     token_str = jwt.encode(payload, jwt_secret, algorithm="HS256")
-    token = ActiveTokens(token_str, exp)
+    token = ActiveToken(token_str, exp)
     user.add_token(token)
     return token_str
 

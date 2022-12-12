@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship, validates
 from sqlalchemy.orm.exc import NoResultFound
 
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.database.models.active_tokens import ActiveToken
 
 
 class Roles(enum.Enum):
@@ -28,7 +28,7 @@ class User(Database.Base):
     registered_on = Column(DateTime, nullable=False, default=datetime.datetime.now())
     email = Column(String(255), unique=True, nullable=False)
     role = Column(Enum(Roles), unique=False, nullable=True)
-    auth_tokens = relationship("ActiveTokens", back_populates="user")
+    auth_tokens = relationship("ActiveToken", back_populates="user")
 
     def __str__(self):
         return f"User, id: {self.id}, username: {self.username}"
@@ -100,7 +100,7 @@ class User(Database.Base):
 
         return email
 
-    def add_token(self, token: ActiveTokens):
+    def add_token(self, token: ActiveToken):
         """
         Add the given token to the database, removing any expired tokens.
         """

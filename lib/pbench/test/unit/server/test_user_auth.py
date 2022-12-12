@@ -3,7 +3,7 @@ from http import HTTPStatus
 import time
 
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.database.models.active_tokens import ActiveToken
 from pbench.server.database.models.users import User
 from pbench.test.unit.server.conftest import admin_username
 
@@ -211,7 +211,7 @@ class TestUserAuthentication:
             user = User.query(username="me")
             # Add 3 expired tokens, values are in "days" old
             for age in (1, 2, 4):
-                token = ActiveTokens(
+                token = ActiveToken(
                     f"token-that-is-{age:d}-days-old",
                     datetime.now(timezone.utc) - timedelta(days=age),
                 )
@@ -224,7 +224,7 @@ class TestUserAuthentication:
             assert response.status_code == HTTPStatus.OK
 
             for age in (1, 2, 4):
-                token = ActiveTokens.query(f"token-that-is-{age:d}-days-old")
+                token = ActiveToken.query(f"token-that-is-{age:d}-days-old")
                 assert token is None
 
     @staticmethod
@@ -421,7 +421,7 @@ class TestUserAuthentication:
             assert response.status_code == HTTPStatus.OK
             # Check if the token has been successfully removed from the database
             assert (
-                not Database.db_session.query(ActiveTokens)
+                not Database.db_session.query(ActiveToken)
                 .filter_by(token=data_login["auth_token"])
                 .first()
             )
