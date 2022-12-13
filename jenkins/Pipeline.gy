@@ -1,19 +1,24 @@
 pipeline {
     agent { label 'pbench' }
     environment {
+        // Environment variables for various `jenkins/run` invocations.
         EXTRA_PODMAN_SWITCHES="--pull=always -e=COV_REPORT_XML=yes"
         IMAGE_KIND="fedora"
         IMAGE_REPO="quay.io/pbench"
         IMAGE_ROLE="ci"
         NO_COLORS=0
-        KEYCLOAK_CLIENT_SECRET=credentials('5cf0304d-8a00-48a4-ade5-9f59cb37ba68')
-        PB_EXTERNAL_CONTAINER_REG=credentials('24a93506-ecd6-403a-b4f0-386f9cc943e9')
-        PB_INTERNAL_CONTAINER_REG=credentials('c3e2d737-0e56-4c1e-a945-d86bc644384c')
-        PODMAN_EXTERNAL=credentials('87ad2797-02eb-464f-989f-8ab78d63cdf3')
-        PODMAN_INTERNAL=credentials('12b404ca-3036-4960-9929-979148b9e49a')
         PY_COLORS=0
         TERM='dumb'
 
+        // The remaining variables are for `jenkins/run-server-func-tests`.
+
+        PODMAN_INTERNAL=credentials('12b404ca-3036-4960-9929-979148b9e49a')
+        KEYCLOAK_CLIENT_SECRET=credentials('5cf0304d-8a00-48a4-ade5-9f59cb37ba68')
+        PB_CONTAINER_REG=credentials('c3e2d737-0e56-4c1e-a945-d86bc644384c')
+
+        PB_ORG_NAME="pbench"
+
+        PB_SERVER_IMAGE_NAME="pbench-server-ci"
         // Set the tag to the PR number (i.e., the Jenkins CHANGE_ID) if run for
         // a PR; otherwise set it to the branch name (e.g., `main`).  Set a
         // shorthand for the Pbench Server image path, and set a variable for
@@ -23,8 +28,8 @@ pipeline {
             returnStdout: true,
             script: 'echo ${CHANGE_ID:-${BRANCH_NAME}}'
             )}""".trim()
-        PB_SERVER_IMAGE="${PB_INTERNAL_CONTAINER_REG}/pbench/pbenchinacan-pbenchserver"
-        PB_POD_NAME="pbenchinacan_${PB_SERVER_IMAGE_TAG}"
+        PB_POD_NAME="pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"
+
         PB_DASHBOARD_DIR="${WORKSPACE}/dashboard/build/"
     }
     stages {
@@ -47,39 +52,18 @@ pipeline {
         }
         stage('Build the Pbench Server Container') {
             steps {
-                sh 'buildah login -u="${PODMAN_INTERNAL_USR}" -p="${PODMAN_INTERNAL_PSW}" ${PB_INTERNAL_CONTAINER_REG}'
-                sh 'RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build.sh'
-                sh 'buildah push localhost/pbench-server:${PB_SERVER_IMAGE_TAG} ${PB_SERVER_IMAGE}:${PB_SERVER_IMAGE_TAG}'
+                sh 'buildah login -u="${PODMAN_INTERNAL_USR}" -p="${PODMAN_INTERNAL_PSW}" ${PB_CONTAINER_REG}'
+                sh 'RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build-ci.sh'
+                sh 'buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}'
             }
         }
         stage('Deploy server and run functional tests') {
             steps {
-                sh 'envsubst < server/pbenchinacan/pod-nodata.yml | podman play kube -'
-                sleep 39
-                // Use curl to check when server is responding to API requests
-                retry(count: 600) {
-                    sleep 1
-                    sh 'curl --silent localhost:8080/api/v1/endpoints >/dev/null'
-                }
-                sh 'EXTRA_PODMAN_SWITCHES="--network host" jenkins/run server/exec_functests http://localhost:8080'
-                sh 'podman pod stop ${PB_POD_NAME}'
+                sh 'jenkins/run-server-func-tests --cleanup'
             }
         }
     }
     post {
-        always {
-            // Try to capture the functional test container's log on completion.
-            // On success, the pod has already been shut down, so ignore errors.
-            // TODO: is there a more elegant way to do this?
-            sh 'podman exec ${PB_POD_NAME}-pbenchserver journalctl || true'
-
-            // Remove the pod which we just created and ran; remove any
-            // dangling containers; and then remove any dangling images.
-            sh 'podman pod rm --force --ignore ${PB_POD_NAME} || true'
-            sh 'podman container prune -f || true'
-            sh 'podman container cleanup --all --rm || true'
-            sh 'podman image prune -f'
-        }
         success {
             // Note that jenkins/run-pytests is executed inside the container
             // while the Cobertura plug-in is executed natively, so this poses

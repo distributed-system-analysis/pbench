@@ -11,7 +11,7 @@ Buildarch:      noarch
 
 Requires: python3 python3-devel cronie tar xz util-linux-core hostname
 
-# policycoreutils for semanage and restorecon - used in pbench-server-activate-create-results-dir
+# policycoreutils for semanage and restorecon
 Requires:       policycoreutils
 %if 0%{?rhel} != 7
 Requires: policycoreutils-python-utils
