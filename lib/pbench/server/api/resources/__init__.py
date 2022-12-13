@@ -969,14 +969,18 @@ class ApiSchema:
         Using the API schema's designated authorization source, provide the
         necessary information for the caller to authorize access.
 
-        AUTHORIZATION.DATASET: Used when the API wants to authorize access to a
-            specific dataset, using the dataset owner and access property. The
-            ApiSchema must contain a parameter of type ParamType.DATASET which
-            must have a value.
-        AUTHORIZATION.USER_ACCESS: Used when authorizing a search for datasets
-            with specific ownership and access properties.The ApiSchema must
-            contain a parameter of type ParamType.USER and one of
-            ParamType.ACCESS. Unspecified values will be reported as None.
+        ApiAuthorizationType.DATASET: Used when the API wants to authorize
+            access to a specific dataset, using the dataset owner and access
+            property. The ApiSchema must contain a parameter of type
+            ParamType.DATASET which must have a value.
+        ApiAuthorizationType.USER_ACCESS: Used when authorizing a search for
+            datasets with specific ownership and access properties. The
+            ApiSchema must contain a parameter of type ParamType.USER and one
+            of ParamType.ACCESS. Unspecified values will be reported as None.
+        ApiAuthorizationType.ADMIN: Used when only a user with ADMIN role can
+            access the resource.
+        ApiAuthorizationType.NONE: Either no authorization is required, or the
+            API has custom authorization requirements.
 
         Args
             params:   The validated and converted parameter set for the API.
@@ -1496,7 +1500,6 @@ class ApiBase(Resource):
     def _dispatch(
         self,
         method: ApiMethod,
-        request: Request,
         uri_params: Optional[JSONOBJECT] = None,
     ) -> Response:
         """
@@ -1508,7 +1511,6 @@ class ApiBase(Resource):
 
         Args:
             method: The API HTTP method
-            request: The flask Request object containing payload and headers
             uri_params: URI encoded keyword-arg supplied by the Flask
                 framework
 
@@ -1519,7 +1521,7 @@ class ApiBase(Resource):
 
         api_name = self.__class__.__name__
 
-        self.logger.info("In {} {}", method, api_name)
+        self.logger.info("In {} {}: mime {}", method, api_name, request.mimetype)
 
         if not self.always_enabled:
             disabled = ServerConfig.get_disabled(
@@ -1550,7 +1552,7 @@ class ApiBase(Resource):
             # If there's a JSON payload, parse it, and fail if parsing fails.
             # If there's no payload and the API requires JSON body parameters,
             # then the schema validation will diagnose later.
-            if request.data and request.mimetype == "application/json":
+            if request.mimetype == "application/json" and schema.body_schema:
                 try:
                     body_params = request.get_json()
                 except Exception as e:
@@ -1573,7 +1575,6 @@ class ApiBase(Resource):
                 self.logger.exception("{} {}", api_name, e.details)
                 abort(e.http_status, message=str(e))
             except APIAbort as e:
-                self.logger.exception("{} {}", api_name, e)
                 abort(e.http_status, message=str(e))
             except Exception:
                 # Construct an APIInternalError to get the UUID and standard return
@@ -1609,7 +1610,10 @@ class ApiBase(Resource):
 
         audit = None
 
-        if schema.operation is not OperationCode.READ:
+        if (
+            schema.audit_type is not AuditType.NONE
+            and schema.operation is not OperationCode.READ
+        ):
             user = Auth.token_auth.current_user()
             dataset_found = schema.get_param_by_type(ParamType.DATASET, params)
             dataset = dataset_found.value if dataset_found else None
@@ -1650,7 +1654,6 @@ class ApiBase(Resource):
             self.logger.exception("{} {}", api_name, e.details)
             abort(e.http_status, message=str(e))
         except APIAbort as e:
-            self.logger.error("{} {}", api_name, e)
             if auditing["finalize"]:
                 attr = auditing.get("attributes", {"message": str(e)})
                 try:
@@ -1760,25 +1763,25 @@ class ApiBase(Resource):
         """
         Handle an authenticated GET operation on the Resource
         """
-        return self._dispatch(ApiMethod.GET, request, kwargs)
+        return self._dispatch(ApiMethod.GET, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
     def post(self, **kwargs):
         """
         Handle an authenticated POST operation on the Resource
         """
-        return self._dispatch(ApiMethod.POST, request, kwargs)
+        return self._dispatch(ApiMethod.POST, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
     def put(self, **kwargs):
         """
         Handle an authenticated PUT operation on the Resource
         """
-        return self._dispatch(ApiMethod.PUT, request, kwargs)
+        return self._dispatch(ApiMethod.PUT, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
     def delete(self, **kwargs):
         """
         Handle an authenticated DELETE operation on the Resource
         """
-        return self._dispatch(ApiMethod.DELETE, request, kwargs)
+        return self._dispatch(ApiMethod.DELETE, kwargs)

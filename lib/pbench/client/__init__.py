@@ -367,7 +367,12 @@ class PbenchServerClient:
         Returns:
             The PUT response object
         """
+        query_parameters = {}
+
         md5 = kwargs.get("md5", Dataset.md5(tarball))
+        access = kwargs.get("access", "private")
+        if access == "public":
+            query_parameters["access"] = access
         if "controller" in kwargs:
             controller = kwargs["controller"]
         else:
@@ -381,13 +386,18 @@ class PbenchServerClient:
             metadata.read_string(metafile)
             controller = metadata.get("run", "controller", fallback=None)
 
-        headers = {"Content-MD5": md5, "controller": controller}
+        headers = {
+            "Content-MD5": md5,
+            "controller": controller,
+            "content-type": "application/octet-stream",
+        }
 
         with tarball.open("rb") as f:
             return self.put(
                 api=API.UPLOAD,
                 uri_params={"filename": tarball.name},
                 headers=headers,
+                params=query_parameters,
                 data=f,
                 raise_error=False,
             )

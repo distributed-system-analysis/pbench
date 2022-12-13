@@ -360,7 +360,6 @@ class Index:
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
                         audit = None
                         ptb = None
-                        userid = None
                         tb_res = error_code["OK"]
                         try:
                             path = os.path.realpath(tb)
@@ -397,12 +396,6 @@ class Index:
                                     dataset, f"Unable to advance dataset state: {e!r}"
                                 )
                                 continue
-                            else:
-                                # NOTE: we index the owner_id foreign key not the username.
-                                # Although this is technically an integer, I'm clinging to
-                                # the notion that we want to keep this as a "keyword" (string)
-                                # field.
-                                userid = str(dataset.owner_id)
 
                             audit = Audit.create(
                                 operation=OperationCode.UPDATE,
@@ -414,7 +407,7 @@ class Index:
 
                             # "Open" the tar ball represented by the tar ball object
                             idxctx.logger.debug("open tar ball")
-                            ptb = PbenchTarBall(idxctx, userid, path, tmpdir, unpacked)
+                            ptb = PbenchTarBall(idxctx, dataset, path, tmpdir, unpacked)
 
                             # Construct the generator for emitting all actions.
                             # The `idxctx` dictionary is passed along to each

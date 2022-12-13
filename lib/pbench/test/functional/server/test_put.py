@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 import time
 
@@ -7,27 +8,41 @@ from pbench.client.types import Dataset
 TARBALL_DIR = Path("lib/pbench/test/functional/server/tarballs")
 
 
+@dataclass
+class Tarball:
+    """Record the tarball path and the uploaded access value"""
+
+    path: Path
+    access: str
+
+
 class TestPut:
-    tarballs: list[Path] = []
+    tarballs: dict[str, Tarball] = {}
 
     def test_upload_all(self, server_client: PbenchServerClient, login_user):
         """Upload each of the pregenerated tarballs, and perform some basic
         sanity checks on the resulting server state.
         """
+        access = ["private", "public"]
+        cur_access = 0
 
         for t in TARBALL_DIR.glob("*.tar.xz"):
-            self.tarballs.append(t)
-            response = server_client.upload(t)
+            a = access[cur_access]
+            cur_access = 0 if cur_access else 1
+            self.tarballs[Dataset.stem(t)] = Tarball(t, a)
+            response = server_client.upload(t, access=a)
             assert response.ok
         datasets = server_client.get_list(
-            metadata=["server.tarball-path", "server.status"]
+            metadata=["dataset.access", "server.tarball-path", "server.status"]
         )
         found = sorted(d.name for d in datasets)
-        expected = sorted(Dataset.stem(t) for t in self.tarballs)
+        expected = sorted(self.tarballs.keys())
         assert found == expected
         for dataset in datasets:
+            t = self.tarballs[dataset.name]
             assert dataset.name in dataset.metadata["server.tarball-path"]
             assert dataset.metadata["server.status"]["upload"] == "ok"
+            assert t.access == dataset.metadata["dataset.access"]
 
     def test_index_all(self, server_client: PbenchServerClient, login_user):
         """Wait for datasets to reach the "Indexed" state, and ensure that the

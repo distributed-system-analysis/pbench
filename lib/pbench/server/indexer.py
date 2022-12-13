@@ -31,6 +31,7 @@ from pbench.common.exceptions import (
     UnsupportedTarballFormat,
 )
 import pbench.server
+from pbench.server.database.models.datasets import Dataset
 from pbench.server.templates import PbenchTemplates
 
 # We import the entire pbench module so that mocking time works by changing
@@ -3197,12 +3198,25 @@ class PbenchTarBall:
     pbench tar ball.
     """
 
-    def __init__(self, idxctx, username, tbarg, tmpdir, extracted_root):
+    def __init__(
+        self,
+        idxctx: "IdxContext",
+        dataset: Dataset,
+        tbarg: str,
+        tmpdir: str,
+        extracted_root: str,
+    ):
+        """Context for indexing a tarball.
+
+        Args:
+            idxctx: The controlling Elasticsearch (pyesbulk) indexing context
+            dataset: The Dataset object representing the tarball
+            tbarg:  The filesystem path to the tarball (as a string)
+            tmpdir: The path to a temporary directory (as a string)
+            extracted_root: The path to the extracted tarball data (as a string)
+        """
         self.idxctx = idxctx
-        self.authorization = {
-            "owner": username,
-            "access": "private",
-        }
+        self.authorization = {"owner": str(dataset.owner_id), "access": dataset.access}
         self.tbname = tbarg
         self.controller_dir = os.path.basename(os.path.dirname(self.tbname))
         try:
@@ -3213,7 +3227,7 @@ class PbenchTarBall:
         tb_stat = os.stat(self.tbname)
         mtime = datetime.utcfromtimestamp(tb_stat.st_mtime)
 
-        # TODO: [PBENCH-956] Although we index from unpacked files on the file
+        # TODO: Although we index from unpacked files on the file
         # system, we repeatedly reference the list of TarInfo records from the
         # Python tarfile package rather than navigating the file tree directly.
         # This could likely be improved.
