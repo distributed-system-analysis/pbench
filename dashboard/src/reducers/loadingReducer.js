@@ -1,4 +1,4 @@
-import { COMPLETED, DASHBOARD_LOADING, LOADING } from "../actions/types";
+import { COMPLETED, LOADING } from "../actions/types";
 
 const initialState = {
   isLoading: false,
@@ -12,17 +12,11 @@ const LoadingReducer = (state = initialState, action = {}) => {
         ...state,
         isLoading: true,
       };
-    case DASHBOARD_LOADING:
-      return {
-        ...state,
-        isLoading: false,
-        isDashboardLoading: true,
-      };
+
     case COMPLETED:
       return {
         ...state,
         isLoading: false,
-        isDashboardLoading: false,
       };
     default:
       return state;

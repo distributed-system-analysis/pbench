@@ -5,7 +5,6 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionToggle,
-  Bullseye,
   Card,
   Grid,
   GridItem,
@@ -30,13 +29,12 @@ const OverviewComponent = () => {
   const dispatch = useDispatch();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { loginDetails } = useSelector((state) => state.userAuth);
-  const { expiringRuns, savedRuns, newRuns } = useSelector(
+  const { expiringRuns, savedRuns, newRuns, loadingDone } = useSelector(
     (state) => state.overview
   );
   const [expanded, setExpanded] = React.useState(
     new Set(["expired", "newRuns"])
   );
-  const { isDashboardLoading } = useSelector((state) => state.loading);
   useEffect(() => {
     if (Object.keys(endpoints).length > 0) {
       dispatch(getDatasets());
@@ -54,15 +52,13 @@ const OverviewComponent = () => {
   const isExpandedClass = expanded.size === 0 ? "not-expanded" : "";
   return (
     <div className="overview-container">
-      {isDashboardLoading ? (
-        <Bullseye>
+      {!loadingDone ? (
+        <div className="dashboard-loading-container">
           <Spinner isSVG />
-          <h2>Preparing dashboard</h2>
+          <h2 className="heading-h2">Preparing dashboard</h2>
 
-          <p>
-            If page doesn`&apost` load, try refreshing it or retrying later.
-          </p>
-        </Bullseye>
+          <p>If page doesn`t load, try refreshing it or retrying later.</p>
+        </div>
       ) : (
         <>
           <Heading title="Overview" />
