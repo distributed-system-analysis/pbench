@@ -36,7 +36,7 @@ function cleanup {
 }
 
 if [[ ${1} == "--cleanup" ]]; then
-    trap "cleanup ${PB_POD_NAME}" INT QUIT ERR EXIT
+    trap "cleanup ${PB_POD_NAME}" INT QUIT EXIT
 fi
 
 envsubst < server/pbenchinacan/pod.yml | podman play kube -
