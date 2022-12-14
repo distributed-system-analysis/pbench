@@ -44,10 +44,36 @@ class TestPut:
             assert dataset.metadata["server.status"]["upload"] == "ok"
             assert t.access == dataset.metadata["dataset.access"]
 
+    @staticmethod
+    def check_indexed(server_client: PbenchServerClient, datasets):
+        indexed = []
+        not_indexed = []
+        for dataset in datasets:
+            print(f"\t... on {dataset.metadata['server.tarball-path']}")
+            metadata = server_client.get_metadata(
+                dataset.resource_id, ["dataset.state", "server.status"]
+            )
+            state = metadata["dataset.state"]
+            status = metadata["server.status"]
+            stats = set(status.keys()) if status else set()
+            if state == "Indexed" and {"unpack", "index"} <= stats:
+                # Don't wait for backup, and don't fail if we haven't as
+                # it's completely independent from unpack/index; but if we
+                # have backed up, check that the status was successful.
+                if "backup" in stats:
+                    assert status["backup"] == "ok"
+                assert status["unpack"] == "ok"
+                assert status["index"] == "ok"
+                indexed.append(dataset)
+            else:
+                not_indexed.append(dataset)
+        return not_indexed, indexed
+
     def test_index_all(self, server_client: PbenchServerClient, login_user):
         """Wait for datasets to reach the "Indexed" state, and ensure that the
         state and metadata look good
         """
+        print(" ... reporting behaviors ...")
 
         # Test get_list pagination: to avoid forcing a list, we'll count the
         # iterations separately. (Note that this is really an implicit test
@@ -55,33 +81,31 @@ class TestPut:
         # one could argue belong in a separate test case; I'll likely refactor
         # this later when I add GET tests.)
         count = 0
-        datasets = server_client.get_list(limit=5)
+        not_indexed = server_client.get_list(limit=5, metadata=["server.tarball-path"])
 
         # For each dataset we find, poll the state until it reaches Indexed
         # state, or until we time out.
         start = time.time()
         timeout = start + (60.0 * 10.0)
 
-        for dataset in datasets:
-            count += 1
-            while True:
-                metadata = server_client.get_metadata(
-                    dataset.resource_id, ["dataset.state", "server.status"]
+        while True:
+            now = time.time()
+            print(f"[{now - start:0.2f}] Checking ...")
+            not_indexed, indexed = TestPut.check_indexed(server_client, not_indexed)
+            for dataset in indexed:
+                count += 1
+                print(
+                    "    Indexed ",
+                    dataset.metadata["server.tarball-path"],
                 )
-                state = metadata["dataset.state"]
-                status = metadata["server.status"]
-                stats = set(status.keys()) if status else set()
-                if state == "Indexed" and {"unpack", "index"} <= stats:
-                    # Don't wait for backup, and don't fail if we haven't as
-                    # it's completely independent from unpack/index; but if we
-                    # have backed up, check that the status was successful.
-                    if "backup" in stats:
-                        assert status["backup"] == "ok"
-                    assert status["unpack"] == "ok"
-                    assert status["index"] == "ok"
-                    break
-                assert (
-                    time.time() < timeout
-                ), f"Exceeded timeout: {dataset.name} state {state}, status {status}"
+            if not not_indexed:
+                break
+            if time.time() < timeout:
                 time.sleep(30.0)  # sleep for half a minute
-        assert count == len(self.tarballs), "Didn't find all expected datasets"
+            else:
+                print("Exceeded timeout (10 minutes), still not indexed:")
+                for dataset in not_indexed:
+                    print(dataset.metadata["server.tarball-path"])
+        assert count == len(
+            self.tarballs
+        ), f"Didn't find all expected datasets, found {count} of {len(self.tarballs)}"
