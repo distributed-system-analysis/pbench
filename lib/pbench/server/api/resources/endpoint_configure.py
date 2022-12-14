@@ -8,7 +8,7 @@ from flask import jsonify, request
 from flask.globals import current_app
 from flask_restful import abort, Resource
 
-from pbench.server import NoOptionError, PbenchServerConfig
+from pbench.server import NoOptionError, NoSectionError, PbenchServerConfig
 
 
 class EndpointConfig(Resource):
@@ -174,25 +174,28 @@ class EndpointConfig(Resource):
                     apis[path] = urljoin(host, url)
                     templates[path] = template
 
+        endpoints = {
+            "identification": f"Pbench server {self.server_config.COMMIT_ID}",
+            "api": apis,
+            "uri": templates,
+        }
+
         try:
-            oidc_secret = self.server_config.get("authentication", "secret")
-        except NoOptionError:
-            oidc_secret = ""
-        try:
+            secret = self.server_config.get("authentication", "secret")
             client = self.server_config.get("authentication", "client")
             realm = self.server_config.get("authentication", "realm")
             issuer = self.server_config.get("authentication", "server_url")
-            endpoints = {
-                "authentication": {
-                    "client": client,
-                    "realm": realm,
-                    "issuer": issuer,
-                    "secret": oidc_secret,
-                },
-                "identification": f"Pbench server {self.server_config.COMMIT_ID}",
-                "api": apis,
-                "uri": templates,
+        except (NoOptionError, NoSectionError):
+            pass
+        else:
+            endpoints["authentication"] = {
+                "client": client,
+                "realm": realm,
+                "issuer": issuer,
+                "secret": secret,
             }
+
+        try:
             response = jsonify(endpoints)
         except Exception:
             self.logger.exception("Something went wrong constructing the endpoint info")

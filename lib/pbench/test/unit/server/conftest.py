@@ -58,6 +58,7 @@ index_prefix = unit-test
 server_url = keycloak.example.com:0000
 realm = pbench
 client = pbench-client
+secret = my_precious
 
 ###########################################################################
 # The rest will come from the default config file.

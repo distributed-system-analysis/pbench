@@ -194,7 +194,6 @@ def main():
         db_wait_timeout = int(server_config.get("database", "wait_timeout"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
-        oidc_server = server_config.get("authentication", "server_url")
         crontab_dir = server_config.get("pbench-server", "crontab-dir")
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Error fetching required configuration: {}", exc)
@@ -209,12 +208,16 @@ def main():
         logger.error("Database {} not responding", db_uri)
         sys.exit(1)
 
-    logger.info("Pbench server using OIDC server {}", oidc_server)
-
-    logger.debug("Waiting for OIDC server to become available.")
-    ret_val = keycloak_connection(oidc_server, logger)
-    if ret_val != 0:
-        sys.exit(ret_val)
+    try:
+        oidc_server = server_config.get("authentication", "server_url")
+    except (NoOptionError, NoSectionError) as exc:
+        logger.warning("KeyCloak not configured, {}", exc)
+    else:
+        logger.debug("Waiting for OIDC server to become available.")
+        ret_val = keycloak_connection(oidc_server, logger)
+        if ret_val != 0:
+            sys.exit(ret_val)
+        logger.info("Pbench server using OIDC server {}", oidc_server)
 
     # Multiple gunicorn workers will attempt to connect to the DB; rather than
     # attempt to synchronize them, detect a missing DB (from the database URI)
