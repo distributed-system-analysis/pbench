@@ -28,7 +28,6 @@ pipeline {
             returnStdout: true,
             script: 'echo ${CHANGE_ID:-${BRANCH_NAME}}'
             )}""".trim()
-        PB_POD_NAME="pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"
 
         PB_DASHBOARD_DIR="${WORKSPACE}/dashboard/build/"
     }
