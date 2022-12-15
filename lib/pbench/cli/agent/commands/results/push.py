@@ -23,7 +23,7 @@ class ResultsPush(BaseCommand):
             self.config,
             self.logger,
         )
-        crt.copy_result_tb(self.context.token)
+        crt.copy_result_tb(self.context.token, self.context.access)
         return 0
 
 
@@ -35,6 +35,12 @@ class ResultsPush(BaseCommand):
     prompt=True,
     envvar="PBENCH_ACCESS_TOKEN",
     help="pbench server authentication token (will prompt if unspecified)",
+)
+@click.option(
+    "--access",
+    required=True,
+    prompt=True,
+    help="pbench tarball access permission public/private (will prompt if unspecified)",
 )
 @click.argument("controller")
 @click.argument(
@@ -54,6 +60,7 @@ def main(
     controller: str,
     result_tb_name: str,
     token: str,
+    access: str,
 ):
     """Push a result tar ball to the configured Pbench server.
 
@@ -68,6 +75,7 @@ def main(
     context.controller = controller
     context.result_tb_name = result_tb_name
     context.token = token
+    context.access = access
 
     try:
         rv = ResultsPush(context).execute()

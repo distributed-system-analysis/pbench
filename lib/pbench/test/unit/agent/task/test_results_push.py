@@ -16,6 +16,9 @@ class TestResultsPush:
     TOKN_SWITCH = "--token"
     TOKN_PROMPT = "Token: "
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
+    ACCESS_SWITCH = "--access"
+    ACCESS_PROMPT = "Access: "
+    ACCESS_TEXT = "public/private"
     URL = "http://pbench.example.com/api/v1"
 
     @staticmethod
@@ -94,6 +97,8 @@ class TestResultsPush:
                 TestResultsPush.TOKN_SWITCH,
                 TestResultsPush.TOKN_TEXT,
                 TestResultsPush.CTRL_TEXT,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
                 tarball,
                 "extra-arg",
             ],
@@ -114,6 +119,8 @@ class TestResultsPush:
                 TestResultsPush.TOKN_SWITCH,
                 TestResultsPush.TOKN_TEXT,
                 TestResultsPush.CTRL_TEXT,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
                 tarball,
             ],
         )
@@ -129,8 +136,33 @@ class TestResultsPush:
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
-            args=[TestResultsPush.CTRL_TEXT, tarball],
+            args=[
+                TestResultsPush.CTRL_TEXT,
+                tarball,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+            ],
             input=TestResultsPush.TOKN_TEXT + "\n",
+        )
+        assert result.exit_code == 0, result.stderr
+        assert result.stderr == "File uploaded successfully\n"
+
+    @staticmethod
+    @responses.activate
+    def test_access_prompt():
+        """Test normal operation when the access option is omitted"""
+
+        TestResultsPush.add_http_mock_response()
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.CTRL_TEXT,
+                tarball,
+                TestResultsPush.TOKN_SWITCH,
+                TestResultsPush.TOKN_TEXT,
+            ],
+            input=TestResultsPush.ACCESS_TEXT + "\n",
         )
         assert result.exit_code == 0, result.stderr
         assert result.stderr == "File uploaded successfully\n"
@@ -144,7 +176,15 @@ class TestResultsPush:
         TestResultsPush.add_http_mock_response()
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball])
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.CTRL_TEXT,
+                tarball,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+            ],
+        )
         assert result.exit_code == 0, result.stderr
         assert result.stderr == "File uploaded successfully\n"
 
@@ -157,7 +197,15 @@ class TestResultsPush:
         TestResultsPush.add_connectionerr_mock_response()
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball])
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.CTRL_TEXT,
+                tarball,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+            ],
+        )
         assert result.exit_code == 1
         assert str(result.stderr).startswith("Cannot connect to")
 
@@ -170,7 +218,15 @@ class TestResultsPush:
         TestResultsPush.add_http_mock_response(HTTPStatus.NOT_FOUND)
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball])
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.CTRL_TEXT,
+                tarball,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+            ],
+        )
         assert result.exit_code == 1
         assert (
             str(result.stderr).find("Not Found") > -1

@@ -103,7 +103,7 @@ class MoveResults(BaseCommand):
                         self.config,
                         self.logger,
                     )
-                    crt.copy_result_tb(self.context.token)
+                    crt.copy_result_tb(self.context.token, self.context.access)
                 except Exception as exc:
                     if isinstance(exc, (CopyResultTb.FileUploadError, RuntimeError)):
                         msg = "Error uploading file"
@@ -182,6 +182,12 @@ class MoveResults(BaseCommand):
     help="Override the default controller name",
 )
 @click.option(
+    "--access",
+    required=True,
+    prompt=True,
+    help="pbench tarball access permission public/private (will prompt if unspecified)",
+)
+@click.option(
     "--token",
     required=True,
     envvar="PBENCH_ACCESS_TOKEN",
@@ -210,6 +216,7 @@ class MoveResults(BaseCommand):
 def main(
     context: CliContext,
     controller: str,
+    access: str,
     token: str,
     delete: bool,
     xz_single_threaded: bool,
@@ -237,6 +244,7 @@ def main(
         clk_ctx.exit(1)
     context.controller = controller
 
+    context.access = access
     context.token = token
 
     if show_server:

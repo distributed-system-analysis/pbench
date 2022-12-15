@@ -38,7 +38,7 @@ class TestCopyResults:
             self.config,
             self.logger,
         )
-        crt.copy_result_tb("token")
+        crt.copy_result_tb("token", "access")
 
     @responses.activate
     def test_bad_tar(self, caplog):
