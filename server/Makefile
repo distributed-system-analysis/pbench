@@ -61,7 +61,6 @@ install-bin:
 
 install-lib:
 	${COPY} lib ${DESTDIR}
-	${RM} ${DESTDIR}/lib/config/nginx.conf.example
 
 clean:
 	${RM} -rf ${DESTDIR}

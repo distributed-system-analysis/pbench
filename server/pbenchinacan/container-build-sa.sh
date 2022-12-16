@@ -44,17 +44,17 @@ fi
 container=$(buildah from --format=docker ${BASE_IMAGE})
 
 # Provide a few useful defaults for labels and the host name to use, and expose
-# port 80 for the Apache2 httpd process acting as a proxy.
+# port 8080 for the Nginx proxy server.
 buildah config \
     --label maintainer="Pbench Maintainers <pbench@googlegroups.com>" \
-    --port 80      `# pbench-server` \
+    --port 8080      `# pbench-server` \
     $container
 
 buildah copy $container ${RPM_PATH} /tmp/pbench-server.rpm
 buildah run $container dnf update -y
 buildah run $container dnf install -y --setopt=tsflags=nodocs \
         https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-buildah run $container dnf install -y /tmp/pbench-server.rpm httpd less rsyslog
+buildah run $container dnf install -y /tmp/pbench-server.rpm nginx less rsyslog rsyslog-mmjsonparse
 buildah run $container dnf clean all
 buildah run $container rm -f /tmp/pbench-server.rpm
 
@@ -63,20 +63,21 @@ buildah run $container bash -c "sed -i -e '/pam_loginuid/ s/^/#/' /etc/pam.d/cro
 # Keep cron from complaining about inability to connect to systemd-logind
 buildah run $container bash -c "sed -i -e '/pam_systemd/ s/^/#/' /etc/pam.d/system-auth"
 
-# We need to ensure HTTPD listens on port 8080 so container can be optionally
-# run with host networking from a non-root user.
-buildah run $container bash -c "sed -i -e 's/^Listen 80$/Listen 8080/' /etc/httpd/conf/httpd.conf"
-# Add our pbench server HTTPD configuration.
+# Add our Pbench Server Nginx configuration.
 buildah copy --chown root:root --chmod 0644 $container \
-    ${PBINC_SERVER}/lib/config/pbench.httpd.conf /etc/httpd/conf.d/pbench.conf
+    ${PBINC_SERVER}/lib/config/nginx.conf /etc/nginx/nginx.conf
 
-# Setup the pbench-server systemd service
+# Since we configure Nginx to log via syslog directly, remove Nginx log rotation
+# configuration as it emits unnecessary "Permission denied" errors.
+buildah run $container rm /etc/logrotate.d/nginx
+
+# Setup the Pbench Server systemd service.
 buildah run $container cp ${SERVER_LIB}/systemd/pbench-server.service \
     /etc/systemd/system/pbench-server.service
 
-buildah run $container systemctl enable httpd
+buildah run $container systemctl enable nginx
 buildah run $container systemctl enable rsyslog
 buildah run $container systemctl enable pbench-server
 
-# Create the container image
+# Create the container image.
 buildah commit $container localhost/pbench-server:${PB_SERVER_IMAGE_TAG}
