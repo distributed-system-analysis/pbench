@@ -1,6 +1,7 @@
 import * as TYPES from "./types";
 
 import {
+  DASHBOARD_LOAD_DELAY_MS,
   DASHBOARD_SAVED,
   DASHBOARD_SEEN,
   DATASET_ACCESS,
@@ -16,11 +17,13 @@ import { constructToast } from "./toastActions";
 import { findNoOfDays } from "utils/dateFunctions";
 
 export const getDatasets = () => async (dispatch, getState) => {
+  const alreadyRendered = getState().overview.loadingDone;
   try {
-    dispatch({ type: TYPES.LOADING });
-
     const username = getState().userAuth.loginDetails.username;
 
+    if (alreadyRendered) {
+      dispatch({ type: TYPES.LOADING });
+    }
     const params = new URLSearchParams();
     params.append("metadata", DATASET_CREATED);
     params.append("metadata", DATASET_OWNER);
@@ -52,7 +55,11 @@ export const getDatasets = () => async (dispatch, getState) => {
     dispatch(constructToast("danger", error?.response?.data?.message));
     dispatch({ type: TYPES.NETWORK_ERROR });
   }
-  dispatch({ type: TYPES.COMPLETED });
+  if (alreadyRendered) {
+    dispatch({ type: TYPES.COMPLETED });
+  } else {
+    dispatch(setLoadingDoneFlag());
+  }
 };
 
 const initializeRuns = () => (dispatch, getState) => {
@@ -231,3 +238,14 @@ export const publishDataset =
     }
     dispatch({ type: TYPES.COMPLETED });
   };
+
+export const setLoadingDoneFlag = () => async (dispatch, getState) => {
+  const alreadyRendered = sessionStorage.getItem("loadingDone");
+
+  setTimeout(() => {
+    if (!alreadyRendered) {
+      sessionStorage.setItem("loadingDone", true);
+      dispatch({ type: TYPES.SET_LOADING_FLAG, payload: true });
+    }
+  }, DASHBOARD_LOAD_DELAY_MS);
+};

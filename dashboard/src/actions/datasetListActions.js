@@ -1,4 +1,5 @@
 import * as TYPES from "./types";
+
 import API from "../utils/axiosInstance";
 
 export const fetchPublicDatasets = () => async (dispatch, getState) => {
@@ -15,6 +16,7 @@ export const fetchPublicDatasets = () => async (dispatch, getState) => {
       });
     }
     dispatch({ type: TYPES.COMPLETED });
+    dispatch(callLoading());
   } catch (error) {
     return error;
   }
@@ -41,4 +43,11 @@ export const updateTblData = (data) => async (dispatch) => {
     type: TYPES.UPDATE_PUBLIC_DATASETS,
     payload: [...data],
   });
+};
+
+export const callLoading = () => (dispatch) => {
+  dispatch({ type: TYPES.LOADING });
+  setTimeout(() => {
+    dispatch({ type: TYPES.COMPLETED });
+  }, 5000);
 };

@@ -8,6 +8,7 @@ const initialState = {
   initNewRuns: [],
   selectedRuns: [],
   expiringRuns: [],
+  loadingDone: !!sessionStorage.getItem("loadingDone"),
 };
 
 const OverviewReducer = (state = initialState, action = {}) => {
@@ -42,6 +43,16 @@ const OverviewReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         expiringRuns: payload,
+      };
+    case TYPES.SET_DASHBOARD_LOADING:
+      return {
+        ...state,
+        isLoadingFirstTime: false,
+      };
+    case TYPES.SET_LOADING_FLAG:
+      return {
+        ...state,
+        loadingDone: payload,
       };
     default:
       return state;
