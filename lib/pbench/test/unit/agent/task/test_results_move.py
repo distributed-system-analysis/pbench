@@ -45,10 +45,9 @@ class TestMoveResults:
     XZST_SWITCH = "--xz-single-threaded"
     SWSR_SWITCH = "--show-server"
     TOKN_PROMPT = "Token: "
-    ACCESS_PROMPT = "Access: "
     CTRL_TEXT = "ctrl"
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
-    ACCESS_TEXT = "public/private"
+    ACCESS_TEXT = "private"
     SWSR_TEXT = None
     URL = "http://pbench.example.com/api/v1"
     ENDPOINT = "/login"
@@ -138,8 +137,6 @@ class TestMoveResults:
                 TestMoveResults.TOKN_SWITCH,
                 TestMoveResults.TOKN_TEXT,
                 TestMoveResults.DELN_SWITCH,
-                TestMoveResults.ACCESS_SWITCH,
-                TestMoveResults.ACCESS_TEXT,
             ],
         )
         assert (
@@ -161,8 +158,6 @@ class TestMoveResults:
                 TestMoveResults.CTRL_TEXT,
                 TestMoveResults.TOKN_SWITCH,
                 TestMoveResults.TOKN_TEXT,
-                TestMoveResults.ACCESS_SWITCH,
-                TestMoveResults.ACCESS_TEXT,
             ],
         )
         assert (
@@ -182,8 +177,6 @@ class TestMoveResults:
                 TestMoveResults.CTRL_TEXT,
                 TestMoveResults.TOKN_SWITCH,
                 TestMoveResults.TOKN_TEXT,
-                TestMoveResults.ACCESS_SWITCH,
-                TestMoveResults.ACCESS_TEXT,
             ],
         )
         assert (

@@ -17,8 +17,8 @@ class TestResultsPush:
     TOKN_PROMPT = "Token: "
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
     ACCESS_SWITCH = "--access"
-    ACCESS_PROMPT = "Access: "
-    ACCESS_TEXT = "public/private"
+    ACCESS_TEXT = "public"
+    ACCESS_WRONG_TEXT = "public/private"
     URL = "http://pbench.example.com/api/v1"
 
     @staticmethod
@@ -97,8 +97,6 @@ class TestResultsPush:
                 TestResultsPush.TOKN_SWITCH,
                 TestResultsPush.TOKN_TEXT,
                 TestResultsPush.CTRL_TEXT,
-                TestResultsPush.ACCESS_SWITCH,
-                TestResultsPush.ACCESS_TEXT,
                 tarball,
                 "extra-arg",
             ],
@@ -139,30 +137,8 @@ class TestResultsPush:
             args=[
                 TestResultsPush.CTRL_TEXT,
                 tarball,
-                TestResultsPush.ACCESS_SWITCH,
-                TestResultsPush.ACCESS_TEXT,
             ],
             input=TestResultsPush.TOKN_TEXT + "\n",
-        )
-        assert result.exit_code == 0, result.stderr
-        assert result.stderr == "File uploaded successfully\n"
-
-    @staticmethod
-    @responses.activate
-    def test_access_prompt():
-        """Test normal operation when the access option is omitted"""
-
-        TestResultsPush.add_http_mock_response()
-        runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(
-            main,
-            args=[
-                TestResultsPush.CTRL_TEXT,
-                tarball,
-                TestResultsPush.TOKN_SWITCH,
-                TestResultsPush.TOKN_TEXT,
-            ],
-            input=TestResultsPush.ACCESS_TEXT + "\n",
         )
         assert result.exit_code == 0, result.stderr
         assert result.stderr == "File uploaded successfully\n"
@@ -181,12 +157,33 @@ class TestResultsPush:
             args=[
                 TestResultsPush.CTRL_TEXT,
                 tarball,
-                TestResultsPush.ACCESS_SWITCH,
-                TestResultsPush.ACCESS_TEXT,
             ],
         )
         assert result.exit_code == 0, result.stderr
         assert result.stderr == "File uploaded successfully\n"
+
+    @staticmethod
+    @responses.activate
+    def test_access_error(monkeypatch, caplog):
+        """Test normal operation with the token in an environment variable"""
+
+        monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
+        TestResultsPush.add_http_mock_response()
+        caplog.set_level(logging.DEBUG)
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.CTRL_TEXT,
+                tarball,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_WRONG_TEXT,
+            ],
+        )
+        assert result.exit_code == 2, result.stderr
+        assert ("Error: Invalid value for '--access': 'public/private'") in str(
+            result.stderr
+        )
 
     @staticmethod
     @responses.activate
@@ -202,8 +199,6 @@ class TestResultsPush:
             args=[
                 TestResultsPush.CTRL_TEXT,
                 tarball,
-                TestResultsPush.ACCESS_SWITCH,
-                TestResultsPush.ACCESS_TEXT,
             ],
         )
         assert result.exit_code == 1
@@ -223,8 +218,6 @@ class TestResultsPush:
             args=[
                 TestResultsPush.CTRL_TEXT,
                 tarball,
-                TestResultsPush.ACCESS_SWITCH,
-                TestResultsPush.ACCESS_TEXT,
             ],
         )
         assert result.exit_code == 1
