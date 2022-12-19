@@ -181,7 +181,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 2, result.stderr
-        assert ("Error: Invalid value for '--access': 'public/private'") in str(
+        assert ("Error: Invalid value for '-a' / '--access': 'public/private'") in str(
             result.stderr
         )
 

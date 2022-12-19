@@ -5,6 +5,7 @@ import click
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb
 from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli.agent.commands.results.results_options import results_common_options
 from pbench.cli.agent.options import common_options
 from pbench.common.utils import md5sum
 
@@ -29,19 +30,13 @@ class ResultsPush(BaseCommand):
 
 @click.command(name="pbench-results-push")
 @common_options
+@results_common_options
 @click.option(
     "--token",
     required=True,
     prompt=True,
     envvar="PBENCH_ACCESS_TOKEN",
     help="pbench server authentication token (will prompt if unspecified)",
-)
-@click.option(
-    "--access",
-    default="private",
-    show_default=True,
-    type=click.Choice(["public", "private"], case_sensitive=False),
-    help="pbench tarball access permission public/private (will prompt if unspecified)",
 )
 @click.argument("controller")
 @click.argument(

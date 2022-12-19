@@ -8,6 +8,7 @@ import click
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb, MakeResultTb
 from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli.agent.commands.results.results_options import results_common_options
 from pbench.cli.agent.options import common_options
 from pbench.common.exceptions import BadMDLogFormat
 from pbench.common.utils import validate_hostname
@@ -173,6 +174,7 @@ class MoveResults(BaseCommand):
 
 @click.command(name="pbench-results-move")
 @common_options
+@results_common_options
 @click.option(
     "--controller",
     required=False,
@@ -180,13 +182,6 @@ class MoveResults(BaseCommand):
     default="",
     prompt=False,
     help="Override the default controller name",
-)
-@click.option(
-    "--access",
-    default="private",
-    show_default=True,
-    type=click.Choice(["public", "private"], case_sensitive=False),
-    help="pbench tarball access permission public/private (will prompt if unspecified)",
 )
 @click.option(
     "--token",
