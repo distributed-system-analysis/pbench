@@ -7,7 +7,7 @@ import socket
 import subprocess
 import sys
 import time
-from typing import Dict, List, NamedTuple
+from typing import Any, Dict, List, NamedTuple, Tuple
 
 import ifaddr
 
@@ -462,6 +462,11 @@ class LocalRemoteHost:
     alias for the current host) or "remote".
     """
 
+    class Error(RuntimeError):
+        """Exception wrapper for those raised by the operation of the class."""
+
+        pass
+
     def __init__(self):
         """
         Build up a list of local IP addresses from all the interfaces.
@@ -511,7 +516,22 @@ class LocalRemoteHost:
                     ips.append(addr)
         self.aliases = frozenset(ips)
 
-    def is_local(self, host_name):
+    def resolve(self, host_name: str) -> List[Tuple[(Any, Any, Any, Any, Any)]]:
+        """Resolve given host name returning list of address information as
+        returned by `socket.getaddrinfo`.
+
+        Ask for only TCP (stream) address translations for the host_name
+        since that's all we can use.
+        """
+        try:
+            infos = socket.getaddrinfo(host_name, None, type=socket.SOCK_STREAM)
+        except Exception as exc:
+            raise self.Error(
+                f"Error fetching address information for host name {host_name!r}"
+            ) from exc
+        return infos
+
+    def is_local(self, host_name: str) -> bool:
         """
         Determine whether a given hostname is an alias for the local host; in
         other words, whether the IP addresses to which hostname resolves match
@@ -523,9 +543,7 @@ class LocalRemoteHost:
         Returns:
             True if `host_name` matches a local host address
         """
-        # Ask for only TCP (stream) address translations for the host_name
-        # since that's all we can use.
-        infos = socket.getaddrinfo(host_name, None, type=socket.SOCK_STREAM)
+        infos = self.resolve(host_name)
 
         # Unpack the tuples returned by `socket.getaddrinfo`. The last element,
         # "addr", is a tuple that varies by family: for IPv4 there is address
@@ -559,10 +577,29 @@ class LocalRemoteHost:
             ]
         )
 
-    def _mock_is_local(self, host_name):
+    def _mock_resolve(self, host_name: str) -> List[Tuple[(Any, Any, Any, Any, Any)]]:
+        return [
+            (
+                socket.AddressFamily.AF_INET6,
+                socket.SocketKind.SOCK_STREAM,
+                6,
+                "",
+                ("::1", 0, 0, 0),
+            ),
+            (
+                socket.AddressFamily.AF_INET,
+                socket.SocketKind.SOCK_STREAM,
+                6,
+                "",
+                ("127.0.0.1", 0),
+            ),
+        ]
+
+    def _mock_is_local(self, host_name: str) -> bool:
         return host_name in self._local_names
 
 
 if os.environ.get("_PBENCH_UNIT_TESTS"):
     LocalRemoteHost.__init__ = LocalRemoteHost._mock__init__
+    LocalRemoteHost.resolve = LocalRemoteHost._mock_resolve
     LocalRemoteHost.is_local = LocalRemoteHost._mock_is_local
