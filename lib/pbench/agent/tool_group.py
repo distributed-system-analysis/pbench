@@ -4,6 +4,8 @@ import re
 import shutil
 from typing import Iterable, Optional
 
+from pbench.agent.utils import LocalRemoteHost
+
 
 class BadToolGroup(Exception):
     """Exception representing a tool group that does not exist or is invalid."""
@@ -133,6 +135,19 @@ class ToolGroup:
                     tool not in self.hostnames[host]
                 ), f"Logic error!  {tool} in {self.hostnames[host]!r}"
                 self.hostnames[host][tool] = tool_opts
+
+    def verify_hostnames(self):
+        """verify all registered host names properly resolve their host
+        information.
+        """
+        lr = LocalRemoteHost()
+        for host in self.hostnames:
+            try:
+                lr.resolve(host)
+            except Exception as exc:
+                raise BadToolGroup(
+                    f"Bad tool group, '{self.name}': '{host}' did not resolve"
+                ) from exc
 
     def get_tools(self, host):
         """get_tools - given a target host, return a dictionary with the list

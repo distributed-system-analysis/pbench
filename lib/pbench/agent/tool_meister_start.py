@@ -806,6 +806,11 @@ def start(_prog: str, cli_params: Namespace) -> int:
             # If a tool group has no tools registered, then there will be no
             # host names on which to start Tool Meisters.
             return ReturnCode.SUCCESS
+        try:
+            tool_group.verify_hostnames()
+        except BadToolGroup as exc:
+            logger.error(str(exc))
+            return ReturnCode.BADTOOLGROUP
 
     sysinfo, bad_l = cli_verify_sysinfo(cli_params.sysinfo)
     if bad_l:

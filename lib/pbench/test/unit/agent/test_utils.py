@@ -2,7 +2,6 @@
 """
 import os
 import signal
-import socket
 import time
 
 import ifaddr
@@ -243,7 +242,7 @@ class TestLocalRemoteHost:
 
         # An unresolvable host isn't usable for benchmarking; we expect name
         # resolution to fail, and the exception should propagate to the caller.
-        with pytest.raises(socket.gaierror):
+        with pytest.raises(lrh.Error):
             lrh.is_local("testhost.example.com")
         assert not lrh.is_local("example.com"), "'example.com' should be remote"
         assert lrh.is_local("localhost"), "'localhost' should be local"
