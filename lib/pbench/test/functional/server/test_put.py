@@ -1,10 +1,14 @@
 from dataclasses import dataclass
 from http import HTTPStatus
+import os.path
 from pathlib import Path
 import re
 import time
 
-from pbench.client import PbenchServerClient
+import pytest
+from requests.exceptions import HTTPError
+
+from pbench.client import API, PbenchServerClient
 from pbench.client.types import Dataset
 
 TARBALL_DIR = Path("lib/pbench/test/functional/server/tarballs")
@@ -39,14 +43,21 @@ class TestPut:
         datasets = server_client.get_list(
             metadata=["dataset.access", "server.tarball-path", "server.status"]
         )
-        found = sorted(d.name for d in datasets)
-        expected = sorted(self.tarballs.keys())
-        assert found == expected
-        for dataset in datasets:
-            t = self.tarballs[dataset.name]
-            assert dataset.name in dataset.metadata["server.tarball-path"]
-            assert dataset.metadata["server.status"]["upload"] == "ok"
-            assert t.access == dataset.metadata["dataset.access"]
+        found = {d.name for d in datasets}
+        expected = frozenset(self.tarballs.keys())
+        assert expected.issubset(found), f"expected {expected!r}, found {found!r}"
+        try:
+            for dataset in datasets:
+                if dataset.name not in expected:
+                    continue
+                t = self.tarballs[dataset.name]
+                assert dataset.name in dataset.metadata["server.tarball-path"]
+                assert dataset.metadata["server.status"]["upload"] == "ok"
+                assert t.access == dataset.metadata["dataset.access"]
+        except HTTPError as exc:
+            pytest.fail(
+                f"Unexpected HTTP error, url = {exc.response.url}, status code = {exc.response.status_code}, text = {exc.response.text!r}"
+            )
 
     def test_upload_again(self, server_client: PbenchServerClient, login_user):
         """Try to upload a dataset we've already uploaded. This should succeed
@@ -87,31 +98,41 @@ class TestPut:
     def check_indexed(server_client: PbenchServerClient, datasets):
         indexed = []
         not_indexed = []
-        for dataset in datasets:
-            print(f"\t... on {dataset.metadata['server.tarball-path']}")
-            metadata = server_client.get_metadata(
-                dataset.resource_id, ["dataset.state", "server.status"]
+        try:
+            for dataset in datasets:
+                print(f"\t... on {dataset.metadata['server.tarball-path']}")
+                metadata = server_client.get_metadata(
+                    dataset.resource_id, ["dataset.state", "server.status"]
+                )
+                state = metadata["dataset.state"]
+                status = metadata["server.status"]
+                stats = set(status.keys()) if status else set()
+                if state == "Indexed" and {"unpack", "index"} <= stats:
+                    # Don't wait for backup, and don't fail if we haven't as
+                    # it's completely independent from unpack/index; but if we
+                    # have backed up, check that the status was successful.
+                    if "backup" in stats:
+                        assert status["backup"] == "ok"
+                    assert status["unpack"] == "ok"
+                    assert status["index"] == "ok"
+                    indexed.append(dataset)
+                else:
+                    not_indexed.append(dataset)
+        except HTTPError as exc:
+            pytest.fail(
+                f"Unexpected HTTP error, url = {exc.response.url}, status code = {exc.response.status_code}, text = {exc.response.text!r}"
             )
-            state = metadata["dataset.state"]
-            status = metadata["server.status"]
-            stats = set(status.keys()) if status else set()
-            if state == "Indexed" and {"unpack", "index"} <= stats:
-                # Don't wait for backup, and don't fail if we haven't as
-                # it's completely independent from unpack/index; but if we
-                # have backed up, check that the status was successful.
-                if "backup" in stats:
-                    assert status["backup"] == "ok"
-                assert status["unpack"] == "ok"
-                assert status["index"] == "ok"
-                indexed.append(dataset)
-            else:
-                not_indexed.append(dataset)
         return not_indexed, indexed
 
     def test_index_all(self, server_client: PbenchServerClient, login_user):
         """Wait for datasets to reach the "Indexed" state, and ensure that the
         state and metadata look good
         """
+        tarball_names_l = []
+        for t in TARBALL_DIR.glob("*.tar.xz"):
+            tarball_names_l.append(t.name)
+        tarball_names = frozenset(tarball_names_l)
+
         print(" ... reporting behaviors ...")
 
         # Test get_list pagination: to avoid forcing a list, we'll count the
@@ -131,8 +152,11 @@ class TestPut:
             print(f"[{now - start:0.2f}] Checking ...")
             not_indexed, indexed = TestPut.check_indexed(server_client, not_indexed)
             for dataset in indexed:
+                tp = dataset.metadata["server.tarball-path"]
+                if os.path.basename(tp) not in tarball_names:
+                    continue
                 count += 1
-                print("    Indexed ", dataset.metadata["server.tarball-path"])
+                print(f"    Indexed {tp}")
             if not not_indexed or now >= timeout:
                 break
             time.sleep(30.0)  # sleep for half a minute
@@ -145,3 +169,24 @@ class TestPut:
         assert count == len(
             self.tarballs
         ), f"Didn't find all expected datasets, found {count} of {len(self.tarballs)}"
+
+    def test_delete(self, server_client: PbenchServerClient, login_user):
+        """Verify we can delete each previously uploaded dataset."""
+        datasets = server_client.get_list()
+        datasets_hash = {}
+        try:
+            for dataset in datasets:
+                datasets_hash[f"{dataset.name}.tar.xz"] = dataset.resource_id
+        except HTTPError as exc:
+            pytest.fail(
+                f"Unexpected HTTP error, url = {exc.response.url}, status code = {exc.response.status_code}, text = {exc.response.text!r}"
+            )
+        for t in TARBALL_DIR.glob("*.tar.xz"):
+            resource_id = datasets_hash.get(t.name)
+            assert resource_id, f"Expected to find tar ball {t.name} to delete"
+            response = server_client.post(
+                api=API.DATASETS_DELETE,
+                uri_params={"dataset": resource_id},
+                raise_error=False,
+            )
+            assert response.ok, f"{response.text}"

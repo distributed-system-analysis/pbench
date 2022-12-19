@@ -123,8 +123,6 @@ function verify_make_source_tree {
     return ${_rc}
 }
 
-rc=0
-
 if [[ -n "${COV_REPORT_XML}" ]]; then
     _cov_report_kind="xml"
     _cov_report_name="cov/report.xml"
@@ -133,6 +131,13 @@ else
     _cov_report_name="${_toxenvdir}/cov/html"
 fi
 _cov_report="${_cov_report_kind}:${_cov_report_name}"
+
+#+
+# Test execution happens below.  Everything before this point should be for
+# definition (functions or variables) and other required setup tasks.
+#-
+
+rc=0
 
 if [[ "${subtst:-python}" == "python" ]]; then
     _pytest_majors="pbench.test.unit.common"
@@ -148,7 +153,8 @@ if [[ "${subtst:-python}" == "python" ]]; then
 
     printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${major_list// /,}"
     _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent)')
-    _PBENCH_COV_DIR="${_toxenvdir}/cov" ${_ECHO} _time pytest \
+    PYTHONUNBUFFERED=True _PBENCH_COV_DIR="${_toxenvdir}/cov" ${_ECHO} _time pytest \
+        --tb=native \
         ${pytest_jobs_arg} \
         --basetemp="${_toxenvdir}/tmp" \
         --cov=${_pbench_sources} \
@@ -169,7 +175,7 @@ if [[ "${subtst:-python}" == "python" ]]; then
     fi
 fi
 
-if [[ ( "${major}" == "all" || "${major}" == "agent" ) && "${subtst}" != "python" ]]; then
+if [[ ( "${major}" == "all" || "${major}" == "agent" ) && ( "${subtst}" != "python" && "${subtst}" != "functional" ) ]]; then
     _para_jobs_file="${_toxenvdir}/agent-legacy-jobs.lis"
     trap "rm -f ${_para_jobs_file}" EXIT INT TERM
 
@@ -213,6 +219,15 @@ if [[ "${major}" == "all" || "${major}" == "server" ]]; then
     # Verify the Server Makefile source build functions correctly.
     if [[ "${subtst:-srcbld}" == "srcbld" && ${rc} -eq 0 ]]; then
         ${_ECHO} verify_make_source_tree server || rc=1
+    fi
+
+    # Run the server functional tests
+    if [[ "${subtst}" == "functional" && ${rc} -eq 0 ]]; then
+        server_arg=${1}
+        shift
+        posargs="${@}"
+        PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} pytest --tb=native -v -s ${posargs} --pyargs pbench.test.functional.server
+        rc=${?}
     fi
 fi
 
