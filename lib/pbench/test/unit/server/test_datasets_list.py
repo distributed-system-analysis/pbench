@@ -1,6 +1,6 @@
 import datetime
 from http import HTTPStatus
-from typing import List
+from typing import Any, Dict, List
 from urllib.parse import urlencode
 
 import pytest
@@ -8,6 +8,14 @@ import requests
 
 from pbench.server import JSON
 from pbench.server.database.models.datasets import Dataset
+
+
+def urlencode_query(query: Dict[str, Any]) -> str:
+    """We need to encode the metadata list as expected."""
+    new_query = {}
+    for k, v in sorted(query.items()):
+        new_query[k] = ",".join(v) if k == "metadata" else v
+    return urlencode(new_query)
 
 
 class TestDatasetsList:
@@ -90,7 +98,7 @@ class TestDatasetsList:
                 query["offset"] = next_offset
                 next_url = (
                     f"http://localhost{server_config.rest_uri}/datasets/list?"
-                    + urlencode(query)
+                    + urlencode_query(query)
                 )
         else:
             paginated_name_list = name_list[offset:]
@@ -122,8 +130,25 @@ class TestDatasetsList:
             ("test", {"name": "drb"}, []),
             ("test_admin", {"name": "drb"}, ["drb"]),
             ("drb", {}, ["drb", "fio_1", "fio_2"]),
-            ("test", {}, ["test", "fio_1", "fio_2"]),
-            ("test_admin", {}, ["drb", "test", "fio_1", "fio_2"]),
+            (
+                "test",
+                {},
+                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            (
+                "test_admin",
+                {},
+                [
+                    "drb",
+                    "test",
+                    "fio_1",
+                    "fio_2",
+                    "uperf_1",
+                    "uperf_2",
+                    "uperf_3",
+                    "uperf_4",
+                ],
+            ),
             ("drb", {"start": "2000-01-01", "end": "2005-12-31"}, ["fio_2"]),
             ("drb", {"start": "2005-01-01"}, ["drb", "fio_1"]),
             ("drb", {"end": "2020-09-01"}, ["drb", "fio_1", "fio_2"]),
@@ -143,6 +168,33 @@ class TestDatasetsList:
             results: A list of the dataset names we expect to be returned
         """
         query.update({"metadata": ["dataset.created"]})
+        result = query_as(query, login, HTTPStatus.OK)
+        assert result.json == self.get_results(results, query, server_config)
+
+    @pytest.mark.parametrize(
+        "login,query,results",
+        [
+            ("test", {"name": "drb"}, []),
+            ("test", {"name": "test"}, ["test"]),
+            (
+                "test",
+                {},
+                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+        ],
+    )
+    def test_dataset_list_w_limit(self, query_as, login, query, results, server_config):
+        """Test the operation of `datasets/list` with limits against our set
+        of test datasets.
+
+        Args:
+            query_as: A fixture to provide a helper that executes the API call
+            login: The username as which to perform a query
+            query: A JSON representation of the query parameters (these will be
+                automatically supplemented with a metadata request term)
+            results: A list of the dataset names we expect to be returned
+        """
+        query.update({"metadata": ["dataset.created"], "limit": 5})
         result = query_as(query, login, HTTPStatus.OK)
         assert result.json == self.get_results(results, query, server_config)
 
