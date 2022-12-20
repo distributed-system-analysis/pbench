@@ -630,11 +630,14 @@ class Dataset(Database.Base):
             raise DatasetBadParameterType(new_state, States)
         elif new_state not in self.transitions[self.state]:
             self.logger.error(
-                "Current state {} can't advance to {}", self.state, new_state
+                "{}, Current state {} can't advance to {}", self, self.state, new_state
             )
             raise DatasetBadStateTransition(self, new_state)
 
         # TODO: this would be a good place to generate an audit log
+        self.logger.debug(
+            "{}, Current state {}, advancing to {}", self, self.state, new_state
+        )
 
         self.state = new_state
         self.transition = datetime.datetime.utcnow()
@@ -648,12 +651,12 @@ class Dataset(Database.Base):
             Database.db_session.add(self)
             Database.db_session.commit()
         except IntegrityError as e:
-            Dataset.logger.warning("Duplicate dataset {}: {}", self.name, e)
             Database.db_session.rollback()
+            self.logger.warning("Duplicate dataset {}: {}", self.name, e)
             raise DatasetDuplicate(self.name) from None
         except Exception:
-            self.logger.exception("Can't add {} to DB", str(self))
             Database.db_session.rollback()
+            self.logger.exception("Can't add {} to DB", str(self))
             raise DatasetSqlError("adding", name=self.name)
 
     def update(self):
@@ -664,8 +667,8 @@ class Dataset(Database.Base):
         try:
             Database.db_session.commit()
         except Exception:
-            self.logger.error("Can't update {} in DB", str(self))
             Database.db_session.rollback()
+            self.logger.error("Can't update {} in DB", str(self))
             raise DatasetSqlError("updating", name=self.name)
 
     def delete(self):
@@ -1201,8 +1204,8 @@ class Metadata(Database.Base):
             Database.db_session.add(self)
             Database.db_session.commit()
         except Exception as e:
-            Metadata.logger.exception("Can't add {}>>{} to DB", dataset, self.key)
             Database.db_session.rollback()
+            self.logger.exception("Can't add {}>>{} to DB", dataset, self.key)
             dataset.metadatas.remove(self)
             raise MetadataSqlError("adding", dataset, self.key) from e
 
@@ -1213,8 +1216,8 @@ class Metadata(Database.Base):
         try:
             Database.db_session.commit()
         except Exception as e:
-            Metadata.logger.exception("Can't update {} in DB", self)
             Database.db_session.rollback()
+            self.logger.exception("Can't update {} in DB", self)
             raise MetadataSqlError("updating", self.dataset, self.key) from e
 
     def delete(self):
@@ -1225,8 +1228,8 @@ class Metadata(Database.Base):
             Database.db_session.delete(self)
             Database.db_session.commit()
         except Exception as e:
-            Metadata.logger.exception("Can't delete {} from DB", self)
             Database.db_session.rollback()
+            self.logger.exception("Can't delete {} from DB", self)
             raise MetadataSqlError("deleting", self.dataset, self.key) from e
 
 
