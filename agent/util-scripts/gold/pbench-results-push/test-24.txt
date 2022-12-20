@@ -7,14 +7,14 @@ Usage: pbench-results-push [OPTIONS] CONTROLLER RESULT_TB_NAME
   RESULT_TB_NAME is the path to the result tar ball.
 
 Options:
-  -C, --config PATH  		  Path to a pbench-agent configuration file
-				  (defaults to the '_PBENCH_AGENT_CONFIG'
-				  environment variable, if defined)  [required]
+  -C, --config PATH              Path to a pbench-agent configuration file
+                                 (defaults to the '_PBENCH_AGENT_CONFIG'
+                                 environment variable, if defined)  [required]
   -a, --access [public|private]  pbench tarball access permission
-		     		  public/private  [default: private]
-  --token TEXT       		  pbench server authentication token (will
-				  prompt if unspecified)  [required]
-  --help             		  Show this message and exit.
+                                 public/private  [default: private]
+  --token TEXT                   pbench server authentication token (will
+                                 prompt if unspecified)  [required]
+  --help                         Show this message and exit.
 --- Finished test-24 pbench-results-push (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
