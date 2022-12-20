@@ -1021,6 +1021,8 @@ class ApiSchemaSet:
             schemas: A list of schemas for each HTTP method supported by an
                 API class.
         """
+        if not schemas:
+            raise RuntimeError("At least one ApiSchema must be provided")
         self.schemas: Dict[ApiMethod, ApiSchema] = {s.method: s for s in schemas}
 
     def __getitem__(self, key: ApiMethod):
@@ -1063,10 +1065,6 @@ class ApiSchemaSet:
         Validate the parameter schema based on the HTTP method used by the
         client.
 
-        If there is no schema defined, this method will assume that there are
-        no client parameters to validate or convert, and return an empty set of
-        parameters.
-
         NOTE: This allows an API that has no parameters defined; e.g., to get
         global information.
 
@@ -1074,10 +1072,7 @@ class ApiSchemaSet:
             method: The HTTP method (GET, PUT, POST, DELETE)
             args:   An argument set to validate against the selected schema
         """
-        if method in self.schemas:
-            return self.schemas[method].validate(args)
-        else:
-            return ApiParams(body=None, query=None, uri=None)
+        return self.schemas[method].validate(args)
 
     def authorize(
         self, method: ApiMethod, args: ApiParams
@@ -1096,10 +1091,7 @@ class ApiSchemaSet:
         Returns:
             The values for username and access policy to use for authorization.
         """
-        if method in self.schemas:
-            return self.schemas[method].authorize(args)
-        else:
-            return None
+        return self.schemas[method].authorize(args)
 
 
 class ApiBase(Resource):
@@ -1523,15 +1515,10 @@ class ApiBase(Resource):
 
         self.logger.info("In {} {}: mime {}", method, api_name, request.mimetype)
 
-        if not self.always_enabled:
-            disabled = ServerConfig.get_disabled(
-                readonly=(self.schemas[method].operation == OperationCode.READ)
-            )
-            if disabled:
-                abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
-
         if method is ApiMethod.GET:
             execute = self._get
+        elif method is ApiMethod.HEAD:
+            execute = self._head
         elif method is ApiMethod.PUT:
             execute = self._put
         elif method is ApiMethod.POST:
@@ -1543,47 +1530,62 @@ class ApiBase(Resource):
                 HTTPStatus.METHOD_NOT_ALLOWED,
                 message=HTTPStatus.METHOD_NOT_ALLOWED.phrase,
             )
+        if method not in self.schemas:
+            abort(
+                HTTPStatus.METHOD_NOT_ALLOWED,
+                message=HTTPStatus.METHOD_NOT_ALLOWED.phrase,
+            )
+
+        if not self.always_enabled:
+            readonly = self.schemas[method].operation == OperationCode.READ
+            disabled = ServerConfig.get_disabled(readonly=readonly)
+            if disabled:
+                abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
+
+        if not self.always_enabled and self.schemas[method]:
+            if self.schemas[method]:
+                readonly = self.schemas[method].operation == OperationCode.READ
+            else:
+                readonly = False
+            disabled = ServerConfig.get_disabled(readonly=readonly)
+            if disabled:
+                abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
 
         schema = self.schemas[method]
-        if schema:
-            body_params = None
-            query_params = None
+        body_params = None
+        query_params = None
 
-            # If there's a JSON payload, parse it, and fail if parsing fails.
-            # If there's no payload and the API requires JSON body parameters,
-            # then the schema validation will diagnose later.
-            if request.mimetype == "application/json" and schema.body_schema:
-                try:
-                    body_params = request.get_json()
-                except Exception as e:
-                    abort(
-                        HTTPStatus.BAD_REQUEST,
-                        message=f"Invalid request payload: {str(e)!r}",
-                    )
-
+        # If there's a JSON payload, parse it, and fail if parsing fails.
+        # If there's no payload and the API requires JSON body parameters,
+        # then the schema validation will diagnose later.
+        if request.mimetype == "application/json" and schema.body_schema:
             try:
-                if schema.query_schema:
-                    query_params = self._gather_query_params(
-                        request, schema.query_schema
-                    )
-
-                params = self.schemas.validate(
-                    method,
-                    ApiParams(body=body_params, query=query_params, uri=uri_params),
+                body_params = request.get_json()
+            except Exception as e:
+                abort(
+                    HTTPStatus.BAD_REQUEST,
+                    message=f"Invalid request payload: {str(e)!r}",
                 )
-            except APIInternalError as e:
-                self.logger.exception("{} {}", api_name, e.details)
-                abort(e.http_status, message=str(e))
-            except APIAbort as e:
-                abort(e.http_status, message=str(e))
-            except Exception:
-                # Construct an APIInternalError to get the UUID and standard return
-                # message.
-                x = APIInternalError("Unexpected validation exception")
-                self.logger.exception("{} {}", api_name, x.details)
-                abort(x.http_status, message=str(x))
-        else:
-            params = ApiParams(None, None, None)
+
+        try:
+            if schema.query_schema:
+                query_params = self._gather_query_params(request, schema.query_schema)
+
+            params = self.schemas.validate(
+                method,
+                ApiParams(body=body_params, query=query_params, uri=uri_params),
+            )
+        except APIInternalError as e:
+            self.logger.exception("{} {}", api_name, e.details)
+            abort(e.http_status, message=str(e))
+        except APIAbort as e:
+            abort(e.http_status, message=str(e))
+        except Exception:
+            # Construct an APIInternalError to get the UUID and standard return
+            # message.
+            x = APIInternalError("Unexpected validation exception")
+            self.logger.exception("{} {}", api_name, x.details)
+            abort(x.http_status, message=str(x))
 
         # Automatically authorize the operation only if the API schema for the
         # active HTTP method has authorization enabled, using the selected
@@ -1702,6 +1704,24 @@ class ApiBase(Resource):
             f"Class {self.__class__.__name__} doesn't override abstract _get method"
         )
 
+    def _head(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
+        """
+        ABSTRACT METHOD: override in subclass to perform operation
+
+        Perform the requested HEAD operation, and handle any exceptions.
+
+        Args:
+            args: Type-normalized client argument sets
+            request: Original incoming Request object
+            context: API context dictionary
+
+        Returns:
+            Response to return to client
+        """
+        raise NotImplementedError(
+            f"Class {self.__class__.__name__} doesn't override abstract _head method"
+        )
+
     def _post(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
         """
         ABSTRACT METHOD: override in subclass to perform operation
@@ -1759,28 +1779,35 @@ class ApiBase(Resource):
         )
 
     @Auth.token_auth.login_required(optional=True)
-    def get(self, **kwargs):
+    def get(self, **kwargs) -> Response:
         """
         Handle an authenticated GET operation on the Resource
         """
         return self._dispatch(ApiMethod.GET, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
-    def post(self, **kwargs):
+    def head(self, **kwargs) -> Response:
+        """
+        Handle an authenticated HEAD operation on the Resource
+        """
+        return self._dispatch(ApiMethod.HEAD, kwargs)
+
+    @Auth.token_auth.login_required(optional=True)
+    def post(self, **kwargs) -> Response:
         """
         Handle an authenticated POST operation on the Resource
         """
         return self._dispatch(ApiMethod.POST, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
-    def put(self, **kwargs):
+    def put(self, **kwargs) -> Response:
         """
         Handle an authenticated PUT operation on the Resource
         """
         return self._dispatch(ApiMethod.PUT, kwargs)
 
     @Auth.token_auth.login_required(optional=True)
-    def delete(self, **kwargs):
+    def delete(self, **kwargs) -> Response:
         """
         Handle an authenticated DELETE operation on the Resource
         """

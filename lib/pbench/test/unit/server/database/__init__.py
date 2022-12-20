@@ -365,7 +365,9 @@ class FakeSession:
         # important for testing some DB object, we'd need to make the filters
         # parameter into a list of lists to be compared against individual
         # queries.
-        assert filters is None or sorted(filters) == sorted(self.filters)
+        assert filters is None or sorted(filters) == sorted(
+            self.filters
+        ), f"filters = {filters!r}, self.filters = {self.filters!r}"
 
         # 'added' is an internal "dirty" list between 'add' and 'commit' or
         # 'rollback'. We test that 'commit' moves elements to the committed
