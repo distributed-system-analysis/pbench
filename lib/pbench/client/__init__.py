@@ -436,10 +436,10 @@ class PbenchServerClient:
         while True:
             for d in json["results"]:
                 yield Dataset(d)
-            next = json.get("next_url")
-            if "offset" in args or not next:
+            next_url = json.get("next_url")
+            if "offset" in args or not next_url:
                 break
-            json = self.get(uri=next).json()
+            json = self.get(uri=next_url).json()
 
     def get_metadata(self, dataset_id: str, metadata: list[str]) -> JSONOBJECT:
         """Return requested metadata for a specified dataset.
