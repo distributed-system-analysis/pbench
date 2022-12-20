@@ -22,5 +22,5 @@ def _results_options(f):
         default="private",
         show_default=True,
         type=click.Choice(["public", "private"], case_sensitive=False),
-        help="pbench tarball access permission public/private (will prompt if unspecified)",
+        help="pbench tarball access permission public/private",
     )(f)
