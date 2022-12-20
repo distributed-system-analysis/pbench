@@ -3,8 +3,9 @@ from http import HTTPStatus
 import os
 from typing import Optional
 
-from flask import abort, request
+from flask import request
 from flask_httpauth import HTTPTokenAuth
+from flask_restful import abort
 import jwt
 
 from pbench.server.auth import OpenIDClient, OpenIDClientError
@@ -60,26 +61,29 @@ class Auth:
 
     def get_auth_token(self, logger):
         # get auth token
+        example = (
+            "Please add Authorization header with Bearer token as,"
+            " 'Authorization: Bearer <session_token>'"
+        )
         auth_header = request.headers.get("Authorization")
-
         if not auth_header:
             abort(
                 HTTPStatus.FORBIDDEN,
-                message="Please add authorization token as 'Authorization: Bearer <session_token>'",
+                message=f"No Authorization header provided.  {example}",
             )
 
         try:
-            auth_schema, auth_token = auth_header.split()
+            auth_schema, auth_token = auth_header.split(" ", 1)
         except ValueError:
             abort(
                 HTTPStatus.UNAUTHORIZED,
-                message="Malformed Authorization header, please add request header as Authorization: Bearer <session_token>",
+                message=f"Malformed Authorization header.  {example}",
             )
         else:
             if auth_schema.lower() != "bearer":
                 abort(
                     HTTPStatus.UNAUTHORIZED,
-                    message="Malformed Authorization header, request needs bearer token: Bearer <session_token>",
+                    message=f"Malformed Authorization header.  {example}",
                 )
             return auth_token
 
