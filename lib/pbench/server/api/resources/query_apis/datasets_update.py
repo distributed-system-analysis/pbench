@@ -1,8 +1,6 @@
 from typing import Any, Iterator
 
-from flask import current_app
-
-from pbench.server import JSONOBJECT, OperationCode, PbenchServerConfig
+from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiMethod,
@@ -34,9 +32,11 @@ class DatasetsUpdate(ElasticBulkBase):
     Called as `POST /api/v1/datasets/{resource_id}?access=public&owner=user`
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "datasets_publish"
+    urls = ["datasets/publish/<string:dataset>"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.POST,
                 OperationCode.UPDATE,
@@ -77,7 +77,7 @@ class DatasetsUpdate(ElasticBulkBase):
             A generator for Elasticsearch bulk update actions
         """
 
-        sync = Sync(logger=current_app.logger, component=OperationName.UPDATE)
+        sync = Sync(component=OperationName.UPDATE)
         sync.update(dataset=dataset, state=OperationState.WORKING)
         context["sync"] = sync
 

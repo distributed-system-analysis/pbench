@@ -6,7 +6,7 @@ or any number of pbench agent users.
 
 import os
 
-from flask import Flask
+from flask import current_app, Flask
 from flask_cors import CORS
 from flask_restful import Api
 
@@ -40,147 +40,42 @@ from pbench.server.api.resources.upload_api import Upload
 from pbench.server.api.resources.users_api import Login, Logout, RegisterUser, UserAPI
 import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
-from pbench.server.database.database import Database
+from pbench.server.globals import init_server_ctx, server
 
 
-def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
+def register_endpoints():
     """Register flask endpoints with the corresponding resource classes
     to make the APIs active.
-
-    Args:
-        api : the Flask Api object with which to register the end points
-        app : the Flask application in use
-        config : the Pbench server configuration object in use
     """
 
-    base_uri = config.rest_uri
-
-    app.logger.info("Registering service endpoints with base URI {}", base_uri)
-
-    api.add_resource(
+    server.logger.info(
+        "Registering service endpoints with base URI {}", server.config.rest_uri
+    )
+    api = Api(current_app)
+    for kls in [
         DatasetsContents,
-        f"{base_uri}/datasets/contents/<string:dataset>/",
-        f"{base_uri}/datasets/contents/<string:dataset>/<path:target>",
-        endpoint="datasets_contents",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
         DatasetsDateRange,
-        f"{base_uri}/datasets/daterange",
-        endpoint="datasets_daterange",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
         DatasetsDelete,
-        f"{base_uri}/datasets/delete/<string:dataset>",
-        endpoint="datasets_delete",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
         DatasetsDetail,
-        f"{base_uri}/datasets/detail/<string:dataset>",
-        endpoint="datasets_detail",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        DatasetsList,
-        f"{base_uri}/datasets/list",
-        endpoint="datasets_list",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        DatasetsMappings,
-        f"{base_uri}/datasets/mappings/<string:dataset_view>",
-        endpoint="datasets_mappings",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        DatasetsMetadata,
-        f"{base_uri}/datasets/metadata/<string:dataset>",
-        endpoint="datasets_metadata",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
         DatasetsInventory,
-        f"{base_uri}/datasets/inventory/<string:dataset>",
-        f"{base_uri}/datasets/inventory/<string:dataset>/",
-        f"{base_uri}/datasets/inventory/<string:dataset>/<path:target>",
-        endpoint="datasets_inventory",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        SampleNamespace,
-        f"{base_uri}/datasets/namespace/<string:dataset>/<string:dataset_view>",
-        endpoint="datasets_namespace",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        SampleValues,
-        f"{base_uri}/datasets/values/<string:dataset>/<string:dataset_view>",
-        endpoint="datasets_values",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        DatasetsUpdate,
-        f"{base_uri}/datasets/<string:dataset>",
-        endpoint="datasets_update",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
+        DatasetsList,
+        DatasetsMappings,
+        DatasetsMetadata,
         DatasetsSearch,
-        f"{base_uri}/datasets/search",
-        endpoint="datasets_search",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
+        DatasetsUpdate,
         EndpointConfig,
-        f"{base_uri}/endpoints",
-        endpoint="endpoints",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
         Login,
-        f"{base_uri}/login",
-        endpoint="login",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
         Logout,
-        f"{base_uri}/logout",
-        endpoint="logout",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
         RegisterUser,
-        f"{base_uri}/register",
-        endpoint="register",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
+        SampleNamespace,
+        SampleValues,
         ServerAudit,
-        f"{base_uri}/server/audit",
-        endpoint="server_audit",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
         ServerSettings,
-        f"{base_uri}/server/settings",
-        f"{base_uri}/server/settings/",
-        f"{base_uri}/server/settings/<string:key>",
-        endpoint="server_settings",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        UserAPI,
-        f"{base_uri}/user/<string:target_username>",
-        endpoint="user",
-    )
-    api.add_resource(
         Upload,
-        f"{base_uri}/upload/<string:filename>",
-        endpoint="upload",
-        resource_class_args=(config,),
-    )
+        UserAPI,
+    ]:
+        urls = [f"{server.config.rest_uri}/{url}" for url in kls.urls]
+        api.add_resource(kls, *urls, endpoint=kls.endpoint)
 
 
 def get_server_config() -> PbenchServerConfig:
@@ -214,28 +109,20 @@ def create_app(server_config: PbenchServerConfig) -> Flask:
     Returns:
         A Flask application object on success
     """
+    logger = get_pbench_logger(__name__, server_config)
+    init_server_ctx(server_config, logger)
 
     def shutdown_session(exception=None):
         """Called from app context teardown hook to end the database session"""
-        Database.db_session.remove()
+        server.db_session.remove()
 
     app = Flask(__name__.split(".")[0])
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    app.logger = get_pbench_logger(__name__, server_config)
-
-    Auth.setup_app(app, server_config)
-
-    api = Api(app)
-
     with app.app_context():
-        register_endpoints(api, app, server_config)
-
-    try:
-        init_db(configuration=server_config, logger=app.logger)
-    except Exception:
-        app.logger.exception("Exception while initializing sqlalchemy database")
-        raise
+        Auth.setup_app(app)
+        register_endpoints()
+        init_db()
 
     app.teardown_appcontext(shutdown_session)
 

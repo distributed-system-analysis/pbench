@@ -21,3 +21,4 @@ python-dateutil
 requests
 sqlalchemy>=1.4.23
 sqlalchemy_utils>=0.37.6
+werkzeug>=2.2

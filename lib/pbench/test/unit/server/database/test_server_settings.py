@@ -1,7 +1,6 @@
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from pbench.server.database.database import Database
 from pbench.server.database.models.server_settings import (
     ServerSetting,
     ServerSettingBadKey,
@@ -10,25 +9,20 @@ from pbench.server.database.models.server_settings import (
     ServerSettingMissingKey,
     ServerSettingNullKey,
 )
+from pbench.server.globals import server
 from pbench.test.unit.server.database import FakeDBOrig, FakeRow, FakeSession
 
 
 class TestServerSetting:
-    session = None
-
     @pytest.fixture(autouse=True, scope="function")
-    def fake_db(self, monkeypatch, server_config):
-        """
-        Fixture to mock a DB session for testing.
-
-        We patch the SQLAlchemy db_session to our fake session. We also store a
-        server configuration object directly on the Database.Base (normally
-        done during DB initialization) because that can't be monkeypatched.
-        """
-        self.session = FakeSession(ServerSetting)
-        monkeypatch.setattr(Database, "db_session", self.session)
-        Database.Base.config = server_config
+    def fake_db(self, server_config):
+        """Fixture to mock a DB session for testing."""
+        session = FakeSession(ServerSetting)
+        assert server.db_session is None
+        server.db_session = session
         yield
+        assert server.db_session == session
+        server.db_session = None
 
     def test_bad_key(self):
         """Test server setting key validation"""
@@ -42,7 +36,7 @@ class TestServerSetting:
         assert setting.key == "dataset-lifetime"
         assert setting.value == "2"
         assert str(setting) == "dataset-lifetime: '2'"
-        self.session.check_session()
+        server.db_session.check_session()
 
     def test_create(self):
         """Test server setting creation"""
@@ -50,7 +44,7 @@ class TestServerSetting:
         assert setting.key == "dataset-lifetime"
         assert setting.value == "2"
         assert str(setting) == "dataset-lifetime: '2'"
-        self.session.check_session(
+        server.db_session.check_session(
             committed=[
                 FakeRow(cls=ServerSetting, id=1, key="dataset-lifetime", value="2")
             ]
@@ -59,18 +53,18 @@ class TestServerSetting:
     def test_construct_duplicate(self):
         """Test server setting constructor"""
         ServerSetting.create(key="dataset-lifetime", value=1)
-        self.session.check_session(
+        server.db_session.check_session(
             committed=[
                 FakeRow(cls=ServerSetting, id=1, key="dataset-lifetime", value="1")
             ]
         )
         with pytest.raises(ServerSettingDuplicate) as e:
-            self.session.raise_on_commit = IntegrityError(
+            server.db_session.raise_on_commit = IntegrityError(
                 statement="", params="", orig=FakeDBOrig("UNIQUE constraint")
             )
             ServerSetting.create(key="dataset-lifetime", value=2)
         assert str(e).find("dataset-lifetime") != -1
-        self.session.check_session(
+        server.db_session.check_session(
             committed=[
                 FakeRow(cls=ServerSetting, id=1, key="dataset-lifetime", value="1")
             ],
@@ -80,20 +74,18 @@ class TestServerSetting:
     def test_construct_null(self):
         """Test server setting constructor"""
         with pytest.raises(ServerSettingNullKey):
-            self.session.raise_on_commit = IntegrityError(
+            server.db_session.raise_on_commit = IntegrityError(
                 statement="", params="", orig=FakeDBOrig("NOT NULL constraint")
             )
             ServerSetting.create(key="dataset-lifetime", value=2)
-        self.session.check_session(
-            rolledback=1,
-        )
+        server.db_session.check_session(rolledback=1)
 
     def test_get(self):
         """Test that we can retrieve what we set"""
         setting = ServerSetting.create(key="dataset-lifetime", value="2")
         result = ServerSetting.get(key="dataset-lifetime")
         assert setting == result
-        self.session.check_session(
+        server.db_session.check_session(
             committed=[
                 FakeRow(cls=ServerSetting, id=1, key="dataset-lifetime", value="2")
             ],
@@ -104,21 +96,21 @@ class TestServerSetting:
     def test_update(self):
         """Test that we can update an existing server setting"""
         setting = ServerSetting.create(key="dataset-lifetime", value="2")
-        self.session.check_session(
+        server.db_session.check_session(
             committed=[
                 FakeRow(cls=ServerSetting, id=1, key="dataset-lifetime", value="2")
             ]
         )
         setting.value = "5"
         setting.update()
-        self.session.check_session(
+        server.db_session.check_session(
             committed=[
                 FakeRow(cls=ServerSetting, id=1, key="dataset-lifetime", value="5")
             ]
         )
         result = ServerSetting.get(key="dataset-lifetime")
         assert setting == result
-        self.session.check_session(
+        server.db_session.check_session(
             committed=[
                 FakeRow(cls=ServerSetting, id=1, key="dataset-lifetime", value="5")
             ],
@@ -138,7 +130,7 @@ class TestServerSetting:
 
         # NOTE: each `get` does a query, plus each `set` checks whether the
         # key already exists: 2 get + 2 set == 4 queries
-        self.session.check_session(
+        server.db_session.check_session(
             committed=[
                 FakeRow(cls=ServerSetting, id=1, key="dataset-lifetime", value="120")
             ],
@@ -179,7 +171,7 @@ class TestServerSetting:
             "server-state": {"status": "enabled"},
             "server-banner": {"message": "Mine"},
         }
-        self.session.check_session(
+        server.db_session.check_session(
             queries=1,
             committed=[FakeRow.clone(c1), FakeRow.clone(c2), FakeRow.clone(c3)],
             filters=[],

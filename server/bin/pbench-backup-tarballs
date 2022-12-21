@@ -18,6 +18,7 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
+from pbench.server.globals import init_server_ctx, server
 from pbench.server.report import Report
 from pbench.server.s3backup import NoSuchKey, S3Config, Status
 from pbench.server.sync import Sync
@@ -31,8 +32,8 @@ _linkdest = "BACKED-UP"
 
 
 class LocalBackupObject:
-    def __init__(self, config):
-        self.backup_dir = config.BACKUP
+    def __init__(self):
+        self.backup_dir = server.config.BACKUP
 
 
 @dataclass
@@ -45,12 +46,12 @@ class Results:
     process_fail: int = 0
 
 
-def sanity_check(lb_obj, s3_obj, config, logger):
+def sanity_check(lb_obj, s3_obj):
     # make sure the local backup directory is present
-    backup = config.BACKUP
+    backup = server.config.BACKUP
 
     if not backup:
-        logger.error(
+        server.logger.error(
             "Unspecified backup directory, no pbench-backup-dir config in pbench-server section"
         )
         lb_obj = None
@@ -59,11 +60,11 @@ def sanity_check(lb_obj, s3_obj, config, logger):
             os.mkdir(backup)
         except FileExistsError:
             # directory already exists, verify it
-            backuppath = get_resolved_dir("BACKUP", backup, logger)
+            backuppath = get_resolved_dir("BACKUP", backup, server.logger)
             if not backuppath:
                 lb_obj = None
         except Exception as exc:
-            logger.error(
+            server.logger.error(
                 "os.mkdir: Unable to create backup destination directory: {} '{}'",
                 backup,
                 exc,
@@ -72,13 +73,15 @@ def sanity_check(lb_obj, s3_obj, config, logger):
 
     # make sure the S3 bucket is defined, exists and is accessible
     if s3_obj.bucket_name is None:
-        logger.warning("Bucket not defined in config file - S3 backup is disabled.")
+        server.logger.warning(
+            "Bucket not defined in config file - S3 backup is disabled."
+        )
         s3_obj = None
     else:
         try:
             s3_obj.head_bucket(s3_obj.bucket_name)
         except Exception:
-            logger.warning(
+            server.logger.warning(
                 "Bucket {} does not exist or is not accessible - S3 backup is disabled",
                 s3_obj.bucket_name,
             )
@@ -89,7 +92,6 @@ def sanity_check(lb_obj, s3_obj, config, logger):
 
 def backup_to_local(
     lb_obj,
-    logger,
     controller_path,
     controller,
     tb,
@@ -98,7 +100,7 @@ def backup_to_local(
     archive_md5,
     archive_md5_hex_value,
 ):
-    logger.debug("Start local backup of {}.", tar)
+    server.logger.debug("Start local backup of {}.", tar)
     if lb_obj is None:
         # Short-circuit operation when we don't have an lb object. This can
         # happen when the expected result of sanity check does not exist, or
@@ -111,7 +113,7 @@ def backup_to_local(
     backup_controller_path.mkdir(exist_ok=True)
 
     if not backup_controller_path.exists():
-        logger.error(
+        server.logger.error(
             "os.mkdir: Unable to create backup destination directory: {}",
             backup_controller_path,
         )
@@ -127,7 +129,9 @@ def backup_to_local(
             pass
         else:
             # backup md5 file does not exist or it is not a regular file
-            logger.error("{} does not exist or it is not a regular file", backup_md5)
+            server.logger.error(
+                "{} does not exist or it is not a regular file", backup_md5
+            )
             return Status.FAIL
 
         # read backup md5 file
@@ -136,16 +140,18 @@ def backup_to_local(
                 backup_md5_hex_value = f.readline().split(" ")[0]
         except Exception:
             # Could not read file
-            logger.exception("Could not read file {}", backup_md5)
+            server.logger.exception("Could not read file {}", backup_md5)
             return Status.FAIL
         else:
             if archive_md5_hex_value == backup_md5_hex_value:
                 # declare success
-                logger.info("Already locally backed-up: {}/{}", controller, resultname)
+                server.logger.info(
+                    "Already locally backed-up: {}/{}", controller, resultname
+                )
                 return Status.SUCCESS
             else:
                 # md5 file of archive and backup does not match
-                logger.error(
+                server.logger.error(
                     "{}/{} already exists in backup but md5 sums of archive and backup disagree",
                     controller,
                     resultname,
@@ -160,7 +166,7 @@ def backup_to_local(
         except Exception:
             # couldn't copy md5 file
             md5_done = False
-            logger.exception(
+            server.logger.exception(
                 "shutil.copy: Unable to copy {} from archive to backup: {}",
                 archive_md5,
                 backup_controller_path,
@@ -175,7 +181,7 @@ def backup_to_local(
             except Exception:
                 # couldn't copy tarball
                 tar_done = False
-                logger.exception(
+                server.logger.exception(
                     "shutil.copy: Unable to copy {} from archive to backup: {}",
                     tar,
                     backup_controller_path,
@@ -187,13 +193,15 @@ def backup_to_local(
                     try:
                         bmd5_file.remove(bmd5_file)
                     except Exception:
-                        logger.exception("Unable to remove: {}", bmd5_file)
+                        server.logger.exception("Unable to remove: {}", bmd5_file)
             else:
                 tar_done = True
 
-        logger.debug("End local backup of {}.", tar)
+        server.logger.debug("End local backup of {}.", tar)
         if md5_done and tar_done:
-            logger.info("Local backup of {}/{} successful", controller, resultname)
+            server.logger.info(
+                "Local backup of {}/{} successful", controller, resultname
+            )
             return Status.SUCCESS
         else:
             return Status.FAIL
@@ -201,7 +209,6 @@ def backup_to_local(
 
 def backup_to_s3(
     s3_obj,
-    logger,
     controller_path,
     controller,
     tb,
@@ -215,7 +222,7 @@ def backup_to_s3(
         # exist, or for other errors where we still want to backup locally.
         return Status.FAIL
 
-    logger.debug("Start S3 backup of {}.", tar)
+    server.logger.debug("Start S3 backup of {}.", tar)
     s3_resultname = os.path.join(controller, resultname)
 
     # Check if the result already present in s3 or not
@@ -224,7 +231,7 @@ def backup_to_s3(
     except NoSuchKey:
         s3_md5 = None
     except Exception as e:
-        logger.error("Exception raised by get_tarball_header(): {}", e)
+        server.logger.error("Exception raised by get_tarball_header(): {}", e)
         return Status.FAIL
     else:
         s3_md5 = s3_obj.s3_md5(tbh)
@@ -233,13 +240,13 @@ def backup_to_s3(
         # compare md5 which we already have so no need to recalculate
         if archive_md5_hex_value == s3_md5:
             # declare success
-            logger.info(
+            server.logger.info(
                 "The tarball {} is already present in S3 bucket with same md5",
                 s3_resultname,
             )
             _status = Status.SUCCESS
         else:
-            logger.error(
+            server.logger.error(
                 "The tarball {} is already present in S3 bucket, but with different MD5",
                 s3_resultname,
             )
@@ -247,7 +254,7 @@ def backup_to_s3(
         return _status
 
     size = s3_obj.getsize(str(tar))
-    logger.debug("tarball: {}, size = {}", tar, size)
+    server.logger.debug("tarball: {}, size = {}", tar, size)
     with open(tar, "rb") as f:
         sts = s3_obj.put_tarball(
             Name=tar,
@@ -257,13 +264,13 @@ def backup_to_s3(
             Bucket=s3_obj.bucket_name,
             Key=s3_resultname,
         )
-    logger.debug("End S3 backup of {}.", tar)
+    server.logger.debug("End S3 backup of {}.", tar)
 
     return sts
 
 
-def backup_data(lb_obj, s3_obj, config, logger):
-    sync = Sync(logger, OperationName.BACKUP)
+def backup_data(lb_obj, s3_obj):
+    sync = Sync(OperationName.BACKUP)
     datasets = sync.next()
     ntotal = nbackup_success = nbackup_fail = ns3_success = ns3_fail = process_fail = 0
 
@@ -277,9 +284,9 @@ def backup_data(lb_obj, s3_obj, config, logger):
             tar = None
             error = f"Tarball link, '{tb}', does not resolve to a real file"
             sync.error(dataset, error)
-            logger.error(error)
+            server.logger.error(error)
 
-        logger.debug("Start backup of {}.", tar)
+        server.logger.debug("Start backup of {}.", tar)
         # check tarball exists and it is a regular file
         if not (tar and tar.exists() and tar.is_file()):
             # tarball does not exist or it is not a regular file
@@ -304,7 +311,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             error = f"can't read MD5 file {archive_md5}"
             sync.error(dataset, error)
             process_fail += 1
-            logger.exception(error)
+            server.logger.exception(error)
             continue
 
         # match md5sum of the tarball to its md5 file
@@ -315,14 +322,14 @@ def backup_data(lb_obj, s3_obj, config, logger):
             error = f"can't compute tarfile {tar} MD5"
             sync.error(dataset, error)
             process_fail += 1
-            logger.exception(error)
+            server.logger.exception(error)
             continue
 
         if archive_tar_hex_value != archive_md5_hex_value:
             error = f"Recorded MD5 {archive_md5_hex_value!r} does not match tarball MD5 {archive_tar_hex_value!r}"
             sync.error(dataset, error)
             process_fail += 1
-            logger.error(error)
+            server.logger.error(error)
             continue
 
         resultname = tar.name
@@ -333,7 +340,6 @@ def backup_data(lb_obj, s3_obj, config, logger):
         # operations and count the number of successes and failures.
         local_backup_result = backup_to_local(
             lb_obj,
-            logger,
             controller_path,
             controller,
             tb,
@@ -356,7 +362,6 @@ def backup_data(lb_obj, s3_obj, config, logger):
         # and count the number of successes and failures.
         s3_backup_result = backup_to_s3(
             s3_obj,
-            logger,
             controller_path,
             controller,
             tb,
@@ -379,7 +384,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         ):
             # Record that the BACKUP operation is complete
             usage = shutil.disk_usage(tar.parent)
-            logger.info(
+            server.logger.info(
                 "{} backup: {}% full, {} bytes remaining",
                 tar.name,
                 float(usage.used) / float(usage.total) * 100.0,
@@ -392,7 +397,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
                 message=f"unable to backup: local {local_backup_result}, S3 {s3_backup_result}",
             )
 
-        logger.debug("End backup of {}.", tar)
+        server.logger.debug("End backup of {}.", tar)
 
     return Results(
         ntotal=ntotal,
@@ -422,19 +427,21 @@ def main(cfg_name):
 
     logger = get_pbench_logger(_NAME_, config)
 
+    init_server_ctx(config, logger)
+
     # We're going to need the DB to track dataset state, so setup DB access.
-    init_db(config, logger)
+    init_db()
 
     # Add a BACKUP and QDIR field to the config object
     config.BACKUP = config.get("pbench-server", "pbench-backup-dir")
 
     # call the LocalBackupObject class
-    lb_obj = LocalBackupObject(config)
+    lb_obj = LocalBackupObject()
 
     # call the S3Config class
-    s3_obj = S3Config(config, logger)
+    s3_obj = S3Config()
 
-    lb_obj, s3_obj = sanity_check(lb_obj, s3_obj, config, logger)
+    lb_obj, s3_obj = sanity_check(lb_obj, s3_obj)
 
     if lb_obj is None and s3_obj is None:
         return 3
@@ -442,7 +449,7 @@ def main(cfg_name):
     logger.info("start-{}", config.TS)
 
     # Initiate the backup
-    counts = backup_data(lb_obj, s3_obj, config, logger)
+    counts = backup_data(lb_obj, s3_obj)
 
     result_string = (
         f"Total processed: {counts.ntotal},"

@@ -16,6 +16,7 @@ from sqlalchemy.sql.sqltypes import JSON
 
 from pbench.server import JSONOBJECT, JSONVALUE
 from pbench.server.database.database import Database
+from pbench.server.globals import server
 
 
 class ServerSettingError(Exception):
@@ -173,7 +174,7 @@ OPTION_SERVER_STATE = "server-state"
 SERVER_SETTINGS_OPTIONS = {
     OPTION_DATASET_LIFETIME: {
         "validator": validate_lifetime,
-        "default": lambda: str(ServerSetting.config.max_retention_period),
+        "default": lambda: str(server.config.max_retention_period),
     },
     OPTION_SERVER_BANNER: {
         "validator": validate_server_banner,
@@ -263,7 +264,7 @@ class ServerSetting(Database.Base):
         Returns:
             ServerSetting object with the specified key name or None
         """
-        dbs = Database.db_session
+        dbs = server.db_session
         try:
             setting = dbs.query(ServerSetting).filter_by(key=key).first()
             if setting is None and use_default:
@@ -320,7 +321,7 @@ class ServerSetting(Database.Base):
     @staticmethod
     def get_all() -> JSONOBJECT:
         """Return all server settings as a JSON object."""
-        settings = Database.db_session.query(ServerSetting).all()
+        settings = server.db_session.query(ServerSetting).all()
         db = {c.key: c.value for c in settings}
         return {k: db[k] if k in db else __class__._default(k) for k in __class__.KEYS}
 
@@ -356,10 +357,10 @@ class ServerSetting(Database.Base):
     def add(self):
         """Add the ServerSetting object to the database."""
         try:
-            Database.db_session.add(self)
-            Database.db_session.commit()
+            server.db_session.add(self)
+            server.db_session.commit()
         except Exception as e:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             if isinstance(e, IntegrityError):
                 raise self._decode(e) from e
             raise ServerSettingSqlError("adding", self.key, str(e)) from e
@@ -369,9 +370,9 @@ class ServerSetting(Database.Base):
         ServerSetting object.
         """
         try:
-            Database.db_session.commit()
+            server.db_session.commit()
         except Exception as e:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             if isinstance(e, IntegrityError):
                 raise self._decode(e) from e
             raise ServerSettingSqlError("updating", self.key, str(e)) from e

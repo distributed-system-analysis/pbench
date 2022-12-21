@@ -2,12 +2,11 @@ import logging
 from typing import Dict, List, Tuple
 from urllib.parse import urlencode, urlparse
 
-from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 from sqlalchemy.orm import Query
 
-from pbench.server import JSON, OperationCode, PbenchServerConfig
+from pbench.server import JSON, OperationCode
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiBase,
@@ -19,8 +18,8 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
+from pbench.server.globals import server
 
 
 def urlencode_json(json: JSON) -> str:
@@ -34,9 +33,11 @@ def urlencode_json(json: JSON) -> str:
 class DatasetsList(ApiBase):
     """API class to list datasets based on database metadata."""
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "datasets_list"
+    urls = ["datasets/list"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,
@@ -130,7 +131,7 @@ class DatasetsList(ApiBase):
         json = params.query
 
         # Build a SQLAlchemy Query object expressing all of our constraints
-        query = Database.db_session.query(Dataset)
+        query = server.db_session.query(Dataset)
         if "start" in json and "end" in json:
             query = query.filter(Dataset.uploaded.between(json["start"], json["end"]))
         elif "start" in json:
@@ -143,8 +144,8 @@ class DatasetsList(ApiBase):
 
         # Useful for debugging, but verbose: this displays the fully expanded
         # SQL `SELECT` statement.
-        if current_app.logger.isEnabledFor(logging.DEBUG):
-            current_app.logger.debug(
+        if server.logger.isEnabledFor(logging.DEBUG):
+            server.logger.debug(
                 "QUERY {}",
                 query.statement.compile(compile_kwargs={"literal_binds": True}),
             )
@@ -166,7 +167,7 @@ class DatasetsList(ApiBase):
             try:
                 d["metadata"] = self._get_dataset_metadata(dataset, keys)
             except MetadataError as e:
-                current_app.logger.warning(
+                server.logger.warning(
                     "Error getting metadata {} for dataset {}: {}", keys, dataset, e
                 )
             response.append(d)

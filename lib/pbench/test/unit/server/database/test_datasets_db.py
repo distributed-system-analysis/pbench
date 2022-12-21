@@ -7,7 +7,7 @@ from pbench.test.unit.server import DRB_USER_ID
 
 
 class TestDatasets:
-    def test_construct(self, db_session, create_user):
+    def test_construct(self, create_user):
         """Test dataset contructor"""
         user = create_user
         with freeze_time("1970-01-01"):
@@ -27,7 +27,7 @@ class TestDatasets:
             "operations": {},
         }
 
-    def test_dataset_survives_user(self, db_session, create_user):
+    def test_dataset_survives_user(self, create_user):
         """The Dataset isn't automatically removed when the referenced
         user is removed.
         """
@@ -38,7 +38,7 @@ class TestDatasets:
         ds1 = Dataset.query(resource_id="deadbeef")
         assert ds1 == ds
 
-    def test_dataset_metadata_log(self, db_session, create_user, provide_metadata):
+    def test_dataset_metadata_log(self, create_user, provide_metadata):
         """
         Test that `as_dict` provides the mocked metadata.log contents along
         with the Dataset object.
@@ -61,7 +61,7 @@ class TestDatasets:
             "operations": {},
         }
 
-    def test_query_name(self, db_session, create_user):
+    def test_query_name(self, create_user):
         """Test that we can find a dataset by name alone"""
         ds1 = Dataset(owner_id=str(create_user.id), resource_id="deed1e", name="fio")
         ds1.add()
@@ -73,7 +73,7 @@ class TestDatasets:
         assert ds2.resource_id == ds1.resource_id
         assert ds2.id == ds1.id
 
-    def test_delete(self, db_session, create_user):
+    def test_delete(self, create_user):
         """Test that we can delete a dataset"""
         ds1 = Dataset(
             owner_id=str(create_user.id), name="foobar", resource_id="f00dea7"

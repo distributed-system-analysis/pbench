@@ -13,6 +13,7 @@ from pbench.server.database.database import Database
 from pbench.server.database.models.auth_tokens import AuthToken
 from pbench.server.database.models.server_settings import ServerSetting
 from pbench.server.database.models.users import User
+from pbench.server.globals import server
 
 
 class RegisterUser(Resource):
@@ -20,8 +21,8 @@ class RegisterUser(Resource):
     Abstracted pbench API for registering a new user
     """
 
-    def __init__(self, config):
-        self.server_config = config
+    endpoint = "register"
+    urls = ["register"]
 
     def post(self):
         """
@@ -141,9 +142,11 @@ class Login(Resource):
     Pbench API for User Login or generating an auth token
     """
 
-    def __init__(self, config):
-        self.server_config = config
-        self.token_expire_duration = self.server_config.get(
+    endpoint = "login"
+    urls = ["login"]
+
+    def __init__(self):
+        self.token_expire_duration = server.config.get(
             "pbench-server", "token_expiration_duration"
         )
 
@@ -266,8 +269,8 @@ class Logout(Resource):
     Pbench API for User logout and deleting an auth token
     """
 
-    def __init__(self, config):
-        self.server_config = config
+    endpoint = "logout"
+    urls = ["logout"]
 
     def post(self):
         """
@@ -318,6 +321,9 @@ class UserAPI(Resource):
     """
     Abstracted pbench API to get user data
     """
+
+    endpoint = "user"
+    urls = ["user/<string:target_username>"]
 
     TargetUser = NamedTuple(
         "TargetUser",

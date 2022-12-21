@@ -1,5 +1,4 @@
 from argparse import Namespace
-from logging import Logger
 import os
 from os import stat_result
 from pathlib import Path
@@ -9,13 +8,7 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 
-from pbench.server import (
-    JSONARRAY,
-    JSONOBJECT,
-    JSONVALUE,
-    OperationCode,
-    PbenchServerConfig,
-)
+from pbench.server import JSONARRAY, JSONOBJECT, JSONVALUE, OperationCode
 from pbench.server.database.models.audit import AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -90,7 +83,6 @@ class FakePbenchTemplates:
         self,
         lib_dir: Path,
         idx_prefix: str,
-        logger: Logger,
         known_tool_handlers: JSONOBJECT = None,
         _dbg: int = 0,
     ):
@@ -113,7 +105,6 @@ class FakeReport:
 
     def __init__(
         self,
-        config,
         name,
         es=None,
         pid=None,
@@ -123,7 +114,6 @@ class FakeReport:
         version=None,
         templates=None,
     ):
-        self.config = config
         self.name = name
 
     def post_status(
@@ -141,13 +131,11 @@ class FakeReport:
 
 
 class FakeIdxContext:
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
-        self.config = config
-        self.logger = logger
+    def __init__(self):
         self.tracking_id = None
         self.es = None
         self.TS = "FAKE_TS"
-        self.templates = FakePbenchTemplates(Path("path"), "test", logger)
+        self.templates = FakePbenchTemplates(Path("path"), "test")
         self._dbg = False
 
     def getpid(self) -> int:
@@ -220,8 +208,7 @@ class FakeSync:
         cls.updated = None
         cls.errors = {}
 
-    def __init__(self, logger: Logger, component: OperationName):
-        self.logger = logger
+    def __init__(self, component: OperationName):
         self.component = component
 
     def next(self) -> List[Dataset]:
@@ -243,12 +230,11 @@ class FakeSync:
 
 
 class FakeController:
-    def __init__(self, path: Path, incoming: Path, results: Path, logger: Logger):
+    def __init__(self, path: Path, incoming: Path, results: Path):
         self.name = path.name
         self.path = path
         self.incoming = incoming / self.name
         self.results = results / self.name
-        self.logger = logger
 
 
 class FakeTarball:
@@ -260,14 +246,12 @@ class FakeTarball:
 
 
 class FakeCacheManager:
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
-        self.config = config
-        self.logger = logger
+    def __init__(self):
         self.datasets = {}
 
     def find_dataset(self, resource_id: str):
         controller = FakeController(
-            Path("/archive/ctrl"), Path("/incoming"), Path("/results"), self.logger
+            Path("/archive/ctrl"), Path("/incoming"), Path("/results")
         )
         return FakeTarball(
             Path(f"/archive/ctrl/tarball-{resource_id}.tar.xz"), controller
@@ -304,8 +288,7 @@ class FakeAudit:
 
 
 @pytest.fixture()
-def mocks(monkeypatch, make_logger):
-    FakeDataset.logger = make_logger
+def mocks(monkeypatch, server_logger):
     with monkeypatch.context() as m:
         m.setattr("pbench.server.indexing_tarballs.Sync", FakeSync)
         m.setattr("pbench.server.indexing_tarballs.PbenchTarBall", FakePbenchTarBall)
@@ -325,11 +308,11 @@ def mocks(monkeypatch, make_logger):
 
 
 @pytest.fixture()
-def index(server_config, make_logger):
+def index(server_config, server_logger):
     return Index(
         "test",
         Namespace(index_tool_data=False, re_index=False),
-        FakeIdxContext(server_config, make_logger),
+        FakeIdxContext(),
     )
 
 
@@ -456,7 +439,7 @@ class TestIndexingTarballs:
         assert FakePbenchTemplates.templates_updated
 
     def test_process_tb_term(self, mocks, index):
-        def fake_es_index(es, actions, errorsfp, logger, _dbg=0):
+        def fake_es_index(es, actions, errorsfp, _dbg=0):
             raise SigTermException("ter-min-ate; ter-min-ate")
 
         mocks.setattr("pbench.server.indexing_tarballs.es_index", fake_es_index)
@@ -464,7 +447,7 @@ class TestIndexingTarballs:
         assert stat == 0
 
     def test_process_tb_interrupt(self, mocks, index):
-        def fake_es_index(es, actions, errorsfp, logger, _dbg=0):
+        def fake_es_index(es, actions, errorsfp, _dbg=0):
             raise SigIntException("cease. also desist. and stop. that too.")
 
         mocks.setattr("pbench.server.indexing_tarballs.es_index", fake_es_index)
@@ -486,7 +469,7 @@ class TestIndexingTarballs:
         index_actions = []
         first_index = True
 
-        def fake_es_index(es, actions, errorsfp, logger, _dbg=0):
+        def fake_es_index(es, actions, errorsfp, _dbg=0):
             nonlocal first_index
             if first_index:
                 first_index = False
@@ -509,7 +492,7 @@ class TestIndexingTarballs:
         ]
 
     def test_process_tb_merge(self, mocks, index):
-        def fake_es_index(es, actions, errorsfp, logger, _dbg=0):
+        def fake_es_index(es, actions, errorsfp, _dbg=0):
             return (1000, 2000, 1, 0, 0, 0)
 
         FakeMetadata.index_map = {"ds1": {"idx": ["a", "b"]}}
@@ -529,7 +512,7 @@ class TestIndexingTarballs:
     def test_process_tb(self, mocks, index):
         index_actions = []
 
-        def fake_es_index(es, actions, errorsfp, logger, _dbg=0):
+        def fake_es_index(es, actions, errorsfp, _dbg=0):
             index_actions.append(actions)
             return (1000, 2000, 1, 0, 0, 0)
 

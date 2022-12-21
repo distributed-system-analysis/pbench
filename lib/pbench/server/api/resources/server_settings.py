@@ -4,7 +4,7 @@ from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server import OperationCode
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
@@ -31,9 +31,15 @@ class ServerSettings(ApiBase):
     API class to retrieve and mutate server settings.
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "server_configuration"
+    urls = [
+        "server/configuration",
+        "server/configuration/",
+        "server/configuration/<string:key>",
+    ]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.PUT,
                 OperationCode.UPDATE,

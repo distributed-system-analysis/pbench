@@ -17,17 +17,16 @@ from pbench.server.database.models.server_settings import ServerSetting
 
 
 class OnlyGet(ApiBase):
-    def __init__(self, server_config):
-        super().__init__(server_config, ApiSchema(ApiMethod.GET, OperationCode.READ))
+    def __init__(self):
+        super().__init__(ApiSchema(ApiMethod.GET, OperationCode.READ))
 
     def _get(self, args: ApiParams, request: Request, context: ApiContext) -> str:
         return "OK - Only GET"
 
 
 class Always(ApiBase):
-    def __init__(self, server_config):
+    def __init__(self):
         super().__init__(
-            server_config,
             ApiSchema(ApiMethod.GET, OperationCode.READ),
             always_enabled=True,
         )
@@ -37,9 +36,8 @@ class Always(ApiBase):
 
 
 class All(ApiBase):
-    def __init__(self, server_config):
+    def __init__(self):
         super().__init__(
-            server_config,
             ApiSchema(ApiMethod.GET, OperationCode.READ),
             ApiSchema(ApiMethod.HEAD, OperationCode.READ),
             ApiSchema(ApiMethod.POST, OperationCode.CREATE),
@@ -66,11 +64,8 @@ class All(ApiBase):
 
 
 class OptionsMethod(ApiBase):
-    def __init__(self, server_config):
-        super().__init__(
-            server_config,
-            ApiSchema(99, OperationCode.READ),
-        )
+    def __init__(self):
+        super().__init__(ApiSchema(99, OperationCode.READ))
 
     def options(self, **kwargs) -> Response:
         return self._dispatch(99, kwargs)
@@ -94,25 +89,21 @@ class TestApiBase:
             OnlyGet,
             "/api/v1/onlyget",
             endpoint="onlyget",
-            resource_class_args=(server_config,),
         )
         api.add_resource(
             Always,
             "/api/v1/always",
             endpoint="always",
-            resource_class_args=(server_config,),
         )
         api.add_resource(
             All,
             "/api/v1/all",
             endpoint="all",
-            resource_class_args=(server_config,),
         )
         api.add_resource(
             OptionsMethod,
             "/api/v1/other",
             endpoint="other",
-            resource_class_args=(server_config,),
         )
 
         # Flask-provided test client

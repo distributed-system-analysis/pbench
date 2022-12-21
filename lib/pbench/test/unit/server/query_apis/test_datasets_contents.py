@@ -7,6 +7,7 @@ from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
     DatasetsContents,
 )
 from pbench.server.database.models.datasets import Dataset
+from pbench.server.globals import server
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -21,7 +22,7 @@ class TestDatasetsContents(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=DatasetsContents(client.config),
+            cls_obj=DatasetsContents(),
             pbench_endpoint="/datasets/contents/random_md5_string1/1-default",
             elastic_endpoint="/_search",
             index_from_metadata="run-toc",
@@ -29,18 +30,16 @@ class TestDatasetsContents(Commons):
 
     api_method = ApiMethod.GET
 
-    def test_with_no_index_document(self, client, server_config):
+    def test_with_no_index_document(self, client):
         """
         Check the DatasetsContents API when no index name is provided
         """
         # remove the last two components of the pbench_endpoint
         incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-2])
-        response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}/")
+        response = client.get(f"{server.config.rest_uri}{incorrect_endpoint}/")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
-    def test_with_incorrect_index_document(
-        self, client, server_config, pbench_drb_token
-    ):
+    def test_with_incorrect_index_document(self, client, pbench_drb_token):
         """
         Check the Contents API when an incorrect index name is provided.
         """
@@ -48,14 +47,13 @@ class TestDatasetsContents(Commons):
             "/".join(self.pbench_endpoint.split("/")[:-1]) + "/random_md5_string2"
         )
         response = client.get(
-            f"{server_config.rest_uri}{incorrect_endpoint}",
+            f"{server.config.rest_uri}{incorrect_endpoint}",
             headers={"Authorization": "Bearer " + pbench_drb_token},
         )
         assert response.status_code == HTTPStatus.NOT_FOUND
 
     def test_query(
         self,
-        server_config,
         query_api,
         pbench_drb_token,
         build_auth_header,
@@ -177,7 +175,6 @@ class TestDatasetsContents(Commons):
 
     def test_subdirectory_query(
         self,
-        server_config,
         query_api,
         pbench_drb_token,
         build_auth_header,
@@ -277,7 +274,6 @@ class TestDatasetsContents(Commons):
 
     def test_files_query(
         self,
-        server_config,
         query_api,
         pbench_drb_token,
         build_auth_header,
@@ -362,7 +358,6 @@ class TestDatasetsContents(Commons):
 
     def test_no_subdirectory_no_files_query(
         self,
-        server_config,
         query_api,
         pbench_drb_token,
         build_auth_header,
@@ -427,7 +422,6 @@ class TestDatasetsContents(Commons):
 
     def test_empty_query(
         self,
-        server_config,
         query_api,
         pbench_drb_token,
         build_auth_header,
@@ -484,7 +478,7 @@ class TestDatasetsContents(Commons):
         assert indices == "unit-test.v6.run-toc.2020-05"
 
     @pytest.mark.parametrize("name", ("wrong", ""))
-    def test_missing_name(self, client, server_config, pbench_drb_token, name):
+    def test_missing_name(self, client, pbench_drb_token, name):
         expected_status = HTTPStatus.NOT_FOUND
         incorrect_endpoint = self.pbench_endpoint.rsplit("/", 1)[0] + "/" + name
         response = client.get(

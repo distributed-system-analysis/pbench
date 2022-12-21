@@ -3,6 +3,7 @@ from http import HTTPStatus
 import pytest
 
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
+from pbench.server.globals import server
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -18,7 +19,7 @@ class TestDatasetSummary(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=DatasetsSearch(client.config),
+            cls_obj=DatasetsSearch(),
             pbench_endpoint="/datasets/search",
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
@@ -38,7 +39,6 @@ class TestDatasetSummary(Commons):
     def test_query(
         self,
         client,
-        server_config,
         query_api,
         find_template,
         build_auth_header,
@@ -124,7 +124,7 @@ class TestDatasetSummary(Commons):
             },
         }
         index = self.build_index(
-            server_config, self.date_range(payload["start"], payload["end"])
+            server.config, self.date_range(payload["start"], payload["end"])
         )
         expected_status = self.get_expected_status(
             payload, build_auth_header["header_param"]

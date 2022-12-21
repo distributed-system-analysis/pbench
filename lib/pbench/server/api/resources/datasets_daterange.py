@@ -2,7 +2,7 @@ from flask.json import jsonify
 from flask.wrappers import Request, Response
 from sqlalchemy import func
 
-from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server import OperationCode
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiBase,
@@ -14,8 +14,8 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset
+from pbench.server.globals import server
 
 
 class DatasetsDateRange(ApiBase):
@@ -23,9 +23,11 @@ class DatasetsDateRange(ApiBase):
     API class to retrieve the available date range of accessible datasets.
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "datasets_daterange"
+    urls = ["datasets/daterange"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,
@@ -56,7 +58,7 @@ class DatasetsDateRange(ApiBase):
         owner = params.query.get("owner")
 
         # Build a SQLAlchemy Query object expressing all of our constraints
-        query = Database.db_session.query(
+        query = server.db_session.query(
             func.min(Dataset.uploaded), func.max(Dataset.uploaded)
         )
         query = self._build_sql_query(owner, access, query)

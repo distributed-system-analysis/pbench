@@ -33,6 +33,7 @@ from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 import pbench.server
 from pbench.server.database import init_db
+from pbench.server.globals import init_server_ctx, server
 from pbench.server.indexer import _STD_DATETIME_FMT
 from pbench.server.report import Report
 
@@ -98,7 +99,7 @@ def fetch_username(tb_incoming_dir):
     return user
 
 
-def remove_symlinks(tgt_p, tb_incoming_dir, logger, dry_run):
+def remove_symlinks(tgt_p, tb_incoming_dir, dry_run):
     """remove_symlinks - Given a target directory tree, remove all symbolic
     links which point to the given incoming tar ball directory.
 
@@ -125,11 +126,13 @@ def remove_symlinks(tgt_p, tb_incoming_dir, logger, dry_run):
                     try:
                         os.unlink(full_p)
                     except OSError as exc:
-                        logger.error("Failed to remove symlink '{}': {}", full_p, exc)
+                        server.logger.error(
+                            "Failed to remove symlink '{}': {}", full_p, exc
+                        )
                         errors += 1
                         status = "fail"
                     else:
-                        logger.debug("Removed symlink '{}'", full_p)
+                        server.logger.debug("Removed symlink '{}'", full_p)
                         status = "succ"
                     act.set_status(status)
                 # Dry-run, or actual, errors or no errors, we always record
@@ -144,7 +147,7 @@ def remove_symlinks(tgt_p, tb_incoming_dir, logger, dry_run):
     return errors, actions_taken
 
 
-def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dry_run):
+def remove_unpacked(tb_incoming_dir, controller_name, results, users, dry_run):
     """remove_unpacked - Remove the unpacked tar ball directory from the
     INCOMING tree and all symbolic links to that directory from the RESULTS
     and USERS trees.
@@ -165,17 +168,19 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
     """
     start = pbench.server._time()
     if not dry_run:
-        logger.info("Began removing unpacked tar ball directory, '{}'", tb_incoming_dir)
+        server.logger.info(
+            "Began removing unpacked tar ball directory, '{}'", tb_incoming_dir
+        )
 
     # Walk the results hierarchy for the tar ball's controller to find all
     # symbolic links to the INCOMING directory location.  Once we find a
     # symbolic link (which will be returned in the list of sub-directories)
     errors, actions_taken = remove_symlinks(
-        Path(results, controller_name), tb_incoming_dir, logger, dry_run
+        Path(results, controller_name), tb_incoming_dir, dry_run
     )
     if errors > 0:
         # NOTE: dry-runs never produce errors, so no check is needed.
-        logger.error(
+        server.logger.error(
             "Aborting removal of unpacked tar ball directory, '{}'", tb_incoming_dir
         )
         return ActionSet(actions_taken, errors, start, pbench.server._time())
@@ -186,13 +191,12 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
         errors, _actions_taken = remove_symlinks(
             Path(users, user_name, controller_name),
             tb_incoming_dir,
-            logger,
             dry_run,
         )
         actions_taken.extend(_actions_taken)
         if errors > 0:
             # NOTE: dry-runs never produce errors, so no check is needed.
-            logger.error(
+            server.logger.error(
                 "Aborting removal of unpacked tar ball directory, '{}'", tb_incoming_dir
             )
             return ActionSet(actions_taken, errors, start, pbench.server._time())
@@ -211,7 +215,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
         if not dry_run:
             os.rename(tb_incoming_dir, del_path)
     except OSError as exc:
-        logger.error(
+        server.logger.error(
             "Failed to rename incoming directory, '{}', to '{}': '{}'",
             tb_incoming_dir,
             del_path,
@@ -227,7 +231,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
             if not dry_run:
                 shutil.rmtree(del_path)
         except OSError as exc:
-            logger.error(
+            server.logger.error(
                 "Failed to remove incoming directory tree, '{}': '{}'",
                 del_path,
                 exc,
@@ -241,7 +245,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
     act_set = ActionSet(actions_taken, errors, start, end)
     if errors == 0:
         duration = 0.0 if end < start else end - start
-        logger.info(
+        server.logger.info(
             "After {:0.2f} seconds, finished removal of unpacked tar ball"
             " directory, '{}'",
             duration,
@@ -322,8 +326,10 @@ def main(options):
 
     logger = get_pbench_logger(_NAME_, config)
 
+    init_server_ctx(config, logger)
+
     # We're going to need the DB to track dataset state, so setup DB access.
-    init_db(config, logger)
+    init_db()
 
     archivepath = config.ARCHIVE
 
@@ -376,7 +382,6 @@ def main(options):
             controller_name,
             resultspath,
             userspath,
-            logger,
             options.dry_run,
         )
         unpacked_dir_name = Path(tb_incoming_dir).name

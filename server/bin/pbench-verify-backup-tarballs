@@ -52,6 +52,7 @@ from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
 from pbench.server import get_resolved_dir, PbenchServerConfig, timestamp
 from pbench.server.database import init_db
+from pbench.server.globals import init_server_ctx, server
 from pbench.server.report import Report
 from pbench.server.s3backup import Entry, S3Config
 
@@ -64,7 +65,7 @@ class Status(Enum):
 
 
 class BackupObject:
-    def __init__(self, name, dirname, tmpdir, logger):
+    def __init__(self, name, dirname, tmpdir):
         self.name = name
         self.description = self.name
         if dirname is None:
@@ -79,7 +80,6 @@ class BackupObject:
             self.dirname = dirname
             self.s3_config_obj = None
         self.tmpdir = tmpdir
-        self.logger = logger
         self.content_list = None
         self.missing_list = None
         self.error_list = None
@@ -104,11 +104,11 @@ class BackupObject:
                     self.missing_list.append(tar)
                 else:
                     self.error_list.append(tar)
-                    self.logger.exception("ERROR reading file {}", md5_file)
+                    server.logger.exception("ERROR reading file {}", md5_file)
                 continue
             except Exception:
                 self.error_list.append(tar)
-                self.logger.exception("ERROR reading file {}", md5_file)
+                server.logger.exception("ERROR reading file {}", md5_file)
                 continue
             else:
                 self.content_list.append(
@@ -134,14 +134,14 @@ class BackupObject:
                 except KeyError:
                     # that was the last page
                     done = True
-                self.logger.debug(
+                server.logger.debug(
                     "list_objects: got {} objects{}",
                     len(resp["Contents"]),
                     " - continuing..." if not done else "",
                 )
 
         except Exception:
-            self.logger.exception("ERROR fetching list of objects from S3")
+            server.logger.exception("ERROR fetching list of objects from S3")
             return Status.FAIL
         else:
             return Status.SUCCESS
@@ -191,11 +191,11 @@ class BackupObject:
             except Exception:
                 # Could not open/read the file
                 msg = f"Failure trying to read from the file {fail_f}"
-                self.logger.exception(msg)
+                server.logger.exception(msg)
                 report.write(f"ERROR - {msg}\n")
 
 
-def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
+def compare_entry_lists(list_one_obj, list_two_obj, report):
     # Compare the two lists and report the differences.
     sorted_list_one_content = sorted(list_one_obj.content_list, key=lambda k: k.name)
     sorted_list_two_content = sorted(list_two_obj.content_list, key=lambda k: k.name)
@@ -212,7 +212,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
                 f"MD5 values don't match for: {sorted_list_one_content[i].name}\n"
             )
             report.write(report_text)
-            logger.debug(report_text)
+            server.logger.debug(report_text)
             i += 1
             j += 1
         elif sorted_list_one_content[i].name < sorted_list_two_content[j].name:
@@ -222,7 +222,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
                 f"{list_two_obj.description}\n"
             )
             report.write(report_text)
-            logger.debug(report_text)
+            server.logger.debug(report_text)
             i += 1
         else:
             assert (
@@ -234,7 +234,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
                 f"{list_one_obj.description}\n"
             )
             report.write(report_text)
-            logger.debug(report_text)
+            server.logger.debug(report_text)
             j += 1
     assert (i == len_list_one_content) or (j == len_list_two_content), "Logic error!"
 
@@ -245,7 +245,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
                 f" but not in {list_one_obj.description}\n"
             )
             report.write(report_text)
-            logger.debug(report_text)
+            server.logger.debug(report_text)
     elif i < len_list_one_content and j == len_list_two_content:
         for entry in sorted_list_one_content[i:len_list_one_content]:
             report_text = (
@@ -253,22 +253,24 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
                 f"but not in {list_two_obj.description}\n"
             )
             report.write(report_text)
-            logger.debug(report_text)
+            server.logger.debug(report_text)
     else:
         assert (i == len_list_one_content) and (
             j == len_list_two_content
         ), "Logic error!"
 
 
-def sanity_check(s3_obj, logger):
+def sanity_check(s3_obj):
     # make sure the S3 bucket exists
     if s3_obj.bucket_name is None:
-        logger.warning("Bucket not defined in config file - S3 backup is disabled.")
+        server.logger.warning(
+            "Bucket not defined in config file - S3 backup is disabled."
+        )
         return None
     try:
         s3_obj.head_bucket(Bucket=s3_obj.bucket_name)
     except Exception as exc:
-        logger.error(
+        server.logger.error(
             "Bucket: {} does not exist or you have no access, {}",
             s3_obj.bucket_name,
             exc,
@@ -287,16 +289,19 @@ def main():
         )
         return 2
 
+    init_server_ctx()
     try:
         config = PbenchServerConfig.create(cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1
 
-    logger = get_pbench_logger(_NAME_, config)
+    logger = logger = get_pbench_logger(_NAME_, config)
+
+    init_server_ctx(config, logger)
 
     # We're going to need the DB to track dataset state, so setup DB access.
-    init_db(config, logger)
+    init_db()
 
     # add a BACKUP field to the config object
     config.BACKUP = backup = config.get("pbench-server", "pbench-backup-dir")
@@ -308,13 +313,13 @@ def main():
         )
         return 1
 
-    backuppath = get_resolved_dir("BACKUP", backup, logger)
+    backuppath = get_resolved_dir("BACKUP", backup, server.logger)
     if not backuppath:
         return 1
 
     # instantiate the s3config class
-    s3_config_obj = S3Config(config, logger)
-    s3_config_obj = sanity_check(s3_config_obj, logger)
+    s3_config_obj = S3Config(config)
+    s3_config_obj = sanity_check(s3_config_obj)
 
     logger.info("start-{}", config.TS)
     start = timestamp()
@@ -325,9 +330,9 @@ def main():
     # N.B. tmpdir is the pathname of the temp directory.
     with tempfile.TemporaryDirectory() as tmpdir:
 
-        archive_obj = BackupObject("ARCHIVE", config.ARCHIVE, tmpdir, logger)
-        local_backup_obj = BackupObject("BACKUP", config.BACKUP, tmpdir, logger)
-        s3_backup_obj = BackupObject("S3", s3_config_obj, tmpdir, logger)
+        archive_obj = BackupObject("ARCHIVE", config.ARCHIVE, tmpdir)
+        local_backup_obj = BackupObject("BACKUP", config.BACKUP, tmpdir)
+        s3_backup_obj = BackupObject("S3", s3_config_obj, tmpdir)
 
         with tempfile.NamedTemporaryFile(mode="w+t", dir=tmpdir) as reportfp:
             reportfp.write(
@@ -411,7 +416,7 @@ def main():
             msg = "Comparing ARCHIVE with BACKUP"
             reportfp.write(f"\n{msg}\n{'-' * len(msg)}\n")
             logger.debug("{}: start", msg)
-            compare_entry_lists(archive_obj, local_backup_obj, reportfp, logger)
+            compare_entry_lists(archive_obj, local_backup_obj, reportfp)
             logger.debug("{}: end", msg)
 
             if s3_config_obj is not None:
@@ -419,7 +424,7 @@ def main():
                 msg = "Comparing ARCHIVE with S3"
                 reportfp.write(f"\n{msg}\n{'-' * len(msg)}\n")
                 logger.debug("{}: start", msg)
-                compare_entry_lists(archive_obj, s3_backup_obj, reportfp, logger)
+                compare_entry_lists(archive_obj, s3_backup_obj, reportfp)
                 logger.debug("{}: end", msg)
 
             if s3_config_obj is None:

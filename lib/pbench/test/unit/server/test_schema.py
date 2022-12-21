@@ -24,7 +24,8 @@ from pbench.server.api.resources import (
     UnverifiedUser,
 )
 from pbench.server.api.resources.query_apis import PostprocessError
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
+from pbench.server.globals import server
 
 
 class TestExceptions:
@@ -80,9 +81,9 @@ class TestExceptions:
         assert str(p) == "Postprocessing error returning 400: 'really bad' [None]"
         assert p.status == HTTPStatus.BAD_REQUEST
 
-    def test_internal_error(self, capinternal, make_logger):
+    def test_internal_error(self, capinternal, server_logger):
         x = APIInternalError("my error")
-        make_logger.error(f"TEST {x.details}")
+        server.logger.error(f"TEST {x.details}")
         r = Response(
             response=json.dumps({"message": x.message}),
             mimetype="application/json",

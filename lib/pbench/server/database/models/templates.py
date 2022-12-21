@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.sql.sqltypes import DateTime, JSON
 
 from pbench.server.database.database import Database
+from pbench.server.globals import server
 
 
 class TemplateError(Exception):
@@ -137,7 +138,7 @@ class Template(Database.Base):
             Template : a template object with the specified base name
         """
         try:
-            template = Database.db_session.query(Template).filter_by(name=name).first()
+            template = server.db_session.query(Template).filter_by(name=name).first()
         except SQLAlchemyError as e:
             raise TemplateSqlError("finding", name, str(e))
 
@@ -177,13 +178,13 @@ class Template(Database.Base):
     def add(self):
         """Add the Template object to the database."""
         try:
-            Database.db_session.add(self)
-            Database.db_session.commit()
+            server.db_session.add(self)
+            server.db_session.commit()
         except IntegrityError as e:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             raise self._decode(e)
         except Exception as e:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             raise TemplateSqlError("adding", self.name, str(e))
 
     def update(self):
@@ -191,12 +192,12 @@ class Template(Database.Base):
         Template object.
         """
         try:
-            Database.db_session.commit()
+            server.db_session.commit()
         except IntegrityError as e:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             raise self._decode(e)
         except Exception as e:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             raise TemplateSqlError("updating", self.name, str(e))
 
 

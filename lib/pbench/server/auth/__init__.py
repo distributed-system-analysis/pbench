@@ -3,7 +3,6 @@
 from configparser import NoOptionError, NoSectionError
 from dataclasses import dataclass
 from http import HTTPStatus
-import logging
 from typing import Dict, Optional, Union
 from urllib.parse import urljoin
 
@@ -13,7 +12,8 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from requests.structures import CaseInsensitiveDict
 
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSON
+from pbench.server.globals import server
 
 
 class OpenIDClientError(Exception):
@@ -217,9 +217,7 @@ class OpenIDClient:
         pass
 
     @staticmethod
-    def wait_for_oidc_server(
-        server_config: PbenchServerConfig, logger: logging.Logger
-    ) -> str:
+    def wait_for_oidc_server() -> str:
         """Wait for the configured OIDC server to become available.
 
         Checks if the OIDC server is up and accepting the connections.  The
@@ -234,10 +232,6 @@ class OpenIDClient:
 
         Note: The OIDC server needs to be configured with health-enabled on.
 
-        Args:
-            server_config : the Pbench Server configuration to use
-            logger : the logger to use
-
         Raises:
 
             OpenIDClient.NotConfigured : when the given server configuration
@@ -248,11 +242,11 @@ class OpenIDClient:
                 times out.
         """
         try:
-            oidc_server = server_config.get("openid-connect", "server_url")
+            oidc_server = server.config.get("openid-connect", "server_url")
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 
-        logger.info("Waiting for OIDC server to become available.")
+        server.logger.info("Waiting for OIDC server to become available.")
 
         session = requests.Session()
         # The connection check will retry multiple times unless successful, viz.,
@@ -279,10 +273,10 @@ class OpenIDClient:
             except Exception as exc:
                 raise OpenIDClient.ServerConnectionError() from exc
             if response.json().get("status") == "UP":
-                logger.debug("OIDC server connection verified")
+                server.logger.debug("OIDC server connection verified")
                 connected = True
                 break
-            logger.error(
+            server.logger.error(
                 "OIDC client not running, OIDC server response: {!r}", response.json()
             )
             retry.sleep()
@@ -293,7 +287,7 @@ class OpenIDClient:
         return oidc_server
 
     @classmethod
-    def construct_oidc_client(cls, server_config: PbenchServerConfig) -> "OpenIDClient":
+    def construct_oidc_client(cls) -> "OpenIDClient":
         """Convenience class method to optionally construct and return an
         OpenIDClient.
 
@@ -302,10 +296,10 @@ class OpenIDClient:
             missing, or any of the required options are missing.
         """
         try:
-            server_url = server_config.get("openid-connect", "server_url")
-            client = server_config.get("openid-connect", "client")
-            realm = server_config.get("openid-connect", "realm")
-            secret = server_config.get("openid-connect", "secret")
+            server_url = server.config.get("openid-connect", "server_url")
+            client = server.config.get("openid-connect", "client")
+            realm = server.config.get("openid-connect", "realm")
+            secret = server.config.get("openid-connect", "secret")
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 

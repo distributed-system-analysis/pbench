@@ -1,5 +1,5 @@
-"""
-This module provides convenience functions that interface to lower-level services, provided by the boto3 module.
+"""This module provides convenience functions that interface to lower-level
+services provided by the boto3 module.
 """
 import base64
 from configparser import NoOptionError, NoSectionError
@@ -10,6 +10,8 @@ import os
 import boto3
 from boto3.s3.transfer import TransferConfig
 from botocore.exceptions import ClientError, ConnectionClosedError
+
+from pbench.server.globals import server
 
 
 class Status(Enum):
@@ -44,15 +46,14 @@ class S3Config:
     GB = 1024**3
     MB = 1024**2
 
-    def __init__(self, config, logger):
+    def __init__(self):
         self.chunk_size = 256 * self.MB
         self.multipart_threshold = 5 * self.GB
         self.transfer_config = TransferConfig(
             multipart_threshold=self.multipart_threshold,
             multipart_chunksize=self.chunk_size,
         )
-        self.logger = logger
-        self.connector = S3Connector(config, logger)
+        self.connector = S3Connector()
 
         # Normally, the connector defines a bucket_name attribute as
         # specified in the config file.  The application layer does
@@ -107,7 +108,7 @@ class S3Config:
             except ConnectionClosedError:
                 # This is a transient failure and will be retried at
                 # the next invocation of the backups.
-                self.logger.error(
+                server.logger.error(
                     "Upload to s3 failed, connection was reset"
                     " while transferring {}",
                     Key,
@@ -117,12 +118,12 @@ class S3Config:
                 # What ever the reason is for this failure, the
                 # operation will be retried the next time backups
                 # are run.
-                self.logger.exception(
+                server.logger.exception(
                     "Upload to S3 failed" " while transferring {}", Key
                 )
                 return Status.FAIL
             else:
-                self.logger.info("Upload to s3 succeeded: {}", Key)
+                server.logger.info("Upload to s3 succeeded: {}", Key)
                 return Status.SUCCESS
         else:
             # calculate multi etag value
@@ -145,7 +146,7 @@ class S3Config:
                     },
                 )
             except ClientError as e:
-                self.logger.error("Multi-upload to s3 failed, client error: {}", e)
+                server.logger.error("Multi-upload to s3 failed, client error: {}", e)
                 return Status.FAIL
             else:
                 # compare the multi etag value uploaded in metadata
@@ -153,24 +154,24 @@ class S3Config:
                 try:
                     obj = self.connector.get_object(Bucket=self.bucket_name, Key=Key)
                 except Exception:
-                    self.logger.exception("get_object failed: {}", Key)
+                    server.logger.exception("get_object failed: {}", Key)
                     return Status.FAIL
                 else:
                     # The ETag value is wrapped in double quotes
                     # so we get rid of them here.
                     s3_multipart_etag = obj["ETag"].strip('"')
                     if s3_multipart_etag == etag:
-                        self.logger.info("Multi-upload to s3 succeeded: {}", Key)
+                        server.logger.info("Multi-upload to s3 succeeded: {}", Key)
                         return Status.SUCCESS
                     else:
                         # delete object from s3
                         # TBD: this should be flagged for retry, but
                         # currently we just fail.
                         self.connector.delete_object(Bucket=self.bucket_name, Key=Key)
-                        self.logger.error(
+                        server.logger.error(
                             "Multi-upload to s3 failed: {}, etag doesn't match", Key
                         )
-                        self.logger.debug(
+                        server.logger.debug(
                             "object ETag = {}, calculated ETag = {}",
                             s3_multipart_etag,
                             etag,
@@ -259,18 +260,22 @@ class Connector:
 
 # Connector to the S3 service.
 class S3Connector(Connector):
-    def __init__(self, config, logger):
+    def __init__(self):
         # S3 backup can be turned off by commenting out the
         # [pbench-server-backup]endpoint_url option in the config
         # file.
         try:
-            self.endpoint_url = config.get("pbench-server-backup", "endpoint_url")
+            self.endpoint_url = server.config.get(
+                "pbench-server-backup", "endpoint_url"
+            )
         except (NoSectionError, NoOptionError):
             self.endpoint_url = None
         else:
-            self.bucket_name = config.get("pbench-server-backup", "bucket_name")
-            self.access_key_id = config.get("pbench-server-backup", "access_key_id")
-            self.secret_access_key = config.get(
+            self.bucket_name = server.config.get("pbench-server-backup", "bucket_name")
+            self.access_key_id = server.config.get(
+                "pbench-server-backup", "access_key_id"
+            )
+            self.secret_access_key = server.config.get(
                 "pbench-server-backup", "secret_access_key"
             )
             self.s3client = boto3.client(
@@ -279,7 +284,6 @@ class S3Connector(Connector):
                 aws_secret_access_key="{}".format(self.secret_access_key),
                 endpoint_url="{}".format(self.endpoint_url),
             )
-        self.logger = logger
 
     @staticmethod
     def calculate_multipart_etag(tb, chunk_size):

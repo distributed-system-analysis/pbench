@@ -22,6 +22,8 @@ import os
 import re
 import sys
 
+from pbenhc.server.globals import init_server_ctx
+
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
 import pbench.server
@@ -173,8 +175,10 @@ def main(options):
 
     logger = get_pbench_logger(_NAME_, config)
 
+    init_server_ctx(config, logger)
+
     # We're going to need the DB to track dataset state, so setup DB access.
-    init_db(config, logger)
+    init_db()
 
     archive_p = config.ARCHIVE
 

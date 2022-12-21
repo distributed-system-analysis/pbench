@@ -11,7 +11,7 @@ from pbench.test.unit.server import ADMIN_USER_ID, DRB_USER_ID, TEST_USER_ID
 class TestQueryBuilder:
     @pytest.fixture()
     def elasticbase(self, client) -> ElasticBase:
-        return ElasticBase(client.config, ApiSchema(ApiMethod.POST, OperationCode.READ))
+        return ElasticBase(ApiSchema(ApiMethod.POST, OperationCode.READ))
 
     @staticmethod
     def assemble(term: JSON, user: Optional[str], access: Optional[str]) -> JSON:
@@ -48,7 +48,7 @@ class TestQueryBuilder:
             (ADMIN_USER_ID, "public"),
         ],
     )
-    def test_admin(self, elasticbase, server_config, current_user_admin, user, access):
+    def test_admin(self, elasticbase, current_user_admin, user, access):
         """
         Test the query builder when we have an authenticated admin user; all of
         these build query terms matching the input terms since we impose no
@@ -84,7 +84,7 @@ class TestQueryBuilder:
             ),
         ],
     )
-    def test_auth(self, elasticbase, server_config, current_user_drb, ask, expect):
+    def test_auth(self, elasticbase, current_user_drb, ask, expect):
         """
         Test the query builder when we have an authenticated user.
 
@@ -115,7 +115,7 @@ class TestQueryBuilder:
             ),
         ],
     )
-    def test_noauth(self, elasticbase, server_config, current_user_none, ask, expect):
+    def test_noauth(self, elasticbase, current_user_none, ask, expect):
         """
         Test the query builder when we have an unauthenticated client.
         """
@@ -126,7 +126,7 @@ class TestQueryBuilder:
         filter = self.assemble(term, expect.get("user"), expect.get("access"))
         assert query == {"bool": {"filter": filter}}
 
-    def test_neither_auth(self, elasticbase, server_config, current_user_drb):
+    def test_neither_auth(self, elasticbase, current_user_drb):
         """
         Test the query builder for {} when the client is authenticated with a
         non-admin account. This is the most complicated query, translating to

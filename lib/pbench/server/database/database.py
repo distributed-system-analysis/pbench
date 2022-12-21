@@ -1,4 +1,4 @@
-from logging import DEBUG, Logger
+from logging import DEBUG
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -8,55 +8,38 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, Query, scoped_session, sessionmaker
 from sqlalchemy_utils import create_database, database_exists
 
-from pbench.server import PbenchServerConfig
+from pbench.server.globals import server
 
 
 class Database:
     # Create declarative base model that our model can inherit from
     Base = declarative_base()
-    db_session = None
 
     @staticmethod
-    def get_engine_uri(config: PbenchServerConfig) -> str:
+    def get_engine_uri() -> str:
         """Convenience method to hide knowledge of the database configuration.
-
-        Args:
-            config: Server configuration object
 
         Returns:
             string URI
         """
-        return config.get("database", "uri")
+        return server.config.get("database", "uri")
 
     @staticmethod
-    def create_if_missing(db_uri: str, logger: Logger):
+    def create_if_missing(db_uri: str):
         """Create the database if it doesn't exist.
 
         Args:
             db_uri: The server's DB URI
-            logger: A Python logger object
         """
         if not database_exists(db_uri):
-            logger.info("Database {} doesn't exist", db_uri)
+            server.logger.info("Database {} doesn't exist", db_uri)
             create_database(db_uri)
-            logger.info("Created database {}", db_uri)
+            server.logger.info("Created database {}", db_uri)
 
     @staticmethod
-    def init_db(server_config: PbenchServerConfig, logger: Logger):
-        """Initialize the server's database.
-
-        Args:
-            server_config: The server's configuration object
-            logger: A Python logger object
-        """
-        db_uri = Database.get_engine_uri(server_config)
-
-        # Attach the logger and server config object to the base class for
-        # database models to find.
-        if logger and not hasattr(Database.Base, "logger"):
-            Database.Base.logger = logger
-        if server_config and not hasattr(Database.Base, "server_config"):
-            Database.Base.config = server_config
+    def init_db():
+        """Initialize the server's database."""
+        db_uri = Database.get_engine_uri(server.config)
 
         # WARNING:
         # Make sure all the models are imported before this function gets called
@@ -93,13 +76,12 @@ class Database:
         )
 
     @staticmethod
-    def dump_query(query: Query, logger: Logger):
+    def dump_query(query: Query):
         """Dump a fully resolved SQL query if DEBUG logging is enabled
 
         Args:
             query:  A SQLAlchemy Query object
-            logger: A Python logger object
         """
-        if logger.isEnabledFor(DEBUG):
+        if server.logger.isEnabledFor(DEBUG):
             q_str = query.statement.compile(compile_kwargs={"literal_binds": True})
-            logger.debug("QUERY {}", q_str)
+            server.logger.debug("QUERY {}", q_str)

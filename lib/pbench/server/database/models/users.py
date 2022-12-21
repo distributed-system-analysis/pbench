@@ -10,6 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from pbench.server.database.database import Database
 from pbench.server.database.models.auth_tokens import AuthToken
+from pbench.server.globals import server
 
 
 class Roles(enum.Enum):
@@ -63,26 +64,26 @@ class User(Database.Base):
             A User object if a user is found, None otherwise.
         """
         if id:
-            user = Database.db_session.query(User).filter_by(id=id).first()
+            user = server.db_session.query(User).filter_by(id=id).first()
         elif username:
-            user = Database.db_session.query(User).filter_by(username=username).first()
+            user = server.db_session.query(User).filter_by(username=username).first()
         elif email:
-            user = Database.db_session.query(User).filter_by(email=email).first()
+            user = server.db_session.query(User).filter_by(email=email).first()
         else:
             user = None
         return user
 
     @staticmethod
     def query_all() -> list["User"]:
-        return Database.db_session.query(User).all()
+        return server.db_session.query(User).all()
 
     def add(self):
         """Add the current user object to the database."""
         try:
-            Database.db_session.add(self)
-            Database.db_session.commit()
+            server.db_session.add(self)
+            server.db_session.commit()
         except Exception:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             raise
 
     @validates("role")
@@ -110,10 +111,10 @@ class User(Database.Base):
         """
         try:
             self.auth_tokens.append(auth_token)
-            Database.db_session.add(auth_token)
-            Database.db_session.commit()
+            server.db_session.add(auth_token)
+            server.db_session.commit()
         except Exception:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             raise
 
     def update(self, **kwargs):
@@ -121,9 +122,9 @@ class User(Database.Base):
         try:
             for key, value in kwargs.items():
                 setattr(self, key, value)
-            Database.db_session.commit()
+            server.db_session.commit()
         except Exception:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             raise
 
     @staticmethod
@@ -133,14 +134,14 @@ class User(Database.Base):
         Args:
             username : the username to delete
         """
-        user_query = Database.db_session.query(User).filter_by(username=username)
+        user_query = server.db_session.query(User).filter_by(username=username)
         if user_query.count() == 0:
             raise NoResultFound(f"User {username} does not exist")
         try:
             user_query.delete()
-            Database.db_session.commit()
+            server.db_session.commit()
         except Exception:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             raise
 
     def is_admin(self) -> bool:

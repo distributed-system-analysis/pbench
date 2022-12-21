@@ -12,7 +12,7 @@ from flask.wrappers import Request, Response
 from flask_restful import abort, Resource
 from sqlalchemy.orm.query import Query
 
-from pbench.server import JSON, JSONOBJECT, JSONVALUE, OperationCode, PbenchServerConfig
+from pbench.server import JSON, JSONOBJECT, JSONVALUE, OperationCode
 import pbench.server.auth.auth as Auth
 from pbench.server.database.models.audit import (
     Audit,
@@ -1137,15 +1137,12 @@ class ApiBase(Resource):
 
     def __init__(
         self,
-        config: PbenchServerConfig,
         *schemas: ApiSchema,
         always_enabled: bool = False,
     ):
         """Base class constructor.
 
         Args:
-            config : server configuration
-            logger : logger object
             schemas : ApiSchema objects to provide parameter validation for the
                 various HTTP methods the API module supports. For example, for
                 GET, PUT, and DELETE.
@@ -1154,7 +1151,6 @@ class ApiBase(Resource):
                 be usable.
         """
         super().__init__()
-        self.config = config
         self.schemas = ApiSchemaSet(*schemas)
         self.always_enabled = always_enabled
 

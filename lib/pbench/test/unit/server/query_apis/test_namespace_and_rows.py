@@ -8,6 +8,7 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleValues,
 )
 from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.globals import server
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -22,24 +23,22 @@ class TestSampleNamespace(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=SampleNamespace(client.config),
+            cls_obj=SampleNamespace(),
             pbench_endpoint="/datasets/namespace/random_md5_string1/iterations",
             elastic_endpoint="/_search",
             index_from_metadata="result-data-sample",
             empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 
-    def test_with_no_index_document(
-        self, client, server_config, pbench_drb_token, attach_dataset
-    ):
+    def test_with_no_index_document(self, client, pbench_drb_token, attach_dataset):
         """Check the Namespace API when no index name is provided."""
         # remove the last component of the pbench_endpoint
         incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-1])
-        response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}")
+        response = client.get(f"{server.config.rest_uri}{incorrect_endpoint}")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
     def test_with_incorrect_index_document(
-        self, client, server_config, pbench_drb_token, attach_dataset
+        self, client, pbench_drb_token, attach_dataset
     ):
         """Check the Namespace API when an incorrect index name is provided.
 
@@ -48,7 +47,7 @@ class TestSampleNamespace(Commons):
         """
         incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-1]) + "/test"
         response = client.get(
-            f"{server_config.rest_uri}{incorrect_endpoint}",
+            f"{server.config.rest_uri}{incorrect_endpoint}",
             headers={"Authorization": "Bearer " + pbench_drb_token},
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -103,7 +102,6 @@ class TestSampleNamespace(Commons):
 
     def test_query(
         self,
-        server_config,
         query_api,
         pbench_drb_token,
         build_auth_header,
@@ -404,7 +402,7 @@ class TestSampleValues(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=SampleValues(client.config),
+            cls_obj=SampleValues(),
             pbench_endpoint="/datasets/values/random_md5_string1/iterations",
             elastic_endpoint="/_search",
             payload={},
@@ -415,7 +413,6 @@ class TestSampleValues(Commons):
     @pytest.mark.parametrize("filters", ({"sample.name": "sample1"}, {}, None))
     def test_rows_query_without_scroll(
         self,
-        server_config,
         query_api,
         pbench_drb_token,
         build_auth_header,
@@ -588,7 +585,6 @@ class TestSampleValues(Commons):
     @pytest.mark.parametrize("filters", ({"sample.name": "sample1"}, {}, None))
     def test_scroll_id_return(
         self,
-        server_config,
         query_api,
         pbench_drb_token,
         build_auth_header,
@@ -652,7 +648,6 @@ class TestSampleValues(Commons):
 
     def test_rows_query_with_scroll_id(
         self,
-        server_config,
         query_api,
         pbench_drb_token,
         build_auth_header,

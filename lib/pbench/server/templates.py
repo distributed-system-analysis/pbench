@@ -2,7 +2,6 @@ from collections import Counter
 import copy
 from datetime import datetime
 import json
-from logging import Logger
 from pathlib import Path
 import re
 import sys
@@ -24,6 +23,7 @@ from pbench.server.database.models.templates import (
     TemplateDuplicate,
     TemplateNotFound,
 )
+from pbench.server.globals import server
 
 
 class JsonFile:
@@ -320,7 +320,6 @@ class TemplateFile:
         prefix: str,
         mappings: Path,
         settings: JsonFile,
-        logger: Logger,
         skeleton: Optional[JsonFile] = None,
         tool: Optional[str] = None,
     ):
@@ -345,7 +344,6 @@ class TemplateFile:
         """
         self.prefix = prefix
         self.settings = settings
-        self.logger = logger
         if tool:
             self.mappings = JsonToolFile(mappings)
             self.key = tool
@@ -407,7 +405,7 @@ class TemplateFile:
             prefix=self.prefix, version=idxver, idxname=self.idxname
         )
         self.index_template = ip["template"]
-        self.logger.info("Loaded template {} version {}", self.name, self.version)
+        server.logger.info("Loaded template {} version {}", self.name, self.version)
 
         # Add a standard "authorization" sub-document into the document
         # template if this document type is "owned" by a Pbench user.
@@ -494,7 +492,7 @@ class TemplateFile:
                 # same time. They'll be identical, so ignoring the error is
                 # safe; we log a warning just to record that it happened since
                 # this has caused problems.
-                self.logger.warning("Duplicate add for {}", self.name)
+                server.logger.warning("Duplicate add for {}", self.name)
         else:
             template.version = self.version
             template.mappings = self.mappings.json
@@ -560,7 +558,6 @@ class PbenchTemplates:
         self,
         lib_dir: Path,
         idx_prefix: str,
-        logger: Logger,
         known_tool_handlers: JSONOBJECT = None,
         _dbg: int = 0,
     ):
@@ -577,7 +574,6 @@ class PbenchTemplates:
         Args:
             lib_dir:              The Pbench server library directory
             idx_prefix:           The server's Elasticsearch index prefix
-            logger:               A Python Logger
             known_tool_handlers:  Describes the set of tools that will have
                                   templates generated from a common tool-data
                                   skeleton.
@@ -589,7 +585,6 @@ class PbenchTemplates:
 
         self.templates: Dict[str, TemplateFile] = {}
         self.idx_prefix: str = idx_prefix
-        self.logger: Logger = logger
         self.known_tool_handlers: JSONOBJECT = known_tool_handlers
         self._dbg: int = _dbg
         self.counters: Counter = Counter()
@@ -600,7 +595,6 @@ class PbenchTemplates:
                 prefix=idx_prefix,
                 mappings=mapping_dir / "server-reports.json",
                 settings=JsonFile(setting_dir / "server-reports.json"),
-                logger=self.logger,
             )
         )
 
@@ -611,7 +605,6 @@ class PbenchTemplates:
                     prefix=idx_prefix,
                     mappings=mapping_dir / mapping_fn,
                     settings=run_settings,
-                    logger=self.logger,
                 )
             )
 
@@ -622,7 +615,6 @@ class PbenchTemplates:
                     prefix=idx_prefix,
                     mappings=mapping_dir / mapping_fn,
                     settings=result_settings,
-                    logger=self.logger,
                 )
             )
 
@@ -634,7 +626,6 @@ class PbenchTemplates:
                     prefix=idx_prefix,
                     mappings=mapping_dir / mapping_fn,
                     settings=tool_settings,
-                    logger=self.logger,
                     skeleton=skeleton,
                     tool="tool-data",
                 )
@@ -765,7 +756,7 @@ class PbenchTemplates:
                 retries += _retries
             finally:
                 Audit.create(root=audit, status=completion, attributes=attrs)
-        log_action = self.logger.warning if retries > 0 else self.logger.debug
+        log_action = server.logger.warning if retries > 0 else server.logger.debug
         log_action(
             "done templates (start ts: {}, end ts: {}, duration: {:.2f}s,"
             " successes: {:d}, retries: {:d})",

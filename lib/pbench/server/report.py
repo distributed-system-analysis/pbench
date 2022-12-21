@@ -12,9 +12,15 @@ from pathlib import Path
 import socket
 import sys
 
-from pbench.common.logger import get_pbench_logger
 from pbench.server import tstos
-from pbench.server.indexer import _op_type, es_index, get_es, PbenchTemplates
+from pbench.server.globals import server
+from pbench.server.indexer import (
+    _op_type,
+    es_index,
+    get_es,
+    NoElasticsearchConfig,
+    PbenchTemplates,
+)
 
 
 class Report:
@@ -28,7 +34,6 @@ class Report:
 
     def __init__(
         self,
-        config,
         name,
         es=None,
         pid=None,
@@ -38,9 +43,7 @@ class Report:
         version=None,
         templates=None,
     ):
-        self.config = config
         self.name = name
-        self.logger = get_pbench_logger(name, config)
 
         # We always create a base "tracking" document composed of parameters
         # from the caller, and other environmental data. This document is used
@@ -55,7 +58,7 @@ class Report:
         _user_id = user_id if user_id else os.getuid()
         self.generated_by = dict(
             [
-                ("commit_id", self.config.COMMIT_ID),
+                ("commit_id", server.config.COMMIT_ID),
                 ("group_id", _group_id),
                 ("hostname", _hostname),
                 ("pid", _pid),
@@ -67,7 +70,7 @@ class Report:
         # indexed via the `post_status()` method.
         self.tracking_id = None
         try:
-            self.idx_prefix = config.get("Indexing", "index_prefix")
+            self.idx_prefix = server.config.get("Indexing", "index_prefix")
         except (NoOptionError, NoSectionError):
             # No index prefix so reporting will be performed via logging.
             self.idx_prefix = None
@@ -75,22 +78,23 @@ class Report:
         else:
             if es is None:
                 try:
-                    self.es = get_es(config, self.logger)
-                except Exception:
-                    self.logger.exception(
-                        "Unexpected failure fetching" " Elasticsearch configuration"
-                    )
+                    self.es = get_es()
+                except NoElasticsearchConfig as exc:
+                    server.logger.warning(str(exc))
                     # If we don't have an Elasticsearch configuration just use
                     # None to indicate logging should be used instead.
+                    self.es = None
+                except Exception:
+                    server.logger.exception(
+                        "Unexpected failure fetching Elasticsearch configuration"
+                    )
                     self.es = None
             else:
                 self.es = es
         if templates is not None:
             self.templates = templates
         else:
-            self.templates = PbenchTemplates(
-                self.config.LIBDIR, self.idx_prefix, self.logger
-            )
+            self.templates = PbenchTemplates(server.config.LIBDIR, self.idx_prefix)
 
     def init_report_template(self):
         """Setup the Elasticsearch templates needed for properly indexing
@@ -176,13 +180,13 @@ class Report:
                     fname = "report-status-payload.{}.{}.xz".format(
                         self.name, timestamp_noutc
                     )
-                    fpath = Path(self.config.log_dir) / self.name / fname
+                    fpath = Path(server.config.log_dir) / self.name / fname
                     with lzma.open(fpath, mode="w", preset=9) as fp:
                         fp.write(the_bytes)
                         for _, _, the_bytes in payload_gen:
                             fp.write(the_bytes)
                 # Always log the first 4,096 bytes
-                self.logger.info("{}", payload[:4096])
+                server.logger.info("{}", payload[:4096])
             else:
                 # We have an Elasticsearch configuration.
 
@@ -202,14 +206,12 @@ class Report:
                         }
                         yield action
 
-                es_res = es_index(
-                    self.es, _es_payload_gen(payload_gen), sys.stderr, self.logger
-                )
+                es_res = es_index(self.es, _es_payload_gen(payload_gen), sys.stderr)
                 beg, end, successes, duplicates, failures, retries = es_res
                 if failures > 0:
-                    log_action = self.logger.error
+                    log_action = server.logger.error
                 elif duplicates > 0 or retries > 0:
-                    log_action = self.logger.warning
+                    log_action = server.logger.warning
                 else:
                     assert (
                         successes >= 1
@@ -217,7 +219,7 @@ class Report:
                         and failures == 0
                         and retries == 0
                     ), "Logic error!"
-                    log_action = self.logger.debug
+                    log_action = server.logger.debug
                 log_action(
                     "posted status (start ts: {}, end ts: {}, duration: {:.2f}s,"
                     " successes: {:d}, duplicates: {:d}, failures: {:d},"
@@ -231,7 +233,7 @@ class Report:
                     retries,
                 )
         except Exception:
-            self.logger.exception(
+            server.logger.exception(
                 "Failed to post status, name = {},"
                 " timestamp = {}, doctype = {}, file_to_index = {}",
                 self.name,

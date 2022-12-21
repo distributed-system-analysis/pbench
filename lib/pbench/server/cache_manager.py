@@ -1,4 +1,3 @@
-from logging import Logger
 from pathlib import Path
 import shlex
 import shutil
@@ -7,8 +6,9 @@ import tarfile
 from typing import Dict, Optional, Union
 
 from pbench.common import MetadataLog, selinux
-from pbench.server import JSONOBJECT, PbenchServerConfig
+from pbench.server import JSONOBJECT
 from pbench.server.database.models.datasets import Dataset
+from pbench.server.globals import server
 from pbench.server.utils import get_tarball_md5
 
 
@@ -118,8 +118,6 @@ class Tarball:
                 configured ARCHIVE directory for a controller.
             controller: The associated Controller object
         """
-        self.logger: Logger = controller.logger
-
         # Record the root filename of the tarball
         self.name: str = Dataset.stem(path)
 
@@ -227,7 +225,7 @@ class Tarball:
         try:
             md5_destination = Path(shutil.copy2(md5_source, controller.path))
         except Exception as e:
-            controller.logger.error(
+            server.logger.error(
                 "ERROR copying dataset {} ({}) MD5: {}", name, tarball, e
             )
             raise
@@ -238,12 +236,12 @@ class Tarball:
             try:
                 md5_destination.unlink()
             except Exception as e:
-                controller.logger.error(
+                server.logger.error(
                     "Unable to recover by removing {} MD5 after tarball copy failure: {}",
                     name,
                     e,
                 )
-            controller.logger.error(
+            server.logger.error(
                 "ERROR copying dataset {} tarball {}: {}", name, tarball, e
             )
             raise
@@ -255,14 +253,14 @@ class Tarball:
                 selinux.restorecon(md5_destination)
         except Exception as e:
             # log it but do not abort
-            controller.logger.error("Unable to set SELINUX context for {}: {}", name, e)
+            server.logger.error("Unable to set SELINUX context for {}: {}", name, e)
 
         # If we were able to copy both files, remove the originals
         try:
             tarball.unlink()
             md5_source.unlink()
         except Exception as e:
-            controller.logger.error("Error removing incoming dataset {}: {}", name, e)
+            server.logger.error("Error removing incoming dataset {}: {}", name, e)
 
         return cls(destination, controller)
 
@@ -407,14 +405,18 @@ class Tarball:
                 shutil.rmtree(self.unpacked)
                 self.unpacked = None
             except Exception as e:
-                self.logger.error("incoming remove for {} failed with {}", self.name, e)
+                server.logger.error(
+                    "incoming remove for {} failed with {}", self.name, e
+                )
                 raise
         if self.results_link:
             try:
                 self.results_link.unlink()
                 self.results_link = None
             except Exception as e:
-                self.logger.error("results unlink for {} failed with {}", self.name, e)
+                server.logger.error(
+                    "results unlink for {} failed with {}", self.name, e
+                )
                 raise
 
     def delete(self):
@@ -429,13 +431,15 @@ class Tarball:
             try:
                 self.md5_path.unlink()
             except Exception as e:
-                self.logger.error("archive unlink for {} failed with {}", self.name, e)
+                server.logger.error(
+                    "archive unlink for {} failed with {}", self.name, e
+                )
             self.md5_path = None
         if self.tarball_path:
             try:
                 self.tarball_path.unlink()
             except Exception as e:
-                self.logger.error(
+                server.logger.error(
                     "archive MD5 unlink for {} failed with {}", self.name, e
                 )
             self.tarball_path = None
@@ -465,7 +469,7 @@ class Controller:
         if directory.exists() and not any(directory.iterdir()):
             directory.rmdir()
 
-    def __init__(self, path: Path, incoming: Path, results: Path, logger: Logger):
+    def __init__(self, path: Path, incoming: Path, results: Path):
         """
         Manage the representation of a controller on disk, which is a set of
         directories; one each in the ARCHIVE, INCOMING, and RESULTS trees.
@@ -480,10 +484,7 @@ class Controller:
             path: Controller ARCHIVE directory path
             incoming: The root of the INCOMING tree
             results: The root of the RESULTS tree
-            logger: Logger object
         """
-        self.logger = logger
-
         # The controller file system (directory) name
         self.name = path.name
 
@@ -518,9 +519,7 @@ class Controller:
                     tarball.check_results(self.results)
 
     @classmethod
-    def create(
-        cls, name: str, options: PbenchServerConfig, logger: Logger
-    ) -> "Controller":
+    def create(cls, name: str) -> "Controller":
         """
         Create a new controller directory under the ARCHIVE tree if one doesn't
         already exist, and return a Controller object.
@@ -528,9 +527,9 @@ class Controller:
         Returns:
             Controller object
         """
-        controller_dir = options.ARCHIVE / name
+        controller_dir = server.config.ARCHIVE / name
         controller_dir.mkdir(exist_ok=True, mode=0o755)
-        return cls(controller_dir, options.INCOMING, options.RESULTS, logger)
+        return cls(controller_dir, server.config.INCOMING, server.config.RESULTS)
 
     def create_tarball(self, tarfile: Path) -> Tarball:
         """
@@ -690,28 +689,21 @@ class CacheManager:
         if directory.exists() and not any(directory.iterdir()):
             directory.rmdir()
 
-    def __init__(self, options: PbenchServerConfig, logger: Logger):
+    def __init__(self):
         """
         Construct a CacheManager object. We don't do any discovery here, because
         the mutation operations allow dynamic minimal discovery to save on
         some time. The `full_discovery` method allows full discovery when
         desired.
-
-        Args:
-            options: PbenchServerConfig configuration object
-            logger: A Pbench python Logger
         """
-        self.options: PbenchServerConfig = options
-        self.logger: Logger = logger
-
         # Record the root ARCHIVE directory path
-        self.archive_root: Path = self.options.ARCHIVE
+        self.archive_root: Path = server.config.ARCHIVE
 
         # Record the root INCOMING directory path
-        self.incoming_root: Path = self.options.INCOMING
+        self.incoming_root: Path = server.config.INCOMING
 
         # Record the root RESULTS directory path
-        self.results_root: Path = self.options.RESULTS
+        self.results_root: Path = server.config.RESULTS
 
         # Construct an index to refer to discovered controllers
         self.controllers: Dict[str, Controller] = {}
@@ -776,11 +768,11 @@ class CacheManager:
         Args:
             controller: Name of the controller to clean up
         """
-        results = self.options.RESULTS / controller
+        results = server.config.RESULTS / controller
         self.delete_if_empty(results)
-        incoming = self.options.INCOMING / controller
+        incoming = server.config.INCOMING / controller
         self.delete_if_empty(incoming)
-        archive = self.options.ARCHIVE / controller
+        archive = server.config.ARCHIVE / controller
         if archive.exists() and not any(archive.glob(f"*{Dataset.TARBALL_SUFFIX}")):
             self.delete_if_empty(archive)
             del self.controllers[controller]
@@ -795,7 +787,7 @@ class CacheManager:
             directory: A controller directory within the ARCHIVE tree
         """
         controller = Controller(
-            directory, self.options.INCOMING, self.options.RESULTS, self.logger
+            directory, server.config.INCOMING, server.config.RESULTS
         )
         self.controllers[controller.name] = controller
         self.tarballs.update(controller.tarballs)
@@ -900,7 +892,7 @@ class CacheManager:
         if controller_name in self.controllers:
             controller = self.controllers[controller_name]
         else:
-            controller = Controller.create(controller_name, self.options, self.logger)
+            controller = Controller.create(controller_name)
             self.controllers[controller_name] = controller
         tarball = controller.create_tarball(tarfile)
         tarball.metadata = metadata

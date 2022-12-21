@@ -6,6 +6,7 @@ import pytest
 
 from pbench.server import JSON
 from pbench.server.database.models.datasets import Dataset
+from pbench.server.globals import server
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -99,7 +100,6 @@ class TestDatasetsUpdate:
         get_document_map,
         monkeypatch,
         pbench_drb_token,
-        server_config,
     ):
         """
         Check the datasets_update API when some document updates fail. We expect an
@@ -108,7 +108,7 @@ class TestDatasetsUpdate:
         self.fake_elastic(monkeypatch, get_document_map, True)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/random_md5_string1",
+            f"{server.config.rest_uri}/datasets/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
             query_string=self.PAYLOAD,
         )
@@ -119,15 +119,13 @@ class TestDatasetsUpdate:
         dataset = Dataset.query(name="drb")
         assert dataset.access == Dataset.PRIVATE_ACCESS
 
-    def test_no_dataset(
-        self, client, get_document_map, monkeypatch, pbench_drb_token, server_config
-    ):
+    def test_no_dataset(self, client, get_document_map, monkeypatch, pbench_drb_token):
         """
         Check the datasets_update API if the dataset doesn't exist.
         """
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/badwolf",
+            f"{server.config.rest_uri}/datasets/badwolf",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
             query_string=self.PAYLOAD,
         )
@@ -136,9 +134,7 @@ class TestDatasetsUpdate:
         assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json["message"] == "Dataset 'badwolf' not found"
 
-    def test_no_index(
-        self, attach_dataset, client, monkeypatch, pbench_drb_token, server_config
-    ):
+    def test_no_index(self, attach_dataset, client, monkeypatch, pbench_drb_token):
         """
         Check the datasets_update API if the dataset has no INDEX_MAP. It should
         fail with a CONFLICT error.
@@ -147,7 +143,7 @@ class TestDatasetsUpdate:
 
         ds = Dataset.query(name="drb")
         response = client.post(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
+            f"{server.config.rest_uri}/datasets/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
             query_string=self.PAYLOAD,
         )
@@ -166,7 +162,6 @@ class TestDatasetsUpdate:
         monkeypatch,
         get_document_map,
         pbench_drb_token,
-        server_config,
     ):
         """
         Check the datasets_update API response if the bulk helper throws an exception.
@@ -186,7 +181,7 @@ class TestDatasetsUpdate:
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/random_md5_string1",
+            f"{server.config.rest_uri}/datasets/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
             query_string=self.PAYLOAD,
         )
@@ -209,7 +204,6 @@ class TestDatasetsUpdate:
         get_document_map,
         monkeypatch,
         owner,
-        server_config,
     ):
         """
         Check behavior of the datasets_update API with various combinations of dataset
@@ -238,7 +232,7 @@ class TestDatasetsUpdate:
 
         ds = Dataset.query(name=ds_name)
         response = client.post(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
+            f"{server.config.rest_uri}/datasets/{ds.resource_id}",
             headers=build_auth_header["header"],
             query_string=query_json,
         )
@@ -258,7 +252,6 @@ class TestDatasetsUpdate:
         get_document_map,
         monkeypatch,
         pbench_admin_token,
-        server_config,
     ):
         """
         Check the datasets_update API response if the "owner" attribute is invalid.
@@ -266,7 +259,7 @@ class TestDatasetsUpdate:
 
         ds = Dataset.query(name="drb")
         response = client.post(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
+            f"{server.config.rest_uri}/datasets/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_admin_token}"},
             query_string={"owner": str("invalid_owner")},
         )

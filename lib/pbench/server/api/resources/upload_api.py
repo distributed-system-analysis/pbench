@@ -11,7 +11,6 @@ from flask.wrappers import Request, Response
 import humanize
 
 from pbench.common.utils import Cleanup
-from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
@@ -43,6 +42,7 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
+from pbench.server.globals import server
 from pbench.server.sync import Sync
 from pbench.server.utils import UtcTimeHelper
 
@@ -71,9 +71,11 @@ class Upload(ApiBase):
 
     CHUNK_SIZE = 65536
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "upload"
+    urls = ["upload/<string:filename>"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.PUT,
                 OperationCode.CREATE,
@@ -92,12 +94,10 @@ class Upload(ApiBase):
                 authorization=ApiAuthorizationType.NONE,
             ),
         )
-        self.max_content_length = config.rest_max_content_length
-        self.temporary = config.ARCHIVE / CacheManager.TEMPORARY
+        self.max_content_length = server.config.rest_max_content_length
+        self.temporary = server.config.ARCHIVE / CacheManager.TEMPORARY
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
-        current_app.logger.info(
-            "Configured PUT temporary directory as {}", self.temporary
-        )
+        server.logger.info("Configured PUT temporary directory as {}", self.temporary)
 
     def _put(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
         """Upload a dataset to the server.
@@ -140,7 +140,7 @@ class Upload(ApiBase):
 
         # Used to record what steps have been completed during the upload, and
         # need to be undone on failure
-        recovery = Cleanup(current_app.logger)
+        recovery = Cleanup(server.logger)
         audit: Optional[Audit] = None
         username: Optional[str] = None
         access = (
@@ -183,7 +183,7 @@ class Upload(ApiBase):
         attributes = {"access": access, "metadata": metadata}
         filename = args.uri["filename"]
 
-        current_app.logger.info("Uploading {} with {} access", filename, access)
+        server.logger.info("Uploading {} with {} access", filename, access)
 
         try:
             try:
@@ -257,7 +257,7 @@ class Upload(ApiBase):
 
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
-            current_app.logger.info(
+            server.logger.info(
                 "{} UPLOAD (pre): {}% full, {} bytes remaining",
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
@@ -282,7 +282,7 @@ class Upload(ApiBase):
                 )
                 dataset.add()
             except DatasetDuplicate:
-                current_app.logger.info(
+                server.logger.info(
                     "Dataset already exists, user = (user_id: {}, username: {}), file = {!a}",
                     user_id,
                     username,
@@ -291,7 +291,7 @@ class Upload(ApiBase):
                 try:
                     Dataset.query(resource_id=md5sum)
                 except DatasetNotFound:
-                    current_app.logger.error(
+                    server.logger.error(
                         "Duplicate dataset {} for user = (user_id: {}, username: {}) not found",
                         dataset_name,
                         user_id,
@@ -377,9 +377,7 @@ class Upload(ApiBase):
                     )
 
                 # First write the .md5
-                current_app.logger.info(
-                    "Creating MD5 file {}: {}", md5_full_path, md5sum
-                )
+                server.logger.info("Creating MD5 file {}: {}", md5_full_path, md5sum)
 
                 # From this point attempt to remove the MD5 file on error exit
                 recovery.add(md5_full_path.unlink)
@@ -393,7 +391,7 @@ class Upload(ApiBase):
 
             # Create a cache manager object
             try:
-                cache_m = CacheManager(self.config, current_app.logger)
+                cache_m = CacheManager()
             except Exception:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the cache manager"
@@ -414,7 +412,7 @@ class Upload(ApiBase):
                 )
 
             usage = shutil.disk_usage(tar_full_path.parent)
-            current_app.logger.info(
+            server.logger.info(
                 "{} UPLOAD (post): {}% full, {} bytes remaining",
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
@@ -459,7 +457,7 @@ class Upload(ApiBase):
                 )
 
             try:
-                retention_days = self.config.default_retention_period
+                retention_days = server.config.default_retention_period
             except Exception as e:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
@@ -495,7 +493,7 @@ class Upload(ApiBase):
                 enable = [OperationName.BACKUP]
                 if should_unpack:
                     enable.append(OperationName.UNPACK)
-                Sync(current_app.logger, OperationName.UPLOAD).update(
+                Sync(OperationName.UPLOAD).update(
                     dataset=dataset, state=OperationState.OK, enabled=enable
                 )
                 Audit.create(

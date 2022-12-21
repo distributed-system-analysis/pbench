@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from logging import Logger
 from pathlib import Path
 import socket
 from typing import Any
@@ -7,7 +6,7 @@ from typing import Any
 from freezegun import freeze_time
 import pytest
 
-from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server import OperationCode
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.audit import (
     Audit,
@@ -21,6 +20,7 @@ from pbench.server.database.models.datasets import (
     Metadata,
     MetadataKeyError,
 )
+from pbench.server.globals import server
 from pbench.test.unit.server import DRB_USER_ID
 
 
@@ -37,8 +37,8 @@ class TestUpload:
         self.controller = None
 
     @staticmethod
-    def gen_uri(server_config, filename="f.tar.xz"):
-        return f"{server_config.rest_uri}/upload/{filename}"
+    def gen_uri(filename="f.tar.xz"):
+        return f"{server.config.rest_uri}/upload/{filename}"
 
     def gen_headers(self, auth_token, md5):
         headers = {
@@ -65,7 +65,7 @@ class TestUpload:
                 TestUpload.tarball_deleted = self.name
 
         class FakeCacheManager(CacheManager):
-            def __init__(self, options: PbenchServerConfig, logger: Logger):
+            def __init__(self):
                 self.controllers = []
                 self.datasets = {}
                 TestUpload.cachemanager_created = self
@@ -88,8 +88,8 @@ class TestUpload:
         monkeypatch.setattr(CacheManager, "__init__", FakeCacheManager.__init__)
         monkeypatch.setattr(CacheManager, "create", FakeCacheManager.create)
 
-    def test_missing_authorization_header(self, client, server_config):
-        response = client.put(self.gen_uri(server_config))
+    def test_missing_authorization_header(self, client):
+        response = client.put(self.gen_uri())
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert not self.cachemanager_created
 
@@ -97,22 +97,20 @@ class TestUpload:
         "malformed_token",
         ("malformed", "bear token" "Bearer malformed"),
     )
-    def test_malformed_authorization_header(
-        self, client, server_config, malformed_token
-    ):
+    def test_malformed_authorization_header(self, client, malformed_token):
         response = client.put(
-            self.gen_uri(server_config),
+            self.gen_uri(),
             headers={"Authorization": malformed_token},
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert not self.cachemanager_created
 
     def test_missing_md5sum_header_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, setup_ctrl, pbench_drb_token
     ):
         expected_message = "Missing required 'Content-MD5' header"
         response = client.put(
-            self.gen_uri(server_config),
+            self.gen_uri(),
             headers={
                 "Authorization": "Bearer " + pbench_drb_token,
             },
@@ -123,11 +121,11 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_missing_md5sum_header_value(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, setup_ctrl, pbench_drb_token
     ):
         expected_message = "Missing required 'Content-MD5' header value"
         response = client.put(
-            self.gen_uri(server_config),
+            self.gen_uri(),
             headers={
                 "Authorization": "Bearer " + pbench_drb_token,
                 "controller": self.controller,
@@ -140,13 +138,13 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_missing_filename_extension(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, setup_ctrl, pbench_drb_token
     ):
         """Test with URL uploading a file named "f" which is missing the
         required filename extension"""
         expected_message = "File extension not supported, must be .tar.xz"
         response = client.put(
-            f"{server_config.rest_uri}/upload/f",
+            f"{server.config.rest_uri}/upload/f",
             headers={
                 "Authorization": "Bearer " + pbench_drb_token,
             },
@@ -157,11 +155,11 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_missing_length_header_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, setup_ctrl, pbench_drb_token
     ):
         expected_message = "Missing or invalid 'Content-Length' header"
         response = client.put(
-            self.gen_uri(server_config),
+            self.gen_uri(),
             headers={
                 "Authorization": "Bearer " + pbench_drb_token,
                 "Content-MD5": "ANYMD5",
@@ -173,11 +171,11 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_bad_length_header_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, setup_ctrl, pbench_drb_token
     ):
         expected_message = "Missing or invalid 'Content-Length' header"
         response = client.put(
-            self.gen_uri(server_config),
+            self.gen_uri(),
             headers={
                 "Authorization": "Bearer " + pbench_drb_token,
                 "Content-MD5": "ANYMD5",
@@ -189,12 +187,10 @@ class TestUpload:
         self.verify_logs(caplog)
         assert not self.cachemanager_created
 
-    def test_bad_metadata_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
-    ):
+    def test_bad_metadata_upload(self, client, caplog, setup_ctrl, pbench_drb_token):
         with freeze_time("1970-01-01 00:42:00"):
             response = client.put(
-                self.gen_uri(server_config),
+                self.gen_uri(),
                 headers={
                     "Authorization": "Bearer " + pbench_drb_token,
                     "controller": self.controller,
@@ -216,14 +212,14 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_mismatched_md5sum_header(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, setup_ctrl, pbench_drb_token
     ):
         filename = "log.tar.xz"
         datafile = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
         expected_message = "MD5 checksum 9d5a479f6f75fa9b3bab27ef79ad5b29 does not match expected md5sum"
         with datafile.open("rb") as data_fp:
             response = client.put(
-                self.gen_uri(server_config, filename),
+                self.gen_uri(filename),
                 data=data_fp,
                 # Content-Length header set automatically
                 headers=self.gen_headers(pbench_drb_token, "md5sum"),
@@ -242,7 +238,6 @@ class TestUpload:
         bad_extension,
         tmp_path,
         caplog,
-        server_config,
         setup_ctrl,
         pbench_drb_token,
     ):
@@ -251,7 +246,7 @@ class TestUpload:
         expected_message = "File extension not supported, must be .tar.xz"
         with datafile.open("rb") as data_fp:
             response = client.put(
-                self.gen_uri(server_config, bad_extension),
+                self.gen_uri(bad_extension),
                 data=data_fp,
                 # Content-Length header set automatically
                 headers=self.gen_headers(pbench_drb_token, "md5sum"),
@@ -262,11 +257,11 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_invalid_authorization_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token_invalid
+        self, client, caplog, setup_ctrl, pbench_drb_token_invalid
     ):
         # Upload with invalid token
         response = client.put(
-            self.gen_uri(server_config),
+            self.gen_uri(),
             headers=self.gen_headers(pbench_drb_token_invalid, "md5sum"),
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
@@ -274,16 +269,14 @@ class TestUpload:
             assert record.levelname in ["DEBUG", "INFO"]
         assert not self.cachemanager_created
 
-    def test_empty_upload(
-        self, client, tmp_path, caplog, server_config, setup_ctrl, pbench_drb_token
-    ):
+    def test_empty_upload(self, client, tmp_path, caplog, setup_ctrl, pbench_drb_token):
         filename = "tmp.tar.xz"
         datafile = tmp_path / filename
         datafile.touch()
         expected_message = "'Content-Length' 0 must be greater than 0"
         with datafile.open("rb") as data_fp:
             response = client.put(
-                self.gen_uri(server_config, filename),
+                self.gen_uri(filename),
                 data=data_fp,
                 # Content-Length header set automatically
                 # MD5 hash of an empty file
@@ -300,7 +293,6 @@ class TestUpload:
         self,
         client,
         caplog,
-        server_config,
         setup_ctrl,
         pbench_drb_token,
         tarball,
@@ -315,7 +307,7 @@ class TestUpload:
 
         with datafile.open("rb") as data_fp:
             response = client.put(
-                self.gen_uri(server_config, datafile.name),
+                self.gen_uri(datafile.name),
                 data=data_fp,
                 headers=self.gen_headers(pbench_drb_token, md5),
             )
@@ -330,14 +322,14 @@ class TestUpload:
         assert not Path(str(self.cachemanager_create_path) + ".md5").exists()
 
     @pytest.mark.freeze_time("1970-01-01")
-    def test_upload(self, client, pbench_drb_token, server_config, setup_ctrl, tarball):
+    def test_upload(self, client, pbench_drb_token, setup_ctrl, tarball):
         """Test a successful dataset upload and validate the metadata and audit
         information.
         """
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp:
             response = client.put(
-                self.gen_uri(server_config, datafile.name),
+                self.gen_uri(datafile.name),
                 data=data_fp,
                 headers=self.gen_headers(pbench_drb_token, md5),
                 query_string={"metadata": "global.pbench.test:data"},
@@ -431,7 +423,6 @@ class TestUpload:
         self,
         client,
         caplog,
-        server_config,
         setup_ctrl,
         pbench_drb_token,
         tarball,
@@ -439,7 +430,7 @@ class TestUpload:
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp:
             response = client.put(
-                self.gen_uri(server_config, datafile.name),
+                self.gen_uri(datafile.name),
                 data=data_fp,
                 headers=self.gen_headers(pbench_drb_token, md5),
             )
@@ -451,7 +442,7 @@ class TestUpload:
 
         with datafile.open("rb") as data_fp:
             response = client.put(
-                self.gen_uri(server_config, datafile.name),
+                self.gen_uri(datafile.name),
                 data=data_fp,
                 headers=self.gen_headers(pbench_drb_token, md5),
             )
@@ -467,7 +458,6 @@ class TestUpload:
         client,
         caplog,
         monkeypatch,
-        server_config,
         setup_ctrl,
         pbench_drb_token,
         tarball,
@@ -485,7 +475,7 @@ class TestUpload:
 
         with datafile.open("rb") as data_fp:
             response = client.put(
-                self.gen_uri(server_config, datafile.name),
+                self.gen_uri(datafile.name),
                 data=data_fp,
                 headers=self.gen_headers(pbench_drb_token, md5),
             )

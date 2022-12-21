@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 from flask import current_app, jsonify, request
 from flask_restful import abort, Resource
 
-from pbench.server import PbenchServerConfig
+from pbench.server.globals import server
 
 
 class EndpointConfig(Resource):
@@ -16,23 +16,21 @@ class EndpointConfig(Resource):
     than constructing a static dashboard config file.
     """
 
+    endpoint = "endpoints"
+    urls = ["endpoints"]
+
     forward_pattern = re.compile(r";\s*host\s*=\s*(?P<host>[^;\s]+)")
     x_forward_pattern = re.compile(r"\s*(?P<host>[^;\s,]+)")
     param_template = re.compile(r"/<(?P<type>[^:]+):(?P<name>\w+)>")
 
-    def __init__(self, config: PbenchServerConfig):
-        """
-        __init__ Construct the API resource
-
-        Args:
-            config: server config values
-
-        Report the server configuration to a web client. By default, the Pbench
-        server ansible script sets up a local Apache reverse proxy routing
-        through the HTTP port (80); an external reverse-proxy can be configured
-        without the knowledge of the server, and this API will try to use the
-        reverse-proxy Forwarded or X-Forwarded-Host HTTP headers to discover
-        preferred HTTP address of the server.
+    def get(self):
+        """Report the server configuration to a client, include the Pbench
+        dashboard UI. By default, the Pbench server is deployed behind a
+        reverse proxy routing through the port (8080); an external
+        reverse-proxy can be configured without the knowledge of the server,
+        and this API will try to use the reverse-proxy Forwarded or
+        X-Forwarded-Host HTTP headers to discover preferred HTTP address of
+        the server.
 
         If neither forwarding header is present, this API will use the `host`
         attribute from the Flask `Requests` object, which records how the
@@ -42,13 +40,8 @@ class EndpointConfig(Resource):
         address. This means subsequent client API calls will preserve whatever
         proxying was set up for the original endpoints query: e.g., the
         Javascript `window.origin` from which the Pbench dashboard was loaded.
-        """
-        self.server_config = config
 
-    def get(self):
-        """
-        Return server configuration information required by web clients
-        including the Pbench dashboard UI. This includes:
+        The server configuration information returned includes:
 
         openid-connect: A JSON object containing the OpenID Connect parameters
                         required for the web client to use OIDC authentication.
@@ -100,8 +93,9 @@ class EndpointConfig(Resource):
         Or in Javascript with:
 
             template.replace('{target_username}', 'value')
+
         """
-        current_app.logger.debug(
+        server.logger.debug(
             "Received headers: {!r}, access_route {!r}, base_url {!r}, host {!r}, host_url {!r}",
             request.headers,
             request.access_route,
@@ -130,7 +124,7 @@ class EndpointConfig(Resource):
         if not origin:
             origin = host_value
         host = f"http://{origin}"
-        current_app.logger.info(
+        server.logger.info(
             "Advertising endpoints at {} relative to {} ({})",
             host,
             host_source,
@@ -146,7 +140,7 @@ class EndpointConfig(Resource):
 
             # Ignore anything that doesn't use our API prefix, because it's
             # not in our API.
-            if url.startswith(self.server_config.rest_uri):
+            if url.startswith(server.config.rest_uri):
                 simplified = self.param_template.sub(r"/{\g<name>}", url)
                 matches = self.param_template.finditer(url)
                 template: Dict[str, Any] = {
@@ -172,16 +166,16 @@ class EndpointConfig(Resource):
                     templates[path] = template
 
         endpoints = {
-            "identification": f"Pbench server {self.server_config.COMMIT_ID}",
+            "identification": f"Pbench server {server.config.COMMIT_ID}",
             "api": apis,
             "uri": templates,
         }
 
         try:
-            secret = self.server_config.get("openid-connect", "secret")
-            client = self.server_config.get("openid-connect", "client")
-            realm = self.server_config.get("openid-connect", "realm")
-            issuer = self.server_config.get("openid-connect", "server_url")
+            secret = server.config.get("openid-connect", "secret")
+            client = server.config.get("openid-connect", "client")
+            realm = server.config.get("openid-connect", "realm")
+            issuer = server.config.get("openid-connect", "server_url")
         except (NoOptionError, NoSectionError):
             pass
         else:
@@ -195,7 +189,7 @@ class EndpointConfig(Resource):
         try:
             response = jsonify(endpoints)
         except Exception:
-            current_app.logger.exception(
+            server.logger.exception(
                 "Something went wrong constructing the endpoint info"
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")

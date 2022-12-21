@@ -9,11 +9,12 @@ import requests
 
 from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.database.models.audit import Audit, AuditStatus
+from pbench.server.globals import server
 
 
 class TestServerAudit:
     @pytest.fixture()
-    def query_get(self, client, server_config, pbench_admin_token):
+    def query_get(self, client, pbench_admin_token):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
@@ -21,7 +22,6 @@ class TestServerAudit:
         Args:
 
             client: Flask test API client fixture
-            server_config: Pbench config fixture
             pbench_admin_token: ADMIN authorization fixture
         """
 
@@ -31,7 +31,7 @@ class TestServerAudit:
             token: str = pbench_admin_token,
         ) -> requests.Response:
             response = client.get(
-                f"{server_config.rest_uri}/server/audit",
+                f"{server.config.rest_uri}/server/audit",
                 query_string=params,
                 headers={"authorization": f"Bearer {token}"},
             )

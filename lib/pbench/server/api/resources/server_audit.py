@@ -3,7 +3,7 @@ from http import HTTPStatus
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server import OperationCode
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
@@ -30,9 +30,11 @@ class ServerAudit(ApiBase):
     API class to retrieve audit records.
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "server_audit"
+    urls = ["server/audit"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,

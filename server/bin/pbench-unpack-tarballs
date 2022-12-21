@@ -9,6 +9,7 @@ from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
+from pbench.server.globals import init_server_ctx
 from pbench.server.unpack_tarballs import UnpackTarballs
 
 _NAME_ = "pbench-unpack-tarballs"
@@ -51,11 +52,13 @@ def main(cfg_name):
 
     logger = get_pbench_logger(prog, config)
 
+    init_server_ctx(config, logger)
+
     # We're going to need the DB to track dataset state, so setup DB access.
-    init_db(config, logger)
+    init_db()
 
     # Initiate the unpacking
-    unpack_obj = UnpackTarballs(config, logger)
+    unpack_obj = UnpackTarballs()
     result = unpack_obj.unpack_tarballs(lowerbound, upperbound)
 
     result_string = (

@@ -3,9 +3,9 @@ import click
 from pbench.cli import pass_cli_context
 from pbench.cli.server import config_setup
 from pbench.cli.server.options import common_options
-from pbench.common.logger import get_pbench_logger
 from pbench.server import BadConfig
 from pbench.server.cache_manager import CacheManager
+from pbench.server.globals import server
 
 
 def print_tree(tree: CacheManager):
@@ -48,15 +48,14 @@ def tree_manage(context: object, display: bool):
         display: Print a simplified representation of the hierarchy
     """
     try:
-        config = config_setup(context)
-        logger = get_pbench_logger("cachemanager", config)
-        cache_m = CacheManager(config, logger)
+        config_setup(context, "cachemanager")
+        cache_m = CacheManager()
         cache_m.full_discovery()
         if display:
             print_tree(cache_m)
         rv = 0
     except Exception as exc:
-        logger.exception("An error occurred discovering the file tree: {}", exc)
+        server.logger.exception("An error occurred discovering the file tree: {}", exc)
         click.echo(exc, err=True)
         rv = 2 if isinstance(exc, BadConfig) else 1
 

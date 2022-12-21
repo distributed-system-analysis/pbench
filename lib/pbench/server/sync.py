@@ -1,4 +1,3 @@
-from logging import Logger
 import time
 from typing import Optional
 
@@ -11,6 +10,7 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
+from pbench.server.globals import server
 
 
 class SyncError(Exception):
@@ -32,8 +32,7 @@ class Sync:
     RETRIES = 10  # Retry 10 times on commit failure
     DELAY = 0.1  # Wait 1/10 second between retries
 
-    def __init__(self, logger: Logger, component: OperationName):
-        self.logger: Logger = logger
+    def __init__(self, component: OperationName):
         self.component: OperationName = component
 
     def __str__(self) -> str:
@@ -69,11 +68,11 @@ class Sync:
                     Operation.state == OperationState.READY,
                 )
                 query = query.order_by(Dataset.resource_id)
-                Database.dump_query(query, self.logger)
+                Database.dump_query(query)
                 id_list = [d.resource_id for d in query.all()]
             return [Dataset.query(resource_id=i) for i in id_list]
         except Exception as e:
-            self.logger.exception("Failed to find 'next' for {}", self.component.name)
+            server.logger.exception("Failed to find 'next' for {}", self.component.name)
             raise SyncSqlError(self.component, "next") from e
 
     def update(
@@ -96,7 +95,7 @@ class Sync:
         if enabled is None:
             enabled = []
 
-        self.logger.debug(
+        server.logger.debug(
             "Dataset {} did {}, enabling {} with message {!r}",
             dataset.name,
             state.name if state else "nothing",
@@ -126,7 +125,7 @@ class Sync:
                     query = session.query(Operation).filter(
                         Operation.dataset_ref == ds_id, or_(*filters)
                     )
-                    Database.dump_query(query, self.logger)
+                    Database.dump_query(query)
                     matches = query.all()
                     ops: dict[OperationName, Operation] = {o.name: o for o in matches}
 
@@ -157,7 +156,7 @@ class Sync:
                             session.add(op)
                 return
             except Exception as e:
-                self.logger.warning(
+                server.logger.warning(
                     "{} 'update' {} error ({}): {}",
                     self.component,
                     ds_name,
@@ -176,7 +175,7 @@ class Sync:
             dataset: The dataset affected
             message: A failure explanation for the component operation.
         """
-        self.logger.debug(
+        server.logger.debug(
             "{} error {}: {}", dataset.resource_id, self.component.name, message
         )
 
@@ -204,7 +203,7 @@ class Sync:
                         session.add(row)
                 return
             except Exception as e:
-                self.logger.warning(
+                server.logger.warning(
                     "{} {} 'error' ({}) error updating message: {}",
                     self.component.name,
                     ds_name,

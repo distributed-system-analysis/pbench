@@ -70,7 +70,7 @@ def user_create(
     role: str,
 ) -> None:
     try:
-        config_setup(context)
+        config_setup(context, "user-create")
         user = User(
             username=username,
             password=password,
@@ -100,7 +100,7 @@ def user_create(
 def user_delete(context: object, username: str) -> None:
     try:
         # Delete the the user with specified username
-        config_setup(context)
+        config_setup(context, "user-delete")
         User.delete(username=username)
         rv = 0
     except Exception as exc:
@@ -116,7 +116,7 @@ def user_delete(context: object, username: str) -> None:
 @pass_cli_context
 def user_list(context: object) -> None:
     try:
-        config_setup(context)
+        config_setup(context, "user-list")
         click.echo(USER_LIST_HEADER_ROW)
 
         # Query all the users
@@ -182,7 +182,7 @@ def user_update(
     role: str,
 ) -> None:
     try:
-        config_setup(context)
+        config_setup(context, "user-update")
         # Query the user
         user = User.query(username=updateuser)
 

@@ -3,12 +3,11 @@ import enum
 from http import HTTPStatus
 from typing import Optional, Tuple, Union
 
-from flask import current_app, Flask, request
+from flask import current_app, request
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import abort
 import jwt
 
-from pbench.server import PbenchServerConfig
 from pbench.server.auth import (
     InternalUser,
     OpenIDClient,
@@ -17,6 +16,7 @@ from pbench.server.auth import (
 )
 from pbench.server.database.models.auth_tokens import AuthToken
 from pbench.server.database.models.users import User
+from pbench.server.globals import server
 
 # Module private constants
 _TOKEN_ALG_INT = "HS256"
@@ -26,7 +26,7 @@ token_auth = HTTPTokenAuth("Bearer")
 oidc_client: OpenIDClient = None
 
 
-def setup_app(app: Flask, server_config: PbenchServerConfig):
+def setup_app():
     """Setup the given Flask app from the given Pbench Server configuration
     object.
 
@@ -35,15 +35,12 @@ def setup_app(app: Flask, server_config: PbenchServerConfig):
 
     We attempt to construct an OpenID Client object for third party token
     verification if the configuration is provided.
-
-    Args:
-        server_config : Parsed Pbench server configuration
     """
-    app.secret_key = server_config.get("flask-app", "secret-key")
+    current_app.secret_key = server.config.get("flask-app", "secret-key")
 
     global oidc_client
     try:
-        oidc_client = OpenIDClient.construct_oidc_client(server_config)
+        oidc_client = OpenIDClient.construct_oidc_client()
     except OpenIDClient.NotConfigured:
         oidc_client = None
 

@@ -11,6 +11,7 @@ from pbench.server.database.database import Database
 from pbench.server.database.models import TZDateTime
 from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.users import User
+from pbench.server.globals import server
 
 
 class AuditError(Exception):
@@ -317,7 +318,7 @@ class Audit(Database.Base):
         """
 
         try:
-            query = Database.db_session.query(Audit)
+            query = server.db_session.query(Audit)
             if start:
                 query = query.filter(Audit.timestamp >= start)
             if end:
@@ -369,10 +370,10 @@ class Audit(Database.Base):
     def add(self):
         """Add the Audit object to the database."""
         try:
-            Database.db_session.add(self)
-            Database.db_session.commit()
+            server.db_session.add(self)
+            server.db_session.commit()
         except Exception as e:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             if isinstance(e, IntegrityError):
                 raise self._decode(e) from e
             raise AuditSqlError("adding", self.as_json(), str(e)) from e

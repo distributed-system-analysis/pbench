@@ -2,7 +2,7 @@ from typing import Iterator
 
 from flask import current_app
 
-from pbench.server import JSONOBJECT, OperationCode, PbenchServerConfig
+from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiMethod,
@@ -20,6 +20,7 @@ from pbench.server.database.models.datasets import (
     OperationName,
     OperationState,
 )
+from pbench.server.globals import server
 from pbench.server.sync import Sync
 
 
@@ -35,9 +36,11 @@ class DatasetsDelete(ElasticBulkBase):
     backup.
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "datasets_delete"
+    urls = ["datasets/delete/<string:dataset>"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.POST,
                 OperationCode.DELETE,
@@ -73,7 +76,7 @@ class DatasetsDelete(ElasticBulkBase):
             A generator for Elasticsearch bulk delete actions
         """
         current_app.logger.info("Starting delete operation for dataset {}", dataset)
-        sync = Sync(logger=current_app.logger, component=OperationName.DELETE)
+        sync = Sync(component=OperationName.DELETE)
         sync.update(dataset=dataset, state=OperationState.WORKING)
 
         # Generate a series of bulk delete documents, which will be passed to
@@ -104,6 +107,6 @@ class DatasetsDelete(ElasticBulkBase):
         # Only on total success we update the Dataset's registered access
         # column; a "partial success" will remain in the previous state.
         if summary["failure"] == 0:
-            cache_m = CacheManager(self.config, current_app.logger)
+            cache_m = CacheManager(server.config, server.logger)
             cache_m.delete(dataset.resource_id)
             dataset.delete()
