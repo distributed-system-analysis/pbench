@@ -16,6 +16,7 @@ from pbench.server.database.models.server_config import (
     OPTION_DATASET_LIFETIME,
     ServerConfig,
 )
+from pbench.server.globals import server
 
 
 class DatasetError(Exception):
@@ -522,7 +523,7 @@ class Dataset(Database.Base):
             dataset = Dataset(**kwargs)
             dataset.add()
         except Exception:
-            Dataset.logger.exception("Failed create: {}", kwargs.get("name"))
+            server.logger.exception("Failed create: {}", kwargs.get("name"))
             raise
         return dataset
 
@@ -556,7 +557,7 @@ class Dataset(Database.Base):
         dataset = Dataset.query(resource_id=resource_id)
 
         if dataset is None:
-            Dataset.logger.warning("Dataset {} not found", resource_id)
+            server.logger.warning("Dataset {} not found", resource_id)
             raise DatasetNotFound(resource_id=resource_id)
         elif state:
             dataset.advance(state)
@@ -568,9 +569,9 @@ class Dataset(Database.Base):
         Query dataset object based on a given column name of the run document
         """
         try:
-            dataset = Database.db_session.query(Dataset).filter_by(**kwargs).first()
+            dataset = server.db_session.query(Dataset).filter_by(**kwargs).first()
         except SQLAlchemyError as e:
-            Dataset.logger.warning("Error querying {}: {}", kwargs, str(e))
+            server.logger.warning("Error querying {}: {}", kwargs, str(e))
             raise DatasetSqlError("querying", **kwargs)
 
         if dataset is None:
@@ -630,13 +631,13 @@ class Dataset(Database.Base):
         if type(new_state) is not States:
             raise DatasetBadParameterType(new_state, States)
         elif new_state not in self.transitions[self.state]:
-            self.logger.error(
+            server.logger.error(
                 "{}, Current state {} can't advance to {}", self, self.state, new_state
             )
             raise DatasetBadStateTransition(self, new_state)
 
         # TODO: this would be a good place to generate an audit log
-        self.logger.debug(
+        server.logger.debug(
             "{}, Current state {}, advancing to {}", self, self.state, new_state
         )
 
@@ -649,15 +650,15 @@ class Dataset(Database.Base):
         Add the Dataset object to the database
         """
         try:
-            Database.db_session.add(self)
-            Database.db_session.commit()
+            server.db_session.add(self)
+            server.db_session.commit()
         except IntegrityError as e:
-            Database.db_session.rollback()
-            self.logger.warning("Duplicate dataset {}: {}", self.name, e)
+            server.db_session.rollback()
+            server.logger.warning("Duplicate dataset {}: {}", self.name, e)
             raise DatasetDuplicate(self.name) from None
         except Exception:
-            Database.db_session.rollback()
-            self.logger.exception("Can't add {} to DB", str(self))
+            server.db_session.rollback()
+            server.logger.exception("Can't add {} to DB", str(self))
             raise DatasetSqlError("adding", name=self.name)
 
     def update(self):
@@ -666,10 +667,10 @@ class Dataset(Database.Base):
         Dataset object.
         """
         try:
-            Database.db_session.commit()
+            server.db_session.commit()
         except Exception:
-            Database.db_session.rollback()
-            self.logger.error("Can't update {} in DB", str(self))
+            server.db_session.rollback()
+            server.logger.error("Can't update {} in DB", str(self))
             raise DatasetSqlError("updating", name=self.name)
 
     def delete(self):
@@ -677,10 +678,10 @@ class Dataset(Database.Base):
         Delete the Dataset from the database
         """
         try:
-            Database.db_session.delete(self)
-            Database.db_session.commit()
+            server.db_session.delete(self)
+            server.db_session.commit()
         except Exception:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             raise
 
 
@@ -877,7 +878,7 @@ class Metadata(Database.Base):
             meta = Metadata(**kwargs)
             meta.add(dataset)
         except Exception:
-            Metadata.logger.exception(
+            server.logger.exception(
                 "Failed create: {}>>{}", kwargs.get("dataset"), kwargs.get("key")
             )
             return None
@@ -1135,7 +1136,7 @@ class Metadata(Database.Base):
 
     @staticmethod
     def _query(dataset: Dataset, key: str, user_id: Optional[str]) -> Query:
-        return Database.db_session.query(Metadata).filter_by(
+        return server.db_session.query(Metadata).filter_by(
             dataset=dataset, key=key, user_id=user_id
         )
 
@@ -1158,7 +1159,7 @@ class Metadata(Database.Base):
         try:
             meta = __class__._query(dataset, key, user_id).first()
         except SQLAlchemyError as e:
-            Metadata.logger.exception("Can't get {}>>{} from DB", dataset, key)
+            server.logger.exception("Can't get {}>>{} from DB", dataset, key)
             raise MetadataSqlError("getting", dataset, key) from e
         else:
             if meta is None:
@@ -1179,9 +1180,9 @@ class Metadata(Database.Base):
         """
         try:
             __class__._query(dataset, key, user_id).delete()
-            Database.db_session.commit()
+            server.db_session.commit()
         except SQLAlchemyError as e:
-            Metadata.logger.exception("Can't remove {}>>{} from DB", dataset, key)
+            server.logger.exception("Can't remove {}>>{} from DB", dataset, key)
             raise MetadataSqlError("deleting", dataset, key) from e
 
     def __str__(self) -> str:
@@ -1203,11 +1204,11 @@ class Metadata(Database.Base):
 
         try:
             dataset.metadatas.append(self)
-            Database.db_session.add(self)
-            Database.db_session.commit()
+            server.db_session.add(self)
+            server.db_session.commit()
         except Exception as e:
-            Database.db_session.rollback()
-            self.logger.exception("Can't add {}>>{} to DB", dataset, self.key)
+            server.db_session.rollback()
+            server.logger.exception("Can't add {}>>{} to DB", dataset, self.key)
             dataset.metadatas.remove(self)
             raise MetadataSqlError("adding", dataset, self.key) from e
 
@@ -1216,10 +1217,10 @@ class Metadata(Database.Base):
         update Update the database with the modified Metadata.
         """
         try:
-            Database.db_session.commit()
+            server.db_session.commit()
         except Exception as e:
-            Database.db_session.rollback()
-            self.logger.exception("Can't update {} in DB", self)
+            server.db_session.rollback()
+            server.logger.exception("Can't update {} in DB", self)
             raise MetadataSqlError("updating", self.dataset, self.key) from e
 
     def delete(self):
@@ -1227,11 +1228,11 @@ class Metadata(Database.Base):
         delete Remove the Metadata from the database.
         """
         try:
-            Database.db_session.delete(self)
-            Database.db_session.commit()
+            server.db_session.delete(self)
+            server.db_session.commit()
         except Exception as e:
-            Database.db_session.rollback()
-            self.logger.exception("Can't delete {} from DB", self)
+            server.db_session.rollback()
+            server.logger.exception("Can't delete {} from DB", self)
             raise MetadataSqlError("deleting", self.dataset, self.key) from e
 
 

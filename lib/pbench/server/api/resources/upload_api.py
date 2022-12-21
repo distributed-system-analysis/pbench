@@ -6,12 +6,11 @@ import os
 import shutil
 from typing import Optional
 
-from flask import current_app, jsonify
+from flask import jsonify
 from flask.wrappers import Request, Response
 import humanize
 
 from pbench.common.utils import Cleanup, validate_hostname
-from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
@@ -41,6 +40,7 @@ from pbench.server.database.models.dataset import (
     Metadata,
     States,
 )
+from pbench.server.globals import server
 from pbench.server.sync import Operation, Sync
 from pbench.server.utils import filesize_bytes, UtcTimeHelper
 
@@ -72,9 +72,11 @@ class Upload(ApiBase):
     CHUNK_SIZE = 65536
     DEFAULT_RETENTION_DAYS = 90
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "upload"
+    urls = ["upload/<string:filename>"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.PUT,
                 OperationCode.CREATE,
@@ -86,15 +88,13 @@ class Upload(ApiBase):
             ),
         )
         self.max_content_length = filesize_bytes(
-            self.config.get_conf(
-                __name__, "pbench-server", "rest_max_content_length", current_app.logger
+            server.config.get_conf(
+                __name__, "pbench-server", "rest_max_content_length", server.logger
             )
         )
-        self.temporary = config.ARCHIVE / CacheManager.TEMPORARY
+        self.temporary = server.config.ARCHIVE / CacheManager.TEMPORARY
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
-        current_app.logger.info(
-            "Configured PUT temporary directory as {}", self.temporary
-        )
+        server.logger.info("Configured PUT temporary directory as {}", self.temporary)
 
     def _put(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
         """Upload a dataset to the server.
@@ -133,7 +133,7 @@ class Upload(ApiBase):
 
         # Used to record what steps have been completed during the upload, and
         # need to be undone on failure
-        recovery = Cleanup(current_app.logger)
+        recovery = Cleanup(server.logger)
         audit: Optional[Audit] = None
         username: Optional[str] = None
         controller: Optional[str] = None
@@ -142,7 +142,7 @@ class Upload(ApiBase):
         )
         filename = args.uri["filename"]
 
-        current_app.logger.info("Uploading {} with {} access", filename, access)
+        server.logger.info("Uploading {} with {} access", filename, access)
 
         try:
             try:
@@ -162,9 +162,7 @@ class Upload(ApiBase):
             if validate_hostname(controller) != 0:
                 raise CleanupTime(HTTPStatus.BAD_REQUEST, "Invalid 'controller' header")
 
-            current_app.logger.info(
-                "Uploading {} on controller {}", filename, controller
-            )
+            server.logger.info("Uploading {} on controller {}", filename, controller)
 
             if os.path.basename(filename) != filename:
                 raise CleanupTime(
@@ -222,14 +220,14 @@ class Upload(ApiBase):
 
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
-            current_app.logger.info(
+            server.logger.info(
                 "{} UPLOAD (pre): {}% full, {} bytes remaining",
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
                 usage.free,
             )
 
-            current_app.logger.info(
+            server.logger.info(
                 "PUT uploading {}:{} for user_id {} (username: {}) to {}",
                 controller,
                 filename,
@@ -248,7 +246,7 @@ class Upload(ApiBase):
                 )
                 dataset.add()
             except DatasetDuplicate:
-                current_app.logger.info(
+                server.logger.info(
                     "Dataset already exists, user = (user_id: {}, username: {}), file = {!a}",
                     user_id,
                     username,
@@ -257,7 +255,7 @@ class Upload(ApiBase):
                 try:
                     Dataset.query(resource_id=md5sum)
                 except DatasetNotFound:
-                    current_app.logger.error(
+                    server.logger.error(
                         "Duplicate dataset {} for user = (user_id: {}, username: {}) not found",
                         dataset_name,
                         user_id,
@@ -288,7 +286,7 @@ class Upload(ApiBase):
             )
             recovery.add(dataset.delete)
 
-            current_app.logger.info(
+            server.logger.info(
                 "Uploading file {!a} (user = (user_id: {}, username: {}), ctrl = {!a}) to {}",
                 filename,
                 user_id,
@@ -343,9 +341,7 @@ class Upload(ApiBase):
                     )
 
                 # First write the .md5
-                current_app.logger.info(
-                    "Creating MD5 file {}: {}", md5_full_path, md5sum
-                )
+                server.logger.info("Creating MD5 file {}: {}", md5_full_path, md5sum)
 
                 # From this point attempt to remove the MD5 file on error exit
                 recovery.add(md5_full_path.unlink)
@@ -359,7 +355,7 @@ class Upload(ApiBase):
 
             # Create a cache manager object
             try:
-                cache_m = CacheManager(self.config, current_app.logger)
+                cache_m = CacheManager()
             except Exception:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the cache manager"
@@ -375,7 +371,7 @@ class Upload(ApiBase):
                 )
 
             usage = shutil.disk_usage(tar_full_path.parent)
-            current_app.logger.info(
+            server.logger.info(
                 "{} UPLOAD (post): {}% full, {} bytes remaining",
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
@@ -421,7 +417,7 @@ class Upload(ApiBase):
 
             try:
                 retention_days = int(
-                    self.config.get_conf(
+                    server.config.get_conf(
                         __name__,
                         "pbench-server",
                         "default-dataset-retention-days",
@@ -459,7 +455,7 @@ class Upload(ApiBase):
             # and state change.
             try:
                 dataset.advance(States.UPLOADED)
-                Sync(current_app.logger, "upload").update(
+                Sync("upload").update(
                     dataset=dataset,
                     enabled=[Operation.BACKUP, Operation.UNPACK],
                     status="ok",

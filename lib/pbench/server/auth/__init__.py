@@ -1,5 +1,4 @@
 from http import HTTPStatus
-import logging
 from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
@@ -8,6 +7,7 @@ import requests
 from requests.structures import CaseInsensitiveDict
 
 from pbench.server import JSON
+from pbench.server.globals import server
 
 
 class OpenIDClientError(Exception):
@@ -38,7 +38,6 @@ class OpenIDClient:
         self,
         server_url: str,
         client_id: str,
-        logger: logging.Logger,
         realm_name: str = "",
         client_secret_key: Optional[str] = None,
         verify: bool = True,
@@ -57,7 +56,6 @@ class OpenIDClient:
         self.client_id = client_id
         self.client_secret_key = client_secret_key
         self.realm_name = realm_name
-        self.logger = logger
         self.headers = CaseInsensitiveDict([] if headers is None else headers)
         self.verify = verify
         self.connection = requests.session()
@@ -113,7 +111,7 @@ class OpenIDClient:
                 "introspection_endpoint"
             )
         except KeyError as e:
-            self.logger.exception(
+            server.logger.exception(
                 "Missing endpoint {!r} at {}; Endpoints found: {}",
                 str(e),
                 well_known_uri,
@@ -278,13 +276,13 @@ class OpenIDClient:
         except requests.exceptions.HTTPError:
             raise OpenIDCAuthenticationError(response.status_code)
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
-            self.logger.exception("Could not connect to the OIDC client {!r}", self)
+            server.logger.exception("Could not connect to the OIDC client {!r}", self)
             raise OpenIDClientError(
                 HTTPStatus.BAD_GATEWAY,
                 f"Failure to connect to the OpenID client {e}",
             )
         except Exception as exc:
-            self.logger.exception(
+            server.logger.exception(
                 "{} request failed for OIDC client {!r}", method, self
             )
             raise OpenIDClientError(

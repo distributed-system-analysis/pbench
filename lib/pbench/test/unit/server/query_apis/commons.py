@@ -12,6 +12,7 @@ from pbench.server import JSON
 from pbench.server.api.resources import ApiMethod, ApiParams, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.dataset import Dataset, Metadata
+from pbench.server.globals import server
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -69,7 +70,7 @@ class Commons:
         Args:
             dates (iterable): list of date strings
         """
-        idx = server_config.get("Indexing", "index_prefix") + ".v6.run-data."
+        idx = server.config.get("Indexing", "index_prefix") + ".v6.run-data."
         index = "".join([f"{idx}{d}," for d in dates])
 
         return f"/{index}"
@@ -153,7 +154,7 @@ class Commons:
         ("malformed", "bear token" "Bearer malformed"),
     )
     def test_malformed_authorization_header(
-        self, client, server_config, malformed_token, attach_dataset
+        self, client, malformed_token, attach_dataset
     ):
         """
         Test behavior when the Authorization header is present but is not a
@@ -172,13 +173,13 @@ class Commons:
         """
         response = self.make_request_call(
             client,
-            server_config.rest_uri + self.pbench_endpoint,
+            server.config.rest_uri + self.pbench_endpoint,
             {"Authorization": malformed_token},
             json=self.payload,
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
 
-    def test_bad_user_name(self, client, server_config, pbench_token):
+    def test_bad_user_name(self, client, pbench_token):
         """
         Test behavior when authenticated user specifies a non-existent user.
         """
@@ -192,7 +193,7 @@ class Commons:
         self.payload[user.parameter.name] = "pp"
         response = self.make_request_call(
             client,
-            server_config.rest_uri + self.pbench_endpoint,
+            server.config.rest_uri + self.pbench_endpoint,
             {"Authorization": "Bearer " + pbench_token},
             json=self.payload,
         )
@@ -203,7 +204,7 @@ class Commons:
         ("drb", "pp"),
     )
     def test_accessing_user_data_with_invalid_token(
-        self, client, server_config, pbench_token_invalid, user
+        self, client, pbench_token_invalid, user
     ):
         """
         Test behavior when expired authentication token is provided.
@@ -227,7 +228,7 @@ class Commons:
         self.payload[userp.parameter.name] = user
         response = self.make_request_call(
             client,
-            server_config.rest_uri + self.pbench_endpoint,
+            server.config.rest_uri + self.pbench_endpoint,
             {"Authorization": "Bearer " + pbench_token_invalid},
             json=self.payload,
         )
@@ -243,7 +244,7 @@ class Commons:
             )
         assert str(exc.value).startswith("Missing required parameters: ")
 
-    def test_malformed_payload(self, client, server_config, pbench_token):
+    def test_malformed_payload(self, client, pbench_token):
         """
         Test behavior when payload is not valid JSON
         """
@@ -251,7 +252,7 @@ class Commons:
             pytest.skip("skipping " + self.test_malformed_payload.__name__)
         response = self.make_request_call(
             client,
-            server_config.rest_uri + self.pbench_endpoint,
+            server.config.rest_uri + self.pbench_endpoint,
             {
                 "Authorization": "Bearer " + pbench_token,
                 "Content-Type": "application/json",
@@ -264,7 +265,7 @@ class Commons:
             == "Invalid request payload: '400 Bad Request: The browser (or proxy) sent a request that this server could not understand.'"
         )
 
-    def test_missing_keys(self, client, server_config, pbench_token):
+    def test_missing_keys(self, client, pbench_token):
         """
         Test behavior when JSON payload does not contain all required keys.
 
@@ -275,7 +276,7 @@ class Commons:
         def missing_key_helper(keys):
             response = self.make_request_call(
                 client,
-                server_config.rest_uri + self.pbench_endpoint,
+                server.config.rest_uri + self.pbench_endpoint,
                 {"Authorization": "Bearer " + pbench_token},
                 json=keys,
             )
@@ -320,7 +321,7 @@ class Commons:
         if required_keys:
             missing_key_helper({"notakey": None})
 
-    def test_bad_dates(self, client, server_config, pbench_token):
+    def test_bad_dates(self, client, pbench_token):
         """
         Test behavior when a bad date string is given
         """
@@ -338,7 +339,7 @@ class Commons:
                 self.payload[key] = "2020-19"
                 response = self.make_request_call(
                     client,
-                    server_config.rest_uri + self.pbench_endpoint,
+                    server.config.rest_uri + self.pbench_endpoint,
                     {"Authorization": "Bearer " + pbench_token},
                     json=self.payload,
                 )
@@ -352,7 +353,6 @@ class Commons:
     def test_empty_query(
         self,
         client,
-        server_config,
         query_api,
         find_template,
         build_auth_header,
@@ -368,7 +368,7 @@ class Commons:
             self.payload, build_auth_header["header_param"]
         )
         index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
+            server.config, self.date_range(self.payload["start"], self.payload["end"])
         )
         response = query_api(
             self.pbench_endpoint,
@@ -406,7 +406,6 @@ class Commons:
     )
     def test_http_exception(
         self,
-        server_config,
         query_api,
         exceptions,
         find_template,
@@ -423,7 +422,7 @@ class Commons:
             index = self.build_index_from_metadata()
         else:
             index = self.build_index(
-                server_config,
+                server.config,
                 self.date_range(self.payload["start"], self.payload["end"]),
             )
 
@@ -441,7 +440,6 @@ class Commons:
     @pytest.mark.parametrize("errors", (400, 500, 409))
     def test_http_error(
         self,
-        server_config,
         query_api,
         find_template,
         pbench_token,
@@ -459,7 +457,7 @@ class Commons:
             index = self.build_index_from_metadata()
         else:
             index = self.build_index(
-                server_config,
+                server.config,
                 self.date_range(self.payload["start"], self.payload["end"]),
             )
         query_api(

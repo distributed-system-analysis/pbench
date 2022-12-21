@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from flask import jsonify
 
-from pbench.server import JSON, OperationCode, PbenchServerConfig
+from pbench.server import JSON, OperationCode
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
@@ -28,9 +28,11 @@ class DatasetsDetail(IndexMapBase):
     Get detailed data from the run document for a dataset by name.
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "datasets_detail"
+    urls = ["datasets/detail/<string:dataset>"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,

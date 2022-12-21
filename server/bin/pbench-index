@@ -17,6 +17,7 @@ from pbench.common.exceptions import BadConfig, ConfigFileError, JsonFileError
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
+from pbench.server.globals import init_server_ctx
 from pbench.server.indexer import IdxContext
 from pbench.server.indexing_tarballs import Index, SigTermException
 
@@ -106,10 +107,11 @@ def main(options, name):
         # independently.
         config = PbenchServerConfig(options.cfg_name)
         logger = get_pbench_logger(name, config)
-        init_db(config, logger)
+        init_server_ctx(config, logger)
+        init_db()
 
         # Now we can initialize the index context
-        idxctx = IdxContext(options, name, config, logger, _dbg=_DEBUG)
+        idxctx = IdxContext(options, name, _dbg=_DEBUG)
     except (ConfigFileError, ConfigParserError) as e:
         print(f"{name}: {e}", file=sys.stderr)
         return error_code["CFG_ERROR"].value
@@ -128,7 +130,7 @@ def main(options, name):
         idxctx.templates.dump_templates()
         return 0
 
-    idxctx.logger.debug("{}.{}: starting", name, idxctx.TS)
+    logger.debug("{}.{}: starting", name, idxctx.TS)
 
     index_obj = Index(name, options, idxctx)
     status, tarballs = index_obj.collect_tb()

@@ -1,11 +1,10 @@
 from dataclasses import dataclass
-from logging import Logger
 from pathlib import Path
 import tempfile
 
-from pbench.server import PbenchServerConfig
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.dataset import Dataset, Metadata
+from pbench.server.globals import server
 from pbench.server.report import Report
 from pbench.server.sync import Operation, Sync
 
@@ -25,16 +24,10 @@ class Results:
 class UnpackTarballs:
     """Unpacks Tarball in the INCOMING Directory"""
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
-        """
-        Args:
-            config: PbenchServerConfig configuration object
-            logger: A Pbench python Logger
-        """
-        self.config = config
-        self.logger = logger
-        self.sync = Sync(logger=logger, component="unpack")
-        self.cache_manager = CacheManager(config, logger)
+    def __init__(self):
+        """Construct a Sync and CacheManager object for the unpacking operation."""
+        self.sync = Sync(component="unpack")
+        self.cache_manager = CacheManager()
 
     def unpack(self, tb: Target):
         """Encapsulate the call to the CacheManager unpacker.
@@ -46,9 +39,9 @@ class UnpackTarballs:
         try:
             self.cache_manager.unpack(tb.dataset.resource_id)
         except Exception as exc:
-            self.logger.error(
+            server.logger.error(
                 "{}: Unpacking of tarball {} failed: {}",
-                self.config.TS,
+                server.config.TS,
                 tb.tarball,
                 exc,
             )
@@ -70,7 +63,7 @@ class UnpackTarballs:
         for d in datasets:
             t = Metadata.getvalue(d, Metadata.TARBALL_PATH)
             if not t:
-                self.logger.error(
+                server.logger.error(
                     "Dataset {} is missing a value for {}", d, Metadata.TARBALL_PATH
                 )
                 continue
@@ -79,15 +72,15 @@ class UnpackTarballs:
                 p = Path(t).resolve(strict=True)
                 s = p.stat().st_size
             except FileNotFoundError as exc:
-                self.logger.error(
+                server.logger.error(
                     "{}: Tarball '{}' does not resolve to a file: {}",
-                    self.config.TS,
+                    server.config.TS,
                     t,
                     exc,
                 )
                 continue
             except Exception:
-                self.logger.exception("Unexpected exception on {}", t)
+                server.logger.exception("Unexpected exception on {}", t)
                 continue
 
             if min_size <= s < max_size:
@@ -105,7 +98,7 @@ class UnpackTarballs:
                     enabled=[Operation.INDEX],
                 )
             except Exception:
-                self.logger.exception("Error processing {}", tarball.tarball.name)
+                server.logger.exception("Error processing {}", tarball.tarball.name)
                 continue
             nsuccess += 1
 
@@ -118,15 +111,15 @@ class UnpackTarballs:
             prog: name of the running script.
             result_string: composed of the results received after processing of tarballs.
         """
-        with tempfile.NamedTemporaryFile(mode="w+t", dir=self.config.TMP) as reportfp:
+        with tempfile.NamedTemporaryFile(mode="w+t", dir=server.config.TMP) as reportfp:
             reportfp.write(
-                f"{prog}.{self.config.timestamp()}({self.config.PBENCH_ENV})\n{result_string}\n"
+                f"{prog}.{server.config.timestamp()}({server.config.PBENCH_ENV})\n{result_string}\n"
             )
             reportfp.seek(0)
 
-            report = Report(self.config, prog)
+            report = Report(prog)
             report.init_report_template()
             try:
-                report.post_status(self.config.timestamp(), "status", reportfp.name)
+                report.post_status(server.config.timestamp(), "status", reportfp.name)
             except Exception:
-                self.logger.exception("{}: failure posting report", prog)
+                server.logger.exception("{}: failure posting report", prog)

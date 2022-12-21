@@ -22,7 +22,7 @@ class TestDatasetsDetail(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=DatasetsDetail(client.config),
+            cls_obj=DatasetsDetail(),
             pbench_endpoint="/datasets/detail/random_md5_string1",
             elastic_endpoint="/_search?ignore_unavailable=true",
             index_from_metadata="run-data",
@@ -43,7 +43,6 @@ class TestDatasetsDetail(Commons):
     def test_query(
         self,
         client,
-        server_config,
         query_api,
         find_template,
         pbench_admin_token,
@@ -186,7 +185,6 @@ class TestDatasetsDetail(Commons):
     def test_metadata(
         self,
         client,
-        server_config,
         query_api,
         find_template,
         provide_metadata,
@@ -326,7 +324,6 @@ class TestDatasetsDetail(Commons):
     def test_empty_query(
         self,
         client,
-        server_config,
         query_api,
         find_template,
         build_auth_header,
@@ -362,9 +359,7 @@ class TestDatasetsDetail(Commons):
         if response.status_code == HTTPStatus.BAD_REQUEST:
             assert response.json["message"].find("dataset has gone missing") != -1
 
-    def test_nonunique_query(
-        self, client, server_config, query_api, find_template, pbench_token
-    ):
+    def test_nonunique_query(self, client, query_api, find_template, pbench_token):
         """
         Check the handling of a query that returns too much data.
         """

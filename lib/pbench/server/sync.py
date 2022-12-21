@@ -1,10 +1,10 @@
 from enum import auto, Enum
-from logging import DEBUG, Logger
+import logging
 from typing import List, Optional
 
 from pbench.server import JSONVALUE
-from pbench.server.database.database import Database
 from pbench.server.database.models.dataset import Dataset, Metadata
+from pbench.server.globals import server
 
 
 class Operation(Enum):
@@ -36,16 +36,14 @@ class SyncSqlError(SyncError):
 
 
 class Sync:
-    def __init__(self, logger: Logger, component: str):
-        self.logger = logger
+    def __init__(self, component: str):
         self.component = component
 
     def __str__(self) -> str:
         return f"<Synchronizer for component {self.component!r}>"
 
     def next(self, operation: Operation) -> List[Dataset]:
-        """
-        This is a very specialized query to return a list of datasets with
+        """This is a very specialized query to return a list of datasets with
         specific associated metadata, specifically containing a known
         "OPERATION" enum value in the 'server.operation' metadata field.
 
@@ -66,17 +64,17 @@ class Sync:
             operation enum.
         """
         try:
-            query = Database.db_session.query(Dataset).join(Metadata)
+            query = server.db_session.query(Dataset).join(Metadata)
             query = query.filter(Metadata.key == Metadata.SERVER)
             term = Metadata.value["operation"].as_string().contains(operation.name)
             query = query.filter(term)
             query = query.order_by(Dataset.name)
-            if self.logger.isEnabledFor(DEBUG):
+            if server.logger.isEnabledFor(logging.DEBUG):
                 q_str = query.statement.compile(compile_kwargs={"literal_binds": True})
-                self.logger.debug("QUERY {}", q_str)
+                server.logger.debug("QUERY {}", q_str)
             return list(query.all())
         except Exception as e:
-            self.logger.exception("Failed to query for {}", operation)
+            server.logger.exception("Failed to query for {}", operation)
             raise SyncSqlError("next") from e
 
     def update(
@@ -121,7 +119,7 @@ class Sync:
             operations.update(o.name for o in enabled)
 
         try:
-            self.logger.info(
+            server.logger.info(
                 "Did {}, enabling {} with message {!r}",
                 did.name if did else "nothing",
                 [e.name for e in enabled] if enabled else "none",
@@ -131,7 +129,7 @@ class Sync:
             if message:
                 Metadata.setvalue(dataset, "server.status." + self.component, message)
         except Exception as e:
-            self.logger.warning("{} error updating ops: {}", dataset.name, str(e))
+            server.logger.warning("{} error updating ops: {}", dataset.name, str(e))
             raise
 
     def error(self, dataset: Dataset, message: str):

@@ -7,39 +7,38 @@ from pbench.server import OperationCode
 from pbench.server.api.resources import APIAbort, ApiParams
 from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
+from pbench.server.globals import server
 
 
 class TestServerConfiguration:
     @pytest.fixture()
-    def query_get(self, client, server_config):
+    def query_get(self, client):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
 
         Args:
             client: Flask test API client fixture
-            server_config: Pbench config fixture
         """
 
         def query_api(
             key: str, expected_status: HTTPStatus = HTTPStatus.OK
         ) -> requests.Response:
             k = "" if key is None else f"/{key}"
-            response = client.get(f"{server_config.rest_uri}/server/configuration{k}")
+            response = client.get(f"{server.config.rest_uri}/server/configuration{k}")
             assert response.status_code == expected_status
             return response
 
         return query_api
 
     @pytest.fixture()
-    def query_put(self, client, server_config, pbench_admin_token):
+    def query_put(self, client, pbench_admin_token):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
 
         Args:
             client: Flask test API client fixture
-            server_config: Pbench config fixture
             pbench_admin_token: Provide an admin authentication token
         """
 
@@ -51,7 +50,7 @@ class TestServerConfiguration:
         ) -> requests.Response:
             k = f"/{key}" if key else ""
             response = client.put(
-                f"{server_config.rest_uri}/server/configuration{k}",
+                f"{server.config.rest_uri}/server/configuration{k}",
                 headers={"authorization": f"bearer {token}"},
                 **kwargs,
             )
@@ -90,7 +89,7 @@ class TestServerConfiguration:
         handling of a condition that ought to be impossible through Flask
         routing.
         """
-        put = ServerConfiguration(server_config)
+        put = ServerConfiguration()
         with pytest.raises(APIAbort, match="Missing parameter 'key'"):
             put._put_key(ApiParams(uri={"plugh": "xyzzy", "foo": "bar"}), context=None)
 
@@ -252,7 +251,7 @@ class TestServerConfiguration:
             "server-state": {"status": "enabled"},
         }
 
-    def test_disable_api(self, server_config, client, query_put, create_drb_user):
+    def test_disable_api(self, client, query_put, create_drb_user):
         query_put(
             key="server-state",
             json={
@@ -263,7 +262,7 @@ class TestServerConfiguration:
                 }
             },
         )
-        response = client.get(f"{server_config.rest_uri}/datasets/list")
+        response = client.get(f"{server.config.rest_uri}/datasets/list")
         assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
         assert response.json == {
             "contact": "test@example.com",
@@ -271,9 +270,7 @@ class TestServerConfiguration:
             "message": "Disabled for testing",
         }
 
-    def test_disable_api_readonly(
-        self, server_config, client, query_put, pbench_token, more_datasets
-    ):
+    def test_disable_api_readonly(self, client, query_put, pbench_token, more_datasets):
         query_put(
             key="server-state",
             json={
@@ -285,13 +282,13 @@ class TestServerConfiguration:
             },
         )
         response = client.get(
-            f"{server_config.rest_uri}/datasets/list?owner=drb",
+            f"{server.config.rest_uri}/datasets/list?owner=drb",
             headers={"authorization": f"Bearer {pbench_token}"},
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json["total"] == 2
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata/drb",
+            f"{server.config.rest_uri}/datasets/metadata/drb",
             headers={"authorization": f"Bearer {pbench_token}"},
             json={"metadata": {"dataset.name": "Test"}},
         )

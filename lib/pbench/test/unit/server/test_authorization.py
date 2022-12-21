@@ -28,7 +28,7 @@ class TestAuthorization:
 
     @pytest.fixture()
     def apibase(self, client) -> ApiBase:
-        return ApiBase(client.config, ApiSchema(ApiMethod.GET, OperationCode.READ))
+        return ApiBase(ApiSchema(ApiMethod.GET, OperationCode.READ))
 
     @pytest.fixture()
     def current_user_admin(self, monkeypatch):
@@ -62,9 +62,7 @@ class TestAuthorization:
             {"user": None, "access": "public", "role": OperationCode.READ},
         ],
     )
-    def test_allowed_admin(
-        self, apibase, server_config, create_drb_user, current_user_admin, ask
-    ):
+    def test_allowed_admin(self, apibase, create_drb_user, current_user_admin, ask):
         user = self.get_user_id(ask["user"])
         apibase._check_authorization(
             ApiAuthorization(
@@ -81,7 +79,7 @@ class TestAuthorization:
             {"user": None, "access": "public", "role": OperationCode.DELETE},
         ],
     )
-    def test_disallowed_admin(self, apibase, server_config, current_user_admin, ask):
+    def test_disallowed_admin(self, apibase, current_user_admin, ask):
         user = self.get_user_id(ask["user"])
         access = ask["access"]
         with pytest.raises(UnauthorizedAccess) as exc:
@@ -110,7 +108,6 @@ class TestAuthorization:
     def test_allowed_auth(
         self,
         apibase,
-        server_config,
         create_user,
         create_drb_user,
         current_user_drb,
@@ -137,9 +134,7 @@ class TestAuthorization:
             {"user": "test", "access": "private", "role": OperationCode.READ},
         ],
     )
-    def test_disallowed_auth(
-        self, apibase, server_config, create_user, current_user_drb, ask
-    ):
+    def test_disallowed_auth(self, apibase, create_user, current_user_drb, ask):
         user = self.get_user_id(ask["user"])
         access = ask["access"]
         with pytest.raises(UnauthorizedAccess) as exc:
@@ -162,7 +157,6 @@ class TestAuthorization:
     def test_allowed_noauth(
         self,
         apibase,
-        server_config,
         create_user,
         create_drb_user,
         current_user_none,
@@ -185,9 +179,7 @@ class TestAuthorization:
             {"user": "test", "access": "private", "role": OperationCode.READ},
         ],
     )
-    def test_disallowed_noauth(
-        self, apibase, server_config, create_user, current_user_none, ask
-    ):
+    def test_disallowed_noauth(self, apibase, create_user, current_user_none, ask):
         user = self.get_user_id(ask["user"])
         access = ask["access"]
         with pytest.raises(UnauthorizedAccess) as exc:
@@ -199,7 +191,7 @@ class TestAuthorization:
         assert exc.value.owner == (ask["user"] if ask["user"] else "none")
         assert exc.value.user is None
 
-    def test_admin_unauth(self, apibase, server_config, current_user_none):
+    def test_admin_unauth(self, apibase, current_user_none):
         with pytest.raises(UnauthorizedAccess) as exc:
             apibase._check_authorization(
                 ApiAuthorization(ApiAuthorizationType.ADMIN, OperationCode.CREATE)
@@ -209,7 +201,7 @@ class TestAuthorization:
             == "Unauthenticated client is not authorized to CREATE a server administrative resource"
         )
 
-    def test_admin_user(self, apibase, server_config, current_user_drb):
+    def test_admin_user(self, apibase, current_user_drb):
         with pytest.raises(UnauthorizedAccess) as exc:
             apibase._check_authorization(
                 ApiAuthorization(ApiAuthorizationType.ADMIN, OperationCode.CREATE)
@@ -219,7 +211,7 @@ class TestAuthorization:
             == "User drb is not authorized to CREATE a server administrative resource"
         )
 
-    def test_admin_admin(self, apibase, server_config, current_user_admin):
+    def test_admin_admin(self, apibase, current_user_admin):
         apibase._check_authorization(
             ApiAuthorization(ApiAuthorizationType.ADMIN, OperationCode.CREATE)
         )

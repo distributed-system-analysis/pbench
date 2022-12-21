@@ -4,7 +4,7 @@ from typing import Any
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server import OperationCode
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorization,
@@ -32,9 +32,11 @@ class DatasetsMetadata(ApiBase):
     API class to retrieve and mutate Dataset metadata.
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "datasets_metadata"
+    urls = ["datasets/metadata/<string:dataset>"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.PUT,
                 OperationCode.UPDATE,

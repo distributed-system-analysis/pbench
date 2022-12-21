@@ -7,11 +7,12 @@ import responses
 
 from pbench.server import JSON
 from pbench.server.api.resources import ApiMethod
+from pbench.server.globals import server
 
 
 @pytest.fixture
 @responses.activate
-def query_api(client, server_config, provide_metadata):
+def query_api(client, provide_metadata):
     """
     Help controller queries that want to interact with a mocked
     Elasticsearch service.
@@ -39,8 +40,8 @@ def query_api(client, server_config, provide_metadata):
         query_params: JSON = None,
         **kwargs,
     ) -> requests.Response:
-        host = server_config.get("elasticsearch", "host")
-        port = server_config.get("elasticsearch", "port")
+        host = server.config.get("elasticsearch", "host")
+        port = server.config.get("elasticsearch", "port")
         es_url = f"http://{host}:{port}{expected_index}{es_uri}"
         assert request_method in (ApiMethod.GET, ApiMethod.POST)
         if request_method == ApiMethod.GET:
@@ -66,7 +67,7 @@ def query_api(client, server_config, provide_metadata):
             ):
                 rsp.add(es_method, es_url, **kwargs)
             response = client_method(
-                f"{server_config.rest_uri}{pbench_uri}",
+                f"{server.config.rest_uri}{pbench_uri}",
                 headers=headers,
                 json=payload,
                 query_string=query_params,

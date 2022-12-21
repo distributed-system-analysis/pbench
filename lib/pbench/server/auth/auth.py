@@ -4,15 +4,15 @@ from http import HTTPStatus
 from logging import Logger
 from typing import Optional, Tuple
 
-from flask import current_app, Flask, request
+from flask import current_app, request
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import abort
 import jwt
 
-from pbench.server import PbenchServerConfig
 from pbench.server.auth import OpenIDClient, OpenIDClientError
 from pbench.server.database.models.active_token import ActiveToken
 from pbench.server.database.models.user import User
+from pbench.server.globals import server
 
 # Module private constants
 _TOKEN_ALG = "HS256"
@@ -21,19 +21,14 @@ _TOKEN_ALG = "HS256"
 token_auth = HTTPTokenAuth("Bearer")
 
 
-def setup_app(app: Flask, server_config: PbenchServerConfig):
+def setup_app():
     """Setup the given Flask app from the given Pbench Server configuration
     object.
 
     Sets the Flask apps `secret_key` attribute to the configured "secret-key"
     value in the Pbench Server "authentication" section.
-
-    Args:
-
-        app           : The target Flask application to setup
-        server_config : The Pbench Server configuration to use
     """
-    app.secret_key = server_config._get_conf("authentication", "secret-key")
+    current_app.secret_key = server.config._get_conf("authentication", "secret-key")
 
 
 def get_current_user_id() -> Optional[str]:

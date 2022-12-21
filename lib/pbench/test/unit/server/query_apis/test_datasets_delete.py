@@ -8,6 +8,7 @@ import pytest
 from pbench.server import JSON, PbenchServerConfig
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.dataset import Dataset, DatasetNotFound
+from pbench.server.globals import server
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -114,7 +115,6 @@ class TestDatasetsDelete:
         get_document_map,
         monkeypatch,
         owner,
-        server_config,
     ):
         """
         Check behavior of the delete API with various combinations of dataset
@@ -135,7 +135,7 @@ class TestDatasetsDelete:
         ds = Dataset.query(name=owner)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
+            f"{server.config.rest_uri}/datasets/delete/{ds.resource_id}",
             headers=build_auth_header["header"],
         )
         assert response.status_code == expected_status
@@ -157,7 +157,6 @@ class TestDatasetsDelete:
         capinternal,
         get_document_map,
         monkeypatch,
-        server_config,
         pbench_token,
     ):
         """
@@ -168,7 +167,7 @@ class TestDatasetsDelete:
         self.fake_cache_manager(monkeypatch)
         ds = Dataset.query(name="drb")
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
+            f"{server.config.rest_uri}/datasets/delete/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_token}"},
         )
         assert response.status_code == HTTPStatus.OK
@@ -177,14 +176,12 @@ class TestDatasetsDelete:
         # Verify that the Dataset still exists
         Dataset.query(name="drb")
 
-    def test_no_dataset(
-        self, client, get_document_map, monkeypatch, pbench_token, server_config
-    ):
+    def test_no_dataset(self, client, get_document_map, monkeypatch, pbench_token):
         """
         Check the delete API if the dataset doesn't exist.
         """
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/badwolf",
+            f"{server.config.rest_uri}/datasets/delete/badwolf",
             headers={"authorization": f"Bearer {pbench_token}"},
         )
 
@@ -192,9 +189,7 @@ class TestDatasetsDelete:
         assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json["message"] == "Dataset 'badwolf' not found"
 
-    def test_no_index(
-        self, client, monkeypatch, attach_dataset, pbench_token, server_config
-    ):
+    def test_no_index(self, client, monkeypatch, attach_dataset, pbench_token):
         """
         Check the delete API if the dataset has no INDEX_MAP. It should
         succeed without tripping over Elasticsearch.
@@ -202,7 +197,7 @@ class TestDatasetsDelete:
         self.fake_cache_manager(monkeypatch)
         ds = Dataset.query(name="drb")
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
+            f"{server.config.rest_uri}/datasets/delete/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_token}"},
         )
 
@@ -220,7 +215,6 @@ class TestDatasetsDelete:
         monkeypatch,
         get_document_map,
         pbench_token,
-        server_config,
     ):
         """
         Check the delete API response if the bulk helper throws an exception.
@@ -240,7 +234,7 @@ class TestDatasetsDelete:
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/random_md5_string1",
+            f"{server.config.rest_uri}/datasets/delete/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_token}"},
         )
 

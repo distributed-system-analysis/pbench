@@ -8,6 +8,7 @@ import requests
 from pbench.server import JSON
 from pbench.server.api.resources.datasets_list import urlencode_json
 from pbench.server.database.models.dataset import Dataset
+from pbench.server.globals import server
 
 
 class TestUrlencodeJson:
@@ -40,15 +41,12 @@ class TestDatasetsList:
     """
 
     @pytest.fixture()
-    def query_as(
-        self, client, server_config, more_datasets, provide_metadata, get_token
-    ):
+    def query_as(self, client, more_datasets, provide_metadata, get_token):
         """Helper fixture to perform the API query and validate an expected
         return status.
 
         Args:
             client: Flask test API client fixture
-            server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
             get_token: Pbench token fixture
@@ -74,7 +72,7 @@ class TestDatasetsList:
                 token = get_token(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
-                f"{server_config.rest_uri}/datasets/list",
+                f"{server.config.rest_uri}/datasets/list",
                 headers=headers,
                 query_string=payload,
             )
@@ -83,7 +81,7 @@ class TestDatasetsList:
 
         return query_api
 
-    def get_results(self, name_list: List[str], query: JSON, server_config) -> JSON:
+    def get_results(self, name_list: List[str], query: JSON) -> JSON:
         """Translate a list of names into a list of expected results of the
         abbreviated form returned by `datasets/list`: name, controller, run_id,
         and metadata.
@@ -91,7 +89,6 @@ class TestDatasetsList:
         Args:
             name_list: List of dataset names
             query: A JSON representation of the query parameters
-            server_config: Pbench config fixture
 
         Returns:
             Paginated JSON object containing list of dataset values
@@ -108,7 +105,7 @@ class TestDatasetsList:
             else:
                 query["offset"] = next_offset
                 next_url = (
-                    f"http://localhost{server_config.rest_uri}/datasets/list?"
+                    f"http://localhost{server.config.rest_uri}/datasets/list?"
                     + urlencode_json(query)
                 )
         else:
@@ -166,7 +163,7 @@ class TestDatasetsList:
             ("drb", {"end": "1970-09-01"}, []),
         ],
     )
-    def test_dataset_list(self, query_as, login, query, results, server_config):
+    def test_dataset_list(self, query_as, login, query, results):
         """Test the operation of `datasets/list` against our set of test
         datasets.
 
@@ -179,7 +176,7 @@ class TestDatasetsList:
         """
         query.update({"metadata": ["dataset.created"]})
         result = query_as(query, login, HTTPStatus.OK)
-        assert result.json == self.get_results(results, query, server_config)
+        assert result.json == self.get_results(results, query)
 
     @pytest.mark.parametrize(
         "login,query,results",

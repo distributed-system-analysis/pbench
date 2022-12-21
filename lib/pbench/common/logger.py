@@ -3,7 +3,9 @@ from datetime import datetime
 import logging
 import logging.handlers
 from pathlib import Path
+from typing import Any, Dict
 
+from pbench import PbenchConfig
 from pbench.common.exceptions import BadConfig
 
 
@@ -19,7 +21,7 @@ class _Message:
     Taken from the Python Logging Cookbook, https://docs.python.org/3.6/howto/logging-cookbook.html#use-of-alternative-formatting-styles.
     """
 
-    def __init__(self, fmt, args):
+    def __init__(self, fmt: str, args: Dict[str, Any]):
         self.fmt = fmt
         self.args = args
 
@@ -35,10 +37,10 @@ class _StyleAdapter(logging.LoggerAdapter):
     Taken from the Python Logging Cookbook, https://docs.python.org/3.6/howto/logging-cookbook.html#use-of-alternative-formatting-styles.
     """
 
-    def __init__(self, logger, extra=None):
+    def __init__(self, logger: logging.Logger, extra: Dict[str, Any] = None):
         super().__init__(logger, extra or {})
 
-    def log(self, level, msg, *args, **kwargs):
+    def log(self, level: int, msg: str, *args, **kwargs):
         if self.isEnabledFor(level):
             msg, kwargs = self.process(msg, kwargs)
             self.logger._log(level, _Message(msg, args), (), **kwargs)
@@ -77,18 +79,24 @@ class _PbenchLogFormatter(logging.Formatter):
     limitations under the License.
     """
 
-    def __init__(self, fmt=None, datefmt=None, style="{", max_line_length=0):
+    def __init__(
+        self,
+        fmt: str = None,
+        datefmt: str = None,
+        style: str = "{",
+        max_line_length: int = 0,
+    ):
         super().__init__(fmt=fmt, datefmt=datefmt, style=style)
         self.max_line_length = max_line_length
         self.converter = datetime.utcfromtimestamp
 
-    def formatTime(self, record, datefmt=None):
+    def formatTime(self, record: logging.LogRecord, datefmt: str = None):
         """
         Return the creation time of the specified LogRecord as formatted text.
         """
         return self.converter(record.created).isoformat()
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord):
         # Included from Python's logging.Formatter and then altered slightly to
         # replace \n with #012
         record.message = record.getMessage()
@@ -128,12 +136,18 @@ _handlers = {}
 _devlog = "/dev/log"
 
 
-def get_pbench_logger(caller, config):
+def get_pbench_logger(caller: str, config: PbenchConfig) -> logging.LoggerAdapter:
     """Fetch the logger specifed by "caller", and add a specific handler
     based on the logging configuration requested.
 
     We also return a logger that supports "brace" style message formatting,
     e.g. logger.warning("that = {}", that)
+
+    Args:
+        caller : Name to use for creating/retrieving the Logger instance
+
+    Returns:
+        The Logger instance wrapper in our style LoggerAdapter
     """
 
     pbench_logger = logging.getLogger(caller)

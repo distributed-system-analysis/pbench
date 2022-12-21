@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from logging import Logger
 import os
 from pathlib import Path
 import site
@@ -18,6 +17,7 @@ from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api import create_app, get_server_config
 from pbench.server.database import init_db
+from pbench.server.globals import init_server_ctx, server
 
 PROG = "pbench-shell"
 
@@ -32,7 +32,7 @@ def app():
     return create_app(server_config)
 
 
-def find_the_unicorn(logger: Logger):
+def find_the_unicorn():
     """Add the location of the `pip install --user` version of gunicorn to the
     PATH if it exists.
     """
@@ -40,7 +40,7 @@ def find_the_unicorn(logger: Logger):
     if (local / "gunicorn").exists():
         # Use a `pip install --user` version of gunicorn
         os.environ["PATH"] = ":".join([str(local), os.environ["PATH"]])
-        logger.info(
+        server.logger.info(
             "Found a local unicorn: augmenting server PATH to {}",
             os.environ["PATH"],
         )
@@ -81,7 +81,7 @@ def wait_for_database(db_uri: str, timeout: int):
             time.sleep(1)
 
 
-def keycloak_connection(oidc_server: str, logger: Logger) -> int:
+def keycloak_connection(oidc_server: str) -> int:
     """
      Checks if the Keycloak server is up and accepting the connections.
      The connection check does the GET request on the oidc server /health
@@ -94,7 +94,6 @@ def keycloak_connection(oidc_server: str, logger: Logger) -> int:
      Note: The Keycloak server needs to be started with health-enabled on.
      Args:
         oidc_server: OIDC server to verify
-        logger: logger
     Returns:
         0 if successful
         1 if unsuccessful
@@ -122,23 +121,21 @@ def keycloak_connection(oidc_server: str, logger: Logger) -> int:
             response = session.get(f"{oidc_server}/health")
             response.raise_for_status()
         except Exception:
-            logger.exception("Error connecting to the OIDC client")
+            server.logger.exception("Error connecting to the OIDC client")
             break
         if response.json().get("status") == "UP":
-            logger.debug("OIDC server connection verified")
+            server.logger.debug("OIDC server connection verified")
             ret_val = 0
             break
         else:
-            logger.error(
+            server.logger.error(
                 "OIDC client not running, OIDC server response: {}", response.json()
             )
             retry.sleep()
     return ret_val
 
 
-def generate_crontab_if_necessary(
-    crontab_dir: str, bin_dir: Path, cwd: str, logger: Logger
-) -> int:
+def generate_crontab_if_necessary(crontab_dir: str, bin_dir: Path, cwd: str) -> int:
     """Generate and install the crontab for the Pbench Server.
 
     If a crontab file already exists, no action is taken, otherwise a crontab
@@ -147,7 +144,13 @@ def generate_crontab_if_necessary(
 
     If either of those operations fail, the crontab file is removed.
 
-    Return 0 on success, 1 on failure.
+    Args:
+        crontab_dir : directory where crontab files are stored
+        bin_dir : directory where pbench commands are stored
+        cwd : the current working directory to use when generating files
+
+    Returns:
+        0 on success, 1 on failure.
     """
     ret_val = 0
     crontab_f = Path(crontab_dir) / "crontab"
@@ -156,7 +159,7 @@ def generate_crontab_if_necessary(
         # Create the crontab file from the server configuration.
         cp = subprocess.run(["pbench-create-crontab", crontab_dir], cwd=cwd)
         if cp.returncode != 0:
-            logger.error(
+            server.logger.error(
                 "Failed to create crontab file from configuration: {}", cp.returncode
             )
             ret_val = 1
@@ -164,7 +167,7 @@ def generate_crontab_if_necessary(
             # Install the created crontab file.
             cp = subprocess.run(["crontab", f"{crontab_dir}/crontab"], cwd=cwd)
             if cp.returncode != 0:
-                logger.error("Failed to install crontab file: {}", cp.returncode)
+                server.logger.error("Failed to install crontab file: {}", cp.returncode)
                 ret_val = 1
     if ret_val != 0:
         crontab_f.unlink(missing_ok=True)
@@ -179,21 +182,22 @@ def main():
     used.
     """
     try:
-        server_config = get_server_config()
+        config = get_server_config()
     except (ConfigFileNotSpecified, BadConfig) as e:
         print(e, file=sys.stderr)
         sys.exit(1)
-    logger = get_pbench_logger(PROG, server_config)
+    logger = get_pbench_logger(PROG, config)
+    init_server_ctx(config, logger)
     if site.ENABLE_USER_SITE:
-        find_the_unicorn(logger)
+        find_the_unicorn()
     try:
-        host = server_config._get_conf("pbench-server", "bind_host")
-        port = str(server_config._get_conf("pbench-server", "bind_port"))
-        db_uri = server_config._get_conf("database", "uri")
-        db_wait_timeout = int(server_config._get_conf("database", "wait_timeout"))
-        workers = str(server_config._get_conf("pbench-server", "workers"))
-        worker_timeout = str(server_config._get_conf("pbench-server", "worker_timeout"))
-        crontab_dir = server_config._get_conf("pbench-server", "crontab-dir")
+        host = config._get_conf("pbench-server", "bind_host")
+        port = str(config._get_conf("pbench-server", "bind_port"))
+        db_uri = config._get_conf("database", "uri")
+        db_wait_timeout = int(config._get_conf("database", "wait_timeout"))
+        workers = str(config._get_conf("pbench-server", "workers"))
+        worker_timeout = str(config._get_conf("pbench-server", "worker_timeout"))
+        crontab_dir = config._get_conf("pbench-server", "crontab-dir")
     except BadConfig as exc:
         logger.error("Error fetching required configuration: {}", exc)
         sys.exit(1)
@@ -208,7 +212,7 @@ def main():
         sys.exit(1)
 
     try:
-        oidc_server = server_config._get_conf("authentication", "server_url")
+        oidc_server = config._get_conf("authentication", "server_url")
     except BadConfig as exc:
         logger.warning("KeyCloak not configured, {}", exc)
     else:
@@ -223,14 +227,12 @@ def main():
     # and create it here. It's safer to do this here, where we're
     # single-threaded.
     if not database_exists(db_uri):
-        logger.info("Database {} doesn't exist", db_uri)
+        server.logger.info("Database {} doesn't exist", db_uri)
         create_database(db_uri)
-        logger.info("Created database {}", db_uri)
-    init_db(server_config, logger)
+        server.logger.info("Created database {}", db_uri)
+    init_db()
 
-    ret_val = generate_crontab_if_necessary(
-        crontab_dir, server_config.BINDIR, server_config.log_dir, logger
-    )
+    ret_val = generate_crontab_if_necessary(crontab_dir, config.BINDIR, config.log_dir)
     if ret_val != 0:
         sys.exit(ret_val)
 
@@ -263,9 +265,9 @@ def main():
     # packages as well as the pbench.pth file which points to the Pbench Server
     # package.
     if site.ENABLE_USER_SITE:
-        adds = f"{site.getusersitepackages()},{server_config.LIBDIR}"
+        adds = f"{site.getusersitepackages()},{config.LIBDIR}"
         cmd_line += ["--pythonpath", adds]
 
     cmd_line.append("pbench.cli.server.shell:app()")
-    cp = subprocess.run(cmd_line, cwd=server_config.log_dir)
+    cp = subprocess.run(cmd_line, cwd=config.log_dir)
     sys.exit(cp.returncode)

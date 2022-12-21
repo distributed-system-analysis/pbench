@@ -1,8 +1,6 @@
 from typing import AnyStr, List, NoReturn, Union
 
-from flask import current_app
-
-from pbench.server import JSON, PbenchServerConfig
+from pbench.server import JSON
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiContext,
@@ -15,6 +13,7 @@ from pbench.server.api.resources import (
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.dataset import Dataset, Metadata, MetadataError
 from pbench.server.database.models.template import Template
+from pbench.server.globals import server
 
 
 class MissingDatasetNameParameter(SchemaError):
@@ -82,8 +81,8 @@ class IndexMapBase(ElasticBase):
         "contents": {"index": "run-toc", "whitelist": ["directory", "files"]},
     }
 
-    def __init__(self, config: PbenchServerConfig, *schemas: ApiSchema):
-        super().__init__(config, *schemas)
+    def __init__(self, *schemas: ApiSchema):
+        super().__init__(*schemas)
 
         api_name = self.__class__.__name__
 
@@ -129,18 +128,18 @@ class IndexMapBase(ElasticBase):
         try:
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
         except MetadataError as exc:
-            current_app.logger.error("{}", exc)
+            server.logger.error("{}", exc)
             raise APIInternalError(f"Required metadata {Metadata.INDEX_MAP} missing")
 
         if index_map is None:
-            current_app.logger.error("Index map metadata has no value")
+            server.logger.error("Index map metadata has no value")
             raise APIInternalError(
                 f"Required metadata {Metadata.INDEX_MAP} has no value"
             )
 
         index_keys = [key for key in index_map if root_index_name in key]
         indices = ",".join(index_keys)
-        current_app.logger.debug(f"Indices from metadata , {indices!r}")
+        server.logger.debug(f"Indices from metadata , {indices!r}")
         return indices
 
     def get_aggregatable_fields(

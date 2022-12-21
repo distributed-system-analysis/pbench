@@ -1,5 +1,7 @@
 from urllib.parse import urljoin
 
+from pbench.server.globals import server
+
 
 class TestEndpointConfig:
     """
@@ -10,38 +12,36 @@ class TestEndpointConfig:
     constructor and `post` service.
     """
 
-    def test_query(self, client, server_config):
+    def test_query(self, client):
         """
         test_query Check that endpoint data matches the config file. In the
         local Flask mocked environment, `request.host` will always be
         "localhost".
         """
-        self.check_config(client, server_config, "localhost")
+        self.check_config(client, "localhost")
 
-    def test_proxy_query(self, client, server_config):
+    def test_proxy_query(self, client):
         host = "proxy.example.com:8901"
         forward = f"by=server.example.com;for=client.example.com;host={host};proto=http"
-        self.check_config(client, server_config, host, {"Forwarded": forward})
+        self.check_config(client, host, {"Forwarded": forward})
 
-    def test_x_forward_proxy_query(self, client, server_config):
+    def test_x_forward_proxy_query(self, client):
         host = "proxy.example.com:8902"
-        self.check_config(client, server_config, host, {"X-Forwarded-Host": host})
+        self.check_config(client, host, {"X-Forwarded-Host": host})
 
-    def test_x_forward_list_proxy_query(self, client, server_config):
+    def test_x_forward_list_proxy_query(self, client):
         host1 = "proxy.example.com:8902"
         host2 = "proxy2.example.com"
-        self.check_config(
-            client, server_config, host1, {"X-Forwarded-Host": f"{host1}, {host2}"}
-        )
+        self.check_config(client, host1, {"X-Forwarded-Host": f"{host1}, {host2}"})
 
-    def check_config(self, client, server_config, host, my_headers={}):
-        uri_prefix = server_config.rest_uri
+    def check_config(self, client, host, my_headers={}):
+        uri_prefix = server.config.rest_uri
         host = "http://" + host
         uri = urljoin(host, uri_prefix)
-        auth_realm = server_config.get("authentication", "realm")
-        auth_issuer = server_config.get("authentication", "server_url")
-        auth_client = server_config.get("authentication", "client")
-        auth_secret = server_config.get("authentication", "secret")
+        auth_realm = server.config.get("authentication", "realm")
+        auth_issuer = server.config.get("authentication", "server_url")
+        auth_client = server.config.get("authentication", "client")
+        auth_secret = server.config.get("authentication", "secret")
         expected_results = {
             "authentication": {
                 "realm": auth_realm,
@@ -49,7 +49,7 @@ class TestEndpointConfig:
                 "issuer": auth_issuer,
                 "secret": auth_secret,
             },
-            "identification": f"Pbench server {server_config.COMMIT_ID}",
+            "identification": f"Pbench server {server.config.COMMIT_ID}",
             "api": {
                 "datasets_contents": f"{uri}/datasets/contents",
                 "datasets_daterange": f"{uri}/datasets/daterange",
@@ -147,6 +147,6 @@ class TestEndpointConfig:
             },
         }
 
-        response = client.get(f"{server_config.rest_uri}/endpoints", headers=my_headers)
+        response = client.get(f"{server.config.rest_uri}/endpoints", headers=my_headers)
         res_json = response.json
         assert res_json == expected_results

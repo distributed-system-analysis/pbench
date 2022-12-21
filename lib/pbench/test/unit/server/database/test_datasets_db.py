@@ -27,7 +27,7 @@ class TestDatasets:
             # transitions table!
             assert s in Dataset.transitions
 
-    def test_construct(self, db_session, create_user):
+    def test_construct(self, create_user):
         """Test dataset contructor"""
         user = create_user
         with freeze_time("1970-01-01"):
@@ -58,7 +58,7 @@ class TestDatasets:
             "metalog": None,
         }
 
-    def test_dataset_survives_user(self, db_session, create_user):
+    def test_dataset_survives_user(self, create_user):
         """The Dataset isn't automatically removed when the referenced
         user is removed.
         """
@@ -69,7 +69,7 @@ class TestDatasets:
         ds1 = Dataset.query(resource_id="deadbeef")
         assert ds1 == ds
 
-    def test_dataset_metadata_log(self, db_session, create_user, provide_metadata):
+    def test_dataset_metadata_log(self, create_user, provide_metadata):
         """
         Test that `as_dict` provides the mocked metadata.log contents along
         with the Dataset object.
@@ -94,7 +94,7 @@ class TestDatasets:
             },
         }
 
-    def test_construct_bad_state(self, db_session, create_user):
+    def test_construct_bad_state(self, create_user):
         """Test with a non-States state value"""
         with pytest.raises(DatasetBadParameterType):
             Dataset(
@@ -104,7 +104,7 @@ class TestDatasets:
                 state="notStates",
             )
 
-    def test_attach_exists(self, db_session, create_user):
+    def test_attach_exists(self, create_user):
         """Test that we can attach to a dataset"""
         ds1 = Dataset(
             owner_id=str(create_user.id),
@@ -128,7 +128,7 @@ class TestDatasets:
         with pytest.raises(DatasetNotFound):
             Dataset.attach(resource_id="xyzzy", state=States.UPLOADING)
 
-    def test_query_name(self, db_session, create_user):
+    def test_query_name(self, create_user):
         """Test that we can find a dataset by name alone"""
         ds1 = Dataset(
             owner_id=str(create_user.id),
@@ -146,7 +146,7 @@ class TestDatasets:
         assert ds2.resource_id == ds1.resource_id
         assert ds2.id == ds1.id
 
-    def test_advanced_good(self, db_session, create_user):
+    def test_advanced_good(self, create_user):
         """Test advancing the state of a dataset"""
         with freeze_time("2525-05-25T15:15"):
             ds = Dataset(
@@ -169,14 +169,14 @@ class TestDatasets:
             "metalog": None,
         }
 
-    def test_advanced_bad_state(self, db_session, create_user):
+    def test_advanced_bad_state(self, create_user):
         """Test with a non-States state value"""
         ds = Dataset(owner_id=str(create_user.id), name="fio", resource_id="feebeed")
         ds.add()
         with pytest.raises(DatasetBadParameterType):
             ds.advance("notStates")
 
-    def test_advanced_illegal(self, db_session, create_user):
+    def test_advanced_illegal(self, create_user):
         """Test that we can't advance to a state that's not a
         successor to the initial state.
         """
@@ -185,7 +185,7 @@ class TestDatasets:
         with pytest.raises(DatasetBadStateTransition):
             ds.advance(States.DELETED)
 
-    def test_lifecycle(self, db_session, create_user):
+    def test_lifecycle(self, create_user):
         """Advance a dataset through the entire lifecycle using the state
         transition dict.
         """
@@ -207,7 +207,7 @@ class TestDatasets:
         lifecycle = ",".join([s.name for s in beenthere])
         assert lifecycle == "UPLOADING,UPLOADED,INDEXING,INDEXED,DELETING,DELETED"
 
-    def test_delete(self, db_session, create_user):
+    def test_delete(self, create_user):
         """Test that we can delete a dataset"""
         ds1 = Dataset(
             owner_id=str(create_user.id),

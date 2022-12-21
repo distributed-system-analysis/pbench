@@ -5,6 +5,13 @@ import pytest
 
 import pbench.cli.server.user_management as cli
 from pbench.server.database.models.user import User
+from pbench.server.globals import destroy_server_ctx
+
+
+@pytest.fixture
+def undo_server_ctx():
+    yield
+    destroy_server_ctx()
 
 
 def create_user():
@@ -48,14 +55,16 @@ class TestUserManagement:
     USER_CREATE_TIMESTAMP = datetime.datetime.now()
 
     @staticmethod
-    def test_help():
+    def test_help(server_config_obj):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(cli.user_create, ["--help"])
         assert result.exit_code == 0, result.stderr
         assert str(result.stdout).startswith("Usage:")
 
     @staticmethod
-    def test_valid_user_registration_with_password_input(server_config):
+    def test_valid_user_registration_with_password_input(
+        server_config_obj, undo_server_ctx
+    ):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             cli.user_create,
@@ -78,7 +87,7 @@ class TestUserManagement:
         )
 
     @staticmethod
-    def test_admin_user_creation(server_config):
+    def test_admin_user_creation(server_config_obj, undo_server_ctx):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             cli.user_create,
@@ -101,7 +110,7 @@ class TestUserManagement:
         assert result.stdout == "Admin user test_user registered\n"
 
     @staticmethod
-    def test_user_creation_with_invalid_role(server_config):
+    def test_user_creation_with_invalid_role(server_config_obj):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             cli.user_create,
@@ -124,7 +133,7 @@ class TestUserManagement:
         assert result.stderr.find("Invalid value for '--role'") > -1
 
     @staticmethod
-    def test_valid_user_delete(monkeypatch, server_config):
+    def test_valid_user_delete(monkeypatch, server_config_obj, undo_server_ctx):
         monkeypatch.setattr(User, "delete", mock_valid_delete)
         runner = CliRunner(mix_stderr=False)
 
@@ -132,7 +141,7 @@ class TestUserManagement:
         assert result.exit_code == 0, result.stderr
 
     @staticmethod
-    def test_invalid_user_delete(server_config):
+    def test_invalid_user_delete(server_config_obj, undo_server_ctx):
         runner = CliRunner(mix_stderr=False)
         # Give username that doesn't exists to delete
         result = runner.invoke(cli.user_delete, args=["wrong_username"])
@@ -140,7 +149,7 @@ class TestUserManagement:
         assert result.stderr == "User wrong_username does not exist\n"
 
     @staticmethod
-    def test_valid_user_list(monkeypatch, server_config):
+    def test_valid_user_list(monkeypatch, server_config_obj, undo_server_ctx):
         monkeypatch.setattr(User, "query_all", mock_valid_list)
         runner = CliRunner(mix_stderr=False)
 
@@ -174,7 +183,9 @@ class TestUserManagement:
             (LAST_NAME_SWITCH, "newuser"),
         ],
     )
-    def test_valid_user_update(monkeypatch, server_config, switch, value):
+    def test_valid_user_update(
+        monkeypatch, switch, value, server_config_obj, undo_server_ctx
+    ):
         user = create_user()
 
         def mock_valid_update(**kwargs):
@@ -194,7 +205,7 @@ class TestUserManagement:
         assert result.stdout == "User test_user updated\n"
 
     @staticmethod
-    def test_invalid_role_update(server_config):
+    def test_invalid_role_update(server_config_obj):
         runner = CliRunner(mix_stderr=False)
 
         # Update with invalid role for the user
@@ -206,7 +217,7 @@ class TestUserManagement:
         assert result.stderr.find("Invalid value for '--role'") > -1
 
     @staticmethod
-    def test_invalid_user_update(server_config):
+    def test_invalid_user_update(server_config_obj, undo_server_ctx):
         runner = CliRunner(mix_stderr=False)
 
         # Update with non-existent username

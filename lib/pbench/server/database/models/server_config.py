@@ -7,6 +7,7 @@ from sqlalchemy.sql.sqltypes import JSON
 
 from pbench.server import JSONOBJECT, JSONVALUE
 from pbench.server.database.database import Database
+from pbench.server.globals import server
 
 
 class ServerConfigError(Exception):
@@ -177,7 +178,7 @@ OPTION_SERVER_STATE = "server-state"
 SERVER_CONFIGURATION_OPTIONS = {
     OPTION_DATASET_LIFETIME: {
         "validator": validate_lifetime,
-        "default": lambda: str(ServerConfig.config.max_retention_period),
+        "default": lambda: str(server.config.max_retention_period),
     },
     OPTION_SERVER_BANNER: {
         "validator": validate_server_banner,
@@ -271,7 +272,7 @@ class ServerConfig(Database.Base):
             ServerConfig object with the specified key name or None
         """
         try:
-            config = Database.db_session.query(ServerConfig).filter_by(key=key).first()
+            config = server.db_session.query(ServerConfig).filter_by(key=key).first()
             if config is None and use_default:
                 config = ServerConfig(key=key, value=__class__._default(key))
         except SQLAlchemyError as e:
@@ -328,7 +329,7 @@ class ServerConfig(Database.Base):
         """
         Return all server config settings as a JSON object
         """
-        configs = Database.db_session.query(ServerConfig).all()
+        configs = server.db_session.query(ServerConfig).all()
         db = {c.key: c.value for c in configs}
         return {k: db[k] if k in db else __class__._default(k) for k in __class__.KEYS}
 
@@ -367,10 +368,10 @@ class ServerConfig(Database.Base):
         Add the ServerConfig object to the database
         """
         try:
-            Database.db_session.add(self)
-            Database.db_session.commit()
+            server.db_session.add(self)
+            server.db_session.commit()
         except Exception as e:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             if isinstance(e, IntegrityError):
                 raise self._decode(e) from e
             raise ServerConfigSqlError("adding", self.key, str(e)) from e
@@ -381,9 +382,9 @@ class ServerConfig(Database.Base):
         ServerConfig object.
         """
         try:
-            Database.db_session.commit()
+            server.db_session.commit()
         except Exception as e:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             if isinstance(e, IntegrityError):
                 raise self._decode(e) from e
             raise ServerConfigSqlError("updating", self.key, str(e)) from e

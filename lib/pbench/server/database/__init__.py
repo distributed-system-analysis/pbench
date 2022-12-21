@@ -12,7 +12,7 @@ from pbench.server.database.models.template import Template  # noqa F401
 from pbench.server.database.models.user import User  # noqa F401
 
 
-def init_db(configuration, logger):
+def init_db():
     """
     Utility method for initializing the database.
 
@@ -25,4 +25,4 @@ def init_db(configuration, logger):
     where we need standalone db access should invoke this function instead
     of directly invoking Database.init_db().
     """
-    Database.init_db(server_config=configuration, logger=logger)
+    Database.init_db()

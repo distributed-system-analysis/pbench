@@ -6,6 +6,7 @@ import pytest
 
 from pbench.server import JSON
 from pbench.server.database.models.dataset import Dataset
+from pbench.server.globals import server
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -104,7 +105,6 @@ class TestDatasetsPublish:
         get_document_map,
         monkeypatch,
         owner,
-        server_config,
     ):
         """
         Check behavior of the publish API with various combinations of dataset
@@ -124,7 +124,7 @@ class TestDatasetsPublish:
         ds = Dataset.query(name=owner)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish/{ds.resource_id}",
+            f"{server.config.rest_uri}/datasets/publish/{ds.resource_id}",
             headers=build_auth_header["header"],
             query_string=self.PAYLOAD,
         )
@@ -141,7 +141,6 @@ class TestDatasetsPublish:
         get_document_map,
         monkeypatch,
         pbench_token,
-        server_config,
     ):
         """
         Check the publish API when some document updates fail. We expect an
@@ -150,7 +149,7 @@ class TestDatasetsPublish:
         self.fake_elastic(monkeypatch, get_document_map, True)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish/random_md5_string1",
+            f"{server.config.rest_uri}/datasets/publish/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_token}"},
             query_string=self.PAYLOAD,
         )
@@ -161,15 +160,13 @@ class TestDatasetsPublish:
         dataset = Dataset.query(name="drb")
         assert dataset.access == Dataset.PRIVATE_ACCESS
 
-    def test_no_dataset(
-        self, client, get_document_map, monkeypatch, pbench_token, server_config
-    ):
+    def test_no_dataset(self, client, get_document_map, monkeypatch, pbench_token):
         """
         Check the publish API if the dataset doesn't exist.
         """
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish/badwolf",
+            f"{server.config.rest_uri}/datasets/publish/badwolf",
             headers={"authorization": f"Bearer {pbench_token}"},
             query_string=self.PAYLOAD,
         )
@@ -178,9 +175,7 @@ class TestDatasetsPublish:
         assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json["message"] == "Dataset 'badwolf' not found"
 
-    def test_no_index(
-        self, client, monkeypatch, attach_dataset, pbench_token, server_config
-    ):
+    def test_no_index(self, client, monkeypatch, attach_dataset, pbench_token):
         """
         Check the publish API if the dataset has no INDEX_MAP. It should
         fail with a CONFLICT error.
@@ -189,7 +184,7 @@ class TestDatasetsPublish:
 
         ds = Dataset.query(name="drb")
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish/{ds.resource_id}",
+            f"{server.config.rest_uri}/datasets/publish/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_token}"},
             query_string=self.PAYLOAD,
         )
@@ -207,7 +202,6 @@ class TestDatasetsPublish:
         monkeypatch,
         get_document_map,
         pbench_token,
-        server_config,
         capinternal,
     ):
         """
@@ -228,7 +222,7 @@ class TestDatasetsPublish:
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
         response = client.post(
-            f"{server_config.rest_uri}/datasets/publish/random_md5_string1",
+            f"{server.config.rest_uri}/datasets/publish/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_token}"},
             query_string=self.PAYLOAD,
         )

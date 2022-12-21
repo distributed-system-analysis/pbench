@@ -7,6 +7,7 @@ import requests
 
 from pbench.server import JSON
 from pbench.server.database.models.dataset import Dataset
+from pbench.server.globals import server
 
 
 class TestDatasetsDateRange:
@@ -17,16 +18,13 @@ class TestDatasetsDateRange:
     """
 
     @pytest.fixture()
-    def query_as(
-        self, client, server_config, more_datasets, provide_metadata, get_token
-    ):
+    def query_as(self, client, more_datasets, provide_metadata, get_token):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
 
         Args:
             client: Flask test API client fixture
-            server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
             get_token: Pbench token fixture
@@ -37,7 +35,7 @@ class TestDatasetsDateRange:
         ) -> requests.Response:
             token = get_token(username)
             response = client.get(
-                f"{server_config.rest_uri}/datasets/daterange",
+                f"{server.config.rest_uri}/datasets/daterange",
                 headers={"authorization": f"bearer {token}"},
                 query_string=payload,
             )

@@ -1,26 +1,16 @@
 from dataclasses import dataclass
 import datetime
-from logging import Logger
 from pathlib import Path
 from typing import Optional, Union
 
 import pytest
 
-from pbench.common.logger import get_pbench_logger
-from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
+from pbench.server import JSON, JSONOBJECT
 from pbench.server.cache_manager import TarballUnpackError
 from pbench.server.database.models.dataset import Dataset, Metadata
 from pbench.server.database.models.user import User
 from pbench.server.sync import Operation
 from pbench.server.unpack_tarballs import UnpackTarballs
-
-
-@pytest.fixture()
-def make_logger(server_config):
-    """
-    Construct a Pbench Logger object
-    """
-    return get_pbench_logger("TEST", server_config)
 
 
 @dataclass(frozen=True)
@@ -106,9 +96,8 @@ class MockSync:
 
     record: dict[str, JSONOBJECT] = {}
 
-    def __init__(self, logger: Logger, component: str):
+    def __init__(self, component: str):
         self.component = component
-        self.logger = logger
 
     def next(self, operation: Operation) -> list[Dataset]:
         return [x.dataset for x in datasets]
@@ -126,7 +115,7 @@ class FakePbenchTemplates:
     templates_updated = False
     failure: Optional[Exception] = None
 
-    def __init__(self, basepath, idx_prefix, logger, known_tool_handlers=None, _dbg=0):
+    def __init__(self, basepath, idx_prefix, known_tool_handlers=None, _dbg=0):
         pass
 
     def update_templates(self, es_instance):
@@ -147,7 +136,6 @@ class FakeReport:
 
     def __init__(
         self,
-        config,
         name,
         es=None,
         pid=None,
@@ -157,7 +145,6 @@ class FakeReport:
         version=None,
         templates=None,
     ):
-        self.config = config
         self.name = name
 
     def post_status(
@@ -183,9 +170,8 @@ class MockCacheManager:
     fails: list[str] = []
     unpacked: list[str] = []
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
-        self.config = config
-        self.logger = logger
+    def __init__(self):
+        pass
 
     def unpack(self, id: str):
         if id in __class__.fails:
@@ -230,11 +216,11 @@ class TestUnpackTarballs:
             (0, 900, ["md5.1", "md5.2"]),  # upper is strict <
         ],
     )
-    def test_buckets(self, mocks, make_logger, min_size, max_size, targets):
+    def test_buckets(self, mocks, server_logger, min_size, max_size, targets):
         """Test that the tarbal list is filtered by the unpack bucket size
         configuration."""
 
-        obj = UnpackTarballs(MockConfig(), make_logger)
+        obj = UnpackTarballs()
         result = obj.unpack_tarballs(min_size, max_size)
         assert result.total == len(targets)
         assert result.success == len(targets)
@@ -247,11 +233,11 @@ class TestUnpackTarballs:
     @pytest.mark.parametrize(
         "fail", [["md5.1"], ["md5.1", "md5.2"], ["md5.1", "md5.2", "md5.3"]]
     )
-    def test_failures(self, make_logger, fail, mocks):
+    def test_failures(self, server_logger, fail, mocks):
         """Test that tarball evaluation continues when resolution of one or
         more fails."""
 
-        obj = UnpackTarballs(MockConfig(), make_logger)
+        obj = UnpackTarballs()
         MockPath._fail_on(fail)
         result = obj.unpack_tarballs(0.0, float("inf"))
         assert result.total == len(datasets) - len(fail)
@@ -269,11 +255,11 @@ class TestUnpackTarballs:
     @pytest.mark.parametrize(
         "fail", [["md5.1"], ["md5.2"], ["md5.3"], ["md5.1", "md5.2", "md5.3"]]
     )
-    def test_unpack_exception(self, make_logger, mocks, fail):
+    def test_unpack_exception(self, server_logger, mocks, fail):
         """Show that when unpack module raises TarballUnpackError exception
         it is being handled properly."""
 
-        obj = UnpackTarballs(MockConfig, make_logger)
+        obj = UnpackTarballs()
         MockCacheManager._fail_on(fail)
 
         result = obj.unpack_tarballs(0.0, float("inf"))
@@ -289,8 +275,8 @@ class TestUnpackTarballs:
         assert sorted(MockCacheManager.unpacked) == ids
         assert sorted(MockSync.record.keys()) == ids
 
-    def test_unpack_report(self, make_logger, mocks):
-        obj = UnpackTarballs(MockConfig, make_logger)
+    def test_unpack_report(self, server_logger, mocks):
+        obj = UnpackTarballs()
         obj.report("done", "done done")
         assert FakeReport.reported
         assert FakeReport.inited

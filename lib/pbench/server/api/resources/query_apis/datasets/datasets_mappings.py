@@ -1,7 +1,7 @@
 from flask import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server import OperationCode
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiBase,
@@ -65,9 +65,11 @@ class DatasetsMappings(ApiBase):
     }
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "datasets_mappings"
+    urls = ["datasets/mappings/<string:dataset_view>"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,

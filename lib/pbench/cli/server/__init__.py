@@ -11,8 +11,10 @@ execution.
 
 import click
 
+from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
+from pbench.server.globals import init_server_ctx
 
 
 class CliContext:
@@ -24,8 +26,9 @@ class CliContext:
 pass_cli_context = click.make_pass_decorator(CliContext, ensure=True)
 
 
-def config_setup(context: object) -> PbenchServerConfig:
+def config_setup(context: object, logger_name: str):
     config = PbenchServerConfig(context.config)
+    logger = get_pbench_logger(logger_name, config)
+    init_server_ctx(config, logger)
     # We're going to need the DB to track dataset state, so setup DB access.
-    init_db(config, None)
-    return config
+    init_db()

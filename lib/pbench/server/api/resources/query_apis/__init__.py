@@ -11,11 +11,11 @@ from urllib.request import Request
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 from elasticsearch import Elasticsearch, helpers, VERSION
-from flask import current_app, jsonify
+from flask import jsonify
 from flask.wrappers import Response
 import requests
 
-from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
+from pbench.server import JSON, JSONOBJECT
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
@@ -34,6 +34,7 @@ from pbench.server.database.models.audit import AuditReason, AuditStatus
 from pbench.server.database.models.dataset import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.user import User
+from pbench.server.globals import server
 
 
 class MissingBulkSchemaParameters(SchemaError):
@@ -86,14 +87,12 @@ class ElasticBase(ApiBase):
 
     def __init__(
         self,
-        config: PbenchServerConfig,
         *schemas: ApiSchema,
     ):
         """
         Base class constructor.
 
         Args:
-            config: server configuration
             schemas: List of API schemas: for example,
                 ApiSchema(
                     ApiMethod.GET,
@@ -108,10 +107,10 @@ class ElasticBase(ApiBase):
                     uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
                 )
         """
-        super().__init__(config, *schemas)
-        self.prefix = config.get("Indexing", "index_prefix")
-        host = config.get("elasticsearch", "host")
-        port = config.get("elasticsearch", "port")
+        super().__init__(*schemas)
+        self.prefix = server.config.get("Indexing", "index_prefix")
+        host = server.config.get("elasticsearch", "host")
+        port = server.config.get("elasticsearch", "port")
 
         # TODO: For future flexibility, we should consider reading this entire
         # Elasticsearch URI from the config file as we do for the database
@@ -198,7 +197,7 @@ class ElasticBase(ApiBase):
         is_admin = authorized_user.is_admin() if authorized_user else False
 
         filter = terms.copy()
-        current_app.logger.debug(
+        server.logger.debug(
             "QUERY auth ID {}, user {!r}, access {!r}, admin {}",
             authorized_id,
             user,
@@ -233,14 +232,12 @@ class ElasticBase(ApiBase):
         # constraint or with no constraint at all.
         if not authorized_user or (user and user != authorized_id and not is_admin):
             access_term = {"term": {"authorization.access": Dataset.PUBLIC_ACCESS}}
-            current_app.logger.debug("QUERY: not self public: {}", access_term)
+            server.logger.debug("QUERY: not self public: {}", access_term)
         elif access:
             access_term = {"term": {"authorization.access": access}}
             if not user and access == Dataset.PRIVATE_ACCESS and not is_admin:
                 user_term = {"term": {"authorization.owner": authorized_id}}
-            current_app.logger.debug(
-                "QUERY: user: {}, access: {}", user_term, access_term
-            )
+            server.logger.debug("QUERY: user: {}, access: {}", user_term, access_term)
         elif not user and not is_admin:
             combo_term = {
                 "dis_max": {
@@ -250,11 +247,11 @@ class ElasticBase(ApiBase):
                     ]
                 }
             }
-            current_app.logger.debug("QUERY: {{}} self + public: {}", combo_term)
+            server.logger.debug("QUERY: {{}} self + public: {}", combo_term)
         else:
             # Either "user" was specified and will be added to the filter,
             # or client is ADMIN and no access restrictions are required.
-            current_app.logger.debug("QUERY: {{}} default, user: {}", user_term)
+            server.logger.debug("QUERY: {{}} default, user: {}", user_term)
 
         # We control the order of terms here to allow stable unit testing.
         if combo_term:
@@ -381,7 +378,7 @@ class ElasticBase(ApiBase):
         klasname = self.__class__.__name__
         try:
             self.preprocess(params, context)
-            current_app.logger.debug("PREPROCESS returns {}", context)
+            server.logger.debug("PREPROCESS returns {}", context)
         except UnauthorizedAccess as e:
             raise APIAbort(e.http_status, str(e))
         except KeyError as e:
@@ -391,7 +388,7 @@ class ElasticBase(ApiBase):
             es_request = self.assemble(params, context)
             path = es_request.get("path")
             url = urljoin(self.es_url, path)
-            current_app.logger.info(
+            server.logger.info(
                 "ASSEMBLE returned URL {!r}, {!r}",
                 url,
                 es_request.get("kwargs").get("json"),
@@ -402,7 +399,7 @@ class ElasticBase(ApiBase):
         try:
             # perform the Elasticsearch query
             es_response = method(url, **es_request["kwargs"])
-            current_app.logger.debug(
+            server.logger.debug(
                 "ES query response {}:{}",
                 es_response.reason,
                 es_response.status_code,
@@ -410,7 +407,7 @@ class ElasticBase(ApiBase):
             es_response.raise_for_status()
             json_response = es_response.json()
         except requests.exceptions.HTTPError as e:
-            current_app.logger.error(
+            server.logger.error(
                 "{} HTTP error {} from Elasticsearch request: {}",
                 klasname,
                 e,
@@ -421,14 +418,14 @@ class ElasticBase(ApiBase):
                 f"Elasticsearch query failure {e.response.reason} ({e.response.status_code})",
             )
         except requests.exceptions.ConnectionError:
-            current_app.logger.error(
+            server.logger.error(
                 "{}: connection refused during the Elasticsearch request", klasname
             )
             raise APIAbort(
                 HTTPStatus.BAD_GATEWAY, "Network problem, could not reach Elasticsearch"
             )
         except requests.exceptions.Timeout:
-            current_app.logger.error(
+            server.logger.error(
                 "{}: connection timed out during the Elasticsearch request", klasname
             )
             raise APIAbort(
@@ -445,7 +442,7 @@ class ElasticBase(ApiBase):
             return self.postprocess(json_response, context)
         except PostprocessError as e:
             msg = f"{klasname}: {str(e)}"
-            current_app.logger.error("{}", msg)
+            server.logger.error("{}", msg)
             raise APIAbort(e.status, msg)
         except Exception as e:
             raise APIInternalError("Unexpected backend exception") from e
@@ -509,7 +506,6 @@ class ElasticBulkBase(ApiBase):
 
     def __init__(
         self,
-        config: PbenchServerConfig,
         *schemas: ApiSchema,
         action: Optional[str] = None,
         require_stable: bool = False,
@@ -523,7 +519,6 @@ class ElasticBulkBase(ApiBase):
         in the subclass schema.
 
         Args:
-            config: server configuration
             schemas: List of API schemas: for example,
                 ApiSchema(
                     ApiMethod.GET,
@@ -541,9 +536,9 @@ class ElasticBulkBase(ApiBase):
             require_stable: if True, fail if dataset state is mutating (-ing state)
             require_map: if True, fail if the dataset has no index map
         """
-        super().__init__(config, *schemas)
-        host = config.get("elasticsearch", "host")
-        port = config.get("elasticsearch", "port")
+        super().__init__(*schemas)
+        host = server.config.get("elasticsearch", "host")
+        port = server.config.get("elasticsearch", "port")
 
         api_name = self.__class__.__name__
 
@@ -552,7 +547,6 @@ class ElasticBulkBase(ApiBase):
         # rather than stitching it together. This would allow backend control
         # over authentication and http vs https for example.
         self.elastic_uri = f"http://{host}:{port}"
-        self.config = config
         self.action = action
         self.require_stable = require_stable
         self.require_map = require_map
@@ -739,7 +733,7 @@ class ElasticBulkBase(ApiBase):
         if map:
             # Build an Elasticsearch instance to manage the bulk update
             elastic = Elasticsearch(self.elastic_uri)
-            current_app.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
+            server.logger.info("Elasticsearch {} [{}]", elastic, VERSION)
 
             # NOTE: because both generate_actions and streaming_bulk return
             # generators, the entire sequence is inside a single try block.

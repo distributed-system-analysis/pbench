@@ -4,7 +4,6 @@ from flask import Flask
 from flask.wrappers import Request, Response
 from flask_restful import Api
 
-from pbench.common.logger import get_pbench_logger
 from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.api.resources import (
     ApiBase,
@@ -17,17 +16,16 @@ from pbench.server.database.models.server_config import ServerConfig
 
 
 class OnlyGet(ApiBase):
-    def __init__(self, server_config):
-        super().__init__(server_config, ApiSchema(ApiMethod.GET, OperationCode.READ))
+    def __init__(self):
+        super().__init__(ApiSchema(ApiMethod.GET, OperationCode.READ))
 
     def _get(self, args: ApiParams, request: Request, context: ApiContext) -> str:
         return "OK - Only GET"
 
 
 class Always(ApiBase):
-    def __init__(self, server_config):
+    def __init__(self):
         super().__init__(
-            server_config,
             ApiSchema(ApiMethod.GET, OperationCode.READ),
             always_enabled=True,
         )
@@ -37,9 +35,8 @@ class Always(ApiBase):
 
 
 class All(ApiBase):
-    def __init__(self, server_config):
+    def __init__(self):
         super().__init__(
-            server_config,
             ApiSchema(ApiMethod.GET, OperationCode.READ),
             ApiSchema(ApiMethod.HEAD, OperationCode.READ),
             ApiSchema(ApiMethod.POST, OperationCode.CREATE),
@@ -66,11 +63,8 @@ class All(ApiBase):
 
 
 class OptionsMethod(ApiBase):
-    def __init__(self, server_config):
-        super().__init__(
-            server_config,
-            ApiSchema(99, OperationCode.READ),
-        )
+    def __init__(self):
+        super().__init__(ApiSchema(99, OperationCode.READ))
 
     def options(self, **kwargs) -> Response:
         return self._dispatch(99, kwargs)
@@ -79,10 +73,9 @@ class OptionsMethod(ApiBase):
 class TestApiBase:
     """Verify internal methods of the API base class."""
 
-    def test_method_validation(self, server_config, monkeypatch):
+    def test_method_validation(self, server_config, server_logger, monkeypatch):
         # Create the temporary flask application.
         app = Flask("test-api-server")
-        app.logger = get_pbench_logger("test-api-server", server_config)
         app.debug = True
         app.testing = True
 
@@ -92,25 +85,21 @@ class TestApiBase:
             OnlyGet,
             "/api/v1/onlyget",
             endpoint="onlyget",
-            resource_class_args=(server_config,),
         )
         api.add_resource(
             Always,
             "/api/v1/always",
             endpoint="always",
-            resource_class_args=(server_config,),
         )
         api.add_resource(
             All,
             "/api/v1/all",
             endpoint="all",
-            resource_class_args=(server_config,),
         )
         api.add_resource(
             OptionsMethod,
             "/api/v1/other",
             endpoint="other",
-            resource_class_args=(server_config,),
         )
 
         # Flask-provided test client

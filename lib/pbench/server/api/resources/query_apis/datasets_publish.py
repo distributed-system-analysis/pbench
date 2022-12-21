@@ -1,8 +1,6 @@
 from typing import Any, Iterator
 
-from flask import current_app
-
-from pbench.server import JSONOBJECT, OperationCode, PbenchServerConfig
+from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiMethod,
@@ -15,6 +13,7 @@ from pbench.server.api.resources import (
 from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
 from pbench.server.database.models.audit import AuditType
 from pbench.server.database.models.dataset import Dataset
+from pbench.server.globals import server
 
 
 class DatasetsPublish(ElasticBulkBase):
@@ -26,9 +25,11 @@ class DatasetsPublish(ElasticBulkBase):
     Called as `POST /api/v1/datasets/publish/{resource_id}?access=public`
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "datasets_publish"
+    urls = ["datasets/publish/<string:dataset>"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.POST,
                 OperationCode.UPDATE,
@@ -70,7 +71,7 @@ class DatasetsPublish(ElasticBulkBase):
         access = params.query["access"]
         context["access"] = access
 
-        current_app.logger.info("Starting publish operation for dataset {}", dataset)
+        server.logger.info("Starting publish operation for dataset {}", dataset)
 
         # Generate a series of bulk update documents, which will be passed to
         # the Elasticsearch bulk helper.

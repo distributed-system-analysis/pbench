@@ -6,20 +6,18 @@ import requests
 from pbench.server import JSON, OperationCode
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.dataset import Dataset, DatasetNotFound
+from pbench.server.globals import server
 
 
 class TestDatasetsMetadataGet:
     @pytest.fixture()
-    def query_get_as(
-        self, client, server_config, more_datasets, provide_metadata, get_token
-    ):
+    def query_get_as(self, client, more_datasets, provide_metadata, get_token):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
 
         Args:
             client: Flask test API client fixture
-            server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
             get_token: Pbench token fixture
@@ -37,7 +35,7 @@ class TestDatasetsMetadataGet:
                 token = get_token(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
-                f"{server_config.rest_uri}/datasets/metadata/{dataset}",
+                f"{server.config.rest_uri}/datasets/metadata/{dataset}",
                 headers=headers,
                 query_string=payload,
             )
@@ -47,7 +45,7 @@ class TestDatasetsMetadataGet:
             # "put" test which does a PUT followed by two GETs.
             if username:
                 client.post(
-                    f"{server_config.rest_uri}/logout",
+                    f"{server.config.rest_uri}/logout",
                     headers={"authorization": f"bearer {token}"},
                 )
             return response
@@ -212,16 +210,13 @@ class TestDatasetsMetadataGet:
 
 class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
     @pytest.fixture()
-    def query_put_as(
-        self, client, server_config, more_datasets, provide_metadata, get_token
-    ):
+    def query_put_as(self, client, more_datasets, provide_metadata, get_token):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
 
         Args:
             client: Flask test API client fixture
-            server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
             get_token: Pbench token fixture
@@ -239,7 +234,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
                 token = get_token(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.put(
-                f"{server_config.rest_uri}/datasets/metadata/{dataset}",
+                f"{server.config.rest_uri}/datasets/metadata/{dataset}",
                 headers=headers,
                 json=payload,
             )
@@ -249,7 +244,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             # test case which does a PUT followed by two GETs.
             if username:
                 client.post(
-                    f"{server_config.rest_uri}/logout",
+                    f"{server.config.rest_uri}/logout",
                     headers={"authorization": f"bearer {token}"},
                 )
             return response
@@ -257,15 +252,15 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         return query_api
 
     @pytest.mark.parametrize("uri", ("/datasets/metadata/", "/datasets/metadata"))
-    def test_put_missing_uri_param(self, client, server_config, pbench_token, uri):
+    def test_put_missing_uri_param(self, client, pbench_token, uri):
         """
         Test behavior when no dataset name is given on the URI. (NOTE that
         Flask automatically handles this with a NOT_FOUND response.)
         """
-        response = client.put(f"{server_config.rest_uri}{uri}")
+        response = client.put(f"{server.config.rest_uri}{uri}")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
-    def test_put_missing_key(self, client, server_config, pbench_token):
+    def test_put_missing_key(self, client, pbench_token):
         """
         Test behavior when JSON payload does not contain all required keys.
 
@@ -273,22 +268,22 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         specified but not required.
         """
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata/drb", json={}
+            f"{server.config.rest_uri}/datasets/metadata/drb", json={}
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Missing required parameters: metadata"
 
-    def test_put_no_dataset(self, client, server_config, attach_dataset):
+    def test_put_no_dataset(self, client, attach_dataset):
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata/foobar",
+            f"{server.config.rest_uri}/datasets/metadata/foobar",
             json={"metadata": {"global.seen": True, "global.saved": False}},
         )
         assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json == {"message": "Dataset 'foobar' not found"}
 
-    def test_put_bad_keys(self, client, server_config, attach_dataset):
+    def test_put_bad_keys(self, client, attach_dataset):
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata/drb",
+            f"{server.config.rest_uri}/datasets/metadata/drb",
             json={
                 "metadata": {"xyzzy": "private", "what": "sup", "global.saved": True}
             },
@@ -298,9 +293,9 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed namespaces are ['dataset.name', 'global', 'server.deletion', 'user']"
         }
 
-    def test_put_reserved_metadata(self, client, server_config, attach_dataset):
+    def test_put_reserved_metadata(self, client, attach_dataset):
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata/drb",
+            f"{server.config.rest_uri}/datasets/metadata/drb",
             json={"metadata": {"dataset.access": "private"}},
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST

@@ -1,7 +1,6 @@
 import pytest
 from sqlalchemy import or_
 
-from pbench.server.database.database import Database
 from pbench.server.database.models.dataset import (
     Dataset,
     DatasetBadParameterType,
@@ -15,6 +14,7 @@ from pbench.server.database.models.dataset import (
     MetadataNotFound,
 )
 from pbench.server.database.models.user import User
+from pbench.server.globals import server
 
 
 class TestGetSetMetadata:
@@ -189,14 +189,14 @@ class TestMetadataNamespace:
         # See if we can create a metadata row
         ds = Dataset.query(name="drb")
         user1 = User.query(username="drb")
-        metadata_db_query = Database.db_session.query(Metadata)
+        metadata_db_query = server.db_session.query(Metadata)
         assert ds.metadatas == []
         t = Metadata.create(key="user", value=True, dataset=ds, user_id=user1.id)
         assert t is not None
         assert ds.metadatas == [t]
-        assert Database.db_session.query(Metadata).filter_by(
-            user_id=user1.id
-        ).all() == [t]
+        assert server.db_session.query(Metadata).filter_by(user_id=user1.id).all() == [
+            t
+        ]
 
         user2 = User.query(username="test")
         d = Metadata.create(key="user", value=False, dataset=ds, user_id=user2.id)
@@ -334,7 +334,7 @@ class TestMetadataNamespace:
 
         # Peek under the carpet to look for orphaned metadata objects linked
         # to the deleted Dataset
-        metadata = Database.db_session.query(Metadata).filter_by(dataset_ref=id).first()
+        metadata = server.db_session.query(Metadata).filter_by(dataset_ref=id).first()
         assert metadata is None
 
     def test_setgetvalue_user(self, attach_dataset):
@@ -402,7 +402,7 @@ class TestMetadataNamespace:
         )
         assert Metadata.getvalue(ds, "dataset.name") == name
 
-    def test_mutable_server(self, server_config, attach_dataset):
+    def test_mutable_server(self, attach_dataset):
         """
         Set the dataset deletion time to a valid date/time string
         """
@@ -423,7 +423,7 @@ class TestMetadataNamespace:
             ),
         ],
     )
-    def test_mutable_server_bad(self, server_config, attach_dataset, value, message):
+    def test_mutable_server_bad(self, attach_dataset, value, message):
         """
         Try out some invalid deletion time values.
 

@@ -1,8 +1,6 @@
 from http import HTTPStatus
 
-from flask import current_app
-
-from pbench.server import JSON, OperationCode, PbenchServerConfig
+from pbench.server import JSON, OperationCode
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     APIInternalError,
@@ -17,6 +15,7 @@ from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 from pbench.server.database.models.dataset import Dataset
 from pbench.server.database.models.template import TemplateNotFound
+from pbench.server.globals import server
 
 
 class SampleNamespace(IndexMapBase):
@@ -27,9 +26,11 @@ class SampleNamespace(IndexMapBase):
     selecting for certain fields or certain values within those fields.
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "datasets_namespace"
+    urls = ["datasets/namespace/<string:dataset>/<string:dataset_view>"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,
@@ -67,7 +68,7 @@ class SampleNamespace(IndexMapBase):
 
         document_index = document["index"]
 
-        current_app.logger.info(
+        server.logger.info(
             "Return {} namespace for dataset {}, prefix {}",
             document_index,
             dataset,
@@ -180,10 +181,11 @@ class SampleValues(IndexMapBase):
 
     DOCUMENT_SIZE = 10000  # Number of documents to return in one page
     SCROLL_EXPIRY = "1m"  # Scroll id expires in 1 minute
+    endpoint = "datasets_values"
+    urls = ["datasets/values/<string:dataset>/<string:dataset_view>"]
 
-    def __init__(self, config: PbenchServerConfig):
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.POST,
                 OperationCode.READ,
@@ -249,7 +251,7 @@ class SampleValues(IndexMapBase):
 
         document_index = document["index"]
 
-        current_app.logger.info(
+        server.logger.info(
             "Return {} rows {} for dataset {}, prefix {}",
             document_index,
             "next page " if scroll_id else "",
@@ -342,7 +344,7 @@ class SampleValues(IndexMapBase):
         try:
             count = int(es_json["hits"]["total"]["value"])
             if count == 0:
-                current_app.logger.info("No data returned by Elasticsearch")
+                server.logger.info("No data returned by Elasticsearch")
                 return {}
 
             results = [hit["_source"] for hit in es_json["hits"]["hits"]]

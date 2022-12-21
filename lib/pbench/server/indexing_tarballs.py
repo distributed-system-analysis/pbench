@@ -24,6 +24,7 @@ from pbench.server.database.models.dataset import (
     Metadata,
     States,
 )
+from pbench.server.globals import server
 from pbench.server.indexer import es_index, IdxContext, PbenchTarBall, VERSION
 from pbench.server.report import Report
 from pbench.server.sync import Operation, Sync
@@ -149,10 +150,10 @@ class Index:
 
         # We'll use a cache manager instance to find the INCOMING directory for the
         # unpacked tarballs.
-        self.cache_manager: CacheManager = CacheManager(idxctx.config, idxctx.logger)
+        self.cache_manager: CacheManager = CacheManager()
 
         # Manage synchronization between components
-        self.sync: Sync = Sync(idxctx.logger, "index")  # Build a sync object
+        self.sync: Sync = Sync("index")  # Build a sync object
 
     def collect_tb(self) -> Tuple[int, List[TarballData]]:
         """Collect tarballs that need indexing
@@ -170,7 +171,6 @@ class Index:
         """
 
         tarballs: List[TarballData] = []
-        idxctx = self.idxctx
         error_code = self.error_code
         try:
             for dataset in self.sync.next(self.operation):
@@ -194,7 +194,7 @@ class Index:
             # exception handling below.
             raise
         except Exception as e:
-            idxctx.logger.error(
+            server.logger.error(
                 "{} generating list of tar balls to process: {}",
                 error_code["GENERIC_ERROR"].message,
                 str(e),
@@ -203,7 +203,7 @@ class Index:
             return (error_code["GENERIC_ERROR"].value, [])
         else:
             if not tarballs:
-                idxctx.logger.info("No tar balls found that need processing")
+                server.logger.info("No tar balls found that need processing")
 
         return (error_code["OK"].value, sorted(tarballs, key=lambda t: t.size))
 
@@ -214,7 +214,7 @@ class Index:
 
         Args
             logger_method -- Reference to a method of a Python logger object,
-                            like idxctx.logger.warning
+                            like server.logger.warning
             error -- An error code name from the Errors collection, like "OK"
             exception -- the original exception leading to the error
 
@@ -242,21 +242,21 @@ class Index:
         try:
             # Now that we are ready to begin the actual indexing step, ensure we
             # have the proper index templates in place.
-            idxctx.logger.debug("update_templates [start]")
+            server.logger.debug("update_templates [start]")
             idxctx.templates.update_templates(idxctx.es)
         except TemplateError as e:
-            res = self.emit_error(idxctx.logger.error, "TEMPLATE_CREATION_ERROR", e)
+            res = self.emit_error(server.logger.error, "TEMPLATE_CREATION_ERROR", e)
         except SigTermException:
             # Re-raise a SIGTERM to avoid it being lumped in with general
             # exception handling below.
             raise
         except Exception:
-            idxctx.logger.exception(
+            server.logger.exception(
                 "update_templates [end]: Unexpected template" " processing error"
             )
             res = error_code["GENERIC_ERROR"]
         else:
-            idxctx.logger.debug("update_templates [end]")
+            server.logger.debug("update_templates [end]")
             res = error_code["OK"]
 
         if not res.success:
@@ -264,7 +264,6 @@ class Index:
             return res
 
         self.report = Report(
-            idxctx.config,
             self.name,
             es=idxctx.es,
             pid=idxctx.getpid(),
@@ -284,7 +283,7 @@ class Index:
             # exception handling below.
             raise
         except Exception:
-            idxctx.logger.error("Failed to post initial report status")
+            server.logger.error("Failed to post initial report status")
             return error_code["GENERIC_ERROR"]
         else:
             idxctx.set_tracking_id(tracking_id)
@@ -308,15 +307,15 @@ class Index:
 
         res = self.load_templates()
         if not res.success:
-            idxctx.logger.info("Load templates {!r}", res)
+            server.logger.info("Load templates {!r}", res)
             return res.value
 
-        idxctx.logger.debug("Preparing to index {:d} tar balls", len(tb_deque))
+        server.logger.debug("Preparing to index {:d} tar balls", len(tb_deque))
 
         with tempfile.TemporaryDirectory(
-            prefix=f"{self.name}.", dir=idxctx.config.TMP
+            prefix=f"{self.name}.", dir=server.config.TMP
         ) as tmpdir:
-            idxctx.logger.debug("start processing list of tar balls")
+            server.logger.debug("start processing list of tar balls")
             tb_list = Path(tmpdir, f"{self.name}.{idxctx.TS}.list")
             try:
                 with tb_list.open(mode="w") as lfp:
@@ -357,7 +356,7 @@ class Index:
                         tb = tbinfo.tarball
                         count_processed_tb += 1
 
-                        idxctx.logger.info("Starting {} (size {:d})", tb, size)
+                        server.logger.info("Starting {} (size {:d})", tb, size)
                         audit = None
                         ptb = None
                         tb_res = error_code["OK"]
@@ -372,7 +371,7 @@ class Index:
                                     dataset.resource_id
                                 )
                                 if not tarobj.unpacked:
-                                    idxctx.logger.warning(
+                                    server.logger.warning(
                                         "{} has not been unpacked", dataset
                                     )
                                     continue
@@ -406,14 +405,14 @@ class Index:
                             )
 
                             # "Open" the tar ball represented by the tar ball object
-                            idxctx.logger.debug("open tar ball")
+                            server.logger.debug("open tar ball")
                             ptb = PbenchTarBall(idxctx, dataset, path, tmpdir, unpacked)
 
                             # Construct the generator for emitting all actions.
                             # The `idxctx` dictionary is passed along to each
                             # generator so that it can add its context for
                             # error handling to the list.
-                            idxctx.logger.debug("generator setup")
+                            server.logger.debug("generator setup")
                             if self.options.index_tool_data:
                                 actions = ptb.mk_tool_data_actions()
                             else:
@@ -423,18 +422,17 @@ class Index:
                             # record all indexing errors that can't/won't be
                             # retried.
                             with ie_filepath.open(mode="w") as fp:
-                                idxctx.logger.debug("begin indexing")
+                                server.logger.debug("begin indexing")
                                 try:
                                     signal.signal(signal.SIGINT, sigint_handler)
                                     es_res = es_index(
                                         idxctx.es,
                                         actions,
                                         fp,
-                                        idxctx.logger,
                                         idxctx._dbg,
                                     )
                                 except SigIntException:
-                                    idxctx.logger.exception(
+                                    server.logger.exception(
                                         "Indexing interrupted by SIGINT, continuing to next tarball"
                                     )
                                     continue
@@ -443,32 +441,32 @@ class Index:
                                     signal.signal(signal.SIGINT, signal.SIG_IGN)
                         except UnsupportedTarballFormat as e:
                             tb_res = self.emit_error(
-                                idxctx.logger.warning, "TB_META_ABSENT", e
+                                server.logger.warning, "TB_META_ABSENT", e
                             )
                         except BadDate as e:
                             tb_res = self.emit_error(
-                                idxctx.logger.warning, "BAD_DATE", e
+                                server.logger.warning, "BAD_DATE", e
                             )
                         except FileNotFoundError as e:
                             tb_res = self.emit_error(
-                                idxctx.logger.warning, "FILE_NOT_FOUND_ERROR", e
+                                server.logger.warning, "FILE_NOT_FOUND_ERROR", e
                             )
                         except BadMDLogFormat as e:
                             tb_res = self.emit_error(
-                                idxctx.logger.warning, "BAD_METADATA", e
+                                server.logger.warning, "BAD_METADATA", e
                             )
                         except SigTermException:
-                            idxctx.logger.exception(
+                            server.logger.exception(
                                 "Indexing interrupted by SIGTERM, terminating"
                             )
                             break
                         except Exception as e:
                             tb_res = self.emit_error(
-                                idxctx.logger.exception, "GENERIC_ERROR", e
+                                server.logger.exception, "GENERIC_ERROR", e
                             )
                         else:
                             beg, end, successes, duplicates, failures, retries = es_res
-                            idxctx.logger.info(
+                            server.logger.info(
                                 "done indexing (start ts: {}, end ts: {}, duration:"
                                 " {:.2f}s, successes: {:d}, duplicates: {:d},"
                                 " failures: {:d}, retries: {:d})",
@@ -517,21 +515,21 @@ class Index:
                                                 dataset, Metadata.INDEX_MAP, map
                                             )
                                         except Exception as e:
-                                            idxctx.logger.exception(
+                                            server.logger.exception(
                                                 "Unexpected Metadata error on {}: {}",
                                                 ptb.tbname,
                                                 e,
                                             )
                                 except DatasetTransitionError:
-                                    idxctx.logger.exception(
+                                    server.logger.exception(
                                         "Dataset state error: {}", ptb.tbname
                                     )
                                 except DatasetError as e:
-                                    idxctx.logger.exception(
+                                    server.logger.exception(
                                         "Dataset error on {}: {}", ptb.tbname, e
                                     )
                                 except Exception as e:
-                                    idxctx.logger.exception(
+                                    server.logger.exception(
                                         "Unexpected error on {}: {}", ptb.tbname, e
                                     )
                             if audit:
@@ -555,7 +553,7 @@ class Index:
                             # general exception handling below.
                             raise
                         except Exception:
-                            idxctx.logger.exception(
+                            server.logger.exception(
                                 "Unexpected error handling" " indexing errors file: {}",
                                 ie_filepath,
                             )
@@ -567,7 +565,7 @@ class Index:
                                         tstos(end), "errors", ie_filepath
                                     )
                                 except Exception:
-                                    idxctx.logger.exception(
+                                    server.logger.exception(
                                         "Unexpected error issuing"
                                         " report status with errors: {}",
                                         ie_filepath,
@@ -591,7 +589,7 @@ class Index:
                         # the error in the `server.errors.index` metadata and
                         # leave the dataset in INDEXING state.
                         if tb_res.success:
-                            idxctx.logger.info(
+                            server.logger.info(
                                 "{}: {}: success",
                                 idxctx.TS,
                                 os.path.basename(tb),
@@ -622,7 +620,7 @@ class Index:
                             with erred.open(mode="a") as fp:
                                 print(tb, file=fp)
                             self.sync.error(dataset, f"{tb_res.value}:{tb_res.message}")
-                        idxctx.logger.info(
+                        server.logger.info(
                             "Finished{} {} (size {:d})",
                             "[SIGQUIT]" if sigquit_interrupt[0] else "",
                             tb,
@@ -635,12 +633,12 @@ class Index:
                             status, new_tb = self.collect_tb()
                             if status == 0:
                                 if not set(new_tb).issuperset(tb_deque):
-                                    idxctx.logger.info(
+                                    server.logger.info(
                                         "Tarballs previously marked for indexing are no longer present",
                                         set(tb_deque).difference(new_tb),
                                     )
                                 tb_deque = deque(sorted(new_tb))
-                            idxctx.logger.info(
+                            server.logger.info(
                                 "SIGHUP status (Current tar ball indexed: ({}), Remaining: {}, Completed: {}, Errors_encountered: {}, Status: {})",
                                 Path(tb).name,
                                 len(tb_deque),
@@ -651,7 +649,7 @@ class Index:
                             sighup_interrupt[0] = False
                             continue
                 except SigTermException:
-                    idxctx.logger.exception(
+                    server.logger.exception(
                         "Indexing interrupted by SIGQUIT, stop processing tarballs"
                     )
                 finally:
@@ -663,7 +661,7 @@ class Index:
                 # exception handling below.
                 raise
             except Exception:
-                idxctx.logger.exception(error_code["GENERIC_ERROR"].message)
+                server.logger.exception(error_code["GENERIC_ERROR"].message)
                 res = error_code["GENERIC_ERROR"]
             else:
                 # No exceptions while processing tar balls, success.
@@ -671,13 +669,13 @@ class Index:
             finally:
                 if idxctx:
                     idxctx.dump_opctx()
-                idxctx.logger.debug("stopped processing list of tar balls")
+                server.logger.debug("stopped processing list of tar balls")
 
                 idx = _count_lines(indexed)
                 skp = _count_lines(skipped)
                 err = _count_lines(erred)
 
-                idxctx.logger.info(
+                server.logger.info(
                     "{}.{}: indexed {:d} (skipped {:d}) results," " {:d} errors",
                     self.name,
                     idxctx.TS,

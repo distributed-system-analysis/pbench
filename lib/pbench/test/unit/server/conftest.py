@@ -19,7 +19,7 @@ import pytest
 from requests import Response
 
 from pbench.common import MetadataLog
-from pbench.common.logger import get_pbench_logger
+from pbench.common.logger import _PbenchLogFormatter, _StyleAdapter
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 import pbench.server.auth.auth as Auth
@@ -28,6 +28,7 @@ from pbench.server.database.models.active_token import ActiveToken
 from pbench.server.database.models.dataset import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.user import User
+from pbench.server.globals import destroy_server_ctx, init_server_ctx, server
 from pbench.test import on_disk_config
 from pbench.test.unit.server.headertypes import HeaderTypes
 
@@ -111,26 +112,89 @@ def on_disk_server_config(tmp_path_factory) -> Dict[str, Path]:
 
 
 @pytest.fixture()
-def server_config(on_disk_server_config, monkeypatch) -> PbenchServerConfig:
-    """
-    Mock a pbench-server.cfg configuration as defined above.
+def server_config_obj(on_disk_server_config, monkeypatch):
+    """Mock a pbench-server.cfg configuration as defined above.
 
     Args:
         on_disk_server_config: the on-disk server configuration setup
         monkeypatch: testing environment patch fixture
 
     Returns:
-        a PbenchServerConfig object the test case can use
+        a PbenchServerConfig object
     """
     cfg_file = on_disk_server_config["cfg_dir"] / "pbench-server.cfg"
     monkeypatch.setenv("_PBENCH_SERVER_CONFIG", str(cfg_file))
-
-    server_config = get_server_config()
-    return server_config
+    return get_server_config()
 
 
 @pytest.fixture()
-def client(server_config, fake_email_validator):
+def server_globals():
+    """Setup the server global context variable."""
+    init_server_ctx()
+    yield
+    destroy_server_ctx()
+
+
+@pytest.fixture()
+def server_config(server_config_obj, server_globals) -> PbenchServerConfig:
+    """Setup the server config context variable."""
+    assert server.config is None
+    _fixture_config = server_config_obj
+    server.config = _fixture_config
+    yield
+    assert server.config is _fixture_config
+    server.config = None
+
+
+@pytest.fixture(scope="session")
+def session_logger():
+    """Construct a single Pbench Logger object for the entire session."""
+    logger = logging.getLogger("unit-tests-server")
+    logger.setLevel(logging.DEBUG)
+    handler = logging.NullHandler()
+    logfmt = "{levelname} {module} {funcName} -- {message}"
+    formatter = _PbenchLogFormatter(fmt=logfmt)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    return _StyleAdapter(logger)
+
+
+@pytest.fixture()
+def server_logger(server_config, session_logger):
+    """Setup the server logger context variable."""
+    assert server.logger is None
+    _fixture_logger = session_logger
+    server.logger = _fixture_logger
+    yield
+    assert server.logger is _fixture_logger
+    server.logger = None
+
+
+@pytest.fixture()
+def db_session(server_config, server_logger):
+    """Construct a temporary DB session for the test case that will reset on
+    completion.
+
+    NOTE: the client fixture uses `create_app()` which also eventually calls
+    Database.init_db().  As such, do not use the `client` fixture with
+    `db_session`.
+
+    Args:
+        server_config: pbench-server.cfg fixture
+        server_logger: logger fixture
+    """
+    assert server.db_session is None
+    Database.init_db()
+    assert server.db_session is not None
+    db = server.db_session
+    yield
+    assert server.db_session is db
+    server.db_session.remove()
+    server.db_session = None
+
+
+@pytest.fixture()
+def client(server_config_obj, fake_email_validator):
     """A test client for the app.
 
     Fixtures:
@@ -143,8 +207,22 @@ def client(server_config, fake_email_validator):
     NOTE: The Flask app initialization includes setting up the SQLAlchemy DB.
     For test cases that require the DB but not a full Flask app context, use
     the db_session fixture instead, which adds DB cleanup after the test.
+
+    NOTE as well: the `create_app()` method sets up the server.config and
+    .logger context variables, so don't use this fixture with `server_config`
+    or `server_logger`.
     """
-    app = create_app(server_config)
+    app = create_app(server_config_obj)
+
+    # Verfiy that the created Pbench Server Flask app also setup the server
+    # context variables.
+    assert server.config is not None
+    assert server.db_session is not None
+    assert server.logger is not None
+    # We remember the context variables to verify during cleanup below.
+    cf = server.config
+    db = server.db_session
+    lg = server.logger
 
     app_client = app.test_client()
     app_client.logger = app.logger
@@ -155,13 +233,10 @@ def client(server_config, fake_email_validator):
     with app.app_context():
         yield app_client
 
-
-@pytest.fixture()
-def make_logger(server_config):
-    """
-    Construct a Pbench Logger object
-    """
-    return get_pbench_logger("TEST", server_config)
+    assert server.config is cf
+    assert server.db_session is db
+    assert server.logger is lg
+    destroy_server_ctx()
 
 
 @pytest.fixture()
@@ -183,29 +258,6 @@ def capinternal(caplog):
         ), f"Expected pattern {internal.pattern!r} not logged at level 'ERROR': {[str(r.msg) for r in caplog.get_records('call')]}"
 
     return compare
-
-
-@pytest.fixture()
-def db_session(request, server_config, make_logger):
-    """
-    Construct a temporary DB session for the test case that will reset on
-    completion.
-
-    NOTE: the client fixture does something similar, but without the implicit
-    cleanup, and with the addition of a Flask context that non-API tests don't
-    require. We can't let both initialize the database, or we may lose some
-    fixture setup between calls. This fixture will do nothing on load if the
-    client fixture is also selected, but we'll still remove the DB afterwards.
-
-    Args:
-        request: Access to pytest's request context
-        server_config: pbench-server.cfg fixture
-        make_logger: produce a Pbench Server logger
-    """
-    if "client" not in request.fixturenames:
-        Database.init_db(server_config, make_logger)
-    yield
-    Database.db_session.remove()
 
 
 @pytest.fixture()
@@ -345,7 +397,6 @@ def attach_dataset(create_drb_user, create_user):
 @pytest.fixture()
 def more_datasets(
     client,
-    server_config,
     attach_dataset,
     create_drb_user,
     create_admin_user,
@@ -369,7 +420,6 @@ def more_datasets(
 
     Args:
         client: Provide a Flask API client
-        server_config: Provide a Pbench server configuration
         create_drb_user: Create the "drb" user
         create_admin_user: Create the "test_admin" user
         attach_dataset: Provide some datasets
@@ -756,7 +806,7 @@ def find_template(monkeypatch, fake_mtime):
 
 
 @pytest.fixture()
-def create_drb_user(client, server_config, fake_email_validator):
+def create_drb_user(client, fake_email_validator):
     # Create a user
     drb = User(
         email="drb@example.com",
@@ -883,7 +933,6 @@ def generate_token(
 @pytest.fixture(params=[header for header in HeaderTypes])
 def build_auth_header(
     request,
-    server_config,
     pbench_token,
     pbench_admin_token,
     pbench_token_invalid,

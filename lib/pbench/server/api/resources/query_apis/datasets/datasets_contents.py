@@ -1,8 +1,6 @@
 from http import HTTPStatus
 
-from flask import current_app
-
-from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server import OperationCode
 from pbench.server.api.resources import (
     ApiAuthorizationType,
     ApiMethod,
@@ -15,6 +13,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
+from pbench.server.globals import server
 
 
 class DatasetsContents(IndexMapBase):
@@ -24,10 +23,14 @@ class DatasetsContents(IndexMapBase):
     """
 
     MAX_SIZE = 10000
+    endpoint = "datasets_contents"
+    urls = [
+        "datasets/contents/<string:dataset>/",
+        "datasets/contents/<string:dataset>/<path:target>",
+    ]
 
-    def __init__(self, config: PbenchServerConfig):
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,
@@ -56,7 +59,7 @@ class DatasetsContents(IndexMapBase):
 
         dataset = context["dataset"]
 
-        current_app.logger.info(
+        server.logger.info(
             "Discover dataset {} Contents, directory {}",
             dataset.name,
             target,

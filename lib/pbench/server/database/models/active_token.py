@@ -5,6 +5,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from pbench.server.database.database import Database
+from pbench.server.globals import server
 
 AT = TypeVar("AT", bound="ActiveToken")
 
@@ -37,7 +38,7 @@ class ActiveToken(Database.Base):
     def query(token: str) -> AT:
         # We currently only query token database for a specific token.
         token_model = (
-            Database.db_session.query(ActiveToken).filter_by(token=token).first()
+            server.db_session.query(ActiveToken).filter_by(token=token).first()
         )
         return token_model
 
@@ -49,8 +50,8 @@ class ActiveToken(Database.Base):
             token : auth token to delete
         """
         try:
-            Database.db_session.query(ActiveToken).filter_by(token=token).delete()
-            Database.db_session.commit()
+            server.db_session.query(ActiveToken).filter_by(token=token).delete()
+            server.db_session.commit()
         except Exception:
-            Database.db_session.rollback()
+            server.db_session.rollback()
             raise

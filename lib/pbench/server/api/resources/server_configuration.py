@@ -1,10 +1,9 @@
 from http import HTTPStatus
 
-from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import OperationCode, PbenchServerConfig
+from pbench.server import OperationCode
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
@@ -24,6 +23,7 @@ from pbench.server.database.models.server_config import (
     ServerConfigBadValue,
     ServerConfigError,
 )
+from pbench.server.globals import server
 
 
 class ServerConfiguration(ApiBase):
@@ -31,9 +31,15 @@ class ServerConfiguration(ApiBase):
     API class to retrieve and mutate server configuration settings.
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "server_configuration"
+    urls = [
+        "server/configuration",
+        "server/configuration/",
+        "server/configuration/<string:key>",
+    ]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.PUT,
                 OperationCode.UPDATE,
@@ -199,7 +205,7 @@ class ServerConfiguration(ApiBase):
             except ServerConfigBadValue as e:
                 failures.append(str(e))
             except Exception as e:
-                current_app.logger.warning("{}", e)
+                server.logger.warning("{}", e)
                 raise APIInternalError(f"Error setting server configuration {k}")
         if failures:
             raise APIAbort(HTTPStatus.BAD_REQUEST, message=", ".join(failures))

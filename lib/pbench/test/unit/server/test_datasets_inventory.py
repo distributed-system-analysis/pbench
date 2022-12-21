@@ -7,18 +7,18 @@ import werkzeug.utils
 
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.dataset import Dataset, DatasetNotFound
+from pbench.server.globals import server
 
 
 class TestDatasetsAccess:
     @pytest.fixture()
-    def query_get_as(self, client, server_config, more_datasets, pbench_token):
+    def query_get_as(self, client, more_datasets, pbench_token):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
 
         Args:
             client: Flask test API client fixture
-            server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             pbench_token: Authenticated user token fixture
         """
@@ -33,7 +33,7 @@ class TestDatasetsAccess:
             headers = {"authorization": f"bearer {pbench_token}"}
             k = "" if target is None else f"/{target}"
             response = client.get(
-                f"{server_config.rest_uri}/datasets/inventory/{dataset_id}{k}",
+                f"{server.config.rest_uri}/datasets/inventory/{dataset_id}{k}",
                 headers=headers,
             )
             assert response.status_code == expected_status

@@ -16,6 +16,7 @@ from pbench.server.cache_manager import (
     TarballUnpackError,
 )
 from pbench.server.database.models.dataset import Dataset, DatasetBadName
+from pbench.server.globals import server
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -24,7 +25,7 @@ def file_sweeper(server_config):
     Make sure that the required directory trees exist before each test case,
     and clean up afterwards.
     """
-    trees = [server_config.ARCHIVE, server_config.INCOMING, server_config.RESULTS]
+    trees = [server.config.ARCHIVE, server.config.INCOMING, server.config.RESULTS]
 
     for tree in trees:
         tree.mkdir(parents=True, exist_ok=True)
@@ -60,11 +61,11 @@ def selinux_enabled(monkeypatch):
 
 
 class TestCacheManager:
-    def test_create(self, server_config, make_logger):
+    def test_create(self, server_config, server_logger):
         """
         Create an empty CacheManager object and check the properties
         """
-        cm = CacheManager(server_config, make_logger)
+        cm = CacheManager()
         assert cm is not None
         assert not cm.datasets  # No datasets expected
         assert not cm.tarballs  # No datasets expected
@@ -77,21 +78,21 @@ class TestCacheManager:
         assert str(cm.incoming_root) == root + "/srv/pbench/public_html/incoming"
         assert str(cm.results_root) == root + "/srv/pbench/public_html/results"
 
-    def test_discover_empties(self, server_config, make_logger):
+    def test_discover_empties(self, server_config, server_logger):
         """
         Full discovery with no controllers or datasets
         """
-        cm = CacheManager(server_config, make_logger)
+        cm = CacheManager()
         cm.full_discovery()
         assert not cm.datasets  # No datasets expected
         assert not cm.tarballs  # No datasets expected
         assert not cm.controllers  # No controllers expected
 
-    def test_empty_controller(self, server_config, make_logger):
+    def test_empty_controller(self, server_config, server_logger):
         """
         Discover a "controller" directory with no datasets
         """
-        cm = CacheManager(server_config, make_logger)
+        cm = CacheManager()
         test_controller = cm.archive_root / "TEST"
         test_controller.mkdir()
         cm.full_discovery()
@@ -99,11 +100,11 @@ class TestCacheManager:
         assert not cm.tarballs  # No datasets expected
         assert list(cm.controllers.keys()) == ["TEST"]
 
-    def test_clean_empties(self, server_config, make_logger):
+    def test_clean_empties(self, server_config, server_logger):
         """
         Test that empty controller directories are removed
         """
-        cm = CacheManager(server_config, make_logger)
+        cm = CacheManager()
         controllers = ["PLUGH", "XYZZY"]
         roots = [cm.archive_root, cm.incoming_root, cm.results_root]
         for c in controllers:
@@ -120,7 +121,7 @@ class TestCacheManager:
             for r in roots:
                 assert not (r / c).exists()
 
-    def test_create_bad(self, selinux_disabled, server_config, make_logger, tarball):
+    def test_create_bad(self, selinux_disabled, server_config, server_logger, tarball):
         """
         Test several varieties of dataset errors:
 
@@ -128,9 +129,8 @@ class TestCacheManager:
         2) Attempt to create a new dataset from a non-existent file
         3) Attempt to create a dataset that already exists
         """
-
+        cm = CacheManager()
         source_tarball, source_md5, md5 = tarball
-        cm = CacheManager(server_config, make_logger)
 
         # Attempting to create a dataset from the md5 file should result in
         # a bad filename error
@@ -157,14 +157,13 @@ class TestCacheManager:
         )
         assert exc.value.tarball == tarball.name
 
-    def test_duplicate(self, selinux_disabled, server_config, make_logger, tarball):
+    def test_duplicate(self, selinux_disabled, server_config, server_logger, tarball):
         """
         Test behavior when we try to create a new dataset but the tarball file
         name already exists
         """
-
+        cm = CacheManager()
         source_tarball, source_md5, md5 = tarball
-        cm = CacheManager(server_config, make_logger)
 
         # Create a tarball file in the expected destination directory
         controller = cm.archive_root / "ABC"
@@ -458,7 +457,7 @@ class TestCacheManager:
             assert tb.results_link == results / tb.name
 
     def test_find(
-        self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
+        self, selinux_enabled, server_config, server_logger, tarball, monkeypatch
     ):
         """
         Create a dataset, check the cache manager state, and test that we can find it
@@ -473,7 +472,7 @@ class TestCacheManager:
 
         source_tarball, source_md5, md5 = tarball
         dataset_name = Dataset.stem(source_tarball)
-        cm = CacheManager(server_config, make_logger)
+        cm = CacheManager()
         cm.create("ABC", source_tarball)
 
         # The original files should have been removed
@@ -524,7 +523,7 @@ class TestCacheManager:
 
         # We should be able to find the tarball even in a new cache manager
         # that hasn't been fully discovered.
-        new = CacheManager(server_config, make_logger)
+        new = CacheManager()
         assert md5 not in new
 
         tarball = new.find_dataset(md5)
@@ -542,7 +541,7 @@ class TestCacheManager:
         assert list(new.tarballs) == [dataset_name]
 
     def test_lifecycle(
-        self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
+        self, selinux_enabled, server_config, server_logger, tarball, monkeypatch
     ):
         """
         Create a dataset, unpack it, remove the unpacked version, and finally
@@ -556,7 +555,7 @@ class TestCacheManager:
             )
 
         source_tarball, source_md5, md5 = tarball
-        cm = CacheManager(server_config, make_logger)
+        cm = CacheManager()
         archive = cm.archive_root / "ABC"
         incoming = cm.incoming_root / "ABC"
         results = cm.results_root / "ABC"
@@ -607,7 +606,7 @@ class TestCacheManager:
         assert cm.datasets[md5].results_link == results_link
 
         # Re-discover, with all the files in place, and compare
-        newcm = CacheManager(server_config, make_logger)
+        newcm = CacheManager()
         newcm.full_discovery()
 
         assert newcm.archive_root == cm.archive_root

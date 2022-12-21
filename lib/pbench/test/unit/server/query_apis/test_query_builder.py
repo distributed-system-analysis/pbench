@@ -16,7 +16,7 @@ USER_ID = "20"  # This is arbitrary, but can't match either fixture
 class TestQueryBuilder:
     @pytest.fixture()
     def elasticbase(self, client) -> ElasticBase:
-        return ElasticBase(client.config, ApiSchema(ApiMethod.POST, OperationCode.READ))
+        return ElasticBase(ApiSchema(ApiMethod.POST, OperationCode.READ))
 
     @pytest.fixture()
     def current_user_admin(self, monkeypatch):
@@ -72,7 +72,7 @@ class TestQueryBuilder:
             (ADMIN_ID, "public"),
         ],
     )
-    def test_admin(self, elasticbase, server_config, current_user_admin, user, access):
+    def test_admin(self, elasticbase, current_user_admin, user, access):
         """
         Test the query builder when we have an authenticated admin user; all of
         these build query terms matching the input terms since we impose no
@@ -108,7 +108,7 @@ class TestQueryBuilder:
             ),
         ],
     )
-    def test_auth(self, elasticbase, server_config, current_user_drb, ask, expect):
+    def test_auth(self, elasticbase, current_user_drb, ask, expect):
         """
         Test the query builder when we have an authenticated user.
 
@@ -139,7 +139,7 @@ class TestQueryBuilder:
             ),
         ],
     )
-    def test_noauth(self, elasticbase, server_config, current_user_none, ask, expect):
+    def test_noauth(self, elasticbase, current_user_none, ask, expect):
         """
         Test the query builder when we have an unauthenticated client.
         """
@@ -150,7 +150,7 @@ class TestQueryBuilder:
         filter = self.assemble(term, expect.get("user"), expect.get("access"))
         assert query == {"bool": {"filter": filter}}
 
-    def test_neither_auth(self, elasticbase, server_config, current_user_drb):
+    def test_neither_auth(self, elasticbase, current_user_drb):
         """
         Test the query builder for {} when the client is authenticated with a
         non-admin account. This is the most complicated query, translating to

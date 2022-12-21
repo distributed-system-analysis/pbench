@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
-from flask import current_app, jsonify
+from flask import jsonify
 
-from pbench.server import JSON, OperationCode, PbenchServerConfig
+from pbench.server import JSON, OperationCode
 from pbench.server.api.resources import (
     ApiMethod,
     ApiParams,
@@ -16,6 +16,7 @@ from pbench.server.api.resources.query_apis import (
     ElasticBase,
     PostprocessError,
 )
+from pbench.server.globals import server
 from pbench.server.utils import UtcTimeHelper
 
 
@@ -25,9 +26,11 @@ class DatasetsSearch(ElasticBase):
     applying client specified search term within specified start and end time.
     """
 
-    def __init__(self, config: PbenchServerConfig):
+    endpoint = "datasets_search"
+    urls = ["datasets/search"]
+
+    def __init__(self):
         super().__init__(
-            config,
             ApiSchema(
                 ApiMethod.POST,
                 OperationCode.READ,
@@ -91,7 +94,7 @@ class DatasetsSearch(ElasticBase):
         start_arg = UtcTimeHelper(start).to_iso_string()
         end_arg = UtcTimeHelper(end).to_iso_string()
 
-        current_app.logger.info(
+        server.logger.info(
             "Search query for user {}, prefix {}: ({} - {}) on query: {}",
             user,
             self.prefix,
@@ -101,7 +104,7 @@ class DatasetsSearch(ElasticBase):
         )
 
         uri_fragment = self._gen_month_range("run", start, end)
-        current_app.logger.info("fragment, {}", uri_fragment)
+        server.logger.info("fragment, {}", uri_fragment)
         return {
             "path": f"/{uri_fragment}/_search",
             "kwargs": {
@@ -150,7 +153,7 @@ class DatasetsSearch(ElasticBase):
         try:
             count = es_json["hits"]["total"]["value"]
             if int(count) == 0:
-                current_app.logger.info("No data returned by Elasticsearch")
+                server.logger.info("No data returned by Elasticsearch")
                 return jsonify([])
         except KeyError as e:
             raise PostprocessError(

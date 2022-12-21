@@ -7,12 +7,12 @@ from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 import uuid
 
 from dateutil import parser as date_parser
-from flask import current_app, request
+from flask import request
 from flask.wrappers import Request, Response
 from flask_restful import abort, Resource
 from sqlalchemy.orm.query import Query
 
-from pbench.server import JSON, JSONOBJECT, JSONVALUE, OperationCode, PbenchServerConfig
+from pbench.server import JSON, JSONOBJECT, JSONVALUE, OperationCode
 import pbench.server.auth.auth as Auth
 from pbench.server.database.models.audit import (
     Audit,
@@ -29,6 +29,7 @@ from pbench.server.database.models.dataset import (
 )
 from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.user import User
+from pbench.server.globals import server
 
 
 class APIAbort(Exception):
@@ -1109,7 +1110,6 @@ class ApiBase(Resource):
 
     def __init__(
         self,
-        config: PbenchServerConfig,
         *schemas: ApiSchema,
         always_enabled: bool = False,
     ):
@@ -1117,8 +1117,6 @@ class ApiBase(Resource):
         Base class constructor.
 
         Args:
-            config: server configuration
-            logger: logger object
             schemas: ApiSchema objects to provide parameter validation for the
                 various HTTP methods the API module supports. For example, for
                 GET, PUT, and DELETE.
@@ -1127,7 +1125,6 @@ class ApiBase(Resource):
                 be usable.
         """
         super().__init__()
-        self.config = config
         self.schemas = ApiSchemaSet(*schemas)
         self.always_enabled = always_enabled
 
@@ -1219,14 +1216,14 @@ class ApiBase(Resource):
             if user:
                 username = user.username
             else:
-                current_app.logger.error("User ID {} not found", user_id)
+                server.logger.error("User ID {} not found", user_id)
 
         # The ADMIN authorization doesn't involve a target resource owner or
         # access, so take care of that first as a special case. If there is
         # an authenticated user, and that user holds ADMIN access rights, the
         # check passes. Otherwise raise an "admin access" failure.
         if mode.type == ApiAuthorizationType.ADMIN:
-            current_app.logger.debug(
+            server.logger.debug(
                 "Authorizing {} access for {} to an administrative resource",
                 role,
                 authorized_user,
@@ -1241,7 +1238,7 @@ class ApiBase(Resource):
 
         access = mode.access
 
-        current_app.logger.debug(
+        server.logger.debug(
             "Authorizing {} access for {} to user {} ({}) with access {} using {}",
             role,
             authorized_user,
@@ -1271,7 +1268,7 @@ class ApiBase(Resource):
             if authorized_user is None:
                 # An unauthenticated user is never allowed to access private
                 # data nor to perform an potential mutation of data: REJECT
-                current_app.logger.warning(
+                server.logger.warning(
                     "Attempt to {} user {} data without login", role, username
                 )
                 raise UnauthorizedAccess(
@@ -1284,7 +1281,7 @@ class ApiBase(Resource):
             elif role != OperationCode.READ and user_id is None:
                 # No target user is specified, so we won't allow mutation of
                 # data: REJECT
-                current_app.logger.warning(
+                server.logger.warning(
                     "Unauthorized attempt by {} to {} data with defaulted user",
                     authorized_user,
                     role,
@@ -1300,7 +1297,7 @@ class ApiBase(Resource):
                 # We are mutating data, or reading private data, so the
                 # authenticated user must either be the owner of the data or
                 # must have ADMIN role: REJECT
-                current_app.logger.warning(
+                server.logger.warning(
                     "Unauthorized attempt by {} to {} user {} data",
                     authorized_user,
                     role,
@@ -1388,7 +1385,7 @@ class ApiBase(Resource):
         is_admin = authorized_user.is_admin() if authorized_user else False
         query = base_query
 
-        current_app.logger.debug(
+        server.logger.debug(
             "QUERY auth ID {}, user {!r}, access {!r}, admin {}",
             authorized_id,
             owner_id,
@@ -1419,28 +1416,24 @@ class ApiBase(Resource):
             owner_id and owner_id != authorized_id and not is_admin
         ):
             query = query.filter(Dataset.access == Dataset.PUBLIC_ACCESS)
-            current_app.logger.debug("QUERY: not self public")
+            server.logger.debug("QUERY: not self public")
         elif access:
             query = query.filter(Dataset.access == access)
             if not owner_id and access == Dataset.PRIVATE_ACCESS and not is_admin:
                 query = query.filter(Dataset.owner_id == authorized_id)
                 user_term = True
-            current_app.logger.debug(
-                "QUERY: user: {}, access: {}", authorized_id, access
-            )
+            server.logger.debug("QUERY: user: {}, access: {}", authorized_id, access)
         elif not owner_id and not is_admin:
             query = query.filter(
                 (Dataset.owner_id == authorized_id)
                 | (Dataset.access == Dataset.PUBLIC_ACCESS)
             )
             user_term = True
-            current_app.logger.debug(
-                "QUERY: self ({}) + public", authorized_user.username
-            )
+            server.logger.debug("QUERY: self ({}) + public", authorized_user.username)
         else:
             # Either "user" was specified and will be added to the filter,
             # or client is ADMIN and no access restrictions are required.
-            current_app.logger.debug(
+            server.logger.debug(
                 "QUERY: default, user: {}", owner_id if owner_id else authorized_user
             )
 
@@ -1514,7 +1507,7 @@ class ApiBase(Resource):
 
         api_name = self.__class__.__name__
 
-        current_app.logger.info("In {} {}: mime {}", method, api_name, request.mimetype)
+        server.logger.info("In {} {}: mime {}", method, api_name, request.mimetype)
 
         if method is ApiMethod.GET:
             execute = self._get
@@ -1569,7 +1562,7 @@ class ApiBase(Resource):
                 ApiParams(body=body_params, query=query_params, uri=uri_params),
             )
         except APIInternalError as e:
-            current_app.logger.exception("{} {}", api_name, e.details)
+            server.logger.exception("{} {}", api_name, e.details)
             abort(e.http_status, message=str(e))
         except APIAbort as e:
             abort(e.http_status, message=str(e))
@@ -1577,7 +1570,7 @@ class ApiBase(Resource):
             # Construct an APIInternalError to get the UUID and standard return
             # message.
             x = APIInternalError("Unexpected validation exception")
-            current_app.logger.exception("{} {}", api_name, x.details)
+            server.logger.exception("{} {}", api_name, x.details)
             abort(x.http_status, message=str(x))
 
         # Automatically authorize the operation only if the API schema for the
@@ -1591,16 +1584,16 @@ class ApiBase(Resource):
             try:
                 self._check_authorization(auth_params)
             except UnauthorizedAccess as e:
-                current_app.logger.warning("{}: {}", api_name, e)
+                server.logger.warning("{}: {}", api_name, e)
                 abort(e.http_status, message=str(e))
             except APIInternalError as e:
-                current_app.logger.exception("{} {}", api_name, e.details)
+                server.logger.exception("{} {}", api_name, e.details)
                 abort(e.http_status, message=str(e))
             except Exception:
                 # Construct an APIInternalError to get the UUID and standard return
                 # message.
                 x = APIInternalError("Unexpected authorize exception")
-                current_app.logger.exception("{} {}", api_name, x.details)
+                server.logger.exception("{} {}", api_name, x.details)
                 abort(x.http_status, message=str(x))
 
         audit = None
@@ -1646,7 +1639,7 @@ class ApiBase(Resource):
                 )
             return response
         except APIInternalError as e:
-            current_app.logger.exception("{} {}", api_name, e.details)
+            server.logger.exception("{} {}", api_name, e.details)
             abort(e.http_status, message=str(e))
         except APIAbort as e:
             if auditing["finalize"]:
@@ -1659,12 +1652,12 @@ class ApiBase(Resource):
                         attributes=attr,
                     )
                 except Exception:
-                    current_app.logger.error(
+                    server.logger.error(
                         "Unexpected exception on audit: {}", json.dumps(auditing)
                     )
             abort(e.http_status, message=str(e))
         except Exception as e:
-            current_app.logger.exception(
+            server.logger.exception(
                 "Exception {} API error: {}: {!r}", api_name, e, json.dumps(auditing)
             )
             if auditing["finalize"]:
