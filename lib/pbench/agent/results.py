@@ -311,20 +311,23 @@ class CopyResultTb:
         self.upload_url = f"{server_rest_url}/upload/{tbname}"
         self.logger = logger
 
-    def copy_result_tb(self, token: str) -> None:
+    def copy_result_tb(self, token: str, access: str) -> None:
         """Copies the tar ball from the agent to the configured server using upload
         API.
 
-        Args
-            token -- a token which establishes that the caller is
+        Args:
+            token: a token which establishes that the caller is
                 authorized to make the PUT request on behalf of a
                 specific user.
+            access: keyword that identifies whether a dataset needs
+                to be published public or private.
 
-        Raises
+        Raises:
             RuntimeError     if a connection to the server fails
             FileUploadError  if the tar ball failed to upload properly
 
         """
+        params = {"access": access}
         headers = {
             "Content-MD5": self.tarball_md5,
             "Authorization": f"Bearer {token}",
@@ -333,7 +336,7 @@ class CopyResultTb:
         with self.tarball.open("rb") as f:
             try:
                 request = requests.Request(
-                    "PUT", self.upload_url, data=f, headers=headers
+                    "PUT", self.upload_url, data=f, headers=headers, params=params
                 ).prepare()
 
                 # Per RFC 2616, a request must not contain both

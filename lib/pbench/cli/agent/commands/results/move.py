@@ -8,6 +8,7 @@ import click
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb, MakeResultTb
 from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli.agent.commands.results.results_options import results_common_options
 from pbench.cli.agent.options import common_options
 from pbench.common.exceptions import BadMDLogFormat
 from pbench.common.utils import validate_hostname
@@ -103,7 +104,7 @@ class MoveResults(BaseCommand):
                         self.config,
                         self.logger,
                     )
-                    crt.copy_result_tb(self.context.token)
+                    crt.copy_result_tb(self.context.token, self.context.access)
                 except Exception as exc:
                     if isinstance(exc, (CopyResultTb.FileUploadError, RuntimeError)):
                         msg = "Error uploading file"
@@ -173,6 +174,7 @@ class MoveResults(BaseCommand):
 
 @click.command(name="pbench-results-move")
 @common_options
+@results_common_options
 @click.option(
     "--controller",
     required=False,
@@ -210,6 +212,7 @@ class MoveResults(BaseCommand):
 def main(
     context: CliContext,
     controller: str,
+    access: str,
     token: str,
     delete: bool,
     xz_single_threaded: bool,
@@ -237,6 +240,7 @@ def main(
         clk_ctx.exit(1)
     context.controller = controller
 
+    context.access = access
     context.token = token
 
     if show_server:

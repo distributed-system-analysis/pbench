@@ -5,6 +5,7 @@ import click
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb
 from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli.agent.commands.results.results_options import results_common_options
 from pbench.cli.agent.options import common_options
 from pbench.common.utils import md5sum
 
@@ -23,12 +24,13 @@ class ResultsPush(BaseCommand):
             self.config,
             self.logger,
         )
-        crt.copy_result_tb(self.context.token)
+        crt.copy_result_tb(self.context.token, self.context.access)
         return 0
 
 
 @click.command(name="pbench-results-push")
 @common_options
+@results_common_options
 @click.option(
     "--token",
     required=True,
@@ -54,6 +56,7 @@ def main(
     controller: str,
     result_tb_name: str,
     token: str,
+    access: str,
 ):
     """Push a result tar ball to the configured Pbench server.
 
@@ -68,6 +71,7 @@ def main(
     context.controller = controller
     context.result_tb_name = result_tb_name
     context.token = token
+    context.access = access
 
     try:
         rv = ResultsPush(context).execute()

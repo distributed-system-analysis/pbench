@@ -39,6 +39,7 @@ class TestMoveResults:
 
     CTRL_SWITCH = "--controller"
     TOKN_SWITCH = "--token"
+    ACCESS_SWITCH = "--access"
     DELY_SWITCH = "--delete"
     DELN_SWITCH = "--no-delete"
     XZST_SWITCH = "--xz-single-threaded"
@@ -46,6 +47,7 @@ class TestMoveResults:
     TOKN_PROMPT = "Token: "
     CTRL_TEXT = "ctrl"
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
+    ACCESS_TEXT = "private"
     SWSR_TEXT = None
     URL = "http://pbench.example.com/api/v1"
     ENDPOINT = "/login"
@@ -76,6 +78,8 @@ class TestMoveResults:
                 TestMoveResults.XZST_SWITCH,
                 TestMoveResults.SWSR_SWITCH,
                 TestMoveResults.SWSR_TEXT,
+                TestMoveResults.ACCESS_SWITCH,
+                TestMoveResults.ACCESS_TEXT,
             ],
         )
         assert (
