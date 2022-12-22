@@ -10,18 +10,16 @@ import responses
 
 from pbench.agent import PbenchAgentConfig
 from pbench.agent.results import CopyResultTb
-from pbench.common.logger import get_pbench_logger
 
 
 class TestCopyResults:
     @pytest.fixture(autouse=True)
-    def config_and_logger(self):
-        # Setup the configuration and logger
+    def config(self):
+        # Setup the configuration
         self.config = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"])
-        self.logger = get_pbench_logger("pbench", self.config)
         yield
         # Teardown the setup
-        self.config, self.logger = None, None
+        self.config = None
 
     @staticmethod
     def get_path_exists_mock(path: str, result: bool) -> Callable:
@@ -39,7 +37,7 @@ class TestCopyResults:
 
         return mock_func
 
-    def test_controller_invalid(self):
+    def test_controller_invalid(self, agent_logger):
         """Test error when the controller value is invalid"""
         bad_controller_name = "#invalid!"
         expected_error_message = (
@@ -47,13 +45,18 @@ class TestCopyResults:
         )
         with pytest.raises(ValueError) as excinfo:
             CopyResultTb(
-                bad_controller_name, "tarball", 0, "ignoremd5", self.config, self.logger
+                bad_controller_name,
+                "tarball",
+                0,
+                "ignoremd5",
+                self.config,
+                agent_logger,
             )
         assert str(excinfo.value).endswith(
             expected_error_message
         ), f"expected='...{expected_error_message}', found='{str(excinfo.value)}'"
 
-    def test_tarball_nonexistent(self, monkeypatch):
+    def test_tarball_nonexistent(self, monkeypatch, agent_logger):
         """Test error when the tarball file does not exist"""
         bad_tarball_name = "nonexistent-tarball.tar.xz"
         expected_error_message = f"Tar ball '{bad_tarball_name}' does not exist"
@@ -64,7 +67,12 @@ class TestCopyResults:
 
         with pytest.raises(FileNotFoundError) as excinfo:
             CopyResultTb(
-                "controller", bad_tarball_name, 0, "ignoremd5", self.config, self.logger
+                "controller",
+                bad_tarball_name,
+                0,
+                "ignoremd5",
+                self.config,
+                agent_logger,
             )
         assert str(excinfo.value).endswith(
             expected_error_message
@@ -72,7 +80,7 @@ class TestCopyResults:
 
     @responses.activate
     @pytest.mark.parametrize("access", ("public", "private", None))
-    def test_with_access(self, access: str, monkeypatch):
+    def test_with_access(self, access: str, monkeypatch, agent_logger):
         tb_name = "test_tarball.tar.xz"
         tb_contents = "I'm a result!"
 
@@ -101,7 +109,7 @@ class TestCopyResults:
             len(tb_contents),
             "someMD5",
             self.config,
-            self.logger,
+            agent_logger,
         )
         if access is None:
             crt.copy_result_tb("token")
@@ -110,7 +118,7 @@ class TestCopyResults:
         # If we got this far without an exception, then the test passes.
 
     @responses.activate
-    def test_connection_error(self, monkeypatch):
+    def test_connection_error(self, monkeypatch, agent_logger):
         tb_name = "test_tarball.tar.xz"
         tb_contents = "I'm a result!"
         upload_url = f"{self.config.get('results', 'server_rest_url')}/upload/{tb_name}"
@@ -131,7 +139,7 @@ class TestCopyResults:
                 len(tb_contents),
                 "someMD5",
                 self.config,
-                self.logger,
+                agent_logger,
             )
             crt.copy_result_tb("token")
         assert str(excinfo.value).endswith(
@@ -139,7 +147,7 @@ class TestCopyResults:
         ), f"expected='...{expected_error_message}', found='{str(excinfo.value)}'"
 
     @responses.activate
-    def test_unexpected_error(self, monkeypatch):
+    def test_unexpected_error(self, monkeypatch, agent_logger):
         tb_name = "test_tarball.tar.xz"
         tb_contents = "I'm a result!"
         upload_url = f"{self.config.get('results', 'server_rest_url')}/upload/{tb_name}"
@@ -158,7 +166,7 @@ class TestCopyResults:
                 len(tb_contents),
                 "someMD5",
                 self.config,
-                self.logger,
+                agent_logger,
             )
             crt.copy_result_tb("token")
         assert "something wrong" in str(excinfo.value)
