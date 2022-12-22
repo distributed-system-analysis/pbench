@@ -306,7 +306,7 @@ class Logout(Resource):
         # database.  If the valid token is found in the database associated
         # with user, remove it.
 
-        if state == "invalid":
+        if state == Auth.TokenState.INVALID:
             current_app.logger.info("User logout with invalid token: {}", auth_token)
         else:
             token = ActiveToken.query(auth_token)
@@ -325,7 +325,7 @@ class Logout(Resource):
                             auth_token,
                             user.username,
                         )
-                        if state == "verified":
+                        if state == Auth.TokenState.VERIFIED:
                             # Only report an internal error to the user if the token
                             # has been verified.
                             abort(
@@ -333,7 +333,7 @@ class Logout(Resource):
                                 message="INTERNAL ERROR",
                             )
                     else:
-                        if state == "expired":
+                        if state == Auth.TokenState.EXPIRED:
                             current_app.logger.info(
                                 "User {} logged out with expired token", user.username
                             )

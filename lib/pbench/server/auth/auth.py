@@ -1,4 +1,5 @@
 import datetime
+import enum
 from http import HTTPStatus
 from logging import Logger
 from typing import Optional
@@ -89,9 +90,17 @@ def get_auth_token():
         return auth_token
 
 
-def verify_token_only(auth_token: str) -> str:
-    """Returns "verified", "expired", or "invalid" depending on the state of the
-    given token.
+class TokenState(enum.Enum):
+    """The state of a token once decoded."""
+
+    INVALID = enum.auto()
+    EXPIRED = enum.auto()
+    VERIFIED = enum.auto()
+
+
+def verify_token_only(auth_token: str) -> TokenState:
+    """Returns a TokenState depending on the state of the given token after
+    being decoded.
     """
     try:
         jwt.decode(
@@ -105,11 +114,11 @@ def verify_token_only(auth_token: str) -> str:
             },
         )
     except jwt.InvalidTokenError:
-        state = "invalid"
+        state = TokenState.INVALID
     except jwt.ExpiredSignatureError:
-        state = "expired"
+        state = TokenState.EXPIRED
     else:
-        state = "verified"
+        state = TokenState.VERIFIED
     return state
 
 
@@ -126,7 +135,7 @@ def verify_auth(auth_token: str) -> Optional[User]:
 
     """
     state = verify_token_only(auth_token)
-    if state == "verified":
+    if state == TokenState.VERIFIED:
         token = ActiveToken.query(auth_token)
         user = token.user if token else None
     else:
