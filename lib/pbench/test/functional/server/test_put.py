@@ -231,3 +231,8 @@ class TestPut:
             )
             assert response.ok, f"{response.text}"
             print(f"Deleted {t.name}")
+            response = server_client.head(
+                api=API.DATASETS_METADATA,
+                uri_params={"dataset": resource_id},
+            )
+            assert response.status_code == 404, f"{response!r}"
