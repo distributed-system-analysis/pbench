@@ -96,14 +96,14 @@ class ElasticBase(ApiBase):
             config: server configuration
             schemas: List of API schemas: for example,
                 ApiSchema(
-                    ApiSchema.METHOD.GET,
-                    ApiSchema.OPERATION.READ,
+                    ApiMethod.GET,
+                    OperationCode.READ,
                     query_schema=Schema(Parameter("start", ParamType.DATE)),
                     uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
                 ),
                 ApiSchema(
-                    ApiSchema.METHOD.POST,
-                    ApiSchema.OPERATION.UPDATE,
+                    ApiMethod.POST,
+                    OperationCode.UPDATE,
                     body_schema=Schema(Parameter("start", ParamType.DATE)),
                     uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
                 )
@@ -526,14 +526,14 @@ class ElasticBulkBase(ApiBase):
             config: server configuration
             schemas: List of API schemas: for example,
                 ApiSchema(
-                    ApiSchema.METHOD.GET,
-                    ApiSchema.OPERATION.READ,
+                    ApiMethod.GET,
+                    OperationCode.READ,
                     query_schema=Schema(Parameter("start", ParamType.DATE)),
                     uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
                 ),
                 ApiSchema(
-                    ApiSchema.METHOD.POST,
-                    ApiSchema.OPERATION.UPDATE,
+                    ApiMethod.POST,
+                    OperationCode.UPDATE,
                     body_schema=Schema(Parameter("start", ParamType.DATE)),
                     uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
                 )

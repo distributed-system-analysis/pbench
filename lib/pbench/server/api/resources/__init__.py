@@ -1181,7 +1181,7 @@ class ApiBase(Resource):
         If there is no current authenticated client, only READ operations on
         public data will be allowed.
 
-        for API_OPERATION.READ:
+        for OperationCode.READ:
 
             Any call, with or without an authenticated user token, can access
             public data.
@@ -1190,7 +1190,7 @@ class ApiBase(Resource):
 
             Any authenticated ADMIN user can access any private data.
 
-        for API_OPERATION.UPDATE, API_OPERATION.DELETE:
+        for OperationCode.UPDATE, OperationCode.DELETE:
 
             An authenticated user is required.
 
