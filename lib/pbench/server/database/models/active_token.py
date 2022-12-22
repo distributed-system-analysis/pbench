@@ -42,10 +42,10 @@ class ActiveToken(Database.Base):
 
     @staticmethod
     def delete(token: str) -> None:
-        """
-        Deletes the given auth token if present.
-        :param token:
-        :return:
+        """Deletes the given auth token if present.
+
+        Args:
+            token : auth token to delete
         """
         try:
             Database.db_session.query(ActiveToken).filter_by(token=token).delete()

@@ -2,7 +2,7 @@ import datetime
 import enum
 from http import HTTPStatus
 from logging import Logger
-from typing import Optional
+from typing import Optional, Tuple
 
 from flask import current_app, Flask, request
 from flask_httpauth import HTTPTokenAuth
@@ -27,6 +27,11 @@ def setup_app(app: Flask, server_config: PbenchServerConfig):
 
     Sets the Flask apps `secret_key` attribute to the configured "secret-key"
     value in the Pbench Server "authentication" section.
+
+    Args:
+
+        app           : The target Flask application to setup
+        server_config : The Pbench Server configuration to use
     """
     app.secret_key = server_config._get_conf("authentication", "secret-key")
 
@@ -42,12 +47,15 @@ def get_current_user_id() -> Optional[str]:
     return user_id
 
 
-def encode_auth_token(time_delta: datetime.timedelta, user_id: int) -> str:
-    """
-    Generates the Auth Token
+def encode_auth_token(
+    time_delta: datetime.timedelta, user_id: int
+) -> Tuple[str, datetime.datetime]:
+    """Generates the Auth Token
+
     Args:
-        time_delta: Token lifetime
-        user_id: Authorized user's internal ID
+        time_delta : Token lifetime
+        user_id    : Authorized user's internal ID
+
     Returns:
         JWT token string, expiration
     """
@@ -63,6 +71,11 @@ def encode_auth_token(time_delta: datetime.timedelta, user_id: int) -> str:
 
 
 def get_auth_token():
+    """Get the bearer token from the Authorization header of the current request
+    in flight.
+
+    Will `abort()` the request if the token is not found reporting the reason.
+    """
     example = (
         "Please add Authorization header with Bearer token as,"
         " 'Authorization: Bearer <session_token>'"
@@ -101,6 +114,12 @@ class TokenState(enum.Enum):
 def verify_token_only(auth_token: str) -> TokenState:
     """Returns a TokenState depending on the state of the given token after
     being decoded.
+
+    Args:
+        auth_token : the authorization token to verify
+
+    Returns:
+        The TokenState enumeration for the decode operation
     """
     try:
         jwt.decode(
@@ -130,9 +149,12 @@ def verify_auth(auth_token: str) -> Optional[User]:
     Note: Since we are not encoding 'aud' claim in our JWT tokens we need to
     set 'verify_aud' to False while validating the token.
 
-    :param auth_token:
-    :return: User/None
+    Args:
+        auth_token : the authorization token to verify
 
+    Returns
+        The User database object associated with the token if the token is
+        valid, otherwise None
     """
     state = verify_token_only(auth_token)
     if state == TokenState.VERIFIED:
@@ -146,12 +168,13 @@ def verify_auth(auth_token: str) -> Optional[User]:
 def verify_third_party_token(
     auth_token: str, oidc_client: OpenIDClient, logger: Logger
 ) -> bool:
-    """
-    Verify a token provided to the Pbench server which was obtained from a
+    """Verify a token provided to the Pbench server which was obtained from a
     third party identity provider.
+
     Args:
-        auth_token: Token to authenticate
-        oidc_client: OIDC client to call to authenticate the token
+        auth_token  : Token to authenticate
+        oidc_client : OIDC client to call to authenticate the token
+
     Returns:
         True if the verification succeeds else False
     """
