@@ -9,8 +9,8 @@ from sqlalchemy.sql.sqltypes import JSON
 from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.database.database import Database
 from pbench.server.database.models import TZDateTime
-from pbench.server.database.models.datasets import Dataset
-from pbench.server.database.models.users import User
+from pbench.server.database.models.dataset import Dataset
+from pbench.server.database.models.user import User
 
 
 class AuditError(Exception):

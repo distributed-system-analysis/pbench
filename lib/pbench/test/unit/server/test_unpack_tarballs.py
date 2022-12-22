@@ -9,8 +9,8 @@ import pytest
 from pbench.common.logger import get_pbench_logger
 from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
 from pbench.server.cache_manager import TarballUnpackError
-from pbench.server.database.models.datasets import Dataset, Metadata
-from pbench.server.database.models.users import User
+from pbench.server.database.models.dataset import Dataset, Metadata
+from pbench.server.database.models.user import User
 from pbench.server.sync import Operation
 from pbench.server.unpack_tarballs import UnpackTarballs
 

@@ -31,7 +31,7 @@ from pbench.common.exceptions import (
     UnsupportedTarballFormat,
 )
 import pbench.server
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.dataset import Dataset
 from pbench.server.templates import PbenchTemplates
 
 # We import the entire pbench module so that mocking time works by changing

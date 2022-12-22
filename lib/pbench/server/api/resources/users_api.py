@@ -11,9 +11,9 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveToken
+from pbench.server.database.models.active_token import ActiveToken
 from pbench.server.database.models.server_config import ServerConfig
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
 
 
 class RegisterUser(Resource):

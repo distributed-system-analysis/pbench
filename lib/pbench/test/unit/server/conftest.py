@@ -24,10 +24,10 @@ from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveToken
-from pbench.server.database.models.datasets import Dataset, Metadata, States
+from pbench.server.database.models.active_token import ActiveToken
+from pbench.server.database.models.dataset import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
 from pbench.test import on_disk_config
 from pbench.test.unit.server.headertypes import HeaderTypes
 
@@ -225,9 +225,7 @@ def fake_email_validator(monkeypatch):
 
     # The SQLAlchemy model decorator binds the function oddly, so we have to
     # reach into the module's namespace.
-    monkeypatch.setattr(
-        "pbench.server.database.models.users.validate_email", fake_email
-    )
+    monkeypatch.setattr("pbench.server.database.models.user.validate_email", fake_email)
 
 
 @pytest.fixture()

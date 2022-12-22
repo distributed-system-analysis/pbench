@@ -17,7 +17,7 @@ from pbench.common.exceptions import (
 from pbench.server import OperationCode, tstos
 from pbench.server.cache_manager import CacheManager, TarballNotFound
 from pbench.server.database.models.audit import Audit, AuditStatus
-from pbench.server.database.models.datasets import (
+from pbench.server.database.models.dataset import (
     Dataset,
     DatasetError,
     DatasetTransitionError,

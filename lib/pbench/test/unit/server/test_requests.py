@@ -14,7 +14,7 @@ from pbench.server.database.models.audit import (
     AuditStatus,
     AuditType,
 )
-from pbench.server.database.models.datasets import (
+from pbench.server.database.models.dataset import (
     Dataset,
     DatasetNotFound,
     Metadata,

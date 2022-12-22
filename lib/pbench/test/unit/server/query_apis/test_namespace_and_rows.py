@@ -7,7 +7,7 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,
 )
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.dataset import Dataset, Metadata
 from pbench.test.unit.server.query_apis.commons import Commons
 
 

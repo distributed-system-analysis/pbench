@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from pbench.server import JSONVALUE
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.dataset import Dataset, Metadata
 
 
 class Operation(Enum):

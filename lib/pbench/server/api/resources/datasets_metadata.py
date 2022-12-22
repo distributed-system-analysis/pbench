@@ -20,7 +20,7 @@ from pbench.server.api.resources import (
 )
 import pbench.server.auth.auth as Auth
 from pbench.server.database.models.audit import AuditType
-from pbench.server.database.models.datasets import (
+from pbench.server.database.models.dataset import (
     Metadata,
     MetadataBadValue,
     MetadataError,

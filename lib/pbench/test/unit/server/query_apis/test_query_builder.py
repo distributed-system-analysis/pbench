@@ -6,7 +6,7 @@ from pbench.server import JSON, OperationCode
 from pbench.server.api.resources import ApiMethod, ApiSchema
 from pbench.server.api.resources.query_apis import ElasticBase
 import pbench.server.auth.auth as Auth
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
 
 ADMIN_ID = "6"  # This needs to match the current_user_admin fixture
 SELF_ID = "3"  # This needs to match the current_user_drb fixture

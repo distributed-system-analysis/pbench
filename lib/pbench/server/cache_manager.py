@@ -8,7 +8,7 @@ from typing import Dict, Optional, Union
 
 from pbench.common import MetadataLog, selinux
 from pbench.server import JSONOBJECT, PbenchServerConfig
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.dataset import Dataset
 from pbench.server.utils import get_tarball_md5
 
 

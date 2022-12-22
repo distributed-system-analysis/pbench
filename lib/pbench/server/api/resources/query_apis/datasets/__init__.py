@@ -13,7 +13,7 @@ from pbench.server.api.resources import (
     SchemaError,
 )
 from pbench.server.api.resources.query_apis import ElasticBase
-from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
+from pbench.server.database.models.dataset import Dataset, Metadata, MetadataError
 from pbench.server.database.models.template import Template
 
 

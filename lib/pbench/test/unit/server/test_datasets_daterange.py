@@ -6,7 +6,7 @@ import pytest
 import requests
 
 from pbench.server import JSON
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.dataset import Dataset
 
 
 class TestDatasetsDateRange:

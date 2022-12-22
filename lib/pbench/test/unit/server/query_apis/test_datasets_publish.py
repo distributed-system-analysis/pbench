@@ -5,7 +5,7 @@ import elasticsearch
 import pytest
 
 from pbench.server import JSON
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.dataset import Dataset
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 

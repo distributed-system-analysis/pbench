@@ -16,13 +16,13 @@ class ActiveToken(Database.Base):
     expiration time.
     """
 
-    __tablename__ = "active_tokens"
+    __tablename__ = "active_token"
     id = Column(Integer, primary_key=True, autoincrement=True)
     token = Column(String(500), unique=True, nullable=False, index=True)
     expiration = Column(DateTime, nullable=False, index=True)
     user_id = Column(
         Integer,
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey("user.id", ondelete="CASCADE"),
         nullable=False,
         # no need to add index=True, all FKs have indexes
     )

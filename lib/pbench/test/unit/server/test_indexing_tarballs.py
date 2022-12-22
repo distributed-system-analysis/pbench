@@ -17,7 +17,7 @@ from pbench.server import (
     PbenchServerConfig,
 )
 from pbench.server.database.models.audit import AuditStatus
-from pbench.server.database.models.datasets import (
+from pbench.server.database.models.dataset import (
     Dataset,
     Metadata,
     MetadataBadKey,

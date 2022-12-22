@@ -15,7 +15,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
-from pbench.server.database.models.datasets import (
+from pbench.server.database.models.dataset import (
     Dataset,
     DatasetNotFound,
     Metadata,

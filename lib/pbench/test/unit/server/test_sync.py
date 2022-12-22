@@ -1,6 +1,6 @@
 import pytest
 
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.dataset import Dataset, Metadata
 from pbench.server.sync import Operation, Sync, SyncSqlError
 
 

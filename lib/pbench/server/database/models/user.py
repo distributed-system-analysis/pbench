@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship, validates
 from sqlalchemy.orm.exc import NoResultFound
 
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveToken
+from pbench.server.database.models.active_token import ActiveToken
 
 
 class Roles(enum.Enum):
@@ -18,7 +18,7 @@ class Roles(enum.Enum):
 class User(Database.Base):
     """User Model for storing user related details"""
 
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(255), unique=True, nullable=False)

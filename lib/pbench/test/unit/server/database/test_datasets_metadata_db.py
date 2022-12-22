@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import or_
 
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import (
+from pbench.server.database.models.dataset import (
     Dataset,
     DatasetBadParameterType,
     DatasetNotFound,
@@ -14,7 +14,7 @@ from pbench.server.database.models.datasets import (
     MetadataMissingKeyValue,
     MetadataNotFound,
 )
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
 
 
 class TestGetSetMetadata:

@@ -7,7 +7,7 @@ import requests
 
 from pbench.server import JSON
 from pbench.server.api.resources.datasets_list import urlencode_json
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.dataset import Dataset
 
 
 class TestUrlencodeJson:

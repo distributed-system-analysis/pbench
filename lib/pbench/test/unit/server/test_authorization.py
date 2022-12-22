@@ -12,7 +12,7 @@ from pbench.server.api.resources import (
     UnauthorizedAccess,
 )
 import pbench.server.auth.auth as Auth
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
 
 
 class TestAuthorization:

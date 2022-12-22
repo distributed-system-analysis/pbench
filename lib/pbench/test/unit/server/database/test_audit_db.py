@@ -14,8 +14,8 @@ from pbench.server.database.models.audit import (
     AuditSqlError,
     AuditStatus,
 )
-from pbench.server.database.models.datasets import Dataset
-from pbench.server.database.models.users import User
+from pbench.server.database.models.dataset import Dataset
+from pbench.server.database.models.user import User
 from pbench.test.unit.server.database import FakeDBOrig, FakeRow, FakeSession
 
 

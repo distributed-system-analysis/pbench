@@ -24,7 +24,7 @@ from pbench.server.api.resources import (
     UnverifiedUser,
 )
 from pbench.server.api.resources.query_apis import PostprocessError
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
 
 
 class TestExceptions:

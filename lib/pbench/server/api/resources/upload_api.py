@@ -34,7 +34,7 @@ from pbench.server.database.models.audit import (
     AuditType,
     OperationCode,
 )
-from pbench.server.database.models.datasets import (
+from pbench.server.database.models.dataset import (
     Dataset,
     DatasetDuplicate,
     DatasetNotFound,

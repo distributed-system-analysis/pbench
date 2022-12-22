@@ -6,7 +6,7 @@ from pbench.server.api.resources import ApiMethod
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
     DatasetsContents,
 )
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.dataset import Dataset
 from pbench.test.unit.server.query_apis.commons import Commons
 
 

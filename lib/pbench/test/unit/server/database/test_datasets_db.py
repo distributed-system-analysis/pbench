@@ -3,14 +3,14 @@ from datetime import datetime
 from freezegun.api import freeze_time
 import pytest
 
-from pbench.server.database.models.datasets import (
+from pbench.server.database.models.dataset import (
     Dataset,
     DatasetBadParameterType,
     DatasetBadStateTransition,
     DatasetNotFound,
     States,
 )
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
 
 
 class TestDatasets:

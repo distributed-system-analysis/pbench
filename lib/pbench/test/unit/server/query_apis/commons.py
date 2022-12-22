@@ -11,7 +11,7 @@ import requests
 from pbench.server import JSON
 from pbench.server.api.resources import ApiMethod, ApiParams, ParamType, SchemaError
 from pbench.server.api.resources.query_apis import ElasticBase
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.dataset import Dataset, Metadata
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 

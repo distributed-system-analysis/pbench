@@ -3,13 +3,13 @@ For any new database model added in the models directory
 an import statement of the same is required here.
 """
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveToken  # noqa F401
+from pbench.server.database.models.active_token import ActiveToken  # noqa F401
 from pbench.server.database.models.audit import Audit  # noqa F401
-from pbench.server.database.models.datasets import Dataset  # noqa F401
-from pbench.server.database.models.datasets import Metadata  # noqa F401
+from pbench.server.database.models.dataset import Dataset  # noqa F401
+from pbench.server.database.models.dataset import Metadata  # noqa F401
 from pbench.server.database.models.server_config import ServerConfig  # noqa F401
 from pbench.server.database.models.template import Template  # noqa F401
-from pbench.server.database.models.users import User  # noqa F401
+from pbench.server.database.models.user import User  # noqa F401
 
 
 def init_db(configuration, logger):

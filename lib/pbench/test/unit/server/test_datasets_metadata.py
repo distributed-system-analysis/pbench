@@ -5,7 +5,7 @@ import requests
 
 from pbench.server import JSON, OperationCode
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server.database.models.dataset import Dataset, DatasetNotFound
 
 
 class TestDatasetsMetadataGet:

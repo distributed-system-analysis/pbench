@@ -4,7 +4,7 @@ from click.testing import CliRunner
 import pytest
 
 import pbench.cli.server.user_management as cli
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
 
 
 def create_user():

@@ -15,7 +15,7 @@ from pbench.server.cache_manager import (
     TarballNotFound,
     TarballUnpackError,
 )
-from pbench.server.database.models.datasets import Dataset, DatasetBadName
+from pbench.server.database.models.dataset import Dataset, DatasetBadName
 
 
 @pytest.fixture(scope="function", autouse=True)

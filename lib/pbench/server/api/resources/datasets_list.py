@@ -20,7 +20,7 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
+from pbench.server.database.models.dataset import Dataset, Metadata, MetadataError
 
 
 def urlencode_json(json: JSON) -> str:

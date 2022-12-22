@@ -341,7 +341,7 @@ class Dataset(Database.Base):
         transition  The timestamp of the last state transition
     """
 
-    __tablename__ = "datasets"
+    __tablename__ = "dataset"
 
     # This dict defines the allowed dataset state transitions through its
     # lifecycle. We have a set of "-ING" action states while the dataset is
@@ -828,7 +828,7 @@ class Metadata(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(255), unique=False, nullable=False, index=True)
     value = Column(JSON, unique=False, nullable=True)
-    dataset_ref = Column(Integer, ForeignKey("datasets.id"), nullable=False)
+    dataset_ref = Column(Integer, ForeignKey("dataset.id"), nullable=False)
 
     dataset = relationship("Dataset", back_populates="metadatas", single_parent=True)
     user_id = Column(String(255), nullable=True)

@@ -14,7 +14,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
 from pbench.server.database.models.audit import AuditType
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.dataset import Dataset
 
 
 class DatasetsPublish(ElasticBulkBase):

@@ -3,8 +3,8 @@ from http import HTTPStatus
 import time
 
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveToken
-from pbench.server.database.models.users import User
+from pbench.server.database.models.active_token import ActiveToken
+from pbench.server.database.models.user import User
 from pbench.test.unit.server.conftest import admin_username
 
 

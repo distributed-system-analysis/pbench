@@ -11,8 +11,8 @@ import jwt
 
 from pbench.server import PbenchServerConfig
 from pbench.server.auth import OpenIDClient, OpenIDClientError
-from pbench.server.database.models.active_tokens import ActiveToken
-from pbench.server.database.models.users import User
+from pbench.server.database.models.active_token import ActiveToken
+from pbench.server.database.models.user import User
 
 # Module private constants
 _TOKEN_ALG = "HS256"

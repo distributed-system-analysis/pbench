@@ -20,7 +20,7 @@ from pbench.server.database.models.audit import (
     AuditStatus,
     AuditType,
 )
-from pbench.server.database.models.datasets import (
+from pbench.server.database.models.dataset import (
     Dataset,
     DatasetNotFound,
     Metadata,
@@ -28,7 +28,7 @@ from pbench.server.database.models.datasets import (
     MetadataNotFound,
 )
 from pbench.server.database.models.server_config import ServerConfig
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
 
 
 class APIAbort(Exception):

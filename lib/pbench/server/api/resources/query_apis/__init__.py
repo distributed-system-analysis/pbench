@@ -31,9 +31,9 @@ from pbench.server.api.resources import (
 )
 import pbench.server.auth.auth as Auth
 from pbench.server.database.models.audit import AuditReason, AuditStatus
-from pbench.server.database.models.datasets import Dataset, Metadata, States
+from pbench.server.database.models.dataset import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
-from pbench.server.database.models.users import User
+from pbench.server.database.models.user import User
 
 
 class MissingBulkSchemaParameters(SchemaError):
