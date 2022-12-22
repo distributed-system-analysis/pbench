@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 import shutil
 from typing import Dict
@@ -65,3 +66,11 @@ def setup(tmp_path_factory, agent_setup, monkeypatch) -> Dict[str, Path]:
         "_PBENCH_AGENT_CONFIG", str(agent_setup["cfg_dir"] / "pbench-agent.cfg")
     )
     return agent_setup
+
+
+@pytest.fixture(scope="session")
+def agent_logger():
+    """Construct a single Pbench Logger object for the entire session."""
+    logger = logging.getLogger("unit-tests-agent")
+    logger.setLevel(logging.DEBUG)
+    return logger

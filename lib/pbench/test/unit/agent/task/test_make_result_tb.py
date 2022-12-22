@@ -10,20 +10,18 @@ import pytest
 from pbench.agent import PbenchAgentConfig
 from pbench.agent.results import MakeResultTb
 from pbench.common import MetadataLog
-from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
 from pbench.test.unit.agent.task.common import MockDatetime
 
 
 class TestMakeResultTb:
     @pytest.fixture(autouse=True)
-    def config_and_logger(self):
+    def config(self):
         with tempfile.TemporaryDirectory() as target_dir, tempfile.TemporaryDirectory() as run_dir:
-            # Setup the configuration and logger
+            # Setup the configuration
             self.controller = "controller-42.example.com"
             self.target_dir = Path(target_dir)
             self.config = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"])
-            self.logger = get_pbench_logger("pbench", self.config)
 
             script, config, date = "bm", "config-00", "1970.01.01T00.00.42"
             self.name = f"{script}_{config}_{date}"
@@ -53,9 +51,7 @@ class TestMakeResultTb:
                 self.result_dir,
                 self.target_dir,
                 self.config,
-                self.logger,
             ) = (
-                None,
                 None,
                 None,
                 None,
@@ -64,25 +60,25 @@ class TestMakeResultTb:
             )
 
     @pytest.mark.parametrize("result_dir", ("bad/bad/result/dir", ""))
-    def test_bad_result_dir(self, result_dir, caplog):
-        caplog.set_level(logging.ERROR, logger=self.logger.name)
+    def test_bad_result_dir(self, result_dir, caplog, agent_logger):
+        caplog.set_level(logging.ERROR, logger=agent_logger.name)
         with pytest.raises(FileNotFoundError):
             mrt = MakeResultTb(
-                result_dir, self.target_dir, self.controller, self.config, self.logger
+                result_dir, self.target_dir, self.controller, self.config, agent_logger
             )
             mrt.make_result_tb()
 
     @pytest.mark.parametrize("target_dir", ("bad/bad/target/dir", ""))
-    def test_bad_target_dir(self, target_dir, caplog):
-        caplog.set_level(logging.ERROR, logger=self.logger.name)
+    def test_bad_target_dir(self, target_dir, caplog, agent_logger):
+        caplog.set_level(logging.ERROR, logger=agent_logger.name)
         with pytest.raises(FileNotFoundError):
             mrt = MakeResultTb(
-                self.result_dir, target_dir, self.controller, self.config, self.logger
+                self.result_dir, target_dir, self.controller, self.config, agent_logger
             )
             mrt.make_result_tb()
 
-    def test_already_copied(self, caplog):
-        caplog.set_level(logging.DEBUG, logger=self.logger.name)
+    def test_already_copied(self, caplog, agent_logger):
+        caplog.set_level(logging.DEBUG, logger=agent_logger.name)
         full_result_dir = self.result_dir.resolve(strict=True)
         with open(f"{full_result_dir}.copied", "x"):
             with pytest.raises(MakeResultTb.AlreadyCopied):
@@ -91,12 +87,12 @@ class TestMakeResultTb:
                     self.target_dir,
                     self.controller,
                     self.config,
-                    self.logger,
+                    agent_logger,
                 )
                 mrt.make_result_tb()
 
-    def test_running(self, caplog):
-        caplog.set_level(logging.DEBUG, logger=self.logger.name)
+    def test_running(self, caplog, agent_logger):
+        caplog.set_level(logging.DEBUG, logger=agent_logger.name)
         full_result_dir = self.result_dir.resolve(strict=True)
         with open(f"{full_result_dir}/.running", "x"):
             with pytest.raises(MakeResultTb.BenchmarkRunning):
@@ -105,15 +101,15 @@ class TestMakeResultTb:
                     self.target_dir,
                     self.controller,
                     self.config,
-                    self.logger,
+                    agent_logger,
                 )
                 mrt.make_result_tb()
 
-    def test_make_tb(self, monkeypatch):
+    def test_make_tb(self, monkeypatch, agent_logger):
         monkeypatch.setattr(datetime, "datetime", MockDatetime)
         expected_tb = self.target_dir / f"{self.name}.tar.xz"
         mrt = MakeResultTb(
-            self.result_dir, self.target_dir, self.controller, self.config, self.logger
+            self.result_dir, self.target_dir, self.controller, self.config, agent_logger
         )
         tarball, tarball_len, tarball_md5 = mrt.make_result_tb()
         assert tarball.samefile(expected_tb), f"{tarball} {expected_tb}"

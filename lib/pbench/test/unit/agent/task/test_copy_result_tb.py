@@ -8,22 +8,20 @@ import responses
 
 from pbench.agent import PbenchAgentConfig
 from pbench.agent.results import CopyResultTb
-from pbench.common.logger import get_pbench_logger
 from pbench.test.unit.agent.task.common import bad_tarball, tarball
 
 
 class TestCopyResults:
     @pytest.fixture(autouse=True)
-    def config_and_logger(self):
-        # Setup the configuration and logger
+    def config(self):
+        # Setup the configuration
         self.config = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"])
-        self.logger = get_pbench_logger("pbench", self.config)
         yield
         # Teardown the setup
-        self.config, self.logger = None, None
+        self.config = None
 
     @responses.activate
-    def test_copy_tar(self):
+    def test_copy_tar(self, agent_logger):
         tbname = Path(tarball)
         responses.add(
             responses.PUT,
@@ -36,22 +34,27 @@ class TestCopyResults:
             tbname.stat().st_size,
             "someMD5",
             self.config,
-            self.logger,
+            agent_logger,
         )
         crt.copy_result_tb("token", "access")
 
     @responses.activate
-    def test_bad_tar(self, caplog):
+    def test_bad_tar(self, caplog, agent_logger):
         responses.add(
             responses.PUT,
             f"http://pbench.example.com/api/v1/upload/{bad_tarball}",
             status=HTTPStatus.OK,
         )
         expected_error_message = f"Tar ball '{bad_tarball}' does not exist"
-        caplog.set_level(logging.ERROR, logger=self.logger.name)
+        caplog.set_level(logging.ERROR, logger=agent_logger.name)
         with pytest.raises(FileNotFoundError) as excinfo:
             crt = CopyResultTb(
-                "controller", bad_tarball, 0, "ignoremd5", self.config, self.logger
+                "controller",
+                bad_tarball,
+                0,
+                "ignoremd5",
+                self.config,
+                agent_logger,
             )
             crt.copy_result_tb("token")
         assert str(excinfo.value).endswith(
