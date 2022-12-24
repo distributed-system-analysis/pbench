@@ -45,7 +45,7 @@ _ECHO=${DEBUG_EXEC_UNITTESTS:+echo}
 parallel=${PBENCH_UNITTEST_PARALLEL:-auto}
 if [[ "${parallel}" == "serial" ]]; then
     para_jobs_arg="-j 1"
-    pytest_jobs_arg="-n 1"
+    pytest_jobs_arg=""
 elif [[ "${parallel}" == "auto" ]]; then
     para_jobs_arg=""
     pytest_jobs_arg="-n auto"
@@ -153,8 +153,9 @@ if [[ "${subtst:-python}" == "python" ]]; then
         --basetemp="${_toxenvdir}/tmp" \
         --cov=${_pbench_sources} \
         --cov-report ${_cov_report} \
+        --pyargs \
         ${posargs} \
-        --pyargs ${_pytest_majors}
+        ${_pytest_majors}
     rc=${?}
     if [[ ${rc} -ne 0 ]]; then
         printf -- "\n%s pytest command failed with '%s'\n\n" "${major_list// /,}" "${rc}"
