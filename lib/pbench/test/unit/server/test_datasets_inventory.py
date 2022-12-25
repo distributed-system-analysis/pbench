@@ -11,15 +11,13 @@ from pbench.server.globals import server
 
 
 class TestDatasetsAccess:
-    @pytest.fixture()
-    def query_get_as(self, client, more_datasets, pbench_token):
+    def query_as_base(self, method, pbench_token):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
 
         Args:
-            client: Flask test API client fixture
-            more_datasets: Dataset construction fixture
+            method: client method to use for the API
             pbench_token: Authenticated user token fixture
         """
 
@@ -32,7 +30,7 @@ class TestDatasetsAccess:
                 dataset_id = dataset  # Allow passing deliberately bad value
             headers = {"authorization": f"bearer {pbench_token}"}
             k = "" if target is None else f"/{target}"
-            response = client.get(
+            response = method(
                 f"{server.config.rest_uri}/datasets/inventory/{dataset_id}{k}",
                 headers=headers,
             )
@@ -40,6 +38,30 @@ class TestDatasetsAccess:
             return response
 
         return query_api
+
+    @pytest.fixture
+    def query_get_as(self, client, more_datasets, pbench_token):
+        """Helper fixture to perform the GET API query and validate an expected
+        return status.
+
+        Args:
+            client: Flask test API client fixture
+            more_datasets: Dataset construction fixture
+            pbench_token: Authenticated user token fixture
+        """
+        return self.query_as_base(client.get, pbench_token)
+
+    @pytest.fixture
+    def query_head_as(self, client, more_datasets, pbench_token):
+        """Helper fixture to perform the HEAD API query and validate an expected
+        return status.
+
+        Args:
+            client: Flask test API client fixture
+            more_datasets: Dataset construction fixture
+            pbench_token: Authenticated user token fixture
+        """
+        return self.query_as_base(client.head, pbench_token)
 
     def mock_find_dataset(self, dataset):
         class Tarball(object):
@@ -134,3 +156,12 @@ class TestDatasetsAccess:
         response = query_get_as("fio_2", key, HTTPStatus.OK)
         assert response.status_code == HTTPStatus.OK
         assert str(file_sent) == "/dataset_tarball"
+
+    @pytest.mark.parametrize("key", (None, ""))
+    def test_head_result_tarball(self, query_head_as, monkeypatch, key):
+        monkeypatch.setattr(CacheManager, "find_dataset", self.mock_find_dataset)
+        monkeypatch.setattr(Path, "is_file", lambda self: True)
+
+        response = query_head_as("fio_2", key, HTTPStatus.OK)
+        assert response.status_code == HTTPStatus.OK
+        assert response.get_data(as_text=True) == ""
