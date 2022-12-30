@@ -151,10 +151,10 @@ const SavedRunsComponent = () => {
                       {rowActions ? (
                         <ActionsColumn
                           items={rowActions}
-                          isDisabled={
-                            item?.metadata[DATASET_OWNER] !==
-                            loginDetails?.username
-                          }
+                          // isDisabled={
+                          //   item?.metadata[DATASET_OWNER] !==
+                          //   loginDetails?.username
+                          // }
                         />
                       ) : null}
                     </Td>

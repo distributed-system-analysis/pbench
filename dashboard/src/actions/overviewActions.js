@@ -215,10 +215,7 @@ export const publishDataset =
       const savedRuns = getState().overview.savedRuns;
 
       const response = await API.post(
-        `${endpoints?.api?.datasets_publish}/${dataset.resource_id}`,
-        {
-          access: updateValue,
-        }
+        `${endpoints?.api?.datasets_publish}/${dataset.resource_id}?access=${updateValue}`
       );
       if (response.status === 200) {
         const dataIndex = savedRuns.findIndex(
