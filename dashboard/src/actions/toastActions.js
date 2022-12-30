@@ -40,7 +40,7 @@ export const showToast =
   };
 
 export const hideToast = (key) => (dispatch, getState) => {
-  const alerts = [...getState().toastReducer.alerts];
+  const alerts = getState().toastReducer.alerts;
   const activeAlert = alerts.filter((item) => item.key !== key);
 
   dispatch({

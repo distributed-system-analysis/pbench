@@ -103,7 +103,7 @@ export const registerUser =
       });
       if (response.status === 201) {
         dispatch(showToast("success", "Account created!", "Login to continue"));
-        navigate("/login");
+        navigate(APP_ROUTES.AUTH_LOGIN);
       }
       dispatch({ type: TYPES.COMPLETED });
     } catch (error) {

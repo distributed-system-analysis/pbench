@@ -15,7 +15,7 @@ const ToastReducer = (state = initialState, action = {}) => {
     case CLEAR_TOAST:
       return {
         ...state,
-        alerts: [],
+        ...initialState,
       };
     default:
       return state;
