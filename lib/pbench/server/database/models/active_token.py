@@ -23,7 +23,7 @@ class ActiveToken(Database.Base):
     expiration = Column(DateTime, nullable=False, index=True)
     user_id = Column(
         Integer,
-        ForeignKey("user.id", ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         # no need to add index=True, all FKs have indexes
     )
