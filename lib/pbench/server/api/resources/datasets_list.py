@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 from urllib.parse import urlencode, urlparse
 
 from flask.json import jsonify
@@ -22,7 +22,7 @@ from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
 
 
-def urlencode_json(json: Dict[str, Any]) -> str:
+def urlencode_json(json: JSON) -> str:
     """We must properly encode the metadata query parameter as a list of keys."""
     new_json = {}
     for k, v in sorted(json.items()):
