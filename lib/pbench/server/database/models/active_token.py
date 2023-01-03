@@ -16,7 +16,8 @@ class ActiveToken(Database.Base):
     expiration time.
     """
 
-    __tablename__ = "active_token"
+    # Table name is plural so it looks better SQL statements.
+    __tablename__ = "active_tokens"
     id = Column(Integer, primary_key=True, autoincrement=True)
     token = Column(String(500), unique=True, nullable=False, index=True)
     expiration = Column(DateTime, nullable=False, index=True)

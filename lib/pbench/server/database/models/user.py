@@ -18,7 +18,8 @@ class Roles(enum.Enum):
 class User(Database.Base):
     """User Model for storing user related details"""
 
-    __tablename__ = "user"
+    # Table name is plural so it looks better SQL statements.
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(255), unique=True, nullable=False)

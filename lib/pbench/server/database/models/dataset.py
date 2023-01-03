@@ -341,7 +341,8 @@ class Dataset(Database.Base):
         transition  The timestamp of the last state transition
     """
 
-    __tablename__ = "dataset"
+    # Table name is plural so it looks better SQL statements.
+    __tablename__ = "datasets"
 
     # This dict defines the allowed dataset state transitions through its
     # lifecycle. We have a set of "-ING" action states while the dataset is
@@ -694,7 +695,8 @@ class Metadata(Database.Base):
         value       Metadata value string
     """
 
-    __tablename__ = "dataset_metadata"
+    # Table name is plural so it looks better SQL statements.
+    __tablename__ = "datasets_metadata"
 
     # +++ Standard Metadata keys:
     #

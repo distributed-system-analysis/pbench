@@ -103,7 +103,8 @@ class Template(Database.Base):
         version         The template version metadata
     """
 
-    __tablename__ = "template"
+    # Table name is plural so it looks better SQL statements.
+    __tablename__ = "templates"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), unique=True, nullable=False)
