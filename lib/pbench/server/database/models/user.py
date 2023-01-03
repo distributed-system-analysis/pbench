@@ -54,8 +54,15 @@ class User(Database.Base):
 
     @staticmethod
     def query(id=None, username=None, email=None) -> "User":
-        # Currently we would only query with single argument. Argument need to
-        # be either username/id/email
+        """Find a given user by either their database ID, name, or email.
+
+        Only one of the three keyword arguments will be used for the search,
+        where `username` will be used if present, then `id` if present, then
+        `email`.
+
+        Returns the user object if found, None if it was not found (and when
+        no keyword arguments were given).
+        """
         if username:
             user = Database.db_session.query(User).filter_by(username=username).first()
         elif id:
@@ -72,9 +79,7 @@ class User(Database.Base):
         return Database.db_session.query(User).all()
 
     def add(self):
-        """
-        Add the current user object to the database
-        """
+        """Add the current user object to the database."""
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
@@ -93,18 +98,13 @@ class User(Database.Base):
     def evaluate_password(self, key, value):
         return generate_password_hash(value)
 
-    # validate the email field
     @validates("email")
     def evaluate_email(self, key, value):
         valid = validate_email(value)
-        email = valid.email
-
-        return email
+        return valid.email
 
     def add_token(self, token: ActiveToken):
-        """
-        Add the given token to the database, removing any expired tokens.
-        """
+        """Add the given token to active tokens list for this user."""
         try:
             self.auth_tokens.append(token)
             Database.db_session.add(token)
@@ -114,9 +114,7 @@ class User(Database.Base):
             raise
 
     def update(self, **kwargs):
-        """
-        Update the current user object with given keyword arguments
-        """
+        """Update the current user object with given keyword arguments."""
         try:
             for key, value in kwargs.items():
                 setattr(self, key, value)
@@ -127,9 +125,12 @@ class User(Database.Base):
 
     @staticmethod
     def delete(username):
-        """
-        Delete the user with a given username except admin
-        :param username:
+        """Delete the user with a given username except admin.
+
+        Args:
+            username : The name of the user to delete
+
+        Raises `NoResultFound` if the user does not exist.
         """
         user_query = Database.db_session.query(User).filter_by(username=username)
         if user_query.count() == 0:
@@ -142,18 +143,22 @@ class User(Database.Base):
             raise
 
     def is_admin(self):
-        """This method checks whether the given user has an admin role.  This
-        can be extended to groups as well, for example, a user belonging to a
-        certain group has only those privileges that are assigned to the
+        """Check whether the given user has an admin role.
+
+        This can be extended to groups as well, for example, a user belonging
+        to a certain group has only those privileges that are assigned to the
         group.
+
+        Returns True if the user has an admin role, False otherwise.
         """
         return self.role is Roles.ADMIN
 
     @staticmethod
     def is_admin_username(username):
+        """Return True if the given user name is the official "admin" user name,
+        returns False otherwise.
+        """
         # TODO: Need to add an interface to fetch admins list instead of
         # hard-coding the names, preferably via sql query.
         admins = ["admin"]
         return username in admins
-
-    # TODO: Add password recovery mechanism
