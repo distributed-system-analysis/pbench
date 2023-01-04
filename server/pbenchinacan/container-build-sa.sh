@@ -47,7 +47,7 @@ container=$(buildah from --format=docker ${BASE_IMAGE})
 # port 8080 for the Nginx proxy server.
 buildah config \
     --label maintainer="Pbench Maintainers <pbench@googlegroups.com>" \
-    --port 8080      `# pbench-server` \
+    --port 8080 \
     $container
 
 buildah copy $container ${RPM_PATH} /tmp/pbench-server.rpm
