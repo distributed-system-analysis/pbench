@@ -12,6 +12,8 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
+import { Button, TextInput } from "@patternfly/react-core";
+import { CheckIcon, PencilAltIcon, TimesIcon } from "@patternfly/react-icons";
 import {
   DASHBOARD_SEEN,
   DATASET_OWNER,
@@ -23,7 +25,9 @@ import {
 import React, { useCallback, useState } from "react";
 import {
   deleteDataset,
+  editMetadata,
   setRows,
+  setRowtoEdit,
   setSelectedRuns,
   updateDataset,
 } from "actions/overviewActions";
@@ -86,7 +90,9 @@ const NewRunsComponent = () => {
   const makeFavorites = (dataset, isFavoriting = true) => {
     dispatch(updateDataset(dataset, "favorite", isFavoriting));
   };
-
+  const saveRowData = (metadataType, dataset, value) => {
+    dispatch(updateDataset(dataset, metadataType, value));
+  };
   const moreActionItems = (dataset) => [
     {
       title: "Save",
@@ -123,7 +129,13 @@ const NewRunsComponent = () => {
         : otherExpandedRunNames;
     });
   const isRunExpanded = (run) => expandedRunNames.includes(run.name);
-
+  const updateTblValue = (newValue, metadata, rId) => {
+    dispatch(editMetadata(newValue, metadata, rId));
+  };
+  const toggleEdit = useCallback(
+    (rId, isEdit) => dispatch(setRowtoEdit(rId, isEdit)),
+    [dispatch]
+  );
   return (
     <div className="newruns-table-container">
       <OuterScrollContainer>
@@ -143,6 +155,7 @@ const NewRunsComponent = () => {
                 <Th width={35}>{columnNames.result}</Th>
                 <Th width={25}>{columnNames.endtime}</Th>
                 <Th width={20}></Th>
+                <Th width={5}></Th>
                 <Th width={2}></Th>
               </Tr>
             </Thead>
@@ -178,7 +191,20 @@ const NewRunsComponent = () => {
                         isSelected: isRowSelected(item),
                       }}
                     />
-                    <Td dataLabel={columnNames.result}>{item.name}</Td>
+                    <Td dataLabel={columnNames.result}>
+                      {item.isEdit ? (
+                        <TextInput
+                          value={item.name}
+                          type="text"
+                          onChange={(val) =>
+                            updateTblValue(val, "name", item.resource_id)
+                          }
+                          aria-label="text input example"
+                        />
+                      ) : (
+                        item.name
+                      )}
+                    </Td>
                     <Td dataLabel={columnNames.endtime}>
                       {formatDateTime(item.metadata[SERVER_DELETION])}
                     </Td>
@@ -190,6 +216,35 @@ const NewRunsComponent = () => {
                         rowIndex,
                       }}
                     />
+                    <Td>
+                      <div className="pf-c-inline-edit__action pf-m-enable-editable">
+                        {!item.isEdit ? (
+                          <Button
+                            variant="plain"
+                            onClick={() => toggleEdit(item.resource_id, true)}
+                            icon={<PencilAltIcon />}
+                          />
+                        ) : (
+                          <div>
+                            <Button
+                              isDisabled={!item.isDirty || !!!item.name}
+                              onClick={() =>
+                                saveRowData("datasetName", item, item.name)
+                              }
+                              variant="plain"
+                              icon={<CheckIcon />}
+                            />
+                            <Button
+                              variant="plain"
+                              onClick={() =>
+                                toggleEdit(item.resource_id, false)
+                              }
+                              icon={<TimesIcon />}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </Td>
                     <Td isActionCell>
                       {rowActions ? <ActionsColumn items={rowActions} /> : null}
                     </Td>

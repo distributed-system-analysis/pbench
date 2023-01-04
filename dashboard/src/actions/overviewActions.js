@@ -6,6 +6,7 @@ import {
   DASHBOARD_SEEN,
   DATASET_ACCESS,
   DATASET_CREATED,
+  DATASET_NAME,
   DATASET_OWNER,
   EXPIRATION_DAYS_LIMIT,
   SERVER_DELETION,
@@ -64,6 +65,11 @@ export const getDatasets = () => async (dispatch, getState) => {
 
 const initializeRuns = () => (dispatch, getState) => {
   const data = getState().overview.datasets;
+  data.forEach((item) => {
+    item["isEdit"] = false;
+    item["name_copy"] = item.name;
+    item["isDirty"] = false;
+  });
   const defaultPerPage = getState().overview.defaultPerPage;
 
   const savedRuns = data.filter((item) => item.metadata[DASHBOARD_SAVED]);
@@ -94,6 +100,7 @@ const metaDataActions = {
   save: DASHBOARD_SAVED,
   read: DASHBOARD_SEEN,
   favorite: USER_FAVORITE,
+  datasetName: DATASET_NAME,
 };
 /**
  * Function which return a thunk to be passed to a Redux dispatch() call
@@ -245,4 +252,32 @@ export const setLoadingDoneFlag = () => async (dispatch, getState) => {
       dispatch({ type: TYPES.SET_LOADING_FLAG, payload: true });
     }
   }, DASHBOARD_LOAD_DELAY_MS);
+};
+
+export const editMetadata =
+  (value, metadata, rId) => async (dispatch, getState) => {
+    const data = getState().overview.initNewRuns;
+
+    const rIndex = data.findIndex((item) => item.resource_id === rId);
+    data[rIndex][metadata] = value;
+    data[rIndex]["isDirty"] = true;
+    dispatch({
+      type: TYPES.INIT_NEW_RUNS,
+      payload: data,
+    });
+  };
+
+export const setRowtoEdit = (rId, isEdit) => async (dispatch, getState) => {
+  const data = getState().overview.initNewRuns;
+  const rIndex = data.findIndex((item) => item.resource_id === rId);
+  data[rIndex].isEdit = isEdit;
+
+  if (!isEdit) {
+    data[rIndex].name = data[rIndex]["name_copy"];
+    data[rIndex]["isDirty"] = false;
+  }
+  dispatch({
+    type: TYPES.INIT_NEW_RUNS,
+    payload: data,
+  });
 };
