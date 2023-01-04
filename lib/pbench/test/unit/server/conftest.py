@@ -362,6 +362,10 @@ def more_datasets(
         test    private 2002-05-16  test
         drb     public  2020-02-15  fio_1
         test    public  2002-05-16  fio_2
+        test    private 2022-12-08  uperf_1
+        test    private 2022-12-09  uperf_2
+        test    private 2022-12-10  uperf_3
+        test    private 2022-12-11  uperf_4
 
     Args:
         client: Provide a Flask API client
@@ -387,6 +391,38 @@ def more_datasets(
             name="fio_2",
             access="public",
             resource_id="random_md5_string4",
+        ).add()
+        Dataset(
+            owner_id=str(create_user.id),
+            created=datetime.datetime(2022, 12, 8),
+            state=States.INDEXED,
+            name="uperf_1",
+            access="private",
+            resource_id="random_md5_string5",
+        ).add()
+        Dataset(
+            owner_id=str(create_user.id),
+            created=datetime.datetime(2022, 12, 9),
+            state=States.INDEXED,
+            name="uperf_2",
+            access="private",
+            resource_id="random_md5_string6",
+        ).add()
+        Dataset(
+            owner_id=str(create_user.id),
+            created=datetime.datetime(2022, 12, 10),
+            state=States.INDEXED,
+            name="uperf_3",
+            access="private",
+            resource_id="random_md5_string7",
+        ).add()
+        Dataset(
+            owner_id=str(create_user.id),
+            created=datetime.datetime(2020, 12, 11),
+            state=States.INDEXED,
+            name="uperf_4",
+            access="private",
+            resource_id="random_md5_string8",
         ).add()
 
 

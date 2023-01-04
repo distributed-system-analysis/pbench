@@ -1,28 +1,49 @@
 import datetime
 from http import HTTPStatus
 from typing import List
-from urllib.parse import urlencode
 
 import pytest
 import requests
 
 from pbench.server import JSON
+from pbench.server.api.resources.datasets_list import urlencode_json
 from pbench.server.database.models.datasets import Dataset
 
 
+class TestUrlencodeJson:
+    """Test operation of urlencode_json method."""
+
+    def test_urlencode_json_empty(self):
+        """Verify no harm, no foul."""
+        encoding = urlencode_json({})
+        assert encoding == "", f"Expected empty string, got {encoding!r}"
+
+    def test_urlencode_json_no_metadata(self):
+        """Verify normal operation."""
+        encoding = urlencode_json(dict(a="one", b="two", c="three"))
+        assert (
+            encoding == "a=one&b=two&c=three"
+        ), f"Unexpected encoding, got {encoding!r}"
+
+    def test_urlencode_json(self):
+        """Verify metadata list is comma separated."""
+        encoding = urlencode_json(dict(a="one", metadata=["two", "four"], c="three"))
+        assert (
+            encoding == "a=one&c=three&metadata=two%2Cfour"
+        ), f"Unexpected encoding, got {encoding!r}"
+
+
 class TestDatasetsList:
-    """
-    Test the `datasets/list` API. We perform a variety of queries using a
-    set of datasets provided by the `attach_dataset` fixture and the
-    `more_datasets` fixture.
+    """Test the `datasets/list` API. We perform a variety of queries using a set
+    of datasets provided by the `attach_dataset` fixture and the `more_datasets`
+    fixture.
     """
 
     @pytest.fixture()
     def query_as(
         self, client, server_config, more_datasets, provide_metadata, get_token
     ):
-        """
-        Helper fixture to perform the API query and validate an expected
+        """Helper fixture to perform the API query and validate an expected
         return status.
 
         Args:
@@ -36,8 +57,7 @@ class TestDatasetsList:
         def query_api(
             payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
-            """
-            Encapsulate an HTTP GET operation with proper authentication, and
+            """Encapsulate an HTTP GET operation with proper authentication, and
             check the return status.
 
             Args:
@@ -64,10 +84,9 @@ class TestDatasetsList:
         return query_api
 
     def get_results(self, name_list: List[str], query: JSON, server_config) -> JSON:
-        """
-        Translate a list of names into a list of expected results of the
-        abbreviated form returned by `datasets/list`: name, controller,
-        run_id, and metadata.
+        """Translate a list of names into a list of expected results of the
+        abbreviated form returned by `datasets/list`: name, controller, run_id,
+        and metadata.
 
         Args:
             name_list: List of dataset names
@@ -90,7 +109,7 @@ class TestDatasetsList:
                 query["offset"] = next_offset
                 next_url = (
                     f"http://localhost{server_config.rest_uri}/datasets/list?"
-                    + urlencode(query)
+                    + urlencode_json(query)
                 )
         else:
             paginated_name_list = name_list[offset:]
@@ -122,8 +141,25 @@ class TestDatasetsList:
             ("test", {"name": "drb"}, []),
             ("test_admin", {"name": "drb"}, ["drb"]),
             ("drb", {}, ["drb", "fio_1", "fio_2"]),
-            ("test", {}, ["test", "fio_1", "fio_2"]),
-            ("test_admin", {}, ["drb", "test", "fio_1", "fio_2"]),
+            (
+                "test",
+                {},
+                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            (
+                "test_admin",
+                {},
+                [
+                    "drb",
+                    "test",
+                    "fio_1",
+                    "fio_2",
+                    "uperf_1",
+                    "uperf_2",
+                    "uperf_3",
+                    "uperf_4",
+                ],
+            ),
             ("drb", {"start": "2000-01-01", "end": "2005-12-31"}, ["fio_2"]),
             ("drb", {"start": "2005-01-01"}, ["drb", "fio_1"]),
             ("drb", {"end": "2020-09-01"}, ["drb", "fio_1", "fio_2"]),
@@ -131,8 +167,7 @@ class TestDatasetsList:
         ],
     )
     def test_dataset_list(self, query_as, login, query, results, server_config):
-        """
-        Test the operation of `datasets/list` against our set of test
+        """Test the operation of `datasets/list` against our set of test
         datasets.
 
         Args:
@@ -146,9 +181,35 @@ class TestDatasetsList:
         result = query_as(query, login, HTTPStatus.OK)
         assert result.json == self.get_results(results, query, server_config)
 
-    def test_unauth_dataset_list(self, query_as):
+    @pytest.mark.parametrize(
+        "login,query,results",
+        [
+            ("test", {"name": "drb"}, []),
+            ("test", {"name": "test"}, ["test"]),
+            (
+                "test",
+                {},
+                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+        ],
+    )
+    def test_dataset_list_w_limit(self, query_as, login, query, results, server_config):
+        """Test the operation of `datasets/list` with limits against our set of
+        test datasets.
+
+        Args:
+            query_as: A fixture to provide a helper that executes the API call
+            login: The username as which to perform a query
+            query: A JSON representation of the query parameters (these will be
+                automatically supplemented with a metadata request term)
+            results: A list of the dataset names we expect to be returned
         """
-        Test the operation of `datasets/list` when the client doesn't have
+        query.update({"metadata": ["dataset.created"], "limit": 5})
+        result = query_as(query, login, HTTPStatus.OK)
+        assert result.json == self.get_results(results, query, server_config)
+
+    def test_unauth_dataset_list(self, query_as):
+        """Test the operation of `datasets/list` when the client doesn't have
         access to all of the requested datasets.
 
         Args:
@@ -161,8 +222,7 @@ class TestDatasetsList:
         query_as({"access": "private"}, None, HTTPStatus.UNAUTHORIZED)
 
     def test_get_bad_keys(self, query_as):
-        """
-        Test case requesting non-existent metadata keys.
+        """Test case requesting non-existent metadata keys.
 
         Args:
             query_as: Query helper fixture
@@ -173,12 +233,15 @@ class TestDatasetsList:
             HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dataset', 'global', 'server', 'user']"
+            "message": (
+                "Unrecognized list values ['plugh', 'xyzzy'] given for"
+                " parameter metadata; expected ['dataset', 'global', 'server',"
+                " 'user']"
+            )
         }
 
     def test_get_unknown_keys(self, query_as):
-        """
-        Test case requesting non-existent query parameter keys.
+        """Test case requesting non-existent query parameter keys.
 
         Args:
             query_as: Query helper fixture
@@ -191,8 +254,7 @@ class TestDatasetsList:
         assert response.json == {"message": "Unknown URL query keys: passages,plugh"}
 
     def test_get_repeat_keys(self, query_as):
-        """
-        Test case requesting repeated single-value metadata keys.
+        """Test case requesting repeated single-value metadata keys.
 
         NOTE that the request package processes a list of values for a query
         parameter by repeating the key name with each value since the HTTP
