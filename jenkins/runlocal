@@ -9,7 +9,16 @@ export PB_DASHBOARD_DIR=$(pwd)/dashboard/build
 
 make -C server/rpm clean rpm
 
-#buildah login -u='$app' -p="${__LOGIN_SECRET__}" ${PB_CONTAINER_REG}
+# Typically, one logs in to a container registery with automated scripts using
+# an "application" token.  When using quay.io based container registries, the
+# application token uses the user name `$app` and the token is provided as the
+# password.
+#
+# For example, if you generate a token and set the value to the environment
+# variable named, __LOGIN_SECRET__, then the `buildah login` command below
+# demonstrates how to login with that token.
+#
+# $ buildah login -u='$app' -p="${__LOGIN_SECRET__}" ${PB_CONTAINER_REG}
 
 RPM_PATH=${HOME}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build-ci.sh
 buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
