@@ -18,6 +18,7 @@ import React, { useCallback } from "react";
 import {
   deleteDataset,
   editMetadata,
+  getEditedMetadata,
   publishDataset,
   setRowtoEdit,
   setSelectedSavedRuns,
@@ -78,8 +79,8 @@ const SavedRunsComponent = () => {
     dispatch(updateDataset(dataset, "favorite", isFavoriting));
   };
   /* Edit Dataset */
-  const saveRowData = (metadataType, dataset, value) => {
-    dispatch(updateDataset(dataset, metadataType, value));
+  const saveRowData = (dataset) => {
+    dispatch(getEditedMetadata(dataset, "savedRuns"));
   };
   const toggleEdit = useCallback(
     (rId, isEdit) => dispatch(setRowtoEdit(rId, isEdit, "savedRuns")),
@@ -88,6 +89,7 @@ const SavedRunsComponent = () => {
   const updateTblValue = (newValue, metadata, rId) => {
     dispatch(editMetadata(newValue, metadata, rId, "savedRuns"));
   };
+
   /* Edit Dataset */
   const columnNames = {
     result: "Result",
@@ -139,6 +141,9 @@ const SavedRunsComponent = () => {
                         updateTblValue(val, "name", item.resource_id)
                       }
                       toggleEdit={toggleEdit}
+                      onDateSelect={(str, date) =>
+                        updateTblValue(str, "server.deletion", item.resource_id)
+                      }
                       saveRowData={saveRowData}
                     />
                   </Tr>

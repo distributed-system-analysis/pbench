@@ -4,10 +4,10 @@ import * as TYPES from "./types";
 import { DANGER, ERROR_MSG } from "assets/constants/toastConstants";
 
 import API from "../utils/axiosInstance";
-import { uriTemplate } from "../utils/helper";
+import { clearCachedSession } from "./authActions";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
-import { clearCachedSession } from "./authActions";
+import { uriTemplate } from "../utils/helper";
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
@@ -65,7 +65,12 @@ const initializeRuns = () => (dispatch, getState) => {
   data.forEach((item) => {
     item[CONSTANTS.IS_EDIT] = false;
     item[CONSTANTS.NAME_COPY] = item.name;
-    item[CONSTANTS.IS_DIRTY] = false;
+    item[CONSTANTS.SERVER_DELETION_COPY] =
+      item.metadata[CONSTANTS.SERVER_DELETION];
+    item[CONSTANTS.IS_DIRTY] = {
+      serverDelete: false,
+      datasetName: false,
+    };
     item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.DEFAULT;
     item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
     item[CONSTANTS.IS_ITEM_FAVORITED] =
@@ -107,6 +112,7 @@ const metaDataActions = {
   read: CONSTANTS.DASHBOARD_SEEN,
   favorite: CONSTANTS.USER_FAVORITE,
   datasetName: CONSTANTS.DATASET_NAME,
+  serverDelete: CONSTANTS.SERVER_DELETION,
 };
 /**
  * Function which return a thunk to be passed to a Redux dispatch() call
@@ -123,10 +129,9 @@ export const updateDataset =
       dispatch({ type: TYPES.LOADING });
 
       const runs = getState().overview.datasets;
-
+      const endpoints = getState().apiEndpoint.endpoints;
       const method = metaDataActions[actionType];
 
-      const endpoints = getState().apiEndpoint.endpoints;
       const uri = uriTemplate(endpoints, "datasets_metadata", {
         dataset: dataset.resource_id,
       });
@@ -322,17 +327,23 @@ export const editMetadata =
 
     const rIndex = data.findIndex((item) => item.resource_id === rId);
     data[rIndex][metadata] = value;
-    data[rIndex][CONSTANTS.IS_DIRTY] = true;
-    if (value.length > CONSTANTS.DATASET_NAME_LENGTH) {
-      data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.ERROR;
-      data[rIndex][
-        CONSTANTS.NAME_ERROR_MSG
-      ] = `Length should be < ${CONSTANTS.DATASET_NAME_LENGTH}`;
-    } else if (value.length === 0) {
-      data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.ERROR;
-      data[rIndex][CONSTANTS.NAME_ERROR_MSG] = `Length cannot be 0`;
+
+    if (metadata === "name") {
+      if (value.length > CONSTANTS.DATASET_NAME_LENGTH) {
+        data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.ERROR;
+        data[rIndex][
+          CONSTANTS.NAME_ERROR_MSG
+        ] = `Length should be < ${CONSTANTS.DATASET_NAME_LENGTH}`;
+      } else if (value.length === 0) {
+        data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.ERROR;
+        data[rIndex][CONSTANTS.NAME_ERROR_MSG] = `Length cannot be 0`;
+      } else {
+        data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
+      }
+      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.DATASET_NAME_KEY] = true;
     } else {
-      data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
+      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.SERVER_DELETION_KEY] = true;
+      data[rIndex].metadata[CONSTANTS.SERVER_DELETION] = value;
     }
     dispatch(updateDatasetType(data, type));
   };
@@ -353,8 +364,52 @@ export const setRowtoEdit =
 
     if (!isEdit) {
       data[rIndex].name = data[rIndex][CONSTANTS.NAME_COPY];
-      data[rIndex][CONSTANTS.IS_DIRTY] = false;
+      data[rIndex].metadata[CONSTANTS.SERVER_DELETION] =
+        data[rIndex][CONSTANTS.SERVER_DELETION_COPY];
+      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.DATASET_NAME_KEY] = false;
+      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.SERVER_DELETION_KEY] = false;
       data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
     }
     dispatch(updateDatasetType(data, type));
+  };
+/**
+ * Function to get the metadata that are edited and to be sent for update
+ * @function
+ * @param {Object} dataset -  Dataset which is being updated
+ * @param {string} type - Type of the Dataset (Saved/New)
+ * @return {Object} - dispatch the action and update the state
+ */
+export const getEditedMetadata =
+  (dataset, type) => async (dispatch, getState) => {
+    const data = filterDatasetType(type, getState);
+
+    const rIndex = data.findIndex(
+      (item) => item.resource_id === dataset.resource_id
+    );
+    const item = data[rIndex];
+    const keys = Object.keys(item.isDirty);
+
+    const filtered = keys.filter(function (key) {
+      return item.isDirty[key];
+    });
+    const editedMetadata = [];
+    for (const key of filtered) {
+      const obj =
+        key === CONSTANTS.DATASET_NAME_KEY
+          ? { [metaDataActions[key]]: item.name }
+          : {
+              [metaDataActions[key]]: new Date(
+                item.metadata[CONSTANTS.SERVER_DELETION]
+              ).toISOString(),
+            };
+
+      editedMetadata.push(obj);
+    }
+    if (editedMetadata.length > 1) {
+      dispatch(updateDataset(dataset, editedMetadata));
+    } else {
+      dispatch(
+        updateDataset(dataset, filtered[0], Object.values(editedMetadata[0])[0])
+      );
+    }
   };

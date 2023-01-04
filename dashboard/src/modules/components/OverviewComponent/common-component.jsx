@@ -5,6 +5,7 @@ import * as CONSTANTS from "assets/constants/overviewConstants";
 import { ActionsColumn, Td } from "@patternfly/react-table";
 import {
   Button,
+  DatePicker,
   Dropdown,
   DropdownItem,
   DropdownToggle,
@@ -191,9 +192,7 @@ export const EditRow = (props) => {
               !props.item.name ||
               props.item[CONSTANTS.NAME_VALIDATED] === "error"
             }
-            onClick={() =>
-              props.saveRowData("datasetName", props.item, props.item.name)
-            }
+            onClick={() => props.saveRowData(props.item)}
             variant="plain"
             icon={<CheckIcon />}
           />
@@ -308,7 +307,14 @@ export const SavedRunsRow = (props) => {
         {formatDateTime(item.metadata[DATASET_UPLOADED])}
       </Td>
       <Td dataLabel={columnNames.scheduled}>
-        {formatDateTime(item.metadata[SERVER_DELETION])}
+        {item.isEdit ? (
+          <SelectDateComponent
+            value={item.metadata[SERVER_DELETION]}
+            onDateSelect={props.onDateSelect}
+          />
+        ) : (
+          formatDateTime(item.metadata[SERVER_DELETION])
+        )}
       </Td>
       <Td className="access">{item.metadata[DATASET_ACCESS]}</Td>
       <Td
@@ -330,5 +336,13 @@ export const SavedRunsRow = (props) => {
         {rowActions ? <ActionsColumn items={rowActions} /> : null}
       </Td>
     </>
+  );
+};
+
+export const SelectDateComponent = (props) => {
+  return (
+    <div className="varsh">
+      <DatePicker value={props.value} onChange={props.onDateSelect} />
+    </div>
   );
 };
