@@ -85,27 +85,24 @@ class TestPut:
 
         # For each dataset we find, poll the state until it reaches Indexed
         # state, or until we time out.
-        start = time.time()
+        now = start = time.time()
         timeout = start + (60.0 * 10.0)
 
-        while True:
-            now = time.time()
+        while not_indexed:
             print(f"[{now - start:0.2f}] Checking ...")
             not_indexed, indexed = TestPut.check_indexed(server_client, not_indexed)
             for dataset in indexed:
                 count += 1
-                print(
-                    "    Indexed ",
-                    dataset.metadata["server.tarball-path"],
-                )
-            if not not_indexed:
+                print("    Indexed ", dataset.metadata["server.tarball-path"])
+            if not not_indexed or now >= timeout:
                 break
-            if time.time() < timeout:
-                time.sleep(30.0)  # sleep for half a minute
-            else:
-                print("Exceeded timeout (10 minutes), still not indexed:")
-                for dataset in not_indexed:
-                    print(dataset.metadata["server.tarball-path"])
+            time.sleep(30.0)  # sleep for half a minute
+            now = time.time()
+        assert (
+            not not_indexed
+        ), f"Timed out after {now - start} seconds; unindexed datasets: " + ", ".join(
+            d.metadata["server.tarball-path"] for d in not_indexed
+        )
         assert count == len(
             self.tarballs
         ), f"Didn't find all expected datasets, found {count} of {len(self.tarballs)}"
