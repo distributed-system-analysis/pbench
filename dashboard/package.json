@@ -36,6 +36,7 @@
     "redux-thunk": "^2.4.1",
     "rsuite": "^5.6.2",
     "serve": "^13.0.2",
+    "tough-cookie": "^4.1.2",
     "validator": "^13.7.0",
     "web-vitals": "^2.1.4"
   },
@@ -46,7 +47,8 @@
     "eject": "react-scripts eject",
     "server": "node server",
     "start": "react-app-rewired start",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "coverage": "npm run test -- --coverage"
   },
   "proxy": "http://localhost:3001",
   "homepage": ".",
@@ -82,8 +84,8 @@
     "jsdoc": "^3.6.10",
     "less": "^4.1.2",
     "less-loader": "^11.0.0",
-    "prettier": "^2.6.2"
+    "prettier": "^2.6.2",
+    "redux-mock-store": "^1.5.4"
   },
-  "overrides": {
-  }
+  "overrides": {}
 }

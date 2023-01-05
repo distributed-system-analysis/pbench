@@ -1,6 +1,8 @@
 import * as TYPES from "./types";
+
+import { showFailureToast, showToast } from "./toastActions";
+
 import API from "../utils/axiosInstance";
-import { showFailureToast, constructToast } from "./toastActions";
 
 export const getProfileDetails = () => async (dispatch, getState) => {
   try {
@@ -21,7 +23,7 @@ export const getProfileDetails = () => async (dispatch, getState) => {
     }
     dispatch({ type: TYPES.COMPLETED });
   } catch (error) {
-    dispatch(constructToast("danger", error?.response?.data?.message));
+    dispatch(showToast("danger", error?.response?.data?.message));
     dispatch({ type: TYPES.NETWORK_ERROR });
     dispatch({ type: TYPES.COMPLETED });
   }
@@ -56,7 +58,7 @@ export const sendForUpdate = () => async (dispatch, getState) => {
         ...getState().userProfile.updatedUserDetails,
       });
       if (response.status === 200) {
-        dispatch(constructToast("success", "Updated!"));
+        dispatch(showToast("success", "Updated!"));
         dispatch({
           type: TYPES.GET_USER_DETAILS,
           payload: response?.data,
@@ -68,7 +70,7 @@ export const sendForUpdate = () => async (dispatch, getState) => {
       dispatch({ type: TYPES.COMPLETED });
     }
   } catch (error) {
-    dispatch(constructToast("danger", error?.response?.data?.message));
+    dispatch(showToast("danger", error?.response?.data?.message));
     dispatch({ type: TYPES.NETWORK_ERROR });
     dispatch({ type: TYPES.COMPLETED });
   }

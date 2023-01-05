@@ -22,6 +22,14 @@ from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
 
 
+def urlencode_json(json: JSON) -> str:
+    """We must properly encode the metadata query parameter as a list of keys."""
+    new_json = {}
+    for k, v in sorted(json.items()):
+        new_json[k] = ",".join(v) if k == "metadata" else v
+    return urlencode(new_json)
+
+
 class DatasetsList(ApiBase):
     """API class to list datasets based on database metadata."""
 
@@ -93,7 +101,7 @@ class DatasetsList(ApiBase):
         if next_offset < total_count:
             json["offset"] = next_offset
             parsed_url = urlparse(url)
-            next_url = parsed_url._replace(query=urlencode(json)).geturl()
+            next_url = parsed_url._replace(query=urlencode_json(json)).geturl()
         else:
             next_url = ""
 

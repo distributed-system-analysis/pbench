@@ -24,10 +24,10 @@ import ProfileComponent from "modules/components/ProfileComponent";
 import SignupForm from "modules/components/AuthComponent/SignupForm";
 import TableOfContent from "modules/components/TableOfContent";
 import TableWithFavorite from "modules/components/TableComponent";
-import { constructToast } from "actions/toastActions";
 import favicon from "./assets/logo/favicon.ico";
 import { fetchEndpoints } from "./actions/endpointAction";
 import { getUserDetails } from "actions/authActions";
+import { showToast } from "actions/toastActions";
 import { useDispatch } from "react-redux";
 
 const ProtectedRoute = ({ redirectPath = APP_ROUTES.AUTH_LOGIN, children }) => {
@@ -35,7 +35,7 @@ const ProtectedRoute = ({ redirectPath = APP_ROUTES.AUTH_LOGIN, children }) => {
   const dispatch = useDispatch();
 
   if (!loggedIn) {
-    dispatch(constructToast("danger", "Please login to view the page"));
+    dispatch(showToast("danger", "Please login to view the page"));
     return <Navigate to={redirectPath} replace />;
   }
   return children ? children : <Outlet />;

@@ -74,8 +74,25 @@ class TestDatasetsDateRange:
             ("drb", {"access": "public"}, ["drb", "fio_2"]),
             ("test_admin", {"owner": "drb"}, ["drb"]),
             ("drb", {}, ["drb", "fio_1", "fio_2"]),
-            ("test", {}, ["test", "fio_1", "fio_2"]),
-            ("test_admin", {}, ["drb", "test", "fio_1", "fio_2"]),
+            (
+                "test",
+                {},
+                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            (
+                "test_admin",
+                {},
+                [
+                    "drb",
+                    "test",
+                    "fio_1",
+                    "fio_2",
+                    "uperf_1",
+                    "uperf_2",
+                    "uperf_3",
+                    "uperf_4",
+                ],
+            ),
         ],
     )
     def test_dataset_daterange(self, query_as, login, query, results):
