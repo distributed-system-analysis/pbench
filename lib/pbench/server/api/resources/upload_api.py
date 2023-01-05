@@ -266,7 +266,7 @@ class Upload(ApiBase):
                     )
                 else:
                     response = jsonify(dict(message="Dataset already exists"))
-                    response.status_code = HTTPStatus.OK
+                    response.status_code = HTTPStatus.CONFLICT
                     return response
             except CleanupTime:
                 raise  # Propagate a CleanupTime exception to the outer block

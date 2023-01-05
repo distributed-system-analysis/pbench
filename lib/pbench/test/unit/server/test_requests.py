@@ -406,7 +406,7 @@ class TestUpload:
                 headers=self.gen_headers(pbench_token, md5),
             )
 
-        assert response.status_code == HTTPStatus.OK, repr(response)
+        assert response.status_code == HTTPStatus.CONFLICT, repr(response)
         assert response.json.get("message") == "Dataset already exists"
 
         # We didn't get far enough to create a CacheManager
