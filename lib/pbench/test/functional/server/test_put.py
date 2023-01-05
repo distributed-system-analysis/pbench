@@ -23,19 +23,26 @@ class Tarball:
 
 
 class TestPut:
-    tarballs: dict[str, Tarball] = {}
+    """These tests depend on the order of their definition to execute properly.
 
-    def test_upload_all(self, server_client: PbenchServerClient, login_user):
+    That is, test_index_all assumes that all the tar balls in the `TARBALL_DIR`
+    were uploaded successfully, and that it is run before `test_delete`. In
+    turn, `test_delete` must be run before `test_upload_all`.
+    """
+
+    @staticmethod
+    def test_upload_all(server_client: PbenchServerClient, login_user):
         """Upload each of the pregenerated tarballs, and perform some basic
         sanity checks on the resulting server state.
         """
+        tarballs: dict[str, Tarball] = {}
         access = ["private", "public"]
         cur_access = 0
 
         for t in TARBALL_DIR.glob("*.tar.xz"):
             a = access[cur_access]
             cur_access = 0 if cur_access else 1
-            self.tarballs[Dataset.stem(t)] = Tarball(t, a)
+            tarballs[Dataset.stem(t)] = Tarball(t, a)
             response = server_client.upload(t, access=a)
             assert (
                 response.status_code == HTTPStatus.CREATED
@@ -43,20 +50,21 @@ class TestPut:
         datasets = server_client.get_list(
             metadata=["dataset.access", "server.tarball-path", "server.status"]
         )
-        found = {d.name for d in datasets}
-        expected = frozenset(self.tarballs.keys())
+        found = frozenset({d.name for d in datasets})
+        expected = frozenset(tarballs.keys())
         assert expected.issubset(found), f"expected {expected!r}, found {found!r}"
         try:
             for dataset in datasets:
                 if dataset.name not in expected:
                     continue
-                t = self.tarballs[dataset.name]
+                t = tarballs[dataset.name]
                 assert dataset.name in dataset.metadata["server.tarball-path"]
                 assert dataset.metadata["server.status"]["upload"] == "ok"
                 assert t.access == dataset.metadata["dataset.access"]
         except HTTPError as exc:
             pytest.fail(
-                f"Unexpected HTTP error, url = {exc.response.url}, status code = {exc.response.status_code}, text = {exc.response.text!r}"
+                f"Unexpected HTTP error, url = {exc.response.url}, status"
+                f" code = {exc.response.status_code}, text = {exc.response.text!r}"
             )
 
     def test_upload_again(self, server_client: PbenchServerClient, login_user):
@@ -124,14 +132,15 @@ class TestPut:
             )
         return not_indexed, indexed
 
-    def test_index_all(self, server_client: PbenchServerClient, login_user):
+    @staticmethod
+    def test_index_all(server_client: PbenchServerClient, login_user):
         """Wait for datasets to reach the "Indexed" state, and ensure that the
-        state and metadata look good
+        state and metadata look good.
+
+        Requires that test_upload_all has been run successfully, and that
+        test_delete has NOT been run yet.
         """
-        tarball_names_l = []
-        for t in TARBALL_DIR.glob("*.tar.xz"):
-            tarball_names_l.append(t.name)
-        tarball_names = frozenset(tarball_names_l)
+        tarball_names = frozenset(t.name for t in TARBALL_DIR.glob("*.tar.xz"))
 
         print(" ... reporting behaviors ...")
 
@@ -167,11 +176,14 @@ class TestPut:
             d.metadata["server.tarball-path"] for d in not_indexed
         )
         assert count == len(
-            self.tarballs
-        ), f"Didn't find all expected datasets, found {count} of {len(self.tarballs)}"
+            tarball_names
+        ), f"Didn't find all expected datasets, found {count} of {len(tarball_names)}"
 
     def test_delete(self, server_client: PbenchServerClient, login_user):
-        """Verify we can delete each previously uploaded dataset."""
+        """Verify we can delete each previously uploaded dataset.
+
+        Requires that test_upload_all has been run successfully.
+        """
         datasets = server_client.get_list()
         datasets_hash = {}
         try:
