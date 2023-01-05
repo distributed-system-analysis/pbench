@@ -19,6 +19,9 @@ from pbench.server.database.models.users import User
 class InternalUser:
     """Internal user class for storing user related fields fetched
     from OIDC token decode.
+
+    Note: Class attributes are duck-typed from the SQL User object,
+    and they need to match with the respective sql entry!
     """
 
     id: str
@@ -35,7 +38,7 @@ class InternalUser:
         return "ADMIN" in self.roles
 
     @classmethod
-    def get_internal_user(cls, client_id: str, token_payload: dict) -> "InternalUser":
+    def create(cls, client_id: str, token_payload: dict) -> "InternalUser":
         """Helper method to return the Internal User object
 
         Args:
@@ -48,7 +51,7 @@ class InternalUser:
         audiences = token_payload.get("resource_access", {})
         if client_id in audiences:
             roles = audiences[client_id].get("roles", [])
-        return InternalUser(
+        return cls(
             id=token_payload["sub"],
             username=token_payload.get("preferred_username"),
             email=token_payload.get("email"),
@@ -129,7 +132,7 @@ class Auth:
         except Exception as e:
             Auth.logger.exception("Error {} getting JWT secret", e)
 
-    def get_auth_token(self, logger):
+    def get_auth_token(self):
         # get auth token
         example = (
             "Please add Authorization header with Bearer token as,"
@@ -159,7 +162,7 @@ class Auth:
 
     @staticmethod
     @token_auth.verify_token
-    def verify_auth(auth_token: str) -> Union["User", InternalUser]:
+    def verify_auth(auth_token: str) -> Optional[Union[User, InternalUser]]:
         """
         Validates the auth token.
 
@@ -169,9 +172,9 @@ class Auth:
         Args:
             auth_token: Authentication token string
         Returns:
-            User object/None
+            User object, InternalUser object, or None
         """
-        if not Auth.oidc_client.USERINFO_ENDPOINT:
+        if Auth.oidc_client and not Auth.oidc_client.USERINFO_ENDPOINT:
             Auth.oidc_client.set_well_known_endpoints()
         try:
             payload = jwt.decode(
@@ -274,6 +277,6 @@ class Auth:
                     return None
             except OpenIDClientError:
                 return None
-        return InternalUser.get_internal_user(
+        return InternalUser.create(
             client_id=oidc_client.client_id, token_payload=token_payload
         )
