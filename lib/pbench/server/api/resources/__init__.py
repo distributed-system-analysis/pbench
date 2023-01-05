@@ -1515,19 +1515,6 @@ class ApiBase(Resource):
 
         self.logger.info("In {} {}: mime {}", method, api_name, request.mimetype)
 
-        if method not in self.schemas or not self.schemas[method]:
-            abort(
-                HTTPStatus.METHOD_NOT_ALLOWED,
-                message=HTTPStatus.METHOD_NOT_ALLOWED.phrase,
-            )
-
-        schema = self.schemas[method]
-        if not self.always_enabled:
-            readonly = schema.operation == OperationCode.READ
-            disabled = ServerConfig.get_disabled(readonly=readonly)
-            if disabled:
-                abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
-
         if method is ApiMethod.GET:
             execute = self._get
         elif method is ApiMethod.HEAD:
@@ -1543,6 +1530,19 @@ class ApiBase(Resource):
                 HTTPStatus.METHOD_NOT_ALLOWED,
                 message=HTTPStatus.METHOD_NOT_ALLOWED.phrase,
             )
+
+        if method not in self.schemas:
+            abort(
+                HTTPStatus.METHOD_NOT_ALLOWED,
+                message=HTTPStatus.METHOD_NOT_ALLOWED.phrase,
+            )
+
+        schema = self.schemas[method]
+        if not self.always_enabled:
+            readonly = schema.operation == OperationCode.READ
+            disabled = ServerConfig.get_disabled(readonly=readonly)
+            if disabled:
+                abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
 
         body_params = None
         query_params = None
