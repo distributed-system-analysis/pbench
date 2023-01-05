@@ -129,7 +129,20 @@ def server_config(on_disk_server_config, monkeypatch) -> PbenchServerConfig:
 
 
 @pytest.fixture()
-def client(monkeypatch, server_config, fake_email_validator):
+def set_oidc_well_known_endpoints(monkeypatch):
+    def fake_well_known(oidc_client):
+
+        oidc_client.USERINFO_ENDPOINT = "https://oidc_userinfo_endpoint.example.com"
+        oidc_client.TOKENINFO_ENDPOINT = "https://oidc_token_introspection.example.com"
+        oidc_client.JWKS_URI = "https://oidc_jwks_endpoint.example.com"
+
+    monkeypatch.setattr(OpenIDClient, "set_well_known_endpoints", fake_well_known)
+
+
+@pytest.fixture()
+def client(
+    monkeypatch, server_config, fake_email_validator, set_oidc_well_known_endpoints
+):
     """A test client for the app.
 
     Fixtures:
@@ -143,14 +156,6 @@ def client(monkeypatch, server_config, fake_email_validator):
     For test cases that require the DB but not a full Flask app context, use
     the db_session fixture instead, which adds DB cleanup after the test.
     """
-
-    def fake_well_known(oidc_client):
-
-        oidc_client.USERINFO_ENDPOINT = "https://oidc_userinfo_endpoint.example.com"
-        oidc_client.TOKENINFO_ENDPOINT = "https://oidc_token_introspection.example.com"
-        oidc_client.JWKS_URI = "https://oidc_jwks_endpoint.example.com"
-
-    monkeypatch.setattr(OpenIDClient, "set_well_known_endpoints", fake_well_known)
 
     app = create_app(server_config)
 
