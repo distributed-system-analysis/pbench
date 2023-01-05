@@ -1,7 +1,6 @@
 import "./index.less";
 
 import { Button } from "@patternfly/react-core";
-import { HOME } from "utils/routeConstants";
 import React from "react";
 import logo from "assets/images/page_not_found.png";
 import pbenchLogo from "assets/logo/pbench_logo.svg";
@@ -15,7 +14,7 @@ const NoMatchingPage = () => {
         <img
           className="pbench-logo"
           alt="pbench logo"
-          onClick={() => navigate("/" + HOME)}
+          onClick={() => navigate("/")}
           src={pbenchLogo}
         />
       </div>
@@ -30,7 +29,7 @@ const NoMatchingPage = () => {
             />
           </div>
         </div>
-        <Button variant="link" onClick={() => navigate("/" + HOME)}>
+        <Button variant="link" onClick={() => navigate("/")}>
           Go to Home
         </Button>
       </div>
