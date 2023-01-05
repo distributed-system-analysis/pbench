@@ -53,6 +53,7 @@ pipeline {
             steps {
                 sh 'buildah login -u="${PODMAN_INTERNAL_USR}" -p="${PODMAN_INTERNAL_PSW}" ${PB_CONTAINER_REG}'
                 sh 'RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build-ci.sh'
+                sh 'buildah push localhost/pbench-server:${PB_SERVER_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_ORG_NAME}/pbench-server:${PB_SERVER_IMAGE_TAG}'
                 sh 'buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}'
             }
         }
