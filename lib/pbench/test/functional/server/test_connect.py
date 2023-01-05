@@ -29,9 +29,5 @@ class TestConnect:
 
         # verify all the required authentication fields are present
         if "authentication" in endpoints:
-            assert set(endpoints["authentication"]) >= {
-                "issuer",
-                "client",
-                "realm",
-                "secret",
-            }
+            expected = {"issuer", "client", "realm", "secret"}
+            assert set(endpoints["authentication"]) >= expected
