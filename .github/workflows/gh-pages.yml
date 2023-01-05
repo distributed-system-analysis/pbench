@@ -1,5 +1,5 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+# Workflow to build and deploy GitHub Pages
+name: Build & Deploy content to Pages
 
 on:
   # Runs on pushes targeting the default branch
@@ -22,22 +22,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  
+  # This job will build readthedocs page into 'docs/' sub-dir
+  build:
     runs-on: ubuntu-latest
+    defaults:
+      # set working-directory to docs/ for all run commands
+      run:
+        shell: bash
+        working-directory: ./docs
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup Pages
-        uses: actions/configure-pages@v2
+      - name: Install dependencies and Build with readthedocs site
+        run: |
+          pip install -r requirements.txt
+          make html
+      - name: copy static html content from _build dir to root docs dir
+        run: cp -rf _build/html ./docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload docs dir
           path: 'docs/'
+  
+  # This job will deploy the pbench website.   
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v2      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
+
