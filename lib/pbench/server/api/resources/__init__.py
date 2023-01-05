@@ -1530,28 +1530,20 @@ class ApiBase(Resource):
                 HTTPStatus.METHOD_NOT_ALLOWED,
                 message=HTTPStatus.METHOD_NOT_ALLOWED.phrase,
             )
+
         if method not in self.schemas:
             abort(
                 HTTPStatus.METHOD_NOT_ALLOWED,
                 message=HTTPStatus.METHOD_NOT_ALLOWED.phrase,
             )
 
-        if not self.always_enabled:
-            readonly = self.schemas[method].operation == OperationCode.READ
-            disabled = ServerConfig.get_disabled(readonly=readonly)
-            if disabled:
-                abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
-
-        if not self.always_enabled and self.schemas[method]:
-            if self.schemas[method]:
-                readonly = self.schemas[method].operation == OperationCode.READ
-            else:
-                readonly = False
-            disabled = ServerConfig.get_disabled(readonly=readonly)
-            if disabled:
-                abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
-
         schema = self.schemas[method]
+        if not self.always_enabled:
+            readonly = schema.operation == OperationCode.READ
+            disabled = ServerConfig.get_disabled(readonly=readonly)
+            if disabled:
+                abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
+
         body_params = None
         query_params = None
 
