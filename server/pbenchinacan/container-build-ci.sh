@@ -38,24 +38,20 @@ buildah copy --chown pbench:pbench --chmod 0644 $container \
 KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-"client-secret"}
 
 buildah run $container sed -Ei \
-    -e "/^default-host[[:space:]]*=/ s/=.*/= ${HOSTNAME_F}/" \
     -e "s/<keycloak_secret>/${KEYCLOAK_CLIENT_SECRET}/" \
     ${CONF_PATH}
 
 buildah run $container mkdir -p -m 0755  \
     /srv/pbench/archive/fs-version-001 \
+    /srv/pbench/public_html/dashboard \
     /srv/pbench/public_html/incoming \
     /srv/pbench/public_html/results \
     /srv/pbench/public_html/users \
-    /srv/pbench/public_html/static \
     /srv/pbench/logs \
     /srv/pbench/tmp \
     /srv/pbench/pbench-move-results-receive/fs-version-002
+buildah run $container cp /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html /srv/pbench/public_html/
 buildah run $container chown --recursive pbench:pbench /srv/pbench
-
-# Direct the httpd proxy to reference the IP address of the pbench server in the
-# container.
-buildah run $container sed -i -e "s/localhost/${HOSTNAME_F}/" /etc/httpd/conf.d/pbench.conf
 
 # Create the container image
 buildah commit $container localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}

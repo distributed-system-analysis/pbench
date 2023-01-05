@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export EXTRA_PODMAN_SWITCHES=${EXTRA_PODMAN_SWITCHES:-"--pull=always -e=COV_REPORT_XML=yes"}
+export EXTRA_PODMAN_SWITCHES=${EXTRA_PODMAN_SWITCHES:-"--pull=always"}
 export IMAGE_KIND=${IMAGE_KIND:-"fedora"}
 export IMAGE_REPO=${IMAGE_REPO:-"quay.io/pbench"}
 export IMAGE_ROLE=${IMAGE_ROLE:-"ci"}
@@ -36,7 +36,7 @@ function cleanup {
 }
 
 if [[ ${1} == "--cleanup" ]]; then
-    trap "cleanup ${PB_POD_NAME}" INT QUIT ERR EXIT
+    trap "cleanup ${PB_POD_NAME}" INT QUIT EXIT
 fi
 
 envsubst < server/pbenchinacan/pod.yml | podman play kube -
@@ -47,17 +47,17 @@ SERVER_API_ENDPOINTS="${SERVER_URL}/api/v1/endpoints"
 # Wait at most 10 minutes before giving up.
 end_in_epoch_secs=$(( $(date +"%s") + 600 ))
 
-echo "Waiting for pod's httpd to show up ..."
+echo "Waiting for pod's reverse proxy to show up ..."
 until curl -s -o /dev/null ${SERVER_API_ENDPOINTS}; do
     if [[ $(date +"%s") -ge ${end_in_epoch_secs} ]]; then
-        echo "Timed out waiting for pod's httpd to show up!" >&2
+        echo "Timed out waiting for pod's reverse proxy to show up!" >&2
         exit 1
     fi
     sleep 1
 done
 echo "Waiting for pod's Pbench Server to show up ..."
 status_code=$(curl -s -o /dev/null -w "%{http_code}" ${SERVER_API_ENDPOINTS})
-while [[ "${status_code}" == "503" ]]; do
+while [[ "${status_code}" == "502" || "${status_code}" == "503" ]]; do
     if [[ $(date +"%s") -ge ${end_in_epoch_secs} ]]; then
         echo "Timed out waiting for pod's Pbench Server to show up!" >&2
         exit 1

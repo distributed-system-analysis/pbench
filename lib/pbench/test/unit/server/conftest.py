@@ -33,7 +33,6 @@ from pbench.test.unit.server.headertypes import HeaderTypes
 
 server_cfg_tmpl = """[DEFAULT]
 install-dir = {TMP}/opt/pbench-server
-default-host = pbench.example.com
 
 [pbench-server]
 pbench-top-dir = {TMP}/srv/pbench
@@ -58,6 +57,7 @@ index_prefix = unit-test
 server_url = keycloak.example.com:0000
 realm = pbench
 client = pbench-client
+secret = my_precious
 
 ###########################################################################
 # The rest will come from the default config file.

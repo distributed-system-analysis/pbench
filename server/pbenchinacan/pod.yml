@@ -169,7 +169,7 @@ spec:
       readOnlyRootFilesystem: false
       seLinuxOptions: {}
     volumeMounts:
-    - mountPath: /var/www/html/dashboard
+    - mountPath: /srv/pbench/public_html/dashboard
       name: dashboard_deployment
     workingDir: /
   volumes:
