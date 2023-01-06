@@ -25,9 +25,11 @@ class Tarball:
 class TestPut:
     """These tests depend on the order of their definition to execute properly.
 
-    That is, test_index_all assumes that all the tar balls in the `TARBALL_DIR`
-    were uploaded successfully, and that it is run before `test_delete`. In
-    turn, `test_delete` must be run before `test_upload_all`.
+    That is, `test_index_all` assumes that all the tar balls in the
+    `TARBALL_DIR` were uploaded successfully by `test_upload_all`, and that it
+    is run before `test_delete` (otherwise it won't find any data sets to
+    verify were indexed). In turn, `test_delete` expects to be run before
+    `test_upload_all` in order to find the data sets to be deleted.
     """
 
     @staticmethod
@@ -35,6 +37,8 @@ class TestPut:
         """Upload each of the pregenerated tarballs, and perform some basic
         sanity checks on the resulting server state.
         """
+        print(" ... reporting behaviors ...")
+
         tarballs: dict[str, Tarball] = {}
         access = ["private", "public"]
         cur_access = 0
@@ -47,6 +51,8 @@ class TestPut:
             assert (
                 response.status_code == HTTPStatus.CREATED
             ), f"upload returned unexpected status {response.status_code}, {response.text}"
+            print(f"Uploaded {t.name}")
+
         datasets = server_client.get_list(
             metadata=["dataset.access", "server.tarball-path", "server.status"]
         )
@@ -67,19 +73,21 @@ class TestPut:
                 f" code = {exc.response.status_code}, text = {exc.response.text!r}"
             )
 
-    def test_upload_again(self, server_client: PbenchServerClient, login_user):
+    @staticmethod
+    def test_upload_again(server_client: PbenchServerClient, login_user):
         """Try to upload a dataset we've already uploaded. This should succeed
         but with an OK (200) response instead of CREATED (201)
         """
-        duplicate = next(iter(self.tarballs.values())).path
+        duplicate = next(iter(TARBALL_DIR.glob("*.tar.xz")))
         response = server_client.upload(duplicate)
         assert (
             response.status_code == HTTPStatus.OK
         ), f"upload returned unexpected status {response.status_code}, {response.text}"
 
-    def test_bad_md5(self, server_client: PbenchServerClient, login_user):
+    @staticmethod
+    def test_bad_md5(server_client: PbenchServerClient, login_user):
         """Try to upload a new dataset with a bad MD5 value. This should fail."""
-        duplicate = next(iter(self.tarballs.values())).path
+        duplicate = next(iter(TARBALL_DIR.glob("*.tar.xz")))
         response = server_client.upload(
             duplicate, md5="this isn't the md5 you're looking for"
         )
@@ -90,9 +98,10 @@ class TestPut:
             r"MD5 checksum \w+ does not match expected", response.json()["message"]
         )
 
-    def test_bad_name(self, server_client: PbenchServerClient, login_user):
+    @staticmethod
+    def test_bad_name(server_client: PbenchServerClient, login_user):
         """Try to upload a new dataset with a bad filename. This should fail."""
-        duplicate = next(iter(self.tarballs.values())).path
+        duplicate = next(iter(TARBALL_DIR.glob("*.tar.xz")))
         response = server_client.upload(duplicate, filename="notme")
         assert (
             response.status_code == HTTPStatus.BAD_REQUEST
@@ -128,7 +137,8 @@ class TestPut:
                     not_indexed.append(dataset)
         except HTTPError as exc:
             pytest.fail(
-                f"Unexpected HTTP error, url = {exc.response.url}, status code = {exc.response.status_code}, text = {exc.response.text!r}"
+                f"Unexpected HTTP error, url = {exc.response.url}, status code"
+                f" = {exc.response.status_code}, text = {exc.response.text!r}"
             )
         return not_indexed, indexed
 
@@ -150,7 +160,21 @@ class TestPut:
         # one could argue belong in a separate test case; I'll likely refactor
         # this later when I add GET tests.)
         count = 0
-        not_indexed = server_client.get_list(limit=5, metadata=["server.tarball-path"])
+        not_indexed_raw = server_client.get_list(
+            limit=5, metadata=["server.tarball-path"]
+        )
+        not_indexed = []
+        try:
+            for dataset in not_indexed_raw:
+                tp = dataset.metadata["server.tarball-path"]
+                if os.path.basename(tp) not in tarball_names:
+                    continue
+                not_indexed.append(dataset)
+        except HTTPError as exc:
+            pytest.fail(
+                f"Unexpected HTTP error, url = {exc.response.url}, status code"
+                f" = {exc.response.status_code}, text = {exc.response.text!r}"
+            )
 
         # For each dataset we find, poll the state until it reaches Indexed
         # state, or until we time out.
@@ -175,15 +199,18 @@ class TestPut:
         ), f"Timed out after {now - start} seconds; unindexed datasets: " + ", ".join(
             d.metadata["server.tarball-path"] for d in not_indexed
         )
-        assert count == len(
-            tarball_names
+        assert (
+            len(tarball_names) == count
         ), f"Didn't find all expected datasets, found {count} of {len(tarball_names)}"
 
-    def test_delete(self, server_client: PbenchServerClient, login_user):
+    @staticmethod
+    def test_delete_all(server_client: PbenchServerClient, login_user):
         """Verify we can delete each previously uploaded dataset.
 
         Requires that test_upload_all has been run successfully.
         """
+        print(" ... reporting behaviors ...")
+
         datasets = server_client.get_list()
         datasets_hash = {}
         try:
@@ -191,7 +218,8 @@ class TestPut:
                 datasets_hash[f"{dataset.name}.tar.xz"] = dataset.resource_id
         except HTTPError as exc:
             pytest.fail(
-                f"Unexpected HTTP error, url = {exc.response.url}, status code = {exc.response.status_code}, text = {exc.response.text!r}"
+                f"Unexpected HTTP error, url = {exc.response.url}, status code"
+                f" = {exc.response.status_code}, text = {exc.response.text!r}"
             )
         for t in TARBALL_DIR.glob("*.tar.xz"):
             resource_id = datasets_hash.get(t.name)
@@ -202,3 +230,4 @@ class TestPut:
                 raise_error=False,
             )
             assert response.ok, f"{response.text}"
+            print(f"Deleted {t.name}")
