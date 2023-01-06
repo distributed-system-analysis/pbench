@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+from http import HTTPStatus
 from pathlib import Path
+import re
 import time
 
 from pbench.client import PbenchServerClient
@@ -31,7 +33,9 @@ class TestPut:
             cur_access = 0 if cur_access else 1
             self.tarballs[Dataset.stem(t)] = Tarball(t, a)
             response = server_client.upload(t, access=a)
-            assert response.ok
+            assert (
+                response.status_code == HTTPStatus.CREATED
+            ), f"upload failed with {response.status_code}, {response.text}"
         datasets = server_client.get_list(
             metadata=["dataset.access", "server.tarball-path", "server.status"]
         )
@@ -43,6 +47,41 @@ class TestPut:
             assert dataset.name in dataset.metadata["server.tarball-path"]
             assert dataset.metadata["server.status"]["upload"] == "ok"
             assert t.access == dataset.metadata["dataset.access"]
+
+    def test_upload_again(self, server_client: PbenchServerClient, login_user):
+        """Try to upload a dataset we've already uploaded. This should succeed
+        but with an OK (200) response instead of CREATED (201)
+        """
+        duplicate = next(iter(self.tarballs.values())).path
+        response = server_client.upload(duplicate)
+        assert (
+            response.status_code == HTTPStatus.OK
+        ), f"upload failed with {response.status_code}, {response.text}"
+
+    def test_bad_md5(self, server_client: PbenchServerClient, login_user):
+        """Try to upload a new dataset with a bad MD5 value. This should fail."""
+        duplicate = next(iter(self.tarballs.values())).path
+        response = server_client.upload(
+            duplicate, md5="this isn't the md5 you're looking for"
+        )
+        assert (
+            response.status_code == HTTPStatus.BAD_REQUEST
+        ), f"upload failed with {response.status_code}, {response.text}"
+        assert re.match(
+            r"MD5 checksum \w+ does not match expected", response.json()["message"]
+        )
+
+    def test_bad_name(self, server_client: PbenchServerClient, login_user):
+        """Try to upload a new dataset with a bad filename. This should fail."""
+        duplicate = next(iter(self.tarballs.values())).path
+        response = server_client.upload(duplicate, filename="notme")
+        assert (
+            response.status_code == HTTPStatus.BAD_REQUEST
+        ), f"upload failed with {response.status_code}, {response.text}"
+        assert (
+            response.json()["message"]
+            == "File extension not supported, must be .tar.xz"
+        )
 
     @staticmethod
     def check_indexed(server_client: PbenchServerClient, datasets):
