@@ -3,7 +3,7 @@ set -o errexit
 
 export PB_CONTAINER_REG=images.paas.redhat.com
 export PB_ORG_NAME=pbench
-export PB_SERVER_IMAGE_NAME=pbench-server-ci
+export PB_SERVER_IMAGE_NAME=pbench-server-local
 export PB_SERVER_IMAGE_TAG=${USER}
 export PB_DASHBOARD_DIR=$(pwd)/dashboard/build
 
