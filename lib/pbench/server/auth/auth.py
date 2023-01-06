@@ -233,9 +233,9 @@ class Auth:
             InternalUser object if the verification succeeds else None
         """
         try:
-            identity_provider_pubkey = oidc_client.get_oidc_public_key(auth_token)
+            identity_provider_pubkey = oidc_client.get_oidc_public_key()
         except Exception:
-            Auth.logger.info("Identity provider public key fetch failed")
+            Auth.logger.debug("Identity provider public key fetch failed")
             identity_provider_pubkey = Auth().get_secret_key()
         try:
             token_payload = oidc_client.token_introspect_offline(

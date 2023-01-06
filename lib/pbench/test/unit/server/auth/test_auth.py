@@ -9,7 +9,9 @@ from jwt.exceptions import (
 )
 import pytest
 
+from pbench.common.logger import get_pbench_logger
 from pbench.server.auth import OpenIDClient
+from pbench.server.auth.auth import Auth, InternalUser
 
 
 class TestUserTokenManagement:
@@ -99,3 +101,46 @@ class TestUserTokenManagement:
                 audience="wrong_client",
             )
         assert str(e.value) == "Invalid token"
+
+    def test_online_third_party_verification(
+        self, server_config, monkeypatch, keycloak_oidc, keycloak_mock_token
+    ):
+        def offline_token_introspection_exception(token: str, key: str, audience: str):
+            raise Exception("some exception")
+
+        monkeypatch.setattr(
+            OpenIDClient,
+            "token_introspect_offline",
+            offline_token_introspection_exception,
+        )
+
+        def fake_online_token_introspection(self, token: str, token_info_uri: str):
+            return {
+                "iat": 1659476706,
+                "exp": 1685396687,
+                "sub": "12345",
+                "aud": "test_client",
+                "name": "first_name last_name",
+                "preferred_username": "username",
+                "given_name": "first_name",
+                "family_name": "last_name",
+                "email": "email",
+            }
+
+        monkeypatch.setattr(
+            OpenIDClient, "token_introspect_online", fake_online_token_introspection
+        )
+        Auth.set_logger(logger=get_pbench_logger("test-api-server", server_config))
+        token_payload = Auth.verify_third_party_token(
+            auth_token="",
+            algorithms=["HS256"],
+            oidc_client=keycloak_oidc,
+        )
+        assert token_payload == InternalUser(
+            id="12345",
+            username="username",
+            email="email",
+            first_name="first_name",
+            last_name="last_name",
+            roles=[],
+        )
