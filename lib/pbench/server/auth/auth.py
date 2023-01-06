@@ -132,8 +132,13 @@ class Auth:
         except Exception as e:
             Auth.logger.exception("Error {} getting JWT secret", e)
 
-    def get_auth_token(self):
-        # get auth token
+    def get_auth_token(self) -> str:
+        """
+        Returns bearer auth token extracted from the authentication header.
+
+        Returns:
+            Auth token string
+        """
         example = (
             "Please add Authorization header with Bearer token as,"
             " 'Authorization: Bearer <session_token>'"
@@ -165,9 +170,6 @@ class Auth:
     def verify_auth(auth_token: str) -> Optional[Union[User, InternalUser]]:
         """
         Validates the auth token.
-
-        :param auth_token:
-        :return: User object/None
 
         Args:
             auth_token: Authentication token string
@@ -251,6 +253,7 @@ class Auth:
             jwt.ExpiredSignatureError,
             jwt.InvalidTokenError,
             jwt.InvalidAudienceError,
+            jwt.InvalidAlgorithmError,
         ):
             return None
         except Exception:

@@ -140,9 +140,7 @@ def set_oidc_well_known_endpoints(monkeypatch):
 
 
 @pytest.fixture()
-def client(
-    monkeypatch, server_config, fake_email_validator, set_oidc_well_known_endpoints
-):
+def client(server_config, fake_email_validator, set_oidc_well_known_endpoints):
     """A test client for the app.
 
     Fixtures:
