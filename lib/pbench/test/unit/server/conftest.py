@@ -140,7 +140,9 @@ def set_oidc_well_known_endpoints(monkeypatch):
 
 
 @pytest.fixture()
-def client(server_config, fake_email_validator, set_oidc_well_known_endpoints):
+def client(
+    monkeypatch, server_config, fake_email_validator, set_oidc_well_known_endpoints
+):
     """A test client for the app.
 
     Fixtures:
@@ -154,6 +156,11 @@ def client(server_config, fake_email_validator, set_oidc_well_known_endpoints):
     For test cases that require the DB but not a full Flask app context, use
     the db_session fixture instead, which adds DB cleanup after the test.
     """
+
+    def mock_get_oidc_public_key(oidc_client):
+        return jwt_secret
+
+    monkeypatch.setattr(OpenIDClient, "_get_oidc_public_key", mock_get_oidc_public_key)
 
     app = create_app(server_config)
 
