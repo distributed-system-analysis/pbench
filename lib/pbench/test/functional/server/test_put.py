@@ -35,7 +35,7 @@ class TestPut:
             response = server_client.upload(t, access=a)
             assert (
                 response.status_code == HTTPStatus.CREATED
-            ), f"upload failed with {response.status_code}, {response.text}"
+            ), f"upload returned unexpected status {response.status_code}, {response.text}"
         datasets = server_client.get_list(
             metadata=["dataset.access", "server.tarball-path", "server.status"]
         )
@@ -56,7 +56,7 @@ class TestPut:
         response = server_client.upload(duplicate)
         assert (
             response.status_code == HTTPStatus.OK
-        ), f"upload failed with {response.status_code}, {response.text}"
+        ), f"upload returned unexpected status {response.status_code}, {response.text}"
 
     def test_bad_md5(self, server_client: PbenchServerClient, login_user):
         """Try to upload a new dataset with a bad MD5 value. This should fail."""
@@ -66,7 +66,7 @@ class TestPut:
         )
         assert (
             response.status_code == HTTPStatus.BAD_REQUEST
-        ), f"upload failed with {response.status_code}, {response.text}"
+        ), f"upload returned unexpected status {response.status_code}, {response.text}"
         assert re.match(
             r"MD5 checksum \w+ does not match expected", response.json()["message"]
         )
@@ -77,7 +77,7 @@ class TestPut:
         response = server_client.upload(duplicate, filename="notme")
         assert (
             response.status_code == HTTPStatus.BAD_REQUEST
-        ), f"upload failed with {response.status_code}, {response.text}"
+        ), f"upload returned unexpected status {response.status_code}, {response.text}"
         assert (
             response.json()["message"]
             == "File extension not supported, must be .tar.xz"
