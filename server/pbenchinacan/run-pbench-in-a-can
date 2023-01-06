@@ -1,10 +1,5 @@
 #!/bin/bash
 
-export EXTRA_PODMAN_SWITCHES=${EXTRA_PODMAN_SWITCHES:-"--pull=always"}
-export IMAGE_KIND=${IMAGE_KIND:-"fedora"}
-export IMAGE_REPO=${IMAGE_REPO:-"quay.io/pbench"}
-export IMAGE_ROLE=${IMAGE_ROLE:-"ci"}
-
 export PB_CONTAINER_REG=${PB_CONTAINER_REG:-"images.paas.redhat.com"}
 export PB_ORG_NAME=${PB_ORG_NAME:-"pbench"}
 
