@@ -43,7 +43,7 @@ from pbench.server.database.models.datasets import (
     States,
 )
 from pbench.server.sync import Operation, Sync
-from pbench.server.utils import filesize_bytes, UtcTimeHelper
+from pbench.server.utils import UtcTimeHelper
 
 
 class CleanupTime(Exception):
@@ -71,7 +71,6 @@ class Upload(ApiBase):
     """
 
     CHUNK_SIZE = 65536
-    DEFAULT_RETENTION_DAYS = 90
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
@@ -86,11 +85,6 @@ class Upload(ApiBase):
                 audit_name="upload",
                 authorization=ApiAuthorizationType.NONE,
             ),
-        )
-        self.max_content_length = filesize_bytes(
-            self.config.get_conf(
-                __name__, "pbench-server", "rest_max_content_length", self.logger
-            )
         )
         self.temporary = config.ARCHIVE / CacheManager.TEMPORARY
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
@@ -207,11 +201,11 @@ class Upload(ApiBase):
                     HTTPStatus.BAD_REQUEST,
                     f"'Content-Length' {content_length} must be greater than 0",
                 )
-            elif content_length > self.max_content_length:
+            elif content_length > self.config.rest_max_content_length:
                 raise CleanupTime(
                     HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                     f"'Content-Length' {content_length} must be no greater "
-                    f"than {humanize.naturalsize(self.max_content_length)}",
+                    f"than {humanize.naturalsize(self.config.rest_max_content_length)}",
                 )
 
             tar_full_path = self.temporary / filename
@@ -415,26 +409,13 @@ class Upload(ApiBase):
                     f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
                 )
 
-            try:
-                retention_days = int(
-                    self.config.get_conf(
-                        __name__,
-                        "pbench-server",
-                        "default-dataset-retention-days",
-                        self.DEFAULT_RETENTION_DAYS,
-                    )
-                )
-            except Exception as e:
-                raise CleanupTime(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    f"Unable to get integer retention days: {e!s}",
-                )
-
             # Calculate a default deletion time for the dataset, based on the
             # time it was uploaded rather than the time it was originally
             # created which might much earlier.
             try:
-                retention = datetime.timedelta(days=retention_days)
+                retention = datetime.timedelta(
+                    days=self.config.default_retention_period
+                )
                 deletion = dataset.uploaded + retention
                 Metadata.setvalue(
                     dataset=dataset,
