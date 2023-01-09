@@ -220,8 +220,7 @@ class TestServerConfig:
         [{"min": 1, "max": 10}, {"min": 128, "max": 1023}],
     )
     def test_name_len(self, value):
-        """Test some name lengths that should be OK.
-        """
+        """Test some name lengths that should be OK."""
         config = ServerConfig.create(key="dataset-name-len", value=value)
         assert config.value == value
 
