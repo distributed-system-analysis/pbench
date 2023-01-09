@@ -28,7 +28,7 @@ class TestPut:
     That is, `test_index_all` assumes that all the tar balls in the
     `TARBALL_DIR` were uploaded successfully by `test_upload_all`, and that it
     is run before `test_delete` (otherwise it won't find any data sets to
-    verify were indexed). In turn, `test_delete` expects to be run before
+    verify were indexed). In turn, `test_delete` expects to be run after
     `test_upload_all` in order to find the data sets to be deleted.
     """
 
