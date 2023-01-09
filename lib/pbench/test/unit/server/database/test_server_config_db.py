@@ -217,6 +217,16 @@ class TestServerConfig:
 
     @pytest.mark.parametrize(
         "value",
+        [{"min": 1, "max": 10}, {"min": 128, "max": 1023}],
+    )
+    def test_name_len(self, value):
+        """Test some name lengths that should be OK.
+        """
+        config = ServerConfig.create(key="dataset-name-len", value=value)
+        assert config.value == value
+
+    @pytest.mark.parametrize(
+        "value",
         [
             "string",
             ["list"],
@@ -323,9 +333,8 @@ class TestServerConfig:
         ],
     )
     def test_bad_name_len(self, value):
-        """
-        A "server-state" value must include at least "status" and if the value
-        isn't "enabled" must also contain "message"
+        """A "dataset-name-len" value must be a JSON document with integer
+        "min" and "max" fields.
         """
         with pytest.raises(ServerConfigBadValue) as exc:
             ServerConfig.create(key="dataset-name-len", value=value)
