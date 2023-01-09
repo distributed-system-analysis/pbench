@@ -282,7 +282,7 @@ class Logout(Resource):
                         "message": "failure message"
                     }
         """
-        auth_token = self.auth.get_auth_token(self.logger)
+        auth_token = self.auth.get_auth_token()
         user = Auth.verify_auth(auth_token=auth_token)
 
         # "None" user represents that either the token is not present in our database or it is an expired token.
