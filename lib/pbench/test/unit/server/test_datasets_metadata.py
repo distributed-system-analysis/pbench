@@ -41,7 +41,9 @@ class TestDatasetsMetadataGet:
                 headers=headers,
                 query_string=payload,
             )
-            assert response.status_code == expected_status
+            assert (
+                response.status_code == expected_status
+            ), f"Unexpected status {response.status_code}, {response.data}"
 
             # We need to log out to avoid "duplicate auth token" errors on the
             # "put" test which does a PUT followed by two GETs.
@@ -408,9 +410,8 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         """Test a partial success. We set a scalar value on a key and then try
         to set a nested value: i.e., with "global.dashboard.nested = False", we
         attempt to set "global.dashboard.nested.dummy". We expect this to fail,
-        but we expect other values to succeed. This partial success is reported
-        as an "internal error" (for lack of any better representation in HTTP)
-        with a message indicating the specific failures.
+        but we expect other values to succeed: this should return a success, but
+        with accumulated error information in the response payload.
         """
         query_put_as(
             "drb",
@@ -424,21 +425,33 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
                 "metadata": {
                     "global.dashboard.seen": False,
                     "global.dashboard.nested.dummy": True,
-                    "dataset.name": "foo",
+                    "user.test": 1,
                 }
             },
             "drb",
-            HTTPStatus.INTERNAL_SERVER_ERROR,
+            HTTPStatus.OK,
         )
+        assert response.json == {
+            "errors": {
+                "global.dashboard.nested.dummy": "Key 'nested' value for "
+                "'global.dashboard.nested.dummy' "
+                "in (3)|drb is not a JSON object"
+            },
+            "metadata": {
+                "global.dashboard.nested.dummy": None,
+                "global.dashboard.seen": False,
+                "user.test": 1,
+            },
+        }
         response = query_get_as(
-            "foo", {"metadata": "global,dataset.name"}, "drb", HTTPStatus.OK
+            "drb", {"metadata": "global,user"}, "drb", HTTPStatus.OK
         )
         assert response.json == {
             "global": {
                 "contact": "me@example.com",
                 "dashboard": {"seen": False, "nested": False},
             },
-            "dataset.name": "foo",
+            "user": {"test": 1},
         }
 
     def test_put(self, query_get_as, query_put_as):

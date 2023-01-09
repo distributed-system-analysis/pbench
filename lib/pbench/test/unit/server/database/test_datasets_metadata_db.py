@@ -370,8 +370,8 @@ class TestMetadataNamespace:
         "value",
         [
             "Symbols like $ and _ and @",
-            "MY_DATA",
-            "123456",
+            "MY_DATA_IS_UGLY",
+            "1234567890",
             "La palabra año incluye unicode",
             "Shift to the left",
         ],
@@ -386,7 +386,7 @@ class TestMetadataNamespace:
 
     @pytest.mark.parametrize(
         "value",
-        ["", True, 1, "This is a really long name that exceeds the maximum length"],
+        ["", True, 1, "A" * 132],
     )
     def test_mutable_dataset_bad(self, attach_dataset, value):
         """
