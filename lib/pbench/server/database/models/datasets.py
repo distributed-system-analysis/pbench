@@ -210,7 +210,7 @@ class MetadataBadValue(MetadataError):
         )
 
 
-class MetadataKeyError(DatasetError):
+class MetadataKeyError(MetadataError):
     """
     A base class for metadata key errors in the context of Metadata errors
     that have no associated Dataset. It is never raised directly, but may

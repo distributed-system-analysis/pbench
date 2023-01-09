@@ -26,7 +26,7 @@ from pbench.server.database.models.datasets import (
     DatasetNotFound,
     Metadata,
     MetadataBadKey,
-    MetadataNotFound,
+    MetadataError,
 )
 from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
@@ -1482,7 +1482,7 @@ class ApiBase(Resource):
                     metadata[i] = Metadata.getvalue(
                         dataset=dataset, key=i, user_id=user_id
                     )
-                except MetadataNotFound:
+                except MetadataError:
                     metadata[i] = None
             else:
                 raise MetadataBadKey(i)
@@ -1658,13 +1658,11 @@ class ApiBase(Resource):
                         attributes=attr,
                     )
                 except Exception:
-                    self.logger.error(
-                        "Unexpected exception on audit: {}", json.dumps(auditing)
-                    )
+                    self.logger.error("Unexpected exception on audit: {}", auditing)
             abort(e.http_status, message=str(e))
         except Exception as e:
             self.logger.exception(
-                "Exception {} API error: {}: {!r}", api_name, e, json.dumps(auditing)
+                "Exception {} API error: {}: {!r}", api_name, e, auditing
             )
             if auditing["finalize"]:
                 attr = auditing.get("attributes", {})
