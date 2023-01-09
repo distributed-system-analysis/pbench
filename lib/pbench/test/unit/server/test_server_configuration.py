@@ -64,7 +64,7 @@ class TestServerConfiguration:
     def test_get_bad_keys(self, query_get):
         response = query_get("xyzzy", HTTPStatus.BAD_REQUEST)
         assert response.json == {
-            "message": "Unrecognized keyword ['xyzzy'] given for parameter key; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized keyword ['xyzzy'] given for parameter key; allowed keywords are ['dataset-lifetime', 'dataset-name-len', 'server-banner', 'server-state']"
         }
 
     def test_get1(self, query_get):
@@ -81,6 +81,7 @@ class TestServerConfiguration:
         response = query_get(key)
         assert response.json == {
             "dataset-lifetime": "3650",
+            "dataset-name-len": {"min": 10, "max": 128},
             "server-state": {"status": "enabled"},
             "server-banner": None,
         }
@@ -110,7 +111,7 @@ class TestServerConfiguration:
     def test_put_bad_key(self, query_put):
         response = query_put(key="fookey", expected_status=HTTPStatus.BAD_REQUEST)
         assert response.json == {
-            "message": "Unrecognized keyword ['fookey'] given for parameter key; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized keyword ['fookey'] given for parameter key; allowed keywords are ['dataset-lifetime', 'dataset-name-len', 'server-banner', 'server-state']"
         }
 
     def test_put_bad_keys(self, query_put):
@@ -120,13 +121,16 @@ class TestServerConfiguration:
             expected_status=HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {
-            "message": "Unrecognized configuration parameters ['fookey'] specified: valid parameters are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized configuration parameters ['fookey'] specified: valid parameters are ['dataset-lifetime', 'dataset-name-len', 'server-banner', 'server-state']"
         }
 
     @pytest.mark.parametrize(
         "key,value",
         [
             ("dataset-lifetime", "14 years"),
+            ("dataset-name-len", {"min": 0, "max": 128}),
+            ("dataset-name-len", {"min": 10, "max": 8192}),
+            ("dataset-name-len", {"min": 20, "max": 5}),
             ("server-banner", {"banner": None}),
             ("server-state", "running"),
             ("server-state", {"status": "disabled"}),
@@ -230,6 +234,7 @@ class TestServerConfiguration:
         response = query_get(None)
         assert response.json == {
             "dataset-lifetime": "2",
+            "dataset-name-len": {"min": 10, "max": 128},
             "server-state": {"status": "enabled"},
             "server-banner": None,
         }

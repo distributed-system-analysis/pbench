@@ -166,6 +166,7 @@ class TestServerConfig:
         """
         assert ServerConfig.get_all() == {
             "dataset-lifetime": "3650",
+            "dataset-name-len": {"min": 10, "max": 128},
             "server-state": {"status": "enabled"},
             "server-banner": None,
         }
@@ -175,16 +176,23 @@ class TestServerConfig:
         Set values and make sure they're all reported correctly
         """
         c1 = ServerConfig.create(key="dataset-lifetime", value="2")
-        c2 = ServerConfig.create(key="server-state", value={"status": "enabled"})
-        c3 = ServerConfig.create(key="server-banner", value={"message": "Mine"})
+        c2 = ServerConfig.create(key="dataset-name-len", value={"min": 5, "max": 64})
+        c3 = ServerConfig.create(key="server-state", value={"status": "enabled"})
+        c4 = ServerConfig.create(key="server-banner", value={"message": "Mine"})
         assert ServerConfig.get_all() == {
             "dataset-lifetime": "2",
+            "dataset-name-len": {"min": 5, "max": 64},
             "server-state": {"status": "enabled"},
             "server-banner": {"message": "Mine"},
         }
         self.session.check_session(
             queries=1,
-            committed=[FakeRow.clone(c1), FakeRow.clone(c2), FakeRow.clone(c3)],
+            committed=[
+                FakeRow.clone(c1),
+                FakeRow.clone(c2),
+                FakeRow.clone(c3),
+                FakeRow.clone(c4),
+            ],
             filters=[],
         )
 
@@ -296,4 +304,29 @@ class TestServerConfig:
         """
         with pytest.raises(ServerConfigBadValue) as exc:
             ServerConfig.create(key="server-banner", value=value)
+        assert exc.value.value == value
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            None,
+            1,
+            4.000,
+            True,
+            "yes",
+            ["a", "b"],
+            {"min": "Must have 'max' key"},
+            {"max": "Must have 'min' key"},
+            {"min": 0, "max": 32},
+            {"min": 10, "max": 32000},
+            {"min": 10, "max": 5},
+        ],
+    )
+    def test_bad_name_len(self, value):
+        """
+        A "server-state" value must include at least "status" and if the value
+        isn't "enabled" must also contain "message"
+        """
+        with pytest.raises(ServerConfigBadValue) as exc:
+            ServerConfig.create(key="dataset-name-len", value=value)
         assert exc.value.value == value

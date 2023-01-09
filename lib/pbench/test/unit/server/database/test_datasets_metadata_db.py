@@ -14,6 +14,7 @@ from pbench.server.database.models.datasets import (
     MetadataMissingKeyValue,
     MetadataNotFound,
 )
+from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
 
 
@@ -386,7 +387,7 @@ class TestMetadataNamespace:
 
     @pytest.mark.parametrize(
         "value",
-        ["", True, 1, "A" * 132],
+        ["", True, 1, "short", "long" * 33],
     )
     def test_mutable_dataset_bad(self, attach_dataset, value):
         """
@@ -398,7 +399,22 @@ class TestMetadataNamespace:
             Metadata.setvalue(ds, "dataset.name", value)
         assert (
             str(exc.value)
-            == f"Metadata key 'dataset.name' value {value!r} for dataset (3)|drb must be a UTF-8 string of 1 to 32 characters"
+            == f"Metadata key 'dataset.name' value {value!r} for dataset (3)|drb must be a UTF-8 string of 10 to 128 characters"
+        )
+        assert Metadata.getvalue(ds, "dataset.name") == name
+
+    def test_mutable_dataset_config(self, attach_dataset):
+        """
+        Test the validation when we change the length configuration.
+        """
+        ds = Dataset.query(name="drb")
+        name = ds.name
+        ServerConfig.set("dataset-name-len", {"min": 1, "max": 2})
+        with pytest.raises(MetadataBadValue) as exc:
+            Metadata.setvalue(ds, "dataset.name", "123")
+        assert (
+            str(exc.value)
+            == "Metadata key 'dataset.name' value '123' for dataset (3)|drb must be a UTF-8 string of 1 to 2 characters"
         )
         assert Metadata.getvalue(ds, "dataset.name") == name
 

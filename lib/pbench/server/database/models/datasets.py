@@ -13,7 +13,10 @@ from sqlalchemy.orm import Query, relationship, validates
 from pbench.server.database.database import Database
 from pbench.server.database.models import TZDateTime
 from pbench.server.database.models.server_config import (
+    DATASET_NAME_LEN_MAX,
+    DATASET_NAME_LEN_MIN,
     OPTION_DATASET_LIFETIME,
+    OPTION_DATASET_NAME_LEN,
     ServerConfig,
 )
 
@@ -1003,11 +1006,14 @@ class Metadata(Database.Base):
         hierarchical dotted paths like "global.seen" and should be used in
         most contexts where client-visible metadata paths are used.
 
-        1) For 'dataset.name', we require a UTF-8 encoded string of 1 to 32
-           characters.
+        1) For 'dataset.name', we require a UTF-8 encoded string of allowed
+           size: the minimum and maximum size are read from the server
+           configuration dataset-name-len property.
         2) For 'server.deletion', the string must be an ISO date/time string,
            and we fail otherwise. We store only the UTC date, as we don't
-           guarantee that deletion will occur at any specific time of day.
+           guarantee that deletion will occur at any specific time of day. The
+           maximum retention period (from upload) is defined by the server
+           configuration dataset-lifetime property.
 
         For any other key value, there's no required format.
 
@@ -1020,16 +1026,17 @@ class Metadata(Database.Base):
             A validated (and possibly altered) key value
         """
         if key == __class__.DATASET_NAME:
+            limits = ServerConfig.get(key=OPTION_DATASET_NAME_LEN).value
             if (
                 type(value) is not str
-                or len(value) > __class__.MAX_NAME_LEN
-                or len(value) < __class__.MIN_NAME_LEN
+                or len(value) > limits[DATASET_NAME_LEN_MAX]
+                or len(value) < limits[DATASET_NAME_LEN_MIN]
             ):
                 raise MetadataBadValue(
                     dataset,
                     key,
                     value,
-                    f"UTF-8 string of {__class__.MIN_NAME_LEN} to {__class__.MAX_NAME_LEN} characters",
+                    f"UTF-8 string of {limits[DATASET_NAME_LEN_MIN]} to {limits[DATASET_NAME_LEN_MAX]} characters",
                 )
 
             try:
