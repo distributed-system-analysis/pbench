@@ -199,7 +199,7 @@ SERVER_CONFIGURATION_OPTIONS = {
     },
     OPTION_DATASET_NAME_LEN: {
         "validator": validate_name_len,
-        "default": lambda: {"min": 10, "max": 128},
+        "default": lambda: {DATASET_NAME_LEN_MIN: 10, DATASET_NAME_LEN_MAX: 128},
     },
     OPTION_SERVER_BANNER: {
         "validator": validate_server_banner,
