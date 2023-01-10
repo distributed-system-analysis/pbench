@@ -7,11 +7,11 @@ Options:
   -C, --config PATH              Path to a pbench-agent configuration file
                                  (defaults to the '_PBENCH_AGENT_CONFIG'
                                  environment variable, if defined)  [required]
-  -a, --access [public|private]  pbench tarball access permission
-                                 public/private  [default: private]
-  --controller TEXT              Override the default controller name
   --token TEXT                   pbench server authentication token
                                  [required]
+  -a, --access [public|private]  pbench tarball access permission  [default:
+                                 private]
+  --controller TEXT              Override the default controller name
   --delete / --no-delete         Remove local data after successful copy
                                  [default: delete]
   --xz-single-threaded           Use single threaded compression with 'xz'

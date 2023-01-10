@@ -7,7 +7,7 @@ import click
 
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb, MakeResultTb
-from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli import CliContext, pass_cli_context
 from pbench.cli.agent.commands.results.results_options import results_common_options
 from pbench.cli.agent.options import common_options
 from pbench.common.exceptions import BadMDLogFormat
@@ -182,13 +182,6 @@ class MoveResults(BaseCommand):
     default="",
     prompt=False,
     help="Override the default controller name",
-)
-@click.option(
-    "--token",
-    required=True,
-    envvar="PBENCH_ACCESS_TOKEN",
-    prompt=False,
-    help="pbench server authentication token",
 )
 @click.option(
     "--delete/--no-delete",

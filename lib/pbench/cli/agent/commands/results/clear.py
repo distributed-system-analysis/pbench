@@ -7,7 +7,7 @@ import sys
 import click
 
 from pbench.agent.base import BaseCommand
-from pbench.cli.agent import pass_cli_context
+from pbench.cli import pass_cli_context
 from pbench.cli.agent.options import common_options
 
 

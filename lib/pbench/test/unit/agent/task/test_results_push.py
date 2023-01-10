@@ -14,7 +14,6 @@ class TestResultsPush:
 
     CTRL_TEXT = "controller.example.com"
     TOKN_SWITCH = "--token"
-    TOKN_PROMPT = "Token: "
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
     ACCESS_SWITCH = "--access"
     ACCESS_TEXT = "public"
@@ -127,8 +126,8 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_token_prompt():
-        """Test normal operation when the token option is omitted"""
+    def test_token_omitted():
+        """Test error when the token option is omitted"""
 
         TestResultsPush.add_http_mock_response()
         runner = CliRunner(mix_stderr=False)
@@ -138,10 +137,9 @@ class TestResultsPush:
                 TestResultsPush.CTRL_TEXT,
                 tarball,
             ],
-            input=TestResultsPush.TOKN_TEXT + "\n",
         )
-        assert result.exit_code == 0, result.stderr
-        assert result.stderr == "File uploaded successfully\n"
+        assert result.exit_code == 2, result.stderr
+        assert "Missing option '--token'" in str(result.stderr)
 
     @staticmethod
     @responses.activate
@@ -165,7 +163,7 @@ class TestResultsPush:
     @staticmethod
     @responses.activate
     def test_access_error(monkeypatch, caplog):
-        """Test normal operation with the token in an environment variable"""
+        """Test error in access value"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
         TestResultsPush.add_http_mock_response()
@@ -181,7 +179,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 2, result.stderr
-        assert ("Error: Invalid value for '-a' / '--access': 'public/private'") in str(
+        assert "Error: Invalid value for '-a' / '--access': 'public/private'" in str(
             result.stderr
         )
 

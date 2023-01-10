@@ -9,7 +9,7 @@ or all groups which contain a specific tool.
 import click
 
 from pbench.agent.tool_group import BadToolGroup
-from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
 from pbench.cli.agent.options import common_options
 

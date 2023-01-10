@@ -44,7 +44,6 @@ class TestMoveResults:
     DELN_SWITCH = "--no-delete"
     XZST_SWITCH = "--xz-single-threaded"
     SWSR_SWITCH = "--show-server"
-    TOKN_PROMPT = "Token: "
     CTRL_TEXT = "ctrl"
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
     ACCESS_TEXT = "private"
