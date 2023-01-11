@@ -7,7 +7,7 @@ import click
 
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb, MakeResultTb
-from pbench.cli import CliContext, pass_cli_context
+from pbench.cli import CliContext, pass_cli_context, sort_click_command_parameters
 from pbench.cli.agent.commands.results.results_options import results_common_options
 from pbench.cli.agent.options import common_options
 from pbench.common.exceptions import BadMDLogFormat
@@ -172,6 +172,7 @@ class MoveResults(BaseCommand):
         return 0 if failures == 0 else 1
 
 
+@sort_click_command_parameters
 @click.command(name="pbench-results-move")
 @common_options
 @results_common_options
