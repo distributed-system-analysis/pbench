@@ -131,13 +131,7 @@ class TestResultsPush:
 
         TestResultsPush.add_http_mock_response()
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(
-            main,
-            args=[
-                TestResultsPush.CTRL_TEXT,
-                tarball,
-            ],
-        )
+        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball])
         assert result.exit_code == 2, result.stderr
         assert "Missing option '--token'" in str(result.stderr)
 
@@ -150,13 +144,7 @@ class TestResultsPush:
         TestResultsPush.add_http_mock_response()
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(
-            main,
-            args=[
-                TestResultsPush.CTRL_TEXT,
-                tarball,
-            ],
-        )
+        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball])
         assert result.exit_code == 0, result.stderr
         assert result.stderr == "File uploaded successfully\n"
 
@@ -192,13 +180,7 @@ class TestResultsPush:
         TestResultsPush.add_connectionerr_mock_response()
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(
-            main,
-            args=[
-                TestResultsPush.CTRL_TEXT,
-                tarball,
-            ],
-        )
+        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball])
         assert result.exit_code == 1
         assert str(result.stderr).startswith("Cannot connect to")
 
@@ -211,13 +193,7 @@ class TestResultsPush:
         TestResultsPush.add_http_mock_response(HTTPStatus.NOT_FOUND)
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(
-            main,
-            args=[
-                TestResultsPush.CTRL_TEXT,
-                tarball,
-            ],
-        )
+        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball])
         assert result.exit_code == 1
         assert (
             str(result.stderr).find("Not Found") > -1
