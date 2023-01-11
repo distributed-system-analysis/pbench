@@ -14,7 +14,6 @@ from pbench.server.database.models.datasets import (
     MetadataMissingKeyValue,
     MetadataNotFound,
 )
-from pbench.server.database.models.server_config import ServerConfig
 from pbench.server.database.models.users import User
 
 
@@ -375,6 +374,8 @@ class TestMetadataNamespace:
             "1234567890",
             "La palabra año incluye unicode",
             "Shift to the left",
+            "1",
+            "X" * 1024,
         ],
     )
     def test_mutable_dataset(self, attach_dataset, value):
@@ -385,13 +386,14 @@ class TestMetadataNamespace:
         Metadata.setvalue(ds, "dataset.name", value)
         assert Metadata.getvalue(ds, "dataset")["name"] == value
 
-    @pytest.mark.parametrize(
-        "value",
-        ["", True, 1, "short", "long" * 33],
-    )
+    @pytest.mark.parametrize("value", ["", True, 1, ""])
     def test_mutable_dataset_bad(self, attach_dataset, value):
         """
         Test the reaction to a "bad" string name.
+
+        NOTE: we don't try to test a string that's "too long" as in the sqlite3
+        database we use for unit testing, where `varchar` isn't enforced, we'd
+        need to create a billion character string.
         """
         ds = Dataset.query(name="drb")
         name = ds.name
@@ -399,22 +401,7 @@ class TestMetadataNamespace:
             Metadata.setvalue(ds, "dataset.name", value)
         assert (
             str(exc.value)
-            == f"Metadata key 'dataset.name' value {value!r} for dataset (3)|drb must be a UTF-8 string of 10 to 128 characters"
-        )
-        assert Metadata.getvalue(ds, "dataset.name") == name
-
-    def test_mutable_dataset_config(self, attach_dataset):
-        """
-        Test the validation when we change the length configuration.
-        """
-        ds = Dataset.query(name="drb")
-        name = ds.name
-        ServerConfig.set("dataset-name-len", {"min": 1, "max": 2})
-        with pytest.raises(MetadataBadValue) as exc:
-            Metadata.setvalue(ds, "dataset.name", "123")
-        assert (
-            str(exc.value)
-            == "Metadata key 'dataset.name' value '123' for dataset (3)|drb must be a UTF-8 string of 1 to 2 characters"
+            == f"Metadata key 'dataset.name' value {value!r} for dataset (3)|drb must be a UTF-8 string of 1 to 1024 characters"
         )
         assert Metadata.getvalue(ds, "dataset.name") == name
 

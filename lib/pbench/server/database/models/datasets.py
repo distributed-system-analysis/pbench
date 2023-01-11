@@ -7,16 +7,13 @@ from typing import Any, Dict, List, Optional, Union
 
 from dateutil import parser as date_parser
 from sqlalchemy import Column, Enum, event, ForeignKey, Integer, JSON, String
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import DataError, IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Query, relationship, validates
 
 from pbench.server.database.database import Database
 from pbench.server.database.models import TZDateTime
 from pbench.server.database.models.server_config import (
-    DATASET_NAME_LEN_MAX,
-    DATASET_NAME_LEN_MIN,
     OPTION_DATASET_LIFETIME,
-    OPTION_DATASET_NAME_LEN,
     ServerConfig,
 )
 
@@ -386,7 +383,7 @@ class Dataset(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # Dataset name
-    name = Column(String(255), unique=False, nullable=False)
+    name = Column(String(1024), unique=False, nullable=False)
 
     # OIDC UUID of the owning user
     owner_id = Column(String(255), nullable=False)
@@ -1026,17 +1023,9 @@ class Metadata(Database.Base):
             A validated (and possibly altered) key value
         """
         if key == __class__.DATASET_NAME:
-            limits = ServerConfig.get(key=OPTION_DATASET_NAME_LEN).value
-            if (
-                type(value) is not str
-                or len(value) > limits[DATASET_NAME_LEN_MAX]
-                or len(value) < limits[DATASET_NAME_LEN_MIN]
-            ):
+            if type(value) is not str or not value:
                 raise MetadataBadValue(
-                    dataset,
-                    key,
-                    value,
-                    f"UTF-8 string of {limits[DATASET_NAME_LEN_MIN]} to {limits[DATASET_NAME_LEN_MAX]} characters",
+                    dataset, key, value, "UTF-8 string of 1 to 1024 characters"
                 )
 
             try:
@@ -1093,7 +1082,13 @@ class Metadata(Database.Base):
         # table.
         if key == __class__.DATASET_NAME:
             dataset.name = v
-            dataset.update()
+            try:
+                Database.db_session.commit()
+            except DataError as e:
+                Database.db_session.rollback()
+                raise MetadataBadValue(
+                    dataset, key, v, "UTF-8 string of 1 to 1024 characters"
+                ) from e
             return
 
         try:

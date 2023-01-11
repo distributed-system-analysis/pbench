@@ -35,10 +35,10 @@ class TestExceptions:
     def test_exceptions(self, create_user):
         a = APIAbort(HTTPStatus.IM_USED, "test message")
         assert str(a) == "test message"
-        assert repr(a) == "API error 226 : test message"
+        assert repr(a) == "API error 226 : message='test message' {}"
         a1 = APIAbort(HTTPStatus.CONFLICT)
         assert str(a1) == HTTPStatus.CONFLICT.phrase
-        assert repr(a1) == "API error 409 : Conflict"
+        assert repr(a1) == "API error 409 : message='Conflict' {}"
         e = UnauthorizedAccess(create_user, OperationCode.READ, "you", "public")
         assert (
             str(e)

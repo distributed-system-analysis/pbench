@@ -112,23 +112,6 @@ def validate_lifetime(key: str, value: JSONVALUE) -> JSONVALUE:
     return days
 
 
-# Define the minimum and maximum allowed length for a dataset name.
-DATASET_NAME_LEN_MIN = "min"
-DATASET_NAME_LEN_MAX = "max"
-
-
-def validate_name_len(key: str, value: JSONVALUE) -> JSONVALUE:
-    try:
-        min = int(value[DATASET_NAME_LEN_MIN])
-        max = int(value[DATASET_NAME_LEN_MAX])
-    except (KeyError, TypeError, ValueError):
-        raise ServerConfigBadValue(key, value)
-    else:
-        if min <= 0 or max < min or max > 1024:
-            raise ServerConfigBadValue(key, value)
-    return value
-
-
 # Formal "state" syntax is a JSON object with a "status" key designating the
 # current server status ("enabled", "disabled", or "readonly" to allow read
 # access but not modification of resources), and a "message" string
@@ -188,7 +171,6 @@ def validate_server_banner(key: str, value: JSONVALUE) -> JSONVALUE:
 
 
 OPTION_DATASET_LIFETIME = "dataset-lifetime"
-OPTION_DATASET_NAME_LEN = "dataset-name-len"
 OPTION_SERVER_BANNER = "server-banner"
 OPTION_SERVER_STATE = "server-state"
 
@@ -196,10 +178,6 @@ SERVER_CONFIGURATION_OPTIONS = {
     OPTION_DATASET_LIFETIME: {
         "validator": validate_lifetime,
         "default": lambda: str(ServerConfig.config.max_retention_period),
-    },
-    OPTION_DATASET_NAME_LEN: {
-        "validator": validate_name_len,
-        "default": lambda: {DATASET_NAME_LEN_MIN: 10, DATASET_NAME_LEN_MAX: 128},
     },
     OPTION_SERVER_BANNER: {
         "validator": validate_server_banner,

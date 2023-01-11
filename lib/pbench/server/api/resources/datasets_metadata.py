@@ -198,8 +198,16 @@ class DatasetsMetadata(ApiBase):
             except MetadataError as e:
                 fail[k] = str(e)
 
-        results = {
-            "metadata": self._get_dataset_metadata(dataset, list(metadata.keys())),
-            "errors": fail,
-        }
-        return jsonify(results)
+        if len(fail) == len(metadata):
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST,
+                "Unable to modify any specified metadata keys",
+                errors=fail,
+            )
+
+        return jsonify(
+            {
+                "metadata": self._get_dataset_metadata(dataset, list(metadata.keys())),
+                "errors": fail,
+            }
+        )
