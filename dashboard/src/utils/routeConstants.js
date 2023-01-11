@@ -1,4 +1,4 @@
-export const HOME = "dashboard";
+export const HOME = "dashboard/";
 
 export const AUTH = "auth";
 export const AUTH_LOGIN = "login";
