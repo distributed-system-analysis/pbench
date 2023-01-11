@@ -37,12 +37,24 @@ class APIAbort(Exception):
     API request.
     """
 
-    def __init__(self, http_status: int, message: Optional[str] = None):
+    def __init__(self, http_status: int, message: Optional[str] = None, **kwargs):
+        """Signal an API failure propagating details through to the base
+        dispatcher's abort call. This allows constraining dependency on the
+        implicit Flask context to the outer layer of the API framework.
+
+        Args
+            http_status: The desired HTTP completion status
+            message: The desired error response message
+            kwargs: Additional error response payload keys/value pairs to
+                communicate additional information.
+        """
         self.http_status = http_status
         self.message = message if message else HTTPStatus(http_status).phrase
+        self.kwargs = kwargs
 
     def __repr__(self) -> str:
-        return f"API error {self.http_status} : {str(self)}"
+        kw = f" {self.kwargs}" if self.kwargs else ""
+        return f"API error {self.http_status} : message={str(self)!r}{kw}"
 
     def __str__(self) -> str:
         return self.message
@@ -1659,7 +1671,7 @@ class ApiBase(Resource):
                     )
                 except Exception:
                     self.logger.error("Unexpected exception on audit: {}", auditing)
-            abort(e.http_status, message=str(e))
+            abort(e.http_status, message=str(e), **e.kwargs)
         except Exception as e:
             self.logger.exception(
                 "Exception {} API error: {}: {!r}", api_name, e, auditing

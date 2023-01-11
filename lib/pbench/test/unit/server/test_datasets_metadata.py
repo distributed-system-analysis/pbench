@@ -354,7 +354,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         )
         assert (
             put.json["message"]
-            == "Metadata key 'dataset.name' value 1 for dataset (3)|drb must be a UTF-8 string of 1 to 32 characters"
+            == "Metadata key 'dataset.name' value 1 for dataset (3)|drb must be a UTF-8 string of 1 to 1024 characters"
         )
 
         # verify that the values didn't change

@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from dateutil import parser as date_parser
 from sqlalchemy import Column, Enum, event, ForeignKey, Integer, JSON, String
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import DataError, IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Query, relationship, validates
 
 from pbench.server.database.database import Database
@@ -383,7 +383,7 @@ class Dataset(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
 
     # Dataset name
-    name = Column(String(255), unique=False, nullable=False)
+    name = Column(String(1024), unique=False, nullable=False)
 
     # OIDC UUID of the owning user
     owner_id = Column(String(255), nullable=False)
@@ -1003,11 +1003,12 @@ class Metadata(Database.Base):
         hierarchical dotted paths like "global.seen" and should be used in
         most contexts where client-visible metadata paths are used.
 
-        1) For 'dataset.name', we require a UTF-8 encoded string of 1 to 32
-           characters.
+        1) For 'dataset.name', we require a non-empty UTF-8 encoded string.
         2) For 'server.deletion', the string must be an ISO date/time string,
            and we fail otherwise. We store only the UTC date, as we don't
-           guarantee that deletion will occur at any specific time of day.
+           guarantee that deletion will occur at any specific time of day. The
+           maximum retention period (from upload) is defined by the server
+           configuration dataset-lifetime property.
 
         For any other key value, there's no required format.
 
@@ -1020,16 +1021,9 @@ class Metadata(Database.Base):
             A validated (and possibly altered) key value
         """
         if key == __class__.DATASET_NAME:
-            if (
-                type(value) is not str
-                or len(value) > __class__.MAX_NAME_LEN
-                or len(value) < __class__.MIN_NAME_LEN
-            ):
+            if type(value) is not str or not value:
                 raise MetadataBadValue(
-                    dataset,
-                    key,
-                    value,
-                    f"UTF-8 string of {__class__.MIN_NAME_LEN} to {__class__.MAX_NAME_LEN} characters",
+                    dataset, key, value, "UTF-8 string of 1 to 1024 characters"
                 )
 
             try:
@@ -1086,7 +1080,13 @@ class Metadata(Database.Base):
         # table.
         if key == __class__.DATASET_NAME:
             dataset.name = v
-            dataset.update()
+            try:
+                Database.db_session.commit()
+            except DataError as e:
+                Database.db_session.rollback()
+                raise MetadataBadValue(
+                    dataset, key, v, "UTF-8 string of 1 to 1024 characters"
+                ) from e
             return
 
         try:
