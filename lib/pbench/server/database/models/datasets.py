@@ -1003,9 +1003,7 @@ class Metadata(Database.Base):
         hierarchical dotted paths like "global.seen" and should be used in
         most contexts where client-visible metadata paths are used.
 
-        1) For 'dataset.name', we require a UTF-8 encoded string of allowed
-           size: the minimum and maximum size are read from the server
-           configuration dataset-name-len property.
+        1) For 'dataset.name', we require a non-empty UTF-8 encoded string.
         2) For 'server.deletion', the string must be an ISO date/time string,
            and we fail otherwise. We store only the UTC date, as we don't
            guarantee that deletion will occur at any specific time of day. The

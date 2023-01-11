@@ -53,7 +53,8 @@ class APIAbort(Exception):
         self.kwargs = kwargs
 
     def __repr__(self) -> str:
-        return f"API error {self.http_status} : message={str(self)!r} {self.kwargs}"
+        kw = f" {self.kwargs}" if self.kwargs else ""
+        return f"API error {self.http_status} : message={str(self)!r}{kw}"
 
     def __str__(self) -> str:
         return self.message
