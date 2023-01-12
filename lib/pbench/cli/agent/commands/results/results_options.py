@@ -1,26 +1,27 @@
 import click
 
-from pbench.cli.agent import CliContext
+from pbench.cli import compose_options
 
 
 def results_common_options(f):
-    f = _results_options(f)
-    return f
+    """Common options for results command"""
 
+    options = [
+        click.option(
+            "-a",
+            "--access",
+            default="private",
+            show_default=True,
+            type=click.Choice(["public", "private"], case_sensitive=False),
+            help="pbench tarball access permission",
+        ),
+        click.option(
+            "--token",
+            required=True,
+            envvar="PBENCH_ACCESS_TOKEN",
+            prompt=False,
+            help="pbench server authentication token",
+        ),
+    ]
 
-def _results_options(f):
-    """Common option for results command"""
-
-    def callback(ctx, _param, value):
-        clictx = ctx.ensure_object(CliContext)
-        clictx.config = value
-        return value
-
-    return click.option(
-        "-a",
-        "--access",
-        default="private",
-        show_default=True,
-        type=click.Choice(["public", "private"], case_sensitive=False),
-        help="pbench tarball access permission public/private",
-    )(f)
+    return compose_options(f, options)

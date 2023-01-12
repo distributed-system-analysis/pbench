@@ -4,7 +4,7 @@ import click
 
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb
-from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli import CliContext, pass_cli_context, sort_click_command_parameters
 from pbench.cli.agent.commands.results.results_options import results_common_options
 from pbench.cli.agent.options import common_options
 from pbench.common.utils import md5sum
@@ -28,16 +28,10 @@ class ResultsPush(BaseCommand):
         return 0
 
 
+@sort_click_command_parameters
 @click.command(name="pbench-results-push")
 @common_options
 @results_common_options
-@click.option(
-    "--token",
-    required=True,
-    prompt=True,
-    envvar="PBENCH_ACCESS_TOKEN",
-    help="pbench server authentication token (will prompt if unspecified)",
-)
 @click.argument("controller")
 @click.argument(
     "result_tb_name",

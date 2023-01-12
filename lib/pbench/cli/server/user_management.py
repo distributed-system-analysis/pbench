@@ -1,7 +1,8 @@
 import click
 
 from pbench import BadConfig
-from pbench.cli.server import config_setup, pass_cli_context
+from pbench.cli import pass_cli_context
+from pbench.cli.server import config_setup
 from pbench.cli.server.options import common_options
 from pbench.server.database.models.users import Roles, User
 

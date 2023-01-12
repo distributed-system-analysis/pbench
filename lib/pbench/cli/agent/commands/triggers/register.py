@@ -16,7 +16,7 @@ import sys
 import click
 
 from pbench.agent.utils import setup_logging
-from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli import CliContext, pass_cli_context
 from pbench.cli.agent.commands.triggers.base import TriggerCommand
 from pbench.cli.agent.options import common_options
 

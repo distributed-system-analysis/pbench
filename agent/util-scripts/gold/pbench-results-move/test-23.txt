@@ -4,20 +4,20 @@ Usage: pbench-results-move [OPTIONS]
   Move result directories to the configured Pbench server.
 
 Options:
+  -a, --access [public|private]  pbench tarball access permission  [default:
+                                 private]
   -C, --config PATH              Path to a pbench-agent configuration file
                                  (defaults to the '_PBENCH_AGENT_CONFIG'
                                  environment variable, if defined)  [required]
-  -a, --access [public|private]  pbench tarball access permission
-                                 public/private  [default: private]
   --controller TEXT              Override the default controller name
-  --token TEXT                   pbench server authentication token
-                                 [required]
   --delete / --no-delete         Remove local data after successful copy
                                  [default: delete]
-  --xz-single-threaded           Use single threaded compression with 'xz'
   --show-server TEXT             Display information about the pbench server
                                  where the result(s) will be moved (Not
                                  implemented)
+  --token TEXT                   pbench server authentication token
+                                 [required]
+  --xz-single-threaded           Use single threaded compression with 'xz'
   --help                         Show this message and exit.
 --- Finished test-23 pbench-results-move (status=0)
 +++ pbench tree state

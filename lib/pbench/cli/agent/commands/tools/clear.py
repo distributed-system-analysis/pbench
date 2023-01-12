@@ -12,7 +12,7 @@ from typing import Dict, Tuple
 
 import click
 
-from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
 from pbench.cli.agent.options import common_options
 

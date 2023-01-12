@@ -2,7 +2,7 @@ from typing import Callable
 
 import click
 
-from pbench.cli.server import CliContext
+from pbench.cli import CliContext
 
 
 def common_options(in_f: Callable) -> Callable:
