@@ -26,6 +26,7 @@ class TestSampleNamespace(Commons):
             pbench_endpoint="/datasets/namespace/random_md5_string1/iterations",
             elastic_endpoint="/_search",
             index_from_metadata="result-data-sample",
+            empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 
     def test_with_no_index_document(
@@ -408,6 +409,7 @@ class TestSampleValues(Commons):
             elastic_endpoint="/_search",
             payload={},
             index_from_metadata="result-data-sample",
+            empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 
     @pytest.mark.parametrize("filters", ({"sample.name": "sample1"}, {}, None))

@@ -46,6 +46,13 @@ class Commons:
         empty_es_response_payload: JSON = None,
         index_from_metadata: AnyStr = None,
     ):
+        assert len(cls_obj.schemas) == 1
+        if ApiMethod.GET in cls_obj.schemas:
+            self.api_method = ApiMethod.GET
+        elif ApiMethod.POST in cls_obj.schemas:
+            self.api_method = ApiMethod.POST
+        else:
+            assert False, "api_method is neither ApiMethod.GET nor ApiMethod.POST"
         self.cls_obj = cls_obj
         self.pbench_endpoint = pbench_endpoint
         self.elastic_endpoint = elastic_endpoint
@@ -54,12 +61,6 @@ class Commons:
         self.error_payload = error_payload
         self.empty_es_response_payload = empty_es_response_payload
         self.index_from_metadata = index_from_metadata
-        if ApiMethod.GET in self.cls_obj.schemas:
-            self.api_method = ApiMethod.GET
-        elif ApiMethod.POST in self.cls_obj.schemas:
-            self.api_method = ApiMethod.POST
-        else:
-            assert False, "api_method is neither ApiMethod.GET nor ApiMethod.POST"
 
     def build_index(self, server_config, dates):
         """Build the index list for query.
@@ -177,12 +178,15 @@ class Commons:
         """Test behavior when authenticated user specifies a non-existent user."""
         # The pbench_token fixture logs in as user "drb"
         # Trying to access the data belong to the user "pp"
-        user = self.cls_obj.schemas.get_param_by_type(
+        userp = self.cls_obj.schemas.get_param_by_type(
             self.api_method, ParamType.USER, None
         )
-        if not user:
-            pytest.skip("skipping " + self.test_bad_user_name.__name__)
-        self.payload[user.parameter.name] = "pp"
+        if not userp:
+            pytest.skip(
+                f"skipping {self.test_bad_user_name.__name__}, API does not"
+                " have USER parameter"
+            )
+        self.payload[userp.parameter.name] = "pp"
         response = self.make_request_call(
             client,
             server_config.rest_uri + self.pbench_endpoint,
@@ -214,7 +218,8 @@ class Commons:
         )
         if not userp:
             pytest.skip(
-                "skipping " + self.test_accessing_user_data_with_invalid_token.__name__
+                f"skipping {self.test_accessing_user_data_with_invalid_token.__name__},"
+                " API does not have a USER parameter"
             )
         self.payload[userp.parameter.name] = user
         response = self.make_request_call(
@@ -236,7 +241,10 @@ class Commons:
     def test_malformed_payload(self, client, server_config, pbench_token):
         """Test behavior when payload is not valid JSON."""
         if self.api_method != ApiMethod.POST:
-            pytest.skip("skipping " + self.test_malformed_payload.__name__)
+            pytest.skip(
+                f"skipping {self.test_malformed_payload.__name__}, only POST"
+                " APIs have a payload"
+            )
         response = self.make_request_call(
             client,
             server_config.rest_uri + self.pbench_endpoint,
@@ -258,6 +266,11 @@ class Commons:
         Note that Pbench will silently ignore any additional keys that are
         specified but not required.
         """
+        if self.api_method != ApiMethod.POST:
+            pytest.skip(
+                f"skipping {self.test_missing_keys.__name__}, only POST APIs"
+                " have a payload"
+            )
 
         def missing_key_helper(keys):
             response = self.make_request_call(
@@ -273,8 +286,6 @@ class Commons:
                 == f"Missing required parameters: {','.join(missing)}"
             )
 
-        if self.api_method != ApiMethod.POST:
-            pytest.skip("skipping " + self.test_missing_keys.__name__)
         parameter_items = self.cls_obj.schemas[
             self.api_method
         ].body_schema.parameters.items()
@@ -310,13 +321,19 @@ class Commons:
     def test_bad_dates(self, client, server_config, pbench_token):
         """Test behavior when a bad date string is given."""
         if self.api_method != ApiMethod.POST:
-            pytest.skip("skipping " + self.test_bad_dates.__name__)
+            pytest.skip(
+                f"skipping {self.test_bad_dates.__name__}, only POST APIs have"
+                " a payload"
+            )
+        body_schema = self.cls_obj.schemas[self.api_method].body_schema
+        datep = body_schema.get_param_by_type(ParamType.DATE, None)
+        if not datep:
+            pytest.skip(
+                f"skipping {self.test_bad_dates.__name__}, this POST API does"
+                " not use DATE parameter in the payload"
+            )
 
-        parameter_items = self.cls_obj.schemas[
-            self.api_method
-        ].body_schema.parameters.items()
-
-        for key, p in parameter_items:
+        for key, p in body_schema.parameters.items():
             # Modify date/time key in the payload to make it look invalid
             if p.type == ParamType.DATE and key in self.payload:
                 original_date_value = self.payload[key]
@@ -348,8 +365,23 @@ class Commons:
         PyTest will run this test multiple times with different values of the
         build_auth_header fixture.
         """
-        if not self.empty_es_response_payload or not self.elastic_endpoint:
-            pytest.skip("skipping " + self.test_empty_query.__name__)
+        if self.api_method != ApiMethod.POST:
+            pytest.skip(
+                f"skipping {self.test_empty_query.__name__}, only test POST"
+                " APIs which have a payload"
+            )
+        if not self.elastic_endpoint:
+            pytest.skip(
+                f"skipping {self.test_empty_query.__name__}, only test when an"
+                " elasticsearch end point is provided"
+            )
+        params = self.cls_obj.schemas[self.api_method].body_schema.parameters
+        if "start" not in params or "end" not in params:
+            pytest.skip(
+                f"skipping {self.test_empty_query.__name__}, this test only"
+                " works when the API payload provides a date range"
+            )
+
         expected_status = self.get_expected_status(
             self.payload, build_auth_header["header_param"]
         )
@@ -402,9 +434,6 @@ class Commons:
         """Check that an exception in calling Elasticsearch is reported
         correctly.
         """
-        if not self.elastic_endpoint:
-            pytest.skip("skipping " + self.test_http_exception.__name__)
-
         if self.index_from_metadata:
             index = self.build_index_from_metadata()
         else:
@@ -437,8 +466,6 @@ class Commons:
         """Check that an Elasticsearch error is reported correctly through the
         response.raise_for_status() and Pbench handlers.
         """
-        if not self.elastic_endpoint:
-            pytest.skip("skipping " + self.test_http_error.__name__)
 
         if self.index_from_metadata:
             index = self.build_index_from_metadata()
