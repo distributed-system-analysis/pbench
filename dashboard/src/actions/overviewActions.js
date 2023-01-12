@@ -69,6 +69,7 @@ const initializeRuns = () => (dispatch, getState) => {
     item["isEdit"] = false;
     item["name_copy"] = item.name;
     item["isDirty"] = false;
+    item["name_validated"] = "default";
   });
   const defaultPerPage = getState().overview.defaultPerPage;
 
@@ -261,6 +262,12 @@ export const editMetadata =
     const rIndex = data.findIndex((item) => item.resource_id === rId);
     data[rIndex][metadata] = value;
     data[rIndex]["isDirty"] = true;
+    if (value.includes("L")) {
+      data[rIndex]["name_validated"] = "error";
+      data[rIndex]["name_errorMsg"] = "Length should be < 32";
+    } else {
+      data[rIndex]["name_validated"] = "success";
+    }
     dispatch({
       type: TYPES.INIT_NEW_RUNS,
       payload: data,

@@ -194,6 +194,7 @@ const NewRunsComponent = () => {
                     <Td dataLabel={columnNames.result}>
                       {item.isEdit ? (
                         <TextInput
+                          validated={item.name_validated}
                           value={item.name}
                           type="text"
                           onChange={(val) =>
@@ -227,7 +228,11 @@ const NewRunsComponent = () => {
                         ) : (
                           <div>
                             <Button
-                              isDisabled={!item.isDirty || !!!item.name}
+                              isDisabled={
+                                !item.isDirty ||
+                                !!!item.name ||
+                                item.name_validated === "error"
+                              }
                               onClick={() =>
                                 saveRowData("datasetName", item, item.name)
                               }
