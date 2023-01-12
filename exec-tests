@@ -153,7 +153,12 @@ if [[ "${subtst:-python}" == "python" ]]; then
 
     printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${major_list// /,}"
     _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent)')
-    PYTHONUNBUFFERED=True _PBENCH_COV_DIR="${_toxenvdir}/cov" ${_ECHO} _time pytest \
+    # We use SQLALCHEMY_SILENCE_UBER_WARNING here to silence very prolific
+    # warnings posted by SQLAlchemy 1.4.x about features / behaviors being
+    # used which are not compatible with SQLAlchemy 2.x. Since we are not
+    # going to switch to 2.x any time soon, we use the big hammer approach
+    # to avoid the noise.
+    SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True _PBENCH_COV_DIR="${_toxenvdir}/cov" ${_ECHO} _time pytest \
         --tb=native \
         ${pytest_jobs_arg} \
         --basetemp="${_toxenvdir}/tmp" \
@@ -226,7 +231,8 @@ if [[ "${major}" == "all" || "${major}" == "server" ]]; then
         server_arg=${1}
         shift
         posargs="${@}"
-        PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} pytest --tb=native -v -s ${posargs} --pyargs pbench.test.functional.server
+        # We use SQLALCHEMY_SILENCE_UBER_WARNING here ... (see above).
+        SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} pytest --tb=native -v -s ${posargs} --pyargs pbench.test.functional.server
         rc=${?}
     fi
 fi
