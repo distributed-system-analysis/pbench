@@ -20,7 +20,7 @@ import {
   START_PAGE_NUMBER,
   USER_FAVORITE,
 } from "assets/constants/overviewConstants";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   deleteDataset,
   setRows,
@@ -37,26 +37,30 @@ const NewRunsComponent = () => {
   const { newRuns, initNewRuns, selectedRuns } = useSelector(
     (state) => state.overview
   );
-  const loginDetails = useSelector((state) => state.userAuth.loginDetails);
 
   const [perPage, setPerPage] = useState(ROWS_PER_PAGE);
   const [page, setPage] = useState(START_PAGE_NUMBER);
 
-  const onSetPage = (_evt, newPage, _perPage, startIdx, endIdx) => {
-    setPage(newPage);
-    dispatch(setRows(newRuns.slice(startIdx, endIdx)));
-  };
-
+  const onSetPage = useCallback(
+    (_evt, newPage, _perPage, startIdx, endIdx) => {
+      setPage(newPage);
+      dispatch(setRows(newRuns.slice(startIdx, endIdx)));
+    },
+    [dispatch, newRuns]
+  );
   const perPageOptions = [
     { title: "5", value: 5 },
     { title: "10", value: 10 },
     { title: "20", value: 20 },
   ];
-  const onPerPageSelect = (_evt, newPerPage, newPage, startIdx, endIdx) => {
-    setPerPage(newPerPage);
-    setPage(newPage);
-    dispatch(setRows(newRuns.slice(startIdx, endIdx)));
-  };
+  const onPerPageSelect = useCallback(
+    (_evt, newPerPage, newPage, startIdx, endIdx) => {
+      setPerPage(newPerPage);
+      setPage(newPage);
+      dispatch(setRows(newRuns.slice(startIdx, endIdx)));
+    },
+    [dispatch, newRuns]
+  );
   const columnNames = {
     result: "Result",
     endtime: "Endtime",
@@ -187,15 +191,7 @@ const NewRunsComponent = () => {
                       }}
                     />
                     <Td isActionCell>
-                      {rowActions ? (
-                        <ActionsColumn
-                          items={rowActions}
-                          isDisabled={
-                            item?.metadata[DATASET_OWNER] !==
-                            loginDetails?.username
-                          }
-                        />
-                      ) : null}
+                      {rowActions ? <ActionsColumn items={rowActions} /> : null}
                     </Td>
                   </Tr>
                   {item.metadata ? (

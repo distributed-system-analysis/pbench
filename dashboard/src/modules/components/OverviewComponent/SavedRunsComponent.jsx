@@ -15,7 +15,6 @@ import {
   DASHBOARD_SEEN,
   DATASET_ACCESS,
   DATASET_CREATED,
-  DATASET_OWNER,
   SERVER_DELETION,
   USER_FAVORITE,
 } from "assets/constants/overviewConstants";
@@ -33,7 +32,6 @@ import { formatDateTime } from "utils/dateFunctions";
 const SavedRunsComponent = () => {
   const dispatch = useDispatch();
   const { savedRuns, selectedRuns } = useSelector((state) => state.overview);
-  const loginDetails = useSelector((state) => state.userAuth.loginDetails);
 
   /* Selecting */
   const areAllRunsSelected =
@@ -148,15 +146,7 @@ const SavedRunsComponent = () => {
                       }}
                     />
                     <Td isActionCell>
-                      {rowActions ? (
-                        <ActionsColumn
-                          items={rowActions}
-                          isDisabled={
-                            item?.metadata[DATASET_OWNER] !==
-                            loginDetails?.username
-                          }
-                        />
-                      ) : null}
+                      {rowActions ? <ActionsColumn items={rowActions} /> : null}
                     </Td>
                   </Tr>
                 </Tbody>
