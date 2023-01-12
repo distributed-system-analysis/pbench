@@ -80,28 +80,23 @@ class IndexMapBase(ElasticBase):
     }
 
     def __init__(self, config: PbenchServerConfig, logger: Logger, *schemas: ApiSchema):
-        super().__init__(config, logger, *schemas)
-
         api_name = self.__class__.__name__
-
-        if len(schemas) != 1:
-            raise MissingDatasetNameParameter(
-                api_name, f"exactly one schema required: found {len(schemas)}"
-            )
-
-        self.schema = schemas[0]
-        dset = self.schema.get_param_by_type(
+        assert (
+            len(schemas) == 1
+        ), f"{api_name}: exactly one schema required: found {len(schemas)}"
+        dset = schemas[0].get_param_by_type(
             ParamType.DATASET,
             ApiParams(),
         )
-        if not dset or not dset.parameter.required:
-            raise MissingDatasetNameParameter(
-                api_name, "dataset parameter is not defined or not required"
-            )
-        if self.schema.authorization != ApiAuthorizationType.DATASET:
-            raise MissingDatasetNameParameter(
-                api_name, "schema authorization is not by dataset"
-            )
+        assert (
+            dset and dset.parameter.required
+        ), f"{api_name}: dataset parameter is not defined or not required"
+        assert (
+            schemas[0].authorization == ApiAuthorizationType.DATASET
+        ), f"{api_name}: schema authorization is not by dataset"
+
+        super().__init__(config, logger, *schemas)
+        self._method = schemas[0].method
 
     def preprocess(self, params: ApiParams, context: ApiContext) -> NoReturn:
         """Identify the Dataset on which we're operating, and return it in the
@@ -111,9 +106,8 @@ class IndexMapBase(ElasticBase):
         using the Dataset ownership/access, so validation and authorization has
         already taken place.
         """
-
         _, dataset = self.schemas.get_param_by_type(
-            self.schema.method, ParamType.DATASET, params
+            self._method, ParamType.DATASET, params
         )
         context["dataset"] = dataset
 
