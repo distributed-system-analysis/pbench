@@ -17,8 +17,7 @@ from pbench.server.database.models.template import Template
 
 
 class MissingDatasetNameParameter(SchemaError):
-    """
-    The subclass schema is missing the required "name" parameter required
+    """The subclass schema is missing the required "name" parameter required
     to locate a Dataset.
 
     NOTE: This is a development error, not a client error, and will be raised
@@ -36,8 +35,7 @@ class MissingDatasetNameParameter(SchemaError):
 
 
 class IndexMapBase(ElasticBase):
-    """
-    A base class for query apis that depends on Metadata for getting the
+    """A base class for query apis that depends on Metadata for getting the
     indices.
 
     This class extends the ElasticBase class and implements a common
@@ -106,8 +104,7 @@ class IndexMapBase(ElasticBase):
             )
 
     def preprocess(self, params: ApiParams, context: ApiContext) -> NoReturn:
-        """
-        Identify the Dataset on which we're operating, and return it in the
+        """Identify the Dataset on which we're operating, and return it in the
         context for the Elasticsearch assembly and postprocessing.
 
         Note that the class constructor validated that the API is authorized
@@ -121,9 +118,8 @@ class IndexMapBase(ElasticBase):
         context["dataset"] = dataset
 
     def get_index(self, dataset: Dataset, root_index_name: AnyStr) -> AnyStr:
-        """
-        Retrieve the list of ES indices from the metadata table based on a given
-        root_index_name.
+        """Retrieve the list of ES indices from the metadata table based on a
+        given root_index_name.
         """
         try:
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
@@ -159,12 +155,12 @@ class IndexMapBase(ElasticBase):
 
     @staticmethod
     def get_mappings(document: JSON) -> JSON:
-        """
-        Utility function to return ES mappings by querying the Template
+        """Utility function to return ES mappings by querying the Template
         database against a given index.
 
         Args:
-            document: One of the values of ES_INTERNAL_INDEX_NAMES (JSON)
+            document : One of the values of ES_INTERNAL_INDEX_NAMES (JSON)
+
         Returns:
             JSON containing whitelisted keys of the index and corresponding
             values.

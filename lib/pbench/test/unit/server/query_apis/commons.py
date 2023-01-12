@@ -16,8 +16,7 @@ from pbench.test.unit.server.headertypes import HeaderTypes
 
 
 class Commons:
-    """
-    Unit testing for all the elasticsearch resources class.
+    """Unit testing for all the elasticsearch resources class.
 
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
@@ -63,11 +62,10 @@ class Commons:
             assert False, "api_method is neither ApiMethod.GET nor ApiMethod.POST"
 
     def build_index(self, server_config, dates):
-        """
-        Build the index list for query
+        """Build the index list for query.
 
         Args:
-            dates (iterable): list of date strings
+            dates (iterable) : list of date strings
         """
         idx = server_config.get("Indexing", "index_prefix") + ".v6.run-data."
         index = "".join([f"{idx}{d}," for d in dates])
@@ -75,9 +73,8 @@ class Commons:
         return f"/{index}"
 
     def build_index_from_metadata(self) -> str:
-        """
-        Retrieve the list of ES indices from the dataset index
-        map metadata based on a given root index name.
+        """Retrieve the list of ES indices from the dataset index map metadata
+        based on a given root index name.
 
         Returns:
             An Elasticsearch query URL string listing the set of
@@ -90,8 +87,8 @@ class Commons:
         return "/" + ",".join(index_keys)
 
     def date_range(self, start: AnyStr, end: AnyStr) -> list:
-        """
-        Builds list of range of dates between start and end
+        """Builds list of range of dates between start and end.
+
         It expects the date to look like YYYY-MM
         """
         date_range = []
@@ -105,8 +102,7 @@ class Commons:
         return date_range
 
     def get_expected_status(self, payload: JSON, header: HeaderTypes) -> int:
-        """
-        Decode the various test cases we use, which are a combination of the
+        """Decode the various test cases we use, which are a combination of the
         test case parametrization (for "user" parameter value) and the
         parametrization of the `build_auth_header` fixture (for the API
         authentication header);
@@ -155,8 +151,7 @@ class Commons:
     def test_malformed_authorization_header(
         self, client, server_config, malformed_token, attach_dataset
     ):
-        """
-        Test behavior when the Authorization header is present but is not a
+        """Test behavior when the Authorization header is present but is not a
         proper Bearer schema.
 
         TODO: This actually tests behavior with no client authentication, as
@@ -179,9 +174,7 @@ class Commons:
         assert response.status_code == HTTPStatus.UNAUTHORIZED
 
     def test_bad_user_name(self, client, server_config, pbench_token):
-        """
-        Test behavior when authenticated user specifies a non-existent user.
-        """
+        """Test behavior when authenticated user specifies a non-existent user."""
         # The pbench_token fixture logs in as user "drb"
         # Trying to access the data belong to the user "pp"
         user = self.cls_obj.schemas.get_param_by_type(
@@ -205,8 +198,7 @@ class Commons:
     def test_accessing_user_data_with_invalid_token(
         self, client, server_config, pbench_token_invalid, user
     ):
-        """
-        Test behavior when expired authentication token is provided.
+        """Test behavior when expired authentication token is provided.
 
         TODO: This actually tests behavior with no client authentication, as
         Flask-HTTPTokenAuth hides the validation failure because our query
@@ -234,9 +226,7 @@ class Commons:
         assert response.status_code == HTTPStatus.UNAUTHORIZED
 
     def test_missing_json_object(self):
-        """
-        Test behavior when no JSON payload is given
-        """
+        """Test behavior when no JSON payload is given."""
         with pytest.raises(SchemaError) as exc:
             self.cls_obj.schemas.validate(
                 self.api_method, ApiParams(uri=None, query=None, body={})
@@ -244,9 +234,7 @@ class Commons:
         assert str(exc.value).startswith("Missing required parameters: ")
 
     def test_malformed_payload(self, client, server_config, pbench_token):
-        """
-        Test behavior when payload is not valid JSON
-        """
+        """Test behavior when payload is not valid JSON."""
         if self.api_method != ApiMethod.POST:
             pytest.skip("skipping " + self.test_malformed_payload.__name__)
         response = self.make_request_call(
@@ -265,8 +253,7 @@ class Commons:
         )
 
     def test_missing_keys(self, client, server_config, pbench_token):
-        """
-        Test behavior when JSON payload does not contain all required keys.
+        """Test behavior when JSON payload does not contain all required keys.
 
         Note that Pbench will silently ignore any additional keys that are
         specified but not required.
@@ -321,9 +308,7 @@ class Commons:
             missing_key_helper({"notakey": None})
 
     def test_bad_dates(self, client, server_config, pbench_token):
-        """
-        Test behavior when a bad date string is given
-        """
+        """Test behavior when a bad date string is given."""
         if self.api_method != ApiMethod.POST:
             pytest.skip("skipping " + self.test_bad_dates.__name__)
 
@@ -357,10 +342,11 @@ class Commons:
         find_template,
         build_auth_header,
     ):
-        """
-        Check proper handling of a query resulting in no Elasticsearch matches.
-        PyTest will run this test multiple times with different values of the build_auth_header
-        fixture.
+        """Check proper handling of a query resulting in no Elasticsearch
+        matches.
+
+        PyTest will run this test multiple times with different values of the
+        build_auth_header fixture.
         """
         if not self.empty_es_response_payload or not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_empty_query.__name__)
@@ -413,8 +399,8 @@ class Commons:
         pbench_token,
         provide_metadata,
     ):
-        """
-        Check that an exception in calling Elasticsearch is reported correctly.
+        """Check that an exception in calling Elasticsearch is reported
+        correctly.
         """
         if not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_http_exception.__name__)
@@ -448,8 +434,7 @@ class Commons:
         provide_metadata,
         errors,
     ):
-        """
-        Check that an Elasticsearch error is reported correctly through the
+        """Check that an Elasticsearch error is reported correctly through the
         response.raise_for_status() and Pbench handlers.
         """
         if not self.elastic_endpoint:
