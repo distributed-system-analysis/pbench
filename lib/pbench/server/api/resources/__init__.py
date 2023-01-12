@@ -352,8 +352,8 @@ def convert_date(value: str, _) -> datetime:
     """
     try:
         return date_parser.parse(value)
-    except Exception:
-        raise ConversionError(value, "date/time string")
+    except Exception as e:
+        raise ConversionError(value, "date/time string") from e
 
 
 def convert_username(value: Union[str, None], _) -> Union[str, None]:
@@ -386,10 +386,10 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
 
     try:
         user = User.query(username=value)
-    except Exception:
+    except Exception as e:
         raise ConversionError(
             value, "username", http_status=HTTPStatus.INTERNAL_SERVER_ERROR
-        )
+        ) from e
 
     if not user:
         raise ConversionError(value, "username", http_status=HTTPStatus.NOT_FOUND)
@@ -430,28 +430,33 @@ def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
 
     Raises:
         ConversionError : input can't be validated or normalized
+        KeywordError : unexpected keyword encountered
 
     Returns:
         The JSON dict
     """
     try:
-        if json.loads(json.dumps(value)) == value:
-            if parameter.keywords:
-                bad = []
-                for k in value.keys():
-                    if parameter.key_path:
-                        if not Metadata.is_key_path(k, parameter.keywords):
-                            bad.append(k)
-                    elif k not in parameter.keywords:
-                        bad.append(k)
-                if bad:
-                    raise KeywordError(
-                        parameter, f"JSON key{'s' if len(bad) > 1 else ''}", bad
-                    )
-            return value
-    except JSONDecodeError:
-        pass
-    raise ConversionError(value, "JSON")
+        washed = json.loads(json.dumps(value))
+    except JSONDecodeError as e:
+        raise ConversionError(value, "JSON") from e
+
+    if washed != value:
+        raise ConversionError(value, "JSON") from ValueError(
+            "Value not JSON-serializable"
+        )
+
+    if parameter.keywords:
+        bad = []
+        for k in value.keys():
+            if parameter.key_path:
+                if not Metadata.is_key_path(k, parameter.keywords):
+                    bad.append(k)
+            elif k not in parameter.keywords:
+                bad.append(k)
+        if bad:
+            raise KeywordError(parameter, f"JSON key{'s' if len(bad) > 1 else ''}", bad)
+
+    return value
 
 
 def convert_string(value: str, _) -> str:
@@ -489,12 +494,12 @@ def convert_int(value: Union[int, str], _) -> int:
     """
     if type(value) is int:
         return value
-    elif type(value) is str:
-        try:
-            return int(value)
-        except ValueError:
-            pass
-    raise ConversionError(value, int.__name__)
+    if type(value) is not str:
+        raise ConversionError(value, int.__name__)
+    try:
+        return int(value)
+    except ValueError as e:
+        raise ConversionError(value, int.__name__) from e
 
 
 def convert_keyword(value: str, parameter: "Parameter") -> Union[str, Enum]:
@@ -519,6 +524,7 @@ def convert_keyword(value: str, parameter: "Parameter") -> Union[str, Enum]:
 
     Raises:
         ConversionError : input can't be validated or normalized
+        KeywordError : an unexpected keyword encountered
 
     Returns:
         the input value
@@ -532,13 +538,13 @@ def convert_keyword(value: str, parameter: "Parameter") -> Union[str, Enum]:
         except ValueError as e:
             raise KeywordError(parameter, "enum", [value]) from e
 
-    input = value.lower()
+    keyword = value.lower()
     if not parameter.keywords:
-        return input
-    elif parameter.key_path and Metadata.is_key_path(input, parameter.keywords):
-        return input
-    elif input in parameter.keywords:
-        return input
+        return keyword
+    elif parameter.key_path and Metadata.is_key_path(keyword, parameter.keywords):
+        return keyword
+    elif keyword in parameter.keywords:
+        return keyword
     raise KeywordError(parameter, "keyword", [value])
 
 
@@ -558,6 +564,7 @@ def convert_list(value: Union[str, List[str]], parameter: "Parameter") -> List[A
 
     Raises:
         ConversionError : input can't be validated or normalized
+        ListElementError : elements of the list failed validation or normalization
 
     Returns:
         A new list with normalized elements
@@ -603,6 +610,7 @@ def convert_access(value: str, parameter: "Parameter") -> str:
 
     Raises:
         ConversionError : input can't be validated or normalized
+        KeywordError : unexpected keyword encountered
 
     Returns:
         the validated access string
