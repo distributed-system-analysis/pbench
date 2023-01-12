@@ -45,7 +45,7 @@ _ECHO=${DEBUG_EXEC_UNITTESTS:+echo}
 parallel=${PBENCH_UNITTEST_PARALLEL:-auto}
 if [[ "${parallel}" == "serial" ]]; then
     para_jobs_arg="-j 1"
-    pytest_jobs_arg="-n 1"
+    pytest_jobs_arg=""
 elif [[ "${parallel}" == "auto" ]]; then
     para_jobs_arg=""
     pytest_jobs_arg="-n auto"
@@ -165,8 +165,9 @@ if [[ "${subtst:-python}" == "python" ]]; then
         --cov=${_pbench_sources} \
         --cov-report ${_cov_report} \
         -rs \
+        --pyargs \
         ${posargs} \
-        --pyargs ${_pytest_majors}
+        ${_pytest_majors}
     rc=${?}
     if [[ ${rc} -ne 0 ]]; then
         printf -- "\n%s pytest command failed with '%s'\n\n" "${major_list// /,}" "${rc}"
@@ -233,7 +234,7 @@ if [[ "${major}" == "all" || "${major}" == "server" ]]; then
         shift
         posargs="${@}"
         # We use SQLALCHEMY_SILENCE_UBER_WARNING here ... (see above).
-        SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} pytest --tb=native -v -s -rs ${posargs} --pyargs pbench.test.functional.server
+        SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} pytest --tb=native -v -s -rs --pyargs ${posargs} pbench.test.functional.server
         rc=${?}
     fi
 fi
