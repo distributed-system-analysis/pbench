@@ -1056,6 +1056,9 @@ class ApiSchemaSet:
     def __contains__(self, item):
         return item in self.schemas
 
+    def __len__(self):
+        return len(self.schemas)
+
     def get_param_by_type(
         self, method: ApiMethod, dtype: ParamType, params: Optional[ApiParams]
     ) -> Optional[ParamSet]:
