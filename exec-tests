@@ -164,6 +164,7 @@ if [[ "${subtst:-python}" == "python" ]]; then
         --basetemp="${_toxenvdir}/tmp" \
         --cov=${_pbench_sources} \
         --cov-report ${_cov_report} \
+        -rs \
         ${posargs} \
         --pyargs ${_pytest_majors}
     rc=${?}
@@ -232,7 +233,7 @@ if [[ "${major}" == "all" || "${major}" == "server" ]]; then
         shift
         posargs="${@}"
         # We use SQLALCHEMY_SILENCE_UBER_WARNING here ... (see above).
-        SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} pytest --tb=native -v -s ${posargs} --pyargs pbench.test.functional.server
+        SQLALCHEMY_SILENCE_UBER_WARNING=1 PYTHONUNBUFFERED=True PBENCH_SERVER=${server_arg} pytest --tb=native -v -s -rs ${posargs} --pyargs pbench.test.functional.server
         rc=${?}
     fi
 fi
