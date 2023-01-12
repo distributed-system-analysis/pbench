@@ -144,7 +144,9 @@ def get_pbench_logger(caller, config):
             logging_level = config.default_logging_level
         pbench_logger.setLevel(logging_level)
 
-        if config.logger_type == "file":
+        if config.logger_type == "null":
+            handler = logging.NullHandler()
+        elif config.logger_type == "file":
             log_dir = Path(config.log_dir)
             if config.log_using_caller_directory:
                 log_dir = log_dir / caller

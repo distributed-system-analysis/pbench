@@ -44,7 +44,7 @@ host = elasticsearch.example.com
 port = 7080
 
 [logging]
-logger_type = file
+logger_type = null
 # We run with DEBUG level logging during the server unit tests to help
 # verify we are not emitting too many logs.
 logging_level = DEBUG
