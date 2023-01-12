@@ -11,9 +11,9 @@ from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
-class TestSamplesNamespace(Commons):
-    """
-    Unit testing for SamplesNamespace class.
+class TestSampleNamespace(Commons):
+    """Unit testing for SampleNamespace class.
+
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
     constructor and `get` service.
@@ -31,9 +31,7 @@ class TestSamplesNamespace(Commons):
     def test_with_no_index_document(
         self, client, server_config, pbench_token, attach_dataset
     ):
-        """
-        Check the Namespace API when no index name is provided
-        """
+        """Check the Namespace API when no index name is provided."""
         # remove the last component of the pbench_endpoint
         incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-1])
         response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}")
@@ -42,10 +40,10 @@ class TestSamplesNamespace(Commons):
     def test_with_incorrect_index_document(
         self, client, server_config, pbench_token, attach_dataset
     ):
-        """
-        Check the Namespace API when an incorrect index name is provided.
-        currently we only support iterations (result-data-samples) and
-        timeseries (result-data) documents
+        """Check the Namespace API when an incorrect index name is provided.
+
+        Currently we only support iterations (result-data-samples) and
+        timeseries (result-data) documents.
         """
         incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-1]) + "/test"
         response = client.get(
@@ -111,10 +109,11 @@ class TestSamplesNamespace(Commons):
         find_template,
         provide_metadata,
     ):
-        """
-        Check the construction of Elasticsearch query URI and filtering of the
-        response body. Note that the mock set up by the attach_dataset fixture
-        matches the dataset name to the dataset's owner.
+        """Check the construction of Elasticsearch query URI and filtering of
+        the response body.
+
+        Note that the mock set up by the attach_dataset fixture matches the
+        dataset name to the dataset's owner.
         """
         response_payload = {
             "took": 14,
@@ -392,8 +391,8 @@ class TestSamplesNamespace(Commons):
 
 
 class TestSampleValues(Commons):
-    """
-    Unit testing for IterationSamplesRowse class.
+    """Unit testing for SampleValues class.
+
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
     constructor and `post` service.
