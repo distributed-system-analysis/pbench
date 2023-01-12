@@ -32,7 +32,6 @@ import { formatDateTime } from "utils/dateFunctions";
 const SavedRunsComponent = () => {
   const dispatch = useDispatch();
   const { savedRuns, selectedRuns } = useSelector((state) => state.overview);
-  // const loginDetails = useSelector((state) => state.userAuth.loginDetails);
 
   /* Selecting */
   const areAllRunsSelected =
@@ -147,15 +146,7 @@ const SavedRunsComponent = () => {
                       }}
                     />
                     <Td isActionCell>
-                      {rowActions ? (
-                        <ActionsColumn
-                          items={rowActions}
-                          // isDisabled={
-                          //   item?.metadata[DATASET_OWNER] !==
-                          //   loginDetails?.username
-                          // }
-                        />
-                      ) : null}
+                      {rowActions ? <ActionsColumn items={rowActions} /> : null}
                     </Td>
                   </Tr>
                 </Tbody>

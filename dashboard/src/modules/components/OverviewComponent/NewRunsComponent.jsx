@@ -37,7 +37,6 @@ const NewRunsComponent = () => {
   const { newRuns, initNewRuns, selectedRuns } = useSelector(
     (state) => state.overview
   );
-  // const loginDetails = useSelector((state) => state.userAuth.loginDetails);
 
   const [perPage, setPerPage] = useState(ROWS_PER_PAGE);
   const [page, setPage] = useState(START_PAGE_NUMBER);
@@ -192,15 +191,7 @@ const NewRunsComponent = () => {
                       }}
                     />
                     <Td isActionCell>
-                      {rowActions ? (
-                        <ActionsColumn
-                          items={rowActions}
-                          // isDisabled={
-                          //   item?.metadata[DATASET_OWNER] !==
-                          //   loginDetails?.username
-                          // }
-                        />
-                      ) : null}
+                      {rowActions ? <ActionsColumn items={rowActions} /> : null}
                     </Td>
                   </Tr>
                   {item.metadata ? (
