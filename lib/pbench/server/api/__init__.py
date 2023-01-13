@@ -203,7 +203,7 @@ def get_server_config() -> PbenchServerConfig:
 def create_app(server_config):
     """Create Flask app with defined resource endpoints."""
 
-    app = Flask("api-server")
+    app = Flask(__name__.split(".")[0])
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     app.logger = get_pbench_logger(__name__, server_config)
