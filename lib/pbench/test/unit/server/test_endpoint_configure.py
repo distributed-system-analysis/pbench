@@ -58,6 +58,7 @@ class TestEndpointConfig:
                 "datasets_mappings": f"{uri}/datasets/mappings",
                 "datasets_metadata": f"{uri}/datasets/metadata",
                 "datasets_namespace": f"{uri}/datasets/namespace",
+                "datasets_owner": f"{uri}/datasets/change_owner",
                 "datasets_publish": f"{uri}/datasets/publish",
                 "datasets_search": f"{uri}/datasets/search",
                 "datasets_values": f"{uri}/datasets/values",
@@ -112,6 +113,10 @@ class TestEndpointConfig:
                         "dataset": {"type": "string"},
                         "dataset_view": {"type": "string"},
                     },
+                },
+                "datasets_owner": {
+                    "template": f"{uri}/datasets/change_owner/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
                 },
                 "datasets_publish": {
                     "template": f"{uri}/datasets/publish/{{dataset}}",

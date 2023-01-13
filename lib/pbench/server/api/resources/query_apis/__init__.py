@@ -576,9 +576,12 @@ class ElasticBulkBase(ApiBase):
             raise MissingBulkSchemaParameters(
                 api_name, "dataset parameter is not defined or not required"
             )
-        if self.schemas[ApiMethod.POST].authorization != ApiAuthorizationType.DATASET:
+        if self.schemas[ApiMethod.POST].authorization not in [
+            ApiAuthorizationType.ADMIN,
+            ApiAuthorizationType.DATASET,
+        ]:
             raise MissingBulkSchemaParameters(
-                api_name, "schema authorization is not by dataset"
+                api_name, "schema authorization is not by dataset or admin"
             )
 
     def generate_actions(

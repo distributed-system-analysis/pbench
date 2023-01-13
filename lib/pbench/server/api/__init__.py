@@ -33,6 +33,7 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleValues,
 )
 from pbench.server.api.resources.query_apis.datasets_delete import DatasetsDelete
+from pbench.server.api.resources.query_apis.datasets_owner import DatasetOwner
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
 from pbench.server.api.resources.server_audit import ServerAudit
@@ -118,6 +119,12 @@ def register_endpoints(api, app, config):
         SampleValues,
         f"{base_uri}/datasets/values/<string:dataset>/<string:dataset_view>",
         endpoint="datasets_values",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        DatasetOwner,
+        f"{base_uri}/datasets/change_owner/<string:dataset>",
+        endpoint="datasets_owner",
         resource_class_args=(config, logger),
     )
     api.add_resource(
