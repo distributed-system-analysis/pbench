@@ -37,7 +37,10 @@ def test_log_raw_io_output(caplog):
             yield b"line3\n"
             yield b"line4\n"
 
-    log_raw_io_output(MockedPipe(), logging.getLogger("test_log_raw_io_output"))
+    logger = logging.getLogger("test_log_raw_io_output")
+    caplog.set_level(logging.DEBUG, "test_log_raw_io_output")
+
+    log_raw_io_output(MockedPipe(), logger)
 
     assert caplog.record_tuples[0][2] == "line1"
     assert caplog.record_tuples[1][2] == "line3"
@@ -301,10 +304,11 @@ class TestTool:
         assert the_thread.args == (subprocess.PIPE, "parent.child(logger-foo)")
 
     @staticmethod
-    def setup_wait_for_process_tool(logger_name: str) -> Tool:
+    def setup_wait_for_process_tool(logger_name: str, caplog) -> Tool:
         """Provide a Tool() object with a real logger."""
         mocked_install_dir = MockedPath()
         a_logger = logging.getLogger(f"TestTool.{logger_name}")
+        caplog.set_level(logging.DEBUG, f"TestTool.{logger_name}")
         return Tool("test-tool", "opt1;opt2", mocked_install_dir, a_logger)
 
     @staticmethod
@@ -330,7 +334,7 @@ class TestTool:
     ):
         _ctx_name = "" if ctx_name is None else f",ctx_name={ctx_name}"
         tool = TestTool.setup_wait_for_process_tool(
-            f"test_wait_for_process;waits={waits}{_ctx_name}"
+            f"test_wait_for_process;waits={waits}{_ctx_name}", caplog
         )
         sts = tool._wait_for_process(MockProcessBasic(waits), ctx_name=ctx_name)
         assert sts == expected_sts
@@ -345,12 +349,12 @@ class TestTool:
 
     @staticmethod
     def setup_wait_for_process_tool_with_kill(
-        logger_name: str, wait_for_process_ret_val: Any
+        logger_name: str, wait_for_process_ret_val: Any, caplog
     ) -> Tool:
         """Provide a Tool object where the ._wait_for_process() method is
         mocked to return a specific value.
         """
-        tool = TestTool.setup_wait_for_process_tool(logger_name)
+        tool = TestTool.setup_wait_for_process_tool(logger_name, caplog)
 
         def wait_for_process(_self, process, ctx_name=None):
             return wait_for_process_ret_val
@@ -362,7 +366,7 @@ class TestTool:
     def test_wait_for_process_with_kill_success(caplog):
         """Verify immediate action success case."""
         tool = TestTool.setup_wait_for_process_tool_with_kill(
-            "test_wait_for_process_with_kill_success", 0
+            "test_wait_for_process_with_kill_success", 0, caplog
         )
 
         expected_log_entries = 1
@@ -381,7 +385,7 @@ class TestTool:
     def test_wait_for_process_with_kill_success_w_context(caplog):
         """Verify immediate action success case with context name."""
         tool = TestTool.setup_wait_for_process_tool_with_kill(
-            "test_wait_for_process_with_kill_success_w_context", 0
+            "test_wait_for_process_with_kill_success_w_context", 0, caplog
         )
 
         expected_log_entries = 1
@@ -402,7 +406,7 @@ class TestTool:
     def test_wait_for_process_with_kill_sigterm(caplog):
         """Verify -SIGTERM case is considered success."""
         tool = TestTool.setup_wait_for_process_tool_with_kill(
-            "test_wait_for_process_with_kill_sigterm", -(signal.SIGTERM)
+            "test_wait_for_process_with_kill_sigterm", -(signal.SIGTERM), caplog
         )
 
         expected_log_entries = 1
@@ -421,7 +425,7 @@ class TestTool:
     def test_wait_for_process_with_kill_error_code(caplog):
         """Verify error code handling."""
         tool = TestTool.setup_wait_for_process_tool_with_kill(
-            "test_wait_for_process_with_kill_error_code", 42
+            "test_wait_for_process_with_kill_error_code", 42, caplog
         )
 
         expected_log_entries = 2
@@ -444,7 +448,7 @@ class TestTool:
     def test_wait_for_process_with_kill_no_wait_timeout(caplog):
         """Kill() case with no wait() timeout"""
         tool = TestTool.setup_wait_for_process_tool_with_kill(
-            "test_wait_for_process_with_kill_no_wait_timeout", None
+            "test_wait_for_process_with_kill_no_wait_timeout", None, caplog
         )
 
         expected_log_entries = 2
@@ -469,7 +473,7 @@ class TestTool:
     def test_wait_for_process_with_kill_wait_timeout(caplog):
         """Kill case with wait() timeout"""
         tool = TestTool.setup_wait_for_process_tool_with_kill(
-            "test_wait_for_process_with_kill_wait_timeout", None
+            "test_wait_for_process_with_kill_wait_timeout", None, caplog
         )
 
         expected_log_entries = 3
@@ -526,9 +530,10 @@ class TestTransientTool:
         assert ir.output == ""
 
     @staticmethod
-    def setup_transient_tool(logger_name: str) -> TransientTool:
+    def setup_transient_tool(logger_name: str, caplog) -> TransientTool:
         mocked_install_dir = MockedPath()
         a_logger = logging.getLogger(f"{__class__}.{logger_name}")
+        caplog.set_level(logging.DEBUG, f"{__class__}.{logger_name}")
         tool = TransientTool(
             name="test-tool",
             tool_opts="opt1;opt2",
@@ -540,7 +545,7 @@ class TestTransientTool:
 
     @staticmethod
     def test_start(caplog):
-        tool = __class__.setup_transient_tool("test_start")
+        tool = __class__.setup_transient_tool("test_start", caplog)
 
         # First verify tool directory argument check.
         with pytest.raises(ToolException) as excinfo:
@@ -566,7 +571,7 @@ class TestTransientTool:
 
     @staticmethod
     def test_stop(caplog):
-        tool = __class__.setup_transient_tool("test_stop")
+        tool = __class__.setup_transient_tool("test_stop", caplog)
 
         the_tool_dir = MockedPath()
         tool.tool_dir = the_tool_dir
@@ -602,7 +607,7 @@ class TestTransientTool:
         ever happen, so a warning message will be issued).
         """
         tool = __class__.setup_transient_tool(
-            f"test_stop_delayed_pid_file:delay_cnt={delay_cnt}"
+            f"test_stop_delayed_pid_file:delay_cnt={delay_cnt}", caplog
         )
 
         exists_cnt = {}
@@ -750,6 +755,7 @@ class TestPcpTransientTool:
     def test_start(caplog):
         mocked_install_dir = MockedPath()
         a_logger = logging.getLogger("TestPcpTransientTool.test_start")
+        caplog.set_level(logging.DEBUG, "TestPcpTransientTool.test_start")
         tool = PcpTransientTool(
             name="tool-transient",
             tool_opts="opt1;opt2",
@@ -804,6 +810,7 @@ class TestPcpTransientTool:
     def test_stop(caplog):
         mocked_install_dir = MockedPath()
         a_logger = logging.getLogger("TestPcpTransientTool.test_stop")
+        caplog.set_level(logging.DEBUG, "TestPcpTransientTool.test_stop")
         tool = PcpTransientTool(
             name="tool-transient",
             tool_opts="opt1;opt2",
@@ -856,12 +863,16 @@ class TestPcpTransientTool:
 class TestPersistentTool:
     @staticmethod
     def tool_constructor(
-        klass: PersistentTool, logger_name: str = None
+        klass: PersistentTool, logger_name: str = None, caplog=None
     ) -> Tuple[MockedPath, Any, PersistentTool]:
         mocked_install_dir = MockedPath()
-        mocked_logger = (
-            NullObject() if logger_name is None else logging.getLogger("logger_name")
-        )
+        if logger_name is None:
+            mocked_logger = NullObject()
+            assert caplog is None
+        else:
+            mocked_logger = logging.getLogger(logger_name)
+            if caplog is not None:
+                caplog.set_level(logging.DEBUG, logger_name)
         return (
             mocked_install_dir,
             mocked_logger,
@@ -949,7 +960,7 @@ class TestPersistentTool:
     @staticmethod
     def test_start(caplog):
         _, _, tool = __class__.tool_constructor(
-            PersistentTool, "TestPersistentTool.test_start"
+            PersistentTool, "TestPersistentTool.test_start", caplog
         )
         tool.args = ["/usr/bin/tool"]
         tool._create_process_with_logger = mocked_create_process_with_logger
@@ -978,7 +989,7 @@ class TestPersistentTool:
     @staticmethod
     def test_stop(caplog):
         _, _, tool = __class__.tool_constructor(
-            PersistentTool, "TestPersistentTool.test_stop"
+            PersistentTool, "TestPersistentTool.test_stop", caplog
         )
         tool.args = ["/usr/bin/tool"]
 
@@ -996,7 +1007,7 @@ class TestPersistentTool:
     @staticmethod
     def test_stop_terminate_exeception(caplog):
         _, _, tool = __class__.tool_constructor(
-            PersistentTool, "TestPersistentTool.test_stop_terminate_exeception"
+            PersistentTool, "TestPersistentTool.test_stop_terminate_exeception", caplog
         )
         tool.args = ["/usr/bin/tool"]
         tool.process = MockProcessForTerminate(raise_exc=True)
