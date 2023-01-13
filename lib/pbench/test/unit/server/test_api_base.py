@@ -4,7 +4,6 @@ from flask import Flask
 from flask.wrappers import Request, Response
 from flask_restful import Api
 
-from pbench.common.logger import get_pbench_logger
 from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.api.resources import (
     ApiBase,
@@ -86,13 +85,13 @@ class TestApiBase:
     """Verify internal methods of the API base class."""
 
     def test_method_validation(
-        self, server_config, monkeypatch, set_oidc_well_known_endpoints
+        self, server_config, make_logger, monkeypatch, set_oidc_well_known_endpoints
     ):
         # Create the temporary flask application.
         app = Flask("test-api-server")
         app.debug = True
         app.testing = True
-        app.logger = get_pbench_logger("test-api-server", server_config)
+        app.logger = make_logger
 
         token_auth = Auth()
         token_auth.set_logger(app.logger)

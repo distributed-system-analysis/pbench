@@ -9,7 +9,6 @@ from jwt.exceptions import (
 )
 import pytest
 
-from pbench.common.logger import get_pbench_logger
 from pbench.server.auth import OpenIDClient
 from pbench.server.auth.auth import Auth, InternalUser
 
@@ -103,7 +102,12 @@ class TestUserTokenManagement:
         assert str(e.value) == "Invalid token"
 
     def test_online_third_party_verification(
-        self, server_config, monkeypatch, keycloak_oidc, keycloak_mock_token
+        self,
+        server_config,
+        make_logger,
+        monkeypatch,
+        keycloak_oidc,
+        keycloak_mock_token,
     ):
         def offline_token_introspection_exception(token: str, key: str, audience: str):
             raise Exception("some exception")
@@ -130,7 +134,7 @@ class TestUserTokenManagement:
         monkeypatch.setattr(
             OpenIDClient, "token_introspect_online", fake_online_token_introspection
         )
-        Auth.set_logger(logger=get_pbench_logger("test-api-server", server_config))
+        Auth.set_logger(logger=make_logger)
         token_payload = Auth.verify_third_party_token(
             auth_token="",
             algorithms=["HS256"],

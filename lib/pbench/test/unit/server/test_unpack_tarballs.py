@@ -6,21 +6,12 @@ from typing import Optional, Union
 
 import pytest
 
-from pbench.common.logger import get_pbench_logger
 from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
 from pbench.server.cache_manager import TarballUnpackError
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.users import User
 from pbench.server.sync import Operation
 from pbench.server.unpack_tarballs import UnpackTarballs
-
-
-@pytest.fixture()
-def make_logger(server_config):
-    """
-    Construct a Pbench Logger object
-    """
-    return get_pbench_logger("TEST", server_config)
 
 
 @dataclass(frozen=True)

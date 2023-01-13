@@ -32,6 +32,15 @@ def mock_valid_query(**kwargs):
     return create_user()
 
 
+@pytest.fixture(autouse=True)
+def server_config_env(on_disk_server_config, monkeypatch):
+    """Provide a pbench server configuration environment variable for all user
+    management CLI tests.
+    """
+    cfg_file = on_disk_server_config["cfg_dir"] / "pbench-server.cfg"
+    monkeypatch.setenv("_PBENCH_SERVER_CONFIG", str(cfg_file))
+
+
 class TestUserManagement:
     USER_SWITCH = "--username"
     PSWD_SWITCH = "--password"
