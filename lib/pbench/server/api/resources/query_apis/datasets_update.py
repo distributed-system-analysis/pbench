@@ -8,22 +8,25 @@ from pbench.server.api.resources import (
     ApiMethod,
     ApiParams,
     ApiSchema,
+    MissingParameters,
     Parameter,
     ParamType,
     Schema,
+    UnauthorizedAdminAccess,
 )
 from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
+from pbench.server.auth.auth import Auth
 from pbench.server.database.models.audit import AuditType
 from pbench.server.database.models.datasets import Dataset
 
 
-class DatasetsPublish(ElasticBulkBase):
+class DatasetsUpdate(ElasticBulkBase):
     """
-    Change the "access" authorization of a Pbench dataset by modifying the
-    "authorization": {"access": value} subdocument of each Elasticsearch
-    document associated with the specified dataset.
+    Change the owner and access of a Pbench dataset by modifying the owner
+     and/or access in the Dataset table and in each Elasticsearch document
+    "authorization" sub-document associated with the dataset
 
-    Called as `POST /api/v1/datasets/publish/{resource_id}?access=public`
+    Called as `POST /api/v1/datasets/{resource_id}?access=public&owner=user`
     """
 
     def __init__(self, config: PbenchServerConfig):
@@ -36,10 +39,11 @@ class DatasetsPublish(ElasticBulkBase):
                     Parameter("dataset", ParamType.DATASET, required=True)
                 ),
                 query_schema=Schema(
-                    Parameter("access", ParamType.ACCESS, required=True),
+                    Parameter("access", ParamType.ACCESS, required=False),
+                    Parameter("owner", ParamType.USER, required=False),
                 ),
                 audit_type=AuditType.DATASET,
-                audit_name="publish",
+                audit_name="update",
                 authorization=ApiAuthorizationType.DATASET,
             ),
             action="update",
@@ -67,10 +71,19 @@ class DatasetsPublish(ElasticBulkBase):
         Returns:
             A generator for Elasticsearch bulk update actions
         """
-        access = params.query["access"]
-        context["access"] = access
 
-        current_app.logger.info("Starting publish operation for dataset {}", dataset)
+        access = params.query.get("access")
+        owner = params.query.get("owner")
+        es_doc = {}
+        if not access and not owner:
+            raise MissingParameters(["access", "owner"])
+        if access:
+            context["access"] = es_doc["access"] = access
+        if owner:
+            authorized_user = Auth.token_auth.current_user()
+            if not authorized_user.is_admin():
+                raise UnauthorizedAdminAccess(authorized_user, OperationCode.UPDATE)
+            context["owner"] = es_doc["owner"] = owner
 
         # Generate a series of bulk update documents, which will be passed to
         # the Elasticsearch bulk helper.
@@ -78,14 +91,13 @@ class DatasetsPublish(ElasticBulkBase):
         # Note that the "doc" specifies explicit instructions for updating only
         # the "access" field of the "authorization" subdocument: no other data
         # will be modified.
-
         for index, ids in map.items():
             for id in ids:
                 yield {
                     "_op_type": self.action,
                     "_index": index,
                     "_id": id,
-                    "doc": {"authorization": {"access": access}},
+                    "doc": {"authorization": es_doc},
                 }
 
     def complete(
@@ -107,7 +119,13 @@ class DatasetsPublish(ElasticBulkBase):
         """
         auditing: dict[str, Any] = context["auditing"]
         attributes = auditing["attributes"]
-        attributes["access"] = context["access"]
         if summary["failure"] == 0:
-            dataset.access = context["access"]
+            access = context.get("access")
+            if access:
+                attributes["access"] = access
+                dataset.access = access
+            owner = context.get("owner")
+            if owner:
+                attributes["owner"] = owner
+                dataset.owner_id = owner
             dataset.update()
