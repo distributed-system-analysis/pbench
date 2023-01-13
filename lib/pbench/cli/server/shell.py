@@ -1,5 +1,4 @@
 from configparser import NoOptionError, NoSectionError
-from http import HTTPStatus
 from logging import Logger
 import os
 from pathlib import Path
@@ -7,13 +6,10 @@ import site
 import subprocess
 import sys
 
-import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
-
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api import create_app, get_server_config
+from pbench.server.auth import OpenIDClient
 from pbench.server.database.database import Database
 
 PROG = "pbench-shell"
@@ -41,61 +37,6 @@ def find_the_unicorn(logger: Logger):
             "Found a local unicorn: augmenting server PATH to {}",
             os.environ["PATH"],
         )
-
-
-def keycloak_connection(oidc_server: str, logger: Logger) -> int:
-    """
-     Checks if the Keycloak server is up and accepting the connections.
-     The connection check does the GET request on the oidc server /health
-     endpoint and the sample response returned by the /health endpoint looks
-     like the following:
-        {
-            "status": "UP", # if the server is up
-            "checks": []
-        }
-     Note: The Keycloak server needs to be started with health-enabled on.
-     Args:
-        oidc_server: OIDC server to verify
-        logger: logger
-    Returns:
-        0 if successful
-        1 if unsuccessful
-    """
-    session = requests.Session()
-    # The connection check will retry multiple times unless successful, viz.,
-    # [0.0s, 4.0s, 8.0s, 16.0s, ..., 120.0s]. urllib3 will sleep for:
-    # {backoff factor} * (2 ^ ({number of total retries} - 1)) seconds between
-    # the retries. However, the sleep will never be longer than backoff_max
-    # which defaults to 120.0s More detailed documentation on Retry and
-    # backoff_factor can be found at:
-    # https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry
-    retry = Retry(
-        total=8,
-        backoff_factor=2,
-        status_forcelist=tuple(int(x) for x in HTTPStatus if x != 200),
-    )
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount("http://", adapter)
-
-    # We will also need to retry the connection if the health status is not UP.
-    ret_val = 1
-    for _ in range(5):
-        try:
-            response = session.get(f"{oidc_server}/health")
-            response.raise_for_status()
-        except Exception:
-            logger.exception("Error connecting to the OIDC client")
-            break
-        if response.json().get("status") == "UP":
-            logger.debug("OIDC server connection verified")
-            ret_val = 0
-            break
-        else:
-            logger.error(
-                "OIDC client not running, OIDC server response: {}", response.json()
-            )
-            retry.sleep()
-    return ret_val
 
 
 def generate_crontab_if_necessary(
@@ -170,14 +111,13 @@ def main():
         sys.exit(1)
 
     try:
-        oidc_server = server_config.get("authentication", "server_url")
-    except (NoOptionError, NoSectionError) as exc:
-        logger.warning("KeyCloak not configured, {}", exc)
+        oidc_server = OpenIDClient.wait_for_oidc_server(server_config, logger)
+    except OpenIDClient.NotConfigured as exc:
+        logger.warning("OpenID Connect client not configured, {}", exc)
+    except Exception as exc:
+        logger.error("Error connecting to OpenID Connect server, {}", exc)
+        sys.exit(1)
     else:
-        logger.debug("Waiting for OIDC server to become available.")
-        ret_val = keycloak_connection(oidc_server, logger)
-        if ret_val != 0:
-            sys.exit(ret_val)
         logger.info("Pbench server using OIDC server {}", oidc_server)
 
     # Multiple gunicorn workers will attempt to connect to the DB; rather than

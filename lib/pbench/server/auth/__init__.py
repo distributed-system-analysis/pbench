@@ -1,3 +1,6 @@
+"""OpenID Connect (OIDC) Client object definition."""
+
+from configparser import NoOptionError, NoSectionError
 from http import HTTPStatus
 import logging
 from typing import Dict, List, Optional
@@ -5,9 +8,11 @@ from urllib.parse import urljoin
 
 import jwt
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from requests.structures import CaseInsensitiveDict
 
-from pbench.server import JSON
+from pbench.server import JSON, PbenchServerConfig
 
 
 class OpenIDClientError(Exception):
@@ -27,12 +32,105 @@ class OpenIDCAuthenticationError(OpenIDClientError):
 
 
 class OpenIDClient:
-    """
-    OpenID Connect client object.
-    """
+    """OpenID Connect client object."""
 
     USERINFO_ENDPOINT: Optional[str] = None
     TOKENINFO_ENDPOINT: Optional[str] = None
+
+    class NotConfigured(Exception):
+        """Indicate to the caller a OIDC server is not configured."""
+
+        pass
+
+    class ServerConnectionError(Exception):
+        """Indicate to the caller an unexpected connection error occurred while
+        attempting to connect to the OIDC server.
+        """
+
+        pass
+
+    class ServerConnectionTimedOut(Exception):
+        """Indicate to the caller we timed out attempting to connect to the
+        OIDC server.
+        """
+
+        pass
+
+    @staticmethod
+    def wait_for_oidc_server(
+        server_config: PbenchServerConfig, logger: logging.Logger
+    ) -> str:
+        """Wait for the configured OIDC server to become available.
+
+        Checks if the OIDC server is up and accepting the connections.  The
+        connection check does the GET request on the OIDC server /health
+        endpoint and the sample response returned by the /health endpoint looks
+        like the following:
+
+            {
+                "status": "UP", # if the server is up
+                "checks": []
+            }
+
+        Note: The OIDC server needs to be configured with health-enabled on.
+
+        Args:
+            server_config : the Pbench Server configuration to use
+            logger : the logger to use
+
+        Raises:
+
+            OpenIDClient.NotConfigured : when the given server configuration
+                does not contain the required connection information.
+            OpenIDClient.ServerConnectionError : when any unexpected errors are
+                encountered trying to connect to the OIDC server.
+            OpenIDClient.ServerConnectionTimeOut : when the connection attempt
+                times out.
+        """
+        try:
+            oidc_server = server_config.get("authentication", "server_url")
+        except (NoOptionError, NoSectionError) as exc:
+            raise OpenIDClient.NotConfigured() from exc
+        else:
+            logger.debug("Waiting for OIDC server to become available.")
+
+        session = requests.Session()
+        # The connection check will retry multiple times unless successful, viz.,
+        # [0.0s, 4.0s, 8.0s, 16.0s, ..., 120.0s]. urllib3 will sleep for:
+        # {backoff factor} * (2 ^ ({number of total retries} - 1)) seconds between
+        # the retries. However, the sleep will never be longer than backoff_max
+        # which defaults to 120.0s More detailed documentation on Retry and
+        # backoff_factor can be found at:
+        # https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry
+        retry = Retry(
+            total=8,
+            backoff_factor=2,
+            status_forcelist=tuple(int(x) for x in HTTPStatus if x != 200),
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount("http://", adapter)
+
+        # We will also need to retry the connection if the health status is not UP.
+        connected = False
+        for _ in range(5):
+            try:
+                response = session.get(f"{oidc_server}/health")
+                response.raise_for_status()
+            except Exception as exc:
+                raise OpenIDClient.ServerConnectionError() from exc
+            if response.json().get("status") == "UP":
+                logger.debug("OIDC server connection verified")
+                connected = True
+                break
+            logger.error(
+                "OIDC client not running, OIDC server response: {}", response.json()
+            )
+            retry.sleep()
+
+        if not connected:
+            raise OpenIDClient.ServerConnectionTimedOut()
+
+        return oidc_server
 
     def __init__(
         self,
