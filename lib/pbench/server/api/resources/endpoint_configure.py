@@ -1,3 +1,4 @@
+from configparser import NoOptionError, NoSectionError
 from http import HTTPStatus
 from logging import Logger
 import re
@@ -8,7 +9,7 @@ from flask import jsonify, request
 from flask.globals import current_app
 from flask_restful import abort, Resource
 
-from pbench.server import NoOptionError, NoSectionError, PbenchServerConfig
+from pbench.server import PbenchServerConfig
 
 
 class EndpointConfig(Resource):
