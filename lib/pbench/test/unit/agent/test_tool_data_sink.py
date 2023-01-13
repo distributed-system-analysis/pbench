@@ -145,6 +145,7 @@ class TestDataSinkWsgiServer:
 
     def test_log_methods(self, caplog):
         logger = logging.getLogger("test_log_methods")
+        caplog.set_level(logging.DEBUG, "test_log_methods")
         wsgi_server = DataSinkWsgiServer(
             host="host.example.com", port="42", logger=logger
         )
@@ -237,6 +238,7 @@ class TestDataSinkWsgiServer:
         does nothing when "serve_forever" is called.
         """
         logger = logging.getLogger("test_run")
+        caplog.set_level(logging.DEBUG, "test_run")
         wsgi_server = DataSinkWsgiServer(
             host="host.example.com", port="42", logger=logger
         )
@@ -383,7 +385,8 @@ class TestDataSinkWsgiServer:
             F="exception.example.com",
         )
         caplog_idx = 0
-        logger = logging.getLogger("test_run")
+        logger = logging.getLogger("test_stop_and_wait")
+        caplog.set_level(logging.DEBUG, "test_stop_and_wait")
         for scenario in ["A", "B", "C", "D", "E", "F"]:
             wsgi_server = DataSinkWsgiServer(
                 host=hostnames[scenario], port="42", logger=logger
