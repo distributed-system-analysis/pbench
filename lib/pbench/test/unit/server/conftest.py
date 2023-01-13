@@ -21,7 +21,7 @@ from requests import Response
 from pbench.common import MetadataLog
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
-from pbench.server.api import create_app, get_server_config
+from pbench.server.api import create_app
 from pbench.server.auth.auth import Auth, OpenIDClient
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata, States
@@ -109,8 +109,8 @@ def on_disk_server_config(tmp_path_factory) -> Dict[str, Path]:
     return on_disk_config(tmp_path_factory, "server", do_setup)
 
 
-@pytest.fixture()
-def server_config(on_disk_server_config, monkeypatch) -> PbenchServerConfig:
+@pytest.fixture(scope="session")
+def server_config(on_disk_server_config) -> PbenchServerConfig:
     """
     Mock a pbench-server.cfg configuration as defined above.
 
@@ -122,9 +122,7 @@ def server_config(on_disk_server_config, monkeypatch) -> PbenchServerConfig:
         a PbenchServerConfig object the test case can use
     """
     cfg_file = on_disk_server_config["cfg_dir"] / "pbench-server.cfg"
-    monkeypatch.setenv("_PBENCH_SERVER_CONFIG", str(cfg_file))
-
-    server_config = get_server_config()
+    server_config = PbenchServerConfig(str(cfg_file))
     return server_config
 
 
@@ -172,7 +170,7 @@ def client(
     return app_client
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def make_logger(server_config):
     """
     Construct a Pbench Logger object

@@ -1,7 +1,6 @@
 import jwt
 import pytest
 
-from pbench.common.logger import get_pbench_logger
 from pbench.server.auth import OpenIDClient
 
 
@@ -15,8 +14,7 @@ def mock_get_oidc_public_key(oidc_client):
 
 
 @pytest.fixture
-def keycloak_oidc(server_config, monkeypatch):
-    logger = get_pbench_logger("TEST", server_config)
+def keycloak_oidc(server_config, make_logger, monkeypatch):
     monkeypatch.setattr(
         OpenIDClient, "set_well_known_endpoints", mock_set_oidc_auth_endpoints
     )
@@ -25,7 +23,7 @@ def keycloak_oidc(server_config, monkeypatch):
         server_url=server_config.get("authentication", "server_url"),
         realm_name="public_test_realm",
         client_id="test_client",
-        logger=logger,
+        logger=make_logger,
     )
     return oidc
 
