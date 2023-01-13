@@ -32,13 +32,13 @@ class Database:
 
           https://docs.python.org/3.9/library/socket.html#socket.create_connection
 
-        Arguments:
-
+        Args:
             timeout : integer number of seconds to wait before giving up
                       attempts to connect to the database
 
-        Raises a BadConfig exception if the DB URI specifies a host without a
-        port, and the ConnectionRefusedError enountered after the timeout.
+        Raises:
+            BadConfig : when the DB URI specifies a host without a port
+            ConnectionRefusedError : after the timeout period has been exhausted
         """
         url = urlparse(db_uri)
         if not url.hostname:
