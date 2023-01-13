@@ -64,21 +64,21 @@ class DatasetsList(ApiBase):
     def get_paginated_obj(
         self, query: Query, json: JSON, url: str
     ) -> Tuple[List, Dict[str, str]]:
-        """
-        Helper function to return a slice of datasets (constructed according to the
-        user specified limit and an offset number) and a paginated object containing next page
-        url and total items count.
+        """Helper function to return a slice of datasets (constructed according
+        to the user specified limit and an offset number) and a paginated object
+        containing next page url and total items count.
 
-        E.g. specifying the following limit and offset values will result in the corresponding
-        dataset slice:
-        "limit": 10, "offset": 20 -> dataset[20: 30]
-        "limit": 10 -> dataset[0: 10]
-        "offset": 20 -> dataset[20: total_items_count]
+        E.g. specifying the following limit and offset values will result in the
+        corresponding dataset slice:
+
+            "limit": 10, "offset": 20 -> dataset[20: 30]
+            "limit": 10 -> dataset[0: 10]
+            "offset": 20 -> dataset[20: total_items_count]
 
         TODO: We may need to optimize the pagination
-            e.g Use of unique pointers to record the last returned row and then use
-            this pointer in subsequent page request instead of an initial start to
-            narrow down the result.
+            e.g Use of unique pointers to record the last returned row and then
+            use this pointer in subsequent page request instead of an initial
+            start to narrow down the result.
         """
         paginated_result = {}
         total_count = query.count()
@@ -112,34 +112,32 @@ class DatasetsList(ApiBase):
     def _get(
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
-        """
-        Get a list of datasets matching a set of criteria.
+        """Get a list of datasets matching a set of criteria.
+
+        GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen,server.deletion
 
         NOTE: This does not rely on a JSON payload to identify the dataset and
         desired metadata keys; instead we rely on URI query parameters.
 
         Args:
-            params: API parameters
-            request: The original Request object
-            context: API context dictionary
+            params : API parameters
+            request : The original Request object
+            context : API context dictionary
 
-        GET /api/v1/datasets/list?start=1970-01-01&end=2040-12-31&owner=fred&metadata=dashboard.seen,server.deletion
+        Returns:
+            A JSON response containing the paginated query result
         """
         json = params.query
 
         # Build a SQLAlchemy Query object expressing all of our constraints
         query = Database.db_session.query(Dataset)
         if "start" in json and "end" in json:
-            self.logger.info("Adding start / end query")
             query = query.filter(Dataset.created.between(json["start"], json["end"]))
         elif "start" in json:
-            self.logger.info("Adding start query")
             query = query.filter(Dataset.created >= json["start"])
         elif "end" in json:
-            self.logger.info("Adding end query")
             query = query.filter(Dataset.created <= json["end"])
         if "name" in json:
-            self.logger.info("Adding name query")
             query = query.filter(Dataset.name.contains(json["name"]))
         query = self._build_sql_query(json.get("owner"), json.get("access"), query)
 
