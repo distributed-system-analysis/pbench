@@ -51,7 +51,8 @@ _PBENCH_REPO_NAME = pbench-${_LOCAL_MAJORMINOR}${_TEST_SUFFIX}
 # By default we use the pbench Quay.io organization for the image
 # repository.  You can override this default using an environment
 # variable as appropriate.
-IMAGE_REPO = docker://quay.io/pbench
+IMAGE_REPO ?= docker://quay.io/pbench
+IMAGE_TAG ?= latest
 
 # Convenience reference to the repo template in the pbench tree.
 # Not intended to be overridden with an environment variable.
@@ -292,6 +293,15 @@ centos-7-base.Dockerfile: _PKGMGR = yum
 #+
 # Push local images for the given tag and distribution.
 #-
+
+# Special push target for the CI which pushes a full set of the various container
+# images for the distribution to the specified registry with the specified tag.
+$(_DEFAULT_DISTROS:%=%-push-ci): %-push-ci:
+	for image in base tools tool-meister tool-data-sink workloads all; do \
+	  buildah push \
+	    localhost/pbench-agent-$${image}-${*}:${_LOCAL_GIT_HASH} \
+	    ${IMAGE_REPO}/pbench-agent-$${image}-${*}:${IMAGE_TAG} ; \
+	done
 
 define _PUSH_RULE
 %-push-$(1): %-tags.lis
