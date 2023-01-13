@@ -91,8 +91,8 @@ class OpenIDClient:
             oidc_server = server_config.get("authentication", "server_url")
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
-        else:
-            logger.debug("Waiting for OIDC server to become available.")
+
+        logger.debug("Waiting for OIDC server to become available.")
 
         session = requests.Session()
         # The connection check will retry multiple times unless successful, viz.,
