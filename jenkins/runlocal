@@ -1,5 +1,8 @@
-#!/bin/bash
-set -o errexit
+#!/bin/bash -e
+
+# Build the RPM and then build the containers, pushing only the CI image
+# to the registry, and then run the fuctional tests against the built
+# container image.
 
 export PB_CONTAINER_REG=images.paas.redhat.com
 export PB_ORG_NAME=pbench
