@@ -4,16 +4,12 @@ from logging import Logger
 import os
 from pathlib import Path
 import site
-import socket
 import subprocess
 import sys
-import time
-from urllib.parse import urlparse
 
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from sqlalchemy_utils import create_database, database_exists
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
@@ -45,41 +41,6 @@ def find_the_unicorn(logger: Logger):
             "Found a local unicorn: augmenting server PATH to {}",
             os.environ["PATH"],
         )
-
-
-def wait_for_database(db_uri: str, timeout: int):
-    """Wait for the database server to become available.  While we encounter
-    "connection refused", sleep one second, and then try again.
-
-    No connection attempt is made for a database URI without a hostname.
-
-    The timeout argument to `create_connection()` does not play into the retry
-    logic, see:
-
-      https://docs.python.org/3.9/library/socket.html#socket.create_connection
-
-    Arguments:
-
-        timeout: integer number of seconds to wait before giving up attempts to
-                 connect to the database
-
-    Raises a BadConfig exception if the DB URI specifies a host without a port,
-    and the ConnectionRefusedError enountered after the timeout.
-    """
-    url = urlparse(db_uri)
-    if not url.hostname:
-        return
-    if not url.port:
-        raise BadConfig("Database URI must contain a port number")
-    end = time.time() + timeout
-    while True:
-        try:
-            with socket.create_connection((url.hostname, url.port), timeout=1):
-                break
-        except ConnectionRefusedError:
-            if time.time() > end:
-                raise
-            time.sleep(1)
 
 
 def keycloak_connection(oidc_server: str, logger: Logger) -> int:
@@ -203,7 +164,7 @@ def main():
 
     logger.debug("Waiting for database instance to become available.")
     try:
-        wait_for_database(db_uri, db_wait_timeout)
+        Database.wait_for_database(db_uri, db_wait_timeout)
     except ConnectionRefusedError:
         logger.error("Database {} not responding", db_uri)
         sys.exit(1)
@@ -223,11 +184,12 @@ def main():
     # attempt to synchronize them, detect a missing DB (from the database URI)
     # and create it here. It's safer to do this here, where we're
     # single-threaded.
-    if not database_exists(db_uri):
-        logger.info("Database {} doesn't exist", db_uri)
-        create_database(db_uri)
-        logger.info("Created database {}", db_uri)
-    Database.init_db(server_config, logger)
+    Database.create_if_missing(db_uri, logger)
+    try:
+        Database.init_db(server_config, logger)
+    except (NoOptionError, NoSectionError) as exc:
+        logger.error("Invalid database configuration: {}", exc)
+        sys.exit(1)
 
     ret_val = generate_crontab_if_necessary(
         crontab_dir, server_config.BINDIR, server_config.log_dir, logger
