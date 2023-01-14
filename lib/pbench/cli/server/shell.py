@@ -20,7 +20,7 @@ def app():
     try:
         server_config = get_server_config()
     except (ConfigFileNotSpecified, BadConfig) as e:
-        print(e)
+        print(e, file=sys.stderr)
         sys.exit(1)
     return create_app(server_config)
 
@@ -84,7 +84,7 @@ def main():
     try:
         server_config = get_server_config()
     except (ConfigFileNotSpecified, BadConfig) as e:
-        print(e)
+        print(e, file=sys.stderr)
         sys.exit(1)
     logger = get_pbench_logger(PROG, server_config)
     if site.ENABLE_USER_SITE:
