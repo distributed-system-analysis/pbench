@@ -20,8 +20,8 @@ class ActiveTokens(Database.Base):
         # no need to add index=True, all FKs have indexes
     )
 
-    def __init__(self, token: str):
-        self.token = token
+    def __init__(self, auth_token: str):
+        self.token = auth_token
         self.created = datetime.datetime.now()
 
     @staticmethod

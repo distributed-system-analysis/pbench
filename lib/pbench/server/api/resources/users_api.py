@@ -231,7 +231,7 @@ class Login(Resource):
 
         # Add the new auth token to the database for later access
         try:
-            token = ActiveTokens(token=auth_token)
+            token = ActiveTokens(auth_token=auth_token)
             # TODO: Decide on the auth token limit per user
             user.update(auth_tokens=token)
 
