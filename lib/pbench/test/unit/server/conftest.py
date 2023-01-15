@@ -23,6 +23,7 @@ from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app
 from pbench.server.auth.auth import Auth, OpenIDClient
+from pbench.server.database import init_db
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
@@ -217,7 +218,7 @@ def db_session(request, server_config, make_logger):
         make_logger: produce a Pbench Server logger
     """
     if "client" not in request.fixturenames:
-        Database.init_db(server_config, make_logger)
+        init_db(server_config, make_logger)
     yield
     Database.db_session.remove()
 
