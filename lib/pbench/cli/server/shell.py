@@ -10,6 +10,7 @@ from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api import create_app, get_server_config
 from pbench.server.auth import OpenIDClient
+from pbench.server.database import init_db
 from pbench.server.database.database import Database
 
 PROG = "pbench-shell"
@@ -126,7 +127,7 @@ def main():
     # single-threaded.
     Database.create_if_missing(db_uri, logger)
     try:
-        Database.init_db(server_config, logger)
+        init_db(server_config, logger)
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Invalid database configuration: {}", exc)
         sys.exit(1)
