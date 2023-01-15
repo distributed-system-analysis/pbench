@@ -14,17 +14,16 @@ from pbench.server.database.models.users import User
 
 
 class AuditError(Exception):
-    """
-    This is a base class for errors reported by the Audit class. It is
-    never raised directly, but may be used in "except" clauses.
+    """A base class for errors reported by the Audit class.
+
+    It is never raised directly, but may be used in "except" clauses.
     """
 
     pass
 
 
 class AuditSqlError(AuditError):
-    """
-    SQLAlchemy errors reported through Audit operations.
+    """SQLAlchemy errors reported through Audit operations.
 
     The exception will identify the operation being performed and the config
     key; the cause will specify the original SQLAlchemy exception.
@@ -40,9 +39,7 @@ class AuditSqlError(AuditError):
 
 
 class AuditDuplicate(AuditError):
-    """
-    Attempt to commit a duplicate unique value.
-    """
+    """Attempt to commit a duplicate unique value."""
 
     def __init__(self, audit: "Audit", cause: str):
         self.audit = audit
@@ -53,9 +50,7 @@ class AuditDuplicate(AuditError):
 
 
 class AuditNullKey(AuditError):
-    """
-    Attempt to commit an Audit row with an empty required column.
-    """
+    """Attempt to commit an Audit row with an empty required column."""
 
     def __init__(self, audit: "Audit", cause: str):
         self.audit = audit
@@ -66,8 +61,7 @@ class AuditNullKey(AuditError):
 
 
 class AuditType(enum.Enum):
-    """
-    The type of Pbench Server resource affected by a CREATE, UPDATE, or DELETE
+    """The type of Pbench Server resource affected by a CREATE, UPDATE, or DELETE
     operation.
     """
 
@@ -93,9 +87,12 @@ class AuditType(enum.Enum):
 
 
 class AuditStatus(enum.Enum):
-    """The 'status' of an operation. Each operation is bracketed by two audit
-    records: the first with 'BEGIN' status and a final record with either
-    'SUCCESS', 'FAILURE', or 'WARNING' status."""
+    """The 'status' of an operation.
+
+    Each operation is bracketed by two audit records: the first with 'BEGIN'
+    status and a final record with either 'SUCCESS', 'FAILURE', or 'WARNING'
+    status.
+    """
 
     """Pending operation: this signals the beginning of an optation that might
     fail or require further context later."""
@@ -114,9 +111,11 @@ class AuditStatus(enum.Enum):
 
 
 class AuditReason(enum.Enum):
-    """A high-level 'reason' for a `FAILURE` or `WARNING` audit record. These
-    records should also contain a 'message' string in the 'attributes' to
-    provide more detail."""
+    """A high-level 'reason' for a `FAILURE` or `WARNING` audit record.
+
+    These records should also contain a 'message' string in the 'attributes'
+    to provide more detail.
+    """
 
     """Permission denied."""
     PERMISSION = enum.auto()
@@ -129,12 +128,12 @@ class AuditReason(enum.Enum):
 
 
 class Audit(Database.Base):
-    """
-    A framework to store Pbench audit records. These will track server
-    configuration changes as well as every mutation of user-visible data and
-    attribute each to a specific user and operation. Mutations attributed to
-    "the server" independent of a specific authenticated user will be attached
-    to a "BACKGROUND" user.
+    """A framework to store Pbench audit records.
+
+    These will track server configuration changes as well as every mutation of
+    user-visible data and attribute each to a specific user and operation.
+    Mutations attributed to "the server" independent of a specific
+    authenticated user will be attached to a "BACKGROUND" user.
 
     Architecturally, the SQL table may be used as a "front end" for a more
     expensive audit repository (e.g., Elasticsearch). For example, we might
@@ -198,8 +197,7 @@ class Audit(Database.Base):
         attributes: Optional[JSONOBJECT] = None,
         **kwargs,
     ) -> "Audit":
-        """
-        A simple factory method to construct a new Audit setting and
+        """A simple factory method to construct a new Audit setting and
         add it to the database.
 
         The "root" parameter is a shortcut to copy values from a reference
@@ -219,25 +217,25 @@ class Audit(Database.Base):
         but named parameters make writing calls much easier.
 
         Args:
-            root: The root (BEGIN) audit record of a long-running operation,
+            root : The root (BEGIN) audit record of a long-running operation,
                 from which the basic operation identification will be copied.
-            user: The "user_id" and "user_name" columns are taken from the
+            user : The "user_id" and "user_name" columns are taken from the
                 specified User object.
-            dataset: Although "object_id" and "object_name" are not specific to
+            dataset : Although "object_id" and "object_name" are not specific to
                 the Dataset object, this is the most common. If dataset is
                 specified, the "object_type", "object_id", and "object_name"
                 will be set implicitly from the dataset object.
-            name: A "name" for the operation (e.g., "index", "upload")
-            operation: The CRUD operation code (OperationCode)
-            object_type: The affected resource type (AuditType)
-            object_id: An ID for the resource (if any)
-            object_name: The name of the resource (if any)
-            user_id: An ID for the user performing the operation
-            user_name: The name of the user performing the operation
-            status: The status of the operation (AuditStatus)
-            reason: The status reason if applicable (AuditReason)
-            attributes: JSON attributes (messages, modified properties)
-            kwargs: Any other defined column names (e.g., root_id, timestamp)
+            name : A "name" for the operation (e.g., "index", "upload")
+            operation : The CRUD operation code (OperationCode)
+            object_type : The affected resource type (AuditType)
+            object_id : An ID for the resource (if any)
+            object_name : The name of the resource (if any)
+            user_id : An ID for the user performing the operation
+            user_name : The name of the user performing the operation
+            status : The status of the operation (AuditStatus)
+            reason : The status reason if applicable (AuditReason)
+            attributes : JSON attributes (messages, modified properties)
+            kwargs : Any other defined column names (e.g., root_id, timestamp)
 
         Returns:
             A new Audit object initialized with the parameters and added
@@ -301,20 +299,20 @@ class Audit(Database.Base):
         **kwargs,
     ) -> "list[Audit]":
 
-        """
-        Return a list of Audit objects matching the query parameters. The
-        definition allows an exact search based on any column of the table
+        """Return a list of Audit objects matching the query parameters.
+
+        The definition allows an exact search based on any column of the table
         using kwargs as well as date range queries using the 'start' and 'end'
         parameters.
 
         Args:
-            start: The earliest timestamp of interest
-            end: The most recent timestamp of interest
-            dataset: Shortcut to match the type and object_id
-            kwargs: SQL column names (e.g., operation, object_type, object_id)
+            start : The earliest timestamp of interest
+            end : The most recent timestamp of interest
+            dataset : Shortcut to match the type and object_id
+            kwargs : SQL column names (e.g., operation, object_type, object_id)
 
         Raises:
-            AuditSqlError: problem interacting with Database
+            AuditSqlError : problem interacting with Database
 
         Returns:
             List of Audit objects matching the criteria
@@ -350,13 +348,13 @@ class Audit(Database.Base):
         return audit
 
     def _decode(self, exception: IntegrityError) -> Exception:
-        """
-        Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
-        or NOT NULL constraint violation. Return the original exception if
-        it doesn't match.
+        """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
+        or NOT NULL constraint violation.
+
+        Return the original exception if it doesn't match.
 
         Args:
-            exception: An IntegrityError to decode
+            exception : An IntegrityError to decode
 
         Returns:
             a more specific exception, or the original if decoding fails
@@ -371,9 +369,7 @@ class Audit(Database.Base):
         return exception
 
     def add(self):
-        """
-        Add the ServerConfig object to the database
-        """
+        """Add the Audit object to the database."""
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
@@ -384,6 +380,11 @@ class Audit(Database.Base):
             raise AuditSqlError("adding", self.as_json(), str(e)) from e
 
     def as_json(self) -> JSONOBJECT:
+        """Return a JSON object for this Audit object.
+
+        Returns:
+            A JSONOBJECT with all the object fields mapped to appropriate names.
+        """
         return {
             "id": self.id,
             "root_id": self.root_id,

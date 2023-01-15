@@ -19,18 +19,16 @@ from pbench.server.database.models.server_config import (
 
 
 class DatasetError(Exception):
-    """
-    This is a base class for errors reported by the Dataset class. It is never
-    raised directly, but may be used in "except" clauses.
+    """A base class for errors reported by the Dataset class.
+
+    It is never raised directly, but may be used in "except" clauses.
     """
 
     pass
 
 
 class DatasetBadName(DatasetError):
-    """
-    Specified filename does not follow Pbench tarball naming rules.
-    """
+    """Specified filename does not follow Pbench tarball naming rules."""
 
     def __init__(self, name: Path):
         self.name: str = str(name)
@@ -40,8 +38,7 @@ class DatasetBadName(DatasetError):
 
 
 class DatasetSqlError(DatasetError):
-    """
-    SQLAlchemy errors reported through Dataset operations.
+    """SQLAlchemy errors reported through Dataset operations.
 
     The exception will identify the name of the target dataset, along with the
     operation being attempted; the __cause__ will specify the original
@@ -57,9 +54,7 @@ class DatasetSqlError(DatasetError):
 
 
 class DatasetDuplicate(DatasetError):
-    """
-    Attempt to create a Dataset that already exists.
-    """
+    """Attempt to create a Dataset that already exists."""
 
     def __init__(self, name: str):
         self.name = name
@@ -69,9 +64,7 @@ class DatasetDuplicate(DatasetError):
 
 
 class DatasetNotFound(DatasetError):
-    """
-    Attempt to attach to a Dataset that doesn't exist.
-    """
+    """Attempt to attach to a Dataset that doesn't exist."""
 
     def __init__(self, **kwargs):
         self.kwargs = [f"{key}={value}" for key, value in kwargs.items()]
@@ -81,8 +74,8 @@ class DatasetNotFound(DatasetError):
 
 
 class DatasetBadParameterType(DatasetError):
-    """
-    A parameter of the wrong type was passed to a method in the Dataset module.
+    """A parameter of the wrong type was passed to a method in the Dataset
+    module.
 
     The error text will identify the actual value and type, and the expected
     type.
@@ -99,17 +92,16 @@ class DatasetBadParameterType(DatasetError):
 
 
 class DatasetTransitionError(DatasetError):
-    """
-    A base class for errors reporting disallowed dataset state transitions. It
-    is never raised directly, but may be used in "except" clauses.
+    """A base class for errors reporting disallowed dataset state transitions.
+
+    It is never raised directly, but may be used in "except" clauses.
     """
 
     pass
 
 
 class DatasetBadStateTransition(DatasetTransitionError):
-    """
-    An attempt was made to advance a dataset to a new state that's not
+    """An attempt was made to advance a dataset to a new state that's not
     reachable from the current state.
 
     The error text will identify the dataset by name, and both the current and
@@ -121,13 +113,16 @@ class DatasetBadStateTransition(DatasetTransitionError):
         self.requested_state = requested_state
 
     def __str__(self) -> str:
-        return f"Dataset {self.dataset} desired state {self.requested_state} is not allowed from current state {self.dataset.state}"
+        return (
+            f"Dataset {self.dataset} desired state {self.requested_state}"
+            f" is not allowed from current state {self.dataset.state}"
+        )
 
 
 class MetadataError(DatasetError):
-    """
-    A base class for errors reported by the Metadata class. It is never raised
-    directly, but may be used in "except" clauses.
+    """A base class for errors reported by the Metadata class.
+
+    It is never raised directly, but may be used in "except" clauses.
     """
 
     def __init__(self, dataset: "Dataset", key: str):
@@ -139,8 +134,7 @@ class MetadataError(DatasetError):
 
 
 class MetadataSqlError(MetadataError):
-    """
-    SQLAlchemy errors reported through Metadata operations.
+    """SQLAlchemy errors reported through Metadata operations.
 
     The exception will identify the dataset and the metadata key, along with
     the operation being attempted; the __cause__ will specify the original
@@ -157,8 +151,7 @@ class MetadataSqlError(MetadataError):
 
 
 class MetadataNotFound(MetadataError):
-    """
-    An attempt to `get` or remove a Metadata key that isn't present.
+    """An attempt to `get` or remove a Metadata key that isn't present.
 
     The error text will identify the dataset and metadata key that was
     specified.
@@ -172,7 +165,8 @@ class MetadataNotFound(MetadataError):
 
 
 class MetadataBadStructure(MetadataError):
-    """
+    """Invalid metadata structure encountered.
+
     A call to `getvalue` or `setvalue` found a level in the JSON document where
     the caller's key expected a nested JSON object but the type at that level
     is something else. For example, when `user.contact.email` finds that
@@ -191,8 +185,7 @@ class MetadataBadStructure(MetadataError):
 
 
 class MetadataBadValue(MetadataError):
-    """
-    An unsupported value was specified for a special metadata key
+    """An unsupported value was specified for a special metadata key.
 
     The error text will identify the metadata key that was specified and the
     actual and expected value type.
@@ -211,17 +204,17 @@ class MetadataBadValue(MetadataError):
 
 
 class MetadataKeyError(MetadataError):
+    """A base class for metadata key errors in the context of Metadata errors
+    that have no associated Dataset.
+
+    It is never raised directly, but may be used in "except" clauses.
     """
-    A base class for metadata key errors in the context of Metadata errors
-    that have no associated Dataset. It is never raised directly, but may
-    be used in "except" clauses.
-    """
+
+    pass
 
 
 class MetadataMissingParameter(MetadataKeyError):
-    """
-    A Metadata required parameter was not specified.
-    """
+    """A Metadata required parameter was not specified."""
 
     def __init__(self, what: str):
         self.what = what
@@ -231,8 +224,7 @@ class MetadataMissingParameter(MetadataKeyError):
 
 
 class MetadataBadKey(MetadataKeyError):
-    """
-    An unsupported metadata key was specified.
+    """An unsupported metadata key was specified.
 
     The error text will identify the metadata key that was specified.
     """
@@ -245,10 +237,11 @@ class MetadataBadKey(MetadataKeyError):
 
 
 class MetadataProtectedKey(MetadataKeyError):
-    """
-    A metadata key was specified that cannot be modified in the current
-    context. (Usually an internally reserved key that was referenced in
-    an external client API.)
+    """A metadata key was specified that cannot be modified in the current
+    context.
+
+    Usually an internally reserved key that was referenced in an external
+    client API.
 
     The error text will identify the metadata key that was specified.
     """
@@ -261,8 +254,7 @@ class MetadataProtectedKey(MetadataKeyError):
 
 
 class MetadataMissingKeyValue(MetadataKeyError):
-    """
-    A value must be specified for the metadata key.
+    """A value must be specified for the metadata key.
 
     The error text will identify the metadata key that was specified.
     """
@@ -275,8 +267,7 @@ class MetadataMissingKeyValue(MetadataKeyError):
 
 
 class MetadataDuplicateKey(MetadataError):
-    """
-    An attempt to add a Metadata key that already exists on the dataset.
+    """An attempt to add a Metadata key that already exists on the dataset.
 
     The error text will identify the dataset and metadata key that was
     specified.
@@ -290,8 +281,7 @@ class MetadataDuplicateKey(MetadataError):
 
 
 class States(enum.Enum):
-    """
-    Track the progress of a dataset (tarball) through the various stages and
+    """Track the progress of a dataset (tarball) through the various stages and
     operation of the Pbench server.
     """
 
@@ -303,31 +293,28 @@ class States(enum.Enum):
     DELETED = ("Deleted", False)
 
     def __init__(self, friendly: str, mutating: bool):
-        """
-        __init__ Extended ENUM constructor in order to add a value
-        to record whether each state is a "busy" state where some
-        component is mutating the dataset in some way, and a mixed
-        case "friendly" name for the state. "Mutating" states are
-        expected to be transient as the component should complete
+        """Extended ENUM constructor.
+
+        We extend an ENUM adding a value to record whether each state is a
+        "busy" state where some component is mutating the dataset in some way,
+        and adding a mixed case "friendly" name for the state. "Mutating"
+        states are expected to be transient as the component should complete
         the mutation, and should usually have "-ing" endings.
 
         Args:
-            name (string): Friendly name for the state
-            mutating (boolean): True if a component is mutating dataset
+            name (string) : Friendly name for the state
+            mutating (boolean) : True if a component is mutating dataset
         """
         self.friendly = friendly
         self.mutating = mutating
 
     def __str__(self) -> str:
-        """
-        Return the state's friendly name
-        """
+        """Return the state's friendly name."""
         return self.friendly
 
 
 class Dataset(Database.Base):
-    """
-    Identify a Pbench dataset (tarball plus metadata)
+    """Identify a Pbench dataset (tarball plus metadata).
 
     Columns:
         id          Generated unique ID of table row
@@ -419,15 +406,14 @@ class Dataset(Database.Base):
 
     @staticmethod
     def is_tarball(path: Union[Path, str]) -> bool:
-        """
-        Determine whether a path has the expected suffix to qualify as a Pbench
-        tarball.
+        """Determine whether a path has the expected suffix to qualify as a
+        Pbench tarball.
 
         NOTE: The file represented by the path doesn't need to exist, only end
         with the expected suffix.
 
         Args:
-            path: file path
+            path : file path
 
         Returns:
             True if path ends with the supported suffix, False if not
@@ -436,7 +422,8 @@ class Dataset(Database.Base):
 
     @staticmethod
     def stem(path: Union[str, Path]) -> str:
-        """
+        """Convenience method to return full "stem" of a tar ball.
+
         The Path.stem() removes a single suffix, so our standard "a.tar.xz"
         returns "a.tar" instead of "a". We could double-stem, but instead
         this just checks for the expected 7 character suffix and strips it.
@@ -461,16 +448,17 @@ class Dataset(Database.Base):
 
     @validates("state")
     def validate_state(self, key: str, value: Any) -> States:
-        """
+        """Validate dataset state.
+
         Validate that the value provided for the Dataset state is a member
         of the States ENUM before it's applied by the SQLAlchemy constructor.
 
         Args:
-            key: state
-            value: state ENUM member
+            key : state
+            value : state ENUM member
 
         Raises:
-            DatasetBadParameter: the value given doesn't resolve to a
+            DatasetBadParameter : the value given doesn't resolve to a
                 States ENUM.
 
         Returns:
@@ -482,15 +470,14 @@ class Dataset(Database.Base):
 
     @validates("access")
     def validate_access(self, key: str, value: str) -> str:
-        """
-        Validate the access key for the dataset.
+        """Validate the access key for the dataset.
 
         Args:
-            key: access
-            value: string "private" or "public"
+            key : access
+            value : string "private" or "public"
 
         Raises:
-            DatasetBadParameterType: the access value given isn't allowed.
+            DatasetBadParameterType : the access value given isn't allowed.
 
         Returns:
             access keyword string
@@ -502,17 +489,16 @@ class Dataset(Database.Base):
 
     @staticmethod
     def create(**kwargs) -> "Dataset":
-        """
-        A simple factory method to construct a new Dataset object and
+        """A simple factory method to construct a new Dataset object and
         add it to the database.
 
         Args:
-            kwargs (dict):
-                access: The dataset access policy
-                name: The dataset name (file path stem).
-                owner_id: The owner id of the dataset.
-                resource_id: The tarball MD5
-                state: The initial state of the new dataset.
+            kwargs (dict) :
+                access : The dataset access policy
+                name : The dataset name (file path stem).
+                owner_id : The owner id of the dataset.
+                resource_id : The tarball MD5
+                state : The initial state of the new dataset.
 
         Returns:
             A new Dataset object initialized with the keyword parameters.
@@ -527,8 +513,7 @@ class Dataset(Database.Base):
 
     @staticmethod
     def attach(resource_id: str, state: Optional[States] = None) -> "Dataset":
-        """
-        Attempt to find the dataset with the specified dataset resource ID.
+        """Attempt to find the dataset with the specified dataset resource ID.
 
         If state is specified, attach will attempt to advance the dataset to
         that state.
@@ -537,20 +522,20 @@ class Dataset(Database.Base):
         Dataset.query instead.
 
         Args:
-            resource_id: The dataset resource ID.
-            state: The desired state to advance the dataset.
+            resource_id : The dataset resource ID.
+            state : The desired state to advance the dataset.
 
         Raises:
-            DatasetSqlError: problem interacting with Database
-            DatasetNotFound: the specified dataset doesn't exist
-            DatasetBadParameterType: The state parameter isn't a States ENUM
-            DatasetTerminalStateViolation: dataset is in terminal state and
+            DatasetSqlError : problem interacting with Database
+            DatasetNotFound : the specified dataset doesn't exist
+            DatasetBadParameterType : The state parameter isn't a States ENUM
+            DatasetTerminalStateViolation : dataset is in terminal state and
                 can't be advanced
-            DatasetBadStateTransition: dataset cannot be advanced to the
+            DatasetBadStateTransition : dataset cannot be advanced to the
                 specified state
 
         Returns:
-            Dataset: a dataset object in the desired state (if specified)
+            A Dataset object in the desired state (if specified)
         """
         dataset = Dataset.query(resource_id=resource_id)
 
@@ -563,9 +548,7 @@ class Dataset(Database.Base):
 
     @staticmethod
     def query(**kwargs) -> "Dataset":
-        """
-        Query dataset object based on a given column name of the run document
-        """
+        """Query dataset object based on a given column name of the run document."""
         try:
             dataset = Database.db_session.query(Dataset).filter_by(**kwargs).first()
         except SQLAlchemyError as e:
@@ -578,7 +561,8 @@ class Dataset(Database.Base):
         return dataset
 
     def as_dict(self) -> Dict[str, Any]:
-        """
+        """Return the Metadata object as a simple dictionary.
+
         Return a dict representing the extended public view of the dataset,
         including non-private primary SQL columns and the `metadata.log` data
         from the metadata table.
@@ -605,8 +589,7 @@ class Dataset(Database.Base):
         }
 
     def __str__(self) -> str:
-        """
-        Return a string representation of the dataset
+        """Provide a string representation of the dataset
 
         Returns:
             string: Representation of the dataset
@@ -614,16 +597,17 @@ class Dataset(Database.Base):
         return f"({self.owner_id})|{self.name}"
 
     def advance(self, new_state: States):
-        """
+        """Transition the Dataset object to the next valid state.
+
         Modify the state of the Dataset object, if the new_state is
         a valid transition from the dataset's current state.
 
         Args:
-            new_state (State ENUM): New desired state for the dataset
+            new_state (State ENUM) : New desired state for the dataset
 
         Raises:
-            DatasetBadParameterType: The state parameter isn't a States ENUM
-            DatasetBadStateTransition: The dataset does not support transition
+            DatasetBadParameterType : The state parameter isn't a States ENUM
+            DatasetBadStateTransition : The dataset does not support transition
                 from the current state to the desired state.
         """
         if type(new_state) is not States:
@@ -644,9 +628,7 @@ class Dataset(Database.Base):
         self.update()
 
     def add(self):
-        """
-        Add the Dataset object to the database
-        """
+        """Add the Dataset object to the database."""
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
@@ -660,9 +642,8 @@ class Dataset(Database.Base):
             raise DatasetSqlError("adding", name=self.name)
 
     def update(self):
-        """
-        Update the database row with the modified version of the
-        Dataset object.
+        """Update the database row with the modified version of the Dataset
+        object.
         """
         try:
             Database.db_session.commit()
@@ -672,9 +653,7 @@ class Dataset(Database.Base):
             raise DatasetSqlError("updating", name=self.name)
 
     def delete(self):
-        """
-        Delete the Dataset from the database
-        """
+        """Delete the Dataset from the database."""
         try:
             Database.db_session.delete(self)
             Database.db_session.commit()
@@ -684,8 +663,7 @@ class Dataset(Database.Base):
 
 
 class Metadata(Database.Base):
-    """
-    Retain secondary information about datasets
+    """Retain secondary information about datasets
 
     Columns:
         id          Generated unique ID of table row
@@ -835,14 +813,13 @@ class Metadata(Database.Base):
 
     @validates("key")
     def validate_key(self, _, value: Any) -> str:
-        """
-        SQLAlchemy validator to check the specified value of a model object
+        """SQLAlchemy validator to check the specified value of a model object
         attribute (column).
 
         Args:
-            _: Name of the model attribute (always "key" because of the
+            _ : Name of the model attribute (always "key" because of the
                 decorator parameter, so we ignore it)
-            value: Specified value for the "key" attribute
+            value : Specified value for the "key" attribute
         """
         if type(value) is str:
             v = value.lower()
@@ -852,18 +829,18 @@ class Metadata(Database.Base):
 
     @staticmethod
     def create(**kwargs) -> "Metadata":
-        """
-        Create a new Metadata object. This will fail if the key already exists
-        for the referenced Dataset.
+        """Create a new Metadata object.
+
+        This will fail if the key already exists for the referenced Dataset.
 
         NOTE: use this only for raw first-level Metadata keys, not dotted
         paths like "global.seen", which will fail key validation. Instead,
         use the higher-level `setvalue` helper.
 
         Args:
-            dataset: Associated Dataset
-            key: Metadata key
-            value: Metadata value
+            dataset : Associated Dataset
+            key : Metadata key
+            value : Metadata value
         """
         if "dataset" not in kwargs:
             raise MetadataMissingParameter("dataset")
@@ -884,11 +861,10 @@ class Metadata(Database.Base):
 
     @staticmethod
     def get_native_key(key: str) -> str:
-        """
-        Extract the root key name
+        """Extract the root key name.
 
         Args:
-            key:    Key path (e.g., "user.tag")
+            key : Key path (e.g., "user.tag")
 
         Returns:
             native SQL key name ("user")
@@ -897,20 +873,21 @@ class Metadata(Database.Base):
 
     @staticmethod
     def is_key_path(key: str, valid: List[str]) -> bool:
-        """
-        Determine whether 'key' is a valid Metadata key path using the list
-        specified in 'valid'. If the "native" key (first element of a dotted
-        path) is in the list, then it's valid.
+        """Determine whether 'key' is a valid Metadata key path using the list
+        specified in 'valid'.
 
-        NOTE: we only validate the "native" key of the path. The "global"
-        and "user" namespaces are completely open for any subsidiary keys the
-        caller desires. The "dataset" and "server" namespaces are internally
-        defined by Pbench, and can't be modified by the client, however a query
-        for a metadata key that's not defined will simply return None. This
-        seems preferable to building a complicated multi-level keyword path
-        validator and provides a degree of version independence. (That is, if
-        we add "server.nextgenkey" a query for that key on a previous server
-        version will return None rather than failing in validation.)
+        If the "native" key (first element of a dotted path) is in the list,
+        then it's valid.
+
+        NOTE: we only validate the "native" key of the path.  The "global" and
+        "user" namespaces are completely open for any subsidiary keys the
+        caller desires.  The "dataset" and "server" namespaces are internally
+        defined by Pbench, and can't be modified by the client, however a
+        query for a metadata key that's not defined will simply return None.
+        This seems preferable to building a complicated multi-level keyword
+        path validator and provides a degree of version independence.  (That
+        is, if we add "server.nextgenkey" a query for that key on a previous
+        server version will return None rather than failing in validation.)
 
         Args:
             key: metadata key path
@@ -918,6 +895,7 @@ class Metadata(Database.Base):
 
         Returns:
             True if the path is valid, or False
+
         """
         k = key.lower()
         # Check for exact match
@@ -937,8 +915,7 @@ class Metadata(Database.Base):
     def getvalue(
         dataset: Dataset, key: str, user_id: Optional[str] = None
     ) -> Optional[JSON]:
-        """
-        Returns the value of the specified key, which may be a dotted
+        """Returns the value of the specified key, which may be a dotted
         hierarchical path (e.g., "server.deleted").
 
         The specific value of the dotted key path is returned, not the top
@@ -964,9 +941,9 @@ class Metadata(Database.Base):
             {"global" {"contact": {"name": "Dave", "email": "d@example.com}}}
 
         Args:
-            dataset: associated dataset
-            key: hierarchical key path to fetch
-            user: User-specific key value (used only for "user." namespace)
+            dataset : associated dataset
+            key : hierarchical key path to fetch
+            user : User-specific key value (used only for "user." namespace)
 
         Returns:
             Value of the key path
@@ -998,10 +975,11 @@ class Metadata(Database.Base):
 
     @staticmethod
     def validate(dataset: Dataset, key: str, value: Any) -> Any:
-        """
-        Create or modify an existing metadata value. This method supports
-        hierarchical dotted paths like "global.seen" and should be used in
-        most contexts where client-visible metadata paths are used.
+        """Validate a metadata value.
+
+        This method supports hierarchical dotted paths like "global.seen" and
+        should be used in most contexts where client-visible metadata paths
+        are used.
 
         1) For 'dataset.name', we require a non-empty UTF-8 encoded string.
         2) For 'server.deletion', the string must be an ISO date/time string,
@@ -1013,12 +991,13 @@ class Metadata(Database.Base):
         For any other key value, there's no required format.
 
         Args:
-            dataset: Associated Dataset
-            key: Lookup key (including hierarchical dotted paths)
-            value: Value to be assigned to the specified key
+            dataset : Associated Dataset
+            key : Lookup key (including hierarchical dotted paths)
+            value : Value to be assigned to the specified key
 
         Returns:
             A validated (and possibly altered) key value
+
         """
         if key == __class__.DATASET_NAME:
             if type(value) is not str or not value:
@@ -1053,10 +1032,11 @@ class Metadata(Database.Base):
 
     @staticmethod
     def setvalue(dataset: Dataset, key: str, value: Any, user_id: Optional[str] = None):
-        """
-        Create or modify an existing metadata value. This method supports
-        hierarchical dotted paths like "dashboard.seen" and should be used in
-        most contexts where client-visible metadata paths are used.
+        """Set a metadata value.
+
+        This method supports hierarchical dotted paths like "dashboard.seen"
+        and should be used in most contexts where client-visible metadata
+        paths are used.
 
         This will create a nested JSON structure (represented as a Python dict)
         as necessary as it descends the hierarchy. For example, if you assign
@@ -1064,9 +1044,9 @@ class Metadata(Database.Base):
         "a": {"b": {"c": "bar"}}}
 
         Args:
-            dataset: Associated Dataset
-            key: Lookup key (including hierarchical dotted paths)
-            value: Value to be assigned to the specified key
+            dataset : Associated Dataset
+            key : Lookup key (including hierarchical dotted paths)
+            value : Value to be assigned to the specified key
         """
         if not Metadata.is_key_path(key, Metadata.METADATA_KEYS):
             raise MetadataBadKey(key)
@@ -1139,16 +1119,15 @@ class Metadata(Database.Base):
 
     @staticmethod
     def get(dataset: Dataset, key: str, user_id: Optional[str] = None) -> "Metadata":
-        """
-        Fetch a Metadata (row) from the database by key name.
+        """Fetch a Metadata (row) from the database by key name.
 
         Args:
-            dataset: Associated Dataset
-            key: Lookup key (root native SQL row key)
+            dataset : Associated Dataset
+            key : Lookup key (root native SQL row key)
 
         Raises:
-            MetadataSqlError: SQL error in retrieval
-            MetadataNotFound: No value exists for specified key
+            MetadataSqlError : SQL error in retrieval
+            MetadataNotFound : No value exists for specified key
 
         Returns:
             The Metadata model object
@@ -1165,15 +1144,14 @@ class Metadata(Database.Base):
 
     @staticmethod
     def remove(dataset: Dataset, key: str, user_id: Optional[str] = None):
-        """
-        remove Remove a metadata key from the dataset
+        """Remove a metadata key from the dataset.
 
         Args:
-            dataset (Dataset): Dataset with which key is associated
-            key (string): Name of metadata key to remove
+            dataset (Dataset) : Dataset with which key is associated
+            key (string) : Name of metadata key to remove
 
         Raises:
-            DatasetSqlError: Something went wrong
+            DatasetSqlError : Something went wrong
         """
         try:
             __class__._query(dataset, key, user_id).delete()
@@ -1186,9 +1164,7 @@ class Metadata(Database.Base):
         return f"{self.dataset}>>{self.key}"
 
     def add(self, dataset: Dataset):
-        """
-        Add the Metadata object to the dataset
-        """
+        """Add the Metadata object to the dataset."""
         if type(dataset) is not Dataset:
             raise DatasetBadParameterType(dataset, Dataset)
 
@@ -1210,9 +1186,7 @@ class Metadata(Database.Base):
             raise MetadataSqlError("adding", dataset, self.key) from e
 
     def update(self):
-        """
-        update Update the database with the modified Metadata.
-        """
+        """Update the database with the modified Metadata."""
         try:
             Database.db_session.commit()
         except Exception as e:
@@ -1221,9 +1195,7 @@ class Metadata(Database.Base):
             raise MetadataSqlError("updating", self.dataset, self.key) from e
 
     def delete(self):
-        """
-        delete Remove the Metadata from the database.
-        """
+        """Remove the Metadata from the database."""
         try:
             Database.db_session.delete(self)
             Database.db_session.commit()

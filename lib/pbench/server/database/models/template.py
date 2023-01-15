@@ -9,20 +9,19 @@ from pbench.server.database.database import Database
 
 
 class TemplateError(Exception):
-    """
-    This is a base class for errors reported by the Template class. It is
-    never raised directly, but may be used in "except" clauses.
+    """A base class for errors reported by the Template class.
+
+    It is never raised directly, but may be used in "except" clauses.
     """
 
     pass
 
 
 class TemplateSqlError(TemplateError):
-    """
-    SQLAlchemy errors reported through Template operations.
+    """SQLAlchemy errors reported through Template operations.
 
-    The exception will identify the base name of the template index,
-    along with the operation being attempted; the __cause__ will specify the
+    The exception will identify the base name of the template index, along
+    with the operation being attempted; the __cause__ will specify the
     original SQLAlchemy exception.
     """
 
@@ -36,9 +35,7 @@ class TemplateSqlError(TemplateError):
 
 
 class TemplateFileMissing(TemplateError):
-    """
-    Template requires a file name.
-    """
+    """Template requires a file name."""
 
     def __init__(self, name: str):
         self.name = name
@@ -48,9 +45,7 @@ class TemplateFileMissing(TemplateError):
 
 
 class TemplateNotFound(TemplateError):
-    """
-    Attempt to find a Template that doesn't exist.
-    """
+    """Attempt to find a Template that doesn't exist."""
 
     def __init__(self, name: str):
         self.name = name
@@ -60,9 +55,7 @@ class TemplateNotFound(TemplateError):
 
 
 class TemplateDuplicate(TemplateError):
-    """
-    Attempt to commit a duplicate Template.
-    """
+    """Attempt to commit a duplicate Template."""
 
     def __init__(self, name: str, cause: str):
         self.name = name
@@ -73,9 +66,7 @@ class TemplateDuplicate(TemplateError):
 
 
 class TemplateMissingParameter(TemplateError):
-    """
-    Attempt to commit a Template with missing parameters.
-    """
+    """Attempt to commit a Template with missing parameters."""
 
     def __init__(self, name: str, cause: str):
         self.name = name
@@ -86,8 +77,7 @@ class TemplateMissingParameter(TemplateError):
 
 
 class Template(Database.Base):
-    """
-    Identify a Pbench Elasticsearch document template
+    """Identify a Pbench Elasticsearch document template.
 
     Columns:
         id              Generated unique ID of table row
@@ -119,12 +109,11 @@ class Template(Database.Base):
 
     @staticmethod
     def create(**kwargs) -> "Template":
-        """
-        A simple factory method to construct a new Template object and
+        """A simple factory method to construct a new Template object and
         add it to the database.
 
         Args:
-            kwargs: any of the column names defined above
+            kwargs : any of the column names defined above
 
         Returns:
             A new Template object initialized with the keyword parameters.
@@ -135,19 +124,19 @@ class Template(Database.Base):
 
     @staticmethod
     def find(name: str) -> "Template":
-        """
-        Return a Template object with the specified base name. For
-        example, find("run-data").
+        """Return a Template object with the specified base name.
+
+        For example, find("run-data").
 
         Args:
-            name: Base index name
+            name : Base index name
 
         Raises:
-            TemplateSqlError: problem interacting with Database
-            TemplateNotFound: the specified template doesn't exist
+            TemplateSqlError : problem interacting with Database
+            TemplateNotFound : the specified template doesn't exist
 
         Returns:
-            Template: a template object with the specified base name
+            Template : a template object with the specified base name
         """
         try:
             template = Database.db_session.query(Template).filter_by(name=name).first()
@@ -159,25 +148,24 @@ class Template(Database.Base):
         return template
 
     def __str__(self) -> str:
-        """
-        Return a string representation of the template
+        """Return a string representation of the template.
 
         Returns:
-            string: Representation of the template
+            A string representation of the template.
         """
         return f"{self.name}: {self.index_template}"
 
     def _decode(self, exception: IntegrityError) -> Exception:
-        """
-        Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
-        or NOT NULL constraint violation. Return the original exception if
-        it doesn't match.
+        """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
+        or NOT NULL constraint violation.
+
+        Return the original exception if it doesn't match.
 
         Args:
-            exception: An IntegrityError to decode
+            exception : An IntegrityError to decode
 
         Returns:
-            a more specific exception, or the original if decoding fails
+            A more specific exception, or the original if decoding fails.
         """
         # Postgres engine returns (code, message) but sqlite3 engine only
         # returns (message); so always take the last element.
@@ -189,9 +177,7 @@ class Template(Database.Base):
         return exception
 
     def add(self):
-        """
-        Add the Template object to the database
-        """
+        """Add the Template object to the database."""
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
@@ -203,8 +189,7 @@ class Template(Database.Base):
             raise TemplateSqlError("adding", self.name, str(e))
 
     def update(self):
-        """
-        Update the database row with the modified version of the
+        """Update the database row with the modified version of the
         Template object.
         """
         try:
@@ -219,10 +204,10 @@ class Template(Database.Base):
 
 @event.listens_for(Template, "init")
 def check_required(target, args, kwargs):
-    """
-    Listen for an init event on Template to validate that a filename was
-    specified; and automatically capture the file's modification timestamp
-    if it wasn't given.
+    """Listen for an init event on Template to validate that a filename was
+    specified.
+
+    Automatically capture the file's modification timestamp if it wasn't given.
     """
     if "file" not in kwargs:
         raise TemplateFileMissing(kwargs["name"])
