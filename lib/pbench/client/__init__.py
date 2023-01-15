@@ -55,7 +55,7 @@ class API(Enum):
     LOGOUT = "logout"
     REGISTER = "register"
     SERVER_AUDIT = "server_audit"
-    SERVER_CONFIGURATION = "server_configuration"
+    SERVER_SETTINGS = "server_settings"
     UPLOAD = "upload"
     USER = "user"
 

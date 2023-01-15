@@ -27,7 +27,7 @@ from pbench.server.database.models.datasets import (
     MetadataBadKey,
     MetadataError,
 )
-from pbench.server.database.models.server_config import ServerConfig
+from pbench.server.database.models.server_settings import ServerSetting
 from pbench.server.database.models.users import User
 
 
@@ -1591,7 +1591,7 @@ class ApiBase(Resource):
         schema = self.schemas[method]
         if not self.always_enabled:
             readonly = schema.operation == OperationCode.READ
-            disabled = ServerConfig.get_disabled(readonly=readonly)
+            disabled = ServerSetting.get_disabled(readonly=readonly)
             if disabled:
                 abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
 

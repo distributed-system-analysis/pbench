@@ -40,7 +40,7 @@ from pbench.server.database.models.datasets import (
     Operation,
     OperationState,
 )
-from pbench.server.database.models.template import Template
+from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
 
 

@@ -5,13 +5,16 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 
 from pbench.server.database.database import Database
 
+# Convenient shortened name
+dbs = Database.db_session
 
-class ActiveTokens(Database.Base):
+
+class AuthToken(Database.Base):
     """Model for storing the active auth tokens associated with a user."""
 
-    __tablename__ = "active_tokens"
+    __tablename__ = "auth_tokens"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    token = Column(String(500), unique=True, nullable=False, index=True)
+    auth_token = Column(String(500), unique=True, nullable=False, index=True)
     created = Column(DateTime, nullable=False)
     user_id = Column(
         Integer,
@@ -21,21 +24,18 @@ class ActiveTokens(Database.Base):
     )
 
     def __init__(self, auth_token: str):
-        self.token = auth_token
+        self.auth_token = auth_token
         self.created = datetime.datetime.now()
 
     @staticmethod
-    def query(auth_token: str) -> Optional["ActiveTokens"]:
+    def query(auth_token: str) -> Optional["AuthToken"]:
         """Find the given auth token in the database.
 
         Returns:
-            An ActiveTokens object if found, otherwise None
+            An AuthToken object if found, otherwise None
         """
-        # We currently only query token database with given token
-        active_token = (
-            Database.db_session.query(ActiveTokens).filter_by(token=auth_token).first()
-        )
-        return active_token
+        # We currently only query token database with the given token.
+        return dbs.query(AuthToken).filter_by(auth_token=auth_token).first()
 
     @staticmethod
     def delete(auth_token: str):
@@ -45,10 +45,10 @@ class ActiveTokens(Database.Base):
             auth_token : the auth token to delete
         """
         try:
-            Database.db_session.query(ActiveTokens).filter_by(token=auth_token).delete()
-            Database.db_session.commit()
+            dbs.query(AuthToken).filter_by(auth_token=auth_token).delete()
+            dbs.commit()
         except Exception:
-            Database.db_session.rollback()
+            dbs.rollback()
             raise
 
     @staticmethod
@@ -58,4 +58,4 @@ class ActiveTokens(Database.Base):
         Returns:
             True if valid (token is found in the database), False otherwise.
         """
-        return bool(ActiveTokens.query(auth_token))
+        return bool(AuthToken.query(auth_token))

@@ -15,7 +15,7 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
-from pbench.server.database.models.template import TemplateNotFound
+from pbench.server.database.models.templates import TemplateNotFound
 
 
 class DatasetsMappings(ApiBase):
