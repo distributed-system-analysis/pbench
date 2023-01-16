@@ -315,7 +315,7 @@ def main(options):
         return 1
 
     try:
-        config = pbench.server.get_pbench_server_config(options.cfg_name)
+        config = pbench.server.PbenchServerConfig.create(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2

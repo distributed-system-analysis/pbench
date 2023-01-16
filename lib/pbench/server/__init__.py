@@ -85,6 +85,24 @@ class PbenchServerConfig(PbenchConfig):
     # to be defined in pbench-server-default.cfg.
     MAXIMUM_RETENTION_DAYS = 3650
 
+    @classmethod
+    def create(cls: "PbenchServerConfig", cfg_name: str) -> "PbenchServerConfig":
+        """Construct a Pbench server configuration object and validate that all the
+        required properties are present.
+
+        Returns:
+            A PbenchServerConfig instance.
+        """
+        sc = cls(cfg_name)
+
+        # The following will reference all the required properties tripping a raise
+        # of BadConfig if any of the properties are missing their base config value.
+        req_props = [getattr(sc, attr) for attr in cls.REQ_PROPS]
+        # The following assertion will always be True, but it keeps linters quiet.
+        assert len(req_props) == len(cls.REQ_PROPS)
+
+        return sc
+
     def __init__(self, cfg_name: str):
         """Constructor to add specific fields for the operation of the server.
 
@@ -317,21 +335,3 @@ class PbenchServerConfig(PbenchConfig):
                 <YYYY>-<MM>-<DD>T<hh>:<mm>:<ss>-<TZ>
         """
         return tstos(_time())
-
-
-def get_pbench_server_config(cfg_name: str) -> PbenchServerConfig:
-    """Construct a Pbench server configuration object and validate that all the
-    required properties are present.
-
-    Returns:
-        A PbenchServerConfig instance.
-    """
-    sc = PbenchServerConfig(cfg_name)
-
-    # The following will reference all the required properties tripping a raise
-    # of BadConfig if any of the properties are missing their base config value.
-    req_props = [getattr(sc, attr) for attr in PbenchServerConfig.REQ_PROPS]
-    # The following assertion will always be True, but it keeps linters quiet.
-    assert len(req_props) == len(PbenchServerConfig.REQ_PROPS)
-
-    return sc

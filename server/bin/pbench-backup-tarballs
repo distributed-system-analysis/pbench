@@ -11,7 +11,7 @@ import tempfile
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
-from pbench.server import get_pbench_server_config
+from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
 from pbench.server.database.models.datasets import Dataset, DatasetError, Metadata
 from pbench.server.report import Report
@@ -417,7 +417,7 @@ def main(cfg_name):
         return 2
 
     try:
-        config = get_pbench_server_config(cfg_name)
+        config = PbenchServerConfig.create(cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1

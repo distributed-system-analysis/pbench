@@ -15,7 +15,7 @@ import sys
 
 from pbench.common.exceptions import BadConfig, ConfigFileError, JsonFileError
 from pbench.common.logger import get_pbench_logger
-from pbench.server import get_pbench_server_config
+from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
 from pbench.server.indexer import IdxContext
 from pbench.server.indexing_tarballs import Index, SigTermException
@@ -104,7 +104,7 @@ def main(options, name):
         # We need to do this before we create the IdxContext, since that will
         # need the template DB; so we create a PbenchServerConfig and Logger
         # independently.
-        config = get_pbench_server_config(options.cfg_name)
+        config = PbenchServerConfig.create(options.cfg_name)
         logger = get_pbench_logger(name, config)
         init_db(config, logger)
 

@@ -13,7 +13,7 @@ from flask_restful import Api
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
-from pbench.server import get_pbench_server_config, PbenchServerConfig
+from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.datasets_daterange import DatasetsDateRange
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
@@ -193,7 +193,7 @@ def get_server_config() -> PbenchServerConfig:
         )
 
     try:
-        return get_pbench_server_config(cfg_name)
+        return PbenchServerConfig.create(cfg_name)
     except BadConfig as e:
         raise Exception(f"{__name__}: {e} (config file {cfg_name})").with_traceback(
             e.__traceback__
