@@ -64,9 +64,7 @@ def tstos(ts: float = None) -> str:
 
 
 class PbenchServerConfig(PbenchConfig):
-    """A sub-class of the PbenchConfig class specifically for the pbench server
-    environment.
-    """
+    """An encapsulation of the configuration for the Pbench Server."""
 
     # Set of required properties.
     REQ_PROPS = frozenset(
@@ -238,9 +236,9 @@ class PbenchServerConfig(PbenchConfig):
             option : The option name to find in the given section
 
         Raises:
-            BadConfig : if the directory option does resolve to a directory on
-                the file system, or if the option is missing, or if the section
-                is missing
+            BadConfig : if the directory option does not resolve to a directory
+                on the file system, or if the option is missing, or if the
+                section is missing
 
         Returns:
             A Path directory object.
@@ -330,7 +328,7 @@ def get_pbench_server_config(cfg_name: str) -> PbenchServerConfig:
     """
     sc = PbenchServerConfig(cfg_name)
 
-    # The following with reference all the required properties tripping a raise
+    # The following will reference all the required properties tripping a raise
     # of BadConfig if any of the properties are missing their base config value.
     req_props = [getattr(sc, attr) for attr in PbenchServerConfig.REQ_PROPS]
     # The following assertion will always be True, but it keeps linters quiet.
