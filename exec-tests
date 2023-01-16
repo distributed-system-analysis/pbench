@@ -228,6 +228,11 @@ if [[ "${major}" == "all" || "${major}" == "server" ]]; then
         ${_ECHO} verify_make_source_tree server || rc=1
     fi
 
+    # Verify no database migrations would be generated.
+    if [[ "${subtst:-alembic}" == "alembic" && ${rc} -eq 0 ]]; then
+        (cd lib/pbench/server/database && ${ECHO} alembic check) || rc=1
+    fi
+
     # Run the server functional tests
     if [[ "${subtst}" == "functional" && ${rc} -eq 0 ]]; then
         server_arg=${1}

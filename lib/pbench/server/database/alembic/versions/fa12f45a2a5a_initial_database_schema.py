@@ -1,14 +1,14 @@
-"""Initial tables
+"""Initial database schema
 
-Revision ID: 274bab07e3f8
-Revises: 62eddcec4817
-Create Date: 2023-01-16 05:54:33.496244
+Revision ID: fa12f45a2a5a
+Revises:
+Create Date: 2023-01-16 18:33:29.144835
 
 Since we are adding Alembic migrations after we have already been using our
-database in various contexts, this "Initial tables" migration describes how to
-bring an empty database up to the state of the database as of commit 6a764f154.
-That commit was the latest working version of the Pbench Server deployed in Red
-Hat's staging environment.
+database in various contexts, this "Initial database schema" migration describes
+how to bring an empty database up to the state of the database as of commit
+6a764f154.  That commit was the latest working version of the Pbench Server
+deployed in Red Hat's staging environment.
 """
 from alembic import op
 import sqlalchemy as sa
@@ -16,8 +16,8 @@ import sqlalchemy as sa
 from pbench.server.database.models import TZDateTime
 
 # revision identifiers, used by Alembic.
-revision = "274bab07e3f8"
-down_revision = "62eddcec4817"
+revision = "fa12f45a2a5a"
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -60,7 +60,7 @@ def upgrade():
     op.create_table(
         "datasets",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("name", sa.String(length=255), nullable=False),
+        sa.Column("name", sa.String(length=1024), nullable=False),
         sa.Column("owner_id", sa.String(length=255), nullable=False),
         sa.Column("access", sa.String(length=255), nullable=False),
         sa.Column("resource_id", sa.String(length=255), nullable=False),
