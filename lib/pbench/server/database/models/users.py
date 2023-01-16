@@ -147,9 +147,10 @@ class User(Database.Base):
 
     @staticmethod
     def is_admin_username(username) -> bool:
-        # TODO: Need to add an interface to fetch admins list instead of
-        # hard-coding the names, preferably via sql query.
+        """Determine if the given user name is the offical admin user.
+
+        Returns:
+            True if the user name is "admin", False otherwise.
+        """
         admins = ["admin"]
         return username in admins
-
-    # TODO: Add password recovery mechanism

@@ -14,8 +14,6 @@ class TemplateError(Exception):
     It is never raised directly, but may be used in "except" clauses.
     """
 
-    pass
-
 
 class TemplateSqlError(TemplateError):
     """SQLAlchemy errors reported through Template operations.

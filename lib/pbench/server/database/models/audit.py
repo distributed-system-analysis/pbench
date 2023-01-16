@@ -19,8 +19,6 @@ class AuditError(Exception):
     It is never raised directly, but may be used in "except" clauses.
     """
 
-    pass
-
 
 class AuditSqlError(AuditError):
     """SQLAlchemy errors reported through Audit operations.

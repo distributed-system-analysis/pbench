@@ -24,8 +24,6 @@ class DatasetError(Exception):
     It is never raised directly, but may be used in "except" clauses.
     """
 
-    pass
-
 
 class DatasetBadName(DatasetError):
     """Specified filename does not follow Pbench tarball naming rules."""
@@ -96,8 +94,6 @@ class DatasetTransitionError(DatasetError):
 
     It is never raised directly, but may be used in "except" clauses.
     """
-
-    pass
 
 
 class DatasetBadStateTransition(DatasetTransitionError):
@@ -209,8 +205,6 @@ class MetadataKeyError(MetadataError):
 
     It is never raised directly, but may be used in "except" clauses.
     """
-
-    pass
 
 
 class MetadataMissingParameter(MetadataKeyError):
@@ -895,7 +889,6 @@ class Metadata(Database.Base):
 
         Returns:
             True if the path is valid, or False
-
         """
         k = key.lower()
         # Check for exact match

@@ -15,8 +15,6 @@ class ServerConfigError(Exception):
     It is never raised directly, but may be used in "except" clauses.
     """
 
-    pass
-
 
 class ServerConfigSqlError(ServerConfigError):
     """SQLAlchemy errors reported through ServerConfig operations.
@@ -57,7 +55,7 @@ class ServerConfigNullKey(ServerConfigError):
 
 
 class ServerConfigMissingKey(ServerConfigError):
-    """Attempt to set a ServerConfig with an empty key."""
+    """Attempt to set a ServerConfig with a missing key."""
 
     def __str__(self) -> str:
         return "Missing key name"
