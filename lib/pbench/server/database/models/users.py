@@ -146,11 +146,11 @@ class User(Database.Base):
         return self.role is Roles.ADMIN
 
     @staticmethod
-    def is_admin_username(username) -> bool:
-        """Determine if the given user name is the offical admin user.
+    def is_admin_username(username: str) -> bool:
+        """Determine if the given user name is an admin user.
 
         Returns:
-            True if the user name is "admin", False otherwise.
+            True if the user is an admin; False otherwise.
         """
         admins = ["admin"]
         return username in admins
