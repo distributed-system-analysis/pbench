@@ -49,16 +49,10 @@ class Report:
         # subsequent calls to the `post_status()` method will use that first
         # document ID as their parent document ID.  This allows us to have
         # multiple status updates associated with the initial Report() caller.
-        if config._unittests:
-            _hostname = "example.com"
-            _pid = 42
-            _group_id = 43
-            _user_id = 44
-        else:
-            _hostname = hostname if hostname else socket.gethostname()
-            _pid = pid if pid else os.getpid()
-            _group_id = group_id if group_id else os.getgid()
-            _user_id = user_id if user_id else os.getuid()
+        _hostname = hostname if hostname else socket.gethostname()
+        _pid = pid if pid else os.getpid()
+        _group_id = group_id if group_id else os.getgid()
+        _user_id = user_id if user_id else os.getuid()
         self.generated_by = dict(
             [
                 ("commit_id", self.config.COMMIT_ID),

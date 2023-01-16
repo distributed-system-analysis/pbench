@@ -283,7 +283,7 @@ def main():
         return 2
 
     try:
-        config = PbenchServerConfig(cfg_name)
+        config = PbenchServerConfig.create(cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1

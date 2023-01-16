@@ -193,7 +193,7 @@ def get_server_config() -> PbenchServerConfig:
         )
 
     try:
-        return PbenchServerConfig(cfg_name)
+        return PbenchServerConfig.create(cfg_name)
     except BadConfig as e:
         raise Exception(f"{__name__}: {e} (config file {cfg_name})").with_traceback(
             e.__traceback__

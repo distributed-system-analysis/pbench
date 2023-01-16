@@ -104,7 +104,7 @@ def main(options, name):
         # We need to do this before we create the IdxContext, since that will
         # need the template DB; so we create a PbenchServerConfig and Logger
         # independently.
-        config = PbenchServerConfig(options.cfg_name)
+        config = PbenchServerConfig.create(options.cfg_name)
         logger = get_pbench_logger(name, config)
         init_db(config, logger)
 

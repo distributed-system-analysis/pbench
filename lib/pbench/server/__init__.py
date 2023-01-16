@@ -1,15 +1,14 @@
-"""
-Simple module level convenience functions.
-"""
+"""Server module level convenience functions."""
 
 from configparser import NoOptionError, NoSectionError
 from datetime import datetime, timedelta, tzinfo
 from enum import auto, Enum
+from logging import Logger
 from pathlib import Path
 from time import time as _time
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
-from pbench import _STD_DATETIME_FMT, PbenchConfig
+from pbench import PbenchConfig
 from pbench.common.exceptions import BadConfig
 
 # A type defined to conform to the semantic definition of a JSON structure
@@ -23,7 +22,8 @@ JSON = JSONVALUE
 
 
 class OperationCode(Enum):
-    """
+    """Enumeration for CRUD operations.
+
     The standard CRUD REST API operations:
 
         CREATE: Instantiate a new resource
@@ -38,135 +38,160 @@ class OperationCode(Enum):
     DELETE = auto()
 
 
-class simple_utc(tzinfo):
-    def tzname(self, *args, **kwargs):
+class SimpleUTC(tzinfo):
+    """TZ Info class to help create a UTC datetime object."""
+
+    def tzname(self, *args, **kwargs) -> str:
         return "UTC"
 
-    def utcoffset(self, dt):
+    def utcoffset(self, dt) -> timedelta:
         return timedelta(0)
 
-    def dst(self, dt):
+    def dst(self, dt) -> timedelta:
         return timedelta(0)
 
 
-def tstos(ts=None):
+def tstos(ts: float = None) -> str:
+    """Convert a floating point seconds from the Epoch into a string.
+
+    Returns:
+        A string representation of a datetime object with a UTC time zone.
+    """
     if ts is None:
         ts = _time()
-    dt = datetime.utcfromtimestamp(ts).replace(tzinfo=simple_utc())
+    dt = datetime.utcfromtimestamp(ts).replace(tzinfo=SimpleUTC())
     return dt.strftime("%Y-%m-%dT%H:%M:%S-%Z")
 
 
 class PbenchServerConfig(PbenchConfig):
-    """PbenchServerConfig - a sub-class of the PbenchConfig class specifically
-    for the pbench server environment.
-    """
+    """An encapsulation of the configuration for the Pbench Server."""
+
+    # Set of required properties.
+    REQ_PROPS = frozenset(
+        (
+            "TOP",
+            "TMP",
+            "LOGSDIR",
+            "BINDIR",
+            "LIBDIR",
+            "ARCHIVE",
+            "INCOMING",
+            "RESULTS",
+            "USERS",
+        )
+    )
 
     # Define a fallback default for dataset maximum retention, which we expect
     # to be defined in pbench-server-default.cfg.
     MAXIMUM_RETENTION_DAYS = 3650
 
-    def __init__(self, cfg_name):
+    @classmethod
+    def create(cls: "PbenchServerConfig", cfg_name: str) -> "PbenchServerConfig":
+        """Construct a Pbench server configuration object and validate that all the
+        required properties are present.
+
+        Returns:
+            A PbenchServerConfig instance.
+        """
+        sc = cls(cfg_name)
+
+        # The following will reference all the required properties tripping a raise
+        # of BadConfig if any of the properties are missing their base config value.
+        req_props = [getattr(sc, attr) for attr in cls.REQ_PROPS]
+        # The following assertion will always be True, but it keeps linters quiet.
+        assert len(req_props) == len(cls.REQ_PROPS)
+
+        return sc
+
+    def __init__(self, cfg_name: str):
+        """Constructor to add specific fields for the operation of the server.
+
+        Args:
+            cfg_name : The configuration file name to use
+        """
         super().__init__(cfg_name)
 
-        # Now fetch some default common pbench settings that are required.
-        self.TOP = self._get_valid_dir_option("TOP", "pbench-server", "pbench-top-dir")
-        self.TMP = self._get_valid_dir_option("TMP", "pbench-server", "pbench-tmp-dir")
-        if self.log_dir:
-            # We have a logging directory, which means the logger_type is
-            # "file", so we'll ignore any "pbench-logs-dir" configuration
-            # values.
-            self.LOGSDIR = Path(self.log_dir)
-        else:
-            # We don't have a [logging] section "log_dir" option, so we'll
-            # fetch the old "pbench-logs-dir" option.
-            self.LOGSDIR = self._get_valid_dir_option(
-                "LOGSDIR", "pbench-server", "pbench-logs-dir"
-            )
-            # Provide a value for log_dir since it was provided via the old
-            # pbench-logs-dir configuration.
-            self.log_dir = str(self.LOGSDIR)
         # The pbench server, unlike the pbench agent code, logs to separate
         # directories for each caller.
         self.log_using_caller_directory = True
-        self.BINDIR = self._get_valid_dir_option(
-            "BINDIR", "pbench-server", "script-dir"
-        )
-        self.LIBDIR = self._get_valid_dir_option("LIBDIR", "pbench-server", "lib-dir")
-        self.ARCHIVE = self._get_valid_dir_option(
-            "ARCHIVE", "pbench-server", "pbench-archive-dir"
-        )
-
-        self.INCOMING = self.TOP / "public_html" / "incoming"
-        # this is where the symlink forest is going to go
-        self.RESULTS = self.TOP / "public_html" / "results"
-        self.USERS = self.TOP / "public_html" / "users"
-
-        try:
-            self.PBENCH_ENV = self.conf.get("pbench-server", "environment")
-        except NoOptionError:
-            self.PBENCH_ENV = ""
-
-        try:
-            self.COMMIT_ID = self.conf.get("pbench-server", "commit_id")
-        except NoOptionError:
-            self.COMMIT_ID = "(unknown)"
-
-        if self._unittests:
-
-            def mocked_time():
-                return 42.00
-
-            global _time
-            _time = mocked_time
 
         # Constants
 
         # Initial common timestamp format
-        self.TS = f"run-{self.timestamp()}"
+        self.TS = f"run-{tstos(_time())}"
 
     @property
-    def server_config(self):
-        return self.conf["pbench-server"]
+    def TOP(self) -> Path:
+        return self._get_valid_dir_option("TOP", "pbench-server", "pbench-top-dir")
 
     @property
-    def mail_recipients(self):
-        try:
-            return self.conf.get("pbench-server", "mailto")
-        except (NoOptionError, NoSectionError):
-            return ""
+    def TMP(self) -> Path:
+        return self._get_valid_dir_option("TMP", "pbench-server", "pbench-tmp-dir")
 
     @property
-    def _unittests(self):
-        try:
-            unittests = self.conf.get("pbench-server", "debug_unittest")
-        except (NoOptionError, NoSectionError):
-            return False
-        else:
-            return bool(unittests)
+    def LOGSDIR(self) -> Path:
+        if self.log_dir:
+            # We have a logging directory, which means the logger_type is
+            # "file", so we'll ignore any "pbench-logs-dir" configuration
+            # values.
+            return Path(self.log_dir)
+
+        # We don't have a [logging] section "log_dir" option, so we'll
+        # fetch the old "pbench-logs-dir" option.
+        logsdir = self._get_valid_dir_option(
+            "LOGSDIR", "pbench-server", "pbench-logs-dir"
+        )
+        # Provide a value for log_dir since it was provided via the old
+        # pbench-logs-dir configuration.
+        self.log_dir = str(logsdir)
+        return logsdir
 
     @property
-    def _ref_datetime(self):
-        if self._unittests:
-            try:
-                ref_dt_str = self.conf.get("pbench-server", "debug_ref_datetime")
-            except Exception:
-                ref_dt_str = "1970-01-02T00:00:00.000000"
-            return datetime.strptime(ref_dt_str, _STD_DATETIME_FMT)
-        else:
-            return None
+    def BINDIR(self) -> Path:
+        return self._get_valid_dir_option("BINDIR", "pbench-server", "script-dir")
 
     @property
-    def rest_uri(self):
+    def LIBDIR(self) -> Path:
+        return self._get_valid_dir_option("LIBDIR", "pbench-server", "lib-dir")
+
+    @property
+    def ARCHIVE(self) -> Path:
+        return self._get_valid_dir_option(
+            "ARCHIVE", "pbench-server", "pbench-archive-dir"
+        )
+
+    @property
+    def INCOMING(self) -> Path:
+        return self.TOP / "public_html" / "incoming"
+
+    @property
+    def RESULTS(self) -> Path:
+        # This is where the symlink forest is going to go.
+        return self.TOP / "public_html" / "results"
+
+    @property
+    def USERS(self) -> Path:
+        return self.TOP / "public_html" / "users"
+
+    @property
+    def PBENCH_ENV(self) -> str:
+        return self.conf.get("pbench-server", "environment", fallback="")
+
+    @property
+    def COMMIT_ID(self) -> str:
+        return self.conf.get("pbench-server", "commit_id", fallback="(unknown)")
+
+    @property
+    def rest_uri(self) -> str:
         return self._get_conf("pbench-server", "rest_uri")
 
     @property
     def max_retention_period(self) -> int:
-        """
-        Produce a timedelta representing the number of days the server allows
-        a dataset to be retained.
+        """Produce an integer representing the maximum number of days the server
+        allows a dataset to be retained.
 
-        Returns
-            delta time representing retention period
+        Returns:
+            integer representing retention period in days
         """
         try:
             retention_days = int(
@@ -176,10 +201,19 @@ class PbenchServerConfig(PbenchConfig):
             retention_days = self.MAXIMUM_RETENTION_DAYS
         return retention_days
 
-    def _get_conf(self, section, option):
-        """
-        _get_conf - get the option from the section, raising
-        BadConfig Error if it is empty, return the option value as a string.
+    def _get_conf(self, section: str, option: str) -> str:
+        """Get the option from the section.
+
+        Args:
+            section : The configuration section name to find the option
+            option : The option name to find in the given section
+
+        Raises:
+            BadConfig : when the option is empty, the option is missing, or the
+                section is missing
+
+        Returns:
+            The option value as a string.
         """
         try:
             option_val = self.conf.get(section, option)
@@ -191,35 +225,65 @@ class PbenchServerConfig(PbenchConfig):
 
         return option_val
 
-    def get_conf(self, name, section, option, logger):
-        """
-        get_conf - get the option from the section, raising BadConfig Error
-        if it is empty, return the option value as a string.
+    def get_conf(self, env_name: str, section: str, option: str, logger: Logger) -> str:
+        """Get the option from the section.
+
+        Args:
+            env_name : Legacy environment name to display in error messages
+            section : The configuration section name to find the option
+            option : The option name to find in the given section
+            logger : The logger to use when a bad configuration is encountered
+
+        Returns:
+            The option value as a string, if present, else None.
         """
         try:
             option_val = self._get_conf(section, option)
         except BadConfig as exc:
-            logger.error("Bad {}= '({})'", name, exc)
+            logger.error("Bad {}= '({})'", env_name, exc)
             return None
 
         return option_val
 
-    def _get_valid_dir_option(self, req_val, section, option):
-        """_get_valid_dir_option - get the directory option from the
-        given section, raising BadConfig Error if the path is not resolved
-        or is not a directory, returning a Path directory object.
+    def _get_valid_dir_option(self, env_name: str, section: str, option: str) -> Path:
+        """Get the validated directory option from the given section.
+
+        Args:
+            env_name : Legacy environment name to display in error messages
+            section : The configuration section name to find the option
+            option : The option name to find in the given section
+
+        Raises:
+            BadConfig : if the directory option does not resolve to a directory
+                on the file system, or if the option is missing, or if the
+                section is missing
+
+        Returns:
+            A Path directory object.
         """
         dir_val = self._get_conf(section, option)
-        dir_path = self._get_valid_path(req_val, dir_val, None)
+        dir_path = self._get_valid_path(env_name, dir_val, None)
         if not dir_path:
-            raise BadConfig(f"Bad {req_val}={dir_val}")
+            raise BadConfig(f"Bad {env_name}={dir_val}")
 
         return dir_path
 
-    def _get_valid_path(self, req_val, dir_val, logger):
-        """_get_valid_path - get realpath from the given path, raising
-        Error if the path is not resolved or is not a directory,
-        returning a Path directory object.
+    def _get_valid_path(
+        self, env_name: str, dir_val: str, logger: Union[None, Logger]
+    ) -> Optional[Path]:
+        """Get the fully resolved path from the given path.
+
+        If a logger is given, will emit error logs when the directory is not
+        found or the resolved name is not a directory.
+
+        Args:
+            env_name : Legacy environment name to display in error messages
+            dir_val : A directory value to resolve to a real directory
+            logger : Logger to use when low-level error messages should be
+                emitted
+
+        Returns:
+            A Path directory object of the directory on disk, None otherwise.
         """
         try:
             dir_path = Path(dir_val).resolve(strict=True)
@@ -227,7 +291,7 @@ class PbenchServerConfig(PbenchConfig):
             if logger:
                 logger.error(
                     "The {} directory, '{}', does not resolve to a real location",
-                    req_val,
+                    env_name,
                     dir_val,
                 )
             return None
@@ -236,25 +300,38 @@ class PbenchServerConfig(PbenchConfig):
                 if logger:
                     logger.error(
                         "The {} directory, does not resolve to a directory ('{}')",
-                        req_val,
+                        env_name,
                         dir_path,
                     )
                 return None
         return dir_path
 
-    def get_valid_dir_option(self, req_val, dir_val, logger):
-        """get_valid_dir_option - get the directory path raising an Error
-        if it is not a directory, returning a Path directory object.
+    def get_valid_dir_option(
+        self, env_name: str, dir_val: str, logger: Union[None, Logger]
+    ) -> Optional[Path]:
+        """Get the validated directory option from the given section.
+
+        Args:
+            env_name : Legacy environment name to display in error messages
+            dir_val : A directory value to resolve to a real directory
+            logger : Logger to use when low-level error messages should be
+                emitted
+
+        Returns:
+            A Path directory object, None if the directory value does not
+                resolve to a real directory.
         """
-        dir_path = self._get_valid_path(req_val, dir_val, logger)
+        dir_path = self._get_valid_path(env_name, dir_val, logger)
         if not dir_path:
             return None
 
         return dir_path
 
-    def timestamp(self):
-        """
-        "Return the current timestamp formatted as a string of the following form:
-                  <YYYY>-<MM>-<DD>T<hh>:<mm>:<ss>-<TZ>
+    def timestamp(self) -> str:
+        """Generate a time stamp string.
+
+        Returns:
+            The current timestamp formatted as a string of the following form:
+                <YYYY>-<MM>-<DD>T<hh>:<mm>:<ss>-<TZ>
         """
         return tstos(_time())

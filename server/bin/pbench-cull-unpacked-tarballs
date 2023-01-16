@@ -315,7 +315,7 @@ def main(options):
         return 1
 
     try:
-        config = pbench.server.PbenchServerConfig(options.cfg_name)
+        config = pbench.server.PbenchServerConfig.create(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2
@@ -357,14 +357,7 @@ def main(options):
 
     # First phase is to find all the tar balls which are beyond the max
     # unpacked age, and which still have an unpacked directory in INCOMING.
-    if config._ref_datetime is not None:
-        try:
-            curr_dt = config._ref_datetime
-        except Exception:
-            # Ignore bad dates from test environment.
-            curr_dt = datetime.utcnow()
-    else:
-        curr_dt = datetime.utcnow()
+    curr_dt = datetime.utcnow()
 
     _msg = "Culling unpacked tar balls {} days older than {}"
     if options.dry_run:
@@ -377,10 +370,6 @@ def main(options):
     start = pbench.server._time()
 
     gen = gen_list_unpacked_aged(incomingpath, archivepath, curr_dt, max_unpacked_age)
-    if config._unittests:
-        # force the generator and sort the list
-        gen = sorted(list(gen))
-
     for tb_incoming_dir, controller_name in gen:
         act_set = remove_unpacked(
             tb_incoming_dir,
