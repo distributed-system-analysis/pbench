@@ -262,11 +262,16 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
 
 def sanity_check(s3_obj, logger):
     # make sure the S3 bucket exists
+    if s3_obj.bucket_name is None:
+        logger.warning("Bucket not defined in config file - S3 backup is disabled.")
+        return None
     try:
         s3_obj.head_bucket(Bucket=s3_obj.bucket_name)
-    except Exception:
-        logger.exception(
-            "Bucket: {} does not exist or you have no access\n", s3_obj.bucket_name
+    except Exception as exc:
+        logger.error(
+            "Bucket: {} does not exist or you have no access, {}",
+            s3_obj.bucket_name,
+            exc,
         )
         s3_obj = None
     return s3_obj
