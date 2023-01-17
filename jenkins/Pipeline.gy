@@ -10,26 +10,16 @@ pipeline {
         PY_COLORS=0
         TERM='dumb'
 
-        // The remaining variables are for `jenkins/run-server-func-tests`.
-
-        PODMAN_INTERNAL=credentials('12b404ca-3036-4960-9929-979148b9e49a')
-        KEYCLOAK_CLIENT_SECRET=credentials('5cf0304d-8a00-48a4-ade5-9f59cb37ba68')
-        PB_CONTAINER_REG=credentials('c3e2d737-0e56-4c1e-a945-d86bc644384c')
-
+        // Configuration for remote container registries
+        PB_CI_REGISTRY=credentials('c3e2d737-0e56-4c1e-a945-d86bc644384c')
+        PB_CI_REG_CRED=credentials('12b404ca-3036-4960-9929-979148b9e49a')
         PB_ORG_NAME="pbench"
-
+        // If we are executing for a PR, as opposed to executing for a branch
+        // like `main`, the CHANGE_ID will be defined to the PR number.  If it
+        // is defined we'll use its value for the container image tag;
+        // otherwise we set it to the branch name (e.g., `main`).
+        PB_IMAGE_TAG="${env.CHANGE_ID ?: env.BRANCH_NAME}"
         PB_SERVER_IMAGE_NAME="pbench-server-ci"
-        // Set the tag to the PR number (i.e., the Jenkins CHANGE_ID) if run for
-        // a PR; otherwise set it to the branch name (e.g., `main`).  Set a
-        // shorthand for the Pbench Server image path, and set a variable for
-        // the Server Pod name, based on the image tag, so that we don't
-        // interfere with other pods on this executor.
-        PB_SERVER_IMAGE_TAG="""${sh(
-            returnStdout: true,
-            script: 'echo ${CHANGE_ID:-${BRANCH_NAME}}'
-            )}""".trim()
-
-        PB_DASHBOARD_DIR="${WORKSPACE}/dashboard/build/"
     }
     stages {
         stage('Agent Python3.6 Check') {
@@ -50,14 +40,35 @@ pipeline {
             }
         }
         stage('Build the Pbench Server Container') {
+            environment {
+                KEYCLOAK_CLIENT_SECRET=credentials('5cf0304d-8a00-48a4-ade5-9f59cb37ba68')
+                PB_SERVER_IMAGE_TAG="${PB_IMAGE_TAG}"
+                RPM_PATH="${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm"
+            }
             steps {
-                sh 'buildah login -u="${PODMAN_INTERNAL_USR}" -p="${PODMAN_INTERNAL_PSW}" ${PB_CONTAINER_REG}'
-                sh 'RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build-ci.sh'
-                sh 'buildah push localhost/pbench-server:${PB_SERVER_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_ORG_NAME}/pbench-server:${PB_SERVER_IMAGE_TAG}'
-                sh 'buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}'
+                sh 'buildah login -u="${PB_CI_REG_CRED_USR}" -p="${PB_CI_REG_CRED_PSW}" ${PB_CI_REGISTRY}'
+                sh 'bash -ex ./server/pbenchinacan/container-build-ci.sh'
+                sh 'buildah push localhost/pbench-server:${PB_IMAGE_TAG} ${PB_CI_REGISTRY}/${PB_ORG_NAME}/pbench-server:${PB_IMAGE_TAG}'
+                sh 'buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG} ${PB_CI_REGISTRY}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG}'
+            }
+        }
+        stage('Build the Pbench Agent Containers') {
+            environment {
+                PB_AGENT_DISTRO="fedora-36"
+            }
+            steps {
+                sh 'buildah login -u="${PB_CI_REG_CRED_USR}" -p="${PB_CI_REG_CRED_PSW}" ${PB_CI_REGISTRY}'
+                sh '/usr/bin/python3 -m pip install --user jinja2-cli'
+                sh 'make -C agent/containers/images CI_RPM_ROOT=${WORKSPACE_TMP} clean ${PB_AGENT_DISTRO}-everything'
+                sh 'make -C agent/containers/images IMAGE_REPO=${PB_CI_REGISTRY}/${PB_ORG_NAME} IMAGE_TAG=${PB_IMAGE_TAG} ${PB_AGENT_DISTRO}-push-ci'
             }
         }
         stage('Deploy server and run functional tests') {
+            environment {
+                PB_CONTAINER_REG="${PB_CI_REGISTRY}"
+                PB_DASHBOARD_DIR="${WORKSPACE}/dashboard/build/"
+                PB_SERVER_IMAGE_TAG="${PB_IMAGE_TAG}"
+            }
             steps {
                 sh 'jenkins/run-server-func-tests --cleanup'
             }
