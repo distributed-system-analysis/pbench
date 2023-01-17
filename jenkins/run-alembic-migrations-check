@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+podman run --name postgresql-alembic \
+    --detach \
+    --rm \
+    --network host \
+    --workdir /opt/app-root/src \
+    --env 'PATH=/opt/app-root/src/bin:/opt/app-root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' \
+	--env 'TERM=xterm' \
+	--env 'container=oci' \
+    --env 'STI_SCRIPTS_URL=image:///usr/libexec/s2i' \
+    --env 'PGUSER=postgres' \
+    --env 'PLATFORM=el8' \
+    --env 'APP_DATA=/opt/app-root' \
+    --env 'CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/postgresql' \
+    --env 'ENABLED_COLLECTIONS' \
+    --env 'POSTGRESQL_VERSION=13' \
+    --env 'APP_ROOT=/opt/app-root' \
+    --env 'STI_SCRIPTS_PATH=/usr/libexec/s2i' \
+    --env 'HOME=/var/lib/pgsql' \
+    --env 'POSTGRESQL_USER=pbench' \
+    --env 'POSTGRESQL_PASSWORD=pbench' \
+    --env 'POSTGRESQL_DATABASE=pbench' \
+    images.paas.redhat.com/pbench/postgresql-13:latest container-entrypoint run-postgresql
+
+trap "podman stop postgresql-alembic" INT ABRT QUIT EXIT
+
+until nc -z localhost 5432; do
+    sleep 1
+done
+
+tox -e alembic-check
