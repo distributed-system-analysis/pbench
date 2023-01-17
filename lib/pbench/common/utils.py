@@ -49,6 +49,11 @@ _allowed = re.compile(
     flags=re.IGNORECASE,
 )
 
+_satellite_allowed = re.compile(
+    r"[A-Za-z0-9]+::[A-Z0-9](?:[A-Z0-9\-]{0,61}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9\-]{0,61}[A-Z0-9])?)*",
+    flags=re.IGNORECASE,
+)
+
 
 def validate_hostname(host_name: str) -> int:
     """validate_hostname - validate the given hostname uses the proper syntax.
@@ -64,7 +69,7 @@ def validate_hostname(host_name: str) -> int:
     if not host_name or len(host_name) > 255:
         return 1
 
-    if _allowed.fullmatch(host_name):
+    if _allowed.fullmatch(host_name) or _satellite_allowed.fullmatch(host_name):
         return 0
 
     # It is not a valid host name, but could be a valid IP address.
