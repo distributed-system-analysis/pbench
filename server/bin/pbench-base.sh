@@ -64,10 +64,11 @@ else
 fi
 
 function mk_dirs {
-    hostname=$1
+    local hostname=$1
+    local dest=${2:-${ARCHIVE}}
 
     for d in $LINKDIRS ;do
-        thedir=$ARCHIVE/$hostname/$d
+        thedir=$dest/$hostname/$d
         mkdir -p $thedir
         if [[ $? -ne 0 || ! -d "$thedir" ]]; then
             return 1
