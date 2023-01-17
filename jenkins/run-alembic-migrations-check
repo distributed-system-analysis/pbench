@@ -29,4 +29,4 @@ until nc -z localhost 5432; do
     sleep 1
 done
 
-tox -e alembic-check
+EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" jenkins/run tox -e alembic-check
