@@ -143,12 +143,12 @@ else
     hosts=""
 fi
 
-dest=$(getconf.py pbench-receive-dir-prefix pbench-server)-002
 let unpack_start_time=$(timestamp-seconds-since-epoch)
 
 for host in $hosts ;do
     typeset -i processed=0
     typeset -i failed_md5=0
+    dest=$(getconf.py pbench-receive-dir-prefix pbench-server)-002
     localdir=$dest/$remote_prefix::$host
 
     pushd $localdir > /dev/null 2>&1
@@ -194,7 +194,8 @@ for host in $hosts ;do
     fi
 
     # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
-    mk_dirs $remote_prefix::$host $dest
+    mk_dirs $remote_prefix::$host
+    archive=$ARCHIVE/$remote_prefix::$host
 
     # check md5s and move md5s to its appropriate state directories according to pass or fail
     md5_list="$flist"
@@ -205,7 +206,7 @@ for host in $hosts ;do
     if [ -s $logdir/$host/ok-checks.log ] ;then
         md5_pass=$(cat $logdir/$host/ok-checks.log | sed -n 's/: OK//p')
         for x in $md5_pass; do
-            ln -sf $PWD/$x SATELLITE-MD5-PASSED/$x
+            ln -sf $PWD/$x $archive/SATELLITE-MD5-PASSED/$x
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
@@ -221,7 +222,7 @@ for host in $hosts ;do
     if [ -s $logdir/$host/fail-checks.log ] ;then
         md5_fail=$(cat $logdir/$host/fail-checks.log | sed -n 's/: FAILED//p')
         for x in $md5_fail; do
-            ln -sf $PWD/$x SATELLITE-MD5-FAILED/$x
+            ln -sf $PWD/$x $archive/SATELLITE-MD5-FAILED/$x
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
@@ -233,7 +234,7 @@ for host in $hosts ;do
     # create symlinks for the synced tarballs in TODO
     if [ -s $logdir/$host/ok-checks.log ] ;then
         for x in $md5_pass; do
-            ln -sf $PWD/$x TODO/$x
+            ln -sf $PWD/$x $archive/TODO/$x
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
