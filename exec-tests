@@ -230,7 +230,7 @@ if [[ "${major}" == "all" || "${major}" == "server" ]]; then
 
     # Verify no database migrations would be generated.
     if [[ "${subtst:-alembic}" == "alembic" && ${rc} -eq 0 ]]; then
-        (cd lib/pbench/server/database && ${ECHO} alembic check) || rc=1
+        ${_ECHO} lib/pbench/server/database/alembic.check || rc=1
     fi
 
     # Run the server functional tests
