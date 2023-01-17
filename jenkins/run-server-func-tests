@@ -49,11 +49,12 @@ while [[ "${status_code}" == "502" || "${status_code}" == "503" ]]; do
 done
 if [[ "${status_code}" != "200" ]]; then
     curl ${SERVER_API_ENDPOINTS}
-    exit 1
+    exit_status=2
+else
+    EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" jenkins/run tox -e py39 -- server functional ${SERVER_URL}
+    exit_status=${?}
 fi
 
-EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" jenkins/run tox -e py39 -- server functional ${SERVER_URL}
-exit_status=${?}
 if [[ ${exit_status} -ne 0 ]]; then
     printf -- "\nFunctional tests exited with code %s\n" ${exit_status}
     printf -- "+++ journalctl dump +++\n"
