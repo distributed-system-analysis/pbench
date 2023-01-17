@@ -17,17 +17,6 @@ tmp=$(get-tempdir-name $PROG)
 trap "rm -rf $tmp" EXIT
 mkdir -p "$tmp" || exit 1
 
-calculate_prefixname () {
-    local prefix
-
-    tarname=${1##*/}
-    prefixname=${tarname%%.tar.xz}
-    despath=${1%/*}
-    prefixpath=".prefix/$prefixname.prefix"
-    prefix="$despath/$prefixpath"
-    echo $prefix
-}
-
 calculate_md5_prefix () {
     local tar_list
 
@@ -39,10 +28,6 @@ calculate_md5_prefix () {
                 echo "$tar.md5"
             else
                 echo Failed: "$remotearchive/$tar" exist but "$remotearchive/$tar.md5" not exist >&4
-            fi
-            prefix=$(calculate_prefixname $tar)
-            if [ -s $remotearchive/$prefix ]; then
-                echo "$prefix"
             fi
         else
             echo Failed: "$remotearchive/$tar" not exist >&4

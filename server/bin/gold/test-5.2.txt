@@ -1,33 +1,3 @@
-+++ Running pbench-server-prep-shim-002
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-server-prep-shim-002",
-            "text": "run-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz\nrun-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz\nrun-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz\nrun-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz\nrun-1970-01-01T00:00:42-UTC: Processed 7 entries, 4 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.\n",
-            "total_chunks": 1,
-            "total_size": 941
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-server-prep-shim-002 (status=0)
 +++ Running pbench-sync-satellite satellite-one
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -50,14 +20,44 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-sync-satellite",
-            "text": "pbench-sync-satellite.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 3 files, with 0 md5 failures and 0 errors.\n\nrun-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-5.2/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: duration (secs): 0\nrun-1970-01-01T00:00:42-UTC: Total 3 files processed, with 0 md5 failures and 0 errors\n",
+            "text": "pbench-sync-satellite.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 3 files and 0 errors.\n\nrun-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-5.2/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: duration (secs): 0\nrun-1970-01-01T00:00:42-UTC: Total 3 files processed and 0 errors\n",
             "total_chunks": 1,
-            "total_size": 789
+            "total_size": 747
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-sync-satellite (status=0)
++++ Running pbench-server-prep-shim-002
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:42",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-server-prep-shim-002",
+            "text": "run-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz\nrun-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz\nrun-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz\nrun-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz\nrun-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz\nrun-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz\nrun-1970-01-01T00:00:42-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz\nrun-1970-01-01T00:00:42-UTC: Processed 10 entries, 7 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.\n",
+            "total_chunks": 1,
+            "total_size": 1525
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-server-prep-shim-002 (status=0)
 +++ Running pbench-dispatch
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -452,7 +452,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SATELLITE-MD5-PASSED
-lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/SATELLITE-MD5-PASSED/tarball-simple1_1970-01-01T00:42:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-COPY-SOS
@@ -484,7 +483,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SATELLITE-MD5-PASSED
-lrwxrwxrwx        128 archive/fs-version-001/ONE::controllerB/SATELLITE-MD5-PASSED/tarball-simple2_1970-01-01T00:41:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/./tarball-simple2_1970-01-01T00:41:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-COPY-SOS
@@ -506,8 +504,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/WONT-UNPACK
 -rw-rw-r--        220 archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz
 -rw-rw-r--         79 archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/.prefix
--rw-rw-r--         16 archive/fs-version-001/ONE::controllerC/.prefix/tarball-simple0-prefix_1970-01-01T00:42:00.prefix
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/BACKED-UP
 lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/BACKED-UP/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/BACKUP-FAILED
@@ -518,7 +514,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SATELLITE-MD5-PASSED
-lrwxrwxrwx        135 archive/fs-version-001/ONE::controllerC/SATELLITE-MD5-PASSED/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/./tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-COPY-SOS
@@ -687,9 +682,7 @@ lrwxrwxrwx        117 public_html/results/ONE::controllerA/tarball-simple1_1970-
 drwxrwxr-x          - public_html/results/ONE::controllerB
 lrwxrwxrwx        117 public_html/results/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00 -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00
 drwxrwxr-x          - public_html/results/ONE::controllerC
-drwxrwxr-x          - public_html/results/ONE::controllerC/prefix0
-drwxrwxr-x          - public_html/results/ONE::controllerC/prefix0/prefix1
-lrwxrwxrwx        124 public_html/results/ONE::controllerC/prefix0/prefix1/tarball-simple0-prefix_1970-01-01T00:42:00 -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00
+lrwxrwxrwx        124 public_html/results/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00 -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00
 drwxrwxr-x          - public_html/results/controller-b-with-prefixes
 lrwxrwxrwx        121 public_html/results/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00 -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00
 lrwxrwxrwx        132 public_html/results/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00 -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00
@@ -766,18 +759,21 @@ drwxrwxr-x          - logs/pbench-re-unpack-tarballs
 -rw-rw-r--        527 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
 -rw-rw-r--        650 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
--rw-rw-r--       1015 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+-rw-rw-r--       1168 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--        219 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--       1018 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--        849 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs-small
 -rw-rw-r--          0 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
--rw-rw-r--       3317 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
+-rw-rw-r--       3301 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
 -rw-rw-r--       3060 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002/ONE::controllerA
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002/ONE::controllerB
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002/ONE::controllerC
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-b-with-prefixes
 -rw-rw-r--         12 pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/prefix.tarball-w-prefix-dot_1970.01.01T00.42.00
 -rw-rw-r--         12 pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.prefix
@@ -841,6 +837,7 @@ drwxrwxr-x          - archive/fs-version-001/controllerB/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controllerB/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controllerC
 drwxrwxr-x          - archive/fs-version-001/controllerC/.prefix
+-rw-rw-r--         16 archive/fs-version-001/controllerC/.prefix/tarball-simple0-prefix_1970-01-01T00:42:00.prefix
 drwxrwxr-x          - archive/fs-version-001/controllerC/SATELLITE-DONE
 lrwxrwxrwx         52 archive/fs-version-001/controllerC/SATELLITE-DONE/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz -> ../tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controllerC/TO-DELETE
@@ -872,7 +869,7 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-satellite-cleanup
 -rw-rw-r--          0 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.error
--rw-rw-r--        962 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
+-rw-rw-r--        928 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
 drwxrwxr-x          - logs/pbench-sync-package-tarballs
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.log
@@ -1094,6 +1091,9 @@ run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/p
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 run-1970-01-01T00:00:42-UTC
+tarball-simple1_1970-01-01T00:42:00.tar.xz: OK
+./tarball-simple2_1970-01-01T00:41:00.tar.xz: OK
+./tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz: OK
 tarball-0_1970.01.01T00.42.00.tar.xz: OK
 tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz: OK
 tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz: OK
@@ -1102,7 +1102,7 @@ md5sum: WARNING: 1 computed checksum did NOT match
 tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
 tarball-normal_1970.01.01T00.42.00.tar.xz: OK
-run-1970-01-01T00:00:42-UTC: Processed 7 entries, 4 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.
+run-1970-01-01T00:00:42-UTC: Processed 10 entries, 7 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.
 1970-01-01T00:00:42.000000 DEBUG pbench-server-prep-shim-002.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-server-prep-shim-002.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
@@ -1114,12 +1114,9 @@ pbench-sync-satellite: completed satellite state changes
 run-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC
 run-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC
 run-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC
-tarball-simple1_1970-01-01T00:42:00.tar.xz.md5
-tarball-simple2_1970-01-01T00:41:00.tar.xz.md5
-tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.md5
 run-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC
 run-1970-01-01T00:00:42-UTC: duration (secs): 0
-run-1970-01-01T00:00:42-UTC: Total 3 files processed, with 0 md5 failures and 0 errors
+run-1970-01-01T00:00:42-UTC: Total 3 files processed and 0 errors
 1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-sync-satellite/pbench-sync-satellite.log
@@ -1137,7 +1134,7 @@ ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controlle
 run-1970-01-01T00:00:42-UTC: controller-g-normal/tarball-normal_1970.01.01T00.42.00: success - elapsed time (secs): 0 - size (bytes): 216
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00
 run-1970-01-01T00:00:42-UTC: ONE::controllerA/tarball-simple1_1970-01-01T00:42:00: success - elapsed time (secs): 0 - size (bytes): 220
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerC/prefix0/prefix1/tarball-simple0-prefix_1970-01-01T00:42:00
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00
 run-1970-01-01T00:00:42-UTC: ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00: success - elapsed time (secs): 0 - size (bytes): 228
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00
 run-1970-01-01T00:00:42-UTC: ONE::controllerB/tarball-simple2_1970-01-01T00:41:00: success - elapsed time (secs): 0 - size (bytes): 220
@@ -1174,8 +1171,8 @@ run-1970-01-01T00:00:42-UTC: Processed 7 tarballs
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.error
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.log
 run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup starting
-run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup ends: Total 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.
-1970-01-01T00:00:42.000000 INFO pbench-satellite-cleanup.report post_status -- @cee:{"@generated-by": {"commit_id": "unit-test", "group_id": 43, "hostname": "example.com", "pid": 42, "user_id": 44, "version": ""}, "@timestamp": "1970-01-01T00:00:42", "chunk_id": 1, "doctype": "status", "name": "pbench-satellite-cleanup", "text": "pbench-satellite-cleanup.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 total errors\nTotal 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n", "total_chunks": 1, "total_size": 274}
+run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup ends: Total 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, and 0 result removal errors errors.
+1970-01-01T00:00:42.000000 INFO pbench-satellite-cleanup.report post_status -- @cee:{"@generated-by": {"commit_id": "unit-test", "group_id": 43, "hostname": "example.com", "pid": 42, "user_id": 44, "version": ""}, "@timestamp": "1970-01-01T00:00:42", "chunk_id": 1, "doctype": "status", "name": "pbench-satellite-cleanup", "text": "pbench-satellite-cleanup.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 total errors\nTotal 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, and 0 result removal errors errors.\n\n", "total_chunks": 1, "total_size": 257}
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.log
 +++++ pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
 ----- pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
@@ -1184,10 +1181,13 @@ run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup ends: Total 3 tarballs cle
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ test-execution.log file contents
+ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench-server-satellite/bin/pbench-sync-package-tarballs
+ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench-server-satellite/bin/pbench-satellite-state-change /var/tmp/pbench-test-server/test-5.2/pbench-satellite/archive/fs-version-001
+restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.md5
+restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.md5
+restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.md5
 restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.md5
 restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.md5
 restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.md5
 restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.md5
-ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench-server-satellite/bin/pbench-sync-package-tarballs
-ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench-server-satellite/bin/pbench-satellite-state-change /var/tmp/pbench-test-server/test-5.2/pbench-satellite/archive/fs-version-001
 --- test-execution.log file contents

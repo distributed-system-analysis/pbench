@@ -50,14 +50,14 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC (unit-test) - Successful audit, nothing to report.\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC (unit-test)\n\n\n\nstart-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-16/pbench/public_html/results\n\nResults issues for controller: controller02\n\tTar ball links with unused prefix files:\n\t\tbenchmark-result-small_1970-01-01T00:00:00\n\nend-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-16/pbench/public_html/results\n",
             "total_chunks": 1,
-            "total_size": 99
+            "total_size": 420
         },
         "_type": "pbench-server-reports"
     }
 ]
---- Finished unit test audit (status=0)
+--- Finished unit test audit (status=1)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-16/var-www-html)
 lrwxrwxrwx         63 incoming -> /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
@@ -201,8 +201,7 @@ drwxrwxr-x          - public_html/results/controller01
 drwxrwxr-x          - public_html/results/controller01/prefix01
 lrwxrwxrwx        120 public_html/results/controller01/prefix01/benchmark-result-medium_1970-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller01/benchmark-result-medium_1970-01-01T00:00:00
 drwxrwxr-x          - public_html/results/controller02
-drwxrwxr-x          - public_html/results/controller02/prefix02
-lrwxrwxrwx        119 public_html/results/controller02/prefix02/benchmark-result-small_1970-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller02/benchmark-result-small_1970-01-01T00:00:00
+lrwxrwxrwx        119 public_html/results/controller02/benchmark-result-small_1970-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller02/benchmark-result-small_1970-01-01T00:00:00
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/static/css
 drwxrwxr-x          - public_html/static/css/v0.2
@@ -231,10 +230,10 @@ lrwxrwxrwx        120 public_html/users/user01/controller01/prefix01/benchmark-r
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        796 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs-small
 -rw-rw-r--        202 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
--rw-rw-r--       1970 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
+-rw-rw-r--       1961 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -285,6 +284,15 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
+
+
+start-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-16/pbench/public_html/results
+
+Results issues for controller: controller02
+	Tar ball links with unused prefix files:
+		benchmark-result-small_1970-01-01T00:00:00
+
+end-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-16/pbench/public_html/results
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
@@ -298,7 +306,7 @@ ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller
 run-1970-01-01T00:00:42-UTC: controller01/benchmark-result-medium_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 3180
 ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller00/benchmark-result-large_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/results/controller00/benchmark-result-large_1970-01-01T00:00:00
 run-1970-01-01T00:00:42-UTC: controller00/benchmark-result-large_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 10240
-ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller02/benchmark-result-small_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/results/controller02/prefix02/benchmark-result-small_1970-01-01T00:00:00
+ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller02/benchmark-result-small_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/results/controller02/benchmark-result-small_1970-01-01T00:00:00
 run-1970-01-01T00:00:42-UTC: controller02/benchmark-result-small_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 848
 run-1970-01-01T00:00:42-UTC: Processed 3 tarballs
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)

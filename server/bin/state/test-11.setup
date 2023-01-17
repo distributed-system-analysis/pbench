@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd $_testopt/unittest-scripts || exit $?
+ln -s failing-mv mv || exit $?
+echo pbench-user-benchmark_38_2016-05-18 > mv.FAIL_ON
+exit $?
