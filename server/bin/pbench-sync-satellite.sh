@@ -84,20 +84,6 @@ EOF
     return $status
 }
 
-function sync_mk_dirs {
-    hostname=$1
-    receive_dir=$2
-
-    for d in $LINKDIRS ;do
-        thedir=$receive_dir/$hostname/$d
-        mkdir -p $thedir
-        if [[ $? -ne 0 || ! -d "$thedir" ]]; then
-            return 1
-        fi
-    done
-    return 0
-}
-
 # accumulate errors in a file for mailing at end
 mail_content=$tmp/mail.log
 > $mail_content
@@ -208,7 +194,7 @@ for host in $hosts ;do
     fi
 
     # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
-    sync_mk_dirs $remote_prefix::$host $dest
+    mk_dirs $remote_prefix::$host $dest
 
     # check md5s and move md5s to its appropriate state directories according to pass or fail
     md5_list="$flist"
