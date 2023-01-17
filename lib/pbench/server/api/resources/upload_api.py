@@ -86,6 +86,7 @@ class Upload(ApiBase):
                 authorization=ApiAuthorizationType.NONE,
             ),
         )
+        self.max_content_length = config.rest_max_content_length
         self.temporary = config.ARCHIVE / CacheManager.TEMPORARY
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
         self.logger.info("Configured PUT temporary directory as {}", self.temporary)
@@ -201,11 +202,11 @@ class Upload(ApiBase):
                     HTTPStatus.BAD_REQUEST,
                     f"'Content-Length' {content_length} must be greater than 0",
                 )
-            elif content_length > self.config.rest_max_content_length:
+            elif content_length > self.max_content_length:
                 raise CleanupTime(
                     HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                     f"'Content-Length' {content_length} must be no greater "
-                    f"than {humanize.naturalsize(self.config.rest_max_content_length)}",
+                    f"than {humanize.naturalsize(self.max_content_length)}",
                 )
 
             tar_full_path = self.temporary / filename
@@ -409,13 +410,19 @@ class Upload(ApiBase):
                     f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
                 )
 
+            try:
+                retention_days = self.config.default_retention_period
+            except Exception as e:
+                raise CleanupTime(
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    f"Unable to get integer retention days: {e!s}",
+                )
+
             # Calculate a default deletion time for the dataset, based on the
             # time it was uploaded rather than the time it was originally
             # created which might much earlier.
             try:
-                retention = datetime.timedelta(
-                    days=self.config.default_retention_period
-                )
+                retention = datetime.timedelta(days=retention_days)
                 deletion = dataset.uploaded + retention
                 Metadata.setvalue(
                     dataset=dataset,
