@@ -20,9 +20,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-satellite-cleanup",
-            "text": "pbench-satellite-cleanup.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 total errors\nTotal 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n",
+            "text": "pbench-satellite-cleanup.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 total errors\nTotal 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, and 0 result removal errors errors.\n\n",
             "total_chunks": 1,
-            "total_size": 274
+            "total_size": 257
         },
         "_type": "pbench-server-reports"
     }
@@ -50,9 +50,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC (unit-test)\n\n\nstart-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\nController: controller-a\n\t* No tar ball files found in this controller directory.\n\nController: controller-b\n\t* No tar ball files found in this controller directory.\n\nController: controller-c\n\t* No tar ball files found in this controller directory.\n\nend-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\n\nstart-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\nControllers which are empty:\n\tcontroller-a\n\tcontroller-c\n\nend-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\n\nstart-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n\nControllers which are empty:\n\tcontroller-a\n\nResults issues for controller: controller-c\n\tEmpty tar ball directories:\n\t\tdirA/dirB\n\nend-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC (unit-test)\n\n\nstart-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\nController: controller-a\n\t* No tar ball files found in this controller directory.\n\nController: controller-b\n\t* No tar ball files found in this controller directory.\n\nController: controller-c\n\t* No tar ball files found in this controller directory.\n\nend-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\n\nstart-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\nControllers which are empty:\n\tcontroller-a\n\tcontroller-c\n\nend-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\n\nstart-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n\nControllers which are empty:\n\tcontroller-a\n\nResults issues for controller: controller-c\n\tInvalid tar ball links (not in /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001):\n\t\tdirA/dirB/tarball-fiv_1970.01.01T00.00.00\n\nend-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n",
             "total_chunks": 1,
-            "total_size": 1188
+            "total_size": 1291
         },
         "_type": "pbench-server-reports"
     }
@@ -101,6 +101,7 @@ lrwxrwxrwx         41 archive/fs-version-001/controller-b/SATELLITE-DONE/tarball
 drwxrwxr-x          - archive/fs-version-001/controller-b/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-c
 drwxrwxr-x          - archive/fs-version-001/controller-c/.prefix
+-rw-rw-r--         10 archive/fs-version-001/controller-c/.prefix/tarball-fiv_1970.01.01T00.00.00.prefix
 drwxrwxr-x          - archive/fs-version-001/controller-c/SATELLITE-DONE
 lrwxrwxrwx         41 archive/fs-version-001/controller-c/SATELLITE-DONE/tarball-fiv_1970.01.01T00.00.00.tar.xz -> ../tarball-fiv_1970.01.01T00.00.00.tar.xz
 lrwxrwxrwx         41 archive/fs-version-001/controller-c/SATELLITE-DONE/tarball-six_1970.01.01T00.00.00.tar.xz -> ../tarball-six_1970.01.01T00.00.00.tar.xz
@@ -114,6 +115,7 @@ drwxrwxr-x          - public_html/results/controller-a
 drwxrwxr-x          - public_html/results/controller-c
 drwxrwxr-x          - public_html/results/controller-c/dirA
 drwxrwxr-x          - public_html/results/controller-c/dirA/dirB
+lrwxrwxrwx         65 public_html/results/controller-c/dirA/dirB/tarball-fiv_1970.01.01T00.00.00 -> ../../../../incoming/controller-c/tarball-fiv_1970.01.01T00.00.00
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/static/css
 drwxrwxr-x          - public_html/static/css/v0.2
@@ -138,10 +140,10 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--       1564 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--       1667 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-satellite-cleanup
 -rw-rw-r--          0 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.error
--rw-rw-r--        759 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
+-rw-rw-r--        742 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -221,8 +223,8 @@ Controllers which are empty:
 	controller-a
 
 Results issues for controller: controller-c
-	Empty tar ball directories:
-		dirA/dirB
+	Invalid tar ball links (not in /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001):
+		dirA/dirB/tarball-fiv_1970.01.01T00.00.00
 
 end-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
@@ -232,7 +234,7 @@ end-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.error
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.log
 run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup starting
-run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup ends: Total 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.
+run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup ends: Total 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, and 0 result removal errors errors.
 1970-01-01T00:00:42.000000 DEBUG pbench-satellite-cleanup.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-satellite-cleanup.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.log

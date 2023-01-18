@@ -1,9 +1,9 @@
-+++ Running pbench-server-prep-shim-002
-pbench-server-prep-shim-002: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
---- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-sync-satellite satellite-one
 pbench-sync-satellite: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-sync-satellite (status=1)
++++ Running pbench-server-prep-shim-002
+pbench-server-prep-shim-002: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
+--- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-dispatch
 pbench-dispatch: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-dispatch (status=1)

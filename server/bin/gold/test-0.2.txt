@@ -1,9 +1,9 @@
-+++ Running pbench-server-prep-shim-002
-pbench-server-prep-shim-002: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp (config file /var/tmp/pbench-test-server/test-0.2/opt/pbench-server/lib/config/pbench-server.cfg)
---- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-sync-satellite satellite-one
 pbench-sync-satellite: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp (config file /var/tmp/pbench-test-server/test-0.2/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-sync-satellite (status=1)
++++ Running pbench-server-prep-shim-002
+pbench-server-prep-shim-002: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp (config file /var/tmp/pbench-test-server/test-0.2/opt/pbench-server/lib/config/pbench-server.cfg)
+--- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-dispatch
 pbench-dispatch: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp (config file /var/tmp/pbench-test-server/test-0.2/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-dispatch (status=1)

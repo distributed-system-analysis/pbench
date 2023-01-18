@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Fail a mv command if first argument's basename starts with ${_FAIL_MV_ON}.
+_FAIL_MV_ON=$(<${0}.FAIL_ON)
+if [[ ! -z "${_FAIL_MV_ON}" && $(basename ${1}) == ${_FAIL_MV_ON}* ]]; then
+    echo "mv: failed on ${*}" >&2
+    exit 1
+fi
+/bin/mv "${@}"

@@ -25,7 +25,6 @@ typeset -i nmd5errs=0
 typeset -i nstateerrs=0
 typeset -i nincomingerrs=0
 typeset -i nresultserrs=0
-typeset -i nprefixerrs=0
 
 mail_content=$tmp/mail.log
 index_content=$tmp/index_mail_contents
@@ -100,17 +99,7 @@ for host in $hosts; do
             fi
         fi
         # remove the results
-        prefix=".prefix/${x%%.tar.xz}.prefix"
-        if [ -e $prefix ]; then
-            prefix_value=$(cat ".prefix/${x%%.tar.xz}.prefix")
-        else
-            prefix_value=""
-        fi
-        if [ -z "$prefix_value" ]; then
-            sym_link=$RESULTS/$host/${x%%.tar.xz}
-        else
-            sym_link=$RESULTS/$host/$prefix_value/${x%%.tar.xz}
-        fi
+        sym_link=$RESULTS/$host/${x%%.tar.xz}
         if [ -L $sym_link ]; then
             rm $sym_link
             rc=$?
@@ -119,28 +108,19 @@ for host in $hosts; do
                 nresultserrs=$nresultserrs+1
             fi
         fi
-        # remove prefix if present
-        if [ -e $prefix ]; then
-            rm $prefix
-            rc=$?
-            if [ $rc != 0 ]; then
-                log_error "$TS: Failed to remove prefix file: $prefix, code: $rc" "${mail_content}"
-                nprefixerrs=$nprefixerrs+1
-            fi
-        fi
     done
     popd > /dev/null 2>&4
 done
 
 summary="Total $ntb tarballs cleaned up, with $ntberrs tarball removal errors, $nmd5errs md5 file \
-remove errors, $nstateerrs state change errors, $nincomingerrs incoming removal errors, $nresultserrs \
-result removal errors and $nprefixerrs prefix removal errors."
+remove errors, $nstateerrs state change errors, $nincomingerrs incoming removal errors, and $nresultserrs \
+result removal errors errors."
 
 log_info "$TS: $PROG ends: $summary"
 
 log_finish
 
-nerrs=$ntberrs+$nmd5errs+$nstateerrs+$nincomingerrs+$nresultserrs+$nprefixerrs
+nerrs=$ntberrs+$nmd5errs+$nstateerrs+$nincomingerrs+$nresultserrs
 
 subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs total errors"
 cat << EOF > $index_content

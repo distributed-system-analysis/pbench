@@ -115,7 +115,6 @@ else
 fi
 
 typeset -i nprocessed=0
-typeset -i nfailed_md5=0
 typeset -i nerrs=0
 
 syncerr=${tmp}/syncerrors
@@ -143,12 +142,10 @@ else
     hosts=""
 fi
 
+dest=$(getconf.py pbench-receive-dir-prefix pbench-server)-002
 let unpack_start_time=$(timestamp-seconds-since-epoch)
 
 for host in $hosts ;do
-    typeset -i processed=0
-    typeset -i failed_md5=0
-    dest=$(getconf.py pbench-receive-dir-prefix pbench-server)-002
     localdir=$dest/$remote_prefix::$host
 
     pushd $localdir > /dev/null 2>&1
@@ -171,96 +168,32 @@ for host in $hosts ;do
         fi
     fi
 
-    mkdir -p $logdir/$host
-    rc=$?
-    if [ $rc -ne 0 ]; then
-        nerrs=$nerrs+1
-        log_error "$PROG: failed to create $logdir/$host" "${mail_content}"
-        continue
-    fi
+    # Get the tarball list for this host.
+    find $unpack/$host -type f -name '*.tar.xz.md5' | sort > $tmp/$host.tb.lis
 
-    # get the tarball list for this host
-    flist=$(find $unpack/$host -type f -name '*.tar.xz.md5' | sed 's;'$unpack/$host/';;' | sort)
-
-    echo $flist
-
-    # move the unpacked files from tmp directory to archive
-    mv $unpack/$host/* .
-
-    # move prefix files if present
-    if [[ -d $unpack/$host/.prefix ]] ;then
-        mkdir -p ./.prefix
-        mv $unpack/$host/.prefix/* ./.prefix
-    fi
-
-    # make the state dirs: TODO, TO-INDEX, TO-COPY-SOS etc.
-    mk_dirs $remote_prefix::$host
-    archive=$ARCHIVE/$remote_prefix::$host
-
-    # check md5s and move md5s to its appropriate state directories according to pass or fail
-    md5_list="$flist"
-    md5sum -c $md5_list > $logdir/$host/md5-checks.log
-    processed=$(wc -l < $logdir/$host/md5-checks.log)
-    nprocessed=$((nprocessed + processed))
-    grep 'OK' $logdir/$host/md5-checks.log > $logdir/$host/ok-checks.log
-    if [ -s $logdir/$host/ok-checks.log ] ;then
-        md5_pass=$(cat $logdir/$host/ok-checks.log | sed -n 's/: OK//p')
-        for x in $md5_pass; do
-            ln -sf $PWD/$x $archive/SATELLITE-MD5-PASSED/$x
-            status=$?
-            if [[ $status != 0 ]] ;then
-                nerrs=$nerrs+1
-                log_error "Failed to create the symlink for md5 check passed tarballs: ln -sf $PWD/$x SATELLITE-MD5-PASSED/$x" "${mail_content}"
-                continue
-            fi
-        done
-    fi
-    grep 'FAILED' $logdir/$host/md5-checks.log > $logdir/$host/fail-checks.log
-    cat $logdir/$host/fail-checks.log >> $mail_content
-    failed_md5=$(wc -l < $logdir/$host/fail-checks.log)
-    nfailed_md5=$((nfailed_md5 + failed_md5))
-    if [ -s $logdir/$host/fail-checks.log ] ;then
-        md5_fail=$(cat $logdir/$host/fail-checks.log | sed -n 's/: FAILED//p')
-        for x in $md5_fail; do
-            ln -sf $PWD/$x $archive/SATELLITE-MD5-FAILED/$x
-            status=$?
-            if [[ $status != 0 ]] ;then
-                nerrs=$nerrs+1
-                log_error "Failed to create the symlink for md5 check failed tarballs: ln -sf $PWD/$x SATELLITE-MD5-FAILED/$x" "${mail_content}"
-                continue
-            fi
-        done
-    fi
-    # create symlinks for the synced tarballs in TODO
-    if [ -s $logdir/$host/ok-checks.log ] ;then
-        for x in $md5_pass; do
-            ln -sf $PWD/$x $archive/TODO/$x
-            status=$?
-            if [[ $status != 0 ]] ;then
-                nerrs=$nerrs+1
-                log_error "Failed to create the symlink for TODO state directory: ln -sf $PWD/$x TODO/$x" "${mail_content}"
-                continue
-            fi
-        done
-    fi
-    # save the contents of ok checks to further use it for state change
-    if [ -s $logdir/$host/ok-checks.log ] ;then
-        state_list=$(cat $logdir/$host/ok-checks.log | sed -n 's/: OK//p')
-        for x in $state_list; do
-            echo "$host/TO-SYNC/$x" >> ${state_change_log}
-        done
-        rm $logdir/$host/ok-checks.log
-    fi
-
-    if [[ ! -s $logdir/$host/fail-checks.log ]] ; then
-        rm $logdir/$host/fail-checks.log
-        grep -q -F -v 'OK' $logdir/$host/md5-checks.log
-        if [[ $? -ne 0 ]]; then
-            rm $logdir/$host/md5-checks.log
+    # Loop over the .MD5 files moving the tar balls into the regular reception
+    # area first, since `pbench-server-prep-shim` won't do anything with the
+    # .md5 file present, then moving the .md5 files, and recording success for
+    # updating the remote host.
+    while read tbmd5; do
+        mv ${tbmd5%*.md5} ./
+        status=$?
+        if [[ $status != 0 ]] ;then
+            nerrs=$nerrs+1
+            log_error "Failure moving tar ball ${tbmd5%*.md5} to $localdir"
+            continue
         fi
-    fi
-
-    rmdir ${logdir}/${host} 2>/dev/null
+        mv ${tbmd5} ./
+        status=$?
+        if [[ $status != 0 ]] ;then
+            rm -f ${tbmd5%*.md5}
+            nerrs=$nerrs+1
+            log_error "Failure moving tar ball MD5 file ${tbmd5} to $localdir"
+            continue
+        fi
+        echo "$host/TO-SYNC/$(basename ${tbmd5%*.md5})" >> ${state_change_log}
+        nprocessed=$nprocessed+1
+    done < $tmp/$host.tb.lis
 
     popd > /dev/null 2>&4
 done
@@ -281,14 +214,14 @@ let end_time=$(timestamp-seconds-since-epoch)
 let duration=end_time-start_time
 log_info "$TS: end - $(timestamp)" "${mail_content}"
 log_info "$TS: duration (secs): $duration" "${mail_content}"
-log_info "$TS: Total $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors" "${mail_content}"
+log_info "$TS: Total $nprocessed files processed and $nerrs errors" "${mail_content}"
 
 log_finish
 
 subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
 cat << EOF > $index_content
 $subj
-Remote $remote_prefix: processed $nprocessed files, with $nfailed_md5 md5 failures and $nerrs errors.
+Remote $remote_prefix: processed $nprocessed files and $nerrs errors.
 
 EOF
 cat $mail_content >> $index_content
