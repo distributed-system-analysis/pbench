@@ -96,6 +96,9 @@ class ProcessTb:
             tbdir = tb.parent
             controller = tbdir.name
 
+            if "::" in controller:
+                satellite_prefix, controller = controller.split("::")
+
             try:
                 ProcessTb._results_push(controller, tb, self.token)
             except Exception as e:
