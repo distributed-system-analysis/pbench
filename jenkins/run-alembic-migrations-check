@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-podman run --name postgresql-alembic \
+jenkins/podman run --name postgresql-alembic \
     --detach \
     --rm \
     --network host \
@@ -23,7 +23,7 @@ podman run --name postgresql-alembic \
     --env 'POSTGRESQL_DATABASE=pbench' \
     images.paas.redhat.com/pbench/postgresql-13:latest container-entrypoint run-postgresql
 
-trap "podman stop postgresql-alembic" INT ABRT QUIT EXIT
+trap "jenkins/podman stop postgresql-alembic" INT ABRT QUIT EXIT
 
 until nc -z localhost 5432; do
     sleep 1
