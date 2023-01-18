@@ -6,8 +6,8 @@ podman run --name postgresql-alembic \
     --network host \
     --workdir /opt/app-root/src \
     --env 'PATH=/opt/app-root/src/bin:/opt/app-root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' \
-	--env 'TERM=xterm' \
-	--env 'container=oci' \
+    --env 'TERM=xterm' \
+    --env 'container=oci' \
     --env 'STI_SCRIPTS_URL=image:///usr/libexec/s2i' \
     --env 'PGUSER=postgres' \
     --env 'PLATFORM=el8' \
