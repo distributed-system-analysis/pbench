@@ -1,5 +1,6 @@
 import datetime
 import enum
+from typing import Optional
 
 from email_validator import validate_email
 from flask_bcrypt import generate_password_hash
@@ -15,7 +16,7 @@ class Roles(enum.Enum):
 
 
 class User(Database.Base):
-    """User Model for storing user related details"""
+    """User Model for storing user related details."""
 
     __tablename__ = "users"
 
@@ -42,36 +43,40 @@ class User(Database.Base):
         }
 
     @staticmethod
-    def get_protected():
-        """
-        Return protected column names that are not allowed for external updates.
-        auth_tokens is already protected from external updates via PUT api since
+    def get_protected() -> list[str]:
+        """Return protected column names that are not allowed for external updates.
+
+        `auth_tokens` is already protected from external updates via PUT api since
         it is of type sqlalchemy relationship ORM package and not a sqlalchemy column.
         """
         return ["registered_on", "id"]
 
     @staticmethod
-    def query(id=None, username=None, email=None) -> "User":
-        # Currently we would only query with single argument. Argument need to be either username/id/email
-        if username:
-            user = Database.db_session.query(User).filter_by(username=username).first()
-        elif id:
+    def query(id=None, username=None, email=None) -> Optional["User"]:
+        """Find a user using one of the provided arguments.
+
+        The first argument which is not None is used in the query.  The order
+        in which the arguments are considered follows the method signature.
+
+        Returns:
+            A User object if a user is found, None otherwise.
+        """
+        if id:
             user = Database.db_session.query(User).filter_by(id=id).first()
+        elif username:
+            user = Database.db_session.query(User).filter_by(username=username).first()
         elif email:
             user = Database.db_session.query(User).filter_by(email=email).first()
         else:
             user = None
-
         return user
 
     @staticmethod
-    def query_all() -> "list[User]":
+    def query_all() -> list["User"]:
         return Database.db_session.query(User).all()
 
     def add(self):
-        """
-        Add the current user object to the database
-        """
+        """Add the current user object to the database."""
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
@@ -80,28 +85,24 @@ class User(Database.Base):
             raise
 
     @validates("role")
-    def evaluate_role(self, key, value):
+    def evaluate_role(self, key: str, value: str) -> Optional[str]:
         try:
             return Roles[value.upper()]
         except KeyError:
             return None
 
     @validates("password")
-    def evaluate_password(self, key, value):
+    def evaluate_password(self, key: str, value: str) -> str:
         return generate_password_hash(value)
 
     # validate the email field
     @validates("email")
-    def evaluate_email(self, key, value):
+    def evaluate_email(self, key: str, value: str) -> str:
         valid = validate_email(value)
-        email = valid.email
-
-        return email
+        return valid.email
 
     def update(self, **kwargs):
-        """
-        Update the current user object with given keyword arguments
-        """
+        """Update the current user object with given keyword arguments."""
         try:
             for key, value in kwargs.items():
                 if key == "auth_tokens":
@@ -116,10 +117,11 @@ class User(Database.Base):
             raise
 
     @staticmethod
-    def delete(username):
-        """
-        Delete the user with a given username except admin
-        :param username:
+    def delete(username: str):
+        """Delete the user with a given username, except admin.
+
+        Args:
+            username : the username to delete
         """
         user_query = Database.db_session.query(User).filter_by(username=username)
         if user_query.count() == 0:
@@ -131,17 +133,24 @@ class User(Database.Base):
             Database.db_session.rollback()
             raise
 
-    def is_admin(self):
+    def is_admin(self) -> bool:
         """This method checks whether the given user has an admin role.
-        This can be extended to groups as well for example a user belonging to certain group has only those
-        privileges that are assigned to the group.
+
+        This can be extended to groups as well for example a user belonging to
+        certain group has only those privileges that are assigned to the
+        group.
+
+        Returns:
+            True if the user's role is ADMIN, False otherwise.
         """
         return self.role is Roles.ADMIN
 
     @staticmethod
-    def is_admin_username(username):
-        # TODO: Need to add an interface to fetch admins list instead of hard-coding the names, preferably via sql query
+    def is_admin_username(username: str) -> bool:
+        """Determine if the given user name is an admin user.
+
+        Returns:
+            True if the user is an admin; False otherwise.
+        """
         admins = ["admin"]
         return username in admins
-
-    # TODO: Add password recovery mechanism

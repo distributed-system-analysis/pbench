@@ -10,17 +10,14 @@ from pbench.server.database.database import Database
 
 
 class ServerConfigError(Exception):
-    """
-    This is a base class for errors reported by the ServerConfig class. It is
-    never raised directly, but may be used in "except" clauses.
-    """
+    """A base class for errors reported by the ServerConfig class.
 
-    pass
+    It is never raised directly, but may be used in "except" clauses.
+    """
 
 
 class ServerConfigSqlError(ServerConfigError):
-    """
-    SQLAlchemy errors reported through ServerConfig operations.
+    """SQLAlchemy errors reported through ServerConfig operations.
 
     The exception will identify the operation being performed and the config
     key; the cause will specify the original SQLAlchemy exception.
@@ -36,9 +33,7 @@ class ServerConfigSqlError(ServerConfigError):
 
 
 class ServerConfigDuplicate(ServerConfigError):
-    """
-    Attempt to commit a duplicate ServerConfig.
-    """
+    """Attempt to commit a duplicate ServerConfig."""
 
     def __init__(self, name: str, cause: str):
         self.name = name
@@ -49,9 +44,7 @@ class ServerConfigDuplicate(ServerConfigError):
 
 
 class ServerConfigNullKey(ServerConfigError):
-    """
-    Attempt to commit a ServerConfig with an empty key.
-    """
+    """Attempt to commit a ServerConfig with an empty key."""
 
     def __init__(self, name: str, cause: str):
         self.name = name
@@ -62,18 +55,14 @@ class ServerConfigNullKey(ServerConfigError):
 
 
 class ServerConfigMissingKey(ServerConfigError):
-    """
-    Attempt to set a ServerConfig with an empty key.
-    """
+    """Attempt to set a ServerConfig with a missing key."""
 
     def __str__(self) -> str:
         return "Missing key name"
 
 
 class ServerConfigBadKey(ServerConfigError):
-    """
-    Attempt to commit a ServerConfig with a bad key.
-    """
+    """Attempt to commit a ServerConfig with a bad key."""
 
     def __init__(self, key: str):
         self.key = key
@@ -83,9 +72,7 @@ class ServerConfigBadKey(ServerConfigError):
 
 
 class ServerConfigBadValue(ServerConfigError):
-    """
-    Attempt to assign a bad value to a server configuration option
-    """
+    """Attempt to assign a bad value to a server configuration option."""
 
     def __init__(self, key: str, value: JSONVALUE):
         self.key = key
@@ -191,9 +178,10 @@ SERVER_CONFIGURATION_OPTIONS = {
 
 
 class ServerConfig(Database.Base):
-    """
-    A framework to manage Pbench configuration settings. This is a simple
-    key-value store that can be used flexibly to manage runtime configuration.
+    """A framework to manage Pbench configuration settings.
+
+    This is a simple key-value store that can be used flexibly to manage
+    runtime configuration.
 
     Columns:
         id      Generated unique ID of table row
@@ -233,13 +221,12 @@ class ServerConfig(Database.Base):
 
     @staticmethod
     def create(key: str, value: JSONVALUE) -> "ServerConfig":
-        """
-        A simple factory method to construct a new ServerConfig setting and
+        """A simple factory method to construct a new ServerConfig setting and
         add it to the database.
 
         Args:
-            key: config setting key
-            value: config setting value
+            key : config setting key
+            value : config setting value
 
         Returns:
             A new ServerConfig object initialized with the parameters and added
@@ -253,19 +240,20 @@ class ServerConfig(Database.Base):
 
     @staticmethod
     def get(key: str, use_default: bool = True) -> "ServerConfig":
-        """
-        Return a ServerConfig object with the specified configuration key
-        setting. For example, ServerConfig.get("dataset-lifetime").
+        """Return a ServerConfig object with the specified configuration key
+        setting.
+
+        For example, ServerConfig.get("dataset-lifetime").
 
         If the setting has no definition, a default value will optionally
         be provided.
 
         Args:
-            key: System configuration setting name
-            use_default: If the DB value is None, return a default
+            key : System configuration setting name
+            use_default : If the DB value is None, return a default
 
         Raises:
-            ServerConfigSqlError: problem interacting with Database
+            ServerConfigSqlError : problem interacting with Database
 
         Returns:
             ServerConfig object with the specified key name or None
@@ -280,17 +268,16 @@ class ServerConfig(Database.Base):
 
     @staticmethod
     def set(key: str, value: JSONVALUE) -> "ServerConfig":
-        """
-        Update a ServerConfig key with the specified value. For
-        example, ServerConfig.set("dataset-lifetime").
+        """Update a ServerConfig key with the specified value.
+
+        For example, ServerConfig.set("dataset-lifetime").
 
         Args:
-            key: Configuration setting name
+            key : Configuration setting name
 
         Returns:
             ServerConfig object with the specified key name
         """
-
         v = __class__._validate(key, value)
         config = __class__.get(key, use_default=False)
         if config:
@@ -302,13 +289,14 @@ class ServerConfig(Database.Base):
 
     @staticmethod
     def get_disabled(readonly: bool = False) -> Optional[JSONOBJECT]:
-        """
-        Determine whether the current 'server-state' setting disallows the
-        requested access. By default we check for WRITE access, which
-        can be overridden by specifying 'readonly=True'
+        """Determine whether the current 'server-state' setting disallows the
+        requested access.
+
+        By default we check for WRITE access, which can be overridden by
+        specifying 'readonly=True'
 
         Args:
-            readonly: Caller requires only read access to the server API.
+            readonly : Caller requires only read access to the server API.
 
         Returns:
             None if the server is enabled. If the server is disabled for the
@@ -325,16 +313,13 @@ class ServerConfig(Database.Base):
 
     @staticmethod
     def get_all() -> JSONOBJECT:
-        """
-        Return all server config settings as a JSON object
-        """
+        """Return all server config settings as a JSON object."""
         configs = Database.db_session.query(ServerConfig).all()
         db = {c.key: c.value for c in configs}
         return {k: db[k] if k in db else __class__._default(k) for k in __class__.KEYS}
 
     def __str__(self) -> str:
-        """
-        Return a string representation of the key-value pair
+        """Return a string representation of the key-value pair.
 
         Returns:
             string representation
@@ -342,13 +327,13 @@ class ServerConfig(Database.Base):
         return f"{self.key}: {self.value!r}"
 
     def _decode(self, exception: IntegrityError) -> Exception:
-        """
-        Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
-        or NOT NULL constraint violation. Return the original exception if
-        it doesn't match.
+        """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
+        or NOT NULL constraint violation.
+
+        Return the original exception if it doesn't match.
 
         Args:
-            exception: An IntegrityError to decode
+            exception : An IntegrityError to decode
 
         Returns:
             a more specific exception, or the original if decoding fails
@@ -363,9 +348,7 @@ class ServerConfig(Database.Base):
         return exception
 
     def add(self):
-        """
-        Add the ServerConfig object to the database
-        """
+        """Add the ServerConfig object to the database."""
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
@@ -376,8 +359,7 @@ class ServerConfig(Database.Base):
             raise ServerConfigSqlError("adding", self.key, str(e)) from e
 
     def update(self):
-        """
-        Update the database row with the modified version of the
+        """Update the database row with the modified version of the
         ServerConfig object.
         """
         try:
