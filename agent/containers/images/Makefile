@@ -107,6 +107,11 @@ _DEFAULT_DISTROS = \
 	fedora-36 fedora-35
 #	rhel-9 rhel-8 rhel-7
 
+# This Makefile produces containers named "pbench-agent-<name>-<distro>"; this
+# is the list of possible fill-in's for <name>.  Note that the ./push script
+# also has its own copy of this list, and the two should be kept in sync.
+_CONTAINER_NAMES = base tools tool-meister tool-data-sink workloads all
+
 # By default we build the Tool Data Sink and Tool Meister images as well.
 everything: all-tags $(_DEFAULT_DISTROS:%=%-all-tagged)
 
@@ -297,10 +302,23 @@ centos-7-base.Dockerfile: _PKGMGR = yum
 # Special push target for the CI which pushes a full set of the various container
 # images for the distribution to the specified registry with the specified tag.
 $(_DEFAULT_DISTROS:%=%-push-ci): %-push-ci:
-	for image in base tools tool-meister tool-data-sink workloads all; do \
+	for image in ${_CONTAINER_NAMES}; do \
 	  buildah push \
 	    localhost/pbench-agent-$${image}-${*}:${_LOCAL_GIT_HASH} \
 	    ${IMAGE_REPO}/pbench-agent-$${image}-${*}:${IMAGE_TAG} ; \
+	done
+
+# Special "push" target which pushes a full set of the various container images
+# for each of the default distributions to the specified registry with the
+# specified tag (e.g., for use by the CI).  Unlike the ./push script, it pushes
+# _only_ the requested tag and no tags based on the version or hash.
+publish:
+	for distro in ${_DEFAULT_DISTROS}; do \
+	  for image in ${_CONTAINER_NAMES}; do \
+	    buildah push \
+	      localhost/pbench-agent-$${image}-$${distro}:${_LOCAL_GIT_HASH} \
+	      ${IMAGE_REPO}/pbench-agent-$${image}-$${distro}:${IMAGE_TAG} ; \
+	  done ; \
 	done
 
 define _PUSH_RULE

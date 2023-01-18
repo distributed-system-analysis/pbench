@@ -98,6 +98,10 @@ relation to what has been published already.  The push targets are:
 
  * `push-beta` - pushes each image by its `beta` tag
 
+There is also a special "push" target `publish` which pushes all the
+containers for each of the default distributions, but it pushes only the one
+tag defined by `IMAGE_TAG` and not the RPM version or Git hash tags.
+
 **_NOTE WELL_**: Each separate tag for each image needs to be pushed to the
 non-local container image repository.  This does NOT result in multiple image
 copies over the wire using up network bandwidth, as `buildah push` is smart
