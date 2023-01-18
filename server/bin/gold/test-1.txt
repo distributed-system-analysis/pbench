@@ -1,9 +1,9 @@
-+++ Running pbench-server-prep-shim-002
-pbench-server-prep-shim-002: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
---- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-sync-satellite satellite-one
 pbench-sync-satellite: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-sync-satellite (status=1)
++++ Running pbench-server-prep-shim-002
+pbench-server-prep-shim-002: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
+--- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-dispatch
 pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-dispatch (status=1)

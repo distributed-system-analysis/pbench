@@ -20,9 +20,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-sync-satellite",
-            "text": "pbench-sync-satellite.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 2 files, with 1 md5 failures and 0 errors.\n\nrun-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC\npbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-11/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: duration (secs): 0\nrun-1970-01-01T00:00:42-UTC: Total 2 files processed, with 1 md5 failures and 0 errors\n",
+            "text": "pbench-sync-satellite.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 1 errors\nRemote ONE: processed 1 files and 1 errors.\n\nrun-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-11/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: duration (secs): 0\nrun-1970-01-01T00:00:42-UTC: Total 1 files processed and 1 errors\n",
             "total_chunks": 1,
-            "total_size": 848
+            "total_size": 746
         },
         "_type": "pbench-server-reports"
     }
@@ -89,37 +89,6 @@ lrwxrwxrwx         70 users -> /var/tmp/pbench-test-server/test-11/pbench-satell
 +++ pbench tree state (/var/tmp/pbench-test-server/test-11/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/ONE::controller
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/COPIED-SOS
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/INDEXED
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/SATELLITE-MD5-FAILED
-lrwxrwxrwx        133 archive/fs-version-001/ONE::controller/SATELLITE-MD5-FAILED/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz -> /var/tmp/pbench-test-server/test-11/pbench/archive/fs-version-001/ONE::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/SATELLITE-MD5-PASSED
-lrwxrwxrwx        113 archive/fs-version-001/ONE::controller/SATELLITE-MD5-PASSED/fio__2016-08-16_22:03:11.tar.xz -> /var/tmp/pbench-test-server/test-11/pbench/archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/SYNCED
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-COPY-SOS
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-DELETE
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-INDEX
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-LINK
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-RE-INDEX
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-SYNC
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TODO
-lrwxrwxrwx        113 archive/fs-version-001/ONE::controller/TODO/fio__2016-08-16_22:03:11.tar.xz -> /var/tmp/pbench-test-server/test-11/pbench/archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/UNPACKED
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/WONT-INDEX
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/WONT-UNPACK
--rw-r--r--    1558168 archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz
--rw-r--r--         66 archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz.md5
--rw-r--r--       7028 archive/fs-version-001/ONE::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
--rw-r--r--         86 archive/fs-version-001/ONE::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller
 drwxrwxr-x          - archive/fs-version-001/controller/TODO
 lrwxrwxrwx         34 archive/fs-version-001/controller/TODO/fio__2016-08-16_22:03:11.tar.xz -> ../fio__2016-08-16_22:03:11.tar.xz
@@ -164,14 +133,13 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
-drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:42-UTC
-drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:42-UTC/controller
--rw-rw-r--         60 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:42-UTC/controller/fail-checks.log
--rw-rw-r--         96 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:42-UTC/controller/md5-checks.log
--rw-rw-r--        218 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--       1013 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--        508 logs/pbench-sync-satellite/pbench-sync-satellite.error
+-rw-rw-r--       1021 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002/ONE::controller
+-rw-r--r--    1558168 pbench-move-results-receive/fs-version-002/ONE::controller/fio__2016-08-16_22:03:11.tar.xz
+-rw-r--r--         66 pbench-move-results-receive/fs-version-002/ONE::controller/fio__2016-08-16_22:03:11.tar.xz.md5
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
@@ -234,14 +202,8 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:42-UTC/controller/fail-checks.log
-pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:42-UTC/controller/fail-checks.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:42-UTC/controller/md5-checks.log
-fio__2016-08-16_22:03:11.tar.xz: OK
-pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:42-UTC/controller/md5-checks.log
 +++++ pbench-sync-satellite/pbench-sync-satellite.error
+Failure moving tar ball /var/tmp/pbench-test-server/test-11/pbench-local/tmp/pbench-sync-satellite.XXXXX/unpack.ONE/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz to /var/tmp/pbench-test-server/test-11/pbench-local/pbench-move-results-receive/fs-version-002/ONE::controller
 pbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-11/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)
 pbench-sync-satellite: completed satellite state changes
 ----- pbench-sync-satellite/pbench-sync-satellite.error
@@ -249,11 +211,10 @@ pbench-sync-satellite: completed satellite state changes
 run-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC
 run-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC
 run-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC
-fio__2016-08-16_22:03:11.tar.xz.md5 pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
-md5sum: WARNING: 1 computed checksum did NOT match
+mv: failed on /var/tmp/pbench-test-server/test-11/pbench-local/tmp/pbench-sync-satellite.XXXXX/unpack.ONE/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz ./
 run-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC
 run-1970-01-01T00:00:42-UTC: duration (secs): 0
-run-1970-01-01T00:00:42-UTC: Total 2 files processed, with 1 md5 failures and 0 errors
+run-1970-01-01T00:00:42-UTC: Total 1 files processed and 1 errors
 1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-sync-satellite/pbench-sync-satellite.log

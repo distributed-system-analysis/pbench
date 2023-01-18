@@ -287,14 +287,6 @@ function do_work() {
         prefix=$(getconf.py -C ${INCOMING}/${hostname}/${resultname}/metadata.log prefix run)
         user=$(getconf.py -C ${INCOMING}/${hostname}/${resultname}/metadata.log user run)
 
-        # Version 001 agents use a prefix file.  If there is a prefix file,
-        # create a link as specified in the prefix file.  pbench-dispatch
-        # has already moved it to the .prefix subdir
-        prefixfile=${basedir}/.prefix/${resultname}.prefix
-        if [[ -f ${prefixfile} ]]; then
-            prefix=$(cat ${prefixfile})
-        fi
-
         # if non-empty and does not contain a trailing slash, add one
         if [[ ! -z "${prefix}" && "${prefix%/}" = "${prefix}" ]]; then
             prefix=${prefix}/

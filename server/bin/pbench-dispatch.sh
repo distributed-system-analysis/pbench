@@ -129,7 +129,7 @@ while read tarball ;do
     # producing the error
     if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
         let ndups+=1
-        quarantine ${controller_path}/_QUARANTINED/DUPLICATES ${link} ${link}.md5 ${controller_path}/.prefix/${resultname}.prefix
+        quarantine ${controller_path}/_QUARANTINED/DUPLICATES ${link} ${link}.md5
         rm -f ${tarball}
         status=$?
         if [ $status -ne 0 ] ;then
@@ -153,7 +153,7 @@ while read tarball ;do
     popd >/dev/null 2>&4
     if [ $sts -ne 0 ] ;then
         log_error "$TS: MD5 check of ${link} failed for ${tarball}" "${mail_content}"
-        quarantine ${controller_path}/_QUARANTINED/BAD-MD5 ${link} ${link}.md5 ${controller_path}/.prefix/${resultname}.prefix
+        quarantine ${controller_path}/_QUARANTINED/BAD-MD5 ${link} ${link}.md5
         rm -f ${tarball}
         status=$?
         if [ $status -ne 0 ] ;then

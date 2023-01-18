@@ -64,7 +64,7 @@ else
 fi
 
 function mk_dirs {
-    hostname=$1
+    local hostname=$1
 
     for d in $LINKDIRS ;do
         thedir=$ARCHIVE/$hostname/$d
