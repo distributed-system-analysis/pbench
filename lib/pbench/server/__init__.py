@@ -10,6 +10,7 @@ from typing import Dict, List, Optional, Union
 
 from pbench import PbenchConfig
 from pbench.common.exceptions import BadConfig
+from pbench.server.utils import filesize_bytes
 
 # A type defined to conform to the semantic definition of a JSON structure
 # with Python syntax.
@@ -82,8 +83,10 @@ class PbenchServerConfig(PbenchConfig):
     )
 
     # Define a fallback default for dataset maximum retention, which we expect
-    # to be defined in pbench-server-default.cfg.
+    # to be defined in pbench-server-default.cfg, and one for the default
+    # retention period.
     MAXIMUM_RETENTION_DAYS = 3650
+    DEFAULT_RETENTION_DAYS = 90
 
     @classmethod
     def create(cls: "PbenchServerConfig", cfg_name: str) -> "PbenchServerConfig":
@@ -191,15 +194,39 @@ class PbenchServerConfig(PbenchConfig):
         allows a dataset to be retained.
 
         Returns:
-            integer representing retention period in days
+            An integer number of days representing the maximum retention period.
         """
-        try:
-            retention_days = int(
-                self._get_conf("pbench-server", "maximum-dataset-retention-days")
-            )
-        except (NoOptionError, NoSectionError):
-            retention_days = self.MAXIMUM_RETENTION_DAYS
-        return retention_days
+        return self.conf.getint(
+            "pbench-server",
+            "maximum-dataset-retention-days",
+            fallback=self.MAXIMUM_RETENTION_DAYS,
+        )
+
+    @property
+    def default_retention_period(self) -> int:
+        """Produce an integer representing the default number of days the server
+        allows a dataset to be retained.
+
+        Returns:
+            An integer number of days representing the default retention period.
+        """
+        return self.conf.getint(
+            "pbench-server",
+            "default-dataset-retention-days",
+            fallback=self.DEFAULT_RETENTION_DAYS,
+        )
+
+    @property
+    def rest_max_content_length(self) -> int:
+        """Produce an integer representing the maximum content length accepted
+        by the REST APIs.
+
+        Returns:
+            An integer number of bytes.
+        """
+        return filesize_bytes(
+            self.conf.get("pbench-server", "rest_max_content_length", fallback="1 gb")
+        )
 
     def _get_conf(self, section: str, option: str) -> str:
         """Get the option from the section.

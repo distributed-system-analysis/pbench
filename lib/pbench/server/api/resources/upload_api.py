@@ -43,7 +43,7 @@ from pbench.server.database.models.datasets import (
     States,
 )
 from pbench.server.sync import Operation, Sync
-from pbench.server.utils import filesize_bytes, UtcTimeHelper
+from pbench.server.utils import UtcTimeHelper
 
 
 class CleanupTime(Exception):
@@ -71,7 +71,6 @@ class Upload(ApiBase):
     """
 
     CHUNK_SIZE = 65536
-    DEFAULT_RETENTION_DAYS = 90
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
@@ -87,11 +86,7 @@ class Upload(ApiBase):
                 authorization=ApiAuthorizationType.NONE,
             ),
         )
-        self.max_content_length = filesize_bytes(
-            self.config.get_conf(
-                __name__, "pbench-server", "rest_max_content_length", self.logger
-            )
-        )
+        self.max_content_length = config.rest_max_content_length
         self.temporary = config.ARCHIVE / CacheManager.TEMPORARY
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
         self.logger.info("Configured PUT temporary directory as {}", self.temporary)
@@ -416,14 +411,7 @@ class Upload(ApiBase):
                 )
 
             try:
-                retention_days = int(
-                    self.config.get_conf(
-                        __name__,
-                        "pbench-server",
-                        "default-dataset-retention-days",
-                        self.DEFAULT_RETENTION_DAYS,
-                    )
-                )
+                retention_days = self.config.default_retention_period
             except Exception as e:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
