@@ -1,4 +1,4 @@
-alembic>=1.6.4
+alembic>=1.9.0
 aniso8601>=9.0.1
 Bcrypt-Flask
 boto3

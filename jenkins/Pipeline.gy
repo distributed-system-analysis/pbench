@@ -28,6 +28,12 @@ pipeline {
                 sh 'jenkins/run tox -e agent-py36 -- agent'
             }
         }
+        stage('Server Alembic Migrations Check') {
+            steps {
+                echo 'Verify alembic migrations cover latest database schema'
+                sh 'jenkins/run-alembic-migrations-check'
+            }
+        }
         stage('Linting, Unit Tests, RPM builds') {
             steps {
                 // If we don't have a sequence number file left over from a

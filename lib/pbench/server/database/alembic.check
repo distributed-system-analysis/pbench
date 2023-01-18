@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+cd lib/pbench/server/database
+
+# First we run all our migrations to bring the blank database up to speed.
+alembic upgrade head
+
+# Then we check to see if we have any model changes not captured in existing
+# migrations.
+alembic check
