@@ -3,9 +3,6 @@ pipeline {
     environment {
         // Environment variables for various `jenkins/run` invocations.
         EXTRA_PODMAN_SWITCHES="--pull=always -e=COV_REPORT_XML=yes"
-        IMAGE_KIND="fedora"
-        IMAGE_REPO="quay.io/pbench"
-        IMAGE_ROLE="ci"
         NO_COLORS=0
         PY_COLORS=0
         TERM='dumb'

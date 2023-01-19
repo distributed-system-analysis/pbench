@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Run commands within the pbench-${IMAGE_ROLE}-${IMAGE_KIND} container image.
+# Run commands within a container image.
 #
 # Several customizing inputs can be given via environment variables:
 #
-# EXTRA_PODMAN_SWITCHES []
+# EXTRA_PODMAN_SWITCHES [-it]
 # IMAGE_REPO [quay.io/pbench]
-# IMAGE_ROLE [devel] (See Makefile for options)
-# IMAGE_KIND [fedora] (See Makefile for options)
-# IMAGE      [${IMAGE_REPO}-${IMAGE_ROLE}-${IMAGE_KIND}:<branch_name>]
-#            If defined, will override the $IMAGE_* values above.
+# IMAGE_NAME [pbench-ci-fedora]
+# IMAGE      [${IMAGE_REPO}/${IMAGE_NAME}:<branch_name>]
+#            Container image to run. If defined, will override the $IMAGE_*
+#            values above.
 # CONTAINER_HOST [] (see podman-remote man page)
 #            May be defined to control remote container execution; will already
 #            be defined, if running inside a container invoked by this script,
@@ -41,9 +41,9 @@
 #
 #     EXTRA_PODMAN_SWITCHES=--pull=always jenkins/run tox
 #
-# Or perhaps to check out a locally built image:
+# Or perhaps to check out a locally built CI container image:
 #
-#     EXTRA_PODMAN_SWITCHES=-it IMAGE_ROLE=ci IMAGE_REPO=localhost jenkins/run bash
+#     EXTRA_PODMAN_SWITCHES=-it IMAGE_REPO=localhost jenkins/run bash
 #
 if [[ "$(realpath -e $(pwd)/jenkins)" != "$(realpath -e $(dirname ${0}))" ]]; then
     printf -- "ERROR - Jenkins running from an unexpected directory, %s\n" "$(pwd)" >&2
@@ -55,11 +55,12 @@ if [[ -z "${1}" ]]; then
     exit 1
 fi
 
-_branch_name="$(cat jenkins/branch.name)"
-
+_branch_name=$(cat jenkins/branch.name)
 _image_repo=${IMAGE_REPO:-quay.io/pbench}
-_image_role=${IMAGE_ROLE:-devel}
-_image_kind=${IMAGE_KIND:-fedora}
+_image_name=${IMAGE_NAME:-pbench-ci-fedora}
+_image=${IMAGE:-${_image_repo}/${_image_name}:${_branch_name}}
+
+EXTRA_PODMAN_SWITCHES=${EXTRA_PODMAN_SWITCHES:-"-it"}
 
 # USER_NAME:  the name of the user (and the home directory) inside the container
 # HOME_DIR:   the path to the user's home directory inside the container
@@ -89,8 +90,6 @@ if [ "${git_dir}" != "$(pwd)/.git" ]; then
     fi
     GIT_BASE_VOLUME="--volume ${git_common_dir}:${git_common_dir}:z"
 fi
-
-_image=${IMAGE:-${_image_repo}/pbench-${_image_role}-${_image_kind}:${_branch_name}}
 
 if [ -n "${CONTAINER_HOST}" ]; then
     # Since CONTAINER_HOST is defined, when we want to run another container, do
