@@ -321,7 +321,6 @@ class TestDatasetsUpdate:
         """
 
         ds = Dataset.query(name="drb")
-        assert_id = str(create_drb_user.id)
         response = client.post(
             f"{server_config.rest_uri}/datasets/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_token}"},
