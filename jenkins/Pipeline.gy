@@ -79,6 +79,18 @@ pipeline {
                 sh 'jenkins/run-server-func-tests --cleanup'
             }
         }
+        stage('For branches, build Agent containers for all distros and push to external registry') {
+            when { not { changeRequest() } }
+            environment {
+                PB_PUBLIC_REG_CRED=credentials('87ad2797-02eb-464f-989f-8ab78d63cdf3')
+                PB_PUBLIC_REGISTRY=credentials('24a93506-ecd6-403a-b4f0-386f9cc943e9')
+            }
+            steps {
+                sh 'buildah login -u="${PB_PUBLIC_REG_CRED_USR}" -p="${PB_PUBLIC_REG_CRED_PSW}" ${PB_PUBLIC_REGISTRY}'
+                sh 'make -C agent/containers/images CI_RPM_ROOT=${WORKSPACE_TMP} clean everything'
+                sh 'make -C agent/containers/images IMAGE_REPO=${PB_PUBLIC_REGISTRY}/${PB_ORG_NAME} IMAGE_TAG=${PB_IMAGE_TAG} publish'
+            }
+        }
     }
     post {
         success {
