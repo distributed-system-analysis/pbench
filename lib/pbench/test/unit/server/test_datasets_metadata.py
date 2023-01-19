@@ -256,13 +256,12 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
 
         return query_api
 
-    @pytest.mark.parametrize("uri", ("/datasets/metadata/", "/datasets/metadata"))
-    def test_put_missing_uri_param(self, client, server_config, pbench_token, uri):
+    def test_put_missing_uri_param(self, client, server_config, pbench_token):
         """
         Test behavior when no dataset name is given on the URI. (NOTE that
         Flask automatically handles this with a NOT_FOUND response.)
         """
-        response = client.put(f"{server_config.rest_uri}{uri}")
+        response = client.put(f"{server_config.rest_uri}/datasets/metadata/")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
     def test_put_missing_key(self, client, server_config, pbench_token):

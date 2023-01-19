@@ -26,9 +26,11 @@ from pbench.server.api.resources import (
     ApiMethod,
     ApiParams,
     ApiSchema,
+    MissingParameters,
     ParamType,
     SchemaError,
     UnauthorizedAccess,
+    UnauthorizedAdminAccess,
 )
 from pbench.server.auth.auth import Auth
 from pbench.server.database.models.audit import AuditReason, AuditStatus
@@ -576,13 +578,9 @@ class ElasticBulkBase(ApiBase):
             raise MissingBulkSchemaParameters(
                 api_name, "dataset parameter is not defined or not required"
             )
-        if self.schemas[ApiMethod.POST].authorization not in [
-            ApiAuthorizationType.ADMIN,
-            ApiAuthorizationType.DATASET,
-        ]:
-            raise MissingBulkSchemaParameters(
-                api_name, "schema authorization is not by dataset or admin"
-            )
+        assert (
+            self.schemas[ApiMethod.POST].authorization == ApiAuthorizationType.DATASET
+        ), f"API {self.__class__.__name__} authorization type must be DATASET"
 
     def generate_actions(
         self,
@@ -757,6 +755,10 @@ class ElasticBulkBase(ApiBase):
                     raise_on_error=False,
                 )
                 report = self._analyze_bulk(results)
+            except UnauthorizedAdminAccess as e:
+                raise APIAbort(e.http_status, str(e))
+            except MissingParameters as e:
+                raise APIAbort(e.http_status, str(e))
             except Exception as e:
                 raise APIInternalError("Unexpected backend error") from e
         elif self.require_map:
