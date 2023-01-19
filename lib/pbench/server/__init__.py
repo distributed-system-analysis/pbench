@@ -1,7 +1,7 @@
 """Server module level convenience functions and PbenchServerConfig class.
 """
 
-from configparser import NoOptionError, NoSectionError
+from configparser import ConfigParser, NoOptionError, NoSectionError
 from datetime import datetime, timedelta, tzinfo
 from enum import auto, Enum
 from logging import Logger
@@ -115,6 +115,38 @@ def timestamp() -> str:
     return tstos(_time())
 
 
+def _get_valid_dir_option(
+    conf: ConfigParser, env_name: str, section: str, option: str
+) -> Path:
+    """Get the validated directory option from the given section.
+
+    Args:
+        conf : The ConfigParser object to use for looking up the option
+        env_name : Legacy environment name to display in error messages
+        section : The configuration section name to find the option
+        option : The option name to find in the given section
+
+    Raises:
+        BadConfig : if the directory option does not resolve to a directory
+            on the file system, or if the option is missing, or if the
+            section is missing
+
+    Returns:
+        A Path directory object.
+    """
+    try:
+        dir_val = conf.get(section, option)
+    except (NoOptionError, NoSectionError) as exc:
+        raise BadConfig(str(exc))
+    else:
+        if not dir_val:
+            raise BadConfig(f"option {option} in section {section} is empty")
+    dir_path = get_resolved_dir(env_name, dir_val, None)
+    if not dir_path:
+        raise BadConfig(f"Bad {env_name}={dir_val}")
+    return dir_path
+
+
 class PbenchServerConfig(PbenchConfig):
     """An encapsulation of the configuration for the Pbench Server."""
 
@@ -177,11 +209,15 @@ class PbenchServerConfig(PbenchConfig):
 
     @property
     def TOP(self) -> Path:
-        return self._get_valid_dir_option("TOP", "pbench-server", "pbench-top-dir")
+        return _get_valid_dir_option(
+            self._conf, "TOP", "pbench-server", "pbench-top-dir"
+        )
 
     @property
     def TMP(self) -> Path:
-        return self._get_valid_dir_option("TMP", "pbench-server", "pbench-tmp-dir")
+        return _get_valid_dir_option(
+            self._conf, "TMP", "pbench-server", "pbench-tmp-dir"
+        )
 
     @property
     def LOGSDIR(self) -> Path:
@@ -193,8 +229,8 @@ class PbenchServerConfig(PbenchConfig):
 
         # We don't have a [logging] section "log_dir" option, so we'll
         # fetch the old "pbench-logs-dir" option.
-        logsdir = self._get_valid_dir_option(
-            "LOGSDIR", "pbench-server", "pbench-logs-dir"
+        logsdir = _get_valid_dir_option(
+            self._conf, "LOGSDIR", "pbench-server", "pbench-logs-dir"
         )
         # Provide a value for log_dir since it was provided via the old
         # pbench-logs-dir configuration.
@@ -203,16 +239,18 @@ class PbenchServerConfig(PbenchConfig):
 
     @property
     def BINDIR(self) -> Path:
-        return self._get_valid_dir_option("BINDIR", "pbench-server", "script-dir")
+        return _get_valid_dir_option(
+            self._conf, "BINDIR", "pbench-server", "script-dir"
+        )
 
     @property
     def LIBDIR(self) -> Path:
-        return self._get_valid_dir_option("LIBDIR", "pbench-server", "lib-dir")
+        return _get_valid_dir_option(self._conf, "LIBDIR", "pbench-server", "lib-dir")
 
     @property
     def ARCHIVE(self) -> Path:
-        return self._get_valid_dir_option(
-            "ARCHIVE", "pbench-server", "pbench-archive-dir"
+        return _get_valid_dir_option(
+            self._conf, "ARCHIVE", "pbench-server", "pbench-archive-dir"
         )
 
     @property
@@ -279,31 +317,3 @@ class PbenchServerConfig(PbenchConfig):
         return filesize_bytes(
             self.get("pbench-server", "rest_max_content_length", fallback="1 gb")
         )
-
-    def _get_valid_dir_option(self, env_name: str, section: str, option: str) -> Path:
-        """Get the validated directory option from the given section.
-
-        Args:
-            env_name : Legacy environment name to display in error messages
-            section : The configuration section name to find the option
-            option : The option name to find in the given section
-
-        Raises:
-            BadConfig : if the directory option does not resolve to a directory
-                on the file system, or if the option is missing, or if the
-                section is missing
-
-        Returns:
-            A Path directory object.
-        """
-        try:
-            dir_val = self.get(section, option)
-        except (NoOptionError, NoSectionError) as exc:
-            raise BadConfig(str(exc))
-        else:
-            if not dir_val:
-                raise BadConfig(f"option {option} in section {section} is empty")
-        dir_path = get_resolved_dir(env_name, dir_val, None)
-        if not dir_path:
-            raise BadConfig(f"Bad {env_name}={dir_val}")
-        return dir_path
