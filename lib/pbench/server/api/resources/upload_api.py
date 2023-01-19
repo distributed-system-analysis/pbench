@@ -170,12 +170,17 @@ class Upload(ApiBase):
                     f"File extension not supported, must be {Dataset.TARBALL_SUFFIX}",
                 )
 
-            md5sum = request.headers.get("Content-MD5")
-            if not md5sum:
+            try:
+                md5sum = request.headers["Content-MD5"]
+            except KeyError:
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST, "Missing required 'Content-MD5' header"
                 )
-
+            if not md5sum:
+                raise CleanupTime(
+                    HTTPStatus.BAD_REQUEST,
+                    "Missing required 'Content-MD5' header value",
+                )
             try:
                 length_string = request.headers["Content-Length"]
                 content_length = int(length_string)

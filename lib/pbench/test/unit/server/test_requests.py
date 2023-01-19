@@ -136,6 +136,23 @@ class TestUpload:
         self.verify_logs(caplog)
         assert not self.cachemanager_created
 
+    def test_missing_md5sum_header_value(
+        self, client, caplog, server_config, setup_ctrl, pbench_token
+    ):
+        expected_message = "Missing required 'Content-MD5' header value"
+        response = client.put(
+            self.gen_uri(server_config),
+            headers={
+                "Authorization": "Bearer " + pbench_token,
+                "controller": self.controller,
+                "Content-MD5": "",
+            },
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json.get("message") == expected_message
+        self.verify_logs(caplog)
+        assert not self.cachemanager_created
+
     def test_missing_filename_extension(
         self, client, caplog, server_config, setup_ctrl, pbench_token
     ):
