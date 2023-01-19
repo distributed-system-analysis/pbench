@@ -428,7 +428,7 @@ def main(cfg_name):
     init_db(config, logger)
 
     # Add a BACKUP and QDIR field to the config object
-    config.BACKUP = config.conf.get("pbench-server", "pbench-backup-dir")
+    config.BACKUP = config.get("pbench-server", "pbench-backup-dir")
 
     # call the LocalBackupObject class
     lb_obj = LocalBackupObject(config)

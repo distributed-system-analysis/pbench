@@ -50,7 +50,7 @@ class MockPbenchConfig:
     """Mocked PbenchConfig class"""
 
     def __init__(self, cfg_name: str):
-        self.conf = MockedConfigParser()
+        self._conf = MockedConfigParser()
         self.logger_type = "file"
         self.log_dir = "/mock/log_dir"
         self.files = cfg_name

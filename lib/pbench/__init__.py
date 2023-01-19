@@ -20,23 +20,23 @@ class PbenchConfig:
         # Enumerate the list of files
         config_files = configtools.file_list(cfg_name)
         config_files.reverse()
-        self.conf = ConfigParser()
-        self.files = self.conf.read(config_files)
+        self._conf = ConfigParser()
+        self.files = self._conf.read(config_files)
 
         try:
-            self.logger_type = self.conf.get("logging", "logger_type")
+            self.logger_type = self._conf.get("logging", "logger_type")
         except (NoOptionError, NoSectionError):
             self.logger_type = "devlog"
         else:
             if self.logger_type == "hostport":
                 try:
-                    self.logger_host = self.conf.get("logging", "logger_host")
-                    self.logger_port = self.conf.get("logging", "logger_port")
+                    self.logger_host = self._conf.get("logging", "logger_host")
+                    self.logger_port = self._conf.get("logging", "logger_port")
                 except (NoOptionError) as exc:
                     raise BadConfig(str(exc))
 
         try:
-            self.log_dir = self.conf.get("logging", "log_dir")
+            self.log_dir = self._conf.get("logging", "log_dir")
         except (NoOptionError, NoSectionError):
             # Allow for compatibility with previous configuration files.  Any
             # sub-class of this base class can change the log directory as
@@ -52,14 +52,14 @@ class PbenchConfig:
         self.log_using_caller_directory = False
 
         try:
-            self.default_logging_level = self.conf.get("logging", "logging_level")
+            self.default_logging_level = self._conf.get("logging", "logging_level")
         except (NoOptionError, NoSectionError):
             self.default_logging_level = "INFO"
 
         try:
             # We don't document the "log_format" parameter since it is really
             # only present to facilitate easier unit testing.
-            self.log_fmt = self.conf.get("logging", "log_format")
+            self.log_fmt = self._conf.get("logging", "log_format")
         except (NoOptionError, NoSectionError):
             self.log_fmt = None
 
@@ -69,4 +69,7 @@ class PbenchConfig:
         self.TZ = "UTC"
 
     def get(self, *args, **kwargs):
-        return self.conf.get(*args, **kwargs)
+        return self._conf.get(*args, **kwargs)
+
+    def getint(self, *args, **kwargs):
+        return self._conf.getint(*args, **kwargs)
