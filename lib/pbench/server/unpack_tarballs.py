@@ -3,7 +3,7 @@ from logging import Logger
 from pathlib import Path
 import tempfile
 
-from pbench.server import PbenchServerConfig
+from pbench.server import PbenchServerConfig, timestamp
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.report import Report
@@ -120,13 +120,13 @@ class UnpackTarballs:
         """
         with tempfile.NamedTemporaryFile(mode="w+t", dir=self.config.TMP) as reportfp:
             reportfp.write(
-                f"{prog}.{self.config.timestamp()}({self.config.PBENCH_ENV})\n{result_string}\n"
+                f"{prog}.{timestamp()}({self.config.PBENCH_ENV})\n{result_string}\n"
             )
             reportfp.seek(0)
 
             report = Report(self.config, prog)
             report.init_report_template()
             try:
-                report.post_status(self.config.timestamp(), "status", reportfp.name)
+                report.post_status(timestamp(), "status", reportfp.name)
             except Exception:
                 self.logger.exception("{}: failure posting report", prog)

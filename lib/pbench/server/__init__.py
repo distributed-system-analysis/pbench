@@ -105,6 +105,16 @@ def get_resolved_dir(
     return dir_path
 
 
+def timestamp() -> str:
+    """Generate a time stamp string.
+
+    Returns:
+        The current timestamp formatted as a string of the following form:
+            <YYYY>-<MM>-<DD>T<hh>:<mm>:<ss>-<TZ>
+    """
+    return tstos(_time())
+
+
 class PbenchServerConfig(PbenchConfig):
     """An encapsulation of the configuration for the Pbench Server."""
 
@@ -163,7 +173,7 @@ class PbenchServerConfig(PbenchConfig):
         # Constants
 
         # Initial common timestamp format
-        self.TS = f"run-{tstos(_time())}"
+        self.TS = f"run-{timestamp()}"
 
     @property
     def TOP(self) -> Path:
@@ -297,12 +307,3 @@ class PbenchServerConfig(PbenchConfig):
         if not dir_path:
             raise BadConfig(f"Bad {env_name}={dir_val}")
         return dir_path
-
-    def timestamp(self) -> str:
-        """Generate a time stamp string.
-
-        Returns:
-            The current timestamp formatted as a string of the following form:
-                <YYYY>-<MM>-<DD>T<hh>:<mm>:<ss>-<TZ>
-        """
-        return tstos(_time())

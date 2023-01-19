@@ -50,7 +50,7 @@ import tempfile
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
-from pbench.server import get_resolved_dir, PbenchServerConfig
+from pbench.server import get_resolved_dir, PbenchServerConfig, timestamp
 from pbench.server.database import init_db
 from pbench.server.report import Report
 from pbench.server.s3backup import Entry, S3Config
@@ -317,7 +317,7 @@ def main():
     s3_config_obj = sanity_check(s3_config_obj, logger)
 
     logger.info("start-{}", config.TS)
-    start = config.timestamp()
+    start = timestamp()
 
     prog = Path(sys.argv[0]).name
 
@@ -343,7 +343,7 @@ def main():
 
             # Create entry list for archive
             logger.debug("Starting archive list creation")
-            ar_start = config.timestamp()
+            ar_start = timestamp()
             ret_sts = archive_obj.entry_list_creation()
             if ret_sts == Status.FAIL:
                 sts += 1
@@ -351,7 +351,7 @@ def main():
 
             # Create entry list for backup
             logger.debug("Starting local backup list creation")
-            lb_start = config.timestamp()
+            lb_start = timestamp()
             ret_sts = local_backup_obj.entry_list_creation()
             if ret_sts == Status.FAIL:
                 sts += 1
@@ -360,14 +360,14 @@ def main():
             # Create entry list for S3
             if s3_config_obj is not None:
                 logger.debug("Starting S3 list creation")
-                s3_start = config.timestamp()
+                s3_start = timestamp()
                 ret_sts = s3_backup_obj.entry_list_creation()
                 if ret_sts == Status.FAIL:
                     sts += 1
                 logger.debug("Finished S3 list ({!r})", ret_sts)
 
             logger.debug("Checking MD5 signatures of archive")
-            ar_md5_start = config.timestamp()
+            ar_md5_start = timestamp()
             try:
                 # Check the data integrity in ARCHIVE (Question 1).
                 md5_result_archive = archive_obj.checkmd5()
@@ -388,7 +388,7 @@ def main():
             logger.debug("Finished checking MD5 signatures of archive")
 
             logger.debug("Checking MD5 signatures of local backup")
-            lb_md5_start = config.timestamp()
+            lb_md5_start = timestamp()
             try:
                 # Check the data integrity in BACKUP (Question 2).
                 md5_result_backup = local_backup_obj.checkmd5()
@@ -433,7 +433,7 @@ def main():
                 f"Local Backup MD5 Checks:     {lb_md5_start}\n"
             )
 
-            end = config.timestamp()
+            end = timestamp()
             reportfp.write(
                 f"\n{prog}.{config.TS} ({config.PBENCH_ENV}) finished at {end}\n"
             )
@@ -445,7 +445,7 @@ def main():
             report = Report(config, _NAME_)
             report.init_report_template()
             try:
-                report.post_status(config.timestamp(), "status", reportfp.name)
+                report.post_status(timestamp(), "status", reportfp.name)
             except Exception:
                 pass
             logger.debug("Sending report: end")

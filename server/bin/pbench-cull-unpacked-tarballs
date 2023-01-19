@@ -436,7 +436,9 @@ def main(options):
         report.init_report_template()
         try:
             report.post_status(
-                config.timestamp(), "status" if errors == 0 else "errors", tfp.name
+                pbench.server.timestamp(),
+                "status" if errors == 0 else "errors",
+                tfp.name,
             )
         except Exception:
             pass
