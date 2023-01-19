@@ -349,10 +349,11 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "drb",
             HTTPStatus.BAD_REQUEST,
         )
-        assert (
-            put.json["message"]
-            == "Metadata key 'dataset.name' value 1 for dataset (3)|drb must be a UTF-8 string of 1 to 1024 characters"
-        )
+        json = put.json
+        assert json["message"] == "at least one specified metadata key is invalid"
+        assert json["errors"] == [
+            "Metadata key 'dataset.name' value 1 for dataset (3)|drb must be a UTF-8 string of 1 to 1024 characters"
+        ]
 
         # verify that the values didn't change
         get = query_get_as(
@@ -385,10 +386,11 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "drb",
             HTTPStatus.BAD_REQUEST,
         )
-        assert (
-            put.json["message"]
-            == "Metadata key 'server.deletion' value '1800-25-55' for dataset (3)|drb must be a date/time"
-        )
+        json = put.json
+        assert json["message"] == "at least one specified metadata key is invalid"
+        assert json["errors"] == [
+            "Metadata key 'server.deletion' value '1800-25-55' for dataset (3)|drb must be a date/time"
+        ]
 
         # verify that the values didn't change
         get = query_get_as(

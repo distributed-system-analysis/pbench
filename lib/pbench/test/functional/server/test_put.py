@@ -46,9 +46,14 @@ class TestPut:
 
         for t in TARBALL_DIR.glob("*.tar.xz"):
             a = access[cur_access]
+            if a == "public":
+                metadata = "global.pbench.origin:test,user.pbench.access:public"
+            else:
+                metadata = None
+
             cur_access = 0 if cur_access else 1
             tarballs[Dataset.stem(t)] = Tarball(t, a)
-            response = server_client.upload(t, access=a)
+            response = server_client.upload(t, access=a, metadata=metadata)
             assert (
                 response.status_code == HTTPStatus.CREATED
             ), f"upload returned unexpected status {response.status_code}, {response.text}"
@@ -169,7 +174,13 @@ class TestPut:
         # this later when I add GET tests.)
         count = 0
         not_indexed_raw = server_client.get_list(
-            limit=5, metadata=["server.tarball-path"]
+            limit=5,
+            metadata=[
+                "server.tarball-path",
+                "dataset.access",
+                "global.pbench.origin",
+                "user.pbench.access",
+            ],
         )
         not_indexed = []
         try:
@@ -178,6 +189,13 @@ class TestPut:
                 if os.path.basename(tp) not in tarball_names:
                     continue
                 not_indexed.append(dataset)
+                if dataset.metadata["user.pbench.access"] == "public":
+                    assert dataset.metadata["global.pbench.origin"] == "test"
+                    assert dataset.metadata["dataset.access"] == "public"
+                else:
+                    assert dataset.metadata["dataset.access"] == "private"
+                    assert dataset.metadata["global.pbench.origin"] is None
+                    assert dataset.metadata["user.pbench.access"] is None
         except HTTPError as exc:
             pytest.fail(
                 f"Unexpected HTTP error, url = {exc.response.url}, status code"
