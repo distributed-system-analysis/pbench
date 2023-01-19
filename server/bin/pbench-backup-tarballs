@@ -11,7 +11,7 @@ import tempfile
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
-from pbench.server import get_resolved_dir, PbenchServerConfig
+from pbench.server import get_resolved_dir, PbenchServerConfig, timestamp
 from pbench.server.database import init_db
 from pbench.server.database.models.datasets import Dataset, DatasetError, Metadata
 from pbench.server.report import Report
@@ -461,15 +461,13 @@ def main(cfg_name):
 
     # prepare and send report
     with tempfile.NamedTemporaryFile(mode="w+t", dir=config.TMP) as reportfp:
-        reportfp.write(
-            f"{prog}.{config.timestamp()}({config.PBENCH_ENV})\n{result_string}\n"
-        )
+        reportfp.write(f"{prog}.{timestamp()}({config.PBENCH_ENV})\n{result_string}\n")
         reportfp.seek(0)
 
         report = Report(config, _NAME_)
         report.init_report_template()
         try:
-            report.post_status(config.timestamp(), "status", reportfp.name)
+            report.post_status(timestamp(), "status", reportfp.name)
         except Exception:
             pass
 
