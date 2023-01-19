@@ -65,6 +65,67 @@ def tstos(ts: float = None) -> str:
     return dt.strftime("%Y-%m-%dT%H:%M:%S-%Z")
 
 
+def _get_valid_path(
+    env_name: str, dir_val: str, logger: Optional[Logger]
+) -> Optional[Path]:
+    """Get the fully resolved path from the given path.
+
+    If a logger is given, will emit error logs when the directory is not
+    found or the resolved name is not a directory.
+
+    Args:
+        env_name : Legacy environment name to display in error messages
+        dir_val : A directory value to resolve to a real directory
+        logger : Logger to use when low-level error messages should be
+            emitted
+
+    Returns:
+        A Path directory object of the directory on disk, None otherwise.
+    """
+    try:
+        dir_path = Path(dir_val).resolve(strict=True)
+    except FileNotFoundError:
+        if logger:
+            logger.error(
+                "The {} directory, '{}', does not resolve to a real location",
+                env_name,
+                dir_val,
+            )
+        return None
+    else:
+        if not dir_path.is_dir():
+            if logger:
+                logger.error(
+                    "The {} directory, does not resolve to a directory ('{}')",
+                    env_name,
+                    dir_path,
+                )
+            return None
+    return dir_path
+
+
+def get_resolved_dir(
+    env_name: str, dir_val: str, logger: Optional[Logger]
+) -> Optional[Path]:
+    """Get the resolved directory associated with the environment name.
+
+    Args:
+        env_name : Legacy environment name to display in error messages
+        dir_val : A directory value to resolve to a real directory
+        logger : Logger to use when low-level error messages should be
+            emitted
+
+    Returns:
+        A Path directory object, None if the directory value does not
+            resolve to a real directory.
+    """
+    dir_path = _get_valid_path(env_name, dir_val, logger)
+    if not dir_path:
+        return None
+
+    return dir_path
+
+
 class PbenchServerConfig(PbenchConfig):
     """An encapsulation of the configuration for the Pbench Server."""
 
@@ -253,68 +314,9 @@ class PbenchServerConfig(PbenchConfig):
         else:
             if not dir_val:
                 raise BadConfig(f"option {option} in section {section} is empty")
-        dir_path = self._get_valid_path(env_name, dir_val, None)
+        dir_path = _get_valid_path(env_name, dir_val, None)
         if not dir_path:
             raise BadConfig(f"Bad {env_name}={dir_val}")
-        return dir_path
-
-    def _get_valid_path(
-        self, env_name: str, dir_val: str, logger: Union[None, Logger]
-    ) -> Optional[Path]:
-        """Get the fully resolved path from the given path.
-
-        If a logger is given, will emit error logs when the directory is not
-        found or the resolved name is not a directory.
-
-        Args:
-            env_name : Legacy environment name to display in error messages
-            dir_val : A directory value to resolve to a real directory
-            logger : Logger to use when low-level error messages should be
-                emitted
-
-        Returns:
-            A Path directory object of the directory on disk, None otherwise.
-        """
-        try:
-            dir_path = Path(dir_val).resolve(strict=True)
-        except FileNotFoundError:
-            if logger:
-                logger.error(
-                    "The {} directory, '{}', does not resolve to a real location",
-                    env_name,
-                    dir_val,
-                )
-            return None
-        else:
-            if not dir_path.is_dir():
-                if logger:
-                    logger.error(
-                        "The {} directory, does not resolve to a directory ('{}')",
-                        env_name,
-                        dir_path,
-                    )
-                return None
-        return dir_path
-
-    def get_valid_dir_option(
-        self, env_name: str, dir_val: str, logger: Union[None, Logger]
-    ) -> Optional[Path]:
-        """Get the validated directory option from the given section.
-
-        Args:
-            env_name : Legacy environment name to display in error messages
-            dir_val : A directory value to resolve to a real directory
-            logger : Logger to use when low-level error messages should be
-                emitted
-
-        Returns:
-            A Path directory object, None if the directory value does not
-                resolve to a real directory.
-        """
-        dir_path = self._get_valid_path(env_name, dir_val, logger)
-        if not dir_path:
-            return None
-
         return dir_path
 
     def timestamp(self) -> str:
