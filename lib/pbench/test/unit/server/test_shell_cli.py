@@ -19,7 +19,7 @@ from pbench.server.auth import OpenIDClient
 def mock_get_server_config(monkeypatch, on_disk_server_config):
     cfg_file = on_disk_server_config["cfg_dir"] / "pbench-server.cfg"
     config = PbenchServerConfig(str(cfg_file))
-    del config.conf["authentication"]["server_url"]
+    del config._conf["authentication"]["server_url"]
 
     def get_server_config() -> PbenchServerConfig:
         return config
@@ -330,7 +330,7 @@ class TestShell:
         def get_server_config() -> PbenchServerConfig:
             cfg_file = on_disk_server_config["cfg_dir"] / "pbench-server.cfg"
             config = PbenchServerConfig(str(cfg_file))
-            del config.conf[section]
+            del config._conf[section]
             return config
 
         monkeypatch.setattr(shell, "get_server_config", get_server_config)
@@ -365,8 +365,8 @@ class TestShell:
                 if option == "crontab-dir"
                 else "pbench-server"
             )
-            make_logger.error(config.conf[section][option])
-            del config.conf[section][option]
+            make_logger.error(config._conf[section][option])
+            del config._conf[section][option]
             return config
 
         monkeypatch.setattr(shell, "get_server_config", get_server_config)

@@ -21,24 +21,24 @@ class PbenchAgentConfig(PbenchConfig):
 
         try:
             # Provide a few convenience attributes.
-            self.agent = self.conf["pbench-agent"]
-            self.results = self.conf["results"]
+            self.agent = self._conf["pbench-agent"]
+            self.results = self._conf["results"]
             # Now fetch some default common pbench settings that are required.
             self.pbench_run = Path(
-                self.conf.get(
+                self.get(
                     "pbench-agent", "pbench_run", fallback=DEFAULT_PBENCH_AGENT_RUN_DIR
                 )
             )
             self.pbench_tmp = self.pbench_run / "tmp"
             self.pbench_log = Path(
-                self.conf.get(
+                self.get(
                     "pbench-agent",
                     "pbench_log",
                     fallback=str(self.pbench_run / "pbench.log"),
                 )
             )
             self.pbench_install_dir = Path(
-                self.conf.get(
+                self.get(
                     "pbench-agent",
                     "install-dir",
                     fallback=DEFAULT_PBENCH_AGENT_INSTALL_DIR,
@@ -69,28 +69,24 @@ class PbenchAgentConfig(PbenchConfig):
             self.log_dir = str(self.pbench_log.parent)
 
         try:
-            self.ssh_opts = self.conf.get(
-                "results", "ssh_opts", fallback=DEFAULT_SSH_OPTS
-            )
+            self.ssh_opts = self.get("results", "ssh_opts", fallback=DEFAULT_SSH_OPTS)
         except (NoOptionError, NoSectionError):
             self.ssh_opts = DEFAULT_SSH_OPTS
 
         try:
-            self.scp_opts = self.conf.get(
-                "results", "scp_opts", fallback=DEFAULT_SCP_OPTS
-            )
+            self.scp_opts = self.get("results", "scp_opts", fallback=DEFAULT_SCP_OPTS)
         except (NoOptionError, NoSectionError):
             self.scp_opts = DEFAULT_SCP_OPTS
 
         try:
-            self._unittests = self.conf.get("pbench-agent", "debug_unittest")
+            self._unittests = self.get("pbench-agent", "debug_unittest")
         except Exception:
             self._unittests = False
         else:
             self._unittests = bool(self._unittests)
 
         try:
-            self._debug = self.conf.get("pbench-agent", "debug")
+            self._debug = self.get("pbench-agent", "debug")
         except Exception:
             self._debug = False
         else:

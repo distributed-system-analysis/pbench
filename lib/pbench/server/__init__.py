@@ -180,15 +180,15 @@ class PbenchServerConfig(PbenchConfig):
 
     @property
     def PBENCH_ENV(self) -> str:
-        return self.conf.get("pbench-server", "environment", fallback="")
+        return self.get("pbench-server", "environment", fallback="")
 
     @property
     def COMMIT_ID(self) -> str:
-        return self.conf.get("pbench-server", "commit_id", fallback="(unknown)")
+        return self.get("pbench-server", "commit_id", fallback="(unknown)")
 
     @property
     def rest_uri(self) -> str:
-        return self.conf.get("pbench-server", "rest_uri")
+        return self.get("pbench-server", "rest_uri")
 
     @property
     def max_retention_period(self) -> int:
@@ -198,7 +198,7 @@ class PbenchServerConfig(PbenchConfig):
         Returns:
             An integer number of days representing the maximum retention period.
         """
-        return self.conf.getint(
+        return self.getint(
             "pbench-server",
             "maximum-dataset-retention-days",
             fallback=self.MAXIMUM_RETENTION_DAYS,
@@ -212,7 +212,7 @@ class PbenchServerConfig(PbenchConfig):
         Returns:
             An integer number of days representing the default retention period.
         """
-        return self.conf.getint(
+        return self.getint(
             "pbench-server",
             "default-dataset-retention-days",
             fallback=self.DEFAULT_RETENTION_DAYS,
@@ -227,7 +227,7 @@ class PbenchServerConfig(PbenchConfig):
             An integer number of bytes.
         """
         return filesize_bytes(
-            self.conf.get("pbench-server", "rest_max_content_length", fallback="1 gb")
+            self.get("pbench-server", "rest_max_content_length", fallback="1 gb")
         )
 
     def _get_valid_dir_option(self, env_name: str, section: str, option: str) -> Path:
@@ -247,7 +247,7 @@ class PbenchServerConfig(PbenchConfig):
             A Path directory object.
         """
         try:
-            dir_val = self.conf.get(section, option)
+            dir_val = self.get(section, option)
         except (NoOptionError, NoSectionError) as exc:
             raise BadConfig(str(exc))
         else:

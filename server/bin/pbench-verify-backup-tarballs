@@ -299,7 +299,7 @@ def main():
     init_db(config, logger)
 
     # add a BACKUP field to the config object
-    config.BACKUP = backup = config.conf.get("pbench-server", "pbench-backup-dir")
+    config.BACKUP = backup = config.get("pbench-server", "pbench-backup-dir")
 
     if not backup:
         logger.error(

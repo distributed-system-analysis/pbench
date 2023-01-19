@@ -345,7 +345,7 @@ def main(options):
     # Fetch the configured maximum number of days a tar can remain "unpacked"
     # in the INCOMING tree.
     try:
-        max_unpacked_age = config.conf.get("pbench-server", "max-unpacked-age")
+        max_unpacked_age = config.get("pbench-server", "max-unpacked-age")
     except configparser.NoOptionError as e:
         logger.error(f"{e}")
         return 5
