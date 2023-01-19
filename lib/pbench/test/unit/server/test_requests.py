@@ -42,7 +42,6 @@ class TestUpload:
     def gen_headers(self, auth_token, md5):
         headers = {
             "Authorization": "Bearer " + auth_token,
-            "controller": self.controller,
             "Content-MD5": md5,
             "Content-Type": "application/octet-stream",
         }
@@ -59,12 +58,10 @@ class TestUpload:
             def __init__(self, path: Path):
                 self.tarball_path = path
                 self.name = Dataset.stem(path)
+                self.metadata = None
 
             def delete(self):
                 TestUpload.tarball_deleted = self.name
-
-            def get_metadata(self):
-                return {"pbench": {"date": "2002-05-16T00:00:00"}}
 
         class FakeCacheManager(CacheManager):
             def __init__(self, options: PbenchServerConfig, logger: Logger):
@@ -72,12 +69,14 @@ class TestUpload:
                 self.datasets = {}
                 TestUpload.cachemanager_created = self
 
-            def create(self, controller: str, path: Path) -> FakeTarball:
+            def create(self, path: Path) -> FakeTarball:
+                controller = "ctrl"
                 TestUpload.cachemanager_create_path = path
                 if TestUpload.cachemanager_create_fail:
                     raise Exception()
                 self.controllers.append(controller)
                 tarball = FakeTarball(path)
+                tarball.metadata = {"pbench": {"date": "2002-05-16T00:00:00"}}
                 self.datasets[tarball.name] = tarball
                 return tarball
 
@@ -107,19 +106,6 @@ class TestUpload:
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         assert not self.cachemanager_created
 
-    def test_missing_controller_header_upload(
-        self, client, caplog, server_config, pbench_drb_token
-    ):
-        expected_message = "Missing required 'controller' header"
-        response = client.put(
-            self.gen_uri(server_config),
-            headers={"Authorization": "Bearer " + pbench_drb_token},
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == expected_message
-        self.verify_logs(caplog)
-        assert not self.cachemanager_created
-
     def test_missing_md5sum_header_upload(
         self, client, caplog, server_config, setup_ctrl, pbench_drb_token
     ):
@@ -128,7 +114,6 @@ class TestUpload:
             self.gen_uri(server_config),
             headers={
                 "Authorization": "Bearer " + pbench_drb_token,
-                "controller": self.controller,
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -163,7 +148,6 @@ class TestUpload:
             f"{server_config.rest_uri}/upload/f",
             headers={
                 "Authorization": "Bearer " + pbench_drb_token,
-                "controller": self.controller,
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -179,7 +163,6 @@ class TestUpload:
             self.gen_uri(server_config),
             headers={
                 "Authorization": "Bearer " + pbench_drb_token,
-                "controller": self.controller,
                 "Content-MD5": "ANYMD5",
             },
         )
@@ -196,30 +179,11 @@ class TestUpload:
             self.gen_uri(server_config),
             headers={
                 "Authorization": "Bearer " + pbench_drb_token,
-                "controller": self.controller,
                 "Content-MD5": "ANYMD5",
                 "Content-Length": "string",
             },
         )
         assert response.status_code == HTTPStatus.LENGTH_REQUIRED
-        assert response.json.get("message") == expected_message
-        self.verify_logs(caplog)
-        assert not self.cachemanager_created
-
-    def test_bad_controller_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
-    ):
-        expected_message = "Invalid 'controller' header"
-        response = client.put(
-            self.gen_uri(server_config),
-            headers={
-                "Authorization": "Bearer " + pbench_drb_token,
-                "controller": "not_a_hostname",
-                "Content-MD5": "ANYMD5",
-                "Content-Length": "STRING",
-            },
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == expected_message
         self.verify_logs(caplog)
         assert not self.cachemanager_created

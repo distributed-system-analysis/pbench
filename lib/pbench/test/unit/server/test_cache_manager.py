@@ -3,6 +3,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import tarfile
 
 import pytest
 
@@ -10,6 +11,7 @@ from pbench.server.cache_manager import (
     BadFilename,
     CacheManager,
     DuplicateTarball,
+    MetadataError,
     Tarball,
     TarballModeChangeError,
     TarballNotFound,
@@ -57,6 +59,10 @@ def selinux_enabled(monkeypatch):
     """
     monkeypatch.setattr("pbench.common.selinux.is_selinux_enabled", lambda: 1)
     monkeypatch.setattr("pbench.common.selinux.restorecon", lambda a: None)
+
+
+def fake_get_metadata(tb_path):
+    return {"pbench": {"date": "2002-05-16T00:00:00"}, "run": {"controller": "ABC"}}
 
 
 class TestCacheManager:
@@ -120,7 +126,76 @@ class TestCacheManager:
             for r in roots:
                 assert not (r / c).exists()
 
-    def test_create_bad(self, selinux_disabled, server_config, make_logger, tarball):
+    def test_metadata(
+        self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
+    ):
+        """
+        Test behavior of the metadata file when key/value are not present.
+        """
+
+        def fake_extract(tar_path, path):
+            raise KeyError(f"filename {path} not found")
+
+        def fake_extract_tarfile(tar_path, path):
+            raise tarfile.TarError("Invalid Tarfile")
+
+        def fake_metadata(tar_path):
+            return {"pbench": {"date": "2002-05-16T00:00:00"}}
+
+        def fake_metadata_run(tar_path):
+            return {"pbench": {"date": "2002-05-16T00:00:00"}, "run": {}}
+
+        def fake_metadata_controller(tar_path):
+            return {
+                "pbench": {"date": "2002-05-16T00:00:00"},
+                "run": {"controller": ""},
+            }
+
+        source_tarball, source_md5, md5 = tarball
+        cm = CacheManager(server_config, make_logger)
+        # fetching metadata from metadata.log file and key/value not
+        # being there should result in a MetadataError
+        tar_name = source_tarball.name.removesuffix(".tar.xz")
+
+        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"'filename {tar_name}/metadata.log not found'\""
+        monkeypatch.setattr(Tarball, "extract", fake_extract)
+        with pytest.raises(Exception) as exc:
+            cm.create(source_tarball)
+        assert str(exc.value) == expected_metaerror
+
+        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: 'Invalid Tarfile'"
+        monkeypatch.setattr(Tarball, "extract", fake_extract_tarfile)
+        with pytest.raises(Exception) as exc:
+            cm.create(source_tarball)
+        assert str(exc.value) == expected_metaerror
+
+        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"'run'\""
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_metadata)
+        with pytest.raises(MetadataError) as exc:
+            cm.create(source_tarball)
+        assert str(exc.value) == expected_metaerror
+
+        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"'controller'\""
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_metadata_run)
+        with pytest.raises(MetadataError) as exc:
+            cm.create(source_tarball)
+        assert str(exc.value) == expected_metaerror
+
+        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: 'no controller value'"
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_metadata_controller)
+        with pytest.raises(MetadataError) as exc:
+            cm.create(source_tarball)
+        assert str(exc.value) == expected_metaerror
+
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
+        cm.create(source_tarball)
+        tarball = cm.find_dataset(md5)
+
+        assert tarball.metadata == fake_get_metadata(tarball.tarball_path)
+
+    def test_create_bad(
+        self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
+    ):
         """
         Test several varieties of dataset errors:
 
@@ -128,42 +203,46 @@ class TestCacheManager:
         2) Attempt to create a new dataset from a non-existent file
         3) Attempt to create a dataset that already exists
         """
-
         source_tarball, source_md5, md5 = tarball
         cm = CacheManager(server_config, make_logger)
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
 
         # Attempting to create a dataset from the md5 file should result in
         # a bad filename error
         with pytest.raises(DatasetBadName) as exc:
-            cm.create("ABC", source_md5)
+            cm.create(source_md5)
         assert exc.value.name == str(source_md5)
 
-        cm.create("ABC", source_tarball)
+        cm.create(source_tarball)
 
         # The create will remove the source files, so trying again should
         # result in an error.
         with pytest.raises(BadFilename) as exc:
-            cm.create("ABC", source_md5)
+            cm.create(source_md5)
         assert exc.value.path == str(source_md5)
 
         # Attempting to create the same dataset again (from the archive copy)
         # should fail with a duplicate dataset error.
         tarball = cm.find_dataset(md5)
         with pytest.raises(DuplicateTarball) as exc:
-            cm.create("ABC", tarball.tarball_path)
+            cm.create(tarball.tarball_path)
         assert (
             str(exc.value)
             == "A dataset tarball named 'pbench-user-benchmark_some + config_2021.05.01T12.42.42' is already present in the cache manager"
         )
+        assert tarball.metadata == fake_get_metadata(tarball.tarball_path)
         assert exc.value.tarball == tarball.name
 
-    def test_duplicate(self, selinux_disabled, server_config, make_logger, tarball):
+    def test_duplicate(
+        self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
+    ):
         """
         Test behavior when we try to create a new dataset but the tarball file
         name already exists
         """
 
         source_tarball, source_md5, md5 = tarball
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
         cm = CacheManager(server_config, make_logger)
 
         # Create a tarball file in the expected destination directory
@@ -174,7 +253,7 @@ class TestCacheManager:
         # Attempting to create a dataset from the md5 file should result in
         # a duplicate dataset error
         with pytest.raises(DuplicateTarball) as exc:
-            cm.create("ABC", source_tarball)
+            cm.create(source_tarball)
         assert exc.value.tarball == Dataset.stem(source_tarball)
 
     def test_tarball_subprocess_run_with_exception(self, monkeypatch):
@@ -471,10 +550,11 @@ class TestCacheManager:
                 args, returncode=0, stdout="Success!", stderr=None
             )
 
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
         source_tarball, source_md5, md5 = tarball
         dataset_name = Dataset.stem(source_tarball)
         cm = CacheManager(server_config, make_logger)
-        cm.create("ABC", source_tarball)
+        cm.create(source_tarball)
 
         # The original files should have been removed
         assert not source_tarball.exists()
@@ -560,6 +640,7 @@ class TestCacheManager:
         archive = cm.archive_root / "ABC"
         incoming = cm.incoming_root / "ABC"
         results = cm.results_root / "ABC"
+        monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
 
         # None of the controller directories should exist yet
         assert not archive.exists()
@@ -567,7 +648,7 @@ class TestCacheManager:
         assert not results.exists()
 
         # Create a dataset in the cache manager from our source tarball
-        cm.create("ABC", source_tarball)
+        cm.create(source_tarball)
 
         # Expect the archive directory was created, but we haven't unpacked so
         # incoming and results should not exist.
