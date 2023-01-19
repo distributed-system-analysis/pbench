@@ -172,14 +172,14 @@ class Upload(ApiBase):
 
             try:
                 md5sum = request.headers["Content-MD5"]
-                if not md5sum:
-                    raise CleanupTime(
-                        HTTPStatus.BAD_REQUEST,
-                        "Missing required 'Content-MD5' header value",
-                    )
             except KeyError:
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST, "Missing required 'Content-MD5' header"
+                )
+            if not md5sum:
+                raise CleanupTime(
+                    HTTPStatus.BAD_REQUEST,
+                    "Missing required 'Content-MD5' header value",
                 )
             try:
                 length_string = request.headers["Content-Length"]
