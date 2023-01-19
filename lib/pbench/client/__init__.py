@@ -47,7 +47,7 @@ class API(Enum):
     DATASETS_MAPPINGS = "datasets_mappings"
     DATASETS_METADATA = "datasets_metadata"
     DATASETS_NAMESPACE = "datasets_namespace"
-    DATASETS_PUBLISH = "datasets_publish"
+    DATASETS_UPDATE = "datasets_update"
     DATASETS_SEARCH = "datasets_search"
     DATASETS_VALUES = "datasets_values"
     ENDPOINTS = "endpoints"
