@@ -91,7 +91,7 @@ const NewRunsComponent = () => {
     dispatch(updateDataset(dataset, "favorite", isFavoriting));
   };
   const saveRowData = (metadataType, dataset, value) => {
-    dispatch(updateDataset(dataset, metadataType, value));
+    dispatch(updateDataset(dataset, metadataType, value, "newRuns"));
   };
   const moreActionItems = (dataset) => [
     {
@@ -130,10 +130,10 @@ const NewRunsComponent = () => {
     });
   const isRunExpanded = (run) => expandedRunNames.includes(run.name);
   const updateTblValue = (newValue, metadata, rId) => {
-    dispatch(editMetadata(newValue, metadata, rId));
+    dispatch(editMetadata(newValue, metadata, rId, "newRuns"));
   };
   const toggleEdit = useCallback(
-    (rId, isEdit) => dispatch(setRowtoEdit(rId, isEdit)),
+    (rId, isEdit) => dispatch(setRowtoEdit(rId, isEdit, "newRuns")),
     [dispatch]
   );
   return (

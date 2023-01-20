@@ -10,12 +10,19 @@ import {
   TextContent,
   TextVariants,
 } from "@patternfly/react-core";
-import { CaretDownIcon, RedoIcon } from "@patternfly/react-icons";
+import {
+  CaretDownIcon,
+  CheckIcon,
+  PencilAltIcon,
+  RedoIcon,
+  TimesIcon,
+} from "@patternfly/react-icons";
 import React, { useState } from "react";
 import { getDatasets, updateMultipleDataset } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import { EXPIRATION_DAYS_LIMIT } from "assets/constants/overviewConstants";
+import { TextInput } from "@patternfly/react-core";
 
 export const Heading = (props) => {
   return (
@@ -154,6 +161,52 @@ export const RenderPagination = (props) => {
       setperpage={setperpage}
       perPageOptions={perPageOptions}
       onPerPageSelect={onPerPageSelect}
+    />
+  );
+};
+
+export const EditRow = (props) => {
+  return (
+    <div className="pf-c-inline-edit__action pf-m-enable-editable">
+      {!props.item.isEdit ? (
+        <Button
+          variant="plain"
+          onClick={() => props.toggleEdit(props.item.resource_id, true)}
+          icon={<PencilAltIcon />}
+        />
+      ) : (
+        <div>
+          <Button
+            isDisabled={
+              !props.item.isDirty ||
+              !!!props.item.name ||
+              props.item.name_validated === "error"
+            }
+            onClick={() =>
+              props.saveRowData("datasetName", props.item, props.item.name)
+            }
+            variant="plain"
+            icon={<CheckIcon />}
+          />
+          <Button
+            variant="plain"
+            onClick={() => props.toggleEdit(props.item.resource_id, false)}
+            icon={<TimesIcon />}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const DatasetNameInput = (props) => {
+  return (
+    <TextInput
+      validated={props.validated}
+      value={props.value}
+      type="text"
+      onChange={props.onChange}
+      aria-label="Edit Dataset name"
     />
   );
 };

@@ -18,15 +18,19 @@ import {
   SERVER_DELETION,
   USER_FAVORITE,
 } from "assets/constants/overviewConstants";
+import React, { useCallback } from "react";
 import {
   deleteDataset,
+  editMetadata,
   publishDataset,
+  setRowtoEdit,
   setSelectedRuns,
   updateDataset,
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import React from "react";
+import { EditRow } from "./common-component";
+import { TextInput } from "@patternfly/react-core";
 import { formatDateTime } from "utils/dateFunctions";
 
 const SavedRunsComponent = () => {
@@ -77,6 +81,18 @@ const SavedRunsComponent = () => {
   const makeFavorites = (dataset, isFavoriting = true) => {
     dispatch(updateDataset(dataset, "favorite", isFavoriting));
   };
+  /* Edit Dataset */
+  const saveRowData = (metadataType, dataset, value) => {
+    dispatch(updateDataset(dataset, metadataType, value, "savedRuns"));
+  };
+  const toggleEdit = useCallback(
+    (rId, isEdit) => dispatch(setRowtoEdit(rId, isEdit, "savedRuns")),
+    [dispatch]
+  );
+  const updateTblValue = (newValue, metadata, rId) => {
+    dispatch(editMetadata(newValue, metadata, rId, "savedRuns"));
+  };
+  /* Edit Dataset */
   const columnNames = {
     result: "Result",
     createdtime: "Created Time",
@@ -128,7 +144,19 @@ const SavedRunsComponent = () => {
                       className="result_column"
                       dataLabel={columnNames.result}
                     >
-                      {item.name}
+                      {item.isEdit ? (
+                        <TextInput
+                          validated={item.name_validated}
+                          value={item.name}
+                          type="text"
+                          onChange={(val) =>
+                            updateTblValue(val, "name", item.resource_id)
+                          }
+                          aria-label="saved run dataset name"
+                        />
+                      ) : (
+                        item.name
+                      )}
                     </Td>
                     <Td dataLabel={columnNames.endtime}>
                       {formatDateTime(item.metadata[DATASET_CREATED])}
@@ -145,6 +173,13 @@ const SavedRunsComponent = () => {
                         rowIndex,
                       }}
                     />
+                    <Td>
+                      <EditRow
+                        item={item}
+                        toggleEdit={toggleEdit}
+                        saveRowData={saveRowData}
+                      />
+                    </Td>
                     <Td isActionCell>
                       {rowActions ? <ActionsColumn items={rowActions} /> : null}
                     </Td>

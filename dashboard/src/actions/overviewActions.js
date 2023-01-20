@@ -7,6 +7,7 @@ import {
   DATASET_ACCESS,
   DATASET_CREATED,
   DATASET_NAME,
+  DATASET_NAME_LENGTH,
   DATASET_OWNER,
   EXPIRATION_DAYS_LIMIT,
   SERVER_DELETION,
@@ -255,36 +256,54 @@ export const setLoadingDoneFlag = () => async (dispatch, getState) => {
   }, DASHBOARD_LOAD_DELAY_MS);
 };
 
-export const editMetadata =
-  (value, metadata, rId) => async (dispatch, getState) => {
-    const data = getState().overview.initNewRuns;
+const filterDatasetType = (type) => (getState) => {
+  if (type === "newRuns") {
+    return getState().overview.initNewRuns;
+  }
+  return getState().overview.savedRuns;
+};
 
-    const rIndex = data.findIndex((item) => item.resource_id === rId);
-    data[rIndex][metadata] = value;
-    data[rIndex]["isDirty"] = true;
-    if (value.includes("L")) {
-      data[rIndex]["name_validated"] = "error";
-      data[rIndex]["name_errorMsg"] = "Length should be < 32";
-    } else {
-      data[rIndex]["name_validated"] = "success";
-    }
+const updateDatasetType = (data, type) => (dispatch) => {
+  if (type === "newRuns") {
     dispatch({
       type: TYPES.INIT_NEW_RUNS,
       payload: data,
     });
+  } else {
+    dispatch({
+      type: TYPES.SAVED_RUNS,
+      payload: data,
+    });
+  }
+};
+export const editMetadata =
+  (value, metadata, rId, type) => async (dispatch, getState) => {
+    const data = filterDatasetType(type)(getState);
+
+    const rIndex = data.findIndex((item) => item.resource_id === rId);
+    data[rIndex][metadata] = value;
+    data[rIndex]["isDirty"] = true;
+    if (value.length > DATASET_NAME_LENGTH) {
+      data[rIndex]["name_validated"] = "error";
+      data[rIndex][
+        "name_errorMsg"
+      ] = `Length should be < ${DATASET_NAME_LENGTH}`;
+    } else {
+      data[rIndex]["name_validated"] = "success";
+    }
+    dispatch(updateDatasetType(data, type));
   };
 
-export const setRowtoEdit = (rId, isEdit) => async (dispatch, getState) => {
-  const data = getState().overview.initNewRuns;
-  const rIndex = data.findIndex((item) => item.resource_id === rId);
-  data[rIndex].isEdit = isEdit;
+export const setRowtoEdit =
+  (rId, isEdit, type) => async (dispatch, getState) => {
+    const data = filterDatasetType(type)(getState);
 
-  if (!isEdit) {
-    data[rIndex].name = data[rIndex]["name_copy"];
-    data[rIndex]["isDirty"] = false;
-  }
-  dispatch({
-    type: TYPES.INIT_NEW_RUNS,
-    payload: data,
-  });
-};
+    const rIndex = data.findIndex((item) => item.resource_id === rId);
+    data[rIndex].isEdit = isEdit;
+
+    if (!isEdit) {
+      data[rIndex].name = data[rIndex]["name_copy"];
+      data[rIndex]["isDirty"] = false;
+    }
+    dispatch(updateDatasetType(data, type));
+  };
