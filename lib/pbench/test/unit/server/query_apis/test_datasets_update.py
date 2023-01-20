@@ -92,48 +92,6 @@ class TestDatasetsUpdate:
 
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
-    @pytest.mark.parametrize(
-        "owner",
-        ("drb", "test"),
-    )
-    def test_query_only_publish(
-        self,
-        attach_dataset,
-        build_auth_header,
-        client,
-        get_document_map,
-        monkeypatch,
-        owner,
-        server_config,
-    ):
-        """
-        Check behavior of the datasets_update API provided "access" params with
-        various combinations of dataset owner (managed by the "owner" parametrization
-        here) and authenticated user (managed by the build_auth_header fixture).
-        """
-        self.fake_elastic(monkeypatch, get_document_map, False)
-
-        is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
-        if not HeaderTypes.is_valid(build_auth_header["header_param"]):
-            expected_status = HTTPStatus.UNAUTHORIZED
-        elif owner != "drb" and not is_admin:
-            expected_status = HTTPStatus.FORBIDDEN
-        else:
-            expected_status = HTTPStatus.OK
-
-        ds = Dataset.query(name=owner)
-
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
-            headers=build_auth_header["header"],
-            query_string=self.PAYLOAD,
-        )
-        assert response.status_code == expected_status
-        if expected_status == HTTPStatus.OK:
-            assert response.json == {"ok": 31, "failure": 0}
-            dataset = Dataset.query(name=owner)
-            assert dataset.access == Dataset.PUBLIC_ACCESS
-
     def test_partial(
         self,
         attach_dataset,
@@ -243,6 +201,9 @@ class TestDatasetsUpdate:
             ("drb", "private"),
             ("test", "public"),
             ("test", "private"),
+            (None, "private"),
+            (None, "public"),
+            ("drb", None),
         ],
     )
     def test_query_owner_publish(
@@ -265,28 +226,38 @@ class TestDatasetsUpdate:
         """
         self.fake_elastic(monkeypatch, get_document_map, False)
 
+        query_json = {}
+        if access:
+            query_json["access"] = access
+        if owner:
+            query_json["owner"] = owner
+            assert_id = (
+                str(create_drb_user.id) if owner == "drb" else str(create_user.id)
+            )
+
         is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
         if not HeaderTypes.is_valid(build_auth_header["header_param"]):
             expected_status = HTTPStatus.UNAUTHORIZED
-        elif not is_admin:
+        elif not is_admin and owner:
             expected_status = HTTPStatus.FORBIDDEN
         else:
             expected_status = HTTPStatus.OK
 
-        ds = Dataset.query(name=owner)
-        assert_id = str(create_drb_user.id) if owner == "drb" else str(create_user.id)
+        ds = Dataset.query(name="drb")
         response = client.post(
             f"{server_config.rest_uri}/datasets/{ds.resource_id}",
             headers=build_auth_header["header"],
-            query_string={"owner": owner, "access": access},
+            query_string=query_json,
         )
 
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
             assert response.json == {"ok": 31, "failure": 0}
-            dataset = Dataset.query(name=owner)
-            assert dataset.access == access
-            assert dataset.owner_id == assert_id
+            dataset = Dataset.query(name="drb")
+            if access:
+                assert dataset.access == access
+            if owner:
+                assert dataset.owner_id == assert_id
 
     def test_invalid_owner_params(
         self,
