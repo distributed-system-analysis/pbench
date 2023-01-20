@@ -204,6 +204,8 @@ class TestDatasetsUpdate:
             (None, "private"),
             (None, "public"),
             ("drb", None),
+            ("test", None),
+            (None, None),
         ],
     )
     def test_query_owner_publish(
@@ -238,6 +240,8 @@ class TestDatasetsUpdate:
         is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
         if not HeaderTypes.is_valid(build_auth_header["header_param"]):
             expected_status = HTTPStatus.UNAUTHORIZED
+        elif not bool(query_json):
+            expected_status = HTTPStatus.BAD_REQUEST
         elif not is_admin and owner:
             expected_status = HTTPStatus.FORBIDDEN
         else:
@@ -295,8 +299,8 @@ class TestDatasetsUpdate:
         server_config,
     ):
         """
-        Check the datasets_update API response if the "owner" updation
-        requested by non-admin user.
+        Check the datasets_update API response if 'owner' update is requested
+        by a non-admin user
         """
 
         ds = Dataset.query(name="drb")
@@ -310,24 +314,3 @@ class TestDatasetsUpdate:
             response.json["message"]
             == "User drb is not authorized to UPDATE a server administrative resource"
         )
-
-    def test_no_query_params(
-        self,
-        client,
-        create_drb_user,
-        get_document_map,
-        monkeypatch,
-        pbench_token,
-        server_config,
-    ):
-        """
-        Check the datasets_update API response if the "owner" and "access" provided is valid.
-        """
-
-        ds = Dataset.query(name="drb")
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
-            headers={"authorization": f"Bearer {pbench_token}"},
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json["message"] == "Missing required parameters: access,owner"

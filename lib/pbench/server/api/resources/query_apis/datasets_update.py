@@ -126,6 +126,6 @@ class DatasetsUpdate(ElasticBulkBase):
                 dataset.access = access
             owner = context.get("owner")
             if owner:
-                attributes["owner"] = context["owner"]
-                dataset.owner_id = context["owner"]
+                attributes["owner"] = owner
+                dataset.owner_id = owner
             dataset.update()
