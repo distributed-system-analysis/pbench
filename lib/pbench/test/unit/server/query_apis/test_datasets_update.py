@@ -199,12 +199,12 @@ class TestDatasetsUpdate:
         [
             ("drb", "public"),
             ("drb", "private"),
+            ("drb", None),
             ("test", "public"),
             ("test", "private"),
-            (None, "private"),
-            (None, "public"),
-            ("drb", None),
             ("test", None),
+            (None, "public"),
+            (None, "private"),
             (None, None),
         ],
     )
@@ -227,7 +227,7 @@ class TestDatasetsUpdate:
         authenticated user (managed by the build_auth_header fixture).
         """
         self.fake_elastic(monkeypatch, get_document_map, False)
-
+        ds_name = "test"
         query_json = {}
         if access:
             query_json["access"] = access
@@ -240,14 +240,17 @@ class TestDatasetsUpdate:
         is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
         if not HeaderTypes.is_valid(build_auth_header["header_param"]):
             expected_status = HTTPStatus.UNAUTHORIZED
-        elif not bool(query_json):
+        elif not query_json:
             expected_status = HTTPStatus.BAD_REQUEST
-        elif not is_admin and owner:
+            ds_name = "drb"
+        elif (not is_admin and owner) or (
+            build_auth_header["header_param"] == HeaderTypes.VALID and owner == None
+        ):
             expected_status = HTTPStatus.FORBIDDEN
         else:
             expected_status = HTTPStatus.OK
 
-        ds = Dataset.query(name="drb")
+        ds = Dataset.query(name=ds_name)
         response = client.post(
             f"{server_config.rest_uri}/datasets/{ds.resource_id}",
             headers=build_auth_header["header"],
@@ -257,7 +260,7 @@ class TestDatasetsUpdate:
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
             assert response.json == {"ok": 31, "failure": 0}
-            dataset = Dataset.query(name="drb")
+            dataset = Dataset.query(name=ds_name)
             if access:
                 assert dataset.access == access
             if owner:
