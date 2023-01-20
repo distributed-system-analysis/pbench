@@ -76,7 +76,7 @@ class Sync:
             datasets_l = []
             for dataset in query.all():
                 op_val = Metadata.getvalue(dataset, Metadata.OPERATION)
-                if op_val and op_val[0] == operation.name:
+                if op_val and operation.name in op_val:
                     datasets_l.append(dataset)
             return datasets_l
         except Exception as e:
