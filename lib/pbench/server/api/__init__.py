@@ -1,17 +1,16 @@
-"""
-Pbench Server API module -
-Provides middleware for remote clients, either the associated Pbench
-Dashboard or any number of pbench agent users.
+"""Pbench Server API module
+
+Provides middleware for remote clients, either the associated Pbench Dashboard
+or any number of pbench agent users.
 """
 
 import os
-import sys
 
 from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 
-from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
+from pbench.common.exceptions import ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.datasets_daterange import DatasetsDateRange
@@ -44,7 +43,7 @@ from pbench.server.database import init_db
 from pbench.server.database.database import Database
 
 
-def register_endpoints(api, app, config):
+def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     """Register flask endpoints with the corresponding resource classes
     to make the APIs active."""
 
@@ -192,16 +191,15 @@ def get_server_config() -> PbenchServerConfig:
             f"{__name__}: ERROR: No config file specified; set" " _PBENCH_SERVER_CONFIG"
         )
 
-    try:
-        return PbenchServerConfig.create(cfg_name)
-    except BadConfig as e:
-        raise Exception(f"{__name__}: {e} (config file {cfg_name})").with_traceback(
-            e.__traceback__
-        )
+    return PbenchServerConfig.create(cfg_name)
 
 
-def create_app(server_config):
-    """Create Flask app with defined resource endpoints."""
+def create_app(server_config: PbenchServerConfig):
+    """Create Flask app with defined resource endpoints.
+
+    Returns:
+        A Flask application object on success
+    """
 
     app = Flask(__name__.split(".")[0])
     CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -219,7 +217,7 @@ def create_app(server_config):
         init_db(configuration=server_config, logger=app.logger)
     except Exception:
         app.logger.exception("Exception while initializing sqlalchemy database")
-        sys.exit(1)
+        raise
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):
