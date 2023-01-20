@@ -21,8 +21,9 @@ from pbench.server.database.models.datasets import Dataset
 
 class DatasetsUpdate(ElasticBulkBase):
     """
-    Change the owner and access of a Pbench dataset by modifying the "owner" and "access" in the Dataset
-    table and in each Elasticsearch document "authorization" sub-document associated with the dataset
+    Change the owner and access of a Pbench dataset by modifying the owner
+     and/or access in the Dataset table and in each Elasticsearch document
+    "authorization" sub-document associated with the dataset
 
     Called as `POST /api/v1/datasets/{resource_id}?access=public&owner=user`
     """
@@ -78,15 +79,11 @@ class DatasetsUpdate(ElasticBulkBase):
             raise MissingParameters(["access", "owner"])
         if access:
             context["access"] = es_doc["access"] = access
-            self.logger.info("Starting publish operation for dataset {}", dataset)
         if owner:
             authorized_user = Auth.token_auth.current_user()
             if not authorized_user.is_admin():
                 raise UnauthorizedAdminAccess(authorized_user, OperationCode.UPDATE)
             context["owner"] = es_doc["owner"] = owner
-            self.logger.info(
-                "Changing ownership for dataset {} to user ID {}", dataset, owner
-            )
 
         # Generate a series of bulk update documents, which will be passed to
         # the Elasticsearch bulk helper.

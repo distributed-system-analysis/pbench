@@ -107,9 +107,9 @@ class TestDatasetsUpdate:
         server_config,
     ):
         """
-        Check behavior of the datasets_update API provided "access" params with various combinations of dataset
-        owner (managed by the "owner" parametrization here) and authenticated
-        user (managed by the build_auth_header fixture).
+        Check behavior of the datasets_update API provided "access" params with
+        various combinations of dataset owner (managed by the "owner" parametrization
+        here) and authenticated user (managed by the build_auth_header fixture).
         """
         self.fake_elastic(monkeypatch, get_document_map, False)
 
@@ -237,24 +237,31 @@ class TestDatasetsUpdate:
         capinternal("Unexpected backend error", response)
 
     @pytest.mark.parametrize(
-        "owner",
-        ("drb", "test"),
+        "owner,access",
+        [
+            ("drb", "public"),
+            ("drb", "private"),
+            ("test", "public"),
+            ("test", "private"),
+        ],
     )
     def test_query_owner_publish(
         self,
+        access,
         attach_dataset,
         build_auth_header,
         client,
         create_drb_user,
+        create_user,
         get_document_map,
         monkeypatch,
         owner,
         server_config,
     ):
         """
-        Check behavior of the datasets_update API with various combinations of dataset access and
-        owner (managed by the "owner" parametrization here) and authenticated
-        user (managed by the build_auth_header fixture).
+        Check behavior of the datasets_update API with various combinations of dataset
+        access and owner (managed by the "owner" parametrization here) and
+        authenticated user (managed by the build_auth_header fixture).
         """
         self.fake_elastic(monkeypatch, get_document_map, False)
 
@@ -267,18 +274,18 @@ class TestDatasetsUpdate:
             expected_status = HTTPStatus.OK
 
         ds = Dataset.query(name=owner)
-        assert_id = str(create_drb_user.id)
+        assert_id = str(create_drb_user.id) if owner == "drb" else str(create_user.id)
         response = client.post(
             f"{server_config.rest_uri}/datasets/{ds.resource_id}",
             headers=build_auth_header["header"],
-            query_string={"owner": create_drb_user.username, "access": "public"},
+            query_string={"owner": owner, "access": access},
         )
 
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
             assert response.json == {"ok": 31, "failure": 0}
             dataset = Dataset.query(name=owner)
-            assert dataset.access == "public"
+            assert dataset.access == access
             assert dataset.owner_id == assert_id
 
     def test_invalid_owner_params(
