@@ -16,7 +16,6 @@ class Operation(Enum):
     BACKUP = auto()
     DELETE = auto()
     UNPACK = auto()
-    COPY_SOS = auto()
     INDEX = auto()
     INDEX_TOOL = auto()
     RE_INDEX = auto()
