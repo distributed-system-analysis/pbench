@@ -71,15 +71,16 @@ class PbenchServerConfig(PbenchConfig):
     # Set of required properties.
     REQ_PROPS = frozenset(
         (
-            "TOP",
-            "TMP",
-            "LOGSDIR",
-            "BINDIR",
-            "LIBDIR",
             "ARCHIVE",
+            "BINDIR",
             "INCOMING",
+            "LIBDIR",
+            "LOGSDIR",
             "RESULTS",
+            "TMP",
+            "TOP",
             "USERS",
+            "rest_uri",
         )
     )
 
