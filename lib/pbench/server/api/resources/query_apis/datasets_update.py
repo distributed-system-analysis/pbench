@@ -120,10 +120,12 @@ class DatasetsUpdate(ElasticBulkBase):
         auditing: dict[str, Any] = context["auditing"]
         attributes = auditing["attributes"]
         if summary["failure"] == 0:
-            if context.get("access"):
-                attributes["access"] = context["access"]
-                dataset.access = context["access"]
-            if context.get("owner"):
+            access = context.get("access")
+            if access:
+                attributes["access"] = access
+                dataset.access = access
+            owner = context.get("owner")
+            if owner:
                 attributes["owner"] = context["owner"]
                 dataset.owner_id = context["owner"]
             dataset.update()

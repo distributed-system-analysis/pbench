@@ -285,7 +285,7 @@ class TestDatasetsUpdate:
             == "Value 'invalid_owner' (str) cannot be parsed as a username"
         )
 
-    def test_notadmin_owner(
+    def test_non_admin_update_owner(
         self,
         client,
         create_drb_user,
@@ -295,7 +295,8 @@ class TestDatasetsUpdate:
         server_config,
     ):
         """
-        Check the datasets_update API response if the "owner" and "access" provided is valid.
+        Check the datasets_update API response if the "owner" updation
+        requested by non-admin user.
         """
 
         ds = Dataset.query(name="drb")
