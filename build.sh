@@ -30,6 +30,7 @@ black --check .
 flake8 .
 isort --check .
 ( cd dashboard && npx eslint --max-warnings 0 "src/**" )
+EXTRA_PODMAN_SWITCHES="--network host" jenkins/run tox -e alembic-check
 set +x
 
 # Run unit tests
