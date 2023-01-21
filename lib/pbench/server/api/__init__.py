@@ -6,9 +6,8 @@ or any number of pbench agent users.
 
 import os
 
-from flask import Flask
 from flask_cors import CORS
-from flask_restful import Api
+from flask_restful import Api, Flask
 
 from pbench.common.exceptions import ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger

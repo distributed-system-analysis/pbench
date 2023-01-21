@@ -1,8 +1,7 @@
 from typing import Optional
 
-from flask import Flask
 from flask.wrappers import Request, Response
-from flask_restful import Api
+from flask_restful import Api, Flask
 
 from pbench.server import JSONOBJECT, OperationCode
 from pbench.server.api.resources import (
