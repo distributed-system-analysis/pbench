@@ -84,11 +84,11 @@ class TestSync:
         drb = Dataset.query(name="drb")
         sync = Sync(make_logger, "test")
         Metadata.setvalue(drb, Metadata.OPERATION, ["UNPACK"])
-        sync.update(drb, enabled=[Operation.BACKUP, Operation.COPY_SOS])
+        sync.update(drb, enabled=[Operation.BACKUP, Operation.INDEX])
         assert Metadata.getvalue(drb, "server.status.test") is None
         assert Metadata.getvalue(drb, Metadata.OPERATION) == [
             "BACKUP",
-            "COPY_SOS",
+            "INDEX",
             "UNPACK",
         ]
 
@@ -99,11 +99,11 @@ class TestSync:
         drb = Dataset.query(name="drb")
         sync = Sync(make_logger, "test")
         Metadata.setvalue(drb, Metadata.OPERATION, ["UNPACK"])
-        sync.update(drb, enabled=[Operation.BACKUP, Operation.COPY_SOS], status="bad")
+        sync.update(drb, enabled=[Operation.BACKUP, Operation.INDEX], status="bad")
         assert Metadata.getvalue(drb, "server.status.test") == "bad"
         assert Metadata.getvalue(drb, Metadata.OPERATION) == [
             "BACKUP",
-            "COPY_SOS",
+            "INDEX",
             "UNPACK",
         ]
 
@@ -115,13 +115,13 @@ class TestSync:
         sync = Sync(make_logger, "test")
         Metadata.setvalue(drb, Metadata.OPERATION, ["INDEX", "UNPACK"])
         sync.update(
-            drb, did=Operation.UNPACK, enabled=[Operation.BACKUP, Operation.COPY_SOS]
+            drb, did=Operation.UNPACK, enabled=[Operation.BACKUP, Operation.INDEX_TOOL]
         )
         assert Metadata.getvalue(drb, "server.status.test") == "ok"
         assert Metadata.getvalue(drb, Metadata.OPERATION) == [
             "BACKUP",
-            "COPY_SOS",
             "INDEX",
+            "INDEX_TOOL",
         ]
 
     def test_update_did_enable_status(self, make_logger, more_datasets):
@@ -132,7 +132,19 @@ class TestSync:
         sync = Sync(make_logger, "test")
         Metadata.setvalue(drb, Metadata.OPERATION, ["UNPACK"])
         sync.update(
-            drb, did=Operation.UNPACK, enabled=[Operation.COPY_SOS], status="plugh"
+            drb, did=Operation.UNPACK, enabled=[Operation.INDEX], status="plugh"
         )
         assert Metadata.getvalue(drb, "server.status.test") == "plugh"
-        assert Metadata.getvalue(drb, Metadata.OPERATION) == ["COPY_SOS"]
+        assert Metadata.getvalue(drb, Metadata.OPERATION) == ["INDEX"]
+
+    def test_tool_sequence(self, make_logger, more_datasets):
+        """Test sync update with INDEX and INDEX_TOOL does not find the data
+        again.
+        """
+        drb = Dataset.query(name="drb")
+        sync = Sync(make_logger, "test")
+        Metadata.setvalue(drb, Metadata.OPERATION, ["INDEX"])
+        sync.update(drb, did=Operation.INDEX, enabled=[Operation.INDEX_TOOL])
+        assert Metadata.getvalue(drb, Metadata.OPERATION) == ["INDEX_TOOL"]
+        dataset_l = sync.next(Operation.INDEX)
+        assert len(dataset_l) == 0, f"{dataset_l!r}"

@@ -16,7 +16,6 @@ class Operation(Enum):
     BACKUP = auto()
     DELETE = auto()
     UNPACK = auto()
-    COPY_SOS = auto()
     INDEX = auto()
     INDEX_TOOL = auto()
     RE_INDEX = auto()
@@ -74,7 +73,12 @@ class Sync:
             if self.logger.isEnabledFor(DEBUG):
                 q_str = query.statement.compile(compile_kwargs={"literal_binds": True})
                 self.logger.debug("QUERY {}", q_str)
-            return list(query.all())
+            datasets_l = []
+            for dataset in query.all():
+                op_val = Metadata.getvalue(dataset, Metadata.OPERATION)
+                if op_val and operation.name in op_val:
+                    datasets_l.append(dataset)
+            return datasets_l
         except Exception as e:
             self.logger.exception("Failed to query for {}", operation)
             raise SyncSqlError("next") from e
