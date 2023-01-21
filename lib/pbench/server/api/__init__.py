@@ -45,7 +45,13 @@ from pbench.server.database.database import Database
 
 def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     """Register flask endpoints with the corresponding resource classes
-    to make the APIs active."""
+    to make the APIs active.
+
+    Args:
+        api : the Flask Api object with which to register the end points
+        app : the Flask application in use
+        config : the Pbench server configuration object in use
+    """
 
     base_uri = config.rest_uri
     logger = app.logger
@@ -185,10 +191,22 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
 
 
 def get_server_config() -> PbenchServerConfig:
+    """Get a pbench server configuration object
+
+    The file to use for the configuration is specifed by the environment
+    variable, `_PBENCH_SERVER_CONFIG`.
+
+    Raises:
+        ConfigFileNotSpecified : when no value is given for the environment
+            variable
+
+    Returns:
+        A PbenchServerConfig object
+    """
     cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG")
     if not cfg_name:
         raise ConfigFileNotSpecified(
-            f"{__name__}: ERROR: No config file specified; set" " _PBENCH_SERVER_CONFIG"
+            f"{__name__}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG"
         )
 
     return PbenchServerConfig.create(cfg_name)
@@ -196,6 +214,9 @@ def get_server_config() -> PbenchServerConfig:
 
 def create_app(server_config: PbenchServerConfig) -> Flask:
     """Create Flask app with defined resource endpoints.
+
+    Args:
+        server_config: A pbench server configuration object
 
     Returns:
         A Flask application object on success
