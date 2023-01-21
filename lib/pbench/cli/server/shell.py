@@ -6,7 +6,7 @@ import site
 import subprocess
 import sys
 
-from flask_restful import Flask
+from flask import Flask
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
