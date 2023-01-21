@@ -194,7 +194,7 @@ def get_server_config() -> PbenchServerConfig:
     return PbenchServerConfig.create(cfg_name)
 
 
-def create_app(server_config: PbenchServerConfig):
+def create_app(server_config: PbenchServerConfig) -> Flask:
     """Create Flask app with defined resource endpoints.
 
     Returns:
