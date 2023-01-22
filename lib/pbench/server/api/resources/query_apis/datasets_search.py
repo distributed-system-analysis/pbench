@@ -1,7 +1,6 @@
 from http import HTTPStatus
-from logging import Logger
 
-from flask import jsonify
+from flask import current_app, jsonify
 
 from pbench.server import JSON, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -26,10 +25,9 @@ class DatasetsSearch(ElasticBase):
     applying client specified search term within specified start and end time.
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.POST,
                 OperationCode.READ,
@@ -93,7 +91,7 @@ class DatasetsSearch(ElasticBase):
         start_arg = UtcTimeHelper(start).to_iso_string()
         end_arg = UtcTimeHelper(end).to_iso_string()
 
-        self.logger.info(
+        current_app.logger.info(
             "Search query for user {}, prefix {}: ({} - {}) on query: {}",
             user,
             self.prefix,
@@ -103,7 +101,7 @@ class DatasetsSearch(ElasticBase):
         )
 
         uri_fragment = self._gen_month_range("run", start, end)
-        self.logger.info("fragment, {}", uri_fragment)
+        current_app.logger.info("fragment, {}", uri_fragment)
         return {
             "path": f"/{uri_fragment}/_search",
             "kwargs": {
@@ -152,7 +150,7 @@ class DatasetsSearch(ElasticBase):
         try:
             count = es_json["hits"]["total"]["value"]
             if int(count) == 0:
-                self.logger.info("No data returned by Elasticsearch")
+                current_app.logger.info("No data returned by Elasticsearch")
                 return jsonify([])
         except KeyError as e:
             raise PostprocessError(

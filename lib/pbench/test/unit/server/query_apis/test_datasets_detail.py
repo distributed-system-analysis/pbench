@@ -22,7 +22,7 @@ class TestDatasetsDetail(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=DatasetsDetail(client.config, client.logger),
+            cls_obj=DatasetsDetail(client.config),
             pbench_endpoint="/datasets/detail/random_md5_string1",
             elastic_endpoint="/_search?ignore_unavailable=true",
             index_from_metadata="run-data",

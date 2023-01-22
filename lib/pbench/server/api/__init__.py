@@ -7,7 +7,7 @@ Dashboard or any number of pbench agent users.
 import os
 import sys
 
-from flask import Flask
+from flask import current_app, Flask
 from flask_cors import CORS
 from flask_restful import Api
 
@@ -49,57 +49,56 @@ def register_endpoints(api, app, config):
     to make the APIs active."""
 
     base_uri = config.rest_uri
-    logger = app.logger
 
     # Init the the authentication module
     token_auth = Auth()
-    Auth.set_logger(logger)
+    Auth.set_logger(current_app.logger)
     Auth.set_oidc_client(server_config=config)
 
-    logger.info("Registering service endpoints with base URI {}", base_uri)
+    app.logger.info("Registering service endpoints with base URI {}", base_uri)
 
     api.add_resource(
         DatasetsContents,
         f"{base_uri}/datasets/contents/<string:dataset>/",
         f"{base_uri}/datasets/contents/<string:dataset>/<path:target>",
         endpoint="datasets_contents",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsDateRange,
         f"{base_uri}/datasets/daterange",
         endpoint="datasets_daterange",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsDelete,
         f"{base_uri}/datasets/delete/<string:dataset>",
         endpoint="datasets_delete",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsDetail,
         f"{base_uri}/datasets/detail/<string:dataset>",
         endpoint="datasets_detail",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsList,
         f"{base_uri}/datasets/list",
         endpoint="datasets_list",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsMappings,
         f"{base_uri}/datasets/mappings/<string:dataset_view>",
         endpoint="datasets_mappings",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsMetadata,
         f"{base_uri}/datasets/metadata/<string:dataset>",
         endpoint="datasets_metadata",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsInventory,
@@ -107,61 +106,61 @@ def register_endpoints(api, app, config):
         f"{base_uri}/datasets/inventory/<string:dataset>/",
         f"{base_uri}/datasets/inventory/<string:dataset>/<path:target>",
         endpoint="datasets_inventory",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         SampleNamespace,
         f"{base_uri}/datasets/namespace/<string:dataset>/<string:dataset_view>",
         endpoint="datasets_namespace",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         SampleValues,
         f"{base_uri}/datasets/values/<string:dataset>/<string:dataset_view>",
         endpoint="datasets_values",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsPublish,
         f"{base_uri}/datasets/publish/<string:dataset>",
         endpoint="datasets_publish",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsSearch,
         f"{base_uri}/datasets/search",
         endpoint="datasets_search",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         EndpointConfig,
         f"{base_uri}/endpoints",
         endpoint="endpoints",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         Login,
         f"{base_uri}/login",
         endpoint="login",
-        resource_class_args=(config, logger, token_auth),
+        resource_class_args=(config, token_auth),
     )
     api.add_resource(
         Logout,
         f"{base_uri}/logout",
         endpoint="logout",
-        resource_class_args=(config, logger, token_auth),
+        resource_class_args=(config, token_auth),
     )
     api.add_resource(
         RegisterUser,
         f"{base_uri}/register",
         endpoint="register",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         ServerAudit,
         f"{base_uri}/server/audit",
         endpoint="server_audit",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         ServerConfiguration,
@@ -169,19 +168,19 @@ def register_endpoints(api, app, config):
         f"{base_uri}/server/configuration/",
         f"{base_uri}/server/configuration/<string:key>",
         endpoint="server_configuration",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
     api.add_resource(
         UserAPI,
         f"{base_uri}/user/<string:target_username>",
         endpoint="user",
-        resource_class_args=(logger, token_auth),
+        resource_class_args=(token_auth,),
     )
     api.add_resource(
         Upload,
         f"{base_uri}/upload/<string:filename>",
         endpoint="upload",
-        resource_class_args=(config, logger),
+        resource_class_args=(config,),
     )
 
 
@@ -213,7 +212,8 @@ def create_app(server_config):
 
     api = Api(app)
 
-    register_endpoints(api, app, server_config)
+    with app.app_context():
+        register_endpoints(api, app, server_config)
 
     try:
         init_db(configuration=server_config, logger=app.logger)

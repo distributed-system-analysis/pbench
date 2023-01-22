@@ -2,12 +2,11 @@ import datetime
 import errno
 import hashlib
 from http import HTTPStatus
-from logging import Logger
 import os
 import shutil
 from typing import Optional
 
-from flask import jsonify
+from flask import current_app, jsonify
 from flask.wrappers import Request, Response
 import humanize
 
@@ -72,10 +71,9 @@ class Upload(ApiBase):
 
     CHUNK_SIZE = 65536
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.PUT,
                 OperationCode.CREATE,
@@ -89,7 +87,9 @@ class Upload(ApiBase):
         self.max_content_length = config.rest_max_content_length
         self.temporary = config.ARCHIVE / CacheManager.TEMPORARY
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
-        self.logger.info("Configured PUT temporary directory as {}", self.temporary)
+        current_app.logger.info(
+            "Configured PUT temporary directory as {}", self.temporary
+        )
 
     def _put(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
         """Upload a dataset to the server.
@@ -128,7 +128,7 @@ class Upload(ApiBase):
 
         # Used to record what steps have been completed during the upload, and
         # need to be undone on failure
-        recovery = Cleanup(self.logger)
+        recovery = Cleanup(current_app.logger)
         audit: Optional[Audit] = None
         username: Optional[str] = None
         controller: Optional[str] = None
@@ -137,7 +137,7 @@ class Upload(ApiBase):
         )
         filename = args.uri["filename"]
 
-        self.logger.info("Uploading {} with {} access", filename, access)
+        current_app.logger.info("Uploading {} with {} access", filename, access)
 
         try:
             try:
@@ -157,7 +157,9 @@ class Upload(ApiBase):
             if validate_hostname(controller) != 0:
                 raise CleanupTime(HTTPStatus.BAD_REQUEST, "Invalid 'controller' header")
 
-            self.logger.info("Uploading {} on controller {}", filename, controller)
+            current_app.logger.info(
+                "Uploading {} on controller {}", filename, controller
+            )
 
             if os.path.basename(filename) != filename:
                 raise CleanupTime(
@@ -220,14 +222,14 @@ class Upload(ApiBase):
 
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
-            self.logger.info(
+            current_app.logger.info(
                 "{} UPLOAD (pre): {}% full, {} bytes remaining",
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
                 usage.free,
             )
 
-            self.logger.info(
+            current_app.logger.info(
                 "PUT uploading {}:{} for user_id {} (username: {}) to {}",
                 controller,
                 filename,
@@ -246,7 +248,7 @@ class Upload(ApiBase):
                 )
                 dataset.add()
             except DatasetDuplicate:
-                self.logger.info(
+                current_app.logger.info(
                     "Dataset already exists, user = (user_id: {}, username: {}), file = {!a}",
                     user_id,
                     username,
@@ -255,7 +257,7 @@ class Upload(ApiBase):
                 try:
                     Dataset.query(resource_id=md5sum)
                 except DatasetNotFound:
-                    self.logger.error(
+                    current_app.logger.error(
                         "Duplicate dataset {} for user = (user_id: {}, username: {}) not found",
                         dataset_name,
                         user_id,
@@ -286,7 +288,7 @@ class Upload(ApiBase):
             )
             recovery.add(dataset.delete)
 
-            self.logger.info(
+            current_app.logger.info(
                 "Uploading file {!a} (user = (user_id: {}, username: {}), ctrl = {!a}) to {}",
                 filename,
                 user_id,
@@ -341,7 +343,9 @@ class Upload(ApiBase):
                     )
 
                 # First write the .md5
-                self.logger.info("Creating MD5 file {}: {}", md5_full_path, md5sum)
+                current_app.logger.info(
+                    "Creating MD5 file {}: {}", md5_full_path, md5sum
+                )
 
                 # From this point attempt to remove the MD5 file on error exit
                 recovery.add(md5_full_path.unlink)
@@ -355,7 +359,7 @@ class Upload(ApiBase):
 
             # Create a cache manager object
             try:
-                cache_m = CacheManager(self.config, self.logger)
+                cache_m = CacheManager(self.config, current_app.logger)
             except Exception:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to map the cache manager"
@@ -371,7 +375,7 @@ class Upload(ApiBase):
                 )
 
             usage = shutil.disk_usage(tar_full_path.parent)
-            self.logger.info(
+            current_app.logger.info(
                 "{} UPLOAD (post): {}% full, {} bytes remaining",
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
@@ -448,7 +452,7 @@ class Upload(ApiBase):
             # and state change.
             try:
                 dataset.advance(States.UPLOADED)
-                Sync(self.logger, "upload").update(
+                Sync(current_app.logger, "upload").update(
                     dataset=dataset,
                     enabled=[Operation.BACKUP, Operation.UNPACK],
                     status="ok",
