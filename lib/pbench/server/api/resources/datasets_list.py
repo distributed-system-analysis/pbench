@@ -2,6 +2,7 @@ import logging
 from typing import Dict, List, Tuple
 from urllib.parse import urlencode, urlparse
 
+from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 from sqlalchemy.orm import Query
@@ -33,10 +34,9 @@ def urlencode_json(json: JSON) -> str:
 class DatasetsList(ApiBase):
     """API class to list datasets based on database metadata."""
 
-    def __init__(self, config: PbenchServerConfig, logger: logging.Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,
@@ -143,8 +143,8 @@ class DatasetsList(ApiBase):
 
         # Useful for debugging, but verbose: this displays the fully expanded
         # SQL `SELECT` statement.
-        if self.logger.isEnabledFor(logging.DEBUG):
-            self.logger.debug(
+        if current_app.logger.isEnabledFor(logging.DEBUG):
+            current_app.logger.debug(
                 "QUERY {}",
                 query.statement.compile(compile_kwargs={"literal_binds": True}),
             )
@@ -166,7 +166,7 @@ class DatasetsList(ApiBase):
             try:
                 d["metadata"] = self._get_dataset_metadata(dataset, keys)
             except MetadataError as e:
-                self.logger.warning(
+                current_app.logger.warning(
                     "Error getting metadata {} for dataset {}: {}", keys, dataset, e
                 )
             response.append(d)

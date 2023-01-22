@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from logging import Logger
+
+from flask import current_app
 
 from pbench.server import JSON, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -26,10 +27,9 @@ class SampleNamespace(IndexMapBase):
     selecting for certain fields or certain values within those fields.
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,
@@ -67,7 +67,7 @@ class SampleNamespace(IndexMapBase):
 
         document_index = document["index"]
 
-        self.logger.info(
+        current_app.logger.info(
             "Return {} namespace for dataset {}, prefix {}",
             document_index,
             dataset,
@@ -181,10 +181,9 @@ class SampleValues(IndexMapBase):
     DOCUMENT_SIZE = 10000  # Number of documents to return in one page
     SCROLL_EXPIRY = "1m"  # Scroll id expires in 1 minute
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.POST,
                 OperationCode.READ,
@@ -250,7 +249,7 @@ class SampleValues(IndexMapBase):
 
         document_index = document["index"]
 
-        self.logger.info(
+        current_app.logger.info(
             "Return {} rows {} for dataset {}, prefix {}",
             document_index,
             "next page " if scroll_id else "",
@@ -343,7 +342,7 @@ class SampleValues(IndexMapBase):
         try:
             count = int(es_json["hits"]["total"]["value"])
             if count == 0:
-                self.logger.info("No data returned by Elasticsearch")
+                current_app.logger.info("No data returned by Elasticsearch")
                 return {}
 
             results = [hit["_source"] for hit in es_json["hits"]["hits"]]

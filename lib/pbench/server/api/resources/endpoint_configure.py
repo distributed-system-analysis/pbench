@@ -1,12 +1,10 @@
 from configparser import NoOptionError, NoSectionError
 from http import HTTPStatus
-from logging import Logger
 import re
 from typing import Any, Dict
 from urllib.parse import urljoin
 
-from flask import jsonify, request
-from flask.globals import current_app
+from flask import current_app, jsonify, request
 from flask_restful import abort, Resource
 
 from pbench.server import PbenchServerConfig
@@ -22,13 +20,12 @@ class EndpointConfig(Resource):
     x_forward_pattern = re.compile(r"\s*(?P<host>[^;\s,]+)")
     param_template = re.compile(r"/<(?P<type>[^:]+):(?P<name>\w+)>")
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         """
         __init__ Construct the API resource
 
         Args:
             config: server config values
-            logger: message logging
 
         Report the server configuration to a web client. By default, the Pbench
         server ansible script sets up a local Apache reverse proxy routing
@@ -46,7 +43,6 @@ class EndpointConfig(Resource):
         proxying was set up for the original endpoints query: e.g., the
         Javascript `window.origin` from which the Pbench dashboard was loaded.
         """
-        self.logger = logger
         self.server_config = config
 
     def get(self):
@@ -105,7 +101,7 @@ class EndpointConfig(Resource):
 
             template.replace('{target_username}', 'value')
         """
-        self.logger.debug(
+        current_app.logger.debug(
             "Received headers: {!r}, access_route {!r}, base_url {!r}, host {!r}, host_url {!r}",
             request.headers,
             request.access_route,
@@ -134,7 +130,7 @@ class EndpointConfig(Resource):
         if not origin:
             origin = host_value
         host = f"http://{origin}"
-        self.logger.info(
+        current_app.logger.info(
             "Advertising endpoints at {} relative to {} ({})",
             host,
             host_source,
@@ -199,7 +195,9 @@ class EndpointConfig(Resource):
         try:
             response = jsonify(endpoints)
         except Exception:
-            self.logger.exception("Something went wrong constructing the endpoint info")
+            current_app.logger.exception(
+                "Something went wrong constructing the endpoint info"
+            )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         else:
             response.status_code = HTTPStatus.OK

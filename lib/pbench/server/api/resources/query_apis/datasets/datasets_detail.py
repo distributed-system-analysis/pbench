@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from logging import Logger
 
 from flask import jsonify
 
@@ -29,10 +28,9 @@ class DatasetsDetail(IndexMapBase):
     Get detailed data from the run document for a dataset by name.
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,

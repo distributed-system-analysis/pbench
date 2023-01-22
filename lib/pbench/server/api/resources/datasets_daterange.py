@@ -1,5 +1,3 @@
-from logging import Logger
-
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 from sqlalchemy import func
@@ -25,10 +23,9 @@ class DatasetsDateRange(ApiBase):
     API class to retrieve the available date range of accessible datasets.
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,

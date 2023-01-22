@@ -1,6 +1,6 @@
 from http import HTTPStatus
-from logging import Logger
 
+from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
 
@@ -31,10 +31,9 @@ class ServerConfiguration(ApiBase):
     API class to retrieve and mutate server configuration settings.
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger):
+    def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
-            logger,
             ApiSchema(
                 ApiMethod.PUT,
                 OperationCode.UPDATE,
@@ -200,7 +199,7 @@ class ServerConfiguration(ApiBase):
             except ServerConfigBadValue as e:
                 failures.append(str(e))
             except Exception as e:
-                self.logger.warning("{}", e)
+                current_app.logger.warning("{}", e)
                 raise APIInternalError(f"Error setting server configuration {k}")
         if failures:
             raise APIAbort(HTTPStatus.BAD_REQUEST, message=", ".join(failures))

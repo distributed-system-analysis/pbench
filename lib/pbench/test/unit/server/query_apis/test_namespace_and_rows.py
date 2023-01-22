@@ -22,7 +22,7 @@ class TestSampleNamespace(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=SampleNamespace(client.config, client.logger),
+            cls_obj=SampleNamespace(client.config),
             pbench_endpoint="/datasets/namespace/random_md5_string1/iterations",
             elastic_endpoint="/_search",
             index_from_metadata="result-data-sample",
@@ -404,7 +404,7 @@ class TestSampleValues(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=SampleValues(client.config, client.logger),
+            cls_obj=SampleValues(client.config),
             pbench_endpoint="/datasets/values/random_md5_string1/iterations",
             elastic_endpoint="/_search",
             payload={},

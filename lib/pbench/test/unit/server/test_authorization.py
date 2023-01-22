@@ -28,9 +28,7 @@ class TestAuthorization:
 
     @pytest.fixture()
     def apibase(self, client) -> ApiBase:
-        return ApiBase(
-            client.config, client.logger, ApiSchema(ApiMethod.GET, OperationCode.READ)
-        )
+        return ApiBase(client.config, ApiSchema(ApiMethod.GET, OperationCode.READ))
 
     @pytest.fixture()
     def current_user_admin(self, monkeypatch):

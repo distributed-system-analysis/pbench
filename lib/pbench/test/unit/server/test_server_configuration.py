@@ -1,5 +1,4 @@
 from http import HTTPStatus
-import logging
 
 import pytest
 import requests
@@ -91,7 +90,7 @@ class TestServerConfiguration:
         handling of a condition that ought to be impossible through Flask
         routing.
         """
-        put = ServerConfiguration(server_config, logging.getLogger("test"))
+        put = ServerConfiguration(server_config)
         with pytest.raises(APIAbort, match="Missing parameter 'key'"):
             put._put_key(ApiParams(uri={"plugh": "xyzzy", "foo": "bar"}), context=None)
 

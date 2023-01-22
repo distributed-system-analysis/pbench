@@ -18,7 +18,7 @@ class TestDatasetSummary(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=DatasetsSearch(client.config, client.logger),
+            cls_obj=DatasetsSearch(client.config),
             pbench_endpoint="/datasets/search",
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
