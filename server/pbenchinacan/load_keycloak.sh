@@ -25,7 +25,7 @@ ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 REALM=${KEYCLOAK_REALM:-"pbench"}
 CLIENT=${KEYCLOAK_CLIENT:-"pbench-server"}
-KEYCLOAK_IMAGE_TAG=${KEYCLOAK_IMAGE_TAG:-"test3"}
+KEYCLOAK_IMAGE_TAG=${KEYCLOAK_IMAGE_TAG:-"latest"}
 
 container_name="mykeycloak"
 podman run -d --rm --name ${container_name} -p 8090:8090 \
@@ -146,7 +146,20 @@ curl -i -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/ro
   -H "Content-Type: application/json" \
   -d '[{"id":"'${ROLE_ID}'","name":"ADMIN"}]'
 
-sleep 5
+# Verify that the user id has a role assigned to it
+USER_ROLES=$(curl -s "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
+  -H "Authorization: Bearer ${ADMIN_TOKEN}" \
+  -H "Content-Type: application/json" | jq -r '.[].name')
+
+if [[ ${USER_ROLES} == *"ADMIN"* ]]; then
+  echo "The Keycloak configuration is complete."
+else
+  echo "Could not assign client role the user."
+  exit 1
+fi
+# Wait for couple of seconds before we pause and commit the configured container,
+# to make sure all the configurations are properly in place.
+sleep 2
 
 podman pause ${container_name}
 podman commit ${container_name} images.paas.redhat.com/pbench/pbenchinacan-keycloak:${KEYCLOAK_IMAGE_TAG}
