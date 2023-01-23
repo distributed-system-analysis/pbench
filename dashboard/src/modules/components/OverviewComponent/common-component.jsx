@@ -1,6 +1,6 @@
 import "./index.less";
 
-import { ActionsColumn, Td, Tr } from "@patternfly/react-table";
+import { ActionsColumn, Td } from "@patternfly/react-table";
 import {
   Button,
   Dropdown,
