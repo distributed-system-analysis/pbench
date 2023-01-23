@@ -71,6 +71,8 @@ const initializeRuns = () => (dispatch, getState) => {
     item["name_copy"] = item.name;
     item["isDirty"] = false;
     item["name_validated"] = "default";
+    item["isItemSeen"] = !!item?.metadata?.[DASHBOARD_SEEN];
+    item["isItemFavorited"] = !!item?.metadata?.[USER_FAVORITE];
   });
   const defaultPerPage = getState().overview.defaultPerPage;
 

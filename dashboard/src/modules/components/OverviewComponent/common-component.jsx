@@ -1,5 +1,6 @@
 import "./index.less";
 
+import { ActionsColumn, Td, Tr } from "@patternfly/react-table";
 import {
   Button,
   Dropdown,
@@ -8,6 +9,7 @@ import {
   Pagination,
   Text,
   TextContent,
+  TextInput,
   TextVariants,
 } from "@patternfly/react-core";
 import {
@@ -17,12 +19,17 @@ import {
   RedoIcon,
   TimesIcon,
 } from "@patternfly/react-icons";
+import {
+  DATASET_ACCESS,
+  DATASET_CREATED,
+  EXPIRATION_DAYS_LIMIT,
+  SERVER_DELETION,
+} from "assets/constants/overviewConstants";
 import React, { useState } from "react";
 import { getDatasets, updateMultipleDataset } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import { EXPIRATION_DAYS_LIMIT } from "assets/constants/overviewConstants";
-import { TextInput } from "@patternfly/react-core";
+import { formatDateTime } from "utils/dateFunctions";
 
 export const Heading = (props) => {
   return (
@@ -208,5 +215,120 @@ export const DatasetNameInput = (props) => {
       onChange={props.onChange}
       aria-label="Edit Dataset name"
     />
+  );
+};
+
+export const NewRunsRow = (props) => {
+  const { item, rowIndex, columnNames, isRunExpanded, setRunExpanded } = props;
+
+  return (
+    <>
+      <Td
+        expand={
+          item.metadata
+            ? {
+                rowIndex,
+                isExpanded: isRunExpanded(item),
+                onToggle: () => setRunExpanded(item, !isRunExpanded(item)),
+                expandId: "new-runs-table",
+              }
+            : undefined
+        }
+      />
+      <Td
+        select={{
+          rowIndex,
+          onSelect: (_event, isSelecting) =>
+            props.onSelectRuns(item, rowIndex, isSelecting),
+          isSelected: props.isRowSelected(item),
+        }}
+      />
+      <Td dataLabel={columnNames.result}>
+        {item.isEdit ? (
+          <DatasetNameInput
+            validated={item.name_validated}
+            value={item.name}
+            type="text"
+            onChange={props.textInputEdit}
+          />
+        ) : (
+          item.name
+        )}
+      </Td>
+      <Td dataLabel={columnNames.endtime}>
+        {formatDateTime(item.metadata[SERVER_DELETION])}
+      </Td>
+      <Td
+        favorites={{
+          isFavorited: item.isItemFavorited,
+          onFavorite: (_event, isFavoriting) =>
+            props.makeFavorites(item, isFavoriting),
+          rowIndex,
+        }}
+      />
+      <Td>
+        <EditRow
+          item={item}
+          toggleEdit={props.toggleEdit}
+          saveRowData={props.saveRowData}
+        />
+      </Td>
+      <Td isActionCell>
+        {props.rowActions ? <ActionsColumn items={props.rowActions} /> : null}
+      </Td>
+    </>
+  );
+};
+
+export const SavedRunsRow = (props) => {
+  const { item, rowIndex, columnNames, rowActions } = props;
+  return (
+    <>
+      <Td
+        select={{
+          rowIndex,
+          onSelect: (_event, isSelecting) =>
+            props.onSelectRuns(item, rowIndex, isSelecting),
+          isSelected: props.isRowSelected(item),
+        }}
+      />
+      <Td className="result_column" dataLabel={columnNames.result}>
+        {item.isEdit ? (
+          <DatasetNameInput
+            validated={item.name_validated}
+            value={item.name}
+            type="text"
+            onChange={props.textInputEdit}
+          />
+        ) : (
+          item.name
+        )}
+      </Td>
+      <Td dataLabel={columnNames.endtime}>
+        {formatDateTime(item.metadata[DATASET_CREATED])}
+      </Td>
+      <Td dataLabel={columnNames.scheduled}>
+        {formatDateTime(item.metadata[SERVER_DELETION])}
+      </Td>
+      <Td className="access">{item.metadata[DATASET_ACCESS]}</Td>
+      <Td
+        favorites={{
+          isFavorited: item.isItemFavorited,
+          onFavorite: (_event, isFavoriting) =>
+            props.makeFavorites(item, isFavoriting),
+          rowIndex,
+        }}
+      />
+      <Td>
+        <EditRow
+          item={item}
+          toggleEdit={props.toggleEdit}
+          saveRowData={props.saveRowData}
+        />
+      </Td>
+      <Td isActionCell>
+        {rowActions ? <ActionsColumn items={rowActions} /> : null}
+      </Td>
+    </>
   );
 };

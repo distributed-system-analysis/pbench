@@ -1,23 +1,18 @@
 import "./index.less";
 
 import {
-  ActionsColumn,
+  DASHBOARD_SEEN,
+  DATASET_ACCESS,
+} from "assets/constants/overviewConstants";
+import {
   InnerScrollContainer,
   OuterScrollContainer,
   TableComposable,
   Tbody,
-  Td,
   Th,
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import {
-  DASHBOARD_SEEN,
-  DATASET_ACCESS,
-  DATASET_CREATED,
-  SERVER_DELETION,
-  USER_FAVORITE,
-} from "assets/constants/overviewConstants";
 import React, { useCallback } from "react";
 import {
   deleteDataset,
@@ -29,9 +24,7 @@ import {
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import { EditRow } from "./common-component";
-import { TextInput } from "@patternfly/react-core";
-import { formatDateTime } from "utils/dateFunctions";
+import { SavedRunsRow } from "./common-component";
 
 const SavedRunsComponent = () => {
   const dispatch = useDispatch();
@@ -122,71 +115,32 @@ const SavedRunsComponent = () => {
                 <Th></Th>
               </Tr>
             </Thead>
-            {savedRuns.map((item, rowIndex) => {
-              const rowActions = moreActionItems(item);
-              const isItemFavorited = !!item?.metadata?.[USER_FAVORITE];
-              const isItemSeen = !!item?.metadata?.[DASHBOARD_SEEN];
-              return (
-                <Tbody key={rowIndex}>
+            <Tbody>
+              {savedRuns.map((item, rowIndex) => {
+                const rowActions = moreActionItems(item);
+                return (
                   <Tr
-                    key={item.name}
-                    className={isItemSeen ? "seen-row" : "unseen-row"}
+                    key={item.resource_id}
+                    className={item.isItemSeen ? "seen-row" : "unseen-row"}
                   >
-                    <Td
-                      select={{
-                        rowIndex,
-                        onSelect: (_event, isSelecting) =>
-                          onSelectRuns(item, rowIndex, isSelecting),
-                        isSelected: isRowSelected(item),
-                      }}
+                    <SavedRunsRow
+                      item={item}
+                      rowActions={rowActions}
+                      rowIndex={rowIndex}
+                      makeFavorites={makeFavorites}
+                      columnNames={columnNames}
+                      onSelectRuns={onSelectRuns}
+                      isRowSelected={isRowSelected}
+                      textInputEdit={(val) =>
+                        updateTblValue(val, "name", item.resource_id)
+                      }
+                      toggleEdit={toggleEdit}
+                      saveRowData={saveRowData}
                     />
-                    <Td
-                      className="result_column"
-                      dataLabel={columnNames.result}
-                    >
-                      {item.isEdit ? (
-                        <TextInput
-                          validated={item.name_validated}
-                          value={item.name}
-                          type="text"
-                          onChange={(val) =>
-                            updateTblValue(val, "name", item.resource_id)
-                          }
-                          aria-label="saved run dataset name"
-                        />
-                      ) : (
-                        item.name
-                      )}
-                    </Td>
-                    <Td dataLabel={columnNames.endtime}>
-                      {formatDateTime(item.metadata[DATASET_CREATED])}
-                    </Td>
-                    <Td dataLabel={columnNames.scheduled}>
-                      {formatDateTime(item.metadata[SERVER_DELETION])}
-                    </Td>
-                    <Td className="access">{item.metadata[DATASET_ACCESS]}</Td>
-                    <Td
-                      favorites={{
-                        isFavorited: isItemFavorited,
-                        onFavorite: (_event, isFavoriting) =>
-                          makeFavorites(item, isFavoriting),
-                        rowIndex,
-                      }}
-                    />
-                    <Td>
-                      <EditRow
-                        item={item}
-                        toggleEdit={toggleEdit}
-                        saveRowData={saveRowData}
-                      />
-                    </Td>
-                    <Td isActionCell>
-                      {rowActions ? <ActionsColumn items={rowActions} /> : null}
-                    </Td>
                   </Tr>
-                </Tbody>
-              );
-            })}
+                );
+              })}
+            </Tbody>
           </TableComposable>
         </InnerScrollContainer>
       </OuterScrollContainer>
