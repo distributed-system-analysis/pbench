@@ -194,20 +194,9 @@ class TestDatasetsUpdate:
         # Verify the failure
         capinternal("Unexpected backend error", response)
 
-    @pytest.mark.parametrize(
-        "owner,access",
-        [
-            ("drb", "public"),
-            ("drb", "private"),
-            ("drb", None),
-            ("test", "public"),
-            ("test", "private"),
-            ("test", None),
-            (None, "public"),
-            (None, "private"),
-            (None, None),
-        ],
-    )
+    @pytest.mark.parametrize("ds_name", ("drb", "test"))
+    @pytest.mark.parametrize("owner", ("drb", "test", None))
+    @pytest.mark.parametrize("access", ("public", "private", None))
     def test_query_owner_publish(
         self,
         access,
@@ -216,6 +205,7 @@ class TestDatasetsUpdate:
         client,
         create_drb_user,
         create_user,
+        ds_name,
         get_document_map,
         monkeypatch,
         owner,
@@ -227,7 +217,6 @@ class TestDatasetsUpdate:
         authenticated user (managed by the build_auth_header fixture).
         """
         self.fake_elastic(monkeypatch, get_document_map, False)
-        ds_name = "test"
         query_json = {}
         if access:
             query_json["access"] = access
@@ -240,13 +229,10 @@ class TestDatasetsUpdate:
         is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
         if not HeaderTypes.is_valid(build_auth_header["header_param"]):
             expected_status = HTTPStatus.UNAUTHORIZED
+        elif not is_admin and (owner or ds_name == "test"):
+            expected_status = HTTPStatus.FORBIDDEN
         elif not query_json:
             expected_status = HTTPStatus.BAD_REQUEST
-            ds_name = "drb"
-        elif (not is_admin and owner) or (
-            build_auth_header["header_param"] == HeaderTypes.VALID and owner == None
-        ):
-            expected_status = HTTPStatus.FORBIDDEN
         else:
             expected_status = HTTPStatus.OK
 
@@ -290,30 +276,4 @@ class TestDatasetsUpdate:
         assert (
             response.json["message"]
             == "Value 'invalid_owner' (str) cannot be parsed as a username"
-        )
-
-    def test_non_admin_update_owner(
-        self,
-        client,
-        create_drb_user,
-        get_document_map,
-        monkeypatch,
-        pbench_token,
-        server_config,
-    ):
-        """
-        Check the datasets_update API response if 'owner' update is requested
-        by a non-admin user
-        """
-
-        ds = Dataset.query(name="drb")
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
-            headers={"authorization": f"Bearer {pbench_token}"},
-            query_string={"owner": create_drb_user.username},
-        )
-        assert response.status_code == HTTPStatus.FORBIDDEN
-        assert (
-            response.json["message"]
-            == "User drb is not authorized to UPDATE a server administrative resource"
         )
