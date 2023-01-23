@@ -1,4 +1,4 @@
-# Fedora 33 pbench development image
+# Fedora 36 pbench development image
 #
 # We maintain this image with all the necessary user-space setup required to
 # run the various unit tests and functional tests in a common development
@@ -38,7 +38,7 @@
 #
 # [1] See https://www.redhat.com/sysadmin/user-flag-rootless-containers
 
-FROM docker.io/library/fedora:33
+FROM registry.fedoraproject.org/fedora:36
 RUN \
     dnf install -y \
         ansible \
@@ -89,7 +89,6 @@ RUN \
         python3-psutil \
         python3-pytest \
         python3-pytest-cov \
-        python3-pytest-helpers-namespace \
         python3-pytest-mock \
         python3-redis \
         python3-regex \
