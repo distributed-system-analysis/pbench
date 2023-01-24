@@ -1062,6 +1062,9 @@ class Metadata(Database.Base):
                 ) from e
             return
 
+        Database.db_session.connection(
+            execution_options={"isolation_level": "SERIALIZABLE"}
+        )
         try:
             meta = Metadata.get(dataset, native_key, user_id)
 
