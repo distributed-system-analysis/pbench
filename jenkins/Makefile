@@ -4,13 +4,11 @@
 #
 # This makefile defines the following targets:
 #
-#  all (the default):  builds the CI image and a Fedora-based development image
+#  all (the default):  builds the CI image
 #  image-ci:           builds the CI image
-#  image-fedora:       builds the Fedora-based development image
 #  image-rpmbuild-all: builds all the default containers for building RPMs
 #  image-rpmbuild-rhel-7:  builds a single RPM build container (e.g. for RHEL-7)
 #  push-ci:            pushes the CI image to the registry
-#  push-fedora:        pushes the Fedora-based development image to the registry
 #  push-rpmbuild-all:  pushes all default RPM build containers to the registry
 #
 
@@ -24,13 +22,10 @@ RPMBUILD_BASEIMAGE_DEFAULTS = \
 	fedora-36 fedora-35 \
 	centos-9 centos-8 centos-7
 
-# All Fedora images are based on Fedora 35
-FEDORA_BASE_IMAGE_REF = quay.io/fedora/fedora:35
+# All Fedora images are based on Fedora 36
+FEDORA_BASE_IMAGE_REF = quay.io/fedora/fedora:36
 
-# Base image for CI and Fedora development container image
-UBI_BASE_IMAGE_REF = registry.access.redhat.com/ubi8/ubi-init:8.5
-
-# Base image for UBI development container image
+# Image registry for storing RPM build container images
 RPMBUILD_IMAGE_REPO = images.paas.redhat.com/pbench
 
 # Templates for the various distributions' base images.  For the moment, for a
@@ -67,7 +62,7 @@ BRANCH := $(shell cat ./branch.name)
 %: DIST_NAME = $(lastword $(subst ${DIST_VERSION},,$(subst -, ,$*)))
 
 
-all: image-ci image-fedora
+all: image-ci
 
 push-rpmbuild-all: $(RPMBUILD_BASEIMAGE_DEFAULTS:%=push-rpmbuild-%)
 
@@ -78,12 +73,6 @@ push-ci:
 
 image-ci: ci.fedora.Dockerfile
 	buildah bud -f ci.fedora.Dockerfile -t localhost/pbench-ci-fedora:${BRANCH}
-
-push-fedora:
-	buildah push localhost/pbench-devel-fedora:${BRANCH} quay.io/pbench/pbench-devel-fedora:${BRANCH}
-
-image-fedora: development.fedora.Dockerfile
-	buildah bud -f development.fedora.Dockerfile -t localhost/pbench-devel-fedora:${BRANCH}
 
 ${_DISTROS:%=push-rpmbuild-%}: push-rpmbuild-%:
 	buildah push localhost/pbench-rpmbuild:${*} ${RPMBUILD_IMAGE_REPO}/pbench-rpmbuild:${*}
@@ -99,27 +88,10 @@ ${_DISTROS:%=image-rpmbuild-%}: image-rpmbuild-%:
 		buildah run $$container python3 -m pip install jinja2-cli && \
 		buildah commit $$container localhost/pbench-rpmbuild:${*}
 
-image-ubi: development.ubi.Dockerfile
-	buildah bud -f development.ubi.Dockerfile -t localhost/pbench-devel-ubi:${BRANCH}
-
 ci.fedora.Dockerfile: ci.Dockerfile.j2
 	jinja2 ci.Dockerfile.j2 \
 		-D base_image_ref="${FEDORA_BASE_IMAGE_REF}" \
 		-D fedora=True \
-		> $@
-
-development.fedora.Dockerfile: development.Dockerfile.j2
-	jinja2 development.Dockerfile.j2 \
-		-D base_image_ref="${FEDORA_BASE_IMAGE_REF}" \
-		-D fedora=True \
-		> $@
-
-development.ubi.Dockerfile: development.Dockerfile.j2
-	jinja2 development.Dockerfile.j2 \
-		-D base_image_ref="${UBI_BASE_IMAGE_REF}" \
-		-D ubi=True \
-		-D repo_file_url="${REPO_FILE_URL}" \
-		-D hosts_file_url="${HOSTS_FILE_URL}" \
 		> $@
 
 clean:
