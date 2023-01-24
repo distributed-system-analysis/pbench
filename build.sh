@@ -32,7 +32,7 @@ isort --check .
 ( cd dashboard && npx eslint --max-warnings 0 "src/**" )
 # We need to invoke the alembic check with host networking so that it can reach
 # the PostgreSQL pod it creates.
-EXTRA_PODMAN_SWITCHES="--network host" jenkins/run tox -e alembic-check
+EXTRA_PODMAN_SWITCHES="--network host" jenkins/run tox -e alembic-migration check
 set +x
 
 # Run unit tests

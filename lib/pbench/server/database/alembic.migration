@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
-pb_root=${PWD}  # This script is run from the Pbench root; remember where that is
+# This script is run from the Pbench root; remember where that is
+pb_root=${PWD}
 
 PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
 
@@ -28,7 +29,12 @@ ${pb_root}/jenkins/podman run --name postgresql-alembic \
     --env 'POSTGRESQL_DATABASE=pbench' \
     ${PB_CONTAINER_REG}/postgresql-13:latest container-entrypoint run-postgresql
 
-trap "echo 'Stopping PostgreSQL container' >&2 ; ${pb_root}/jenkins/podman stop postgresql-alembic" INT ABRT QUIT EXIT
+function cleanup {
+    echo 'Stopping PostgreSQL container' >&2
+    ${pb_root}/jenkins/podman stop postgresql-alembic
+}
+
+trap "cleanup" INT ABRT QUIT EXIT
 
 # If the timeout is reached, the `timeout` command will exit with an error (124)
 # which will cause the script to exit immediately and trigger the `trap` above.
@@ -42,6 +48,15 @@ cd ${pb_root}/lib/pbench/server/database
 # First we run all our migrations to bring the blank database up to speed.
 alembic upgrade head
 
-# Then we check to see if we have any model changes not captured in existing
-# migrations.
-alembic check
+if [[ "${1}" == "check" ]]; then
+    # We have been asked to check to see if there are any model changes not
+    # captured in existing migrations.
+    alembic check
+elif [[ "${1}" == "create" ]]; then
+    # We have been asked to auto-generate a migration based on the existing
+    # model compared against the most recent migration "head".
+    alembic revision --autogenerate
+else
+    printf "Unsupported operation requested, '%s'\n" "${1}" >&2
+    exit 1
+fi
