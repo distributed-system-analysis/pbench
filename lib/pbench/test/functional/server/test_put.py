@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from http import HTTPStatus
 import os.path
 from pathlib import Path
@@ -134,6 +135,7 @@ class TestPut:
                     assert status["index"] == "ok"
                     indexed.append(dataset)
                 else:
+                    print(f"\t\tstate={state!r} status={status!r}")
                     not_indexed.append(dataset)
         except HTTPError as exc:
             pytest.fail(
@@ -177,12 +179,21 @@ class TestPut:
             )
 
         # For each dataset we find, poll the state until it reaches Indexed
-        # state, or until we time out.
-        now = start = time.time()
-        timeout = start + (60.0 * 10.0)
+        # state, or until we time out.  Since the cron jobs run once a minute
+        # and they start on the minute, we make our 1st check 45 seconds into
+        # the next minute, and then check at 45 seconds past the minute until
+        # we reached 5 minutes past the original start time.
+        oneminute = timedelta(minutes=1)
+        now = start = datetime.utcnow()
+        timeout = start + timedelta(minutes=5)
+        target_int = (
+            datetime(now.year, now.month, now.day, now.hour, now.minute)
+            + oneminute
+            + timedelta(seconds=45)
+        )
 
         while not_indexed:
-            print(f"[{now - start:0.2f}] Checking ...")
+            print(f"[{(now - start).total_seconds():0.2f}] Checking ...")
             not_indexed, indexed = TestPut.check_indexed(server_client, not_indexed)
             for dataset in indexed:
                 tp = dataset.metadata["server.tarball-path"]
@@ -190,14 +201,15 @@ class TestPut:
                     continue
                 count += 1
                 print(f"    Indexed {tp}")
+            now = datetime.utcnow()
             if not not_indexed or now >= timeout:
                 break
-            time.sleep(30.0)  # sleep for half a minute
-            now = time.time()
-        assert (
-            not not_indexed
-        ), f"Timed out after {now - start} seconds; unindexed datasets: " + ", ".join(
-            d.metadata["server.tarball-path"] for d in not_indexed
+            time.sleep((target_int - now).total_seconds())
+            target_int += oneminute
+            now = datetime.utcnow()
+        assert not not_indexed, (
+            f"Timed out after {(now - start).total_seconds()} seconds; unindexed datasets: "
+            + ", ".join(d.metadata["server.tarball-path"] for d in not_indexed)
         )
         assert (
             len(tarball_names) == count
