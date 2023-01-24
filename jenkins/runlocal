@@ -1,29 +1,27 @@
 #!/bin/bash -e
 
-# Build the RPM and then build the containers, pushing only the CI image
-# to the registry, and then run the fuctional tests against the built
-# container image.
+# Build the pbench-server RPM locally, then build the containers locally, and
+# then run the fuctional tests against the locally built CI container image.
 
 export PB_CONTAINER_REG=images.paas.redhat.com
 export PB_ORG_NAME=pbench
 export PB_SERVER_IMAGE_NAME=pbench-server
 export PB_SERVER_IMAGE_TAG=${USER}
-export PB_DASHBOARD_DIR=$(pwd)/dashboard/build
+export PB_SERVER_IMAGE_PULL_POLICY=Never
 
-make -C server/rpm clean rpm
+# We explicit set WORKSPACE_TMP so that RPM build (which uses a container image)
+# will store the resulting RPM in that work space temporary directory so we can
+# reference it when building the container images.
+export WORKSPACE_TMP=/var/tmp/${USER}/runlocal
+mkdir -p /var/tmp/${USER}
+rm -rf ${WORKSPACE_TMP}
+mkdir ${WORKSPACE_TMP}
 
-# Typically, one logs in to a container registery with automated scripts using
-# an "application" token.  When using quay.io based container registries, the
-# application token uses the user name `$app` and the token is provided as the
-# password.
-#
-# For example, if you generate a token and set the value to the environment
-# variable named, __LOGIN_SECRET__, then the `buildah login` command below
-# demonstrates how to login with that token.
-#
-# $ buildah login -u='$app' -p="${__LOGIN_SECRET__}" ${PB_CONTAINER_REG}
+# Create a RHEL 9 RPM from the current source tree.
+make -C server/rpm clean rhel-9-rpm
 
-RPM_PATH=${HOME}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build.sh
-buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
+# Build the CI container from the RPM built above.
+RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build.sh
 
+# Run the functional tests using the locally built image.
 jenkins/run-server-func-tests
