@@ -37,9 +37,8 @@ fi
 # Container build section.
 #-
 
-# Open a copy of the base container.  Docker format is required in order to set
-# the hostname.
-container=$(buildah from --format=docker ${BASE_IMAGE})
+# Open a copy of the base container.
+container=$(buildah from ${BASE_IMAGE})
 
 buildah config \
     --label maintainer="Pbench Maintainers <pbench@googlegroups.com>" \
@@ -47,9 +46,12 @@ buildah config \
 
 buildah copy $container ${RPM_PATH} /tmp/pbench-server.rpm
 buildah run $container dnf update -y
-buildah run $container dnf install -y --setopt=tsflags=nodocs \
+if [[ "${BASE_IMAGE}" == *"ubi9:latest" ]]; then
+    buildah run $container dnf install -y --nodocs \
         https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-buildah run $container dnf install -y /tmp/pbench-server.rpm nginx less rsyslog rsyslog-mmjsonparse
+fi
+buildah run $container dnf install -y --nodocs \
+    /tmp/pbench-server.rpm nginx less rsyslog rsyslog-mmjsonparse
 buildah run $container dnf clean all
 buildah run $container rm -f /tmp/pbench-server.rpm
 
