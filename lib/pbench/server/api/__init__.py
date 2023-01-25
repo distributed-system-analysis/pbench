@@ -221,6 +221,10 @@ def create_app(server_config: PbenchServerConfig) -> Flask:
         A Flask application object on success
     """
 
+    def shutdown_session(exception=None):
+        """Called from app context teardown hook to end the database session"""
+        Database.db_session.remove()
+
     app = Flask(__name__.split(".")[0])
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
@@ -240,8 +244,6 @@ def create_app(server_config: PbenchServerConfig) -> Flask:
         app.logger.exception("Exception while initializing sqlalchemy database")
         raise
 
-    @app.teardown_appcontext
-    def shutdown_session(exception=None):
-        Database.db_session.remove()
+    app.teardown_appcontext(shutdown_session)
 
     return app
