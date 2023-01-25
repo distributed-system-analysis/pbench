@@ -186,7 +186,7 @@ export const EditRow = (props) => {
           <Button
             isDisabled={
               !props.item.isDirty ||
-              !!!props.item.name ||
+              !props.item.name ||
               props.item.name_validated === "error"
             }
             onClick={() =>

@@ -1,18 +1,5 @@
+import * as CONSTANTS from "assets/constants/overviewConstants";
 import * as TYPES from "./types";
-
-import {
-  DASHBOARD_LOAD_DELAY_MS,
-  DASHBOARD_SAVED,
-  DASHBOARD_SEEN,
-  DATASET_ACCESS,
-  DATASET_CREATED,
-  DATASET_NAME,
-  DATASET_NAME_LENGTH,
-  DATASET_OWNER,
-  EXPIRATION_DAYS_LIMIT,
-  SERVER_DELETION,
-  USER_FAVORITE,
-} from "assets/constants/overviewConstants";
 
 import API from "../utils/axiosInstance";
 import { findNoOfDays } from "utils/dateFunctions";
@@ -27,13 +14,13 @@ export const getDatasets = () => async (dispatch, getState) => {
       dispatch({ type: TYPES.LOADING });
     }
     const params = new URLSearchParams();
-    params.append("metadata", DATASET_CREATED);
-    params.append("metadata", DATASET_OWNER);
-    params.append("metadata", DATASET_ACCESS);
-    params.append("metadata", SERVER_DELETION);
-    params.append("metadata", DASHBOARD_SAVED);
-    params.append("metadata", DASHBOARD_SEEN);
-    params.append("metadata", USER_FAVORITE);
+    params.append("metadata", CONSTANTS.DATASET_CREATED);
+    params.append("metadata", CONSTANTS.DATASET_OWNER);
+    params.append("metadata", CONSTANTS.DATASET_ACCESS);
+    params.append("metadata", CONSTANTS.SERVER_DELETION);
+    params.append("metadata", CONSTANTS.DASHBOARD_SAVED);
+    params.append("metadata", CONSTANTS.DASHBOARD_SEEN);
+    params.append("metadata", CONSTANTS.USER_FAVORITE);
 
     params.append("owner", username);
 
@@ -68,20 +55,25 @@ const initializeRuns = () => (dispatch, getState) => {
   const data = getState().overview.datasets;
   data.forEach((item) => {
     item["isEdit"] = false;
-    item["name_copy"] = item.name;
+    item[CONSTANTS.NAME_COPY] = item.name;
     item["isDirty"] = false;
-    item["name_validated"] = "default";
-    item["isItemSeen"] = !!item?.metadata?.[DASHBOARD_SEEN];
-    item["isItemFavorited"] = !!item?.metadata?.[USER_FAVORITE];
+    item[CONSTANTS.NAME_VALIDATED] = "default";
+    item["isItemSeen"] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
+    item["isItemFavorited"] = !!item?.metadata?.[CONSTANTS.USER_FAVORITE];
   });
   const defaultPerPage = getState().overview.defaultPerPage;
 
-  const savedRuns = data.filter((item) => item.metadata[DASHBOARD_SAVED]);
-  const newRuns = data.filter((item) => !item.metadata[DASHBOARD_SAVED]);
+  const savedRuns = data.filter(
+    (item) => item.metadata[CONSTANTS.DASHBOARD_SAVED]
+  );
+  const newRuns = data.filter(
+    (item) => !item.metadata[CONSTANTS.DASHBOARD_SAVED]
+  );
 
   const expiringRuns = data.filter(
     (item) =>
-      findNoOfDays(item.metadata["server.deletion"]) < EXPIRATION_DAYS_LIMIT
+      findNoOfDays(item.metadata[CONSTANTS.SERVER_DELETION]) <
+      CONSTANTS.EXPIRATION_DAYS_LIMIT
   );
   dispatch({
     type: TYPES.EXPIRING_RUNS,
@@ -101,10 +93,10 @@ const initializeRuns = () => (dispatch, getState) => {
   });
 };
 const metaDataActions = {
-  save: DASHBOARD_SAVED,
-  read: DASHBOARD_SEEN,
-  favorite: USER_FAVORITE,
-  datasetName: DATASET_NAME,
+  save: CONSTANTS.DASHBOARD_SAVED,
+  read: CONSTANTS.DASHBOARD_SEEN,
+  favorite: CONSTANTS.USER_FAVORITE,
+  datasetName: CONSTANTS.DATASET_NAME,
 };
 /**
  * Function which return a thunk to be passed to a Redux dispatch() call
@@ -172,7 +164,7 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
       });
 
       dispatch(initializeRuns());
-      dispatch(showToast("success", "Deleted!"));
+      dispatch(showToast(CONSTANTS.SUCCESS, "Deleted!"));
     }
   } catch (error) {
     dispatch(showToast("danger", error?.response?.data?.message));
@@ -211,7 +203,7 @@ export const updateMultipleDataset =
           : method === "save"
           ? "Saved!"
           : "Updated!";
-      dispatch(showToast("success", toastMsg));
+      dispatch(showToast(CONSTANTS.SUCCESS, toastMsg));
       dispatch(setSelectedRuns([]));
     } else {
       dispatch(showToast("warning", "Select dataset(s) for update"));
@@ -232,13 +224,13 @@ export const publishDataset =
         const dataIndex = savedRuns.findIndex(
           (item) => item.resource_id === dataset.resource_id
         );
-        savedRuns[dataIndex].metadata[DATASET_ACCESS] = updateValue;
+        savedRuns[dataIndex].metadata[CONSTANTS.DATASET_ACCESS] = updateValue;
 
         dispatch({
           type: TYPES.SAVED_RUNS,
           payload: savedRuns,
         });
-        dispatch(showToast("success", "Updated!"));
+        dispatch(showToast(CONSTANTS.SUCCESS, "Updated!"));
       }
     } catch (error) {
       dispatch(showToast("danger", error?.response?.data?.message));
@@ -255,7 +247,7 @@ export const setLoadingDoneFlag = () => async (dispatch, getState) => {
       sessionStorage.setItem("loadingDone", true);
       dispatch({ type: TYPES.SET_LOADING_FLAG, payload: true });
     }
-  }, DASHBOARD_LOAD_DELAY_MS);
+  }, CONSTANTS.DASHBOARD_LOAD_DELAY_MS);
 };
 
 const filterDatasetType = (type) => (getState) => {
@@ -285,13 +277,16 @@ export const editMetadata =
     const rIndex = data.findIndex((item) => item.resource_id === rId);
     data[rIndex][metadata] = value;
     data[rIndex]["isDirty"] = true;
-    if (value.length > DATASET_NAME_LENGTH) {
-      data[rIndex]["name_validated"] = "error";
+    if (value.length > CONSTANTS.DATASET_NAME_LENGTH) {
+      data[rIndex][CONSTANTS.NAME_VALIDATED] = "error";
       data[rIndex][
-        "name_errorMsg"
-      ] = `Length should be < ${DATASET_NAME_LENGTH}`;
+        CONSTANTS.NAME_ERROR_MSG
+      ] = `Length should be < ${CONSTANTS.DATASET_NAME_LENGTH}`;
+    } else if (value.length === 0) {
+      data[rIndex][CONSTANTS.NAME_VALIDATED] = "error";
+      data[rIndex][CONSTANTS.NAME_ERROR_MSG] = `Length cannot be 0`;
     } else {
-      data[rIndex]["name_validated"] = "success";
+      data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
     }
     dispatch(updateDatasetType(data, type));
   };
@@ -304,8 +299,9 @@ export const setRowtoEdit =
     data[rIndex].isEdit = isEdit;
 
     if (!isEdit) {
-      data[rIndex].name = data[rIndex]["name_copy"];
+      data[rIndex].name = data[rIndex][CONSTANTS.NAME_COPY];
       data[rIndex]["isDirty"] = false;
+      data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
     }
     dispatch(updateDatasetType(data, type));
   };
