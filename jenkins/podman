@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# A simple wrapper for the podman command which handles invocation inside a container
+
+if [ -n "${CONTAINER_HOST}" ]; then
+    # Since CONTAINER_HOST is defined, we perform the requested invocation using
+    # `podman-remote`, which will run it where CONTAINER_HOST points.  This
+    # allows invocations of containers from inside other containers, which won't
+    # work, otherwise.
+    PODMAN="podman-remote"
+else
+    # Since CONTAINER_HOST is not defined, just use `podman` as normal.
+    PODMAN="podman"
+fi
+
+${PODMAN} "${@}"

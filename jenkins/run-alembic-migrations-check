@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
-podman run --name postgresql-alembic \
+echo "Starting PostgreSQL container" >&2
+jenkins/podman run --name postgresql-alembic \
     --detach \
     --rm \
     --network host \
@@ -23,10 +24,14 @@ podman run --name postgresql-alembic \
     --env 'POSTGRESQL_DATABASE=pbench' \
     images.paas.redhat.com/pbench/postgresql-13:latest container-entrypoint run-postgresql
 
-trap "podman stop postgresql-alembic" INT ABRT QUIT EXIT
+trap "echo 'Stopping PostgreSQL container' >&2 ; jenkins/podman stop postgresql-alembic" INT ABRT QUIT EXIT
 
-until nc -z localhost 5432; do
+# If the timeout is reached, the `timeout` command will exit with an error (124)
+# which will cause the script to exit immediately and trigger the `trap` above.
+timeout 60s bash -c 'until nc -z localhost 5432; do
+    echo "Waiting for PostgreSQL" >&2
     sleep 1
-done
+done'
 
+echo "Starting tox" >&2
 EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" jenkins/run tox -e alembic-check
