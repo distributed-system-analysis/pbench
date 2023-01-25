@@ -9,6 +9,12 @@ export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
 export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
 export PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"${PB_POD_NAME}-pbenchserver"}
 
+server/pbenchinacan/run-pbench-in-a-can
+if [[ ${?} -ne 0 ]]; then
+    echo "Failure to start Pbench-in-a-Can pod" >&2
+    exit 1
+fi
+
 function cleanup {
     # Remove the pod which we just created and ran; remove any dangling
     # containers; and then remove any dangling images.
@@ -22,8 +28,6 @@ function cleanup {
 if [[ ${1} == "--cleanup" ]]; then
     trap "cleanup ${PB_SERVER_CONTAINER_NAME} ${PB_POD_NAME}" INT QUIT EXIT
 fi
-
-server/pbenchinacan/run-pbench-in-a-can
 
 SERVER_URL="http://localhost:8080"
 SERVER_API_ENDPOINTS="${SERVER_URL}/api/v1/endpoints"
