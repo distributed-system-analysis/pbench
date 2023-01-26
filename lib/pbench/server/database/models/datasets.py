@@ -736,9 +736,10 @@ class Metadata(Database.Base):
         return key.lower().split(".")[0]
 
     @staticmethod
-    def is_key_path(key: str, valid: List[str]) -> bool:
+    def is_key_path(key: str, valid: List[str], metalog_key_ok: bool = False) -> bool:
         """Determine whether 'key' is a valid Metadata key path using the list
-        specified in 'valid'.
+        specified in 'valid'. If the "native" key (first element of a dotted
+        path) is in the list, then it's valid.
 
         If the "native" key (first element of a dotted path) is in the list,
         then it's valid.
@@ -754,8 +755,10 @@ class Metadata(Database.Base):
         server version will return None rather than failing in validation.)
 
         Args:
-            key: metadata key path
-            valid: list of acceptable key paths
+            key : metadata key path
+            valid : list of acceptable key paths
+            metalog_key_ok : skip the key charset validation (used only for
+                a query, specifically to support weird metadata.log keys)
 
         Returns:
             True if the path is valid, or False
@@ -772,7 +775,7 @@ class Metadata(Database.Base):
         if path[0] not in valid:
             return False
         # Check that all open namespace keys are valid symbols
-        return bool(re.fullmatch(Metadata._valid_key_charset, k))
+        return metalog_key_ok or bool(re.fullmatch(Metadata._valid_key_charset, k))
 
     @staticmethod
     def getvalue(

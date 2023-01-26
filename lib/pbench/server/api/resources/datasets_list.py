@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import logging
 from typing import Dict, List, Tuple
 from urllib.parse import urlencode, urlparse
@@ -5,13 +6,17 @@ from urllib.parse import urlencode, urlparse
 from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
+from sqlalchemy import and_, or_, String
+from sqlalchemy.exc import ProgrammingError, StatementError
 from sqlalchemy.orm import Query
 
 from pbench.server import JSON, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
+    APIAbort,
     ApiAuthorizationType,
     ApiBase,
     ApiContext,
+    APIInternalError,
     ApiMethod,
     ApiParams,
     ApiSchema,
@@ -19,15 +24,21 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
+from pbench.server.auth.auth import Auth
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
+from pbench.server.database.models.datasets import (
+    Dataset,
+    Metadata,
+    MetadataBadKey,
+    MetadataError,
+)
 
 
 def urlencode_json(json: JSON) -> str:
     """We must properly encode the metadata query parameter as a list of keys."""
     new_json = {}
     for k, v in sorted(json.items()):
-        new_json[k] = ",".join(v) if k == "metadata" else v
+        new_json[k] = ",".join(v) if k in ["metadata", "key"] else v
     return urlencode(new_json)
 
 
@@ -56,6 +67,12 @@ class DatasetsList(ApiBase):
                         key_path=True,
                         string_list=",",
                     ),
+                    Parameter(
+                        "filter",
+                        ParamType.LIST,
+                        element_type=ParamType.STRING,
+                        string_list=",",
+                    ),
                 ),
                 authorization=ApiAuthorizationType.USER_ACCESS,
             ),
@@ -81,21 +98,37 @@ class DatasetsList(ApiBase):
             start to narrow down the result.
         """
         paginated_result = {}
+        query = query.order_by(Dataset.resource_id).distinct()
         total_count = query.count()
-        query = query.order_by(Dataset.name)
 
         # Shift the query search by user specified offset value,
         # otherwise return the batch of results starting from the
         # first queried item.
         offset = json.get("offset", 0)
-        query = query.offset(offset)
+        if offset:
+            query = query.offset(offset)
 
         # Get the user specified limit, otherwise return all the items
         limit = json.get("limit")
         if limit:
             query = query.limit(limit)
 
+        # Useful for debugging, but verbose: this displays the fully expanded
+        # SQL `SELECT` statement.
+        if current_app.logger.isEnabledFor(logging.INFO):
+            try:
+                current_app.logger.info(
+                    "QUERY {}",
+                    query.statement.compile(compile_kwargs={"literal_binds": True}),
+                )
+            except Exception as e:
+                current_app.logger.error(
+                    "Can't compile statement for {}: {}", json, str(e)
+                )
+
         items = query.all()
+
+        current_app.logger.info("QUERY count {}, limit {}, offset {}, found {}", total_count, limit, offset, len(items))
 
         next_offset = offset + len(items)
         if next_offset < total_count:
@@ -128,9 +161,13 @@ class DatasetsList(ApiBase):
             A JSON response containing the paginated query result
         """
         json = params.query
+        current_app.logger.info("Query with {}", json)
+
+        # Get the authenticated user ID, if any
+        user_id = Auth.get_user_id()
 
         # Build a SQLAlchemy Query object expressing all of our constraints
-        query = Database.db_session.query(Dataset)
+        query = Database.db_session.query(Dataset).join(Metadata)
         if "start" in json and "end" in json:
             query = query.filter(Dataset.uploaded.between(json["start"], json["end"]))
         elif "start" in json:
@@ -139,21 +176,95 @@ class DatasetsList(ApiBase):
             query = query.filter(Dataset.uploaded <= json["end"])
         if "name" in json:
             query = query.filter(Dataset.name.contains(json["name"]))
+        if "filter" in json:
+            or_list = []
+            and_list = []
+            for kw in json["filter"]:
+                combine_or = False
+                contains = False
+                k, v = kw.split(":", maxsplit=1)
+                if k.startswith("^"):
+                    combine_or = True
+                    k = k[1:]
+                if v.startswith("~"):
+                    contains = True
+                    v = v[1:]
+
+                if not Metadata.is_key_path(
+                    k, Metadata.METADATA_KEYS, metalog_key_ok=True
+                ):
+                    raise APIAbort(HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k)))
+                keys = k.split(".")
+                native_key = keys.pop(0).lower()
+                terms = []
+                use_dataset = False
+                dataset = None
+                user_private = None
+
+                if native_key == Metadata.DATASET:
+                    second = keys[0].lower()
+                    # The dataset namespace requires special handling because
+                    # "dataset.metalog" is really a special native key space
+                    # named "metalog", while other "dataset" sub-keys are primary
+                    # columns in the Dataset table.
+                    if second == Metadata.METALOG:
+                        native_key = keys.pop(0).lower()
+                    else:
+                        try:
+                            column = getattr(Dataset, second)
+                        except AttributeError as e:
+                            raise APIAbort(
+                                HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k))
+                            ) from e
+                        use_dataset = True
+                        terms = [
+                            column.cast(String).contains(v)
+                            if contains
+                            else column.cast(String) == v
+                        ]
+                elif native_key == Metadata.USER:
+                    if not user_id:
+                        raise APIAbort(
+                            HTTPStatus.UNAUTHORIZED,
+                            f"Metadata key {k} cannot be used by an unauthenticated client",
+                        )
+                    user_private = [Metadata.user_id == user_id]
+
+                if not use_dataset:
+                    expression = Metadata.value[keys].as_string()
+                    terms = [
+                        Metadata.key == native_key,
+                        expression.contains(v) if contains else expression == v,
+                    ]
+                    if user_private:
+                        terms.extend(user_private)
+                filter = and_(*terms)
+
+                if combine_or:
+                    or_list.append(filter)
+                else:
+                    if or_list:
+                        and_list.append(or_(*or_list))
+                        or_list.clear()
+                    and_list.append(filter)
+
+            if or_list:
+                and_list.append(or_(*or_list))
+
+            query = query.filter(and_(*and_list))
+
         query = self._build_sql_query(json.get("owner"), json.get("access"), query)
 
-        # Useful for debugging, but verbose: this displays the fully expanded
-        # SQL `SELECT` statement.
-        if current_app.logger.isEnabledFor(logging.DEBUG):
-            current_app.logger.debug(
-                "QUERY {}",
-                query.statement.compile(compile_kwargs={"literal_binds": True}),
+        try:
+            datasets, paginated_result = self.get_paginated_obj(
+                query=query, json=json, url=request.url
             )
-
-        # Execute the filtered query, sorted by dataset name so we have a
-        # consistent and reproducible output to compare.
-        datasets, paginated_result = self.get_paginated_obj(
-            query=query, json=json, url=request.url
-        )
+        except (AttributeError, ProgrammingError, StatementError) as e:
+            raise APIInternalError(
+                f"Constructed SQL for {json} isn't executable"
+            ) from e
+        except Exception as e:
+            raise APIInternalError(f"Unexpected SQL exception: {e}") from e
 
         keys = json.get("metadata")
 

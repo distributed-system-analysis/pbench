@@ -1287,7 +1287,7 @@ class ApiBase(Resource):
         #    authenticated client.
         # 4) An authenticated client cannot mutate data owned by a different
         #    user, nor READ private data owned by another user.
-        if role == OperationCode.READ and access == Dataset.PUBLIC_ACCESS:
+        if role == OperationCode.READ and (access == Dataset.PUBLIC_ACCESS or access is None):
             # We are reading public data: this is always allowed.
             pass
         else:
@@ -1714,8 +1714,10 @@ class ApiBase(Resource):
                     )
             abort(e.http_status, message=str(e), **e.kwargs)
         except Exception as e:
+            x = APIInternalError("Unexpected exception")
+            x.__cause__ = e
             current_app.logger.exception(
-                "Exception {} API error: {}: {!r}", api_name, e, auditing
+                "Exception {} API error: {}: {!r}", api_name, x, auditing
             )
             if auditing["finalize"]:
                 attr = auditing.get("attributes", {})
@@ -1726,7 +1728,6 @@ class ApiBase(Resource):
                     reason=AuditReason.INTERNAL,
                     attributes=attr,
                 )
-            x = APIInternalError("Unexpected exception")
             abort(x.http_status, message=x.message)
 
     def _get(self, args: ApiParams, request: Request, context: ApiContext) -> Response:

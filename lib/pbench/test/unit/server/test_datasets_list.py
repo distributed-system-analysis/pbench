@@ -133,6 +133,8 @@ class TestDatasetsList:
     @pytest.mark.parametrize(
         "login,query,results",
         [
+            (None, {}, ["fio_1", "fio_2"]),
+            (None, {"access": "public"}, ["fio_1", "fio_2"]),
             ("drb", {"name": "fio"}, ["fio_1", "fio_2"]),
             ("drb", {"name": "fio", "limit": 1}, ["fio_1", "fio_2"]),
             ("drb", {"name": "fio", "limit": 1, "offset": 2}, ["fio_1", "fio_2"]),
@@ -174,6 +176,10 @@ class TestDatasetsList:
                 ["test", "fio_1", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
             ("drb", {"end": "1970-09-01"}, []),
+            ("drb", {"filter": "dataset.access:public"}, ["fio_1", "fio_2"]),
+            ("drb", {"filter": "dataset.name:~fio"}, ["fio_1", "fio_2"]),
+            ("drb", {"filter": "^dataset.name:~fio,^dataset.name:uperf_1"}, ["fio_1", "fio_2", "uperf_1"]),
+            ("drb", {"filter": "^dataset.name:~fio,^dataset.name:uperf_1,dataset.owner_id:3"}, ["fio_2", "uperf_1"]),
         ],
     )
     def test_dataset_list(self, query_as, login, query, results, server_config):
