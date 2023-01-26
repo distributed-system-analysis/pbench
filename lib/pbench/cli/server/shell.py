@@ -6,6 +6,8 @@ import site
 import subprocess
 import sys
 
+from flask import Flask
+
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api import create_app, get_server_config
@@ -16,14 +18,13 @@ from pbench.server.database.database import Database
 PROG = "pbench-shell"
 
 
-def app():
+def app() -> Flask:
     """External gunicorn application entry point."""
     try:
-        server_config = get_server_config()
-    except (ConfigFileNotSpecified, BadConfig) as e:
+        return create_app(get_server_config())
+    except Exception as e:
         print(e, file=sys.stderr)
         sys.exit(1)
-    return create_app(server_config)
 
 
 def find_the_unicorn(logger: Logger):

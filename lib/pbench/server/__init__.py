@@ -1,4 +1,5 @@
-"""Server module level convenience functions."""
+"""Server module level convenience functions and PbenchServerConfig class.
+"""
 
 from configparser import NoOptionError, NoSectionError
 from datetime import datetime, timedelta, tzinfo
@@ -70,15 +71,16 @@ class PbenchServerConfig(PbenchConfig):
     # Set of required properties.
     REQ_PROPS = frozenset(
         (
-            "TOP",
-            "TMP",
-            "LOGSDIR",
-            "BINDIR",
-            "LIBDIR",
             "ARCHIVE",
+            "BINDIR",
             "INCOMING",
+            "LIBDIR",
+            "LOGSDIR",
             "RESULTS",
+            "TMP",
+            "TOP",
             "USERS",
+            "rest_uri",
         )
     )
 
@@ -186,7 +188,7 @@ class PbenchServerConfig(PbenchConfig):
 
     @property
     def rest_uri(self) -> str:
-        return self._get_conf("pbench-server", "rest_uri")
+        return self.conf.get("pbench-server", "rest_uri")
 
     @property
     def max_retention_period(self) -> int:
@@ -228,50 +230,6 @@ class PbenchServerConfig(PbenchConfig):
             self.conf.get("pbench-server", "rest_max_content_length", fallback="1 gb")
         )
 
-    def _get_conf(self, section: str, option: str) -> str:
-        """Get the option from the section.
-
-        Args:
-            section : The configuration section name to find the option
-            option : The option name to find in the given section
-
-        Raises:
-            BadConfig : when the option is empty, the option is missing, or the
-                section is missing
-
-        Returns:
-            The option value as a string.
-        """
-        try:
-            option_val = self.conf.get(section, option)
-        except (NoOptionError, NoSectionError) as exc:
-            raise BadConfig(str(exc))
-        else:
-            if not option_val:
-                raise BadConfig(f"option {option} in section {section} is empty")
-
-        return option_val
-
-    def get_conf(self, env_name: str, section: str, option: str, logger: Logger) -> str:
-        """Get the option from the section.
-
-        Args:
-            env_name : Legacy environment name to display in error messages
-            section : The configuration section name to find the option
-            option : The option name to find in the given section
-            logger : The logger to use when a bad configuration is encountered
-
-        Returns:
-            The option value as a string, if present, else None.
-        """
-        try:
-            option_val = self._get_conf(section, option)
-        except BadConfig as exc:
-            logger.error("Bad {}= '({})'", env_name, exc)
-            return None
-
-        return option_val
-
     def _get_valid_dir_option(self, env_name: str, section: str, option: str) -> Path:
         """Get the validated directory option from the given section.
 
@@ -288,11 +246,16 @@ class PbenchServerConfig(PbenchConfig):
         Returns:
             A Path directory object.
         """
-        dir_val = self._get_conf(section, option)
+        try:
+            dir_val = self.conf.get(section, option)
+        except (NoOptionError, NoSectionError) as exc:
+            raise BadConfig(str(exc))
+        else:
+            if not dir_val:
+                raise BadConfig(f"option {option} in section {section} is empty")
         dir_path = self._get_valid_path(env_name, dir_val, None)
         if not dir_path:
             raise BadConfig(f"Bad {env_name}={dir_val}")
-
         return dir_path
 
     def _get_valid_path(
