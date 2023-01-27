@@ -17,7 +17,7 @@
 # "http://localhost:8080/*" unless specified otherwise by 'KEYCLOAK_REDIRECT_URI'
 # env variable.
 
-KEYCLOAK_BASE_IMAGE=${KEYCLOAK_BASE_IMAGE:-"quay.io/keycloak/keycloak:latest"}
+KEYCLOAK_BASE_IMAGE=${KEYCLOAK_BASE_IMAGE:-"images.paas.redhat.com/pbench/pbenchinacan-keycloak:base"}
 KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"http://localhost:8090"}
 KEYCLOAK_HEALTH_URI="${KEYCLOAK_HOST_PORT}/health"
 KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"http://localhost:8080/*"}
@@ -25,17 +25,15 @@ ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 REALM=${KEYCLOAK_REALM:-"pbench"}
 CLIENT=${KEYCLOAK_CLIENT:-"pbench-server"}
-KEYCLOAK_IMAGE_TAG=${KEYCLOAK_IMAGE_TAG:-"latest"}
 
-container_name="mykeycloak"
-podman run -d --rm --name ${container_name} -p 8090:8090 \
+podman run -d --rm -p 8090:8090 \
 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin \
 ${KEYCLOAK_BASE_IMAGE} start-dev --health-enabled=true --http-port=8090
 
-end_in_epoch_secs=$(( $(date +"%s") + 120 ))
+end_in_epoch_secs=$(( $(date +%s) + 120 ))
 
 until curl -s -o /dev/null ${KEYCLOAK_HEALTH_URI}; do
-  if [[ $(date +"%s") -ge ${end_in_epoch_secs} ]]; then
+  if [[ $(date +%s) -ge ${end_in_epoch_secs} ]]; then
     echo "Timed out connecting to Keycloak" >&2
     exit 1
   fi
@@ -45,9 +43,8 @@ done
 
 echo "Keycloak health url is up" >&2
 
-status_code=$(curl -s -o /dev/null -w "%{http_code}" ${KEYCLOAK_HEALTH_URI})
-
-while [[ $(date +"%s") -le ${end_in_epoch_secs} ]]; do
+while [[ $(date +%s) -le ${end_in_epoch_secs} ]]; do
+  status_code=$(curl -s -o /dev/null -w "%{http_code}" ${KEYCLOAK_HEALTH_URI})
   if [[ "${status_code}" == "200" ]]; then
     keycloak_status=$(curl -s ${KEYCLOAK_HEALTH_URI} | jq -r ".status")
     if [[ ${keycloak_status} == "UP" ]]; then
@@ -59,7 +56,6 @@ while [[ $(date +"%s") -le ${end_in_epoch_secs} ]]; do
   else
     echo "Keycloak health status code ${status_code}" >&2
   fi
-  status_code=$(curl -s -o /dev/null -w "%{http_code}" ${KEYCLOAK_HEALTH_URI})
   sleep 2
 done
 
@@ -154,16 +150,6 @@ USER_ROLES=$(curl -s "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_I
 if [[ ${USER_ROLES} == *"ADMIN"* ]]; then
   echo "The Keycloak configuration is complete."
 else
-  echo "Could not assign client role the user."
+  echo "Could not assign client role the 'admin' user."
   exit 1
 fi
-# Wait for couple of seconds before we pause and commit the configured container,
-# to make sure all the configurations are properly in place.
-sleep 2
-
-podman pause ${container_name}
-podman commit ${container_name} images.paas.redhat.com/pbench/pbenchinacan-keycloak:${KEYCLOAK_IMAGE_TAG}
-podman unpause ${container_name}
-podman stop ${container_name}
-
-podman push images.paas.redhat.com/pbench/pbenchinacan-keycloak:${KEYCLOAK_IMAGE_TAG}
