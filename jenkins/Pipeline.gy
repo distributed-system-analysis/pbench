@@ -46,12 +46,13 @@ pipeline {
             environment {
                 KEYCLOAK_CLIENT_SECRET=credentials('5cf0304d-8a00-48a4-ade5-9f59cb37ba68')
                 PB_SERVER_IMAGE_TAG="${PB_IMAGE_TAG}"
+                PB_SERVER_IMAGE_PREFIX="${PB_CI_REGISTRY}/${PB_ORG_NAME}"
                 RPM_PATH="${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm"
             }
             steps {
                 sh 'buildah login -u="${PB_CI_REG_CRED_USR}" -p="${PB_CI_REG_CRED_PSW}" ${PB_CI_REGISTRY}'
                 sh 'bash -ex ./server/pbenchinacan/container-build.sh'
-                sh 'buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG} ${PB_CI_REGISTRY}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG}'
+                sh 'buildah push ${PB_SERVER_IMAGE_PREFIX}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG}'
             }
         }
         stage('Build the Pbench Agent Containers') {

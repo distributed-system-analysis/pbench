@@ -9,6 +9,7 @@
 
 BASE_IMAGE=${BASE_IMAGE:-registry.access.redhat.com/ubi9:latest}
 PB_SERVER_IMAGE_NAME=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
+PB_SERVER_IMAGE_PREFIX=${PB_SERVER_IMAGE_PREFIX:-"localhost"}
 PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
 RPM_PATH=${RPM_PATH:-/root/sandbox/rpmbuild/RPMS/noarch/pbench-server-*.rpm}
 KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-"client-secret"}
@@ -99,4 +100,4 @@ buildah run $container cp /usr/share/nginx/html/404.html /usr/share/nginx/html/5
 buildah run $container chown --recursive pbench:pbench /srv/pbench
 
 # Create the container image
-buildah commit $container localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
+buildah commit $container ${PB_SERVER_IMAGE_PREFIX}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
