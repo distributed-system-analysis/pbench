@@ -17,17 +17,12 @@
 # "http://localhost:8080/*" unless specified otherwise by 'KEYCLOAK_REDIRECT_URI'
 # env variable.
 
-KEYCLOAK_BASE_IMAGE=${KEYCLOAK_BASE_IMAGE:-"images.paas.redhat.com/pbench/pbenchinacan-keycloak:20.0.3"}
 KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"http://localhost:8090"}
 KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"http://localhost:8080/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 REALM=${KEYCLOAK_REALM:-"pbench"}
 CLIENT=${KEYCLOAK_CLIENT:-"pbench-server"}
-
-podman run -d --rm -p 8090:8090 \
--e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin \
-${KEYCLOAK_BASE_IMAGE} start-dev --health-enabled=true --http-port=8090
 
 keycloak_health_uri="${KEYCLOAK_HOST_PORT}/health"
 end_in_epoch_secs=$(( $(date +%s) + 120 ))

@@ -1,5 +1,25 @@
 #!/bin/bash
 
+#
+# Specification for a self-contained Pbench Server Environment.
+#
+# This configuration creates a pod for the Pbench Server deployment using
+# four separate containers: the Pbench Server and its associated
+# Elasticsearch instance, PostgreSQL database instance, and KeyCloak broker
+# instance. It then runs the server/pbenchinacan/load_keycloak.sh to
+# configure the keycloak broker for the minimum requirements of the
+# Pbench-Server.
+#
+# The pod should be invoked via the following command
+#    server/pbenchinacan/run-pbench-in-a-can
+#
+# The resulting pod maps the following ports:
+#
+#   5432 - PostgreSQL
+#   8080 - HTTP web server (and Pbench Dashboard)
+#   8090 - keycloak authentication server
+#   9200 - Elasticsearch
+
 export PB_CONTAINER_REG=${PB_CONTAINER_REG:-"images.paas.redhat.com"}
 export PB_ORG_NAME=${PB_ORG_NAME:-"pbench"}
 
@@ -8,12 +28,12 @@ export PB_ELASTICSEARCH_IMAGE_TAG=${PB_ELASTICSEARCH_IMAGE_TAG:-"7.13.3"}
 export PB_POSTGRESQL_IMAGE_NAME=${PB_POSTGRESQL_IMAGE_NAME:-"postgresql-13"}
 export PB_POSTGRESQL_IMAGE_TAG=${PB_POSTGRESQL_IMAGE_TAG:-"latest"}
 export PB_KEYCLOAK_IMAGE_NAME=${PB_KEYCLOAK_IMAGE_NAME:-"pbenchinacan-keycloak"}
-export PB_KEYCLOAK_IMAGE_TAG=${PB_KEYCLOAK_IMAGE_TAG:-"latest"}
+export PB_KEYCLOAK_IMAGE_TAG=${PB_KEYCLOAK_IMAGE_TAG:-"base"}
 export PB_SERVER_IMAGE_NAME=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
 export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
 export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
 
-export PB_COMMON_IMAGE_PULL_POLICY=${PB_COMMON_IMAGE_PULL_POLICY:-"Always"}
+export PB_COMMON_IMAGE_PULL_POLICY=${PB_COMMON_IMAGE_PULL_POLICY:-"always"}
 export PB_ELASTICSEARCH_IMAGE_PULL_POLICY="${PB_ELASTICSEARCH_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
 export PB_POSTGRESQL_IMAGE_PULL_POLICY="${PB_POSTGRESQL_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
 export PB_KEYCLOAK_IMAGE_PULL_POLICY="${PB_KEYCLOAK_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
@@ -21,4 +41,82 @@ export PB_SERVER_IMAGE_PULL_POLICY="${PB_SERVER_IMAGE_PULL_POLICY:-${PB_COMMON_I
 
 export PB_DASHBOARD_DIR="${PB_DASHBOARD_DIR:-${PWD}/dashboard/build/}"
 
-envsubst < $(dirname ${0})/pod.yml | podman play kube -
+podman pod create --name ${PB_POD_NAME} --hostname pbenchinacan -p 9200:9200 -p 5432:5432 -p 8090:8090 -p 8080:8080
+
+podman run \
+  --rm \
+  --name "${PB_POD_NAME}-elasticsearch" \
+  --pod ${PB_POD_NAME} \
+  --workdir /usr/share/elasticsearch \
+  --pull ${PB_ELASTICSEARCH_IMAGE_PULL_POLICY} \
+  --umask 0000 \
+  --restart no \
+  --pids-limit 0 \
+  -e PATH=/usr/share/elasticsearch/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+  -e HOME=/root \
+  -e TERM=xterm \
+  -e container=oci \
+  -e discovery.type=single-node \
+  -e ES_JAVA_OPTS="-Xms1g -Xmx1g"\
+  -e xpack.security.enabled=false \
+  -e ES_PORT=9200 \
+  -d \
+  ${PB_ELASTICSEARCH_IMAGE_NAME}:${PB_ELASTICSEARCH_IMAGE_TAG} \
+  /bin/tini -- /usr/local/bin/docker-entrypoint.sh eswrapper
+
+
+podman run \
+  --rm \
+  --pod ${PB_POD_NAME} \
+	--name "${PB_POD_NAME}-postgres" \
+	--workdir /opt/app-root/src \
+	--pull ${PB_POSTGRESQL_IMAGE_PULL_POLICY} \
+	--umask 0000 \
+	--user 26:26 \
+	--restart no \
+  --pids-limit 0 \
+  --entrypoint container-entrypoint \
+	-e POSTGRESQL_USER=pbenchcontainer \
+	-e POSTGRESQL_PASSWORD=pbench \
+	-e POSTGRESQL_DATABASE=pbenchcontainer \
+	-e HOME=/var/lib/pgsql \
+	-e CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/postgresql \
+	-e APP_ROOT=/opt/app-root \
+	-e POSTGRESQL_VERSION="13" \
+	-e PGUSER=postgres \
+	-e STI_SCRIPTS_URL=image:///usr/libexec/s2i \
+	-d \
+	${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_POSTGRESQL_IMAGE_NAME}:${PB_POSTGRESQL_IMAGE_TAG} \
+	run-postgresql -p 5432
+
+podman run \
+  --rm \
+  --pod ${PB_POD_NAME} \
+  --name "${PB_POD_NAME}-keycloak" \
+  --pull ${PB_KEYCLOAK_IMAGE_PULL_POLICY} \
+  --umask 0000 \
+  --restart no \
+  --pids-limit 0 \
+  -e KEYCLOAK_ADMIN=admin \
+  -e KEYCLOAK_ADMIN_PASSWORD=admin \
+  -d \
+  quay.io/keycloak/keycloak:latest \
+  start-dev --health-enabled=true --http-port=8090
+
+sh server/pbenchinacan/load_keycloak.sh
+
+podman run \
+  --rm \
+  --pod ${PB_POD_NAME} \
+  --name "${PB_POD_NAME}-pbenchserver" \
+  --pull ${PB_SERVER_IMAGE_PULL_POLICY} \
+  --umask 0000 \
+  --restart no \
+  --pids-limit 0 \
+  --entrypoint /sbin/init \
+  --workdir / \
+  -e PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+  -v ${PB_DASHBOARD_DIR}:/srv/pbench/public_html/dashboard:z \
+  -d \
+  ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG} \
+
