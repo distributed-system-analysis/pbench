@@ -35,7 +35,7 @@ class TestDatasetsContents(Commons):
         """
         # remove the last two components of the pbench_endpoint
         incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-2])
-        response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}")
+        response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}/")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
     def test_with_incorrect_index_document(self, client, server_config, pbench_token):

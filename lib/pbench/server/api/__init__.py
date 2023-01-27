@@ -32,8 +32,8 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleValues,
 )
 from pbench.server.api.resources.query_apis.datasets_delete import DatasetsDelete
-from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
+from pbench.server.api.resources.query_apis.datasets_update import DatasetsUpdate
 from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
@@ -126,9 +126,9 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         resource_class_args=(config,),
     )
     api.add_resource(
-        DatasetsPublish,
-        f"{base_uri}/datasets/publish/<string:dataset>",
-        endpoint="datasets_publish",
+        DatasetsUpdate,
+        f"{base_uri}/datasets/<string:dataset>",
+        endpoint="datasets_update",
         resource_class_args=(config,),
     )
     api.add_resource(
