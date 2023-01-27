@@ -1,7 +1,5 @@
 from typing import Any, Iterator
 
-from flask import current_app
-
 from pbench.server import JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
     ApiAuthorizationType,
