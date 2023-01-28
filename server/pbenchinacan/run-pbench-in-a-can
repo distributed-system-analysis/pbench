@@ -105,6 +105,10 @@ podman run \
 
 sh server/pbenchinacan/load_keycloak.sh
 
+# Create a dashboard src directory to mount on pbench-server container's
+# dashboard directory
+mkdir -m 0755 -p ${PB_DASHBOARD_DIR}
+
 podman run \
   --rm \
   --pod ${PB_POD_NAME} \
