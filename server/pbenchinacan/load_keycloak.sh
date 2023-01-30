@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# This scripts creates the custom keycloak server image with following configuration
+# This scripts configures a running Keycloak server with following configuration
 # 1. A realm with the name 'pbench'
 # 2. A client 'pbench-server' under the realm pbench
 # 3. A user 'admin' under the realm pbench
@@ -63,7 +63,7 @@ echo
 echo "Getting admin access token"
 echo "--------------------------"
 
-ADMIN_TOKEN=$(curl -s -X POST "${KEYCLOAK_HOST_PORT}/realms/master/protocol/openid-connect/token" \
+ADMIN_TOKEN=$(curl -s -f -X POST "${KEYCLOAK_HOST_PORT}/realms/master/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "username=${ADMIN_USERNAME}" \
   -d "password=${ADMIN_PASSWORD}" \
@@ -76,15 +76,20 @@ echo
 echo "Creating ${REALM} realm"
 echo "--------------"
 
-curl -i -X POST "${KEYCLOAK_HOST_PORT}/admin/realms" \
+status_code=$(curl -f -i -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"realm": "'${REALM}'", "enabled": true}'
+  -d '{"realm": "'${REALM}'", "enabled": true}')
+
+if [[ "${status_code}" != "201" ]]; then
+  echo ${status_code}
+  exit 0
+fi
 
 echo "Creating ${CLIENT} client"
 echo "---------------"
 
-CLIENT_CONF=$(curl -si -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
+CLIENT_CONF=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
    -d '{"clientId": "'${CLIENT}'", "directAccessGrantsEnabled": true, "serviceAccountsEnabled": true, "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
@@ -97,7 +102,7 @@ echo
 echo "Getting client secret"
 echo "---------------------"
 
-PBENCH_CLIENT_SECRET=$(curl -s -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/client-secret" \
+PBENCH_CLIENT_SECRET=$(curl -s -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/client-secret" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" | jq -r '.value')
 
 echo "PBENCH_CLIENT_SECRET=${PBENCH_CLIENT_SECRET}"
@@ -106,12 +111,16 @@ echo
 echo "Creating an 'ADMIN' role under ${CLIENT} client of the ${REALM} realm"
 echo "--------------------"
 
-curl -i -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
+status_code=$(curl -i -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"name": "ADMIN"}'
+  -d '{"name": "ADMIN"}')
 
-ROLE_ID=$(curl -s "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
+if [[ "${status_code}" != "201" ]]; then
+  exit 0
+fi
+
+ROLE_ID=$(curl -s -f "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" | jq -r '.[0].id')
 
 echo "ROLE_ID=${ROLE_ID}"
@@ -120,7 +129,7 @@ echo
 echo "Creating an 'admin' user inside ${REALM} realm"
 echo "-------------"
 
-USER=$(curl -si -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users" \
+USER=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "123", "temporary": false}]}')
@@ -132,10 +141,15 @@ echo
 echo "Assigning 'ADMIN' client role to the user 'admin' created above"
 echo "---------------------------"
 
-curl -i -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
+status_code=$(curl -i -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '[{"id":"'${ROLE_ID}'","name":"ADMIN"}]'
+  -d '[{"id":"'${ROLE_ID}'","name":"ADMIN"}]')
+
+if [[ "${status_code}" != "204" ]]; then
+  echo ${status_code}
+  exit 0
+fi
 
 # Verify that the user id has a role assigned to it
 USER_ROLES=$(curl -s "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
