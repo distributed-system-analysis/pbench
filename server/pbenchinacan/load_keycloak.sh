@@ -17,9 +17,8 @@
 # "http://localhost:8080/*" unless specified otherwise by 'KEYCLOAK_REDIRECT_URI'
 # env variable.
 
-KEYCLOAK_BASE_IMAGE=${KEYCLOAK_BASE_IMAGE:-"images.paas.redhat.com/pbench/pbenchinacan-keycloak:base"}
+KEYCLOAK_BASE_IMAGE=${KEYCLOAK_BASE_IMAGE:-"images.paas.redhat.com/pbench/pbenchinacan-keycloak:20.0.3"}
 KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"http://localhost:8090"}
-KEYCLOAK_HEALTH_URI="${KEYCLOAK_HOST_PORT}/health"
 KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"http://localhost:8080/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
@@ -30,9 +29,10 @@ podman run -d --rm -p 8090:8090 \
 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin \
 ${KEYCLOAK_BASE_IMAGE} start-dev --health-enabled=true --http-port=8090
 
+keycloak_health_uri="${KEYCLOAK_HOST_PORT}/health"
 end_in_epoch_secs=$(( $(date +%s) + 120 ))
 
-until curl -s -o /dev/null ${KEYCLOAK_HEALTH_URI}; do
+until curl -s -o /dev/null ${keycloak_health_uri}; do
   if [[ $(date +%s) -ge ${end_in_epoch_secs} ]]; then
     echo "Timed out connecting to Keycloak" >&2
     exit 1
@@ -44,9 +44,9 @@ done
 echo "Keycloak health url is up" >&2
 
 while [[ $(date +%s) -le ${end_in_epoch_secs} ]]; do
-  status_code=$(curl -s -o /dev/null -w "%{http_code}" ${KEYCLOAK_HEALTH_URI})
+  status_code=$(curl -s -o /dev/null -w "%{http_code}" ${keycloak_health_uri})
   if [[ "${status_code}" == "200" ]]; then
-    keycloak_status=$(curl -s ${KEYCLOAK_HEALTH_URI} | jq -r ".status")
+    keycloak_status=$(curl -s ${keycloak_health_uri} | jq -r ".status")
     if [[ ${keycloak_status} == "UP" ]]; then
       echo "Keycloak Server is up" >&2
       break
