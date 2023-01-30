@@ -1,13 +1,6 @@
-#!/usr/bin/env bash -x
+#!/usr/bin/env bash -e
 #
 # This script builds a container which, when run, starts a Pbench Server.
-#
-# Note:  successfully running this script required adding CAP_SETFCAP (for the
-#        installation of httpd) to the list of default capabilities in
-#        /etc/containers/containers.conf (and, if that file doesn't exist,
-#        you'll need to create it with the other default capabilities, e.g., see
-#        https://man.archlinux.org/man/containers.conf.5.en#CONTAINERS_TABLE and
-#        https://github.com/containers/common/blob/da56e470c0c57c27e91bdc844b32c5dab6611394/pkg/config/containers.conf#L48)
 #
 
 #+
@@ -80,8 +73,6 @@ buildah run $container cp ${SERVER_LIB}/systemd/pbench-server.service \
 buildah run $container systemctl enable nginx
 buildah run $container systemctl enable rsyslog
 buildah run $container systemctl enable pbench-server
-
-# Skip installing and configuring the Firewall
 
 # Copy the Pbench Server config file for our "in-a-can" environment, and
 # customize it.  When deployed for Staging or Production, this file will be
