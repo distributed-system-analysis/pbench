@@ -97,7 +97,6 @@ class MoveResults(BaseCommand):
 
                 try:
                     crt = CopyResultTb(
-                        self.context.controller,
                         result_tb_name,
                         result_tb_len,
                         result_tb_md5,

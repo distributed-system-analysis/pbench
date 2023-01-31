@@ -37,25 +37,6 @@ class TestCopyResults:
 
         return mock_func
 
-    def test_controller_invalid(self, agent_logger):
-        """Test error when the controller value is invalid"""
-        bad_controller_name = "#invalid!"
-        expected_error_message = (
-            f"Controller {bad_controller_name!r} is not a valid host name"
-        )
-        with pytest.raises(ValueError) as excinfo:
-            CopyResultTb(
-                bad_controller_name,
-                "tarball",
-                0,
-                "ignoremd5",
-                self.config,
-                agent_logger,
-            )
-        assert str(excinfo.value).endswith(
-            expected_error_message
-        ), f"expected='...{expected_error_message}', found='{str(excinfo.value)}'"
-
     def test_tarball_nonexistent(self, monkeypatch, agent_logger):
         """Test error when the tarball file does not exist"""
         bad_tarball_name = "nonexistent-tarball.tar.xz"
@@ -67,7 +48,6 @@ class TestCopyResults:
 
         with pytest.raises(FileNotFoundError) as excinfo:
             CopyResultTb(
-                "controller",
                 bad_tarball_name,
                 0,
                 "ignoremd5",
@@ -104,7 +84,6 @@ class TestCopyResults:
         )
 
         crt = CopyResultTb(
-            "controller",
             tb_name,
             len(tb_contents),
             "someMD5",
@@ -134,7 +113,6 @@ class TestCopyResults:
 
         with pytest.raises(RuntimeError) as excinfo:
             crt = CopyResultTb(
-                "controller",
                 tb_name,
                 len(tb_contents),
                 "someMD5",
@@ -161,7 +139,6 @@ class TestCopyResults:
 
         with pytest.raises(CopyResultTb.FileUploadError) as excinfo:
             crt = CopyResultTb(
-                "controller",
                 tb_name,
                 len(tb_contents),
                 "someMD5",

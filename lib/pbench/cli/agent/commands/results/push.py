@@ -17,7 +17,6 @@ class ResultsPush(BaseCommand):
     def execute(self) -> int:
         tarball_len, tarball_md5 = md5sum(self.context.result_tb_name)
         crt = CopyResultTb(
-            self.context.controller,
             self.context.result_tb_name,
             tarball_len,
             tarball_md5,
@@ -32,7 +31,6 @@ class ResultsPush(BaseCommand):
 @click.command(name="pbench-results-push")
 @common_options
 @results_common_options
-@click.argument("controller")
 @click.argument(
     "result_tb_name",
     type=click.Path(
@@ -47,7 +45,6 @@ class ResultsPush(BaseCommand):
 @pass_cli_context
 def main(
     context: CliContext,
-    controller: str,
     result_tb_name: str,
     token: str,
     access: str,
@@ -55,14 +52,12 @@ def main(
     """Push a result tar ball to the configured Pbench server.
 
     \b
-    CONTROLLER is the name of the controlling node.
     RESULT_TB_NAME is the path to the result tar ball.
     \f
     (This docstring will be printed as the help text for this command;
     the backslash-escaped letters are formatting directives; this
     parenthetical text will not appear in the help output.)
     """
-    context.controller = controller
     context.result_tb_name = result_tb_name
     context.token = token
     context.access = access

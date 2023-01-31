@@ -286,7 +286,6 @@ class CopyResultTb:
 
     def __init__(
         self,
-        controller: str,
         tarball: str,
         tarball_len: int,
         tarball_md5: str,
@@ -296,12 +295,8 @@ class CopyResultTb:
         """Constructor for object representing tar ball to be copied remotely.
 
         Raises
-            ValueError          if the given controller is not a valid hostname
             FileNotFoundError   if the given tar ball does not exist
         """
-        if validate_hostname(controller) != 0:
-            raise ValueError(f"Controller {controller!r} is not a valid host name")
-        self.controller = controller
         self.tarball = Path(tarball)
         if not self.tarball.exists():
             raise FileNotFoundError(f"Tar ball '{self.tarball}' does not exist")
@@ -333,7 +328,6 @@ class CopyResultTb:
         headers = {
             "Content-MD5": self.tarball_md5,
             "Authorization": f"Bearer {token}",
-            "controller": self.controller,
         }
         with self.tarball.open("rb") as f:
             try:
