@@ -16,7 +16,7 @@ gunicorn
 humanize
 psycopg2
 pyesbulk>=2.0.1
-PyJwt
+PyJwt[crypto]
 python-dateutil
 requests
 sqlalchemy>=1.4.23

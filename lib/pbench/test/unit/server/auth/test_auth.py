@@ -19,12 +19,14 @@ class TestUserTokenManagement:
     PASSWORD = "test123"
     REALM_NAME = "public_test_realm"
 
-    def test_token_introspect_offline(self, keycloak_oidc, keycloak_mock_token):
+    def test_token_introspect_offline(
+        self, keycloak_oidc, keycloak_mock_token, rsa_keys
+    ):
         options = {"verify_signature": True, "verify_aud": True, "verify_exp": True}
         response = keycloak_oidc.token_introspect_offline(
             token=keycloak_mock_token,
-            key="some_secret",
-            algorithms=["HS256"],
+            key=rsa_keys["public_key"],
+            algorithms=["RS256"],
             audience="test_client",
             options=options,
         )
@@ -35,27 +37,50 @@ class TestUserTokenManagement:
             "aud": "test_client",
         }
 
-    def test_token_introspect_wrong_aud_claim(self, keycloak_oidc, keycloak_mock_token):
+    def test_token_introspect_wrong_pubkey_claim(
+        self, keycloak_oidc, keycloak_mock_token
+    ):
+        options = {"verify_signature": True, "verify_aud": True, "verify_exp": True}
+        with pytest.raises(ValueError) as e:
+            keycloak_oidc.token_introspect_offline(
+                token=keycloak_mock_token,
+                key="-----BEGIN PUBLIC KEY-----\n"
+                + "public_key"
+                + "\n-----END PUBLIC KEY-----",
+                algorithms=["RS256"],
+                audience="wrong_client",
+                options=options,
+            )
+        assert (
+            "Could not deserialize key data. The data may be in an incorrect"
+            " format, it may be encrypted with an unsupported algorithm, or"
+            " it may be an unsupported key type (e.g. EC curves with"
+            " explicit parameters)." in str(e.value)
+        )
+
+    def test_token_introspect_wrong_aud_claim(
+        self, keycloak_oidc, keycloak_mock_token, rsa_keys
+    ):
         options = {"verify_signature": True, "verify_aud": True, "verify_exp": True}
         with pytest.raises(InvalidAudienceError) as e:
             keycloak_oidc.token_introspect_offline(
                 token=keycloak_mock_token,
-                key="some_secret",
-                algorithms=["HS256"],
+                key=rsa_keys["public_key"],
+                algorithms=["RS256"],
                 audience="wrong_client",
                 options=options,
             )
         assert str(e.value) == "Invalid audience"
 
     def test_token_introspect_invalid_algorithm(
-        self, keycloak_oidc, keycloak_mock_token
+        self, keycloak_oidc, keycloak_mock_token, rsa_keys
     ):
         options = {"verify_signature": True, "verify_aud": True, "verify_exp": True}
         with pytest.raises(InvalidAlgorithmError) as e:
             keycloak_oidc.token_introspect_offline(
                 token=keycloak_mock_token,
-                key="some_secret",
-                algorithms=["INVALID_ALGORITHM"],
+                key=rsa_keys["public_key"],
+                algorithms=["HS256"],
                 audience="wrong_client",
                 options=options,
             )
@@ -140,7 +165,7 @@ class TestUserTokenManagement:
         with app.app_context():
             token_payload = Auth.verify_third_party_token(
                 auth_token="",
-                algorithms=["HS256"],
+                algorithms=["RS256"],
                 oidc_client=keycloak_oidc,
             )
         assert token_payload == InternalUser(
