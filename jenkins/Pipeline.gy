@@ -16,7 +16,7 @@ pipeline {
         // is defined we'll use its value for the container image tag;
         // otherwise we set it to the branch name (e.g., `main`).
         PB_IMAGE_TAG="${env.CHANGE_ID ?: env.BRANCH_NAME}"
-        PB_SERVER_IMAGE_NAME="pbench-server-ci"
+        PB_SERVER_IMAGE_NAME="pbench-server"
     }
     stages {
         stage('Agent Python3.6 Check') {
@@ -50,8 +50,7 @@ pipeline {
             }
             steps {
                 sh 'buildah login -u="${PB_CI_REG_CRED_USR}" -p="${PB_CI_REG_CRED_PSW}" ${PB_CI_REGISTRY}'
-                sh 'bash -ex ./server/pbenchinacan/container-build-ci.sh'
-                sh 'buildah push localhost/pbench-server:${PB_IMAGE_TAG} ${PB_CI_REGISTRY}/${PB_ORG_NAME}/pbench-server:${PB_IMAGE_TAG}'
+                sh 'bash -ex ./server/pbenchinacan/container-build.sh'
                 sh 'buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG} ${PB_CI_REGISTRY}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG}'
             }
         }

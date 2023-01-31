@@ -1,24 +1,22 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -e
 #
-# This script builds a stand-alone Pbench Server container with just the base
-# software installed.
+# This script builds a container which, when run, starts a Pbench Server.
 #
-
-set -o errexit
 
 #+
 # Configuration definition section.
 #-
 
 BASE_IMAGE=${BASE_IMAGE:-registry.access.redhat.com/ubi9:latest}
+PB_SERVER_IMAGE_NAME=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
+PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
 RPM_PATH=${RPM_PATH:-/root/sandbox/rpmbuild/RPMS/noarch/pbench-server-*.rpm}
+KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-"client-secret"}
 
 # Locations on the host
 GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
-
 PBINC_SERVER=${GITTOP}/server
-# Image tag determined from jenkins/branch.name
-PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
+PBINC_INACAN=${PBINC_SERVER}/pbenchinacan
 
 # Locations inside the container
 INSTALL_ROOT=/opt/pbench-server
@@ -43,11 +41,8 @@ fi
 # the hostname.
 container=$(buildah from --format=docker ${BASE_IMAGE})
 
-# Provide a few useful defaults for labels and the host name to use, and expose
-# port 8080 for the Nginx proxy server.
 buildah config \
     --label maintainer="Pbench Maintainers <pbench@googlegroups.com>" \
-    --port 8080 \
     $container
 
 buildah copy $container ${RPM_PATH} /tmp/pbench-server.rpm
@@ -79,5 +74,29 @@ buildah run $container systemctl enable nginx
 buildah run $container systemctl enable rsyslog
 buildah run $container systemctl enable pbench-server
 
-# Create the container image.
-buildah commit $container localhost/pbench-server:${PB_SERVER_IMAGE_TAG}
+# Copy the Pbench Server config file for our "in-a-can" environment, and
+# customize it.  When deployed for Staging or Production, this file will be
+# not be used because it will be over-mapped with an external file.
+buildah copy --chown pbench:pbench --chmod 0644 $container \
+    ${PBINC_INACAN}/etc/pbench-server/pbench-server.cfg ${CONF_PATH}
+buildah run $container sed -Ei \
+    -e "s/<keycloak_secret>/${KEYCLOAK_CLIENT_SECRET}/" \
+    ${CONF_PATH}
+
+# Create and populate the /srv/pbench directory tree and set its ownership.
+# When deployed for Staging or Production, this tree will not be used because
+# it will be over-mapped with an external volume.
+buildah run $container mkdir -p -m 0755  \
+    /srv/pbench/archive/fs-version-001 \
+    /srv/pbench/public_html/dashboard \
+    /srv/pbench/public_html/incoming \
+    /srv/pbench/public_html/results \
+    /srv/pbench/public_html/users \
+    /srv/pbench/logs \
+    /srv/pbench/tmp \
+    /srv/pbench/pbench-move-results-receive/fs-version-002
+buildah run $container cp /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html /srv/pbench/public_html/
+buildah run $container chown --recursive pbench:pbench /srv/pbench
+
+# Create the container image
+buildah commit $container localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
