@@ -41,8 +41,9 @@ class TestServerAudit:
         return query_api
 
     @pytest.fixture()
-    def make_audits(self, client, create_user):
+    def make_audits(self, client, create_user) -> str:
         """Create some audit records to test."""
+        user_id = str(create_user.id)
         with freeze_time("2022-01-01 00:00:00 UTC") as f:
             root = Audit.create(
                 operation=OperationCode.CREATE,
@@ -62,6 +63,7 @@ class TestServerAudit:
             )
             f.tick(delta=datetime.timedelta(seconds=5))
             Audit.create(root=root, status=AuditStatus.FAILURE)
+        return user_id
 
     def test_get_bad_keys(self, query_get):
         response = query_get({"xyzzy": "foo"}, HTTPStatus.BAD_REQUEST)
@@ -69,18 +71,19 @@ class TestServerAudit:
 
     def test_get_all(self, query_get, make_audits):
         """With no query parameters, we should get all audit records"""
+        expected_user_id = make_audits
         response = query_get(expected_status=HTTPStatus.OK)
         audits = response.json
         assert len(audits) == 4
         assert audits[0]["status"] == "BEGIN"
         assert audits[0]["operation"] == "CREATE"
         assert audits[0]["name"] == "first"
-        assert audits[0]["user_id"] == "2"
+        assert audits[0]["user_id"] == expected_user_id
         assert audits[0]["user_name"] == "test"
         assert audits[1]["status"] == "SUCCESS"
         assert audits[1]["operation"] == "CREATE"
         assert audits[1]["name"] == "first"
-        assert audits[1]["user_id"] == "2"
+        assert audits[1]["user_id"] == expected_user_id
         assert audits[1]["user_name"] == "test"
         assert audits[2]["status"] == "BEGIN"
         assert audits[2]["operation"] == "UPDATE"
