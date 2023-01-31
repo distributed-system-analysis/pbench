@@ -17,10 +17,11 @@ from pbench.server.auth import OpenIDClient
 
 @pytest.fixture
 def mock_get_server_config(monkeypatch, on_disk_server_config):
+    cfg_file = on_disk_server_config["cfg_dir"] / "pbench-server.cfg"
+    config = PbenchServerConfig(str(cfg_file))
+    del config.conf["authentication"]["server_url"]
+
     def get_server_config() -> PbenchServerConfig:
-        cfg_file = on_disk_server_config["cfg_dir"] / "pbench-server.cfg"
-        config = PbenchServerConfig(str(cfg_file))
-        del config.conf["authentication"]["server_url"]
         return config
 
     monkeypatch.setattr(shell, "get_server_config", get_server_config)
