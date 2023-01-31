@@ -30,7 +30,7 @@ class TestSampleNamespace(Commons):
         )
 
     def test_with_no_index_document(
-        self, client, server_config, pbench_token, attach_dataset
+        self, client, server_config, pbench_drb_token, attach_dataset
     ):
         """Check the Namespace API when no index name is provided."""
         # remove the last component of the pbench_endpoint
@@ -39,7 +39,7 @@ class TestSampleNamespace(Commons):
         assert response.status_code == HTTPStatus.NOT_FOUND
 
     def test_with_incorrect_index_document(
-        self, client, server_config, pbench_token, attach_dataset
+        self, client, server_config, pbench_drb_token, attach_dataset
     ):
         """Check the Namespace API when an incorrect index name is provided.
 
@@ -49,7 +49,7 @@ class TestSampleNamespace(Commons):
         incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-1]) + "/test"
         response = client.get(
             f"{server_config.rest_uri}{incorrect_endpoint}",
-            headers={"Authorization": "Bearer " + pbench_token},
+            headers={"Authorization": "Bearer " + pbench_drb_token},
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
 
@@ -105,7 +105,7 @@ class TestSampleNamespace(Commons):
         self,
         server_config,
         query_api,
-        pbench_token,
+        pbench_drb_token,
         build_auth_header,
         find_template,
         provide_metadata,
@@ -417,7 +417,7 @@ class TestSampleValues(Commons):
         self,
         server_config,
         query_api,
-        pbench_token,
+        pbench_drb_token,
         build_auth_header,
         find_template,
         provide_metadata,
@@ -590,7 +590,7 @@ class TestSampleValues(Commons):
         self,
         server_config,
         query_api,
-        pbench_token,
+        pbench_drb_token,
         build_auth_header,
         find_template,
         provide_metadata,
@@ -654,7 +654,7 @@ class TestSampleValues(Commons):
         self,
         server_config,
         query_api,
-        pbench_token,
+        pbench_drb_token,
         build_auth_header,
         find_template,
         provide_metadata,

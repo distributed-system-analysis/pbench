@@ -100,9 +100,11 @@ class TestServerAudit:
             "message": "Unauthenticated client is not authorized to READ a server administrative resource"
         }
 
-    def test_unauthorized(self, query_get, make_audits, pbench_token):
+    def test_unauthorized(self, query_get, make_audits, pbench_drb_token):
         """Verify UNAUTHORIZED status with no authentication token"""
-        response = query_get(token=pbench_token, expected_status=HTTPStatus.FORBIDDEN)
+        response = query_get(
+            token=pbench_drb_token, expected_status=HTTPStatus.FORBIDDEN
+        )
         assert response.json == {
             "message": "User drb is not authorized to READ a server administrative resource"
         }

@@ -11,7 +11,7 @@ from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 class TestDatasetsAccess:
     @pytest.fixture()
-    def query_get_as(self, client, server_config, more_datasets, pbench_token):
+    def query_get_as(self, client, server_config, more_datasets, pbench_drb_token):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
@@ -20,7 +20,7 @@ class TestDatasetsAccess:
             client: Flask test API client fixture
             server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
-            pbench_token: Authenticated user token fixture
+            pbench_drb_token: Authenticated user token fixture
         """
 
         def query_api(
@@ -30,7 +30,7 @@ class TestDatasetsAccess:
                 dataset_id = Dataset.query(name=dataset).resource_id
             except DatasetNotFound:
                 dataset_id = dataset  # Allow passing deliberately bad value
-            headers = {"authorization": f"bearer {pbench_token}"}
+            headers = {"authorization": f"bearer {pbench_drb_token}"}
             k = "" if target is None else f"/{target}"
             response = client.get(
                 f"{server_config.rest_uri}/datasets/inventory/{dataset_id}{k}",

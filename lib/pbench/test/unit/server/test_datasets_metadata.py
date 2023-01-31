@@ -258,7 +258,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
 
         return query_api
 
-    def test_put_missing_uri_param(self, client, server_config, pbench_token):
+    def test_put_missing_uri_param(self, client, server_config, pbench_drb_token):
         """
         Test behavior when no dataset name is given on the URI. (NOTE that
         Flask automatically handles this with a NOT_FOUND response.)
@@ -266,7 +266,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         response = client.put(f"{server_config.rest_uri}/datasets/metadata/")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
-    def test_put_missing_key(self, client, server_config, pbench_token):
+    def test_put_missing_key(self, client, server_config, pbench_drb_token):
         """
         Test behavior when JSON payload does not contain all required keys.
 
