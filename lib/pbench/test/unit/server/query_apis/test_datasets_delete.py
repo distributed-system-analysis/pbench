@@ -158,7 +158,7 @@ class TestDatasetsDelete:
         get_document_map,
         monkeypatch,
         server_config,
-        pbench_token,
+        pbench_drb_token,
     ):
         """
         Check the delete API when some document updates fail. We expect an
@@ -169,7 +169,7 @@ class TestDatasetsDelete:
         ds = Dataset.query(name="drb")
         response = client.post(
             f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json == {"ok": 28, "failure": 3}
@@ -178,14 +178,14 @@ class TestDatasetsDelete:
         Dataset.query(name="drb")
 
     def test_no_dataset(
-        self, client, get_document_map, monkeypatch, pbench_token, server_config
+        self, client, get_document_map, monkeypatch, pbench_drb_token, server_config
     ):
         """
         Check the delete API if the dataset doesn't exist.
         """
         response = client.post(
             f"{server_config.rest_uri}/datasets/delete/badwolf",
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
 
         # Verify the report and status
@@ -193,7 +193,7 @@ class TestDatasetsDelete:
         assert response.json["message"] == "Dataset 'badwolf' not found"
 
     def test_no_index(
-        self, client, monkeypatch, attach_dataset, pbench_token, server_config
+        self, client, monkeypatch, attach_dataset, pbench_drb_token, server_config
     ):
         """
         Check the delete API if the dataset has no INDEX_MAP. It should
@@ -203,7 +203,7 @@ class TestDatasetsDelete:
         ds = Dataset.query(name="drb")
         response = client.post(
             f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
 
         # Verify the report and status
@@ -219,7 +219,7 @@ class TestDatasetsDelete:
         client,
         monkeypatch,
         get_document_map,
-        pbench_token,
+        pbench_drb_token,
         server_config,
     ):
         """
@@ -241,7 +241,7 @@ class TestDatasetsDelete:
 
         response = client.post(
             f"{server_config.rest_uri}/datasets/delete/random_md5_string1",
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
 
         # Verify the failure

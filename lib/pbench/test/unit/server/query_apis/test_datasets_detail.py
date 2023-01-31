@@ -190,7 +190,7 @@ class TestDatasetsDetail(Commons):
         query_api,
         find_template,
         provide_metadata,
-        pbench_token,
+        pbench_drb_token,
     ):
         """This is nearly a repeat of the basic `test_query`; while that focuses
         on validating the transformation of Elasticsearch data, this tries to
@@ -269,7 +269,7 @@ class TestDatasetsDetail(Commons):
             self.payload,
             index,
             HTTPStatus.OK,
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
             json=response_payload,
             request_method=self.api_method,
             query_params=query_params,
@@ -363,7 +363,7 @@ class TestDatasetsDetail(Commons):
             assert response.json["message"].find("dataset has gone missing") != -1
 
     def test_nonunique_query(
-        self, client, server_config, query_api, find_template, pbench_token
+        self, client, server_config, query_api, find_template, pbench_drb_token
     ):
         """
         Check the handling of a query that returns too much data.
@@ -385,7 +385,7 @@ class TestDatasetsDetail(Commons):
             index,
             HTTPStatus.BAD_REQUEST,
             json=response_payload,
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
             request_method=self.api_method,
         )
         assert response.json["message"].find("Too many hits for a unique query") != -1

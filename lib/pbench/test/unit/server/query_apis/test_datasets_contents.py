@@ -38,7 +38,9 @@ class TestDatasetsContents(Commons):
         response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}/")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
-    def test_with_incorrect_index_document(self, client, server_config, pbench_token):
+    def test_with_incorrect_index_document(
+        self, client, server_config, pbench_drb_token
+    ):
         """
         Check the Contents API when an incorrect index name is provided.
         """
@@ -47,7 +49,7 @@ class TestDatasetsContents(Commons):
         )
         response = client.get(
             f"{server_config.rest_uri}{incorrect_endpoint}",
-            headers={"Authorization": "Bearer " + pbench_token},
+            headers={"Authorization": "Bearer " + pbench_drb_token},
         )
         assert response.status_code == HTTPStatus.NOT_FOUND
 
@@ -55,7 +57,7 @@ class TestDatasetsContents(Commons):
         self,
         server_config,
         query_api,
-        pbench_token,
+        pbench_drb_token,
         build_auth_header,
         find_template,
         provide_metadata,
@@ -177,7 +179,7 @@ class TestDatasetsContents(Commons):
         self,
         server_config,
         query_api,
-        pbench_token,
+        pbench_drb_token,
         build_auth_header,
         find_template,
         provide_metadata,
@@ -277,7 +279,7 @@ class TestDatasetsContents(Commons):
         self,
         server_config,
         query_api,
-        pbench_token,
+        pbench_drb_token,
         build_auth_header,
         find_template,
         provide_metadata,
@@ -362,7 +364,7 @@ class TestDatasetsContents(Commons):
         self,
         server_config,
         query_api,
-        pbench_token,
+        pbench_drb_token,
         build_auth_header,
         find_template,
         provide_metadata,
@@ -427,7 +429,7 @@ class TestDatasetsContents(Commons):
         self,
         server_config,
         query_api,
-        pbench_token,
+        pbench_drb_token,
         build_auth_header,
         find_template,
         provide_metadata,
@@ -482,11 +484,11 @@ class TestDatasetsContents(Commons):
         assert indices == "unit-test.v6.run-toc.2020-05"
 
     @pytest.mark.parametrize("name", ("wrong", ""))
-    def test_missing_name(self, client, server_config, pbench_token, name):
+    def test_missing_name(self, client, server_config, pbench_drb_token, name):
         expected_status = HTTPStatus.NOT_FOUND
         incorrect_endpoint = self.pbench_endpoint.rsplit("/", 1)[0] + "/" + name
         response = client.get(
             incorrect_endpoint,
-            headers={"Authorization": "Bearer " + pbench_token},
+            headers={"Authorization": "Bearer " + pbench_drb_token},
         )
         assert response.status_code == expected_status

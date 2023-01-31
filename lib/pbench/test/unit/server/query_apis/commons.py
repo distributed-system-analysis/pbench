@@ -174,9 +174,9 @@ class Commons:
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
 
-    def test_bad_user_name(self, client, server_config, pbench_token):
+    def test_bad_user_name(self, client, server_config, pbench_drb_token):
         """Test behavior when authenticated user specifies a non-existent user."""
-        # The pbench_token fixture logs in as user "drb"
+        # The pbench_drb_token fixture logs in as user "drb"
         # Trying to access the data belong to the user "pp"
         userp = self.cls_obj.schemas.get_param_by_type(
             self.api_method, ParamType.USER, None
@@ -190,7 +190,7 @@ class Commons:
         response = self.make_request_call(
             client,
             server_config.rest_uri + self.pbench_endpoint,
-            {"Authorization": "Bearer " + pbench_token},
+            {"Authorization": "Bearer " + pbench_drb_token},
             json=self.payload,
         )
         assert response.status_code == HTTPStatus.NOT_FOUND
@@ -200,7 +200,7 @@ class Commons:
         ("drb", "pp"),
     )
     def test_accessing_user_data_with_invalid_token(
-        self, client, server_config, pbench_token_invalid, user
+        self, client, server_config, pbench_drb_token_invalid, user
     ):
         """Test behavior when expired authentication token is provided.
 
@@ -225,7 +225,7 @@ class Commons:
         response = self.make_request_call(
             client,
             server_config.rest_uri + self.pbench_endpoint,
-            {"Authorization": "Bearer " + pbench_token_invalid},
+            {"Authorization": "Bearer " + pbench_drb_token_invalid},
             json=self.payload,
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
@@ -238,7 +238,7 @@ class Commons:
             )
         assert str(exc.value).startswith("Missing required parameters: ")
 
-    def test_malformed_payload(self, client, server_config, pbench_token):
+    def test_malformed_payload(self, client, server_config, pbench_drb_token):
         """Test behavior when payload is not valid JSON."""
         if self.api_method != ApiMethod.POST:
             pytest.skip(
@@ -249,7 +249,7 @@ class Commons:
             client,
             server_config.rest_uri + self.pbench_endpoint,
             {
-                "Authorization": "Bearer " + pbench_token,
+                "Authorization": "Bearer " + pbench_drb_token,
                 "Content-Type": "application/json",
             },
             data='{"x":0]',
@@ -260,7 +260,7 @@ class Commons:
             == "Invalid request payload: '400 Bad Request: The browser (or proxy) sent a request that this server could not understand.'"
         )
 
-    def test_missing_keys(self, client, server_config, pbench_token):
+    def test_missing_keys(self, client, server_config, pbench_drb_token):
         """Test behavior when JSON payload does not contain all required keys.
 
         Note that Pbench will silently ignore any additional keys that are
@@ -276,7 +276,7 @@ class Commons:
             response = self.make_request_call(
                 client,
                 server_config.rest_uri + self.pbench_endpoint,
-                {"Authorization": "Bearer " + pbench_token},
+                {"Authorization": "Bearer " + pbench_drb_token},
                 json=keys,
             )
             assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -318,7 +318,7 @@ class Commons:
         if required_keys:
             missing_key_helper({"notakey": None})
 
-    def test_bad_dates(self, client, server_config, pbench_token):
+    def test_bad_dates(self, client, server_config, pbench_drb_token):
         """Test behavior when a bad date string is given."""
         if self.api_method != ApiMethod.POST:
             pytest.skip(
@@ -341,7 +341,7 @@ class Commons:
                 response = self.make_request_call(
                     client,
                     server_config.rest_uri + self.pbench_endpoint,
-                    {"Authorization": "Bearer " + pbench_token},
+                    {"Authorization": "Bearer " + pbench_drb_token},
                     json=self.payload,
                 )
                 assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -428,7 +428,7 @@ class Commons:
         query_api,
         exceptions,
         find_template,
-        pbench_token,
+        pbench_drb_token,
         provide_metadata,
     ):
         """Check that an exception in calling Elasticsearch is reported
@@ -449,7 +449,7 @@ class Commons:
             index,
             exceptions["status"],
             body=exceptions["exception"],
-            headers={"Authorization": "Bearer " + pbench_token},
+            headers={"Authorization": "Bearer " + pbench_drb_token},
             request_method=self.api_method,
         )
 
@@ -459,7 +459,7 @@ class Commons:
         server_config,
         query_api,
         find_template,
-        pbench_token,
+        pbench_drb_token,
         provide_metadata,
         errors,
     ):
@@ -481,6 +481,6 @@ class Commons:
             index,
             HTTPStatus.BAD_GATEWAY,
             status=errors,
-            headers={"Authorization": "Bearer " + pbench_token},
+            headers={"Authorization": "Bearer " + pbench_drb_token},
             request_method=self.api_method,
         )

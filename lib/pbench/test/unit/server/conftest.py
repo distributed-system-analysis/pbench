@@ -790,6 +790,7 @@ def create_drb_user(client, server_config, fake_email_validator):
 
 @pytest.fixture()
 def pbench_admin_token(client, create_admin_user):
+    """OIDC valid token for the 'ADMIN' user"""
     return generate_token(
         user=create_admin_user,
         username=admin_username,
@@ -798,18 +799,14 @@ def pbench_admin_token(client, create_admin_user):
 
 
 @pytest.fixture()
-def pbench_token(client, create_drb_user):
-    """
-    OIDC valid token for the 'drb' user.
-    """
+def pbench_drb_token(client, create_drb_user):
+    """OIDC valid token for the 'drb' user"""
     return generate_token(username="drb", user=create_drb_user)
 
 
 @pytest.fixture()
-def pbench_token_invalid(client, create_drb_user):
-    """
-    OIDC invalid token for the 'drb' user
-    """
+def pbench_drb_token_invalid(client, create_drb_user):
+    """OIDC invalid token for the 'drb' user"""
     return generate_token(username="drb", user=create_drb_user, valid=False)
 
 
@@ -906,19 +903,19 @@ def generate_token(
 def build_auth_header(
     request,
     server_config,
-    pbench_token,
+    pbench_drb_token,
     pbench_admin_token,
-    pbench_token_invalid,
+    pbench_drb_token_invalid,
     client,
 ):
     if request.param == HeaderTypes.VALID_ADMIN:
         header = {"Authorization": "Bearer " + pbench_admin_token}
 
     elif request.param == HeaderTypes.VALID:
-        header = {"Authorization": "Bearer " + pbench_token}
+        header = {"Authorization": "Bearer " + pbench_drb_token}
 
     elif request.param == HeaderTypes.INVALID:
-        header = {"Authorization": "Bearer " + pbench_token_invalid}
+        header = {"Authorization": "Bearer " + pbench_drb_token_invalid}
 
     elif request.param == HeaderTypes.EMPTY:
         header = {}

@@ -203,10 +203,10 @@ class TestServerConfiguration:
             "message": "Unauthenticated client is not authorized to UPDATE a server administrative resource"
         }
 
-    def test_put_value_user(self, query_put, pbench_token):
+    def test_put_value_user(self, query_put, pbench_drb_token):
         response = query_put(
             key="dataset-lifetime",
-            token=pbench_token,
+            token=pbench_drb_token,
             json={"value": "4 days"},
             expected_status=HTTPStatus.FORBIDDEN,
         )
@@ -272,7 +272,7 @@ class TestServerConfiguration:
         }
 
     def test_disable_api_readonly(
-        self, server_config, client, query_put, pbench_token, more_datasets
+        self, server_config, client, query_put, pbench_drb_token, more_datasets
     ):
         query_put(
             key="server-state",
@@ -286,13 +286,13 @@ class TestServerConfiguration:
         )
         response = client.get(
             f"{server_config.rest_uri}/datasets/list?owner=drb",
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json["total"] == 2
         response = client.put(
             f"{server_config.rest_uri}/datasets/metadata/drb",
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
             json={"metadata": {"dataset.name": "Test"}},
         )
         assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE

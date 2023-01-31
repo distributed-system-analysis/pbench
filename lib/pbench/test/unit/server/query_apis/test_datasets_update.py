@@ -98,7 +98,7 @@ class TestDatasetsUpdate:
         client,
         get_document_map,
         monkeypatch,
-        pbench_token,
+        pbench_drb_token,
         server_config,
     ):
         """
@@ -109,7 +109,7 @@ class TestDatasetsUpdate:
 
         response = client.post(
             f"{server_config.rest_uri}/datasets/random_md5_string1",
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
             query_string=self.PAYLOAD,
         )
         assert response.status_code == HTTPStatus.OK
@@ -120,7 +120,7 @@ class TestDatasetsUpdate:
         assert dataset.access == Dataset.PRIVATE_ACCESS
 
     def test_no_dataset(
-        self, client, get_document_map, monkeypatch, pbench_token, server_config
+        self, client, get_document_map, monkeypatch, pbench_drb_token, server_config
     ):
         """
         Check the datasets_update API if the dataset doesn't exist.
@@ -128,7 +128,7 @@ class TestDatasetsUpdate:
 
         response = client.post(
             f"{server_config.rest_uri}/datasets/badwolf",
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
             query_string=self.PAYLOAD,
         )
 
@@ -137,7 +137,7 @@ class TestDatasetsUpdate:
         assert response.json["message"] == "Dataset 'badwolf' not found"
 
     def test_no_index(
-        self, attach_dataset, client, monkeypatch, pbench_token, server_config
+        self, attach_dataset, client, monkeypatch, pbench_drb_token, server_config
     ):
         """
         Check the datasets_update API if the dataset has no INDEX_MAP. It should
@@ -148,7 +148,7 @@ class TestDatasetsUpdate:
         ds = Dataset.query(name="drb")
         response = client.post(
             f"{server_config.rest_uri}/datasets/{ds.resource_id}",
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
             query_string=self.PAYLOAD,
         )
 
@@ -165,7 +165,7 @@ class TestDatasetsUpdate:
         client,
         monkeypatch,
         get_document_map,
-        pbench_token,
+        pbench_drb_token,
         server_config,
     ):
         """
@@ -187,7 +187,7 @@ class TestDatasetsUpdate:
 
         response = client.post(
             f"{server_config.rest_uri}/datasets/random_md5_string1",
-            headers={"authorization": f"Bearer {pbench_token}"},
+            headers={"authorization": f"Bearer {pbench_drb_token}"},
             query_string=self.PAYLOAD,
         )
 
