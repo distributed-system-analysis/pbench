@@ -4,8 +4,12 @@ import pytest
 
 from pbench.server.auth import OpenIDClient
 
-private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-pem_public_key = private_key.public_key()
+
+@pytest.fixture(scope="session")
+def rsa_keys():
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    pem_public_key = private_key.public_key()
+    return {"private_key": private_key, "public_key": pem_public_key}
 
 
 def mock_set_oidc_auth_endpoints(oidc_client):
@@ -14,9 +18,9 @@ def mock_set_oidc_auth_endpoints(oidc_client):
 
 
 @pytest.fixture
-def keycloak_oidc(server_config, monkeypatch):
+def keycloak_oidc(server_config, monkeypatch, rsa_keys):
     def mock_get_oidc_public_key(oidc_client):
-        return pem_public_key
+        return rsa_keys["public_key"]
 
     monkeypatch.setattr(
         OpenIDClient, "set_well_known_endpoints", mock_set_oidc_auth_endpoints
@@ -31,12 +35,7 @@ def keycloak_oidc(server_config, monkeypatch):
 
 
 @pytest.fixture
-def keycloak_pub_key():
-    return pem_public_key
-
-
-@pytest.fixture
-def keycloak_mock_token(server_config):
+def keycloak_mock_token(server_config, rsa_keys):
     payload = {
         "iat": 1659476706,
         "exp": 1685396687,
@@ -45,4 +44,4 @@ def keycloak_mock_token(server_config):
     }
 
     # Get jwt key
-    return jwt.encode(payload, key=private_key, algorithm="RS256")
+    return jwt.encode(payload, key=rsa_keys["private_key"], algorithm="RS256")

@@ -20,12 +20,12 @@ class TestUserTokenManagement:
     REALM_NAME = "public_test_realm"
 
     def test_token_introspect_offline(
-        self, keycloak_oidc, keycloak_mock_token, keycloak_pub_key
+        self, keycloak_oidc, keycloak_mock_token, rsa_keys
     ):
         options = {"verify_signature": True, "verify_aud": True, "verify_exp": True}
         response = keycloak_oidc.token_introspect_offline(
             token=keycloak_mock_token,
-            key=keycloak_pub_key,
+            key=rsa_keys["public_key"],
             algorithms=["RS256"],
             audience="test_client",
             options=options,
@@ -59,13 +59,13 @@ class TestUserTokenManagement:
         )
 
     def test_token_introspect_wrong_aud_claim(
-        self, keycloak_oidc, keycloak_mock_token, keycloak_pub_key
+        self, keycloak_oidc, keycloak_mock_token, rsa_keys
     ):
         options = {"verify_signature": True, "verify_aud": True, "verify_exp": True}
         with pytest.raises(InvalidAudienceError) as e:
             keycloak_oidc.token_introspect_offline(
                 token=keycloak_mock_token,
-                key=keycloak_pub_key,
+                key=rsa_keys["public_key"],
                 algorithms=["RS256"],
                 audience="wrong_client",
                 options=options,
@@ -73,13 +73,13 @@ class TestUserTokenManagement:
         assert str(e.value) == "Invalid audience"
 
     def test_token_introspect_invalid_algorithm(
-        self, keycloak_oidc, keycloak_mock_token, keycloak_pub_key
+        self, keycloak_oidc, keycloak_mock_token, rsa_keys
     ):
         options = {"verify_signature": True, "verify_aud": True, "verify_exp": True}
         with pytest.raises(InvalidAlgorithmError) as e:
             keycloak_oidc.token_introspect_offline(
                 token=keycloak_mock_token,
-                key=keycloak_pub_key,
+                key=rsa_keys["public_key"],
                 algorithms=["HS256"],
                 audience="wrong_client",
                 options=options,
