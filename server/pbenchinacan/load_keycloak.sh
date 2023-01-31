@@ -82,8 +82,8 @@ status_code=$(curl -f -i -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST
   -d '{"realm": "'${REALM}'", "enabled": true}')
 
 if [[ "${status_code}" != "201" ]]; then
-  echo ${status_code}
-  exit 0
+  echo "Realm creation failed with ${status_code}"
+  exit 1
 fi
 
 echo "Creating ${CLIENT} client"
@@ -117,7 +117,8 @@ status_code=$(curl -i -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PO
   -d '{"name": "ADMIN"}')
 
 if [[ "${status_code}" != "201" ]]; then
-  exit 0
+  echo "ADMIN role creation failed with ${status_code}"
+  exit 1
 fi
 
 ROLE_ID=$(curl -s -f "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
@@ -147,8 +148,8 @@ status_code=$(curl -i -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PO
   -d '[{"id":"'${ROLE_ID}'","name":"ADMIN"}]')
 
 if [[ "${status_code}" != "204" ]]; then
-  echo ${status_code}
-  exit 0
+  echo "Assigning 'ADMIN' client role to the user 'admin' failed with ${status_code}"
+  exit 1
 fi
 
 # Verify that the user id has a role assigned to it
