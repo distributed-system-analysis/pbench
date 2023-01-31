@@ -11,7 +11,6 @@ from pbench.server.api.resources import (
     ApiSchema,
     UnauthorizedAccess,
 )
-from pbench.server.auth.auth import Auth
 from pbench.server.database.models.users import User
 
 
@@ -29,25 +28,6 @@ class TestAuthorization:
     @pytest.fixture()
     def apibase(self, client) -> ApiBase:
         return ApiBase(client.config, ApiSchema(ApiMethod.GET, OperationCode.READ))
-
-    @pytest.fixture()
-    def current_user_admin(self, monkeypatch):
-        admin_user = User(
-            email="email@example.com",
-            id=6,
-            username="admin",
-            first_name="Test",
-            last_name="Admin",
-            role="admin",
-        )
-
-        class FakeHTTPTokenAuth:
-            def current_user(self) -> User:
-                return admin_user
-
-        with monkeypatch.context() as m:
-            m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
-            yield admin_user
 
     @pytest.mark.parametrize(
         "ask",

@@ -248,11 +248,11 @@ def fake_email_validator(monkeypatch):
 
 @pytest.fixture()
 def create_user(client, fake_email_validator) -> User:
-    """
-    Construct a test user and add it to the database.
+    """Construct a test user and add it to the database.
 
     Args:
-        client: Fixture to ensure we have a database
+        client : Fixture to ensure we have a database
+        fake_email_validator : Allow fake email to be used
     """
     user = User(
         email="test@example.com",
@@ -267,14 +267,15 @@ def create_user(client, fake_email_validator) -> User:
 
 @pytest.fixture()
 def create_admin_user(client, fake_email_validator) -> User:
-    """
-    Construct an admin user and add it to the database.
+    """Construct an admin user and add it to the database.
 
     Args:
-        client: Fixture to ensure we have a database
+        client : Fixture to ensure we have a database
+        fake_email_validator : Allow fake email to be used
     """
     user = User(
         email=admin_email,
+        id=6,
         password=generic_password,
         username=admin_username,
         first_name="Admin",
@@ -283,6 +284,26 @@ def create_admin_user(client, fake_email_validator) -> User:
     )
     user.add()
     return user
+
+
+@pytest.fixture()
+def create_drb_user(client, fake_email_validator):
+    """Construct the "drb" user and add it to the database.
+
+    Args:
+        client : Fixture to ensure we have a database
+        fake_email_validator : Allow fake email to be used
+    """
+    drb = User(
+        email="drb@example.com",
+        id=3,
+        password=generic_password,
+        username="drb",
+        first_name="Authorized",
+        last_name="User",
+    )
+    drb.add()
+    return drb
 
 
 @pytest.fixture()
@@ -774,21 +795,6 @@ def find_template(monkeypatch, fake_mtime):
 
 
 @pytest.fixture()
-def create_drb_user(client, server_config, fake_email_validator):
-    # Create a user
-    drb = User(
-        email="drb@example.com",
-        id=3,
-        password=generic_password,
-        username="drb",
-        first_name="Authorized",
-        last_name="User",
-    )
-    drb.add()
-    return drb
-
-
-@pytest.fixture()
 def pbench_admin_token(client, create_admin_user):
     """OIDC valid token for the 'ADMIN' user"""
     return generate_token(
@@ -926,7 +932,7 @@ def build_auth_header(
 
 
 @pytest.fixture()
-def current_user_drb(monkeypatch, create_drb_user, fake_email_validator):
+def current_user_drb(monkeypatch, create_drb_user):
     class FakeHTTPTokenAuth:
         def current_user(self) -> User:
             return create_drb_user
@@ -945,6 +951,17 @@ def current_user_none(monkeypatch):
     with monkeypatch.context() as m:
         m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
         yield None
+
+
+@pytest.fixture()
+def current_user_admin(monkeypatch, create_admin_user):
+    class FakeHTTPTokenAuth:
+        def current_user(self) -> User:
+            return create_admin_user
+
+    with monkeypatch.context() as m:
+        m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
+        yield create_admin_user
 
 
 @pytest.fixture()

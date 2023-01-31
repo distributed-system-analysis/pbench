@@ -5,8 +5,6 @@ import pytest
 from pbench.server import JSON, OperationCode
 from pbench.server.api.resources import ApiMethod, ApiSchema
 from pbench.server.api.resources.query_apis import ElasticBase
-from pbench.server.auth.auth import Auth
-from pbench.server.database.models.users import User
 
 ADMIN_ID = "6"  # This needs to match the current_user_admin fixture
 SELF_ID = "3"  # This needs to match the current_user_drb fixture
@@ -17,25 +15,6 @@ class TestQueryBuilder:
     @pytest.fixture()
     def elasticbase(self, client) -> ElasticBase:
         return ElasticBase(client.config, ApiSchema(ApiMethod.POST, OperationCode.READ))
-
-    @pytest.fixture()
-    def current_user_admin(self, monkeypatch):
-        admin_user = User(
-            email="email@example.com",
-            id=6,
-            username="admin",
-            first_name="Test",
-            last_name="Admin",
-            role="admin",
-        )
-
-        class FakeHTTPTokenAuth:
-            def current_user(self) -> User:
-                return admin_user
-
-        with monkeypatch.context() as m:
-            m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
-            yield admin_user
 
     @staticmethod
     def assemble(term: JSON, user: Optional[str], access: Optional[str]) -> JSON:
