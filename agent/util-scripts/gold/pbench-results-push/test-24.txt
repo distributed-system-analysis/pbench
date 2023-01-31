@@ -1,9 +1,8 @@
 +++ Running test-24 pbench-results-push --help
-Usage: pbench-results-push [OPTIONS] CONTROLLER RESULT_TB_NAME
+Usage: pbench-results-push [OPTIONS] RESULT_TB_NAME
 
   Push a result tar ball to the configured Pbench server.
 
-  CONTROLLER is the name of the controlling node.
   RESULT_TB_NAME is the path to the result tar ball.
 
 Options:
