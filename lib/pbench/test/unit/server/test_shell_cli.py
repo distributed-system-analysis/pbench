@@ -77,8 +77,10 @@ class TestShell:
     def test_generate_crontab_if_necessary_no_action(monkeypatch, make_logger):
         """Test site.generate_crontab_if_necessary with no action taken"""
 
+        called = {"run": False}
+
         def run(args, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
-            assert False, "Mocked run should not have been called."
+            called["run"] = True
 
         monkeypatch.setenv("PATH", "one:two")
         # An existing crontab does nothing.
@@ -91,6 +93,9 @@ class TestShell:
 
         assert ret_val == 0
         assert os.environ["PATH"] == "one:two", f"PATH='{os.environ['PATH']}'"
+        assert not called[
+            "run"
+        ], "generate_crontab_if_necessary() took action unexpectedly"
 
     @staticmethod
     def test_generate_crontab_if_necessary_created(monkeypatch, make_logger):
