@@ -2,11 +2,14 @@
 
 # Build the pbench-server RPM locally, then build the containers locally, and
 # then run the fuctional tests against the locally built CI container image.
-
-export PB_CONTAINER_REG=images.paas.redhat.com
-export PB_ORG_NAME=pbench
 export PB_SERVER_IMAGE_NAME=pbench-server
+
+# We use the current user name as a the tag to avoid any conflict with what the
+# CI environment does.
 export PB_SERVER_IMAGE_TAG=${USER}
+
+# We use the image pull policy of Never here to ensure our locally build image
+# is used by the pod.
 export PB_SERVER_IMAGE_PULL_POLICY=Never
 
 # We explicit set WORKSPACE_TMP so that RPM build (which uses a container image)

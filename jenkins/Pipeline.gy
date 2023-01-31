@@ -11,6 +11,7 @@ pipeline {
         PB_CI_REGISTRY=credentials('c3e2d737-0e56-4c1e-a945-d86bc644384c')
         PB_CI_REG_CRED=credentials('12b404ca-3036-4960-9929-979148b9e49a')
         PB_ORG_NAME="pbench"
+        PB_CONTAINER_REG="${PB_CI_REGISTRY}/${PB_ORG_NAME}"
         // If we are executing for a PR, as opposed to executing for a branch
         // like `main`, the CHANGE_ID will be defined to the PR number.  If it
         // is defined we'll use its value for the container image tag;
@@ -45,7 +46,7 @@ pipeline {
             steps {
                 sh 'buildah login -u="${PB_CI_REG_CRED_USR}" -p="${PB_CI_REG_CRED_PSW}" ${PB_CI_REGISTRY}'
                 sh 'bash -ex ./server/pbenchinacan/container-build.sh'
-                sh 'buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG} ${PB_CI_REGISTRY}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG}'
+                sh 'buildah push ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG}'
             }
         }
         stage('Build the Pbench Agent Containers') {
@@ -56,12 +57,11 @@ pipeline {
                 sh 'buildah login -u="${PB_CI_REG_CRED_USR}" -p="${PB_CI_REG_CRED_PSW}" ${PB_CI_REGISTRY}'
                 sh '/usr/bin/python3 -m pip install --user jinja2-cli'
                 sh 'make -C agent/containers/images CI_RPM_ROOT=${WORKSPACE_TMP} clean ${PB_AGENT_DISTRO}-everything'
-                sh 'make -C agent/containers/images IMAGE_REPO=${PB_CI_REGISTRY}/${PB_ORG_NAME} IMAGE_TAG=${PB_IMAGE_TAG} ${PB_AGENT_DISTRO}-push-ci'
+                sh 'make -C agent/containers/images IMAGE_REPO=${PB_CONTAINER_REG} IMAGE_TAG=${PB_IMAGE_TAG} ${PB_AGENT_DISTRO}-push-ci'
             }
         }
         stage('Deploy server and run functional tests') {
             environment {
-                PB_CONTAINER_REG="${PB_CI_REGISTRY}"
                 PB_DASHBOARD_DIR="${WORKSPACE}/dashboard/build/"
                 PB_SERVER_IMAGE_TAG="${PB_IMAGE_TAG}"
             }

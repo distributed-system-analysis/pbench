@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export EXTRA_PODMAN_SWITCHES=${EXTRA_PODMAN_SWITCHES:-"--pull=always"}
+export EXTRA_PODMAN_SWITCHES=${EXTRA_PODMAN_SWITCHES:-"--pull=newer"}
 export IMAGE_KIND=${IMAGE_KIND:-"fedora"}
 export IMAGE_REPO=${IMAGE_REPO:-"quay.io/pbench"}
 export IMAGE_ROLE=${IMAGE_ROLE:-"ci"}

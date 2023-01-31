@@ -13,6 +13,9 @@ PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
 RPM_PATH=${RPM_PATH:-/root/sandbox/rpmbuild/RPMS/noarch/pbench-server-*.rpm}
 KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-"client-secret"}
 
+# Default target registry to use.
+PB_CONTAINER_REG=${PB_CONTAINER_REG:-images.paas.redhat.com/pbench}
+
 # Locations on the host
 GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PBINC_SERVER=${GITTOP}/server
@@ -100,5 +103,5 @@ buildah run $container mkdir -p -m 0755  \
 buildah run $container cp /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html /srv/pbench/public_html/
 buildah run $container chown --recursive pbench:pbench /srv/pbench
 
-# Create the container image
-buildah commit $container localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
+# Create the container image.
+buildah commit $container ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}

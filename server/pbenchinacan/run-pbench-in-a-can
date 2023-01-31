@@ -22,17 +22,7 @@
 
 # The default container registry to use, and the organization name in that
 # registry.
-export PB_CONTAINER_REG=${PB_CONTAINER_REG:-"images.paas.redhat.com"}
-export PB_ORG_NAME=${PB_ORG_NAME:-"pbench"}
-
-# Typically, the CI builds the Pbench Server container image and pushes it to
-# the container registry as part of the CI pipeline.  However, for development,
-# we need to build a local Pbench Server RPM and image from the checked-out
-# sources and run the functional tests against it.  But, we don't want to
-# require pushing that resulting image to the container registry in order to
-# pull it back to run it in the pod below.  To enable this, we use a separate
-# environment variable just for the Pbench Server.
-export PB_SERVER_CONTAINER_REG=${PB_SERVER_CONTAINER_REG:-${PB_CONTAINER_REG}}
+export PB_CONTAINER_REG=${PB_CONTAINER_REG:-"images.paas.redhat.com/pbench"}
 
 # Default pull policy for all images is to always try to pull the image (NOTE:
 # this does not mean it will download the image, but it will check to see if the
@@ -43,47 +33,23 @@ export PB_COMMON_IMAGE_PULL_POLICY=${PB_COMMON_IMAGE_PULL_POLICY:-"newer"}
 # policy.
 export PB_ELASTICSEARCH_IMAGE_NAME=${PB_ELASTICSEARCH_IMAGE_NAME:-"elasticsearch"}
 export PB_ELASTICSEARCH_IMAGE_TAG=${PB_ELASTICSEARCH_IMAGE_TAG:-"7.13.3"}
-if [[ "${PB_CONTAINER_REG}" == "localhost" ]]; then
-    # Drop the explict registry reference when using "localhost".
-    export PB_ELASTICSEARCH_IMAGE="${PB_CONTAINER_REG}/${PB_ELASTICSEARCH_IMAGE_NAME}:${PB_ELASTICSEARCH_IMAGE_TAG}"
-    export PB_ELASTICSEARCH_IMAGE_PULL_POLICY="never"
-else
-    export PB_ELASTICSEARCH_IMAGE="${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_ELASTICSEARCH_IMAGE_NAME}:${PB_ELASTICSEARCH_IMAGE_TAG}"
-    export PB_ELASTICSEARCH_IMAGE_PULL_POLICY="${PB_ELASTICSEARCH_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
-fi
+export PB_ELASTICSEARCH_IMAGE="${PB_CONTAINER_REG}/${PB_ELASTICSEARCH_IMAGE_NAME}:${PB_ELASTICSEARCH_IMAGE_TAG}"
+export PB_ELASTICSEARCH_IMAGE_PULL_POLICY="${PB_ELASTICSEARCH_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
 
 export PB_POSTGRESQL_IMAGE_NAME=${PB_POSTGRESQL_IMAGE_NAME:-"postgresql-13"}
 export PB_POSTGRESQL_IMAGE_TAG=${PB_POSTGRESQL_IMAGE_TAG:-"latest"}
-if [[ "${PB_CONTAINER_REG}" == "localhost" ]]; then
-    # Drop the explict registry reference when using "localhost".
-    export PB_POSTGRESQL_IMAGE="${PB_CONTAINER_REG}/${PB_POSTGRESQL_IMAGE_NAME}:${PB_POSTGRESQL_IMAGE_TAG}"
-    export PB_POSTGRESQL_IMAGE_PULL_POLICY="never"
-else
-    export PB_POSTGRESQL_IMAGE="${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_POSTGRESQL_IMAGE_NAME}:${PB_POSTGRESQL_IMAGE_TAG}"
-    export PB_POSTGRESQL_IMAGE_PULL_POLICY="${PB_POSTGRESQL_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
-fi
+export PB_POSTGRESQL_IMAGE="${PB_CONTAINER_REG}/${PB_POSTGRESQL_IMAGE_NAME}:${PB_POSTGRESQL_IMAGE_TAG}"
+export PB_POSTGRESQL_IMAGE_PULL_POLICY="${PB_POSTGRESQL_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
 
 export PB_KEYCLOAK_IMAGE_NAME=${PB_KEYCLOAK_IMAGE_NAME:-"pbenchinacan-keycloak"}
 export PB_KEYCLOAK_IMAGE_TAG=${PB_KEYCLOAK_IMAGE_TAG:-"20.0.3"}
-if [[ "${PB_CONTAINER_REG}" == "localhost" ]]; then
-    # Drop the explict registry reference when using "localhost".
-    export PB_KEYCLOAK_IMAGE="${PB_CONTAINER_REG}/${PB_KEYCLOAK_IMAGE_NAME}:${PB_KEYCLOAK_IMAGE_TAG}"
-    export PB_KEYCLOAK_IMAGE_PULL_POLICY="never"
-else
-    export PB_KEYCLOAK_IMAGE="${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_KEYCLOAK_IMAGE_NAME}:${PB_KEYCLOAK_IMAGE_TAG}"
-    export PB_KEYCLOAK_IMAGE_PULL_POLICY="${PB_KEYCLOAK_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
-fi
+export PB_KEYCLOAK_IMAGE="${PB_CONTAINER_REG}/${PB_KEYCLOAK_IMAGE_NAME}:${PB_KEYCLOAK_IMAGE_TAG}"
+export PB_KEYCLOAK_IMAGE_PULL_POLICY="${PB_KEYCLOAK_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
 
 export PB_SERVER_IMAGE_NAME=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
 export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
-if [[ "${PB_SERVER_CONTAINER_REG}" == "localhost" ]]; then
-    # Drop the explict registry reference when using "localhost".
-    export PB_SERVER_IMAGE="${PB_SERVER_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}"
-    export PB_SERVER_IMAGE_PULL_POLICY="never"
-else
-    export PB_SERVER_IMAGE="${PB_SERVER_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}"
-    export PB_SERVER_IMAGE_PULL_POLICY="${PB_SERVER_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
-fi
+export PB_SERVER_IMAGE="${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}"
+export PB_SERVER_IMAGE_PULL_POLICY="${PB_SERVER_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
 
 # The overall pod name is always derived from the pbench server image tag.
 export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
