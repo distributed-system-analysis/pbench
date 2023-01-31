@@ -1,20 +1,20 @@
 #!/bin/bash -e
 
 # Build the pbench-server RPM locally, then build the containers locally, and
-# then run the fuctional tests against the locally built CI container image.
+# then run the functional tests against the locally built CI container image.
 export PB_SERVER_IMAGE_NAME=pbench-server
 
 # We use the current user name as a the tag to avoid any conflict with what the
 # CI environment does.
 export PB_SERVER_IMAGE_TAG=${USER}
 
-# We use the image pull policy of Never here to ensure our locally build image
+# We use the image pull policy of Never here to ensure our locally built image
 # is used by the pod.
 export PB_SERVER_IMAGE_PULL_POLICY=Never
 
-# We explicit set WORKSPACE_TMP so that RPM build (which uses a container image)
-# will store the resulting RPM in that work space temporary directory so we can
-# reference it when building the container images.
+# We explicit set WORKSPACE_TMP so that RPM builds (which uses a container
+# image) # will store the resulting RPM in that work space temporary directory
+# so we can reference it when building the container images.
 export WORKSPACE_TMP=/var/tmp/${USER}/runlocal
 mkdir -p /var/tmp/${USER}
 rm -rf ${WORKSPACE_TMP}
@@ -23,7 +23,7 @@ mkdir ${WORKSPACE_TMP}
 # Create a RHEL 9 RPM from the current source tree.
 make -C server/rpm clean rhel-9-rpm
 
-# Build the CI container from the RPM built above.
+# Build the canned Pbench Server container from the RPM built above.
 RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build.sh
 
 # Run the functional tests using the locally built image.
