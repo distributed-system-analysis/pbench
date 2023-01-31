@@ -71,7 +71,7 @@ class TestShell:
         shell.find_the_unicorn(make_logger)
         assert os.environ["PATH"].endswith(
             "/bin:ONE:TWO"
-        ), f"Expected PATH to end with '/bin:ONE:TWO', foudn PATH == '{os.environ['PATH']}'"
+        ), f"Expected PATH to end with '/bin:ONE:TWO', found PATH == '{os.environ['PATH']}'"
 
     @staticmethod
     def test_generate_crontab_if_necessary_no_action(monkeypatch, make_logger):
