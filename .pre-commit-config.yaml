@@ -8,21 +8,21 @@
 # exclude prevents those checks being run.
 exclude: (agent/bench-scripts/test-bin/fio-histo-log-pctiles\.py|web-server/v0\.3/demo\.py)
 repos:
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 4.0.1
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
     hooks:
       - id: flake8
         name: flake8 (python3)
         language_version: python3
   - repo: https://github.com/python/black.git
-    rev: 22.3.0
+    rev: 22.12.0
     hooks:
       - id: black
         name: black (python3)
         language_version: python3
         args: ["--check"]
   - repo: https://github.com/pycqa/isort
-    rev: 5.10.1
+    rev: 5.12.0
     hooks:
       - id: isort
         name: isort (python3)
