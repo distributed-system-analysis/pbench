@@ -41,7 +41,7 @@ class TestDatasetsList:
 
     @pytest.fixture()
     def query_as(
-        self, client, server_config, more_datasets, provide_metadata, get_token
+        self, client, server_config, more_datasets, provide_metadata, get_token_func
     ):
         """Helper fixture to perform the API query and validate an expected
         return status.
@@ -51,7 +51,7 @@ class TestDatasetsList:
             server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
-            get_token: Pbench token fixture
+            get_token_func: Pbench token fixture
         """
 
         def query_api(
@@ -71,7 +71,7 @@ class TestDatasetsList:
             """
             headers = None
             if username:
-                token = get_token(username)
+                token = get_token_func(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
                 f"{server_config.rest_uri}/datasets/list",

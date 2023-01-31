@@ -18,7 +18,7 @@ class TestDatasetsDateRange:
 
     @pytest.fixture()
     def query_as(
-        self, client, server_config, more_datasets, provide_metadata, get_token
+        self, client, server_config, more_datasets, provide_metadata, get_token_func
     ):
         """
         Helper fixture to perform the API query and validate an expected
@@ -29,13 +29,13 @@ class TestDatasetsDateRange:
             server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
-            get_token: Pbench token fixture
+            get_token_func: Pbench token fixture
         """
 
         def query_api(
             payload: JSON, username: str, expected_status: HTTPStatus
         ) -> requests.Response:
-            token = get_token(username)
+            token = get_token_func(username)
             response = client.get(
                 f"{server_config.rest_uri}/datasets/daterange",
                 headers={"authorization": f"bearer {token}"},
