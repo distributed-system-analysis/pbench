@@ -11,7 +11,7 @@ from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 class TestDatasetsMetadataGet:
     @pytest.fixture()
     def query_get_as(
-        self, client, server_config, more_datasets, provide_metadata, get_token
+        self, client, server_config, more_datasets, provide_metadata, get_token_func
     ):
         """
         Helper fixture to perform the API query and validate an expected
@@ -22,7 +22,7 @@ class TestDatasetsMetadataGet:
             server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
-            get_token: Pbench token fixture
+            get_token_func: Pbench token fixture
         """
 
         def query_api(
@@ -34,7 +34,7 @@ class TestDatasetsMetadataGet:
             except DatasetNotFound:
                 dataset = ds_name  # Allow passing deliberately bad value
             if username:
-                token = get_token(username)
+                token = get_token_func(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
                 f"{server_config.rest_uri}/datasets/metadata/{dataset}",
@@ -215,7 +215,7 @@ class TestDatasetsMetadataGet:
 class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
     @pytest.fixture()
     def query_put_as(
-        self, client, server_config, more_datasets, provide_metadata, get_token
+        self, client, server_config, more_datasets, provide_metadata, get_token_func
     ):
         """
         Helper fixture to perform the API query and validate an expected
@@ -226,7 +226,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             server_config: Pbench config fixture
             more_datasets: Dataset construction fixture
             provide_metadata: Dataset metadata fixture
-            get_token: Pbench token fixture
+            get_token_func: Pbench token fixture
         """
 
         def query_api(
@@ -238,7 +238,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             except DatasetNotFound:
                 dataset = ds_name  # Allow passing deliberately bad value
             if username:
-                token = get_token(username)
+                token = get_token_func(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.put(
                 f"{server_config.rest_uri}/datasets/metadata/{dataset}",
