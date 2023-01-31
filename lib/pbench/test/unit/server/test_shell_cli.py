@@ -55,28 +55,34 @@ class TestShell:
         """Test site.find_the_unicorn success and failure cases"""
         # Only need to set this once since the second test will change it.
         monkeypatch.setenv("PATH", "ONE:TWO")
+
+        # Cause the `.exists()` check for gunicorn to fail resulting in no
+        # change to the `PATH` environment variable.
         monkeypatch.setattr(Path, "exists", exists_false)
-
-        # Should be successful.
         shell.find_the_unicorn(make_logger)
+        assert (
+            os.environ["PATH"] == "ONE:TWO"
+        ), f"Expected PATH == 'ONE:TWO', found PATH == '{os.environ['PATH']}'"
 
-        assert os.environ["PATH"] == "ONE:TWO", f"PATH='{os.environ['PATH']}'"
-
+        # Cause the `.exists()` check for gunicorn to succeed, resulting in an
+        # added `PATH` element.
         monkeypatch.setattr(Path, "exists", exists_true)
-
-        # Should fail.
         shell.find_the_unicorn(make_logger)
-
         assert os.environ["PATH"].endswith(
             "/bin:ONE:TWO"
-        ), f"PATH='{os.environ['PATH']}'"
+        ), f"Expected PATH to end with '/bin:ONE:TWO', foudn PATH == '{os.environ['PATH']}'"
 
     @staticmethod
     def test_generate_crontab_if_necessary_no_action(monkeypatch, make_logger):
         """Test site.generate_crontab_if_necessary with no action taken"""
+
+        def run(args, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
+            assert False, "Mocked run should not have been called."
+
         monkeypatch.setenv("PATH", "one:two")
         # An existing crontab does nothing.
         monkeypatch.setattr(Path, "exists", exists_true)
+        monkeypatch.setattr(subprocess, "run", run)
 
         ret_val = shell.generate_crontab_if_necessary(
             "/tmp", Path("bindir"), "cwd", make_logger
@@ -266,7 +272,7 @@ class TestShell:
             elif init_db_exc == "option":
                 exc = NoOptionError("section", "missingoption")
             else:
-                raise Exception(f"Bad test parameter, {init_db_exc}")
+                exc = Exception(f"Bad test parameter, {init_db_exc}")
             raise exc
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
@@ -372,7 +378,7 @@ class TestShell:
             elif gsc_exc == "bad":
                 exc = BadConfig("bad to the bone")
             else:
-                raise Exception(f"Bad test parameter, {gsc_exc}")
+                exc = Exception(f"Bad test parameter, {gsc_exc}")
             raise exc
 
         monkeypatch.setattr(shell, "get_server_config", get_server_config)
