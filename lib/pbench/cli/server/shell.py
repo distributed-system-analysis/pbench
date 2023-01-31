@@ -20,11 +20,7 @@ PROG = "pbench-shell"
 
 def app() -> Flask:
     """External gunicorn application entry point."""
-    try:
-        return create_app(get_server_config())
-    except Exception as e:
-        print(e, file=sys.stderr)
-        sys.exit(1)
+    return create_app(get_server_config())
 
 
 def find_the_unicorn(logger: Logger):
@@ -87,7 +83,7 @@ def main():
         server_config = get_server_config()
     except (ConfigFileNotSpecified, BadConfig) as e:
         print(e, file=sys.stderr)
-        sys.exit(1)
+        return 1
     logger = get_pbench_logger(PROG, server_config)
     if site.ENABLE_USER_SITE:
         find_the_unicorn(logger)
@@ -101,7 +97,7 @@ def main():
         crontab_dir = server_config.get("pbench-server", "crontab-dir")
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Error fetching required configuration: {}", exc)
-        sys.exit(1)
+        return 1
 
     logger.info("Pbench server using database {}", db_uri)
 
@@ -110,7 +106,7 @@ def main():
         Database.wait_for_database(db_uri, db_wait_timeout)
     except ConnectionRefusedError:
         logger.error("Database {} not responding", db_uri)
-        sys.exit(1)
+        return 1
 
     try:
         oidc_server = OpenIDClient.wait_for_oidc_server(server_config, logger)
@@ -118,7 +114,7 @@ def main():
         logger.warning("OpenID Connect client not configured, {}", exc)
     except Exception as exc:
         logger.error("Error connecting to OpenID Connect server, {}", exc)
-        sys.exit(1)
+        return 1
     else:
         logger.info("Pbench server using OIDC server {}", oidc_server)
 
@@ -131,13 +127,13 @@ def main():
         init_db(server_config, logger)
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Invalid database configuration: {}", exc)
-        sys.exit(1)
+        return 1
 
     ret_val = generate_crontab_if_necessary(
         crontab_dir, server_config.BINDIR, server_config.log_dir, logger
     )
     if ret_val != 0:
-        sys.exit(ret_val)
+        return ret_val
 
     # Beginning of the gunicorn command to start the pbench-server.
     cmd_line = [
@@ -173,4 +169,4 @@ def main():
 
     cmd_line.append("pbench.cli.server.shell:app()")
     cp = subprocess.run(cmd_line, cwd=server_config.log_dir)
-    sys.exit(cp.returncode)
+    return cp.returncode
