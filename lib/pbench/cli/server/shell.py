@@ -8,8 +8,8 @@ import sys
 
 from flask import Flask
 
-from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
+from pbench.server import PbenchServerConfig
 from pbench.server.api import create_app, get_server_config
 from pbench.server.auth import OpenIDClient
 from pbench.server.database import init_db
@@ -72,19 +72,12 @@ def generate_crontab_if_necessary(
     return ret_val
 
 
-def main():
+def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     """Setup of the Gunicorn Pbench Server Flask application.
 
-    If an error is encountered during setup, system exit is invoked with an
-    exit code of 1.  Otherwise, the exit code of the gunicorn subprocess is
-    used.
+    Returns:
+        1 on error, or the gunicorn sub-process status code
     """
-    try:
-        server_config = get_server_config()
-    except (ConfigFileNotSpecified, BadConfig) as e:
-        print(e, file=sys.stderr)
-        return 1
-    logger = get_pbench_logger(PROG, server_config)
     if site.ENABLE_USER_SITE:
         find_the_unicorn(logger)
     try:
@@ -112,9 +105,6 @@ def main():
         oidc_server = OpenIDClient.wait_for_oidc_server(server_config, logger)
     except OpenIDClient.NotConfigured as exc:
         logger.warning("OpenID Connect client not configured, {}", exc)
-    except Exception as exc:
-        logger.error("Error connecting to OpenID Connect server, {}", exc)
-        return 1
     else:
         logger.info("Pbench server using OIDC server {}", oidc_server)
 
@@ -170,3 +160,24 @@ def main():
     cmd_line.append("pbench.cli.server.shell:app()")
     cp = subprocess.run(cmd_line, cwd=server_config.log_dir)
     return cp.returncode
+
+
+def main() -> int:
+    """Wrapper performing general error handling here allowing for the heavy
+    lifting to be performed in run_gunicorn().
+
+    Returns:
+        0 on success, 1 on error
+    """
+    try:
+        server_config = get_server_config()
+        logger = get_pbench_logger(PROG, server_config)
+    except Exception as exc:
+        print(exc, file=sys.stderr)
+        return 1
+
+    try:
+        return run_gunicorn(server_config, logger)
+    except Exception:
+        logger.exception("Unhandled exception running gunicorn")
+        return 1
