@@ -2,6 +2,7 @@ import os
 import shutil
 import socket
 import tempfile
+from typing import List
 
 import click
 
@@ -30,7 +31,9 @@ class MoveResults(BaseCommand):
     def __init__(self, context: CliContext):
         super().__init__(context)
 
-    def execute(self, single_threaded: bool, delete: bool = True) -> int:
+    def execute(
+        self, metadata: List, single_threaded: bool, delete: bool = True
+    ) -> int:
         runs_copied = 0
         failures = 0
         no_of_tb = 0
@@ -103,7 +106,9 @@ class MoveResults(BaseCommand):
                         self.config,
                         self.logger,
                     )
-                    crt.copy_result_tb(self.context.token, self.context.access)
+                    crt.copy_result_tb(
+                        self.context.token, self.context.access, metadata
+                    )
                 except Exception as exc:
                     if isinstance(exc, (CopyResultTb.FileUploadError, RuntimeError)):
                         msg = "Error uploading file"
@@ -208,6 +213,7 @@ def main(
     access: str,
     token: str,
     delete: bool,
+    metadata: List,
     xz_single_threaded: bool,
     show_server: str,
 ):
@@ -240,7 +246,7 @@ def main(
         click.echo("WARNING -- Option '--show-server' is not implemented", err=True)
 
     try:
-        rv = MoveResults(context).execute(xz_single_threaded, delete=delete)
+        rv = MoveResults(context).execute(metadata, xz_single_threaded, delete=delete)
     except Exception as exc:
         click.echo(exc, err=True)
         rv = 1

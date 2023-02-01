@@ -16,6 +16,14 @@ def results_common_options(f):
             help="pbench tarball access permission",
         ),
         click.option(
+            "-m",
+            "--metadata",
+            required=False,
+            default=[],
+            multiple=True,
+            help="metadata to add information for server",
+        ),
+        click.option(
             "--token",
             required=True,
             envvar="PBENCH_ACCESS_TOKEN",
