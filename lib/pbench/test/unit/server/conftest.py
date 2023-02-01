@@ -113,12 +113,10 @@ def on_disk_server_config(tmp_path_factory) -> Dict[str, Path]:
 
 @pytest.fixture(scope="session")
 def server_config(on_disk_server_config) -> PbenchServerConfig:
-    """
-    Mock a pbench-server.cfg configuration as defined above.
+    """Mock a pbench-server.cfg configuration as defined above.
 
     Args:
         on_disk_server_config: the on-disk server configuration setup
-        monkeypatch: testing environment patch fixture
 
     Returns:
         a PbenchServerConfig object the test case can use
@@ -156,7 +154,7 @@ def client(
     the db_session fixture instead, which adds DB cleanup after the test.
     """
 
-    def mock_get_oidc_public_key(oidc_client):
+    def mock_get_oidc_public_key(_oidc_client):
         return jwt_secret
 
     monkeypatch.setattr(OpenIDClient, "_get_oidc_public_key", mock_get_oidc_public_key)
@@ -184,10 +182,10 @@ def make_logger(server_config):
 @pytest.fixture()
 def capinternal(caplog):
     def compare(message: str, response: Optional[Response]):
-        uuid = r"[a-zA-Z\d]{8}-([a-zA-Z\d]{4}-){3}[a-zA-Z\d]{12}"
+        uuid_re = r"[a-zA-Z\d]{8}-([a-zA-Z\d]{4}-){3}[a-zA-Z\d]{12}"
         name = r"\w+\s+"
-        external = re.compile(f"Internal Pbench Server Error: log reference {uuid}")
-        internal = re.compile(f"{name}Internal error {uuid}: {message}")
+        external = re.compile(f"Internal Pbench Server Error: log reference {uuid_re}")
+        internal = re.compile(f"{name}Internal error {uuid_re}: {message}")
         if response:
             assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
             assert external.match(response.json["message"])
@@ -231,7 +229,7 @@ def fake_email_validator(monkeypatch):
     Set up a mock for the email validator so we control failure modes.
     """
 
-    def fake_email(value: str, **kwargs) -> ValidatedEmail:
+    def fake_email(value: str, **_kwargs) -> ValidatedEmail:
 
         # The email validation failure case needs to see an error
         if "," in value:
@@ -319,13 +317,13 @@ def fake_mtime(monkeypatch):
         monkeypatch: patch fixture
     """
 
-    def fake_stat(file: str):
+    def fake_stat(_file: str):
         """
         Create a real stat_result using an actual file, but change the st_mtime
         to a known value before returning it.
 
         Args:
-            file: filename (not used)
+            _file: filename (not used)
 
         Returns:
             mocked stat_results
@@ -392,10 +390,10 @@ def more_datasets(
     create_admin_user,
     create_user,
 ):
-    """
-    Supplement the conftest.py "attach_dataset" fixture with a few more
-    datasets so we can practice various queries. In combination with
-    attach_dataset, the resulting datasets are:
+    """Supplement the conftest.py "attach_dataset" fixture with a few more
+    datasets so we can practice various queries.
+
+    In combination with attach_dataset, the resulting datasets are:
 
         Owner   Access  Date        Name
         ------- ------- ----------- ---------
@@ -414,6 +412,7 @@ def more_datasets(
         create_drb_user: Create the "drb" user
         create_admin_user: Create the "test_admin" user
         attach_dataset: Provide some datasets
+        create_user: Create another user
     """
     with freeze_time("1978-06-26 08:00:00"):
         Dataset(
@@ -536,21 +535,21 @@ def get_document_map(monkeypatch, attach_dataset):
         monkeypatch: patching fixture
         attach_dataset:  create a mock Dataset object
     """
-    map = {
+    mapping = {
         "unit-test.v6.run-data.2021-06": [uuid.uuid4().hex],
-        "unit-test.v6.run-toc.2021-06": [uuid.uuid4().hex for i in range(10)],
+        "unit-test.v6.run-toc.2021-06": [uuid.uuid4().hex for _ in range(10)],
         "unit-test.v5.result-data-sample.2021-06": [
-            uuid.uuid4().hex for i in range(20)
+            uuid.uuid4().hex for _ in range(20)
         ],
     }
 
     def get_document_map(dataset: Dataset, key: str) -> Metadata:
         assert key == Metadata.INDEX_MAP
-        return map
+        return mapping
 
     with monkeypatch.context() as m:
         m.setattr(Metadata, "getvalue", get_document_map)
-        yield map
+        yield mapping
 
 
 @pytest.fixture()
@@ -564,7 +563,7 @@ def find_template(monkeypatch, fake_mtime):
         fake_mtime: fake file modification time on init
     """
 
-    def fake_find(name: str) -> Template:
+    def fake_find(name: str) -> Optional[Template]:
         if name == "run":
             return Template(
                 name="run",
@@ -947,7 +946,7 @@ def current_user_drb(monkeypatch, create_drb_user):
 @pytest.fixture()
 def current_user_none(monkeypatch):
     class FakeHTTPTokenAuth:
-        def current_user(self) -> User:
+        def current_user(self) -> Optional[User]:
             return None
 
     with monkeypatch.context() as m:
