@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# This scripts configures a running Keycloak server with following configuration
+# This script configures a running Keycloak server with following configuration
 # 1. A realm with the name 'pbench'
 # 2. A client 'pbench-server' under the realm pbench
 # 3. A user 'admin' under the realm pbench

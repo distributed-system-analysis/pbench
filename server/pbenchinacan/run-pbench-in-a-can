@@ -112,8 +112,8 @@ mkdir -m 0755 -p ${PB_DASHBOARD_DIR}
 
 podman run \
   --rm \
+  --hostname pbenchinacan \
   --network host \
-  --pod ${PB_POD_NAME} \
   --name "${PB_POD_NAME}-pbenchserver" \
   --pull ${PB_SERVER_IMAGE_PULL_POLICY} \
   --umask 0000 \
