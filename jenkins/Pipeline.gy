@@ -108,5 +108,8 @@ pipeline {
                 zoomCoverageChart: false])
             sh 'rm -f cov/report.xml'
         }
+        always {
+            sh 'podman image ls --filter reference="*pbench-agent*" --filter reference="*pbench-server*" --format "{{.Id}}" --filter containers=false | sort -u | xargs podman image rm -f'
+        }
     }
 }
