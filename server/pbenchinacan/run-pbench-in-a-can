@@ -4,20 +4,21 @@
 # Deploy a self-contained Pbench server.
 #
 # This script creates a pod for the Pbench Server deployment using
-# four containers: the Pbench Server and its associated Elasticsearch
-# instance, PostgreSQL database instance, and KeyCloak broker
-# instance. After starting the dependent services, this script
-# configures the Keycloak broker, and then starts the Pbench Server.
+# three containers: All the dependant services associated with the
+# Pbench Server i.e. Elasticsearch instance, PostgreSQL database instance,
+# and KeyCloak broker instance. After starting the dependent services,
+# this script configures the Keycloak broker, and then starts the Pbench Server.
 #
 # To invoke the pbench-server pod using this script it should run from the
 # root of the Git checkout.
 #
 # The resulting pod exports the following ports:
-#
 #   5432 - PostgreSQL
-#   8080 - HTTP web server (and Pbench Dashboard)
 #   8090 - keycloak authentication server
 #   9200 - Elasticsearch
+#
+# The resulting pbench-server container runs on the following port
+#   8080 - HTTP web server (and Pbench Dashboard)
 
 export PB_CONTAINER_REG=${PB_CONTAINER_REG:-"images.paas.redhat.com"}
 export PB_CONTAINER_IMAGE_PREFIX="${PB_CONTAINER_REG}/pbench"
@@ -40,7 +41,7 @@ export PB_SERVER_IMAGE_PULL_POLICY="${PB_SERVER_IMAGE_PULL_POLICY:-${PB_COMMON_I
 
 export PB_DASHBOARD_DIR="${PB_DASHBOARD_DIR:-${PWD}/dashboard/build/}"
 
-podman pod create --name ${PB_POD_NAME} --hostname pbenchinacan -p 9200:9200 -p 5432:5432 -p 8090:8090 -p 8080:8080
+podman pod create --name ${PB_POD_NAME} -p 9200:9200 -p 5432:5432 -p 8090:8090
 
 podman run \
   --rm \
@@ -101,7 +102,7 @@ podman run \
   ${PB_CONTAINER_IMAGE_PREFIX}/${PB_KEYCLOAK_IMAGE_NAME}:${PB_KEYCLOAK_IMAGE_TAG} \
   start-dev --health-enabled=true --http-port=8090
 
-source server/pbenchinacan/load_keycloak.sh
+server/pbenchinacan/load_keycloak.sh
 
 # We expect the host dashboard directory already exists, however,
 # in case it is missing we will create an new empty directory.
@@ -111,6 +112,7 @@ mkdir -m 0755 -p ${PB_DASHBOARD_DIR}
 
 podman run \
   --rm \
+  --network host \
   --pod ${PB_POD_NAME} \
   --name "${PB_POD_NAME}-pbenchserver" \
   --pull ${PB_SERVER_IMAGE_PULL_POLICY} \
