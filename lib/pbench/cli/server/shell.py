@@ -76,8 +76,7 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     """Setup of the Gunicorn Pbench Server Flask application.
 
     Returns:
-        0 on success, 1 on error, and passes along the gunicorn sub-process
-            status code
+        1 on error, or the gunicorn sub-process status code
     """
     if site.ENABLE_USER_SITE:
         find_the_unicorn(logger)
