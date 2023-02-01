@@ -29,6 +29,7 @@ from pbench.server.database.models.datasets import Dataset, Metadata, States
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 from pbench.test import on_disk_config
+from pbench.test.unit.server import ADMIN_USER_ID, DRB_USER_ID, TEST_USER_ID
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 server_cfg_tmpl = """[DEFAULT]
@@ -256,6 +257,7 @@ def create_user(client, fake_email_validator) -> User:
     """
     user = User(
         email="test@example.com",
+        id=TEST_USER_ID,
         password=generic_password,
         username="test",
         first_name="Test",
@@ -275,7 +277,7 @@ def create_admin_user(client, fake_email_validator) -> User:
     """
     user = User(
         email=admin_email,
-        id=6,
+        id=ADMIN_USER_ID,
         password=generic_password,
         username=admin_username,
         first_name="Admin",
@@ -296,7 +298,7 @@ def create_drb_user(client, fake_email_validator):
     """
     drb = User(
         email="drb@example.com",
-        id=3,
+        id=DRB_USER_ID,
         password=generic_password,
         username="drb",
         first_name="Authorized",

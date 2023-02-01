@@ -5,10 +5,7 @@ import pytest
 from pbench.server import JSON, OperationCode
 from pbench.server.api.resources import ApiMethod, ApiSchema
 from pbench.server.api.resources.query_apis import ElasticBase
-
-ADMIN_ID = "6"  # This needs to match the current_user_admin fixture
-SELF_ID = "3"  # This needs to match the current_user_drb fixture
-USER_ID = "20"  # This is arbitrary, but can't match either fixture
+from pbench.test.unit.server import ADMIN_USER_ID, DRB_USER_ID, TEST_USER_ID
 
 
 class TestQueryBuilder:
@@ -43,12 +40,12 @@ class TestQueryBuilder:
             (None, None),
             (None, "public"),
             (None, "private"),
-            (USER_ID, None),
-            (USER_ID, "private"),
-            (USER_ID, "public"),
-            (ADMIN_ID, None),
-            (ADMIN_ID, "private"),
-            (ADMIN_ID, "public"),
+            (TEST_USER_ID, None),
+            (TEST_USER_ID, "private"),
+            (TEST_USER_ID, "public"),
+            (ADMIN_USER_ID, None),
+            (ADMIN_USER_ID, "private"),
+            (ADMIN_USER_ID, "public"),
         ],
     )
     def test_admin(self, elasticbase, server_config, current_user_admin, user, access):
@@ -66,24 +63,24 @@ class TestQueryBuilder:
         "ask,expect",
         [
             ({"access": "public"}, {"access": "public"}),
-            ({"access": "private"}, {"user": SELF_ID, "access": "private"}),
-            ({"user": SELF_ID}, {"user": SELF_ID}),
-            ({"user": USER_ID}, {"user": USER_ID, "access": "public"}),
+            ({"access": "private"}, {"user": DRB_USER_ID, "access": "private"}),
+            ({"user": DRB_USER_ID}, {"user": DRB_USER_ID}),
+            ({"user": TEST_USER_ID}, {"user": TEST_USER_ID, "access": "public"}),
             (
-                {"user": USER_ID, "access": "private"},
-                {"user": USER_ID, "access": "public"},
+                {"user": TEST_USER_ID, "access": "private"},
+                {"user": TEST_USER_ID, "access": "public"},
             ),
             (
-                {"user": SELF_ID, "access": "private"},
-                {"user": SELF_ID, "access": "private"},
+                {"user": DRB_USER_ID, "access": "private"},
+                {"user": DRB_USER_ID, "access": "private"},
             ),
             (
-                {"user": SELF_ID, "access": "public"},
-                {"user": SELF_ID, "access": "public"},
+                {"user": DRB_USER_ID, "access": "public"},
+                {"user": DRB_USER_ID, "access": "public"},
             ),
             (
-                {"user": USER_ID, "access": "public"},
-                {"user": USER_ID, "access": "public"},
+                {"user": TEST_USER_ID, "access": "public"},
+                {"user": TEST_USER_ID, "access": "public"},
             ),
         ],
     )
@@ -107,14 +104,14 @@ class TestQueryBuilder:
             ({}, {"access": "public"}),
             ({"access": "public"}, {"access": "public"}),
             ({"access": "private"}, {"access": "public"}),
-            ({"user": USER_ID}, {"user": USER_ID, "access": "public"}),
+            ({"user": TEST_USER_ID}, {"user": TEST_USER_ID, "access": "public"}),
             (
-                {"user": USER_ID, "access": "public"},
-                {"user": USER_ID, "access": "public"},
+                {"user": TEST_USER_ID, "access": "public"},
+                {"user": TEST_USER_ID, "access": "public"},
             ),
             (
-                {"user": USER_ID, "access": "private"},
-                {"user": USER_ID, "access": "public"},
+                {"user": TEST_USER_ID, "access": "private"},
+                {"user": TEST_USER_ID, "access": "public"},
             ),
         ],
     )
