@@ -11,6 +11,7 @@ from pbench.server.database.models.datasets import (
     States,
 )
 from pbench.server.database.models.users import User
+from pbench.test.unit.server import DRB_USER_ID
 
 
 class TestDatasets:
@@ -46,12 +47,12 @@ class TestDatasets:
         assert ds.created is None
         assert ds.uploaded <= ds.transition
         assert ds.id is not None
-        assert "(1)|fio" == str(ds)
+        assert f"({user.id})|fio" == str(ds)
         assert ds.as_dict() == {
             "access": "private",
             "created": None,
             "name": "fio",
-            "owner_id": "1",
+            "owner_id": str(user.id),
             "state": "Uploading",
             "transition": "1970-01-01T00:00:00+00:00",
             "uploaded": "1970-01-01T00:00:00+00:00",
@@ -79,7 +80,7 @@ class TestDatasets:
             "access": "private",
             "created": "2020-02-15T00:00:00+00:00",
             "name": "drb",
-            "owner_id": "3",
+            "owner_id": DRB_USER_ID,
             "state": "Indexed",
             "transition": "1970-01-01T00:42:00+00:00",
             "uploaded": "2022-01-01T00:00:00+00:00",
@@ -162,7 +163,7 @@ class TestDatasets:
             "access": "private",
             "created": "2020-01-25T23:14:00+00:00",
             "name": "fio",
-            "owner_id": "1",
+            "owner_id": str(create_user.id),
             "state": "Uploaded",
             "transition": "2525-08-25T15:25:00+00:00",
             "uploaded": "2525-05-25T15:15:00+00:00",
