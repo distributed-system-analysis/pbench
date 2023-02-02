@@ -21,7 +21,7 @@
 #   8080 - HTTP web server (and Pbench Dashboard)
 
 export PB_CONTAINER_REG=${PB_CONTAINER_REG:-"images.paas.redhat.com"}
-export PB_CONTAINER_IMAGE_PREFIX="${PB_CONTAINER_REG}/pbench"
+export PB_ORG_NAME=${PB_ORG_NAME:-"pbench"}
 
 export PB_ELASTICSEARCH_IMAGE_NAME=${PB_ELASTICSEARCH_IMAGE_NAME:-"elasticsearch"}
 export PB_ELASTICSEARCH_IMAGE_TAG=${PB_ELASTICSEARCH_IMAGE_TAG:-"7.13.3"}
@@ -61,7 +61,7 @@ podman run \
   -e xpack.security.enabled=false \
   -e ES_PORT=9200 \
   -d \
-  ${PB_CONTAINER_IMAGE_PREFIX}/${PB_ELASTICSEARCH_IMAGE_NAME}:${PB_ELASTICSEARCH_IMAGE_TAG} \
+  ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_ELASTICSEARCH_IMAGE_NAME}:${PB_ELASTICSEARCH_IMAGE_TAG} \
   /bin/tini -- /usr/local/bin/docker-entrypoint.sh eswrapper
 
 podman run \
@@ -85,7 +85,7 @@ podman run \
   -e PGUSER=postgres \
   -e STI_SCRIPTS_URL=image:///usr/libexec/s2i \
   -d \
-  ${PB_CONTAINER_IMAGE_PREFIX}/${PB_POSTGRESQL_IMAGE_NAME}:${PB_POSTGRESQL_IMAGE_TAG} \
+  ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_POSTGRESQL_IMAGE_NAME}:${PB_POSTGRESQL_IMAGE_TAG} \
   run-postgresql -p 5432
 
 podman run \
@@ -99,7 +99,7 @@ podman run \
   -e KEYCLOAK_ADMIN=admin \
   -e KEYCLOAK_ADMIN_PASSWORD=admin \
   -d \
-  ${PB_CONTAINER_IMAGE_PREFIX}/${PB_KEYCLOAK_IMAGE_NAME}:${PB_KEYCLOAK_IMAGE_TAG} \
+  ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_KEYCLOAK_IMAGE_NAME}:${PB_KEYCLOAK_IMAGE_TAG} \
   start-dev --health-enabled=true --http-port=8090
 
 server/pbenchinacan/load_keycloak.sh
@@ -124,4 +124,4 @@ podman run \
   -e PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
   -v ${PB_DASHBOARD_DIR}:/srv/pbench/public_html/dashboard:z \
   -d \
-  ${PB_CONTAINER_IMAGE_PREFIX}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
+  ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}

@@ -5,7 +5,7 @@
 # container image.
 
 export PB_CONTAINER_REG=images.paas.redhat.com
-export PB_CONTAINER_IMAGE_PREFIX="${PB_CONTAINER_REG}/pbench"
+export PB_ORG_NAME=pbench
 export PB_SERVER_IMAGE_NAME=pbench-server
 export PB_SERVER_IMAGE_TAG=${USER}
 export PB_DASHBOARD_DIR=$(pwd)/dashboard/build
@@ -24,6 +24,6 @@ make -C server/rpm clean rpm
 # $ buildah login -u='$app' -p="${__LOGIN_SECRET__}" ${PB_CONTAINER_REG}
 
 RPM_PATH=${HOME}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build.sh
-buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG} ${PB_CONTAINER_IMAGE_PREFIX}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
+buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
 
 jenkins/run-server-func-tests
