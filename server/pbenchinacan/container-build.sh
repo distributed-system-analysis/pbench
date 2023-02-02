@@ -14,7 +14,7 @@ RPM_PATH=${RPM_PATH:-/root/sandbox/rpmbuild/RPMS/noarch/pbench-server-*.rpm}
 KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-"client-secret"}
 
 # Default target registry to use.
-PB_CONTAINER_REG=${PB_CONTAINER_REG:-images.paas.redhat.com/pbench}
+PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
 
 # Locations on the host
 GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}

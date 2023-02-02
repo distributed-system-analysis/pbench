@@ -25,9 +25,6 @@ RPMBUILD_BASEIMAGE_DEFAULTS = \
 # All Fedora images are based on Fedora 36
 FEDORA_BASE_IMAGE_REF = quay.io/fedora/fedora:36
 
-# Image registry for storing RPM build container images
-RPMBUILD_IMAGE_REPO = images.paas.redhat.com/pbench
-
 # Templates for the various distributions' base images.  For the moment, for a
 # given distribution, all of the versions can be found by tweaking the image
 # tag; so, to generate the appropriate repository for the base image, we just
@@ -69,13 +66,13 @@ push-rpmbuild-all: $(RPMBUILD_BASEIMAGE_DEFAULTS:%=push-rpmbuild-%)
 image-rpmbuild-all: $(RPMBUILD_BASEIMAGE_DEFAULTS:%=image-rpmbuild-%)
 
 push-ci:
-	buildah push localhost/pbench-ci-fedora:${BRANCH} quay.io/pbench/pbench-ci-fedora:${BRANCH}
+	buildah push quay.io/pbench/pbench-ci-fedora:${BRANCH}
 
 image-ci: ci.fedora.Dockerfile
-	buildah bud -f ci.fedora.Dockerfile -t localhost/pbench-ci-fedora:${BRANCH}
+	buildah bud -f ci.fedora.Dockerfile -t quay.io/pbench/pbench-ci-fedora:${BRANCH}
 
 ${_DISTROS:%=push-rpmbuild-%}: push-rpmbuild-%:
-	buildah push localhost/pbench-rpmbuild:${*} ${RPMBUILD_IMAGE_REPO}/pbench-rpmbuild:${*}
+	buildah push ${PB_CONTAINER_REG}/pbench-rpmbuild:${*}
 
 image-rpmbuild-rhel-7 : PKGMGR = yum
 image-rpmbuild-centos-7 : PKGMGR = yum
@@ -86,7 +83,7 @@ ${_DISTROS:%=image-rpmbuild-%}: image-rpmbuild-%:
 		buildah run $$container ${PKGMGR} install -y ${RPMBUILD_PACKAGES} && \
 		buildah run $$container ${PKGMGR} clean all && \
 		buildah run $$container python3 -m pip install jinja2-cli && \
-		buildah commit $$container localhost/pbench-rpmbuild:${*}
+		buildah commit $$container ${PB_CONTAINER_REG}/pbench-rpmbuild:${*}
 
 ci.fedora.Dockerfile: ci.Dockerfile.j2
 	jinja2 ci.Dockerfile.j2 \

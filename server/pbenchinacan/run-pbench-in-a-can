@@ -22,7 +22,7 @@
 
 # The default container registry to use, and the organization name in that
 # registry.
-export PB_CONTAINER_REG=${PB_CONTAINER_REG:-"images.paas.redhat.com/pbench"}
+export PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
 
 # Default pull policy for all images is to always try to pull the image (NOTE:
 # this does not mean it will download the image, but it will check to see if the

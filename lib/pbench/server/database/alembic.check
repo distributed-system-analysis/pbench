@@ -2,6 +2,8 @@
 
 pb_root=${PWD}  # This script is run from the Pbench root; remember where that is
 
+PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
+
 echo "Starting PostgreSQL container" >&2
 ${pb_root}/jenkins/podman run --name postgresql-alembic \
     --detach \
@@ -24,7 +26,7 @@ ${pb_root}/jenkins/podman run --name postgresql-alembic \
     --env 'POSTGRESQL_USER=pbench' \
     --env 'POSTGRESQL_PASSWORD=pbench' \
     --env 'POSTGRESQL_DATABASE=pbench' \
-    images.paas.redhat.com/pbench/postgresql-13:latest container-entrypoint run-postgresql
+    ${PB_CONTAINER_REG}/postgresql-13:latest container-entrypoint run-postgresql
 
 trap "echo 'Stopping PostgreSQL container' >&2 ; ${pb_root}/jenkins/podman stop postgresql-alembic" INT ABRT QUIT EXIT
 
