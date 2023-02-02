@@ -68,14 +68,14 @@ if [[ -z ${1} ]]; then
     exit ${exit_status}
 fi
 
-podman pod stop ${PB_POD_NAME}
+# Remove the server container
+podman stop ${PB_SERVER_CONTAINER_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
     exit_status=${stop_status}
 fi
 
-# Remove the server container
-podman stop ${PB_SERVER_CONTAINER_NAME}
+podman pod stop ${PB_POD_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
     exit_status=${stop_status}
