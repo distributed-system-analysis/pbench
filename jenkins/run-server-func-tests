@@ -7,6 +7,7 @@ export IMAGE_ROLE=${IMAGE_ROLE:-"ci"}
 
 export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
 export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
+export PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"${PB_POD_NAME}-pbenchserver"}
 
 function cleanup {
     # Remove the pod which we just created and ran; remove any dangling
@@ -72,6 +73,14 @@ stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
     exit_status=${stop_status}
 fi
+
+# Remove the server container
+podman stop ${PB_SERVER_CONTAINER_NAME}
+stop_status=${?}
+if [[ ${exit_status} -eq 0 ]]; then
+    exit_status=${stop_status}
+fi
+
 podman pod rm ${PB_POD_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
