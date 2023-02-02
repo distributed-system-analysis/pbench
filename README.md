@@ -163,12 +163,13 @@ our CI jobs.
 
 ### Python formatting
 
-This project uses the [flake8==3.8.3](http://flake8.pycqa.org/en/latest) method of
-code style enforcement, linting, and checking.
+This project uses the [flake8](http://flake8.pycqa.org/en/latest) method of code
+style enforcement, linting, and checking.
 
 All python code contributed to pbench must match the style requirements. These
 requirements are enforced by the [pre-commit](https://pre-commit.com) hook
-using the [black==1.19b0](https://github.com/psf/black) Python code formatter.
+using the [black](https://github.com/psf/black) Python code formatter and the
+[isort](https://github.com/pycqa/isort) Python import sorter.
 
 ### Use pre-commit to set automatic commit requirements
 
