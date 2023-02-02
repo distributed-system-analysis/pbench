@@ -46,7 +46,7 @@ pipeline {
             steps {
                 sh 'buildah login -u="${PB_CI_REG_CRED_USR}" -p="${PB_CI_REG_CRED_PSW}" ${PB_CI_REGISTRY}'
                 sh 'bash -ex ./server/pbenchinacan/container-build.sh'
-                sh 'buildah push ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG}'
+                sh 'buildah push ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG}'
             }
         }
         stage('Build the Pbench Agent Containers') {

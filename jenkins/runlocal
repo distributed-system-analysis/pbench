@@ -12,7 +12,7 @@ export PB_SERVER_IMAGE_TAG=${USER}
 # is used by the pod.
 export PB_SERVER_IMAGE_PULL_POLICY=Never
 
-# We explicit set WORKSPACE_TMP so that RPM builds (which builds images using
+# We explicitly set WORKSPACE_TMP so that RPM builds (which build images using
 # jenkins/run) will store the resulting RPM in that work space temporary
 # directory.
 export WORKSPACE_TMP=/var/tmp/${USER}/runlocal
