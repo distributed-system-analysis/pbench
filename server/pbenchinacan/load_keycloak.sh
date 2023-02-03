@@ -24,51 +24,33 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 REALM=${KEYCLOAK_REALM:-"pbench"}
 CLIENT=${KEYCLOAK_CLIENT:-"pbench-server"}
 
-keycloak_health_uri="${KEYCLOAK_HOST_PORT}/health"
 end_in_epoch_secs=$(( $(date +%s) + 120 ))
 
-until curl -s -o /dev/null ${keycloak_health_uri}; do
+# Run the custom configuration
+
+ADMIN_TOKEN=""
+while [[ $(date +%s) -le ${end_in_epoch_secs} ]]; do
   if [[ $(date +%s) -ge ${end_in_epoch_secs} ]]; then
     echo "Timed out connecting to Keycloak" >&2
     exit 1
   fi
-  echo "Waiting for the Keycloak server" >&2
-  sleep 2
-done
-
-echo "Keycloak health url is up" >&2
-
-while [[ $(date +%s) -le ${end_in_epoch_secs} ]]; do
-  status_code=$(curl -s -o /dev/null -w "%{http_code}" ${keycloak_health_uri})
-  if [[ "${status_code}" == "200" ]]; then
-    keycloak_status=$(curl -s ${keycloak_health_uri} | jq -r ".status")
-    if [[ ${keycloak_status} == "UP" ]]; then
-      echo "Keycloak Server is up" >&2
-      break
-    else
-      echo "Keycloak Server status is not UP" >&2
-    fi
+  ADMIN_TOKEN=$(curl -s -f -X POST "${KEYCLOAK_HOST_PORT}/realms/master/protocol/openid-connect/token" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "username=${ADMIN_USERNAME}" \
+    -d "password=${ADMIN_PASSWORD}" \
+    -d 'grant_type=password' \
+    -d 'client_id=admin-cli' | jq -r '.access_token')
+  if [[ ! -z "${ADMIN_TOKEN}" ]]; then
+    break
   else
-    echo "Keycloak health status code ${status_code}" >&2
+    echo "Waiting for the Keycloak server" >&2
   fi
   sleep 2
 done
 
-# Run the custom configuration
-
 echo
-echo "KEYCLOAK_HOST_PORT: ${KEYCLOAK_HOST_PORT}"
-
+echo "Keycloak connection successful on : ${KEYCLOAK_HOST_PORT}"
 echo
-echo "Getting admin access token"
-echo "--------------------------"
-
-ADMIN_TOKEN=$(curl -s -f -X POST "${KEYCLOAK_HOST_PORT}/realms/master/protocol/openid-connect/token" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=${ADMIN_USERNAME}" \
-  -d "password=${ADMIN_PASSWORD}" \
-  -d 'grant_type=password' \
-  -d 'client_id=admin-cli' | jq -r '.access_token')
 
 echo "ADMIN_TOKEN=${ADMIN_TOKEN}"
 echo
