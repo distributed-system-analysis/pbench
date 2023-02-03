@@ -20,10 +20,7 @@ class PbenchAgentConfig(PbenchConfig):
         super().__init__(cfg_name)
 
         try:
-            # Provide a few convenience attributes.
-            self.agent = self._conf["pbench-agent"]
-            self.results = self._conf["results"]
-            # Now fetch some default common pbench settings that are required.
+            # Fetch some default common pbench settings that are required.
             self.pbench_run = Path(
                 self.get(
                     "pbench-agent", "pbench_run", fallback=DEFAULT_PBENCH_AGENT_RUN_DIR
