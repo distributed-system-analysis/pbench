@@ -65,10 +65,10 @@ def tstos(ts: float = None) -> str:
     return dt.strftime("%Y-%m-%dT%H:%M:%S-%Z")
 
 
-def _get_valid_path(
+def get_resolved_dir(
     env_name: str, dir_val: str, logger: Optional[Logger]
 ) -> Optional[Path]:
-    """Get the fully resolved path from the given path.
+    """Get the resolved directory associated with the environment name.
 
     If a logger is given, will emit error logs when the directory is not
     found or the resolved name is not a directory.
@@ -80,7 +80,8 @@ def _get_valid_path(
             emitted
 
     Returns:
-        A Path directory object of the directory on disk, None otherwise.
+        A Path directory object, None if the directory value does not
+            resolve to a real directory.
     """
     try:
         dir_path = Path(dir_val).resolve(strict=True)
@@ -91,7 +92,7 @@ def _get_valid_path(
                 env_name,
                 dir_val,
             )
-        return None
+        dir_path = None
     else:
         if not dir_path.is_dir():
             if logger:
@@ -100,29 +101,7 @@ def _get_valid_path(
                     env_name,
                     dir_path,
                 )
-            return None
-    return dir_path
-
-
-def get_resolved_dir(
-    env_name: str, dir_val: str, logger: Optional[Logger]
-) -> Optional[Path]:
-    """Get the resolved directory associated with the environment name.
-
-    Args:
-        env_name : Legacy environment name to display in error messages
-        dir_val : A directory value to resolve to a real directory
-        logger : Logger to use when low-level error messages should be
-            emitted
-
-    Returns:
-        A Path directory object, None if the directory value does not
-            resolve to a real directory.
-    """
-    dir_path = _get_valid_path(env_name, dir_val, logger)
-    if not dir_path:
-        return None
-
+            dir_path = None
     return dir_path
 
 
@@ -314,7 +293,7 @@ class PbenchServerConfig(PbenchConfig):
         else:
             if not dir_val:
                 raise BadConfig(f"option {option} in section {section} is empty")
-        dir_path = _get_valid_path(env_name, dir_val, None)
+        dir_path = get_resolved_dir(env_name, dir_val, None)
         if not dir_path:
             raise BadConfig(f"Bad {env_name}={dir_val}")
         return dir_path
