@@ -7,18 +7,20 @@ export IMAGE_ROLE=${IMAGE_ROLE:-"ci"}
 
 export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
 export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
+export PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"${PB_POD_NAME}-pbenchserver"}
 
 function cleanup {
     # Remove the pod which we just created and ran; remove any dangling
     # containers; and then remove any dangling images.
-    podman pod rm --force --ignore ${1}
+    podman rm --force --ignore ${1}
+    podman pod rm --force --ignore ${2}
     podman container prune -f
     podman container cleanup --all --rm
     podman image prune -f
 }
 
 if [[ ${1} == "--cleanup" ]]; then
-    trap "cleanup ${PB_POD_NAME}" INT QUIT EXIT
+    trap "cleanup ${PB_SERVER_CONTAINER_NAME} ${PB_POD_NAME}" INT QUIT EXIT
 fi
 
 server/pbenchinacan/run-pbench-in-a-can
@@ -67,11 +69,19 @@ if [[ -z ${1} ]]; then
     exit ${exit_status}
 fi
 
+# Remove the server container
+podman stop ${PB_SERVER_CONTAINER_NAME}
+stop_status=${?}
+if [[ ${exit_status} -eq 0 ]]; then
+    exit_status=${stop_status}
+fi
+
 podman pod stop ${PB_POD_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
     exit_status=${stop_status}
 fi
+
 podman pod rm ${PB_POD_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
