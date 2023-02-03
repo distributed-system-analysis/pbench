@@ -52,9 +52,6 @@ echo
 echo "Keycloak connection successful on : ${KEYCLOAK_HOST_PORT}"
 echo
 
-echo "Creating ${REALM} realm"
-echo "--------------"
-
 status_code=$(curl -f -si -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -63,10 +60,9 @@ status_code=$(curl -f -si -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOS
 if [[ "${status_code}" != "201" ]]; then
   echo "Realm creation failed with ${status_code}"
   exit 1
+else
+  echo "Created ${REALM} realm"
 fi
-
-echo "Creating ${CLIENT} client"
-echo "---------------"
 
 CLIENT_CONF=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
@@ -78,10 +74,9 @@ CLIENT_ID=$(grep -o -e 'http://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/
 if [[ -z "${CLIENT_ID}" ]]; then
   echo "${CLIENT} id is empty"
   exit 1
+else
+  echo "Created ${CLIENT} client"
 fi
-
-echo "Getting client secret"
-echo "---------------------"
 
 PBENCH_CLIENT_SECRET=$(curl -s -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/client-secret" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" | jq -r '.value')
@@ -91,9 +86,6 @@ if [[ -z "${PBENCH_CLIENT_SECRET}" ]]; then
   exit 1
 fi
 
-echo "Creating an 'ADMIN' role under ${CLIENT} client of the ${REALM} realm"
-echo "--------------------"
-
 status_code=$(curl -si -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
@@ -102,6 +94,8 @@ status_code=$(curl -si -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_P
 if [[ "${status_code}" != "201" ]]; then
   echo "ADMIN role creation failed with ${status_code}"
   exit 1
+else
+  echo "Created an 'ADMIN' role under ${CLIENT} client of the ${REALM} realm"
 fi
 
 ROLE_ID=$(curl -s -f "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
@@ -111,9 +105,6 @@ if [[ -z "${ROLE_ID}" ]]; then
   echo "ADMIN role id is empty"
   exit 1
 fi
-
-echo "Creating an 'admin' user inside ${REALM} realm"
-echo "-------------"
 
 USER=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
@@ -125,10 +116,9 @@ USER_ID=$(grep -o -e 'http://[^[:space:]]*' <<< ${USER} | sed -e 's|.*/||')
 if [[ -z "${USER_ID}" ]]; then
   echo "User id is empty"
   exit 1
+else
+  echo "Created an 'admin' user inside ${REALM} realm"
 fi
-
-echo "Assigning 'ADMIN' client role to the user 'admin' created above"
-echo "---------------------------"
 
 status_code=$(curl -si -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
@@ -138,6 +128,8 @@ status_code=$(curl -si -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_P
 if [[ "${status_code}" != "204" ]]; then
   echo "Assigning 'ADMIN' client role to the user 'admin' failed with ${status_code}"
   exit 1
+else
+  echo "Assigned an 'ADMIN' client role to the user 'admin' created above"
 fi
 
 # Verify that the user id has a role assigned to it
