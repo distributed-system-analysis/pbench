@@ -24,24 +24,23 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 REALM=${KEYCLOAK_REALM:-"pbench"}
 CLIENT=${KEYCLOAK_CLIENT:-"pbench-server"}
 
-end_in_epoch_secs=$(( $(date +%s) + 120 ))
+end_in_epoch_secs=$(date --date "2 minutes" +%s)
 
 # Run the custom configuration
 
 ADMIN_TOKEN=""
-while [[ $(date +%s) -le ${end_in_epoch_secs} ]]; do
-  if [[ $(date +%s) -ge ${end_in_epoch_secs} ]]; then
-    echo "Timed out connecting to Keycloak" >&2
-    exit 1
-  fi
+while true; do
   ADMIN_TOKEN=$(curl -s -f -X POST "${KEYCLOAK_HOST_PORT}/realms/master/protocol/openid-connect/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     -d "username=${ADMIN_USERNAME}" \
     -d "password=${ADMIN_PASSWORD}" \
     -d 'grant_type=password' \
     -d 'client_id=admin-cli' | jq -r '.access_token')
-  if [[ ! -z "${ADMIN_TOKEN}" ]]; then
+  if [[ -n "${ADMIN_TOKEN}" ]]; then
     break
+  elif [[ $(date +%s) -ge ${end_in_epoch_secs} ]]; then
+    echo "Timed out connecting to Keycloak" >&2
+    exit 1
   else
     echo "Waiting for the Keycloak server" >&2
   fi
@@ -52,7 +51,7 @@ echo
 echo "Keycloak connection successful on : ${KEYCLOAK_HOST_PORT}"
 echo
 
-status_code=$(curl -f -si -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms" \
+status_code=$(curl -f -s -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"realm": "'${REALM}'", "enabled": true}')
@@ -86,7 +85,7 @@ if [[ -z "${PBENCH_CLIENT_SECRET}" ]]; then
   exit 1
 fi
 
-status_code=$(curl -si -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
+status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '{"name": "ADMIN"}')
@@ -120,7 +119,7 @@ else
   echo "Created an 'admin' user inside ${REALM} realm"
 fi
 
-status_code=$(curl -si -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
+status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
   -d '[{"id":"'${ROLE_ID}'","name":"ADMIN"}]')
