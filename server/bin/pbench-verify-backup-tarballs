@@ -50,7 +50,7 @@ import tempfile
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
-from pbench.server import PbenchServerConfig
+from pbench.server import get_resolved_dir, PbenchServerConfig
 from pbench.server.database import init_db
 from pbench.server.report import Report
 from pbench.server.s3backup import Entry, S3Config
@@ -308,7 +308,7 @@ def main():
         )
         return 1
 
-    backuppath = config.get_valid_dir_option("BACKUP", backup, logger)
+    backuppath = get_resolved_dir("BACKUP", backup, logger)
     if not backuppath:
         return 1
 

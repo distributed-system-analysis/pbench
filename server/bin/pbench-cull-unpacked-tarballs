@@ -328,17 +328,17 @@ def main(options):
     archivepath = config.ARCHIVE
 
     incoming = config.INCOMING
-    incomingpath = config.get_valid_dir_option("INCOMING", incoming, logger)
+    incomingpath = pbench.server.get_resolved_dir("INCOMING", incoming, logger)
     if not incomingpath:
         return 3
 
     results = config.RESULTS
-    resultspath = config.get_valid_dir_option("RESULTS", results, logger)
+    resultspath = pbench.server.get_resolved_dir("RESULTS", results, logger)
     if not resultspath:
         return 3
 
     users = config.USERS
-    userspath = config.get_valid_dir_option("USERS", users, logger)
+    userspath = pbench.server.get_resolved_dir("USERS", users, logger)
     if not userspath:
         return 3
 
