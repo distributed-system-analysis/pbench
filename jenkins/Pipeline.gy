@@ -84,11 +84,11 @@ pipeline {
     }
     post {
         success {
-            // Note that jenkins/run-pytests is executed inside the container
-            // while the Cobertura plug-in is executed natively, so this poses
-            // a challenge in terms of finding the coverage report file; we
-            // finesse this by assuming that it will be in the current
-            // directory in both environments.
+            // Note that `build.sh` is executed inside the container while the
+            // Cobertura plug-in is executed natively, so this poses a challenge
+            // in terms of finding the coverage report file; we finesse this by
+            // assuming that it will be in the current directory in both
+            // environments.
             step([$class: 'CoberturaPublisher',
                 autoUpdateHealth: false,
                 autoUpdateStability: false,
