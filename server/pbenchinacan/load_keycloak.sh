@@ -21,8 +21,10 @@ KEYCLOAK_HOST_PORT=${KEYCLOAK_HOST_PORT:-"http://localhost:8090"}
 KEYCLOAK_REDIRECT_URI=${KEYCLOAK_REDIRECT_URI:-"http://localhost:8080/*"}
 ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
-REALM=${KEYCLOAK_REALM:-"pbench"}
-CLIENT=${KEYCLOAK_CLIENT:-"pbench-server"}
+# These values must match the options "realm" and "client in the
+# "openid-connect" section of the pbench server configuration file.
+REALM=${KEYCLOAK_REALM:-"pbench-server"}
+CLIENT=${KEYCLOAK_CLIENT:-"pbench-server-client"}
 
 end_in_epoch_secs=$(date --date "2 minutes" +%s)
 
