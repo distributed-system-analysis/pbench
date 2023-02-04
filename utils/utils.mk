@@ -43,4 +43,4 @@ get_sequence_number = $(shell \
 unexport get_sequence_number
 
 # Image registry for storing RPM build container images
-PB_CONTAINER_REG = $(shell cat ${HOME}/.config/pbench/ci_registry.name)
+PB_CONTAINER_REG ?= $(shell cat ${HOME}/.config/pbench/ci_registry.name)
