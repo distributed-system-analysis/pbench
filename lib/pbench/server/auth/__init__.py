@@ -28,10 +28,6 @@ class OpenIDClientError(Exception):
         return self.message
 
 
-class OpenIDCAuthenticationError(OpenIDClientError):
-    pass
-
-
 class OpenIDTokenInvalid(Exception):
     pass
 
@@ -72,34 +68,45 @@ class Connection:
         final_headers = self.headers.copy()
         if headers is not None:
             final_headers.update(headers)
+        url = urljoin(self.server_url, path)
+        kwargs = dict(
+            params=kwargs,
+            data=data,
+            headers=final_headers,
+            verify=self.verify,
+        )
         try:
-            response = self._connection.request(
-                method,
-                urljoin(self.server_url, path),
-                params=kwargs,
-                data=data,
-                headers=final_headers,
-                verify=self.verify,
-            )
-        except (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.Timeout,
-        ) as exc:
+            response = self._connection.request(method, url, **kwargs)
+        except requests.exceptions.ConnectionError as exc:
             raise OpenIDClientError(
-                HTTPStatus.BAD_GATEWAY,
-                f"Failure to connect to the OpenID client, {self!r}: {exc}",
+                http_status=HTTPStatus.BAD_GATEWAY,
+                message=(
+                    f"Failure to connect to the OpenID client ({method} {url}"
+                    f" {kwargs}): {exc}"
+                ),
+            )
+        except requests.exceptions.Timeout as exc:
+            raise OpenIDClientError(
+                http_status=HTTPStatus.BAD_GATEWAY,
+                message=(
+                    f"Timeout talking to the OpenID client ({method} {url}"
+                    f" {kwargs}): {exc}"
+                ),
             )
         except Exception as exc:
             raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to complete the {method} request from the OpenID"
-                f" client, {self!r}: {exc}",
+                http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+                message=(
+                    "Unexpected exception talking to the OpenID client,"
+                    f" ({method} {url} {kwargs}): {exc}"
+                ),
             )
         else:
             if not response.ok:
-                raise OpenIDCAuthenticationError(response.status_code)
-            else:
-                assert response.status_code < 400, f"what? {response.status_code}"
+                raise OpenIDClientError(
+                    http_status=response.status_code,
+                    message=f"Failed performing {method} {url} {kwargs}",
+                )
             return response
 
     def get(

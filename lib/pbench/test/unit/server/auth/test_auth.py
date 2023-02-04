@@ -16,7 +16,6 @@ import pbench.server.auth
 from pbench.server.auth import (
     Connection,
     InternalUser,
-    OpenIDCAuthenticationError,
     OpenIDClient,
     OpenIDClientError,
     OpenIDTokenInvalid,
@@ -130,7 +129,7 @@ class TestConnection:
         assert response.kwargs["verify"] is False
 
         # Verify that any non-"OK" status code raises the proper exception.
-        with pytest.raises(OpenIDCAuthenticationError) as e:
+        with pytest.raises(OpenIDClientError) as e:
             conn._method("HEAD", "/this/that", None, status_code=409)
         assert e.value.http_status == 409
 
