@@ -1,7 +1,7 @@
 import configparser
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Tuple, Union
 
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
@@ -227,7 +227,7 @@ class TestInternalUser:
 
     def test_create_w_roles(self):
         # Verify not in audience list
-        # FIXME - this is weird as coded, why would we get a payload where so
+        # FIXME - this is weird as coded, why would we get a payload where no
         # other audience is listed?
         user = InternalUser.create(
             "us",
@@ -253,19 +253,25 @@ class TestInternalUser:
 
 
 @pytest.fixture(scope="session")
-def rsa_keys() -> Dict[str, str]:
+def rsa_keys() -> Dict[str, Union[rsa.RSAPrivateKey, str]]:
+    """Fixture for generating an RSA public / private key pair.
+
+    Returns:
+        A dictionary containing the RSAPrivateKey object, the PEM encoded public
+        key string without the BEGIN/END bookends (mimicing what is returned by
+        an OpenID Connect broker), and the PEM encoded public key string with
+        the BEGIN/END bookends
+    """
     private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     pem_public_key = (
         private_key.public_key()
         .public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo)
         .decode()
     )
-    public_key_l = pem_public_key.split("\n")[1:-1]
-    public_key = ""
-    for el in public_key_l:
-        if el.endswith("-----END PUBLIC KEY-----"):
-            el = el[:-24]
-        public_key += el
+    # Strip "-----BEGIN..." and "-----END...", and the empty element resulting
+    # from the trailing newline character.
+    public_key_l = pem_public_key.split("\n")[1:-2]
+    public_key = "".join(public_key_l)
     return {
         "private_key": private_key,
         "public_key": public_key,
@@ -275,10 +281,16 @@ def rsa_keys() -> Dict[str, str]:
 
 def gen_rsa_token(
     audience: str, private_key: str, exp: str = "99999999999"
-) -> Dict[str, str]:
-    payload = {"iat": 1659476706, "exp": exp, "sub": "12345", "aud": audience}
+) -> Tuple[str, Dict[str, str]]:
+    """Helper function for generating an RSA token using the given private key.
 
-    # Get jwt key
+    Args:
+        audience : The audience value to used in the encoded 'aud' payload field
+        private_key : The private key to use for encoding
+        exp : Optional expiration Epoch time stamp to use, defaults to Wednesday
+            November 16th, 5138 at 9:47:39 AM UTC
+    """
+    payload = {"iat": 1659476706, "exp": exp, "sub": "12345", "aud": audience}
     return jwt.encode(payload, key=private_key, algorithm="RS256"), payload
 
 
@@ -291,7 +303,7 @@ def mock_connection(
     Args:
         client_id : A client ID used to influence the behavior of the mocked
             Connection object
-        public_key : [optional] Public key to use
+        public_key : Optional public key to use
 
     Returns:
         A configparser.ConfigParser object for use constructing an
@@ -584,7 +596,7 @@ class MockRequest:
 class TestAuthModule:
     """Verify the behaviors of the auth (Auth) module
 
-    This class does not verify the setup_app() method itself is it is verified
+    This class does not verify the setup_app() method itself as it is verified
     in other tests related to the overall Flask application setup.
 
     It also does not attempt to verify get_current_user_id() and
@@ -652,6 +664,8 @@ class TestAuthModule:
             assert record["code"] == expected_code
 
     def test_verify_auth_exc(self, monkeypatch, make_logger):
+        """Verify exception handling originating from verify_auth_internal"""
+
         def vai_exc(token_auth: str) -> Optional[Union[User, InternalUser]]:
             raise Exception("Some failure")
 
@@ -663,6 +677,7 @@ class TestAuthModule:
         assert user is None
 
     def test_verify_auth_internal(self, make_logger, pbench_drb_token):
+        """Verify success path of verify_auth_internal"""
         app = Flask("test-verify-auth-internal")
         app.logger = make_logger
         with app.app_context():
@@ -671,6 +686,7 @@ class TestAuthModule:
         assert str(user.id) == DRB_USER_ID
 
     def test_verify_auth_internal_invalid(self, make_logger, pbench_drb_token_invalid):
+        """Verify handling of an invalid (expired) token in verify_auth_internal"""
         app = Flask("test-verify-auth-internal-invalid")
         app.logger = make_logger
         with app.app_context():
@@ -679,6 +695,7 @@ class TestAuthModule:
         assert user is None
 
     def test_verify_auth_internal_invsig(self, make_logger, pbench_drb_token):
+        """Verify handling of a token with an invalid signature"""
         app = Flask("test-verify-auth-internal-invsig")
         app.logger = make_logger
         with app.app_context():
@@ -689,6 +706,8 @@ class TestAuthModule:
     def test_verify_auth_internal_tokdel_fail(
         self, monkeypatch, make_logger, pbench_drb_token_invalid
     ):
+        """Verify behavior when token deletion fails"""
+
         def delete(*args, **kwargs):
             raise Exception("Delete failed")
 
@@ -703,6 +722,8 @@ class TestAuthModule:
     def test_verify_auth_internal_at_valid_fail(
         self, monkeypatch, make_logger, pbench_drb_token
     ):
+        """Verify behavior when a token is not in the database"""
+
         def valid(*args, **kwargs):
             return False
 
@@ -715,6 +736,7 @@ class TestAuthModule:
         assert user is None
 
     def test_verify_auth_oidc_offline(self, monkeypatch, rsa_keys, make_logger):
+        """Verify OIDC token offline verification success path"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
 
