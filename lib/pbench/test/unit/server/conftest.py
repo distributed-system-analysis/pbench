@@ -822,7 +822,7 @@ def generate_token(
         "sub": user.id,
     }
     token_str = jwt.encode(payload, jwt_secret, algorithm="HS256")
-    user.update(auth_token=AuthToken(auth_token=token_str))
+    user.add_token(AuthToken(token=token_str, expiration=exp))
     return token_str
 
 

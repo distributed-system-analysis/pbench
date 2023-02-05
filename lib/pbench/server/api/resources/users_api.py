@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from typing import NamedTuple
 
@@ -6,10 +6,10 @@ from email_validator import EmailNotValidError
 from flask import current_app, jsonify, make_response, request
 from flask_bcrypt import check_password_hash
 from flask_restful import abort, Resource
-import jwt
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 import pbench.server.auth.auth as Auth
+from pbench.server.database.database import Database
 from pbench.server.database.models.auth_tokens import AuthToken
 from pbench.server.database.models.server_settings import ServerSetting
 from pbench.server.database.models.users import User
@@ -211,33 +211,15 @@ class Login(Resource):
             )
             abort(HTTPStatus.UNAUTHORIZED, message="Bad login")
 
-        try:
-            auth_token = Auth.encode_auth_token(
-                time_delta=timedelta(minutes=int(self.token_expire_duration)),
-                user_id=user.id,
-            )
-        except (
-            jwt.InvalidIssuer,
-            jwt.InvalidIssuedAtError,
-            jwt.InvalidAlgorithmError,
-            jwt.PyJWTError,
-        ):
-            current_app.logger.exception(
-                "Could not encode the JWT auth token for user: {} while login", username
-            )
-            abort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="INTERNAL ERROR",
-            )
+        auth_token, expiration = Auth.encode_auth_token(
+            time_delta=timedelta(minutes=int(self.token_expire_duration)),
+            user_id=user.id,
+        )
 
         # Add the new auth token to the database for later access
         try:
-            # TODO: Decide on the auth token limit per user
-            user.update(auth_token=AuthToken(auth_token=auth_token))
-
-            current_app.logger.info(
-                "New auth token registered for user {}", user.username
-            )
+            token = AuthToken(token=auth_token, expiration=expiration)
+            user.add_token(token)
         except IntegrityError:
             current_app.logger.warning(
                 "Duplicate auth token got created, user might have tried to re-login immediately"
@@ -251,6 +233,25 @@ class Login(Resource):
         except Exception:
             current_app.logger.exception("Exception while logging in a user")
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+        else:
+            current_app.logger.debug(
+                "New auth token registered for user {}", user.username
+            )
+
+        # We take the opportunity to remove any expired tokens for ANY user
+        # since we don't have a background reaper task dedicated to this kind
+        # of an operation.
+        try:
+            Database.db_session.query(AuthToken).filter(
+                AuthToken.expiration <= datetime.now(timezone.utc)
+            ).delete()
+            Database.db_session.commit()
+        except Exception:
+            Database.db_session.rollback()
+            current_app.logger.exception(
+                "Error encountered while removing expired tokens",
+                user.username,
+            )
 
         response_object = {
             "auth_token": auth_token,
@@ -273,7 +274,8 @@ class Logout(Resource):
         This requires a Pbench authentication auth token in the header field
 
         Required headers include
-            Authorization:   Bearer <Pbench authentication token (user received upon login)>
+            Authorization:   Bearer <Pbench authentication token (user received
+                             upon login)>
 
         :return:
             Success: 200 with empty payload
@@ -283,24 +285,55 @@ class Logout(Resource):
                     }
         """
         auth_token = Auth.get_auth_token()
-        user = Auth.verify_auth(auth_token=auth_token)
+        state = Auth.verify_internal_token(auth_token)
 
-        # "None" user represents that either the token is not present in our database or it is an expired token.
-        # Expired token is already deleted by now if we reach here.
-        # In either case we will return suceess to a client, since the same token can not be used again.
+        # The only time a token won't be in the database is if the token is
+        # not a valid token.  Valid tokens that are not expired should be in
+        # the database, and expired tokens might or might not be in the
+        # database.  If the valid token is found in the database associated
+        # with the user, remove it.
 
-        if user:
-            try:
-                AuthToken.delete(auth_token)
-            except Exception:
-                current_app.logger.exception(
-                    "Exception occurred deleting an auth token"
-                )
-                abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-            else:
-                current_app.logger.debug("User {} logged out", user.username)
+        if state == Auth.TokenState.INVALID:
+            current_app.logger.info("User logout with invalid token: {}", auth_token)
         else:
-            current_app.logger.info("User logout with invalid or expired token")
+            token = AuthToken.query(auth_token)
+            if token:
+                user = token.user
+                if not user:
+                    # This is an internal error state, but play it cool with the
+                    # API client.
+                    current_app.logger.error(
+                        "INTERNAL ERROR - token {!r} ({}) found without an associated user",
+                        auth_token,
+                        state,
+                    )
+                else:
+                    try:
+                        AuthToken.delete(auth_token)
+                    except Exception:
+                        current_app.logger.exception(
+                            "Exception occurred deleting auth token {!r} for user {!r}",
+                            auth_token,
+                            user.username,
+                        )
+                        if state == Auth.TokenState.VERIFIED:
+                            # Only report an internal error to the user if the token
+                            # has been verified.
+                            abort(
+                                HTTPStatus.INTERNAL_SERVER_ERROR,
+                                message="INTERNAL ERROR",
+                            )
+                    else:
+                        if state == Auth.TokenState.EXPIRED:
+                            current_app.logger.info(
+                                "User {} logged out with expired token", user.username
+                            )
+                        else:
+                            current_app.logger.debug(
+                                "User {} logged out", user.username
+                            )
+            else:
+                current_app.logger.debug("User logout with {} token", state)
 
         return "", HTTPStatus.OK
 
