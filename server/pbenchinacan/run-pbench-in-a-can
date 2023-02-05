@@ -3,14 +3,14 @@
 #
 # Deploy a self-contained Pbench server.
 #
-# This script creates a pod for the Pbench Server deployment using
-# three containers: All the dependant services associated with the
-# Pbench Server i.e. Elasticsearch instance, PostgreSQL database instance,
-# and KeyCloak broker instance. After starting the dependent services,
-# this script configures the Keycloak broker, and then starts the Pbench Server.
+# This script creates a pod for the Pbench Server deployment with the dependent
+# services required by the Pbench Server i.e. an Elasticsearch instance, a
+# PostgreSQL database instance, and a KeyCloak (OpenID Connect) instance.  After
+# starting the dependent services, this script configures the KeyCloak broker,
+# and then starts the Pbench Server in a separate container.
 #
-# To invoke the pbench-server pod using this script it should run from the
-# root of the Git checkout.
+# To invoke the pbench-server pod using this script it should run from the root
+# of the Git checkout.
 #
 # The resulting pod exports the following ports:
 #   5432 - PostgreSQL
@@ -24,9 +24,8 @@
 # registry.
 export PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
 
-# Default pull policy for all images is to always try to pull the image (NOTE:
-# this does not mean it will download the image, but it will check to see if the
-# exact copy is available locally).
+# Default pull policy for all images is to pull the image if the registry has a
+# newer version.
 export PB_COMMON_IMAGE_PULL_POLICY=${PB_COMMON_IMAGE_PULL_POLICY:-"newer"}
 
 # Each container has its own name and tag for the image, as well as a pull
