@@ -8,9 +8,9 @@ export PB_SERVER_IMAGE_NAME=pbench-server
 # CI environment does.
 export PB_SERVER_IMAGE_TAG=${USER}
 
-# We use the image pull policy of Never here to ensure our locally built image
+# We use the image pull policy of `never` here to ensure our locally built image
 # is used by the pod.
-export PB_SERVER_IMAGE_PULL_POLICY=Never
+export PB_SERVER_IMAGE_PULL_POLICY=never
 
 # We explicitly set WORKSPACE_TMP so that RPM builds (which build images using
 # jenkins/run) will store the resulting RPM in that work space temporary
