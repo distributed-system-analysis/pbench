@@ -1,12 +1,14 @@
+from logging import DEBUG, Logger
 import socket
 import time
 from urllib.parse import urlparse
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+from sqlalchemy.orm import declarative_base, Query, scoped_session, sessionmaker
 from sqlalchemy_utils import create_database, database_exists
 
 from pbench.common.exceptions import BadConfig
+from pbench.server import PbenchServerConfig
 
 
 class Database:
@@ -15,8 +17,15 @@ class Database:
     db_session = None
 
     @staticmethod
-    def get_engine_uri(config):
-        """Convenience method to hide knowledge of the database configuration."""
+    def get_engine_uri(config: PbenchServerConfig) -> str:
+        """Convenience method to hide knowledge of the database configuration.
+
+        Args:
+            config: Server configuration object
+
+        Returns:
+            string URI
+        """
         return config.get("database", "uri")
 
     @staticmethod
@@ -56,15 +65,26 @@ class Database:
                 time.sleep(1)
 
     @staticmethod
-    def create_if_missing(db_uri, logger):
-        """Create the database if it doesn't exist."""
+    def create_if_missing(db_uri: str, logger: Logger):
+        """Create the database if it doesn't exist.
+
+        Args:
+            db_uri: The server's DB URI
+            logger: A Python logger object
+        """
         if not database_exists(db_uri):
             logger.info("Database {} doesn't exist", db_uri)
             create_database(db_uri)
             logger.info("Created database {}", db_uri)
 
     @staticmethod
-    def init_db(server_config, logger):
+    def init_db(server_config: PbenchServerConfig, logger: Logger):
+        """Initialize the server's database.
+
+        Args:
+            server_config: The server's configuration object
+            logger: A Python logger object
+        """
         db_uri = Database.get_engine_uri(server_config)
 
         # Attach the logger and server config object to the base class for
@@ -86,3 +106,25 @@ class Database:
             sessionmaker(bind=engine, autocommit=False, autoflush=False)
         )
         Database.Base.query = Database.db_session.query_property()
+
+        # Although most of the Pbench Server currently works with the default
+        # SQLAlchemy transaction management, some parts rely on true atomic
+        # transactions and need a better isolation level.
+        # NOTE: In PostgreSQL we might use a slightly looser integrity level
+        # like "REPEATABLE READ", however as this isn't supported in sqlite3
+        # we're using the strictest "SERIALIZABLE" level.
+        Database.maker = sessionmaker(
+            bind=engine.execution_options(isolation_level="SERIALIZABLE")
+        )
+
+    @staticmethod
+    def dump_query(query: Query, logger: Logger):
+        """Dump a fully resolved SQL query if DEBUG logging is enabled
+
+        Args:
+            query:  A SQLAlchemy Query object
+            logger: A Python logger object
+        """
+        if logger.isEnabledFor(DEBUG):
+            q_str = query.statement.compile(compile_kwargs={"literal_binds": True})
+            logger.debug("QUERY {}", q_str)

@@ -112,11 +112,8 @@ class TestDatasetsMetadataGet:
             "server.deletion": "2022-12-26",
             "dataset": {
                 "access": "private",
-                "created": "2020-02-15T00:00:00+00:00",
                 "name": "drb",
                 "owner_id": "3",
-                "state": "Indexed",
-                "transition": "1970-01-01T00:42:00+00:00",
                 "uploaded": "2022-01-01T00:00:00+00:00",
                 "metalog": {
                     "pbench": {
@@ -127,6 +124,7 @@ class TestDatasetsMetadataGet:
                     },
                     "run": {"controller": "node1.example.com"},
                 },
+                "operations": {},
             },
         }
 

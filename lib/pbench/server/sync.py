@@ -1,24 +1,16 @@
-from enum import auto, Enum
-from logging import DEBUG, Logger
-from typing import List, Optional
+from logging import Logger
+import time
+from typing import Optional
 
-from pbench.server import JSONVALUE
+from sqlalchemy import or_
+
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import Dataset, Metadata
-
-
-class Operation(Enum):
-    """
-    Define the operations that can be performed on a dataset tarball by the
-    various stages of our server pipeline.
-    """
-
-    BACKUP = auto()
-    DELETE = auto()
-    UNPACK = auto()
-    INDEX = auto()
-    INDEX_TOOL = auto()
-    RE_INDEX = auto()
+from pbench.server.database.models.datasets import (
+    Dataset,
+    Operation,
+    OperationName,
+    OperationState,
+)
 
 
 class SyncError(Exception):
@@ -27,116 +19,156 @@ class SyncError(Exception):
 
 
 class SyncSqlError(SyncError):
-    def __init__(self, operation: str):
+    def __init__(self, component: OperationName, operation: str):
+        self.component = component
         self.operation = operation
 
     def __str__(self) -> str:
-        return f"Sql error executing {self.operation}"
+        return f"Sql error executing {self.component.name} {self.operation}"
 
 
 class Sync:
-    def __init__(self, logger: Logger, component: str):
-        self.logger = logger
-        self.component = component
+
+    RETRIES = 10  # Retry 10 times on commit failure
+    DELAY = 0.1  # Wait 1/10 second between retries
+
+    def __init__(self, logger: Logger, component: OperationName):
+        self.logger: Logger = logger
+        self.component: OperationName = component
 
     def __str__(self) -> str:
-        return f"<Synchronizer for component {self.component!r}>"
+        return f"<Synchronizer for component {self.component.name!r}>"
 
-    def next(self, operation: Operation) -> List[Dataset]:
+    def next(self) -> list[Dataset]:
         """
-        This is a very specialized query to return a list of datasets with
-        specific associated metadata, specifically containing a known
-        "OPERATION" enum value in the 'server.operation' metadata field.
+        This is a specialized query to return a list of datasets with the READY
+        OperationState for the Sync component.
 
         NOTE:
 
-        This can be considered a prototype for a general "query by metadata"
-        mechanism (PBENCH-825), however I haven't attempted to work out a full
-        generalization. At this point I'm happy enough to have a relatively
-        simple special purpose query; but it gives me hope that a general query
-        is achievable.
+        We use our sessionmaker to construct a special session with a context
+        manager so that we can begin a local transaction without concern about
+        SQLAlchemy's context or whether our casual global session might have a
+        transaction already in progress.
 
-        Args:
-            A desired Operation enum value
+        This however presents a small problem in that SQLAlchemy is unhappy
+        when proxy objects are used out of scope of the session that spawned
+        them. To resolve this in a somewhat hacky but effective way, we're
+        transporting only the resource IDs across the barrier and fetching
+        new proxy objects using the general session.
 
         Returns:
             A list of Dataset objects which have an associated
-            "server.operation" metadata value containing the name of the
-            operation enum.
+            Operation object in READY state.
         """
         try:
-            query = Database.db_session.query(Dataset).join(Metadata)
-            query = query.filter(Metadata.key == Metadata.SERVER)
-            term = Metadata.value["operation"].as_string().contains(operation.name)
-            query = query.filter(term)
-            query = query.order_by(Dataset.name)
-            if self.logger.isEnabledFor(DEBUG):
-                q_str = query.statement.compile(compile_kwargs={"literal_binds": True})
-                self.logger.debug("QUERY {}", q_str)
-            datasets_l = []
-            for dataset in query.all():
-                op_val = Metadata.getvalue(dataset, Metadata.OPERATION)
-                if op_val and operation.name in op_val:
-                    datasets_l.append(dataset)
-            return datasets_l
+            with Database.maker.begin() as session:
+                query = session.query(Dataset).join(Operation)
+                query = query.filter(
+                    Operation.name == self.component,
+                    Operation.state == OperationState.READY,
+                )
+                query = query.order_by(Dataset.resource_id)
+                Database.dump_query(query, self.logger)
+                id_list = [d.resource_id for d in query.all()]
+            return [Dataset.query(resource_id=i) for i in id_list]
         except Exception as e:
-            self.logger.exception("Failed to query for {}", operation)
-            raise SyncSqlError("next") from e
+            self.logger.exception("Failed to query for {}", self.component.name)
+            raise SyncSqlError(self.component, "next") from e
 
     def update(
         self,
         dataset: Dataset,
-        did: Optional[Operation] = None,
-        enabled: Optional[List[Operation]] = None,
-        status: Optional[str] = None,
+        did: Optional[OperationState] = None,
+        enabled: Optional[list[OperationName]] = None,
+        message: Optional[str] = None,
     ):
-        """
-        Advertise the operations for which the dataset is now ready.
-
-        TODO: It'd be nice to nest this inside a transaction so it's all
-        atomic. This seems to be difficult to achieve in a manner that works
-        both with PostgreSQL for production and sqlite3 for unit tests. When
-        we've removed the use of sqlite3 we can make this a nested transaction.
+        """Advertise the operations for which the dataset is now ready.
 
         Args:
             dataset: The dataset
-            did: The operation (if any) just completed, which will be removed
-                from the list of eligible operations.
+            did: The new OperationState of the component Operation
             enabled: A list (if any) of operations for which the dataset is now
                 eligible.
-            status: A status message (if not specified, and enabling new
-                operation(s), the default is "ok")
+            message: An optional status message
         """
-        ops: JSONVALUE = Metadata.getvalue(dataset, Metadata.OPERATION)
-        message = status
 
-        if not ops:
-            operations = set()
-        else:
-            operations = set(ops)
-            if did:
-                operations.discard(did.name)
+        if enabled is None:
+            enabled = []
 
-        # If we "did" something, the default message is "ok"
-        if did and not message:
-            message = "ok"
+        self.logger.debug(
+            "Dataset {} did {}, enabling {} with message {!r}",
+            dataset.name,
+            did.name if did else "nothing",
+            [e.name for e in enabled] if enabled else "none",
+            message,
+        )
 
+        # Don't reference the Dataset (which is outside our session scope)
+        # inside the context manager.
+        ds_name = dataset.name
+        ds_id = dataset.id
+        retries = self.RETRIES
+
+        # To avoid SELECT statements after updates, and the whole complication
+        # of SQLAlchemy AUTOFLUSH semantics, we're going to gather a set of all
+        # the operation rows we might need to update at the beginning.
+        match_set: set[OperationName] = set()
+        if did or message:
+            match_set.add(self.component)
         if enabled:
-            operations.update(o.name for o in enabled)
+            match_set.update(enabled)
 
-        try:
-            self.logger.info(
-                "Did {}, enabling {} with message {!r}",
-                did.name if did else "nothing",
-                [e.name for e in enabled] if enabled else "none",
-                message,
-            )
-            Metadata.setvalue(dataset, Metadata.OPERATION, sorted(operations))
-            if message:
-                Metadata.setvalue(dataset, "server.status." + self.component, message)
-        except Exception as e:
-            self.logger.warning("{} error updating ops: {}", dataset.name, str(e))
-            raise
+        filters = [Operation.name == n for n in match_set]
+
+        while retries > 0:
+            try:
+                with Database.maker.begin() as session:
+                    query = session.query(Operation).filter(
+                        Operation.dataset_ref == ds_id, or_(*filters)
+                    )
+                    Database.dump_query(query, self.logger)
+                    matches = query.all()
+                    ops: dict[OperationName, Operation] = {o.name: o for o in matches}
+
+                    if did or message:
+                        op: Operation = ops.get(self.component)
+                        if op:
+                            if did:
+                                op.state = did
+                            if message:
+                                op.message = message
+                        else:
+                            op = Operation(
+                                dataset_ref=ds_id,
+                                name=self.component,
+                                state=did if did else OperationState.FAILED,
+                                message=message,
+                            )
+                            session.add(op)
+
+                    for e in enabled:
+                        op = ops.get(e)
+                        if op:
+                            op.state = OperationState.READY
+                        else:
+                            op = Operation(
+                                dataset_ref=ds_id, name=e, state=OperationState.READY
+                            )
+                            session.add(op)
+                return
+            except Exception as e:
+                self.logger.warning(
+                    "{} update {} error ({}): {}",
+                    self.component,
+                    ds_name,
+                    retries,
+                    str(e),
+                )
+                retries -= 1
+                if retries <= 0:
+                    raise SyncSqlError(self.component, "update") from e
+                time.sleep(self.DELAY)
 
     def error(self, dataset: Dataset, message: str):
         """
@@ -146,4 +178,43 @@ class Sync:
             dataset: The dataset affected
             message: A message to be stored at "server.status.{component}"
         """
-        Metadata.setvalue(dataset, "server.status." + self.component, message)
+        self.logger.debug(
+            "{} error {}: {}", dataset.resource_id, self.component.name, message
+        )
+
+        # Don't reference the Dataset (which is outside our session scope)
+        # inside the context manager.
+        ds_name = dataset.name
+        ds_id = dataset.id
+        retries = self.RETRIES
+        while retries > 0:
+            try:
+                with Database.maker.begin() as session:
+                    query = session.query(Operation).filter(
+                        Operation.name == self.component, Operation.dataset_ref == ds_id
+                    )
+                    match = query.first()
+                    if match:
+                        match.state = OperationState.FAILED
+                        match.message = message
+                    else:
+                        row = Operation(
+                            dataset_ref=ds_id,
+                            name=self.component,
+                            state=OperationState.FAILED,
+                            message=message,
+                        )
+                        session.add(row)
+                return
+            except Exception as e:
+                self.logger.warning(
+                    "{} {} error ({}) updating message: {}",
+                    self.component.name,
+                    ds_name,
+                    retries,
+                    str(e),
+                )
+                retries -= 1
+                if retries <= 0:
+                    raise SyncSqlError(self.component, "update") from e
+                time.sleep(self.DELAY)

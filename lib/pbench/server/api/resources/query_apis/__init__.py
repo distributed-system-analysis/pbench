@@ -32,8 +32,14 @@ from pbench.server.api.resources import (
     UnauthorizedAdminAccess,
 )
 import pbench.server.auth.auth as Auth
+from pbench.server.database.database import Database
 from pbench.server.database.models.audit import AuditReason, AuditStatus
-from pbench.server.database.models.datasets import Dataset, Metadata, States
+from pbench.server.database.models.datasets import (
+    Dataset,
+    Metadata,
+    Operation,
+    OperationState,
+)
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 
@@ -727,10 +733,18 @@ class ElasticBulkBase(ApiBase):
             ApiMethod.POST, ParamType.DATASET, params
         ).value
 
-        if self.require_stable and dataset.state.mutating:
+        operation = (
+            Database.db_session.query(Operation)
+            .filter(
+                Operation.dataset_ref == dataset.id,
+                Operation.state == OperationState.WORKING,
+            )
+            .first()
+        )
+        if self.require_stable and operation:
             raise APIAbort(
                 HTTPStatus.CONFLICT,
-                f"Dataset state {dataset.state.friendly!r} is mutating",
+                f"Dataset is working on {operation.name.name}",
             )
 
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
@@ -761,8 +775,7 @@ class ElasticBulkBase(ApiBase):
         elif self.require_map:
             raise APIAbort(
                 HTTPStatus.CONFLICT,
-                f"Dataset {self.action} requires {States.INDEXED.friendly!r} "
-                f"dataset but state is {dataset.state.friendly!r}",
+                f"Operation unavailable: dataset {dataset.resource_id} is not indexed.",
             )
         else:
             report = BulkResults(errors=0, count=0, report={})

@@ -19,7 +19,6 @@ from pbench.server.database.models.datasets import (
     DatasetNotFound,
     Metadata,
     MetadataKeyError,
-    States,
 )
 
 
@@ -322,12 +321,14 @@ class TestUpload:
         assert dataset is not None
         assert dataset.resource_id == md5
         assert dataset.name == name
-        assert dataset.state == States.UPLOADED
-        assert dataset.created.isoformat() == "2002-05-16T00:00:00+00:00"
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
         assert Metadata.getvalue(dataset, "global") is None
         assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-02"
-        assert Metadata.getvalue(dataset, Metadata.OPERATION) == ["BACKUP", "UNPACK"]
+        assert Metadata.getvalue(dataset, "dataset.operations") == {
+            "BACKUP": {"state": "READY", "message": None},
+            "UNPACK": {"state": "READY", "message": None},
+            "UPLOAD": {"state": "OK", "message": None},
+        }
         assert self.cachemanager_created
         assert dataset.name in self.cachemanager_created
 

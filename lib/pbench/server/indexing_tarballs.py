@@ -20,13 +20,13 @@ from pbench.server.database.models.audit import Audit, AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
     DatasetError,
-    DatasetTransitionError,
     Metadata,
-    States,
+    OperationName,
+    OperationState,
 )
 from pbench.server.indexer import es_index, IdxContext, PbenchTarBall, VERSION
 from pbench.server.report import Report
-from pbench.server.sync import Operation, Sync
+from pbench.server.sync import Sync
 
 
 class SigIntException(Exception):
@@ -130,13 +130,15 @@ class Index:
         if options.index_tool_data:
             # The link source and destination for the operation of this script
             # when it only indexes tool data.
-            self.operation = Operation.INDEX_TOOL
+            self.operation = OperationName.TOOLINDEX
             self.enabled = None
         else:
             # The link source and destination for the operation of this script
             # when it indexes run, table-of-contents, and result data.
-            self.operation = Operation.RE_INDEX if options.re_index else Operation.INDEX
-            self.enabled = [Operation.INDEX_TOOL]
+            self.operation = (
+                OperationName.REINDEX if options.re_index else OperationName.INDEX
+            )
+            self.enabled = [OperationName.TOOLINDEX]
 
         # indexing context
         self.idxctx: IdxContext = idxctx
@@ -152,7 +154,7 @@ class Index:
         self.cache_manager: CacheManager = CacheManager(idxctx.config, idxctx.logger)
 
         # Manage synchronization between components
-        self.sync: Sync = Sync(idxctx.logger, "index")  # Build a sync object
+        self.sync: Sync = Sync(idxctx.logger, self.operation)  # Build a sync object
 
     def collect_tb(self) -> Tuple[int, List[TarballData]]:
         """Collect tarballs that need indexing
@@ -173,7 +175,7 @@ class Index:
         idxctx = self.idxctx
         error_code = self.error_code
         try:
-            for dataset in self.sync.next(self.operation):
+            for dataset in self.sync.next():
                 tb = Metadata.getvalue(dataset, Metadata.TARBALL_PATH)
                 if not tb:
                     self.sync.error(dataset, f"{dataset} does not have a tarball-path")
@@ -384,19 +386,6 @@ class Index:
                                 )
                                 continue
 
-                            try:
-                                dataset.advance(States.INDEXING)
-                            except DatasetTransitionError as e:
-                                # TODO: This means the Dataset is known, but not in a
-                                # state where we'd expect to be indexing it. So what do
-                                # we do with it? (Note: this is where an audit log will
-                                # be handy; i.e., how did we get here?) For now, just
-                                # record the error and let it go.
-                                self.sync.error(
-                                    dataset, f"Unable to advance dataset state: {e!r}"
-                                )
-                                continue
-
                             audit = Audit.create(
                                 operation=OperationCode.UPDATE,
                                 name="index",
@@ -484,8 +473,6 @@ class Index:
                         finally:
                             if tb_res.success:
                                 try:
-                                    dataset.advance(States.INDEXED)
-
                                     # In case this was a re-index, clear the
                                     # REINDEX tag.
                                     Metadata.setvalue(dataset, Metadata.REINDEX, False)
@@ -522,10 +509,6 @@ class Index:
                                                 ptb.tbname,
                                                 e,
                                             )
-                                except DatasetTransitionError:
-                                    idxctx.logger.exception(
-                                        "Dataset state error: {}", ptb.tbname
-                                    )
                                 except DatasetError as e:
                                     idxctx.logger.exception(
                                         "Dataset error on {}: {}", ptb.tbname, e
@@ -601,7 +584,7 @@ class Index:
                                 print(tb, file=fp)
                             self.sync.update(
                                 dataset=dataset,
-                                did=self.operation,
+                                did=OperationState.OK,
                                 enabled=self.enabled,
                             )
                         elif tb_res is error_code["OP_ERROR"]:
