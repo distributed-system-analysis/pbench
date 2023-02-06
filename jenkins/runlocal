@@ -4,8 +4,8 @@
 # then run the functional tests against the locally built CI container image.
 export PB_SERVER_IMAGE_NAME=pbench-server
 
-# We use the current user name as a the tag to avoid any conflict with what the
-# CI environment does.
+# We use the current user name as the tag to avoid any conflict with what the CI
+# environment does.
 export PB_SERVER_IMAGE_TAG=${USER}
 
 # We use the image pull policy of `never` here to ensure our locally built image
