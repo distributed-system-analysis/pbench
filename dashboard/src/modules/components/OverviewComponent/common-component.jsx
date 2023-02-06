@@ -1,5 +1,7 @@
 import "./index.less";
 
+import * as CONSTANTS from "assets/constants/overviewConstants";
+
 import { ActionsColumn, Td } from "@patternfly/react-table";
 import {
   Button,
@@ -175,7 +177,7 @@ export const RenderPagination = (props) => {
 export const EditRow = (props) => {
   return (
     <div className="pf-c-inline-edit__action pf-m-enable-editable">
-      {!props.item.isEdit ? (
+      {!props.item[CONSTANTS.IS_EDIT] ? (
         <Button
           variant="plain"
           onClick={() => props.toggleEdit(props.item.resource_id, true)}
@@ -185,9 +187,9 @@ export const EditRow = (props) => {
         <div>
           <Button
             isDisabled={
-              !props.item.isDirty ||
+              !props.item[CONSTANTS.IS_DIRTY] ||
               !props.item.name ||
-              props.item.name_validated === "error"
+              props.item[CONSTANTS.NAME_VALIDATED] === "error"
             }
             onClick={() =>
               props.saveRowData("datasetName", props.item, props.item.name)
@@ -206,17 +208,15 @@ export const EditRow = (props) => {
   );
 };
 
-export const DatasetNameInput = (props) => {
-  return (
-    <TextInput
-      validated={props.validated}
-      value={props.value}
-      type="text"
-      onChange={props.onChange}
-      aria-label="Edit Dataset name"
-    />
-  );
-};
+export const DatasetNameInput = (props) => (
+  <TextInput
+    validated={props.validated}
+    value={props.value}
+    type="text"
+    onChange={props.onChange}
+    aria-label="Edit Dataset name"
+  />
+);
 
 export const NewRunsRow = (props) => {
   const { item, rowIndex, columnNames, isRunExpanded, setRunExpanded } = props;
@@ -244,9 +244,9 @@ export const NewRunsRow = (props) => {
         }}
       />
       <Td dataLabel={columnNames.result}>
-        {item.isEdit ? (
+        {item[CONSTANTS.IS_EDIT] ? (
           <DatasetNameInput
-            validated={item.name_validated}
+            validated={item[CONSTANTS.NAME_VALIDATED]}
             value={item.name}
             type="text"
             onChange={props.textInputEdit}
@@ -293,9 +293,9 @@ export const SavedRunsRow = (props) => {
         }}
       />
       <Td className="result_column" dataLabel={columnNames.result}>
-        {item.isEdit ? (
+        {item[CONSTANTS.IS_EDIT] ? (
           <DatasetNameInput
-            validated={item.name_validated}
+            validated={item[CONSTANTS.NAME_VALIDATED]}
             value={item.name}
             type="text"
             onChange={props.textInputEdit}

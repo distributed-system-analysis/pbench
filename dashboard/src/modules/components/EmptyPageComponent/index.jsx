@@ -8,6 +8,7 @@ import {
 } from "@patternfly/react-core";
 
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { HOME } from "utils/routeConstants";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -20,7 +21,7 @@ const EmptyPage = (props) => {
         {props.text}
       </Title>
       <EmptyStateBody>
-        <Button type="primary" onClick={() => navigate("/")}>
+        <Button type="primary" onClick={() => navigate("/" + HOME)}>
           Go to Home
         </Button>
       </EmptyStateBody>

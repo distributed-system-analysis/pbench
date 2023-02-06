@@ -3,6 +3,7 @@ import "./index.less";
 import {
   DASHBOARD_SEEN,
   DATASET_ACCESS,
+  IS_ITEM_SEEN,
 } from "assets/constants/overviewConstants";
 import {
   InnerScrollContainer,
@@ -76,7 +77,7 @@ const SavedRunsComponent = () => {
   };
   /* Edit Dataset */
   const saveRowData = (metadataType, dataset, value) => {
-    dispatch(updateDataset(dataset, metadataType, value, "savedRuns"));
+    dispatch(updateDataset(dataset, metadataType, value));
   };
   const toggleEdit = useCallback(
     (rId, isEdit) => dispatch(setRowtoEdit(rId, isEdit, "savedRuns")),
@@ -121,7 +122,7 @@ const SavedRunsComponent = () => {
                 return (
                   <Tr
                     key={item.resource_id}
-                    className={item.isItemSeen ? "seen-row" : "unseen-row"}
+                    className={item[IS_ITEM_SEEN] ? "seen-row" : "unseen-row"}
                   >
                     <SavedRunsRow
                       item={item}

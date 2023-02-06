@@ -2,6 +2,7 @@ import "./index.less";
 
 import {
   DASHBOARD_SEEN,
+  IS_ITEM_SEEN,
   ROWS_PER_PAGE,
   START_PAGE_NUMBER,
   USER_FAVORITE,
@@ -82,7 +83,7 @@ const NewRunsComponent = () => {
     dispatch(updateDataset(dataset, "favorite", isFavoriting));
   };
   const saveRowData = (metadataType, dataset, value) => {
-    dispatch(updateDataset(dataset, metadataType, value, "newRuns"));
+    dispatch(updateDataset(dataset, metadataType, value));
   };
   const moreActionItems = (dataset) => [
     {
@@ -160,7 +161,7 @@ const NewRunsComponent = () => {
                 return (
                   <Tr
                     key={item.resource_id}
-                    className={item.isItemSeen ? "seen-row" : "unseen-row"}
+                    className={item[IS_ITEM_SEEN] ? "seen-row" : "unseen-row"}
                   >
                     <NewRunsRow
                       key={item.resource_id}

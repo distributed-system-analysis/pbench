@@ -2,6 +2,7 @@ import * as CONSTANTS from "assets/constants/overviewConstants";
 import * as TYPES from "./types";
 
 import API from "../utils/axiosInstance";
+import { DANGER } from "assets/constants/toastConstants";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
 
@@ -41,7 +42,7 @@ export const getDatasets = () => async (dispatch, getState) => {
       }
     }
   } catch (error) {
-    dispatch(showToast("danger", error?.response?.data?.message));
+    dispatch(showToast(DANGER, error?.response?.data?.message));
     dispatch({ type: TYPES.NETWORK_ERROR });
   }
   if (alreadyRendered) {
@@ -54,12 +55,13 @@ export const getDatasets = () => async (dispatch, getState) => {
 const initializeRuns = () => (dispatch, getState) => {
   const data = getState().overview.datasets;
   data.forEach((item) => {
-    item["isEdit"] = false;
+    item[CONSTANTS.IS_EDIT] = false;
     item[CONSTANTS.NAME_COPY] = item.name;
-    item["isDirty"] = false;
-    item[CONSTANTS.NAME_VALIDATED] = "default";
-    item["isItemSeen"] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
-    item["isItemFavorited"] = !!item?.metadata?.[CONSTANTS.USER_FAVORITE];
+    item[CONSTANTS.IS_DIRTY] = false;
+    item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.DEFAULT;
+    item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
+    item[CONSTANTS.IS_ITEM_FAVORITED] =
+      !!item?.metadata?.[CONSTANTS.USER_FAVORITE];
   });
   const defaultPerPage = getState().overview.defaultPerPage;
 
@@ -135,15 +137,20 @@ export const updateDataset =
         });
         dispatch(initializeRuns());
       } else {
-        dispatch(showToast("danger", response?.data?.message));
+        dispatch(showToast(DANGER, response?.data?.message));
       }
     } catch (error) {
-      dispatch(showToast("danger", error?.response?.data?.message));
+      dispatch(showToast(DANGER, error?.response?.data?.message));
       dispatch({ type: TYPES.NETWORK_ERROR });
     }
     dispatch({ type: TYPES.COMPLETED });
   };
-
+/**
+ * Function to delete the dataset
+ * @function
+ * @param {Object} dataset -  Dataset which is being updated *
+ * @return {Object} - dispatch the action and update the state
+ */
 export const deleteDataset = (dataset) => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
@@ -167,7 +174,7 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
       dispatch(showToast(CONSTANTS.SUCCESS, "Deleted!"));
     }
   } catch (error) {
-    dispatch(showToast("danger", error?.response?.data?.message));
+    dispatch(showToast(DANGER, error?.response?.data?.message));
     dispatch({ type: TYPES.NETWORK_ERROR });
   }
   dispatch({ type: TYPES.COMPLETED });
@@ -209,7 +216,13 @@ export const updateMultipleDataset =
       dispatch(showToast("warning", "Select dataset(s) for update"));
     }
   };
-
+/**
+ * Function to publish the dataset
+ * @function
+ * @param {Object} dataset -  Dataset which is being updated
+ * @param {string} updateValue - Access type value (Public/Private)
+ * @return {Object} - dispatch the action and update the state
+ */
 export const publishDataset =
   (dataset, updateValue) => async (dispatch, getState) => {
     try {
@@ -233,7 +246,7 @@ export const publishDataset =
         dispatch(showToast(CONSTANTS.SUCCESS, "Updated!"));
       }
     } catch (error) {
-      dispatch(showToast("danger", error?.response?.data?.message));
+      dispatch(showToast(DANGER, error?.response?.data?.message));
       dispatch({ type: TYPES.NETWORK_ERROR });
     }
     dispatch({ type: TYPES.COMPLETED });
@@ -250,57 +263,65 @@ export const setLoadingDoneFlag = () => async (dispatch, getState) => {
   }, CONSTANTS.DASHBOARD_LOAD_DELAY_MS);
 };
 
-const filterDatasetType = (type) => (getState) => {
-  if (type === "newRuns") {
-    return getState().overview.initNewRuns;
-  }
-  return getState().overview.savedRuns;
+const filterDatasetType = (type, getState) => {
+  return type === "newRuns"
+    ? getState().overview.initNewRuns
+    : getState().overview.savedRuns;
 };
 
-const updateDatasetType = (data, type) => (dispatch) => {
-  if (type === "newRuns") {
-    dispatch({
-      type: TYPES.INIT_NEW_RUNS,
-      payload: data,
-    });
-  } else {
-    dispatch({
-      type: TYPES.SAVED_RUNS,
-      payload: data,
-    });
-  }
+const updateDatasetType = (data, type) => {
+  return {
+    type: type === "newRuns" ? TYPES.INIT_NEW_RUNS : TYPES.SAVED_RUNS,
+    payload: data,
+  };
 };
+/**
+ * Function to validate the edited dataset
+ * @function
+ * @param {string} value - new value of the metadata that is being edited
+ * @param {string} metadata - metadata that is being edited *
+ * @param {string} rId - resource_id of the dataset which is being set to edit
+ * @param {string} type - Type of the Dataset (Saved/New)
+ * @return {Object} - dispatch the action and update the state
+ */
 export const editMetadata =
   (value, metadata, rId, type) => async (dispatch, getState) => {
-    const data = filterDatasetType(type)(getState);
+    const data = filterDatasetType(type, getState);
 
     const rIndex = data.findIndex((item) => item.resource_id === rId);
     data[rIndex][metadata] = value;
-    data[rIndex]["isDirty"] = true;
+    data[rIndex][CONSTANTS.IS_DIRTY] = true;
     if (value.length > CONSTANTS.DATASET_NAME_LENGTH) {
-      data[rIndex][CONSTANTS.NAME_VALIDATED] = "error";
+      data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.ERROR;
       data[rIndex][
         CONSTANTS.NAME_ERROR_MSG
       ] = `Length should be < ${CONSTANTS.DATASET_NAME_LENGTH}`;
     } else if (value.length === 0) {
-      data[rIndex][CONSTANTS.NAME_VALIDATED] = "error";
+      data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.ERROR;
       data[rIndex][CONSTANTS.NAME_ERROR_MSG] = `Length cannot be 0`;
     } else {
       data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
     }
     dispatch(updateDatasetType(data, type));
   };
-
+/**
+ * Function which toggles the row of New runs or Saved runs Table to edit
+ * @function
+ * @param {string} rId - resource_id of the dataset which is being set to edit
+ * @param {boolean} isEdit - Set/not set to edit
+ * @param {string} type - Type of the Dataset (Saved/New)
+ * @return {Object} - dispatch the action and update the state
+ */
 export const setRowtoEdit =
   (rId, isEdit, type) => async (dispatch, getState) => {
-    const data = filterDatasetType(type)(getState);
+    const data = filterDatasetType(type, getState);
 
     const rIndex = data.findIndex((item) => item.resource_id === rId);
-    data[rIndex].isEdit = isEdit;
+    data[rIndex][CONSTANTS.IS_EDIT] = isEdit;
 
     if (!isEdit) {
       data[rIndex].name = data[rIndex][CONSTANTS.NAME_COPY];
-      data[rIndex]["isDirty"] = false;
+      data[rIndex][CONSTANTS.IS_DIRTY] = false;
       data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
     }
     dispatch(updateDatasetType(data, type));
