@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
+# Build the Pbench Server RPM and container, and run functional tests locally.
+# Requires a Fedora, CentOS, or RHEL environment to run.
+
 # Build the pbench-server RPM locally, then build the containers locally, and
 # then run the functional tests against the locally built CI container image.
 export PB_SERVER_IMAGE_NAME=pbench-server
@@ -12,19 +15,13 @@ export PB_SERVER_IMAGE_TAG=${USER}
 # is used by the pod.
 export PB_SERVER_IMAGE_PULL_POLICY=never
 
-# We explicitly set WORKSPACE_TMP so that RPM builds (which build images using
-# jenkins/run) will store the resulting RPM in that work space temporary
-# directory.
-export WORKSPACE_TMP=/var/tmp/${USER}/runlocal
-mkdir -p /var/tmp/${USER}
-rm -rf ${WORKSPACE_TMP}
-mkdir ${WORKSPACE_TMP}
+# Create an RPM from the current source tree.
+make -C server/rpm clean rpm
 
-# Create a RHEL 9 RPM from the current source tree.
-make -C server/rpm clean rhel-9-rpm
+source /etc/os-release
 
 # Build the canned Pbench Server container from the RPM built above.
-RPM_PATH=${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build.sh
+BASE_IMAGE=${ID}:${VERSION_ID} RPM_PATH=${HOME}/rpmbuild/RPMS/noarch/pbench-server-*.rpm server/pbenchinacan/container-build.sh
 
 # Run the functional tests using the locally built image.
 jenkins/run-server-func-tests
