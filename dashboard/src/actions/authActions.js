@@ -8,6 +8,25 @@ import { SUCCESS } from "assets/constants/overviewConstants";
 import { showToast } from "actions/toastActions";
 import { uid } from "../utils/helper";
 
+
+// Create an Authentication Request
+export const authenticationRequest = () => async (dispatch, getState) => {
+    const endpoints = getState().apiEndpoint.endpoints;
+    const oidcServer = endpoints?.authentication?.issuer;
+    const oidcRealm = endpoints?.authentication?.realm;
+    const oidcClient = endpoints?.authentication?.client;
+    const oidcClientSecret = endpoints?.authentication?.secret;
+    let req = oidcServer + '/realms/' + oidcRealm + '/protocol/openid-connect/auth';
+    req += '?client_id=' + oidcClient;
+    req += '&client_secret=' + oidcClientSecret;
+    req += '&response_type=code';
+    req += '&redirect_uri=' + window.location.href.split('?')[0];
+    req += '&scope=profile';
+    req += '&prompt=login';
+    req += '&max_age=120';
+    window.location.href = req;
+}
+
 export const makeLoginRequest =
   (details, navigate) => async (dispatch, getState) => {
     try {
