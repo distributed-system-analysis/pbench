@@ -6,6 +6,7 @@
 #+
 # Configuration definition section.
 #-
+GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 
 BASE_IMAGE=${BASE_IMAGE:-registry.access.redhat.com/ubi9:latest}
 PB_SERVER_IMAGE_NAME=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
@@ -17,7 +18,6 @@ KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-"client-secret"}
 PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
 
 # Locations on the host
-GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PBINC_SERVER=${GITTOP}/server
 PBINC_INACAN=${PBINC_SERVER}/pbenchinacan
 
