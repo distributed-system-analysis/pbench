@@ -15,13 +15,27 @@ export PB_SERVER_IMAGE_TAG=${USER}
 # is used by the pod.
 export PB_SERVER_IMAGE_PULL_POLICY=never
 
-# Create an RPM from the current source tree.
+# Create an RPM from the current source tree and double check it exists.
 make -C server/rpm clean rpm
+export RPM_PATH=${HOME}/rpmbuild/RPMS/noarch/pbench-server-*.rpm
+ls -ld ${RPM_PATH}
 
 source /etc/os-release
 
+if [[ ${ID} == "fedora" ]]; then
+    BASE_IMAGE=${ID}:${VERSION_ID}
+elif [[ ${ID} == "centos" ]]; then
+    BASE_IMAGE=stream${VERSION_ID%%.*}:latest
+elif [[ ${ID} == "rhel" ]]; then
+    BASE_IMAGE=ubi${VERSION_ID%%.*}:latest
+else
+    echo "Unsupported local OS, ${ID}:${VERSION_ID}" >&2
+    exit 1
+fi
+export BASE_IMAGE
+
 # Build the canned Pbench Server container from the RPM built above.
-BASE_IMAGE=${ID}:${VERSION_ID} RPM_PATH=${HOME}/rpmbuild/RPMS/noarch/pbench-server-*.rpm server/pbenchinacan/container-build.sh
+server/pbenchinacan/container-build.sh
 
 # Run the functional tests using the locally built image.
 jenkins/run-server-func-tests
