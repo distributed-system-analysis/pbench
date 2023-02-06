@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -e
+#!/bin/bash -e
 #
 # This script builds a container which, when run, starts a Pbench Server.
 #

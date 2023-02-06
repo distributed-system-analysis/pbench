@@ -1,4 +1,4 @@
-#!/usr/bin/env -S bash -e
+#!/bin/bash -e
 
 #
 # This script loads a pre-defined set of tarballs into a Pbench server.
