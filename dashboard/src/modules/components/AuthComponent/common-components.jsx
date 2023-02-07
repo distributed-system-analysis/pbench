@@ -121,10 +121,8 @@ export const AuthForm = () => {
             variant="primary"
             onClick={() => {dispatch(authenticationRequest())}}
           >
-            Red Hat SSO
+            Pbench OpenId
           </Button>
-          <Button variant="secondary">GitHub</Button>
-          <Button variant="secondary">Gmail</Button>
         </div>
         <NoLoginComponent />
       </CardFooter>
