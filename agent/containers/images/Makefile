@@ -308,11 +308,11 @@ centos-7-base.Dockerfile: _PKGMGR = yum
 # and expiration date.
 $(_DEFAULT_DISTROS:%=%-push-ci): %-push-ci:
 	for image in ${_CONTAINER_NAMES}; do \
-	  buildah push \
-	    localhost/pbench-agent-$${image}-${*}:${_LOCAL_GIT_HASH} \
-	    ${IMAGE_REPO}/pbench-agent-$${image}-${*}:${IMAGE_TAG} && \
-	  ${_PBENCH_TOP}/jenkins/set-expiration $$(date --date "3 weeks" +%s) \
-	    ${IMAGE_REG} ${IMAGE_ORG}/pbench-agent-$${image}-${*} ${IMAGE_TAG} ; \
+	    buildah push \
+	        localhost/pbench-agent-$${image}-${*}:${_LOCAL_GIT_HASH} \
+	        ${IMAGE_REPO}/pbench-agent-$${image}-${*}:${IMAGE_TAG} && \
+	    ${_PBENCH_TOP}/jenkins/set-expiration $$(date --date "3 weeks" +%s) \
+	        ${IMAGE_REG} ${IMAGE_ORG}/pbench-agent-$${image}-${*} ${IMAGE_TAG} ; \
 	done
 
 # Special "push" target which pushes a full set of the various container images
@@ -321,11 +321,11 @@ $(_DEFAULT_DISTROS:%=%-push-ci): %-push-ci:
 # _only_ the requested tag and no tags based on the version or hash.
 publish:
 	for distro in ${_DEFAULT_DISTROS}; do \
-	  for image in ${_CONTAINER_NAMES}; do \
-	    buildah push \
-	      localhost/pbench-agent-$${image}-$${distro}:${_LOCAL_GIT_HASH} \
-	      ${IMAGE_REPO}/pbench-agent-$${image}-$${distro}:${IMAGE_TAG} ; \
-	  done ; \
+	    for image in ${_CONTAINER_NAMES}; do \
+	        buildah push \
+	            localhost/pbench-agent-$${image}-$${distro}:${_LOCAL_GIT_HASH} \
+	            ${IMAGE_REPO}/pbench-agent-$${image}-$${distro}:${IMAGE_TAG} ; \
+	    done ; \
 	done
 
 define _PUSH_RULE

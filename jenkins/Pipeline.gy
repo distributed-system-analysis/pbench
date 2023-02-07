@@ -50,10 +50,10 @@ pipeline {
                 sh 'bash -ex ./server/pbenchinacan/container-build.sh'
                 sh 'buildah push ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG}'
                 sh './jenkins/set-expiration \
-                      ${EXPIRATION} \
-                      ${PB_CI_REGISTRY} \
-                      ${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME} \
-                      ${PB_IMAGE_TAG}'
+                        ${EXPIRATION} \
+                        ${PB_CI_REGISTRY} \
+                        ${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME} \
+                        ${PB_IMAGE_TAG}'
             }
         }
         stage('Build the Pbench Agent Containers') {
