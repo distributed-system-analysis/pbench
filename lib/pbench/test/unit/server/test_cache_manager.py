@@ -133,10 +133,10 @@ class TestCacheManager:
         Test behavior of the metadata file when key/value are not present.
         """
 
-        def fake_extract(tar_path, path):
+        def fake_extract_file(self, path):
             raise KeyError(f"filename {path} not found")
 
-        def fake_extract_tarfile(tar_path, path):
+        def fake_tarfile_open(self, path):
             raise tarfile.TarError("Invalid Tarfile")
 
         def fake_metadata(tar_path):
@@ -158,14 +158,14 @@ class TestCacheManager:
         tar_name = source_tarball.name.removesuffix(".tar.xz")
 
         expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"'filename {tar_name}/metadata.log not found'\""
-        monkeypatch.setattr(Tarball, "extract", fake_extract)
-        with pytest.raises(Exception) as exc:
+        monkeypatch.setattr(tarfile.TarFile, "extractfile", fake_extract_file)
+        with pytest.raises(MetadataError) as exc:
             cm.create(source_tarball)
         assert str(exc.value) == expected_metaerror
 
         expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: 'Invalid Tarfile'"
-        monkeypatch.setattr(Tarball, "extract", fake_extract_tarfile)
-        with pytest.raises(Exception) as exc:
+        monkeypatch.setattr(tarfile, "open", fake_tarfile_open)
+        with pytest.raises(MetadataError) as exc:
             cm.create(source_tarball)
         assert str(exc.value) == expected_metaerror
 
