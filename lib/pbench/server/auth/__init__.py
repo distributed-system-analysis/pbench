@@ -404,7 +404,7 @@ class OpenIDClient:
                 token,
                 self._pem_public_key,
                 algorithms=[self._TOKEN_ALG],
-                audience=self.client_id,
+                audience=["account", self.client_id],
                 options={
                     "verify_signature": True,
                     "verify_aud": True,

@@ -3,7 +3,9 @@ import os
 
 import pytest
 
-from pbench.client import API, PbenchServerClient
+from pbench.client import PbenchServerClient
+from pbench.client.oidc_admin import OIDCAdmin
+from pbench.client.types import JSONMap
 
 
 @pytest.fixture(scope="module")
@@ -25,19 +27,25 @@ def server_client():
 
 
 @pytest.fixture(scope="module")
-def register_test_user(server_client: PbenchServerClient):
-    """Create a test user for functional tests."""
+def oidc_admin(server_client: PbenchServerClient):
+    """
+    Used by Pbench Server functional tests to get admin access
+    on OIDC server.
+    """
+    oidc_endpoints = server_client.endpoints["openid-connect"]
+    oidc_server = OIDCAdmin(server_url=oidc_endpoints["issuer"])
+    return oidc_server
 
-    response = server_client.post(
-        API.REGISTER,
-        json={
-            "username": "tester",
-            "first_name": "Test",
-            "last_name": "User",
-            "password": "123456",
-            "email": "tester@gmail.com",
-        },
-        raise_error=False,
+
+@pytest.fixture(scope="module")
+def register_test_user(oidc_admin: OIDCAdmin):
+    """Create a test user for functional tests."""
+    response = oidc_admin.create_new_user(
+        username="tester",
+        email="tester@gmail.com",
+        password="123456",
+        first_name="Test",
+        last_name="User",
     )
 
     # To allow testing outside our transient CI containers, allow the tester
@@ -48,9 +56,17 @@ def register_test_user(server_client: PbenchServerClient):
 
 
 @pytest.fixture
-def login_user(server_client: PbenchServerClient, register_test_user):
+def login_user(
+    server_client: PbenchServerClient, oidc_admin: OIDCAdmin, register_test_user
+):
     """Log in the test user and return the authentication token"""
-    server_client.login("tester", "123456")
-    assert server_client.auth_token
-    yield
-    server_client.logout()
+    oidc_endpoints = server_client.endpoints["openid-connect"]
+    response = oidc_admin.user_login(
+        client_id=oidc_endpoints["client"], username="tester", password="123456"
+    )
+    auth_token = response.json()["access_token"]
+    assert auth_token
+    json = {"username": "tester", "auth_token": auth_token}
+    server_client.username = "tester"
+    server_client.auth_token = auth_token
+    yield JSONMap(json)
