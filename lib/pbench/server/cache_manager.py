@@ -266,7 +266,8 @@ class Tarball:
 
         return cls(destination, controller)
 
-    def extract(self, path: str) -> str:
+    @staticmethod
+    def extract(tarball_path: Path, path: str) -> str:
         """
         Extract a file from the tarball and return it as a string
 
@@ -280,13 +281,12 @@ class Tarball:
             The named file as a string
         """
         try:
-            return (
-                tarfile.open(self.tarball_path, "r:*").extractfile(path).read().decode()
-            )
+            return tarfile.open(tarball_path, "r:*").extractfile(path).read().decode()
         except Exception as exc:
-            raise MetadataError(self.tarball_path, exc)
+            raise MetadataError(tarball_path, exc)
 
-    def get_metadata(self) -> JSONOBJECT:
+    @staticmethod
+    def _get_metadata(tarball_path: Path) -> JSONOBJECT:
         """
         Fetch the values in metadata.log from the tarball, and return a JSON
         document organizing the metadata by section.
@@ -296,12 +296,12 @@ class Tarball:
         Returns:
             A JSON representation of the dataset `metadata.log`
         """
-        if not self.metadata:
-            data = self.extract(f"{self.name}/metadata.log")
-            metadata = MetadataLog()
-            metadata.read_string(data)
-            self.metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
-        return self.metadata
+        name = Dataset.stem(tarball_path)
+        data = Tarball.extract(tarball_path, f"{name}/metadata.log")
+        metadata = MetadataLog()
+        metadata.read_string(data)
+        metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
+        return metadata
 
     @staticmethod
     def subprocess_run(
@@ -869,7 +869,7 @@ class CacheManager:
     #   Remove the tarball and MD5 file from ARCHIVE after uncaching the
     #   unpacked directory tree.
 
-    def create(self, controller_name: str, tarfile: Path) -> Tarball:
+    def create(self, tarfile: Path) -> Tarball:
         """
         Move a dataset tarball and companion MD5 file into the specified
         controller directory. The controller directory and links will be
@@ -882,6 +882,16 @@ class CacheManager:
         Returns
             Tarball object
         """
+        try:
+            metadata = Tarball._get_metadata(tarfile)
+            controller_name = metadata["run"]["controller"]
+        except MetadataError:
+            raise
+        except Exception as exc:
+            raise MetadataError(tarfile, exc)
+
+        if not controller_name:
+            raise MetadataError(tarfile, "no controller value")
         if not tarfile.is_file():
             raise BadFilename(tarfile)
         name = Dataset.stem(tarfile)
@@ -893,6 +903,7 @@ class CacheManager:
             controller = Controller.create(controller_name, self.options, self.logger)
             self.controllers[controller_name] = controller
         tarball = controller.create_tarball(tarfile)
+        tarball.metadata = metadata
         self.tarballs[tarball.name] = tarball
         self.datasets[tarball.resource_id] = tarball
         return tarball

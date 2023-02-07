@@ -10,7 +10,7 @@ from flask import current_app, jsonify
 from flask.wrappers import Request, Response
 import humanize
 
-from pbench.common.utils import Cleanup, validate_hostname
+from pbench.common.utils import Cleanup
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
@@ -26,7 +26,7 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.auth.auth import Auth
-from pbench.server.cache_manager import CacheManager
+from pbench.server.cache_manager import CacheManager, MetadataError
 from pbench.server.database.models.audit import (
     Audit,
     AuditReason,
@@ -62,11 +62,9 @@ class CleanupTime(Exception):
 
 class Upload(ApiBase):
     """
-    Upload a dataset from an agent. This API accepts a tarball, controller
-    name, and MD5 value from a client. After validation, it creates a new
-    Dataset DB row describing the dataset, along with some metadata, and it
-    creates a pair of files (tarball and MD5 file) within the designated
-    controller directory under the configured ARCHIVE file tree.
+    Upload a dataset from an agent. This API accepts a tarball and MD5
+    value from a client. After validation, it creates a new Dataset DB
+    row describing the dataset, along with some metadata.
     """
 
     CHUNK_SIZE = 65536
@@ -99,9 +97,6 @@ class Upload(ApiBase):
 
         We get the requested filename from the URI: /api/v1/upload/<filename>.
 
-        We get the originating controller nodename from a custom "controller"
-        HTTP header.
-
         We get the dataset's resource ID (which is the tarball's MD5 checksum)
         from the "content-md5" HTTP header.
 
@@ -131,7 +126,6 @@ class Upload(ApiBase):
         recovery = Cleanup(current_app.logger)
         audit: Optional[Audit] = None
         username: Optional[str] = None
-        controller: Optional[str] = None
         access = (
             args.query["access"] if "access" in args.query else Dataset.PRIVATE_ACCESS
         )
@@ -148,18 +142,7 @@ class Upload(ApiBase):
                 user_id = None
                 raise CleanupTime(HTTPStatus.UNAUTHORIZED, "Verifying user_id failed")
 
-            controller = request.headers.get("controller")
-            if not controller:
-                raise CleanupTime(
-                    HTTPStatus.BAD_REQUEST, "Missing required 'controller' header"
-                )
-
-            if validate_hostname(controller) != 0:
-                raise CleanupTime(HTTPStatus.BAD_REQUEST, "Invalid 'controller' header")
-
-            current_app.logger.info(
-                "Uploading {} on controller {}", filename, controller
-            )
+            current_app.logger.info("Uploading {}", filename)
 
             if os.path.basename(filename) != filename:
                 raise CleanupTime(
@@ -230,8 +213,7 @@ class Upload(ApiBase):
             )
 
             current_app.logger.info(
-                "PUT uploading {}:{} for user_id {} (username: {}) to {}",
-                controller,
+                "PUT uploading {} for user_id {} (username: {}) to {}",
                 filename,
                 user_id,
                 username,
@@ -289,11 +271,10 @@ class Upload(ApiBase):
             recovery.add(dataset.delete)
 
             current_app.logger.info(
-                "Uploading file {!a} (user = (user_id: {}, username: {}), ctrl = {!a}) to {}",
+                "Uploading file {!a} (user = (user_id: {}, username: {}), to {}",
                 filename,
                 user_id,
                 username,
-                controller,
                 dataset,
             )
 
@@ -367,11 +348,16 @@ class Upload(ApiBase):
 
             # Move the files to their final location
             try:
-                tarball = cache_m.create(controller, tar_full_path)
-            except Exception:
+                tarball = cache_m.create(tar_full_path)
+            except MetadataError as exc:
+                raise CleanupTime(
+                    HTTPStatus.BAD_REQUEST,
+                    f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
+                )
+            except Exception as exc:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,
-                    f"Unable to create dataset in file system for {tar_full_path}",
+                    f"Unable to create dataset in file system for {tar_full_path}: {exc}",
                 )
 
             usage = shutil.disk_usage(tar_full_path.parent)
@@ -408,7 +394,7 @@ class Upload(ApiBase):
             # won't be committed to the database until the "advance" operation
             # at the end.
             try:
-                metadata = tarball.get_metadata()
+                metadata = tarball.metadata
                 dataset.created = UtcTimeHelper.from_string(
                     metadata["pbench"]["date"]
                 ).utc_time
