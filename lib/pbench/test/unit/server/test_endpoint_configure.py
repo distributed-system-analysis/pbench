@@ -1,3 +1,4 @@
+from configparser import NoOptionError, NoSectionError
 from urllib.parse import urljoin
 
 
@@ -38,17 +39,7 @@ class TestEndpointConfig:
         uri_prefix = server_config.rest_uri
         host = "http://" + host
         uri = urljoin(host, uri_prefix)
-        auth_realm = server_config.get("authentication", "realm")
-        auth_issuer = server_config.get("authentication", "server_url")
-        auth_client = server_config.get("authentication", "client")
-        auth_secret = server_config.get("authentication", "secret")
         expected_results = {
-            "authentication": {
-                "realm": auth_realm,
-                "client": auth_client,
-                "issuer": auth_issuer,
-                "secret": auth_secret,
-            },
             "identification": f"Pbench server {server_config.COMMIT_ID}",
             "api": {
                 "datasets_contents": f"{uri}/datasets/contents",
@@ -146,6 +137,21 @@ class TestEndpointConfig:
                 },
             },
         }
+
+        try:
+            oidc_client = server_config.get("openid-connect", "client")
+            oidc_issuer = server_config.get("openid-connect", "server_url")
+            oidc_realm = server_config.get("openid-connect", "realm")
+            oidc_secret = server_config.get("openid-connect", "secret")
+        except (NoOptionError, NoSectionError):
+            pass
+        else:
+            expected_results["openid-connect"] = {
+                "client": oidc_client,
+                "issuer": oidc_issuer,
+                "realm": oidc_realm,
+                "secret": oidc_secret,
+            }
 
         response = client.get(f"{server_config.rest_uri}/endpoints", headers=my_headers)
         res_json = response.json

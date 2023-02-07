@@ -27,7 +27,7 @@ class TestConnect:
             assert e in endpoints["api"].keys()
             assert e in endpoints["uri"].keys()
 
-        # verify all the required authentication fields are present
-        if "authentication" in endpoints:
+        # verify all the required openid-connect fields are present
+        if "openid-connect" in endpoints:
             expected = {"issuer", "client", "realm", "secret"}
-            assert set(endpoints["authentication"]) >= expected
+            assert set(endpoints["openid-connect"]) >= expected

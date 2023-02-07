@@ -13,7 +13,7 @@ from pbench.server.api.resources import (
     UnauthorizedAdminAccess,
 )
 from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database.models.audit import AuditType
 from pbench.server.database.models.datasets import Dataset
 

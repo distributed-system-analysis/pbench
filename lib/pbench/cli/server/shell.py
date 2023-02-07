@@ -88,6 +88,7 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
         crontab_dir = server_config.get("pbench-server", "crontab-dir")
+        server_config.get("flask-app", "secret-key")
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Error fetching required configuration: {}", exc)
         return 1

@@ -1,291 +1,230 @@
-from dataclasses import dataclass
 import datetime
 from http import HTTPStatus
-import os
 from typing import Optional, Union
 
-from flask import current_app, request
+from flask import current_app, Flask, request
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import abort
 import jwt
 
 from pbench.server import PbenchServerConfig
-from pbench.server.auth import OpenIDClient, OpenIDClientError
+from pbench.server.auth import (
+    InternalUser,
+    OpenIDClient,
+    OpenIDClientError,
+    OpenIDTokenInvalid,
+)
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
 
+# Module private constants
+_TOKEN_ALG_INT = "HS256"
 
-@dataclass
-class InternalUser:
-    """Internal user class for storing user related fields fetched
-    from OIDC token decode.
+# Module public
+token_auth = HTTPTokenAuth("Bearer")
+oidc_client: OpenIDClient = None
 
-    Note: Class attributes are duck-typed from the SQL User object,
-    and they need to match with the respective sql entry!
+
+def setup_app(app: Flask, server_config: PbenchServerConfig):
+    """Setup the given Flask app from the given Pbench Server configuration
+    object.
+
+    Sets the Flask apps `secret_key` attribute to the configured "secret-key"
+    value in the Pbench Server "flask-app" section.
+
+    We attempt to construct an OpenID Client object for third party token
+    verification if the configuration is provided.
+
+    Args:
+        server_config : Parsed Pbench server configuration
     """
+    app.secret_key = server_config.get("flask-app", "secret-key")
 
-    id: str
-    username: str
-    email: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    roles: Optional[list[str]] = None
+    global oidc_client
+    try:
+        oidc_client = OpenIDClient.construct_oidc_client(server_config)
+    except OpenIDClient.NotConfigured:
+        oidc_client = None
 
-    def __str__(self) -> str:
-        return f"User, id: {self.id}, username: {self.username}"
 
-    def is_admin(self):
-        return "ADMIN" in self.roles
+def get_current_user_id() -> Optional[str]:
+    """Return the user ID associated with the authentication token.
 
-    @classmethod
-    def create(cls, client_id: str, token_payload: dict) -> "InternalUser":
-        """Helper method to return the Internal User object.
+    Returns:
+        User ID of the authenticated user, None otherwise.
+    """
+    user = token_auth.current_user()
+    return str(user.id) if user else None
 
-        Args:
-            client_id : authorized client id string
-            token_payload : Dict representation of decoded token
 
-        Returns:
-             InternalUser object
-        """
-        roles = []
-        audiences = token_payload.get("resource_access", {})
-        if client_id in audiences:
-            roles = audiences[client_id].get("roles", [])
-        return cls(
-            id=token_payload["sub"],
-            username=token_payload.get("preferred_username"),
-            email=token_payload.get("email"),
-            first_name=token_payload.get("given_name"),
-            last_name=token_payload.get("family_name"),
-            roles=roles,
+def encode_auth_token(time_delta: datetime.timedelta, user_id: int) -> str:
+    """Generates an authorization token for an internal user ID.
+
+    Args:
+        time_delta : Token lifetime
+        user_id : Authorized user's internal ID
+
+    Returns:
+        JWT token string
+    """
+    current_utc = datetime.datetime.now(datetime.timezone.utc)
+    payload = {
+        "iat": current_utc,
+        "exp": current_utc + time_delta,
+        "sub": user_id,
+    }
+    return jwt.encode(payload, current_app.secret_key, algorithm=_TOKEN_ALG_INT)
+
+
+def get_auth_token() -> str:
+    """Get the authorization token from the current request.
+
+    Returns:
+        The bearer token extracted from the authorization header
+    """
+    example = (
+        "Please add Authorization header with Bearer token as,"
+        " 'Authorization: Bearer <session_token>'"
+    )
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        abort(
+            HTTPStatus.FORBIDDEN,
+            message=f"No Authorization header provided.  {example}",
         )
 
-
-class Auth:
-    token_auth = HTTPTokenAuth("Bearer")
-    oidc_client: OpenIDClient = None
-    secret_key = ""
-
-    @staticmethod
-    def set_oidc_client(server_config: PbenchServerConfig):
-        """OIDC client initialization for third party token verification.
-
-        Args:
-            server_config : Parsed Pbench server configuration
-        """
-        server_url = server_config.get(
-            "authentication",
-            "internal_server_url",
-            fallback=server_config.get("authentication", "server_url"),
+    try:
+        auth_schema, auth_token = auth_header.split(" ", 1)
+    except ValueError:
+        abort(
+            HTTPStatus.UNAUTHORIZED,
+            message=f"Malformed Authorization header.  {example}",
         )
-        client = server_config.get("authentication", "client")
-        realm = server_config.get("authentication", "realm")
-        secret = server_config.get("authentication", "secret", fallback=None)
-        Auth.oidc_client = OpenIDClient(
-            server_url=server_url,
-            client_id=client,
-            realm_name=realm,
-            client_secret_key=secret,
-            verify=False,
-        )
-
-    @staticmethod
-    def get_user_id() -> Optional[str]:
-        """Returns the user id of the current authenticated user.
-
-        Returns:
-            User ID of the authenticated user, None otherwise.
-        """
-        user = Auth.token_auth.current_user()
-        return str(user.id) if user else None
-
-    @staticmethod
-    def _get_secret_key() -> str:
-        """Returns the configured secret key."""
-        if not Auth.secret_key:
-            Auth.secret_key = os.getenv("SECRET_KEY", "my_precious")
-        return Auth.secret_key
-
-    def encode_auth_token(self, time_delta: datetime.timedelta, user_id: int) -> str:
-        """Generates an authorization token for an internal user ID.
-
-        Args:
-            time_delta : Token lifetime
-            user_id : Authorized user's internal ID
-
-        Returns:
-            JWT token string
-        """
-        current_utc = datetime.datetime.now(datetime.timezone.utc)
-        payload = {
-            "iat": current_utc,
-            "exp": current_utc + time_delta,
-            "sub": user_id,
-        }
-
-        # Get jwt key
-        jwt_key = Auth._get_secret_key()
-        return jwt.encode(payload, jwt_key, algorithm="HS256")
-
-    def get_auth_token(self) -> str:
-        """Get the authorization token from the current request.
-
-        Returns:
-            The bearer token extracted from the authorization header
-        """
-        example = (
-            "Please add Authorization header with Bearer token as,"
-            " 'Authorization: Bearer <session_token>'"
-        )
-        auth_header = request.headers.get("Authorization")
-        if not auth_header:
-            abort(
-                HTTPStatus.FORBIDDEN,
-                message=f"No Authorization header provided.  {example}",
-            )
-
-        try:
-            auth_schema, auth_token = auth_header.split(" ", 1)
-        except ValueError:
+    else:
+        if auth_schema.lower() != "bearer":
             abort(
                 HTTPStatus.UNAUTHORIZED,
                 message=f"Malformed Authorization header.  {example}",
             )
+        return auth_token
+
+
+@token_auth.verify_token
+def verify_auth(auth_token: str) -> Optional[Union[User, InternalUser]]:
+    """Validates the auth token of the current request.
+
+    If an OpenID Connect client is configured, then actual token verification
+    is performed by the OpenID Connect version, otherwise our internal version
+    is used.
+
+    Args:
+        auth_token : authorization token string
+
+    Returns:
+        None if the token is not valid, a `User` object when the token is
+        an internally generated one, and an `InternalUser` object when the
+        token is validated using the OpenID Connect client.
+    """
+    user = None
+    try:
+        if oidc_client is not None:
+            user = verify_auth_oidc(auth_token)
         else:
-            if auth_schema.lower() != "bearer":
-                abort(
-                    HTTPStatus.UNAUTHORIZED,
-                    message=f"Malformed Authorization header.  {example}",
-                )
-            return auth_token
+            user = verify_auth_internal(auth_token)
+    except Exception as e:
+        current_app.logger.exception(
+            "Unexpected exception occurred while verifying the auth token {!r}: {}",
+            auth_token,
+            e,
+        )
+    return user
 
-    @staticmethod
-    @token_auth.verify_token
-    def verify_auth(auth_token: str) -> Optional[Union[User, InternalUser]]:
-        """Validates an auth token.
 
-        The method first tries to validate the token as if it was generated by
-        the Pbench server for an internal user.  If the token is not valid, then
-        it will try to validate the token using the OpenID Connect client that
-        is configured.
+def verify_auth_internal(auth_token: str) -> Optional[User]:
+    """Validates the auth token of the current request.
 
-        Args:
-            auth_token : authorization token string
+    Tries to validate the token as if it was generated by the Pbench server for
+    an internal user.
 
-        Returns:
-            None if the token is not valid, a `User` object when the token is
-            an internally generated one, and an `InternalUser` object when the
-            token is validated using the OpenID Connect client.
-        """
-        if Auth.oidc_client and not Auth.oidc_client.USERINFO_ENDPOINT:
-            Auth.oidc_client.set_well_known_endpoints()
+    Args:
+        auth_token : authorization token string
+
+    Returns:
+        None if the token is not valid, a `User` object when the token is valid.
+    """
+    user = None
+    try:
+        payload = jwt.decode(
+            auth_token,
+            current_app.secret_key,
+            algorithms=_TOKEN_ALG_INT,
+            options={
+                "verify_signature": True,
+                "verify_aud": True,
+                "verify_exp": True,
+            },
+        )
+    except jwt.InvalidSignatureError:
+        pass
+    except jwt.ExpiredSignatureError:
         try:
-            payload = jwt.decode(
-                auth_token,
-                Auth._get_secret_key(),
-                algorithms="HS256",
-                options={
-                    "verify_signature": True,
-                    "verify_aud": True,
-                    "verify_exp": True,
-                },
-            )
-            user_id = payload["sub"]
-            if ActiveTokens.valid(auth_token):
-                user = User.query(id=user_id)
-                return user
-        except jwt.ExpiredSignatureError:
-            try:
-                ActiveTokens.delete(auth_token)
-            except Exception as e:
-                current_app.logger.error(
-                    "User passed expired token but we could not delete the"
-                    " token from the database. token: {!r}: {}",
-                    auth_token,
-                    e,
-                )
-        except jwt.InvalidTokenError:
-            current_app.logger.debug(
-                "Internal token verification failed, trying OIDC token verification"
-            )
-            return Auth.verify_third_party_token(auth_token, Auth.oidc_client)
+            ActiveTokens.delete(auth_token)
         except Exception as e:
-            current_app.logger.exception(
-                "Unexpected exception occurred while verifying the auth token {!r}: {}",
+            current_app.logger.error(
+                "User passed expired token but we could not delete the"
+                " token from the database. token: {!r}: {}",
                 auth_token,
                 e,
             )
-        return None
+    else:
+        user_id = payload["sub"]
+        if ActiveTokens.valid(auth_token):
+            user = User.query(id=user_id)
+    return user
 
-    @staticmethod
-    def verify_third_party_token(
-        auth_token: str,
-        oidc_client: OpenIDClient,
-        algorithms: Optional[list[str]] = None,
-    ) -> Optional[InternalUser]:
-        """Verify a token provided to the Pbench server which was obtained from
-        a third party identity provider.
 
-        Args:
-            auth_token : Token to authenticate
-            oidc_client : OIDC client to call to authenticate the token
-            algorithms : Optional token signature algorithm argument,
-                         defaults to HS256
+def verify_auth_oidc(auth_token: str) -> Optional[InternalUser]:
+    """Verify a token provided to the Pbench server which was obtained from a
+    third party identity provider.
 
-        Returns:
-            InternalUser object if the verification succeeds, None on failure.
-        """
-        try:
-            identity_provider_pubkey = oidc_client.get_oidc_public_key()
-        except Exception:
-            current_app.logger.debug("Identity provider public key fetch failed")
-            identity_provider_pubkey = Auth._get_secret_key()
-        try:
-            token_payload = oidc_client.token_introspect_offline(
-                token=auth_token,
-                key=identity_provider_pubkey,
-                audience=oidc_client.client_id,
-                algorithms=["HS256"] if not algorithms else algorithms,
-                options={
-                    "verify_signature": True,
-                    "verify_aud": True,
-                    "verify_exp": True,
-                },
-            )
-        except (
-            jwt.ExpiredSignatureError,
-            jwt.InvalidTokenError,
-            jwt.InvalidAudienceError,
-            jwt.InvalidAlgorithmError,
-        ):
-            return None
-        except Exception:
-            current_app.logger.exception(
-                "Unexpected exception occurred while verifying the auth token {}",
-                auth_token,
-            )
+    Args:
+        auth_token : Token to authenticate
 
-            # If offline token verification results in some unexpected errors,
-            # we will perform the online token verification.
-            # Note: Online verification should NOT be performed frequently, and
-            # it is only allowed for non-public clients.
-            if not oidc_client.TOKENINFO_ENDPOINT:
-                current_app.logger.debug(
-                    "Can not perform OIDC online token verification"
-                )
-                return None
-
-            try:
-                token_payload = oidc_client.token_introspect_online(
-                    token=auth_token, token_info_uri=oidc_client.TOKENINFO_ENDPOINT
-                )
-                if oidc_client.client_id not in token_payload.get("aud"):
-                    # If our client is not an intended audience for the token,
-                    # we will not verify the token.
-                    return None
-            except OpenIDClientError:
-                return None
-        return InternalUser.create(
-            client_id=oidc_client.client_id, token_payload=token_payload
+    Returns:
+        InternalUser object if the verification succeeds, None on failure.
+    """
+    try:
+        token_payload = oidc_client.token_introspect_offline(token=auth_token)
+    except OpenIDTokenInvalid:
+        token_payload = None
+    except Exception:
+        current_app.logger.exception(
+            "Unexpected exception occurred while verifying the auth token {}",
+            auth_token,
         )
+
+        # Offline token verification resulted in some unexpected error,
+        # perform the online token verification.
+
+        # Note: Online verification should NOT be performed frequently, and it
+        # is only allowed for non-public clients.
+        try:
+            token_payload = oidc_client.token_introspect_online(token=auth_token)
+        except OpenIDClientError as exc:
+            current_app.logger.debug(
+                "Can not perform OIDC online token verification, '{}'", exc
+            )
+            token_payload = None
+
+    return (
+        None
+        if token_payload is None
+        else InternalUser.create(
+            # FIXME - `client_id` is the value pulled from the Pbench Server
+            # "openid-connect" "client" field in the configuration file.  This
+            # needs to be an ID from the OpenID Connect response payload (online
+            # case) or decoded token (offline case).
+            client_id=oidc_client.client_id,
+            token_payload=token_payload,
+        )
+    )

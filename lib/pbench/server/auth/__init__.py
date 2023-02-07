@@ -1,9 +1,10 @@
 """OpenID Connect (OIDC) Client object definition."""
 
 from configparser import NoOptionError, NoSectionError
+from dataclasses import dataclass
 from http import HTTPStatus
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, Optional, Union
 from urllib.parse import urljoin
 
 import jwt
@@ -21,21 +22,180 @@ class OpenIDClientError(Exception):
         self.message = message if message else HTTPStatus(http_status).phrase
 
     def __repr__(self) -> str:
-        return f"Oidc error {self.http_status} : {str(self)}"
+        return f"OIDC error {self.http_status} : {str(self)}"
 
     def __str__(self) -> str:
         return self.message
 
 
-class OpenIDCAuthenticationError(OpenIDClientError):
+class OpenIDTokenInvalid(Exception):
     pass
 
 
-class OpenIDClient:
-    """OpenID Connect client object."""
+class Connection:
+    """Helper connection class for use by an OpenIDClient instance."""
 
-    USERINFO_ENDPOINT: Optional[str] = None
-    TOKENINFO_ENDPOINT: Optional[str] = None
+    def __init__(
+        self,
+        server_url: str,
+        headers: Optional[Dict[str, str]] = None,
+        verify: bool = True,
+    ):
+        self.server_url = server_url
+        self.headers = CaseInsensitiveDict({} if headers is None else headers)
+        self.verify = verify
+        self._connection = requests.Session()
+
+    def _method(
+        self,
+        method: str,
+        path: str,
+        data: Union[Dict, None],
+        headers: Optional[Dict] = None,
+        **kwargs,
+    ) -> requests.Response:
+        """Common frontend for the HTTP operations on OIDC client connection.
+
+        Args:
+            method : The API HTTP method
+            path : Path for the request.
+            data : Json data to send with the request in case of the POST
+            kwargs : Additional keyword args
+
+        Returns:
+            Response from the request.
+        """
+        final_headers = self.headers.copy()
+        if headers is not None:
+            final_headers.update(headers)
+        url = urljoin(self.server_url, path)
+        kwargs = dict(
+            params=kwargs,
+            data=data,
+            headers=final_headers,
+            verify=self.verify,
+        )
+        try:
+            response = self._connection.request(method, url, **kwargs)
+        except requests.exceptions.ConnectionError as exc:
+            raise OpenIDClientError(
+                http_status=HTTPStatus.BAD_GATEWAY,
+                message=(
+                    f"Failure to connect to the OpenID client ({method} {url}"
+                    f" {kwargs}): {exc}"
+                ),
+            )
+        except requests.exceptions.Timeout as exc:
+            raise OpenIDClientError(
+                http_status=HTTPStatus.BAD_GATEWAY,
+                message=(
+                    f"Timeout talking to the OpenID client ({method} {url}"
+                    f" {kwargs}): {exc}"
+                ),
+            )
+        except Exception as exc:
+            raise OpenIDClientError(
+                http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+                message=(
+                    "Unexpected exception talking to the OpenID client,"
+                    f" ({method} {url} {kwargs}): {exc}"
+                ),
+            )
+        else:
+            if not response.ok:
+                raise OpenIDClientError(
+                    http_status=response.status_code,
+                    message=f"Failed performing {method} {url} {kwargs}",
+                )
+            return response
+
+    def get(
+        self, path: str, headers: Optional[Dict] = None, **kwargs
+    ) -> requests.Response:
+        """GET wrapper to handle an authenticated GET operation on the Resource
+        at a given path.
+
+        Args:
+            path : Path for the request
+            headers : Additional headers to add to the request
+            kwargs : Additional keyword args to be added as URL parameters
+
+        Returns:
+            Response from the request.
+        """
+        return self._method("GET", path, None, headers=headers, **kwargs)
+
+    def post(
+        self, path: str, data: Dict, headers: Optional[Dict] = None, **kwargs
+    ) -> requests.Response:
+        """POST wrapper to handle an authenticated POST operation on the
+        Resource at a given path.
+
+        Args:
+            path : Path for the request
+            data : JSON request body
+            headers : Additional headers to add to the request
+            kwargs : Additional keyword args to be added as URL parameters
+
+        Returns:
+            Response from the request.
+        """
+        return self._method("POST", path, data, headers=headers, **kwargs)
+
+
+@dataclass
+class InternalUser:
+    """Internal user class for storing user related fields fetched
+    from OIDC token decode.
+
+    Note: Class attributes are duck-typed from the SQL User object,
+    and they need to match with the respective sql entry!
+    """
+
+    id: str
+    username: str
+    email: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    roles: Optional[list[str]] = None
+
+    def __str__(self) -> str:
+        return f"User, id: {self.id}, username: {self.username}"
+
+    def is_admin(self):
+        return self.roles and ("ADMIN" in self.roles)
+
+    @classmethod
+    def create(cls, client_id: str, token_payload: dict) -> "InternalUser":
+        """Helper method to return the Internal User object.
+
+        Args:
+            client_id : authorized client id string
+            token_payload : Dict representation of decoded token
+
+        Returns:
+             InternalUser object
+        """
+        audiences = token_payload.get("resource_access", {})
+        try:
+            roles = audiences[client_id].get("roles", [])
+        except KeyError:
+            roles = []
+        return cls(
+            id=token_payload["sub"],
+            username=token_payload.get("preferred_username"),
+            email=token_payload.get("email"),
+            first_name=token_payload.get("given_name"),
+            last_name=token_payload.get("family_name"),
+            roles=roles,
+        )
+
+
+class OpenIDClient:
+    """OpenID Connect client object"""
+
+    # Default token algorithm to use.
+    _TOKEN_ALG = "RS256"
 
     class NotConfigured(Exception):
         """Indicate to the caller a OIDC server is not configured."""
@@ -88,7 +248,7 @@ class OpenIDClient:
                 times out.
         """
         try:
-            oidc_server = server_config.get("authentication", "server_url")
+            oidc_server = server_config.get("openid-connect", "server_url")
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 
@@ -123,7 +283,7 @@ class OpenIDClient:
                 connected = True
                 break
             logger.error(
-                "OIDC client not running, OIDC server response: {}", response.json()
+                "OIDC client not running, OIDC server response: {!r}", response.json()
             )
             retry.sleep()
 
@@ -132,16 +292,50 @@ class OpenIDClient:
 
         return oidc_server
 
+    @classmethod
+    def construct_oidc_client(cls, server_config: PbenchServerConfig) -> "OpenIDClient":
+        """Convenience class method to optionally construct and return an
+        OpenIDClient.
+
+        Raises:
+            OpenIDClient.NotConfigured : when the openid-connect section is
+            missing, or any of the required options are missing.
+        """
+        try:
+            server_url = server_config.get("openid-connect", "server_url")
+            client = server_config.get("openid-connect", "client")
+            realm = server_config.get("openid-connect", "realm")
+            secret = server_config.get("openid-connect", "secret")
+        except (NoOptionError, NoSectionError) as exc:
+            raise OpenIDClient.NotConfigured() from exc
+
+        return cls(
+            server_url=server_url,
+            client_id=client,
+            realm_name=realm,
+            client_secret_key=secret,
+            verify=False,
+        )
+
     def __init__(
         self,
         server_url: str,
         client_id: str,
-        realm_name: str = "",
-        client_secret_key: Optional[str] = None,
+        realm_name: str,
+        client_secret_key: str,
         verify: bool = True,
         headers: Optional[Dict[str, str]] = None,
     ):
-        """Constructor for an OpenIDClient object.
+        """Initialize an OpenID Connect Client object.
+
+        We also connect to the given OIDC server to establish the known end
+        points, and fetch the public key.
+
+        Sets the well-known configuration endpoints for the current OIDC
+        client. This includes common useful endpoints for decoding tokens,
+        getting user information etc.
+
+        ref: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig
 
         Args:
             server_url : OpenID Connect server auth url
@@ -151,101 +345,45 @@ class OpenIDClient:
             verify : True if require valid SSL
             headers : dict of custom header to pass to each HTML request
         """
-        self.server_url = server_url
         self.client_id = client_id
-        self.client_secret_key = client_secret_key
-        self.realm_name = realm_name
-        self.headers = CaseInsensitiveDict([] if headers is None else headers)
-        self.verify = verify
-        self.connection = requests.session()
-        self.public_key = None
+        self._client_secret_key = client_secret_key
+        self._realm_name = realm_name
 
-        # Warning: Note that the method we're calling now depends both on
-        # self.realm_name being set plus any attribute dependencies of
-        # self._get(). It is important to call set_well_known_endpoints after
-        # setting all the required instance variables above.
-        # TODO: Think about a better way to set well known endpoints
-        #  https://github.com/distributed-system-analysis/pbench/issues/3102
-        self.set_well_known_endpoints()
+        self._connection = Connection(server_url, headers, verify)
+
+        realm_public_key_uri = f"realms/{self._realm_name}"
+        response_json = self._connection.get(realm_public_key_uri).json()
+        public_key = response_json["public_key"]
+        pem_public_key = "-----BEGIN PUBLIC KEY-----\n"
+        while public_key:
+            pk64 = public_key[:64]
+            pem_public_key += f"{pk64}\n"
+            public_key = public_key[64:]
+        pem_public_key += "-----END PUBLIC KEY-----\n"
+        self._pem_public_key = pem_public_key
+
+        well_known_endpoint = ".well-known/openid-configuration"
+        well_known_uri = f"realms/{self._realm_name}/{well_known_endpoint}"
+        endpoints_json = self._connection.get(well_known_uri).json()
+
+        try:
+            self._userinfo_endpoint = endpoints_json["userinfo_endpoint"]
+            self._tokeninfo_endpoint = endpoints_json["introspection_endpoint"]
+        except KeyError as e:
+            raise OpenIDClientError(
+                HTTPStatus.BAD_GATEWAY,
+                f"Missing endpoint {e!r} at {well_known_uri}; Endpoints found:"
+                f" {endpoints_json}",
+            )
 
     def __repr__(self):
         return (
-            f"OpenIDClient(server_url={self.server_url}, "
-            f"client_id={self.client_id}, realm_name={self.realm_name}, "
-            f"headers={self.headers})"
+            f"OpenIDClient(server_url={self._connection.server_url}, "
+            f"client_id={self.client_id}, realm_name={self._realm_name}, "
+            f"headers={self._connection.headers})"
         )
 
-    def add_header_param(self, key: str, value: str):
-        """Add a single parameter inside the header.
-
-        Args:
-            key : Header parameters key.
-            value : Value to be added for the key.
-        """
-        self.headers[key] = value
-
-    def del_header_params(self, key: str):
-        """Remove a specific header parameter.
-
-        Args:
-            key : Key to delete from the headers.
-        """
-        del self.headers[key]
-
-    def set_well_known_endpoints(self):
-        """Sets the well-known configuration endpoints for the current OIDC
-        client. This includes common useful endpoints for decoding tokens,
-        getting user information etc.
-
-        ref: https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig
-        """
-        well_known_endpoint = "/.well-known/openid-configuration"
-        well_known_uri = (
-            f"{self.server_url}/realms/{self.realm_name}{well_known_endpoint}"
-        )
-        endpoints_json = self._get(well_known_uri).json()
-        try:
-            OpenIDClient.USERINFO_ENDPOINT = endpoints_json.get("userinfo_endpoint")
-            OpenIDClient.TOKENINFO_ENDPOINT = endpoints_json.get(
-                "introspection_endpoint"
-            )
-        except KeyError as e:
-            raise OpenIDClientError(
-                "Missing endpoint {!r} at {}; Endpoints found: {}",
-                str(e),
-                well_known_uri,
-                endpoints_json,
-            )
-
-    def _get_oidc_public_key(self) -> str:
-        """Returns the public key of the current OIDC client.
-
-        Note: Caller of this method could receive any exceptions
-        raised by self._get() in addition to the ones stated below.
-
-        Returns:
-            public key string
-
-        Raises:
-            KeyError: if public key not found in response payload
-        """
-
-        realm_public_key_uri = f"{self.server_url}/realms/{self.realm_name}"
-        response_json = self._get(realm_public_key_uri).json()
-        public_key = response_json["public_key"]
-        return (
-            "-----BEGIN PUBLIC KEY-----\n" + public_key + "\n-----END PUBLIC KEY-----"
-        )
-
-    def get_oidc_public_key(self) -> str:
-        """Returns the OIDC client public key that can be used for decoding
-        tokens offline.
-        """
-        if not self.public_key:
-            self.public_key = self._get_oidc_public_key()
-        return self.public_key
-
-    def token_introspect_online(self, token: str, token_info_uri: str) -> JSON:
+    def token_introspect_online(self, token: str) -> Optional[JSON]:
         """The introspection endpoint is used to retrieve the active state of a
         token.
 
@@ -255,12 +393,11 @@ class OpenIDClient:
         https://tools.ietf.org/html/rfc7662.
 
         Note: this is not supposed to be used in production, instead rely on
-              offline token validation because of security concerns mentioned in
-              https://www.rfc-editor.org/rfc/rfc7662.html#section-4
+            offline token validation because of security concerns mentioned in
+            https://www.rfc-editor.org/rfc/rfc7662.html#section-4.
 
         Args:
             token : token value to introspect
-            token_info_uri : token introspection uri
 
         Returns:
             Extracted token information
@@ -276,21 +413,27 @@ class OpenIDClient:
                 "sub": <user_id>
             }
         """
+        if not self._tokeninfo_endpoint:
+            return None
+
         payload = {
             "client_id": self.client_id,
-            "client_secret": self.client_secret_key,
+            "client_secret": self._client_secret_key,
             "token": token,
         }
-        return self._post(token_info_uri, data=payload).json()
+        token_payload = self._connection.post(
+            self._tokeninfo_endpoint, data=payload
+        ).json()
 
-    def token_introspect_offline(
-        self,
-        token: str,
-        key: str,
-        audience: str = "account",
-        algorithms: List[str] = ["RS256"],
-        **kwargs,
-    ) -> JSON:
+        audience = token_payload.get("aud")
+        if not audience or self.client_id not in audience:
+            # If our client is not an intended audience for the token,
+            # we will not verify the token.
+            token_payload = None
+
+        return token_payload
+
+    def token_introspect_offline(self, token: str) -> JSON:
         """Utility method to decode access/Id tokens using the public key
         provided by the identity provider.
 
@@ -302,9 +445,9 @@ class OpenIDClient:
 
         Args:
             token : token value to introspect
-            key : client public key
-            audience : jwt token audience/client, who this token was intended for
-            algorithms : Algorithm with which this JWT token was encoded
+
+        Raises:
+            OpenIDTokenInvalid : when token decode fails for expected reasons
 
         Returns:
             Extracted token information
@@ -320,13 +463,30 @@ class OpenIDClient:
                 "sub": <user_id>
             }
         """
-        return jwt.decode(
-            token, key, algorithms=algorithms, audience=audience, **kwargs
-        )
+        try:
+            return jwt.decode(
+                token,
+                self._pem_public_key,
+                algorithms=[self._TOKEN_ALG],
+                audience=self.client_id,
+                options={
+                    "verify_signature": True,
+                    "verify_aud": True,
+                    "verify_exp": True,
+                },
+            )
+        except (
+            jwt.ExpiredSignatureError,
+            jwt.InvalidSignatureError,
+            jwt.InvalidAudienceError,
+        ) as exc:
+            raise OpenIDTokenInvalid() from exc
 
     def get_userinfo(self, token: str = None) -> JSON:
         """The userinfo endpoint returns standard claims about the authenticated
         user, and is protected by a bearer token.
+
+        FIXME - This method appears unused in the rest of the code.
 
         http://openid.net/specs/openid-connect-core-1_0.html#UserInfo
 
@@ -347,78 +507,5 @@ class OpenIDClient:
                 "name": <full_name>
             }
         """
-
-        if token:
-            self.add_header_param("Authorization", f"Bearer {token}")
-
-        return self._get(self.USERINFO_ENDPOINT).json()
-
-    def _method(
-        self, method: str, path: str, data: Dict, **kwargs
-    ) -> requests.Response:
-        """Common frontend for the HTTP operations on OIDC client.
-
-        Args:
-            method : The API HTTP method
-            path : Path for the request.
-            data : Json data to send with the request in case of the POST
-            kwargs : Additional keyword args
-
-        Returns:
-            Response from the request.
-        """
-
-        try:
-            response = self.connection.request(
-                method,
-                urljoin(self.server_url, path),
-                params=kwargs,
-                data=data,
-                headers=self.headers,
-                verify=self.verify,
-            )
-            response.raise_for_status()
-            return response
-        except requests.exceptions.HTTPError:
-            raise OpenIDCAuthenticationError(response.status_code)
-        except (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.Timeout,
-        ) as exc:
-            raise OpenIDClientError(
-                HTTPStatus.BAD_GATEWAY,
-                f"Failure to connect to the OpenID client, {self!r}: {exc}",
-            )
-        except Exception as exc:
-            raise OpenIDClientError(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                f"Failure to complete the {method} request from the OpenID"
-                f" client, {self!r}: {exc}",
-            )
-
-    def _get(self, path: str, **kwargs) -> requests.Response:
-        """GET wrapper to handle an authenticated GET operation on the Resource
-        at a given path.
-
-        Args:
-            path : Path for the request.
-            kwargs : Additional keyword args
-
-        Returns:
-            Response from the request.
-        """
-        return self._method("GET", path, None, **kwargs)
-
-    def _post(self, path: str, data: Dict, **kwargs) -> requests.Response:
-        """POST wrapper to handle an authenticated POST operation on the
-        Resource at a given path.
-
-        Args:
-            path : Path for the request.
-            data : JSON request body
-            kwargs : Additional keyword args
-
-        Returns:
-            Response from the request.
-        """
-        return self._method("POST", path, data, **kwargs)
+        headers = {"Authorization": f"Bearer {token}"} if token else None
+        return self._connection.get(self._userinfo_endpoint, headers=headers).json()
