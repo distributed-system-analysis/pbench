@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # A simple wrapper for the podman command which handles invocation inside a container
 

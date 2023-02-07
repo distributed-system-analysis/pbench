@@ -17,13 +17,12 @@
 # placed in ${HOME}/rpmbuild-<distro>-<version>/RPMS.
 #
 
-RPMBUILD_IMAGE_REPO = images.paas.redhat.com/pbench
-BUILD_CONTAINER = ${RPMBUILD_IMAGE_REPO}/pbench-rpmbuild:${*}
-
 PBENCHTOP := $(shell git rev-parse --show-toplevel)
 
 # Include definition of _DISTROS, _space, etc.
 include ${PBENCHTOP}/utils/utils.mk
+
+BUILD_CONTAINER = ${PB_CONTAINER_REG}/pbench-rpmbuild:${*}
 
 prog = pbench-${component}
 VERSION := $(shell cat ${PBENCHTOP}/${component}/VERSION)

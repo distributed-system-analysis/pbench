@@ -140,6 +140,7 @@ echo "Starting container with ${PODMAN}:
         WORKSPACE=${WORKSPACE}
         ${GIT_BASE_VOLUME:+GIT_BASE_VOLUME=${GIT_BASE_VOLUME}}"
 ${PODMAN} run \
+    --init \
     --userns=keep-id \
     --security-opt label=disable \
     --volume ${WORKSPACE_TMP}:${HOME_DIR} \
@@ -147,16 +148,17 @@ ${PODMAN} run \
     --volume ${PODMAN_SOCK}:${PODMAN_SOCK} \
     ${GIT_BASE_VOLUME} \
     -w ${HOME_DIR}/pbench \
-    --env HOME=${HOME_DIR} \
-    --env USER=${USER_NAME} \
     --env CONTAINER_HOST=unix:/${PODMAN_SOCK} \
+    --env HOME=${HOME_DIR} \
+    --env PB_CONTAINER_REG=${PB_CONTAINER_REG} \
+    --env USER=${USER_NAME} \
     --env WORKSPACE=${WORKSPACE} \
     --env WORKSPACE_TMP=${WORKSPACE_TMP} \
     --ulimit nofile=65536:65536 \
     --rm \
     ${EXTRA_PODMAN_SWITCHES} \
     ${_image} \
-    jenkins/runner "${@}"
+    "${@}"
 
 rc=$?
 

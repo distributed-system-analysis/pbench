@@ -41,3 +41,6 @@ get_sequence_number = $(shell \
 # sub-makes:  the process of exporting a variable includes evaluating it, and
 # we don't want it evaluated except when it is explicitly $(CALL)'d.
 unexport get_sequence_number
+
+# Image registry for storing RPM build container images
+PB_CONTAINER_REG ?= $(shell cat ${HOME}/.config/pbench/ci_registry.name)

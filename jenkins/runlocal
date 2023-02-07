@@ -1,29 +1,52 @@
 #!/bin/bash -e
 
-# Build the RPM and then build the containers, pushing only the CI image
-# to the registry, and then run the fuctional tests against the built
-# container image.
+# Build the Pbench Server RPM and container, and run functional tests locally.
+# Requires a Fedora, CentOS, or RHEL environment to run.
 
-export PB_CONTAINER_REG=images.paas.redhat.com
-export PB_ORG_NAME=pbench
+# NOTE WELL: By default, when the functional tests are run, the infrastructure
+# pod and Pbench Server container are left running by default.  Add the switch,
+# `--cleanup` to direct `jenkins/run-server-func-tests` to cleanup when
+# finished (success or failure).
+
+# Build the pbench-server RPM locally, then build the containers locally, and
+# then run the functional tests against the locally built CI container image.
 export PB_SERVER_IMAGE_NAME=pbench-server
+
+# We use the current user name as the tag to avoid any conflict with what the CI
+# environment does.
 export PB_SERVER_IMAGE_TAG=${USER}
-export PB_DASHBOARD_DIR=$(pwd)/dashboard/build
 
+# We use the image pull policy of `never` here to ensure our locally built image
+# is used by the pod.
+export PB_SERVER_IMAGE_PULL_POLICY=never
+
+# Create an RPM from the current source tree and double check it exists.
 make -C server/rpm clean rpm
+export RPM_PATH=${HOME}/rpmbuild/RPMS/noarch/pbench-server-*.rpm
+ls -ld ${RPM_PATH}
 
-# Typically, one logs in to a container registery with automated scripts using
-# an "application" token.  When using quay.io based container registries, the
-# application token uses the user name `$app` and the token is provided as the
-# password.
-#
-# For example, if you generate a token and set the value to the environment
-# variable named, __LOGIN_SECRET__, then the `buildah login` command below
-# demonstrates how to login with that token.
-#
-# $ buildah login -u='$app' -p="${__LOGIN_SECRET__}" ${PB_CONTAINER_REG}
+source /etc/os-release
 
-RPM_PATH=${HOME}/rpmbuild/RPMS/noarch/pbench-server-*.rpm bash -ex ./server/pbenchinacan/container-build.sh
-buildah push localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG} ${PB_CONTAINER_REG}/${PB_ORG_NAME}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
+if [[ -z ${BASE_IMAGE} ]]; then
+    major=${VERSION_ID%%.*}
+    if [[ ${ID} == "fedora" ]]; then
+        # Any Fedora is okay.
+        BASE_IMAGE=${ID}:${major}
+    elif [[ ${ID} == "centos" && "${major}" == "9" ]]; then
+        # Only CentOS 9 is supported
+        BASE_IMAGE=${ID}:stream${major}
+    elif [[ ${ID} == "rhel" && "" == "9" ]]; then
+        # Only RHEL 9 is supported
+        BASE_IMAGE=ubi${major}:latest
+    else
+        echo "Unsupported local OS, ${ID}:${VERSION_ID}" >&2
+        exit 1
+    fi
+    export BASE_IMAGE
+fi
 
-jenkins/run-server-func-tests
+# Build the canned Pbench Server container from the RPM built above.
+server/pbenchinacan/container-build.sh
+
+# Run the functional tests using the locally built image.
+jenkins/run-server-func-tests "${@}"

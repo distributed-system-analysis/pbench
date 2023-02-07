@@ -163,12 +163,13 @@ our CI jobs.
 
 ### Python formatting
 
-This project uses the [flake8==3.8.3](http://flake8.pycqa.org/en/latest) method of
-code style enforcement, linting, and checking.
+This project uses the [flake8](http://flake8.pycqa.org/en/latest) method of code
+style enforcement, linting, and checking.
 
 All python code contributed to pbench must match the style requirements. These
 requirements are enforced by the [pre-commit](https://pre-commit.com) hook
-using the [black==1.19b0](https://github.com/psf/black) Python code formatter.
+using the [black](https://github.com/psf/black) Python code formatter and the
+[isort](https://github.com/pycqa/isort) Python import sorter.
 
 ### Use pre-commit to set automatic commit requirements
 
@@ -210,3 +211,17 @@ we build, with the following exceptions for tag names:
     for `Major`.`Minor` released images
 
   * `<SHA1 git hash>` (9 characters) - commit hash of the checked out code
+
+### References to Container Image Repositories
+The operation of our functional tests, the Pbench Server "in-a-can" used in
+the functional tests, and other verification and testing environments use
+container images from public repositories and non-public ones.  The CI jobs
+obtain references to those repositories using Jenkins credentials.  When a
+developer runs those same jobs locally, you can create two files with the
+appropriate contents locally:
+
+  * `${HOME}/.config/pbench/ci_registry.name`
+  * `${HOME}/.config/pbench/public_registry.name`
+
+If those files are not provided local execution will report an error when those
+values are missing.

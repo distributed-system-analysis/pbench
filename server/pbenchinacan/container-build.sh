@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -e
+#!/bin/bash -e
 #
 # This script builds a container which, when run, starts a Pbench Server.
 #
@@ -6,6 +6,7 @@
 #+
 # Configuration definition section.
 #-
+GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 
 BASE_IMAGE=${BASE_IMAGE:-registry.access.redhat.com/ubi9:latest}
 PB_SERVER_IMAGE_NAME=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
@@ -13,8 +14,10 @@ PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-$(< ${GITTOP}/jenkins/branch.name)}
 RPM_PATH=${RPM_PATH:-/root/sandbox/rpmbuild/RPMS/noarch/pbench-server-*.rpm}
 KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-"client-secret"}
 
+# Default target registry to use.
+PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
+
 # Locations on the host
-GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PBINC_SERVER=${GITTOP}/server
 PBINC_INACAN=${PBINC_SERVER}/pbenchinacan
 
@@ -37,9 +40,8 @@ fi
 # Container build section.
 #-
 
-# Open a copy of the base container.  Docker format is required in order to set
-# the hostname.
-container=$(buildah from --format=docker ${BASE_IMAGE})
+# Open a copy of the base container.
+container=$(buildah from ${BASE_IMAGE})
 
 buildah config \
     --label maintainer="Pbench Maintainers <pbench@googlegroups.com>" \
@@ -47,9 +49,12 @@ buildah config \
 
 buildah copy $container ${RPM_PATH} /tmp/pbench-server.rpm
 buildah run $container dnf update -y
-buildah run $container dnf install -y --setopt=tsflags=nodocs \
+if [[ "${BASE_IMAGE}" == *"ubi9:latest" || "${BASE_IMAGE}" == *"centos:stream9" ]]; then
+    buildah run $container dnf install -y --nodocs \
         https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-buildah run $container dnf install -y /tmp/pbench-server.rpm nginx less rsyslog rsyslog-mmjsonparse
+fi
+buildah run $container dnf install -y --nodocs \
+    /tmp/pbench-server.rpm nginx less rsyslog rsyslog-mmjsonparse
 buildah run $container dnf clean all
 buildah run $container rm -f /tmp/pbench-server.rpm
 
@@ -98,5 +103,5 @@ buildah run $container mkdir -p -m 0755  \
 buildah run $container cp /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html /srv/pbench/public_html/
 buildah run $container chown --recursive pbench:pbench /srv/pbench
 
-# Create the container image
-buildah commit $container localhost/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
+# Create the container image.
+buildah commit $container ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}
