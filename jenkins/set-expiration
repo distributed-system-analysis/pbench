@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# This script sets the expiration date on a container image tag in a remote
+# repository (using the Quay RESTful interface).
+#
+# jenkins/set-expiration <expiration> <image_reg> <image_name> <image_tag>
+#
+# Command line arguments:
+#   expiration:  date in seconds since the UNIX epoch
+#   image_reg:  Image registry (e.g., "quay.io")
+#   image_name:  Image name (e.g., "pbench/pbench-server")
+#   image_tag:  Image tag
+#
+# Environment variables:
+#   PB_IMAGE_BEARER_TOKEN:  API key (bearer authorization token)
+#
+# Example invocation:
+#
+#   PB_IMAGE_BEARER_TOKEN=<token-string...> \
+#     jenkins/set-expiration \
+#       $(date --date "3 weeks" +%s) \
+#       quay.io pbench/pbench-server my_tag
+#
+
+if [[ $# -ne 4 ]] ; then
+    echo "Incorrect number of arguments (expected 4, got $#)" >&2
+    exit 2
+elif [[ -z ${PB_IMAGE_BEARER_TOKEN} ]]; then
+    echo "Missing bearer token (PB_IMAGE_BEARER_TOKEN not defined)" >&2
+    exit 2
+fi
+
+expiration="{\"expiration\": ${1}}"
+image_reg=${2}
+image_name=${3}
+image_tag=${4}
+content_length=$(( $(wc -c <<< "${expiration}") - 1 ))  # Don't count newline
+
+curl -fs -X PUT -d "${expiration}" \
+    -w "Set expiration response: %{response_code}\n" \
+    -H "Authorization: Bearer ${PB_IMAGE_BEARER_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -H "Content-Length: ${content_length}" \
+    https://${image_reg}/api/v1/repository/${image_name}/tag/${image_tag}

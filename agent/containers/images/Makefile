@@ -48,11 +48,15 @@ TEST =
 _TEST_SUFFIX = $(if $(TEST),-$(TEST),)
 _PBENCH_REPO_NAME = pbench-${_LOCAL_MAJORMINOR}${_TEST_SUFFIX}
 
-# By default we use the pbench Quay.io organization for the image
-# repository.  You can override this default using an environment
-# variable as appropriate.
-IMAGE_REPO ?= docker://quay.io/pbench
+# By default we use the pbench Quay.io organization for the image repository.
+# You can override this default using an environment variable as appropriate.
+# Export the Quay API access key bearer token as an environment variable for
+# recipe command invocations.
+IMAGE_REPO ?= quay.io/pbench
 IMAGE_TAG ?= latest
+IMAGE_REG = $(word 1, $(subst /, ,${IMAGE_REPO}))
+IMAGE_ORG = $(word 2, $(subst /, ,${IMAGE_REPO}))
+export PB_IMAGE_BEARER_TOKEN
 
 # Convenience reference to the repo template in the pbench tree.
 # Not intended to be overridden with an environment variable.
@@ -300,12 +304,15 @@ centos-7-base.Dockerfile: _PKGMGR = yum
 #-
 
 # Special push target for the CI which pushes a full set of the various container
-# images for the distribution to the specified registry with the specified tag.
+# images for the distribution to the specified registry with the specified tag
+# and expiration date.
 $(_DEFAULT_DISTROS:%=%-push-ci): %-push-ci:
 	for image in ${_CONTAINER_NAMES}; do \
-	  buildah push \
-	    localhost/pbench-agent-$${image}-${*}:${_LOCAL_GIT_HASH} \
-	    ${IMAGE_REPO}/pbench-agent-$${image}-${*}:${IMAGE_TAG} ; \
+	    buildah push \
+	        localhost/pbench-agent-$${image}-${*}:${_LOCAL_GIT_HASH} \
+	        ${IMAGE_REPO}/pbench-agent-$${image}-${*}:${IMAGE_TAG} && \
+	    ${_PBENCH_TOP}/jenkins/set-expiration $$(date --date "3 weeks" +%s) \
+	        ${IMAGE_REG} ${IMAGE_ORG}/pbench-agent-$${image}-${*} ${IMAGE_TAG} ; \
 	done
 
 # Special "push" target which pushes a full set of the various container images
@@ -314,11 +321,11 @@ $(_DEFAULT_DISTROS:%=%-push-ci): %-push-ci:
 # _only_ the requested tag and no tags based on the version or hash.
 publish:
 	for distro in ${_DEFAULT_DISTROS}; do \
-	  for image in ${_CONTAINER_NAMES}; do \
-	    buildah push \
-	      localhost/pbench-agent-$${image}-$${distro}:${_LOCAL_GIT_HASH} \
-	      ${IMAGE_REPO}/pbench-agent-$${image}-$${distro}:${IMAGE_TAG} ; \
-	  done ; \
+	    for image in ${_CONTAINER_NAMES}; do \
+	        buildah push \
+	            localhost/pbench-agent-$${image}-$${distro}:${_LOCAL_GIT_HASH} \
+	            ${IMAGE_REPO}/pbench-agent-$${image}-$${distro}:${IMAGE_TAG} ; \
+	    done ; \
 	done
 
 define _PUSH_RULE
