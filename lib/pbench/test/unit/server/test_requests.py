@@ -189,13 +189,13 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_bad_metadata_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_token
+        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
     ):
         with freeze_time("1970-01-01 00:42:00"):
             response = client.put(
                 self.gen_uri(server_config),
                 headers={
-                    "Authorization": "Bearer " + pbench_token,
+                    "Authorization": "Bearer " + pbench_drb_token,
                     "controller": self.controller,
                     "Content-MD5": "ANYMD5",
                     "Content-Length": "STRING",
