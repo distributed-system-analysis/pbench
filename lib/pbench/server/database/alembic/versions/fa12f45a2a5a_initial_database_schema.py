@@ -65,23 +65,41 @@ def upgrade():
         sa.Column("access", sa.String(length=255), nullable=False),
         sa.Column("resource_id", sa.String(length=255), nullable=False),
         sa.Column("uploaded", TZDateTime(), nullable=False),
-        sa.Column("created", TZDateTime(), nullable=True),
-        sa.Column(
-            "state",
-            sa.Enum(
-                "UPLOADING",
-                "UPLOADED",
-                "INDEXING",
-                "INDEXED",
-                "DELETING",
-                "DELETED",
-                name="states",
-            ),
-            nullable=False,
-        ),
-        sa.Column("transition", TZDateTime(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("resource_id"),
+    )
+    op.create_table(
+        "dataset_operations",
+        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column(
+            "name",
+            sa.Enum(
+                "BACKUP",
+                "DELETE",
+                "INDEX",
+                "REINDEX",
+                "TOOLINDEX",
+                "UNPACK",
+                "UPLOAD",
+                name="operationname",
+            ),
+            nullable=True,
+        ),
+        sa.Column(
+            "state",
+            sa.Enum("READY", "WORKING", "OK", "FAILED", name="operationstate"),
+            nullable=True,
+        ),
+        sa.Column("message", sa.String(length=255), nullable=True),
+        sa.Column("dataset_ref", sa.Integer(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["dataset_ref"],
+            ["datasets.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(
+        op.f("ix_dataset_operations_name"), "dataset_operations", ["name"], unique=False
     )
     op.create_table(
         "serverconfig",
@@ -165,5 +183,7 @@ def downgrade():
     op.drop_index(op.f("ix_serverconfig_key"), table_name="serverconfig")
     op.drop_table("serverconfig")
     op.drop_table("datasets")
+    op.drop_index(op.f("ix_dataset_operations_name"), table_name="dataset_operations")
+    op.drop_table("dataset_operations")
     op.drop_table("audit")
     # ### end Alembic commands ###
