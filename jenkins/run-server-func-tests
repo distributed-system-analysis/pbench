@@ -18,15 +18,20 @@ fi
 function cleanup {
     # Remove the pod which we just created and ran; remove any dangling
     # containers; and then remove any dangling images.
+    echo "Forcefully removing the Pbench Server container ..." >&2
     podman rm --force --ignore ${1}
+    echo "Forcefully removing the Pbench Services container ..." >&2
     podman pod rm --force --ignore ${2}
+    echo "Pruning containers ..." >&2
     podman container prune -f
+    echo "Performing container cleanup ..." >&2
     podman container cleanup --all --rm
+    echo "Pruning images ..." >&2
     podman image prune -f
 }
 
 if [[ ${1} == "--cleanup" ]]; then
-    trap "cleanup ${PB_SERVER_CONTAINER_NAME} ${PB_POD_NAME}" INT QUIT EXIT
+    trap "cleanup ${PB_SERVER_CONTAINER_NAME} ${PB_POD_NAME}" INT QUIT TERM
 fi
 
 SERVER_URL="http://localhost:8080"
@@ -69,23 +74,26 @@ if [[ ${exit_status} -ne 0 ]]; then
     printf -- "\n--- journalctl dump ---\n\n"
 fi
 if [[ -z ${1} ]]; then
-    # No clean up requested.
+    echo "No clean up requested ... Pbench Server container and support services pod likely still running!"
     exit ${exit_status}
 fi
 
 # Remove the server container
+echo "Stopping Pbench Server container ..."
 podman stop ${PB_SERVER_CONTAINER_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
     exit_status=${stop_status}
 fi
 
+echo "Stopping Pbench Support Services pod ..."
 podman pod stop ${PB_POD_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
     exit_status=${stop_status}
 fi
 
+echo "Removing Pbench Support Services pod ..."
 podman pod rm ${PB_POD_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
