@@ -133,7 +133,9 @@ class TestPut:
                     assert operations["BACKUP"]["state"] in ("OK", "READY")
                     indexed.append(dataset)
                 else:
-                    print(f"\t\tstate={state!r} status={status!r}")
+                    done = ','.join(name for name, op in operations.items() if op["state"] == "OK")
+                    status = ','.join(f"{name}={op['state']}" for name, op in operations.items() if op["state"] != "OK")
+                    print(f"\t\tfinished {done!r}, awaiting {status!r}")
                     not_indexed.append(dataset)
         except HTTPError as exc:
             pytest.fail(
