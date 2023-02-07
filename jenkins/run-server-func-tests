@@ -20,7 +20,7 @@ function cleanup {
     # containers; and then remove any dangling images.
     echo "Forcefully removing the Pbench Server container ..." >&2
     podman rm --force --ignore ${1}
-    echo "Forcefully removing the Pbench Services container ..." >&2
+    echo "Forcefully removing the Pbench Support Services pod ..." >&2
     podman pod rm --force --ignore ${2}
     echo "Pruning containers ..." >&2
     podman container prune -f
