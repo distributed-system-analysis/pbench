@@ -128,9 +128,14 @@ class Upload(ApiBase):
         identified rather than authorizing against an existing resource.
 
         Args:
-            filename: A filename matching the metadata of the uploaded tarball
-            access: The desired access policy (default is "private")
-            metadata: Metadata key/value pairs to set on dataset
+            params: API parameters
+                URI parameters
+                    filename: A filename matching the metadata of the uploaded tarball
+                Query parameters
+                    access: The desired access policy (default is "private")
+                    metadata: Metadata key/value pairs to set on dataset
+            request: The original Request object containing query parameters
+            context: API context dictionary
         """
 
         # Used to record what steps have been completed during the upload, and

@@ -1509,7 +1509,7 @@ class ApiBase(Resource):
     def _set_dataset_metadata(
         self, dataset: Dataset, metadata: dict[str, JSONVALUE]
     ) -> dict[str, str]:
-        """Set metadata on a specific Dataset and failure information.
+        """Set metadata on a specific Dataset and return a summary of failures.
 
         This supports strict Metadata key/value items associated with the
         Dataset as well as selected columns from the Dataset model.
@@ -1527,7 +1527,7 @@ class ApiBase(Resource):
             native_key = Metadata.get_native_key(k)
             user_id = None
             if native_key == Metadata.USER:
-                user_id = Auth.get_user_id()
+                user_id = Auth.get_current_user_id()
             try:
                 Metadata.setvalue(key=k, value=v, dataset=dataset, user_id=user_id)
             except MetadataError as e:

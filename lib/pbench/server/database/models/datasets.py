@@ -167,7 +167,7 @@ class MetadataBadValue(MetadataError):
         """Construct an exception to report a failure in metadata key validation.
 
         This is used during creation of a new dataset where we don't yet have a
-        full Dataset object, so we report it as "new".
+        Dataset object, so the caller can omit the dataset.
 
         Args:
             dataset: Identify the associated dataset, or None before creation
