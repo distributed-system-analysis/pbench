@@ -1,33 +1,31 @@
 import "./index.less";
 
 import {
-  ActionsColumn,
+  DASHBOARD_SEEN,
+  DATASET_ACCESS,
+  IS_ITEM_SEEN,
+} from "assets/constants/overviewConstants";
+import {
   InnerScrollContainer,
   OuterScrollContainer,
   TableComposable,
   Tbody,
-  Td,
   Th,
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import {
-  DASHBOARD_SEEN,
-  DATASET_ACCESS,
-  DATASET_CREATED,
-  SERVER_DELETION,
-  USER_FAVORITE,
-} from "assets/constants/overviewConstants";
+import React, { useCallback } from "react";
 import {
   deleteDataset,
+  editMetadata,
   publishDataset,
+  setRowtoEdit,
   setSelectedRuns,
   updateDataset,
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import React from "react";
-import { formatDateTime } from "utils/dateFunctions";
+import { SavedRunsRow } from "./common-component";
 
 const SavedRunsComponent = () => {
   const dispatch = useDispatch();
@@ -77,6 +75,18 @@ const SavedRunsComponent = () => {
   const makeFavorites = (dataset, isFavoriting = true) => {
     dispatch(updateDataset(dataset, "favorite", isFavoriting));
   };
+  /* Edit Dataset */
+  const saveRowData = (metadataType, dataset, value) => {
+    dispatch(updateDataset(dataset, metadataType, value));
+  };
+  const toggleEdit = useCallback(
+    (rId, isEdit) => dispatch(setRowtoEdit(rId, isEdit, "savedRuns")),
+    [dispatch]
+  );
+  const updateTblValue = (newValue, metadata, rId) => {
+    dispatch(editMetadata(newValue, metadata, rId, "savedRuns"));
+  };
+  /* Edit Dataset */
   const columnNames = {
     result: "Result",
     createdtime: "Created Time",
@@ -106,52 +116,32 @@ const SavedRunsComponent = () => {
                 <Th></Th>
               </Tr>
             </Thead>
-            {savedRuns.map((item, rowIndex) => {
-              const rowActions = moreActionItems(item);
-              const isItemFavorited = !!item?.metadata?.[USER_FAVORITE];
-              const isItemSeen = !!item?.metadata?.[DASHBOARD_SEEN];
-              return (
-                <Tbody key={rowIndex}>
+            <Tbody>
+              {savedRuns.map((item, rowIndex) => {
+                const rowActions = moreActionItems(item);
+                return (
                   <Tr
-                    key={item.name}
-                    className={isItemSeen ? "seen-row" : "unseen-row"}
+                    key={item.resource_id}
+                    className={item[IS_ITEM_SEEN] ? "seen-row" : "unseen-row"}
                   >
-                    <Td
-                      select={{
-                        rowIndex,
-                        onSelect: (_event, isSelecting) =>
-                          onSelectRuns(item, rowIndex, isSelecting),
-                        isSelected: isRowSelected(item),
-                      }}
+                    <SavedRunsRow
+                      item={item}
+                      rowActions={rowActions}
+                      rowIndex={rowIndex}
+                      makeFavorites={makeFavorites}
+                      columnNames={columnNames}
+                      onSelectRuns={onSelectRuns}
+                      isRowSelected={isRowSelected}
+                      textInputEdit={(val) =>
+                        updateTblValue(val, "name", item.resource_id)
+                      }
+                      toggleEdit={toggleEdit}
+                      saveRowData={saveRowData}
                     />
-                    <Td
-                      className="result_column"
-                      dataLabel={columnNames.result}
-                    >
-                      {item.name}
-                    </Td>
-                    <Td dataLabel={columnNames.endtime}>
-                      {formatDateTime(item.metadata[DATASET_CREATED])}
-                    </Td>
-                    <Td dataLabel={columnNames.scheduled}>
-                      {formatDateTime(item.metadata[SERVER_DELETION])}
-                    </Td>
-                    <Td className="access">{item.metadata[DATASET_ACCESS]}</Td>
-                    <Td
-                      favorites={{
-                        isFavorited: isItemFavorited,
-                        onFavorite: (_event, isFavoriting) =>
-                          makeFavorites(item, isFavoriting),
-                        rowIndex,
-                      }}
-                    />
-                    <Td isActionCell>
-                      {rowActions ? <ActionsColumn items={rowActions} /> : null}
-                    </Td>
                   </Tr>
-                </Tbody>
-              );
-            })}
+                );
+              })}
+            </Tbody>
           </TableComposable>
         </InnerScrollContainer>
       </OuterScrollContainer>

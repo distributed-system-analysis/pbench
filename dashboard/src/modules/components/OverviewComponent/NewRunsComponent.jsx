@@ -1,36 +1,32 @@
 import "./index.less";
 
 import {
-  ActionsColumn,
-  ExpandableRowContent,
+  DASHBOARD_SEEN,
+  IS_ITEM_SEEN,
+  ROWS_PER_PAGE,
+  START_PAGE_NUMBER,
+  USER_FAVORITE,
+} from "assets/constants/overviewConstants";
+import {
   InnerScrollContainer,
   OuterScrollContainer,
   TableComposable,
   Tbody,
-  Td,
   Th,
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import {
-  DASHBOARD_SEEN,
-  DATASET_OWNER,
-  ROWS_PER_PAGE,
-  SERVER_DELETION,
-  START_PAGE_NUMBER,
-  USER_FAVORITE,
-} from "assets/constants/overviewConstants";
+import { NewRunsRow, RenderPagination } from "./common-component";
 import React, { useCallback, useState } from "react";
 import {
   deleteDataset,
+  editMetadata,
   setRows,
+  setRowtoEdit,
   setSelectedRuns,
   updateDataset,
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
-
-import { RenderPagination } from "./common-component";
-import { formatDateTime } from "utils/dateFunctions";
 
 const NewRunsComponent = () => {
   const dispatch = useDispatch();
@@ -86,7 +82,9 @@ const NewRunsComponent = () => {
   const makeFavorites = (dataset, isFavoriting = true) => {
     dispatch(updateDataset(dataset, "favorite", isFavoriting));
   };
-
+  const saveRowData = (metadataType, dataset, value) => {
+    dispatch(updateDataset(dataset, metadataType, value));
+  };
   const moreActionItems = (dataset) => [
     {
       title: "Save",
@@ -122,7 +120,17 @@ const NewRunsComponent = () => {
         ? [...otherExpandedRunNames, run.name]
         : otherExpandedRunNames;
     });
-  const isRunExpanded = (run) => expandedRunNames.includes(run.name);
+  const isRunExpanded = useCallback(
+    (run) => expandedRunNames.includes(run.name),
+    [expandedRunNames]
+  );
+  const updateTblValue = (newValue, metadata, rId) => {
+    dispatch(editMetadata(newValue, metadata, rId, "newRuns"));
+  };
+  const toggleEdit = useCallback(
+    (rId, isEdit) => dispatch(setRowtoEdit(rId, isEdit, "newRuns")),
+    [dispatch]
+  );
 
   return (
     <div className="newruns-table-container">
@@ -143,71 +151,40 @@ const NewRunsComponent = () => {
                 <Th width={35}>{columnNames.result}</Th>
                 <Th width={25}>{columnNames.endtime}</Th>
                 <Th width={20}></Th>
+                <Th width={5}></Th>
                 <Th width={2}></Th>
               </Tr>
             </Thead>
-
-            {initNewRuns.map((item, rowIndex) => {
-              const rowActions = moreActionItems(item);
-              const isItemFavorited = !!item?.metadata?.[USER_FAVORITE];
-              const isItemSeen = !!item?.metadata?.[DASHBOARD_SEEN];
-              return (
-                <Tbody key={rowIndex} isExpanded={isRunExpanded(item)}>
+            <Tbody>
+              {initNewRuns.map((item, rowIndex) => {
+                const rowActions = moreActionItems(item);
+                return (
                   <Tr
-                    key={item.name}
-                    className={isItemSeen ? "seen-row" : "unseen-row"}
+                    key={item.resource_id}
+                    className={item[IS_ITEM_SEEN] ? "seen-row" : "unseen-row"}
                   >
-                    <Td
-                      expand={
-                        item.metadata
-                          ? {
-                              rowIndex,
-                              isExpanded: isRunExpanded(item),
-                              onToggle: () =>
-                                setRunExpanded(item, !isRunExpanded(item)),
-                              expandId: "composable-expandable-example",
-                            }
-                          : undefined
+                    <NewRunsRow
+                      key={item.resource_id}
+                      rowIndex={rowIndex}
+                      moreActionItems={moreActionItems}
+                      setRunExpanded={setRunExpanded}
+                      isRunExpanded={isRunExpanded}
+                      toggleEdit={toggleEdit}
+                      onSelectRuns={onSelectRuns}
+                      isRowSelected={isRowSelected}
+                      columnNames={columnNames}
+                      makeFavorites={makeFavorites}
+                      saveRowData={saveRowData}
+                      rowActions={rowActions}
+                      item={item}
+                      textInputEdit={(val) =>
+                        updateTblValue(val, "name", item.resource_id)
                       }
                     />
-                    <Td
-                      select={{
-                        rowIndex,
-                        onSelect: (_event, isSelecting) =>
-                          onSelectRuns(item, rowIndex, isSelecting),
-                        isSelected: isRowSelected(item),
-                      }}
-                    />
-                    <Td dataLabel={columnNames.result}>{item.name}</Td>
-                    <Td dataLabel={columnNames.endtime}>
-                      {formatDateTime(item.metadata[SERVER_DELETION])}
-                    </Td>
-                    <Td
-                      favorites={{
-                        isFavorited: isItemFavorited,
-                        onFavorite: (_event, isFavoriting) =>
-                          makeFavorites(item, isFavoriting),
-                        rowIndex,
-                      }}
-                    />
-                    <Td isActionCell>
-                      {rowActions ? <ActionsColumn items={rowActions} /> : null}
-                    </Td>
                   </Tr>
-                  {item.metadata ? (
-                    <Tr isExpanded={isRunExpanded(item)}>
-                      <Td />
-                      <Td />
-                      <Td>
-                        <ExpandableRowContent>
-                          <div>Owner: {item.metadata[DATASET_OWNER]}</div>
-                        </ExpandableRowContent>
-                      </Td>
-                    </Tr>
-                  ) : null}
-                </Tbody>
-              );
-            })}
+                );
+              })}
+            </Tbody>
           </TableComposable>
           <RenderPagination
             items={newRuns.length}
