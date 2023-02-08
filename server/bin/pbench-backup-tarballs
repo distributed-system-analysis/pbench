@@ -384,7 +384,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
                 float(usage.used) / float(usage.total) * 100.0,
                 usage.free,
             )
-            sync.update(dataset=dataset, did=OperationState.OK)
+            sync.update(dataset=dataset, state=OperationState.OK)
         else:
             sync.error(
                 dataset=dataset,

@@ -202,7 +202,7 @@ class FakePbenchTarBall:
 class FakeSync:
     tarballs: Dict[OperationName, List[Dataset]] = {}
     called: List[str] = []
-    did: Optional[OperationState] = None
+    state: Optional[OperationState] = None
     updated: Optional[List[OperationName]] = None
     errors: JSONOBJECT = {}
 
@@ -210,7 +210,7 @@ class FakeSync:
     def reset(cls):
         cls.tarballs = {}
         cls.called = []
-        cls.did = None
+        cls.state = None
         cls.updated = None
         cls.errors = {}
 
@@ -226,10 +226,10 @@ class FakeSync:
     def update(
         self,
         dataset: Dataset,
-        did: Optional[OperationState],
+        state: Optional[OperationState],
         enabled: Optional[list[OperationName]],
     ):
-        __class__.did = did
+        __class__.state = state
         __class__.updated = enabled
 
     def error(self, dataset: Dataset, message: str):

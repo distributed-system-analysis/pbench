@@ -77,8 +77,8 @@ class DatasetsUpdate(ElasticBulkBase):
             A generator for Elasticsearch bulk update actions
         """
 
-        sync = Sync(logger=current_app.logger, component=OperationName.DELETE)
-        sync.update(dataset=dataset, did=OperationState.WORKING)
+        sync = Sync(logger=current_app.logger, component=OperationName.UPDATE)
+        sync.update(dataset=dataset, state=OperationState.WORKING)
         context["sync"] = sync
 
         access = params.query.get("access")
@@ -142,4 +142,4 @@ class DatasetsUpdate(ElasticBulkBase):
                 attributes["owner"] = owner
                 dataset.owner_id = owner
             dataset.update()
-        context["sync"].update(dataset=dataset, did=state, message=message)
+        context["sync"].update(dataset=dataset, state=state, message=message)

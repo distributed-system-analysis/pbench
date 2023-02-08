@@ -97,7 +97,7 @@ class UnpackTarballs:
 
             if min_size <= s < max_size:
                 self.logger.info(
-                    "will unpack {} ({} >= {} < {})",
+                    "will unpack {} ({} <= {} < {})",
                     Dataset.stem(p),
                     min_size,
                     s,
@@ -113,7 +113,7 @@ class UnpackTarballs:
                 self.unpack(tarball)
                 self.sync.update(
                     dataset=tarball.dataset,
-                    did=OperationState.OK,
+                    state=OperationState.OK,
                     enabled=[OperationName.INDEX],
                 )
             except Exception as e:

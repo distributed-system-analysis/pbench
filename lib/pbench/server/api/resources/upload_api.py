@@ -440,7 +440,7 @@ class Upload(ApiBase):
             try:
                 Sync(current_app.logger, OperationName.UPLOAD).update(
                     dataset=dataset,
-                    did=OperationState.OK,
+                    state=OperationState.OK,
                     enabled=[OperationName.BACKUP, OperationName.UNPACK],
                 )
                 Audit.create(root=audit, status=AuditStatus.SUCCESS)

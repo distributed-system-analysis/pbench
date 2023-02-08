@@ -584,7 +584,7 @@ class Index:
                                 print(tb, file=fp)
                             self.sync.update(
                                 dataset=dataset,
-                                did=OperationState.OK,
+                                state=OperationState.OK,
                                 enabled=self.enabled,
                             )
                         elif tb_res is error_code["OP_ERROR"]:

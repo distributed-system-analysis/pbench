@@ -55,7 +55,7 @@ class TestPut:
             print(f"Uploaded {t.name}")
 
         datasets = server_client.get_list(
-            metadata=["dataset.access", "server.tarball-path", "server.operations"]
+            metadata=["dataset.access", "server.tarball-path", "dataset.operations"]
         )
         found = frozenset({d.name for d in datasets})
         expected = frozenset(tarballs.keys())
@@ -66,7 +66,7 @@ class TestPut:
                     continue
                 t = tarballs[dataset.name]
                 assert dataset.name in dataset.metadata["server.tarball-path"]
-                assert dataset.metadata["server.operations"]["UPLOAD"]["state"] == "OK"
+                assert dataset.metadata["dataset.operations"]["UPLOAD"]["state"] == "OK"
                 assert t.access == dataset.metadata["dataset.access"]
         except HTTPError as exc:
             pytest.fail(

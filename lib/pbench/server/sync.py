@@ -73,13 +73,13 @@ class Sync:
                 id_list = [d.resource_id for d in query.all()]
             return [Dataset.query(resource_id=i) for i in id_list]
         except Exception as e:
-            self.logger.exception("Failed to query for {}", self.component.name)
+            self.logger.exception("Failed to find 'next' for {}", self.component.name)
             raise SyncSqlError(self.component, "next") from e
 
     def update(
         self,
         dataset: Dataset,
-        did: Optional[OperationState] = None,
+        state: Optional[OperationState] = None,
         enabled: Optional[list[OperationName]] = None,
         message: Optional[str] = None,
     ):
@@ -87,7 +87,7 @@ class Sync:
 
         Args:
             dataset: The dataset
-            did: The new OperationState of the component Operation
+            state: The new OperationState of the component Operation
             enabled: A list (if any) of operations for which the dataset is now
                 eligible.
             message: An optional status message
@@ -99,7 +99,7 @@ class Sync:
         self.logger.debug(
             "Dataset {} did {}, enabling {} with message {!r}",
             dataset.name,
-            did.name if did else "nothing",
+            state.name if state else "nothing",
             [e.name for e in enabled] if enabled else "none",
             message,
         )
@@ -114,7 +114,7 @@ class Sync:
         # of SQLAlchemy AUTOFLUSH semantics, we're going to gather a set of all
         # the operation rows we might need to update at the beginning.
         match_set: set[OperationName] = set()
-        if did or message:
+        if state or message:
             match_set.add(self.component)
         if enabled:
             match_set.update(enabled)
@@ -131,18 +131,18 @@ class Sync:
                     matches = query.all()
                     ops: dict[OperationName, Operation] = {o.name: o for o in matches}
 
-                    if did or message:
+                    if state or message:
                         op: Operation = ops.get(self.component)
                         if op:
-                            if did:
-                                op.state = did
+                            if state:
+                                op.state = state
                             if message:
                                 op.message = message
                         else:
                             op = Operation(
                                 dataset_ref=ds_id,
                                 name=self.component,
-                                state=did if did else OperationState.FAILED,
+                                state=state if state else OperationState.FAILED,
                                 message=message,
                             )
                             session.add(op)
@@ -159,7 +159,7 @@ class Sync:
                 return
             except Exception as e:
                 self.logger.warning(
-                    "{} update {} error ({}): {}",
+                    "{} 'update' {} error ({}): {}",
                     self.component,
                     ds_name,
                     retries,
@@ -208,7 +208,7 @@ class Sync:
                 return
             except Exception as e:
                 self.logger.warning(
-                    "{} {} error ({}) updating message: {}",
+                    "{} {} 'error' ({}) error updating message: {}",
                     self.component.name,
                     ds_name,
                     retries,

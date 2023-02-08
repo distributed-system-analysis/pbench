@@ -468,6 +468,7 @@ class OperationName(enum.Enum):
     REINDEX = enum.auto()
     TOOLINDEX = enum.auto()
     UNPACK = enum.auto()
+    UPDATE = enum.auto()
     UPLOAD = enum.auto()
 
 
@@ -596,10 +597,6 @@ class Metadata(Database.Base):
     #
     # {"server.reindex": True}
     REINDEX = "server.reindex"
-
-    # OPERATION tag to tell the Pbench Server cron tools which operation needs
-    # to be performed next, replacing the old STATE symlink subdirectories.
-    OPERATION = "server.operation"
 
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
     # to record an S3 object store key.) NOT YET USED.

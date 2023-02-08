@@ -110,12 +110,12 @@ class MockSync:
         return [x.dataset for x in datasets]
 
     def update(
-        self, dataset: Dataset, did: OperationState, enabled: list[OperationName]
+        self, dataset: Dataset, state: OperationState, enabled: list[OperationName]
     ):
         assert dataset.resource_id not in __class__.record
         __class__.record[dataset.resource_id] = {
             "component": self.component,
-            "did": did,
+            "state": state,
             "enabled": enabled,
         }
 
@@ -251,7 +251,7 @@ class TestUnpackTarballs:
         assert sorted(MockSync.record.keys()) == sorted(targets)
         for actions in MockSync.record.values():
             assert actions["component"] == OperationName.UNPACK
-            assert actions["did"] == OperationState.OK
+            assert actions["state"] == OperationState.OK
             assert actions["enabled"] == [OperationName.INDEX]
 
     @pytest.mark.parametrize(

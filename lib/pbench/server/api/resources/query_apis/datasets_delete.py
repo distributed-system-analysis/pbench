@@ -74,7 +74,7 @@ class DatasetsDelete(ElasticBulkBase):
         """
         current_app.logger.info("Starting delete operation for dataset {}", dataset)
         sync = Sync(logger=current_app.logger, component=OperationName.DELETE)
-        sync.update(dataset=dataset, did=OperationState.WORKING)
+        sync.update(dataset=dataset, state=OperationState.WORKING)
 
         # Generate a series of bulk delete documents, which will be passed to
         # the Elasticsearch bulk helper.
