@@ -209,7 +209,7 @@ class Sync:
                     self.component.name,
                     ds_name,
                     retry,
-                    str(e)
+                    str(e),
                 )
                 last_error = e
             time.sleep(self.DELAY)
