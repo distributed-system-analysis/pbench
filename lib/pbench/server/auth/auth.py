@@ -11,7 +11,6 @@ from pbench.server import PbenchServerConfig
 from pbench.server.auth import (
     InternalUser,
     OpenIDClient,
-    OpenIDClientError,
     OpenIDTokenInvalid,
 )
 from pbench.server.database.models.active_tokens import ActiveTokens
@@ -194,7 +193,7 @@ def verify_auth_oidc(auth_token: str) -> Optional[InternalUser]:
         InternalUser object if the verification succeeds, None on failure.
     """
     try:
-        token_payload = oidc_client.token_introspect_offline(token=auth_token)
+        token_payload = oidc_client.token_introspect(token=auth_token)
     except OpenIDTokenInvalid:
         token_payload = None
     except Exception:
@@ -202,20 +201,7 @@ def verify_auth_oidc(auth_token: str) -> Optional[InternalUser]:
             "Unexpected exception occurred while verifying the auth token {}",
             auth_token,
         )
-
-        # Offline token verification resulted in some unexpected error,
-        # perform the online token verification.
-
-        # Note: Online verification should NOT be performed frequently, and it
-        # is only allowed for non-public clients.
-        try:
-            token_payload = oidc_client.token_introspect_online(token=auth_token)
-        except OpenIDClientError as exc:
-            current_app.logger.debug(
-                "Can not perform OIDC online token verification, '{}'", exc
-            )
-            token_payload = None
-
+        token_payload = None
     return (
         None
         if token_payload is None
