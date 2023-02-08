@@ -341,7 +341,7 @@ class Dataset(Database.Base):
         Returns:
             The stripped "stem" of the dataset
         """
-        p = Path(str(path))
+        p = Path(path)
         if __class__.is_tarball(p):
             return p.name[: -len(Dataset.TARBALL_SUFFIX)]
         else:

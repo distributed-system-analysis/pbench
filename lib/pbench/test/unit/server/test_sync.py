@@ -52,8 +52,8 @@ class TestSync:
             "UPLOAD": {"state": "FAILED", "message": "this is an error"}
         }
 
-    def test_update_did(self, make_logger, more_datasets):
-        """Test that the sync update operation changes the component state as
+    def test_update_state(self, make_logger, more_datasets):
+        """Test that the sync update operation sets the component state as
         specified.
         """
         drb = Dataset.query(name="drb")
@@ -76,9 +76,9 @@ class TestSync:
             "BACKUP": {"state": "OK", "message": None},
         }
 
-    def test_update_did_not_enabled(self, make_logger, more_datasets):
-        """Test that the sync update operation behaves correctly when the
-        specified component operation wasn't enabled.
+    def test_update_state_new(self, make_logger, more_datasets):
+        """Test that the sync update operation updates component state when the
+        specified component wasn't present.
         """
         drb = Dataset.query(name="drb")
         sync = Sync(make_logger, OperationName.INDEX)
@@ -94,8 +94,8 @@ class TestSync:
             "BACKUP": {"state": "READY", "message": None},
         }
 
-    def test_update_did_status(self, make_logger, more_datasets):
-        """Test that sync update records operation status."""
+    def test_update_state_update(self, make_logger, more_datasets):
+        """Test that sync update records operation state."""
         drb = Dataset.query(name="drb")
         sync = Sync(make_logger, OperationName.BACKUP)
         sync.update(drb, None, [OperationName.UNPACK, OperationName.BACKUP])
@@ -124,10 +124,8 @@ class TestSync:
             "REINDEX": {"state": "READY", "message": None},
         }
 
-    def test_update_enable_status(self, make_logger, more_datasets):
-        """Test that sync update can enable new operations and set a status
-        message.
-        """
+    def test_update_enable_message(self, make_logger, more_datasets):
+        """Test that sync update can enable new operations and set a message."""
         drb = Dataset.query(name="drb")
         sync = Sync(make_logger, OperationName.DELETE)
         sync.update(drb, enabled=[OperationName.UNPACK])
@@ -144,9 +142,9 @@ class TestSync:
             "DELETE": {"state": "FAILED", "message": "bad"},
         }
 
-    def test_update_did_enable(self, make_logger, more_datasets):
-        """Verify sync update behavior with "did", "enabled" operation set,
-        with success status.
+    def test_update_state_enable(self, make_logger, more_datasets):
+        """Verify sync update behavior with both completed and enabled
+        operations
         """
         drb = Dataset.query(name="drb")
         sync = Sync(make_logger, OperationName.UNPACK)
@@ -165,8 +163,8 @@ class TestSync:
             "TOOLINDEX": {"state": "READY", "message": None},
         }
 
-    def test_update_did_enable_status(self, make_logger, more_datasets):
-        """Test sync update with all three options, to remove a completed
+    def test_update_state_enable_status(self, make_logger, more_datasets):
+        """Test sync update with all three options, to mark a completed
         operation, enable a new operation, and set a message.
         """
         drb = Dataset.query(name="drb")

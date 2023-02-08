@@ -108,7 +108,6 @@ class Sync:
         # inside the context manager.
         ds_name = dataset.name
         ds_id = dataset.id
-        retries = self.RETRIES
 
         # To avoid SELECT statements after updates, and the whole complication
         # of SQLAlchemy AUTOFLUSH semantics, we're going to gather a set of all
@@ -121,7 +120,7 @@ class Sync:
 
         filters = [Operation.name == n for n in match_set]
 
-        while retries > 0:
+        for retry in range(self.RETRIES):
             try:
                 with Database.maker.begin() as session:
                     query = session.query(Operation).filter(
@@ -162,13 +161,12 @@ class Sync:
                     "{} 'update' {} error ({}): {}",
                     self.component,
                     ds_name,
-                    retries,
+                    retry,
                     str(e),
                 )
-                retries -= 1
-                if retries <= 0:
-                    raise SyncSqlError(self.component, "update") from e
-                time.sleep(self.DELAY)
+                last_error = e
+            time.sleep(self.DELAY)
+        raise SyncSqlError(self.component, "update") from last_error
 
     def error(self, dataset: Dataset, message: str):
         """
@@ -176,7 +174,7 @@ class Sync:
 
         Args:
             dataset: The dataset affected
-            message: A message to be stored at "server.status.{component}"
+            message: A failure explanation for the component operation.
         """
         self.logger.debug(
             "{} error {}: {}", dataset.resource_id, self.component.name, message
@@ -186,8 +184,7 @@ class Sync:
         # inside the context manager.
         ds_name = dataset.name
         ds_id = dataset.id
-        retries = self.RETRIES
-        while retries > 0:
+        for retry in range(self.RETRIES):
             try:
                 with Database.maker.begin() as session:
                     query = session.query(Operation).filter(
@@ -211,10 +208,9 @@ class Sync:
                     "{} {} 'error' ({}) error updating message: {}",
                     self.component.name,
                     ds_name,
-                    retries,
-                    str(e),
+                    retry,
+                    str(e)
                 )
-                retries -= 1
-                if retries <= 0:
-                    raise SyncSqlError(self.component, "update") from e
-                time.sleep(self.DELAY)
+                last_error = e
+            time.sleep(self.DELAY)
+        raise SyncSqlError(self.component, "update") from last_error

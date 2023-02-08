@@ -275,8 +275,9 @@ def backup_data(lb_obj, s3_obj, config, logger):
             tar = Path(tb).resolve(strict=True)
         except FileNotFoundError:
             tar = None
-            sync.error(dataset, f"tarball link {tb} isn't a real file")
-            logger.error("Tarball link, '{}', does not resolve to a real location", tb)
+            error = f"Tarball link, '{tb}', does not resolve to a real file"
+            sync.error(dataset, error)
+            logger.error(error)
 
         logger.debug("Start backup of {}.", tar)
         # check tarball exists and it is a regular file

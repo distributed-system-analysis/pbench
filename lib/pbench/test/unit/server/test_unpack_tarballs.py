@@ -85,6 +85,9 @@ class MockPath:
                 return StatResult(st_mode=0o554, st_size=t.size)
         raise FileNotFoundError(f"No such file or directory: '{self.path}'")
 
+    def __fspath__(self) -> str:
+        return self.path
+
     def __str__(self) -> str:
         return self.path
 
