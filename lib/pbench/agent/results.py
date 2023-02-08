@@ -129,28 +129,7 @@ class MakeResultTb:
             )
         return msg
 
-    def make_result_tb(self, single_threaded: bool = False) -> TarballRecord:
-        """Make the result tar ball from result directory.
-
-        The metadata.log file in the result directory is double checked to be
-        sure it is valid, and then the "run.raw_size" and the
-        "pbench.tar-ball-creation-timestamp" fields are added.
-
-        The tar ball is created, verified, and the MD5 sum value is generated.
-
-        Returns a named tuple consisting of the Path object of the created tar
-        ball, its length, and its MD5 checksum value.
-
-        Raises
-          - FileNotFoundError  if the result directory does not have a
-                               metadata.log file
-          - BadMDLogFormat     if the metadata.log file has a pbench.name field
-                               value which does not match the result directory
-                               name.
-          - RuntimeError       if any problems are encountered while creating
-                               or verifying the created tar ball
-        """
-        pbench_run_name = self.result_dir.name
+    def verify_metadata(self, pbench_run_name):
         mdlog_name = self.result_dir / "metadata.log"
         mdlog = MetadataLog()
         try:
@@ -198,6 +177,33 @@ class MakeResultTb:
 
         with mdlog_name.open("w") as fp:
             mdlog.write(fp)
+
+    def make_result_tb(self, single_threaded: bool = False) -> TarballRecord:
+        """Make the result tar ball from result directory.
+
+        The metadata.log file in the result directory is double checked to be
+        sure it is valid, and then the "run.raw_size" and the
+        "pbench.tar-ball-creation-timestamp" fields are added.
+
+        The tar ball is created, verified, and the MD5 sum value is generated.
+
+        Returns a named tuple consisting of the Path object of the created tar
+        ball, its length, and its MD5 checksum value.
+
+        Raises
+          - FileNotFoundError  if the result directory does not have a
+                               metadata.log file
+          - BadMDLogFormat     if the metadata.log file has a pbench.name field
+                               value which does not match the result directory
+                               name.
+          - RuntimeError       if any problems are encountered while creating
+                               or verifying the created tar ball
+        """
+        pbench_run_name = self.result_dir.name
+        try:
+            self.verify_metadata(pbench_run_name)
+        except Exception:
+            raise
 
         tarball = self.target_dir / f"{pbench_run_name}.tar.xz"
         e_file = self.target_dir / f"{pbench_run_name}.tar.err"
@@ -359,8 +365,8 @@ class CopyResultTb:
                 response = requests.Session().send(request)
                 response.raise_for_status()
                 self.logger.info("File uploaded successfully")
-            except requests.exceptions.ConnectionError:
-                raise RuntimeError(f"Cannot connect to '{self.upload_url}'")
+            except requests.exceptions.ConnectionError as exc:
+                raise RuntimeError(f"Cannot connect to '{self.upload_url}': {exc}")
             except Exception as exc:
                 raise self.FileUploadError(
                     "There was something wrong with file upload request: "
