@@ -16,10 +16,10 @@ export const authenticationRequest = () => async (dispatch, getState) => {
       const oidcServer = endpoints["openid-connect"]?.issuer;
       const oidcRealm = endpoints["openid-connect"]?.realm;
       const oidcClient = endpoints["openid-connect"]?.client;
-      const oidcClientSecret = endpoints["openid-connect"]?.secret;
+      // URI parameters ref: https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint
+      // Refer Step 3 of pbench/docs/user_authentication/third_party_token_management.md
       let req = oidcServer + '/realms/' + oidcRealm + '/protocol/openid-connect/auth';
       req += '?client_id=' + oidcClient;
-      req += '&client_secret=' + oidcClientSecret;
       req += '&response_type=code';
       req += '&redirect_uri=' + window.location.href.split('?')[0];
       req += '&scope=profile';
