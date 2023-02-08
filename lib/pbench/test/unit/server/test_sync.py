@@ -11,7 +11,7 @@ from pbench.server.sync import Sync, SyncSqlError
 
 class TestSync:
     @pytest.fixture
-    def fake_raise_session(self, monkeypatch):
+    def fake_raise_session(self, monkeypatch, attach_dataset):
         class FakeSession:
             def query(self, **kwargs):
                 raise Exception("nothing happened")
