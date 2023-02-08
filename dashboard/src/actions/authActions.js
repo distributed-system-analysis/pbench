@@ -11,21 +11,45 @@ import { uid } from "../utils/helper";
 
 // Create an Authentication Request
 export const authenticationRequest = () => async (dispatch, getState) => {
-    const endpoints = getState().apiEndpoint.endpoints;
-    const oidcServer = endpoints?.authentication?.issuer;
-    const oidcRealm = endpoints?.authentication?.realm;
-    const oidcClient = endpoints?.authentication?.client;
-    const oidcClientSecret = endpoints?.authentication?.secret;
-    let req = oidcServer + '/realms/' + oidcRealm + '/protocol/openid-connect/auth';
-    req += '?client_id=' + oidcClient;
-    req += '&client_secret=' + oidcClientSecret;
-    req += '&response_type=code';
-    req += '&redirect_uri=' + window.location.href.split('?')[0];
-    req += '&scope=profile';
-    req += '&prompt=login';
-    req += '&max_age=120';
-    window.location.href = req;
-}
+    try {
+      const endpoints = getState().apiEndpoint.endpoints;
+      const oidcServer = endpoints["openid-connect"]?.issuer;
+      const oidcRealm = endpoints["openid-connect"]?.realm;
+      const oidcClient = endpoints["openid-connect"]?.client;
+      const oidcClientSecret = endpoints["openid-connect"]?.secret;
+      let req = oidcServer + '/realms/' + oidcRealm + '/protocol/openid-connect/auth';
+      req += '?client_id=' + oidcClient;
+      req += '&client_secret=' + oidcClientSecret;
+      req += '&response_type=code';
+      req += '&redirect_uri=' + window.location.href.split('?')[0];
+      req += '&scope=profile';
+      req += '&prompt=login';
+      req += '&max_age=120';
+      window.location.href = req;
+    } catch (error) {
+      const alerts = getState().userAuth.alerts;
+      let alert = {};
+      if (error?.response) {
+        alert = {
+          title: error?.response?.data?.message,
+          key: uid(),
+        };
+        dispatch(toggleLoginBtn(true));
+      } else {
+        alert = {
+          title: error?.message,
+          key: uid(),
+        };
+        dispatch({ type: TYPES.OPENID_ERROR });
+      }
+      alerts.push(alert);
+      dispatch({
+        type: TYPES.USER_NOTION_ALERTS,
+        payload: alerts,
+      });
+      dispatch({ type: TYPES.COMPLETED });
+    }
+};
 
 export const makeLoginRequest =
   (details, navigate) => async (dispatch, getState) => {
