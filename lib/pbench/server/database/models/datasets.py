@@ -161,15 +161,28 @@ class MetadataBadValue(MetadataError):
     actual and expected value type.
     """
 
-    def __init__(self, dataset: "Dataset", key: str, value: str, expected: str):
+    def __init__(
+        self, dataset: Optional["Dataset"], key: str, value: str, expected: str
+    ):
+        """Construct an exception to report a failure in metadata key validation.
+
+        This is used during creation of a new dataset where we don't yet have a
+        Dataset object, so the caller can omit the dataset.
+
+        Args:
+            dataset: Identify the associated dataset, or None before creation
+            key: Metadata key name
+            value: Metadata key value
+            expected: The expected metadata value type
+        """
         super().__init__(dataset, key)
         self.value = value
         self.expected = expected
 
     def __str__(self) -> str:
         return (
-            f"Metadata key {self.key!r} value {self.value!r} for dataset "
-            f"{self.dataset} must be a {self.expected}"
+            f"Metadata key {self.key!r} value {self.value!r} for dataset"
+            f"{' ' + str(self.dataset) if self.dataset else ''} must be a {self.expected}"
         )
 
 
@@ -813,7 +826,7 @@ class Metadata(Database.Base):
         return value
 
     @staticmethod
-    def validate(dataset: Dataset, key: str, value: Any) -> Any:
+    def validate(dataset: Optional[Dataset], key: str, value: Any) -> Any:
         """Validate a metadata value.
 
         This method supports hierarchical dotted paths like "global.seen" and
@@ -857,9 +870,14 @@ class Metadata(Database.Base):
                 raise MetadataBadValue(dataset, key, value, "date/time") from p
 
             max_retention = ServerConfig.get(key=OPTION_DATASET_LIFETIME)
-            maximum = dataset.uploaded + datetime.timedelta(
-                days=int(max_retention.value)
+
+            # If 'dataset' was omitted, then assume the current UTC timestamp.
+            base_time = (
+                dataset.uploaded
+                if dataset
+                else datetime.datetime.now(datetime.timezone.utc)
             )
+            maximum = base_time + datetime.timedelta(days=int(max_retention.value))
             if target > maximum:
                 raise MetadataBadValue(
                     dataset, key, value, f"date/time before {maximum:%Y-%m-%d}"

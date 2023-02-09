@@ -39,6 +39,7 @@ from pbench.server.database.models.datasets import (
     DatasetDuplicate,
     DatasetNotFound,
     Metadata,
+    MetadataBadValue,
     OperationName,
     OperationState,
 )
@@ -77,7 +78,15 @@ class Upload(ApiBase):
                 ApiMethod.PUT,
                 OperationCode.CREATE,
                 uri_schema=Schema(Parameter("filename", ParamType.STRING)),
-                query_schema=Schema(Parameter("access", ParamType.ACCESS)),
+                query_schema=Schema(
+                    Parameter("access", ParamType.ACCESS),
+                    Parameter(
+                        "metadata",
+                        ParamType.LIST,
+                        element_type=ParamType.STRING,
+                        string_list=",",
+                    ),
+                ),
                 audit_type=AuditType.NONE,
                 audit_name="upload",
                 authorization=ApiAuthorizationType.NONE,
@@ -119,7 +128,14 @@ class Upload(ApiBase):
         identified rather than authorizing against an existing resource.
 
         Args:
-            filename:   A filename matching the metadata of the uploaded tarball
+            args: API parameters
+                URI parameters
+                    filename: A filename matching the metadata of the uploaded tarball
+                Query parameters
+                    access: The desired access policy (default is "private")
+                    metadata: Metadata key/value pairs to set on dataset
+            request: The original Request object containing query parameters
+            context: API context dictionary
         """
 
         # Used to record what steps have been completed during the upload, and
@@ -130,6 +146,34 @@ class Upload(ApiBase):
         access = (
             args.query["access"] if "access" in args.query else Dataset.PRIVATE_ACCESS
         )
+
+        # We allow the client to set metadata on the new dataset. We won't do
+        # anything about this until upload is successful, but we process and
+        # validate it here so we can fail early.
+        metadata = {}
+        if "metadata" in args.query:
+            errors = []
+            for kw in args.query["metadata"]:
+                # an individual value for the "key" parameter is a simple key:value
+                # pair.
+                k, v = kw.split(":", maxsplit=1)
+                k = k.lower()
+                if not Metadata.is_key_path(k, Metadata.USER_UPDATEABLE_METADATA):
+                    errors.append(f"Key {k} is invalid or isn't settable")
+                    continue
+                try:
+                    Metadata.validate(dataset=None, key=k, value=v)
+                except MetadataBadValue as e:
+                    errors.append(str(e))
+                metadata[k] = v
+            if errors:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST,
+                    "at least one specified metadata key is invalid",
+                    errors=errors,
+                )
+
+        attributes = {"access": access, "metadata": metadata}
         filename = args.uri["filename"]
 
         current_app.logger.info("Uploading {} with {} access", filename, access)
@@ -268,6 +312,7 @@ class Upload(ApiBase):
                 user_name=username,
                 dataset=dataset,
                 status=AuditStatus.BEGIN,
+                attributes=attributes,
             )
             recovery.add(dataset.delete)
 
@@ -395,11 +440,11 @@ class Upload(ApiBase):
             # won't be committed to the database until the "advance" operation
             # at the end.
             try:
-                metadata = tarball.metadata
+                metalog = tarball.metadata
                 dataset.created = UtcTimeHelper.from_string(
-                    metadata["pbench"]["date"]
+                    metalog["pbench"]["date"]
                 ).utc_time
-                Metadata.create(dataset=dataset, key=Metadata.METALOG, value=metadata)
+                Metadata.create(dataset=dataset, key=Metadata.METALOG, value=metalog)
             except Exception as exc:
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,
@@ -430,6 +475,9 @@ class Upload(ApiBase):
                     key=Metadata.DELETION,
                     value=UtcTimeHelper(deletion).to_iso_string(),
                 )
+                f = self._set_dataset_metadata(dataset, metadata)
+                if f:
+                    attributes["failures"] = f
             except Exception as e:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to set metadata: {e!s}"
@@ -443,7 +491,9 @@ class Upload(ApiBase):
                     state=OperationState.OK,
                     enabled=[OperationName.BACKUP, OperationName.UNPACK],
                 )
-                Audit.create(root=audit, status=AuditStatus.SUCCESS)
+                Audit.create(
+                    root=audit, status=AuditStatus.SUCCESS, attributes=attributes
+                )
             except Exception as exc:
                 raise CleanupTime(
                     HTTPStatus.INTERNAL_SERVER_ERROR,

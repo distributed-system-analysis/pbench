@@ -374,6 +374,8 @@ class PbenchServerClient:
         access = kwargs.get("access", "private")
         if access == "public":
             query_parameters["access"] = access
+        if "metadata" in kwargs:
+            query_parameters["metadata"] = kwargs.get("metadata")
         if "controller" in kwargs:
             controller = kwargs["controller"]
         else:

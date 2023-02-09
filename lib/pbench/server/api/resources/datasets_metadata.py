@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from typing import Any
 
 from flask.json import jsonify
 from flask.wrappers import Request, Response
@@ -180,22 +179,16 @@ class DatasetsMetadata(ApiBase):
                 failures.append(str(e))
 
         if failures:
-            raise APIAbort(HTTPStatus.BAD_REQUEST, ", ".join(failures))
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST,
+                "at least one specified metadata key is invalid",
+                errors=failures,
+            )
 
         # Now update the metadata, which may occur in multiple SQL operations
         # across namespaces. Make a best attempt to update all even if we
         # encounter an unexpected error.
-        fail: dict[str, Any] = {}
-        for k, v in metadata.items():
-            native_key = Metadata.get_native_key(k)
-            user_id = None
-            if native_key == Metadata.USER:
-                user_id = Auth.get_current_user_id()
-            try:
-                Metadata.setvalue(key=k, value=v, dataset=dataset, user_id=user_id)
-            except MetadataError as e:
-                fail[k] = str(e)
-
+        fail = self._set_dataset_metadata(dataset, metadata)
         if len(fail) == len(metadata):
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST,

@@ -4,6 +4,7 @@ from pathlib import Path
 import socket
 from typing import Any
 
+from freezegun import freeze_time
 import pytest
 
 from pbench.server import OperationCode, PbenchServerConfig
@@ -187,6 +188,32 @@ class TestUpload:
         self.verify_logs(caplog)
         assert not self.cachemanager_created
 
+    def test_bad_metadata_upload(
+        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+    ):
+        with freeze_time("1970-01-01 00:42:00"):
+            response = client.put(
+                self.gen_uri(server_config),
+                headers={
+                    "Authorization": "Bearer " + pbench_drb_token,
+                    "controller": self.controller,
+                    "Content-MD5": "ANYMD5",
+                    "Content-Length": "STRING",
+                },
+                query_string={
+                    "metadata": "foobar.badpath:data,server.deletion:3000-12-25T23:59:59+00:00"
+                },
+            )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        json = response.json
+        assert "errors" in json and "message" in json
+        assert json["message"] == "at least one specified metadata key is invalid"
+        assert json["errors"] == [
+            "Key foobar.badpath is invalid or isn't settable",
+            "Metadata key 'server.deletion' value '3000-12-25T23:59:59+00:00' for dataset must be a date/time before 1979-12-30",
+        ]
+        assert not self.cachemanager_created
+
     def test_mismatched_md5sum_header(
         self, client, caplog, server_config, setup_ctrl, pbench_drb_token
     ):
@@ -312,6 +339,7 @@ class TestUpload:
                 self.gen_uri(server_config, datafile.name),
                 data=data_fp,
                 headers=self.gen_headers(pbench_drb_token, md5),
+                query_string={"metadata": "global.pbench.test:data"},
             )
 
         assert response.status_code == HTTPStatus.CREATED, repr(response)
@@ -322,7 +350,7 @@ class TestUpload:
         assert dataset.resource_id == md5
         assert dataset.name == name
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
-        assert Metadata.getvalue(dataset, "global") is None
+        assert Metadata.getvalue(dataset, "global") == {"pbench": {"test": "data"}}
         assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-02"
         assert Metadata.getvalue(dataset, "dataset.operations") == {
             "BACKUP": {"state": "READY", "message": None},
@@ -345,7 +373,10 @@ class TestUpload:
         assert audit[0].user_id == "3"
         assert audit[0].user_name == "drb"
         assert audit[0].reason is None
-        assert audit[0].attributes is None
+        assert audit[0].attributes == {
+            "access": "private",
+            "metadata": {"global.pbench.test": "data"},
+        }
         assert audit[1].id == 2
         assert audit[1].root_id == 1
         assert audit[1].operation == OperationCode.CREATE
@@ -357,7 +388,10 @@ class TestUpload:
         assert audit[1].user_id == "3"
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
-        assert audit[1].attributes is None
+        assert audit[1].attributes == {
+            "access": "private",
+            "metadata": {"global.pbench.test": "data"},
+        }
 
     def test_upload_duplicate(
         self,
@@ -446,7 +480,7 @@ class TestUpload:
         assert audit[0].user_id == "3"
         assert audit[0].user_name == "drb"
         assert audit[0].reason is None
-        assert audit[0].attributes is None
+        assert audit[0].attributes == {"access": "private", "metadata": {}}
         assert audit[1].id == 2
         assert audit[1].root_id == 1
         assert audit[1].operation == OperationCode.CREATE
