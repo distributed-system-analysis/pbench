@@ -8,11 +8,7 @@ from flask_restful import abort
 import jwt
 
 from pbench.server import PbenchServerConfig
-from pbench.server.auth import (
-    InternalUser,
-    OpenIDClient,
-    OpenIDTokenInvalid,
-)
+from pbench.server.auth import InternalUser, OpenIDClient, OpenIDTokenInvalid
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
 
