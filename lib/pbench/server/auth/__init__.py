@@ -362,20 +362,6 @@ class OpenIDClient:
         pem_public_key += "-----END PUBLIC KEY-----\n"
         self._pem_public_key = pem_public_key
 
-        well_known_endpoint = ".well-known/openid-configuration"
-        well_known_uri = f"realms/{self._realm_name}/{well_known_endpoint}"
-        endpoints_json = self._connection.get(well_known_uri).json()
-
-        try:
-            self._userinfo_endpoint = endpoints_json["userinfo_endpoint"]
-            self._tokeninfo_endpoint = endpoints_json["introspection_endpoint"]
-        except KeyError as e:
-            raise OpenIDClientError(
-                HTTPStatus.BAD_GATEWAY,
-                f"Missing endpoint {e!r} at {well_known_uri}; Endpoints found:"
-                f" {endpoints_json}",
-            )
-
     def __repr__(self):
         return (
             f"OpenIDClient(server_url={self._connection.server_url}, "
@@ -383,57 +369,7 @@ class OpenIDClient:
             f"headers={self._connection.headers})"
         )
 
-    def token_introspect_online(self, token: str) -> Optional[JSON]:
-        """The introspection endpoint is used to retrieve the active state of a
-        token.
-
-        It can only be invoked by confidential clients.
-
-        The introspected JWT token contains the claims specified in
-        https://tools.ietf.org/html/rfc7662.
-
-        Note: this is not supposed to be used in production, instead rely on
-            offline token validation because of security concerns mentioned in
-            https://www.rfc-editor.org/rfc/rfc7662.html#section-4.
-
-        Args:
-            token : token value to introspect
-
-        Returns:
-            Extracted token information
-            {
-                "aud": <targeted_audience_id>,
-                "email_verified": <boolean>,
-                "expires_in": <number_of_seconds>,
-                "access_type": "offline",
-                "exp": <unix_timestamp>,
-                "azp": <client_id>,
-                "scope": <scope_string>, # "openid email profile"
-                "email": <user_email>,
-                "sub": <user_id>
-            }
-        """
-        if not self._tokeninfo_endpoint:
-            return None
-
-        payload = {
-            "client_id": self.client_id,
-            "client_secret": self._client_secret_key,
-            "token": token,
-        }
-        token_payload = self._connection.post(
-            self._tokeninfo_endpoint, data=payload
-        ).json()
-
-        audience = token_payload.get("aud")
-        if not audience or self.client_id not in audience:
-            # If our client is not an intended audience for the token,
-            # we will not verify the token.
-            token_payload = None
-
-        return token_payload
-
-    def token_introspect_offline(self, token: str) -> JSON:
+    def token_introspect(self, token: str) -> JSON:
         """Utility method to decode access/Id tokens using the public key
         provided by the identity provider.
 
@@ -481,31 +417,3 @@ class OpenIDClient:
             jwt.InvalidAudienceError,
         ) as exc:
             raise OpenIDTokenInvalid() from exc
-
-    def get_userinfo(self, token: str = None) -> JSON:
-        """The userinfo endpoint returns standard claims about the authenticated
-        user, and is protected by a bearer token.
-
-        FIXME - This method appears unused in the rest of the code.
-
-        http://openid.net/specs/openid-connect-core-1_0.html#UserInfo
-
-        Args:
-            token : Valid token to extract the userinfo
-
-        Returns:
-            Userinfo payload
-            {
-                "family_name": <surname>,
-                "sub": <user_id>,
-                "picture": <URL>,
-                "locale": <locale_name>,
-                "email_verified": <boolean>,
-                "given_name": <given_name>,
-                "email": <email_address>,
-                "hd": <domain_name>,
-                "name": <full_name>
-            }
-        """
-        headers = {"Authorization": f"Bearer {token}"} if token else None
-        return self._connection.get(self._userinfo_endpoint, headers=headers).json()
