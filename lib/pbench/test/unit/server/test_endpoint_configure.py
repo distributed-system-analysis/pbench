@@ -140,7 +140,7 @@ class TestEndpointConfig:
 
         try:
             oidc_client = server_config.get("openid-connect", "client")
-            oidc_issuer = server_config.get("openid-connect", "server_url")
+            oidc_server = server_config.get("openid-connect", "server_url")
             oidc_realm = server_config.get("openid-connect", "realm")
             oidc_secret = server_config.get("openid-connect", "secret")
         except (NoOptionError, NoSectionError):
@@ -148,7 +148,7 @@ class TestEndpointConfig:
         else:
             expected_results["openid-connect"] = {
                 "client": oidc_client,
-                "issuer": oidc_issuer,
+                "server": oidc_server,
                 "realm": oidc_realm,
                 "secret": oidc_secret,
             }
