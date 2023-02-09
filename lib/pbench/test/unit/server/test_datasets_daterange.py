@@ -63,16 +63,16 @@ class TestDatasetsDateRange:
         )
         for name in sorted(name_list):
             dataset = Dataset.query(name=name)
-            to_time = max(dataset.created, to_time)
-            from_time = min(dataset.created, from_time)
+            to_time = max(dataset.uploaded, to_time)
+            from_time = min(dataset.uploaded, from_time)
         return {"from": from_time.isoformat(), "to": to_time.isoformat()}
 
     @pytest.mark.parametrize(
         "login,query,results",
         [
             ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
-            ("drb", {"access": "public"}, ["drb", "fio_2"]),
-            ("test_admin", {"owner": "drb"}, ["drb"]),
+            ("drb", {"access": "public"}, ["fio_1", "fio_2"]),
+            ("test_admin", {"owner": "drb"}, ["drb", "fio_1"]),
             ("drb", {}, ["drb", "fio_1", "fio_2"]),
             (
                 "test",

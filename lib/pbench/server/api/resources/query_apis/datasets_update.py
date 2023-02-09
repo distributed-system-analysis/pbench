@@ -1,5 +1,7 @@
 from typing import Any, Iterator
 
+from flask import current_app
+
 from pbench.server import JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
     ApiAuthorizationType,
@@ -15,7 +17,12 @@ from pbench.server.api.resources import (
 from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
 import pbench.server.auth.auth as Auth
 from pbench.server.database.models.audit import AuditType
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import (
+    Dataset,
+    OperationName,
+    OperationState,
+)
+from pbench.server.sync import Sync
 
 
 class DatasetsUpdate(ElasticBulkBase):
@@ -70,6 +77,10 @@ class DatasetsUpdate(ElasticBulkBase):
             A generator for Elasticsearch bulk update actions
         """
 
+        sync = Sync(logger=current_app.logger, component=OperationName.UPDATE)
+        sync.update(dataset=dataset, state=OperationState.WORKING)
+        context["sync"] = sync
+
         access = params.query.get("access")
         owner = params.query.get("owner")
         es_doc = {}
@@ -117,7 +128,11 @@ class DatasetsUpdate(ElasticBulkBase):
         """
         auditing: dict[str, Any] = context["auditing"]
         attributes = auditing["attributes"]
+        state = OperationState.FAILED
+        message = "Unable to update some indexed documents"
         if summary["failure"] == 0:
+            state = OperationState.OK
+            message = None
             access = context.get("access")
             if access:
                 attributes["access"] = access
@@ -127,3 +142,4 @@ class DatasetsUpdate(ElasticBulkBase):
                 attributes["owner"] = owner
                 dataset.owner_id = owner
             dataset.update()
+        context["sync"].update(dataset=dataset, state=state, message=message)

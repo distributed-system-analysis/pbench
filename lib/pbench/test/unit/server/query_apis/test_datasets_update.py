@@ -155,7 +155,7 @@ class TestDatasetsUpdate:
         # Verify the report and status
         assert response.status_code == HTTPStatus.CONFLICT
         assert response.json == {
-            "message": "Dataset update requires 'Indexed' dataset but state is 'Indexed'"
+            "message": "Operation unavailable: dataset random_md5_string1 is not indexed."
         }
 
     def test_exception(

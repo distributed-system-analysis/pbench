@@ -57,7 +57,7 @@ class DatasetsDateRange(ApiBase):
 
         # Build a SQLAlchemy Query object expressing all of our constraints
         query = Database.db_session.query(
-            func.min(Dataset.created), func.max(Dataset.created)
+            func.min(Dataset.uploaded), func.max(Dataset.uploaded)
         )
         query = self._build_sql_query(owner, access, query)
 

@@ -8,9 +8,13 @@ import pytest
 
 from pbench.server import JSON, JSONOBJECT, PbenchServerConfig
 from pbench.server.cache_manager import TarballUnpackError
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import (
+    Dataset,
+    Metadata,
+    OperationName,
+    OperationState,
+)
 from pbench.server.database.models.users import User
-from pbench.server.sync import Operation
 from pbench.server.unpack_tarballs import UnpackTarballs
 
 
@@ -81,6 +85,9 @@ class MockPath:
                 return StatResult(st_mode=0o554, st_size=t.size)
         raise FileNotFoundError(f"No such file or directory: '{self.path}'")
 
+    def __fspath__(self) -> str:
+        return self.path
+
     def __str__(self) -> str:
         return self.path
 
@@ -96,21 +103,35 @@ class MockPath:
 class MockSync:
 
     record: dict[str, JSONOBJECT] = {}
+    errors: dict[str, JSONOBJECT] = {}
 
-    def __init__(self, logger: Logger, component: str):
+    def __init__(self, logger: Logger, component: OperationName):
         self.component = component
         self.logger = logger
 
-    def next(self, operation: Operation) -> list[Dataset]:
+    def next(self) -> list[Dataset]:
         return [x.dataset for x in datasets]
 
-    def update(self, dataset: Dataset, did: Operation, enabled: list[Operation]):
+    def update(
+        self, dataset: Dataset, state: OperationState, enabled: list[OperationName]
+    ):
         assert dataset.resource_id not in __class__.record
-        __class__.record[dataset.resource_id] = {"did": did, "enabled": enabled}
+        __class__.record[dataset.resource_id] = {
+            "component": self.component,
+            "state": state,
+            "enabled": enabled,
+        }
+
+    def error(self, dataset: Dataset, message: str):
+        __class__.errors[dataset.resource_id] = {
+            "component": self.component,
+            "message": message,
+        }
 
     @classmethod
     def _reset(cls):
         cls.record = {}
+        cls.errors = {}
 
 
 class FakePbenchTemplates:
@@ -232,8 +253,9 @@ class TestUnpackTarballs:
         assert sorted(MockCacheManager.unpacked) == sorted(targets)
         assert sorted(MockSync.record.keys()) == sorted(targets)
         for actions in MockSync.record.values():
-            assert actions["did"] == Operation.UNPACK
-            assert actions["enabled"] == [Operation.INDEX]
+            assert actions["component"] == OperationName.UNPACK
+            assert actions["state"] == OperationState.OK
+            assert actions["enabled"] == [OperationName.INDEX]
 
     @pytest.mark.parametrize(
         "fail", [["md5.1"], ["md5.1", "md5.2"], ["md5.1", "md5.2", "md5.3"]]
@@ -270,15 +292,19 @@ class TestUnpackTarballs:
         result = obj.unpack_tarballs(0.0, float("inf"))
         assert result.success == len(datasets) - len(fail)
         assert result.total == len(datasets)
-        ids = sorted(
-            [
-                t.dataset.resource_id
-                for t in datasets
-                if t.dataset.resource_id not in fail
-            ]
-        )
-        assert sorted(MockCacheManager.unpacked) == ids
-        assert sorted(MockSync.record.keys()) == ids
+        success_ids = []
+        fail_ids = []
+        for t in datasets:
+            id = t.dataset.resource_id
+            if id in fail:
+                fail_ids.append(id)
+            else:
+                success_ids.append(id)
+        success_ids.sort()
+        fail_ids.sort()
+        assert sorted(MockCacheManager.unpacked) == success_ids
+        assert sorted(MockSync.record.keys()) == success_ids
+        assert sorted(MockSync.errors.keys()) == fail_ids
 
     def test_unpack_report(self, make_logger, mocks):
         obj = UnpackTarballs(MockConfig, make_logger)

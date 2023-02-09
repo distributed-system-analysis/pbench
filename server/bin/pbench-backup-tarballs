@@ -13,10 +13,14 @@ from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
 from pbench.server import get_resolved_dir, PbenchServerConfig, timestamp
 from pbench.server.database import init_db
-from pbench.server.database.models.datasets import Dataset, DatasetError, Metadata
+from pbench.server.database.models.datasets import (
+    Metadata,
+    OperationName,
+    OperationState,
+)
 from pbench.server.report import Report
 from pbench.server.s3backup import NoSuchKey, S3Config, Status
-from pbench.server.sync import Operation, Sync
+from pbench.server.sync import Sync
 
 _NAME_ = "pbench-backup-tarballs"
 
@@ -259,8 +263,8 @@ def backup_to_s3(
 
 
 def backup_data(lb_obj, s3_obj, config, logger):
-    sync = Sync(logger, "backup")
-    datasets = sync.next(Operation.BACKUP)
+    sync = Sync(logger, OperationName.BACKUP)
+    datasets = sync.next()
     ntotal = nbackup_success = nbackup_fail = ns3_success = ns3_fail = process_fail = 0
 
     for dataset in datasets:
@@ -271,7 +275,9 @@ def backup_data(lb_obj, s3_obj, config, logger):
             tar = Path(tb).resolve(strict=True)
         except FileNotFoundError:
             tar = None
-            logger.error("Tarball link, '{}', does not resolve to a real location", tb)
+            error = f"Tarball link, '{tb}', does not resolve to a real file"
+            sync.error(dataset, error)
+            logger.error(error)
 
         logger.debug("Start backup of {}.", tar)
         # check tarball exists and it is a regular file
@@ -322,15 +328,6 @@ def backup_data(lb_obj, s3_obj, config, logger):
         resultname = tar.name
         controller_path = tar.parent
         controller = controller_path.name
-        try:
-            dataset = Dataset.attach(resource_id=archive_md5_hex_value)
-        except DatasetError as e:
-            logger.error(
-                "Unable to find dataset with resource ID {!r}: {}",
-                archive_md5_hex_value,
-                str(e),
-            )
-            continue
 
         # This will handle all the local backup related
         # operations and count the number of successes and failures.
@@ -388,11 +385,12 @@ def backup_data(lb_obj, s3_obj, config, logger):
                 float(usage.used) / float(usage.total) * 100.0,
                 usage.free,
             )
-            sync.update(dataset=dataset, did=Operation.BACKUP)
+            sync.update(dataset=dataset, state=OperationState.OK)
         else:
-            # Do nothing when the backup fails, allowing us to retry on a
-            # future pass.
-            pass
+            sync.error(
+                dataset=dataset,
+                message=f"unable to backup: local {local_backup_result}, S3 {s3_backup_result}",
+            )
 
         logger.debug("End backup of {}.", tar)
 

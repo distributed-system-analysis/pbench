@@ -132,11 +132,11 @@ class DatasetsList(ApiBase):
         # Build a SQLAlchemy Query object expressing all of our constraints
         query = Database.db_session.query(Dataset)
         if "start" in json and "end" in json:
-            query = query.filter(Dataset.created.between(json["start"], json["end"]))
+            query = query.filter(Dataset.uploaded.between(json["start"], json["end"]))
         elif "start" in json:
-            query = query.filter(Dataset.created >= json["start"])
+            query = query.filter(Dataset.uploaded >= json["start"])
         elif "end" in json:
-            query = query.filter(Dataset.created <= json["end"])
+            query = query.filter(Dataset.uploaded <= json["end"])
         if "name" in json:
             query = query.filter(Dataset.name.contains(json["name"]))
         query = self._build_sql_query(json.get("owner"), json.get("access"), query)

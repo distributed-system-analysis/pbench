@@ -18,7 +18,7 @@ from pbench.server.database.models.users import User
 
 
 class TestGetSetMetadata:
-    def test_metadata(self, attach_dataset):
+    def test_metadata(self, more_datasets):
         """Various tests on Metadata keys"""
         # See if we can create a metadata row
         ds = Dataset.query(name="drb")
@@ -62,7 +62,7 @@ class TestGetSetMetadata:
             m1.add(ds)
         assert exc.value.key == "global"
         assert exc.value.dataset == ds
-        assert ds.metadatas == [m]
+        assert ds.metadatas == [m], f"Keys {[m.key for m in ds.metadatas]} remain"
 
         # Try to add a Metadata key to something that's not a dataset
         with pytest.raises(DatasetBadParameterType) as exc:
@@ -92,7 +92,7 @@ class TestGetSetMetadata:
             Metadata.get(ds, "global")
         assert exc.value.dataset == ds
         assert exc.value.key == "global"
-        assert ds.metadatas == []
+        assert ds.metadatas == [], f"Keys {[m.key for m in ds.metadatas]} remain"
 
     def test_metadata_remove(self, attach_dataset):
         """Test that we can remove a Metadata key"""
@@ -119,11 +119,8 @@ class TestInternalMetadata:
         metadata = Metadata.getvalue(ds, "dataset")
         assert metadata == {
             "access": "private",
-            "created": "2020-02-15T00:00:00+00:00",
             "name": "drb",
             "owner_id": str(create_drb_user.id),
-            "state": "Indexed",
-            "transition": "1970-01-01T00:42:00+00:00",
             "uploaded": "2022-01-01T00:00:00+00:00",
             "metalog": {
                 "pbench": {
@@ -134,14 +131,11 @@ class TestInternalMetadata:
                 },
                 "run": {"controller": "node1.example.com"},
             },
+            "operations": {},
         }
 
     def test_dataset_keys(self, provide_metadata):
         ds = Dataset.query(name="drb")
-        metadata = Metadata.getvalue(ds, "dataset.state")
-        assert metadata == "Indexed"
-        metadata = Metadata.getvalue(ds, "dataset.transition")
-        assert metadata == "1970-01-01T00:42:00+00:00"
         metadata = Metadata.getvalue(ds, "dataset.metalog.run")
         assert metadata == {"controller": "node1.example.com"}
         metadata = Metadata.getvalue(ds, "dataset.metalog.pbench.name")
@@ -188,46 +182,44 @@ class TestMetadataNamespace:
         """Various tests on user-mapped Metadata keys"""
         # See if we can create a metadata row
         ds = Dataset.query(name="drb")
-        user1 = User.query(username="drb")
+        user1 = str(User.query(username="drb").id)
         metadata_db_query = Database.db_session.query(Metadata)
         assert ds.metadatas == []
-        t = Metadata.create(key="user", value=True, dataset=ds, user_id=user1.id)
+        t = Metadata.create(key="user", value=True, dataset=ds, user_id=user1)
         assert t is not None
         assert ds.metadatas == [t]
-        assert Database.db_session.query(Metadata).filter_by(
-            user_id=user1.id
-        ).all() == [t]
+        assert Database.db_session.query(Metadata).filter_by(user_id=user1).all() == [t]
 
-        user2 = User.query(username="test")
-        d = Metadata.create(key="user", value=False, dataset=ds, user_id=user2.id)
+        user2 = str(User.query(username="test").id)
+        d = Metadata.create(key="user", value=False, dataset=ds, user_id=user2)
         assert d is not None
         assert ds.metadatas == [t, d]
-        assert metadata_db_query.filter_by(user_id=user1.id).all() == [t]
-        assert metadata_db_query.filter_by(user_id=user2.id).all() == [d]
+        assert metadata_db_query.filter_by(user_id=user1).all() == [t]
+        assert metadata_db_query.filter_by(user_id=user2).all() == [d]
 
         g = Metadata.create(key="user", value="text", dataset=ds)
         assert g is not None
         assert ds.metadatas == [t, d, g]
-        assert metadata_db_query.filter_by(user_id=user1.id).all() == [t]
-        assert metadata_db_query.filter_by(user_id=user2.id).all() == [d]
+        assert metadata_db_query.filter_by(user_id=user1).all() == [t]
+        assert metadata_db_query.filter_by(user_id=user2).all() == [d]
 
         assert Metadata.get(key="user", dataset=ds).value == "text"
-        assert Metadata.get(key="user", dataset=ds, user_id=user1.id).value is True
-        assert Metadata.get(key="user", dataset=ds, user_id=user2.id).value is False
+        assert Metadata.get(key="user", dataset=ds, user_id=user1).value is True
+        assert Metadata.get(key="user", dataset=ds, user_id=user2).value is False
 
-        Metadata.remove(key="user", dataset=ds, user_id=user1.id)
-        assert metadata_db_query.filter_by(user_id=user1.id).all() == []
-        assert metadata_db_query.filter_by(user_id=user2.id).all() == [d]
+        Metadata.remove(key="user", dataset=ds, user_id=user1)
+        assert metadata_db_query.filter_by(user_id=user1).all() == []
+        assert metadata_db_query.filter_by(user_id=user2).all() == [d]
         assert ds.metadatas == [d, g]
 
         Metadata.remove(key="user", dataset=ds)
-        assert metadata_db_query.filter_by(user_id=user1.id).all() == []
-        assert metadata_db_query.filter_by(user_id=user2.id).all() == [d]
+        assert metadata_db_query.filter_by(user_id=user1).all() == []
+        assert metadata_db_query.filter_by(user_id=user2).all() == [d]
         assert ds.metadatas == [d]
 
-        Metadata.remove(key="user", dataset=ds, user_id=user2.id)
-        assert metadata_db_query.filter_by(user_id=user1.id).all() == []
-        assert metadata_db_query.filter_by(user_id=user2.id).all() == []
+        Metadata.remove(key="user", dataset=ds, user_id=user2)
+        assert metadata_db_query.filter_by(user_id=user1).all() == []
+        assert metadata_db_query.filter_by(user_id=user2).all() == []
         assert ds.metadatas == []
 
         # Peek under the carpet to look for orphaned metadata objects linked
@@ -236,8 +228,8 @@ class TestMetadataNamespace:
         assert metadata is None
         metadata = metadata_db_query.filter(
             or_(
-                Metadata.user_id == user1.id,
-                Metadata.user_id == user2.id,
+                Metadata.user_id == user1,
+                Metadata.user_id == user2,
                 Metadata.user_id is None,
             )
         ).first()
@@ -346,23 +338,19 @@ class TestMetadataNamespace:
         use this column only for the "user" key value.)
         """
         ds = Dataset.query(name="drb")
-        user1 = User.query(username="drb")
-        user2 = User.query(username="test")
+        user1 = str(User.query(username="drb").id)
+        user2 = str(User.query(username="test").id)
         Metadata.setvalue(dataset=ds, key="user.contact", value="Barney")
-        Metadata.setvalue(
-            dataset=ds, key="user.contact", value="Fred", user_id=user2.id
-        )
-        Metadata.setvalue(
-            dataset=ds, key="user.contact", value="Wilma", user_id=user1.id
-        )
+        Metadata.setvalue(dataset=ds, key="user.contact", value="Fred", user_id=user2)
+        Metadata.setvalue(dataset=ds, key="user.contact", value="Wilma", user_id=user1)
 
         assert Metadata.getvalue(dataset=ds, user_id=None, key="user") == {
             "contact": "Barney"
         }
-        assert Metadata.getvalue(dataset=ds, user_id=user2.id, key="user") == {
+        assert Metadata.getvalue(dataset=ds, user_id=user2, key="user") == {
             "contact": "Fred"
         }
-        assert Metadata.getvalue(dataset=ds, user_id=user1.id, key="user") == {
+        assert Metadata.getvalue(dataset=ds, user_id=user1, key="user") == {
             "contact": "Wilma"
         }
 

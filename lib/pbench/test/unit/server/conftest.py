@@ -26,7 +26,7 @@ import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
 from pbench.server.database.models.active_tokens import ActiveTokens
-from pbench.server.database.models.datasets import Dataset, Metadata, States
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 from pbench.test import on_disk_config
@@ -327,10 +327,10 @@ def attach_dataset(create_drb_user, create_user):
 
     The resulting datasets are:
 
-        Owner   Access  Date        Name
-        ------- ------- ----------- ---------
-        drb     private 2020-02-15  drb
-        test    private 2002-05-16  test
+        Owner   Access  Uploaded    Name
+        ------- ------- ----------  ----
+        drb     private 2022-01-01  drb
+        test    private 1970-01-01  test
 
     Args:
         create_drb_user: create a "drb" user
@@ -344,17 +344,13 @@ def attach_dataset(create_drb_user, create_user):
     with freeze_time("1970-01-01 00:42:00"):
         Dataset(
             owner_id=str(create_drb_user.id),
-            created=datetime.datetime(2020, 2, 15),
             uploaded=datetime.datetime(2022, 1, 1),
-            state=States.INDEXED,
             name="drb",
             access="private",
             resource_id="random_md5_string1",
         ).add()
         Dataset(
             owner_id=str(create_user.id),
-            created=datetime.datetime(2002, 5, 16),
-            state=States.INDEXED,
             name="test",
             access="private",
             resource_id="random_md5_string2",
@@ -375,16 +371,16 @@ def more_datasets(
 
     In combination with attach_dataset, the resulting datasets are:
 
-        Owner   Access  Date        Name
-        ------- ------- ----------- ---------
-        drb     private 2020-02-15  drb
-        test    private 2002-05-16  test
-        drb     public  2020-02-15  fio_1
-        test    public  2002-05-16  fio_2
-        test    private 2022-12-08  uperf_1
-        test    private 2022-12-09  uperf_2
-        test    private 2022-12-10  uperf_3
-        test    private 2022-12-11  uperf_4
+        Owner   Access  Uploaded    Name
+        ------- ------- ----------  ----
+        drb     private 2022-01-01  drb
+        test    private 1970-01-01  test
+        drb     public  1978-06-26  fio_1
+        test    public  2022-01-01  fio_2
+        test    private 1978-06-26  uperf_1
+        test    private 1978-06-26  uperf_2
+        test    private 1978-06-26  uperf_3
+        test    private 1978-06-26  uperf_4
 
     Args:
         client: Provide a Flask API client
@@ -392,54 +388,42 @@ def more_datasets(
         create_drb_user: Create the "drb" user
         create_admin_user: Create the "test_admin" user
         attach_dataset: Provide some datasets
-        create_user: Create another user
+        create_user: Create the "test" user
     """
     with freeze_time("1978-06-26 08:00:00"):
         Dataset(
             owner_id=str(create_drb_user.id),
-            created=datetime.datetime(2020, 2, 15),
-            uploaded=datetime.datetime(2022, 1, 1),
-            state=States.INDEXED,
             name="fio_1",
             access="public",
             resource_id="random_md5_string3",
         ).add()
         Dataset(
             owner_id=str(create_user.id),
-            created=datetime.datetime(2002, 5, 16),
-            state=States.INDEXED,
+            uploaded=datetime.datetime(2022, 1, 1),
             name="fio_2",
             access="public",
             resource_id="random_md5_string4",
         ).add()
         Dataset(
             owner_id=str(create_user.id),
-            created=datetime.datetime(2022, 12, 8),
-            state=States.INDEXED,
             name="uperf_1",
             access="private",
             resource_id="random_md5_string5",
         ).add()
         Dataset(
             owner_id=str(create_user.id),
-            created=datetime.datetime(2022, 12, 9),
-            state=States.INDEXED,
             name="uperf_2",
             access="private",
             resource_id="random_md5_string6",
         ).add()
         Dataset(
             owner_id=str(create_user.id),
-            created=datetime.datetime(2022, 12, 10),
-            state=States.INDEXED,
             name="uperf_3",
             access="private",
             resource_id="random_md5_string7",
         ).add()
         Dataset(
             owner_id=str(create_user.id),
-            created=datetime.datetime(2020, 12, 11),
-            state=States.INDEXED,
             name="uperf_4",
             access="private",
             resource_id="random_md5_string8",
