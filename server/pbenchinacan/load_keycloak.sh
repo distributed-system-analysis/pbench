@@ -24,7 +24,7 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 # These values must match the options "realm" and "client in the
 # "openid-connect" section of the pbench server configuration file.
 REALM=${KEYCLOAK_REALM:-"pbench-server"}
-CLIENT=${KEYCLOAK_CLIENT:-"pbench-server-client"}
+CLIENT=${KEYCLOAK_CLIENT:-"pbench-dashboard"}
 
 end_in_epoch_secs=$(date --date "2 minutes" +%s)
 
@@ -68,8 +68,7 @@ fi
 CLIENT_CONF=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-   -d '{"clientId": "'${CLIENT}'", "directAccessGrantsEnabled": true, "serviceAccountsEnabled": true, "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
-
+  -d '{"clientId": "'${CLIENT}'", "publicClient": true, "directAccessGrantsEnabled": true, "enabled": true, "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
 
 CLIENT_ID=$(grep -o -e 'http://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
 if [[ -z "${CLIENT_ID}" ]]; then
@@ -77,14 +76,6 @@ if [[ -z "${CLIENT_ID}" ]]; then
   exit 1
 else
   echo "Created ${CLIENT} client"
-fi
-
-PBENCH_CLIENT_SECRET=$(curl -s -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/client-secret" \
-  -H "Authorization: Bearer ${ADMIN_TOKEN}" | jq -r '.value')
-
-if [[ -z "${PBENCH_CLIENT_SECRET}" ]]; then
-  echo "${CLIENT} secret is empty"
-  exit 1
 fi
 
 status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients/${CLIENT_ID}/roles" \
