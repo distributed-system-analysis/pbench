@@ -62,7 +62,7 @@ class DatasetDuplicate(DatasetError):
 
 
 class DatasetNotFound(DatasetError):
-    """Attempt to attach to a Dataset that doesn't exist."""
+    """Attempt to locate a Dataset that doesn't exist."""
 
     def __init__(self, **kwargs):
         self.kwargs = [f"{key}={value}" for key, value in kwargs.items()]
@@ -87,32 +87,6 @@ class DatasetBadParameterType(DatasetError):
 
     def __str__(self) -> str:
         return f'Value "{self.bad_value}" ({type(self.bad_value)}) is not a {self.expected_type}'
-
-
-class DatasetTransitionError(DatasetError):
-    """A base class for errors reporting disallowed dataset state transitions.
-
-    It is never raised directly, but may be used in "except" clauses.
-    """
-
-
-class DatasetBadStateTransition(DatasetTransitionError):
-    """An attempt was made to advance a dataset to a new state that's not
-    reachable from the current state.
-
-    The error text will identify the dataset by name, and both the current and
-    requested new states.
-    """
-
-    def __init__(self, dataset: "Dataset", requested_state: "States"):
-        self.dataset = dataset
-        self.requested_state = requested_state
-
-    def __str__(self) -> str:
-        return (
-            f"Dataset {self.dataset} desired state {self.requested_state}"
-            f" is not allowed from current state {self.dataset.state}"
-        )
 
 
 class MetadataError(DatasetError):
@@ -274,39 +248,6 @@ class MetadataDuplicateKey(MetadataError):
         return f"{self.dataset} already has metadata key {self.key}"
 
 
-class States(enum.Enum):
-    """Track the progress of a dataset (tarball) through the various stages and
-    operation of the Pbench server.
-    """
-
-    UPLOADING = ("Uploading", True)
-    UPLOADED = ("Uploaded", False)
-    INDEXING = ("Indexing", True)
-    INDEXED = ("Indexed", False)
-    DELETING = ("Deleting", True)
-    DELETED = ("Deleted", False)
-
-    def __init__(self, friendly: str, mutating: bool):
-        """Extended ENUM constructor.
-
-        We extend an ENUM adding a value to record whether each state is a
-        "busy" state where some component is mutating the dataset in some way,
-        and adding a mixed case "friendly" name for the state. "Mutating"
-        states are expected to be transient as the component should complete
-        the mutation, and should usually have "-ing" endings.
-
-        Args:
-            name (string) : Friendly name for the state
-            mutating (boolean) : True if a component is mutating dataset
-        """
-        self.friendly = friendly
-        self.mutating = mutating
-
-    def __str__(self) -> str:
-        """Return the state's friendly name."""
-        return self.friendly
-
-
 class Dataset(Database.Base):
     """Identify a Pbench dataset (tarball plus metadata).
 
@@ -324,33 +265,9 @@ class Dataset(Database.Base):
 
     __tablename__ = "datasets"
 
-    # This dict defines the allowed dataset state transitions through its
-    # lifecycle. We have a set of "-ING" action states while the dataset is
-    # being mutated, and a set of "-ED" states designating the last successful
-    # mutation, from UPLOAD through INDEX and eventually DELETE.
-    #
-    # All "-ING" action states allow self-transitions, which provides for a
-    # failed action to be retried later.
-    #
-    # DELETED is a "marker" state, for completeness. When we complete a dataset
-    # delete, we remove the SQL row entirely rather than transitioning from
-    # DELETING to DELETE. A failed delete will leave the dataset in DELETING
-    # state, which allows retry. If we actually set DELETED state, retaining
-    # the SQL row, we would allow "re-activation" via a PUT operation, so we
-    # allow the theoretical transition to UPLOADING.
-    transitions = {
-        States.UPLOADING: [States.UPLOADED, States.UPLOADING, States.DELETING],
-        States.UPLOADED: [States.INDEXING, States.DELETING],
-        States.INDEXING: [States.INDEXED, States.INDEXING, States.DELETING],
-        States.INDEXED: [States.INDEXING, States.DELETING],
-        States.DELETING: [States.DELETED, States.DELETING],
-        States.DELETED: [States.UPLOADING],
-    }
-
     # "Virtual" metadata key paths to access Dataset column data
     ACCESS = "dataset.access"
     OWNER = "dataset.owner"
-    CREATED = "dataset.created"
     UPLOADED = "dataset.uploaded"
 
     # Acceptable values of the "access" column
@@ -359,6 +276,9 @@ class Dataset(Database.Base):
     PUBLIC_ACCESS = "public"
     PRIVATE_ACCESS = "private"
     ACCESS_KEYWORDS = [PUBLIC_ACCESS, PRIVATE_ACCESS]
+
+    # Access policy for Dataset (public or private)
+    access = Column(String(255), unique=False, nullable=False, default="private")
 
     # Generated unique ID for Dataset row
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -369,9 +289,6 @@ class Dataset(Database.Base):
     # OIDC UUID of the owning user
     owner_id = Column(String(255), nullable=False)
 
-    # Access policy for Dataset (public or private)
-    access = Column(String(255), unique=False, nullable=False, default="private")
-
     # This is the MD5 hash of the dataset tarball, which we use as the unique
     # dataset resource ID throughout the Pbench server.
     resource_id = Column(String(255), unique=True, nullable=False)
@@ -379,21 +296,11 @@ class Dataset(Database.Base):
     # Time of Dataset record creation
     uploaded = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
 
-    # Time of the data collection run (from metadata.log `date`). This is the
-    # time the data was generated as opposed to the date it was imported into
-    # the server ("uploaded").
-    created = Column(TZDateTime, nullable=True, unique=False)
-
-    # Current state of the Dataset
-    state = Column(Enum(States), unique=False, nullable=False, default=States.UPLOADING)
-
-    # Timestamp when Dataset state was last changed
-    transition = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
-
-    # NOTE: this relationship defines a `dataset` property in `Metadata`
-    # that refers to the parent `Dataset` object.
     metadatas = relationship(
         "Metadata", back_populates="dataset", cascade="all, delete-orphan"
+    )
+    operations = relationship(
+        "Operation", back_populates="dataset", cascade="all, delete-orphan"
     )
 
     TARBALL_SUFFIX = ".tar.xz"
@@ -440,28 +347,6 @@ class Dataset(Database.Base):
         else:
             raise DatasetBadName(p)
 
-    @validates("state")
-    def validate_state(self, key: str, value: Any) -> States:
-        """Validate dataset state.
-
-        Validate that the value provided for the Dataset state is a member
-        of the States ENUM before it's applied by the SQLAlchemy constructor.
-
-        Args:
-            key : state
-            value : state ENUM member
-
-        Raises:
-            DatasetBadParameter : the value given doesn't resolve to a
-                States ENUM.
-
-        Returns:
-            state
-        """
-        if type(value) is not States:
-            raise DatasetBadParameterType(value, States)
-        return value
-
     @validates("access")
     def validate_access(self, key: str, value: str) -> str:
         """Validate the access key for the dataset.
@@ -480,65 +365,6 @@ class Dataset(Database.Base):
         if access in Dataset.ACCESS_KEYWORDS:
             return access
         raise DatasetBadParameterType(value, "access keyword")
-
-    @staticmethod
-    def create(**kwargs) -> "Dataset":
-        """A simple factory method to construct a new Dataset object and
-        add it to the database.
-
-        Args:
-            kwargs (dict) :
-                access : The dataset access policy
-                name : The dataset name (file path stem).
-                owner_id : The owner id of the dataset.
-                resource_id : The tarball MD5
-                state : The initial state of the new dataset.
-
-        Returns:
-            A new Dataset object initialized with the keyword parameters.
-        """
-        try:
-            dataset = Dataset(**kwargs)
-            dataset.add()
-        except Exception:
-            Dataset.logger.exception("Failed create: {}", kwargs.get("name"))
-            raise
-        return dataset
-
-    @staticmethod
-    def attach(resource_id: str, state: Optional[States] = None) -> "Dataset":
-        """Attempt to find the dataset with the specified dataset resource ID.
-
-        If state is specified, attach will attempt to advance the dataset to
-        that state.
-
-        NOTE: Unless you need to advance the state of the dataset, use
-        Dataset.query instead.
-
-        Args:
-            resource_id : The dataset resource ID.
-            state : The desired state to advance the dataset.
-
-        Raises:
-            DatasetSqlError : problem interacting with Database
-            DatasetNotFound : the specified dataset doesn't exist
-            DatasetBadParameterType : The state parameter isn't a States ENUM
-            DatasetTerminalStateViolation : dataset is in terminal state and
-                can't be advanced
-            DatasetBadStateTransition : dataset cannot be advanced to the
-                specified state
-
-        Returns:
-            A Dataset object in the desired state (if specified)
-        """
-        dataset = Dataset.query(resource_id=resource_id)
-
-        if dataset is None:
-            Dataset.logger.warning("Dataset {} not found", resource_id)
-            raise DatasetNotFound(resource_id=resource_id)
-        elif state:
-            dataset.advance(state)
-        return dataset
 
     @staticmethod
     def query(**kwargs) -> "Dataset":
@@ -571,15 +397,21 @@ class Dataset(Database.Base):
             metadata_log = Metadata.get(self, Metadata.METALOG).value
         except MetadataNotFound:
             metadata_log = None
+        operations = (
+            Database.db_session.query(Operation)
+            .filter(Operation.dataset_ref == self.id)
+            .all()
+        )
         return {
             "access": self.access,
-            "created": self.created.isoformat() if self.created else None,
             "name": self.name,
             "owner_id": self.owner_id,
-            "state": str(self.state),
-            "transition": self.transition.isoformat(),
             "uploaded": self.uploaded.isoformat(),
-            Metadata.METALOG: metadata_log,
+            "metalog": metadata_log,
+            "operations": {
+                o.name.name: {"state": o.state.name, "message": o.message}
+                for o in operations
+            },
         }
 
     def __str__(self) -> str:
@@ -589,37 +421,6 @@ class Dataset(Database.Base):
             string: Representation of the dataset
         """
         return f"({self.owner_id})|{self.name}"
-
-    def advance(self, new_state: States):
-        """Transition the Dataset object to the next valid state.
-
-        Modify the state of the Dataset object, if the new_state is
-        a valid transition from the dataset's current state.
-
-        Args:
-            new_state (State ENUM) : New desired state for the dataset
-
-        Raises:
-            DatasetBadParameterType : The state parameter isn't a States ENUM
-            DatasetBadStateTransition : The dataset does not support transition
-                from the current state to the desired state.
-        """
-        if type(new_state) is not States:
-            raise DatasetBadParameterType(new_state, States)
-        elif new_state not in self.transitions[self.state]:
-            self.logger.error(
-                "{}, Current state {} can't advance to {}", self, self.state, new_state
-            )
-            raise DatasetBadStateTransition(self, new_state)
-
-        # TODO: this would be a good place to generate an audit log
-        self.logger.debug(
-            "{}, Current state {}, advancing to {}", self, self.state, new_state
-        )
-
-        self.state = new_state
-        self.transition = datetime.datetime.utcnow()
-        self.update()
 
     def add(self):
         """Add the Dataset object to the database."""
@@ -654,6 +455,55 @@ class Dataset(Database.Base):
         except Exception:
             Database.db_session.rollback()
             raise
+
+
+class OperationName(enum.Enum):
+    """Track and orchestrate the progress of a dataset (tarball) through the
+    various stages of the Pbench server.
+    """
+
+    BACKUP = enum.auto()
+    DELETE = enum.auto()
+    INDEX = enum.auto()
+    REINDEX = enum.auto()
+    TOOLINDEX = enum.auto()
+    UNPACK = enum.auto()
+    UPDATE = enum.auto()
+    UPLOAD = enum.auto()
+
+
+class OperationState(enum.Enum):
+    """Record the status of an Operation as its enabled and retired"""
+
+    READY = enum.auto()
+    WORKING = enum.auto()
+    OK = enum.auto()
+    FAILED = enum.auto()
+
+
+class Operation(Database.Base):
+    """Orchestrate and track the operational flow of datasets through the
+    server.
+
+    This table is managed by the Sync class, but defined here with the parent
+    Dataset class since they're linked.
+
+    Columns:
+        id          Generated unique ID of table row
+        dataset_ref Dataset row ID (foreign key)
+        name        Operation name (OperationName enum)
+        status      Status of operation (OperationStatus enum)
+        message     Message explaining operation status
+    """
+
+    __tablename__ = "dataset_operations"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Enum(OperationName), index=True)
+    state = Column(Enum(OperationState))
+    message = Column(String(255))
+    dataset_ref = Column(Integer, ForeignKey("datasets.id"))
+    dataset = relationship("Dataset", back_populates="operations")
 
 
 class Metadata(Database.Base):
@@ -748,10 +598,6 @@ class Metadata(Database.Base):
     # {"server.reindex": True}
     REINDEX = "server.reindex"
 
-    # OPERATION tag to tell the Pbench Server cron tools which operation needs
-    # to be performed next, replacing the old STATE symlink subdirectories.
-    OPERATION = "server.operation"
-
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
     # to record an S3 object store key.) NOT YET USED.
     #
@@ -802,7 +648,7 @@ class Metadata(Database.Base):
     value = Column(JSON, unique=False, nullable=True)
     dataset_ref = Column(Integer, ForeignKey("datasets.id"), nullable=False)
 
-    dataset = relationship("Dataset", back_populates="metadatas", single_parent=True)
+    dataset = relationship("Dataset", back_populates="metadatas")
     user_id = Column(String(255), nullable=True)
 
     @validates("key")

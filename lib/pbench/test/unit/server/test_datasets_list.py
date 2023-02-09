@@ -122,7 +122,9 @@ class TestDatasetsList:
                     "name": dataset.name,
                     "resource_id": dataset.resource_id,
                     "metadata": {
-                        "dataset.created": datetime.datetime.isoformat(dataset.created)
+                        "dataset.uploaded": datetime.datetime.isoformat(
+                            dataset.uploaded
+                        )
                     },
                 }
             )
@@ -160,9 +162,17 @@ class TestDatasetsList:
                     "uperf_4",
                 ],
             ),
-            ("drb", {"start": "2000-01-01", "end": "2005-12-31"}, ["fio_2"]),
-            ("drb", {"start": "2005-01-01"}, ["drb", "fio_1"]),
-            ("drb", {"end": "2020-09-01"}, ["drb", "fio_1", "fio_2"]),
+            (
+                "drb",
+                {"start": "1978-06-25", "end": "2022-01-02"},
+                ["drb", "fio_1", "fio_2"],
+            ),
+            ("drb", {"start": "2005-01-01"}, ["drb", "fio_2"]),
+            (
+                "test",
+                {"end": "1980-01-01"},
+                ["test", "fio_1", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
             ("drb", {"end": "1970-09-01"}, []),
         ],
     )
@@ -177,7 +187,7 @@ class TestDatasetsList:
                 automatically supplemented with a metadata request term)
             results: A list of the dataset names we expect to be returned
         """
-        query.update({"metadata": ["dataset.created"]})
+        query.update({"metadata": ["dataset.uploaded"]})
         result = query_as(query, login, HTTPStatus.OK)
         assert result.json == self.get_results(results, query, server_config)
 
@@ -204,7 +214,7 @@ class TestDatasetsList:
                 automatically supplemented with a metadata request term)
             results: A list of the dataset names we expect to be returned
         """
-        query.update({"metadata": ["dataset.created"], "limit": 5})
+        query.update({"metadata": ["dataset.uploaded"], "limit": 5})
         result = query_as(query, login, HTTPStatus.OK)
         assert result.json == self.get_results(results, query, server_config)
 

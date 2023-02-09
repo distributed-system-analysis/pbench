@@ -15,7 +15,12 @@ from pbench.server.api.resources import (
 from pbench.server.api.resources.query_apis import ApiContext, ElasticBulkBase
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.audit import AuditType
-from pbench.server.database.models.datasets import Dataset, States
+from pbench.server.database.models.datasets import (
+    Dataset,
+    OperationName,
+    OperationState,
+)
+from pbench.server.sync import Sync
 
 
 class DatasetsDelete(ElasticBulkBase):
@@ -67,9 +72,9 @@ class DatasetsDelete(ElasticBulkBase):
         Returns:
             A generator for Elasticsearch bulk delete actions
         """
-
-        dataset.advance(States.DELETING)
         current_app.logger.info("Starting delete operation for dataset {}", dataset)
+        sync = Sync(logger=current_app.logger, component=OperationName.DELETE)
+        sync.update(dataset=dataset, state=OperationState.WORKING)
 
         # Generate a series of bulk delete documents, which will be passed to
         # the Elasticsearch bulk helper.

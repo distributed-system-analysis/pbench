@@ -39,9 +39,10 @@ from pbench.server.database.models.datasets import (
     DatasetDuplicate,
     DatasetNotFound,
     Metadata,
-    States,
+    OperationName,
+    OperationState,
 )
-from pbench.server.sync import Operation, Sync
+from pbench.server.sync import Sync
 from pbench.server.utils import UtcTimeHelper
 
 
@@ -437,11 +438,10 @@ class Upload(ApiBase):
             # Finally, update the dataset state and commit the `created` date
             # and state change.
             try:
-                dataset.advance(States.UPLOADED)
-                Sync(current_app.logger, "upload").update(
+                Sync(current_app.logger, OperationName.UPLOAD).update(
                     dataset=dataset,
-                    enabled=[Operation.BACKUP, Operation.UNPACK],
-                    status="ok",
+                    state=OperationState.OK,
+                    enabled=[OperationName.BACKUP, OperationName.UNPACK],
                 )
                 Audit.create(root=audit, status=AuditStatus.SUCCESS)
             except Exception as exc:

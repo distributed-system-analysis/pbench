@@ -21,7 +21,8 @@ from pbench.server.database.models.datasets import (
     Dataset,
     Metadata,
     MetadataBadKey,
-    States,
+    OperationName,
+    OperationState,
 )
 from pbench.server.indexing_tarballs import (
     Index,
@@ -29,24 +30,14 @@ from pbench.server.indexing_tarballs import (
     SigTermException,
     TarballData,
 )
-from pbench.server.sync import Operation
 from pbench.server.templates import TemplateError
 
 
 class FakeDataset:
-    logger: Logger
-    new_state: Optional[States] = None
-    advance_error: Optional[Exception] = None
-
     def __init__(self, name: str, resource_id: str):
         self.name = name
         self.resource_id = resource_id
         self.owner_id = 1
-
-    def advance(self, state: States):
-        if __class__.advance_error:
-            raise __class__.advance_error
-        __class__.new_state = state
 
     def __repr__(self) -> str:
         return self.name
@@ -54,7 +45,6 @@ class FakeDataset:
     @classmethod
     def reset(cls):
         cls.new_state = None
-        cls.advance_error = None
 
 
 class FakeMetadata:
@@ -210,36 +200,36 @@ class FakePbenchTarBall:
 
 
 class FakeSync:
-    tarballs: Dict[Operation, List[Dataset]] = {}
+    tarballs: Dict[OperationName, List[Dataset]] = {}
     called: List[str] = []
-    did: Optional[Operation] = None
-    updated: Optional[List[Operation]] = None
+    state: Optional[OperationState] = None
+    updated: Optional[List[OperationName]] = None
     errors: JSONOBJECT = {}
 
     @classmethod
     def reset(cls):
         cls.tarballs = {}
         cls.called = []
-        cls.did = None
+        cls.state = None
         cls.updated = None
         cls.errors = {}
 
-    def __init__(self, logger: Logger, component: str):
+    def __init__(self, logger: Logger, component: OperationName):
         self.logger = logger
         self.component = component
 
-    def next(self, operation: Operation) -> List[Dataset]:
-        __class__.called.append(f"next-{operation.name}")
-        assert operation in __class__.tarballs
-        return __class__.tarballs[operation]
+    def next(self) -> List[Dataset]:
+        __class__.called.append(f"next-{self.component.name}")
+        assert self.component in __class__.tarballs
+        return __class__.tarballs[self.component]
 
     def update(
         self,
         dataset: Dataset,
-        did: Optional[Operation],
-        enabled: Optional[List[Operation]],
+        state: Optional[OperationState],
+        enabled: Optional[list[OperationName]],
     ):
-        __class__.did = did
+        __class__.state = state
         __class__.updated = enabled
 
     def error(self, dataset: Dataset, message: str):
@@ -406,14 +396,14 @@ class TestIndexingTarballs:
         assert FakeReport.reported
 
     def test_collect_tb_empty(self, mocks, index):
-        FakeSync.tarballs[Operation.INDEX] = []
+        FakeSync.tarballs[OperationName.INDEX] = []
         tb_list = index.collect_tb()
         assert FakeSync.called == ["next-INDEX"]
         assert tb_list == (0, [])
 
     def test_collect_tb_missing_tb(self, mocks, index):
         mocks.setattr("pbench.server.indexing_tarballs.os.stat", __class__.mock_stat)
-        FakeSync.tarballs[Operation.INDEX] = [ds1, ds2]
+        FakeSync.tarballs[OperationName.INDEX] = [ds1, ds2]
         FakeMetadata.no_tarball = ["ds2"]
         tb_list = index.collect_tb()
         assert FakeSync.called == ["next-INDEX"]
@@ -423,7 +413,7 @@ class TestIndexingTarballs:
     def test_collect_tb_fail(self, mocks, index):
         mocks.setattr("pbench.server.indexing_tarballs.os.stat", __class__.mock_stat)
         __class__.stat_failure = {"ds1": OSError("something wicked that way goes")}
-        FakeSync.tarballs[Operation.INDEX] = [ds1, ds2]
+        FakeSync.tarballs[OperationName.INDEX] = [ds1, ds2]
         tb_list = index.collect_tb()
         assert FakeSync.called == ["next-INDEX"]
         assert tb_list == (0, [tarball_2])
@@ -432,7 +422,7 @@ class TestIndexingTarballs:
     def test_collect_tb_exception(self, mocks, index):
         mocks.setattr("pbench.server.indexing_tarballs.os.stat", __class__.mock_stat)
         __class__.stat_failure = {"ds1": Exception("the greater of two weevils")}
-        FakeSync.tarballs[Operation.INDEX] = [ds1, ds2]
+        FakeSync.tarballs[OperationName.INDEX] = [ds1, ds2]
         tb_list = index.collect_tb()
         assert FakeSync.called == ["next-INDEX"]
         assert tb_list == (12, [])
@@ -440,7 +430,7 @@ class TestIndexingTarballs:
 
     def test_collect_tb(self, mocks, index):
         mocks.setattr("pbench.server.indexing_tarballs.os.stat", self.mock_stat)
-        FakeSync.tarballs[Operation.INDEX] = [ds1, ds2]
+        FakeSync.tarballs[OperationName.INDEX] = [ds1, ds2]
         tb_list = index.collect_tb()
         assert FakeSync.called == ["next-INDEX"]
         assert tb_list == (0, [tarball_2, tarball_1])

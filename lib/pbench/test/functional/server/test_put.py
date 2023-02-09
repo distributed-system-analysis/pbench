@@ -55,7 +55,7 @@ class TestPut:
             print(f"Uploaded {t.name}")
 
         datasets = server_client.get_list(
-            metadata=["dataset.access", "server.tarball-path", "server.status"]
+            metadata=["dataset.access", "server.tarball-path", "dataset.operations"]
         )
         found = frozenset({d.name for d in datasets})
         expected = frozenset(tarballs.keys())
@@ -66,7 +66,7 @@ class TestPut:
                     continue
                 t = tarballs[dataset.name]
                 assert dataset.name in dataset.metadata["server.tarball-path"]
-                assert dataset.metadata["server.status"]["upload"] == "ok"
+                assert dataset.metadata["dataset.operations"]["UPLOAD"]["state"] == "OK"
                 assert t.access == dataset.metadata["dataset.access"]
         except HTTPError as exc:
             pytest.fail(
@@ -120,22 +120,28 @@ class TestPut:
             for dataset in datasets:
                 print(f"\t... on {dataset.metadata['server.tarball-path']}")
                 metadata = server_client.get_metadata(
-                    dataset.resource_id, ["dataset.state", "server.status"]
+                    dataset.resource_id, ["dataset.operations"]
                 )
-                state = metadata["dataset.state"]
-                status = metadata["server.status"]
-                stats = set(status.keys()) if status else set()
-                if state == "Indexed" and {"unpack", "index"} <= stats:
-                    # Don't wait for backup, and don't fail if we haven't as
-                    # it's completely independent from unpack/index; but if we
-                    # have backed up, check that the status was successful.
-                    if "backup" in stats:
-                        assert status["backup"] == "ok"
-                    assert status["unpack"] == "ok"
-                    assert status["index"] == "ok"
+                operations = metadata["dataset.operations"]
+                if "INDEX" in operations and operations["INDEX"]["state"] == "OK":
+                    assert operations["UPLOAD"]["state"] == "OK"
+                    assert operations["UNPACK"]["state"] == "OK"
+                    assert operations["INDEX"]["state"] == "OK"
+
+                    # Backup is asynchronous: it's OK if it hasn't completed
+                    # yet, but must be at least in READY state.
+                    assert operations["BACKUP"]["state"] in ("OK", "READY")
                     indexed.append(dataset)
                 else:
-                    print(f"\t\tstate={state!r} status={status!r}")
+                    done = ",".join(
+                        name for name, op in operations.items() if op["state"] == "OK"
+                    )
+                    status = ",".join(
+                        f"{name}={op['state']}"
+                        for name, op in operations.items()
+                        if op["state"] != "OK"
+                    )
+                    print(f"\t\tfinished {done!r}, awaiting {status!r}")
                     not_indexed.append(dataset)
         except HTTPError as exc:
             pytest.fail(
