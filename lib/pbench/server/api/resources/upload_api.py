@@ -39,8 +39,8 @@ from pbench.server.database.models.datasets import (
     DatasetDuplicate,
     DatasetNotFound,
     Metadata,
-    OperationName,
     MetadataBadValue,
+    OperationName,
     OperationState,
 )
 from pbench.server.sync import Sync
@@ -128,7 +128,7 @@ class Upload(ApiBase):
         identified rather than authorizing against an existing resource.
 
         Args:
-            params: API parameters
+            args: API parameters
                 URI parameters
                     filename: A filename matching the metadata of the uploaded tarball
                 Query parameters
