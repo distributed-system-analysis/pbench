@@ -427,3 +427,105 @@ class TestMetadataNamespace:
             Metadata.setvalue(ds, "server.deletion", value)
         assert str(exc.value) == message
         assert Metadata.getvalue(ds, "server.deletion") == deletion
+
+    def test_mutable_origin(self, server_config, attach_dataset):
+        """
+        Set the dataset origin origin metadata
+        """
+        ds = Dataset.query(name="drb")
+        Metadata.setvalue(ds, "server.origin", "RIYA")
+        assert Metadata.getvalue(ds, "server.origin") == "RIYA"
+
+    @pytest.mark.parametrize(
+        "value,message",
+        [
+            (
+                True,
+                "Metadata key 'server.origin' value True for dataset (3)|drb must be a string",
+            ),
+            (
+                [],
+                "Metadata key 'server.origin' value [] for dataset (3)|drb must be a string",
+            ),
+            (
+                1,
+                "Metadata key 'server.origin' value 1 for dataset (3)|drb must be a string",
+            ),
+        ],
+    )
+    def test_mutable_origin_bad(self, server_config, attach_dataset, value, message):
+        """
+        Try out some invalid deletion time values.
+
+        The value must be a valid date/time string, and it must be within the
+        server's maximum retention threshold from the dataset's upload time.
+        """
+        ds = Dataset.query(name="drb")
+        with pytest.raises(MetadataBadValue) as exc:
+            Metadata.setvalue(ds, "server.origin", value)
+        assert str(exc.value) == message
+        assert Metadata.getvalue(ds, "server.origin") is None
+
+    @pytest.mark.parametrize(
+        "value,result",
+        [
+            ("true", True),
+            ("false", False),
+            ("t", True),
+            ("f", False),
+            ("y", True),
+            ("yEs", True),
+            ("n", False),
+            ("No", False),
+            (1, True),
+            (0, False),
+            ("True", True),
+            ("FAlSe", False),
+        ],
+    )
+    def test_mutable_archiveonly(self, server_config, attach_dataset, value, result):
+        """
+        Try out some invalid deletion time values.
+
+        The value must be a valid date/time string, and it must be within the
+        server's maximum retention threshold from the dataset's upload time.
+        """
+        ds = Dataset.query(name="drb")
+        Metadata.setvalue(ds, "server.archiveonly", value)
+        assert Metadata.getvalue(ds, "server.archiveonly") == result
+
+    @pytest.mark.parametrize(
+        "value,message",
+        [
+            (
+                "ABC",
+                "Metadata key 'server.archiveonly' value 'ABC' for dataset (3)|drb must be a boolean",
+            ),
+            (
+                "Truth",
+                "Metadata key 'server.archiveonly' value 'Truth' for dataset (3)|drb must be a boolean",
+            ),
+            (
+                [],
+                "Metadata key 'server.archiveonly' value [] for dataset (3)|drb must be a boolean",
+            ),
+            (
+                1.00,
+                "Metadata key 'server.archiveonly' value 1.0 for dataset (3)|drb must be a boolean",
+            ),
+        ],
+    )
+    def test_mutable_archiveonly_bad(
+        self, server_config, attach_dataset, value, message
+    ):
+        """
+        Try out some invalid deletion time values.
+
+        The value must be a valid date/time string, and it must be within the
+        server's maximum retention threshold from the dataset's upload time.
+        """
+        ds = Dataset.query(name="drb")
+        with pytest.raises(MetadataBadValue) as exc:
+            Metadata.setvalue(ds, "server.archiveonly", value)
+        assert str(exc.value) == message
+        assert Metadata.getvalue(ds, "server.archiveonly") is None

@@ -606,10 +606,18 @@ class Metadata(Database.Base):
     # {"server.deletion": "2021-12-25"}
     DELETION = "server.deletion"
 
-    # REINDEX boolean flag to indicate when a dataset should be re-indexed
+    # ARCHIVEONLY allows a user on upload to designate that a dataset should
+    # not be unpacked or indexed by the server.
+    ARCHIVEONLY = "server.archiveonly"
+
+    # ORIGIN allows the put-shim server to record the name of the satellite
+    # server which this dataset was relayed.
     #
-    # {"server.reindex": True}
-    REINDEX = "server.reindex"
+    # NOTE: Support for 0.69 satellite and put-shim is short term: the name
+    # "origin" instead of "satellite" allows for more general application,
+    # especially with tarballs from which the Pbench Server can't extract
+    # `metadata.log`.
+    ORIGIN = "server.origin"
 
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
     # to record an S3 object store key.) NOT YET USED.
@@ -637,7 +645,14 @@ class Metadata(Database.Base):
     #
     # NOTE: the entire "global" and "user" namespaces are writable, but only
     # specific keys in the "dataset" and "server" namespaces can be modified.
-    USER_UPDATEABLE_METADATA = [DATASET_NAME, DELETION, GLOBAL, USER]
+    USER_UPDATEABLE_METADATA = [
+        DATASET_NAME,
+        ARCHIVEONLY,
+        DELETION,
+        ORIGIN,
+        GLOBAL,
+        USER,
+    ]
 
     # Metadata keys that clients can read
     METADATA_KEYS = sorted([DATASET, GLOBAL, SERVER, USER])
@@ -833,12 +848,16 @@ class Metadata(Database.Base):
         should be used in most contexts where client-visible metadata paths
         are used.
 
-        1) For 'dataset.name', we require a non-empty UTF-8 encoded string.
-        2) For 'server.deletion', the string must be an ISO date/time string,
-           and we fail otherwise. We store only the UTC date, as we don't
-           guarantee that deletion will occur at any specific time of day. The
-           maximum retention period (from upload) is defined by the server
-           configuration dataset-lifetime property.
+        1) 'dataset.name': a non-empty UTF-8 encoded string.
+        2) 'server.deletion': an ISO date/time string. We store only the UTC
+           date, as we don't guarantee that deletion will occur at any specific
+           time of day. The maximum retention period (from upload) is defined
+           by the server configuration dataset-lifetime property.
+        3) 'server.archiveonly': a boolean value. When true, the server will
+           not unpack or index the dataset. (Only meaningful on upload.)
+        4) 'server.origin': a string that the put-shim 0.69 server will use
+           to record the name of the 0.69 satellite server from which the
+           dataset is relayed.
 
         For any other key value, there's no required format.
 
@@ -851,24 +870,21 @@ class Metadata(Database.Base):
             A validated (and possibly altered) key value
 
         """
+        v = value
         if key == __class__.DATASET_NAME:
-            if type(value) is not str or not value:
+            if type(v) is not str or not v:
                 raise MetadataBadValue(
-                    dataset, key, value, "UTF-8 string of 1 to 1024 characters"
+                    dataset, key, v, "UTF-8 string of 1 to 1024 characters"
                 )
-
             try:
-                value.encode("utf-8", errors="strict")
+                v.encode("utf-8", errors="strict")
             except UnicodeDecodeError as u:
-                raise MetadataBadValue(dataset, key, value, "UTF-8 string") from u
-
-            return value
+                raise MetadataBadValue(dataset, key, v, "UTF-8 string") from u
         elif key == __class__.DELETION:
             try:
-                target = date_parser.parse(value).astimezone(datetime.timezone.utc)
+                target = date_parser.parse(v).astimezone(datetime.timezone.utc)
             except date_parser.ParserError as p:
-                raise MetadataBadValue(dataset, key, value, "date/time") from p
-
+                raise MetadataBadValue(dataset, key, v, "date/time") from p
             max_retention = ServerConfig.get(key=OPTION_DATASET_LIFETIME)
 
             # If 'dataset' was omitted, then assume the current UTC timestamp.
@@ -880,12 +896,27 @@ class Metadata(Database.Base):
             maximum = base_time + datetime.timedelta(days=int(max_retention.value))
             if target > maximum:
                 raise MetadataBadValue(
-                    dataset, key, value, f"date/time before {maximum:%Y-%m-%d}"
+                    dataset, key, v, f"date/time before {maximum:%Y-%m-%d}"
                 )
             target += __class__.ONE_DAY
-            return f"{target:%Y-%m-%d}"
-        else:
-            return value
+            v = f"{target:%Y-%m-%d}"
+        elif key == __class__.ARCHIVEONLY:
+            if type(v) is str:
+                if v.lower() in ("t", "true", "y", "yes"):
+                    v = True
+                elif v.lower() in ("f", "false", "n", "no"):
+                    v = False
+                else:
+                    raise MetadataBadValue(dataset, key, v, "boolean")
+            elif type(v) is int:
+                v = bool(v)
+            elif type(v) is not bool:
+                raise MetadataBadValue(dataset, key, v, "boolean")
+            return v
+        elif key == __class__.ORIGIN:
+            if type(v) is not str:
+                raise MetadataBadValue(dataset, key, v, "string")
+        return v
 
     @staticmethod
     def setvalue(dataset: Dataset, key: str, value: Any, user_id: Optional[str] = None):

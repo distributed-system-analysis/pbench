@@ -49,7 +49,6 @@ class FakeDataset:
 
 class FakeMetadata:
     INDEX_MAP = Metadata.INDEX_MAP
-    REINDEX = Metadata.REINDEX
     TARBALL_PATH = Metadata.TARBALL_PATH
     INDEX_MAP = Metadata.INDEX_MAP
 
@@ -516,7 +515,6 @@ class TestIndexingTarballs:
         )
         assert FakeMetadata.set_values == {
             "ds1": {
-                Metadata.REINDEX: False,
                 Metadata.INDEX_MAP: {"idx": ["a", "b"], "idx1": ["id1", "id2"]},
             }
         }

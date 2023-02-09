@@ -47,9 +47,9 @@ class TestPut:
         for t in TARBALL_DIR.glob("*.tar.xz"):
             a = access[cur_access]
             if a == "public":
-                metadata = "global.pbench.origin:test,user.pbench.access:public"
+                metadata = "server.origin:test,user.pbench.access:public"
             else:
-                metadata = None
+                metadata = "server.archiveonly:n"  # No effect, but is recorded
 
             cur_access = 0 if cur_access else 1
             tarballs[Dataset.stem(t)] = Tarball(t, a)
@@ -178,7 +178,8 @@ class TestPut:
             metadata=[
                 "server.tarball-path",
                 "dataset.access",
-                "global.pbench.origin",
+                "server.archiveonly",
+                "server.origin",
                 "user.pbench.access",
             ],
         )
@@ -190,11 +191,12 @@ class TestPut:
                     continue
                 not_indexed.append(dataset)
                 if dataset.metadata["user.pbench.access"] == "public":
-                    assert dataset.metadata["global.pbench.origin"] == "test"
+                    assert dataset.metadata["server.origin"] == "test"
                     assert dataset.metadata["dataset.access"] == "public"
                 else:
                     assert dataset.metadata["dataset.access"] == "private"
-                    assert dataset.metadata["global.pbench.origin"] is None
+                    assert dataset.metadata["server.origin"] is None
+                    assert dataset.metadata["server.archiveonly"] is False
                     assert dataset.metadata["user.pbench.access"] is None
         except HTTPError as exc:
             pytest.fail(

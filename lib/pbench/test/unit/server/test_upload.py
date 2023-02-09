@@ -393,6 +393,25 @@ class TestUpload:
             "metadata": {"global.pbench.test": "data"},
         }
 
+    @pytest.mark.freeze_time("1970-01-01")
+    def test_upload_bad_metadata_syntax(
+        self, client, pbench_drb_token, server_config, setup_ctrl, tarball
+    ):
+        """Test a dataset upload with a bad metadata syntax: we expect k:v."""
+        datafile, _, md5 = tarball
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_drb_token, md5),
+                query_string={"metadata": "global.pbench.test=data"},
+            )
+
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json == {
+            "message": "improper metadata syntax global.pbench.test=data must be 'k:v'"
+        }
+
     def test_upload_duplicate(
         self,
         client,
@@ -493,3 +512,68 @@ class TestUpload:
         assert audit[1].user_name == "drb"
         assert audit[1].reason == AuditReason.INTERNAL
         assert audit[1].attributes == {"message": "INTERNAL ERROR"}
+
+    @pytest.mark.freeze_time("1970-01-01")
+    def test_upload_archive(
+        self, client, pbench_drb_token, server_config, setup_ctrl, tarball
+    ):
+        """Test a successful archiveonly dataset upload."""
+        datafile, _, md5 = tarball
+        with datafile.open("rb") as data_fp:
+            response = client.put(
+                self.gen_uri(server_config, datafile.name),
+                data=data_fp,
+                headers=self.gen_headers(pbench_drb_token, md5),
+                query_string={"metadata": "server.archiveonly:t,server.origin:test"},
+            )
+
+        assert response.status_code == HTTPStatus.CREATED, repr(response.data)
+        name = Dataset.stem(datafile)
+
+        dataset = Dataset.query(resource_id=md5)
+        assert dataset is not None
+        assert dataset.resource_id == md5
+        assert dataset.name == name
+        assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
+        # assert Metadata.getvalue(dataset, Metadata.ARCHIVEONLY) is True
+        assert Metadata.getvalue(dataset, Metadata.ORIGIN) == "test"
+        assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-02"
+        assert Metadata.getvalue(dataset, "dataset.operations") == {
+            "BACKUP": {"state": "READY", "message": None},
+            "UPLOAD": {"state": "OK", "message": None},
+        }
+        assert self.cachemanager_created
+        assert dataset.name in self.cachemanager_created
+
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].id == 1
+        assert audit[0].root_id is None
+        assert audit[0].operation == OperationCode.CREATE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "upload"
+        assert audit[0].object_type == AuditType.DATASET
+        assert audit[0].object_id == md5
+        assert audit[0].object_name == name
+        assert audit[0].user_id == "3"
+        assert audit[0].user_name == "drb"
+        assert audit[0].reason is None
+        assert audit[0].attributes == {
+            "access": "private",
+            "metadata": {"server.archiveonly": True, "server.origin": "test"},
+        }
+        assert audit[1].id == 2
+        assert audit[1].root_id == 1
+        assert audit[1].operation == OperationCode.CREATE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "upload"
+        assert audit[1].object_type == AuditType.DATASET
+        assert audit[1].object_id == md5
+        assert audit[1].object_name == name
+        assert audit[1].user_id == "3"
+        assert audit[1].user_name == "drb"
+        assert audit[1].reason is None
+        assert audit[1].attributes == {
+            "access": "private",
+            "metadata": {"server.archiveonly": True, "server.origin": "test"},
+        }
