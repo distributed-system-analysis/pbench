@@ -352,33 +352,8 @@ def mock_connection(
         def get(self, path: str, **kwargs) -> MockResponse:
             if path.endswith(f"realms/{realm_name}"):
                 json_d = {"public_key": public_key}
-            elif path.endswith(f"realms/{realm_name}/.well-known/openid-configuration"):
-                json_d = {
-                    "userinfo_endpoint": f"{self.server_url}/userinfo",
-                    "introspection_endpoint": f"{self.server_url}/introspection",
-                }
-                if client_id == "us-missing-userinfo-ep":
-                    del json_d["userinfo_endpoint"]
-                elif client_id == "us-missing-introspection-ep":
-                    del json_d["introspection_endpoint"]
-                elif client_id == "us-empty-tokeninfo-ep":
-                    json_d["introspection_endpoint"] = ""
-            elif path.endswith("userinfo"):
-                json_d = {"path": path, "kwargs": kwargs}
             else:
                 raise Exception(f"MockConnection: unrecognized .get(path={path})")
-            return MockResponse(json_d)
-
-        def post(self, path: str, data: Dict, **kwargs) -> MockResponse:
-            if path.endswith("/introspection"):
-                if client_id == "us-raise-exc":
-                    raise OpenIDClientError(400, "Introspection failed")
-                cid = "other-client" if client_id == "us-other-aud" else client_id
-                json_d = {"aud": [cid], "data": data}
-                if client_id == "us-token-payload":
-                    json_d["sub"] = "67890"
-            else:
-                raise Exception(f"MockConnection: unrecognized .post(path={path})")
             return MockResponse(json_d)
 
     monkeypatch.setattr(pbench.server.auth, "Connection", MockConnection)
@@ -436,61 +411,8 @@ class TestOpenIDClient:
             oidc_client._pem_public_key
             == f"-----BEGIN PUBLIC KEY-----\n{public_key}\n-----END PUBLIC KEY-----\n"
         )
-        assert oidc_client._userinfo_endpoint.endswith("/userinfo")
-        assert oidc_client._tokeninfo_endpoint.endswith("/introspection")
 
-    def test_construct_oidc_client_fail_ep(self, monkeypatch):
-        """Verify .construct_oidc_client() failure mode where OpenIDClientError
-        is raised
-        """
-        # First failure should be caused by missing "userinfo" endpoint.
-        client_id = "us-missing-userinfo-ep"
-        config = mock_connection(monkeypatch, client_id)
-        with pytest.raises(OpenIDClientError):
-            OpenIDClient.construct_oidc_client(config)
-
-        # Second failure should be caused by missing "introspection" endpoint.
-        client_id = "us-missing-introspection-ep"
-        config = mock_connection(monkeypatch, client_id)
-        with pytest.raises(OpenIDClientError):
-            OpenIDClient.construct_oidc_client(config)
-
-    def test_token_introspect_online_no_ep(self, monkeypatch):
-        """Verify .token_introspect_online() with empty token information end
-        point
-        """
-        client_id = "us-empty-tokeninfo-ep"
-        public_key = "opqrstu"
-        config = mock_connection(monkeypatch, client_id, public_key)
-        oidc_client = OpenIDClient.construct_oidc_client(config)
-        json_d = oidc_client.token_introspect_online("my-token")
-        assert json_d is None
-
-    def test_token_introspect_online_not_aud(self, monkeypatch):
-        """Verify .token_introspect_online() with different audience."""
-        client_id = "us-other-aud"
-        public_key = "vwxyz01"
-        config = mock_connection(monkeypatch, client_id, public_key)
-        oidc_client = OpenIDClient.construct_oidc_client(config)
-        json_d = oidc_client.token_introspect_online("my-token")
-        assert json_d is None, f"{json_d!r}"
-
-    def test_token_introspect_online_succ(self, monkeypatch):
-        """Verify .token_introspect_online() with different audience."""
-        client_id = "us"
-        public_key = "2345678"
-        config = mock_connection(monkeypatch, client_id, public_key)
-        secret = config["openid-connect"]["secret"]
-        oidc_client = OpenIDClient.construct_oidc_client(config)
-        json_d = oidc_client.token_introspect_online("my-token")
-        assert json_d["aud"] == [client_id]
-        assert json_d["data"] == {
-            "client_id": client_id,
-            "client_secret": secret,
-            "token": "my-token",
-        }, f"{json_d!r}"
-
-    def test_token_introspect_offline_succ(self, monkeypatch, rsa_keys):
+    def test_token_introspect_succ(self, monkeypatch, rsa_keys):
         """Verify .token_introspect_offline() success path"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
@@ -514,10 +436,10 @@ class TestOpenIDClient:
         )
 
         # This is the target test case.
-        response = oidc_client.token_introspect_offline(token)
+        response = oidc_client.token_introspect(token)
         assert response == expected_payload
 
-    def test_token_introspect_offline_exp(self, monkeypatch, rsa_keys):
+    def test_token_introspect_exp(self, monkeypatch, rsa_keys):
         """Verify .token_introspect_offline() failure via expiration"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(
@@ -531,12 +453,12 @@ class TestOpenIDClient:
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
         with pytest.raises(OpenIDTokenInvalid) as exc:
-            oidc_client.token_introspect_offline(token)
+            oidc_client.token_introspect(token)
         assert (
             str(exc.value.__cause__) == "Signature has expired"
         ), f"{exc.value.__cause__}"
 
-    def test_token_introspect_offline_aud(self, monkeypatch, rsa_keys):
+    def test_token_introspect_aud(self, monkeypatch, rsa_keys):
         """Verify .token_introspect_offline() failure via audience error"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
@@ -547,10 +469,10 @@ class TestOpenIDClient:
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
         with pytest.raises(OpenIDTokenInvalid) as exc:
-            oidc_client.token_introspect_offline(token)
+            oidc_client.token_introspect(token)
         assert str(exc.value.__cause__) == "Invalid audience", f"{exc.value.__cause__}"
 
-    def test_token_introspect_offline_sig(self, monkeypatch, rsa_keys):
+    def test_token_introspect_sig(self, monkeypatch, rsa_keys):
         """Verify .token_introspect_offline() failure via signature error"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
@@ -564,26 +486,10 @@ class TestOpenIDClient:
 
         with pytest.raises(OpenIDTokenInvalid) as exc:
             # Make the signature invalid.
-            oidc_client.token_introspect_offline(token + "1")
+            oidc_client.token_introspect(token + "1")
         assert (
             str(exc.value.__cause__) == "Signature verification failed"
         ), f"{exc.value.__cause__}"
-
-    def test_get_userinfo(self, monkeypatch):
-        """Verify .get_userinfo() properly invokes Connection.get()"""
-        # Mock the Connection object and generate an OpenIDClient object.
-        client_id = "us"
-        config = mock_connection(monkeypatch, client_id)
-        oidc_client = OpenIDClient.construct_oidc_client(config)
-
-        # Ensure .get_userinfo() invokes Connection.get() with the correct
-        # parameters.
-        token = "the-token"
-        json_d = oidc_client.get_userinfo(token)
-        assert json_d == {
-            "kwargs": {"headers": {"Authorization": "Bearer the-token"}},
-            "path": "https://example.com/userinfo",
-        }
 
 
 @dataclass
@@ -776,61 +682,7 @@ class TestAuthModule:
         app = Flask("test-verify-auth-oidc-offline-invalid")
         app.logger = make_logger
         with app.app_context():
-            monkeypatch.setattr(oidc_client, "token_introspect_offline", tio_exc)
-            user = Auth.verify_auth(token)
-
-        assert user is None
-
-    def test_verify_auth_oidc_online(self, monkeypatch, rsa_keys, make_logger):
-        """Verify OIDC token online verification works via Auth.verify_auth()"""
-        # Use the client ID to direct the MockConnection class to return a
-        # token payload.
-        client_id = "us-token-payload"
-        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
-
-        # Mock the Connection object and generate an OpenIDClient object,
-        # installing it as Auth module's OIDC client.
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
-        oidc_client = OpenIDClient.construct_oidc_client(config)
-        monkeypatch.setattr(Auth, "oidc_client", oidc_client)
-
-        def tio_exc(token: str) -> JSON:
-            raise Exception("Token introspection offline failed for some reason")
-
-        app = Flask("test-verify-auth-oidc-online")
-        app.logger = make_logger
-        with app.app_context():
-            monkeypatch.setattr(oidc_client, "token_introspect_offline", tio_exc)
-            user = Auth.verify_auth(token)
-
-        assert user.id == "67890"
-
-    def test_verify_auth_oidc_online_fail(self, monkeypatch, rsa_keys, make_logger):
-        """Verify OIDC token online verification via Auth.verify_auth() fails
-        returning None
-        """
-        # Use the client ID to direct the online token introspection to raise
-        # an OpenIDClientError.
-        client_id = "us-raise-exc"
-        token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
-
-        # Mock the Connection object and generate an OpenIDClient object,
-        # installing it as Auth module's OIDC client.
-        config = mock_connection(
-            monkeypatch, client_id, public_key=rsa_keys["public_key"]
-        )
-        oidc_client = OpenIDClient.construct_oidc_client(config)
-        monkeypatch.setattr(Auth, "oidc_client", oidc_client)
-
-        def tio_exc(token: str) -> JSON:
-            raise Exception("Token introspection offline failed for some reason")
-
-        app = Flask("test-verify-auth-oidc-online-fail")
-        app.logger = make_logger
-        with app.app_context():
-            monkeypatch.setattr(oidc_client, "token_introspect_offline", tio_exc)
+            monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             user = Auth.verify_auth(token)
 
         assert user is None
