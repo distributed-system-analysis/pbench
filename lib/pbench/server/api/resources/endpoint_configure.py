@@ -178,18 +178,18 @@ class EndpointConfig(Resource):
         }
 
         try:
-            secret = self.server_config.get("openid-connect", "secret")
             client = self.server_config.get("openid-connect", "client")
             realm = self.server_config.get("openid-connect", "realm")
-            issuer = self.server_config.get("openid-connect", "server_url")
+            secret = self.server_config.get("openid-connect", "secret")
+            server = self.server_config.get("openid-connect", "server_url")
         except (NoOptionError, NoSectionError):
             pass
         else:
-            endpoints["openid-connect"] = {
+            endpoints["openid"] = {
                 "client": client,
                 "realm": realm,
-                "issuer": issuer,
                 "secret": secret,
+                "server": server,
             }
 
         try:
