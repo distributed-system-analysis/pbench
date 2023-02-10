@@ -12,7 +12,6 @@ from pbench.test.unit.agent.task.common import bad_tarball, tarball
 
 class TestResultsPush:
 
-    CTRL_TEXT = "controller.example.com"
     TOKN_SWITCH = "--token"
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
     ACCESS_SWITCH = "--access"
