@@ -305,7 +305,6 @@ class OpenIDClient:
             server_url = server_config.get("openid-connect", "server_url")
             client = server_config.get("openid-connect", "client")
             realm = server_config.get("openid-connect", "realm")
-            secret = server_config.get("openid-connect", "secret")
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 
@@ -313,7 +312,6 @@ class OpenIDClient:
             server_url=server_url,
             client_id=client,
             realm_name=realm,
-            client_secret_key=secret,
             verify=False,
         )
 
@@ -322,7 +320,6 @@ class OpenIDClient:
         server_url: str,
         client_id: str,
         realm_name: str,
-        client_secret_key: str,
         verify: bool = True,
         headers: Optional[Dict[str, str]] = None,
     ):
@@ -341,16 +338,24 @@ class OpenIDClient:
             server_url : OpenID Connect server auth url
             client_id : client id
             realm_name : realm name
-            client_secret_key : client secret key
             verify : True if require valid SSL
             headers : dict of custom header to pass to each HTML request
         """
         self.client_id = client_id
-        self._client_secret_key = client_secret_key
         self._realm_name = realm_name
 
         self._connection = Connection(server_url, headers, verify)
 
+        self._pem_public_key = self.get_oidc_public_key()
+
+    def __repr__(self):
+        return (
+            f"OpenIDClient(server_url={self._connection.server_url}, "
+            f"client_id={self.client_id}, realm_name={self._realm_name}, "
+            f"headers={self._connection.headers})"
+        )
+
+    def get_oidc_public_key(self):
         realm_public_key_uri = f"realms/{self._realm_name}"
         response_json = self._connection.get(realm_public_key_uri).json()
         public_key = response_json["public_key"]
@@ -360,14 +365,7 @@ class OpenIDClient:
             pem_public_key += f"{pk64}\n"
             public_key = public_key[64:]
         pem_public_key += "-----END PUBLIC KEY-----\n"
-        self._pem_public_key = pem_public_key
-
-    def __repr__(self):
-        return (
-            f"OpenIDClient(server_url={self._connection.server_url}, "
-            f"client_id={self.client_id}, realm_name={self._realm_name}, "
-            f"headers={self._connection.headers})"
-        )
+        return pem_public_key
 
     def token_introspect(self, token: str) -> JSON:
         """Utility method to decode access/Id tokens using the public key

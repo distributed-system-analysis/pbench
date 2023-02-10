@@ -79,7 +79,9 @@ class OptionsMethod(ApiBase):
 class TestApiBase:
     """Verify internal methods of the API base class."""
 
-    def test_method_validation(self, server_config, make_logger, monkeypatch):
+    def test_method_validation(
+        self, server_config, make_logger, monkeypatch, add_auth_connection_mock
+    ):
         # Create the temporary flask application.
         app = Flask("test-api-server")
         app.debug = True

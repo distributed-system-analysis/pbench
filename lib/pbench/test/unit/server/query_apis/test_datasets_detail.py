@@ -48,6 +48,7 @@ class TestDatasetsDetail(Commons):
         find_template,
         pbench_admin_token,
         user,
+        rsa_keys,
         expected_status,
     ):
         """
@@ -61,7 +62,9 @@ class TestDatasetsDetail(Commons):
             if user == "test_admin":
                 token = pbench_admin_token
             else:
-                token = generate_token(username=user)
+                token = generate_token(
+                    username=user, private_key=rsa_keys["private_key"]
+                )
             assert token
             headers = {"authorization": f"bearer {token}"}
 
