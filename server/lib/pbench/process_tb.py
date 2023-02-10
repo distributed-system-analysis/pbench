@@ -49,25 +49,30 @@ class ProcessTb:
         return receive_dir
 
     @staticmethod
-    def _results_push(controller: str, tb: Path, token: str):
-        """Runs Agent's `pbench-results-push` command with controller, tb
-        and token options
+    def _results_push(tb: Path, token: str, satellite_prefix: str = None):
+        """Runs Agent's `pbench-results-push` command with tb, token and
+        metadata options
 
         Args -
-            controller -- the name of the controller to be associated with the
-                          tar ball
             tb -- path of the tar ball
             token -- generated authorised token for Pbench user
+            satellite_prefix -- prefix of the pbench's satellite server
 
         Importance of this function is while running tests we get the
         ability to mock this function and test it easily.
         """
+        results_push = f"pbench-results-push {tb} --token={token}"
+
+        if satellite_prefix:
+            satellite_metadata = "server.origin:" + satellite_prefix
+            results_push += f" --metadata={satellite_metadata}"
+
         res = subprocess.run(
             [
                 "bash",
                 "-l",
                 "-c",
-                f"pbench-results-push {controller} {tb} --token={token}",
+                results_push,
             ],
             capture_output=True,
         )
@@ -95,9 +100,13 @@ class ProcessTb:
             tb = Path(str(tbmd5)[0 : -len(".md5")])
             tbdir = tb.parent
             controller = tbdir.name
+            satellite_prefix = ""
+
+            if "::" in controller:
+                satellite_prefix, controller = controller.split("::")
 
             try:
-                ProcessTb._results_push(controller, tb, self.token)
+                ProcessTb._results_push(tb, self.token, satellite_prefix)
             except Exception as e:
                 self.logger.error(
                     "{}: Unexpected Error while running Agent's 'pbench-result-push' command: {}",

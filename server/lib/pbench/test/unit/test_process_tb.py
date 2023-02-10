@@ -1,9 +1,9 @@
-import os
 import logging
-import pytest
-
+import os
 from pathlib import Path
 from typing import List
+
+import pytest
 
 from pbench.process_tb import ProcessTb, Results
 
@@ -72,7 +72,8 @@ class TestProcessTb:
         """checks normal processing when tar ball is not present"""
         receive_path = Path(TestProcessTb.receive_dir + "-002")
         bad_tarball = "bad_log.tar.xz"
-        bad_tb = receive_path / bad_tarball
+        ctrl = "sat::ctrl"
+        bad_tb = receive_path / ctrl / bad_tarball
 
         def mock_is_dir(self) -> bool:
             assert self == receive_path, f"Unexpected Results directory: {str(self)!r}"
@@ -80,9 +81,10 @@ class TestProcessTb:
 
         def mock_glob(self: Path, pattern: str) -> List[Path]:
             assert self == receive_path and pattern == "**/*.tar.xz.md5"
-            return [receive_path / (bad_tarball + ".md5")]
+            return [receive_path / ctrl / (bad_tarball + ".md5")]
 
-        def mock_results_push(ctrl: str, tb: Path, token: str) -> None:
+        def mock_results_push(tb: Path, token: str, sat_prefix: str) -> None:
+            assert sat_prefix == ctrl.split("::")[0]
             assert (
                 tb == bad_tb
             ), f"Unexpected tar ball, {tb!r} in mocked results_push function"
@@ -119,7 +121,7 @@ class TestProcessTb:
             assert self == receive_path and pattern == "**/*.tar.xz.md5"
             return [receive_path / (tarball + ".md5")]
 
-        def mock_results_push(ctrl: str, tb: Path, token: str) -> None:
+        def mock_results_push(tb: Path, token: str, sat_prefix: str) -> None:
             assert (
                 tb == good_tb
             ), f"Unexpected tar ball, {tb!r} in mocked results_push function"
@@ -148,7 +150,8 @@ class TestProcessTb:
         """verify processing of tar balls without any failure"""
         receive_path = Path(TestProcessTb.receive_dir + "-002")
         tarball = "log.tar.xz"
-        good_tb = receive_path / tarball
+        ctrl = "ctrl"
+        good_tb = receive_path / ctrl / tarball
 
         def mock_is_dir(self) -> bool:
             assert self == receive_path, f"Unexpected Results directory: {str(self)!r}"
@@ -156,9 +159,10 @@ class TestProcessTb:
 
         def mock_glob(self: Path, pattern: str) -> List[Path]:
             assert self == receive_path and pattern == "**/*.tar.xz.md5"
-            return [receive_path / (tarball + ".md5")]
+            return [receive_path / ctrl / (tarball + ".md5")]
 
-        def mock_results_push(ctrl: str, tb: Path, token: str) -> None:
+        def mock_results_push(tb: Path, token: str, sat_prefix: str) -> None:
+            assert not sat_prefix
             assert (
                 tb == good_tb
             ), f"Unexpected tar ball, {tb!r} in mocked results_push function"
@@ -200,7 +204,7 @@ class TestProcessTb:
             assert self == receive_path and pattern == "**/*.tar.xz.md5"
             return []
 
-        def mock_results_push(ctrl: str, tb: Path, token: str) -> None:
+        def mock_results_push(tb: Path, token: str, sat_prefix: str) -> None:
             assert False, "Unexpected call to mocked result_push function"
 
         expected_result = Results(nstatus="", ntotal=0, ntbs=0, nerr=0)
@@ -237,7 +241,7 @@ class TestProcessTb:
                 receive_path / (tarball + ".md5"),
             ]
 
-        def mock_results_push(ctrl: str, tb: Path, token: str) -> None:
+        def mock_results_push(tb: Path, token: str, sat_prefix: str) -> None:
             if tb == bad_tb:
                 raise FileNotFoundError(f"No such file or directory: '{tb.name}'")
             return
