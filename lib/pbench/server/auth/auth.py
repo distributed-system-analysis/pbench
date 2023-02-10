@@ -125,6 +125,8 @@ def verify_auth(auth_token: str) -> Optional[Union[User, InternalUser]]:
         an internally generated one, and an `InternalUser` object when the
         token is validated using the OpenID Connect client.
     """
+    if not auth_token:
+        return None
     user = None
     try:
         if oidc_client is not None:
@@ -164,7 +166,7 @@ def verify_auth_internal(auth_token: str) -> Optional[User]:
                 "verify_exp": True,
             },
         )
-    except jwt.InvalidSignatureError:
+    except (jwt.InvalidSignatureError, jwt.DecodeError):
         pass
     except jwt.ExpiredSignatureError:
         try:
