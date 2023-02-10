@@ -473,9 +473,6 @@ class Index:
                         finally:
                             if tb_res.success:
                                 try:
-                                    # In case this was a re-index, clear the
-                                    # REINDEX tag.
-                                    Metadata.setvalue(dataset, Metadata.REINDEX, False)
 
                                     # Because we're on the `finally` path, we
                                     # can get here without a PbenchTarBall

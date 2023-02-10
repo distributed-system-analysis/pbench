@@ -171,6 +171,7 @@ class TestInternalMetadata:
 
 class TestMetadataNamespace:
     def test_get_bad_syntax(self, attach_dataset):
+        """Try to get a key with bad path syntax."""
         ds = Dataset.query(name="drb")
         with pytest.raises(MetadataBadKey) as exc:
             Metadata.getvalue(ds, "global..foo")
@@ -236,6 +237,7 @@ class TestMetadataNamespace:
         assert metadata is None
 
     def test_set_bad_syntax(self, attach_dataset):
+        """Try to set a key with a trailing dot."""
         ds = Dataset.query(name="drb")
         with pytest.raises(MetadataBadKey) as exc:
             Metadata.setvalue(ds, "global.foo.", "irrelevant")
@@ -244,6 +246,7 @@ class TestMetadataNamespace:
         assert str(exc.value) == "Metadata key 'global.foo.' is not supported"
 
     def test_set_bad_characters(self, attach_dataset):
+        """Try to set a key with invalid characters."""
         ds = Dataset.query(name="drb")
         with pytest.raises(MetadataBadKey) as exc:
             Metadata.setvalue(ds, "global.*!foo", "irrelevant")
@@ -252,11 +255,15 @@ class TestMetadataNamespace:
         assert str(exc.value) == "Metadata key 'global.*!foo' is not supported"
 
     def test_get_novalue(self, attach_dataset):
+        """Test that an unset key returns None"""
         ds = Dataset.query(name="drb")
         assert Metadata.getvalue(ds, "global.email") is None
         assert Metadata.getvalue(ds, "global") is None
 
     def test_get_bad_path(self, attach_dataset):
+        """Trying to get a nested key value when an outer key in the path is
+        not a JSON object will fail.
+        """
         ds = Dataset.query(name="drb")
         Metadata.setvalue(ds, "global.contact", "hello")
         with pytest.raises(MetadataBadStructure) as exc:
@@ -270,6 +277,9 @@ class TestMetadataNamespace:
         )
 
     def test_set_bad_path(self, attach_dataset):
+        """When you try to insert a nested key value, the next outer key, if it
+        exists, must be a JSON object already.
+        """
         ds = Dataset.query(name="drb")
         Metadata.setvalue(ds, "global.contact", "hello")
         with pytest.raises(MetadataBadStructure) as exc:
@@ -283,6 +293,9 @@ class TestMetadataNamespace:
         )
 
     def test_get_outer_path(self, attach_dataset):
+        """Test that nested metadata keys are returned as part of the outer
+        structure.
+        """
         ds = Dataset.query(name="drb")
         Metadata.setvalue(ds, "global.value.hello.english", "hello")
         Metadata.setvalue(ds, "global.value.hello.espanol", "hola")
@@ -291,6 +304,7 @@ class TestMetadataNamespace:
         }
 
     def test_get_inner_path(self, attach_dataset):
+        """Test that we can access structured metadata at various levels."""
         ds = Dataset.query(name="drb")
         Metadata.setvalue(
             ds,
@@ -305,6 +319,7 @@ class TestMetadataNamespace:
         }
 
     def test_delete_with_metadata(self, attach_dataset):
+        """Test that metadata is deleted along with its parent dataset."""
         ds = Dataset.query(name="drb")
         Metadata.setvalue(
             ds,
@@ -330,12 +345,11 @@ class TestMetadataNamespace:
         assert metadata is None
 
     def test_setgetvalue_user(self, attach_dataset):
-        """
-        Verify that we can set and read independent values of "user." namespace
-        keys across two separate users plus a "non-owned" version (user None)
-        which is not supported by the current higher level access through the
-        server APIs. (In other words, the "user" SQL column can be None, as we
-        use this column only for the "user" key value.)
+        """Verify that we can set and read independent values of "user."
+        namespace keys across two separate users plus a "non-owned" version
+        (user None) which is not supported by the current higher level access
+        through the server APIs. (In other words, the "user" SQL column can be
+        None, as we use this column only for the "user" key value.)
         """
         ds = Dataset.query(name="drb")
         user1 = str(User.query(username="drb").id)
@@ -366,18 +380,15 @@ class TestMetadataNamespace:
             "X" * 1024,
         ],
     )
-    def test_mutable_dataset(self, attach_dataset, value):
-        """
-        Try setting a few valid names.
-        """
+    def test_mutable_dataset_name(self, attach_dataset, value):
+        """Try setting a few valid names."""
         ds = Dataset.query(name="drb")
         Metadata.setvalue(ds, "dataset.name", value)
         assert Metadata.getvalue(ds, "dataset")["name"] == value
 
     @pytest.mark.parametrize("value", ["", True, 1, ""])
-    def test_mutable_dataset_bad(self, attach_dataset, value):
-        """
-        Test the reaction to a "bad" string name.
+    def test_mutable_dataset_name_bad(self, attach_dataset, value):
+        """Test the reaction to a "bad" string name.
 
         NOTE: we don't try to test a string that's "too long" as in the sqlite3
         database we use for unit testing, where `varchar` isn't enforced, we'd
@@ -394,9 +405,7 @@ class TestMetadataNamespace:
         assert Metadata.getvalue(ds, "dataset.name") == name
 
     def test_mutable_server(self, server_config, attach_dataset):
-        """
-        Set the dataset deletion time to a valid date/time string
-        """
+        """Set the dataset deletion time to a valid date/time string"""
         ds = Dataset.query(name="drb")
         Metadata.setvalue(ds, "server.deletion", "1979-12-29 08:00-04:00")
         assert Metadata.getvalue(ds, "server.deletion") == "1979-12-30"
@@ -415,11 +424,9 @@ class TestMetadataNamespace:
         ],
     )
     def test_mutable_server_bad(self, server_config, attach_dataset, value, message):
-        """
-        Try out some invalid deletion time values.
-
-        The value must be a valid date/time string, and it must be within the
-        server's maximum retention threshold from the dataset's upload time.
+        """Try out some unacceptable values for server.deletion: the value must
+        be a date/time string within the configured maximum lifetime of the
+        dataset upload time.
         """
         ds = Dataset.query(name="drb")
         deletion = Metadata.getvalue(ds, "server.deletion")
@@ -427,3 +434,88 @@ class TestMetadataNamespace:
             Metadata.setvalue(ds, "server.deletion", value)
         assert str(exc.value) == message
         assert Metadata.getvalue(ds, "server.deletion") == deletion
+
+    def test_mutable_origin(self, server_config, attach_dataset):
+        """Set the dataset origin metadata"""
+        ds = Dataset.query(name="drb")
+        Metadata.setvalue(ds, "server.origin", "RIYA")
+        assert Metadata.getvalue(ds, "server.origin") == "RIYA"
+
+    @pytest.mark.parametrize(
+        "value,message",
+        [
+            (
+                True,
+                "Metadata key 'server.origin' value True for dataset (3)|drb must be a string",
+            ),
+            (
+                [],
+                "Metadata key 'server.origin' value [] for dataset (3)|drb must be a string",
+            ),
+            (
+                1,
+                "Metadata key 'server.origin' value 1 for dataset (3)|drb must be a string",
+            ),
+        ],
+    )
+    def test_mutable_origin_bad(self, server_config, attach_dataset, value, message):
+        """Test bad server.origin values."""
+        ds = Dataset.query(name="drb")
+        with pytest.raises(MetadataBadValue) as exc:
+            Metadata.setvalue(ds, "server.origin", value)
+        assert str(exc.value) == message
+        assert Metadata.getvalue(ds, "server.origin") is None
+
+    @pytest.mark.parametrize(
+        "value,result",
+        [
+            ("true", True),
+            ("false", False),
+            ("t", True),
+            ("f", False),
+            ("y", True),
+            ("yEs", True),
+            ("n", False),
+            ("No", False),
+            ("True", True),
+            ("FAlSe", False),
+            (True, True),
+            (False, False),
+        ],
+    )
+    def test_mutable_archiveonly(self, server_config, attach_dataset, value, result):
+        """Try out various acceptable values for server.archiveonly."""
+        ds = Dataset.query(name="drb")
+        Metadata.setvalue(ds, "server.archiveonly", value)
+        assert Metadata.getvalue(ds, "server.archiveonly") == result
+
+    @pytest.mark.parametrize(
+        "value,message",
+        [
+            (
+                "ABC",
+                "Metadata key 'server.archiveonly' value 'ABC' for dataset (3)|drb must be a boolean",
+            ),
+            (
+                "Truth",
+                "Metadata key 'server.archiveonly' value 'Truth' for dataset (3)|drb must be a boolean",
+            ),
+            (
+                [],
+                "Metadata key 'server.archiveonly' value [] for dataset (3)|drb must be a boolean",
+            ),
+            (
+                1.00,
+                "Metadata key 'server.archiveonly' value 1.0 for dataset (3)|drb must be a boolean",
+            ),
+        ],
+    )
+    def test_mutable_archiveonly_bad(
+        self, server_config, attach_dataset, value, message
+    ):
+        """Try out some unacceptable values for server.archiveonly"""
+        ds = Dataset.query(name="drb")
+        with pytest.raises(MetadataBadValue) as exc:
+            Metadata.setvalue(ds, "server.archiveonly", value)
+        assert str(exc.value) == message
+        assert Metadata.getvalue(ds, "server.archiveonly") is None

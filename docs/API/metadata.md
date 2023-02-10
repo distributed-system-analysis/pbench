@@ -84,8 +84,9 @@ Pbench Agent, including the full contents of a `metadata.log` file created
 while gathering results and during dataset packaging.
 
 This namespace includes the resource name, which can be modified by the owner
-of the dataset. All other key values in this namespace are controlled by the
-server and cannot be changed by the client.
+of the dataset by setting the metadata key `dataset.name`. All other key values
+in this namespace are controlled by the server and cannot be changed by the
+client.
 
 The `metadata.log` data is represented under the key `dataset.metalog` and can
 be queried as part of the entire dataset using the `dataset` key, as a discrete
@@ -96,13 +97,25 @@ subset using `dataset.metalog` or in specific subsets like
 
 This defines internal Pbench Server management state related to a dataset
 that's not inherent to the representation of the user's performance metrics.
-Most of this is not of much use to external clients, but can be observed.
+These are generally not useful to clients, and some can be large. There are
+three values in this namespace that clients can modify:
 
-The exception is `server.deletion`, which is a date after which the Pbench
-Server may choose to delete the dataset. This is computed when a dataset is
-received based on user profile preferences and server configuration; but it can
-be modified by the owner of the dataset, as long as the new timestamp remains
-within the maximum allowed server data retention period.
+* `server.deletion` is a date after which the Pbench Server may choose to
+delete the dataset. This is computed when a dataset is received based on user
+profile preferences and server configuration; but it can be modified by the
+owner of the dataset, as long as the new timestamp remains within the maximum
+allowed server data retention period.
+* `server.archiveonly` is a boolean that can be set to a boolean True when a
+dataset is first uploaded to prevent the Pbench Server from unpacking or
+indexing the dataset. That is, the server will archive the dataset and it can
+be retrieved for offline analysis but the server will do nothing else with it.
+The value can be specified as "t", "true", "y" or "yes" (case insensitive) for
+True, and "f", "false", "n", or "no" (also case insensitive) for False. Note
+that this is currently only interpreted by the Pbench Server when a dataset is
+first uploaded, and will inhibit unpacking and indexing the dataset. It can be
+changed later, but the server currently takes no action on such changes.
+* `server.origin` is a way to record the origin of a dataset. This is a string
+value, and the Pbench Server does not interpret it.
 
 ### Global namespace
 

@@ -302,11 +302,18 @@ class KeywordError(SchemaError):
         self.keywords = sorted(keywords if keywords else parameter.keywords)
 
     def __str__(self):
-        key = "keywords" if not self.parameter.key_path else "namespaces"
-        return (
-            f"Unrecognized {self.expected_type} {self.unrecognized!r} given"
-            f" for parameter {self.parameter.name}; allowed {key} are {self.keywords!r}"
+        """Return a readable representation of the error. If reporting an error
+        in "key path" validation, we don't report the set of acceptable values
+        as the list is awkward mixing both top-level and nested keys.
+        """
+        m = (
+            f"Unrecognized {self.expected_type} {self.unrecognized!r} for "
+            f"parameter {self.parameter.name}"
         )
+        if self.parameter.key_path:
+            return m + "."
+        else:
+            return m + f"; allowed keywords are {self.keywords!r}"
 
 
 class ListElementError(SchemaError):

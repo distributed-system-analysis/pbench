@@ -156,15 +156,20 @@ class Upload(ApiBase):
             for kw in args.query["metadata"]:
                 # an individual value for the "key" parameter is a simple key:value
                 # pair.
-                k, v = kw.split(":", maxsplit=1)
+                try:
+                    k, v = kw.split(":", maxsplit=1)
+                except ValueError:
+                    errors.append(f"improper metadata syntax {kw} must be 'k:v'")
+                    continue
                 k = k.lower()
                 if not Metadata.is_key_path(k, Metadata.USER_UPDATEABLE_METADATA):
                     errors.append(f"Key {k} is invalid or isn't settable")
                     continue
                 try:
-                    Metadata.validate(dataset=None, key=k, value=v)
+                    v = Metadata.validate(dataset=None, key=k, value=v)
                 except MetadataBadValue as e:
                     errors.append(str(e))
+                    continue
                 metadata[k] = v
             if errors:
                 raise APIAbort(
@@ -173,6 +178,8 @@ class Upload(ApiBase):
                     errors=errors,
                 )
 
+        # Determine whether we should enable the UNPACK operation.
+        should_unpack = not metadata.get(Metadata.SERVER_ARCHIVE, False)
         attributes = {"access": access, "metadata": metadata}
         filename = args.uri["filename"]
 
@@ -472,7 +479,7 @@ class Upload(ApiBase):
                 )
                 Metadata.setvalue(
                     dataset=dataset,
-                    key=Metadata.DELETION,
+                    key=Metadata.SERVER_DELETION,
                     value=UtcTimeHelper(deletion).to_iso_string(),
                 )
                 f = self._set_dataset_metadata(dataset, metadata)
@@ -483,13 +490,13 @@ class Upload(ApiBase):
                     HTTPStatus.INTERNAL_SERVER_ERROR, f"Unable to set metadata: {e!s}"
                 )
 
-            # Finally, update the dataset state and commit the `created` date
-            # and state change.
+            # Finally, update the operational state and Audit success.
             try:
+                enable = [OperationName.BACKUP]
+                if should_unpack:
+                    enable.append(OperationName.UNPACK)
                 Sync(current_app.logger, OperationName.UPLOAD).update(
-                    dataset=dataset,
-                    state=OperationState.OK,
-                    enabled=[OperationName.BACKUP, OperationName.UNPACK],
+                    dataset=dataset, state=OperationState.OK, enabled=enable
                 )
                 Audit.create(
                     root=audit, status=AuditStatus.SUCCESS, attributes=attributes
