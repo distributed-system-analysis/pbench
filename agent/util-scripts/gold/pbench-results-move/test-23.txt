@@ -12,6 +12,7 @@ Options:
   --controller TEXT              Override the default controller name
   --delete / --no-delete         Remove local data after successful copy
                                  [default: delete]
+  -m, --metadata TEXT            metadata to add information for server
   --show-server TEXT             Display information about the pbench server
                                  where the result(s) will be moved (Not
                                  implemented)

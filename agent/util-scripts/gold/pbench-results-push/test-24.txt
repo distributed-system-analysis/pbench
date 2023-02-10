@@ -11,6 +11,7 @@ Options:
   -C, --config PATH              Path to a pbench-agent configuration file
                                  (defaults to the '_PBENCH_AGENT_CONFIG'
                                  environment variable, if defined)  [required]
+  -m, --metadata TEXT            metadata to add information for server
   --token TEXT                   pbench server authentication token
                                  [required]
   --help                         Show this message and exit.
