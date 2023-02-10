@@ -444,7 +444,7 @@ def provide_metadata(attach_dataset):
     drb = Dataset.query(name="drb")
     Metadata.setvalue(dataset=drb, key="global.contact", value="me@example.com")
     Metadata.setvalue(
-        dataset=drb, key=Metadata.DELETION, value="2022-12-25 00:00-04:00"
+        dataset=drb, key=Metadata.SERVER_DELETION, value="2022-12-25 00:00-04:00"
     )
     Metadata.setvalue(
         dataset=drb,
@@ -472,7 +472,7 @@ def provide_metadata(attach_dataset):
     test = Dataset.query(name="test")
     Metadata.setvalue(dataset=test, key="global.contact", value="you@example.com")
     Metadata.setvalue(
-        dataset=test, key=Metadata.DELETION, value="1979-11-01T00:00+00:00"
+        dataset=test, key=Metadata.SERVER_DELETION, value="1979-11-01T00:00+00:00"
     )
     Metadata.create(
         dataset=test,

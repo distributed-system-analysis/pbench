@@ -111,9 +111,9 @@ indexing the dataset. That is, the server will archive the dataset and it can
 be retrieved for offline analysis but the server will do nothing else with it.
 The value can be specified as "t", "true", "y" or "yes" (case insensitive) for
 True, and "f", "false", "n", or "no" (also case insensitive) for False. Note
-that this is currently on interpreted by the Pbench Server when a dataset is
-first uploaded, and can inhibit unpacking and indexing the dataset. While it
-can be changed later, the server currently takes no action on such changes.
+that this is currently only interpreted by the Pbench Server when a dataset is
+first uploaded, and will inhibit unpacking and indexing the dataset. It can be
+changed later, but the server currently takes no action on such changes.
 * `server.origin` is a way to record the origin of a dataset. This is a string
 value, and the Pbench Server does not interpret it.
 

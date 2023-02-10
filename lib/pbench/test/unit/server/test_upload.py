@@ -21,6 +21,7 @@ from pbench.server.database.models.datasets import (
     Metadata,
     MetadataKeyError,
 )
+from pbench.test.unit.server import DRB_USER_ID
 
 
 class TestUpload:
@@ -351,7 +352,7 @@ class TestUpload:
         assert dataset.name == name
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
         assert Metadata.getvalue(dataset, "global") == {"pbench": {"test": "data"}}
-        assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-02"
+        assert Metadata.getvalue(dataset, Metadata.SERVER_DELETION) == "1972-01-02"
         assert Metadata.getvalue(dataset, "dataset.operations") == {
             "BACKUP": {"state": "READY", "message": None},
             "UNPACK": {"state": "READY", "message": None},
@@ -370,7 +371,7 @@ class TestUpload:
         assert audit[0].object_type == AuditType.DATASET
         assert audit[0].object_id == md5
         assert audit[0].object_name == name
-        assert audit[0].user_id == "3"
+        assert audit[0].user_id == DRB_USER_ID
         assert audit[0].user_name == "drb"
         assert audit[0].reason is None
         assert audit[0].attributes == {
@@ -385,7 +386,7 @@ class TestUpload:
         assert audit[1].object_type == AuditType.DATASET
         assert audit[1].object_id == md5
         assert audit[1].object_name == name
-        assert audit[1].user_id == "3"
+        assert audit[1].user_id == DRB_USER_ID
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
         assert audit[1].attributes == {
@@ -394,22 +395,36 @@ class TestUpload:
         }
 
     @pytest.mark.freeze_time("1970-01-01")
-    def test_upload_bad_metadata_syntax(
+    def test_upload_invalid_metadata(
         self, client, pbench_drb_token, server_config, setup_ctrl, tarball
     ):
-        """Test a dataset upload with a bad metadata syntax: we expect k:v."""
+        """Test a dataset upload with a bad metadata. We expect a failure, and
+        an 'errors' field in the response JSON explaining each error.
+
+        The metadata processor handles three errors: bad syntax (not k:v), an
+        invalid or non-writeabale key value, and a special key value that fails
+        validation. We test all three here, and assert that all three errors
+        are reported.
+        """
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp:
             response = client.put(
                 self.gen_uri(server_config, datafile.name),
                 data=data_fp,
                 headers=self.gen_headers(pbench_drb_token, md5),
-                query_string={"metadata": "global.pbench.test=data"},
+                query_string={
+                    "metadata": "server.archiveonly:abc,dataset.name=test,test.foo:1"
+                },
             )
 
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "improper metadata syntax global.pbench.test=data must be 'k:v'"
+            "message": "at least one specified metadata key is invalid",
+            "errors": [
+                "Metadata key 'server.archiveonly' value 'abc' for dataset must be a boolean",
+                "improper metadata syntax dataset.name=test must be 'k:v'",
+                "Key test.foo is invalid or isn't settable",
+            ],
         }
 
     def test_upload_duplicate(
@@ -496,7 +511,7 @@ class TestUpload:
         assert audit[0].object_type == AuditType.DATASET
         assert audit[0].object_id == md5
         assert audit[0].object_name == name
-        assert audit[0].user_id == "3"
+        assert audit[0].user_id == DRB_USER_ID
         assert audit[0].user_name == "drb"
         assert audit[0].reason is None
         assert audit[0].attributes == {"access": "private", "metadata": {}}
@@ -508,7 +523,7 @@ class TestUpload:
         assert audit[1].object_type == AuditType.DATASET
         assert audit[1].object_id == md5
         assert audit[1].object_name == name
-        assert audit[1].user_id == "3"
+        assert audit[1].user_id == DRB_USER_ID
         assert audit[1].user_name == "drb"
         assert audit[1].reason == AuditReason.INTERNAL
         assert audit[1].attributes == {"message": "INTERNAL ERROR"}
@@ -535,9 +550,9 @@ class TestUpload:
         assert dataset.resource_id == md5
         assert dataset.name == name
         assert dataset.uploaded.isoformat() == "1970-01-01T00:00:00+00:00"
-        # assert Metadata.getvalue(dataset, Metadata.ARCHIVEONLY) is True
-        assert Metadata.getvalue(dataset, Metadata.ORIGIN) == "test"
-        assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-02"
+        assert Metadata.getvalue(dataset, Metadata.SERVER_ARCHIVE) is True
+        assert Metadata.getvalue(dataset, Metadata.SERVER_ORIGIN) == "test"
+        assert Metadata.getvalue(dataset, Metadata.SERVER_DELETION) == "1972-01-02"
         assert Metadata.getvalue(dataset, "dataset.operations") == {
             "BACKUP": {"state": "READY", "message": None},
             "UPLOAD": {"state": "OK", "message": None},
@@ -555,7 +570,7 @@ class TestUpload:
         assert audit[0].object_type == AuditType.DATASET
         assert audit[0].object_id == md5
         assert audit[0].object_name == name
-        assert audit[0].user_id == "3"
+        assert audit[0].user_id == DRB_USER_ID
         assert audit[0].user_name == "drb"
         assert audit[0].reason is None
         assert audit[0].attributes == {
@@ -570,7 +585,7 @@ class TestUpload:
         assert audit[1].object_type == AuditType.DATASET
         assert audit[1].object_id == md5
         assert audit[1].object_name == name
-        assert audit[1].user_id == "3"
+        assert audit[1].user_id == DRB_USER_ID
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
         assert audit[1].attributes == {

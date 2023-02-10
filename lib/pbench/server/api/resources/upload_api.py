@@ -159,10 +159,8 @@ class Upload(ApiBase):
                 try:
                     k, v = kw.split(":", maxsplit=1)
                 except ValueError:
-                    raise APIAbort(
-                        HTTPStatus.BAD_REQUEST,
-                        f"improper metadata syntax {kw} must be 'k:v'",
-                    )
+                    errors.append(f"improper metadata syntax {kw} must be 'k:v'")
+                    continue
                 k = k.lower()
                 if not Metadata.is_key_path(k, Metadata.USER_UPDATEABLE_METADATA):
                     errors.append(f"Key {k} is invalid or isn't settable")
@@ -171,6 +169,7 @@ class Upload(ApiBase):
                     v = Metadata.validate(dataset=None, key=k, value=v)
                 except MetadataBadValue as e:
                     errors.append(str(e))
+                    continue
                 metadata[k] = v
             if errors:
                 raise APIAbort(
@@ -179,9 +178,8 @@ class Upload(ApiBase):
                     errors=errors,
                 )
 
-        # Determine whether we should enable the UNPACK operation. Don't ONLY
-        # if the ARCHIVEONLY metadata key is present and set to True.
-        should_unpack = not metadata.get(Metadata.ARCHIVEONLY, False)
+        # Determine whether we should enable the UNPACK operation.
+        should_unpack = not metadata.get(Metadata.SERVER_ARCHIVE, False)
         attributes = {"access": access, "metadata": metadata}
         filename = args.uri["filename"]
 
@@ -481,7 +479,7 @@ class Upload(ApiBase):
                 )
                 Metadata.setvalue(
                     dataset=dataset,
-                    key=Metadata.DELETION,
+                    key=Metadata.SERVER_DELETION,
                     value=UtcTimeHelper(deletion).to_iso_string(),
                 )
                 f = self._set_dataset_metadata(dataset, metadata)

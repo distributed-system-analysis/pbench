@@ -604,20 +604,14 @@ class Metadata(Database.Base):
     # settings when the dataset is created.
     #
     # {"server.deletion": "2021-12-25"}
-    DELETION = "server.deletion"
+    SERVER_DELETION = "server.deletion"
 
     # ARCHIVEONLY allows a user on upload to designate that a dataset should
     # not be unpacked or indexed by the server.
-    ARCHIVEONLY = "server.archiveonly"
+    SERVER_ARCHIVE = "server.archiveonly"
 
-    # ORIGIN allows the put-shim server to record the name of the satellite
-    # server which this dataset was relayed.
-    #
-    # NOTE: Support for 0.69 satellite and put-shim is short term: the name
-    # "origin" instead of "satellite" allows for more general application,
-    # especially with tarballs from which the Pbench Server can't extract
-    # `metadata.log`.
-    ORIGIN = "server.origin"
+    # ORIGIN allows the client to record the source of the dataset.
+    SERVER_ORIGIN = "server.origin"
 
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
     # to record an S3 object store key.) NOT YET USED.
@@ -647,10 +641,10 @@ class Metadata(Database.Base):
     # specific keys in the "dataset" and "server" namespaces can be modified.
     USER_UPDATEABLE_METADATA = [
         DATASET_NAME,
-        ARCHIVEONLY,
-        DELETION,
-        ORIGIN,
         GLOBAL,
+        SERVER_ARCHIVE,
+        SERVER_DELETION,
+        SERVER_ORIGIN,
         USER,
     ]
 
@@ -855,9 +849,8 @@ class Metadata(Database.Base):
            by the server configuration dataset-lifetime property.
         3) 'server.archiveonly': a boolean value. When true, the server will
            not unpack or index the dataset. (Only meaningful on upload.)
-        4) 'server.origin': a string that the put-shim 0.69 server will use
-           to record the name of the 0.69 satellite server from which the
-           dataset is relayed.
+        4) 'server.origin': a string that can be used to track the origin of a
+           dataset.
 
         For any other key value, there's no required format.
 
@@ -880,7 +873,7 @@ class Metadata(Database.Base):
                 v.encode("utf-8", errors="strict")
             except UnicodeDecodeError as u:
                 raise MetadataBadValue(dataset, key, v, "UTF-8 string") from u
-        elif key == __class__.DELETION:
+        elif key == __class__.SERVER_DELETION:
             try:
                 target = date_parser.parse(v).astimezone(datetime.timezone.utc)
             except date_parser.ParserError as p:
@@ -900,7 +893,7 @@ class Metadata(Database.Base):
                 )
             target += __class__.ONE_DAY
             v = f"{target:%Y-%m-%d}"
-        elif key == __class__.ARCHIVEONLY:
+        elif key == __class__.SERVER_ARCHIVE:
             if type(v) is str:
                 if v.lower() in ("t", "true", "y", "yes"):
                     v = True
@@ -908,12 +901,9 @@ class Metadata(Database.Base):
                     v = False
                 else:
                     raise MetadataBadValue(dataset, key, v, "boolean")
-            elif type(v) is int:
-                v = bool(v)
             elif type(v) is not bool:
                 raise MetadataBadValue(dataset, key, v, "boolean")
-            return v
-        elif key == __class__.ORIGIN:
+        elif key == __class__.SERVER_ORIGIN:
             if type(v) is not str:
                 raise MetadataBadValue(dataset, key, v, "string")
         return v

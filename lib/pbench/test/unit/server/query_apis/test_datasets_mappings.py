@@ -101,7 +101,7 @@ class TestDatasetsMappings:
             assert response.status_code == HTTPStatus.BAD_REQUEST
             assert (
                 response.json["message"]
-                == "Unrecognized keyword ['bad_data_object_view'] given for parameter dataset_view; allowed keywords are ['contents', 'iterations', 'summary', 'timeseries']"
+                == "Unrecognized keyword ['bad_data_object_view'] for parameter dataset_view; allowed keywords are ['contents', 'iterations', 'summary', 'timeseries']"
             )
 
     def test_with_db_error(self, capinternal, client, server_config):

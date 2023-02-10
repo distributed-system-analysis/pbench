@@ -405,6 +405,21 @@ class PbenchServerClient:
                 raise_error=False,
             )
 
+    def remove(self, dataset_id: str) -> requests.Response:
+        """Delete (remove) a dataset resource.
+
+        Args:
+            dataset_id: the resource ID of the targeted dataset
+
+        Returns:
+            The POST response object
+        """
+        return self.post(
+            api=API.DATASETS_DELETE,
+            uri_params={"dataset": dataset_id},
+            raise_error=False,
+        )
+
     def get_list(self, **kwargs) -> Iterator[Dataset]:
         """Return a list of datasets matching the specific search criteria and
         with the requested metadata items.

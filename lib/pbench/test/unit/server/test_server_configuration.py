@@ -63,7 +63,7 @@ class TestServerConfiguration:
     def test_get_bad_keys(self, query_get):
         response = query_get("xyzzy", HTTPStatus.BAD_REQUEST)
         assert response.json == {
-            "message": "Unrecognized keyword ['xyzzy'] given for parameter key; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized keyword ['xyzzy'] for parameter key; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-state']"
         }
 
     def test_get1(self, query_get):
@@ -109,7 +109,7 @@ class TestServerConfiguration:
     def test_put_bad_key(self, query_put):
         response = query_put(key="fookey", expected_status=HTTPStatus.BAD_REQUEST)
         assert response.json == {
-            "message": "Unrecognized keyword ['fookey'] given for parameter key; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized keyword ['fookey'] for parameter key; allowed keywords are ['dataset-lifetime', 'server-banner', 'server-state']"
         }
 
     def test_put_bad_keys(self, query_put):

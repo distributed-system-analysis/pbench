@@ -294,7 +294,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed namespaces are ['dataset.name', 'global', 'server.archiveonly', 'server.deletion', 'server.origin', 'user']"
+            "message": "Unrecognized JSON keys ['what', 'xyzzy'] for parameter metadata."
         }
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
@@ -304,7 +304,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON key ['dataset.access'] given for parameter metadata; allowed namespaces are ['dataset.name', 'global', 'server.archiveonly', 'server.deletion', 'server.origin', 'user']"
+            "message": "Unrecognized JSON key ['dataset.access'] for parameter metadata."
         }
 
     def test_put_nowrite(self, query_get_as, query_put_as):

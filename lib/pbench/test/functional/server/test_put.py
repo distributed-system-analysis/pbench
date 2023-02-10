@@ -9,7 +9,7 @@ import time
 import pytest
 from requests.exceptions import HTTPError
 
-from pbench.client import API, PbenchServerClient
+from pbench.client import PbenchServerClient
 from pbench.client.types import Dataset
 
 TARBALL_DIR = Path("lib/pbench/test/functional/server/tarballs")
@@ -47,9 +47,11 @@ class TestPut:
         for t in TARBALL_DIR.glob("*.tar.xz"):
             a = access[cur_access]
             if a == "public":
-                metadata = "server.origin:test,user.pbench.access:public"
+                metadata = (
+                    "server.origin:test,user.pbench.access:public,server.archiveonly:n"
+                )
             else:
-                metadata = "server.archiveonly:n"  # No effect, but is recorded
+                metadata = None
 
             cur_access = 0 if cur_access else 1
             tarballs[Dataset.stem(t)] = Tarball(t, a)
@@ -116,6 +118,36 @@ class TestPut:
             response.json()["message"]
             == "File extension not supported, must be .tar.xz"
         )
+
+    @staticmethod
+    def test_archive_only(server_client: PbenchServerClient, login_user):
+        """Try to upload a new dataset with the archiveonly option set, and
+        validate that it doesn't get enabled for unpacking or indexing."""
+        tarball = next(iter((TARBALL_DIR / "bad").glob("*.tar.xz")))
+        md5 = Dataset.md5(tarball)
+        response = server_client.upload(tarball, metadata={"server.archiveonly:y"})
+        assert (
+            response.status_code == HTTPStatus.CREATED
+        ), f"upload returned unexpected status {response.status_code}, {response.text}"
+        metadata = server_client.get_metadata(
+            md5, ["dataset.operations", "server.archiveonly"]
+        )
+        assert metadata["server.archiveonly"] is True
+
+        # NOTE: we could wait here; however, the UNPACK operation is only
+        # enabled by upload, and INDEX is only enabled by UNPACK: so if they're
+        # not here immediately after upload, they'll never be here.
+        operations = metadata["dataset.operations"]
+        assert "UNPACK" not in operations
+        assert "INDEX" not in operations
+        assert operations["UPLOAD"]["state"] == "OK"
+        assert operations["BACKUP"]["state"] in ("OK", "READY", "WORKING")
+
+        # Delete it so we can run the test case again without manual cleanup
+        response = server_client.remove(md5)
+        assert (
+            response.ok
+        ), f"delete failed with {response.status_code}, {response.text}"
 
     @staticmethod
     def check_indexed(server_client: PbenchServerClient, datasets):
@@ -193,10 +225,11 @@ class TestPut:
                 if dataset.metadata["user.pbench.access"] == "public":
                     assert dataset.metadata["server.origin"] == "test"
                     assert dataset.metadata["dataset.access"] == "public"
+                    assert dataset.metadata["server.archiveonly"] is False
                 else:
                     assert dataset.metadata["dataset.access"] == "private"
                     assert dataset.metadata["server.origin"] is None
-                    assert dataset.metadata["server.archiveonly"] is False
+                    assert dataset.metadata["server.archiveonly"] is None
                     assert dataset.metadata["user.pbench.access"] is None
         except HTTPError as exc:
             pytest.fail(
@@ -262,10 +295,8 @@ class TestPut:
         for t in TARBALL_DIR.glob("*.tar.xz"):
             resource_id = datasets_hash.get(t.name)
             assert resource_id, f"Expected to find tar ball {t.name} to delete"
-            response = server_client.post(
-                api=API.DATASETS_DELETE,
-                uri_params={"dataset": resource_id},
-                raise_error=False,
-            )
-            assert response.ok, f"{response.text}"
+            response = server_client.remove(resource_id)
+            assert (
+                response.ok
+            ), f"delete failed with {response.status_code}, {response.text}"
             print(f"Deleted {t.name}")
