@@ -13,39 +13,34 @@ import { uid } from "../utils/helper";
 export const authenticationRequest = () => async (dispatch, getState) => {
     try {
       const endpoints = getState().apiEndpoint.endpoints;
-      const oidcServer = endpoints["openid-connect"]?.issuer;
-      const oidcRealm = endpoints["openid-connect"]?.realm;
-      const oidcClient = endpoints["openid-connect"]?.client;
+      const oidcServer = endpoints.openid.server;
+      const oidcRealm = endpoints.openid.realm;
+      const oidcClient = endpoints.openid.client;
       // URI parameters ref: https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint
       // Refer Step 3 of pbench/docs/user_authentication/third_party_token_management.md
-      let req = oidcServer + '/realms/' + oidcRealm + '/protocol/openid-connect/auth';
-      req += '?client_id=' + oidcClient;
-      req += '&response_type=code';
-      req += '&redirect_uri=' + window.location.href.split('?')[0];
-      req += '&scope=profile';
-      req += '&prompt=login';
-      req += '&max_age=120';
-      window.location.href = req;
+      const uri = `${oidcServer}/realms/${oidcRealm}/protocol/openid-connect/auth`;
+      const queryParams = [
+        'client_id=' + oidcClient,
+        'response_type=code',
+        'redirect_uri=' + window.location.href.split('?')[0],
+        'scope=profile',
+        'prompt=login',
+        'max_age=120'
+      ];
+      window.location.href = uri + '?' + queryParams.join('&');
     } catch (error) {
       const alerts = getState().userAuth.alerts;
-      let alert = {};
-      if (error?.response) {
-        alert = {
-          title: error?.response?.data?.message,
+      dispatch(error?.response
+        ? toggleLoginBtn(true)
+        : { type: TYPES.OPENID_ERROR }
+      );
+      const alert = {
+          title: error?.response ? error.response.data?.message : error?.message,
           key: uid(),
-        };
-        dispatch(toggleLoginBtn(true));
-      } else {
-        alert = {
-          title: error?.message,
-          key: uid(),
-        };
-        dispatch({ type: TYPES.OPENID_ERROR });
-      }
-      alerts.push(alert);
+      };
       dispatch({
         type: TYPES.USER_NOTION_ALERTS,
-        payload: alerts,
+        payload: [...alerts, alert],
       });
       dispatch({ type: TYPES.COMPLETED });
     }
