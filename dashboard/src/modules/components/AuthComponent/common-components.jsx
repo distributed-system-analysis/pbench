@@ -18,10 +18,10 @@ import {
 import { CheckIcon, CloseIcon, TimesIcon } from "@patternfly/react-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { authenticationRequest } from "actions/authActions";
+import { authenticationRequest, loadTokens } from "actions/authActions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PBenchLogo from "assets/logo/pbench_logo.svg";
-import React from "react";
+import React, { useEffect } from "react";
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { movePage } from "actions/authActions";
 import { passwordConstraintsText } from "./signupFormData";
@@ -85,6 +85,9 @@ export const AuthForm = () => {
   const navigatePage = (toPage) => {
     dispatch(movePage(toPage, navigate));
   };
+  useEffect(() => {
+    dispatch(loadTokens());
+  }, );
   return (
     <Card className="auth-card">
       <CardTitle>

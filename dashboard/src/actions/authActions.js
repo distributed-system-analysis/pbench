@@ -7,7 +7,124 @@ import Cookies from "js-cookie";
 import { SUCCESS } from "assets/constants/overviewConstants";
 import { showToast } from "actions/toastActions";
 import { uid } from "../utils/helper";
+import { fetchEndpoints } from "actions/endpointAction";
 
+
+/**
+ * Get the key value.
+ * @param {key} key can be a string.
+ * @return {value} a string value of a key
+ */
+export function getQueryVariable (key) {
+    const query = window.location.search.substring(1);
+    const vars = query.split('&');
+    let code = "";
+    for (let i = 0; i < vars.length; i++) {
+      const pair = vars[i].split('=');
+      if (pair[0] === key) {
+        code = pair[1];
+      }
+      // else return "no-idea";
+    }
+    return code;
+
+}
+
+/**
+ * Get user details from the OIDC server.
+ * @param {endpoints} endpoints from the getState.
+ * @return {user} a dict value of a user details obtained from the token
+ */
+export function getOIDCUserDetails(endpoints) {
+    const reqUser = new XMLHttpRequest();
+    const OIDCToken = Cookies.get("token");
+    const oidcServer = endpoints.openid.server;
+    const oidcRealm = endpoints.openid.realm;
+    const uri = `${oidcServer}/realms/${oidcRealm}/protocol/openid-connect/userinfo`;
+    let userPayload = {};
+    return new Promise((resolve, reject) => {
+      reqUser.onreadystatechange = function() {
+        if (reqUser.readyState === 4) {
+          const response = JSON.parse(reqUser.responseText);
+          userPayload = {
+            "username": response?.preferred_username,
+            "email": response?.email,
+            "first_name": response?.given_name,
+            "last_name": response?.family_name,
+          };
+          resolve(userPayload);
+        }
+      }
+      reqUser.open('GET', uri, false);
+      reqUser.setRequestHeader('Content-type', 'application/json');
+      reqUser.setRequestHeader('Authorization', 'Bearer ' + OIDCToken);
+      reqUser.send();
+     });
+}
+
+export const loadTokens = () => async (dispatch, getState) => {
+    const code = getQueryVariable('code');
+
+    if (code !== "") {
+      let endpoints = getState().apiEndpoint.endpoints;
+      if (!("openid" in endpoints)){
+          await dispatch(fetchEndpoints);
+      }
+      endpoints = getState().apiEndpoint.endpoints;
+
+      const oidcServer = endpoints["openid"]?.server
+      const oidcRealm = endpoints["openid"]?.realm
+      const oidcClient = endpoints["openid"]?.client
+      const uri = `${oidcServer}/realms/${oidcRealm}/protocol/openid-connect/token`;
+      const queryParams = [
+        'grant_type=authorization_code',
+        'client_id=' + oidcClient,
+        'code=' + code,
+        'redirect_uri=' + window.location.href.split('?')[0],
+      ];
+
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = async function () {
+        if (req.readyState === 4) {
+          const response = JSON.parse(req.responseText);
+          const keepUser = getState().userAuth.keepLoggedIn;
+          const expiryTime = keepUser
+            ? CONSTANTS.EXPIRY_KEEPUSER_DAYS
+            : CONSTANTS.EXPIRY_DEFAULT_DAYS;
+          Cookies.set("isLoggedIn", true, { expires: expiryTime });
+          Cookies.set("token", response["access_token"], {
+            expires: response["expires_in"],
+          });
+          let userPayload = {};
+          await getOIDCUserDetails(endpoints).then(res => userPayload = res);
+          dispatch({
+            type: TYPES.GET_USER_DETAILS,
+            payload: userPayload,
+          });
+          Cookies.set("refresh_token", response["refresh_token"], {
+            expires: response["refresh_expires_in"],
+          });
+          Cookies.set("username", userPayload.username, {
+            expires: expiryTime,
+          });
+          const loginDetails = {
+            isLoggedIn: true,
+            token: response["access_token"],
+            username: userPayload.username,
+          };
+          dispatch({
+            type: TYPES.SET_LOGIN_DETAILS,
+            payload: loginDetails,
+          });
+          dispatch(showToast(SUCCESS, "Logged in successfully!"));
+        }
+        dispatch({ type: TYPES.COMPLETED });
+      }
+      req.open('POST', uri);
+      req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      req.send(queryParams.join('&'));
+    }
+}
 
 // Create an Authentication Request
 export const authenticationRequest = () => async (dispatch, getState) => {
@@ -23,7 +140,7 @@ export const authenticationRequest = () => async (dispatch, getState) => {
         'client_id=' + oidcClient,
         'response_type=code',
         'redirect_uri=' + window.location.href.split('?')[0],
-        'scope=profile',
+        'scope=openid profile',
         'prompt=login',
         'max_age=120'
       ];
