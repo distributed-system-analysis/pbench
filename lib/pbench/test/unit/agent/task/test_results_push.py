@@ -108,11 +108,8 @@ class TestResultsPush:
         )
         assert result.exit_code == 2
         assert (
-            result.stderr.find(
-                "Invalid value for 'RESULT_TB_NAME': "
-                "File 'pbench.sat:FOO' does not exist."
-            )
-            > -1
+            "Invalid value for 'RESULT_TB_NAME': "
+            "File 'pbench.sat:FOO' does not exist." in result.stderr
         )
 
     @staticmethod
@@ -130,6 +127,28 @@ class TestResultsPush:
         )
         assert result.exit_code == 2
         assert result.stderr.find("unexpected extra argument") > -1
+
+    @staticmethod
+    @responses.activate
+    def test_multiple_meta_args_single_option():
+        """Test normal operation when all arguments and options are specified"""
+
+        TestResultsPush.add_http_mock_response()
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.TOKN_SWITCH,
+                TestResultsPush.TOKN_TEXT,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_TEST + "," + TestResultsPush.META_TEXT_FOO,
+                tarball,
+            ],
+        )
+        assert result.exit_code == 0, result.stderr
+        assert result.stderr == "File uploaded successfully\n"
 
     @staticmethod
     @responses.activate

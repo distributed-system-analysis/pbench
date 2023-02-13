@@ -21,7 +21,11 @@ def results_common_options(f):
             required=False,
             default=[],
             multiple=True,
-            help="metadata to add information for server",
+            help=(
+                "list of metadata keys to be sent on PUT."
+                "Option needs to be specified multiple times for multiple values"
+                "Format: key:value"
+            ),
         ),
         click.option(
             "--token",

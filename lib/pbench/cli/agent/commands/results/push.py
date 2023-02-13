@@ -15,7 +15,7 @@ class ResultsPush(BaseCommand):
     def __init__(self, context: CliContext):
         super().__init__(context)
 
-    def execute(self, metadata: List) -> int:
+    def execute(self) -> int:
         tarball_len, tarball_md5 = md5sum(self.context.result_tb_name)
         crt = CopyResultTb(
             self.context.result_tb_name,
@@ -24,7 +24,9 @@ class ResultsPush(BaseCommand):
             self.config,
             self.logger,
         )
-        crt.copy_result_tb(self.context.token, self.context.access, metadata)
+        crt.copy_result_tb(
+            self.context.token, self.context.access, self.context.metadata
+        )
         return 0
 
 
@@ -63,9 +65,10 @@ def main(
     context.result_tb_name = result_tb_name
     context.token = token
     context.access = access
+    context.metadata = metadata
 
     try:
-        rv = ResultsPush(context).execute(metadata)
+        rv = ResultsPush(context).execute()
     except Exception as exc:
         click.echo(exc, err=True)
         rv = 1

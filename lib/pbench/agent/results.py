@@ -324,8 +324,8 @@ class CopyResultTb:
             access: keyword that identifies whether a dataset needs
                 to be published public or private.  Optional:  if omitted
                 the result will be the server default.
-            metadata: multiple or single additional metadata keys
-                that are required to be sent on PUT.
+            metadata: list of metadata keys to be sent on PUT. (Optional)
+                Format: key:value
 
         Raises:
             RuntimeError     if a connection to the server fails

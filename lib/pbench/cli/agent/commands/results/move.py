@@ -31,9 +31,7 @@ class MoveResults(BaseCommand):
     def __init__(self, context: CliContext):
         super().__init__(context)
 
-    def execute(
-        self, metadata: List, single_threaded: bool, delete: bool = True
-    ) -> int:
+    def execute(self, single_threaded: bool, delete: bool = True) -> int:
         runs_copied = 0
         failures = 0
         no_of_tb = 0
@@ -107,7 +105,7 @@ class MoveResults(BaseCommand):
                         self.logger,
                     )
                     crt.copy_result_tb(
-                        self.context.token, self.context.access, metadata
+                        self.context.token, self.context.access, self.context.metadata
                     )
                 except Exception as exc:
                     if isinstance(exc, (CopyResultTb.FileUploadError, RuntimeError)):
@@ -241,12 +239,13 @@ def main(
 
     context.access = access
     context.token = token
+    context.metadata = metadata
 
     if show_server:
         click.echo("WARNING -- Option '--show-server' is not implemented", err=True)
 
     try:
-        rv = MoveResults(context).execute(metadata, xz_single_threaded, delete=delete)
+        rv = MoveResults(context).execute(xz_single_threaded, delete=delete)
     except Exception as exc:
         click.echo(exc, err=True)
         rv = 1

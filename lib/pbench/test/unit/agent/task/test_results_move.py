@@ -119,8 +119,9 @@ class TestMoveResults:
         )
         assert (
             result.exit_code == 2
-        ), f"Expected success exit code of 0: exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
+        ), f"Expected exit code of 2: exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
         assert result.stderr, f"Usage: '{result.stderr}', stdout: '{result.stdout}'"
+        assert "Error: Got unexpected extra argument (pbench.sat:FOO)" in result.stderr
 
     @staticmethod
     @responses.activate
