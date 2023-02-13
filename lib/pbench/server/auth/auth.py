@@ -182,31 +182,50 @@ def verify_auth_oidc(auth_token: str) -> Optional[InternalUser]:
     """Verify a token provided to the Pbench server which was obtained from a
     third party identity provider.
 
+    Note: Upon token introspection if we get a valid token, we import the
+    available user information from the token into our internal User database.
+
     Args:
         auth_token : Token to authenticate
 
     Returns:
         InternalUser object if the verification succeeds, None on failure.
     """
+    user = None
     try:
         token_payload = oidc_client.token_introspect(token=auth_token)
     except OpenIDTokenInvalid:
-        token_payload = None
+        pass
     except Exception:
         current_app.logger.exception(
             "Unexpected exception occurred while verifying the auth token {}",
             auth_token,
         )
-        token_payload = None
-    return (
-        None
-        if token_payload is None
-        else InternalUser.create(
-            # FIXME - `client_id` is the value pulled from the Pbench Server
-            # "openid-connect" "client" field in the configuration file.  This
-            # needs to be an ID from the OpenID Connect response payload (online
-            # case) or decoded token (offline case).
-            client_id=oidc_client.client_id,
-            token_payload=token_payload,
-        )
-    )
+        pass
+    else:
+        user_id = token_payload["sub"]
+        user = User.query(oidc_id=user_id)
+        if not user:
+            audiences = token_payload.get("resource_access", {})
+            try:
+                oidc_client_roles = audiences[oidc_client.client_id].get("roles", [])
+            except KeyError:
+                oidc_client_roles = []
+            username = token_payload.get("preferred_username")
+            profile = {
+                User.USER: {
+                    "email": token_payload.get("email"),
+                    "first_name": token_payload.get("given_name"),
+                    "last_name": token_payload.get("family_name"),
+                },
+                User.SERVER: {
+                    "roles": oidc_client_roles,
+                    "registered_on": datetime.datetime.now().strftime(
+                        "%m/%d/%Y, %H:%M:%S"
+                    ),
+                },
+            }
+            user = User(oidc_id=user_id, username=username, profile=profile)
+            user.add()
+
+    return user

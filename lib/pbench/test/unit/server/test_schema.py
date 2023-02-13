@@ -126,11 +126,8 @@ class TestParamType:
     ):
         user = User(
             id=1,
+            oidc_id="12345",
             username="drb",
-            password="password",
-            first_name="first_name",
-            last_name="last_name",
-            email="test@test.com",
         )
 
         def ok(username: str) -> User:
@@ -177,10 +174,7 @@ class TestParamType:
         user = User(
             id=1,
             username="drb",
-            password="password",
-            first_name="first_name",
-            last_name="last_name",
-            email="test@test.com",
+            oidc_id="12345",
         )
 
         def ok(username: str) -> User:

@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Integer, String
 
 from pbench.server.database.database import Database
 
@@ -13,12 +13,6 @@ class ActiveTokens(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     token = Column(String(500), unique=True, nullable=False, index=True)
     created = Column(DateTime, nullable=False)
-    user_id = Column(
-        Integer,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        # no need to add index=True, all FKs have indexes
-    )
 
     def __init__(self, auth_token: str):
         self.token = auth_token

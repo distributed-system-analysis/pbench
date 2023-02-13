@@ -391,6 +391,8 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
         ) from e
 
     if not user:
+        # TODO: Should we change the status to FORBIDDEN as we dont want other
+        # users to know about the usernames in our db
         raise ConversionError(value, "username", http_status=HTTPStatus.NOT_FOUND)
 
     return str(user.id)
@@ -1484,13 +1486,11 @@ class ApiBase(Resource):
         for i in requested_items:
             if Metadata.is_key_path(i, Metadata.METADATA_KEYS):
                 native_key = Metadata.get_native_key(i)
-                user_id = None
+                user: Optional[User] = None
                 if native_key == Metadata.USER:
-                    user_id = Auth.get_current_user_id()
+                    user = Auth.token_auth.current_user()
                 try:
-                    metadata[i] = Metadata.getvalue(
-                        dataset=dataset, key=i, user_id=user_id
-                    )
+                    metadata[i] = Metadata.getvalue(dataset=dataset, key=i, user=user)
                 except MetadataError:
                     metadata[i] = None
             else:

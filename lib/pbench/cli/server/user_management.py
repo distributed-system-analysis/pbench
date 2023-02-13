@@ -1,3 +1,5 @@
+import datetime
+
 import click
 
 from pbench import BadConfig
@@ -6,10 +8,8 @@ from pbench.cli.server import config_setup
 from pbench.cli.server.options import common_options
 from pbench.server.database.models.users import Roles, User
 
-USER_LIST_ROW_FORMAT = "{0:15}\t{1:15}\t{2:15}\t{3:15}\t{4:20}"
-USER_LIST_HEADER_ROW = USER_LIST_ROW_FORMAT.format(
-    "Username", "First Name", "Last Name", "Registered On", "Email"
-)
+USER_LIST_ROW_FORMAT = "{0:15}\t{1:15}"
+USER_LIST_HEADER_ROW = USER_LIST_ROW_FORMAT.format("Username", "oidc id")
 
 
 # User create CLI
@@ -31,11 +31,10 @@ def user_command_cli(context):
     help="pbench server account username (will prompt if unspecified)",
 )
 @click.option(
-    "--password",
+    "--oidc-id",
     prompt=True,
-    hide_input=True,
     required=True,
-    help="pbench server account password (will prompt if unspecified)",
+    help="OIDC server user id (will prompt if unspecified)",
 )
 @click.option(
     "--email",
@@ -63,7 +62,7 @@ def user_command_cli(context):
 def user_create(
     context: object,
     username: str,
-    password: str,
+    oidc_id: str,
     email: str,
     first_name: str,
     last_name: str,
@@ -73,11 +72,20 @@ def user_create(
         config_setup(context)
         user = User(
             username=username,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            role=role if role else "",
+            oidc_id=oidc_id,
+            profile={
+                "user": {
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "email": email,
+                },
+                "server": {
+                    "roles": [role] if role else [],
+                    "registered_on": datetime.datetime.now().strftime(
+                        "%m/%d/%Y, %H:%M:%S"
+                    ),
+                },
+            },
         )
         user.add()
         if user.is_admin():
@@ -100,9 +108,14 @@ def user_create(
 def user_delete(context: object, username: str) -> None:
     try:
         # Delete the the user with specified username
+        user = User.query(username=username)
         config_setup(context)
-        User.delete(username=username)
-        rv = 0
+        if not user:
+            click.echo(f"User {username} does not exist", err=True)
+            rv = 1
+        else:
+            user.delete()
+            rv = 0
     except Exception as exc:
         click.echo(exc, err=True)
         rv = 2 if isinstance(exc, BadConfig) else 1
@@ -126,10 +139,7 @@ def user_list(context: object) -> None:
             click.echo(
                 USER_LIST_ROW_FORMAT.format(
                     user.username,
-                    user.first_name,
-                    user.last_name,
-                    user.registered_on.strftime("%Y-%m-%d"),
-                    user.email,
+                    user.oidc_id,
                 )
             )
 
@@ -145,11 +155,6 @@ def user_list(context: object) -> None:
 @user_command_cli.command()
 @common_options
 @click.argument("updateuser")
-@click.option(
-    "--username",
-    required=False,
-    help="Specify the new username",
-)
 @click.option(
     "--email",
     required=False,
@@ -175,7 +180,6 @@ def user_list(context: object) -> None:
 def user_update(
     context: object,
     updateuser: str,
-    username: str,
     first_name: str,
     last_name: str,
     email: str,
@@ -191,23 +195,27 @@ def user_update(
             rv = 1
         else:
             dict_to_update = {}
-            if username:
-                dict_to_update["username"] = username
-
+            user_fields = {}
+            server_fields = {}
             if first_name:
-                dict_to_update["first_name"] = first_name
+                user_fields["first_name"] = first_name
 
             if last_name:
-                dict_to_update["last_name"] = last_name
+                user_fields["last_name"] = last_name
 
             if email:
-                dict_to_update["email"] = email
+                user_fields["email"] = email
 
             if role:
-                dict_to_update["role"] = role
+                server_fields["role"] = [role]
+
+            if user_fields:
+                dict_to_update["user"] = user_fields
+            if server_fields:
+                dict_to_update["server"] = server_fields
 
             # Update the user
-            user.update(**dict_to_update)
+            user.update(new_profile=dict_to_update)
 
             click.echo(f"User {updateuser} updated")
             rv = 0

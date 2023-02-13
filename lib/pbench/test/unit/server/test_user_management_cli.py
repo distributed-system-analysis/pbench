@@ -10,11 +10,18 @@ from pbench.server.database.models.users import User
 def create_user():
     user = User(
         username=TestUserManagement.USER_TEXT,
-        password=TestUserManagement.PSWD_TEXT,
-        first_name=TestUserManagement.FIRST_NAME_TEXT,
-        last_name=TestUserManagement.LAST_NAME_TEXT,
-        email=TestUserManagement.EMAIL_TEXT,
-        registered_on=TestUserManagement.USER_CREATE_TIMESTAMP,
+        oidc_id=TestUserManagement.OIDC_ID_TEXT,
+        profile={
+            "user": {
+                "first_name": TestUserManagement.FIRST_NAME_TEXT,
+                "last_name": TestUserManagement.LAST_NAME_TEXT,
+                "email": TestUserManagement.EMAIL_TEXT,
+            },
+            "server": {
+                "roles": [],
+                "registered_on": datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+            },
+        },
     )
     return user
 
@@ -24,7 +31,7 @@ def mock_valid_list():
     return [user]
 
 
-def mock_valid_delete(**kwargs):
+def mock_valid_delete(obj):
     return
 
 
@@ -43,18 +50,16 @@ def server_config_env(on_disk_server_config, monkeypatch):
 
 class TestUserManagement:
     USER_SWITCH = "--username"
-    PSWD_SWITCH = "--password"
-    PSWD_PROMPT = "Password: "
+    OIDC_SWITCH = "--oidc-id"
     EMAIL_SWITCH = "--email"
     FIRST_NAME_SWITCH = "--first-name"
     LAST_NAME_SWITCH = "--last-name"
     ROLE_SWITCH = "--role"
     USER_TEXT = "test_user"
-    PSWD_TEXT = "password"
+    OIDC_ID_TEXT = "12345"
     EMAIL_TEXT = "test@domain.com"
     FIRST_NAME_TEXT = "First"
     LAST_NAME_TEXT = "Last"
-    USER_CREATE_TIMESTAMP = datetime.datetime.now()
 
     @staticmethod
     def test_help():
@@ -64,13 +69,15 @@ class TestUserManagement:
         assert str(result.stdout).startswith("Usage:")
 
     @staticmethod
-    def test_valid_user_registration_with_password_input(server_config):
+    def test_valid_user_registration(server_config):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             cli.user_create,
             args=[
                 TestUserManagement.USER_SWITCH,
                 TestUserManagement.USER_TEXT,
+                TestUserManagement.OIDC_SWITCH,
+                TestUserManagement.OIDC_ID_TEXT,
                 TestUserManagement.EMAIL_SWITCH,
                 TestUserManagement.EMAIL_TEXT,
                 TestUserManagement.FIRST_NAME_SWITCH,
@@ -78,13 +85,9 @@ class TestUserManagement:
                 TestUserManagement.LAST_NAME_SWITCH,
                 TestUserManagement.LAST_NAME_TEXT,
             ],
-            input=f"{TestUserManagement.PSWD_TEXT}\n",
         )
         assert result.exit_code == 0, result.stderr
-        assert (
-            result.stdout
-            == f"{TestUserManagement.PSWD_PROMPT}\n" + "User test_user registered\n"
-        )
+        assert result.stdout == "User test_user registered\n"
 
     @staticmethod
     def test_admin_user_creation(server_config):
@@ -94,8 +97,8 @@ class TestUserManagement:
             args=[
                 TestUserManagement.USER_SWITCH,
                 TestUserManagement.USER_TEXT,
-                TestUserManagement.PSWD_SWITCH,
-                TestUserManagement.PSWD_TEXT,
+                TestUserManagement.OIDC_SWITCH,
+                TestUserManagement.OIDC_ID_TEXT,
                 TestUserManagement.EMAIL_SWITCH,
                 TestUserManagement.EMAIL_TEXT,
                 TestUserManagement.FIRST_NAME_SWITCH,
@@ -117,8 +120,8 @@ class TestUserManagement:
             args=[
                 TestUserManagement.USER_SWITCH,
                 TestUserManagement.USER_TEXT,
-                TestUserManagement.PSWD_SWITCH,
-                TestUserManagement.PSWD_TEXT,
+                TestUserManagement.OIDC_SWITCH,
+                TestUserManagement.OIDC_ID_TEXT,
                 TestUserManagement.EMAIL_SWITCH,
                 TestUserManagement.EMAIL_TEXT,
                 TestUserManagement.FIRST_NAME_SWITCH,
@@ -162,11 +165,7 @@ class TestUserManagement:
             == cli.USER_LIST_HEADER_ROW
             + "\n"
             + cli.USER_LIST_ROW_FORMAT.format(
-                TestUserManagement.USER_TEXT,
-                TestUserManagement.FIRST_NAME_TEXT,
-                TestUserManagement.LAST_NAME_TEXT,
-                TestUserManagement.USER_CREATE_TIMESTAMP.strftime("%Y-%m-%d"),
-                TestUserManagement.EMAIL_TEXT,
+                TestUserManagement.USER_TEXT, TestUserManagement.OIDC_ID_TEXT
             )
             + "\n"
         )
@@ -175,7 +174,6 @@ class TestUserManagement:
     @pytest.mark.parametrize(
         "switch, value",
         [
-            (USER_SWITCH, "new_test"),
             (EMAIL_SWITCH, "new_test@domain.com"),
             (ROLE_SWITCH, "ADMIN"),
             (FIRST_NAME_SWITCH, "newfirst"),

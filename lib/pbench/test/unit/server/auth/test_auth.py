@@ -624,7 +624,7 @@ class TestAuthModule:
         with app.app_context():
             user = Auth.verify_auth(token)
 
-        assert user.id == "12345"
+        assert user.oidc_id == "12345"
 
     def test_verify_auth_oidc_offline_invalid(self, monkeypatch, rsa_keys, make_logger):
         """Verify OIDC token offline verification via Auth.verify_auth() fails
