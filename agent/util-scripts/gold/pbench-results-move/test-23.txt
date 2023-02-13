@@ -12,7 +12,9 @@ Options:
   --controller TEXT              Override the default controller name
   --delete / --no-delete         Remove local data after successful copy
                                  [default: delete]
-  -m, --metadata TEXT            metadata to add information for server
+  -m, --metadata TEXT            list of metadata keys to be sent on PUT.
+                                 Option needs to be specified multiple times
+                                 for multiple values. Format: key:value
   --show-server TEXT             Display information about the pbench server
                                  where the result(s) will be moved (Not
                                  implemented)

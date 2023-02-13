@@ -23,8 +23,8 @@ def results_common_options(f):
             multiple=True,
             help=(
                 "list of metadata keys to be sent on PUT."
-                "Option needs to be specified multiple times for multiple values"
-                "Format: key:value"
+                " Option needs to be specified multiple times for multiple values."
+                " Format: key:value"
             ),
         ),
         click.option(
