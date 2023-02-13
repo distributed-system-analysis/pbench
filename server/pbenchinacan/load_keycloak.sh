@@ -65,10 +65,9 @@ else
   echo "Created ${REALM} realm"
 fi
 
-# Create a client scope with custom mapper that a functional test
-# user can include in the OIDC token request over a REST call.
-# This will instruct Keycloak to include the <client_id> (pbench-dashboard)
-# when someone request a token Over a rest API using a <client_id>.
+# Create a client scope with custom mapper that will instruct Keycloak
+# to include the <client_id> (pbench-dashboard) when someone request
+# a token from Keycloak using a <client_id>.
 # Having <client_id> in the aud claim of the token is essential for the token
 # to be validated.
 curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" \
