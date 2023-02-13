@@ -1,5 +1,6 @@
 from http import HTTPStatus
 import json
+import os
 
 import requests
 
@@ -8,9 +9,8 @@ from pbench.server.auth import Connection
 
 class OIDCAdmin(Connection):
     OIDC_REALM = "pbench-server"
-    OIDC_CLIENT = "pbench-dashboard"
-    ADMIN_USERNAME = "admin"
-    ADMIN_PASSWORD = "123"
+    ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin")
 
     def __init__(self, server_url: str):
         super().__init__(server_url, verify=False)
@@ -34,8 +34,8 @@ class OIDCAdmin(Connection):
         data = {
             "grant_type": "password",
             "client_id": "admin-cli",
-            "username": "admin",
-            "password": "admin",
+            "username": self.ADMIN_USERNAME,
+            "password": self.ADMIN_PASSWORD,
         }
         return self.post(path=url_path, data=data).json()
 
@@ -47,8 +47,10 @@ class OIDCAdmin(Connection):
         first_name: str = "",
         last_name: str = "",
     ) -> requests.Response:
-        """Creates a new user under the OIDC_REALM and assign OIDC_CLIENT_ROLE
-        to the new user.
+        """Creates a new user under the OIDC_REALM.
+
+        Note: This involves a REST API call to the
+        OIDC server to create a new user.
 
         Args:
             username: username to register,
@@ -136,12 +138,12 @@ class OIDCAdmin(Connection):
             }
         """
         response = self.get(
-            f"admin/realms/{self.OIDC_REALM}/users?username={username}",
+            f"admin/realms/{self.OIDC_REALM}/users",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {token}",
             },
-            verify=False,
+            username=username,
         )
         if response.status_code == HTTPStatus.OK:
             return response.json()[0]

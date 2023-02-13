@@ -67,9 +67,9 @@ fi
 
 # Create a client scope with custom mapper that a functional test
 # user can include in the OIDC token request over a REST call.
-# This will instruct Keycloak to include the CLIENT_ID (pbench-dashboard)
-# when someone request a token Over a rest API using a CLIENT_ID.
-# Having CLIENT_ID in the aud claim of the token is essential for the token
+# This will instruct Keycloak to include the <client_id> (pbench-dashboard)
+# when someone request a token Over a rest API using a <client_id>.
+# Having <client_id> in the aud claim of the token is essential for the token
 # to be validated.
 curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
@@ -91,7 +91,7 @@ curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" 
           "protocolMapper": "oidc-audience-mapper",
           "consentRequired": false,
           "config": {
-            "included.client.audience": "pbench-dashboard",
+            "included.client.audience": "'${CLIENT_ID}'",
             "id.token.claim": "false",
             "access.token.claim": "true"
           }
