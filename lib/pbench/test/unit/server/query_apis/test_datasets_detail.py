@@ -47,8 +47,8 @@ class TestDatasetsDetail(Commons):
         query_api,
         find_template,
         pbench_admin_token,
-        user,
         rsa_keys,
+        user,
         expected_status,
     ):
         """
@@ -63,7 +63,9 @@ class TestDatasetsDetail(Commons):
                 token = pbench_admin_token
             else:
                 token = generate_token(
-                    username=user, private_key=rsa_keys["private_key"]
+                    username=user,
+                    private_key=rsa_keys["private_key"],
+                    client_id=server_config.get("openid-connect", "client"),
                 )
             assert token
             headers = {"authorization": f"bearer {token}"}

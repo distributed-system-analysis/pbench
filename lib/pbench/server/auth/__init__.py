@@ -308,12 +308,14 @@ class OpenIDClient:
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 
-        return cls(
+        oidc_client = cls(
             server_url=server_url,
             client_id=client,
             realm_name=realm,
             verify=False,
         )
+        oidc_client.set_oidc_public_key()
+        return oidc_client
 
     def __init__(
         self,
@@ -346,7 +348,7 @@ class OpenIDClient:
 
         self._connection = Connection(server_url, headers, verify)
 
-        self._pem_public_key = self.get_oidc_public_key()
+        self._pem_public_key = None
 
     def __repr__(self):
         return (
@@ -355,7 +357,7 @@ class OpenIDClient:
             f"headers={self._connection.headers})"
         )
 
-    def get_oidc_public_key(self):
+    def set_oidc_public_key(self):
         realm_public_key_uri = f"realms/{self._realm_name}"
         response_json = self._connection.get(realm_public_key_uri).json()
         public_key = response_json["public_key"]
@@ -365,7 +367,7 @@ class OpenIDClient:
             pem_public_key += f"{pk64}\n"
             public_key = public_key[64:]
         pem_public_key += "-----END PUBLIC KEY-----\n"
-        return pem_public_key
+        self._pem_public_key = pem_public_key
 
     def token_introspect(self, token: str) -> JSON:
         """Utility method to decode access/Id tokens using the public key

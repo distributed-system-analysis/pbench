@@ -75,9 +75,6 @@ admin_username = "test_admin"
 admin_email = "test_admin@example.com"
 generic_password = "12345"
 jwt_secret = "my_precious"
-# oidc public client name needs to match with the one coming
-# from the config file
-oidc_public_client = "pbench-dashboard"
 
 
 def do_setup(tmp_d: Path) -> Path:
@@ -818,37 +815,42 @@ def find_template(monkeypatch, fake_mtime):
 
 
 @pytest.fixture()
-def pbench_admin_token(client, create_admin_user, rsa_keys):
+def pbench_admin_token(client, server_config, create_admin_user, rsa_keys):
     """OIDC valid token for the 'ADMIN' user"""
     return generate_token(
         user=create_admin_user,
         private_key=rsa_keys["private_key"],
+        client_id=server_config.get("openid-connect", "client"),
         username=admin_username,
         pbench_client_roles=["ADMIN"],
     )
 
 
 @pytest.fixture()
-def pbench_drb_token(client, create_drb_user, rsa_keys):
+def pbench_drb_token(client, server_config, create_drb_user, rsa_keys):
     """OIDC valid token for the 'drb' user"""
     return generate_token(
-        username="drb", private_key=rsa_keys["private_key"], user=create_drb_user
+        username="drb",
+        client_id=server_config.get("openid-connect", "client"),
+        private_key=rsa_keys["private_key"],
+        user=create_drb_user,
     )
 
 
 @pytest.fixture()
-def pbench_drb_token_invalid(client, create_drb_user, rsa_keys):
+def pbench_drb_token_invalid(client, server_config, create_drb_user, rsa_keys):
     """OIDC invalid token for the 'drb' user"""
     return generate_token(
         username="drb",
         private_key=rsa_keys["private_key"],
+        client_id=server_config.get("openid-connect", "client"),
         user=create_drb_user,
         valid=False,
     )
 
 
 @pytest.fixture()
-def get_token_func(pbench_admin_token, rsa_keys):
+def get_token_func(pbench_admin_token, server_config, rsa_keys):
     """Get the token function for fetching the token for a user
 
     This fixture yields a function value which can be called to get the internal
@@ -861,13 +863,18 @@ def get_token_func(pbench_admin_token, rsa_keys):
     return lambda user: (
         pbench_admin_token
         if user == admin_username
-        else generate_token(username=user, private_key=rsa_keys["private_key"])
+        else generate_token(
+            username=user,
+            private_key=rsa_keys["private_key"],
+            client_id=server_config.get("openid-connect", "client"),
+        )
     )
 
 
 def generate_token(
     username: str,
     private_key: str,
+    client_id: str,
     user: Optional[User] = None,
     pbench_client_roles: Optional[list[str]] = None,
     valid: bool = True,
@@ -875,11 +882,19 @@ def generate_token(
     """Generates an OIDC JWT token that mimics a real OIDC token
     obtained from the user login.
 
+    Note: The OIDC client id passed as an argument has to match with the
+        oidc client id from the default config file. Otherwise the token
+        validation will fail in the server code.
+
     Args:
-        username : username to include in the token payload
-        user : user attributes will be extracted from the user object to include
+        username: username to include in the token payload
+        private_key: RS256 private key to encode the jwt token
+        client_id: OIDC client id to include in the encoded string.
+        user: user attributes will be extracted from the user object to include
             in the token payload.
-        valid : If True, the generated token will be valid for 10 mins.
+        pbench_client_roles: Any OIDC client specifc roles we want to include
+            in the token.
+        valid: If True, the generated token will be valid for 10 mins.
             If False, generated token would be invalid and expired
 
     Returns:
@@ -897,8 +912,8 @@ def generate_token(
         "iat": current_utc,
         "exp": exp,
         "sub": user.id,
-        "aud": oidc_public_client,
-        "azp": oidc_public_client,
+        "aud": client_id,
+        "azp": client_id,
         "realm_access": {
             "roles": [
                 "default-roles-pbench-server",
@@ -922,9 +937,7 @@ def generate_token(
         "email": user.email,
     }
     if pbench_client_roles:
-        payload["resource_access"].update(
-            {f"{oidc_public_client}": {"roles": pbench_client_roles}}
-        )
+        payload["resource_access"].update({client_id: {"roles": pbench_client_roles}})
     token_str = jwt.encode(payload, private_key, algorithm="RS256")
     return token_str
 
