@@ -91,7 +91,7 @@ curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" 
           "protocolMapper": "oidc-audience-mapper",
           "consentRequired": false,
           "config": {
-            "included.client.audience": "'${CLIENT_ID}'",
+            "included.client.audience": "'${CLIENT}'",
             "id.token.claim": "false",
             "access.token.claim": "true"
           }
