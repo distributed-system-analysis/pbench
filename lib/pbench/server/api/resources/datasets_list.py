@@ -6,7 +6,7 @@ from urllib.parse import urlencode, urlparse
 from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
-from sqlalchemy import and_, or_, String
+from sqlalchemy import and_, cast, or_, String
 from sqlalchemy.exc import ProgrammingError, StatementError
 from sqlalchemy.orm import Query
 
@@ -24,7 +24,7 @@ from pbench.server.api.resources import (
     ParamType,
     Schema,
 )
-from pbench.server.auth.auth import Auth
+import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -127,8 +127,7 @@ class DatasetsList(ApiBase):
                 )
 
         items = query.all()
-
-        current_app.logger.info("QUERY count {}, limit {}, offset {}, found {}", total_count, limit, offset, len(items))
+        current_app.logger.info("QUERY count {}, limit {}, offset {}", total_count, limit, offset)
 
         next_offset = offset + len(items)
         if next_offset < total_count:
@@ -164,7 +163,7 @@ class DatasetsList(ApiBase):
         current_app.logger.info("Query with {}", json)
 
         # Get the authenticated user ID, if any
-        user_id = Auth.get_user_id()
+        user_id = Auth.get_current_user_id()
 
         # Build a SQLAlchemy Query object expressing all of our constraints
         query = Database.db_session.query(Dataset).join(Metadata)
@@ -211,16 +210,17 @@ class DatasetsList(ApiBase):
                         native_key = keys.pop(0).lower()
                     else:
                         try:
-                            column = getattr(Dataset, second)
+                            c = getattr(Dataset, second)
+                            column = c if c.type.python_type is str else cast(getattr(Dataset, second), String)
                         except AttributeError as e:
                             raise APIAbort(
                                 HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k))
                             ) from e
                         use_dataset = True
                         terms = [
-                            column.cast(String).contains(v)
+                            column.contains(v)
                             if contains
-                            else column.cast(String) == v
+                            else column == v
                         ]
                 elif native_key == Metadata.USER:
                     if not user_id:

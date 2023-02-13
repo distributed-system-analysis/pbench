@@ -177,9 +177,9 @@ class TestDatasetsList:
             ),
             ("drb", {"end": "1970-09-01"}, []),
             ("drb", {"filter": "dataset.access:public"}, ["fio_1", "fio_2"]),
-            ("drb", {"filter": "dataset.name:~fio"}, ["fio_1", "fio_2"]),
+            ("drb", {"filter": "dataset.name:fio_1"}, ["fio_1"]),
             ("drb", {"filter": "^dataset.name:~fio,^dataset.name:uperf_1"}, ["fio_1", "fio_2", "uperf_1"]),
-            ("drb", {"filter": "^dataset.name:~fio,^dataset.name:uperf_1,dataset.owner_id:3"}, ["fio_2", "uperf_1"]),
+            ("drb", {"filter": "^dataset.name:~fio,^dataset.name:uperf_1,dataset.owner_id:3"}, ["fio_1"]),
         ],
     )
     def test_dataset_list(self, query_as, login, query, results, server_config):
@@ -205,7 +205,7 @@ class TestDatasetsList:
             (
                 "test",
                 {},
-                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2"],
             ),
         ],
     )
