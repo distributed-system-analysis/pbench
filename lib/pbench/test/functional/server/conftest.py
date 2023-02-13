@@ -32,8 +32,8 @@ def oidc_admin(server_client: PbenchServerClient):
     Used by Pbench Server functional tests to get admin access
     on OIDC server.
     """
-    oidc_endpoints = server_client.endpoints["openid-connect"]
-    oidc_server = OIDCAdmin(server_url=oidc_endpoints["issuer"])
+    oidc_endpoints = server_client.endpoints["openid"]
+    oidc_server = OIDCAdmin(server_url=oidc_endpoints["server"])
     return oidc_server
 
 
@@ -51,7 +51,7 @@ def register_test_user(oidc_admin: OIDCAdmin):
     # To allow testing outside our transient CI containers, allow the tester
     # user to already exist.
     assert (
-        response.ok or response.status_code == HTTPStatus.FORBIDDEN
+        response.ok or response.status_code == HTTPStatus.CONFLICT
     ), f"Register failed with {response.json()}"
 
 
@@ -60,11 +60,11 @@ def login_user(
     server_client: PbenchServerClient, oidc_admin: OIDCAdmin, register_test_user
 ):
     """Log in the test user and return the authentication token"""
-    oidc_endpoints = server_client.endpoints["openid-connect"]
+    oidc_endpoints = server_client.endpoints["openid"]
     response = oidc_admin.user_login(
         client_id=oidc_endpoints["client"], username="tester", password="123456"
     )
-    auth_token = response.json()["access_token"]
+    auth_token = response["access_token"]
     assert auth_token
     json = {"username": "tester", "auth_token": auth_token}
     server_client.username = "tester"

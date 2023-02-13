@@ -65,10 +65,45 @@ else
   echo "Created ${REALM} realm"
 fi
 
+# Create a client scope with custom mapper that a functional test
+# user can include in the OIDC token request over a REST call.
+# This will instruct Keycloak to include the CLIENT_ID (pbench-dashboard)
+# when someone request a token Over a rest API using a CLIENT_ID.
+# Having CLIENT_ID in the aud claim of the token is essential for the token
+# to be validated.
+curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" \
+  -H "Authorization: Bearer ${ADMIN_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+      "name": "pbench",
+      "description": "",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "gui.order": "",
+        "consent.screen.text": ""
+      },
+      "protocolMappers": [
+        {
+          "name": "pbench-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "pbench-dashboard",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }'
+
+
 CLIENT_CONF=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"clientId": "'${CLIENT}'", "publicClient": true, "directAccessGrantsEnabled": true, "enabled": true, "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
+  -d '{"clientId": "'${CLIENT}'", "publicClient": true,  "defaultClientScopes": ["pbench", "openid", "profile", "email"], "directAccessGrantsEnabled": true, "serviceAccountsEnabled": true, "enabled": true, "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
 
 CLIENT_ID=$(grep -o -e 'http://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
 if [[ -z "${CLIENT_ID}" ]]; then
@@ -124,7 +159,7 @@ else
   echo "Assigned an 'ADMIN' client role to the user 'admin' created above"
 fi
 
-# Verify that the user id has a role assigned to it
+# Verify that the user id has a role 'ADMIN' assigned to it
 USER_ROLES=$(curl -s "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" | jq -r '.[].name')

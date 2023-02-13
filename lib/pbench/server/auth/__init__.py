@@ -50,7 +50,7 @@ class Connection:
         self,
         method: str,
         path: str,
-        data: Union[Dict, None],
+        data: Union[Dict, str, None],
         headers: Optional[Dict] = None,
         **kwargs,
     ) -> requests.Response:
@@ -126,7 +126,11 @@ class Connection:
         return self._method("GET", path, None, headers=headers, **kwargs)
 
     def post(
-        self, path: str, data: Dict, headers: Optional[Dict] = None, **kwargs
+        self,
+        path: str,
+        data: Union[Dict, str],
+        headers: Optional[Dict] = None,
+        **kwargs,
     ) -> requests.Response:
         """POST wrapper to handle an authenticated POST operation on the
         Resource at a given path.
@@ -404,7 +408,7 @@ class OpenIDClient:
                 token,
                 self._pem_public_key,
                 algorithms=[self._TOKEN_ALG],
-                audience=["account", self.client_id],
+                audience=[self.client_id],
                 options={
                     "verify_signature": True,
                     "verify_aud": True,

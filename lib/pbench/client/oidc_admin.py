@@ -1,97 +1,35 @@
+from http import HTTPStatus
 import json
-from typing import Dict, Optional, Union
-from urllib.parse import urljoin
 
 import requests
-from requests.structures import CaseInsensitiveDict
+
+from pbench.server.auth import Connection
 
 
-class OIDCAdmin:
-    def __init__(
-        self,
-        server_url: str,
-        headers: Optional[Dict[str, str]] = None,
-        verify: bool = False,
-    ):
-        self.server_url = server_url
-        self.headers = CaseInsensitiveDict({} if headers is None else headers)
-        self.verify = verify
-        self._connection = requests.Session()
+class OIDCAdmin(Connection):
+    OIDC_REALM = "pbench-server"
+    OIDC_CLIENT = "pbench-dashboard"
+    ADMIN_USERNAME = "admin"
+    ADMIN_PASSWORD = "123"
 
-    def _method(
-        self,
-        method: str,
-        path: str,
-        data: Union[Dict, str, None],
-        headers: Optional[Dict] = None,
-        raise_error: bool = True,
-        **kwargs,
-    ) -> requests.Response:
-        """Common frontend for the HTTP operations on OIDC client connection.
+    def __init__(self, server_url: str):
+        super().__init__(server_url, verify=False)
 
-        Args:
-            method : The API HTTP method
-            path : Path for the request.
-            data : Json data to send with the request in case of the POST
-            headers : Optional headers to send with request
-            kwargs : Additional keyword args
+    def get_admin_token(self) -> dict:
+        """pbench-server realm admin user login.
 
         Returns:
-            Response from the request.
+            access_token json payload
+
+            { 'access_token': <access_token>,
+              'expires_in': 60, 'refresh_expires_in': 1800,
+              'refresh_token': <refresh_token>,
+              'token_type': 'Bearer',
+              'not-before-policy': 0,
+              'session_state': '8f558797-50e7-496d-bb45-3b5ac9fdcddb',
+              'scope': 'profile email'}
+
         """
-        final_headers = self.headers.copy()
-        if headers is not None:
-            final_headers.update(headers)
-        url = urljoin(self.server_url, path)
-        kwargs = dict(
-            params=kwargs,
-            data=data,
-            headers=final_headers,
-            verify=self.verify,
-        )
-        response = self._connection.request(method, url, **kwargs)
-        if raise_error:
-            response.raise_for_status()
-        return response
-
-    def get(
-        self, path: str, headers: Optional[Dict] = None, **kwargs
-    ) -> requests.Response:
-        """GET wrapper to handle an authenticated GET operation on the Resource
-        at a given path.
-
-        Args:
-            path : Path for the request
-            headers : Additional headers to add to the request
-            kwargs : Additional keyword args to be added as URL parameters
-
-        Returns:
-            Response from the request.
-        """
-        return self._method("GET", path, None, headers=headers, **kwargs)
-
-    def post(
-        self,
-        path: str,
-        data: Union[Dict, str],
-        headers: Optional[Dict] = None,
-        **kwargs,
-    ) -> requests.Response:
-        """POST wrapper to handle an authenticated POST operation on the
-        Resource at a given path.
-
-        Args:
-            path : Path for the request
-            data : JSON request body
-            headers : Additional headers to add to the request
-            kwargs : Additional keyword args to be added as URL parameters
-
-        Returns:
-            Response from the request.
-        """
-        return self._method("POST", path, data, headers=headers, **kwargs)
-
-    def get_admin_token(self) -> requests.Response:
         url_path = "/realms/master/protocol/openid-connect/token"
         data = {
             "grant_type": "password",
@@ -99,17 +37,7 @@ class OIDCAdmin:
             "username": "admin",
             "password": "admin",
         }
-        return self.post(path=url_path, data=data)
-
-    def get_client_secret(self, client_id: str) -> requests.Response:
-        admin_token = self.get_admin_token().json().get("access_token")
-        url_path = f"admin/realms/pbench-server/clients?clientId={client_id}"
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {admin_token}",
-        }
-        response = self.get(path=url_path, headers=headers)
-        return response.json()[0]["secret"]
+        return self.post(path=url_path, data=data).json()
 
     def create_new_user(
         self,
@@ -119,8 +47,21 @@ class OIDCAdmin:
         first_name: str = "",
         last_name: str = "",
     ) -> requests.Response:
-        admin_token = self.get_admin_token().json().get("access_token")
-        url_path = "/admin/realms/pbench-server/users"
+        """Creates a new user under the OIDC_REALM and assign OIDC_CLIENT_ROLE
+        to the new user.
+
+        Args:
+            username: username to register,
+            email: user email address,
+            password: user password,
+            first_name: Optional first name of the user,
+            last_name: Optional first name of the user,
+
+        Returns:
+            Response from the request.
+        """
+        admin_token = self.get_admin_token().get("access_token")
+        url_path = f"/admin/realms/{self.OIDC_REALM}/users"
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {admin_token}",
@@ -139,23 +80,69 @@ class OIDCAdmin:
         response = self.post(path=url_path, data=json.dumps(data), headers=headers)
         return response
 
-    def user_login(
-        self, client_id: str, username: str, password: str, client_secret: str = None
-    ) -> requests.Response:
-        url_path = "/realms/pbench-server/protocol/openid-connect/token"
+    def user_login(self, client_id: str, username: str, password: str) -> dict:
+        """pbench-server realm user login on a specified client.
+
+        Args:
+            client_id: client_name to use in the request
+            username: username of the user logging in
+            password: OIDC password
+
+        Returns:
+            access_token json payload
+
+            { 'access_token': <access_token>,
+              'expires_in': 60, 'refresh_expires_in': 1800,
+              'refresh_token': <refresh_token>,
+              'token_type': 'Bearer',
+              'not-before-policy': 0,
+              'session_state': '8f558797-50e7-496d-bb45-3b5ac9fdcddb',
+              'scope': 'profile email'}
+
+        """
+        url_path = f"/realms/{self.OIDC_REALM}/protocol/openid-connect/token"
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        client_secret = (
-            client_secret
-            if client_secret
-            else self.get_client_secret(client_id=client_id)
-        )
         data = {
             "client_id": client_id,
             "grant_type": "password",
-            "client_secret": client_secret,
             "scope": "profile email",
             "username": username,
             "password": password,
         }
         response = self.post(path=url_path, data=data, headers=headers)
-        return response
+        return response.json()
+
+    def get_user(self, username: str, token: str) -> dict:
+        """Get the OIDC user representation dict.
+
+        Args:
+            username: username to query
+            token: access_token string to validate
+
+        Returns:
+            User dict representation
+
+            {'id': '37117992-a3de-43f7-b844-e6ee178e9965',
+            'createdTimestamp': 1675981768951,
+            'username': 'admin',
+            'enabled': True,
+            'totp': False,
+            'emailVerified': False,
+            'disableableCredentialTypes': [],
+            'requiredActions': [],
+            'notBefore': 0,
+            'access': {'manageGroupMembership': True, 'view': True, 'mapRoles': True, 'impersonate': True, 'manage': True}
+            ...
+            }
+        """
+        response = self.get(
+            f"admin/realms/{self.OIDC_REALM}/users?username={username}",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {token}",
+            },
+            verify=False,
+        )
+        if response.status_code == HTTPStatus.OK:
+            return response.json()[0]
+        return {}
