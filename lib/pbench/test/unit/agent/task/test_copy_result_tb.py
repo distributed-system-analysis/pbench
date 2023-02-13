@@ -42,7 +42,9 @@ class TestCopyResults:
         bad_tarball_name = "nonexistent-tarball.tar.xz"
         expected_error_message = f"Tar ball '{bad_tarball_name}' does not exist"
 
-        monkeypatch.setattr(Path, "exists", lambda self: False)
+        monkeypatch.setattr(
+            Path, "exists", self.get_path_exists_mock(bad_tarball_name, False)
+        )
 
         with pytest.raises(FileNotFoundError) as excinfo:
             CopyResultTb(

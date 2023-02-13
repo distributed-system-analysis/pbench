@@ -129,7 +129,8 @@ class MakeResultTb:
             )
         return msg
 
-    def verify_metadata(self, pbench_run_name):
+    def verify_metadata(self, pbench_run_name: str):
+        """Verifies and Updates Metadata in metadata.log file"""
         mdlog_name = self.result_dir / "metadata.log"
         mdlog = MetadataLog()
         try:
@@ -200,10 +201,7 @@ class MakeResultTb:
                                or verifying the created tar ball
         """
         pbench_run_name = self.result_dir.name
-        try:
-            self.verify_metadata(pbench_run_name)
-        except Exception:
-            raise
+        self.verify_metadata(pbench_run_name)
 
         tarball = self.target_dir / f"{pbench_run_name}.tar.xz"
         e_file = self.target_dir / f"{pbench_run_name}.tar.err"
