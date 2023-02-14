@@ -5,9 +5,6 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 
 from pbench.server.database.database import Database
 
-# Convenient shortened name
-dbs = Database.db_session
-
 
 class AuthToken(Database.Base):
     """Model for storing the active auth tokens associated with a user."""
@@ -35,6 +32,7 @@ class AuthToken(Database.Base):
             An AuthToken object if found, otherwise None
         """
         # We currently only query token database with the given token.
+        dbs = Database.db_session
         return dbs.query(AuthToken).filter_by(auth_token=auth_token).first()
 
     @staticmethod
@@ -44,6 +42,7 @@ class AuthToken(Database.Base):
         Args:
             auth_token : the auth token to delete
         """
+        dbs = Database.db_session
         try:
             dbs.query(AuthToken).filter_by(auth_token=auth_token).delete()
             dbs.commit()
