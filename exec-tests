@@ -140,16 +140,22 @@ _cov_report="${_cov_report_kind}:${_cov_report_name}"
 rc=0
 
 if [[ "${subtst:-python}" == "python" ]]; then
-    _pytest_majors="pbench.test.unit.common"
-    for _major in ${major_list}; do
-        _pytest_majors="${_pytest_majors} pbench.test.unit.${_major}"
-        if [[ "${_major}" == "agent" ]]; then
-            # TODO: real functional tests require a deployed instance. Current
-            # agent "functional" tests are mocked Click tests rather than true
-            # "functional" tests.
-            _pytest_majors="${_pytest_majors} pbench.test.functional.agent"
-        fi
+    no_tests_specified=1
+    for word in ${posargs}; do
+        if [[ ${word} != -* ]]; then no_tests_specified=0; fi
     done
+    if [[ ${no_tests_specified} -eq 1 ]]; then
+        _pytest_majors="pbench.test.unit.common"
+        for _major in ${major_list}; do
+            _pytest_majors="${_pytest_majors} pbench.test.unit.${_major}"
+            if [[ "${_major}" == "agent" ]]; then
+                # TODO: real functional tests require a deployed instance. Current
+                # agent "functional" tests are mocked Click tests rather than true
+                # "functional" tests.
+                _pytest_majors="${_pytest_majors} pbench.test.functional.agent"
+            fi
+        done
+    fi
 
     printf -- "\n\n\nRunning %s python3-based unit tests via pytest\n\n" "${major_list// /,}"
     _pbench_sources=$(python3 -c 'import inspect, pathlib, pbench; print(pathlib.Path(inspect.getsourcefile(pbench)).parent)')
