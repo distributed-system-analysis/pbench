@@ -558,7 +558,7 @@ class PbenchTemplates:
 
     def __init__(
         self,
-        basepath: str,
+        lib_dir: Path,
         idx_prefix: str,
         logger: Logger,
         known_tool_handlers: JSONOBJECT = None,
@@ -575,19 +575,17 @@ class PbenchTemplates:
         template documents are derived from common skeleton mappings.
 
         Args:
-            basepath:               The base Pbench server installation
-                                    directory
-            idx_prefix:             The server's Elasticsearch index prefix
-            logger:                 A Python Logger
-            known_tool_handlers:    Describes the set of tools that will have
-                                    templates generated from a common tool-data
-                                    skeleton.
-            _dbg:                   Debug level for output (historical: not
-                                    used)
+            lib_dir:              The Pbench server library directory
+            idx_prefix:           The server's Elasticsearch index prefix
+            logger:               A Python Logger
+            known_tool_handlers:  Describes the set of tools that will have
+                                  templates generated from a common tool-data
+                                  skeleton.
+            _dbg:                 Debug level for output (historical: not
+                                  used)
         """
-        base_dir = Path(basepath).parent / "lib"
-        mapping_dir = base_dir / "mappings"
-        setting_dir = base_dir / "settings"
+        mapping_dir = lib_dir / "mappings"
+        setting_dir = lib_dir / "settings"
 
         self.templates: Dict[str, TemplateFile] = {}
         self.idx_prefix: str = idx_prefix

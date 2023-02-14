@@ -89,7 +89,7 @@ class Report:
             self.templates = templates
         else:
             self.templates = PbenchTemplates(
-                self.config.BINDIR, self.idx_prefix, self.logger
+                self.config.LIBDIR, self.idx_prefix, self.logger
             )
 
     def init_report_template(self):
