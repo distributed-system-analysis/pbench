@@ -339,10 +339,8 @@ export const SavedRunsRow = (props) => {
   );
 };
 
-export const SelectDateComponent = (props) => {
-  return (
-    <div className="varsh">
-      <DatePicker value={props.value} onChange={props.onDateSelect} />
-    </div>
-  );
-};
+export const SelectDateComponent = (props) => (
+  <div className="date-picker-container">
+    <DatePicker value={props.value} onChange={props.onDateSelect} />
+  </div>
+);

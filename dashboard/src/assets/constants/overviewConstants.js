@@ -19,6 +19,7 @@ export const IS_ITEM_FAVORITED = "isItemFavorited";
 export const IS_ITEM_SEEN = "isItemSeen";
 export const NAME_COPY = "name_copy";
 export const NAME_ERROR_MSG = "name_errorMsg";
+export const NAME_KEY = "name";
 export const NAME_VALIDATED = "name_validated";
 export const SERVER_DELETION = "server.deletion";
 export const SERVER_DELETION_COPY = "server_deletion_copy";

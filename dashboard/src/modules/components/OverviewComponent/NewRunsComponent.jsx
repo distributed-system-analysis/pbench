@@ -3,6 +3,7 @@ import "./index.less";
 import {
   DASHBOARD_SEEN,
   IS_ITEM_SEEN,
+  NAME_KEY,
   ROWS_PER_PAGE,
   START_PAGE_NUMBER,
   USER_FAVORITE,
@@ -179,7 +180,7 @@ const NewRunsComponent = () => {
                       rowActions={rowActions}
                       item={item}
                       textInputEdit={(val) =>
-                        updateTblValue(val, "name", item.resource_id)
+                        updateTblValue(val, NAME_KEY, item.resource_id)
                       }
                     />
                   </Tr>

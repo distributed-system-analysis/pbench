@@ -4,6 +4,8 @@ import {
   DASHBOARD_SEEN,
   DATASET_ACCESS,
   IS_ITEM_SEEN,
+  NAME_KEY,
+  SERVER_DELETION_KEY,
 } from "assets/constants/overviewConstants";
 import {
   InnerScrollContainer,
@@ -138,11 +140,15 @@ const SavedRunsComponent = () => {
                       onSelectRuns={onSelectRuns}
                       isRowSelected={isRowSelected}
                       textInputEdit={(val) =>
-                        updateTblValue(val, "name", item.resource_id)
+                        updateTblValue(val, NAME_KEY, item.resource_id)
                       }
                       toggleEdit={toggleEdit}
-                      onDateSelect={(str, date) =>
-                        updateTblValue(str, "server.deletion", item.resource_id)
+                      onDateSelect={(str) =>
+                        updateTblValue(
+                          str,
+                          SERVER_DELETION_KEY,
+                          item.resource_id
+                        )
                       }
                       saveRowData={saveRowData}
                     />

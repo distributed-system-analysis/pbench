@@ -68,8 +68,8 @@ const initializeRuns = () => (dispatch, getState) => {
     item[CONSTANTS.SERVER_DELETION_COPY] =
       item.metadata[CONSTANTS.SERVER_DELETION];
     item[CONSTANTS.IS_DIRTY] = {
-      serverDelete: false,
-      datasetName: false,
+      [CONSTANTS.SERVER_DELETION_KEY]: false,
+      [CONSTANTS.DATASET_NAME_KEY]: false,
     };
     item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.DEFAULT;
     item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
@@ -328,7 +328,7 @@ export const editMetadata =
     const rIndex = data.findIndex((item) => item.resource_id === rId);
     data[rIndex][metadata] = value;
 
-    if (metadata === "name") {
+    if (metadata === CONSTANTS.NAME_KEY) {
       if (value.length > CONSTANTS.DATASET_NAME_LENGTH) {
         data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.ERROR;
         data[rIndex][
@@ -341,7 +341,7 @@ export const editMetadata =
         data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
       }
       data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.DATASET_NAME_KEY] = true;
-    } else {
+    } else if (CONSTANTS.SERVER_DELETION_KEY) {
       data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.SERVER_DELETION_KEY] = true;
       data[rIndex].metadata[CONSTANTS.SERVER_DELETION] = value;
     }
@@ -389,19 +389,15 @@ export const getEditedMetadata =
     const item = data[rIndex];
     const keys = Object.keys(item.isDirty);
 
-    const filtered = keys.filter(function (key) {
-      return item.isDirty[key];
-    });
+    const filtered = keys.filter((key) => item.isDirty[key]);
     const editedMetadata = [];
     for (const key of filtered) {
-      const obj =
-        key === CONSTANTS.DATASET_NAME_KEY
-          ? { [metaDataActions[key]]: item.name }
-          : {
-              [metaDataActions[key]]: new Date(
-                item.metadata[CONSTANTS.SERVER_DELETION]
-              ).toISOString(),
-            };
+      const obj = {
+        [metaDataActions[key]]:
+          key === CONSTANTS.DATASET_NAME_KEY
+            ? item.name
+            : new Date(item.metadata[CONSTANTS.SERVER_DELETION]).toISOString(),
+      };
 
       editedMetadata.push(obj);
     }
