@@ -18,7 +18,13 @@ class TestDatasetsDateRange:
 
     @pytest.fixture()
     def query_as(
-        self, client, server_config, more_datasets, provide_metadata, get_token_func
+        self,
+        client,
+        server_config,
+        more_datasets,
+        provide_metadata,
+        get_token_func,
+        add_auth_connection_mock,
     ):
         """
         Helper fixture to perform the API query and validate an expected

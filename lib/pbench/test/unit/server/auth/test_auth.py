@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from http import HTTPStatus
 from typing import Dict, Optional, Tuple, Union
 
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from flask import current_app, Flask
 import jwt
 import pytest
@@ -252,33 +250,6 @@ class TestInternalUser:
         assert user.roles == ["roleA", "roleB"]
 
 
-@pytest.fixture(scope="session")
-def rsa_keys() -> Dict[str, Union[rsa.RSAPrivateKey, str]]:
-    """Fixture for generating an RSA public / private key pair.
-
-    Returns:
-        A dictionary containing the RSAPrivateKey object, the PEM encoded public
-        key string without the BEGIN/END bookends (mimicing what is returned by
-        an OpenID Connect broker), and the PEM encoded public key string with
-        the BEGIN/END bookends
-    """
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    pem_public_key = (
-        private_key.public_key()
-        .public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo)
-        .decode()
-    )
-    # Strip "-----BEGIN..." and "-----END...", and the empty element resulting
-    # from the trailing newline character.
-    public_key_l = pem_public_key.split("\n")[1:-2]
-    public_key = "".join(public_key_l)
-    return {
-        "private_key": private_key,
-        "public_key": public_key,
-        "pem_public_key": pem_public_key,
-    }
-
-
 def gen_rsa_token(
     audience: str, private_key: str, exp: str = "99999999999"
 ) -> Tuple[str, Dict[str, str]]:
@@ -397,7 +368,6 @@ class TestOpenIDClient:
         config = mock_connection(monkeypatch, client_id, public_key)
         server_url = config["openid-connect"]["server_url"]
         realm_name = config["openid-connect"]["realm"]
-        secret = config["openid-connect"]["secret"]
 
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
@@ -406,7 +376,6 @@ class TestOpenIDClient:
             f"client_id={client_id}, realm_name={realm_name}, "
             "headers={})"
         )
-        assert oidc_client._client_secret_key == secret
         assert (
             oidc_client._pem_public_key
             == f"-----BEGIN PUBLIC KEY-----\n{public_key}\n-----END PUBLIC KEY-----\n"
@@ -623,22 +592,6 @@ class TestAuthModule:
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token_invalid)
-        assert user is None
-
-    def test_verify_auth_internal_at_valid_fail(
-        self, monkeypatch, make_logger, pbench_drb_token
-    ):
-        """Verify behavior when a token is not in the database"""
-
-        def query(*args, **kwargs):
-            return None
-
-        monkeypatch.setattr(Auth.AuthToken, "query", query)
-        app = Flask("test-verify-auth-internal-at-valid-fail")
-        app.logger = make_logger
-        with app.app_context():
-            current_app.secret_key = jwt_secret
-            user = Auth.verify_auth(pbench_drb_token)
         assert user is None
 
     def test_verify_auth_oidc_offline(self, monkeypatch, rsa_keys, make_logger):
