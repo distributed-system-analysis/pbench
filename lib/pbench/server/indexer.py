@@ -4094,7 +4094,7 @@ class IdxContext:
 
         self.es = get_es(self.config, self.logger)
         self.templates = PbenchTemplates(
-            self.config.BINDIR,
+            self.config.LIBDIR,
             self.idx_prefix,
             self.logger,
             _known_tool_handlers,

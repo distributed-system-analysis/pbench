@@ -86,7 +86,14 @@ class FakePbenchTemplates:
     templates_updated = False
     failure: Optional[Exception] = None
 
-    def __init__(self, basepath, idx_prefix, logger, known_tool_handlers=None, _dbg=0):
+    def __init__(
+        self,
+        lib_dir: Path,
+        idx_prefix: str,
+        logger: Logger,
+        known_tool_handlers: JSONOBJECT = None,
+        _dbg: int = 0,
+    ):
         pass
 
     def update_templates(self, es_instance):
@@ -140,7 +147,7 @@ class FakeIdxContext:
         self.tracking_id = None
         self.es = None
         self.TS = "FAKE_TS"
-        self.templates = FakePbenchTemplates("path", "test", logger)
+        self.templates = FakePbenchTemplates(Path("path"), "test", logger)
         self._dbg = False
 
     def getpid(self) -> int:
