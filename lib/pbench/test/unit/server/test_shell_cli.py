@@ -268,9 +268,17 @@ class TestShell:
         def immediate_success(*args, **kwargs):
             pass
 
+        def wait_for_oidc_server(
+            server_config: PbenchServerConfig, logger: logging.Logger
+        ) -> str:
+            return "https://oidc.example.com"
+
         def generate_crontab_if_necessary(*args, **kwargs) -> int:
             return 43
 
+        monkeypatch.setattr(
+            shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
+        )
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
         monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
         monkeypatch.setattr(shell, "init_indexing", immediate_success)
@@ -299,6 +307,11 @@ class TestShell:
             called[0] = True
             raise init_indexing_exc
 
+        monkeypatch.setattr(
+            shell.OpenIDClient,
+            "wait_for_oidc_server",
+            lambda config, logger: "https://oidc.example.com",
+        )
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
         monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
         monkeypatch.setattr(shell, "init_indexing", init_indexing)
@@ -324,6 +337,12 @@ class TestShell:
         def init_db(*args, **kwargs) -> int:
             called[0] = True
             raise init_db_exc
+
+        monkeypatch.setattr(
+            shell.OpenIDClient,
+            "wait_for_oidc_server",
+            lambda config, logger: "https://oidc.example.com",
+        )
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
         monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
