@@ -9,7 +9,7 @@ import sys
 from flask import Flask
 
 from pbench.common.logger import get_pbench_logger
-from pbench.server import PbenchServerConfig
+from pbench.server import PbenchServerConfig, wait_for_uri
 from pbench.server.api import create_app, get_server_config
 from pbench.server.auth import OpenIDClient
 from pbench.server.database import init_db
@@ -97,7 +97,7 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
 
     logger.debug("Waiting for database instance to become available.")
     try:
-        Database.wait_for_database(db_uri, db_wait_timeout)
+        wait_for_uri(db_uri, db_wait_timeout)
     except ConnectionRefusedError:
         logger.error("Database {} not responding", db_uri)
         return 1

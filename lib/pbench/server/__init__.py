@@ -6,8 +6,11 @@ from datetime import datetime, timedelta, tzinfo
 from enum import auto, Enum
 from logging import Logger
 from pathlib import Path
+import socket
+from time import sleep as _sleep
 from time import time as _time
 from typing import Dict, List, Optional, Union
+from urllib.parse import urlparse
 
 from pbench import PbenchConfig
 from pbench.common.exceptions import BadConfig
@@ -307,3 +310,38 @@ class PbenchServerConfig(PbenchConfig):
         if not dir_path:
             raise BadConfig(f"Bad {env_name}={dir_val}")
         return dir_path
+
+
+def wait_for_uri(uri: str, timeout: int):
+    """Wait for the given URI to become available.
+
+    While we encounter "connection refused", sleep one second, and then try
+    again.  No connection attempt is made for a URI without a host name.
+
+    The timeout argument to `create_connection()` does not play into the
+    retry logic, see:
+
+      https://docs.python.org/3.9/library/socket.html#socket.create_connection
+
+    Args:
+        timeout : integer number of seconds to wait before giving up
+                  attempts to connect to the URI
+
+    Raises:
+        BadConfig : when the URI specifies a host without a port
+        ConnectionRefusedError : after the timeout period has been exhausted
+    """
+    url = urlparse(uri)
+    if not url.hostname:
+        return
+    if not url.port:
+        raise BadConfig("URI must contain a port number")
+    end = _time() + timeout
+    while True:
+        try:
+            with socket.create_connection((url.hostname, url.port), timeout=1):
+                break
+        except ConnectionRefusedError:
+            if _time() > end:
+                raise
+            _sleep(1)

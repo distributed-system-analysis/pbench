@@ -306,13 +306,13 @@ class TestShell:
     def test_main_wait_for_database_exc(
         monkeypatch, make_logger, mock_get_server_config
     ):
-        def wait_for_database(
+        def wait_for_uri(
             server_config: PbenchServerConfig, logger: logging.Logger
         ) -> str:
             raise ConnectionRefusedError("database exception")
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
-        monkeypatch.setattr(shell.Database, "wait_for_database", wait_for_database)
+        monkeypatch.setattr(shell, "wait_for_uri", wait_for_uri)
 
         ret_val = shell.main()
 
