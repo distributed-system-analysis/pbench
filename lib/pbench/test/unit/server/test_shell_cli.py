@@ -197,6 +197,9 @@ class TestShell:
         def wait_for_uri(*args, **kwargs):
             called.append("wait_for_uri")
 
+        def init_indexing(*args, **kwargs):
+            called.append("init_indexing")
+
         def wait_for_oidc_server(
             server_config: PbenchServerConfig, logger: logging.Logger
         ) -> str:
@@ -215,6 +218,7 @@ class TestShell:
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", user_site)
         monkeypatch.setattr(shell, "find_the_unicorn", find_the_unicorn)
         monkeypatch.setattr(shell, "wait_for_uri", wait_for_uri)
+        monkeypatch.setattr(shell, "init_indexing", init_indexing)
         monkeypatch.setattr(
             shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
         )
@@ -224,8 +228,9 @@ class TestShell:
 
         assert ret_val == 42
         assert not user_site or called[0] == "find_the_unicorn"
-        assert called[-2] == "wait_for_uri"
-        assert called[-2] == called[-1]
+        assert called[-3] == "wait_for_uri"
+        assert called[-3] == called[-2]
+        assert called[-1] == "init_indexing"
         assert len(commands) == 3, f"{commands!r}"
         assert commands[0][0] == "pbench-create-crontab"
         assert commands[1][0] == "crontab"
@@ -265,6 +270,7 @@ class TestShell:
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
         monkeypatch.setattr(shell, "wait_for_uri", noop)
+        monkeypatch.setattr(shell, "init_indexing", noop)
         monkeypatch.setattr(
             shell, "generate_crontab_if_necessary", generate_crontab_if_necessary
         )
@@ -272,6 +278,35 @@ class TestShell:
         ret_val = shell.main()
 
         assert ret_val == 43
+
+    @staticmethod
+    @pytest.mark.parametrize("init_indexing_exc", ["section", "option"])
+    def test_main_init_indexing_failed(
+        monkeypatch, make_logger, mock_get_server_config, init_indexing_exc
+    ):
+        def noop(*args, **kwargs):
+            pass
+
+        called = [False]
+
+        def init_indexing(*args, **kwargs) -> int:
+            called[0] = True
+            if init_indexing_exc == "section":
+                exc = NoSectionError("missingsection")
+            elif init_indexing_exc == "option":
+                exc = NoOptionError("section", "missingoption")
+            else:
+                exc = Exception(f"Bad test parameter, {init_indexing_exc}")
+            raise exc
+
+        monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
+        monkeypatch.setattr(shell, "wait_for_uri", noop)
+        monkeypatch.setattr(shell, "init_indexing", init_indexing)
+
+        ret_val = shell.main()
+
+        assert called[0]
+        assert ret_val == 1
 
     @staticmethod
     @pytest.mark.parametrize("init_db_exc", ["section", "option"])

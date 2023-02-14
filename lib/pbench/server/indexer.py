@@ -124,7 +124,7 @@ def _get_es_hosts(config, logger):
         raise BadConfig("Indexing URI must contain a port number")
     timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
     return [
-        dict(host=url.host, port=url.port, timeout=timeoutobj),
+        dict(host=url.hostname, port=url.port, timeout=timeoutobj),
     ]
 
 
@@ -4124,3 +4124,11 @@ class IdxContext:
 
     def get_tracking_id(self):
         return self.tracking_id
+
+
+def init_indexing(
+    name: str, server_config: pbench.server.PbenchServerConfig, logger: logging.Logger
+):
+    """Initialize the Elasticsearch indexing sub-system."""
+    idxctx = IdxContext(None, name, server_config, logger)
+    idxctx.templates.update_templates(idxctx.es)

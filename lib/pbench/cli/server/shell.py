@@ -14,6 +14,7 @@ from pbench.server.api import create_app, get_server_config
 from pbench.server.auth import OpenIDClient
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
+from pbench.server.indexer import init_indexing
 
 PROG = "pbench-shell"
 
@@ -127,6 +128,17 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         init_db(server_config, logger)
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Invalid database configuration: {}", exc)
+        return 1
+
+    # Multiple cron jobs will attempt to file reports with the Elasticsearch
+    # instance when they start and finish, causing them to all to try to
+    # initialize the templates in the Indexing sub-system.  To avoid race
+    # conditions that can create stack traces, we initialize the indexing sub-
+    # system before we start the cron jobs.
+    try:
+        init_indexing(PROG, server_config, logger)
+    except (NoOptionError, NoSectionError) as exc:
+        logger.error("Invalid indexing configuration: {}", exc)
         return 1
 
     ret_val = generate_crontab_if_necessary(
