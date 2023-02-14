@@ -189,10 +189,13 @@ class TestShell:
     def test_main(
         monkeypatch, make_logger, mock_get_server_config, user_site, oidc_conf
     ):
-        find_called = [False]
+        called = []
 
         def find_the_unicorn(logger: logging.Logger):
-            find_called[0] = True
+            called.append("find_the_unicorn")
+
+        def wait_for_uri(*args, **kwargs):
+            called.append("wait_for_uri")
 
         def wait_for_oidc_server(
             server_config: PbenchServerConfig, logger: logging.Logger
@@ -211,6 +214,7 @@ class TestShell:
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", user_site)
         monkeypatch.setattr(shell, "find_the_unicorn", find_the_unicorn)
+        monkeypatch.setattr(shell, "wait_for_uri", wait_for_uri)
         monkeypatch.setattr(
             shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
         )
@@ -219,7 +223,9 @@ class TestShell:
         ret_val = shell.main()
 
         assert ret_val == 42
-        assert not user_site or find_called[0]
+        assert not user_site or called[0] == "find_the_unicorn"
+        assert called[-2] == "wait_for_uri"
+        assert called[-2] == called[-1]
         assert len(commands) == 3, f"{commands!r}"
         assert commands[0][0] == "pbench-create-crontab"
         assert commands[1][0] == "crontab"
@@ -251,10 +257,14 @@ class TestShell:
 
     @staticmethod
     def test_main_crontab_failed(monkeypatch, make_logger, mock_get_server_config):
+        def noop(*args, **kwargs):
+            pass
+
         def generate_crontab_if_necessary(*args, **kwargs) -> int:
             return 43
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
+        monkeypatch.setattr(shell, "wait_for_uri", noop)
         monkeypatch.setattr(
             shell, "generate_crontab_if_necessary", generate_crontab_if_necessary
         )

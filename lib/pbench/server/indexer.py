@@ -18,11 +18,13 @@ import re
 import socket
 import tarfile
 from time import sleep as _sleep
+from urllib.parse import urlparse
 
 from urllib3 import Timeout
 
 from pbench.common import MetadataLog
 from pbench.common.exceptions import (
+    BadConfig,
     BadDate,
     BadIterationName,
     BadMDLogFormat,
@@ -107,18 +109,22 @@ def _get_es_hosts(config, logger):
     Return list of dicts (a single dict for now) - that's what ES is expecting.
     """
     try:
-        host = config.get("elasticsearch", "host")
-        port = config.get("elasticsearch", "port")
+        uri = config.get("Indexing", "uri")
     except (configparser.NoSectionError, configparser.NoOptionError):
         logger.warning(
-            "Failed to find an [elasticsearch] section with host and port defined"
-            " in {} configuration file.",
+            "Failed to find an [Indexing] section with uri defined in {}"
+            " configuration file.",
             " ".join(config.files),
         )
         return None
+    url = urlparse(uri)
+    if not url.hostname:
+        raise BadConfig("Indexing URI must contain a host name")
+    if not url.port:
+        raise BadConfig("Indexing URI must contain a port number")
     timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
     return [
-        dict(host=host, port=port, timeout=timeoutobj),
+        dict(host=url.host, port=url.port, timeout=timeoutobj),
     ]
 
 

@@ -85,6 +85,8 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         port = str(server_config.get("pbench-server", "bind_port"))
         db_uri = server_config.get("database", "uri")
         db_wait_timeout = int(server_config.get("database", "wait_timeout"))
+        es_uri = server_config.get("Indexing", "uri")
+        es_wait_timeout = int(server_config.get("Indexing", "wait_timeout"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
         crontab_dir = server_config.get("pbench-server", "crontab-dir")
@@ -100,6 +102,13 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         wait_for_uri(db_uri, db_wait_timeout)
     except ConnectionRefusedError:
         logger.error("Database {} not responding", db_uri)
+        return 1
+
+    logger.debug("Waiting for the Elasticsearch instance to become available.")
+    try:
+        wait_for_uri(es_uri, es_wait_timeout)
+    except ConnectionRefusedError:
+        logger.error("Elasticsearch {} not responding", es_uri)
         return 1
 
     try:

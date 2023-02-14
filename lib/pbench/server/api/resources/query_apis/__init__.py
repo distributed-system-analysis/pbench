@@ -118,14 +118,7 @@ class ElasticBase(ApiBase):
         """
         super().__init__(config, *schemas)
         self.prefix = config.get("Indexing", "index_prefix")
-        host = config.get("elasticsearch", "host")
-        port = config.get("elasticsearch", "port")
-
-        # TODO: For future flexibility, we should consider reading this entire
-        # Elasticsearch URI from the config file as we do for the database
-        # rather than stitching it together. This would allow backend control
-        # over authentication and http vs https for example.
-        self.es_url = f"http://{host}:{port}"
+        self.es_url = config.get("Indexing", "uri")
 
     def _build_elasticsearch_query(
         self, user: Optional[str], access: Optional[str], terms: List[JSON]
@@ -550,16 +543,10 @@ class ElasticBulkBase(ApiBase):
             require_map: if True, fail if the dataset has no index map
         """
         super().__init__(config, *schemas)
-        host = config.get("elasticsearch", "host")
-        port = config.get("elasticsearch", "port")
 
         api_name = self.__class__.__name__
 
-        # TODO: For future flexibility, we should consider reading this entire
-        # Elasticsearch URI from the config file as we do for the database
-        # rather than stitching it together. This would allow backend control
-        # over authentication and http vs https for example.
-        self.elastic_uri = f"http://{host}:{port}"
+        self.elastic_uri = config.get("Indexing", "uri")
         self.config = config
         self.action = action
         self.require_stable = require_stable
