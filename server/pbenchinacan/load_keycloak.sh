@@ -23,8 +23,8 @@ ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 # These values must match the options "realm" and "client in the
 # "openid-connect" section of the pbench server configuration file.
-REALM=${KEYCLOAK_REALM:-"pbench-server"}
-CLIENT=${KEYCLOAK_CLIENT:-"pbench-dashboard"}
+REALM=${KEYCLOAK_REALM:-"pbench-server-test"}
+CLIENT=${KEYCLOAK_CLIENT:-"pbench-dashboard-test"}
 
 end_in_epoch_secs=$(date --date "2 minutes" +%s)
 
@@ -66,7 +66,7 @@ else
 fi
 
 # Create a client scope with custom mapper that will instruct Keycloak
-# to include the <client_id> (pbench-dashboard) when someone request
+# to include the <client_id> (pbench-dashboard) when someone requests
 # a token from Keycloak using a <client_id>.
 # Having <client_id> in the aud claim of the token is essential for the token
 # to be validated.
@@ -158,7 +158,7 @@ else
   echo "Assigned an 'ADMIN' client role to the user 'admin' created above"
 fi
 
-# Verify that the user id has a role 'ADMIN' assigned to it
+# Verify that the user id has an 'ADMIN' role assigned to it
 USER_ROLES=$(curl -s "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/users/${USER_ID}/role-mappings/clients/${CLIENT_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" | jq -r '.[].name')

@@ -5,7 +5,12 @@ import pytest
 
 from pbench.client import PbenchServerClient
 from pbench.client.oidc_admin import OIDCAdmin
-from pbench.client.types import JSONMap
+
+USERNAME: str = "tester"
+EMAIL: str = "tester@gmail.com"
+PASSWORD: str = "123456"
+FIRST_NAME: str = "Test"
+LAST_NAME: str = "User"
 
 
 @pytest.fixture(scope="module")
@@ -32,20 +37,18 @@ def oidc_admin(server_client: PbenchServerClient):
     Used by Pbench Server functional tests to get admin access
     on OIDC server.
     """
-    oidc_endpoints = server_client.endpoints["openid"]
-    oidc_server = OIDCAdmin(server_url=oidc_endpoints["server"])
-    return oidc_server
+    return OIDCAdmin(server_url=server_client.endpoints["openid"]["server"])
 
 
 @pytest.fixture(scope="module")
 def register_test_user(oidc_admin: OIDCAdmin):
     """Create a test user for functional tests."""
     response = oidc_admin.create_new_user(
-        username="tester",
-        email="tester@gmail.com",
-        password="123456",
-        first_name="Test",
-        last_name="User",
+        username=USERNAME,
+        email=EMAIL,
+        password=PASSWORD,
+        first_name=FIRST_NAME,
+        last_name=LAST_NAME,
     )
 
     # To allow testing outside our transient CI containers, allow the tester
@@ -56,17 +59,8 @@ def register_test_user(oidc_admin: OIDCAdmin):
 
 
 @pytest.fixture
-def login_user(
-    server_client: PbenchServerClient, oidc_admin: OIDCAdmin, register_test_user
-):
+def login_user(server_client: PbenchServerClient, register_test_user):
     """Log in the test user and return the authentication token"""
-    oidc_endpoints = server_client.endpoints["openid"]
-    response = oidc_admin.user_login(
-        client_id=oidc_endpoints["client"], username="tester", password="123456"
-    )
-    auth_token = response["access_token"]
-    assert auth_token
-    json = {"username": "tester", "auth_token": auth_token}
-    server_client.username = "tester"
-    server_client.auth_token = auth_token
-    yield JSONMap(json)
+    server_client.login(USERNAME, PASSWORD)
+    assert server_client.auth_token
+    yield
