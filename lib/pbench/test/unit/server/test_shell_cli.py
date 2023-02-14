@@ -251,6 +251,15 @@ class TestShell:
 
     @staticmethod
     def test_main_crontab_failed(monkeypatch, make_logger, mock_get_server_config):
+        def wait_for_oidc_server(
+            server_config: PbenchServerConfig, logger: logging.Logger
+        ) -> str:
+            return "https://oidc.example.com"
+
+        monkeypatch.setattr(
+            shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
+        )
+
         def generate_crontab_if_necessary(*args, **kwargs) -> int:
             return 43
 
@@ -268,6 +277,12 @@ class TestShell:
     def test_main_initdb_failed(
         monkeypatch, make_logger, mock_get_server_config, init_db_exc
     ):
+        monkeypatch.setattr(
+            shell.OpenIDClient,
+            "wait_for_oidc_server",
+            lambda config, logger: "https://oidc.example.com",
+        )
+
         def init_db(*args, **kwargs) -> int:
             if init_db_exc == "section":
                 exc = NoSectionError("missingsection")
@@ -288,14 +303,11 @@ class TestShell:
     def test_main_wait_for_oidc_server_exc(
         monkeypatch, make_logger, mock_get_server_config
     ):
-        def wait_for_oidc_server(
-            server_config: PbenchServerConfig, logger: logging.Logger
-        ) -> str:
-            raise Exception("oidc exception")
-
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
         monkeypatch.setattr(
-            shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
+            shell.OpenIDClient,
+            "wait_for_oidc_server",
+            lambda config, logger: "https://oidc.example.com",
         )
 
         ret_val = shell.main()
