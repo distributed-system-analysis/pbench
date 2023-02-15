@@ -119,7 +119,7 @@ class TestServerSettings:
             expected_status=HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {
-            "message": "Unrecognized server setting ['fookey'] specified: valid settings are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized server settings ['fookey'] specified: valid settings are ['dataset-lifetime', 'server-banner', 'server-state']"
         }
 
     @pytest.mark.parametrize(
@@ -136,7 +136,7 @@ class TestServerSettings:
             key=key, expected_status=HTTPStatus.BAD_REQUEST, json={"value": value}
         )
         assert (
-            f"Unsupported value for server settings key '{key}'"
+            f"Unsupported value for server setting key '{key}'"
             in response.json["message"]
         )
 
