@@ -68,8 +68,6 @@ def test_init_indexing(monkeypatch, server_config, make_logger):
 
     class MockIdxContext:
         def __init__(self, *args, **kwargs):
-            self.args = args
-            self.kwargs = kwargs
             self.templates = MockPbenchTemplates()
             self.es = "fake-es-obj"
 
