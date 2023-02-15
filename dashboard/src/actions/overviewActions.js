@@ -67,11 +67,10 @@ const initializeRuns = () => (dispatch, getState) => {
     item[CONSTANTS.NAME_COPY] = item.name;
     item[CONSTANTS.SERVER_DELETION_COPY] =
       item.metadata[CONSTANTS.SERVER_DELETION];
-    item[CONSTANTS.IS_DIRTY] = {
-      [CONSTANTS.SERVER_DELETION_KEY]: false,
-      [CONSTANTS.DATASET_NAME_KEY]: false,
-    };
-    item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.DEFAULT;
+
+    item[CONSTANTS.IS_DIRTY_NAME] = false;
+    item[CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
+    item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
     item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
     item[CONSTANTS.IS_ITEM_FAVORITED] =
       !!item?.metadata?.[CONSTANTS.USER_FAVORITE];
@@ -336,9 +335,9 @@ export const editMetadata =
     const data = filterDatasetType(type, getState);
 
     const rIndex = data.findIndex((item) => item.resource_id === rId);
-    data[rIndex][metadata] = value;
 
     if (metadata === CONSTANTS.NAME_KEY) {
+      data[rIndex][CONSTANTS.NAME_KEY] = value;
       if (value.length > CONSTANTS.DATASET_NAME_LENGTH) {
         data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.ERROR;
         data[rIndex][
@@ -350,9 +349,9 @@ export const editMetadata =
       } else {
         data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
       }
-      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.DATASET_NAME_KEY] = true;
-    } else if (CONSTANTS.SERVER_DELETION_KEY) {
-      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.SERVER_DELETION_KEY] = true;
+      data[rIndex][CONSTANTS.IS_DIRTY_NAME] = true;
+    } else if (metadata === CONSTANTS.SERVER_DELETION_KEY) {
+      data[rIndex][CONSTANTS.IS_DIRTY_SERVER_DELETE] = true;
       data[rIndex].metadata[CONSTANTS.SERVER_DELETION] = value;
     }
     dispatch(updateDatasetType(data, type));
@@ -376,8 +375,8 @@ export const setRowtoEdit =
       data[rIndex].name = data[rIndex][CONSTANTS.NAME_COPY];
       data[rIndex].metadata[CONSTANTS.SERVER_DELETION] =
         data[rIndex][CONSTANTS.SERVER_DELETION_COPY];
-      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.DATASET_NAME_KEY] = false;
-      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.SERVER_DELETION_KEY] = false;
+      data[rIndex][CONSTANTS.IS_DIRTY_NAME] = false;
+      data[rIndex][CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
       data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
     }
     dispatch(updateDatasetType(data, type));
@@ -397,15 +396,15 @@ export const getEditedMetadata =
       (item) => item.resource_id === dataset.resource_id
     );
     const item = data[rIndex];
-    const keys = Object.keys(item.isDirty);
 
-    const filtered = keys.filter((key) => item.isDirty[key]);
     const editedMetadata = {};
-    for (const key of filtered) {
-      editedMetadata[metaDataActions[key]] =
-        key === CONSTANTS.DATASET_NAME_KEY
-          ? item.name
-          : new Date(item.metadata[CONSTANTS.SERVER_DELETION]).toISOString();
+    if (item[CONSTANTS.IS_DIRTY_NAME]) {
+      editedMetadata[metaDataActions[CONSTANTS.DATASET_NAME_KEY]] = item.name;
+    }
+    if (item[CONSTANTS.IS_DIRTY_SERVER_DELETE]) {
+      editedMetadata[metaDataActions[CONSTANTS.SERVER_DELETION_KEY]] = new Date(
+        item.metadata[CONSTANTS.SERVER_DELETION]
+      ).toISOString();
     }
 
     dispatch(updateDataset(dataset, editedMetadata));

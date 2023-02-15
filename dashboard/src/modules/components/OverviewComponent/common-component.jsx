@@ -188,9 +188,12 @@ export const EditRow = (props) => {
         <div>
           <Button
             isDisabled={
-              !props.item[CONSTANTS.IS_DIRTY] ||
+              !(
+                props.item[CONSTANTS.IS_DIRTY_NAME] ||
+                props.item[CONSTANTS.IS_DIRTY_SERVER_DELETE]
+              ) ||
               !props.item.name ||
-              props.item[CONSTANTS.NAME_VALIDATED] === "error"
+              props.item[CONSTANTS.NAME_VALIDATED] === CONSTANTS.ERROR
             }
             onClick={() => props.saveRowData(props.item)}
             variant="plain"
