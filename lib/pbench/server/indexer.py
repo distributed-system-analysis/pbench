@@ -111,12 +111,7 @@ def _get_es_hosts(config, logger):
     try:
         uri = config.get("Indexing", "uri")
     except (configparser.NoSectionError, configparser.NoOptionError):
-        logger.warning(
-            "Failed to find an [Indexing] section with uri defined in {}"
-            " configuration file.",
-            " ".join(config.files),
-        )
-        return None
+        raise BadConfig("Indexing URI missing")
     url = urlparse(uri)
     if not url.hostname:
         raise BadConfig("Indexing URI must contain a host name")
