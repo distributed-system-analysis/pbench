@@ -29,5 +29,5 @@ class TestConnect:
 
         # verify all the required openid-connect fields are present
         if "openid" in endpoints:
-            expected = {"server", "client", "realm"}
-            assert set(endpoints["openid"]) == expected
+            expected = {"client", "realm", "server"}
+            assert set(endpoints["openid"]) >= expected

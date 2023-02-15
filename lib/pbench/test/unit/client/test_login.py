@@ -1,6 +1,9 @@
 from http import HTTPStatus
 
+import pytest
 import responses
+
+from pbench.server.auth import OpenIDClientError
 
 
 class TestLogin:
@@ -38,7 +41,8 @@ class TestLogin:
                 status=HTTPStatus.UNAUTHORIZED,
                 json={"error_description": "Invalid user credentials"},
             )
-            connect.login("user", "password")
+            with pytest.raises(OpenIDClientError):
+                connect.login("user", "password")
             assert len(rsp.calls) == 1
             assert rsp.calls[0].request.url == url
             assert rsp.calls[0].response.status_code == 401

@@ -64,7 +64,6 @@ class OIDCAdmin(Connection):
         admin_token = self.get_admin_token().get("access_token")
         url_path = f"/admin/realms/{self.OIDC_REALM}/users"
         headers = {
-            "Content-Type": "application/json",
             "Authorization": f"Bearer {admin_token}",
         }
         data = {
@@ -102,7 +101,6 @@ class OIDCAdmin(Connection):
 
         """
         url_path = f"/realms/{self.OIDC_REALM}/protocol/openid-connect/token"
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
         data = {
             "client_id": client_id,
             "grant_type": "password",
@@ -110,7 +108,7 @@ class OIDCAdmin(Connection):
             "username": username,
             "password": password,
         }
-        return self.post(path=url_path, data=data, headers=headers).json()
+        return self.post(path=url_path, data=data).json()
 
     def get_user(self, username: str, token: str) -> dict:
         """Get the OIDC user representation dict.
@@ -138,7 +136,6 @@ class OIDCAdmin(Connection):
         response = self.get(
             f"admin/realms/{self.OIDC_REALM}/users",
             headers={
-                "Content-Type": "application/json",
                 "Authorization": f"Bearer {token}",
             },
             username=username,

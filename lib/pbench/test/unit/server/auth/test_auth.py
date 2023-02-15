@@ -1,7 +1,7 @@
 import configparser
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from flask import current_app, Flask
 import jwt
@@ -43,7 +43,12 @@ class TestConnection:
         args = {}
 
         def fake_method(
-            the_self, method: str, path: str, data: Dict, json: Dict, **kwargs
+            the_self,
+            method: str,
+            path: str,
+            data: Optional[Any] = None,
+            json: Optional[dict[str, Any]] = None,
+            **kwargs,
         ) -> requests.Response:
             args["method"] = method
             args["path"] = path
@@ -176,7 +181,7 @@ class TestConnection:
         """
         args = fake_method
         response = conn.post(
-            "foo/bar", {"one": "two", "three": "four"}, None, five="six"
+            "foo/bar", data={"one": "two", "three": "four"}, five="six"
         )
         assert response is not None
         assert args["method"] == "POST"

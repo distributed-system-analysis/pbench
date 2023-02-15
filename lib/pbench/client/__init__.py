@@ -10,7 +10,6 @@ from requests.structures import CaseInsensitiveDict
 
 from pbench.client.oidc_admin import OIDCAdmin
 from pbench.client.types import Dataset, JSONOBJECT
-from pbench.server.auth import OpenIDClientError
 
 
 class PbenchClientError(Exception):
@@ -340,17 +339,13 @@ class PbenchServerClient:
             user:       Account username
             password:   Account password
         """
-        try:
-            response = self.oidc_admin.user_login(
-                client_id=self.endpoints["openid"]["client"],
-                username=user,
-                password=password,
-            )
-        except OpenIDClientError:
-            self.auth_token = None
-        else:
-            self.username = user
-            self.auth_token = response["access_token"]
+        response = self.oidc_admin.user_login(
+            client_id=self.endpoints["openid"]["client"],
+            username=user,
+            password=password,
+        )
+        self.username = user
+        self.auth_token = response["access_token"]
 
     def upload(self, tarball: Path, **kwargs) -> requests.Response:
         """Upload a tarball to the server.
