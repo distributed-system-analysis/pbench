@@ -1,7 +1,5 @@
 from http import HTTPStatus
 
-import pytest
-import requests
 import responses
 
 
@@ -11,11 +9,11 @@ class TestLogin:
         Confirm that a successful Pbench Server login captures the 'username'
         and 'auth_token' in the client object.
         """
-        url = f"{connect.url}/api/v1/login"
+        oidc_server = connect.endpoints["openid"]["server"]
+        oidc_realm = connect.endpoints["openid"]["realm"]
+        url = f"{oidc_server}/realms/{oidc_realm}/protocol/openid-connect/token"
         with responses.RequestsMock() as rsp:
-            rsp.add(
-                responses.POST, url, json={"username": "user", "auth_token": "foobar"}
-            )
+            rsp.add(responses.POST, url, json={"access_token": "foobar"})
             connect.login("user", "password")
             assert len(rsp.calls) == 1
             assert rsp.calls[0].request.url == url
@@ -30,18 +28,17 @@ class TestLogin:
         handled by the client library, and does not set the client 'username`
         and 'auth_token' properties.
         """
-        url = f"{connect.url}/api/v1/login"
+        oidc_server = connect.endpoints["openid"]["server"]
+        oidc_realm = connect.endpoints["openid"]["realm"]
+        url = f"{oidc_server}/realms/{oidc_realm}/protocol/openid-connect/token"
         with responses.RequestsMock() as rsp:
             rsp.add(
                 responses.POST,
                 url,
                 status=HTTPStatus.UNAUTHORIZED,
-                json={"username": "user", "auth_token": "foobar"},
+                json={"error_description": "Invalid user credentials"},
             )
-
-            with pytest.raises(requests.HTTPError):
-                connect.login("user", "password")
-
+            connect.login("user", "password")
             assert len(rsp.calls) == 1
             assert rsp.calls[0].request.url == url
             assert rsp.calls[0].response.status_code == 401

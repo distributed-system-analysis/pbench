@@ -51,6 +51,7 @@ class Connection:
         method: str,
         path: str,
         data: Union[Dict, str, None],
+        json: Optional[Dict] = None,
         headers: Optional[Dict] = None,
         **kwargs,
     ) -> requests.Response:
@@ -59,7 +60,8 @@ class Connection:
         Args:
             method : The API HTTP method
             path : Path for the request.
-            data : Json data to send with the request in case of the POST
+            data : Data to send with the request in case of the POST
+            json: JSON data to send with the request in case of the POST
             kwargs : Additional keyword args
 
         Returns:
@@ -72,6 +74,7 @@ class Connection:
         kwargs = dict(
             params=kwargs,
             data=data,
+            json=json,
             headers=final_headers,
             verify=self.verify,
         )
@@ -123,12 +126,13 @@ class Connection:
         Returns:
             Response from the request.
         """
-        return self._method("GET", path, None, headers=headers, **kwargs)
+        return self._method("GET", path, None, None, headers=headers, **kwargs)
 
     def post(
         self,
         path: str,
-        data: Union[Dict, str],
+        data: Union[Dict, str] = None,
+        json: Optional[Dict] = None,
         headers: Optional[Dict] = None,
         **kwargs,
     ) -> requests.Response:
@@ -137,14 +141,15 @@ class Connection:
 
         Args:
             path : Path for the request
-            data : JSON request body
+            data : Request body to attach
+            json: JSON request body
             headers : Additional headers to add to the request
             kwargs : Additional keyword args to be added as URL parameters
 
         Returns:
             Response from the request.
         """
-        return self._method("POST", path, data, headers=headers, **kwargs)
+        return self._method("POST", path, data, json, headers=headers, **kwargs)
 
 
 @dataclass

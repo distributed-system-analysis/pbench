@@ -23,8 +23,8 @@ ADMIN_USERNAME=${ADMIN_USERNAME:-"admin"}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 # These values must match the options "realm" and "client in the
 # "openid-connect" section of the pbench server configuration file.
-REALM=${KEYCLOAK_REALM:-"pbench-server-test"}
-CLIENT=${KEYCLOAK_CLIENT:-"pbench-dashboard-test"}
+REALM=${KEYCLOAK_REALM:-"pbench-server"}
+CLIENT=${KEYCLOAK_CLIENT:-"pbench-dashboard"}
 
 end_in_epoch_secs=$(date --date "2 minutes" +%s)
 

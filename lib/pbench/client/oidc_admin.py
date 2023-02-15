@@ -1,5 +1,4 @@
 from http import HTTPStatus
-import json
 import os
 
 import requests
@@ -9,8 +8,8 @@ from pbench.server.auth import Connection
 
 class OIDCAdmin(Connection):
     OIDC_REALM = os.getenv("OIDC_REALM", "pbench-server")
-    ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
-    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin")
+    ADMIN_USERNAME = os.getenv("OIDC_ADMIN_USERNAME", "admin")
+    ADMIN_PASSWORD = os.getenv("OIDC_ADMIN_PASSWORD", "admin")
 
     def __init__(self, server_url: str):
         super().__init__(server_url, verify=False)
@@ -79,7 +78,7 @@ class OIDCAdmin(Connection):
                 {"type": "password", "value": password, "temporary": False}
             ],
         }
-        response = self.post(path=url_path, data=json.dumps(data), headers=headers)
+        response = self.post(path=url_path, json=data, headers=headers)
         return response
 
     def user_login(self, client_id: str, username: str, password: str) -> dict:

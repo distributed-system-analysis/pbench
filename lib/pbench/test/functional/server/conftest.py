@@ -63,4 +63,3 @@ def login_user(server_client: PbenchServerClient, register_test_user):
     """Log in the test user and return the authentication token"""
     server_client.login(USERNAME, PASSWORD)
     assert server_client.auth_token
-    yield

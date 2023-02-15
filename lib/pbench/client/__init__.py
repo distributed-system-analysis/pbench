@@ -10,6 +10,7 @@ from requests.structures import CaseInsensitiveDict
 
 from pbench.client.oidc_admin import OIDCAdmin
 from pbench.client.types import Dataset, JSONOBJECT
+from pbench.server.auth import OpenIDClientError
 
 
 class PbenchClientError(Exception):
@@ -309,8 +310,8 @@ class PbenchServerClient:
             1. Connect to the Pbench Server host using the endpoints API to be
             sure that it responds, and cache the endpoints response payload.
 
-            2. Creates an OIDCAdmin object that server client can use to
-            perform admin privileged actions on OIDC server.
+            2. Create an OIDCAdmin object that a server client can use to
+            perform privileged actions on an OIDC server.
 
         This also allows the client to add default HTTP headers to the session
         which will be used for all operations unless overridden for specific
@@ -330,25 +331,26 @@ class PbenchServerClient:
 
         # Create an OIDCAdmin object and confirm the connection was successful
         self.oidc_admin = OIDCAdmin(server_url=self.endpoints["openid"]["server"])
-        assert self.oidc_admin.get_admin_token()["access_token"]
 
     def login(self, user: str, password: str):
-        """Login to a specified username with the password on OIDC server,
+        """Log into the OIDC server using the specified username and password,
         and store the resulting authentication token.
 
         Args:
             user:       Account username
             password:   Account password
         """
-        response = self.oidc_admin.user_login(
-            client_id=self.endpoints["openid"]["client"],
-            username=user,
-            password=password,
-        )
-        assert response["access_token"]
-        auth_token = response["access_token"]
-        self.username = user
-        self.auth_token = auth_token
+        try:
+            response = self.oidc_admin.user_login(
+                client_id=self.endpoints["openid"]["client"],
+                username=user,
+                password=password,
+            )
+        except OpenIDClientError:
+            self.auth_token = None
+        else:
+            self.username = user
+            self.auth_token = response["access_token"]
 
     def upload(self, tarball: Path, **kwargs) -> requests.Response:
         """Upload a tarball to the server.
