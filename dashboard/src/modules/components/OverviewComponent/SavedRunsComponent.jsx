@@ -21,10 +21,10 @@ import {
   deleteDataset,
   editMetadata,
   getEditedMetadata,
+  getMetaDataActions,
   publishDataset,
   setRowtoEdit,
   setSelectedSavedRuns,
-  updateDataset,
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -68,7 +68,7 @@ const SavedRunsComponent = () => {
       title: dataset.metadata[DASHBOARD_SEEN] ? "Mark unread" : "Mark read",
       onClick: () =>
         dispatch(
-          updateDataset(dataset, "read", !dataset.metadata[DASHBOARD_SEEN])
+          getMetaDataActions(dataset, "read", !dataset.metadata[DASHBOARD_SEEN])
         ),
     },
     {
@@ -78,7 +78,7 @@ const SavedRunsComponent = () => {
   ];
   /* Actions Row */
   const makeFavorites = (dataset, isFavoriting = true) => {
-    dispatch(updateDataset(dataset, "favorite", isFavoriting));
+    dispatch(getMetaDataActions(dataset, "favorite", isFavoriting));
   };
   /* Edit Dataset */
   const saveRowData = (dataset) => {
