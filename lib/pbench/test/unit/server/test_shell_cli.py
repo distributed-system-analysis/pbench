@@ -195,7 +195,7 @@ class TestShell:
             called.append("find_the_unicorn")
 
         def wait_for_uri(*args, **kwargs):
-            called.append("wait_for_uri")
+            called.append(f"wait_for_uri({args[0]},{args[1]})")
 
         def init_indexing(*args, **kwargs):
             called.append("init_indexing")
@@ -227,10 +227,13 @@ class TestShell:
         ret_val = shell.main()
 
         assert ret_val == 42
-        assert not user_site or called[0] == "find_the_unicorn"
-        assert called[-3] == "wait_for_uri"
-        assert called[-3] == called[-2]
-        assert called[-1] == "init_indexing"
+        expected_called = ["find_the_unicorn"] if user_site else []
+        expected_called += [
+            "wait_for_uri(sqlite:///:memory:,120)",
+            "wait_for_uri(http://elasticsearch.example.com:7080,120)",
+            "init_indexing",
+        ]
+        assert called == expected_called
         assert len(commands) == 3, f"{commands!r}"
         assert commands[0][0] == "pbench-create-crontab"
         assert commands[1][0] == "crontab"
