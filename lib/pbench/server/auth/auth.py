@@ -66,7 +66,7 @@ def encode_auth_token(time_delta: timedelta, user_id: int) -> Tuple[str, datetim
         user_id : Authorized user's internal ID
 
     Returns:
-        JWT token string, expiration
+        A tuple containing the JWT token string and the absolute expiration time
     """
     current_utc = datetime.now(timezone.utc)
     expiration = current_utc + time_delta
