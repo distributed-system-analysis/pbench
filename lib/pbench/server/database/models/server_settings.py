@@ -1,4 +1,12 @@
-"""A framework to manage Pbench configuration settings."""
+"""A framework to manage run-time server settings.
+
+While we have initial configuration settings loaded from a configuration file
+managed by the PbenchServerConfig object, these server settings are managed by
+API calls over the life-time of a server deployment.
+
+The list of available settings are defined by the OPTION_* variables of this
+module.
+"""
 import re
 from typing import Optional
 
