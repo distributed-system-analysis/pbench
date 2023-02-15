@@ -262,15 +262,15 @@ class TestShell:
 
     @staticmethod
     def test_main_crontab_failed(monkeypatch, make_logger, mock_get_server_config):
-        def noop(*args, **kwargs):
+        def immediate_success(*args, **kwargs):
             pass
 
         def generate_crontab_if_necessary(*args, **kwargs) -> int:
             return 43
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
-        monkeypatch.setattr(shell, "wait_for_uri", noop)
-        monkeypatch.setattr(shell, "init_indexing", noop)
+        monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
+        monkeypatch.setattr(shell, "init_indexing", immediate_success)
         monkeypatch.setattr(
             shell, "generate_crontab_if_necessary", generate_crontab_if_necessary
         )
@@ -280,27 +280,24 @@ class TestShell:
         assert ret_val == 43
 
     @staticmethod
-    @pytest.mark.parametrize("init_indexing_exc", ["section", "option"])
+    @pytest.mark.parametrize(
+        "init_indexing_exc",
+        [NoSectionError("missingsection"), NoOptionError("section", "missingoption")],
+    )
     def test_main_init_indexing_failed(
         monkeypatch, make_logger, mock_get_server_config, init_indexing_exc
     ):
-        def noop(*args, **kwargs):
+        def immediate_success(*args, **kwargs):
             pass
 
         called = [False]
 
         def init_indexing(*args, **kwargs) -> int:
             called[0] = True
-            if init_indexing_exc == "section":
-                exc = NoSectionError("missingsection")
-            elif init_indexing_exc == "option":
-                exc = NoOptionError("section", "missingoption")
-            else:
-                exc = Exception(f"Bad test parameter, {init_indexing_exc}")
-            raise exc
+            raise init_indexing_exc
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
-        monkeypatch.setattr(shell, "wait_for_uri", noop)
+        monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
         monkeypatch.setattr(shell, "init_indexing", init_indexing)
 
         ret_val = shell.main()
@@ -309,58 +306,109 @@ class TestShell:
         assert ret_val == 1
 
     @staticmethod
-    @pytest.mark.parametrize("init_db_exc", ["section", "option"])
+    @pytest.mark.parametrize(
+        "init_db_exc",
+        [NoSectionError("missingsection"), NoOptionError("section", "missingoption")],
+    )
     def test_main_initdb_failed(
         monkeypatch, make_logger, mock_get_server_config, init_db_exc
     ):
+        def immediate_success(*args, **kwargs):
+            pass
+
+        called = [False]
+
         def init_db(*args, **kwargs) -> int:
-            if init_db_exc == "section":
-                exc = NoSectionError("missingsection")
-            elif init_db_exc == "option":
-                exc = NoOptionError("section", "missingoption")
-            else:
-                exc = Exception(f"Bad test parameter, {init_db_exc}")
-            raise exc
+            called[0] = True
+            raise init_db_exc
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
+        monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
         monkeypatch.setattr(shell, "init_db", init_db)
 
         ret_val = shell.main()
 
+        assert called[0]
         assert ret_val == 1
 
     @staticmethod
     def test_main_wait_for_oidc_server_exc(
         monkeypatch, make_logger, mock_get_server_config
     ):
+        def immediate_success(*args, **kwargs):
+            pass
+
+        called = [False]
+
         def wait_for_oidc_server(
             server_config: PbenchServerConfig, logger: logging.Logger
         ) -> str:
+            called[0] = True
             raise Exception("oidc exception")
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
+        monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
         monkeypatch.setattr(
             shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
         )
 
         ret_val = shell.main()
 
+        assert called[0]
         assert ret_val == 1
 
     @staticmethod
-    def test_main_wait_for_database_exc(
-        monkeypatch, make_logger, mock_get_server_config
+    @pytest.mark.parametrize(
+        "wait_for_uri_exc",
+        [
+            ConnectionRefusedError("elasticsearch exception"),
+            BadConfig("elasticsearch config"),
+        ],
+    )
+    def test_main_wait_for_elasticsearch_exc(
+        monkeypatch, make_logger, mock_get_server_config, wait_for_uri_exc
     ):
+        called = [0]
+        raised = [False]
+
         def wait_for_uri(
             server_config: PbenchServerConfig, logger: logging.Logger
         ) -> str:
-            raise ConnectionRefusedError("database exception")
+            called[0] += 1
+            if called[0] > 1:
+                raised[0] = True
+                raise wait_for_uri_exc
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
         monkeypatch.setattr(shell, "wait_for_uri", wait_for_uri)
 
         ret_val = shell.main()
 
+        assert called[0] == 2 and raised[0]
+        assert ret_val == 1
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "wait_for_uri_exc",
+        [ConnectionRefusedError("database exception"), BadConfig("database config")],
+    )
+    def test_main_wait_for_database_exc(
+        monkeypatch, make_logger, mock_get_server_config, wait_for_uri_exc
+    ):
+        called = [False]
+
+        def wait_for_uri(
+            server_config: PbenchServerConfig, logger: logging.Logger
+        ) -> str:
+            called[0] = True
+            raise wait_for_uri_exc
+
+        monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
+        monkeypatch.setattr(shell, "wait_for_uri", wait_for_uri)
+
+        ret_val = shell.main()
+
+        assert called[0]
         assert ret_val == 1
 
     @staticmethod
@@ -417,21 +465,22 @@ class TestShell:
         assert ret_val == 1
 
     @staticmethod
-    @pytest.mark.parametrize("gsc_exc", ["nofile", "bad"])
+    @pytest.mark.parametrize(
+        "gsc_exc",
+        [ConfigFileNotSpecified("nofile found"), BadConfig("bad to the bone")],
+    )
     def test_main_get_server_config_exc(capsys, monkeypatch, make_logger, gsc_exc):
+        called = [False]
+
         def get_server_config() -> PbenchServerConfig:
-            if gsc_exc == "nofile":
-                exc = ConfigFileNotSpecified("nofile found")
-            elif gsc_exc == "bad":
-                exc = BadConfig("bad to the bone")
-            else:
-                exc = Exception(f"Bad test parameter, {gsc_exc}")
-            raise exc
+            called[0] = True
+            raise gsc_exc
 
         monkeypatch.setattr(shell, "get_server_config", get_server_config)
 
         ret_val = shell.main()
 
+        assert called[0]
         assert ret_val == 1
         out, err = capsys.readouterr()
-        assert err.startswith(gsc_exc), f"out={out!r}, err={err!r}"
+        assert err.startswith(str(gsc_exc)), f"out={out!r}, err={err!r}"
