@@ -96,16 +96,22 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         logger.error("Error fetching required configuration: {}", exc)
         return 1
 
-    logger.info("Pbench server using database {}", db_uri)
-
-    logger.debug("Waiting for database instance to become available.")
+    logger.info(
+        "Waiting at most {:d} seconds for database instance {} to become available.",
+        db_wait_timeout,
+        db_uri,
+    )
     try:
         wait_for_uri(db_uri, db_wait_timeout)
     except ConnectionRefusedError:
         logger.error("Database {} not responding", db_uri)
         return 1
 
-    logger.debug("Waiting for the Elasticsearch instance to become available.")
+    logger.info(
+        "Waiting at most {:d} seconds for the Elasticsearch instance {} to become available.",
+        es_wait_timeout,
+        es_uri,
+    )
     try:
         wait_for_uri(es_uri, es_wait_timeout)
     except ConnectionRefusedError:
@@ -123,6 +129,7 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     # attempt to synchronize them, detect a missing DB (from the database URI)
     # and create it here. It's safer to do this here, where we're
     # single-threaded.
+    logger.info("Performing database setup")
     Database.create_if_missing(db_uri, logger)
     try:
         init_db(server_config, logger)
@@ -135,12 +142,14 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     # initialize the templates in the Indexing sub-system.  To avoid race
     # conditions that can create stack traces, we initialize the indexing sub-
     # system before we start the cron jobs.
+    logger.info("Performing Elasticsearch indexing setup")
     try:
         init_indexing(PROG, server_config, logger)
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Invalid indexing configuration: {}", exc)
         return 1
 
+    logger.info("Generating new crontab file, if necessary")
     ret_val = generate_crontab_if_necessary(
         crontab_dir, server_config.BINDIR, server_config.log_dir, logger
     )
@@ -180,7 +189,9 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         cmd_line += ["--pythonpath", adds]
 
     cmd_line.append("pbench.cli.server.shell:app()")
+    logger.info("Starting Gunicorn Pbench Server application")
     cp = subprocess.run(cmd_line, cwd=server_config.log_dir)
+    logger.info("Gunicorn Pbench Server application exited with {}", cp.returncode)
     return cp.returncode
 
 

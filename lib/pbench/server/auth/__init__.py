@@ -252,7 +252,7 @@ class OpenIDClient:
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 
-        logger.debug("Waiting for OIDC server to become available.")
+        logger.info("Waiting for OIDC server to become available.")
 
         session = requests.Session()
         # The connection check will retry multiple times unless successful, viz.,
