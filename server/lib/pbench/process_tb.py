@@ -49,23 +49,22 @@ class ProcessTb:
         return receive_dir
 
     @staticmethod
-    def _results_push(tb: Path, token: str, satellite_prefix: str = None):
+    def _results_push(tb: Path, token: str, satellite: str = None):
         """Runs Agent's `pbench-results-push` command with tb, token and
         metadata options
 
         Args -
             tb -- path of the tar ball
             token -- generated authorised token for Pbench user
-            satellite_prefix -- prefix of the pbench's satellite server
+            satellite -- prefix of the pbench's satellite server
 
         Importance of this function is while running tests we get the
         ability to mock this function and test it easily.
         """
         results_push = f"pbench-results-push {tb} --token={token}"
 
-        if satellite_prefix:
-            satellite_metadata = "server.origin:" + satellite_prefix
-            results_push += f" --metadata={satellite_metadata}"
+        if satellite:
+            results_push += f" --metadata=server.origin:{satellite}"
 
         res = subprocess.run(
             [
