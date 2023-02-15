@@ -103,7 +103,7 @@ class User(Database.Base):
         return valid.email
 
     def add_token(self, auth_token: AuthToken):
-        """Add the given token to the database, removing any expired tokens
+        """Add the given token to the database
 
         Args:
             token : An AuthToken object add for this user
