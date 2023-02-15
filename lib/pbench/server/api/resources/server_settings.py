@@ -185,7 +185,7 @@ class ServerSettings(ApiBase):
         if badkeys:
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST,
-                f"Unrecognized server setting {sorted(badkeys)!r} specified: valid settings are {sorted(ServerSetting.KEYS)!r}",
+                f"Unrecognized server settings {sorted(badkeys)!r} specified: valid settings are {sorted(ServerSetting.KEYS)!r}",
             )
 
         context["auditing"]["attributes"] = {"updated": params.body}

@@ -88,9 +88,7 @@ class ServerSettingBadValue(ServerSettingError):
         self.value = value
 
     def __str__(self) -> str:
-        return (
-            f"Unsupported value for server settings key {self.key!r} ({self.value!r})"
-        )
+        return f"Unsupported value for server setting key {self.key!r} ({self.value!r})"
 
 
 # Formal timedelta syntax is "[D day[s], ][H]H:MM:SS[.UUUUUU]"; without an
@@ -189,12 +187,12 @@ SERVER_SETTINGS_OPTIONS = {
 
 
 class ServerSetting(Database.Base):
-    """A simple key-value store used to manage runtime settings.
+    """A simple key-value store used to manage runtime server settings.
 
     Columns:
         id      Generated unique ID of table row
-        key     Setting key name
-        value   Setting key value
+        key     Server setting key name
+        value   Server setting key value
     """
 
     KEYS = sorted([s for s in SERVER_SETTINGS_OPTIONS.keys()])
@@ -256,7 +254,7 @@ class ServerSetting(Database.Base):
         be provided.
 
         Args:
-            key : System setting name
+            key : Server setting key name
             use_default : If the DB value is None, return a default
 
         Raises:
@@ -265,10 +263,9 @@ class ServerSetting(Database.Base):
         Returns:
             ServerSetting object with the specified key name or None
         """
+        dbs = Database.db_session
         try:
-            setting = (
-                Database.db_session.query(ServerSetting).filter_by(key=key).first()
-            )
+            setting = dbs.query(ServerSetting).filter_by(key=key).first()
             if setting is None and use_default:
                 setting = ServerSetting(key=key, value=__class__._default(key))
         except SQLAlchemyError as e:
