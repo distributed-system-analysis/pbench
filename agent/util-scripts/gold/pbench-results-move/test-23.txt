@@ -13,8 +13,8 @@ Options:
   --delete / --no-delete         Remove local data after successful copy
                                  [default: delete]
   -m, --metadata TEXT            list of metadata keys to be sent on PUT.
-                                 Option may need to be specified multiple times
-                                 for multiple values. Format: key:value
+                                 Option may need to be specified multiple
+                                 times for multiple values. Format: key:value
   --show-server TEXT             Display information about the pbench server
                                  where the result(s) will be moved (Not
                                  implemented)

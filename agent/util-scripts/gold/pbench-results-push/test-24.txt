@@ -12,8 +12,8 @@ Options:
                                  (defaults to the '_PBENCH_AGENT_CONFIG'
                                  environment variable, if defined)  [required]
   -m, --metadata TEXT            list of metadata keys to be sent on PUT.
-                                 Option may need to be specified multiple times
-                                 for multiple values. Format: key:value
+                                 Option may need to be specified multiple
+                                 times for multiple values. Format: key:value
   --token TEXT                   pbench server authentication token
                                  [required]
   --help                         Show this message and exit.
