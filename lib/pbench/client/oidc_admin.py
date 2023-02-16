@@ -63,9 +63,7 @@ class OIDCAdmin(Connection):
         """
         admin_token = self.get_admin_token().get("access_token")
         url_path = f"/admin/realms/{self.OIDC_REALM}/users"
-        headers = {
-            "Authorization": f"Bearer {admin_token}",
-        }
+        headers = {"Authorization": f"Bearer {admin_token}"}
         data = {
             "username": username,
             "email": email,
@@ -135,9 +133,7 @@ class OIDCAdmin(Connection):
         """
         response = self.get(
             f"admin/realms/{self.OIDC_REALM}/users",
-            headers={
-                "Authorization": f"Bearer {token}",
-            },
+            headers={"Authorization": f"Bearer {token}"},
             username=username,
         )
         if response.status_code == HTTPStatus.OK:

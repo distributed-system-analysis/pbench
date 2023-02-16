@@ -4,7 +4,7 @@ from configparser import NoOptionError, NoSectionError
 from dataclasses import dataclass
 from http import HTTPStatus
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 from urllib.parse import urljoin
 
 import jwt
@@ -332,7 +332,7 @@ class OpenIDClient:
         client_id: str,
         realm_name: str,
         verify: bool = True,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
     ):
         """Initialize an OpenID Connect Client object.
 
