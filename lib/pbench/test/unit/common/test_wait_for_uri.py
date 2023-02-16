@@ -33,6 +33,35 @@ def test_wait_for_uri_bad():
 
 
 def setup_conn_ref(monkeypatch):
+    """Setup a mock'd up environment for socket.create_connection to drive
+    ConnectionRefusedError behaviors.
+
+    The `wait_for_uri()` method invokes `socket.create_connection()`,
+    `time.time()` to get the current timestamp, and `time.sleep()` to wait one
+    second before re-trying to create a connection.
+
+    An example sequence of calls made by `wait_for_uri()`:
+
+        1. time()
+        2. create_connection() - raises ConnectionRefusedError()
+        3. time()
+        4. sleep()
+        5. create_connection() - raises ConnectionRefusedError()
+        6. time()
+        7. sleep()
+        8. create_connection() - succeeds
+
+    Each mock'd call to `time()` returns the current time, starting at 0, and
+    increments the "clock" by one.
+
+    Each mock'd call to `sleep()` simply records that it was called, and returns
+    immediately.
+
+    Each mock'd call to `create_connection()` records it was called, along with
+    the current clock value, raises ConnectionRefusedError() while the clock is
+    strictly less than 3, and returns successfully (really yields to make the
+    contextmanager behavior work) when the clock is 3 or greater.
+    """
     clock = [0]
     called = []
 
@@ -48,6 +77,7 @@ def setup_conn_ref(monkeypatch):
 
     def time() -> int:
         curr_time = clock[0]
+        called.append(f"time [{curr_time}]")
         clock[0] += 1
         return curr_time
 
@@ -58,23 +88,38 @@ def setup_conn_ref(monkeypatch):
 
 
 def test_wait_for_uri_conn_ref_succ(monkeypatch):
+    """Verify connection attempts initially fail, but then ultimately succeed
+    before the timeout period.
+    """
     called = setup_conn_ref(monkeypatch)
+    # The mock will return successfully after 3 ticks of the mock'd clock, so 42 is
+    # sufficiently long enough (it is greater
     pbench.common.wait_for_uri("http://localhost:42", 42)
     assert called == [
-        "conn_ref [1]",
+        "time [0]",  # Clock moves from 0 to 1
+        "conn_ref [1]",  # Raises
+        "time [1]",  # Clock moves from 1 to 2
         "sleep",
-        "conn_ref [2]",
+        "conn_ref [2]",  # Raises
+        "time [2]",  # Clock moves from 2 to 3
         "sleep",
-        "conn_ref [3]",
+        "conn_ref [3]",  # Succeeds
     ], f"{called!r}"
 
 
 def test_wait_for_uri_conn_ref_fail(monkeypatch):
+    """Verify connection attempts fail until the timeout period has expired."""
     called = setup_conn_ref(monkeypatch)
     with pytest.raises(ConnectionRefusedError):
         pbench.common.wait_for_uri("http://localhost:42", 1)
     assert called == [
-        "conn_ref [1]",
+        "time [0]",  # Clock moves from 0 to 1
+        "conn_ref [1]",  # Raises
+        "time [1]",  # Clock moves from 1 to 2
         "sleep",
-        "conn_ref [2]",
+        "conn_ref [2]",  # Raises
+        "time [2]",  # Clock moves from 2 to 3
+        # wait_for_uri() re-raises because the clock is now
+        # 2 and we told it to stop once we have moved beyond
+        # the time.
     ], f"{called!r}"
