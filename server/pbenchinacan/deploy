@@ -1,0 +1,26 @@
+#!/bin/bash -e
+
+# Update the dashboard code
+podman unshare rm -r /srv/pbench/public_html/dashboard/
+podman unshare cp -r ${HOME}/git/pbench/dashboard/build /srv/pbench/public_html/dashboard
+
+# Update the favicon
+podman unshare rm /srv/pbench/public_html/favicon.ico
+podman unshare cp color-square.ico /srv/pbench/public_html/favicon.ico
+
+IMAGE=images.paas.redhat.com/pbench/pbench-server:main
+
+# First ensure /srv/pbench is owned by the "pbench" user INSIDE the container we run.
+podman run --rm --volume /srv/pbench:/srv/pbench:Z ${IMAGE} chown -R pbench:pbench /srv/pbench
+
+# Deploy the actual Pbench Server instance.
+podman run \
+    --name pbench-server \
+    --rm \
+    --detach \
+    --network host \
+    --volume ${HOME}/Deploy/etc/rsyslog.conf:/etc/rsyslog.conf:Z \
+    --volume ${HOME}/Deploy/etc/rsyslog.d:/etc/rsyslog.d:Z \
+    --volume ${HOME}/Deploy/pbench-server.cfg:/opt/pbench-server/lib/config/pbench-server.cfg:Z \
+    --volume /srv/pbench:/srv/pbench:Z \
+    ${IMAGE} /sbin/init
