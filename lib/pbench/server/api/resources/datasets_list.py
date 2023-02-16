@@ -1,6 +1,4 @@
 from http import HTTPStatus
-import logging
-from typing import Dict, List, Tuple
 from urllib.parse import urlencode, urlparse
 
 from flask import current_app
@@ -10,7 +8,7 @@ from sqlalchemy import and_, cast, or_, String
 from sqlalchemy.exc import ProgrammingError, StatementError
 from sqlalchemy.orm import Query
 
-from pbench.server import JSON, OperationCode, PbenchServerConfig
+from pbench.server import JSON, JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
@@ -38,7 +36,7 @@ def urlencode_json(json: JSON) -> str:
     """We must properly encode the metadata query parameter as a list of keys."""
     new_json = {}
     for k, v in sorted(json.items()):
-        new_json[k] = ",".join(v) if k in ["metadata", "key"] else v
+        new_json[k] = ",".join(v) if k in ["metadata", "filter"] else v
     return urlencode(new_json)
 
 
@@ -80,7 +78,7 @@ class DatasetsList(ApiBase):
 
     def get_paginated_obj(
         self, query: Query, json: JSON, url: str
-    ) -> Tuple[List, Dict[str, str]]:
+    ) -> tuple[list[JSONOBJECT], dict[str, str]]:
         """Helper function to return a slice of datasets (constructed according
         to the user specified limit and an offset number) and a paginated object
         containing next page url and total items count.
@@ -113,24 +111,9 @@ class DatasetsList(ApiBase):
         if limit:
             query = query.limit(limit)
 
-        # Useful for debugging, but verbose: this displays the fully expanded
-        # SQL `SELECT` statement.
-        if current_app.logger.isEnabledFor(logging.INFO):
-            try:
-                current_app.logger.info(
-                    "QUERY {}",
-                    query.statement.compile(compile_kwargs={"literal_binds": True}),
-                )
-            except Exception as e:
-                current_app.logger.error(
-                    "Can't compile statement for {}: {}", json, str(e)
-                )
+        Database.dump_query(query, current_app.logger)
 
         items = query.all()
-        current_app.logger.info(
-            "QUERY count {}, limit {}, offset {}", total_count, limit, offset
-        )
-
         next_offset = offset + len(items)
         if next_offset < total_count:
             json["offset"] = next_offset
@@ -162,7 +145,6 @@ class DatasetsList(ApiBase):
             A JSON response containing the paginated query result
         """
         json = params.query
-        current_app.logger.info("Query with {}", json)
 
         # Get the authenticated user ID, if any
         user_id = Auth.get_current_user_id()
