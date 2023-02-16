@@ -334,7 +334,7 @@ class TestList:
             filter=[
                 "dataset.metalog.pbench.date:~2018",
                 "dataset.access:public",
-            ]
+            ],
         )
 
         for dataset in datasets:
@@ -358,14 +358,16 @@ class TestList:
                 "dataset.access:public",
                 "^dataset.metalog.pbench.date:~2018",
                 "^dataset.metalog.pbench.date:~2019",
-            ]
+            ],
         )
 
         for dataset in datasets:
             date = dataset.metadata["dataset.metalog.pbench.date"]
             access = dataset.metadata["dataset.access"]
             assert access == "public", f"Dataset {dataset.name} access is {access}"
-            assert "2018" in date or "2019" in date, f"Dataset {dataset.name} date is {date}"
+            assert (
+                "2018" in date or "2019" in date
+            ), f"Dataset {dataset.name} date is {date}"
 
 
 class TestDelete:

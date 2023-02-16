@@ -5,7 +5,7 @@ from typing import List
 import pytest
 import requests
 
-from pbench.server import JSON
+from pbench.server import JSON, JSONOBJECT
 from pbench.server.api.resources.datasets_list import urlencode_json
 from pbench.server.database.models.datasets import Dataset
 
@@ -130,6 +130,20 @@ class TestDatasetsList:
             )
         return {"next_url": next_url, "results": list, "total": len(name_list)}
 
+    def compare_results(
+        self, result: JSONOBJECT, name_list: List[str], query: JSON, server_config
+    ):
+        expected = self.get_results(name_list, query, server_config)
+        for k, v in result.items():
+            if k == "results":
+                assert sorted(v, key=lambda d: d["resource_id"]) == sorted(
+                    expected[k], key=lambda d: d["resource_id"]
+                ), f"Actual {k}={v} doesn't match expected {expected[k]}"
+            else:
+                assert (
+                    v == expected[k]
+                ), f"Actual {k}={v!r} doesn't match expected {expected[k]!r}"
+
     @pytest.mark.parametrize(
         "login,query,results",
         [
@@ -178,11 +192,21 @@ class TestDatasetsList:
             ("drb", {"end": "1970-09-01"}, []),
             ("drb", {"filter": "dataset.access:public"}, ["fio_1", "fio_2"]),
             ("drb", {"filter": "dataset.name:fio_1"}, ["fio_1"]),
-            ("drb", {"filter": "^dataset.name:~fio,^dataset.name:uperf_1"}, ["fio_1", "fio_2", "uperf_1"]),
-            ("drb", {"filter": "^dataset.name:~fio,^dataset.name:uperf_1,dataset.owner_id:3"}, ["fio_1"]),
+            (
+                "test",
+                {"filter": "^dataset.name:~fio,^dataset.name:uperf_1"},
+                ["fio_1", "fio_2", "uperf_1"],
+            ),
+            (
+                "test",
+                {
+                    "filter": "^dataset.name:~fio,^dataset.name:uperf_1,dataset.owner_id:3"
+                },
+                ["fio_1"],
+            ),
         ],
     )
-    def test_dataset_list(self, query_as, login, query, results, server_config):
+    def test_dataset_list(self, server_config, query_as, login, query, results):
         """Test the operation of `datasets/list` against our set of test
         datasets.
 
@@ -195,7 +219,7 @@ class TestDatasetsList:
         """
         query.update({"metadata": ["dataset.uploaded"]})
         result = query_as(query, login, HTTPStatus.OK)
-        assert result.json == self.get_results(results, query, server_config)
+        self.compare_results(result.json, results, query, server_config)
 
     @pytest.mark.parametrize(
         "login,query,results",
@@ -205,7 +229,7 @@ class TestDatasetsList:
             (
                 "test",
                 {},
-                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2"],
+                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
         ],
     )
@@ -222,7 +246,7 @@ class TestDatasetsList:
         """
         query.update({"metadata": ["dataset.uploaded"], "limit": 5})
         result = query_as(query, login, HTTPStatus.OK)
-        assert result.json == self.get_results(results, query, server_config)
+        self.compare_results(result.json, results, query, server_config)
 
     def test_unauth_dataset_list(self, query_as):
         """Test the operation of `datasets/list` when the client doesn't have

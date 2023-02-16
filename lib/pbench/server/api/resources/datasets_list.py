@@ -127,7 +127,9 @@ class DatasetsList(ApiBase):
                 )
 
         items = query.all()
-        current_app.logger.info("QUERY count {}, limit {}, offset {}", total_count, limit, offset)
+        current_app.logger.info(
+            "QUERY count {}, limit {}, offset {}", total_count, limit, offset
+        )
 
         next_offset = offset + len(items)
         if next_offset < total_count:
@@ -166,7 +168,7 @@ class DatasetsList(ApiBase):
         user_id = Auth.get_current_user_id()
 
         # Build a SQLAlchemy Query object expressing all of our constraints
-        query = Database.db_session.query(Dataset).join(Metadata)
+        query = Database.db_session.query(Dataset).outerjoin(Metadata)
         if "start" in json and "end" in json:
             query = query.filter(Dataset.uploaded.between(json["start"], json["end"]))
         elif "start" in json:
@@ -211,17 +213,17 @@ class DatasetsList(ApiBase):
                     else:
                         try:
                             c = getattr(Dataset, second)
-                            column = c if c.type.python_type is str else cast(getattr(Dataset, second), String)
+                            column = (
+                                c
+                                if c.type.python_type is str
+                                else cast(getattr(Dataset, second), String)
+                            )
                         except AttributeError as e:
                             raise APIAbort(
                                 HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k))
                             ) from e
                         use_dataset = True
-                        terms = [
-                            column.contains(v)
-                            if contains
-                            else column == v
-                        ]
+                        terms = [column.contains(v) if contains else column == v]
                 elif native_key == Metadata.USER:
                     if not user_id:
                         raise APIAbort(

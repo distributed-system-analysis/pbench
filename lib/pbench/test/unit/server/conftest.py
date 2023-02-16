@@ -324,10 +324,9 @@ def attach_dataset(create_drb_user, create_user):
 
     The resulting datasets are:
 
-        Owner   Access  Uploaded    Name
-        ------- ------- ----------  ----
-        drb     private 2022-01-01  drb
-        test    private 1970-01-01  test
+        Name     Owner Access   Uploaded
+        drb          3 private  2022-01-01:00:00
+        test        20 private  1970-01-01:00:42
 
     Args:
         create_drb_user: create a "drb" user
@@ -368,16 +367,15 @@ def more_datasets(
 
     In combination with attach_dataset, the resulting datasets are:
 
-        Owner   Access  Uploaded    Name
-        ------- ------- ----------  ----
-        drb     private 2022-01-01  drb
-        test    private 1970-01-01  test
-        drb     public  1978-06-26  fio_1
-        test    public  2022-01-01  fio_2
-        test    private 1978-06-26  uperf_1
-        test    private 1978-06-26  uperf_2
-        test    private 1978-06-26  uperf_3
-        test    private 1978-06-26  uperf_4
+        Name     Owner Access   Uploaded
+        drb          3 private  2022-01-01:00:00
+        test        20 private  1970-01-01:00:42
+        fio_1        3 public   1978-06-26:08:00
+        fio_2       20 public   2022-01-01:00:00
+        uperf_1     20 private  1978-06-26:08:00
+        uperf_2     20 private  1978-06-26:08:00
+        uperf_3     20 private  1978-06-26:08:00
+        uperf_4     20 private  1978-06-26:08:00
 
     Args:
         client: Provide a Flask API client

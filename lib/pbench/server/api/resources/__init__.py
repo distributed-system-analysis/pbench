@@ -1287,7 +1287,9 @@ class ApiBase(Resource):
         #    authenticated client.
         # 4) An authenticated client cannot mutate data owned by a different
         #    user, nor READ private data owned by another user.
-        if role == OperationCode.READ and (access == Dataset.PUBLIC_ACCESS or access is None):
+        if role == OperationCode.READ and (
+            access == Dataset.PUBLIC_ACCESS or access is None
+        ):
             # We are reading public data: this is always allowed.
             pass
         else:
