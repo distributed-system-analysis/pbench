@@ -15,7 +15,7 @@ export const getDatasets = () => async (dispatch, getState) => {
       dispatch({ type: TYPES.LOADING });
     }
     const params = new URLSearchParams();
-    params.append("metadata", CONSTANTS.DATASET_CREATED);
+    params.append("metadata", CONSTANTS.DATASET_UPLOADED);
     params.append("metadata", CONSTANTS.DATASET_OWNER);
     params.append("metadata", CONSTANTS.DATASET_ACCESS);
     params.append("metadata", CONSTANTS.SERVER_DELETION);

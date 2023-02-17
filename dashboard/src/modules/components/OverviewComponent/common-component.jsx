@@ -23,7 +23,7 @@ import {
 } from "@patternfly/react-icons";
 import {
   DATASET_ACCESS,
-  DATASET_CREATED,
+  DATASET_UPLOADED,
   EXPIRATION_DAYS_LIMIT,
   SERVER_DELETION,
 } from "assets/constants/overviewConstants";
@@ -305,7 +305,7 @@ export const SavedRunsRow = (props) => {
         )}
       </Td>
       <Td dataLabel={columnNames.endtime}>
-        {formatDateTime(item.metadata[DATASET_CREATED])}
+        {formatDateTime(item.metadata[DATASET_UPLOADED])}
       </Td>
       <Td dataLabel={columnNames.scheduled}>
         {formatDateTime(item.metadata[SERVER_DELETION])}
