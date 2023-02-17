@@ -16,11 +16,15 @@ depends_on = None
 
 def upgrade() -> None:
     op.alter_column(
-        "active_tokens", "created", nullable=False, new_column_name="expiration"
+        "auth_tokens", "auth_token", nullable=False, new_column_name="token"
+    )
+    op.execute("ALTER INDEX ix_auth_tokens_auth_token RENAME TO ix_auth_tokens_token")
+    op.alter_column(
+        "auth_tokens", "created", nullable=False, new_column_name="expiration"
     )
     op.create_index(
-        op.f("ix_active_tokens_expiration"),
-        "active_tokens",
+        op.f("ix_auth_tokens_expiration"),
+        "auth_tokens",
         ["expiration"],
         unique=False,
     )
@@ -28,6 +32,10 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.alter_column(
-        "active_tokens", "expiration", nullable=False, new_column_name="created"
+        "auth_tokens", "expiration", nullable=False, new_column_name="created"
     )
-    op.drop_index(op.f("ix_active_tokens_expiration"), table_name="active_tokens")
+    op.drop_index(op.f("ix_auth_tokens_expiration"), table_name="auth_tokens")
+    op.alter_column(
+        "auth_tokens", "token", nullable=False, new_column_name="auth_token"
+    )
+    op.execute("ALTER INDEX ix_auth_tokens_token RENAME TO ix_auth_tokens_auth_token")
