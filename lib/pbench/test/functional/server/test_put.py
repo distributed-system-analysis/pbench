@@ -115,7 +115,8 @@ class TestPut:
     @staticmethod
     def test_archive_only(server_client: PbenchServerClient, login_user):
         """Try to upload a new dataset with the archiveonly option set, and
-        validate that it doesn't get enabled for unpacking or indexing."""
+        validate that it doesn't get enabled for unpacking or indexing.
+        """
         tarball = next(iter((TARBALL_DIR / "bad").glob("*.tar.xz")))
         md5 = Dataset.md5(tarball)
         response = server_client.upload(tarball, metadata={"server.archiveonly:y"})
@@ -273,7 +274,8 @@ class TestList:
         We should see only published datasets. We don't care whether there are
         pre-existing datasets in this case: we'll simply confirm that every one
         we see is public. We do care that we don't get an empty list, since we
-        uploaded datasets with access public."""
+        uploaded datasets with access public.
+        """
         datasets = server_client.get_list(metadata=["dataset.access"])
         count = 0
 
@@ -283,16 +285,18 @@ class TestList:
 
         assert count > 1
 
-    @pytest.mark.dependency(name="list_all", depends=["upload"], scope="session")
+    @pytest.mark.dependency(name="list_or", depends=["upload"], scope="session")
     def test_list_filter_or(self, server_client: PbenchServerClient, login_user):
         """Check a simple OR filter list.
 
         Authorized as our "tester" user, we can see all the datasets we've
         uploaded. Try a filtered list choosing datasets run with the "fio"
         script OR the "linpack" script. Only those datasets should appear: we
-        check the list against a glob of our upload source directory."""
+        check the list against a glob of our upload source directory.
+        """
         fio_names = {Dataset.stem(t) for t in TARBALL_DIR.glob("*fio*.tar.xz")}
         linpack_names = {Dataset.stem(t) for t in TARBALL_DIR.glob("*linpack*.tar.xz")}
+        expected = fio_names + linpack_names
         datasets = server_client.get_list(
             metadata=["dataset.metalog.pbench.name"],
             owner="tester",
@@ -302,21 +306,10 @@ class TestList:
             ],
         )
 
-        for dataset in datasets:
-            name = dataset.metadata["dataset.metalog.pbench.name"]
-            if name in fio_names:
-                fio_names.remove(name)
-            elif name in linpack_names:
-                linpack_names.remove(name)
-            else:
-                pytest.fail(
-                    f"Dataset {name} should not have been returned by the filtered query"
-                )
+        actual = set(d.metadata["dataset.metalog.pbench.name"] for d in datasets)
+        assert actual >= expected, f"Missing datasets: {expected - actual}"
 
-        assert len(fio_names) == 0
-        assert len(linpack_names) == 0
-
-    @pytest.mark.dependency(name="list_all", depends=["upload"], scope="session")
+    @pytest.mark.dependency(name="list_and", depends=["upload"], scope="session")
     def test_list_filter_and(self, server_client: PbenchServerClient, login_user):
         """Check a simple AND filter list.
 
@@ -327,7 +320,8 @@ class TestList:
         NOTE: the original "owner", "access", "start", "end", and "name"
         filters are supported and implicitly linked as AND; their matching is
         also more "friendly" in some cases, e.g., being case-insensitive. In
-        this case we're using "dataset.access"."""
+        this case we're using "dataset.access".
+        """
         datasets = server_client.get_list(
             metadata=["dataset.metalog.pbench.date", "dataset.access"],
             owner="tester",

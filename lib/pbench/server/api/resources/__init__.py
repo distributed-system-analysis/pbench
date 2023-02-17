@@ -1689,14 +1689,6 @@ class ApiBase(Resource):
 
         try:
             response = execute(params, request, {"auditing": auditing})
-            if auditing["finalize"]:
-                Audit.create(
-                    root=auditing["audit"],
-                    status=auditing["status"],
-                    reason=auditing["reason"],
-                    attributes=auditing["attributes"],
-                )
-            return response
         except APIInternalError as e:
             current_app.logger.exception("{} {}", api_name, e.details)
             abort(e.http_status, message=str(e))
@@ -1731,6 +1723,14 @@ class ApiBase(Resource):
                     attributes=attr,
                 )
             abort(x.http_status, message=x.message)
+        if auditing["finalize"]:
+            Audit.create(
+                root=auditing["audit"],
+                status=auditing["status"],
+                reason=auditing["reason"],
+                attributes=auditing["attributes"],
+            )
+        return response
 
     def _get(self, args: ApiParams, request: Request, context: ApiContext) -> Response:
         """Perform the requested GET operation, and handle any exceptions.

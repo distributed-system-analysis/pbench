@@ -1,13 +1,18 @@
 import datetime
 from http import HTTPStatus
+import re
 from typing import List
 
 import pytest
 import requests
 
 from pbench.server import JSON, JSONOBJECT
-from pbench.server.api.resources.datasets_list import urlencode_json
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.api.resources.datasets_list import DatasetsList, urlencode_json
+from pbench.server.database.database import Database
+from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.test.unit.server import DRB_USER_ID
+
+FLATTEN = re.compile(r"[\n\s]+")
 
 
 class TestUrlencodeJson:
@@ -310,3 +315,44 @@ class TestDatasetsList:
             HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {"message": "Repeated URL query key 'name'"}
+
+    @pytest.mark.parametrize(
+        "filters,expected",
+        [
+            (["dataset.name:fio"], "datasets.name = 'fio'"),
+            (
+                ["dataset.metalog.pbench.script:fio"],
+                "dataset_metadata.key = 'metalog' AND dataset_metadata.value[['pbench', 'script']] = 'fio'",
+            ),
+            (
+                ["user.d.f:1"],
+                "dataset_metadata.key = 'user' AND dataset_metadata.value[['d', 'f']] = '1' AND dataset_metadata.user_id = '3'",
+            ),
+            (
+                ["dataset.name:~fio", "^global.x:1", "^user.y:~yes"],
+                "(datasets.name LIKE '%' || 'fio' || '%') AND (dataset_metadata.key = 'global' AND "
+                "dataset_metadata.value[['x']] = '1' OR dataset_metadata.key = 'user' AND "
+                "((dataset_metadata.value[['y']]) LIKE '%' || 'yes' || '%') AND dataset_metadata.user_id = '3')",
+            ),
+        ],
+    )
+    def test_filter_query(self, monkeypatch, filters, expected):
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
+            lambda: DRB_USER_ID,
+        )
+        prefix = (
+            "SELECT datasets.access, datasets.id, datasets.name, datasets.owner_id, datasets.resource_id, datasets.uploaded "
+            "FROM datasets LEFT OUTER JOIN dataset_metadata ON datasets.id = dataset_metadata.dataset_ref "
+            "WHERE "
+        )
+        query = DatasetsList.filter_query(
+            filters, Database.db_session.query(Dataset).outerjoin(Metadata)
+        )
+        assert (
+            FLATTEN.sub(
+                " ",
+                str(query.statement.compile(compile_kwargs={"literal_binds": True})),
+            )
+            == prefix + expected
+        )
