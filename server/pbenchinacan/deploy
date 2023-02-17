@@ -6,11 +6,11 @@
 # Steps performed:
 #   - The Pbench Dashboard application files are copied from the build directory
 #     into the SRV_PBENCH file system.  (If the build directory does not exist,
-#     an empty directory is created at the input and output locations, a warning
-#     is printed, and the Pbench Server is deployed without a Dashboard.)
-#   - If present in the current directory, the Nginx favicon file is copied into
-#     the appropriate location in the SRV_PBENCH file system.
-#   - The ownership of the files in the SRV_PBENCH file system will are set for
+#     an empty directory is created at the output location, a warning is
+#     printed, and the Pbench Server is deployed without a Dashboard.)
+#   - The Nginx favicon file is copied into the appropriate location in the
+#     SRV_PBENCH file system.
+#   - The ownership of the files in the SRV_PBENCH file system are set for
 #     access inside the container.
 #   - The Pbench Server container is started and run as a detached process.
 #
@@ -35,6 +35,7 @@
 # Pbench Server container image
 PB_SERVER_IMAGE=${PB_SERVER_IMAGE:-"images.paas.redhat.com/pbench/pbench-server:main"}
 PB_SERVER_IMAGE_PULL_POLICY=${PB_SERVER_IMAGE_PULL_POLICY:-"newer"}
+PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"pbench-server"}
 
 # Locations on the host
 PB_DASHBOARD_DIR=${PB_DASHBOARD_DIR:-${GITTOP:=$(git rev-parse --show-toplevel)}/dashboard/build}
@@ -59,24 +60,21 @@ else
 fi
 
 # Update the Nginx favicon and provide some static fallback pages
-podman unshare rm ${SRV_PBENCH}/public_html/favicon.ico
 podman unshare cp ${NGINX_FAVICON} ${SRV_PBENCH}/public_html/favicon.ico
-podman unshare cp /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html \
-    ${SRV_PBENCH}/public_html/
+podman run --rm --volume ${SRV_PBENCH}:/srv/pbench:Z --entrypoint cp ${PB_SERVER_IMAGE} \
+    /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html /srv/pbench/public_html/
 
 # Ensure ${SRV_PBENCH} is owned by the "pbench" user INSIDE the container.
-podman run --rm --volume ${SRV_PBENCH}:/srv/pbench:Z ${PB_SERVER_IMAGE} \
-    chown -R pbench:pbench /srv/pbench
+podman run --rm --volume ${SRV_PBENCH}:/srv/pbench:Z --entrypoint chown ${PB_SERVER_IMAGE} \
+    -R pbench:pbench /srv/pbench
 
 # Run the Pbench Server.
 podman run \
     --detach \
-    --name pbench-server \
+    --name ${PB_SERVER_CONTAINER_NAME} \
     --network host \
-    --pids-limit -1 \
     --pull ${PB_SERVER_IMAGE_PULL_POLICY} \
     --rm \
-    --umask 0000 \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.conf:/etc/rsyslog.conf:Z \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.d:/etc/rsyslog.d:Z \
     --volume ${PB_DEPLOY_FILES}/pbench-server.cfg:/opt/pbench-server/lib/config/pbench-server.cfg:Z \

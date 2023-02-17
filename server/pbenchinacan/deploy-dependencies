@@ -20,7 +20,7 @@
 PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
 
 # Default pull policy for all images is to pull the image if the registry has a
-# *different* version (despite the name...different is assumed to be "newer").
+# *different* version (despite the name -- different is assumed to be "newer").
 PB_COMMON_IMAGE_PULL_POLICY=${PB_COMMON_IMAGE_PULL_POLICY:-"newer"}
 
 # Each container has its own name and tag for the image as well as pull policy.
@@ -39,7 +39,7 @@ PB_KEYCLOAK_IMAGE_TAG=${PB_KEYCLOAK_IMAGE_TAG:-"20.0.3"}
 PB_KEYCLOAK_IMAGE=${PB_CONTAINER_REG}/${PB_KEYCLOAK_IMAGE_NAME}:${PB_KEYCLOAK_IMAGE_TAG}
 PB_KEYCLOAK_IMAGE_PULL_POLICY=${PB_KEYCLOAK_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}
 
-# The overall pod name is always derived from the pbench server image tag.
+# The overall pod name is derived from the pbench server image tag.
 PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
 
 podman pod create --name ${PB_POD_NAME} -p 9200:9200 -p 5432:5432 -p 8090:8090
@@ -50,9 +50,7 @@ podman run \
   --pod ${PB_POD_NAME} \
   --workdir /usr/share/elasticsearch \
   --pull ${PB_ELASTICSEARCH_IMAGE_PULL_POLICY} \
-  --umask 0000 \
   --restart no \
-  --pids-limit 0 \
   -e PATH=/usr/share/elasticsearch/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
   -e HOME=/root \
   -e TERM=xterm \
@@ -71,10 +69,8 @@ podman run \
   --name "${PB_POD_NAME}-postgres" \
   --workdir /opt/app-root/src \
   --pull ${PB_POSTGRESQL_IMAGE_PULL_POLICY} \
-  --umask 0000 \
   --user 26:26 \
   --restart no \
-  --pids-limit 0 \
   --entrypoint container-entrypoint \
   -e POSTGRESQL_USER=pbenchcontainer \
   -e POSTGRESQL_PASSWORD=pbench \
@@ -94,9 +90,7 @@ podman run \
   --pod ${PB_POD_NAME} \
   --name "${PB_POD_NAME}-keycloak" \
   --pull ${PB_KEYCLOAK_IMAGE_PULL_POLICY} \
-  --umask 0000 \
   --restart no \
-  --pids-limit 0 \
   -e KEYCLOAK_ADMIN=admin \
   -e KEYCLOAK_ADMIN_PASSWORD=admin \
   -d \

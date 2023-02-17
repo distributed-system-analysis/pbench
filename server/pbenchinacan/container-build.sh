@@ -46,7 +46,6 @@ container=$(buildah from ${BASE_IMAGE})
 buildah config \
     --entrypoint /sbin/init \
     --label maintainer="Pbench Maintainers <pbench@googlegroups.com>" \
-    --workingdir / \
     $container
 
 buildah copy $container ${RPM_PATH} /tmp/pbench-server.rpm
