@@ -22,6 +22,14 @@ class TestCopyResults:
         self.config = None
 
     @staticmethod
+    def get_path_exists_mock(path: str, result: bool) -> Callable:
+        def mock_func(self: Path) -> bool:
+            assert self.name == path
+            return result
+
+        return mock_func
+
+    @staticmethod
     def get_path_open_mock(path: str, result: io.IOBase) -> Callable:
         def mock_func(self: Path, mode: str) -> io.IOBase:
             assert self.name == path
@@ -34,7 +42,9 @@ class TestCopyResults:
         bad_tarball_name = "nonexistent-tarball.tar.xz"
         expected_error_message = f"Tar ball '{bad_tarball_name}' does not exist"
 
-        monkeypatch.setattr(Path, "exists", lambda self: False)
+        monkeypatch.setattr(
+            Path, "exists", self.get_path_exists_mock(bad_tarball_name, False)
+        )
 
         with pytest.raises(FileNotFoundError) as excinfo:
             CopyResultTb(
@@ -68,7 +78,7 @@ class TestCopyResults:
             callback=request_callback,
         )
 
-        monkeypatch.setattr(Path, "exists", lambda self: True)
+        monkeypatch.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
         monkeypatch.setattr(
             Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
         )
@@ -109,7 +119,7 @@ class TestCopyResults:
             callback=request_callback,
         )
 
-        monkeypatch.setattr(Path, "exists", lambda self: True)
+        monkeypatch.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
         monkeypatch.setattr(
             Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
         )
@@ -137,7 +147,7 @@ class TestCopyResults:
             responses.PUT, upload_url, body=requests.exceptions.ConnectionError("uh-oh")
         )
 
-        monkeypatch.setattr(Path, "exists", lambda self: True)
+        monkeypatch.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
         monkeypatch.setattr(
             Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
         )
@@ -164,7 +174,7 @@ class TestCopyResults:
 
         responses.add(responses.PUT, upload_url, body=RuntimeError("uh-oh"))
 
-        monkeypatch.setattr(Path, "exists", lambda self: True)
+        monkeypatch.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
         monkeypatch.setattr(
             Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
         )
