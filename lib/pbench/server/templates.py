@@ -19,7 +19,7 @@ from pbench.common.exceptions import (
 )
 from pbench.server import JSONOBJECT, OperationCode, tstos
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
-from pbench.server.database.models.template import (
+from pbench.server.database.models.templates import (
     Template,
     TemplateDuplicate,
     TemplateNotFound,

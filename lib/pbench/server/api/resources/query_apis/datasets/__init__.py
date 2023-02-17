@@ -14,7 +14,7 @@ from pbench.server.api.resources import (
 )
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
-from pbench.server.database.models.template import Template
+from pbench.server.database.models.templates import Template
 
 
 class MissingDatasetNameParameter(SchemaError):

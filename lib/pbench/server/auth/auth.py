@@ -14,7 +14,7 @@ from pbench.server.auth import (
     OpenIDClientError,
     OpenIDTokenInvalid,
 )
-from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.database.models.auth_tokens import AuthToken
 from pbench.server.database.models.users import User
 
 # Module private constants
@@ -170,7 +170,7 @@ def verify_auth_internal(auth_token: str) -> Optional[User]:
         pass
     except jwt.ExpiredSignatureError:
         try:
-            ActiveTokens.delete(auth_token)
+            AuthToken.delete(auth_token)
         except Exception as e:
             current_app.logger.error(
                 "User passed expired token but we could not delete the"
@@ -180,7 +180,7 @@ def verify_auth_internal(auth_token: str) -> Optional[User]:
             )
     else:
         user_id = payload["sub"]
-        if ActiveTokens.valid(auth_token):
+        if AuthToken.valid(auth_token):
             user = User.query(id=user_id)
     return user
 

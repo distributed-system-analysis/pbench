@@ -711,7 +711,7 @@ class TestAuthModule:
         def delete(*args, **kwargs):
             raise Exception("Delete failed")
 
-        monkeypatch.setattr(Auth.ActiveTokens, "delete", delete)
+        monkeypatch.setattr(Auth.AuthToken, "delete", delete)
         app = Flask("test-verify-auth-internal-tokdel-fail")
         app.logger = make_logger
         with app.app_context():
@@ -727,7 +727,7 @@ class TestAuthModule:
         def valid(*args, **kwargs):
             return False
 
-        monkeypatch.setattr(Auth.ActiveTokens, "valid", valid)
+        monkeypatch.setattr(Auth.AuthToken, "valid", valid)
         app = Flask("test-verify-auth-internal-at-valid-fail")
         app.logger = make_logger
         with app.app_context():

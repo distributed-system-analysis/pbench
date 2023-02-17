@@ -25,9 +25,9 @@ from pbench.server.api import create_app
 import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.database.models.auth_tokens import AuthToken
 from pbench.server.database.models.datasets import Dataset, Metadata
-from pbench.server.database.models.template import Template
+from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
 from pbench.test import on_disk_config
 from pbench.test.unit.server import ADMIN_USER_ID, DRB_USER_ID, TEST_USER_ID
@@ -822,8 +822,7 @@ def generate_token(
         "sub": user.id,
     }
     token_str = jwt.encode(payload, jwt_secret, algorithm="HS256")
-    token = ActiveTokens(auth_token=token_str)
-    user.update(auth_tokens=token)
+    user.update(auth_token=AuthToken(auth_token=token_str))
     return token_str
 
 

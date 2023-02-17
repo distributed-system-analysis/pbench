@@ -3,7 +3,7 @@ from http import HTTPStatus
 import time
 
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.database.models.auth_tokens import AuthToken
 from pbench.server.database.models.users import User
 from pbench.test.unit.server.conftest import admin_username
 
@@ -373,8 +373,8 @@ class TestUserAuthentication:
             assert response.status_code == HTTPStatus.OK
             # Check if the token has been successfully removed from the database
             assert (
-                not Database.db_session.query(ActiveTokens)
-                .filter_by(token=data_login["auth_token"])
+                not Database.db_session.query(AuthToken)
+                .filter_by(auth_token=data_login["auth_token"])
                 .first()
             )
             assert response.status_code == HTTPStatus.OK

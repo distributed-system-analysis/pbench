@@ -1,3 +1,12 @@
+"""A framework to manage run-time server settings.
+
+While we have initial configuration settings loaded from a configuration file
+managed by the PbenchServerConfig object, these server settings are managed by
+API calls over the life-time of a server deployment.
+
+The list of available settings are defined by the OPTION_* variables of this
+module.
+"""
 import re
 from typing import Optional
 
@@ -9,17 +18,17 @@ from pbench.server import JSONOBJECT, JSONVALUE
 from pbench.server.database.database import Database
 
 
-class ServerConfigError(Exception):
-    """A base class for errors reported by the ServerConfig class.
+class ServerSettingError(Exception):
+    """A base class for errors reported by the ServerSetting class.
 
     It is never raised directly, but may be used in "except" clauses.
     """
 
 
-class ServerConfigSqlError(ServerConfigError):
-    """SQLAlchemy errors reported through ServerConfig operations.
+class ServerSettingSqlError(ServerSettingError):
+    """SQLAlchemy errors reported through ServerSetting operations.
 
-    The exception will identify the operation being performed and the config
+    The exception will identify the operation being performed and the setting
     key; the cause will specify the original SQLAlchemy exception.
     """
 
@@ -32,19 +41,19 @@ class ServerConfigSqlError(ServerConfigError):
         return f"Error {self.operation} index {self.name!r}: {self.cause}"
 
 
-class ServerConfigDuplicate(ServerConfigError):
-    """Attempt to commit a duplicate ServerConfig."""
+class ServerSettingDuplicate(ServerSettingError):
+    """Attempt to commit a duplicate ServerSetting."""
 
     def __init__(self, name: str, cause: str):
         self.name = name
         self.cause = cause
 
     def __str__(self) -> str:
-        return f"Duplicate config setting {self.name!r}: {self.cause}"
+        return f"Duplicate server setting {self.name!r}: {self.cause}"
 
 
-class ServerConfigNullKey(ServerConfigError):
-    """Attempt to commit a ServerConfig with an empty key."""
+class ServerSettingNullKey(ServerSettingError):
+    """Attempt to commit a ServerSetting with an empty key."""
 
     def __init__(self, name: str, cause: str):
         self.name = name
@@ -54,32 +63,32 @@ class ServerConfigNullKey(ServerConfigError):
         return f"Missing key value in {self.name!r}: {self.cause}"
 
 
-class ServerConfigMissingKey(ServerConfigError):
-    """Attempt to set a ServerConfig with a missing key."""
+class ServerSettingMissingKey(ServerSettingError):
+    """Attempt to set a ServerSetting with a missing key."""
 
     def __str__(self) -> str:
-        return "Missing key name"
+        return "Missing server setting key name"
 
 
-class ServerConfigBadKey(ServerConfigError):
-    """Attempt to commit a ServerConfig with a bad key."""
+class ServerSettingBadKey(ServerSettingError):
+    """Attempt to commit a ServerSetting with a bad key."""
 
     def __init__(self, key: str):
         self.key = key
 
     def __str__(self) -> str:
-        return f"Configuration key {self.key!r} is unknown"
+        return f"Server setting key {self.key!r} is unknown"
 
 
-class ServerConfigBadValue(ServerConfigError):
-    """Attempt to assign a bad value to a server configuration option."""
+class ServerSettingBadValue(ServerSettingError):
+    """Attempt to assign a bad value to a server setting option."""
 
     def __init__(self, key: str, value: JSONVALUE):
         self.key = key
         self.value = value
 
     def __str__(self) -> str:
-        return f"Unsupported value for configuration key {self.key!r} ({self.value!r})"
+        return f"Unsupported value for server setting key {self.key!r} ({self.value!r})"
 
 
 # Formal timedelta syntax is "[D day[s], ][H]H:MM:SS[.UUUUUU]"; without an
@@ -95,7 +104,7 @@ def validate_lifetime(key: str, value: JSONVALUE) -> JSONVALUE:
     if check:
         days = check.group("days")
     else:
-        raise ServerConfigBadValue(key, value)
+        raise ServerSettingBadValue(key, value)
     return days
 
 
@@ -134,14 +143,14 @@ def validate_server_state(key: str, value: JSONVALUE) -> JSONVALUE:
     try:
         status = value[STATE_STATUS_KEY].lower()
     except (KeyError, SyntaxError, TypeError) as e:
-        raise ServerConfigBadValue(key, value) from e
+        raise ServerSettingBadValue(key, value) from e
     if status not in STATE_STATUS_KEYWORDS:
-        raise ServerConfigBadValue(key, value)
+        raise ServerSettingBadValue(key, value)
 
     # canonicalize the status value by lowercasing it
     value[STATE_STATUS_KEY] = status
     if status != STATE_STATUS_KEYWORD_ENABLED and STATE_MESSAGE_KEY not in value:
-        raise ServerConfigBadValue(key, value)
+        raise ServerSettingBadValue(key, value)
     return value
 
 
@@ -153,7 +162,7 @@ BANNER_MESSAGE_KEY = "message"
 
 def validate_server_banner(key: str, value: JSONVALUE) -> JSONVALUE:
     if not isinstance(value, dict) or BANNER_MESSAGE_KEY not in value:
-        raise ServerConfigBadValue(key, value)
+        raise ServerSettingBadValue(key, value)
     return value
 
 
@@ -161,10 +170,10 @@ OPTION_DATASET_LIFETIME = "dataset-lifetime"
 OPTION_SERVER_BANNER = "server-banner"
 OPTION_SERVER_STATE = "server-state"
 
-SERVER_CONFIGURATION_OPTIONS = {
+SERVER_SETTINGS_OPTIONS = {
     OPTION_DATASET_LIFETIME: {
         "validator": validate_lifetime,
-        "default": lambda: str(ServerConfig.config.max_retention_period),
+        "default": lambda: str(ServerSetting.config.max_retention_period),
     },
     OPTION_SERVER_BANNER: {
         "validator": validate_server_banner,
@@ -177,21 +186,18 @@ SERVER_CONFIGURATION_OPTIONS = {
 }
 
 
-class ServerConfig(Database.Base):
-    """A framework to manage Pbench configuration settings.
-
-    This is a simple key-value store that can be used flexibly to manage
-    runtime configuration.
+class ServerSetting(Database.Base):
+    """A simple key-value store used to manage runtime server settings.
 
     Columns:
         id      Generated unique ID of table row
-        key     Configuration key name
-        value   Configuration key value
+        key     Server setting key name
+        value   Server setting key value
     """
 
-    KEYS = sorted([s for s in SERVER_CONFIGURATION_OPTIONS.keys()])
+    KEYS = sorted([s for s in SERVER_SETTINGS_OPTIONS.keys()])
 
-    __tablename__ = "serverconfig"
+    __tablename__ = "server_settings"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(255), unique=True, index=True, nullable=False)
@@ -200,92 +206,92 @@ class ServerConfig(Database.Base):
     @staticmethod
     def _default(key: str) -> JSONVALUE:
         try:
-            config = SERVER_CONFIGURATION_OPTIONS[key]
+            setting = SERVER_SETTINGS_OPTIONS[key]
         except KeyError as e:
             if key:
-                raise ServerConfigBadKey(key) from e
+                raise ServerSettingBadKey(key) from e
             else:
-                raise ServerConfigMissingKey() from e
-        return config["default"]()
+                raise ServerSettingMissingKey() from e
+        return setting["default"]()
 
     @staticmethod
     def _validate(key: str, value: JSONVALUE) -> JSONVALUE:
         try:
-            config = SERVER_CONFIGURATION_OPTIONS[key]
+            setting = SERVER_SETTINGS_OPTIONS[key]
         except KeyError as e:
             if key:
-                raise ServerConfigBadKey(key) from e
+                raise ServerSettingBadKey(key) from e
             else:
-                raise ServerConfigMissingKey() from e
-        return config["validator"](key, value)
+                raise ServerSettingMissingKey() from e
+        return setting["validator"](key, value)
 
     @staticmethod
-    def create(key: str, value: JSONVALUE) -> "ServerConfig":
-        """A simple factory method to construct a new ServerConfig setting and
+    def create(key: str, value: JSONVALUE) -> "ServerSetting":
+        """A simple factory method to construct a new ServerSetting setting and
         add it to the database.
 
         Args:
-            key : config setting key
-            value : config setting value
+            key : server setting key
+            value : server setting value
 
         Returns:
-            A new ServerConfig object initialized with the parameters and added
+            A new ServerSetting object initialized with the settings and added
             to the database.
         """
 
         v = __class__._validate(key, value)
-        config = ServerConfig(key=key, value=v)
-        config.add()
-        return config
+        setting = ServerSetting(key=key, value=v)
+        setting.add()
+        return setting
 
     @staticmethod
-    def get(key: str, use_default: bool = True) -> "ServerConfig":
-        """Return a ServerConfig object with the specified configuration key
-        setting.
+    def get(key: str, use_default: bool = True) -> "ServerSetting":
+        """Return a ServerSetting object with the specified key setting.
 
-        For example, ServerConfig.get("dataset-lifetime").
+        For example, ServerSetting.get("dataset-lifetime").
 
         If the setting has no definition, a default value will optionally
         be provided.
 
         Args:
-            key : System configuration setting name
+            key : Server setting key name
             use_default : If the DB value is None, return a default
 
         Raises:
-            ServerConfigSqlError : problem interacting with Database
+            ServerSettingSqlError : problem interacting with Database
 
         Returns:
-            ServerConfig object with the specified key name or None
+            ServerSetting object with the specified key name or None
         """
+        dbs = Database.db_session
         try:
-            config = Database.db_session.query(ServerConfig).filter_by(key=key).first()
-            if config is None and use_default:
-                config = ServerConfig(key=key, value=__class__._default(key))
+            setting = dbs.query(ServerSetting).filter_by(key=key).first()
+            if setting is None and use_default:
+                setting = ServerSetting(key=key, value=__class__._default(key))
         except SQLAlchemyError as e:
-            raise ServerConfigSqlError("finding", key, str(e)) from e
-        return config
+            raise ServerSettingSqlError("finding", key, str(e)) from e
+        return setting
 
     @staticmethod
-    def set(key: str, value: JSONVALUE) -> "ServerConfig":
-        """Update a ServerConfig key with the specified value.
+    def set(key: str, value: JSONVALUE) -> "ServerSetting":
+        """Update a ServerSetting key with the specified value.
 
-        For example, ServerConfig.set("dataset-lifetime").
+        For example, ServerSetting.set("dataset-lifetime").
 
         Args:
             key : Configuration setting name
 
         Returns:
-            ServerConfig object with the specified key name
+            ServerSetting object with the specified key name
         """
         v = __class__._validate(key, value)
-        config = __class__.get(key, use_default=False)
-        if config:
-            config.value = v
-            config.update()
+        setting = __class__.get(key, use_default=False)
+        if setting:
+            setting.value = v
+            setting.update()
         else:
-            config = __class__.create(key=key, value=v)
-        return config
+            setting = __class__.create(key=key, value=v)
+        return setting
 
     @staticmethod
     def get_disabled(readonly: bool = False) -> Optional[JSONOBJECT]:
@@ -313,9 +319,9 @@ class ServerConfig(Database.Base):
 
     @staticmethod
     def get_all() -> JSONOBJECT:
-        """Return all server config settings as a JSON object."""
-        configs = Database.db_session.query(ServerConfig).all()
-        db = {c.key: c.value for c in configs}
+        """Return all server settings as a JSON object."""
+        settings = Database.db_session.query(ServerSetting).all()
+        db = {c.key: c.value for c in settings}
         return {k: db[k] if k in db else __class__._default(k) for k in __class__.KEYS}
 
     def __str__(self) -> str:
@@ -342,13 +348,13 @@ class ServerConfig(Database.Base):
         # returns (message); so always take the last element.
         cause = exception.orig.args[-1]
         if cause.find("UNIQUE constraint") != -1:
-            return ServerConfigDuplicate(self.key, cause)
+            return ServerSettingDuplicate(self.key, cause)
         elif cause.find("NOT NULL constraint") != -1:
-            return ServerConfigNullKey(self.key, cause)
+            return ServerSettingNullKey(self.key, cause)
         return exception
 
     def add(self):
-        """Add the ServerConfig object to the database."""
+        """Add the ServerSetting object to the database."""
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
@@ -356,11 +362,11 @@ class ServerConfig(Database.Base):
             Database.db_session.rollback()
             if isinstance(e, IntegrityError):
                 raise self._decode(e) from e
-            raise ServerConfigSqlError("adding", self.key, str(e)) from e
+            raise ServerSettingSqlError("adding", self.key, str(e)) from e
 
     def update(self):
         """Update the database row with the modified version of the
-        ServerConfig object.
+        ServerSetting object.
         """
         try:
             Database.db_session.commit()
@@ -368,4 +374,4 @@ class ServerConfig(Database.Base):
             Database.db_session.rollback()
             if isinstance(e, IntegrityError):
                 raise self._decode(e) from e
-            raise ServerConfigSqlError("updating", self.key, str(e)) from e
+            raise ServerSettingSqlError("updating", self.key, str(e)) from e

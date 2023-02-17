@@ -10,8 +10,8 @@ import jwt
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 import pbench.server.auth.auth as Auth
-from pbench.server.database.models.active_tokens import ActiveTokens
-from pbench.server.database.models.server_config import ServerConfig
+from pbench.server.database.models.auth_tokens import AuthToken
+from pbench.server.database.models.server_settings import ServerSetting
 from pbench.server.database.models.users import User
 
 
@@ -48,7 +48,7 @@ class RegisterUser(Resource):
                     }
         To get the auth token user has to perform the login action
         """
-        disabled = ServerConfig.get_disabled()
+        disabled = ServerSetting.get_disabled()
         if disabled:
             abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
 
@@ -232,9 +232,8 @@ class Login(Resource):
 
         # Add the new auth token to the database for later access
         try:
-            token = ActiveTokens(auth_token=auth_token)
             # TODO: Decide on the auth token limit per user
-            user.update(auth_tokens=token)
+            user.update(auth_token=AuthToken(auth_token=auth_token))
 
             current_app.logger.info(
                 "New auth token registered for user {}", user.username
@@ -292,7 +291,7 @@ class Logout(Resource):
 
         if user:
             try:
-                ActiveTokens.delete(auth_token)
+                AuthToken.delete(auth_token)
             except Exception:
                 current_app.logger.exception(
                     "Exception occurred deleting an auth token"
@@ -386,7 +385,7 @@ class UserAPI(Resource):
                         "message": "failure message"
                     }
         """
-        disabled = ServerConfig.get_disabled(readonly=True)
+        disabled = ServerSetting.get_disabled(readonly=True)
         if disabled:
             abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
 
@@ -429,7 +428,7 @@ class UserAPI(Resource):
                         "message": "failure message"
                     }
         """
-        disabled = ServerConfig.get_disabled()
+        disabled = ServerSetting.get_disabled()
         if disabled:
             abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
 
@@ -506,7 +505,7 @@ class UserAPI(Resource):
                         "message": "failure message"
                     }
         """
-        disabled = ServerConfig.get_disabled()
+        disabled = ServerSetting.get_disabled()
         if disabled:
             abort(HTTPStatus.SERVICE_UNAVAILABLE, **disabled)
 

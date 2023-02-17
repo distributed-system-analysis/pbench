@@ -12,9 +12,9 @@ from sqlalchemy.orm import Query, relationship, validates
 
 from pbench.server.database.database import Database
 from pbench.server.database.models import TZDateTime
-from pbench.server.database.models.server_config import (
+from pbench.server.database.models.server_settings import (
     OPTION_DATASET_LIFETIME,
-    ServerConfig,
+    ServerSetting,
 )
 
 
@@ -529,6 +529,8 @@ class Metadata(Database.Base):
         value       Metadata value string
     """
 
+    # SQLAlchemy reserves the name `metadata` for its own use so we add the
+    # "dataset_" prefix to avoid the conflict.
     __tablename__ = "dataset_metadata"
 
     # +++ Standard Metadata keys:
@@ -878,7 +880,7 @@ class Metadata(Database.Base):
                 target = date_parser.parse(v).astimezone(datetime.timezone.utc)
             except date_parser.ParserError as p:
                 raise MetadataBadValue(dataset, key, v, "date/time") from p
-            max_retention = ServerConfig.get(key=OPTION_DATASET_LIFETIME)
+            max_retention = ServerSetting.get(key=OPTION_DATASET_LIFETIME)
 
             # If 'dataset' was omitted, then assume the current UTC timestamp.
             base_time = (

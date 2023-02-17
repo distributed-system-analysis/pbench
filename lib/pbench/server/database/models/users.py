@@ -28,7 +28,7 @@ class User(Database.Base):
     registered_on = Column(DateTime, nullable=False, default=datetime.datetime.now())
     email = Column(String(255), unique=True, nullable=False)
     role = Column(Enum(Roles), unique=False, nullable=True)
-    auth_tokens = relationship("ActiveTokens", backref="users")
+    auth_tokens = relationship("AuthToken", backref="users")
 
     def __str__(self):
         return f"User, id: {self.id}, username: {self.username}"
@@ -105,7 +105,7 @@ class User(Database.Base):
         """Update the current user object with given keyword arguments."""
         try:
             for key, value in kwargs.items():
-                if key == "auth_tokens":
+                if key == "auth_token":
                     # Insert the auth token
                     self.auth_tokens.append(value)
                     Database.db_session.add(value)

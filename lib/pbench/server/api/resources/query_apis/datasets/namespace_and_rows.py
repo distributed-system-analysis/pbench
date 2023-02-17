@@ -16,7 +16,7 @@ from pbench.server.api.resources import (
 from pbench.server.api.resources.query_apis import ApiContext, PostprocessError
 from pbench.server.api.resources.query_apis.datasets import IndexMapBase
 from pbench.server.database.models.datasets import Dataset
-from pbench.server.database.models.template import TemplateNotFound
+from pbench.server.database.models.templates import TemplateNotFound
 
 
 class SampleNamespace(IndexMapBase):

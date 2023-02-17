@@ -13,7 +13,7 @@ from pbench.server.api.resources import (
     ApiSchema,
 )
 import pbench.server.auth.auth as Auth
-from pbench.server.database.models.server_config import ServerConfig
+from pbench.server.database.models.server_settings import ServerSetting
 
 
 class OnlyGet(ApiBase):
@@ -121,7 +121,7 @@ class TestApiBase:
         def mock_get_disabled(readonly: bool = False) -> Optional[JSONOBJECT]:
             return None
 
-        monkeypatch.setattr(ServerConfig, "get_disabled", mock_get_disabled)
+        monkeypatch.setattr(ServerSetting, "get_disabled", mock_get_disabled)
 
         # Verify all allowed APIs
         response = client.get("/api/v1/onlyget")

@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from pbench.server.database.models.template import (
+from pbench.server.database.models.templates import (
     Template,
     TemplateDuplicate,
     TemplateFileMissing,

@@ -5,11 +5,11 @@ import requests
 
 from pbench.server import OperationCode
 from pbench.server.api.resources import APIAbort, ApiParams
-from pbench.server.api.resources.server_configuration import ServerConfiguration
+from pbench.server.api.resources.server_settings import ServerSettings
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 
 
-class TestServerConfiguration:
+class TestServerSettings:
     @pytest.fixture()
     def query_get(self, client, server_config):
         """
@@ -25,7 +25,7 @@ class TestServerConfiguration:
             key: str, expected_status: HTTPStatus = HTTPStatus.OK
         ) -> requests.Response:
             k = "" if key is None else f"/{key}"
-            response = client.get(f"{server_config.rest_uri}/server/configuration{k}")
+            response = client.get(f"{server_config.rest_uri}/server/settings{k}")
             assert response.status_code == expected_status
             return response
 
@@ -51,7 +51,7 @@ class TestServerConfiguration:
         ) -> requests.Response:
             k = f"/{key}" if key else ""
             response = client.put(
-                f"{server_config.rest_uri}/server/configuration{k}",
+                f"{server_config.rest_uri}/server/settings{k}",
                 headers={"authorization": f"bearer {token}"},
                 **kwargs,
             )
@@ -74,8 +74,8 @@ class TestServerConfiguration:
     def test_get_all(self, query_get, key):
         """
         We use a trailing-slash-insensitive URI mapping so that both
-        /server/configuration and /server/configuration/ should be mapped to
-        "get all"; test that both paths work.
+        /server/settings and /server/settings/ should be mapped to "get all";
+        test that both paths work.
         """
         response = query_get(key)
         assert response.json == {
@@ -90,7 +90,7 @@ class TestServerConfiguration:
         handling of a condition that ought to be impossible through Flask
         routing.
         """
-        put = ServerConfiguration(server_config)
+        put = ServerSettings(server_config)
         with pytest.raises(APIAbort, match="Missing parameter 'key'"):
             put._put_key(ApiParams(uri={"plugh": "xyzzy", "foo": "bar"}), context=None)
 
@@ -103,7 +103,7 @@ class TestServerConfiguration:
         )
         assert (
             response.json.get("message")
-            == "No value found for key system configuration key 'dataset-lifetime'"
+            == "No value found for server settings key 'dataset-lifetime'"
         )
 
     def test_put_bad_key(self, query_put):
@@ -119,7 +119,7 @@ class TestServerConfiguration:
             expected_status=HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {
-            "message": "Unrecognized configuration parameters ['fookey'] specified: valid parameters are ['dataset-lifetime', 'server-banner', 'server-state']"
+            "message": "Unrecognized server settings ['fookey'] specified: valid settings are ['dataset-lifetime', 'server-banner', 'server-state']"
         }
 
     @pytest.mark.parametrize(
@@ -136,7 +136,7 @@ class TestServerConfiguration:
             key=key, expected_status=HTTPStatus.BAD_REQUEST, json={"value": value}
         )
         assert (
-            f"Unsupported value for configuration key '{key}'"
+            f"Unsupported value for server setting key '{key}'"
             in response.json["message"]
         )
 
