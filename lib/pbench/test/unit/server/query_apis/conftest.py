@@ -39,9 +39,8 @@ def query_api(client, server_config, provide_metadata):
         query_params: JSON = None,
         **kwargs,
     ) -> requests.Response:
-        host = server_config.get("elasticsearch", "host")
-        port = server_config.get("elasticsearch", "port")
-        es_url = f"http://{host}:{port}{expected_index}{es_uri}"
+        base_uri = server_config.get("Indexing", "uri")
+        es_url = f"{base_uri}{expected_index}{es_uri}"
         assert request_method in (ApiMethod.GET, ApiMethod.POST)
         if request_method == ApiMethod.GET:
             es_method = responses.GET

@@ -45,10 +45,6 @@ uri = sqlite:///:memory:
 [flask-app]
 secret-key = my_precious
 
-[elasticsearch]
-host = elasticsearch.example.com
-port = 7080
-
 [logging]
 logger_type = null
 # We run with DEBUG level logging during the server unit tests to help
@@ -57,6 +53,7 @@ logging_level = DEBUG
 
 [Indexing]
 index_prefix = unit-test
+uri = http://elasticsearch.example.com:7080
 
 ###########################################################################
 # The rest will come from the default config file.

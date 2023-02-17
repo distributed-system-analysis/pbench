@@ -189,10 +189,16 @@ class TestShell:
     def test_main(
         monkeypatch, make_logger, mock_get_server_config, user_site, oidc_conf
     ):
-        find_called = [False]
+        called = []
 
         def find_the_unicorn(logger: logging.Logger):
-            find_called[0] = True
+            called.append("find_the_unicorn")
+
+        def wait_for_uri(*args, **kwargs):
+            called.append(f"wait_for_uri({args[0]},{args[1]})")
+
+        def init_indexing(*args, **kwargs):
+            called.append("init_indexing")
 
         def wait_for_oidc_server(
             server_config: PbenchServerConfig, logger: logging.Logger
@@ -211,6 +217,8 @@ class TestShell:
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", user_site)
         monkeypatch.setattr(shell, "find_the_unicorn", find_the_unicorn)
+        monkeypatch.setattr(shell, "wait_for_uri", wait_for_uri)
+        monkeypatch.setattr(shell, "init_indexing", init_indexing)
         monkeypatch.setattr(
             shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
         )
@@ -219,7 +227,13 @@ class TestShell:
         ret_val = shell.main()
 
         assert ret_val == 42
-        assert not user_site or find_called[0]
+        expected_called = ["find_the_unicorn"] if user_site else []
+        expected_called += [
+            "wait_for_uri(sqlite:///:memory:,120)",
+            "wait_for_uri(http://elasticsearch.example.com:7080,120)",
+            "init_indexing",
+        ]
+        assert called == expected_called
         assert len(commands) == 3, f"{commands!r}"
         assert commands[0][0] == "pbench-create-crontab"
         assert commands[1][0] == "crontab"
@@ -251,10 +265,15 @@ class TestShell:
 
     @staticmethod
     def test_main_crontab_failed(monkeypatch, make_logger, mock_get_server_config):
+        def immediate_success(*args, **kwargs):
+            pass
+
         def generate_crontab_if_necessary(*args, **kwargs) -> int:
             return 43
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
+        monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
+        monkeypatch.setattr(shell, "init_indexing", immediate_success)
         monkeypatch.setattr(
             shell, "generate_crontab_if_necessary", generate_crontab_if_necessary
         )
@@ -264,58 +283,135 @@ class TestShell:
         assert ret_val == 43
 
     @staticmethod
-    @pytest.mark.parametrize("init_db_exc", ["section", "option"])
+    @pytest.mark.parametrize(
+        "init_indexing_exc",
+        [NoSectionError("missingsection"), NoOptionError("section", "missingoption")],
+    )
+    def test_main_init_indexing_failed(
+        monkeypatch, make_logger, mock_get_server_config, init_indexing_exc
+    ):
+        def immediate_success(*args, **kwargs):
+            pass
+
+        called = [False]
+
+        def init_indexing(*args, **kwargs) -> int:
+            called[0] = True
+            raise init_indexing_exc
+
+        monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
+        monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
+        monkeypatch.setattr(shell, "init_indexing", init_indexing)
+
+        ret_val = shell.main()
+
+        assert called[0]
+        assert ret_val == 1
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "init_db_exc",
+        [NoSectionError("missingsection"), NoOptionError("section", "missingoption")],
+    )
     def test_main_initdb_failed(
         monkeypatch, make_logger, mock_get_server_config, init_db_exc
     ):
+        def immediate_success(*args, **kwargs):
+            pass
+
+        called = [False]
+
         def init_db(*args, **kwargs) -> int:
-            if init_db_exc == "section":
-                exc = NoSectionError("missingsection")
-            elif init_db_exc == "option":
-                exc = NoOptionError("section", "missingoption")
-            else:
-                exc = Exception(f"Bad test parameter, {init_db_exc}")
-            raise exc
+            called[0] = True
+            raise init_db_exc
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
+        monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
         monkeypatch.setattr(shell, "init_db", init_db)
 
         ret_val = shell.main()
 
+        assert called[0]
         assert ret_val == 1
 
     @staticmethod
     def test_main_wait_for_oidc_server_exc(
         monkeypatch, make_logger, mock_get_server_config
     ):
+        def immediate_success(*args, **kwargs):
+            pass
+
+        called = [False]
+
         def wait_for_oidc_server(
             server_config: PbenchServerConfig, logger: logging.Logger
         ) -> str:
+            called[0] = True
             raise Exception("oidc exception")
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
+        monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
         monkeypatch.setattr(
             shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
         )
 
         ret_val = shell.main()
 
+        assert called[0]
         assert ret_val == 1
 
     @staticmethod
-    def test_main_wait_for_database_exc(
-        monkeypatch, make_logger, mock_get_server_config
+    @pytest.mark.parametrize(
+        "wait_for_uri_exc",
+        [
+            ConnectionRefusedError("elasticsearch exception"),
+            BadConfig("elasticsearch config"),
+        ],
+    )
+    def test_main_wait_for_elasticsearch_exc(
+        monkeypatch, make_logger, mock_get_server_config, wait_for_uri_exc
     ):
-        def wait_for_database(
+        called = [0]
+        raised = [False]
+
+        def wait_for_uri(
             server_config: PbenchServerConfig, logger: logging.Logger
         ) -> str:
-            raise ConnectionRefusedError("database exception")
+            called[0] += 1
+            if called[0] > 1:
+                raised[0] = True
+                raise wait_for_uri_exc
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
-        monkeypatch.setattr(shell.Database, "wait_for_database", wait_for_database)
+        monkeypatch.setattr(shell, "wait_for_uri", wait_for_uri)
 
         ret_val = shell.main()
 
+        assert called[0] == 2 and raised[0]
+        assert ret_val == 1
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "wait_for_uri_exc",
+        [ConnectionRefusedError("database exception"), BadConfig("database config")],
+    )
+    def test_main_wait_for_database_exc(
+        monkeypatch, make_logger, mock_get_server_config, wait_for_uri_exc
+    ):
+        called = [False]
+
+        def wait_for_uri(
+            server_config: PbenchServerConfig, logger: logging.Logger
+        ) -> str:
+            called[0] = True
+            raise wait_for_uri_exc
+
+        monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
+        monkeypatch.setattr(shell, "wait_for_uri", wait_for_uri)
+
+        ret_val = shell.main()
+
+        assert called[0]
         assert ret_val == 1
 
     @staticmethod
@@ -372,21 +468,22 @@ class TestShell:
         assert ret_val == 1
 
     @staticmethod
-    @pytest.mark.parametrize("gsc_exc", ["nofile", "bad"])
+    @pytest.mark.parametrize(
+        "gsc_exc",
+        [ConfigFileNotSpecified("nofile found"), BadConfig("bad to the bone")],
+    )
     def test_main_get_server_config_exc(capsys, monkeypatch, make_logger, gsc_exc):
+        called = [False]
+
         def get_server_config() -> PbenchServerConfig:
-            if gsc_exc == "nofile":
-                exc = ConfigFileNotSpecified("nofile found")
-            elif gsc_exc == "bad":
-                exc = BadConfig("bad to the bone")
-            else:
-                exc = Exception(f"Bad test parameter, {gsc_exc}")
-            raise exc
+            called[0] = True
+            raise gsc_exc
 
         monkeypatch.setattr(shell, "get_server_config", get_server_config)
 
         ret_val = shell.main()
 
+        assert called[0]
         assert ret_val == 1
         out, err = capsys.readouterr()
-        assert err.startswith(gsc_exc), f"out={out!r}, err={err!r}"
+        assert err.startswith(str(gsc_exc)), f"out={out!r}, err={err!r}"

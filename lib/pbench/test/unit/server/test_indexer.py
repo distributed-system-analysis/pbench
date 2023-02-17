@@ -1,4 +1,7 @@
-from pbench.server.indexer import ResultData
+import pytest
+
+import pbench.server.indexer
+from pbench.server.indexer import init_indexing, ResultData
 
 
 class TestResultData_expand_uid_template:
@@ -52,3 +55,25 @@ class TestResultData_expand_uid_template:
             templ, {"str": "abc", "int": 123, "float": 45.6789012, "other": []}
         )
         assert res == "abc_123_45.678901_%other%_UID"
+
+
+def test_init_indexing(monkeypatch, server_config, make_logger):
+    called = [False]
+
+    class MockPbenchTemplates:
+        def update_templates(self, *args, **kwargs):
+            called[0] = True
+            assert args[0] == "fake-es-obj", f"args={args!r}, kwargs={kwargs!r}"
+            assert not kwargs
+
+    class MockIdxContext:
+        def __init__(self, *args, **kwargs):
+            self.templates = MockPbenchTemplates()
+            self.es = "fake-es-obj"
+
+    monkeypatch.setattr(pbench.server.indexer, "IdxContext", MockIdxContext)
+    try:
+        init_indexing("test", server_config, make_logger)
+    except Exception as exc:
+        pytest.fail(f"Unexpected exception raised: {exc}")
+    assert called[0], "Mocked update_templates() was not called"
