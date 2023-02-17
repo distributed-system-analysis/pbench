@@ -92,8 +92,9 @@ def test_wait_for_uri_conn_ref_succ(monkeypatch):
     before the timeout period.
     """
     called = setup_conn_ref(monkeypatch)
-    # The mock will return successfully after 3 ticks of the mock'd clock, so 42 is
-    # sufficiently long enough (it is greater
+    # The mock will return successfully after 3 ticks of the mock'd clock, so 42
+    # is sufficiently long enough to wait given it is the answer to the ultimate
+    # question of life, the universe, and everything.
     pbench.common.wait_for_uri("http://localhost:42", 42)
     assert called == [
         "time [0]",  # Clock moves from 0 to 1
