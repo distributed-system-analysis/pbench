@@ -40,13 +40,18 @@ class AuthToken(Database.Base):
     def delete(auth_token: str):
         """Delete the given auth token.
 
+        If the auth token does not exist return silently.
+
         Args:
             auth_token : the auth token to delete
         """
         dbs = Database.db_session
         try:
-            dbs.query(AuthToken).filter_by(token=auth_token).delete()
-            dbs.commit()
+            token = dbs.query(AuthToken).filter_by(token=auth_token)
+            if not token:
+                return
+            token.delete()
+            Database.db_session.commit()
         except Exception:
             dbs.rollback()
             raise

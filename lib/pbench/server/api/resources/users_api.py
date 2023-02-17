@@ -246,11 +246,12 @@ class Login(Resource):
                 AuthToken.expiration <= datetime.now(timezone.utc)
             ).delete()
             Database.db_session.commit()
-        except Exception:
+        except Exception as exc:
             Database.db_session.rollback()
-            current_app.logger.exception(
-                "Error encountered while removing expired tokens",
+            current_app.logger.error(
+                "Error encountered removing expired tokens during login for user {}: {}",
                 user.username,
+                exc,
             )
 
         response_object = {
@@ -287,53 +288,28 @@ class Logout(Resource):
         auth_token = Auth.get_auth_token()
         state = Auth.verify_internal_token(auth_token)
 
-        # The only time a token won't be in the database is if the token is
-        # not a valid token.  Valid tokens that are not expired should be in
-        # the database, and expired tokens might or might not be in the
-        # database.  If the valid token is found in the database associated
-        # with the user, remove it.
+        # If the token is invalid, it won't be in the database; valid but
+        # expired tokens may have been removed from the database by other
+        # requests; otherwise, the token should be in the database.  If the
+        # token is valid and found in the database, it must be associated with
+        # a user (assertion handled by database schema), so we can simply remove
+        # it from the database.
 
         if state == Auth.TokenState.INVALID:
-            current_app.logger.info("User logout with invalid token: {}", auth_token)
+            current_app.logger.debug("User logout with invalid token: {}", auth_token)
         else:
-            token = AuthToken.query(auth_token)
-            if token:
-                user = token.user
-                if not user:
-                    # This is an internal error state, but play it cool with the
-                    # API client.
-                    current_app.logger.error(
-                        "INTERNAL ERROR - token {!r} ({}) found without an associated user",
-                        auth_token,
-                        state,
-                    )
-                else:
-                    try:
-                        AuthToken.delete(auth_token)
-                    except Exception:
-                        current_app.logger.exception(
-                            "Exception occurred deleting auth token {!r} for user {!r}",
-                            auth_token,
-                            user.username,
-                        )
-                        if state == Auth.TokenState.VERIFIED:
-                            # Only report an internal error to the user if the token
-                            # has been verified.
-                            abort(
-                                HTTPStatus.INTERNAL_SERVER_ERROR,
-                                message="INTERNAL ERROR",
-                            )
-                    else:
-                        if state == Auth.TokenState.EXPIRED:
-                            current_app.logger.info(
-                                "User {} logged out with expired token", user.username
-                            )
-                        else:
-                            current_app.logger.debug(
-                                "User {} logged out", user.username
-                            )
-            else:
-                current_app.logger.debug("User logout with {} token", state)
+            current_app.logger.debug("User logout with {} token: {}", state, auth_token)
+            try:
+                AuthToken.delete(auth_token)
+            except Exception:
+                current_app.logger.exception(
+                    "Exception occurred deleting auth token {!r}",
+                    auth_token,
+                )
+                abort(
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    message="INTERNAL ERROR",
+                )
 
         return "", HTTPStatus.OK
 
