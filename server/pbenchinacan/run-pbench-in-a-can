@@ -1,0 +1,67 @@
+#!/bin/bash -e
+
+#
+# Run a local containerized deployment of the Pbench Server, together with its
+# dependencies.
+#
+# This script should be run from the root of the Git checkout.
+#
+
+# The default container registry to use with the organization name in that
+# registry.  E.g., `quay.io/pbench`.  We export it (and the server image name)
+# for the subordinate scripts to use.
+export PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
+server_image_name=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
+server_image_tag=${PB_SERVER_IMAGE_TAG:-"$(< jenkins/branch.name)"}
+export PB_SERVER_IMAGE=${PB_CONTAINER_REG}/${pb_server_image_name}:${pb_server_image_tag}
+
+# Default pull policy for all images is to pull the image if the registry has a
+# *different* version (despite the name...different is assumed to be "newer").
+export PB_COMMON_IMAGE_PULL_POLICY=${PB_COMMON_IMAGE_PULL_POLICY:-"newer"}
+export PB_SERVER_IMAGE_PULL_POLICY="${PB_SERVER_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
+
+# Directory to use for the fully built dashboard code.
+export PB_DASHBOARD_DIR="${PB_DASHBOARD_DIR:-${PWD}/dashboard/build/}"
+
+export KEYCLOAK_REALM=${KEYCLOAK_REALM:-"pbench-server"}
+export KEYCLOAK_CLIENT=${KEYCLOAK_CLIENT:-"pbench-server-client"}
+
+# Set up TMP_DIR if it's not already defined to point to WORKSPACE_TMP if it is
+# defined (e.g., by the CI) or to `/var/tmp/pbench` as a fallback.
+#
+# Point SRV_PBENCH at a file tree in the temporary space which will be mapped
+# into the Pbench Server container as /srv/pbench to provide all the storage for
+# the Server and the Dashboard.
+#
+# Point PB_DEPLOY_FILES at a directory in the temporary space to hold the
+# Pbench Server deployment files (e.g., config files).
+TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
+export SRV_PBENCH=${SRV_PBENCH:-${TMP_DIR}/srv/pbench}
+export PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
+
+# Copy the deployment files to the deployment files directory
+pbiac_etc=server/pbenchinacan/etc
+cp -r ${pbiac_etc}/rsyslog.d ${pbiac_etc}/rsyslog.conf ${PB_DEPLOY_FILES}/etc/
+cp ${pbiac_etc}/pbench-server/pbench-server.cfg ${PB_DEPLOY_FILES}/
+
+# Customize the Pbench Server config file for canned operation
+sed -Ei \
+    -e "s/<keycloak_secret>/${KEYCLOAK_CLIENT_SECRET}/" \
+    -e "s/<keycloak_realm>/${KEYCLOAK_REALM}/" \
+    -e "s/<keycloak_client>/${KEYCLOAK_CLIENT}/" \
+    ${PB_DEPLOY_FILES}/pbench-server.cfg
+
+# Set up the /srv/pbench file tree
+mkdir -p -m 0755  \
+    ${SRV_PBENCH}/archive/fs-version-001 \
+    ${SRV_PBENCH}/public_html/dashboard \
+    ${SRV_PBENCH}/public_html/incoming \
+    ${SRV_PBENCH}/public_html/results \
+    ${SRV_PBENCH}/public_html/users \
+    ${SRV_PBENCH}/logs \
+    ${SRV_PBENCH}/tmp \
+    ${SRV_PBENCH}/pbench-move-results-receive/fs-version-002
+
+server/pbenchinacan/deploy-dependencies
+
+server/pbenchinacan/deploy
