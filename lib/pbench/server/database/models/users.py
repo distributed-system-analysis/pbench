@@ -9,6 +9,7 @@ from sqlalchemy.orm import relationship, validates
 from sqlalchemy.orm.exc import NoResultFound
 
 from pbench.server.database.database import Database
+from pbench.server.database.models.auth_tokens import AuthToken
 
 
 class Roles(enum.Enum):
@@ -28,7 +29,7 @@ class User(Database.Base):
     registered_on = Column(DateTime, nullable=False, default=datetime.datetime.now())
     email = Column(String(255), unique=True, nullable=False)
     role = Column(Enum(Roles), unique=False, nullable=True)
-    auth_tokens = relationship("AuthToken", backref="users")
+    auth_tokens = relationship("AuthToken", back_populates="user")
 
     def __str__(self):
         return f"User, id: {self.id}, username: {self.username}"
@@ -101,16 +102,25 @@ class User(Database.Base):
         valid = validate_email(value)
         return valid.email
 
+    def add_token(self, auth_token: AuthToken):
+        """Add the given token to the database
+
+        Args:
+            token : An AuthToken object add for this user
+        """
+        try:
+            self.auth_tokens.append(auth_token)
+            Database.db_session.add(auth_token)
+            Database.db_session.commit()
+        except Exception:
+            Database.db_session.rollback()
+            raise
+
     def update(self, **kwargs):
         """Update the current user object with given keyword arguments."""
         try:
             for key, value in kwargs.items():
-                if key == "auth_token":
-                    # Insert the auth token
-                    self.auth_tokens.append(value)
-                    Database.db_session.add(value)
-                else:
-                    setattr(self, key, value)
+                setattr(self, key, value)
             Database.db_session.commit()
         except Exception:
             Database.db_session.rollback()

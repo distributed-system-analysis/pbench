@@ -724,10 +724,10 @@ class TestAuthModule:
     ):
         """Verify behavior when a token is not in the database"""
 
-        def valid(*args, **kwargs):
-            return False
+        def query(*args, **kwargs):
+            return None
 
-        monkeypatch.setattr(Auth.AuthToken, "valid", valid)
+        monkeypatch.setattr(Auth.AuthToken, "query", query)
         app = Flask("test-verify-auth-internal-at-valid-fail")
         app.logger = make_logger
         with app.app_context():
