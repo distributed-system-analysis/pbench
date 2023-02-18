@@ -16,6 +16,18 @@ def results_common_options(f):
             help="pbench tarball access permission",
         ),
         click.option(
+            "-m",
+            "--metadata",
+            required=False,
+            default=[],
+            multiple=True,
+            help=(
+                "list of metadata keys to be sent on PUT."
+                " Option may need to be specified multiple times for multiple values."
+                " Format: key:value"
+            ),
+        ),
+        click.option(
             "--token",
             required=True,
             envvar="PBENCH_ACCESS_TOKEN",

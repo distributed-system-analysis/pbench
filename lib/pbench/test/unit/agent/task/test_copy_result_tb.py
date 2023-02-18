@@ -97,6 +97,47 @@ class TestCopyResults:
         # If we got this far without an exception, then the test passes.
 
     @responses.activate
+    @pytest.mark.parametrize(
+        "metadata", (["pbench.test:TEST", "pbench.sat:FOO"], (), None)
+    )
+    def test_with_metadata(self, metadata, monkeypatch, agent_logger):
+        tb_name = "test_tarball.tar.xz"
+        tb_contents = "I'm a result!"
+        access = "private"
+
+        def request_callback(request: requests.Request):
+            if metadata:
+                assert "metadata" in request.params
+                assert request.params["metadata"] == metadata
+            else:
+                assert "metadata" not in request.params
+            return HTTPStatus.OK, {}, ""
+
+        responses.add_callback(
+            responses.PUT,
+            f"{self.config.get('results', 'server_rest_url')}/upload/{tb_name}",
+            callback=request_callback,
+        )
+
+        monkeypatch.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
+        monkeypatch.setattr(
+            Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
+        )
+
+        crt = CopyResultTb(
+            tb_name,
+            len(tb_contents),
+            "someMD5",
+            self.config,
+            agent_logger,
+        )
+        if metadata is None:
+            crt.copy_result_tb("token")
+        else:
+            crt.copy_result_tb("token", access, metadata)
+        # If we got this far without an exception, then the test passes.
+
+    @responses.activate
     def test_connection_error(self, monkeypatch, agent_logger):
         tb_name = "test_tarball.tar.xz"
         tb_contents = "I'm a result!"

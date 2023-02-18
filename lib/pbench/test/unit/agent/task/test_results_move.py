@@ -48,6 +48,9 @@ class TestMoveResults:
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
     ACCESS_TEXT = "private"
     SWSR_TEXT = None
+    META_SWITCH = "--metadata"
+    META_TEXT_FOO = "pbench.sat:FOO"
+    META_TEXT_TEST = "pbench.test:TEST"
     URL = "http://pbench.example.com/api/v1"
     ENDPOINT = "/login"
 
@@ -79,6 +82,68 @@ class TestMoveResults:
                 TestMoveResults.SWSR_TEXT,
                 TestMoveResults.ACCESS_SWITCH,
                 TestMoveResults.ACCESS_TEXT,
+            ],
+        )
+        assert (
+            result.exit_code == 0
+        ), f"Expected success exit code of 0: exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
+        assert (
+            not result.stderr
+        ), f"Unexpected stderr: '{result.stderr}', stdout: '{result.stdout}'"
+        assert result.stdout.startswith(
+            "Status: total "
+        ), f"Unexpected stdout: '{result.stdout}', stderr: '{result.stderr}'"
+
+    @staticmethod
+    @responses.activate
+    def test_metadata_args():
+        """Test metadata with irregular option/value pair"""
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestMoveResults.CTRL_SWITCH,
+                TestMoveResults.CTRL_TEXT,
+                TestMoveResults.TOKN_SWITCH,
+                TestMoveResults.TOKN_TEXT,
+                TestMoveResults.DELY_SWITCH,
+                TestMoveResults.XZST_SWITCH,
+                TestMoveResults.SWSR_SWITCH,
+                TestMoveResults.SWSR_TEXT,
+                TestMoveResults.ACCESS_SWITCH,
+                TestMoveResults.ACCESS_TEXT,
+                TestMoveResults.META_SWITCH,
+                TestMoveResults.META_TEXT_TEST,
+                TestMoveResults.META_TEXT_FOO,
+            ],
+        )
+        assert (
+            result.exit_code == 2
+        ), f"Expected exit code of 2: exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
+        assert "Error: Got unexpected extra argument (pbench.sat:FOO)" in result.stderr
+
+    @staticmethod
+    @responses.activate
+    def test_multiple_metadata_args():
+        """Test metadata with multiple values"""
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestMoveResults.CTRL_SWITCH,
+                TestMoveResults.CTRL_TEXT,
+                TestMoveResults.TOKN_SWITCH,
+                TestMoveResults.TOKN_TEXT,
+                TestMoveResults.DELY_SWITCH,
+                TestMoveResults.XZST_SWITCH,
+                TestMoveResults.SWSR_SWITCH,
+                TestMoveResults.SWSR_TEXT,
+                TestMoveResults.ACCESS_SWITCH,
+                TestMoveResults.ACCESS_TEXT,
+                TestMoveResults.META_SWITCH,
+                TestMoveResults.META_TEXT_TEST,
+                TestMoveResults.META_SWITCH,
+                TestMoveResults.META_TEXT_FOO,
             ],
         )
         assert (

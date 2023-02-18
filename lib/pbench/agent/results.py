@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-from typing import Optional
+from typing import List, Optional
 import urllib.parse
 
 import requests
@@ -311,7 +311,9 @@ class CopyResultTb:
         self.upload_url = f"{server_rest_url}/upload/{tbname}"
         self.logger = logger
 
-    def copy_result_tb(self, token: str, access: Optional[str] = None) -> None:
+    def copy_result_tb(
+        self, token: str, access: Optional[str] = None, metadata: Optional[List] = None
+    ) -> None:
         """Copies the tar ball from the agent to the configured server using upload
         API.
 
@@ -322,6 +324,8 @@ class CopyResultTb:
             access: keyword that identifies whether a dataset needs
                 to be published public or private.  Optional:  if omitted
                 the result will be the server default.
+            metadata: list of metadata keys to be sent on PUT. (Optional)
+                Format: key:value
 
         Raises:
             RuntimeError     if a connection to the server fails
@@ -329,6 +333,9 @@ class CopyResultTb:
 
         """
         params = {"access": access} if access else {}
+        if metadata:
+            params["metadata"] = metadata
+
         headers = {
             "Content-MD5": self.tarball_md5,
             "Authorization": f"Bearer {token}",

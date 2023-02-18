@@ -17,6 +17,9 @@ class TestResultsPush:
     ACCESS_SWITCH = "--access"
     ACCESS_TEXT = "public"
     ACCESS_WRONG_TEXT = "public/private"
+    META_SWITCH = "--metadata"
+    META_TEXT_FOO = "pbench.sat:FOO"
+    META_TEXT_TEST = "pbench.test:TEST"
     URL = "http://pbench.example.com/api/v1"
 
     @staticmethod
@@ -85,6 +88,32 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
+    def test_meta_args():
+        """Test operation when irregular arguments and options are specified"""
+
+        TestResultsPush.add_http_mock_response()
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.TOKN_SWITCH,
+                TestResultsPush.TOKN_TEXT,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_TEST,
+                TestResultsPush.META_TEXT_FOO,
+                tarball,
+            ],
+        )
+        assert result.exit_code == 2
+        assert (
+            "Invalid value for 'RESULT_TB_NAME': "
+            "File 'pbench.sat:FOO' does not exist." in result.stderr
+        )
+
+    @staticmethod
+    @responses.activate
     def test_extra_arg():
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
@@ -101,7 +130,7 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_args():
+    def test_multiple_meta_args_single_option():
         """Test normal operation when all arguments and options are specified"""
 
         TestResultsPush.add_http_mock_response()
@@ -113,6 +142,32 @@ class TestResultsPush:
                 TestResultsPush.TOKN_TEXT,
                 TestResultsPush.ACCESS_SWITCH,
                 TestResultsPush.ACCESS_TEXT,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_TEST + "," + TestResultsPush.META_TEXT_FOO,
+                tarball,
+            ],
+        )
+        assert result.exit_code == 0, result.stderr
+        assert result.stderr == "File uploaded successfully\n"
+
+    @staticmethod
+    @responses.activate
+    def test_multiple_meta_args():
+        """Test normal operation when all arguments and options are specified"""
+
+        TestResultsPush.add_http_mock_response()
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.TOKN_SWITCH,
+                TestResultsPush.TOKN_TEXT,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_TEST,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_FOO,
                 tarball,
             ],
         )

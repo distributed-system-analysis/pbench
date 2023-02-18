@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import List
 
 import click
 
@@ -23,7 +24,9 @@ class ResultsPush(BaseCommand):
             self.config,
             self.logger,
         )
-        crt.copy_result_tb(self.context.token, self.context.access)
+        crt.copy_result_tb(
+            self.context.token, self.context.access, self.context.metadata
+        )
         return 0
 
 
@@ -48,6 +51,7 @@ def main(
     result_tb_name: str,
     token: str,
     access: str,
+    metadata: List,
 ):
     """Push a result tar ball to the configured Pbench server.
 
@@ -61,6 +65,7 @@ def main(
     context.result_tb_name = result_tb_name
     context.token = token
     context.access = access
+    context.metadata = metadata
 
     try:
         rv = ResultsPush(context).execute()
