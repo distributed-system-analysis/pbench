@@ -365,7 +365,10 @@ class TestList:
 
 
 class TestDelete:
-    @pytest.mark.dependency(depends=["list_none", "list_all", "index"], scope="session")
+    @pytest.mark.dependency(
+        depends=["list_none", "list_all", "list_and", "list_or", "index"],
+        scope="session",
+    )
     def test_delete_all(self, server_client: PbenchServerClient, login_user):
         """Verify we can delete each previously uploaded dataset.
 

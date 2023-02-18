@@ -341,7 +341,12 @@ class TestDatasetsList:
             ),
         ],
     )
-    def test_filter_query(self, monkeypatch, filters, expected):
+    def test_filter_query(self, monkeypatch, db_session, filters, expected):
+        """Test generation of Metadata value filters
+
+        Use the filter_query method directly to verify SQL generation from sets
+        of metadata filter expressions.
+        """
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
             lambda: DRB_USER_ID,
@@ -363,7 +368,12 @@ class TestDatasetsList:
             == prefix + expected
         )
 
-    def test_user_no_auth(self, monkeypatch):
+    def test_user_no_auth(self, monkeypatch, db_session):
+        """Test errors in generation of Metadata value filters
+
+        Use the filter_query method directly to verify error paths in SQL
+        filter generation from sets of metadata filter expressions.
+        """
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
             lambda: None,
