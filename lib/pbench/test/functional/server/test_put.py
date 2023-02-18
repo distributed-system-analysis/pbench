@@ -296,7 +296,7 @@ class TestList:
         """
         fio_names = {Dataset.stem(t) for t in TARBALL_DIR.glob("*fio*.tar.xz")}
         linpack_names = {Dataset.stem(t) for t in TARBALL_DIR.glob("*linpack*.tar.xz")}
-        expected = fio_names + linpack_names
+        expected = fio_names | linpack_names
         datasets = server_client.get_list(
             metadata=["dataset.metalog.pbench.name"],
             owner="tester",

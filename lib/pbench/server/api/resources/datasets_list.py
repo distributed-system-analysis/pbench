@@ -130,7 +130,7 @@ class DatasetsList(ApiBase):
     def filter_query(filters: list[str], query: Query) -> Query:
         """Provide Metadata filtering for datasets.
 
-        Add SQLAlchemy filters to fulfill the intend of a series of filter
+        Add SQLAlchemy filters to fulfill the intent of a series of filter
         expressions that want to match exactly or in part against a series of
         metadata keys.
 
@@ -174,7 +174,7 @@ class DatasetsList(ApiBase):
 
             "?filter=a.b:c,^b.c:d,^c.d:e"
         and
-            "?filter=a.b:c&filter=&b.c:d&filter:^c.d:e"
+            "?filter=a.b:c&filter=^b.c:d&filter:^c.d:e"
 
         result in identical filtering.
 

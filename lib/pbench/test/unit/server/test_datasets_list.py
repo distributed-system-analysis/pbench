@@ -7,6 +7,7 @@ import pytest
 import requests
 
 from pbench.server import JSON, JSONOBJECT
+from pbench.server.api.resources import APIAbort
 from pbench.server.api.resources.datasets_list import DatasetsList, urlencode_json
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata
@@ -322,17 +323,21 @@ class TestDatasetsList:
             (["dataset.name:fio"], "datasets.name = 'fio'"),
             (
                 ["dataset.metalog.pbench.script:fio"],
-                "dataset_metadata.key = 'metalog' AND dataset_metadata.value[['pbench', 'script']] = 'fio'",
+                "dataset_metadata.key = 'metalog' "
+                "AND dataset_metadata.value[['pbench', 'script']] = 'fio'",
             ),
             (
                 ["user.d.f:1"],
-                "dataset_metadata.key = 'user' AND dataset_metadata.value[['d', 'f']] = '1' AND dataset_metadata.user_id = '3'",
+                "dataset_metadata.key = 'user' AND dataset_metadata.value[['d', "
+                "'f']] = '1' AND dataset_metadata.user_id = '3'",
             ),
             (
                 ["dataset.name:~fio", "^global.x:1", "^user.y:~yes"],
-                "(datasets.name LIKE '%' || 'fio' || '%') AND (dataset_metadata.key = 'global' AND "
-                "dataset_metadata.value[['x']] = '1' OR dataset_metadata.key = 'user' AND "
-                "((dataset_metadata.value[['y']]) LIKE '%' || 'yes' || '%') AND dataset_metadata.user_id = '3')",
+                "(datasets.name LIKE '%' || 'fio' || '%') AND "
+                "(dataset_metadata.key = 'global' AND "
+                "dataset_metadata.value[['x']] = '1' OR dataset_metadata.key "
+                "= 'user' AND ((dataset_metadata.value[['y']]) LIKE '%' || "
+                "'yes' || '%') AND dataset_metadata.user_id = '3')",
             ),
         ],
     )
@@ -342,9 +347,10 @@ class TestDatasetsList:
             lambda: DRB_USER_ID,
         )
         prefix = (
-            "SELECT datasets.access, datasets.id, datasets.name, datasets.owner_id, datasets.resource_id, datasets.uploaded "
-            "FROM datasets LEFT OUTER JOIN dataset_metadata ON datasets.id = dataset_metadata.dataset_ref "
-            "WHERE "
+            "SELECT datasets.access, datasets.id, datasets.name, "
+            "datasets.owner_id, datasets.resource_id, datasets.uploaded "
+            "FROM datasets LEFT OUTER JOIN dataset_metadata ON datasets.id "
+            "= dataset_metadata.dataset_ref WHERE "
         )
         query = DatasetsList.filter_query(
             filters, Database.db_session.query(Dataset).outerjoin(Metadata)
@@ -356,3 +362,14 @@ class TestDatasetsList:
             )
             == prefix + expected
         )
+
+    def test_user_no_auth(self, monkeypatch):
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
+            lambda: None,
+        )
+        with pytest.raises(APIAbort) as e:
+            DatasetsList.filter_query(
+                ["user.foo:1"], Database.db_session.query(Dataset).outerjoin(Metadata)
+            )
+        assert e.value.http_status == HTTPStatus.UNAUTHORIZED
