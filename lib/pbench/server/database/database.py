@@ -1,5 +1,9 @@
 from logging import DEBUG, Logger
+from pathlib import Path
+from urllib.parse import urlparse
 
+from alembic import command
+from alembic.config import Config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, Query, scoped_session, sessionmaker
 from sqlalchemy_utils import create_database, database_exists
@@ -61,7 +65,18 @@ class Database:
         # nothing.
 
         engine = create_engine(db_uri)
-        Database.Base.metadata.create_all(bind=engine)
+        db_url = urlparse(db_uri)
+        if db_url.scheme == "sqlite":
+            Database.Base.metadata.create_all(bind=engine)
+        else:
+            alembic_cfg = Config()
+            alembic_cfg.set_main_option(
+                "script_location", str(Path(__file__).parent / "alembic")
+            )
+            alembic_cfg.set_main_option("prepend_sys_path", ".")
+            with engine.begin() as connection:
+                alembic_cfg.attributes["connection"] = connection
+                command.upgrade(alembic_cfg, "head")
         Database.db_session = scoped_session(
             sessionmaker(bind=engine, autocommit=False, autoflush=False)
         )
