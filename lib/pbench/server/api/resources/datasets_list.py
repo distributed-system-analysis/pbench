@@ -239,7 +239,11 @@ class DatasetsList(ApiBase):
                 else:
                     try:
                         c = getattr(Dataset, second)
-                        if c.type.python_type is str:
+                        try:
+                            is_str = c.type.python_type is str
+                        except NotImplementedError:
+                            is_str = False
+                        if is_str:
                             column = c
                         else:
                             column = cast(getattr(Dataset, second), String)

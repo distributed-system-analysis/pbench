@@ -1,12 +1,13 @@
 import datetime
 from http import HTTPStatus
 import re
-from typing import List
 
 import pytest
 import requests
+from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.orm import Query
 
-from pbench.server import JSON, JSONOBJECT
+from pbench.server import JSON, JSONARRAY, JSONOBJECT
 from pbench.server.api.resources import APIAbort
 from pbench.server.api.resources.datasets_list import DatasetsList, urlencode_json
 from pbench.server.database.database import Database
@@ -14,6 +15,7 @@ from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.test.unit.server import DRB_USER_ID
 
 FLATTEN = re.compile(r"[\n\s]+")
+LOG_SEQ = re.compile(r"Internal Pbench Server Error: log reference ([a-f0-9-]+)")
 
 
 class TestUrlencodeJson:
@@ -89,7 +91,7 @@ class TestDatasetsList:
 
         return query_api
 
-    def get_results(self, name_list: List[str], query: JSON, server_config) -> JSON:
+    def get_results(self, name_list: list[str], query: JSON, server_config) -> JSON:
         """Translate a list of names into a list of expected results of the
         abbreviated form returned by `datasets/list`: name, controller, run_id,
         and metadata.
@@ -102,7 +104,7 @@ class TestDatasetsList:
         Returns:
             Paginated JSON object containing list of dataset values
         """
-        list: List[JSON] = []
+        results: list[JSON] = []
         offset = query.get("offset", 0)
         limit = query.get("limit")
 
@@ -123,7 +125,7 @@ class TestDatasetsList:
 
         for name in sorted(paginated_name_list):
             dataset = Dataset.query(name=name)
-            list.append(
+            results.append(
                 {
                     "name": dataset.name,
                     "resource_id": dataset.resource_id,
@@ -134,11 +136,18 @@ class TestDatasetsList:
                     },
                 }
             )
-        return {"next_url": next_url, "results": list, "total": len(name_list)}
+        return {"next_url": next_url, "results": results, "total": len(name_list)}
 
     def compare_results(
-        self, result: JSONOBJECT, name_list: List[str], query: JSON, server_config
+        self, result: JSONOBJECT, name_list: list[str], query: JSON, server_config
     ):
+        """Compare two JSON results structures
+
+        While pytest can reliably compare two dicts, or strings, when comparing
+        lists we need to sort the elements. This helper compares each direct
+        member of the results JSON but sorts the "results" list before doing
+        the comparison to ensure consistency.
+        """
         expected = self.get_results(name_list, query, server_config)
         for k, v in result.items():
             if k == "results":
@@ -339,9 +348,13 @@ class TestDatasetsList:
                 "= 'user' AND ((dataset_metadata.value[['y']]) LIKE '%' || "
                 "'yes' || '%') AND dataset_metadata.user_id = '3')",
             ),
+            (
+                ["dataset.uploaded:~2000"],
+                "(CAST(datasets.uploaded AS VARCHAR) LIKE '%' || '2000' || '%')",
+            ),
         ],
     )
-    def test_filter_query(self, monkeypatch, db_session, filters, expected):
+    def test_filter_query(self, monkeypatch, client, filters, expected):
         """Test generation of Metadata value filters
 
         Use the filter_query method directly to verify SQL generation from sets
@@ -369,10 +382,8 @@ class TestDatasetsList:
         )
 
     def test_user_no_auth(self, monkeypatch, db_session):
-        """Test errors in generation of Metadata value filters
-
-        Use the filter_query method directly to verify error paths in SQL
-        filter generation from sets of metadata filter expressions.
+        """Test the authorization error when a match against a key in the user
+        namespace is attempted from an unauthenticated session.
         """
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
@@ -383,3 +394,55 @@ class TestDatasetsList:
                 ["user.foo:1"], Database.db_session.query(Dataset).outerjoin(Metadata)
             )
         assert e.value.http_status == HTTPStatus.UNAUTHORIZED
+
+    @pytest.mark.parametrize(
+        "meta,error",
+        [
+            ("user.foo:1", HTTPStatus.UNAUTHORIZED),
+            ("x.y:1", HTTPStatus.BAD_REQUEST),
+            ("global.x=3", HTTPStatus.BAD_REQUEST),
+            ("dataset.notright:10", HTTPStatus.BAD_REQUEST),
+        ],
+    )
+    def test_filter_errors(self, monkeypatch, db_session, meta, error):
+        """Test invalid filter expressions."""
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
+            lambda: None,
+        )
+        with pytest.raises(APIAbort) as e:
+            DatasetsList.filter_query(
+                [meta], Database.db_session.query(Dataset).outerjoin(Metadata)
+            )
+        assert e.value.http_status == error
+
+    @pytest.mark.parametrize(
+        "exception,error",
+        (
+            (Exception("test"), "Unexpected SQL exception: test"),
+            (
+                ProgrammingError("stmt", [], "orig"),
+                "Constructed SQL for {} isn't executable",
+            ),
+        ),
+    )
+    def test_pagination_error(self, caplog, monkeypatch, query_as, exception, error):
+        """Test that query problems during pagination are reported as server
+        internal errors.
+        """
+
+        def do_error(
+            self, query: Query, json: JSONOBJECT, url: str
+        ) -> tuple[JSONARRAY, JSONOBJECT]:
+            raise exception
+
+        monkeypatch.setattr(DatasetsList, "get_paginated_obj", do_error)
+        response = query_as({}, "drb", HTTPStatus.INTERNAL_SERVER_ERROR)
+        message = response.json["message"]
+        match = LOG_SEQ.match(message)
+        key = match.group(1)
+        assert match and key, "Error response {message!r} is not an internal error"
+        for m in caplog.messages:
+            if key in m:
+                assert error in m
+                break
