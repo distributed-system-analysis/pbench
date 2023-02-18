@@ -1,5 +1,3 @@
-from logging.config import fileConfig
-
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
@@ -8,9 +6,6 @@ from pbench.server.database.database import Database
 # This is the Alembic Config object, which provides access to the values within
 # the .ini file in use.
 config = context.config
-
-# Interpret the config file for Python logging and setup the loggers.
-fileConfig(config.config_file_name)
 
 # Add your model's MetaData object here for 'autogenerate' support:
 #     from myapp import mymodel
@@ -48,15 +43,30 @@ def run_migrations_online() -> None:
 
     In this scenario we need to create an Engine and associate a connection with
     the context.
-    """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
 
-    with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+    See https://alembic.sqlalchemy.org/en/latest/cookbook.html#sharing-a-connection-across-one-or-more-programmatic-migration-commands
+    """
+    connectable = config.attributes.get("connection", None)
+
+    if connectable is None:
+        # Only create Engine if we don't have a Connection from the outside.
+        # This is typically the case when we are running the `alembic.migration`
+        # script.
+        connectable = engine_from_config(
+            config.get_section(config.config_ini_section),
+            prefix="sqlalchemy.",
+            poolclass=pool.NullPool,
+        )
+
+        with connectable.connect() as connection:
+            context.configure(connection=connection, target_metadata=target_metadata)
+
+            with context.begin_transaction():
+                context.run_migrations()
+    else:
+        # Run the migrations off of the given connection to the database.  This
+        # is typically used when the Pbench Server starts up.
+        context.configure(connection=connectable, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
