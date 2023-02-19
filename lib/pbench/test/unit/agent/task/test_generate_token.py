@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from pathlib import Path
 
 from click.testing import CliRunner
 import requests
@@ -11,6 +12,7 @@ class TestGenerateToken:
 
     USER_SWITCH = "--username"
     PSWD_SWITCH = "--password"
+    OUTPUT_SWITCH = "--output"
     USER_PROMPT = "Username: "
     PSWD_PROMPT = "Password: "
     USER_TEXT = "test_user"
@@ -35,6 +37,15 @@ class TestGenerateToken:
             TestGenerateToken.URL + TestGenerateToken.ENDPOINT,
             status=HTTPStatus.FORBIDDEN,
             json={"message": "Bad login"},
+        )
+
+    @staticmethod
+    def add_notjson_mock_response():
+        responses.add(
+            responses.POST,
+            TestGenerateToken.URL + TestGenerateToken.ENDPOINT,
+            status=HTTPStatus.FORBIDDEN,
+            body="NOT Jason",
         )
 
     @staticmethod
@@ -151,6 +162,24 @@ class TestGenerateToken:
 
     @staticmethod
     @responses.activate
+    def test_not_json():
+        TestGenerateToken.add_notjson_mock_response()
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            generate_token.main,
+            args=[
+                TestGenerateToken.USER_SWITCH,
+                TestGenerateToken.USER_TEXT,
+                TestGenerateToken.PSWD_SWITCH,
+                TestGenerateToken.PSWD_TEXT,
+            ],
+        )
+        assert result.exit_code == 1
+        assert not result.stdout
+        assert result.stderr == "NOT Jason\n"
+
+    @staticmethod
+    @responses.activate
     def test_connection_failed():
 
         TestGenerateToken.add_connectionerr_mock_response()
@@ -169,3 +198,27 @@ class TestGenerateToken:
         assert -1 != str(result.stderr).find(
             "Cannot connect to 'http://pbench.example.com/api/v1/login'"
         )
+
+    @staticmethod
+    @responses.activate
+    def test_output_file(tmp_path):
+        output_d = tmp_path / "test_output_file"
+        output_d.mkdir()
+        output_file = output_d / "token.file"
+        TestGenerateToken.add_success_mock_response()
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            generate_token.main,
+            args=[
+                TestGenerateToken.USER_SWITCH,
+                TestGenerateToken.USER_TEXT,
+                TestGenerateToken.PSWD_SWITCH,
+                TestGenerateToken.PSWD_TEXT,
+                TestGenerateToken.OUTPUT_SWITCH,
+                str(output_file),
+            ],
+        )
+        assert result.exit_code == 0
+        assert result.stdout == ""
+        assert not result.stderr_bytes
+        assert Path(output_file).read_text() == f"{TestGenerateToken.TOKEN_TEXT}\n"
