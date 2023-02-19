@@ -38,7 +38,11 @@ class GenerateToken(BaseCommand):
             payload = {"message": response.text}
 
         if response.ok and "auth_token" in payload:
-            click.echo(payload["auth_token"])
+            if not self.context.output:
+                click.echo(payload["auth_token"])
+            else:
+                with open(self.context.output, "w") as ofp:
+                    ofp.write(f"{payload['auth_token']}\n")
             return 0
 
         click.echo(
@@ -70,11 +74,17 @@ class GenerateToken(BaseCommand):
     show_default=True,
     help="number of seconds",
 )
+@click.option(
+    "--output",
+    required=False,
+    help="Output file to which to write the generated token",
+)
 @pass_cli_context
-def main(context, username, password, token_duration):
+def main(context, username, password, token_duration, output):
     context.username = username
     context.password = password
     context.token_duration = token_duration
+    context.output = output
 
     try:
         rv = GenerateToken(context).execute()
