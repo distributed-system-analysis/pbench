@@ -176,6 +176,12 @@ export const RenderPagination = (props) => {
 };
 
 export const EditRow = (props) => {
+  const isDirtyRow = () => {
+    return (
+      props.item[CONSTANTS.IS_DIRTY_NAME] ||
+      props.item[CONSTANTS.IS_DIRTY_SERVER_DELETE]
+    );
+  };
   return (
     <div className="pf-c-inline-edit__action pf-m-enable-editable">
       {!props.item[CONSTANTS.IS_EDIT] ? (
@@ -188,10 +194,7 @@ export const EditRow = (props) => {
         <div>
           <Button
             isDisabled={
-              !(
-                props.item[CONSTANTS.IS_DIRTY_NAME] ||
-                props.item[CONSTANTS.IS_DIRTY_SERVER_DELETE]
-              ) ||
+              !isDirtyRow() ||
               !props.item.name ||
               props.item[CONSTANTS.NAME_VALIDATED] === CONSTANTS.ERROR
             }

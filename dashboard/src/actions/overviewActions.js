@@ -67,10 +67,11 @@ const initializeRuns = () => (dispatch, getState) => {
     item[CONSTANTS.NAME_COPY] = item.name;
     item[CONSTANTS.SERVER_DELETION_COPY] =
       item.metadata[CONSTANTS.SERVER_DELETION];
-
-    item[CONSTANTS.IS_DIRTY_NAME] = false;
-    item[CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
-    item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
+    item[CONSTANTS.IS_DIRTY] = {
+      serverDelete: false,
+      datasetName: false,
+    };
+    item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.DEFAULT;
     item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
     item[CONSTANTS.IS_ITEM_FAVORITED] =
       !!item?.metadata?.[CONSTANTS.USER_FAVORITE];
@@ -113,45 +114,37 @@ const metaDataActions = {
   datasetName: CONSTANTS.DATASET_NAME,
   serverDelete: CONSTANTS.SERVER_DELETION,
 };
-export const getMetaDataActions =
-  (dataset, actionType, actionValue) => async (dispatch) => {
-    const method = metaDataActions[actionType];
-    const payload = { [method]: actionValue };
-    return dispatch(updateDataset(dataset, payload));
-  };
 /**
  * Function which return a thunk to be passed to a Redux dispatch() call
  * @function
  * @param {Object} dataset - Dataset which is being updated
- * @param {Object} payload - Action (save, read, favorite, edit) being performed with the new value
- * @return {Function} - dispatch the action and update the state
+ * @param {string} actionType - Action (save, read, favorite) being performed
+ * @param {string} actionValue - Value to be updated (true/ false)
+ * @return {Object} - dispatch the action and update the state
  */
 
 export const updateDataset =
-  (dataset, payload) => async (dispatch, getState) => {
+  (dataset, actionType, actionValue) => async (dispatch, getState) => {
     try {
       dispatch({ type: TYPES.LOADING });
 
       const runs = getState().overview.datasets;
       const endpoints = getState().apiEndpoint.endpoints;
-      const method = metaDataActions[payload.actionType];
+      const method = metaDataActions[actionType];
 
       const uri = uriTemplate(endpoints, "datasets_metadata", {
         dataset: dataset.resource_id,
       });
       const response = await API.put(uri, {
-        metadata: { [method]: payload.actionValue },
+        metadata: { [method]: actionValue },
       });
       if (response.status === 200) {
         const dataIndex = runs.findIndex(
           (item) => item.resource_id === dataset.resource_id
         );
-        const item = runs[dataIndex];
 
-        for (const key in response.data.metadata) {
-          if (item.metadata.hasOwnProperty(key))
-            item.metadata[key] = response.data.metadata[key];
-        }
+        runs[dataIndex].metadata[metaDataActions[actionType]] =
+          response.data[metaDataActions[actionType]];
 
         dispatch({
           type: TYPES.USER_RUNS,
@@ -183,7 +176,7 @@ export const updateDataset =
  * Function to delete the dataset
  * @function
  * @param {Object} dataset -  Dataset which is being updated *
- * @return {Function} - dispatch the action and update the state
+ * @return {Object} - dispatch the action and update the state
  */
 export const deleteDataset = (dataset) => async (dispatch, getState) => {
   try {
@@ -244,7 +237,7 @@ export const updateMultipleDataset =
       selectedRuns.forEach((item) =>
         method === "delete"
           ? dispatch(deleteDataset(item))
-          : dispatch(getMetaDataActions(item, method, value))
+          : dispatch(updateDataset(item, method, value))
       );
       const toastMsg =
         method === "delete"
@@ -263,7 +256,7 @@ export const updateMultipleDataset =
  * @function
  * @param {Object} dataset -  Dataset which is being updated
  * @param {string} updateValue - Access type value (Public/Private)
- * @return {Function} - dispatch the action and update the state
+ * @return {Object} - dispatch the action and update the state
  */
 export const publishDataset =
   (dataset, updateValue) => async (dispatch, getState) => {
@@ -328,16 +321,16 @@ const updateDatasetType = (data, type) => {
  * @param {string} metadata - metadata that is being edited *
  * @param {string} rId - resource_id of the dataset which is being set to edit
  * @param {string} type - Type of the Dataset (Saved/New)
- * @return {Function} - dispatch the action and update the state
+ * @return {Object} - dispatch the action and update the state
  */
 export const editMetadata =
   (value, metadata, rId, type) => async (dispatch, getState) => {
     const data = filterDatasetType(type, getState);
 
     const rIndex = data.findIndex((item) => item.resource_id === rId);
+    data[rIndex][metadata] = value;
 
-    if (metadata === CONSTANTS.NAME_KEY) {
-      data[rIndex][CONSTANTS.NAME_KEY] = value;
+    if (metadata === "name") {
       if (value.length > CONSTANTS.DATASET_NAME_LENGTH) {
         data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.ERROR;
         data[rIndex][
@@ -349,9 +342,9 @@ export const editMetadata =
       } else {
         data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
       }
-      data[rIndex][CONSTANTS.IS_DIRTY_NAME] = true;
-    } else if (metadata === CONSTANTS.SERVER_DELETION_KEY) {
-      data[rIndex][CONSTANTS.IS_DIRTY_SERVER_DELETE] = true;
+      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.DATASET_NAME_KEY] = true;
+    } else {
+      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.SERVER_DELETION_KEY] = true;
       data[rIndex].metadata[CONSTANTS.SERVER_DELETION] = value;
     }
     dispatch(updateDatasetType(data, type));
@@ -362,7 +355,7 @@ export const editMetadata =
  * @param {string} rId - resource_id of the dataset which is being set to edit
  * @param {boolean} isEdit - Set/not set to edit
  * @param {string} type - Type of the Dataset (Saved/New)
- * @return {Function} - dispatch the action and update the state
+ * @return {Object} - dispatch the action and update the state
  */
 export const setRowtoEdit =
   (rId, isEdit, type) => async (dispatch, getState) => {
@@ -375,8 +368,8 @@ export const setRowtoEdit =
       data[rIndex].name = data[rIndex][CONSTANTS.NAME_COPY];
       data[rIndex].metadata[CONSTANTS.SERVER_DELETION] =
         data[rIndex][CONSTANTS.SERVER_DELETION_COPY];
-      data[rIndex][CONSTANTS.IS_DIRTY_NAME] = false;
-      data[rIndex][CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
+      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.DATASET_NAME_KEY] = false;
+      data[rIndex][CONSTANTS.IS_DIRTY][CONSTANTS.SERVER_DELETION_KEY] = false;
       data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
     }
     dispatch(updateDatasetType(data, type));
@@ -386,7 +379,7 @@ export const setRowtoEdit =
  * @function
  * @param {Object} dataset -  Dataset which is being updated
  * @param {string} type - Type of the Dataset (Saved/New)
- * @return {Function} - dispatch the action and update the state
+ * @return {Object} - dispatch the action and update the state
  */
 export const getEditedMetadata =
   (dataset, type) => async (dispatch, getState) => {
@@ -396,16 +389,29 @@ export const getEditedMetadata =
       (item) => item.resource_id === dataset.resource_id
     );
     const item = data[rIndex];
+    const keys = Object.keys(item.isDirty);
 
-    const editedMetadata = {};
-    if (item[CONSTANTS.IS_DIRTY_NAME]) {
-      editedMetadata[metaDataActions[CONSTANTS.DATASET_NAME_KEY]] = item.name;
-    }
-    if (item[CONSTANTS.IS_DIRTY_SERVER_DELETE]) {
-      editedMetadata[metaDataActions[CONSTANTS.SERVER_DELETION_KEY]] = new Date(
-        item.metadata[CONSTANTS.SERVER_DELETION]
-      ).toISOString();
-    }
+    const filtered = keys.filter(function (key) {
+      return item.isDirty[key];
+    });
+    const editedMetadata = [];
+    for (const key of filtered) {
+      const obj =
+        key === CONSTANTS.DATASET_NAME_KEY
+          ? { [metaDataActions[key]]: item.name }
+          : {
+              [metaDataActions[key]]: new Date(
+                item.metadata[CONSTANTS.SERVER_DELETION]
+              ).toISOString(),
+            };
 
-    dispatch(updateDataset(dataset, editedMetadata));
+      editedMetadata.push(obj);
+    }
+    if (editedMetadata.length > 1) {
+      dispatch(updateDataset(dataset, editedMetadata));
+    } else {
+      dispatch(
+        updateDataset(dataset, filtered[0], Object.values(editedMetadata[0])[0])
+      );
+    }
   };
