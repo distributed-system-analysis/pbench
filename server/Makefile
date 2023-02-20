@@ -41,7 +41,6 @@ binlinks = \
 	pbench-backup-tarballs\
 	pbench-check-tb-age\
 	pbench-clean-up-dangling-results-links\
-	pbench-copy-sosreports\
 	pbench-cull-unpacked-tarballs\
 	pbench-dispatch\
 	pbench-index\

@@ -10,9 +10,6 @@ pbench-dispatch: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file 
 +++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-copy-sosreports
-pbench-copy-sosreports: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
---- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
 pbench-index: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 --- Finished pbench-index (status=3)
