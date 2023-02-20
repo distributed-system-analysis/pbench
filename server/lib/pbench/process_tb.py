@@ -3,7 +3,6 @@ import subprocess
 from collections import namedtuple
 from logging import Logger
 from pathlib import Path
-from typing import Optional
 
 from pbench import PbenchConfig
 
