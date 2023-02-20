@@ -143,9 +143,7 @@ class Upload(ApiBase):
         recovery = Cleanup(current_app.logger)
         audit: Optional[Audit] = None
         username: Optional[str] = None
-        access = (
-            args.query["access"] if "access" in args.query else Dataset.PRIVATE_ACCESS
-        )
+        access = args.query.get("access", Dataset.PRIVATE_ACCESS)
 
         # We allow the client to set metadata on the new dataset. We won't do
         # anything about this until upload is successful, but we process and
