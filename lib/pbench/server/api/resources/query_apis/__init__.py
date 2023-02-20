@@ -716,6 +716,67 @@ class ElasticBulkBase(ApiBase):
 
         # Our schema requires a valid dataset and uses it to authorize access;
         # therefore the unconditional dereference is assumed safe.
+        return self.common_ES(params, request, context)
+
+    def _delete(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
+        """
+        Perform the requested DELETE operation, and handle any exceptions.
+
+        This is called by the ApiBase delete() method through its dispatch
+        method, which provides parameter validation.
+
+        NOTE: This method relies on a ParamType.DATASET parameter being part of
+        the POST API Schema defined by any subclass that extends this base
+        class, and the POST schema must select DATASET authorization.
+        (This is checked by the constructor.)
+
+        Args:
+            params: Type-normalized client parameters
+            request: Original incoming Request object (not used)
+            context: API context
+
+        Returns:
+            Response to return to client
+        """
+        return self.common_ES(params, request, context)
+
+    def common_ES(
+        self, params: ApiParams, request: Request, context: ApiContext
+    ) -> Response:
+        """
+        Perform the requested POST/DELETE operation, and handle any exceptions.
+
+        This is called by the ApiBase delete() method through its dispatch
+        method, which provides parameter validation.
+
+        NOTE: This method relies on a ParamType.DATASET parameter being part of
+        the POST API Schema defined by any subclass that extends this base
+        class, and the POST schema must select DATASET authorization.
+        (This is checked by the constructor.)
+
+        Args:
+            params: Type-normalized client parameters
+            request: Original incoming Request object (not used)
+            context: API context
+
+        Returns:
+            Response to return to client
+        """
+        # Our schema requires a valid dataset and uses it to authorize access;
+        # therefore the unconditional dereference is assumed safe.
+
+        context["attributes"] = self.attributes
+
+        if context["attributes"]:
+            if "require_stable" in context["attributes"]:
+                self.require_stable = context["attributes"]["require_stable"]
+            if "require_map" in context["attributes"]:
+                self.require_map = context["attributes"]["require_map"]
+            if "action" in context["attributes"]:
+                self.action = context["attributes"]["action"]
+
         dataset = self.schemas.get_param_by_type(
             ApiMethod.POST, ParamType.DATASET, params
         ).value

@@ -928,6 +928,7 @@ class ApiSchema:
         audit_type: AuditType = AuditType.NONE,
         audit_name: Optional[str] = None,
         authorization: ApiAuthorizationType = ApiAuthorizationType.NONE,
+        attributes: Optional[JSON] = None,
     ):
         """Construct an ApiSchema encapsulating a set of schema objects
         separating URI parameters from query parameters from JSON body
@@ -961,6 +962,7 @@ class ApiSchema:
         self.audit_type = audit_type
         self.audit_name = audit_name
         self.authorization = authorization
+        self.attributes = attributes
 
     def get_param_by_type(
         self, dtype: ParamType, params: Optional[ApiParams]
@@ -1718,6 +1720,8 @@ class ApiBase(Resource):
             "reason": None,
             "attributes": None,
         }
+
+        self.attributes = schema.attributes
 
         try:
             response = execute(params, request, {"auditing": auditing})

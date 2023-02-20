@@ -18,6 +18,7 @@ from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
+from pbench.server.api.resources.query_apis.dataset import Datasets
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
     DatasetsContents,
 )
@@ -31,9 +32,7 @@ from pbench.server.api.resources.query_apis.datasets.namespace_and_rows import (
     SampleNamespace,
     SampleValues,
 )
-from pbench.server.api.resources.query_apis.datasets_delete import DatasetsDelete
 from pbench.server.api.resources.query_apis.datasets_search import DatasetsSearch
-from pbench.server.api.resources.query_apis.datasets_update import DatasetsUpdate
 from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_settings import ServerSettings
 from pbench.server.api.resources.upload_api import Upload
@@ -58,6 +57,12 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     app.logger.info("Registering service endpoints with base URI {}", base_uri)
 
     api.add_resource(
+        Datasets,
+        f"{base_uri}/datasets/<string:dataset>",
+        endpoint="datasets",
+        resource_class_args=(config,),
+    )
+    api.add_resource(
         DatasetsContents,
         f"{base_uri}/datasets/contents/<string:dataset>/",
         f"{base_uri}/datasets/contents/<string:dataset>/<path:target>",
@@ -68,12 +73,6 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         DatasetsDateRange,
         f"{base_uri}/datasets/daterange",
         endpoint="datasets_daterange",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        DatasetsDelete,
-        f"{base_uri}/datasets/delete/<string:dataset>",
-        endpoint="datasets_delete",
         resource_class_args=(config,),
     )
     api.add_resource(
@@ -118,12 +117,6 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         SampleValues,
         f"{base_uri}/datasets/values/<string:dataset>/<string:dataset_view>",
         endpoint="datasets_values",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        DatasetsUpdate,
-        f"{base_uri}/datasets/<string:dataset>",
-        endpoint="datasets_update",
         resource_class_args=(config,),
     )
     api.add_resource(

@@ -153,8 +153,8 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
-    const response = await API.post(
-      `${endpoints?.api?.datasets_delete}/${dataset.resource_id}`
+    const response = await API.delete(
+      `${endpoints?.api?.datasets}/${dataset.resource_id}`
     );
     if (response.status === 200) {
       const datasets = getState().overview.datasets;
@@ -229,7 +229,7 @@ export const publishDataset =
       const savedRuns = getState().overview.savedRuns;
 
       const response = await API.post(
-        `${endpoints?.api?.datasets_update}/${dataset.resource_id}?access=${updateValue}`
+        `${endpoints?.api?.datasets}/${dataset.resource_id}?access=${updateValue}`
       );
       if (response.status === 200) {
         const dataIndex = savedRuns.findIndex(
