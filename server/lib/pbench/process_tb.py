@@ -3,6 +3,7 @@ import subprocess
 from collections import namedtuple
 from logging import Logger
 from pathlib import Path
+from typing import Optional
 
 from pbench import PbenchConfig
 
@@ -49,7 +50,7 @@ class ProcessTb:
         return receive_dir
 
     @staticmethod
-    def _results_push(tb: Path, token: str, satellite: str = None):
+    def _results_push(tb: Path, token: str, satellite: Optional[str]):
         """Runs Agent's `pbench-results-push` command with tb, token and
         metadata options
 
@@ -99,7 +100,7 @@ class ProcessTb:
             tb = Path(str(tbmd5)[0 : -len(".md5")])
             tbdir = tb.parent
             controller = tbdir.name
-            satellite_prefix = ""
+            satellite_prefix = None
 
             if "::" in controller:
                 satellite_prefix, controller = controller.split("::")
