@@ -41,7 +41,6 @@ class API(Enum):
     DATASETS = "datasets"
     DATASETS_CONTENTS = "datasets_contents"
     DATASETS_DATERANGE = "datasets_daterange"
-    DATASETS_DELETE = "datasets_delete"
     DATASETS_DETAIL = "datasets_detail"
     DATASETS_INVENTORY = "datasets_inventory"
     DATASETS_LIST = "datasets_list"
