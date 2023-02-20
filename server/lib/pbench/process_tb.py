@@ -50,7 +50,7 @@ class ProcessTb:
         return receive_dir
 
     @staticmethod
-    def _results_push(tb: Path, token: str, satellite: Optional[str]):
+    def _results_push(tb: Path, token: str, satellite: str):
         """Runs Agent's `pbench-results-push` command with tb, token and
         metadata options
 
