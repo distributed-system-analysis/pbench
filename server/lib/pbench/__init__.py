@@ -301,7 +301,6 @@ class PbenchConfig(object):
             " TO-SYNC SYNCED"
             " TO-LINK"
             " TO-INDEX TO-RE-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX"
-            " TO-COPY-SOS COPIED-SOS"
             " TO-BACKUP BACKED-UP BACKUP-FAILED"
             " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED"
             " TO-DELETE SATELLITE-DONE"

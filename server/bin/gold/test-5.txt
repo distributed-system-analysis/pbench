@@ -118,36 +118,6 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-unpack-tarballs (status=0)
-+++ Running pbench-copy-sosreports
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-copy-sosreports",
-            "text": "pbench-copy-sosreports.run-1970-01-01T00:00:42-UTC(unit-test)\nProcessed 0 sosreports for 0 results directories with 0 errors\n",
-            "total_chunks": 1,
-            "total_size": 125
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-copy-sosreports (status=0)
 +++ Running pbench-index
 --- Finished pbench-index (status=0)
 +++ Running pbench-index --tool-data
@@ -381,9 +351,6 @@ drwxrwxr-x          - logs/pbench-backup-tarballs
 drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
-drwxrwxr-x          - logs/pbench-copy-sosreports
--rw-rw-r--          0 logs/pbench-copy-sosreports/pbench-copy-sosreports.error
--rw-rw-r--        635 logs/pbench-copy-sosreports/pbench-copy-sosreports.log
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        631 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
@@ -395,7 +362,7 @@ drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        224 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-re-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
--rw-rw-r--        527 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
+-rw-rw-r--        528 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
 -rw-rw-r--          0 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 -rw-rw-r--        618 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
@@ -406,7 +373,7 @@ drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--        849 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs-small
 -rw-rw-r--          0 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
--rw-rw-r--        533 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
+-rw-rw-r--        534 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
 -rw-rw-r--       3060 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -480,14 +447,6 @@ drwxrwxr-x          - tmp
 ----- pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 +++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 ----- pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
-+++++ pbench-copy-sosreports/pbench-copy-sosreports.error
------ pbench-copy-sosreports/pbench-copy-sosreports.error
-+++++ pbench-copy-sosreports/pbench-copy-sosreports.log
-run-1970-01-01T00:00:42-UTC: starting at 1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: ending at 1970-01-01T00:00:42-UTC, processed 0 sosreports for 0 results directories with 0 errors
-1970-01-01T00:00:42.000000 DEBUG pbench-copy-sosreports.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-copy-sosreports.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
------ pbench-copy-sosreports/pbench-copy-sosreports.log
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Culling unpacked tar balls 30 days older than 1970-01-02T00:00:00.000000
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
@@ -513,7 +472,7 @@ run-1970-01-01T00:00:42-UTC: Processed 0 result tar balls, 0 successfully (0 par
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 run-1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: Processed 0 tarballs
+run-1970-01-01T00:00:42-UTC: Processed 0 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-re-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-re-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
@@ -543,7 +502,7 @@ run-1970-01-01T00:00:42-UTC: Total 0 files processed and 0 errors
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 run-1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: Processed 0 tarballs
+run-1970-01-01T00:00:42-UTC: Processed 0 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log

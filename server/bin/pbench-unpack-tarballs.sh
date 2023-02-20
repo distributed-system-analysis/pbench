@@ -2,40 +2,19 @@
 # -*- mode: shell-script -*-
 
 # This script is the first part of the pipeline that processes pbench
-# results tarballs.
+# results tar balls.
 
-# First stage:  pbench-unpack-tarballs looks in all the TODO
-#               directories, unpacks tarballs, checks MD5 sums and
-#               moves the symlink from the TODO subdir to the
-#               TO-COPY-SOS subdir.  It runs under cron once a minute
-#               in order to minimize the delay between uploading the
-#               results and making them available for viewing over the
-#               web.
+# `pbench-unpack-tarballs` looks in all the TO-UNPACK or TO-RE-UNPACK
+# directories, unpacks tar balls, and moves the symlink from the TO-[RE-]UNPACK
+# subdir to the UNPACKED subdir.  It runs under cron once a minute in order to
+# minimize the delay between uploading the results and making them available for
+# viewing via the web server.
 
-# Second stage: pbench-copy-sosreports looks in all the TO-COPY-SOS
-#               subdirs, extracs the sos report from the tarball and
-#               copies it to the VoS incoming area for further
-#               processing. Assuming that all is well, it moves the
-#               symlink from the TO-COPY-SOS subdir to the TO-INDEX
-#               subdir.
-
-# Third stage:  pbench-index looks in all the TO-INDEX subdirs and
-#               calls the pbench-results-indexer script to index the
-#               results tarball into ES. It then moves the symlink from
-#               the TO-INDEX subdir to the DONE subdir.
-
-# assumptions:
-# - this script runs as a cron job
-# - tarballs and md5 sums are uploaded by move/copy-results to
-#   $ARCHIVE/$(hostname -s) area.
-# - move/copy-results also makes a symlink to each tarball it uploads
-#   in $ARCHIVE/TODO.
-
-# This script loops over the contents of $archive/TODO, verifies the md5
-# sum of each tarball, and if correct, it unpacks the tarball into
-# .../incoming/$(hostname -s)/.  If everything works, it then moves the
-# symlink from $ARCHIVE/TODO to $ARCHIVE/TO-COPY-SOS.
-
+# This script loops over the contents of ${ARCHIVE}/<controller>/TO-[RE-]UNPACK
+# and unpacks each tar ball into .../incoming/<controller>/, establishing the
+# proper .../results and .../users symlinks to it.  If everything works, it then
+# moves the tar ball symlink from ${ARCHIVE}/TO-[RE-]UNPACK to
+# ${ARCHIVE}/UNPACKED to mark the process complete.
 
 BUCKET="${1:-none}"
 PIPELINE="${2}"
@@ -373,7 +352,7 @@ function do_work() {
         done
         if [[ ${toterr} -gt 0 ]]; then
             # Count N link creations as one error since it is for handling of a
-            # single tarball.
+            # single tar ball.
             let nerrs+=1
         fi
 
@@ -408,7 +387,7 @@ while true; do
     do_work ${max_seconds} < ${list}
 done
 
-log_info "${TS}: Processed ${ntb} tarballs"
+log_info "${TS}: Processed ${ntb} tar balls"
 
 log_finish
 

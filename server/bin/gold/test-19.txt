@@ -132,14 +132,12 @@ lrwxrwxrwx        118 archive/fs-version-001/ctrl-00/BACKED-UP/tarball_config-00
 lrwxrwxrwx        118 archive/fs-version-001/ctrl-00/BACKED-UP/tarball_config-01_1970.01.01T00.00.42.tar.xz -> /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-INDEX-TOOL
@@ -164,14 +162,12 @@ lrwxrwxrwx        118 archive/fs-version-001/ctrl-01/BACKED-UP/tarball_config-02
 lrwxrwxrwx         51 archive/fs-version-001/ctrl-01/BACKED-UP/tarball_config-exists_1970.01.01T00.00.39.tar.xz -> ../tarball_config-exists_1970.01.01T00.00.39.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-INDEX-TOOL
@@ -243,7 +239,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-re-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
--rw-rw-r--       1589 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
+-rw-rw-r--       1590 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -306,7 +302,7 @@ ln -s /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-01/ta
 run-1970-01-01T00:00:42-UTC: ctrl-01/tarball_config-02_1970.01.01T00.00.41: success - elapsed time (secs): 0 - size (bytes): 228
 ln -s /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-00/tarball_config-00_1970.01.01T00.00.40 /var/tmp/pbench-test-server/test-19/pbench/public_html/results/ctrl-00/tarball_config-00_1970.01.01T00.00.40
 run-1970-01-01T00:00:42-UTC: ctrl-00/tarball_config-00_1970.01.01T00.00.40: success - elapsed time (secs): 0 - size (bytes): 224
-run-1970-01-01T00:00:42-UTC: Processed 3 tarballs
+run-1970-01-01T00:00:42-UTC: Processed 3 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-re-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-re-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log

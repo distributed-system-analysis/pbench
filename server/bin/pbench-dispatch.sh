@@ -2,29 +2,27 @@
 # -*- mode: shell-script -*-
 
 # This script is the first part of the pipeline that processes pbench
-# results tarballs.
+# results tar balls.
 
-# First stage:  pbench-dispatch looks in all the TODO directories,
-#               checks MD5 sums and creates symlinks in all the state
-#               directories for the particular environment where this
-#               server runs (e.g. for the production environment, links
-#               are created in the TO-UNPACK, TO-INDEX, TO-COPY-SOS and
-#               TO-BACKUP directories; for a satellite, it will only
-#               create links in the TO-UNPACK and TO-SYNC directories).
-#               Then the symlink in TODO is deleted: we don't want to
-#               deal with this tarball again; but if there are recover-
-#               able errors, we may keep it in TODO and try again later.
-#               Any errors are reported for possible action by an admin.
+# `pbench-dispatch` looks in all the TODO directories, checks MD5 sums and
+# creates symlinks in all the state directories for the particular environment
+# where this server runs, e.g. a production environment may want the tar balls
+# unpacked (TO-UNPACK), backed up (TO-BACKUP), and indexed (TO-INDEX), while
+# a satellite environment it may only need to prepare the tar ball to be synced
+# to the main server (TO-SYNC).  Then the symlink in TODO is deleted: we don't
+# want to deal with this tar ball again; but if there are recoverable errors, we
+# may keep it in TODO and try again later.  Any errors are reported for possible
+# action by an admin.
 #
 
 # assumptions:
 # - this script runs as a cron job
-# - tarballs and md5 sums are uploaded by pbench-move/copy-results to
+# - tar balls and md5 sums are uploaded by pbench-move/copy-results to
 #   $ARCHIVE/$(hostname -s) area.
 # FIXME: the above should be to the reception area ...
-# - pbench-move/copy-results also makes a symlink to each tarball it
+# - pbench-move/copy-results also makes a symlink to each tar ball it
 #   uploads in $ARCHIVE/TODO, thereby telling this script to process
-#   the tarball.
+#   the tar ball.
 # FIXME: the pbench shims do that now ...
 
 # load common things
@@ -103,7 +101,7 @@ while read tarball ;do
     tb_linksrc=$(basename $linksrc_path)
     if [ "$linksrc" != "$tb_linksrc" ]; then
         # All is NOT well: we expect $linksrc as the parent directory name
-        # of the symlink tarball name.
+        # of the symlink tar ball name.
         log_exit "$TS: FATAL - unexpected \$linksrc for $tarball" 57
     fi
 
@@ -179,7 +177,7 @@ while read tarball ;do
     done
     if [ $toterr -gt 0 ]; then
         # Count N link creations as one error since it is for handling of a
-        # single tarball.
+        # single tar ball.
         let nerrs+=1
     fi
     if [ $totsuc -gt 0 ]; then
