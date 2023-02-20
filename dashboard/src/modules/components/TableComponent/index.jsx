@@ -24,7 +24,7 @@ import {
 } from "actions/datasetListActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import { DATASET_CREATED } from "assets/constants/overviewConstants";
+import { DATASET_UPLOADED } from "assets/constants/overviewConstants";
 import DatePickerWidget from "../DatePickerComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
 import { TOC } from "assets/constants/navigationConstants";
@@ -38,7 +38,7 @@ let datasetName = "";
 const TableWithFavorite = () => {
   const columnNames = {
     name: "Name",
-    creationDate: "Created On",
+    uploadedDate: "Uploaded On",
   };
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { loginDetails } = useSelector((state) => state.userAuth);
@@ -84,8 +84,8 @@ const TableWithFavorite = () => {
     !!favoriteRepoNames.find((element) => element.name === repo.name);
 
   const getSortableRowValues = (data) => {
-    const creationDate = data.metadata[DATASET_CREATED];
-    return [data.name, creationDate, isRepoFavorited(data)];
+    const uploadedDate = data.metadata[DATASET_UPLOADED];
+    return [data.name, uploadedDate, isRepoFavorited(data)];
   };
   if (activeSortIndex !== null) {
     selectedArray.sort((a, b) => {
@@ -198,7 +198,7 @@ const TableWithFavorite = () => {
                 <Thead>
                   <Tr>
                     <Th sort={getSortParams(0)}>{columnNames.name}</Th>
-                    <Th sort={getSortParams(1)}>{columnNames.creationDate}</Th>
+                    <Th sort={getSortParams(1)}>{columnNames.uploadedDate}</Th>
                     <Th sort={getSortParams(2)}></Th>
                   </Tr>
                 </Thead>
@@ -212,8 +212,8 @@ const TableWithFavorite = () => {
                         >
                           {repo.name}
                         </Td>
-                        <Td dataLabel={columnNames.creationDate}>
-                          {repo.metadata[DATASET_CREATED]}
+                        <Td dataLabel={columnNames.uploadedDate}>
+                          {repo.metadata[DATASET_UPLOADED]}
                         </Td>
                         <Td
                           favorites={{
