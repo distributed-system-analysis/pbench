@@ -411,10 +411,10 @@ class PbenchServerClient:
             dataset_id: the resource ID of the targeted dataset
 
         Returns:
-            The POST response object
+            The DELETE response object
         """
-        return self.post(
-            api=API.DATASETS_DELETE,
+        return self.delete(
+            api=API.DATASETS,
             uri_params={"dataset": dataset_id},
             raise_error=False,
         )
