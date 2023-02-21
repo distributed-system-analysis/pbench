@@ -385,8 +385,7 @@ class Dataset(Database.Base):
         try:
             dataset = Database.db_session.query(Dataset).filter_by(**kwargs).first()
         except SQLAlchemyError as e:
-            Dataset.logger.warning("Error querying {}: {}", kwargs, str(e))
-            raise DatasetSqlError("querying", **kwargs)
+            raise DatasetSqlError("querying", **kwargs) from e
 
         if dataset is None:
             raise DatasetNotFound(**kwargs)
@@ -444,10 +443,10 @@ class Dataset(Database.Base):
             Database.db_session.rollback()
             self.logger.warning("Duplicate dataset {}: {}", self.name, e)
             raise DatasetDuplicate(self.name) from None
-        except Exception:
+        except Exception as e:
             Database.db_session.rollback()
-            self.logger.exception("Can't add {} to DB", str(self))
-            raise DatasetSqlError("adding", name=self.name)
+            self.logger.error("Can't add {} to DB: {}", str(self), str(e))
+            raise DatasetSqlError("adding", name=self.name) from e
 
     def update(self):
         """Update the database row with the modified version of the Dataset
@@ -455,19 +454,20 @@ class Dataset(Database.Base):
         """
         try:
             Database.db_session.commit()
-        except Exception:
+        except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't update {} in DB", str(self))
-            raise DatasetSqlError("updating", name=self.name)
+            self.logger.error("Can't update {} in DB: {}", str(self), str(e))
+            raise DatasetSqlError("updating", name=self.name) from e
 
     def delete(self):
         """Delete the Dataset from the database."""
         try:
             Database.db_session.delete(self)
             Database.db_session.commit()
-        except Exception:
+        except Exception as e:
             Database.db_session.rollback()
-            raise
+            self.logger.error("Can't delete {} in DB: {}", str(self), str(e))
+            raise DatasetSqlError("updating", name=self.name) from e
 
 
 class OperationName(enum.Enum):
@@ -712,16 +712,9 @@ class Metadata(Database.Base):
         if type(dataset) is not Dataset:
             raise DatasetBadParameterType(dataset, Dataset)
 
-        try:
-            meta = Metadata(**kwargs)
-            meta.add(dataset)
-        except Exception:
-            Metadata.logger.exception(
-                "Failed create: {}>>{}", kwargs.get("dataset"), kwargs.get("key")
-            )
-            return None
-        else:
-            return meta
+        meta = Metadata(**kwargs)
+        meta.add(dataset)
+        return meta
 
     @staticmethod
     def get_native_key(key: str) -> str:
@@ -736,9 +729,10 @@ class Metadata(Database.Base):
         return key.lower().split(".")[0]
 
     @staticmethod
-    def is_key_path(key: str, valid: List[str]) -> bool:
+    def is_key_path(key: str, valid: List[str], metalog_key_ok: bool = False) -> bool:
         """Determine whether 'key' is a valid Metadata key path using the list
-        specified in 'valid'.
+        specified in 'valid'. If the "native" key (first element of a dotted
+        path) is in the list, then it's valid.
 
         If the "native" key (first element of a dotted path) is in the list,
         then it's valid.
@@ -754,8 +748,10 @@ class Metadata(Database.Base):
         server version will return None rather than failing in validation.)
 
         Args:
-            key: metadata key path
-            valid: list of acceptable key paths
+            key : metadata key path
+            valid : list of acceptable key paths
+            metalog_key_ok : skip the key charset validation (used only for
+                a query, specifically to support weird metadata.log keys)
 
         Returns:
             True if the path is valid, or False
@@ -772,7 +768,7 @@ class Metadata(Database.Base):
         if path[0] not in valid:
             return False
         # Check that all open namespace keys are valid symbols
-        return bool(re.fullmatch(Metadata._valid_key_charset, k))
+        return metalog_key_ok or bool(re.fullmatch(Metadata._valid_key_charset, k))
 
     @staticmethod
     def getvalue(
@@ -1015,7 +1011,7 @@ class Metadata(Database.Base):
         try:
             meta = __class__._query(dataset, key, user_id).first()
         except SQLAlchemyError as e:
-            Metadata.logger.exception("Can't get {}>>{} from DB", dataset, key)
+            Metadata.logger.error("Can't get {}>>{} from DB: {}", dataset, key, str(e))
             raise MetadataSqlError("getting", dataset, key) from e
         else:
             if meta is None:
@@ -1037,7 +1033,9 @@ class Metadata(Database.Base):
             __class__._query(dataset, key, user_id).delete()
             Database.db_session.commit()
         except SQLAlchemyError as e:
-            Metadata.logger.exception("Can't remove {}>>{} from DB", dataset, key)
+            Metadata.logger.error(
+                "Can't remove {}>>{} from DB: {}", dataset, key, str(e)
+            )
             raise MetadataSqlError("deleting", dataset, key) from e
 
     def __str__(self) -> str:
@@ -1061,7 +1059,7 @@ class Metadata(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.exception("Can't add {}>>{} to DB", dataset, self.key)
+            self.logger.error("Can't add {}>>{} to DB: {}", dataset, self.key, str(e))
             dataset.metadatas.remove(self)
             raise MetadataSqlError("adding", dataset, self.key) from e
 
@@ -1071,7 +1069,7 @@ class Metadata(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.exception("Can't update {} in DB", self)
+            self.logger.error("Can't update {} in DB: {}", self, str(e))
             raise MetadataSqlError("updating", self.dataset, self.key) from e
 
     def delete(self):
@@ -1081,7 +1079,7 @@ class Metadata(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.exception("Can't delete {} from DB", self)
+            self.logger.error("Can't delete {} from DB: {}", self, str(e))
             raise MetadataSqlError("deleting", self.dataset, self.key) from e
 
 

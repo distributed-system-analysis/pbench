@@ -7,6 +7,7 @@ pytest-cov>=2.7.1
 pytest-freezegun
 pytest-helpers-namespace==2019.1.8
 pytest-mock
+pytest-dependency  # functional tests
 pytest-xdist
 requests_mock
 responses

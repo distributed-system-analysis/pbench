@@ -101,5 +101,8 @@ class Database:
             logger: A Python logger object
         """
         if logger.isEnabledFor(DEBUG):
-            q_str = query.statement.compile(compile_kwargs={"literal_binds": True})
-            logger.debug("QUERY {}", q_str)
+            try:
+                q_str = query.statement.compile(compile_kwargs={"literal_binds": True})
+                logger.debug("QUERY {}", q_str)
+            except Exception as e:
+                logger.debug("Can't compile query {}: {}", query, e)

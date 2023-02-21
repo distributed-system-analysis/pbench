@@ -24,17 +24,10 @@ class Tarball:
 
 
 class TestPut:
-    """These tests depend on the order of their definition to execute properly.
+    """Test success and failure cases of PUT dataset upload"""
 
-    That is, `test_index_all` assumes that all the tar balls in the
-    `TARBALL_DIR` were uploaded successfully by `test_upload_all`, and that it
-    is run before `test_delete` (otherwise it won't find any data sets to
-    verify were indexed). In turn, `test_delete` expects to be run after
-    `test_upload_all` in order to find the data sets to be deleted.
-    """
-
-    @staticmethod
-    def test_upload_all(server_client: PbenchServerClient, login_user):
+    @pytest.mark.dependency(name="upload", scope="session")
+    def test_upload_all(self, server_client: PbenchServerClient, login_user):
         """Upload each of the pregenerated tarballs, and perform some basic
         sanity checks on the resulting server state.
         """
@@ -58,8 +51,8 @@ class TestPut:
             response = server_client.upload(t, access=a, metadata=metadata)
             assert (
                 response.status_code == HTTPStatus.CREATED
-            ), f"upload returned unexpected status {response.status_code}, {response.text}"
-            print(f"Uploaded {t.name}")
+            ), f"upload returned unexpected status {response.status_code}, {response.text} ({t})"
+            print(f"\t... uploaded {t.name}")
 
         datasets = server_client.get_list(
             metadata=["dataset.access", "server.tarball-path", "dataset.operations"]
@@ -81,8 +74,8 @@ class TestPut:
                 f" code = {exc.response.status_code}, text = {exc.response.text!r}"
             )
 
-    @staticmethod
-    def test_upload_again(server_client: PbenchServerClient, login_user):
+    @pytest.mark.dependency(depends=["upload"], scope="session")
+    def test_upload_again(self, server_client: PbenchServerClient, login_user):
         """Try to upload a dataset we've already uploaded. This should succeed
         but with an OK (200) response instead of CREATED (201)
         """
@@ -122,7 +115,8 @@ class TestPut:
     @staticmethod
     def test_archive_only(server_client: PbenchServerClient, login_user):
         """Try to upload a new dataset with the archiveonly option set, and
-        validate that it doesn't get enabled for unpacking or indexing."""
+        validate that it doesn't get enabled for unpacking or indexing.
+        """
         tarball = next(iter((TARBALL_DIR / "bad").glob("*.tar.xz")))
         md5 = Dataset.md5(tarball)
         response = server_client.upload(tarball, metadata={"server.archiveonly:y"})
@@ -187,13 +181,10 @@ class TestPut:
             )
         return not_indexed, indexed
 
-    @staticmethod
-    def test_index_all(server_client: PbenchServerClient, login_user):
+    @pytest.mark.dependency(name="index", depends=["upload"], scope="session")
+    def test_index_all(self, server_client: PbenchServerClient, login_user):
         """Wait for datasets to reach the "Indexed" state, and ensure that the
         state and metadata look good.
-
-        Requires that test_upload_all has been run successfully, and that
-        test_delete has NOT been run yet.
         """
         tarball_names = frozenset(t.name for t in TARBALL_DIR.glob("*.tar.xz"))
 
@@ -259,7 +250,7 @@ class TestPut:
                 if os.path.basename(tp) not in tarball_names:
                     continue
                 count += 1
-                print(f"    Indexed {tp}")
+                print(f"\t... indexed {tp}")
             now = datetime.utcnow()
             if not not_indexed or now >= timeout:
                 break
@@ -274,8 +265,111 @@ class TestPut:
             len(tarball_names) == count
         ), f"Didn't find all expected datasets, found {count} of {len(tarball_names)}"
 
-    @staticmethod
-    def test_delete_all(server_client: PbenchServerClient, login_user):
+
+class TestList:
+    @pytest.mark.dependency(name="list_none", depends=["upload"], scope="session")
+    def test_list_anonymous(self, server_client: PbenchServerClient):
+        """List all datasets without a login.
+
+        We should see only published datasets. We don't care whether there are
+        pre-existing datasets in this case: we'll simply confirm that every one
+        we see is public. We do care that we don't get an empty list, since we
+        uploaded datasets with access public.
+        """
+        datasets = server_client.get_list(metadata=["dataset.access"])
+        count = 0
+
+        for dataset in datasets:
+            assert dataset.metadata["dataset.access"] == "public"
+            count += 1
+
+        assert count > 1
+
+    @pytest.mark.dependency(name="list_or", depends=["upload"], scope="session")
+    def test_list_filter_or(self, server_client: PbenchServerClient, login_user):
+        """Check a simple OR filter list.
+
+        Authorized as our "tester" user, we can see all the datasets we've
+        uploaded. Try a filtered list choosing datasets run with the "fio"
+        script OR the "linpack" script. Only those datasets should appear: we
+        check the list against a glob of our upload source directory.
+        """
+        fio_names = {Dataset.stem(t) for t in TARBALL_DIR.glob("*fio*.tar.xz")}
+        linpack_names = {Dataset.stem(t) for t in TARBALL_DIR.glob("*linpack*.tar.xz")}
+        expected = fio_names | linpack_names
+        datasets = server_client.get_list(
+            metadata=["dataset.metalog.pbench.name"],
+            owner="tester",
+            filter=[
+                "^dataset.metalog.pbench.script:fio",
+                "^dataset.metalog.pbench.script:linpack",
+            ],
+        )
+
+        actual = set(d.metadata["dataset.metalog.pbench.name"] for d in datasets)
+        assert actual >= expected, f"Missing datasets: {expected - actual}"
+
+    @pytest.mark.dependency(name="list_and", depends=["upload"], scope="session")
+    def test_list_filter_and(self, server_client: PbenchServerClient, login_user):
+        """Check a simple AND filter list.
+
+        Authorized as our "tester" user, we can see all the datasets we've
+        uploaded. Try a filtered list choosing datasets which are public AND
+        were created in 2018.
+
+        NOTE: the original "owner", "access", "start", "end", and "name"
+        filters are supported and implicitly linked as AND; their matching is
+        also more "friendly" in some cases, e.g., being case-insensitive. In
+        this case we're using "dataset.access".
+        """
+        datasets = server_client.get_list(
+            metadata=["dataset.metalog.pbench.date", "dataset.access"],
+            owner="tester",
+            filter=[
+                "dataset.metalog.pbench.date:~2018",
+                "dataset.access:public",
+            ],
+        )
+
+        for dataset in datasets:
+            date = dataset.metadata["dataset.metalog.pbench.date"]
+            access = dataset.metadata["dataset.access"]
+            assert access == "public", f"Dataset {dataset.name} access is {access}"
+            assert "2018" in date, f"Dataset {dataset.name} date is {date}"
+
+    @pytest.mark.dependency(name="list_all", depends=["upload"], scope="session")
+    def test_list_filter_and_or(self, server_client: PbenchServerClient, login_user):
+        """Check a simple AND-OR filter list.
+
+        Authorized as our "tester" user, we can see all the datasets we've
+        uploaded. Try a filtered list choosing datasets which are public AND
+        created in either 2018 or 2019.
+        """
+        datasets = server_client.get_list(
+            metadata=["dataset.metalog.pbench.date", "dataset.access"],
+            owner="tester",
+            filter=[
+                "dataset.access:public",
+                "^dataset.metalog.pbench.date:~2018",
+                "^dataset.metalog.pbench.date:~2019",
+            ],
+        )
+
+        for dataset in datasets:
+            date = dataset.metadata["dataset.metalog.pbench.date"]
+            access = dataset.metadata["dataset.access"]
+            assert access == "public", f"Dataset {dataset.name} access is {access}"
+            assert (
+                "2018" in date or "2019" in date
+            ), f"Dataset {dataset.name} date is {date}"
+
+
+class TestDelete:
+    @pytest.mark.dependency(
+        depends=["list_none", "list_all", "list_and", "list_or", "index"],
+        scope="session",
+    )
+    def test_delete_all(self, server_client: PbenchServerClient, login_user):
         """Verify we can delete each previously uploaded dataset.
 
         Requires that test_upload_all has been run successfully.
@@ -299,4 +393,4 @@ class TestPut:
             assert (
                 response.ok
             ), f"delete failed with {response.status_code}, {response.text}"
-            print(f"Deleted {t.name}")
+            print(f"\t ... deleted {t.name}")

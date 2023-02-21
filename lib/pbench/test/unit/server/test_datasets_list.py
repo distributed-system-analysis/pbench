@@ -1,13 +1,21 @@
 import datetime
 from http import HTTPStatus
-from typing import List
+import re
 
 import pytest
 import requests
+from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.orm import Query
 
-from pbench.server import JSON
-from pbench.server.api.resources.datasets_list import urlencode_json
-from pbench.server.database.models.datasets import Dataset
+from pbench.server import JSON, JSONARRAY, JSONOBJECT
+from pbench.server.api.resources import APIAbort
+from pbench.server.api.resources.datasets_list import DatasetsList, urlencode_json
+from pbench.server.database.database import Database
+from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.test.unit.server import DRB_USER_ID
+
+FLATTEN = re.compile(r"[\n\s]+")
+LOG_SEQ = re.compile(r"Internal Pbench Server Error: log reference ([a-f0-9-]+)")
 
 
 class TestUrlencodeJson:
@@ -83,7 +91,7 @@ class TestDatasetsList:
 
         return query_api
 
-    def get_results(self, name_list: List[str], query: JSON, server_config) -> JSON:
+    def get_results(self, name_list: list[str], query: JSON, server_config) -> JSON:
         """Translate a list of names into a list of expected results of the
         abbreviated form returned by `datasets/list`: name, controller, run_id,
         and metadata.
@@ -96,7 +104,7 @@ class TestDatasetsList:
         Returns:
             Paginated JSON object containing list of dataset values
         """
-        list: List[JSON] = []
+        results: list[JSON] = []
         offset = query.get("offset", 0)
         limit = query.get("limit")
 
@@ -117,7 +125,7 @@ class TestDatasetsList:
 
         for name in sorted(paginated_name_list):
             dataset = Dataset.query(name=name)
-            list.append(
+            results.append(
                 {
                     "name": dataset.name,
                     "resource_id": dataset.resource_id,
@@ -128,11 +136,34 @@ class TestDatasetsList:
                     },
                 }
             )
-        return {"next_url": next_url, "results": list, "total": len(name_list)}
+        return {"next_url": next_url, "results": results, "total": len(name_list)}
+
+    def compare_results(
+        self, result: JSONOBJECT, name_list: list[str], query: JSON, server_config
+    ):
+        """Compare two JSON results structures
+
+        While pytest can reliably compare two dicts, or strings, when comparing
+        lists we need to sort the elements. This helper compares each direct
+        member of the results JSON but sorts the "results" list before doing
+        the comparison to ensure consistency.
+        """
+        expected = self.get_results(name_list, query, server_config)
+        for k, v in result.items():
+            if k == "results":
+                assert sorted(v, key=lambda d: d["resource_id"]) == sorted(
+                    expected[k], key=lambda d: d["resource_id"]
+                ), f"Actual {k}={v} doesn't match expected {expected[k]}"
+            else:
+                assert (
+                    v == expected[k]
+                ), f"Actual {k}={v!r} doesn't match expected {expected[k]!r}"
 
     @pytest.mark.parametrize(
         "login,query,results",
         [
+            (None, {}, ["fio_1", "fio_2"]),
+            (None, {"access": "public"}, ["fio_1", "fio_2"]),
             ("drb", {"name": "fio"}, ["fio_1", "fio_2"]),
             ("drb", {"name": "fio", "limit": 1}, ["fio_1", "fio_2"]),
             ("drb", {"name": "fio", "limit": 1, "offset": 2}, ["fio_1", "fio_2"]),
@@ -174,9 +205,23 @@ class TestDatasetsList:
                 ["test", "fio_1", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
             ("drb", {"end": "1970-09-01"}, []),
+            ("drb", {"filter": "dataset.access:public"}, ["fio_1", "fio_2"]),
+            ("drb", {"filter": "dataset.name:fio_1"}, ["fio_1"]),
+            (
+                "test",
+                {"filter": "^dataset.name:~fio,^dataset.name:uperf_1"},
+                ["fio_1", "fio_2", "uperf_1"],
+            ),
+            (
+                "test",
+                {
+                    "filter": "^dataset.name:~fio,^dataset.name:uperf_1,dataset.owner_id:3"
+                },
+                ["fio_1"],
+            ),
         ],
     )
-    def test_dataset_list(self, query_as, login, query, results, server_config):
+    def test_dataset_list(self, server_config, query_as, login, query, results):
         """Test the operation of `datasets/list` against our set of test
         datasets.
 
@@ -189,7 +234,7 @@ class TestDatasetsList:
         """
         query.update({"metadata": ["dataset.uploaded"]})
         result = query_as(query, login, HTTPStatus.OK)
-        assert result.json == self.get_results(results, query, server_config)
+        self.compare_results(result.json, results, query, server_config)
 
     @pytest.mark.parametrize(
         "login,query,results",
@@ -216,7 +261,7 @@ class TestDatasetsList:
         """
         query.update({"metadata": ["dataset.uploaded"], "limit": 5})
         result = query_as(query, login, HTTPStatus.OK)
-        assert result.json == self.get_results(results, query, server_config)
+        self.compare_results(result.json, results, query, server_config)
 
     def test_unauth_dataset_list(self, query_as):
         """Test the operation of `datasets/list` when the client doesn't have
@@ -280,3 +325,124 @@ class TestDatasetsList:
             HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {"message": "Repeated URL query key 'name'"}
+
+    @pytest.mark.parametrize(
+        "filters,expected",
+        [
+            (["dataset.name:fio"], "datasets.name = 'fio'"),
+            (
+                ["dataset.metalog.pbench.script:fio"],
+                "dataset_metadata.key = 'metalog' "
+                "AND dataset_metadata.value[['pbench', 'script']] = 'fio'",
+            ),
+            (
+                ["user.d.f:1"],
+                "dataset_metadata.key = 'user' AND dataset_metadata.value[['d', "
+                "'f']] = '1' AND dataset_metadata.user_id = '3'",
+            ),
+            (
+                ["dataset.name:~fio", "^global.x:1", "^user.y:~yes"],
+                "(datasets.name LIKE '%' || 'fio' || '%') AND "
+                "(dataset_metadata.key = 'global' AND "
+                "dataset_metadata.value[['x']] = '1' OR dataset_metadata.key "
+                "= 'user' AND ((dataset_metadata.value[['y']]) LIKE '%' || "
+                "'yes' || '%') AND dataset_metadata.user_id = '3')",
+            ),
+            (
+                ["dataset.uploaded:~2000"],
+                "(CAST(datasets.uploaded AS VARCHAR) LIKE '%' || '2000' || '%')",
+            ),
+        ],
+    )
+    def test_filter_query(self, monkeypatch, client, filters, expected):
+        """Test generation of Metadata value filters
+
+        Use the filter_query method directly to verify SQL generation from sets
+        of metadata filter expressions.
+        """
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
+            lambda: DRB_USER_ID,
+        )
+        prefix = (
+            "SELECT datasets.access, datasets.id, datasets.name, "
+            "datasets.owner_id, datasets.resource_id, datasets.uploaded "
+            "FROM datasets LEFT OUTER JOIN dataset_metadata ON datasets.id "
+            "= dataset_metadata.dataset_ref WHERE "
+        )
+        query = DatasetsList.filter_query(
+            filters, Database.db_session.query(Dataset).outerjoin(Metadata)
+        )
+        assert (
+            FLATTEN.sub(
+                " ",
+                str(query.statement.compile(compile_kwargs={"literal_binds": True})),
+            )
+            == prefix + expected
+        )
+
+    def test_user_no_auth(self, monkeypatch, db_session):
+        """Test the authorization error when a match against a key in the user
+        namespace is attempted from an unauthenticated session.
+        """
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
+            lambda: None,
+        )
+        with pytest.raises(APIAbort) as e:
+            DatasetsList.filter_query(
+                ["user.foo:1"], Database.db_session.query(Dataset).outerjoin(Metadata)
+            )
+        assert e.value.http_status == HTTPStatus.UNAUTHORIZED
+
+    @pytest.mark.parametrize(
+        "meta,error",
+        [
+            ("user.foo:1", HTTPStatus.UNAUTHORIZED),
+            ("x.y:1", HTTPStatus.BAD_REQUEST),
+            ("global.x=3", HTTPStatus.BAD_REQUEST),
+            ("dataset.notright:10", HTTPStatus.BAD_REQUEST),
+        ],
+    )
+    def test_filter_errors(self, monkeypatch, db_session, meta, error):
+        """Test invalid filter expressions."""
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
+            lambda: None,
+        )
+        with pytest.raises(APIAbort) as e:
+            DatasetsList.filter_query(
+                [meta], Database.db_session.query(Dataset).outerjoin(Metadata)
+            )
+        assert e.value.http_status == error
+
+    @pytest.mark.parametrize(
+        "exception,error",
+        (
+            (Exception("test"), "Unexpected SQL exception: test"),
+            (
+                ProgrammingError("stmt", [], "orig"),
+                "Constructed SQL for {} isn't executable",
+            ),
+        ),
+    )
+    def test_pagination_error(self, caplog, monkeypatch, query_as, exception, error):
+        """Test that query problems during pagination are reported as server
+        internal errors.
+        """
+
+        def do_error(
+            self, query: Query, json: JSONOBJECT, url: str
+        ) -> tuple[JSONARRAY, JSONOBJECT]:
+            raise exception
+
+        monkeypatch.setattr(DatasetsList, "get_paginated_obj", do_error)
+        response = query_as({}, "drb", HTTPStatus.INTERNAL_SERVER_ERROR)
+        message = response.json["message"]
+        match = LOG_SEQ.match(message)
+        key = match.group(1)
+        assert match and key, "Error response {message!r} is not an internal error"
+        for m in caplog.messages:
+            if key in m:
+                assert error in m
+                break
