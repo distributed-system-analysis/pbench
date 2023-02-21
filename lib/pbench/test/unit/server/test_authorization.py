@@ -70,7 +70,7 @@ class TestAuthorization:
                     ApiAuthorizationType.USER_ACCESS, ask["role"], user, access
                 )
             )
-        assert exc.value.owner == (ask["user"] if ask["user"] else "none")
+        assert exc.value.owner == (user if ask["user"] else None)
         assert exc.value.user == current_user_admin
 
     @pytest.mark.parametrize(
@@ -128,7 +128,7 @@ class TestAuthorization:
                     ApiAuthorizationType.USER_ACCESS, ask["role"], user, access
                 )
             )
-        assert exc.value.owner == (ask["user"] if ask["user"] else "none")
+        assert exc.value.owner == (user if ask["user"] else None)
         assert exc.value.user == current_user_drb
 
     @pytest.mark.parametrize(
@@ -176,7 +176,7 @@ class TestAuthorization:
                     ApiAuthorizationType.USER_ACCESS, ask["role"], user, access
                 )
             )
-        assert exc.value.owner == (ask["user"] if ask["user"] else "none")
+        assert exc.value.owner == (user if ask["user"] else None)
         assert exc.value.user is None
 
     def test_admin_unauth(self, apibase, server_config, current_user_none):

@@ -6,7 +6,8 @@ from urllib import parse
 import requests
 from requests.structures import CaseInsensitiveDict
 
-from pbench.client.types import Dataset, JSONMap, JSONOBJECT
+from pbench.client.oidc_admin import OIDCAdmin
+from pbench.client.types import Dataset, JSONOBJECT
 
 
 class PbenchClientError(Exception):
@@ -83,6 +84,7 @@ class PbenchServerClient:
         self.auth_token: Optional[str] = None
         self.session: Optional[requests.Session] = None
         self.endpoints: Optional[JSONOBJECT] = None
+        self.oidc_admin: Optional[OIDCAdmin] = None
 
     def _headers(
         self, user_headers: Optional[dict[str, str]] = None
@@ -299,8 +301,13 @@ class PbenchServerClient:
         return response
 
     def connect(self, headers: Optional[dict[str, str]] = None) -> None:
-        """Connect to the Pbench Server host using the endpoints API to be sure
-        that it responds, and cache the endpoints response payload.
+        """Performs some pre-requisite actions to make server client usable.
+
+            1. Connect to the Pbench Server host using the endpoints API to be
+            sure that it responds, and cache the endpoints response payload.
+
+            2. Create an OIDCAdmin object that a server client can use to
+            perform privileged actions on an OIDC server.
 
         This also allows the client to add default HTTP headers to the session
         which will be used for all operations unless overridden for specific
@@ -318,31 +325,24 @@ class PbenchServerClient:
         self.endpoints = response.json()
         assert self.endpoints
 
-    def login(self, user: str, password: str) -> JSONMap:
-        """Login to a specified username with the password, and store the
-        resulting authentication token.
+        # Create an OIDCAdmin object and confirm the connection was successful
+        self.oidc_admin = OIDCAdmin(server_url=self.endpoints["openid"]["server"])
+
+    def login(self, user: str, password: str):
+        """Log into the OIDC server using the specified username and password,
+        and store the resulting authentication token.
 
         Args:
             user:       Account username
             password:   Account password
-
-        Returns:
-            The login response
         """
-        response = self.post(API.LOGIN, json={"username": user, "password": password})
-        response.raise_for_status()
-        json = response.json()
-        self.username = json["username"]
-        self.auth_token = json["auth_token"]
-        return JSONMap(json)
-
-    def logout(self) -> None:
-        """Logout the currently authenticated user and remove the
-        authentication token.
-        """
-        self.post(API.LOGOUT)
-        self.username = None
-        self.auth_token = None
+        response = self.oidc_admin.user_login(
+            client_id=self.endpoints["openid"]["client"],
+            username=user,
+            password=password,
+        )
+        self.username = user
+        self.auth_token = response["access_token"]
 
     def upload(self, tarball: Path, **kwargs) -> requests.Response:
         """Upload a tarball to the server.
