@@ -22,3 +22,4 @@ pip-wheel-metadata
 Pipfile
 Pipfile.lock
 *,cover
+seqno
