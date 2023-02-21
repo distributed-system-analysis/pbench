@@ -22,12 +22,18 @@ class TestConnect:
     def test_connect(self):
         pbench = PbenchServerClient("10.1.100.2")
         url = f"{pbench.url}/api/v1/endpoints"
+        openid_dict = {"server": "http://oidc_server", "client": "pbench_client"}
 
         with responses.RequestsMock() as rsp:
             rsp.add(
                 responses.GET,
                 url,
-                json={"identification": "string", "api": {}, "uri": {}},
+                json={
+                    "identification": "string",
+                    "api": {},
+                    "uri": {},
+                    "openid": openid_dict,
+                },
             )
             pbench.connect({"accept": "application/json"})
             assert len(rsp.calls) == 1
@@ -51,3 +57,4 @@ class TestConnect:
         assert endpoints["api"] == {}
         assert endpoints["identification"] == "string"
         assert endpoints["uri"] == {}
+        assert endpoints["openid"] == openid_dict

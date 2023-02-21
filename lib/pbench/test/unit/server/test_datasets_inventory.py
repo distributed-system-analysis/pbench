@@ -7,6 +7,7 @@ import werkzeug.utils
 
 from pbench.server.cache_manager import CacheManager
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.test.unit.server import TEST_USER_ID
 
 
 class TestDatasetsAccess:
@@ -65,7 +66,7 @@ class TestDatasetsAccess:
     def test_unauthorized_access(self, query_get_as):
         response = query_get_as("test", "metadata.log", HTTPStatus.FORBIDDEN)
         assert response.json == {
-            "message": "User drb is not authorized to READ a resource owned by test with private access"
+            "message": f"User drb is not authorized to READ a resource owned by {TEST_USER_ID} with private access"
         }
 
     def test_dataset_is_not_unpacked(self, query_get_as, monkeypatch):
