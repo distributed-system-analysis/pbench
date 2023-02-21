@@ -4,7 +4,7 @@ from configparser import NoOptionError, NoSectionError
 from dataclasses import dataclass
 from http import HTTPStatus
 import logging
-from typing import Dict, Optional, Union
+from typing import Any, Optional
 from urllib.parse import urljoin
 
 import jwt
@@ -38,7 +38,7 @@ class Connection:
     def __init__(
         self,
         server_url: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         verify: bool = True,
     ):
         self.server_url = server_url
@@ -50,8 +50,9 @@ class Connection:
         self,
         method: str,
         path: str,
-        data: Union[Dict, None],
-        headers: Optional[Dict] = None,
+        data: Optional[Any] = None,
+        json: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, str]] = None,
         **kwargs,
     ) -> requests.Response:
         """Common frontend for the HTTP operations on OIDC client connection.
@@ -59,7 +60,8 @@ class Connection:
         Args:
             method : The API HTTP method
             path : Path for the request.
-            data : Json data to send with the request in case of the POST
+            data : Form data to send with the request in case of the POST
+            json : JSON data to send with the request in case of the POST
             kwargs : Additional keyword args
 
         Returns:
@@ -69,14 +71,15 @@ class Connection:
         if headers is not None:
             final_headers.update(headers)
         url = urljoin(self.server_url, path)
-        kwargs = dict(
+        request_dict = dict(
             params=kwargs,
             data=data,
+            json=json,
             headers=final_headers,
             verify=self.verify,
         )
         try:
-            response = self._connection.request(method, url, **kwargs)
+            response = self._connection.request(method, url, **request_dict)
         except requests.exceptions.ConnectionError as exc:
             raise OpenIDClientError(
                 http_status=HTTPStatus.BAD_GATEWAY,
@@ -110,7 +113,7 @@ class Connection:
             return response
 
     def get(
-        self, path: str, headers: Optional[Dict] = None, **kwargs
+        self, path: str, headers: Optional[dict[str, str]] = None, **kwargs
     ) -> requests.Response:
         """GET wrapper to handle an authenticated GET operation on the Resource
         at a given path.
@@ -123,24 +126,30 @@ class Connection:
         Returns:
             Response from the request.
         """
-        return self._method("GET", path, None, headers=headers, **kwargs)
+        return self._method("GET", path, headers=headers, **kwargs)
 
     def post(
-        self, path: str, data: Dict, headers: Optional[Dict] = None, **kwargs
+        self,
+        path: str,
+        data: Optional[Any] = None,
+        json: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, str]] = None,
+        **kwargs,
     ) -> requests.Response:
         """POST wrapper to handle an authenticated POST operation on the
         Resource at a given path.
 
         Args:
             path : Path for the request
-            data : JSON request body
+            data : Optional HTML form body to attach
+            json : JSON request body
             headers : Additional headers to add to the request
             kwargs : Additional keyword args to be added as URL parameters
 
         Returns:
             Response from the request.
         """
-        return self._method("POST", path, data, headers=headers, **kwargs)
+        return self._method("POST", path, data, json, headers=headers, **kwargs)
 
 
 @dataclass
@@ -323,7 +332,7 @@ class OpenIDClient:
         client_id: str,
         realm_name: str,
         verify: bool = True,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
     ):
         """Initialize an OpenID Connect Client object.
 
@@ -404,7 +413,7 @@ class OpenIDClient:
                 token,
                 self._pem_public_key,
                 algorithms=[self._TOKEN_ALG],
-                audience=self.client_id,
+                audience=[self.client_id],
                 options={
                     "verify_signature": True,
                     "verify_aud": True,

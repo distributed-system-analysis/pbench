@@ -1,7 +1,7 @@
 import configparser
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from flask import current_app, Flask
 import jwt
@@ -43,11 +43,17 @@ class TestConnection:
         args = {}
 
         def fake_method(
-            the_self, method: str, path: str, data: Dict, **kwargs
+            the_self,
+            method: str,
+            path: str,
+            data: Optional[Any] = None,
+            json: Optional[dict[str, Any]] = None,
+            **kwargs,
         ) -> requests.Response:
             args["method"] = method
             args["path"] = path
             args["data"] = data
+            args["json"] = json
             args["kwargs"] = kwargs
             return requests.Response()
 
@@ -114,6 +120,7 @@ class TestConnection:
             "HEAD",
             "/this/that",
             None,
+            None,
             headers={"header1": "one"},
             this="that",
             that="this",
@@ -123,6 +130,7 @@ class TestConnection:
         assert response.args[1] == "https://example.com/this/that"
         assert response.kwargs["params"] == {"this": "that", "that": "this"}
         assert response.kwargs["data"] is None
+        assert response.kwargs["json"] is None
         assert response.kwargs["headers"] == {"header0": "zero", "header1": "one"}
         assert response.kwargs["verify"] is False
 
@@ -160,6 +168,7 @@ class TestConnection:
         assert args["method"] == "GET"
         assert args["path"] == "foo/bar"
         assert args["data"] is None
+        assert args["json"] is None
         assert args["kwargs"] == {"headers": None, "this": "that", "then": "now"}
 
     def test_post(self, fake_method, conn):
@@ -171,10 +180,13 @@ class TestConnection:
             conn : an existing Connection object to use for testing
         """
         args = fake_method
-        response = conn.post("foo/bar", {"one": "two", "three": "four"}, five="six")
+        response = conn.post(
+            "foo/bar", data={"one": "two", "three": "four"}, five="six"
+        )
         assert response is not None
         assert args["method"] == "POST"
         assert args["path"] == "foo/bar"
+        assert args["json"] is None
         assert args["data"] == {"one": "two", "three": "four"}
         assert args["kwargs"] == {"headers": None, "five": "six"}
 

@@ -3,7 +3,14 @@ import os
 
 import pytest
 
-from pbench.client import API, PbenchServerClient
+from pbench.client import PbenchServerClient
+from pbench.client.oidc_admin import OIDCAdmin
+
+USERNAME: str = "tester"
+EMAIL: str = "tester@gmail.com"
+PASSWORD: str = "123456"
+FIRST_NAME: str = "Test"
+LAST_NAME: str = "User"
 
 
 @pytest.fixture(scope="module")
@@ -25,32 +32,34 @@ def server_client():
 
 
 @pytest.fixture(scope="module")
-def register_test_user(server_client: PbenchServerClient):
-    """Create a test user for functional tests."""
+def oidc_admin(server_client: PbenchServerClient):
+    """
+    Used by Pbench Server functional tests to get admin access
+    on OIDC server.
+    """
+    return OIDCAdmin(server_url=server_client.endpoints["openid"]["server"])
 
-    response = server_client.post(
-        API.REGISTER,
-        json={
-            "username": "tester",
-            "first_name": "Test",
-            "last_name": "User",
-            "password": "123456",
-            "email": "tester@gmail.com",
-        },
-        raise_error=False,
+
+@pytest.fixture(scope="module")
+def register_test_user(oidc_admin: OIDCAdmin):
+    """Create a test user for functional tests."""
+    response = oidc_admin.create_new_user(
+        username=USERNAME,
+        email=EMAIL,
+        password=PASSWORD,
+        first_name=FIRST_NAME,
+        last_name=LAST_NAME,
     )
 
     # To allow testing outside our transient CI containers, allow the tester
     # user to already exist.
     assert (
-        response.ok or response.status_code == HTTPStatus.FORBIDDEN
+        response.ok or response.status_code == HTTPStatus.CONFLICT
     ), f"Register failed with {response.json()}"
 
 
 @pytest.fixture
 def login_user(server_client: PbenchServerClient, register_test_user):
     """Log in the test user and return the authentication token"""
-    server_client.login("tester", "123456")
+    server_client.login(USERNAME, PASSWORD)
     assert server_client.auth_token
-    yield
-    server_client.logout()
