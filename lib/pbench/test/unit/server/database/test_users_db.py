@@ -153,9 +153,9 @@ class TestUsers:
             (3, {"user": {"company": {"location": "Westford"}}}),
         ],
     )
-    def test_user_update(self, db_session, fake_db, case, data):
+    def test_user_update(self, fake_db, case, data):
         """Test updating user profile with different types of kwargs"""
-        TestUsers.add_dummy_user(db_session)
+        TestUsers.add_dummy_user(fake_db)
         user = User.query(id=1)
         valid_dict = user.form_valid_dict(**data)
         user.update(new_profile=valid_dict)
@@ -178,9 +178,9 @@ class TestUsers:
         "data",
         [{"server.key": "value"}, {"server.role": ["value"]}, {"server": ""}],
     )
-    def test_user_update_bad_key(self, db_session, fake_db, data):
+    def test_user_update_bad_key(self, fake_db, data):
         """Test updating user with non-updatable key:value pair"""
-        TestUsers.add_dummy_user(db_session)
+        TestUsers.add_dummy_user(fake_db)
         user = User.query(id=1)
         with pytest.raises(
             UserError,
@@ -216,7 +216,7 @@ class TestUsers:
         user.delete()
         self.session.check_session(queries=0, filters=[], committed=[])
 
-    def test_delete_exception(self):
+    def test_delete_exception(self, fake_db):
         """Test exception raised during the delete operation"""
         user = User(
             oidc_id=12345,

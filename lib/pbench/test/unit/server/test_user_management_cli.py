@@ -137,6 +137,7 @@ class TestUserManagement:
 
     @staticmethod
     def test_valid_user_delete(monkeypatch, server_config):
+        monkeypatch.setattr(User, "query", mock_valid_query)
         monkeypatch.setattr(User, "delete", mock_valid_delete)
         runner = CliRunner(mix_stderr=False)
 

@@ -270,6 +270,10 @@ class FakeSession:
         self.raise_on_commit = None
         __class__.throw_query = False
 
+    def remove(self):
+        """Mocks the db session remove method"""
+        self.reset_context()
+
     def query(self, *entities, **kwargs) -> FakeQuery:
         """Perform a mocked query on the session, setting up the query context
         and returning it
