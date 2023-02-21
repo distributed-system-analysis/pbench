@@ -91,7 +91,7 @@ fi
 
 if [[ -z "${cleanup_flag}" ]]; then
     echo "No clean up requested -- the Pbench Server container and support services pod are running!"
-    trap -
+    trap - $(trap -p | sed -e 's/.* //')
     exit ${exit_status}
 fi
 
