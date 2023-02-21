@@ -3,10 +3,9 @@
 # Simulate what pbench-move-results does for tar balls found on a given
 # satellite (remote) pbench server.
 
-# pbench-move-results copies tarballs to the server in the reception
-# areas (fs-version-001 and -002 versions), and then the respective
-# shims set about moving them into place for pbench-dispatch to move
-# through the various processing stages.
+# pbench-move-results copies tarballs to the server in the reception area, and
+# then pbench-put-shim sets about moving them into place for the various
+# processing stages.
 
 # This script simulates what pbench-move-results does with the
 # tarballs that it copies from a satellite server. It runs as a cron
@@ -172,7 +171,7 @@ for host in $hosts ;do
     find $unpack/$host -type f -name '*.tar.xz.md5' | sort > $tmp/$host.tb.lis
 
     # Loop over the .MD5 files moving the tar balls into the regular reception
-    # area first, since `pbench-server-prep-shim` won't do anything with the
+    # area first, since `pbench-server-put-shim` won't do anything without the
     # .md5 file present, then moving the .md5 files, and recording success for
     # updating the remote host.
     while read tbmd5; do

@@ -2,11 +2,10 @@
 It is implicitly included by PyTest for all unit tests and provides
 test fixtures and other definitions common across the Server unit tests"""
 import logging
-import pytest
 import tempfile
-
 from pathlib import Path
 
+import pytest
 from pbench import _PbenchLogFormatter, _StyleAdapter
 
 

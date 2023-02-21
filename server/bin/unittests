@@ -100,9 +100,8 @@ function _run_allscripts {
     # synchronized.
     _run pbench-sync-satellite satellite-one
     # Pull new tar balls from move-results and feed them into the dispatch loop.
-    _run pbench-server-prep-shim-002
-    # These next five are related and would flow in this order.
-    _run pbench-dispatch
+    _run pbench-server-put-shim
+    # These next three are related and would flow in this order.
     _run pbench-unpack-tarballs small
     _run pbench-index
     _run pbench-index --tool-data
@@ -752,9 +751,9 @@ declare -A cmds=(
     [test-11]="_run pbench-sync-satellite satellite-one"
 
     # shim - failure, no quarantine directory
-    [test-13]="_run pbench-server-prep-shim-002"
+    [test-13]="_run pbench-server-put-shim"
     # shim - failure, no reception area
-    [test-15]="_run pbench-server-prep-shim-002"
+    [test-15]="_run pbench-server-put-shim"
 
     # unpacking to the incoming directory
     [test-16]="_run pbench-unpack-tarballs small"
@@ -766,13 +765,13 @@ declare -A cmds=(
 
     [test-20]="_run echo audit archive hierarchy"
 
-    [test-21]="_run pbench-dispatch"
+    [test-21]="_run pbench-put-shim"
 
     # Actually exercises satellite code
     [test-22]="_run pbench-satellite-cleanup"
 
-    # Uses pbench-dispatch to test report status via syslog
-    [test-23]="_run pbench-dispatch"
+    # Uses pbench-put-shim to test report status via syslog
+    [test-23]="_run pbench-put-shim"
 
     # Tests config file that specifies two shims versions
     [test-24]="_run_activate"

@@ -11,17 +11,16 @@ install-dir = /opt/pbench-server
 pbench-top-dir = /srv/pbench
 # An example satellite might override the default roles to drop the backup role.
 roles = pbench-maintenance, pbench-prep, pbench-results
-# An example satellite that just unpacks and syncs
-dispatch-states = TO-UNPACK, TO-SYNC
+# An example satellite that just syncs
+dispatch-states = TO-SYNC
 
 ###########################################################################
 # crontab roles
 [pbench-results]
-# The results role on our example satellite does not need to copy sosreports,
-# index data, or cull unpacked tar balls, but we do need to make sure we run
-# sync-cleanup.  As a satellite, we also only need one process unpacking tar
-# balls.
-tasks = pbench-dispatch, pbench-unpack-tarballs, pbench-sync-cleanup
+# The results role on our example satellite does not need to unpack tar balls
+# cull unpacked tar balls, or index dasta, but we do need to make sure we run
+# sync-cleanup.
+tasks = pbench-sync-cleanup
 
 ###########################################################################
 # The rest will come from the default config file.

@@ -42,13 +42,11 @@ binlinks = \
 	pbench-check-tb-age\
 	pbench-clean-up-dangling-results-links\
 	pbench-cull-unpacked-tarballs\
-	pbench-dispatch\
 	pbench-index\
 	pbench-reindex\
 	pbench-report-status\
 	pbench-satellite-cleanup\
 	pbench-satellite-state-change\
-	pbench-server-prep-shim-002\
 	pbench-server-put-shim\
 	pbench-sync-package-tarballs\
 	pbench-sync-satellite\
