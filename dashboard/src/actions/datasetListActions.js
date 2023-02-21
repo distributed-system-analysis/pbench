@@ -7,7 +7,7 @@ export const fetchPublicDatasets = () => async (dispatch, getState) => {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(
-      `${endpoints?.api?.datasets_list}?metadata=dataset.created&access=public`
+      `${endpoints?.api?.datasets_list}?metadata=dataset.uploaded&access=public`
     );
     if (response.status === 200 && response.data) {
       dispatch({

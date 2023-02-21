@@ -52,7 +52,7 @@ const SavedRunsComponent = () => {
   const moreActionItems = (dataset) => [
     {
       title:
-        dataset.metadata[DATASET_ACCESS] === "public" ? "Publish" : "Unpublish",
+        dataset.metadata[DATASET_ACCESS] === "public" ? "Unpublish" : "Publish",
       onClick: () => {
         const accessType =
           dataset.metadata[DATASET_ACCESS] === "public" ? "private" : "public";
@@ -89,7 +89,7 @@ const SavedRunsComponent = () => {
   /* Edit Dataset */
   const columnNames = {
     result: "Result",
-    createdtime: "Created Time",
+    uploadedtime: "Uploaded Time",
     scheduled: "Scheduled for deletion on",
     access: "Access",
   };
@@ -109,7 +109,7 @@ const SavedRunsComponent = () => {
                   }}
                 ></Th>
                 <Th>{columnNames.result}</Th>
-                <Th>{columnNames.createdtime}</Th>
+                <Th>{columnNames.uploadedtime}</Th>
                 <Th>{columnNames.scheduled}</Th>
                 <Th>{columnNames.access}</Th>
                 <Th></Th>

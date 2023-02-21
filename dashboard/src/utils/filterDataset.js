@@ -1,4 +1,4 @@
-import { DATASET_CREATED } from "assets/constants/overviewConstants";
+import { DATASET_UPLOADED } from "assets/constants/overviewConstants";
 
 /**
  * Filter the List of Datasets based on Date Range and Dataset Name
@@ -11,7 +11,7 @@ import { DATASET_CREATED } from "assets/constants/overviewConstants";
  */
 export const filterData = (dataArray, startDate, endDate, searchKey) =>
   dataArray.filter((data) => {
-    const datasetDate = new Date(data.metadata[DATASET_CREATED]);
+    const datasetDate = new Date(data.metadata[DATASET_UPLOADED]);
     return (
       data.name.includes(searchKey) &&
       datasetDate >= startDate &&
