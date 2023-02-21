@@ -12,9 +12,8 @@ fi
 
 _branch_name="$(cat jenkins/branch.name)"
 
-if [[ -z "${IMAGE_REPO}" ]]; then
-    IMAGE_REPO="quay.io/pbench"
-fi
+IMAGE_REPO=${IMAGE_REPO:-"quay.io/pbench"}
+IMAGE=${IMAGE:-"${IMAGE_REPO}/pbench-devel:${_branch_name}"}
 
 if [[ -z "${BUILD_NUMBER}" ]]; then
     # Not in a Jenkins job ...
@@ -63,9 +62,11 @@ fi
 # in the container.
 find . -name __pycache__ -exec rm -r {} \; > /dev/null 2>&1
 
-podman run -it --userns=keep-id --pull=always \
+podman run --rm -it \
+    --env-host \
+    --ulimit nofile=65536:65536 \
     --volume ${_tmp}:/tmp:z \
     --volume ${_var_tmp}:/var/tmp:z \
-    --volume $(pwd):/home/pbench:z -w /home/pbench \
-    --env-host --ulimit nofile=65536:65536 \
-    --rm ${IMAGE_REPO}/pbench-devel:${_branch_name} /bin/bash -c "${*}"
+    --volume $(pwd):/home/pbench:z \
+    -w /home/pbench \
+    ${IMAGE} /bin/bash -c "${*}"
