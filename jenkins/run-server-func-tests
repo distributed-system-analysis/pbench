@@ -39,6 +39,8 @@ function cleanup {
     else
         echo "No clean up requested -- the Pbench Server container and support services pod likely still running!" >&2
     fi
+    trap - $(trap -p | sed -e 's/.* //')
+    exit ${exit_status}
 }
 trap cleanup INT QUIT TERM EXIT
 
