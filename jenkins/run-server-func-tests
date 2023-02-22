@@ -1,68 +1,83 @@
 #!/bin/bash
 
 export EXTRA_PODMAN_SWITCHES=${EXTRA_PODMAN_SWITCHES:-"--pull=newer"}
-export IMAGE_KIND=${IMAGE_KIND:-"fedora"}
+export IMAGE_NAME=${IMAGE_NAME:-pbench-ci-fedora}
 export IMAGE_REPO=${IMAGE_REPO:-"quay.io/pbench"}
-export IMAGE_ROLE=${IMAGE_ROLE:-"ci"}
 
 export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
 export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
 export PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"${PB_POD_NAME}-pbenchserver"}
 
-server/pbenchinacan/run-pbench-in-a-can
-if [[ ${?} -ne 0 ]]; then
-    echo "Failure to start Pbench-in-a-Can pod" >&2
-    exit 1
+SERVER_URL="http://localhost:8080"
+SERVER_API_ENDPOINTS="${SERVER_URL}/api/v1/endpoints"
+
+cleanup_flag=""
+exit_status=0
+
+if [[ ${1} == "--cleanup" ]]; then
+    cleanup_flag=1
+elif [[ -n "${1}" ]]; then
+    echo "Unrecognized argument \"${1}\"" >&2
+    exit 2
 fi
 
 function cleanup {
-    # Remove the pod which we just created and ran; remove any dangling
-    # containers; and then remove any dangling images.
-    echo "Forcefully removing the Pbench Server container ..." >&2
-    podman rm --force --ignore ${1}
-    echo "Forcefully removing the Pbench Support Services pod ..." >&2
-    podman pod rm --force --ignore ${2}
-    echo "Pruning containers ..." >&2
-    podman container prune -f
-    echo "Performing container cleanup ..." >&2
-    podman container cleanup --all --rm
-    echo "Pruning images ..." >&2
-    podman image prune -f
+    if [[ -n "${cleanup_flag}" ]]; then
+        # Remove the Pbench Server container and the dependencies pod which we
+        # just created and ran; remove any dangling containers; and then remove
+        # any dangling images.
+        echo "Forcefully removing the Pbench Server container..." >&2
+        podman rm --force --ignore ${PB_SERVER_CONTAINER_NAME}
+        echo "Forcefully removing the Pbench Support Services pod..." >&2
+        podman pod rm --force --ignore ${PB_POD_NAME}
+        echo "Pruning containers..." >&2
+        podman container prune -f
+        echo "Performing container cleanup..." >&2
+        podman container cleanup --all --rm
+        echo "Pruning images..." >&2
+        podman image prune -f
+    else
+        echo "No clean up requested -- the Pbench Server container and support services pod likely still running!" >&2
+    fi
 }
+trap cleanup INT QUIT TERM EXIT
 
-if [[ ${1} == "--cleanup" ]]; then
-    trap "cleanup ${PB_SERVER_CONTAINER_NAME} ${PB_POD_NAME}" INT QUIT TERM
+server/pbenchinacan/run-pbench-in-a-can
+exit_status=${?}
+if [[ ${exit_status} -ne 0 ]]; then
+    echo "Failure to start Pbench-in-a-Can" >&2
+    exit ${exit_status}
 fi
-
-SERVER_URL="http://localhost:8080"
-SERVER_API_ENDPOINTS="${SERVER_URL}/api/v1/endpoints"
 
 # Wait at most 10 minutes before giving up.
 end_in_epoch_secs=$(( $(date +"%s") + 600 ))
 
-echo "Waiting for pod's reverse proxy to show up ..."
+echo "Waiting for the Pbench Server's reverse proxy to show up..."
 until curl -s -o /dev/null ${SERVER_API_ENDPOINTS}; do
     if [[ $(date +"%s") -ge ${end_in_epoch_secs} ]]; then
-        echo "Timed out waiting for pod's reverse proxy to show up!" >&2
-        exit 1
+        echo "Timed out waiting for the reverse proxy to show up!" >&2
+        exit_status=1
+        exit ${exit_status}
     fi
     sleep 1
 done
-echo "Waiting for pod's Pbench Server to show up ..."
-status_code=$(curl -s -o /dev/null -w "%{http_code}" ${SERVER_API_ENDPOINTS})
+
+echo "Waiting for the Pbench Server to show up..."
+status_code=503
 while [[ "${status_code}" == "502" || "${status_code}" == "503" ]]; do
+    status_code=$(curl -s -o /dev/null -w "%{http_code}" ${SERVER_API_ENDPOINTS})
     if [[ $(date +"%s") -ge ${end_in_epoch_secs} ]]; then
-        echo "Timed out waiting for pod's Pbench Server to show up!" >&2
-        exit 1
+        echo "Timed out waiting for the Pbench Server to show up!" >&2
+        break
     fi
     sleep 1
-    status_code=$(curl -s -o /dev/null -w "%{http_code}" ${SERVER_API_ENDPOINTS})
 done
 if [[ "${status_code}" != "200" ]]; then
     curl ${SERVER_API_ENDPOINTS}
     exit_status=2
 else
-    EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" jenkins/run tox -e py39 -- server functional ${SERVER_URL}
+    EXTRA_PODMAN_SWITCHES="${EXTRA_PODMAN_SWITCHES} --network host" \
+        jenkins/run tox -e py39 -- server functional ${SERVER_URL}
     exit_status=${?}
 fi
 
@@ -73,30 +88,25 @@ if [[ ${exit_status} -ne 0 ]]; then
     podman exec ${PB_POD_NAME}-pbenchserver journalctl
     printf -- "\n--- journalctl dump ---\n\n"
 fi
-if [[ -z ${1} ]]; then
-    echo "No clean up requested ... Pbench Server container and support services pod likely still running!"
+
+if [[ -z "${cleanup_flag}" ]]; then
+    echo "No clean up requested -- the Pbench Server container and support services pod are running!"
+    trap - $(trap -p | sed -e 's/.* //')
     exit ${exit_status}
 fi
 
-# Remove the server container
-echo "Stopping Pbench Server container ..."
+echo "Stopping the Pbench Server container..."
 podman stop ${PB_SERVER_CONTAINER_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
     exit_status=${stop_status}
 fi
 
-echo "Stopping Pbench Support Services pod ..."
+echo "Stopping the Pbench Support Services pod..."
 podman pod stop ${PB_POD_NAME}
 stop_status=${?}
 if [[ ${exit_status} -eq 0 ]]; then
     exit_status=${stop_status}
 fi
 
-echo "Removing Pbench Support Services pod ..."
-podman pod rm ${PB_POD_NAME}
-stop_status=${?}
-if [[ ${exit_status} -eq 0 ]]; then
-    exit_status=${stop_status}
-fi
 exit ${exit_status}
