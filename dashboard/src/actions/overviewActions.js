@@ -23,6 +23,8 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("metadata", CONSTANTS.DATASET_UPLOADED);
     params.append("metadata", CONSTANTS.SERVER_DELETION);
     params.append("metadata", CONSTANTS.USER_FAVORITE);
+    params.append("metadata", "server");
+    params.append("metadata", "dataset");
 
     params.append("mine", "true");
     dispatch(setSelectedRuns([]));
@@ -38,7 +40,6 @@ export const getDatasets = () => async (dispatch, getState) => {
           type: TYPES.USER_RUNS,
           payload: data,
         });
-
         dispatch(initializeRuns());
       }
     }
@@ -70,7 +71,7 @@ const initializeRuns = () => (dispatch, getState) => {
 
     clearEditableFields(item);
     item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
-
+    item["checkedItems"] = ["dataset.access", "dataset.metalog.run"];
     item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
     item[CONSTANTS.IS_ITEM_FAVORITED] =
       !!item?.metadata?.[CONSTANTS.USER_FAVORITE];
@@ -406,4 +407,138 @@ export const getEditedMetadata =
 const clearEditableFields = (item) => {
   item[CONSTANTS.IS_DIRTY_NAME] = false;
   item[CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
+};
+export const setMetadataModal = (isOpen, run) => async (dispatch, getState) => {
+  dispatch({
+    type: TYPES.SET_METADATA_MODAL,
+    payload: isOpen,
+  });
+};
+/**
+ * Function to get keySummary and send to parse data
+ * @function
+ * @return {Function} - dispatch the action and update the state
+ */
+export const getKeySummary = () => async (dispatch, getState) => {
+  try {
+    const endpoints = getState().apiEndpoint.endpoints;
+    const response = await API.get(uriTemplate(endpoints, "datasets_list"), {
+      params: { keysummary: true },
+    });
+    if (response.status === 200) {
+      if (response.data.keys) {
+        dispatch({
+          type: TYPES.GET_KEY_SUMMARY,
+          payload: response.data,
+        });
+        dispatch(parseKeySummaryforTree());
+      }
+    }
+  } catch (error) {
+    dispatch(showToast(DANGER, ERROR_MSG));
+  }
+};
+
+export const parseKeySummaryforTree = () => (dispatch, getState) => {
+  const parsedData = [];
+  const keySummary = getState().overview.keySummary.keys;
+  const optionRoles = Object.keys(keySummary);
+  const checkedItems = getState().overview.checkedItems;
+
+  for (const item of optionRoles) {
+    const dataObj = { title: item, options: [] };
+    for (const key in keySummary[item]) {
+      if (!isNonEssentialKey(key)) {
+        const aggregateKey = `${item}${CONSTANTS.KEYS_JOIN_BY}${key}`;
+        const isChecked = findItemCheked(aggregateKey, checkedItems);
+        const obj = constructTreeObj(aggregateKey, isChecked);
+        if (!keySummary[item][key]) {
+          dataObj.options.push(obj);
+        } /* has children */ else {
+          obj["children"] = constructChildTreeObj(
+            aggregateKey,
+            keySummary[item][key],
+            checkedItems,
+            dispatch
+          );
+          dataObj.options.push(obj);
+        }
+      }
+    }
+    parsedData.push(dataObj);
+  }
+  dispatch({
+    type: TYPES.SET_TREE_DATA,
+    payload: parsedData,
+  });
+};
+
+const constructChildTreeObj = (
+  aggregateKey,
+  entity,
+  checkedItems,
+  dispatch
+) => {
+  const childObj = [];
+  for (const item in entity) {
+    if (!isNonEssentialKey(item)) {
+      const isParentChecked = findItemCheked(aggregateKey, checkedItems);
+      const newKey = `${aggregateKey}${CONSTANTS.KEYS_JOIN_BY}${item}`;
+      const isChecked = isParentChecked || findItemCheked(newKey, checkedItems);
+      if (isChecked && !checkedItems.includes(newKey)) {
+        dispatch(updateCheckedItems(newKey));
+      }
+      const obj = constructTreeObj(newKey, isChecked);
+
+      if (entity[item]) {
+        obj["children"] = constructChildTreeObj(
+          newKey,
+          entity[item],
+          checkedItems,
+          dispatch
+        );
+      }
+      childObj.push(obj);
+    }
+  }
+  return childObj;
+};
+
+const constructTreeObj = (aggregateKey, isChecked) => {
+  const obj = {};
+  const keyArr = aggregateKey.split(CONSTANTS.KEYS_JOIN_BY);
+  obj["name"] = keyArr[keyArr.length - 1];
+  obj["key"] = aggregateKey;
+  obj["id"] = aggregateKey;
+  obj["checkProps"] = {
+    "aria-label": `${aggregateKey}-check`,
+    checked: isChecked,
+  };
+  return obj;
+};
+
+const updateCheckedItems = (keyToInclude) => (dispatch, getState) => {
+  const checkedItems = [...getState().overview.checkedItems, keyToInclude];
+  dispatch({
+    type: TYPES.SET_METADATA_CHECKED_KEYS,
+    payload: checkedItems,
+  });
+};
+
+const findItemCheked = (key, checkedItems) =>
+  checkedItems.includes(key) ? true : false;
+const nonEssentialKeys = [
+  CONSTANTS.KEY_INDEX_REGEX,
+  CONSTANTS.KEY_OPERATIONS_REGEX,
+  CONSTANTS.KEY_TOOLS_REGEX,
+  CONSTANTS.KEY_ITERATIONS_REGEX,
+];
+const isNonEssentialKey = (string) => {
+  const len = nonEssentialKeys.length;
+  for (let i = 0; i < len; i++) {
+    if (string.match(nonEssentialKeys[i])) {
+      return true;
+    }
+  }
+  return false;
 };

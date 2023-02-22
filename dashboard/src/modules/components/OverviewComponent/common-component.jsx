@@ -9,6 +9,8 @@ import {
   Dropdown,
   DropdownItem,
   DropdownToggle,
+  Modal,
+  ModalVariant,
   Pagination,
   Text,
   TextContent,
@@ -19,6 +21,7 @@ import {
   CaretDownIcon,
   CheckIcon,
   PencilAltIcon,
+  PficonTemplateIcon,
   RedoIcon,
   TimesIcon,
 } from "@patternfly/react-icons";
@@ -29,9 +32,14 @@ import {
   SERVER_DELETION,
 } from "assets/constants/overviewConstants";
 import React, { useState } from "react";
-import { getDatasets, updateMultipleDataset } from "actions/overviewActions";
+import {
+  getDatasets,
+  setMetadataModal,
+  updateMultipleDataset,
+} from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import MetadataTreeView from "./MetadataTreeComponent";
 import { formatDateTime } from "utils/dateFunctions";
 import { setRelayModalState } from "actions/relayActions";
 
@@ -101,7 +109,9 @@ export const NewRunsHeading = () => {
   const dispatch = useDispatch();
 
   const { endpoints } = useSelector((state) => state.apiEndpoint);
-  const { selectedRuns } = useSelector((state) => state.overview);
+  const { selectedRuns, isMetadataModalOpen } = useSelector(
+    (state) => state.overview
+  );
   const dropdownItems = actions.map((item) => {
     return (
       <DropdownItem
@@ -137,6 +147,13 @@ export const NewRunsHeading = () => {
           onClick={() => dispatch(setRelayModalState(true))}
         >
           Pull dataset
+        </Button>
+        <Button
+          variant="link"
+          icon={<PficonTemplateIcon />}
+          onClick={() => dispatch(setMetadataModal(true))}
+        >
+          Display Metadata
         </Button>
         <Dropdown
           onSelect={onSelect}
@@ -360,3 +377,50 @@ export const SelectDateComponent = (props) => (
     <DatePicker value={props.value} onChange={props.onDateSelect} />
   </div>
 );
+
+export const MetaDataModal = () => {
+  const { isMetadataModalOpen } = useSelector((state) => state.overview);
+  const dispatch = useDispatch();
+  const handleModalToggle = () => {
+    dispatch(setMetadataModal(false));
+  };
+  return (
+    <Modal
+      variant={ModalVariant.small}
+      title="Display Metadata"
+      isOpen={isMetadataModalOpen}
+      onClose={handleModalToggle}
+    >
+      <MetadataTreeView />
+    </Modal>
+  );
+};
+
+export const MetadataRow = (props) => {
+  const { checkedItems, item } = props;
+  return (
+    <div className="box">
+      {checkedItems.map((attr) => {
+        const levels = attr.split("*");
+        const meta = item.metadata;
+        const showValue = levels.reduce((a, level) => {
+          let value = "";
+          if (a && a[level]) {
+            value = a[level];
+          }
+          return value;
+        }, meta);
+        return (
+          <>
+            {showValue && showValue.constructor !== Object && (
+              <div key={item.resource_id}>
+                <span className="keyClass"> {levels[levels.length - 1]} :</span>
+                <span className="valueClass">{showValue}</span>
+              </div>
+            )}
+          </>
+        );
+      })}
+    </div>
+  );
+};

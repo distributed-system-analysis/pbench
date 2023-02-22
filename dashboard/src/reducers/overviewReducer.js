@@ -1,5 +1,4 @@
 import * as TYPES from "../actions/types";
-
 const initialState = {
   datasets: [],
   savedRuns: [],
@@ -9,9 +8,13 @@ const initialState = {
   selectedRuns: [],
   selectedSavedRuns: [],
   expiringRuns: [],
+  isMetadataModalOpen: false,
   loadingDone: !!sessionStorage.getItem("loadingDone"),
   isRelayModalOpen: false,
   relayInput: "",
+  treeData: [],
+  checkedItems: ["dataset*access", "dataset*metalog*run"],
+  keySummary: {},
 };
 
 const OverviewReducer = (state = initialState, action = {}) => {
@@ -71,6 +74,26 @@ const OverviewReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         relayInput: payload,
+      };
+    case TYPES.SET_METADATA_MODAL:
+      return {
+        ...state,
+        isMetadataModalOpen: payload,
+      };
+    case TYPES.SET_METADATA_CHECKED_KEYS:
+      return {
+        ...state,
+        checkedItems: payload,
+      };
+    case TYPES.SET_TREE_DATA:
+      return {
+        ...state,
+        treeData: payload,
+      };
+    case TYPES.GET_KEY_SUMMARY:
+      return {
+        ...state,
+        keySummary: payload,
       };
     default:
       return state;

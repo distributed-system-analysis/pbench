@@ -9,15 +9,23 @@ import {
   USER_FAVORITE,
 } from "assets/constants/overviewConstants";
 import {
+  ExpandableRowContent,
   InnerScrollContainer,
   OuterScrollContainer,
   TableComposable,
   Tbody,
+  Td,
   Th,
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { NewRunsRow, RenderPagination } from "./common-component";
+import { List, ListItem } from "@patternfly/react-core";
+import {
+  MetaDataModal,
+  MetadataRow,
+  NewRunsRow,
+  RenderPagination,
+} from "./common-component";
 import React, { useCallback, useState } from "react";
 import {
   deleteDataset,
@@ -31,9 +39,13 @@ import { useDispatch, useSelector } from "react-redux";
 
 const NewRunsComponent = () => {
   const dispatch = useDispatch();
-  const { newRuns, initNewRuns, selectedRuns } = useSelector(
-    (state) => state.overview
-  );
+  const {
+    newRuns,
+    initNewRuns,
+    selectedRuns,
+    isMetadataModalOpen,
+    checkedItems,
+  } = useSelector((state) => state.overview);
 
   const [perPage, setPerPage] = useState(ROWS_PER_PAGE);
   const [page, setPage] = useState(START_PAGE_NUMBER);
@@ -119,13 +131,14 @@ const NewRunsComponent = () => {
   ];
 
   const [expandedRunNames, setExpandedRunNames] = React.useState([]);
-  const setRunExpanded = (run, isExpanding = true) =>
+  const setRunExpanded = (run, isExpanding = true) => {
     setExpandedRunNames((prevExpanded) => {
       const otherExpandedRunNames = prevExpanded.filter((r) => r !== run.name);
       return isExpanding
         ? [...otherExpandedRunNames, run.name]
         : otherExpandedRunNames;
     });
+  };
   const isRunExpanded = useCallback(
     (run) => expandedRunNames.includes(run.name),
     [expandedRunNames]
@@ -167,29 +180,45 @@ const NewRunsComponent = () => {
               {initNewRuns.map((item, rowIndex) => {
                 const rowActions = moreActionItems(item);
                 return (
-                  <Tr
-                    key={item.resource_id}
-                    className={item[IS_ITEM_SEEN] ? "seen-row" : "unseen-row"}
-                  >
-                    <NewRunsRow
+                  <>
+                    <Tr
                       key={item.resource_id}
-                      rowIndex={rowIndex}
-                      moreActionItems={moreActionItems}
-                      setRunExpanded={setRunExpanded}
-                      isRunExpanded={isRunExpanded}
-                      toggleEdit={toggleEdit}
-                      onSelectRuns={onSelectRuns}
-                      isRowSelected={isRowSelected}
-                      columnNames={columnNames}
-                      makeFavorites={makeFavorites}
-                      saveRowData={saveRowData}
-                      rowActions={rowActions}
-                      item={item}
-                      textInputEdit={(val) =>
-                        updateTblValue(val, NAME_KEY, item.resource_id)
-                      }
-                    />
-                  </Tr>
+                      className={item[IS_ITEM_SEEN] ? "seen-row" : "unseen-row"}
+                    >
+                      <NewRunsRow
+                        key={item.resource_id}
+                        rowIndex={rowIndex}
+                        moreActionItems={moreActionItems}
+                        setRunExpanded={setRunExpanded}
+                        isRunExpanded={isRunExpanded}
+                        toggleEdit={toggleEdit}
+                        onSelectRuns={onSelectRuns}
+                        isRowSelected={isRowSelected}
+                        columnNames={columnNames}
+                        makeFavorites={makeFavorites}
+                        saveRowData={saveRowData}
+                        rowActions={rowActions}
+                        item={item}
+                        textInputEdit={(val) =>
+                          updateTblValue(val, NAME_KEY, item.resource_id)
+                        }
+                      />
+                    </Tr>
+                    {checkedItems && checkedItems.length > 0 ? (
+                      <Tr isExpanded={isRunExpanded(item)}>
+                        <Td colSpan={8}>
+                          <ExpandableRowContent>
+                            <div className="pf-u-m-md">
+                              <MetadataRow
+                                checkedItems={checkedItems}
+                                item={item}
+                              />
+                            </div>
+                          </ExpandableRowContent>
+                        </Td>
+                      </Tr>
+                    ) : null}
+                  </>
                 );
               })}
             </Tbody>
@@ -206,6 +235,7 @@ const NewRunsComponent = () => {
           />
         </InnerScrollContainer>
       </OuterScrollContainer>
+      {isMetadataModalOpen && <MetaDataModal />}
     </div>
   );
 };
