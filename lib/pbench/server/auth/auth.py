@@ -212,20 +212,7 @@ def verify_auth_oidc(auth_token: str) -> Optional[InternalUser]:
             except KeyError:
                 oidc_client_roles = []
             username = token_payload.get("preferred_username")
-            profile = {
-                User.USER: {
-                    "email": token_payload.get("email"),
-                    "first_name": token_payload.get("given_name"),
-                    "last_name": token_payload.get("family_name"),
-                },
-                User.SERVER: {
-                    "roles": oidc_client_roles,
-                    "registered_on": datetime.datetime.now().strftime(
-                        "%m/%d/%Y, %H:%M:%S"
-                    ),
-                },
-            }
-            user = User(oidc_id=user_id, username=username, profile=profile)
+            user = User(oidc_id=user_id, username=username, roles=oidc_client_roles)
             user.add()
 
     return user

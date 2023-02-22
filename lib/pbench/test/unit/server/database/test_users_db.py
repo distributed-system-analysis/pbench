@@ -1,17 +1,9 @@
-import datetime
-
-from freezegun.api import freeze_time
 import pytest
 from sqlalchemy.exc import IntegrityError
 
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset
-from pbench.server.database.models.users import (
-    User,
-    UserDuplicate,
-    UserError,
-    UserSqlError,
-)
+from pbench.server.database.models.users import User, UserDuplicate, UserSqlError
 from pbench.test.unit.server.database import FakeDBOrig, FakeRow, FakeSession
 
 
@@ -35,73 +27,28 @@ class TestUsers:
     @staticmethod
     def add_dummy_user(fake_db):
         dummy_user = User(
-            oidc_id=12345,
+            oidc_id="12345",
             username="dummy",
-            profile={
-                "user": {
-                    "email": "dummy@example.com",
-                    "first_name": "Dummy",
-                    "last_name": "Account",
-                },
-                "server": {
-                    "roles": [],
-                    "registered_on": datetime.datetime.now().strftime("%m/%d/%Y"),
-                },
-            },
         )
         dummy_user.add()
         return dummy_user
 
     def test_construct(self, fake_db):
         """Test User db contructor"""
-        with freeze_time("1970-01-01"):
-            user = self.add_dummy_user(fake_db)
+        user = self.add_dummy_user(fake_db)
         assert user.username == "dummy"
         assert user.id == 1
-        assert user.get_json() == {
-            "username": "dummy",
-            "profile": {
-                "user": {
-                    "email": "dummy@example.com",
-                    "first_name": "Dummy",
-                    "last_name": "Account",
-                },
-                "server": {
-                    "roles": [],
-                    "registered_on": "01/01/1970",
-                },
-            },
-        }
+        assert user.oidc_id == "12345"
 
         expected_commits = [FakeRow.clone(user)]
         self.session.check_session(queries=0, committed=expected_commits)
         self.session.reset_context()
 
     def test_is_admin(self, fake_db):
-        profile = {
-            "user": {
-                "email": "dummy@example.com",
-                "first_name": "Dummy",
-                "last_name": "Account",
-            },
-            "server": {
-                "roles": ["ADMIN"],
-                "registered_on": datetime.datetime.now().strftime("%m/%d/%Y"),
-            },
-        }
-        user = User(
-            oidc_id=12345,
-            username="dummy_admin",
-            profile=profile,
-        )
+        user = User(oidc_id="12345", username="dummy_admin", roles="ADMIN")
         user.add()
         assert user.is_admin()
-        profile["server"]["roles"] = ["NON_ADMIN"]
-        user1 = User(
-            oidc_id=12346,
-            username="non_admin",
-            profile=profile,
-        )
+        user1 = User(oidc_id="12346", username="non_admin")
         user1.add()
         assert not user1.is_admin()
 
@@ -139,68 +86,26 @@ class TestUsers:
         )
         with pytest.raises(
             UserDuplicate,
-            match="Duplicate user setting in {'id': None, 'oidc_id': 12345, 'username': 'dummy', .*?: UNIQUE constraint",
+            match="Duplicate user setting in {'username': 'dummy', 'id': None}: UNIQUE constraint",
         ):
             self.add_dummy_user(fake_db)
         self.session.check_session(rolledback=1)
         self.session.reset_context()
 
-    @pytest.mark.parametrize(
-        "case, data",
-        [
-            (1, {"user.department": "Perf_Scale", "user.company.name": "Red Hat"}),
-            (2, {"user": {"email": "new_dummy@example.com"}}),
-            (3, {"user": {"company": {"location": "Westford"}}}),
-        ],
-    )
-    def test_user_update(self, fake_db, case, data):
-        """Test updating user profile with different types of kwargs"""
+    def test_user_update(self, fake_db):
+        """Test updating user roles"""
+
+        data = {"roles": "NEW_ROLE"}
         TestUsers.add_dummy_user(fake_db)
+
         user = User.query(id=1)
-        valid_dict = user.form_valid_dict(**data)
-        user.update(new_profile=valid_dict)
-        if case == 1:
-            assert user.profile["user"]["department"] == "Perf_Scale"
-            assert user.profile["user"]["company"]["name"] == "Red Hat"
-            assert user.profile["user"]["email"] == "dummy@example.com"
-        elif case == 2:
-            assert user.profile["user"]["email"] == "new_dummy@example.com"
-        elif case == 3:
-            assert user.profile["user"]["company"]["location"] == "Westford"
+        user.update(**data)
+        assert user.roles == ["NEW_ROLE"]
 
         expected_commits = [FakeRow.clone(user)]
         self.session.check_session(
             queries=1, committed=expected_commits, filters=["id=1"]
         )
-        self.session.reset_context()
-
-    @pytest.mark.parametrize(
-        "data",
-        [{"server.key": "value"}, {"server.role": ["value"]}, {"server": ""}],
-    )
-    def test_user_update_bad_key(self, fake_db, data):
-        """Test updating user with non-updatable key:value pair"""
-        TestUsers.add_dummy_user(fake_db)
-        user = User.query(id=1)
-        with pytest.raises(
-            UserError,
-            match=r"User profile key 'server.*?' is not supported",
-        ):
-            valid_dict = user.form_valid_dict(**data)
-            user.update(new_profile=valid_dict)
-        self.session.reset_context()
-
-    def test_user_update_bad_format(self, fake_db):
-        """Test updating user with bad key formatting"""
-        TestUsers.add_dummy_user(fake_db)
-        user = User.query(id=1)
-        data = {"user.key": "value", "user.key.key2": "value2"}
-        with pytest.raises(
-            UserError,
-            match=r"Key value for 'key' in profile is not a JSON object",
-        ):
-            valid_dict = user.form_valid_dict(**data)
-            user.update(new_profile=valid_dict)
         self.session.reset_context()
 
     def test_user_delete(self, fake_db):
@@ -219,19 +124,8 @@ class TestUsers:
     def test_delete_exception(self, fake_db):
         """Test exception raised during the delete operation"""
         user = User(
-            oidc_id=12345,
+            oidc_id="12345",
             username="dummy",
-            profile={
-                "user": {
-                    "email": "dummy@example.com",
-                    "first_name": "Dummy",
-                    "last_name": "Account",
-                },
-                "server": {
-                    "roles": [],
-                    "registered_on": datetime.datetime.now().strftime("%m/%d/%Y"),
-                },
-            },
         )
         with pytest.raises(
             UserSqlError,

@@ -1,5 +1,3 @@
-import datetime
-
 import click
 
 from pbench import BadConfig
@@ -37,22 +35,6 @@ def user_command_cli(context):
     help="OIDC server user id (will prompt if unspecified)",
 )
 @click.option(
-    "--email",
-    prompt=True,
-    required=True,
-    help="pbench server account email (will prompt if unspecified)",
-)
-@click.option(
-    "--first-name",
-    required=False,
-    help="pbench server account first name (will prompt if unspecified)",
-)
-@click.option(
-    "--last-name",
-    required=False,
-    help="pbench server account last name (will prompt if unspecified)",
-)
-@click.option(
     "--role",
     type=click.Choice([role.name for role in Roles], case_sensitive=False),
     required=False,
@@ -63,9 +45,6 @@ def user_create(
     context: object,
     username: str,
     oidc_id: str,
-    email: str,
-    first_name: str,
-    last_name: str,
     role: str,
 ) -> None:
     try:
@@ -73,20 +52,9 @@ def user_create(
         user = User(
             username=username,
             oidc_id=oidc_id,
-            profile={
-                "user": {
-                    "first_name": first_name,
-                    "last_name": last_name,
-                    "email": email,
-                },
-                "server": {
-                    "roles": [role] if role else [],
-                    "registered_on": datetime.datetime.now().strftime(
-                        "%m/%d/%Y, %H:%M:%S"
-                    ),
-                },
-            },
         )
+        if role:
+            user.roles = role
         user.add()
         if user.is_admin():
             click.echo(f"Admin user {username} registered")
@@ -156,23 +124,8 @@ def user_list(context: object) -> None:
 @common_options
 @click.argument("updateuser")
 @click.option(
-    "--email",
-    required=False,
-    help="Specify the new email",
-)
-@click.option(
-    "--first-name",
-    required=False,
-    help="Specify the new first name",
-)
-@click.option(
-    "--last-name",
-    required=False,
-    help="Specify the new last name",
-)
-@click.option(
     "--role",
-    required=False,
+    required=True,
     type=click.Choice([role.name for role in Roles], case_sensitive=False),
     help="Specify the new role",
 )
@@ -180,9 +133,6 @@ def user_list(context: object) -> None:
 def user_update(
     context: object,
     updateuser: str,
-    first_name: str,
-    last_name: str,
-    email: str,
     role: str,
 ) -> None:
     try:
@@ -194,28 +144,8 @@ def user_update(
             click.echo(f"User {updateuser} doesn't exist")
             rv = 1
         else:
-            dict_to_update = {}
-            user_fields = {}
-            server_fields = {}
-            if first_name:
-                user_fields["first_name"] = first_name
-
-            if last_name:
-                user_fields["last_name"] = last_name
-
-            if email:
-                user_fields["email"] = email
-
-            if role:
-                server_fields["role"] = [role]
-
-            if user_fields:
-                dict_to_update["user"] = user_fields
-            if server_fields:
-                dict_to_update["server"] = server_fields
-
-            # Update the user
-            user.update(new_profile=dict_to_update)
+            # Update the user role
+            user.update(**{"roles": role})
 
             click.echo(f"User {updateuser} updated")
             rv = 0

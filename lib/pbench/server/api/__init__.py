@@ -156,7 +156,7 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         UserAPI,
         f"{base_uri}/user/<string:target_username>",
         endpoint="user",
-        resource_class_args=(config,),
+        resource_class_args=(),
     )
     api.add_resource(
         Upload,

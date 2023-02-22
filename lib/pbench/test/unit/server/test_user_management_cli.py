@@ -1,5 +1,3 @@
-import datetime
-
 from click.testing import CliRunner
 import pytest
 
@@ -11,17 +9,6 @@ def create_user():
     user = User(
         username=TestUserManagement.USER_TEXT,
         oidc_id=TestUserManagement.OIDC_ID_TEXT,
-        profile={
-            "user": {
-                "first_name": TestUserManagement.FIRST_NAME_TEXT,
-                "last_name": TestUserManagement.LAST_NAME_TEXT,
-                "email": TestUserManagement.EMAIL_TEXT,
-            },
-            "server": {
-                "roles": [],
-                "registered_on": datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
-            },
-        },
     )
     return user
 
@@ -51,15 +38,10 @@ def server_config_env(on_disk_server_config, monkeypatch):
 class TestUserManagement:
     USER_SWITCH = "--username"
     OIDC_SWITCH = "--oidc-id"
-    EMAIL_SWITCH = "--email"
-    FIRST_NAME_SWITCH = "--first-name"
-    LAST_NAME_SWITCH = "--last-name"
     ROLE_SWITCH = "--role"
     USER_TEXT = "test_user"
     OIDC_ID_TEXT = "12345"
     EMAIL_TEXT = "test@domain.com"
-    FIRST_NAME_TEXT = "First"
-    LAST_NAME_TEXT = "Last"
 
     @staticmethod
     def test_help():
@@ -78,12 +60,6 @@ class TestUserManagement:
                 TestUserManagement.USER_TEXT,
                 TestUserManagement.OIDC_SWITCH,
                 TestUserManagement.OIDC_ID_TEXT,
-                TestUserManagement.EMAIL_SWITCH,
-                TestUserManagement.EMAIL_TEXT,
-                TestUserManagement.FIRST_NAME_SWITCH,
-                TestUserManagement.FIRST_NAME_TEXT,
-                TestUserManagement.LAST_NAME_SWITCH,
-                TestUserManagement.LAST_NAME_TEXT,
             ],
         )
         assert result.exit_code == 0, result.stderr
@@ -99,12 +75,6 @@ class TestUserManagement:
                 TestUserManagement.USER_TEXT,
                 TestUserManagement.OIDC_SWITCH,
                 TestUserManagement.OIDC_ID_TEXT,
-                TestUserManagement.EMAIL_SWITCH,
-                TestUserManagement.EMAIL_TEXT,
-                TestUserManagement.FIRST_NAME_SWITCH,
-                TestUserManagement.FIRST_NAME_TEXT,
-                TestUserManagement.LAST_NAME_SWITCH,
-                TestUserManagement.LAST_NAME_TEXT,
                 TestUserManagement.ROLE_SWITCH,
                 "ADMIN",
             ],
@@ -122,12 +92,6 @@ class TestUserManagement:
                 TestUserManagement.USER_TEXT,
                 TestUserManagement.OIDC_SWITCH,
                 TestUserManagement.OIDC_ID_TEXT,
-                TestUserManagement.EMAIL_SWITCH,
-                TestUserManagement.EMAIL_TEXT,
-                TestUserManagement.FIRST_NAME_SWITCH,
-                TestUserManagement.FIRST_NAME_TEXT,
-                TestUserManagement.LAST_NAME_SWITCH,
-                TestUserManagement.LAST_NAME_TEXT,
                 TestUserManagement.ROLE_SWITCH,
                 "ADMN",
             ],
@@ -175,11 +139,7 @@ class TestUserManagement:
     @pytest.mark.parametrize(
         "switch, value",
         [
-            (EMAIL_SWITCH, "new_test@domain.com"),
             (ROLE_SWITCH, "ADMIN"),
-            (FIRST_NAME_SWITCH, "newfirst"),
-            (LAST_NAME_SWITCH, "newlast"),
-            (LAST_NAME_SWITCH, "newuser"),
         ],
     )
     def test_valid_user_update(monkeypatch, server_config, switch, value):
@@ -222,8 +182,8 @@ class TestUserManagement:
             cli.user_update,
             args=[
                 TestUserManagement.USER_TEXT,
-                TestUserManagement.EMAIL_SWITCH,
-                "new_test@domain.com",
+                TestUserManagement.ROLE_SWITCH,
+                "ADMIN",
             ],
         )
         assert result.exit_code == 1

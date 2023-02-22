@@ -269,14 +269,6 @@ def create_user(client) -> User:
         id=TEST_USER_ID,
         oidc_id=TEST_USER_ID,
         username="test",
-        profile={
-            "user": {
-                "email": "test@example.com",
-                "first_name": "Test",
-                "last_name": "Account",
-            },
-            "server": {"roles": []},
-        },
     )
     user.add()
     return user
@@ -291,17 +283,7 @@ def create_admin_user(client) -> User:
         fake_email_validator : Allow fake email to be used
     """
     user = User(
-        id=ADMIN_USER_ID,
-        oidc_id=ADMIN_USER_ID,
-        username=admin_username,
-        profile={
-            "user": {
-                "email": admin_email,
-                "first_name": "Admin",
-                "last_name": "Account",
-            },
-            "server": {"roles": ["ADMIN"]},
-        },
+        id=ADMIN_USER_ID, oidc_id=ADMIN_USER_ID, username=admin_username, roles="ADMIN"
     )
     user.add()
     return user
@@ -319,14 +301,6 @@ def create_drb_user(client):
         id=DRB_USER_ID,
         oidc_id=DRB_USER_ID,
         username="drb",
-        profile={
-            "user": {
-                "email": "drb@example.com",
-                "first_name": "Authorized",
-                "last_name": "User",
-            },
-            "server": {"roles": []},
-        },
     )
     drb.add()
     return drb
@@ -902,7 +876,7 @@ def generate_token(
     payload = {
         "iat": current_utc,
         "exp": exp,
-        "sub": user.id,
+        "sub": user.oidc_id,
         "aud": client_id,
         "azp": client_id,
         "realm_access": {
@@ -921,13 +895,11 @@ def generate_token(
         "scope": "openid profile email",
         "sid": "1988612e-774d-43b8-8d4a-bbc05ee55edb",
         "email_verified": True,
-        "name": user.profile["user"]["first_name"]
-        + " "
-        + user.profile["user"]["last_name"],
+        "name": "first_name last_name",
         "preferred_username": username,
-        "given_name": user.profile["user"]["first_name"],
-        "family_name": user.profile["user"]["last_name"],
-        "email": user.profile["user"]["email"],
+        "given_name": "first_name",
+        "family_name": "last_name",
+        "email": "dummy@esample.com",
     }
     if pbench_client_roles:
         payload["resource_access"].update({client_id: {"roles": pbench_client_roles}})
