@@ -1,0 +1,100 @@
+#!/bin/bash -e
+
+#
+# Deploy containerized dependencies of a Pbench Server.
+#
+# This script creates a pod for a Pbench Server deployment running the services
+# required by the Pbench Server:  an Elasticsearch instance, a PostgreSQL
+# database instance, and a KeyCloak (OpenID Connect) instance.  After starting
+# the dependent services, this script configures the KeyCloak broker.
+#
+# This script should be run from the root of the Git checkout.
+#
+# The resulting pod exports the following ports:
+#   5432 - PostgreSQL
+#   8090 - keycloak authentication server
+#   9200 - Elasticsearch
+
+# The default container registry to use with the organization name in that
+# registry.  E.g., `quay.io/pbench`.
+PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
+
+# Default pull policy for all images is to pull the image if the registry has a
+# *different* version (despite the name -- different is assumed to be "newer").
+PB_COMMON_IMAGE_PULL_POLICY=${PB_COMMON_IMAGE_PULL_POLICY:-"newer"}
+
+# Each container has its own name and tag for the image as well as pull policy.
+PB_ELASTICSEARCH_IMAGE_NAME=${PB_ELASTICSEARCH_IMAGE_NAME:-"elasticsearch"}
+PB_ELASTICSEARCH_IMAGE_TAG=${PB_ELASTICSEARCH_IMAGE_TAG:-"7.13.3"}
+PB_ELASTICSEARCH_IMAGE=${PB_CONTAINER_REG}/${PB_ELASTICSEARCH_IMAGE_NAME}:${PB_ELASTICSEARCH_IMAGE_TAG}
+PB_ELASTICSEARCH_IMAGE_PULL_POLICY=${PB_ELASTICSEARCH_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}
+
+PB_POSTGRESQL_IMAGE_NAME=${PB_POSTGRESQL_IMAGE_NAME:-"postgresql-13"}
+PB_POSTGRESQL_IMAGE_TAG=${PB_POSTGRESQL_IMAGE_TAG:-"latest"}
+PB_POSTGRESQL_IMAGE=${PB_CONTAINER_REG}/${PB_POSTGRESQL_IMAGE_NAME}:${PB_POSTGRESQL_IMAGE_TAG}
+PB_POSTGRESQL_IMAGE_PULL_POLICY=${PB_POSTGRESQL_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}
+
+PB_KEYCLOAK_IMAGE_NAME=${PB_KEYCLOAK_IMAGE_NAME:-"pbenchinacan-keycloak"}
+PB_KEYCLOAK_IMAGE_TAG=${PB_KEYCLOAK_IMAGE_TAG:-"20.0.3"}
+PB_KEYCLOAK_IMAGE=${PB_CONTAINER_REG}/${PB_KEYCLOAK_IMAGE_NAME}:${PB_KEYCLOAK_IMAGE_TAG}
+PB_KEYCLOAK_IMAGE_PULL_POLICY=${PB_KEYCLOAK_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}
+
+# The overall pod name is derived from the pbench server image tag.
+PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
+
+podman pod create --name ${PB_POD_NAME} -p 9200:9200 -p 5432:5432 -p 8090:8090
+
+podman run \
+  --rm \
+  --name "${PB_POD_NAME}-elasticsearch" \
+  --pod ${PB_POD_NAME} \
+  --workdir /usr/share/elasticsearch \
+  --pull ${PB_ELASTICSEARCH_IMAGE_PULL_POLICY} \
+  --restart no \
+  -e PATH=/usr/share/elasticsearch/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+  -e HOME=/root \
+  -e TERM=xterm \
+  -e container=oci \
+  -e discovery.type=single-node \
+  -e ES_JAVA_OPTS="-Xms1g -Xmx1g"\
+  -e xpack.security.enabled=false \
+  -e ES_PORT=9200 \
+  -d \
+  ${PB_ELASTICSEARCH_IMAGE} \
+  /bin/tini -- /usr/local/bin/docker-entrypoint.sh eswrapper
+
+podman run \
+  --rm \
+  --pod ${PB_POD_NAME} \
+  --name "${PB_POD_NAME}-postgres" \
+  --workdir /opt/app-root/src \
+  --pull ${PB_POSTGRESQL_IMAGE_PULL_POLICY} \
+  --user 26:26 \
+  --restart no \
+  --entrypoint container-entrypoint \
+  -e POSTGRESQL_USER=pbenchcontainer \
+  -e POSTGRESQL_PASSWORD=pbench \
+  -e POSTGRESQL_DATABASE=pbenchcontainer \
+  -e HOME=/var/lib/pgsql \
+  -e CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/postgresql \
+  -e APP_ROOT=/opt/app-root \
+  -e POSTGRESQL_VERSION="13" \
+  -e PGUSER=postgres \
+  -e STI_SCRIPTS_URL=image:///usr/libexec/s2i \
+  -d \
+  ${PB_POSTGRESQL_IMAGE} \
+  run-postgresql -p 5432
+
+podman run \
+  --rm \
+  --pod ${PB_POD_NAME} \
+  --name "${PB_POD_NAME}-keycloak" \
+  --pull ${PB_KEYCLOAK_IMAGE_PULL_POLICY} \
+  --restart no \
+  -e KEYCLOAK_ADMIN=admin \
+  -e KEYCLOAK_ADMIN_PASSWORD=admin \
+  -d \
+  ${PB_KEYCLOAK_IMAGE} \
+  start-dev --health-enabled=true --http-port=8090
+
+server/pbenchinacan/load_keycloak.sh

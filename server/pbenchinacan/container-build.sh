@@ -44,6 +44,7 @@ fi
 container=$(buildah from ${BASE_IMAGE})
 
 buildah config \
+    --entrypoint /sbin/init \
     --label maintainer="Pbench Maintainers <pbench@googlegroups.com>" \
     $container
 
@@ -78,30 +79,6 @@ buildah run $container cp ${SERVER_LIB}/systemd/pbench-server.service \
 buildah run $container systemctl enable nginx
 buildah run $container systemctl enable rsyslog
 buildah run $container systemctl enable pbench-server
-
-# Copy the Pbench Server config file for our "in-a-can" environment, and
-# customize it.  When deployed for Staging or Production, this file will be
-# not be used because it will be over-mapped with an external file.
-buildah copy --chown pbench:pbench --chmod 0644 $container \
-    ${PBINC_INACAN}/etc/pbench-server/pbench-server.cfg ${CONF_PATH}
-buildah run $container sed -Ei \
-    -e "s/<keycloak_secret>/${KEYCLOAK_CLIENT_SECRET}/" \
-    ${CONF_PATH}
-
-# Create and populate the /srv/pbench directory tree and set its ownership.
-# When deployed for Staging or Production, this tree will not be used because
-# it will be over-mapped with an external volume.
-buildah run $container mkdir -p -m 0755  \
-    /srv/pbench/archive/fs-version-001 \
-    /srv/pbench/public_html/dashboard \
-    /srv/pbench/public_html/incoming \
-    /srv/pbench/public_html/results \
-    /srv/pbench/public_html/users \
-    /srv/pbench/logs \
-    /srv/pbench/tmp \
-    /srv/pbench/pbench-move-results-receive/fs-version-002
-buildah run $container cp /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html /srv/pbench/public_html/
-buildah run $container chown --recursive pbench:pbench /srv/pbench
 
 # Create the container image.
 buildah commit $container ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}

@@ -1,142 +1,69 @@
 #!/bin/bash -e
 
 #
-# Deploy a self-contained Pbench server.
+# Run a local containerized deployment of the Pbench Server, together with its
+# dependencies.
 #
-# This script creates a pod for the Pbench Server deployment with the dependent
-# services required by the Pbench Server i.e. an Elasticsearch instance, a
-# PostgreSQL database instance, and a KeyCloak (OpenID Connect) instance.  After
-# starting the dependent services, this script configures the KeyCloak broker,
-# and then starts the Pbench Server in a separate container.
+# This script should be run from the root of the Git checkout.
 #
-# To invoke the pbench-server pod using this script it should run from the root
-# of the Git checkout.
-#
-# The resulting pod exports the following ports:
-#   5432 - PostgreSQL
-#   8090 - keycloak authentication server
-#   9200 - Elasticsearch
-#
-# The resulting pbench-server container runs on the following port
-#   8080 - HTTP web server (and Pbench Dashboard)
 
-# The default container registry to use, and the organization name in that
-# registry.
-export PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(<${HOME}/.config/pbench/ci_registry.name)}
+# The default container registry to use with the organization name in that
+# registry.  E.g., `quay.io/pbench`.  We export it (and the server image name)
+# for the subordinate scripts to use.
+export PB_CONTAINER_REG=${PB_CONTAINER_REG:-$(< ${HOME}/.config/pbench/ci_registry.name)}
+server_image_name=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
+server_image_tag=${PB_SERVER_IMAGE_TAG:-"$(< jenkins/branch.name)"}
+export PB_SERVER_IMAGE=${PB_CONTAINER_REG}/${server_image_name}:${server_image_tag}
 
 # Default pull policy for all images is to pull the image if the registry has a
-# newer version.
+# *different* version (despite the name -- different is assumed to be "newer").
 export PB_COMMON_IMAGE_PULL_POLICY=${PB_COMMON_IMAGE_PULL_POLICY:-"newer"}
-
-# Each container has its own name and tag for the image, as well as a pull
-# policy.
-export PB_ELASTICSEARCH_IMAGE_NAME=${PB_ELASTICSEARCH_IMAGE_NAME:-"elasticsearch"}
-export PB_ELASTICSEARCH_IMAGE_TAG=${PB_ELASTICSEARCH_IMAGE_TAG:-"7.13.3"}
-export PB_ELASTICSEARCH_IMAGE="${PB_CONTAINER_REG}/${PB_ELASTICSEARCH_IMAGE_NAME}:${PB_ELASTICSEARCH_IMAGE_TAG}"
-export PB_ELASTICSEARCH_IMAGE_PULL_POLICY="${PB_ELASTICSEARCH_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
-
-export PB_POSTGRESQL_IMAGE_NAME=${PB_POSTGRESQL_IMAGE_NAME:-"postgresql-13"}
-export PB_POSTGRESQL_IMAGE_TAG=${PB_POSTGRESQL_IMAGE_TAG:-"latest"}
-export PB_POSTGRESQL_IMAGE="${PB_CONTAINER_REG}/${PB_POSTGRESQL_IMAGE_NAME}:${PB_POSTGRESQL_IMAGE_TAG}"
-export PB_POSTGRESQL_IMAGE_PULL_POLICY="${PB_POSTGRESQL_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
-
-export PB_KEYCLOAK_IMAGE_NAME=${PB_KEYCLOAK_IMAGE_NAME:-"pbenchinacan-keycloak"}
-export PB_KEYCLOAK_IMAGE_TAG=${PB_KEYCLOAK_IMAGE_TAG:-"20.0.3"}
-export PB_KEYCLOAK_IMAGE="${PB_CONTAINER_REG}/${PB_KEYCLOAK_IMAGE_NAME}:${PB_KEYCLOAK_IMAGE_TAG}"
-export PB_KEYCLOAK_IMAGE_PULL_POLICY="${PB_KEYCLOAK_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
-
-export PB_SERVER_IMAGE_NAME=${PB_SERVER_IMAGE_NAME:-"pbench-server"}
-export PB_SERVER_IMAGE_TAG=${PB_SERVER_IMAGE_TAG:-"$(cat jenkins/branch.name)"}
-export PB_SERVER_IMAGE="${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_SERVER_IMAGE_TAG}"
 export PB_SERVER_IMAGE_PULL_POLICY="${PB_SERVER_IMAGE_PULL_POLICY:-${PB_COMMON_IMAGE_PULL_POLICY}}"
-
-# The overall pod name is always derived from the pbench server image tag.
-export PB_POD_NAME=${PB_POD_NAME:-"pbench-in-a-can_${PB_SERVER_IMAGE_TAG}"}
 
 # Directory to use for the fully built dashboard code.
 export PB_DASHBOARD_DIR="${PB_DASHBOARD_DIR:-${PWD}/dashboard/build/}"
 
-podman pod create --name ${PB_POD_NAME} -p 9200:9200 -p 5432:5432 -p 8090:8090
+export KEYCLOAK_REALM=${KEYCLOAK_REALM:-"pbench-server"}
+export KEYCLOAK_CLIENT=${KEYCLOAK_CLIENT:-"pbench-dashboard"}
 
-podman run \
-  --rm \
-  --name "${PB_POD_NAME}-elasticsearch" \
-  --pod ${PB_POD_NAME} \
-  --workdir /usr/share/elasticsearch \
-  --pull ${PB_ELASTICSEARCH_IMAGE_PULL_POLICY} \
-  --umask 0000 \
-  --restart no \
-  --pids-limit 0 \
-  -e PATH=/usr/share/elasticsearch/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-  -e HOME=/root \
-  -e TERM=xterm \
-  -e container=oci \
-  -e discovery.type=single-node \
-  -e ES_JAVA_OPTS="-Xms1g -Xmx1g"\
-  -e xpack.security.enabled=false \
-  -e ES_PORT=9200 \
-  -d \
-  ${PB_ELASTICSEARCH_IMAGE} \
-  /bin/tini -- /usr/local/bin/docker-entrypoint.sh eswrapper
+# Set up TMP_DIR, if it's not already defined, to point to WORKSPACE_TMP, if it
+# is defined (e.g., by the CI), or to `/var/tmp/pbench` as a fallback.
+#
+# Point SRV_PBENCH at a file tree in the temporary space which will be mapped
+# into the Pbench Server container as /srv/pbench to provide all the storage for
+# the Server and the Dashboard.
+#
+# Point PB_DEPLOY_FILES at a directory in the temporary space to hold the
+# Pbench Server deployment files (e.g., config files).
+TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
+export SRV_PBENCH=${SRV_PBENCH:-${TMP_DIR}/srv/pbench}
+export PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
 
-podman run \
-  --rm \
-  --pod ${PB_POD_NAME} \
-  --name "${PB_POD_NAME}-postgres" \
-  --workdir /opt/app-root/src \
-  --pull ${PB_POSTGRESQL_IMAGE_PULL_POLICY} \
-  --umask 0000 \
-  --user 26:26 \
-  --restart no \
-  --pids-limit 0 \
-  --entrypoint container-entrypoint \
-  -e POSTGRESQL_USER=pbenchcontainer \
-  -e POSTGRESQL_PASSWORD=pbench \
-  -e POSTGRESQL_DATABASE=pbenchcontainer \
-  -e HOME=/var/lib/pgsql \
-  -e CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/postgresql \
-  -e APP_ROOT=/opt/app-root \
-  -e POSTGRESQL_VERSION="13" \
-  -e PGUSER=postgres \
-  -e STI_SCRIPTS_URL=image:///usr/libexec/s2i \
-  -d \
-  ${PB_POSTGRESQL_IMAGE} \
-  run-postgresql -p 5432
+# Copy the deployment files to the deployment files directory
+pbiac_etc=server/pbenchinacan/etc
+mkdir -p -m 755 ${PB_DEPLOY_FILES}/etc
+cp -r ${pbiac_etc}/rsyslog.d ${pbiac_etc}/rsyslog.conf ${PB_DEPLOY_FILES}/etc/
+cp ${pbiac_etc}/pbench-server/pbench-server.cfg ${PB_DEPLOY_FILES}/
 
-podman run \
-  --rm \
-  --pod ${PB_POD_NAME} \
-  --name "${PB_POD_NAME}-keycloak" \
-  --pull ${PB_KEYCLOAK_IMAGE_PULL_POLICY} \
-  --umask 0000 \
-  --restart no \
-  --pids-limit 0 \
-  -e KEYCLOAK_ADMIN=admin \
-  -e KEYCLOAK_ADMIN_PASSWORD=admin \
-  -d \
-  ${PB_KEYCLOAK_IMAGE} \
-  start-dev --health-enabled=true --http-port=8090
+# Customize the Pbench Server config file for canned operation
+sed -Ei \
+    -e "/^ *realhost/ s/=.*/= $(hostname -f)/" \
+    -e "s/<keycloak_realm>/${KEYCLOAK_REALM}/" \
+    -e "s/<keycloak_client>/${KEYCLOAK_CLIENT}/" \
+    ${PB_DEPLOY_FILES}/pbench-server.cfg
 
-server/pbenchinacan/load_keycloak.sh
+# Set up the /srv/pbench file tree
+mkdir -p -m 0755  \
+    ${SRV_PBENCH}/archive/fs-version-001 \
+    ${SRV_PBENCH}/public_html/dashboard \
+    ${SRV_PBENCH}/public_html/incoming \
+    ${SRV_PBENCH}/public_html/results \
+    ${SRV_PBENCH}/public_html/users \
+    ${SRV_PBENCH}/logs \
+    ${SRV_PBENCH}/tmp \
+    ${SRV_PBENCH}/pbench-move-results-receive/fs-version-002
 
-# We expect the host dashboard directory already exists, however,
-# in case it is missing we will create an new empty directory.
-# Note: if the dashboard directory is not present Pbench Server runs
-# without a dashboard deployment.
-mkdir -m 0755 -p ${PB_DASHBOARD_DIR}
-
-podman run \
-  --rm \
-  --hostname pbenchinacan \
-  --network host \
-  --name "${PB_POD_NAME}-pbenchserver" \
-  --pull ${PB_SERVER_IMAGE_PULL_POLICY} \
-  --umask 0000 \
-  --restart no \
-  --pids-limit 0 \
-  --entrypoint /sbin/init \
-  --workdir / \
-  -e PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-  -v ${PB_DASHBOARD_DIR}:/srv/pbench/public_html/dashboard:z \
-  -d \
-  ${PB_SERVER_IMAGE}
+# Start the services which the Pbench Server depends upon and then start the
+# Pbench Server itself.
+server/pbenchinacan/deploy-dependencies
+server/pbenchinacan/deploy

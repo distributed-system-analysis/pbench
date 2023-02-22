@@ -85,7 +85,7 @@ if [[ ${exit_status} -ne 0 ]]; then
     printf -- "\nFunctional tests exited with code %s\n" ${exit_status}
     printf -- "+++ journalctl dump +++\n"
     # Try to capture the functional test container's logs.
-    podman exec ${PB_POD_NAME}-pbenchserver journalctl
+    podman exec ${PB_SERVER_CONTAINER_NAME} journalctl
     printf -- "\n--- journalctl dump ---\n\n"
 fi
 
