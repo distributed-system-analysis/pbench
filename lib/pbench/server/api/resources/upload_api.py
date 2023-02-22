@@ -176,8 +176,9 @@ class Upload(ApiBase):
                     errors=errors,
                 )
 
-        # Determine whether we should enable the UNPACK operation.
-        should_unpack = not metadata.get(Metadata.SERVER_ARCHIVE, False)
+        # Determine whether we should enable the INDEX operation.
+        should_index = not metadata.get(Metadata.SERVER_ARCHIVE, False)
+        enable_next = [OperationName.INDEX] if should_index else None
         attributes = {"access": access, "metadata": metadata}
         filename = args.uri["filename"]
 
@@ -490,11 +491,8 @@ class Upload(ApiBase):
 
             # Finally, update the operational state and Audit success.
             try:
-                enable = [OperationName.BACKUP]
-                if should_unpack:
-                    enable.append(OperationName.UNPACK)
                 Sync(current_app.logger, OperationName.UPLOAD).update(
-                    dataset=dataset, state=OperationState.OK, enabled=enable
+                    dataset=dataset, state=OperationState.OK, enabled=enable_next
                 )
                 Audit.create(
                     root=audit, status=AuditStatus.SUCCESS, attributes=attributes

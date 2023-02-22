@@ -471,22 +471,22 @@ class Dataset(Database.Base):
 
 
 class OperationName(enum.Enum):
-    """Track and orchestrate the progress of a dataset (tarball) through the
-    various stages of the Pbench server.
+    """Server operation names
+
+    Track and orchestrate the progress of a dataset (tarball) through the
+    various stages of the Pbench server pipeline.
     """
 
-    BACKUP = enum.auto()
     DELETE = enum.auto()
     INDEX = enum.auto()
     REINDEX = enum.auto()
     TOOLINDEX = enum.auto()
-    UNPACK = enum.auto()
     UPDATE = enum.auto()
     UPLOAD = enum.auto()
 
 
 class OperationState(enum.Enum):
-    """Record the status of an Operation as its enabled and retired"""
+    """Record the status of a Pbench server pipeline operation"""
 
     READY = enum.auto()
     WORKING = enum.auto()
@@ -495,7 +495,9 @@ class OperationState(enum.Enum):
 
 
 class Operation(Database.Base):
-    """Orchestrate and track the operational flow of datasets through the
+    """Pbench Server pipeline operations
+
+    Orchestrate and track the operational flow of datasets through the
     server.
 
     This table is managed by the Sync class, but defined here with the parent

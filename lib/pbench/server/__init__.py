@@ -123,13 +123,11 @@ class PbenchServerConfig(PbenchConfig):
         (
             "ARCHIVE",
             "BINDIR",
-            "INCOMING",
+            "CACHE",
             "LIBDIR",
             "LOGSDIR",
-            "RESULTS",
             "TMP",
             "TOP",
-            "USERS",
             "rest_uri",
         )
     )
@@ -219,17 +217,8 @@ class PbenchServerConfig(PbenchConfig):
         )
 
     @property
-    def INCOMING(self) -> Path:
-        return self.TOP / "public_html" / "incoming"
-
-    @property
-    def RESULTS(self) -> Path:
-        # This is where the symlink forest is going to go.
-        return self.TOP / "public_html" / "results"
-
-    @property
-    def USERS(self) -> Path:
-        return self.TOP / "public_html" / "users"
+    def CACHE(self) -> Path:
+        return self._get_valid_dir_option("CACHE", "pbench-server", "pbench-cache-dir")
 
     @property
     def PBENCH_ENV(self) -> str:
