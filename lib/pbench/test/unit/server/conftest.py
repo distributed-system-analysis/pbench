@@ -96,6 +96,8 @@ def do_setup(tmp_d: Path) -> Path:
 
     cfg_file = pbench_cfg / "pbench-server.cfg"
     cfg_file.write_text(server_cfg_tmpl.format(TMP=str(tmp_d)))
+    (opt_pbench / "VERSION").write_text("0.0.0")
+    (opt_pbench / "SHA1").write_text("abdcefg")
 
     return pbench_cfg
 

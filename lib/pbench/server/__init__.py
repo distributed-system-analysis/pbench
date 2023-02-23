@@ -175,6 +175,9 @@ class PbenchServerConfig(PbenchConfig):
         # Initial common timestamp format
         self.TS = f"run-{timestamp()}"
 
+        # Server version
+        self.version = None  # Defer discovery until needed
+
     @property
     def TOP(self) -> Path:
         return self._get_valid_dir_option("TOP", "pbench-server", "pbench-top-dir")
@@ -234,7 +237,12 @@ class PbenchServerConfig(PbenchConfig):
 
     @property
     def COMMIT_ID(self) -> str:
-        return self.get("pbench-server", "commit_id", fallback="(unknown)")
+        if not self.version:
+            install = Path(self.get("DEFAULT", "install-dir"))
+            version = (install / "VERSION").read_text().strip()
+            sha1 = (install / "SHA1").read_text().strip()
+            self.version = f"{version}-{sha1}"
+        return self.version
 
     @property
     def rest_uri(self) -> str:
