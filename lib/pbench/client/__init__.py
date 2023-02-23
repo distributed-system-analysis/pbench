@@ -2,7 +2,7 @@ from configparser import ConfigParser
 from enum import Enum
 from pathlib import Path
 import tarfile
-from typing import Any, Iterator, Optional
+from typing import Iterator, Optional
 from urllib import parse
 
 import requests
@@ -205,7 +205,7 @@ class PbenchServerClient:
         api: API,
         uri_params: Optional[JSONOBJECT] = None,
         *,
-        json: Optional[dict[str, Any]] = None,
+        json: Optional[JSONOBJECT] = None,
         headers: Optional[dict[str, str]] = None,
         raise_error: bool = True,
         **kwargs,
@@ -240,7 +240,7 @@ class PbenchServerClient:
         api: API,
         uri_params: Optional[JSONOBJECT] = None,
         *,
-        json: Optional[dict[str, Any]] = None,
+        json: Optional[JSONOBJECT] = None,
         headers: Optional[dict[str, str]] = None,
         raise_error: bool = True,
         **kwargs,

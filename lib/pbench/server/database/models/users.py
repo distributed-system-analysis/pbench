@@ -113,7 +113,9 @@ class User(Database.Base):
         return exception
 
     @staticmethod
-    def query(id=None, oidc_id=None, username=None, email=None) -> Optional["User"]:
+    def query(
+        id: int = None, oidc_id: str = None, username: str = None
+    ) -> Optional["User"]:
         """Find a user using one of the provided arguments.
 
         The first argument which is not None is used in the query.  The order
