@@ -13,14 +13,14 @@ from pbench.server.utils import get_tarball_md5
 
 
 class CacheManagerError(Exception):
-    """Base class for exceptions raised from this code."""
+    """Base class for exceptions raised from this module."""
 
     def __str__(self) -> str:
         return "Generic cache manager exception"
 
 
 class BadFilename(CacheManagerError):
-    """A bad path is given for a tarball."""
+    """A bad tarball path was given."""
 
     def __init__(self, path: Union[str, Path]):
         self.path = str(path)
@@ -116,7 +116,7 @@ class Tarball:
         # Record the path of the tarball file
         self.tarball_path: Path = path
 
-        # Record where a cached unpack would live
+        # Record where cached unpacked data would live
         self.cache: Path = controller.cache / self.resource_id
 
         # Record the base of the unpacked files for cache management, which
@@ -136,8 +136,7 @@ class Tarball:
     def check_unpacked(self):
         """Determine whether a tarball has been unpacked.
 
-        Return
-            True if an unpacked directory was discovered
+        Look for the unpacked data root, and record it if found.
         """
         unpack = self.cache / self.name
         if unpack.is_dir():
@@ -153,10 +152,10 @@ class Tarball:
     #
     # unpack
     #   Unpack the ARCHIVE tarball file into a new directory under the
-    #   controller directory in the INCOMING directory tree.
+    #   CACHE directory tree.
     #
     # uncache
-    #   Remove the unpacked directory tree under INCOMING when no longer needed.
+    #   Remove the unpacked directory tree under CACHE when no longer needed.
     #
     # delete
     #   Remove the tarball and MD5 file from ARCHIVE after uncaching the
@@ -280,9 +279,10 @@ class Tarball:
             by the `exception` parameter, instantiated with the value of the
             `ctx` arguments and an explanatory message.
         """
+        cmd = shlex.split(command)
         try:
             process = subprocess.run(
-                shlex.split(command),
+                cmd,
                 cwd=working_dir,
                 stdin=subprocess.DEVNULL,
                 capture_output=True,
@@ -294,7 +294,7 @@ class Tarball:
             if process.returncode != 0:
                 raise exception(
                     ctx,
-                    f"{shlex.split(command)[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
+                    f"{cmd[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
                 )
 
     def unpack(self):
@@ -307,7 +307,7 @@ class Tarball:
         out more of the cache manager, it can also be used to build our initial
         cache map.
 
-        The indexer works off the controller INCOMING directory, assuming the
+        The indexer works off the unpacked data under CACHE, assuming the
         tarball name in all paths (because this is what's inside the tarball).
         Rather than passing the indexer the root `/srv/pbench/.cache` or trying
         to update all of the indexer code (which still jumps back and forth
@@ -316,7 +316,6 @@ class Tarball:
         here and pass to the indexer (/srv/pbench/.cache/<resource_id>) and
         the actual unpacked root (/srv/pbench/.cache/<resource_id>/<name>).
         """
-        unpacked = self.cache / self.name
         self.cache.mkdir(parents=True)
 
         try:
@@ -332,7 +331,7 @@ class Tarball:
         except Exception:
             shutil.rmtree(self.cache, ignore_errors=True)
             raise
-        self.unpacked = unpacked
+        self.unpacked = self.cache / self.name
 
     def uncache(self):
         """Remove the unpacked tarball directory and all contents."""
@@ -430,9 +429,6 @@ class Controller:
         them to the known set. We also check for unpacked directories in the
         CACHE tree matching the resource_id of any tarballs we find in order
         to link them.
-
-        Args:
-            cache:  The cache tree base for temporarily unpacked tarballs
         """
         for file in self.path.iterdir():
             if file.is_file() and Dataset.is_tarball(file):
@@ -471,8 +467,7 @@ class Controller:
         return tarball
 
     def unpack(self, dataset_id: str):
-        """Unpack a tarball into a temporary cache directory so the files can
-        be referenced.
+        """Unpack a tarball into a temporary cache directory.
 
         Args:
             dataset_id: Resource ID of the dataset to unpack
@@ -525,9 +520,9 @@ class CacheManager:
     CACHE
 
         The CACHE tree is rooted under the Pbench "top dir" directory,
-        conventionally something like
+        with the default path:
 
-            /srv/pbench/cache/
+            /srv/pbench/.cache/
 
         This tree will contain temporary directories of unpacked tarballs to
         allow establishing a cache manager map and for indexing (which requires
@@ -565,8 +560,8 @@ class CacheManager:
         """Construct a CacheManager object.
 
         We don't do any discovery here, because the mutation operations allow
-        dynamic minimal discovery to save on some time. The `full_discovery`
-        method allows full discovery when desired.
+        dynamic minimal discovery to save time. The `full_discovery` method
+        allows full discovery when desired.
 
         Args:
             options: PbenchServerConfig configuration object
@@ -605,7 +600,7 @@ class CacheManager:
         self._discover_controllers()
 
     def __contains__(self, dataset_id: str) -> bool:
-        """Ask whether a CacheManager contains a specific dataset.
+        """Determine whether the cache manager includes a dataset.
 
         Args:
             dataset_id: Dataset resource ID
@@ -640,7 +635,7 @@ class CacheManager:
             self.delete_if_empty(archive)
             del self.controllers[controller]
 
-    def _add_controller(self, directory: Path, cache: Path) -> None:
+    def _add_controller(self, directory: Path) -> None:
         """Create a new Controller object
 
         Add a new controller to the set of known controllers, and append the
@@ -663,7 +658,7 @@ class CacheManager:
         """
         for file in self.archive_root.iterdir():
             if file.is_dir() and file.name != CacheManager.TEMPORARY:
-                self._add_controller(file, self.options.CACHE)
+                self._add_controller(file)
 
     def find_dataset(self, dataset_id: str) -> Tarball:
         """Search the ARCHIVE tree for a matching dataset tarball.
@@ -698,7 +693,7 @@ class CacheManager:
                 for file in dir.glob(f"*{Dataset.TARBALL_SUFFIX}"):
                     md5 = get_tarball_md5(file)
                     if md5 == dataset_id:
-                        self._add_controller(dir, self.cache_root)
+                        self._add_controller(dir)
                         return self.datasets[dataset_id]
         raise TarballNotFound(dataset_id)
 
@@ -713,10 +708,10 @@ class CacheManager:
     #
     # unpack
     #   Unpack the ARCHIVE tarball file into a new directory under the
-    #   controller directory in the INCOMING directory tree.
+    #   CACHE directory tree.
     #
     # uncache
-    #   Remove the unpacked directory tree under INCOMING when no longer needed.
+    #   Remove the unpacked directory tree when no longer needed.
     #
     # delete
     #   Remove the tarball and MD5 file from ARCHIVE after uncaching the
