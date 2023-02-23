@@ -218,13 +218,10 @@ def verify_auth_oidc(auth_token: str) -> Optional[InternalUser]:
         else:
             # If the user present in our cached db, we check whether there is
             # any update to the existing user based on the token payload info
-            dict_to_update = {}
-            new_username = token_payload.get("preferred_username")
-            if user.username != new_username:
-                dict_to_update["username"] = new_username
-            if user.roles != oidc_client_roles:
-                dict_to_update["roles"] = oidc_client_roles
-            if dict_to_update:
-                user.update(**dict_to_update)
+            dict_to_update = {
+                "username": token_payload.get("preferred_username"),
+                "roles": oidc_client_roles,
+            }
+            user.update(**dict_to_update)
 
     return user

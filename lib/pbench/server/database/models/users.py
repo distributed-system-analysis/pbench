@@ -82,10 +82,8 @@ class User(Database.Base):
     def roles(self, value):
         if isinstance(value, list):
             self._roles = ";".join(value)
-        elif isinstance(value, str):
-            self._roles = value
         else:
-            raise UserSqlError("Adding role", value, "Value is not a str or list")
+            raise UserSqlError("Adding role", value, "Value is not a list")
 
     def __str__(self):
         return f"User, id: {self.id}, username: {self.username}"

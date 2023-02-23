@@ -267,7 +267,7 @@ def gen_rsa_token(
     private_key: str,
     exp: str = "99999999999",
     username: str = "dummy",
-    oidc_client_roles: Optional[list] = None,
+    oidc_client_roles: Optional[list[str]] = None,
 ) -> Tuple[str, Dict[str, str]]:
     """Helper function for generating an RSA token using the given private key.
 

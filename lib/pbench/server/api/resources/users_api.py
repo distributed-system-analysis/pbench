@@ -52,10 +52,12 @@ class UserAPI(Resource):
 
         if current_user.username == target_username:
             token_payload = Auth.oidc_client.token_introspect(auth_token)
-            response_object["username"] = token_payload.get("preferred_username")
-            response_object["first_name"] = token_payload.get("given_name")
-            response_object["last_name"] = token_payload.get("family_name")
-            response_object["email"] = token_payload.get("email")
+            response_object = {
+                "username": token_payload.get("preferred_username"),
+                "first_name": token_payload.get("given_name"),
+                "last_name": token_payload.get("family_name"),
+                "email": token_payload.get("email"),
+            }
         elif current_user.is_admin():
             target_user = User.query(username=target_username)
             if target_user:
