@@ -21,15 +21,14 @@ fi
 # Install the Dashboard dependencies, including the linter's dependencies and
 # the unit test dependencies.  First, remove any existing Node modules and
 # package-lock.json to ensure that we install the latest.
-mkdir -p ${HOME}/.config
-( cd dashboard && rm -rf node_modules package-lock.json && npm install )
+make -C dashboard clean node_modules
 
 # Test for code style and lint (echo the commands before executing them)
 set -x
 black --check .
 flake8 .
 isort --check .
-( cd dashboard && npx eslint --max-warnings 0 "src/**" )
+make -C dashboard run_lint
 # We need to invoke the alembic check with host networking so that it can reach
 # the PostgreSQL pod it creates.
 EXTRA_PODMAN_SWITCHES="--network host" jenkins/run tox -e alembic-migration check
@@ -37,12 +36,13 @@ set +x
 
 # Run unit tests
 tox                                     # Agent and Server unit tests and legacy tests
-( cd dashboard && CI=true npm test )    # Dashboard unit tests
+make -C dashboard run_unittests         # Dashboard unit tests
 
-# Build RPMS for the Server and Agent
+# Build RPMS for the Server and Agent and build the Dashboard deployment
 make -C server/rpm distclean  # Cleans all RPMs, both Server and Agent.
 make -C server/rpm ci
 make -C agent/rpm ci
+make -C dashboard build
 
 # Display our victory
 ls -l ${HOME}/rpmbuild*/RPMS/noarch/*

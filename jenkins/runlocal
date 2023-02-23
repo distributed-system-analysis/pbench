@@ -25,6 +25,9 @@ make -C server/rpm clean rpm
 export RPM_PATH=${HOME}/rpmbuild/RPMS/noarch/pbench-server-*.rpm
 ls -ld ${RPM_PATH}
 
+# Create a Pbench Dashboard deployment
+WORKSPACE_TMP=${WORKSPACE_TMP:-${HOME}} jenkins/run make -C dashboard clean build
+
 source /etc/os-release
 
 if [[ -z ${BASE_IMAGE} ]]; then
