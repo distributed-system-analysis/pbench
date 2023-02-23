@@ -45,7 +45,7 @@ class TestUsers:
         self.session.reset_context()
 
     def test_is_admin(self, fake_db):
-        user = User(oidc_id="12345", username="dummy_admin", roles="ADMIN")
+        user = User(oidc_id="12345", username="dummy_admin", roles=["ADMIN"])
         user.add()
         assert user.is_admin()
         user1 = User(oidc_id="12346", username="non_admin")
@@ -95,12 +95,13 @@ class TestUsers:
     def test_user_update(self, fake_db):
         """Test updating user roles"""
 
-        data = {"roles": "NEW_ROLE"}
+        data = {"roles": ["NEW_ROLE"]}
         TestUsers.add_dummy_user(fake_db)
 
         user = User.query(id=1)
         user.update(**data)
         assert user.roles == ["NEW_ROLE"]
+        assert user._roles == "NEW_ROLE"
 
         expected_commits = [FakeRow.clone(user)]
         self.session.check_session(

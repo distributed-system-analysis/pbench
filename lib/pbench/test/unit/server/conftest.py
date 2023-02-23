@@ -283,7 +283,10 @@ def create_admin_user(client) -> User:
         fake_email_validator : Allow fake email to be used
     """
     user = User(
-        id=ADMIN_USER_ID, oidc_id=ADMIN_USER_ID, username=admin_username, roles="ADMIN"
+        id=ADMIN_USER_ID,
+        oidc_id=ADMIN_USER_ID,
+        username=admin_username,
+        roles=["ADMIN"],
     )
     user.add()
     return user
