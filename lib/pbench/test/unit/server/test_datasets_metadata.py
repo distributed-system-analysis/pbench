@@ -6,6 +6,7 @@ import requests
 from pbench.server import JSON, OperationCode
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.test.unit.server import DRB_USER_ID
 
 
 class TestDatasetsMetadataGet:
@@ -163,7 +164,7 @@ class TestDatasetsMetadataGet:
         )
         assert (
             response.json["message"]
-            == "User test is not authorized to READ a resource owned by drb with private access"
+            == f"User test is not authorized to READ a resource owned by {DRB_USER_ID} with private access"
         )
 
     def test_get_unauth(self, query_get_as):
@@ -181,7 +182,7 @@ class TestDatasetsMetadataGet:
         )
         assert (
             response.json["message"]
-            == "Unauthenticated client is not authorized to READ a resource owned by drb with private access"
+            == f"Unauthenticated client is not authorized to READ a resource owned by {DRB_USER_ID} with private access"
         )
 
     def test_get_bad_query(self, query_get_as):
@@ -316,7 +317,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         )
         assert (
             response.json["message"]
-            == "User test is not authorized to UPDATE a resource owned by drb with public access"
+            == f"User test is not authorized to UPDATE a resource owned by {DRB_USER_ID} with public access"
         )
 
     def test_put_noauth(self, query_get_as, query_put_as):
@@ -328,7 +329,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         )
         assert (
             response.json["message"]
-            == "Unauthenticated client is not authorized to UPDATE a resource owned by drb with public access"
+            == f"Unauthenticated client is not authorized to UPDATE a resource owned by {DRB_USER_ID} with public access"
         )
 
     def test_put_invalid_name(self, query_get_as, query_put_as):

@@ -1,10 +1,8 @@
 import configparser
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from flask import current_app, Flask
 import jwt
 import pytest
@@ -45,11 +43,17 @@ class TestConnection:
         args = {}
 
         def fake_method(
-            the_self, method: str, path: str, data: Dict, **kwargs
+            the_self,
+            method: str,
+            path: str,
+            data: Optional[Any] = None,
+            json: Optional[dict[str, Any]] = None,
+            **kwargs,
         ) -> requests.Response:
             args["method"] = method
             args["path"] = path
             args["data"] = data
+            args["json"] = json
             args["kwargs"] = kwargs
             return requests.Response()
 
@@ -116,6 +120,7 @@ class TestConnection:
             "HEAD",
             "/this/that",
             None,
+            None,
             headers={"header1": "one"},
             this="that",
             that="this",
@@ -125,6 +130,7 @@ class TestConnection:
         assert response.args[1] == "https://example.com/this/that"
         assert response.kwargs["params"] == {"this": "that", "that": "this"}
         assert response.kwargs["data"] is None
+        assert response.kwargs["json"] is None
         assert response.kwargs["headers"] == {"header0": "zero", "header1": "one"}
         assert response.kwargs["verify"] is False
 
@@ -162,6 +168,7 @@ class TestConnection:
         assert args["method"] == "GET"
         assert args["path"] == "foo/bar"
         assert args["data"] is None
+        assert args["json"] is None
         assert args["kwargs"] == {"headers": None, "this": "that", "then": "now"}
 
     def test_post(self, fake_method, conn):
@@ -173,10 +180,13 @@ class TestConnection:
             conn : an existing Connection object to use for testing
         """
         args = fake_method
-        response = conn.post("foo/bar", {"one": "two", "three": "four"}, five="six")
+        response = conn.post(
+            "foo/bar", data={"one": "two", "three": "four"}, five="six"
+        )
         assert response is not None
         assert args["method"] == "POST"
         assert args["path"] == "foo/bar"
+        assert args["json"] is None
         assert args["data"] == {"one": "two", "three": "four"}
         assert args["kwargs"] == {"headers": None, "five": "six"}
 
@@ -250,33 +260,6 @@ class TestInternalUser:
         assert user.first_name is None
         assert user.last_name is None
         assert user.roles == ["roleA", "roleB"]
-
-
-@pytest.fixture(scope="session")
-def rsa_keys() -> Dict[str, Union[rsa.RSAPrivateKey, str]]:
-    """Fixture for generating an RSA public / private key pair.
-
-    Returns:
-        A dictionary containing the RSAPrivateKey object, the PEM encoded public
-        key string without the BEGIN/END bookends (mimicing what is returned by
-        an OpenID Connect broker), and the PEM encoded public key string with
-        the BEGIN/END bookends
-    """
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    pem_public_key = (
-        private_key.public_key()
-        .public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo)
-        .decode()
-    )
-    # Strip "-----BEGIN..." and "-----END...", and the empty element resulting
-    # from the trailing newline character.
-    public_key_l = pem_public_key.split("\n")[1:-2]
-    public_key = "".join(public_key_l)
-    return {
-        "private_key": private_key,
-        "public_key": public_key,
-        "pem_public_key": pem_public_key,
-    }
 
 
 def gen_rsa_token(
@@ -397,7 +380,6 @@ class TestOpenIDClient:
         config = mock_connection(monkeypatch, client_id, public_key)
         server_url = config["openid-connect"]["server_url"]
         realm_name = config["openid-connect"]["realm"]
-        secret = config["openid-connect"]["secret"]
 
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
@@ -406,7 +388,6 @@ class TestOpenIDClient:
             f"client_id={client_id}, realm_name={realm_name}, "
             "headers={})"
         )
-        assert oidc_client._client_secret_key == secret
         assert (
             oidc_client._pem_public_key
             == f"-----BEGIN PUBLIC KEY-----\n{public_key}\n-----END PUBLIC KEY-----\n"
@@ -623,22 +604,6 @@ class TestAuthModule:
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token_invalid)
-        assert user is None
-
-    def test_verify_auth_internal_at_valid_fail(
-        self, monkeypatch, make_logger, pbench_drb_token
-    ):
-        """Verify behavior when a token is not in the database"""
-
-        def valid(*args, **kwargs):
-            return False
-
-        monkeypatch.setattr(Auth.ActiveTokens, "valid", valid)
-        app = Flask("test-verify-auth-internal-at-valid-fail")
-        app.logger = make_logger
-        with app.app_context():
-            current_app.secret_key = jwt_secret
-            user = Auth.verify_auth(pbench_drb_token)
         assert user is None
 
     def test_verify_auth_oidc_offline(self, monkeypatch, rsa_keys, make_logger):

@@ -180,7 +180,6 @@ class EndpointConfig(Resource):
         try:
             client = self.server_config.get("openid-connect", "client")
             realm = self.server_config.get("openid-connect", "realm")
-            secret = self.server_config.get("openid-connect", "secret")
             server = self.server_config.get("openid-connect", "server_url")
         except (NoOptionError, NoSectionError):
             pass
@@ -188,7 +187,6 @@ class EndpointConfig(Resource):
             endpoints["openid"] = {
                 "client": client,
                 "realm": realm,
-                "secret": secret,
                 "server": server,
             }
 
