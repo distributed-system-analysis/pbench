@@ -58,7 +58,10 @@ class UserAPI(Resource):
             response_object["email"] = token_payload.get("email")
         elif current_user.is_admin():
             target_user = User.query(username=target_username)
-            response_object = target_user.as_json()
+            if target_user:
+                response_object = target_user.as_json()
+            else:
+                abort(HTTPStatus.NOT_FOUND, message="Target user not found")
         else:
             abort(HTTPStatus.FORBIDDEN, message="Forbidden to perform the GET request")
 

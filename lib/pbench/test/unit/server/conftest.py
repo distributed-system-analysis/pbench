@@ -899,7 +899,7 @@ def generate_token(
         "preferred_username": username,
         "given_name": "first_name",
         "family_name": "last_name",
-        "email": "dummy@esample.com",
+        "email": "dummy@example.com",
     }
     if pbench_client_roles:
         payload["resource_access"].update({client_id: {"roles": pbench_client_roles}})
