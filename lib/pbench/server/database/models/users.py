@@ -81,10 +81,9 @@ class User(Database.Base):
     @roles.setter
     def roles(self, value):
         if isinstance(value, list):
-            for v in value:
-                self._roles += f";{v}"
+            self._roles = ";".join(value)
         elif isinstance(value, str):
-            self._roles = value if not self._roles else f"{self._roles};{value}"
+            self._roles = value
         else:
             raise UserSqlError("Adding role", value, "Value is not a str or list")
 

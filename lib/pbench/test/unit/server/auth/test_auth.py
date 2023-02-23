@@ -263,7 +263,11 @@ class TestInternalUser:
 
 
 def gen_rsa_token(
-    audience: str, private_key: str, exp: str = "99999999999"
+    audience: str,
+    private_key: str,
+    exp: str = "99999999999",
+    username: str = "dummy",
+    oidc_client_roles: Optional[list] = None,
 ) -> Tuple[str, Dict[str, str]]:
     """Helper function for generating an RSA token using the given private key.
 
@@ -272,8 +276,20 @@ def gen_rsa_token(
         private_key : The private key to use for encoding
         exp : Optional expiration Epoch time stamp to use, defaults to Wednesday
             November 16th, 5138 at 9:47:39 AM UTC
+        username: username value to encode in the token
+        oidc_client_roles: Any OIDC client roles to include in the token
     """
-    payload = {"iat": 1659476706, "exp": exp, "sub": "12345", "aud": audience}
+    payload = {
+        "iat": 1659476706,
+        "exp": exp,
+        "sub": "12345",
+        "aud": audience,
+        "preferred_username": username,
+    }
+    if oidc_client_roles:
+        payload["resource_access"] = {
+            audience: {"roles": oidc_client_roles},
+        }
     return jwt.encode(payload, key=private_key, algorithm="RS256"), payload
 
 
@@ -606,7 +622,37 @@ class TestAuthModule:
             user = Auth.verify_auth(pbench_drb_token_invalid)
         assert user is None
 
-    def test_verify_auth_oidc_offline(self, monkeypatch, rsa_keys, make_logger):
+    @pytest.mark.parametrize("roles", [["ROLE"], ["ROLE1", "ROLE2"], [], None])
+    def test_verify_auth_oidc(self, monkeypatch, rsa_keys, make_logger, roles):
+        """Verify OIDC token offline verification success path"""
+        client_id = "us"
+        if roles is None:
+            token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+        else:
+            token, expected_payload = gen_rsa_token(
+                client_id, rsa_keys["private_key"], oidc_client_roles=roles
+            )
+
+        # Mock the Connection object and generate an OpenIDClient object,
+        # installing it as Auth module's OIDC client.
+        config = mock_connection(
+            monkeypatch, client_id, public_key=rsa_keys["public_key"]
+        )
+        oidc_client = OpenIDClient.construct_oidc_client(config)
+        monkeypatch.setattr(Auth, "oidc_client", oidc_client)
+
+        app = Flask("test-verify-auth-oidc-offline")
+        app.logger = make_logger
+        with app.app_context():
+            user = Auth.verify_auth(token)
+
+        assert user.oidc_id == "12345"
+        if roles is not None:
+            assert user.roles == roles
+        else:
+            assert user.roles == []
+
+    def test_verify_auth_oidc_user_update(self, monkeypatch, rsa_keys, make_logger):
         """Verify OIDC token offline verification success path"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
@@ -625,8 +671,22 @@ class TestAuthModule:
             user = Auth.verify_auth(token)
 
         assert user.oidc_id == "12345"
+        assert user.roles == []
 
-    def test_verify_auth_oidc_offline_invalid(self, monkeypatch, rsa_keys, make_logger):
+        # Generate a new token with a role for the same user
+        token, expected_payload = gen_rsa_token(
+            client_id,
+            rsa_keys["private_key"],
+            username="new_dummy",
+            oidc_client_roles=["ROLE"],
+        )
+        with app.app_context():
+            user = Auth.verify_auth(token)
+        assert user.oidc_id == "12345"
+        assert user.roles == ["ROLE"]
+        assert user.username == "new_dummy"
+
+    def test_verify_auth_oidc_invalid(self, monkeypatch, rsa_keys, make_logger):
         """Verify OIDC token offline verification via Auth.verify_auth() fails
         gracefully with an invalid token
         """

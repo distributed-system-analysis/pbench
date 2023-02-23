@@ -205,14 +205,26 @@ def verify_auth_oidc(auth_token: str) -> Optional[InternalUser]:
     else:
         user_id = token_payload["sub"]
         user = User.query(oidc_id=user_id)
+        audiences = token_payload.get("resource_access", {})
+        try:
+            oidc_client_roles = audiences[oidc_client.client_id].get("roles", [])
+        except KeyError:
+            oidc_client_roles = []
         if not user:
-            audiences = token_payload.get("resource_access", {})
-            try:
-                oidc_client_roles = audiences[oidc_client.client_id].get("roles", [])
-            except KeyError:
-                oidc_client_roles = []
+            # Create a new user identity in our cached user database
             username = token_payload.get("preferred_username")
             user = User(oidc_id=user_id, username=username, roles=oidc_client_roles)
             user.add()
+        else:
+            # If the user present in our cached db, we check whether there is
+            # any update to the existing user based on the token payload info
+            dict_to_update = {}
+            new_username = token_payload.get("preferred_username")
+            if user.username != new_username:
+                dict_to_update["username"] = new_username
+            if user.roles != oidc_client_roles:
+                dict_to_update["roles"] = oidc_client_roles
+            if dict_to_update:
+                user.update(**dict_to_update)
 
     return user
