@@ -418,8 +418,9 @@ class Controller:
         # Provide a mapping from Dataset resource ID to object
         self.datasets: dict[str, Tarball] = {}
 
-        # Discover the tarballs that already exist
-        # DEPENDS ON self.cache!
+        # Discover the tarballs that already exist.
+        # Depends on instance properties and should remain at the end of the
+        # constructor!
         self._discover_tarballs()
 
     def _discover_tarballs(self):

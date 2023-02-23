@@ -261,13 +261,13 @@ class TestPut:
         ), f"Didn't find all expected datasets, found {count} of {len(tarball_names)}"
 
 
-class TestElastic:
+class TestIndexing:
     @pytest.mark.dependency(name="detail", depends=["index"], scope="session")
     def test_details(self, server_client: PbenchServerClient, login_user):
-        """Check access to indexed Elasticsearch data
+        """Check access to indexed data
 
         Perform a GET /datasets/details/{id} to be sure that basic run data
-        has been indexed into Elasticsearch and is available.
+        has been indexed and is available.
         """
         datasets = server_client.get_list(
             metadata=["dataset.metalog.pbench,server.archiveonly"], owner="tester"
@@ -275,7 +275,7 @@ class TestElastic:
         for d in datasets:
             print(f"\t... checking run index for {d.name}")
             response = server_client.get(
-                API.DATASETS_DETAIL, {"dataset": d.resource_id}, json={}
+                API.DATASETS_DETAIL, {"dataset": d.resource_id}
             )
             detail = response.json()
             indexed = not d.metadata["server.archiveonly"]
@@ -285,7 +285,7 @@ class TestElastic:
                     == detail["runMetadata"]["script"]
                 )
             else:
-                print(f"\t\t... {d.name} was not indexed")
+                print(f"\t\t... {d.name} is archiveonly")
 
 
 class TestList:
