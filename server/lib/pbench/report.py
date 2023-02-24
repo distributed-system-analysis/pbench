@@ -15,7 +15,7 @@ import pbench
 from pbench.indexer import PbenchTemplates, _op_type, es_index, get_es
 
 
-class Report(object):
+class Report:
     """Encapsulation of server-side reporting information for recording who,
     what, when, and how of a component's operation.
     """

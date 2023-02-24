@@ -138,7 +138,7 @@ class BadSampleName(Exception):
     pass
 
 
-class PbenchTemplates(object):
+class PbenchTemplates:
     """Encapsulation of methods for loading / working with all the Pbench
     templates for Elasticsearch.
     """
@@ -861,7 +861,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
     return (beg, end, successes, duplicates, failures, retries_tracker["retries"])
 
 
-class PbenchData(object):
+class PbenchData:
     """Pbench Data abstract class - ToolData and ResultData inherit from it.
 
     The following generic methods are not intended to be overridden:
@@ -3793,7 +3793,7 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
     return (0, d)
 
 
-class Iteration(object):
+class Iteration:
     """Encapsulation of all iteration information pulled from a pbench result
     tar ball's metadata.log file, cross-referenced with the tar ball contents.
 
@@ -3847,7 +3847,7 @@ class Iteration(object):
         self.md = iter_dict
 
 
-class Sample(object):
+class Sample:
     """Encapsulation of all sample information pulled from a pbench result
     tar ball's metadata.log file, cross-ferenced with the tar ball contents.
     """
@@ -3870,7 +3870,7 @@ class Sample(object):
         self.path = os.path.join(iteration.path, name)
 
 
-class PbenchTarBall(object):
+class PbenchTarBall:
     """Encapsulation of the data structures representing the contents of a
     pbench tar ball.
     """
@@ -4700,7 +4700,7 @@ class PbenchTarBall(object):
         return
 
 
-class IdxContext(object):
+class IdxContext:
     """
     The general indexing options, including configuration and other external
     state, provided as an object.

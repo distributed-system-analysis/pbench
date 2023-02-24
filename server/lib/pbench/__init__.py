@@ -44,7 +44,7 @@ def tstos(ts=None):
     return dt.strftime("%Y-%m-%dT%H:%M:%S-%Z")
 
 
-class _Message(object):
+class _Message:
     """An object that stores a format string, expected to be using the
     "brace" style formatting, and the arguments object which will be used
     to satisfy the formats.
@@ -201,7 +201,7 @@ class BadConfig(Exception):
     pass
 
 
-class PbenchConfig(object):
+class PbenchConfig:
     """A simple class to wrap a ConfigParser object using the configtools
     style of multiple configuration files.
     """

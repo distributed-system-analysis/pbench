@@ -42,7 +42,7 @@ _NAME_ = "pbench-cull-unpacked-tarballs"
 tb_pat = re.compile(TAR_BALL_NAME_PAT_S)
 
 
-class Action(object):
+class Action:
     """Action - A simple class to track individual actions taken towards the
     removal of a unpacked tar ball.
 
@@ -63,7 +63,7 @@ class Action(object):
         self.status = status
 
 
-class ActionSet(object):
+class ActionSet:
     """ActionSet - A simple class to track a set of actions taken, how many
     errors occurred, when they started and when they stopped.
     """
