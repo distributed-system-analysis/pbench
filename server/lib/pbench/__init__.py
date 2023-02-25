@@ -297,11 +297,14 @@ class PbenchConfig(object):
         # their final state at the end.
         self.LINKDIRS = (
             "TODO"
+            # All unpack tar balls operational states
             " TO-UNPACK TO-RE-UNPACK UNPACKED WONT-UNPACK"
-            " TO-SYNC SYNCED"
-            " TO-INDEX TO-RE-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX"
+            # All backup operational states
             " TO-BACKUP BACKED-UP BACKUP-FAILED"
-            " TO-DELETE SATELLITE-DONE"
+            # All indexing operational states
+            " TO-INDEX TO-RE-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX"
+            # All satellite operational states
+            " TO-SYNC TO-DELETE SATELLITE-DONE"
         )
 
     def get(self, *args, **kwargs):

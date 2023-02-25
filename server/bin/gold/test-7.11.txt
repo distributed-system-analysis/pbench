@@ -5400,7 +5400,6 @@ drwxrwxr-x          - archive/fs-version-001/dhcp31-44/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/INDEXED
 lrwxrwxrwx        111 archive/fs-version-001/dhcp31-44/INDEXED/fio_rw_2018.02.01T22.40.57.tar.xz -> /var/tmp/pbench-test-server/test-7.11/pbench/archive/fs-version-001/dhcp31-44/fio_rw_2018.02.01T22.40.57.tar.xz
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SYNCED
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-INDEX

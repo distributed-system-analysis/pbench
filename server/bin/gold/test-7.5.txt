@@ -408,7 +408,6 @@ drwxrwxr-x          - archive/fs-version-001/alphaville/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/alphaville/INDEXED
 lrwxrwxrwx        113 archive/fs-version-001/alphaville/INDEXED/test_7.5_2015.09.21T15.31.08.tar.xz -> /var/tmp/pbench-test-server/test-7.5/pbench/archive/fs-version-001/alphaville/test_7.5_2015.09.21T15.31.08.tar.xz
 drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/alphaville/SYNCED
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX
