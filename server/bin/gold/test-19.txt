@@ -133,8 +133,6 @@ lrwxrwxrwx        118 archive/fs-version-001/ctrl-00/BACKED-UP/tarball_config-01
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/SATELLITE-MD5-FAILED
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-DELETE
@@ -161,8 +159,6 @@ lrwxrwxrwx         51 archive/fs-version-001/ctrl-01/BACKED-UP/tarball_config-ex
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/SATELLITE-MD5-FAILED
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-DELETE
