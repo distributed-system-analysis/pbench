@@ -306,14 +306,6 @@ class PbenchConfig(object):
             " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED"
             " TO-DELETE SATELLITE-DONE"
         )
-        # List of the state directories which will be excluded during rsync.
-        # Note that range(1,12) generates the sequence [1..11] inclusively.
-        self.EXCLUDE_DIRS = (
-            "_QUARANTINED "
-            + self.LINKDIRS
-            + " "
-            + " ".join(["WONT-INDEX.{:d}".format(i) for i in range(1, 12)])
-        )
 
     def get(self, *args, **kwargs):
         return self.conf.get(*args, **kwargs)
