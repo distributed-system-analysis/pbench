@@ -9880,7 +9880,6 @@ drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-SYNC
