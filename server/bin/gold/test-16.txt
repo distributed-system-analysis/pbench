@@ -92,7 +92,6 @@ drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/controller00
 drwxrwxr-x          - archive/fs-version-001/controller00/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller00/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/controller00/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller00/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-MD5-FAILED
@@ -119,7 +118,6 @@ lrwxrwxrwx         52 archive/fs-version-001/controller00/WONT-UNPACK/benchmark-
 drwxrwxr-x          - archive/fs-version-001/controller01
 drwxrwxr-x          - archive/fs-version-001/controller01/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller01/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/controller01/BAD-MD5
 -rw-rw-r--       3180 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1970-01-01T00:00:00.tar.xz
 -rw-rw-r--         85 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1970-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller01/INDEXED
@@ -150,7 +148,6 @@ drwxrwxr-x          - archive/fs-version-001/controller02/.prefix
 -rw-rw-r--          9 archive/fs-version-001/controller02/.prefix/benchmark-result-small_1970-01-01T00:00:00.prefix
 drwxrwxr-x          - archive/fs-version-001/controller02/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller02/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/controller02/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller02/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-MD5-FAILED

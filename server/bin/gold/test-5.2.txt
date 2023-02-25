@@ -415,7 +415,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerA
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/BACKED-UP
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/BACKED-UP/tarball-simple1_1970-01-01T00:42:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SATELLITE-MD5-FAILED
@@ -443,7 +442,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerB
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/BACKED-UP
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/BACKED-UP/tarball-simple2_1970-01-01T00:41:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SATELLITE-MD5-FAILED
@@ -471,7 +469,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/BACKED-UP
 lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/BACKED-UP/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SATELLITE-MD5-FAILED
@@ -501,7 +498,6 @@ lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/BACKED-U
 lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/BACKED-UP/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz
 lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/BACKED-UP/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/SATELLITE-MD5-FAILED
@@ -554,7 +550,6 @@ drwxrwxr-x          - archive/fs-version-001/controller-g-normal
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/BACKED-UP
 lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/BACKED-UP/tarball-normal_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/controller-g-normal/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/SATELLITE-MD5-FAILED
@@ -581,7 +576,6 @@ drwxrwxr-x          - archive/fs-version-001/controller-g-normal/WONT-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/SATELLITE-MD5-FAILED

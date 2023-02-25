@@ -9030,7 +9030,6 @@ drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/dhcp31-144/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/INDEXED
 lrwxrwxrwx        127 archive/fs-version-001/dhcp31-144/INDEXED/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz -> /var/tmp/pbench-test-server/test-7.9/pbench/archive/fs-version-001/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/SATELLITE-DONE

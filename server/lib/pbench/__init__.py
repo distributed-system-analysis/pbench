@@ -296,7 +296,7 @@ class PbenchConfig(object):
         # needed.  Every related state directories are paired together with
         # their final state at the end.
         self.LINKDIRS = (
-            "TODO BAD-MD5"
+            "TODO"
             " TO-UNPACK TO-RE-UNPACK UNPACKED WONT-UNPACK"
             " TO-SYNC SYNCED"
             " TO-LINK"
