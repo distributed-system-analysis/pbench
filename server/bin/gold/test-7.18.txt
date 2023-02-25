@@ -168,8 +168,6 @@ drwxrwxr-x          - archive/fs-version-001/bad-controller/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/bad-controller/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/bad-controller/INDEXED
 drwxrwxr-x          - archive/fs-version-001/bad-controller/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/bad-controller/SATELLITE-MD5-FAILED
-drwxrwxr-x          - archive/fs-version-001/bad-controller/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/bad-controller/SYNCED
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-DELETE

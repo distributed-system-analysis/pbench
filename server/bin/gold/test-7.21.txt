@@ -5434,8 +5434,6 @@ drwxrwxr-x          - archive/fs-version-001/ctlrA/INDEXED
 lrwxrwxrwx        116 archive/fs-version-001/ctlrA/INDEXED/trafficgen_mock_2020.02.28T19.49.39.tar.xz -> /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz
 lrwxrwxrwx        116 archive/fs-version-001/ctlrA/INDEXED/trafficgen_mock_2020.02.28T20.04.29.tar.xz -> /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-MD5-FAILED
-drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/ctlrA/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-DELETE
