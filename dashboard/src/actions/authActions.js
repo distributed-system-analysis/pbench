@@ -8,6 +8,44 @@ import { SUCCESS } from "assets/constants/overviewConstants";
 import { showToast } from "actions/toastActions";
 import { uid } from "../utils/helper";
 
+
+// Create an Authentication Request
+export const authenticationRequest = () => async (dispatch, getState) => {
+    try {
+      const endpoints = getState().apiEndpoint.endpoints;
+      const oidcServer = endpoints.openid.server;
+      const oidcRealm = endpoints.openid.realm;
+      const oidcClient = endpoints.openid.client;
+      // URI parameters ref: https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint
+      // Refer Step 3 of pbench/docs/user_authentication/third_party_token_management.md
+      const uri = `${oidcServer}/realms/${oidcRealm}/protocol/openid-connect/auth`;
+      const queryParams = [
+        'client_id=' + oidcClient,
+        'response_type=code',
+        'redirect_uri=' + window.location.href.split('?')[0],
+        'scope=profile',
+        'prompt=login',
+        'max_age=120'
+      ];
+      window.location.href = uri + '?' + queryParams.join('&');
+    } catch (error) {
+      const alerts = getState().userAuth.alerts;
+      dispatch(error?.response
+        ? toggleLoginBtn(true)
+        : { type: TYPES.OPENID_ERROR }
+      );
+      const alert = {
+          title: error?.response ? error.response.data?.message : error?.message,
+          key: uid(),
+      };
+      dispatch({
+        type: TYPES.USER_NOTION_ALERTS,
+        payload: [...alerts, alert],
+      });
+      dispatch({ type: TYPES.COMPLETED });
+    }
+};
+
 export const makeLoginRequest =
   (details, navigate) => async (dispatch, getState) => {
     try {

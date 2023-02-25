@@ -18,7 +18,7 @@ import {
 import { CheckIcon, CloseIcon, TimesIcon } from "@patternfly/react-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useOutletContext } from "react-router-dom";
-
+import { authenticationRequest } from "actions/authActions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PBenchLogo from "assets/logo/pbench_logo.svg";
 import React from "react";
@@ -117,9 +117,12 @@ export const AuthForm = () => {
       <CardFooter>
         <div className="log-in-alternate">Or log in with...</div>
         <div className="alternate-btn-wrapper">
-          <Button variant="secondary">Red Hat SSO</Button>
-          <Button variant="secondary">GitHub</Button>
-          <Button variant="secondary">Gmail</Button>
+          <Button
+            variant="primary"
+            onClick={() => {dispatch(authenticationRequest())}}
+          >
+            Pbench OpenId
+          </Button>
         </div>
         <NoLoginComponent />
       </CardFooter>
