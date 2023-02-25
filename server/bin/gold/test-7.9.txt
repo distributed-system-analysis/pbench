@@ -9040,7 +9040,6 @@ drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-SYNC

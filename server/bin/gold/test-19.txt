@@ -140,7 +140,6 @@ drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-SYNC
@@ -169,7 +168,6 @@ drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-SYNC

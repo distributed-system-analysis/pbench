@@ -175,7 +175,6 @@ drwxrwxr-x          - archive/fs-version-001/alphaville/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/alphaville/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-SYNC

@@ -299,7 +299,6 @@ class PbenchConfig(object):
             "TODO"
             " TO-UNPACK TO-RE-UNPACK UNPACKED WONT-UNPACK"
             " TO-SYNC SYNCED"
-            " TO-LINK"
             " TO-INDEX TO-RE-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX"
             " TO-BACKUP BACKED-UP BACKUP-FAILED"
             " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED"

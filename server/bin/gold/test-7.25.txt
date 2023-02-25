@@ -1599,7 +1599,6 @@ drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-SYNC

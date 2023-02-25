@@ -10111,7 +10111,6 @@ drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-SYNC
