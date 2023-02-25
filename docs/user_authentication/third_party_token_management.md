@@ -37,6 +37,7 @@ abox over Browser:Identity broker instructs the browser to \nload identity provi
 deactivate Browser
 
 Browser->Identity-Provider:GET identity provider auth page
+note over Browser:Ref: https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint
 note right of Browser:GET request:\n<identity_provider_auth_URI>\n?client_id=<client_id as registered on identity provider>\n&response_type=code\n&redirect_uri=<identity_broker_URI>\n&scope=openid
 
 Identity-Provider->Browser:303 Response\n(Redirect to identity provider auth page)
