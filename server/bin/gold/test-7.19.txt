@@ -2250,7 +2250,6 @@ drwxrwxr-x          - archive/fs-version-001/perf122/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/perf122/INDEXED
 lrwxrwxrwx        190 archive/fs-version-001/perf122/INDEXED/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz -> /var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz
 drwxrwxr-x          - archive/fs-version-001/perf122/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/perf122/SYNCED
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-INDEX

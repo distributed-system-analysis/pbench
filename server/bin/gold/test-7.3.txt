@@ -168,7 +168,6 @@ drwxrwxr-x          - archive/fs-version-001/alphaville/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/alphaville/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/alphaville/INDEXED
 drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/alphaville/SYNCED
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX
