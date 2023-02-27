@@ -1,1 +1,5 @@
-test-12.setup
+#!/bin/bash
+
+# Move the local quarantine tree to the side
+mv pbench-local/quarantine pbench-local/quarantine.bad
+exit $?
