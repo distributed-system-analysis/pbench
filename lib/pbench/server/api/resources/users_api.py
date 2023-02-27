@@ -6,7 +6,6 @@ from flask_restful import abort, Resource
 
 import pbench.server.auth.auth as Auth
 from pbench.server.database.models.server_config import ServerConfig
-from pbench.server.database.models.users import User
 
 
 class UserAPI(Resource):
@@ -58,13 +57,9 @@ class UserAPI(Resource):
                 "last_name": token_payload.get("family_name"),
                 "email": token_payload.get("email"),
             }
-        elif current_user.is_admin():
-            target_user = User.query(username=target_username)
-            if target_user:
-                response_object = target_user.get_json()
-            else:
-                abort(HTTPStatus.NOT_FOUND, message="Target user not found")
         else:
+            # If the decoded token does not contain the targeted username,
+            # return FORBIDDEN
             abort(HTTPStatus.FORBIDDEN, message="Forbidden to perform the GET request")
 
         return make_response(jsonify(response_object), HTTPStatus.OK)

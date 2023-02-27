@@ -68,7 +68,7 @@ class TestUsers:
         ds.delete()
         with pytest.raises(DatasetNotFound):
             Dataset.query(resource_id=ds.resource_id)
-        assert user
+        assert User.query(username=user.username)
 
     def test_user_survives_dataset_delete(self, fake_db):
         """The User isn't automatically removed when the referenced

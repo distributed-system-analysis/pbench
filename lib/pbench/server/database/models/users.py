@@ -82,7 +82,7 @@ class User(Database.Base):
         try:
             self._roles = ";".join(value)
         except Exception as e:
-            raise UserSqlError("Adding role", value, str(e)) from e
+            raise UserSqlError("Setting role", value, str(e)) from e
 
     def __str__(self):
         return f"User, id: {self.id}, username: {self.username}"
