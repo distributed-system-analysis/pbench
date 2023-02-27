@@ -5,10 +5,6 @@
 +++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs-small: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-index
---- Finished pbench-index (status=3)
-+++ Running pbench-index --tool-data
---- Finished pbench-index (status=3)
 +++ Running pbench-unpack-tarballs none re-unpack
 pbench-re-unpack-tarballs: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
 --- Finished pbench-unpack-tarballs (status=1)
@@ -97,10 +93,6 @@ drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.log
-drwxrwxr-x          - logs/pbench-index
-drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--        177 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--        157 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--          0 logs/pbench-sync-satellite/ONE/change_state.log
@@ -166,12 +158,6 @@ drwxrwxr-x          - tmp
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
 ----- pbench-dispatch/pbench-dispatch.log
-+++++ pbench-index-tool-data/pbench-index-tool-data.log
-1970-01-01T00:00:42.000000 ERROR pbench-index-tool-data.pbench-index main -- pbench-index-tool-data: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
------ pbench-index-tool-data/pbench-index-tool-data.log
-+++++ pbench-index/pbench-index.log
-1970-01-01T00:00:42.000000 ERROR pbench-index.pbench-index main -- pbench-index: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
------ pbench-index/pbench-index.log
 +++++ pbench-sync-satellite/ONE/change_state.log
 ----- pbench-sync-satellite/ONE/change_state.log
 +++++ pbench-sync-satellite/pbench-sync-satellite.error

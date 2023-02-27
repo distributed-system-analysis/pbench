@@ -95,7 +95,7 @@ function verify_subdirs {
     local let cnt=0
 
     if [[ -s ${directories_arg} ]]; then
-        grep -vE "(_QUARANTINED|WONT-INDEX)" ${directories_arg} > ${directories_arg}.linkdirs
+        grep -vF "_QUARANTINED" ${directories_arg} > ${directories_arg}.linkdirs
         comm -13 ${linkdirs} ${directories_arg}.linkdirs > ${directories_arg}.unexpected
         if [[ -s ${directories_arg}.unexpected ]]; then
             printf "\t* Unexpected state directories found in this controller directory:\n"

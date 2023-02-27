@@ -34,56 +34,38 @@ lrwxrwxrwx         70 users -> /var/tmp/pbench-test-server/test-17/pbench-satell
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/controller00
-drwxrwxr-x          - archive/fs-version-001/controller00/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-DELETE
-drwxrwxr-x          - archive/fs-version-001/controller00/TO-INDEX
-drwxrwxr-x          - archive/fs-version-001/controller00/TO-INDEX-TOOL
-lrwxrwxrwx        128 archive/fs-version-001/controller00/TO-INDEX/benchmark-result-large_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller00/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller00/UNPACKED
 lrwxrwxrwx         52 archive/fs-version-001/controller00/UNPACKED/benchmark-result-large_1970-01-01T00:00:00.tar.xz -> ../benchmark-result-large_1970-01-01T00:00:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller00/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller00/WONT-UNPACK
 lrwxrwxrwx         52 archive/fs-version-001/controller00/WONT-UNPACK/benchmark-doesnotexist_1970-01-01T00:00:00.tar.xz -> ../benchmark-doesnotexist_1970-01-01T00:00:00.tar.xz
 -rw-rw-r--       5920 archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz
 -rw-rw-r--         84 archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller01
-drwxrwxr-x          - archive/fs-version-001/controller01/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-DELETE
-drwxrwxr-x          - archive/fs-version-001/controller01/TO-INDEX
-drwxrwxr-x          - archive/fs-version-001/controller01/TO-INDEX-TOOL
-lrwxrwxrwx        129 archive/fs-version-001/controller01/TO-INDEX/benchmark-result-medium_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1970-01-01T00:00:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller01/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller01/UNPACKED
 lrwxrwxrwx         53 archive/fs-version-001/controller01/UNPACKED/benchmark-result-medium_1970-01-01T00:00:00.tar.xz -> ../benchmark-result-medium_1970-01-01T00:00:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller01/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller01/WONT-UNPACK
 -rw-rw-r--       3176 archive/fs-version-001/controller01/benchmark-result-medium_1970-01-01T00:00:00.tar.xz
 -rw-rw-r--         85 archive/fs-version-001/controller01/benchmark-result-medium_1970-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller02
 drwxrwxr-x          - archive/fs-version-001/controller02/.prefix
 -rw-rw-r--          9 archive/fs-version-001/controller02/.prefix/benchmark-result-small_1970-01-01T00:00:00.prefix
-drwxrwxr-x          - archive/fs-version-001/controller02/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-DELETE
-drwxrwxr-x          - archive/fs-version-001/controller02/TO-INDEX
-drwxrwxr-x          - archive/fs-version-001/controller02/TO-INDEX-TOOL
-lrwxrwxrwx        128 archive/fs-version-001/controller02/TO-INDEX/benchmark-result-small_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller02/benchmark-result-small_1970-01-01T00:00:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller02/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller02/UNPACKED
 lrwxrwxrwx         52 archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1970-01-01T00:00:00.tar.xz -> ../benchmark-result-small_1970-01-01T00:00:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller02/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller02/WONT-UNPACK
 -rw-rw-r--        848 archive/fs-version-001/controller02/benchmark-result-small_1970-01-01T00:00:00.tar.xz
 -rw-rw-r--         84 archive/fs-version-001/controller02/benchmark-result-small_1970-01-01T00:00:00.tar.xz.md5

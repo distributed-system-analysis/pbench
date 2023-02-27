@@ -37,42 +37,9 @@ drwxrwxr-x          - archive/fs-version-001
 -rw-rw-r--          0 archive/fs-version-001/a-wayward-file.txt
 drwxrwxr-x          - archive/fs-version-001/controller.empty
 drwxrwxr-x          - archive/fs-version-001/controller.unexp_state_dirs
-drwxrwxr-x          - archive/fs-version-001/controller.unexp_state_dirs/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller.unexp_state_dirs/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller.unexp_state_dirs/an-unexpected
 drwxrwxr-x          - archive/fs-version-001/controller.unexp_state_dirs/unexpected
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.0
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.1
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.10
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.11
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.12
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.13
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.14
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.15
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.16
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.17
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.18
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.19
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.2
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.20
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.21
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.22
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.23
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.24
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.25
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.26
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.27
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.28
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.29
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.3
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.30
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.4
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.5
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.6
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.7
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.8
-drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.9
 drwxrwxr-x          - archive/fs-version-001/controller00
 -rw-rw-r--          0 archive/fs-version-001/controller00/.prefix
 drwxrwxr-x          - archive/fs-version-001/controller00/UNPACKED
@@ -126,11 +93,6 @@ lrwxrwxrwx         52 archive/fs-version-001/controller02/UNPACKED/benchmark-res
 -rw-rw-r--        228 archive/fs-version-001/controller02/tarball-bad-incoming-unpack-dir_1970.01.01T00.00.00.tar.xz
 -rw-rw-r--         93 archive/fs-version-001/controller02/tarball-bad-incoming-unpack-dir_1970.01.01T00.00.00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controllerU
-drwxrwxr-x          - archive/fs-version-001/controllerU/TO-INDEX
-lrwxrwxrwx         44 archive/fs-version-001/controllerU/TO-INDEX/tarball-noUser_1970.01.01T00.00.00.tar.xz -> ../tarball-noUser_1970.01.01T00.00.00.tar.xz
-lrwxrwxrwx         43 archive/fs-version-001/controllerU/TO-INDEX/tarball-userA_1970.01.01T00.00.00.tar.xz -> ../tarball-userA_1970.01.01T00.00.00.tar.xz
-lrwxrwxrwx         43 archive/fs-version-001/controllerU/TO-INDEX/tarball-userB_1970.01.01T00.00.00.tar.xz -> ../tarball-userB_1970.01.01T00.00.00.tar.xz
-lrwxrwxrwx         43 archive/fs-version-001/controllerU/TO-INDEX/tarball-userC_1970.01.01T00.00.00.tar.xz -> ../tarball-userC_1970.01.01T00.00.00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controllerU/UNPACKED
 lrwxrwxrwx         44 archive/fs-version-001/controllerU/UNPACKED/tarball-noUser_1970.01.01T00.00.00.tar.xz -> ../tarball-noUser_1970.01.01T00.00.00.tar.xz
 lrwxrwxrwx         43 archive/fs-version-001/controllerU/UNPACKED/tarball-userA_1970.01.01T00.00.00.tar.xz -> ../tarball-userA_1970.01.01T00.00.00.tar.xz
@@ -263,7 +225,7 @@ drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        169 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
--rw-rw-r--       4629 logs/pbench-audit-server/report.latest.txt
+-rw-rw-r--       4537 logs/pbench-audit-server/report.latest.txt
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -333,9 +295,6 @@ Controller: controller.unexp_state_dirs
 	  an-unexpected
 	  unexpected
 	  ----------
-	* No tar ball files found in this controller directory.
-
-Controller: controller.wont_index
 	* No tar ball files found in this controller directory.
 
 Controller: controller00

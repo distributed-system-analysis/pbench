@@ -70,15 +70,9 @@ fi
 if [[ "${PIPELINE}" == "re-unpack" ]]; then
     # The link source for re-unpacking.
     linksrc=TO-RE-UNPACK
-    # There is no destination state for re-unpacked tar balls since this is
-    # outside of the normal state transition chain.
-    linkdestlist=""
 else
     # The link source for normal flow of unpacking.
     linksrc=TO-UNPACK
-    # Read the system configuration for additional states when unpacking
-    # normally.
-    linkdestlist=$(getconf.py -l unpacked-states pbench-server)
 fi
 
 tmp=${TMP}/${PROG}.${$}
@@ -327,23 +321,6 @@ function do_work() {
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed move_symlink"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
-        fi
-
-        # Create a link in each state dir - if any fail, we should delete them all? No, that
-        # would be racy.
-        let toterr=0
-        for state in ${linkdestlist}; do
-            ln -sf ${ARCHIVE}/${hostname}/${resultname}.tar.xz ${ARCHIVE}/${hostname}/${state}/${resultname}.tar.xz
-            status=${?}
-            if [[ ${status} -ne 0 ]]; then
-                log_error "${TS}: Cannot create ${ARCHIVE}/${hostname}/${resultname}.tar.xz link in state ${state}: code ${status}"
-                (( toterr++ ))
-            fi
-        done
-        if [[ ${toterr} -gt 0 ]]; then
-            # Count N link creations as one error since it is for handling of a
-            # single tar ball.
-            (( nerrs++ ))
         fi
 
         let end_time=$(timestamp-seconds-since-epoch)

@@ -7,10 +7,6 @@ pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/f
 +++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs-small: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-index
---- Finished pbench-index (status=3)
-+++ Running pbench-index --tool-data
---- Finished pbench-index (status=3)
 +++ Running pbench-unpack-tarballs none re-unpack
 pbench-re-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-unpack-tarballs (status=1)
@@ -86,10 +82,6 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        226 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
-drwxrwxr-x          - logs/pbench-index
-drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--        178 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--        158 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -139,12 +131,6 @@ drwxrwxr-x          - tmp
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 ERROR pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- The configured ARCHIVE directory, /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001, is not a valid directory
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
-+++++ pbench-index-tool-data/pbench-index-tool-data.log
-1970-01-01T00:00:42.000000 ERROR pbench-index-tool-data.pbench-index main -- pbench-index-tool-data: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
------ pbench-index-tool-data/pbench-index-tool-data.log
-+++++ pbench-index/pbench-index.log
-1970-01-01T00:00:42.000000 ERROR pbench-index.pbench-index main -- pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
------ pbench-index/pbench-index.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
