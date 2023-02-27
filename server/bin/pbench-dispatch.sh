@@ -53,6 +53,10 @@ if [[ -z "${linkdestlist}" ]]; then
     exit 2
 fi
 
+# Optional "PUT API" bearer token for sending tar balls to the "new" Pbench
+# Server.
+put_token=$(getconf.py put-token pbench-server)
+
 qdir=$(getconf.py pbench-quarantine-dir pbench-server)
 if [[ -z "${qdir}" ]]; then
     echo "Failed: \"getconf.py pbench-quarantine-dir pbench-server\"" >> ${errlog}
@@ -183,6 +187,22 @@ while read tbmd5; do
         quarantine ${quarantine}/${controller} ${tb} ${tb}.md5
         (( nquarantined++ ))
         continue
+    fi
+
+    if [[ ! -z "${put_token}" ]]; then
+        # We have a bearer token for the PUT API of a "new" Pbench Server,
+        # invoke the `pbench-results-push` agent CLI to send it to the
+        # server (configuration of that server handled elsewhere).
+        satellite=${controller%%::*}
+        if [[ "${controller}" != "${satellite}" ]]; then
+            metadata_arg="--metadata=server.origin:${satellite}"
+        fi
+        pbench-results-push ${tb} --token ${put_token} ${metadata_arg}
+        sts=${?}
+		if [[ ${sts} -ne 0 ]]; then
+			log_info "${TS}: 'pbench-results-push ${tb} --token ${put_token} ${metadata_arg}' failed, code ${sts}" "${status}"
+        fi
+        unset metadata_arg
     fi
 
     # Make sure that all the relevant state directories exist
