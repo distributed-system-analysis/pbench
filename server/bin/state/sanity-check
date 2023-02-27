@@ -1,0 +1,22 @@
+#!/bin/bash
+# Check for orphaned test files in the state directory.  An orphan is defined
+# to be a file named `state/test-*.<something>` which does not have a
+# `gold/test-*.txt` file.
+
+cd $(dirname ${0})
+
+function list_all {
+	for i in $(ls -1d *.tar.xz); do echo ${i%*.tar.xz}; done
+	for i in $(ls -1d *.setup); do echo ${i%*.setup}; done
+	for i in $(ls -1d *.config); do echo ${i%*.config}; done
+	for i in $(ls -1d *.reset); do echo ${i%*.reset}; done
+}
+
+let orphans=0
+for j in $(list_all | sort | uniq); do
+    if [[ ! -f "../gold/${j}.txt" ]]; then
+        echo "Orphaned ${j}"
+        (( orphans++ ))
+    fi
+done
+exit ${orphans}
