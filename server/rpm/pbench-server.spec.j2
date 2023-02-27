@@ -27,7 +27,7 @@ Requires: python3-click python3-dateutil python3-elasticsearch python3-flask
 # The following are not available as RPMs in RHEL9, so we'll pick them up
 # through `pip3 install'.
 #
-# Requires: python3-alembic python3-aniso8601 python3-boto3
+# Requires: python3-alembic python3-aniso8601
 # Requires: python3-email-validator python3-flask-cors
 # Requires: python3-flask-httpauth
 # Requires: python3-flask-migrate python3-flask-restful python3-flask-sqlalchemy
@@ -173,7 +173,6 @@ fi
 /%{installdir}
 %attr(755, pbench, pbench) /%{installdir}/bin
 
-%doc /%{installdir}/lib/pbench/server/s3backup/README
 %doc /%{installdir}/lib/pbench/common/AUTHORS.log_formatter
 %doc /%{installdir}/lib/pbench/common/LICENSE.log_formatter
 
