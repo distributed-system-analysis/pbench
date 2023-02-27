@@ -1,17 +1,18 @@
 """Reporting module for pbench server.
 """
 
-import sys
-import os
+import hashlib
+import json
 import lzma
 import math
-import json
-import hashlib
+import os
 import socket
-from configparser import Error as NoSectionError, NoOptionError
+import sys
+from configparser import Error as NoSectionError
+from configparser import NoOptionError
 
 import pbench
-from pbench.indexer import PbenchTemplates, get_es, es_index, _op_type
+from pbench.indexer import PbenchTemplates, _op_type, es_index, get_es
 
 
 class Report(object):
@@ -214,14 +215,12 @@ class Report(object):
                     log_action = self.logger.error
                 elif duplicates > 0 or retries > 0:
                     log_action = self.logger.warning
-                else:
-                    assert (
-                        successes >= 1
-                        and duplicates == 0
-                        and failures == 0
-                        and retries == 0
-                    ), "Logic Bomb!"
+                elif successes > 0:
+                    # Don't log the normal success case
                     log_action = self.logger.debug
+                else:
+                    # Warning when nothing happened
+                    log_action = self.logger.warning
                 log_action(
                     "posted status (start ts: {}, end ts: {}, duration: {:.2f}s,"
                     " successes: {:d}, duplicates: {:d}, failures: {:d},"
