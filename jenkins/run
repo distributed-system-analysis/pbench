@@ -62,7 +62,7 @@ fi
 # in the container.
 find . -name __pycache__ -exec rm -r {} \; > /dev/null 2>&1
 
-podman run --rm -it \
+podman run --rm -it --init \
     --pull=newer \
     --userns=keep-id \
     --env-host \
@@ -71,4 +71,4 @@ podman run --rm -it \
     --volume ${_var_tmp}:/var/tmp:z \
     --volume $(pwd):/home/pbench:z \
     -w /home/pbench \
-    ${IMAGE} /bin/bash -c "${*}"
+    ${EXTRA_PODMAN_SWITCHES} ${IMAGE} "${*}"
