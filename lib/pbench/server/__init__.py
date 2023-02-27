@@ -125,7 +125,6 @@ class PbenchServerConfig(PbenchConfig):
             "BINDIR",
             "CACHE",
             "LIBDIR",
-            "LOGSDIR",
             "TMP",
             "TOP",
             "rest_uri",
@@ -183,24 +182,6 @@ class PbenchServerConfig(PbenchConfig):
     @property
     def TMP(self) -> Path:
         return self._get_valid_dir_option("TMP", "pbench-server", "pbench-tmp-dir")
-
-    @property
-    def LOGSDIR(self) -> Path:
-        if self.log_dir:
-            # We have a logging directory, which means the logger_type is
-            # "file", so we'll ignore any "pbench-logs-dir" configuration
-            # values.
-            return Path(self.log_dir)
-
-        # We don't have a [logging] section "log_dir" option, so we'll
-        # fetch the old "pbench-logs-dir" option.
-        logsdir = self._get_valid_dir_option(
-            "LOGSDIR", "pbench-server", "pbench-logs-dir"
-        )
-        # Provide a value for log_dir since it was provided via the old
-        # pbench-logs-dir configuration.
-        self.log_dir = str(logsdir)
-        return logsdir
 
     @property
     def BINDIR(self) -> Path:

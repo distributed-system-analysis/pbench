@@ -82,7 +82,7 @@ class TestCacheManager:
         match = temp.match(str(cm.archive_root))
         root = match.group(1)
         assert str(cm.archive_root) == root + "/srv/pbench/archive/fs-version-001"
-        assert str(cm.cache_root) == root + "/srv/pbench/.cache"
+        assert str(cm.cache_root) == root + "/srv/pbench/cache"
 
     def test_discover_empties(self, server_config, make_logger):
         """
