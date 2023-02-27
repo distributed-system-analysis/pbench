@@ -224,7 +224,7 @@ class Upload(ApiBase):
             # Create a tracking dataset object; it'll begin in UPLOADING state
             try:
                 dataset = Dataset(
-                    owner_id=user_id,
+                    owner=username,
                     name=Dataset.stem(tar_full_path),
                     resource_id=md5sum,
                     access=access,

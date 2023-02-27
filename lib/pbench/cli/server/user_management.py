@@ -7,7 +7,7 @@ from pbench.cli.server.options import common_options
 from pbench.server.database.models.users import User
 
 USER_LIST_ROW_FORMAT = "{0:15}\t{1:36}"
-USER_LIST_HEADER_ROW = USER_LIST_ROW_FORMAT.format("Username", "oidc id")
+USER_LIST_HEADER_ROW = USER_LIST_ROW_FORMAT.format("Username", "OIDC ID")
 
 
 @click.group("user_group")

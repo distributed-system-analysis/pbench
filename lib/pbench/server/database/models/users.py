@@ -48,7 +48,7 @@ class UserDuplicate(UserError):
 
 
 class UserNullKey(UserError):
-    """Attempt to commit an User row with an empty required column."""
+    """Attempt to commit a User row with an empty required column."""
 
     def __init__(self, user: "User", cause: str):
         self.user = user
