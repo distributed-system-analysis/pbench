@@ -4348,7 +4348,6 @@ drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TODO
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/UNPACKED
 lrwxrwxrwx         52 archive/fs-version-001/EC2::ip-172-31-52-154/UNPACKED/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz -> ../pbench-user-benchmark__2018.02.05T20.35.36.tar.xz
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/WONT-INDEX

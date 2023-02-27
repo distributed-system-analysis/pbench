@@ -176,7 +176,6 @@ drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/bad-controller/TODO
 drwxrwxr-x          - archive/fs-version-001/bad-controller/UNPACKED
 lrwxrwxrwx         52 archive/fs-version-001/bad-controller/UNPACKED/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz -> ../pbench-user-benchmark__2018.02.05T20.35.36.tar.xz
 lrwxrwxrwx         39 archive/fs-version-001/bad-controller/UNPACKED/test_7.18_2018.02.05T15.31.08.tar.xz -> ../test_7.18_2018.02.05T15.31.08.tar.xz

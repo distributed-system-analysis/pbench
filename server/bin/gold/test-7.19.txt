@@ -2258,7 +2258,6 @@ drwxrwxr-x          - archive/fs-version-001/perf122/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/perf122/TODO
 drwxrwxr-x          - archive/fs-version-001/perf122/UNPACKED
 lrwxrwxrwx        117 archive/fs-version-001/perf122/UNPACKED/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz -> ../trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz
 drwxrwxr-x          - archive/fs-version-001/perf122/WONT-INDEX

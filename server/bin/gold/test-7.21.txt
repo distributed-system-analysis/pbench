@@ -5442,7 +5442,6 @@ drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TODO
 drwxrwxr-x          - archive/fs-version-001/ctlrA/UNPACKED
 lrwxrwxrwx         45 archive/fs-version-001/ctlrA/UNPACKED/trafficgen_mock_2020.02.28T19.49.39.tar.xz -> ../trafficgen_mock_2020.02.28T19.49.39.tar.xz
 lrwxrwxrwx         45 archive/fs-version-001/ctlrA/UNPACKED/trafficgen_mock_2020.02.28T20.04.29.tar.xz -> ../trafficgen_mock_2020.02.28T20.04.29.tar.xz

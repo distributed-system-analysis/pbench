@@ -171,10 +171,10 @@ for host in $hosts ;do
     # Get the tarball list for this host.
     find $unpack/$host -type f -name '*.tar.xz.md5' | sort > $tmp/$host.tb.lis
 
-    # Loop over the .MD5 files moving the tar balls into the regular reception
-    # area first, since `pbench-server-prep-shim` won't do anything with the
-    # .md5 file present, then moving the .md5 files, and recording success for
-    # updating the remote host.
+    # Loop over the .MD5 files, first moving the tar balls into the regular
+    # reception area, since no tar ball will be processed in the reception area
+    # without a .md5 file present, then moving the .md5 files into place, and
+    # recording success for updating the remote host.
     while read tbmd5; do
         mv ${tbmd5%*.md5} ./
         status=$?

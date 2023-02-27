@@ -3,222 +3,284 @@
 
 # This script is the first part of the pipeline that processes pbench
 # results tar balls.
-
-# `pbench-dispatch` looks in all the TODO directories, checks MD5 sums and
-# creates symlinks in all the state directories for the particular environment
-# where this server runs, e.g. a production environment may want the tar balls
-# unpacked (TO-UNPACK), backed up (TO-BACKUP), and indexed (TO-INDEX), while
-# a satellite environment may only need to prepare the tar ball to be synced to
-# the main server (TO-SYNC).  Then the symlink in TODO is deleted: we don't want
-# to deal with this tar ball again; but if there are recoverable errors, we may
-# keep it in TODO and try again later.  Any errors are reported for possible
-# action by an admin.
 #
-
-# assumptions:
-# - this script runs as a cron job
-# - tar balls and md5 sums are uploaded by pbench-move/copy-results to
-#   $ARCHIVE/$(hostname -s) area.
-# FIXME: the above should be to the reception area ...
-# - pbench-move/copy-results also makes a symlink to each tar ball it
-#   uploads in $ARCHIVE/TODO, thereby telling this script to process
-#   the tar ball.
-# FIXME: the pbench shims do that now ...
-
-# load common things
-. $dir/pbench-base.sh
-
-# check that all the directories exist
-test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
-test -d $UNPACK_DIR || doexit "Bad UNPACK=$UNPACK_DIR"
-
-tmp=$TMP/$PROG.$$
-
-trap 'rm -rf $tmp' EXIT INT QUIT
-mkdir -p $tmp || doexit "Failed to create $tmp"
-
-log_init $PROG
-
+# `pbench-dispatch` prepares tar balls that a version 002 SSH client submits
+# for processing (`pbench-agent` v0.51 and later).  It verifies the tar balls
+# and their MD5 check-sums and then moves the tar balls to the archive tree,
+# setting up the appropriate state links (e.g. a production environment may
+# want the tar balls unpacked (TO-UNPACK), backed up (TO-BACKUP), and indexed
+# (TO-INDEX), while a satellite environment may only need to prepare the
+# tar ball to be synced to the main server (TO-SYNC)).
+#
+# Only tar balls that have a `.md5` file are considered, since the client might
+# still be in the process of sending over the tar ball (typically, the client
+# writes the `.md5` file named `.md5.check` to avoid `pbench-dispatch`
+# considering it while the client copies the tar ball contents over, and then
+# renames it as `.md5` when the client has verified the check-sum).
+#
 # WARNING: it is up to the caller to make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /path/to/pbench-dispatch' in the crontab to
 # ensure that only one copy is running. The script itself does not use
 # any locking.
+#
+# Assumptions:
+# - This script runs as a cron job
+# - Tar balls and md5 check-sum files are uploaded by pbench-move/copy-results
+#   to the "pbench-receive-dir-prefix" reception area.
 
-# the link source and destination for this script
-linksrc=TODO
-linkdestlist=$(getconf.py -l dispatch-states pbench-server)
+# Load common things
+. ${dir}/pbench-base.sh
 
-mail_content=$tmp/mail_content.log
-index_content=$tmp/index_mail_contents
+# Need /usr/sbin in the PATH for `restorecon`
+if [[ ! ":${PATH}:" =~ ":/usr/sbin:" ]]; then
+   PATH=${PATH}:/usr/sbin; export PATH
+fi
 
-# Initialize index mail content
-> $index_content
-> $mail_content
+# Check that all the directories exist.
+test -z "${ARCHIVE}" -o -d ${ARCHIVE} || doexit "Bad ARCHIVE=${ARCHIVE}"
 
-if [ -z "$linkdestlist" ]; then
-    log_error "$TS: config file error: either no dispach-states defined or a typo"
-    subj="$PROG.$TS($PBENCH_ENV) - Config file error"
-    cat << EOF > $index_content
-$subj
-config file error: either no dispach-states defined or a typo
-EOF
-    pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type error ${index_content}
-    log_finish
+errlog=${LOGSDIR}/${PROG}/${PROG}.error
+mkdir -p ${LOGSDIR}/${PROG}
+sts=${?}
+if [[ ${sts} != 0 ]]; then
+    echo "Failed: \"mkdir -p ${LOGSDIR}/${PROG}\", status ${sts}" >> ${errlog}
     exit 1
 fi
 
-log_info $TS
+linkdestlist=$(getconf.py -l dispatch-states pbench-server)
+if [[ -z "${linkdestlist}" ]]; then
+    echo "Failed: \"getconf.py -l dispatch-states pbench-server\"" >> ${errlog}
+    exit 2
+fi
 
-# Find all the links in all the $ARCHIVE/<controller>/$linksrc
-# directories, emitting a list of their full paths with the size
-# in bytes of the file the link points to, and then sort them so
-# that we process the smallest tar balls first.
-list=$tmp/list
-> ${list}.unsorted
-# First we find all the $linksrc directories
-for linksrc_dir in $(find $ARCHIVE/ -maxdepth 2 -type d -name $linksrc); do
-    # Find all the links in a given $linksrc directory that are
-    # links to actual files (bad links are not emitted!).
-    find -L $linksrc_dir -type f -name '*.tar.xz' -printf "%p\n" 2>/dev/null >> ${list}.unsorted
-    # Find all the links in the same $linksrc directory that don't
-    # link to anything so that we can count them as errors below.
-    find -L $linksrc_dir -type l -name '*.tar.xz' -printf "%p\n" 2>/dev/null >> ${list}.unsorted
-done
-# Simple alphabetical sort
+qdir=$(getconf.py pbench-quarantine-dir pbench-server)
+if [[ -z "${qdir}" ]]; then
+    echo "Failed: \"getconf.py pbench-quarantine-dir pbench-server\"" >> ${errlog}
+    exit 2
+fi
+if [[ ! -d "${qdir}" ]]; then
+    echo "Failed: ${qdir} does not exist, or is not a directory" >> ${errlog}
+    exit 2
+fi
+
+# We are explicitly handling only version 002 data.
+version="002"
+
+receive_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
+if [[ -z "${receive_dir_prefix}" ]]; then
+    echo "Failed: \"getconf.py pbench-receive-dir-prefix pbench-server\"" >> ${errlog}
+    exit 2
+fi
+receive_dir=${receive_dir_prefix}-${version}
+if [[ ! -d "${receive_dir}" ]]; then
+    echo "Failed: ${receive_dir} does not exist, or is not a directory" >> ${errlog}
+    exit 2
+fi
+
+quarantine=${qdir}/md5-${version}
+mkdir -p ${quarantine}
+sts=${?}
+if [[ ${sts} != 0 ]]; then
+    echo "Failed: \"mkdir -p ${quarantine}\", status ${sts}" >> ${errlog}
+    exit 3
+fi
+
+duplicates=${qdir}/duplicates-${version}
+mkdir -p ${duplicates}
+sts=${?}
+if [[ ${sts} != 0 ]]; then
+    echo "Failed: \"mkdir -p ${duplicates}\", status ${sts}" >> ${errlog}
+    exit 3
+fi
+
+# The following directory holds tar balls that are quarantined because
+# of operational errors on the server. They should be retried after
+# the problem is fixed: basically, move them back into the reception
+# area for 002 agents and wait.
+errors=${qdir}/errors-${version}
+mkdir -p ${errors}
+sts=${?}
+if [[ ${sts} != 0 ]]; then
+    echo "Failed: \"mkdir -p ${errors}\", status ${sts}" >> ${errlog}
+    exit 3
+fi
+
+log_init ${PROG}
+
+tmp=${TMP}/${PROG}.${$}
+
+trap 'rm -rf ${tmp}' EXIT INT QUIT
+
+mkdir -p ${tmp}
+sts=${?}
+if [[ ${sts} != 0 ]]; then
+    log_exit "Failed: \"mkdir -p ${tmp}\", status ${sts}" 4
+fi
+
+# Setup the report file.
+status=${tmp}/status
+> ${status}
+
+# Mark the beginning of execution.
+log_info ${TS}
+
+# File that will contain the list of all .md5 files to be processed.
+list=${tmp}/list.check
+
+# Check for results that are ready for processing: version 002 agents
+# upload the MD5 file as xxx.md5.check and they rename it to xxx.md5
+# after they are done with MD5 checking so that's what we look for.
+find ${receive_dir} -maxdepth 2 -name '*.tar.xz.md5' > ${list}.unsorted
+sts=${?}
+if [[ ${sts} != 0 ]]; then
+    log_exit "Failed: \"find ${receive_dir} -maxdepth 2 -name '*.tar.xz.md5'\", status ${sts}" 5
+fi
 sort ${list}.unsorted > ${list}
-rm -f ${list}.unsorted
+sts=${?}
+if [[ ${sts} != 0 ]]; then
+    log_exit "Failed: \"sort ${list}.unsorted > ${list}\", status ${sts}" 6
+fi
 
-typeset -i ntb=0
 typeset -i ntotal=0
+typeset -i ntbs=0
+typeset -i npartialsucc=0
 typeset -i nerrs=0
 typeset -i ndups=0
-typeset -i npartialsucc=0
+typeset -i nquarantined=0
 
-while read tarball ;do
-    let ntotal+=1
+while read tbmd5; do
+    ntotal=${ntotal}+1
 
-    linksrc_path=$(dirname $tarball)
-    tb_linksrc=$(basename $linksrc_path)
-    if [ "$linksrc" != "$tb_linksrc" ]; then
-        # All is NOT well: we expect $linksrc as the parent directory name
-        # of the symlink tar ball name.
-        log_exit "$TS: FATAL - unexpected \$linksrc for $tarball" 57
-    fi
+    # Full pathname of tar ball
+    tb=${tbmd5%.md5}
 
-    controller_path=$(dirname $linksrc_path)
-    controller=$(basename $controller_path)
-    if [ "$ARCHIVE" != "$(dirname $controller_path)" ]; then
-        # The controller's parent is not $ARCHIVE!
-        log_exit "$TS: FATAL - unexpected archive directory for $tarball" 57
-    fi
+    # Controller directory path
+    tbdir=$(dirname ${tb})
 
-    link=$(readlink -e $tarball)
-    if [ -z "$link" ] ;then
-        log_error "$TS: symlink target for $tarball does not exist" "${mail_content}"
-        let nerrs+=1
-        quarantine ${controller_path}/_QUARANTINED/BAD-LINK ${tarball}
-        continue
-    fi
-
-    resultname=$(basename $tarball)
+    # resultname: get the basename foo.tar.xz and then strip the .tar.xz
+    resultname=$(basename ${tb})
     resultname=${resultname%.tar.xz}
 
-    # XXXX - for now, if it's a duplicate name, just punt and avoid
-    # producing the error
-    if [ ${resultname%%.*} == "DUPLICATE__NAME" ] ;then
-        let ndups+=1
-        quarantine ${controller_path}/_QUARANTINED/DUPLICATES ${link} ${link}.md5
-        rm -f ${tarball}
-        status=$?
-        if [ $status -ne 0 ] ;then
-            log_error "$TS: Cannot remove $tarball link: code $status" "${mail_content}"
-        fi
+    # The controller hostname is the last component of the directory part of
+    # the full path
+    controller=$(basename ${tbdir})
+
+    dest=${ARCHIVE}/${controller}
+
+    if [[ -f ${dest}/${resultname}.tar.xz || -f ${dest}/${resultname}.tar.xz.md5 ]]; then
+        log_error "${TS}: Duplicate: ${tb} duplicate name" "${status}"
+        quarantine ${duplicates}/${controller} ${tb} ${tbmd5}
+        (( ndups++ ))
         continue
     fi
 
-    # make sure that all the relevant state directories exist
-    mk_dirs $controller
-    status=$?
-    if [ $status -ne 0 ] ;then
-        log_error "$TS: Creation of $controller processing directories failed for $tarball: code $status" "${mail_content}"
-        let nerrs+=1
-        continue
-    fi
-
-    pushd ${controller_path} > /dev/null 2>&4
+    pushd ${tbdir} > /dev/null 2>&4
     md5sum --check ${resultname}.tar.xz.md5
-    sts=$?
-    popd >/dev/null 2>&4
-    if [ $sts -ne 0 ] ;then
-        log_error "$TS: MD5 check of ${link} failed for ${tarball}" "${mail_content}"
-        quarantine ${controller_path}/_QUARANTINED/BAD-MD5 ${link} ${link}.md5
-        rm -f ${tarball}
-        status=$?
-        if [ $status -ne 0 ] ;then
-            log_error "$TS: Cannot remove $tarball link: code $status" "${mail_content}"
-        fi
-        let nerrs+=1
+    sts=${?}
+    popd > /dev/null 2>&4
+    if [[ ${sts} -ne 0 ]]; then
+        log_error "${TS}: Quarantined: ${tb} failed MD5 check" "${status}"
+        quarantine ${quarantine}/${controller} ${tb} ${tb}.md5
+        (( nquarantined++ ))
         continue
     fi
 
-    # create a link in each state dir - if any fail, we should delete them all? No, that
-    # would be racy.
+    # Make sure that all the relevant state directories exist
+    mk_dirs ${controller}
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        log_error "${TS}: Creation of ${controller} processing directories failed for ${tb}: code ${sts}" "${status}"
+        (( nerrs++ ))
+        continue
+    fi
+
+    # First, copy the small .md5 file to the destination. That way, if
+    # that operation fails it will fail quickly since the file is small.
+    cp -a ${tb}.md5 ${dest}/
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        log_error "${TS}: Error: \"cp -a ${tb}.md5 ${dest}/\", status ${sts}" "${status}"
+        (( nerrs++ ))
+        continue
+    fi
+
+    # Next, mv the "large" tar ball to the destination. If the destination
+    # is on the same device, the move should be quick. If the destination is
+    # on a different device, the move will be a copy and delete, and will
+    # take a bit longer.  If it fails, the file will NOT be at the
+    # destination.
+    mv ${tb} ${dest}/
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        log_error "${TS}: Error: \"mv ${tb} ${dest}/\", status ${sts}" "${status}"
+        rm ${dest}/${resultname}.tar.xz.md5
+        sts=${?}
+        if [[ ${sts} -ne 0 ]]; then
+            log_error "${TS}: Warning: cleanup of move failure failed itself: \"rm ${dest}/${resultname}.tar.xz.md5\", status ${sts}" "${status}"
+        fi
+        (( nerrs++ ))
+        continue
+    fi
+
+    # mv, as well as cp -a, does not restore the SELinux context properly, so
+    # we do it by hand
+    tbname=${resultname}.tar.xz
+    restorecon ${dest}/${tbname} ${dest}/${tbname}.md5
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        # log it but do not abort
+        log_error "${TS}: Error: \"restorecon ${dest}/${tbname} ${dest}/${tbname}.md5\", status ${sts}" "${status}"
+    fi
+
+    # Now that we have successfully moved the tar ball and its .md5 to the
+    # destination, we can remove the original .md5 file.
+    rm ${tb}.md5
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        log_error "${TS}: Warning: cleanup of successful copy operation failed: \"rm ${tb}.md5\", status ${sts}" "${status}"
+    fi
+
+    # Create a link in each state dir - if any fail we don't delete them
+    # because we have race conditions with other cron jobs.
     let toterr=0
     let totsuc=0
-    for state in $linkdestlist ;do
-        ln -sf $link ${controller_path}/${state}/
-        status=$?
-        if [ $status -eq 0 ] ;then
-            let totsuc+=1
+    for state in ${linkdestlist}; do
+        ln -sf ${dest}/${tbname} ${dest}/${state}/
+        sts=${?}
+        if [[ ${sts} -eq 0 ]]; then
+            (( totsuc++ ))
         else
-            log_error "$TS: Cannot create $tarball link to $state: code $status" "${mail_content}"
-            let toterr+=1
+            log_error "${TS}: Cannot create ${dest}/${tbname} link to ${state}: code ${sts}" "${status}"
+            (( toterr++ ))
         fi
     done
-    if [ $toterr -gt 0 ]; then
+    if [[ ${toterr} -gt 0 ]]; then
         # Count N link creations as one error since it is for handling of a
         # single tar ball.
-        let nerrs+=1
+        (( nerrs++ ))
     fi
-    if [ $totsuc -gt 0 ]; then
-        # We had at least one successful link state creation above.  So
-        # it is safe to remove the original link, as we'll use the logs
-        # to track down how to recover.
-        rm -f $tarball
-        status=$?
-        if [ $status -ne 0 ] ;then
-            log_error "$TS: Cannot remove $tarball link: code $status" "${mail_content}"
-            if [ $toterr -eq 0 ]; then
-                # We had other errors already counted against the total
-                # so don't bother counting this error
-                let nerrs+=1
-            fi
-        fi
-        let ntb+=1
-        if [ $toterr -gt 0 ]; then
-            # We have had some errors while processing this tar ball, so
-            # count this as a partial success.
-            log_info "$TS: $controller/$resultname: success (partial)"
-            let npartialsucc+=1
+    if [[ ${totsuc} -gt 0 ]]; then
+        # We had at least one successful link state creation above.
+        (( ntbs++ ))
+        if [[ ${toterr} -gt 0 ]]; then
+            # We have had some errors while processing this tar ball, so count
+            # this as a partial success.
+            log_info "${TS}: ${controller}/${resultname}: success (partial)" "${status}"
+            (( npartialsucc++ ))
         else
-            log_info "$TS: $controller/$resultname: success"
+            log_info "${TS}: ${controller}/${resultname}: success" "${status}"
         fi
     fi
-done < $list
+done < ${list}
 
-summary_text="Processed $ntotal result tar balls, $ntb successfully ($npartialsucc partial), with $nerrs errors, and $ndups duplicates"
+summary_text="Processed ${ntotal} result tar balls, ${ntbs} successfully"\
+" (${npartialsucc} partial), with ${nquarantined} quarantined tar balls,"\
+" ${ndups} duplicately-named tar balls, and ${nerrs} errors."
 
-log_info "$TS: $summary_text"
+log_info "${PROG}.${TS}(${PBENCH_ENV}): ${summary_text}" "${status}"
 
 log_finish
 
-subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
-cat << EOF > $index_content
-$subj
-$summary_text
+pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${status}
 
-EOF
-cat $mail_content >> $index_content
-pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${index_content}
-
-exit 0
+exit ${nerrs}

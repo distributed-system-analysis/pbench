@@ -113,11 +113,11 @@ function gen_work_list() {
         # Find all the links in a given ${linksrc} directory that are links to
         # actual files (bad links are not emitted!).  For now, if it's a
         # duplicate name, just punt and avoid producing an error.
-        find -L ${linksrc_dir} -type f -name '*.tar.xz' ! -name 'DUPLICATE__NAME*' ${lb_arg} ${ub_arg} -printf "%TY-%Tm-%TdT%TT %s %p\n" 2>/dev/null >> ${list}.unsorted
+        find -L ${linksrc_dir} -type f -name '*.tar.xz' ${lb_arg} ${ub_arg} -printf "%TY-%Tm-%TdT%TT %s %p\n" 2>/dev/null >> ${list}.unsorted
         if [[ ${lowerbound} == 0 ]]; then
             # Find all the links in the same ${linksrc} directory that don't
             # link to anything so that we can count them as errors below.
-            find -L $linksrc_dir -type l -name '*.tar.xz' ! -name 'DUPLICATE__NAME*' -printf "%TY-%Tm-%TdT%TT %s %p\n" 2>/dev/null >> ${list}.unsorted
+            find -L $linksrc_dir -type l -name '*.tar.xz' -printf "%TY-%Tm-%TdT%TT %s %p\n" 2>/dev/null >> ${list}.unsorted
         fi
     done
     sort -k 1 -r ${list}.unsorted > ${list}

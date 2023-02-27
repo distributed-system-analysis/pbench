@@ -7825,7 +7825,6 @@ drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TODO
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/UNPACKED
 lrwxrwxrwx         66 archive/fs-version-001/b03-h01-1029p/UNPACKED/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz -> ../pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/WONT-INDEX

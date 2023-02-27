@@ -3552,7 +3552,6 @@ drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ansible-host/TODO
 drwxrwxr-x          - archive/fs-version-001/ansible-host/UNPACKED
 lrwxrwxrwx         66 archive/fs-version-001/ansible-host/UNPACKED/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz -> ../pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ansible-host/WONT-INDEX

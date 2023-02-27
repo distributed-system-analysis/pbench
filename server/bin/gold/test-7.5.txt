@@ -416,7 +416,6 @@ drwxrwxr-x          - archive/fs-version-001/alphaville/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/alphaville/TODO
 drwxrwxr-x          - archive/fs-version-001/alphaville/UNPACKED
 lrwxrwxrwx         38 archive/fs-version-001/alphaville/UNPACKED/test_7.5_2015.09.21T15.31.08.tar.xz -> ../test_7.5_2015.09.21T15.31.08.tar.xz
 drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-INDEX

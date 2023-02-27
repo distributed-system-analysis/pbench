@@ -1600,7 +1600,6 @@ drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/rhel8-1/TODO
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/UNPACKED
 lrwxrwxrwx         74 archive/fs-version-001/rhel8-1/UNPACKED/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz -> ../uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/WONT-INDEX

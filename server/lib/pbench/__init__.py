@@ -296,9 +296,8 @@ class PbenchConfig(object):
         # needed.  Every related state directories are paired together with
         # their final state at the end.
         self.LINKDIRS = (
-            "TODO"
             # All unpack tar balls operational states
-            " TO-UNPACK TO-RE-UNPACK UNPACKED WONT-UNPACK"
+            "TO-UNPACK TO-RE-UNPACK UNPACKED WONT-UNPACK"
             # All backup operational states
             " TO-BACKUP BACKED-UP BACKUP-FAILED"
             # All indexing operational states

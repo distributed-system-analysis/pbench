@@ -1,9 +1,6 @@
 +++ Running pbench-sync-satellite satellite-one
 pbench-sync-satellite: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-sync-satellite (status=1)
-+++ Running pbench-server-prep-shim-002
-pbench-server-prep-shim-002: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
---- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-dispatch
 pbench-dispatch: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-dispatch (status=1)

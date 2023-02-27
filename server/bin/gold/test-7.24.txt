@@ -1247,7 +1247,6 @@ drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TODO
 drwxrwxr-x          - archive/fs-version-001/ctlrA/UNPACKED
 lrwxrwxrwx         72 archive/fs-version-001/ctlrA/UNPACKED/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz -> ../pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz
 lrwxrwxrwx         93 archive/fs-version-001/ctlrA/UNPACKED/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz -> ../pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz
