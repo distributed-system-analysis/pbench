@@ -15,6 +15,8 @@ _branch_name="$(cat jenkins/branch.name)"
 IMAGE_REPO=${IMAGE_REPO:-"quay.io/pbench"}
 IMAGE=${IMAGE:-"${IMAGE_REPO}/pbench-devel:${_branch_name}"}
 
+EXTRA_PODMAN_SWITCHES=${EXTRA_PODMAN_SWITCHES:-"-it"}
+
 if [[ -z "${BUILD_NUMBER}" ]]; then
     # Not in a Jenkins job ...
     WORKSPACE_TMP=/tmp/${USER}/jenkins-run
@@ -62,13 +64,15 @@ fi
 # in the container.
 find . -name __pycache__ -exec rm -r {} \; > /dev/null 2>&1
 
-podman run --rm -it --init \
+podman run \
+    --init \
     --pull=newer \
     --userns=keep-id \
+    --security-opt label=disable \
     --env-host \
     --ulimit nofile=65536:65536 \
-    --volume ${_tmp}:/tmp:z \
-    --volume ${_var_tmp}:/var/tmp:z \
-    --volume $(pwd):/home/pbench:z \
+    --volume ${_tmp}:/tmp \
+    --volume ${_var_tmp}:/var/tmp \
+    --volume $(pwd):/home/pbench \
     -w /home/pbench \
-    ${EXTRA_PODMAN_SWITCHES} ${IMAGE} "${*}"
+    ${EXTRA_PODMAN_SWITCHES} ${IMAGE} "${@}"
