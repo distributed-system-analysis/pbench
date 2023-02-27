@@ -25,14 +25,6 @@ if [[ ${flake_sts} -ne 0 ]]; then
     (( errors++ ))
 fi
 
-printf -- "\n\npytests ...\n"
-pytest server/lib/pbench/test/unit
-pytest_sts=${?}
-if [[ ${pytest_sts} -ne 0 ]]; then
-    printf -- "FAILED: pytest server/lib/pbench/test/unit\n" >&2
-    (( errors++ ))
-fi
-
 printf -- "\n\n\n"
 
 export PBENCH_UNITTEST_SERVER_MODE=parallel

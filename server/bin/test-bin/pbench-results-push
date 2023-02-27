@@ -1,5 +1,18 @@
 #! /bin/bash
 
 echo "${0##*/} $*" >> $_testlog
-test -n "${_PBENCH_AGENT_CONFIG}"
+
+test -n "${_PBENCH_AGENT_CONFIG}" || exit ${?}
+
+tb=${1}
+tbmd5="${tb}.md5"
+if [[ ! -f ${tb} || ! -f ${tbmd5} ]]; then
+    echo "pbench-results-push(mock): bad tar ball argument, \"${tb}\"" >&2
+    exit 2
+fi
+controller_d="${ARCHIVE}/$(basename $(dirname ${tb}))"
+if [[ ! -d "${controller_d}" ]]; then
+    mkdir ${controller_d} || exit ${?}
+fi
+/bin/cp -n -a ${tb} ${tbmd5} ${controller_d}/
 exit ${?}

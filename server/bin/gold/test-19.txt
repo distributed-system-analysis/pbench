@@ -68,38 +68,28 @@ lrwxrwxrwx         70 users -> /var/tmp/pbench-test-server/test-19/pbench-satell
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/ctrl-00
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-DELETE
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-INDEX
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/UNPACKED
 lrwxrwxrwx        118 archive/fs-version-001/ctrl-00/UNPACKED/tarball_config-00_1970.01.01T00.00.40.tar.xz -> /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz
 lrwxrwxrwx        118 archive/fs-version-001/ctrl-00/UNPACKED/tarball_config-01_1970.01.01T00.00.42.tar.xz -> /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/WONT-UNPACK
 -rw-rw-r--        224 archive/fs-version-001/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz
 -rw-rw-r--         79 archive/fs-version-001/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz.md5
 -rw-rw-r--        228 archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz
 -rw-rw-r--         79 archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/ctrl-01
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-DELETE
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-INDEX
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/UNPACKED
 lrwxrwxrwx        118 archive/fs-version-001/ctrl-01/UNPACKED/tarball_config-02_1970.01.01T00.00.41.tar.xz -> /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz
 lrwxrwxrwx         51 archive/fs-version-001/ctrl-01/UNPACKED/tarball_config-exists_1970.01.01T00.00.39.tar.xz -> ../tarball_config-exists_1970.01.01T00.00.39.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/WONT-UNPACK
 -rw-rw-r--        228 archive/fs-version-001/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz
 -rw-rw-r--         79 archive/fs-version-001/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz.md5

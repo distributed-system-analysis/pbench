@@ -40,15 +40,12 @@ binlinks = \
 	pbench-clean-up-dangling-results-links\
 	pbench-cull-unpacked-tarballs\
 	pbench-dispatch\
-	pbench-index\
-	pbench-reindex\
 	pbench-satellite-cleanup\
 	pbench-satellite-state-change\
 	pbench-sync-package-tarballs\
 	pbench-sync-satellite\
 	pbench-tarball-stats\
 	pbench-unpack-tarballs\
-	pbench-verify-indexed
 
 # targets
 .PHONY: install \

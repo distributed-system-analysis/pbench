@@ -1,7 +1,4 @@
 #!/bin/bash
 
-cat > ${_testroot}/agent-profile <<-EOF
-	export _PBENCH_AGENT_CONFIG="fake"
-	EOF
 mkdir pbench-local/archive.backup
 exit ${?}

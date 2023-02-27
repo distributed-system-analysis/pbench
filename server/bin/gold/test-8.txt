@@ -14,8 +14,6 @@ MAILFROM=pbench@pbench.example.com
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-unpack-tarballs-large.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-unpack-tarballs large
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-unpack-tarballs-huge.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-unpack-tarballs huge
 1 2 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-cull-unpacked-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-cull-unpacked-tarballs
-* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-index.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-index
-* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-re-index.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-index --re-index
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-sync-satellite-ONE.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-sync-satellite satellite-one
 ---- /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
 ++++ /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/crontab/crontab

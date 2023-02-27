@@ -7,8 +7,7 @@ fi
 
 pip3 install --no-cache-dir --progress-bar off --no-color --prefix="${_prefix}" \
     -r ${progdir}/lint-requirements.txt \
-    -r ${progdir}/server/requirements.txt \
-    -r ${progdir}/server/test-requirements.txt \
+    -r ${progdir}/server/requirements.txt
 
 _pdir=${_prefix}/bin
 if [[ ":${PATH:-}:" != *":${_pdir}:"* ]]; then

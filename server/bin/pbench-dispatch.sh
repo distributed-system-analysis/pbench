@@ -8,9 +8,9 @@
 # for processing (`pbench-agent` v0.51 and later).  It verifies the tar balls
 # and their MD5 check-sums, backups them up, and then moves the tar balls to the
 # archive tree, setting up the appropriate state links (e.g. a production
-# environment may want the tar balls unpacked (TO-UNPACK) and indexed
-# (TO-INDEX), while a satellite environment may only need to prepare the tar
-# ball to be synced to the main server (TO-SYNC)).
+# environment may want the tar balls unpacked (TO-UNPACK), while a satellite
+# environment may only need to prepare the tar ball to be synced to the main
+# server (TO-SYNC)).
 #
 # Only tar balls that have a `.md5` file are considered, since the client might
 # still be in the process of sending over the tar ball (typically, the client
@@ -63,14 +63,16 @@ fi
 # Optional "PUT API" bearer token for sending tar balls to the "new" Pbench
 # Server.
 put_token=$(getconf.py put-token pbench-server)
-if [[ -n "${put_token}" ]]; then
-    agent_profile=$(getconf.py agent-profile pbench-server)
-    if [[ ! -e "${agent_profile}" ]]; then
-        echo "Failed: PUT API token provided but no pbench-agent profile" >> ${errlog}
-        exit 2
-    fi
-    source ${agent_profile}
+if [[ -z "${put_token}" ]]; then
+    echo "Failed: \"getconf.py put-token pbench-server\"" >> ${errlog}
+    exit 2
 fi
+agent_profile=$(getconf.py agent-profile pbench-server)
+if [[ ! -e "${agent_profile}" ]]; then
+    echo "Failed: PUT API token provided but no pbench-agent profile" >> ${errlog}
+    exit 2
+fi
+source ${agent_profile}
 
 qdir=$(getconf.py pbench-quarantine-dir pbench-server)
 if [[ -z "${qdir}" ]]; then
@@ -239,29 +241,40 @@ while read tbmd5; do
         fi
     fi
 
-    if [[ ! -z "${put_token}" ]]; then
-        # We have a bearer token for the PUT API of a "new" Pbench Server,
-        # invoke the `pbench-results-push` agent CLI to send it to the
-        # server (configuration of that server handled elsewhere).
+    # We have a bearer token for the PUT API of a "new" Pbench Server, invoke
+    # the `pbench-results-push` agent CLI to send it to the server
+    # (configuration of that server handled elsewhere).
 
-        # All tar balls pushed to the "new" Pbench Server are made public just
-        # like they are all public on the current "old" Pbench Server.
-        push_options="--token ${put_token} --access=public"
-        push_options+=" --metadata=global.server.legacy.version:${server_version}"
-        push_options+=" --metadata=global.server.legacy.sha1:${server_sha1}"
-        push_options+=" --metadata=global.server.legacy.hostname:${server_hostname}"
-        satellite=${controller%%::*}
-        if [[ "${controller}" != "${satellite}" ]]; then
-            push_options+=" --metadata=server.origin:${satellite}"
-        fi
-        pbench-results-push ${tb} ${push_options}
-        sts=${?}
-        if [[ ${sts} -ne 0 ]]; then
-            log_warn "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}"
-        fi
+    # All tar balls pushed to the "new" Pbench Server are made public just
+    # like they are all public on the current "old" Pbench Server.
+    push_options="--token ${put_token} --access=public"
+    push_options+=" --metadata=global.server.legacy.version:${server_version}"
+    push_options+=" --metadata=global.server.legacy.sha1:${server_sha1}"
+    push_options+=" --metadata=global.server.legacy.hostname:${server_hostname}"
+    satellite=${controller%%::*}
+    if [[ "${controller}" != "${satellite}" ]]; then
+        push_options+=" --metadata=server.origin:${satellite}"
+    fi
+    pbench-results-push ${tb} ${push_options}
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        log_error "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}"
+        (( nerrs++ ))
+        continue
     fi
 
-    # Make sure that all the relevant state directories exist
+    # Ensure the SELinux context is properly set.
+    tbname=${resultname}.tar.xz
+    restorecon ${dest}/${tbname} ${dest}/${tbname}.md5
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        # This likely means the PUT API failed unexpectedly.
+        log_error "${TS}: Error: \"restorecon ${dest}/${tbname} ${dest}/${tbname}.md5\", status ${sts}"
+        (( nerrs++ ))
+        continue
+    fi
+
+    # Make sure that all the relevant state directories exist.
     mk_dirs ${controller}
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
@@ -270,50 +283,11 @@ while read tbmd5; do
         continue
     fi
 
-    # First, copy the small .md5 file to the destination. That way, if
-    # that operation fails it will fail quickly since the file is small.
-    cp -a ${tbmd5} ${dest}/
+    # All is in place, remove the tar ball and its .md5 from the reception area.
+    rm ${tbmd5} ${tb}
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Error: \"cp -a ${tbmd5} ${dest}/\", status ${sts}"
-        (( nerrs++ ))
-        continue
-    fi
-
-    # Next, mv the "large" tar ball to the destination. If the destination
-    # is on the same device, the move should be quick. If the destination is
-    # on a different device, the move will be a copy and delete, and will
-    # take a bit longer.  If it fails, the file will NOT be at the
-    # destination.
-    mv ${tb} ${dest}/
-    sts=${?}
-    if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Error: \"mv ${tb} ${dest}/\", status ${sts}"
-        rm ${dest}/${resultname}.tar.xz.md5
-        sts=${?}
-        if [[ ${sts} -ne 0 ]]; then
-            log_warn "${TS}: Warning: cleanup of move failure failed itself: \"rm ${dest}/${resultname}.tar.xz.md5\", status ${sts}"
-        fi
-        (( nerrs++ ))
-        continue
-    fi
-
-    # mv, as well as cp -a, does not restore the SELinux context properly, so
-    # we do it by hand
-    tbname=${resultname}.tar.xz
-    restorecon ${dest}/${tbname} ${dest}/${tbname}.md5
-    sts=${?}
-    if [[ ${sts} -ne 0 ]]; then
-        # log it but do not abort
-        log_warn "${TS}: Warning: \"restorecon ${dest}/${tbname} ${dest}/${tbname}.md5\", status ${sts}"
-    fi
-
-    # Now that we have successfully moved the tar ball and its .md5 to the
-    # destination, we can remove the original .md5 file.
-    rm ${tbmd5}
-    sts=${?}
-    if [[ ${sts} -ne 0 ]]; then
-        log_warn "${TS}: Warning: cleanup of successful copy operation failed: \"rm ${tbmd5}\", status ${sts}"
+        log_warn "${TS}: Warning: cleanup of successful copy operation failed: \"rm ${tb} ${tbmd5}\", status ${sts}"
     fi
 
     # Create a link in each state dir - if any fail we don't delete them

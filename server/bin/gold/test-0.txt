@@ -7,12 +7,6 @@ pbench-dispatch: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file 
 +++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-index
-pbench-index: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
---- Finished pbench-index (status=3)
-+++ Running pbench-index --tool-data
-pbench-index-tool-data: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
---- Finished pbench-index (status=3)
 +++ Running pbench-unpack-tarballs none re-unpack
 pbench-unpack-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-unpack-tarballs (status=1)
