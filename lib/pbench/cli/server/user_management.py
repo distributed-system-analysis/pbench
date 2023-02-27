@@ -35,7 +35,7 @@ def user_list(context: object) -> None:
             click.echo(
                 USER_LIST_ROW_FORMAT.format(
                     user.username,
-                    user.oidc_id,
+                    user.id,
                 )
             )
 

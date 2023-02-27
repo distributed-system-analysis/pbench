@@ -1,7 +1,7 @@
 import configparser
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 from flask import current_app, Flask
 import jwt
@@ -13,7 +13,6 @@ from pbench.server import JSON
 import pbench.server.auth
 from pbench.server.auth import (
     Connection,
-    InternalUser,
     OpenIDClient,
     OpenIDClientError,
     OpenIDTokenInvalid,
@@ -189,77 +188,6 @@ class TestConnection:
         assert args["json"] is None
         assert args["data"] == {"one": "two", "three": "four"}
         assert args["kwargs"] == {"headers": None, "five": "six"}
-
-
-class TestInternalUser:
-    """Verify the behavior of the InternalUser class"""
-
-    def test_str(self):
-        user = InternalUser(id="X", username="Y", email="Z")
-        assert str(user) == "User, id: X, username: Y"
-
-    def test_is_admin(self):
-        user = InternalUser(id="X", username="Y", email="Z")
-        assert not user.is_admin()
-        user = InternalUser(id="X", username="Y", email="Z", roles=["ADMIN"])
-        assert user.is_admin()
-
-    def test_create_missing_sub(self):
-        with pytest.raises(KeyError):
-            InternalUser.create("us", {})
-
-    def test_create_just_sub(self):
-        user = InternalUser.create("us", {"sub": "them"})
-        assert user.id == "them"
-        assert user.username is None
-        assert user.email is None
-        assert user.first_name is None
-        assert user.last_name is None
-        assert user.roles == []
-
-    def test_create_full(self):
-        user = InternalUser.create(
-            "us",
-            {
-                "sub": "them",
-                "preferred_username": "userA",
-                "email": "userA@hostB.net",
-                "given_name": "Agiven",
-                "family_name": "Family",
-            },
-        )
-        assert user.id == "them"
-        assert user.username == "userA"
-        assert user.email == "userA@hostB.net"
-        assert user.first_name == "Agiven"
-        assert user.last_name == "Family"
-        assert user.roles == []
-
-    def test_create_w_roles(self):
-        # Verify not in audience list
-        # FIXME - this is weird as coded, why would we get a payload where no
-        # other audience is listed?
-        user = InternalUser.create(
-            "us",
-            {"sub": "them", "resource_access": {"not-us": {}}},
-        )
-        assert user.id == "them"
-        assert user.username is None
-        assert user.email is None
-        assert user.first_name is None
-        assert user.last_name is None
-        assert user.roles == []
-
-        user = InternalUser.create(
-            "us",
-            {"sub": "them", "resource_access": {"us": {"roles": ["roleA", "roleB"]}}},
-        )
-        assert user.id == "them"
-        assert user.username is None
-        assert user.email is None
-        assert user.first_name is None
-        assert user.last_name is None
-        assert user.roles == ["roleA", "roleB"]
 
 
 def gen_rsa_token(
@@ -569,7 +497,7 @@ class TestAuthModule:
     def test_verify_auth_exc(self, monkeypatch, make_logger):
         """Verify exception handling originating from verify_auth_internal"""
 
-        def vai_exc(token_auth: str) -> Optional[Union[User, InternalUser]]:
+        def vai_exc(token_auth: str) -> Optional[User]:
             raise Exception("Some failure")
 
         monkeypatch.setattr(Auth, "verify_auth_internal", vai_exc)
@@ -646,7 +574,7 @@ class TestAuthModule:
         with app.app_context():
             user = Auth.verify_auth(token)
 
-        assert user.oidc_id == "12345"
+        assert user.id == "12345"
         if roles is not None:
             assert user.roles == roles
         else:
@@ -670,7 +598,7 @@ class TestAuthModule:
         with app.app_context():
             user = Auth.verify_auth(token)
 
-        assert user.oidc_id == "12345"
+        assert user.id == "12345"
         assert user.roles == []
 
         # Generate a new token with a role for the same user
@@ -682,7 +610,7 @@ class TestAuthModule:
         )
         with app.app_context():
             user = Auth.verify_auth(token)
-        assert user.oidc_id == "12345"
+        assert user.id == "12345"
         assert user.roles == ["ROLE"]
         assert user.username == "new_dummy"
 

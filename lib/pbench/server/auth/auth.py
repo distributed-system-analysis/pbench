@@ -1,6 +1,6 @@
 import datetime
 from http import HTTPStatus
-from typing import Optional, Union
+from typing import Optional
 
 from flask import current_app, Flask, request
 from flask_httpauth import HTTPTokenAuth
@@ -8,7 +8,7 @@ from flask_restful import abort
 import jwt
 
 from pbench.server import PbenchServerConfig
-from pbench.server.auth import InternalUser, OpenIDClient, OpenIDTokenInvalid
+from pbench.server.auth import OpenIDClient, OpenIDTokenInvalid
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
 
@@ -105,7 +105,7 @@ def get_auth_token() -> str:
 
 
 @token_auth.verify_token
-def verify_auth(auth_token: str) -> Optional[Union[User, InternalUser]]:
+def verify_auth(auth_token: str) -> Optional[User]:
     """Validates the auth token of the current request.
 
     If an OpenID Connect client is configured, then actual token verification
@@ -116,8 +116,7 @@ def verify_auth(auth_token: str) -> Optional[Union[User, InternalUser]]:
         auth_token : authorization token string
 
     Returns:
-        None if the token is not valid, a `User` object when the token is
-        an internally generated one, and an `InternalUser` object when the
+        None if the token is not valid, a `User` object when the
         token is validated using the OpenID Connect client.
     """
     user = None
@@ -178,7 +177,7 @@ def verify_auth_internal(auth_token: str) -> Optional[User]:
     return user
 
 
-def verify_auth_oidc(auth_token: str) -> Optional[InternalUser]:
+def verify_auth_oidc(auth_token: str) -> Optional[User]:
     """Verify a token provided to the Pbench server which was obtained from a
     third party identity provider.
 
@@ -189,7 +188,7 @@ def verify_auth_oidc(auth_token: str) -> Optional[InternalUser]:
         auth_token : Token to authenticate
 
     Returns:
-        InternalUser object if the verification succeeds, None on failure.
+        User object if the verification succeeds, None on failure.
     """
     user = None
     try:
@@ -203,25 +202,18 @@ def verify_auth_oidc(auth_token: str) -> Optional[InternalUser]:
         )
         pass
     else:
+        # Extract what we want to cache from the access token
         user_id = token_payload["sub"]
-        user = User.query(oidc_id=user_id)
+        username = token_payload.get("preferred_username")
         audiences = token_payload.get("resource_access", {})
-        try:
-            oidc_client_roles = audiences[oidc_client.client_id].get("roles", [])
-        except KeyError:
-            oidc_client_roles = []
+        pb_aud = audiences.get(oidc_client.client_id, {})
+        roles = pb_aud.get("roles", [])
+
+        # Create or update the user in our cache
+        user = User.query(id=user_id)
         if not user:
-            # Create a new user identity in our cached user database
-            username = token_payload.get("preferred_username")
-            user = User(oidc_id=user_id, username=username, roles=oidc_client_roles)
+            user = User(id=user_id, username=username, roles=roles)
             user.add()
         else:
-            # If the user present in our cached db, we check whether there is
-            # any update to the existing user based on the token payload info
-            dict_to_update = {
-                "username": token_payload.get("preferred_username"),
-                "roles": oidc_client_roles,
-            }
-            user.update(**dict_to_update)
-
+            user.update(username=username, roles=roles)
     return user

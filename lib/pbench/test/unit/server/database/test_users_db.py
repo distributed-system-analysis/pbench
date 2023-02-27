@@ -1,8 +1,10 @@
+import uuid
+
 import pytest
 from sqlalchemy.exc import IntegrityError
 
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 from pbench.server.database.models.users import User, UserDuplicate, UserSqlError
 from pbench.test.unit.server.database import FakeDBOrig, FakeRow, FakeSession
 
@@ -27,7 +29,7 @@ class TestUsers:
     @staticmethod
     def add_dummy_user(fake_db):
         dummy_user = User(
-            oidc_id="12345",
+            id=str(uuid.uuid4()),
             username="dummy",
         )
         dummy_user.add()
@@ -37,18 +39,18 @@ class TestUsers:
         """Test User db contructor"""
         user = self.add_dummy_user(fake_db)
         assert user.username == "dummy"
-        assert user.id == 1
-        assert user.oidc_id == "12345"
 
         expected_commits = [FakeRow.clone(user)]
         self.session.check_session(queries=0, committed=expected_commits)
         self.session.reset_context()
 
     def test_is_admin(self, fake_db):
-        user = User(oidc_id="12345", username="dummy_admin", roles=["ADMIN"])
+        uuid4 = str(uuid.uuid4())
+        user = User(id=uuid4, username="dummy_admin", roles=["ADMIN"])
         user.add()
         assert user.is_admin()
-        user1 = User(oidc_id="12346", username="non_admin")
+        assert user.id == uuid4
+        user1 = User(id="1", username="non_admin")
         user1.add()
         assert not user1.is_admin()
 
@@ -56,26 +58,41 @@ class TestUsers:
         self.session.check_session(queries=0, committed=expected_commits)
         self.session.reset_context()
 
+    def test_user_survives_dataset_real_session(self, db_session, create_user):
+        """The User isn't automatically removed when the referenced
+        dataset is deleted.
+        """
+        user = create_user
+        ds = Dataset(owner=user.username, name="fio", resource_id="deadbeef")
+        ds.add()
+        ds.delete()
+        with pytest.raises(DatasetNotFound):
+            Dataset.query(resource_id=ds.resource_id)
+        assert user
+
     def test_user_survives_dataset_delete(self, fake_db):
         """The User isn't automatically removed when the referenced
         dataset is deleted.
         """
         self.add_dummy_user(fake_db)
-        user = User.query(id=1)
+        user = User.query(username="dummy")
 
         expected_commits = [FakeRow.clone(user)]
         self.session.check_session(
-            queries=1, committed=expected_commits, filters=["id=1"]
+            queries=1, committed=expected_commits, filters=["username=dummy"]
         )
 
         ds = Dataset(owner=user.username, name="fio", resource_id="deadbeef")
         ds.add()
-        expected_commits.append(FakeRow.clone(ds))
-
+        ds_row = FakeRow.clone(ds)
+        expected_commits.append(ds_row)
         self.session.check_session(
             queries=1, committed=expected_commits, filters=["username=dummy"]
         )
+
         ds.delete()
+        expected_commits.remove(ds_row)
+        self.session.check_session(queries=0, committed=expected_commits)
         assert user
         self.session.reset_context()
 
@@ -86,7 +103,7 @@ class TestUsers:
         )
         with pytest.raises(
             UserDuplicate,
-            match="Duplicate user setting in {'username': 'dummy', 'id': None}: UNIQUE constraint",
+            match="Duplicate user setting in {'username': 'dummy', 'id': .*?, 'roles': \\[]}: UNIQUE constraint",
         ):
             self.add_dummy_user(fake_db)
         self.session.check_session(rolledback=1)
@@ -98,34 +115,33 @@ class TestUsers:
         data = {"roles": ["NEW_ROLE"]}
         TestUsers.add_dummy_user(fake_db)
 
-        user = User.query(id=1)
+        user = User.query(username="dummy")
         user.update(**data)
         assert user.roles == ["NEW_ROLE"]
         assert user._roles == "NEW_ROLE"
 
         expected_commits = [FakeRow.clone(user)]
         self.session.check_session(
-            queries=1, committed=expected_commits, filters=["id=1"]
+            queries=1, committed=expected_commits, filters=["username=dummy"]
         )
         self.session.reset_context()
 
     def test_user_delete(self, fake_db):
         """Test deleting the user from the User table"""
         self.add_dummy_user(fake_db)
-        user = User.query(id=1)
+        user = User.query(username="dummy")
         expected_commits = [FakeRow.clone(user)]
         self.session.check_session(
-            queries=1, filters=["id=1"], committed=expected_commits
+            queries=1, filters=["username=dummy"], committed=expected_commits
         )
         assert user.username == "dummy"
-        assert user.id == 1
         user.delete()
         self.session.check_session(queries=0, filters=[], committed=[])
 
     def test_delete_exception(self, fake_db):
         """Test exception raised during the delete operation"""
         user = User(
-            oidc_id="12345",
+            id="1",
             username="dummy",
         )
         with pytest.raises(

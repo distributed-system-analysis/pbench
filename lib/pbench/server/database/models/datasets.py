@@ -254,7 +254,7 @@ class Dataset(Database.Base):
 
     Columns:
         id          Generated unique ID of table row
-        owner       Owning username of the dataset
+        owner       Owning User of the dataset
         access      Dataset is "private" to owner, or "public"
         name        Base name of dataset (tarball)
         md5         The dataset MD5 hash (Elasticsearch ID)
@@ -288,7 +288,7 @@ class Dataset(Database.Base):
     name = Column(String(1024), unique=False, nullable=False)
 
     # ID of the owning user
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner_id = Column(String, ForeignKey("users.id"), nullable=False)
 
     # Indirect reference to the owning User record
     owner = relationship("User")
@@ -672,7 +672,7 @@ class Metadata(Database.Base):
     key = Column(String(255), unique=False, nullable=False, index=True)
     value = Column(JSON, unique=False, nullable=True)
     dataset_ref = Column(Integer, ForeignKey("datasets.id"), nullable=False)
-    user_ref = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_ref = Column(String, ForeignKey("users.id"), nullable=True)
 
     dataset = relationship("Dataset", back_populates="metadatas")
     user = relationship("User", back_populates="dataset_metadata", single_parent=True)

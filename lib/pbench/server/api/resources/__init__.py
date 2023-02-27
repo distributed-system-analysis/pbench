@@ -391,11 +391,9 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
         ) from e
 
     if not user:
-        # TODO: Should we change the status to FORBIDDEN as we dont want other
-        # users to know about the usernames in our db
         raise ConversionError(value, "username", http_status=HTTPStatus.NOT_FOUND)
 
-    return str(user.id)
+    return user.id
 
 
 def convert_dataset(value: str, _) -> Dataset:

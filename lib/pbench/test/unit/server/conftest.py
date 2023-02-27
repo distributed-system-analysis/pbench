@@ -267,7 +267,6 @@ def create_user(client) -> User:
     """
     user = User(
         id=TEST_USER_ID,
-        oidc_id=TEST_USER_ID,
         username="test",
     )
     user.add()
@@ -284,7 +283,6 @@ def create_admin_user(client) -> User:
     """
     user = User(
         id=ADMIN_USER_ID,
-        oidc_id=ADMIN_USER_ID,
         username=admin_username,
         roles=["ADMIN"],
     )
@@ -302,7 +300,6 @@ def create_drb_user(client):
     """
     drb = User(
         id=DRB_USER_ID,
-        oidc_id=DRB_USER_ID,
         username="drb",
     )
     drb.add()
@@ -879,7 +876,7 @@ def generate_token(
     payload = {
         "iat": current_utc,
         "exp": exp,
-        "sub": user.oidc_id,
+        "sub": user.id,
         "aud": client_id,
         "azp": client_id,
         "realm_access": {

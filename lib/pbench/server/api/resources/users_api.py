@@ -61,7 +61,7 @@ class UserAPI(Resource):
         elif current_user.is_admin():
             target_user = User.query(username=target_username)
             if target_user:
-                response_object = target_user.as_json()
+                response_object = target_user.get_json()
             else:
                 abort(HTTPStatus.NOT_FOUND, message="Target user not found")
         else:

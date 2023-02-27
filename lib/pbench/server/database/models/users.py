@@ -1,7 +1,7 @@
 import enum
 from typing import Optional
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, String
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
 
@@ -48,7 +48,7 @@ class UserDuplicate(UserError):
 
 
 class UserNullKey(UserError):
-    """Attempt to commit an Audit row with an empty required column."""
+    """Attempt to commit an User row with an empty required column."""
 
     def __init__(self, user: "User", cause: str):
         self.user = user
@@ -63,8 +63,7 @@ class User(Database.Base):
 
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    oidc_id = Column(String(255), unique=True, nullable=False)
+    id = Column(String(255), primary_key=True)
     username = Column(String(255), unique=True, nullable=True)
     dataset_metadata = relationship(
         "Metadata", back_populates="user", cascade="all, delete-orphan"
@@ -74,22 +73,27 @@ class User(Database.Base):
     @property
     def roles(self):
         if self._roles:
-            return [x for x in self._roles.split(";")]
+            return self._roles.split(";")
         else:
             return []
 
     @roles.setter
     def roles(self, value):
-        if isinstance(value, list):
+        try:
             self._roles = ";".join(value)
-        else:
-            raise UserSqlError("Adding role", value, "Value is not a list")
+        except Exception as e:
+            raise UserSqlError("Adding role", value, str(e)) from e
 
     def __str__(self):
         return f"User, id: {self.id}, username: {self.username}"
 
-    def get_json(self):
-        return {"username": self.username, "id": self.id}
+    def get_json(self) -> JSONOBJECT:
+        """Return a JSON object for this User object.
+
+        Returns:
+            A JSONOBJECT with all the object fields mapped to appropriate names.
+        """
+        return {"username": self.username, "id": self.id, "roles": self.roles}
 
     def _decode(self, exception: IntegrityError) -> Exception:
         """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
@@ -113,9 +117,7 @@ class User(Database.Base):
         return exception
 
     @staticmethod
-    def query(
-        id: int = None, oidc_id: str = None, username: str = None
-    ) -> Optional["User"]:
+    def query(id: str = None, username: str = None) -> Optional["User"]:
         """Find a user using one of the provided arguments.
 
         The first argument which is not None is used in the query.  The order
@@ -124,12 +126,11 @@ class User(Database.Base):
         Returns:
             A User object if a user is found, None otherwise.
         """
+        dbsq = Database.db_session.query(User)
         if id:
-            user = Database.db_session.query(User).filter_by(id=id).first()
-        elif oidc_id:
-            user = Database.db_session.query(User).filter_by(oidc_id=oidc_id).first()
+            user = dbsq.filter_by(id=id).first()
         elif username:
-            user = Database.db_session.query(User).filter_by(username=username).first()
+            user = dbsq.filter_by(username=username).first()
         else:
             user = None
         return user
@@ -150,9 +151,7 @@ class User(Database.Base):
             raise UserSqlError("adding", self.get_json(), str(e)) from e
 
     def update(self, **kwargs):
-        """Update the current profile of the user object with given keyword
-        arguments.
-        """
+        """Update the current user object with given keyword arguments."""
         try:
             for key, value in kwargs.items():
                 setattr(self, key, value)
@@ -183,16 +182,3 @@ class User(Database.Base):
             True if the user's role is ADMIN, False otherwise.
         """
         return Roles.ADMIN.name in self.roles
-
-    def as_json(self) -> JSONOBJECT:
-        """Return a JSON object for this User object.
-
-        Returns:
-            A JSONOBJECT with all the object fields mapped to appropriate names.
-        """
-        return {
-            "id": self.id,
-            "oidc_id": self.oidc_id,
-            "username": self.username,
-            "roles": self.roles,
-        }

@@ -1,7 +1,6 @@
 """OpenID Connect (OIDC) Client object definition."""
 
 from configparser import NoOptionError, NoSectionError
-from dataclasses import dataclass
 from http import HTTPStatus
 import logging
 from typing import Any, Optional
@@ -150,54 +149,6 @@ class Connection:
             Response from the request.
         """
         return self._method("POST", path, data, json, headers=headers, **kwargs)
-
-
-@dataclass
-class InternalUser:
-    """Internal user class for storing user related fields fetched
-    from OIDC token decode.
-
-    Note: Class attributes are duck-typed from the SQL User object,
-    and they need to match with the respective sql entry!
-    """
-
-    id: str
-    username: str
-    email: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    roles: Optional[list[str]] = None
-
-    def __str__(self) -> str:
-        return f"User, id: {self.id}, username: {self.username}"
-
-    def is_admin(self):
-        return self.roles and ("ADMIN" in self.roles)
-
-    @classmethod
-    def create(cls, client_id: str, token_payload: dict) -> "InternalUser":
-        """Helper method to return the Internal User object.
-
-        Args:
-            client_id : authorized client id string
-            token_payload : Dict representation of decoded token
-
-        Returns:
-             InternalUser object
-        """
-        audiences = token_payload.get("resource_access", {})
-        try:
-            roles = audiences[client_id].get("roles", [])
-        except KeyError:
-            roles = []
-        return cls(
-            id=token_payload["sub"],
-            username=token_payload.get("preferred_username"),
-            email=token_payload.get("email"),
-            first_name=token_payload.get("given_name"),
-            last_name=token_payload.get("family_name"),
-            roles=roles,
-        )
 
 
 class OpenIDClient:

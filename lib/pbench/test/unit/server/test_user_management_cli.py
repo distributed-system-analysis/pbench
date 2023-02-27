@@ -8,7 +8,7 @@ from pbench.server.database.models.users import User
 def create_user():
     user = User(
         username=TestUserManagement.USER_TEXT,
-        oidc_id=TestUserManagement.OIDC_ID_TEXT,
+        id=TestUserManagement.OIDC_ID_TEXT,
     )
     return user
 

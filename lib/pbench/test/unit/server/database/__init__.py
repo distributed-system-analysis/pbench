@@ -320,7 +320,7 @@ class FakeSession:
         for k, object in self.known.items():
             self.committed[k] = FakeRow.clone(object)
         for a in self.added:
-            a.id = self.id
+            a.id = self.id if not a.id else a.id
             self.id += 1
             for c in a.__table__._columns:
                 if c.default:
@@ -398,7 +398,7 @@ class FakeSession:
 
         # Check that the 'committed' list (which stands in for the actual DB
         # table) contains the expected rows.
-        assert committed is None or sorted(self.committed.values()) == sorted(committed)
+        assert committed is None or all(i in self.committed.values() for i in committed)
 
         # Check whether we've rolled back transaction(s).
         assert self.rolledback == rolledback

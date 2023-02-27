@@ -19,8 +19,7 @@ class Testuser:
         if header_param is HeaderTypes.VALID_ADMIN:
             assert response.json == {
                 "username": "drb",
-                "id": int(DRB_USER_ID),
-                "oidc_id": DRB_USER_ID,
+                "id": DRB_USER_ID,
                 "roles": [],
             }
         elif header_param is HeaderTypes.VALID:
