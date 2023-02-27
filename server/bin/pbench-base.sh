@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Helper functions for pbench-server bash scripts.  All environment variables
-# are defined in pbench-base.py, execv() our caller.
+# are defined in pbench-base.py which execv()'d our caller.
 
 if [ -z "$PROG" ]; then
     echo "$(basename $0): ERROR: \$PROG environment variable does not exist." > /dev/stdout
@@ -116,6 +116,22 @@ function log_exit {
     fi
 }
 
+function log_info {
+    if [[ -z "${2}" ]]; then
+        printf -- "%b\n" "${1}"
+    else
+        printf -- "%b\n" "${1}" | tee -a "${2}"
+    fi
+}
+
+function log_error {
+    if [[ -z "${2}" ]]; then
+        printf -- "%b\n" "${1}" >&4
+    else
+        printf -- "%b\n" "${1}" | tee -a "${2}" >&4
+    fi
+}
+
 # Function used by the shims to quarantine problematic tarballs.  It
 # is assumed that the function is called within a log_init/log_finish
 # context.  Errors here are fatal but we log an error message to help
@@ -142,20 +158,4 @@ function quarantine () {
             log_exit "$TS: quarantine $dest $files: \"mv $afile $dest/\" failed with status $sts" 102
         fi
     done
-}
-
-function log_info {
-    if [[ -z "${2}" ]]; then
-        printf -- "%b\n" "${1}"
-    else
-        printf -- "%b\n" "${1}" | tee -a "${2}"
-    fi
-}
-
-function log_error {
-    if [[ -z "${2}" ]]; then
-        printf -- "%b\n" "${1}" >&4
-    else
-        printf -- "%b\n" "${1}" | tee -a "${2}" >&4
-    fi
 }
