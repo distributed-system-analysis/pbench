@@ -10,7 +10,7 @@ install-dir = /opt/pbench-server
 [pbench-server]
 pbench-top-dir = /srv/pbench
 # An example satellite might override the default roles to drop the backup role.
-roles = pbench-maintenance, pbench-prep, pbench-results
+roles = pbench-maintenance, pbench-results
 # An example satellite that just syncs
 dispatch-states = TO-SYNC
 

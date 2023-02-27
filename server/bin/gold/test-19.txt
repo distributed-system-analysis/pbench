@@ -141,7 +141,6 @@ drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/TODO
 drwxrwxr-x          - archive/fs-version-001/ctrl-00/UNPACKED
 lrwxrwxrwx        118 archive/fs-version-001/ctrl-00/UNPACKED/tarball_config-00_1970.01.01T00.00.40.tar.xz -> /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz
 lrwxrwxrwx        118 archive/fs-version-001/ctrl-00/UNPACKED/tarball_config-01_1970.01.01T00.00.42.tar.xz -> /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz
@@ -166,7 +165,6 @@ drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/TODO
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/UNPACKED
 lrwxrwxrwx        118 archive/fs-version-001/ctrl-01/UNPACKED/tarball_config-02_1970.01.01T00.00.41.tar.xz -> /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctrl-01/WONT-INDEX

@@ -176,7 +176,6 @@ drwxrwxr-x          - archive/fs-version-001/controller/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller/TODO
 drwxrwxr-x          - archive/fs-version-001/controller/UNPACKED
 lrwxrwxrwx         36 archive/fs-version-001/controller/UNPACKED/uperf__2016-10-06_16:34:03.tar.xz -> ../uperf__2016-10-06_16:34:03.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX

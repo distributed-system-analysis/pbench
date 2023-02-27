@@ -8507,7 +8507,6 @@ drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/master_40gb/TODO
 drwxrwxr-x          - archive/fs-version-001/master_40gb/UNPACKED
 lrwxrwxrwx         36 archive/fs-version-001/master_40gb/UNPACKED/uperf__2016-10-06_16:34:03.tar.xz -> ../uperf__2016-10-06_16:34:03.tar.xz
 drwxrwxr-x          - archive/fs-version-001/master_40gb/WONT-INDEX

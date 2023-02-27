@@ -99,8 +99,6 @@ function _run_allscripts {
     # section in the unit test's pbench-server.cfg file - keep them
     # synchronized.
     _run pbench-sync-satellite satellite-one
-    # Pull new tar balls from move-results and feed them into the dispatch loop.
-    _run pbench-server-prep-shim-002
     # These next five are related and would flow in this order.
     _run pbench-dispatch
     _run pbench-unpack-tarballs small
@@ -751,10 +749,10 @@ declare -A cmds=(
     # non-trivial results: mail
     [test-11]="_run pbench-sync-satellite satellite-one"
 
-    # shim - failure, no quarantine directory
-    [test-13]="_run pbench-server-prep-shim-002"
-    # shim - failure, no reception area
-    [test-15]="_run pbench-server-prep-shim-002"
+    # dispatch - failure, no quarantine directory
+    [test-13]="_run pbench-dispatch"
+    # dispatch - failure, no reception area
+    [test-15]="_run pbench-dispatch"
 
     # unpacking to the incoming directory
     [test-16]="_run pbench-unpack-tarballs small"
@@ -773,9 +771,6 @@ declare -A cmds=(
 
     # Uses pbench-dispatch to test report status via syslog
     [test-23]="_run pbench-dispatch"
-
-    # Tests config file that specifies two shims versions
-    [test-24]="_run_activate"
 
     # Tests that the behavior of the find command works as we expect to
     # ensure that buckets for pbench-unpack-tarballs work properly.

@@ -20,9 +20,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-dispatch",
-            "text": "pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates\n\n",
+            "text": "pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 0 result tar balls, 0 successfully (0 partial), with 0 quarantined tar balls, 0 duplicately-named tar balls, and 0 errors.\n",
             "total_chunks": 1,
-            "total_size": 160
+            "total_size": 189
         },
         "_type": "pbench-server-reports"
     }
@@ -119,7 +119,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
--rw-rw-r--        576 logs/pbench-dispatch/pbench-dispatch.log
+-rw-rw-r--        646 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -176,7 +176,7 @@ drwxrwxr-x          - tmp
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
 run-1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: Processed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates
+pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 0 result tar balls, 0 successfully (0 partial), with 0 quarantined tar balls, 0 duplicately-named tar balls, and 0 errors.
 1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-dispatch/pbench-dispatch.log
