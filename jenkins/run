@@ -63,6 +63,8 @@ fi
 find . -name __pycache__ -exec rm -r {} \; > /dev/null 2>&1
 
 podman run --rm -it \
+    --pull=newer \
+    --userns=keep-id \
     --env-host \
     --ulimit nofile=65536:65536 \
     --volume ${_tmp}:/tmp:z \
