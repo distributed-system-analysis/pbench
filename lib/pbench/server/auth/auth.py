@@ -204,7 +204,7 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
     else:
         # Extract what we want to cache from the access token
         user_id = token_payload["sub"]
-        username = token_payload.get("preferred_username")
+        username = token_payload.get("preferred_username", user_id)
         audiences = token_payload.get("resource_access", {})
         pb_aud = audiences.get(oidc_client.client_id, {})
         roles = pb_aud.get("roles", [])

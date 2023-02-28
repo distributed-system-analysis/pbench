@@ -27,7 +27,7 @@ def upgrade() -> None:
         existing_nullable=False,
     )
     op.alter_column(
-        "users", "username", existing_type=sa.VARCHAR(length=255), nullable=True
+        "users", "username", existing_type=sa.VARCHAR(length=255), nullable=False
     )
     op.create_primary_key("user_primary", "users", ["id"])
     op.drop_constraint("users_email_key", "users", type_="unique")

@@ -64,7 +64,7 @@ class User(Database.Base):
     __tablename__ = "users"
 
     id = Column(String(255), primary_key=True)
-    username = Column(String(255), unique=True, nullable=True)
+    username = Column(String(255), unique=True, nullable=False)
     dataset_metadata = relationship(
         "Metadata", back_populates="user", cascade="all, delete-orphan"
     )
