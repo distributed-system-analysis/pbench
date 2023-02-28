@@ -332,6 +332,12 @@ function _setup_state {
         exit 1
     fi
 
+    echo "X.YY.ZZ" > ${_testopt}/VERSION
+    echo "abcdefg" > ${_testopt}/SHA1
+
+    echo "X.YY.ZZ" > ${_testopt_sat}/VERSION
+    echo "abcdefg" > ${_testopt_sat}/SHA1
+
     # All the "real" scripts are found at $_testopt/bin, the mock scripts
     # are found in $_testopt/unittest-scripts.
     _orig_PATH=$PATH
@@ -749,6 +755,8 @@ declare -A cmds=(
     # non-trivial results: mail
     [test-11]="_run pbench-sync-satellite satellite-one"
 
+    # dispatch - verify invocation of pbench-results-push
+    [test-12]="_run pbench-dispatch"
     # dispatch - failure, no quarantine directory
     [test-13]="_run pbench-dispatch"
     # dispatch - failure, no reception area
@@ -762,8 +770,10 @@ declare -A cmds=(
     [test-18]="_run_re_unpack --dry-run"
     [test-19]="_run_re_unpack"
 
+    # Simple test to verify an "empty" archive hierarchy
     [test-20]="_run echo audit archive hierarchy"
 
+    # Verify behavior of dispatch when it doesn't do anything
     [test-21]="_run pbench-dispatch"
 
     # Actually exercises satellite code

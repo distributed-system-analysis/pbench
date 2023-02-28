@@ -48,7 +48,6 @@ binlinks = \
 	pbench-report-status\
 	pbench-satellite-cleanup\
 	pbench-satellite-state-change\
-	pbench-server-put-shim\
 	pbench-sync-package-tarballs\
 	pbench-sync-satellite\
 	pbench-tarball-stats\

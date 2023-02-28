@@ -1,0 +1,239 @@
++++ Running pbench-dispatch
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:42",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-dispatch",
+            "text": "run-1970-01-01T00:00:42-UTC: SAT::controller/tarball_for-put-api_1970.01.01T00.00.00: success\nrun-1970-01-01T00:00:42-UTC: controller/tarball_for-put-api_1970.01.01T00.00.00: success\npbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 2 result tar balls, 2 successfully (0 partial), with 0 quarantined tar balls, 0 duplicately-named tar balls, and 0 errors.\n",
+            "total_chunks": 1,
+            "total_size": 372
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-dispatch (status=0)
++++ Running unit test audit
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:42",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC (unit-test) - Successful audit, nothing to report.\n",
+            "total_chunks": 1,
+            "total_size": 99
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished unit test audit (status=0)
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-12/var-www-html)
+lrwxrwxrwx         63 incoming -> /var/tmp/pbench-test-server/test-12/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        118 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         62 results -> /var/tmp/pbench-test-server/test-12/pbench/public_html/results
+lrwxrwxrwx         61 static -> /var/tmp/pbench-test-server/test-12/pbench/public_html/static
+lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-12/pbench/public_html/users
+--- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/test-12/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-12/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-12/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-12/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-12/var-www-html-satellite)
+lrwxrwxrwx         73 incoming -> /var/tmp/pbench-test-server/test-12/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        138 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         72 results -> /var/tmp/pbench-test-server/test-12/pbench-satellite/public_html/results
+lrwxrwxrwx         71 static -> /var/tmp/pbench-test-server/test-12/pbench-satellite/public_html/static
+lrwxrwxrwx         70 users -> /var/tmp/pbench-test-server/test-12/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/test-12/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-12/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-12/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-12/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ pbench tree state (/var/tmp/pbench-test-server/test-12/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/SAT::controller
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/BACKUP-FAILED
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/INDEXED
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-BACKUP
+lrwxrwxrwx        128 archive/fs-version-001/SAT::controller/TO-BACKUP/tarball_for-put-api_1970.01.01T00.00.00.tar.xz -> /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-INDEX-TOOL
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-RE-INDEX
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-RE-UNPACK
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-UNPACK
+lrwxrwxrwx        128 archive/fs-version-001/SAT::controller/TO-UNPACK/tarball_for-put-api_1970.01.01T00.00.00.tar.xz -> /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/UNPACKED
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/SAT::controller/WONT-UNPACK
+-rw-rw-r--        228 archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         81 archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
+drwxrwxr-x          - archive/fs-version-001/controller
+drwxrwxr-x          - archive/fs-version-001/controller/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/controller/BACKUP-FAILED
+drwxrwxr-x          - archive/fs-version-001/controller/INDEXED
+drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/controller/TO-BACKUP
+lrwxrwxrwx        123 archive/fs-version-001/controller/TO-BACKUP/tarball_for-put-api_1970.01.01T00.00.00.tar.xz -> /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX-TOOL
+drwxrwxr-x          - archive/fs-version-001/controller/TO-RE-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller/TO-RE-UNPACK
+drwxrwxr-x          - archive/fs-version-001/controller/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/controller/TO-UNPACK
+lrwxrwxrwx        123 archive/fs-version-001/controller/TO-UNPACK/tarball_for-put-api_1970.01.01T00.00.00.tar.xz -> /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller/UNPACKED
+drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller/WONT-UNPACK
+-rw-rw-r--        228 archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         81 archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-12/pbench-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-dispatch
+-rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
+-rw-rw-r--        931 logs/pbench-dispatch/pbench-dispatch.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002/SAT::controller
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-12/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-12/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
++++ pbench log file contents
+++++ pbench-local/logs
++++++ pbench-audit-server/pbench-audit-server.error
+----- pbench-audit-server/pbench-audit-server.error
++++++ pbench-audit-server/pbench-audit-server.log
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-dispatch/pbench-dispatch.error
+----- pbench-dispatch/pbench-dispatch.error
++++++ pbench-dispatch/pbench-dispatch.log
+run-1970-01-01T00:00:42-UTC
+tarball_for-put-api_1970.01.01T00.00.00.tar.xz: OK
+run-1970-01-01T00:00:42-UTC: SAT::controller/tarball_for-put-api_1970.01.01T00.00.00: success
+tarball_for-put-api_1970.01.01T00.00.00.tar.xz: OK
+run-1970-01-01T00:00:42-UTC: controller/tarball_for-put-api_1970.01.01T00.00.00: success
+pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 2 result tar balls, 2 successfully (0 partial), with 0 quarantined tar balls, 0 duplicately-named tar balls, and 0 errors.
+1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-dispatch/pbench-dispatch.log
+---- pbench-local/logs
+++++ pbench-satellite-local/logs
+---- pbench-satellite-local/logs
+--- pbench log file contents
++++ test-execution.log file contents
+hostname -f
+pbench-results-push /var/tmp/pbench-test-server/test-12/pbench-local/pbench-move-results-receive/fs-version-002/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com --metadata=server.origin:SAT
+restorecon /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
+pbench-results-push /var/tmp/pbench-test-server/test-12/pbench-local/pbench-move-results-receive/fs-version-002/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com
+restorecon /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
+--- test-execution.log file contents

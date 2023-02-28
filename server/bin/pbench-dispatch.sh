@@ -36,8 +36,11 @@ if [[ ! ":${PATH}:" =~ ":/usr/sbin:" ]]; then
    PATH=${PATH}:/usr/sbin; export PATH
 fi
 
-# Check that all the directories exist.
-test -z "${ARCHIVE}" -o -d ${ARCHIVE} || doexit "Bad ARCHIVE=${ARCHIVE}"
+# Check that all required directories specified in the environment exist.
+test -n "${ARCHIVE}" -a -d ${ARCHIVE} || doexit "Bad ARCHIVE=${ARCHIVE}"
+test -n "${LOGSDIR}" -a -d ${LOGSDIR} || doexit "Bad LOGSDIR=${LOGSDIR}"
+install_dir=$(getconf.py install-dir pbench-server)
+test -n "${install_dir}" -a -d ${install_dir} || doexit "Bad install_dir=${install_dir}"
 
 errlog=${LOGSDIR}/${PROG}/${PROG}.error
 mkdir -p ${LOGSDIR}/${PROG}
@@ -52,6 +55,10 @@ if [[ -z "${linkdestlist}" ]]; then
     echo "Failed: \"getconf.py -l dispatch-states pbench-server\"" >> ${errlog}
     exit 2
 fi
+
+# Optional "PUT API" bearer token for sending tar balls to the "new" Pbench
+# Server.
+put_token=$(getconf.py put-token pbench-server)
 
 qdir=$(getconf.py pbench-quarantine-dir pbench-server)
 if [[ -z "${qdir}" ]]; then
@@ -141,6 +148,10 @@ if [[ ${sts} != 0 ]]; then
     log_exit "Failed: \"sort ${list}.unsorted > ${list}\", status ${sts}" 6
 fi
 
+server_version="$(< ${install_dir}/VERSION)"
+server_sha1="$(<${install_dir}/SHA1)"
+server_hostname=$(hostname -f)
+
 typeset -i ntotal=0
 typeset -i ntbs=0
 typeset -i npartialsucc=0
@@ -183,6 +194,28 @@ while read tbmd5; do
         quarantine ${quarantine}/${controller} ${tb} ${tb}.md5
         (( nquarantined++ ))
         continue
+    fi
+
+    if [[ ! -z "${put_token}" ]]; then
+        # We have a bearer token for the PUT API of a "new" Pbench Server,
+        # invoke the `pbench-results-push` agent CLI to send it to the
+        # server (configuration of that server handled elsewhere).
+
+        # All tar balls pushed to the "new" Pbench Server are made public just
+        # like they are all public on the current "old" Pbench Server.
+        push_options="--token ${put_token} --access=public"
+        push_options+=" --metadata=global.server.legacy.version:${server_version}"
+        push_options+=" --metadata=global.server.legacy.sha1:${server_sha1}"
+        push_options+=" --metadata=global.server.legacy.hostname:${server_hostname}"
+        satellite=${controller%%::*}
+        if [[ "${controller}" != "${satellite}" ]]; then
+            push_options+=" --metadata=server.origin:${satellite}"
+        fi
+        pbench-results-push ${tb} ${push_options}
+        sts=${?}
+        if [[ ${sts} -ne 0 ]]; then
+            log_info "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}" "${status}"
+        fi
     fi
 
     # Make sure that all the relevant state directories exist
