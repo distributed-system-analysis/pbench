@@ -809,6 +809,7 @@ for testname in ${!cmds[@]}; do
     echo ${testname}.txt
 done | sort > ${_testbase}/unittests.lis
 diff -cw ${_testbase}/gold_directory.lis ${_testbase}/unittests.lis || exit ${?}
+rm -f ${_testbase}/gold_directory.lis ${_testbase}/unittests.lis
 
 # Sanity check the state directory.
 ${_tdir}/state/sanity-check || exit ${?}
