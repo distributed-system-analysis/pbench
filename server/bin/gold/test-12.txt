@@ -90,12 +90,8 @@ lrwxrwxrwx         70 users -> /var/tmp/pbench-test-server/test-12/pbench-satell
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/SAT::controller
-drwxrwxr-x          - archive/fs-version-001/SAT::controller/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/SAT::controller/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/SAT::controller/INDEXED
 drwxrwxr-x          - archive/fs-version-001/SAT::controller/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-BACKUP
-lrwxrwxrwx        128 archive/fs-version-001/SAT::controller/TO-BACKUP/tarball_for-put-api_1970.01.01T00.00.00.tar.xz -> /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-INDEX-TOOL
@@ -110,12 +106,8 @@ drwxrwxr-x          - archive/fs-version-001/SAT::controller/WONT-UNPACK
 -rw-rw-r--        228 archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
 -rw-rw-r--         81 archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller
-drwxrwxr-x          - archive/fs-version-001/controller/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/controller/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/controller/TO-BACKUP
-lrwxrwxrwx        123 archive/fs-version-001/controller/TO-BACKUP/tarball_for-put-api_1970.01.01T00.00.00.tar.xz -> /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX-TOOL
@@ -153,6 +145,13 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-12/pbench-local)
+drwxrwxr-x          - archive.backup
+drwxrwxr-x          - archive.backup/SAT::controller
+-rw-rw-r--        228 archive.backup/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         81 archive.backup/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
+drwxrwxr-x          - archive.backup/controller
+-rw-rw-r--        228 archive.backup/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         81 archive.backup/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error

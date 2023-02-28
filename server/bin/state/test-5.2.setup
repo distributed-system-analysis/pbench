@@ -1,8 +1,5 @@
 #!/bin/bash
 
-mkdir pbench-local/archive.backup || exit ${?}
-mkdir -p pbench-local/s3-backup/testbucket || exit ${?}
-
 # Make sure all the tar balls are ordered by modification time so we
 # have consistent and expected results from the unit tests.
 

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir pbench-local/archive.backup || exit ${?}
+
 # Move the local quarantine tree to the side
 mv pbench-local/quarantine pbench-local/quarantine.bad
-exit $?
+exit ${?}

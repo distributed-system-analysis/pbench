@@ -90,11 +90,8 @@ lrwxrwxrwx         70 users -> /var/tmp/pbench-test-server/test-17/pbench-satell
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/controller00
-drwxrwxr-x          - archive/fs-version-001/controller00/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/controller00/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller00/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/controller00/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-INDEX-TOOL
@@ -111,11 +108,8 @@ lrwxrwxrwx         52 archive/fs-version-001/controller00/WONT-UNPACK/benchmark-
 -rw-rw-r--       5920 archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz
 -rw-rw-r--         84 archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller01
-drwxrwxr-x          - archive/fs-version-001/controller01/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/controller01/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller01/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/controller01/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-INDEX-TOOL
@@ -133,11 +127,8 @@ drwxrwxr-x          - archive/fs-version-001/controller01/WONT-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller02
 drwxrwxr-x          - archive/fs-version-001/controller02/.prefix
 -rw-rw-r--          9 archive/fs-version-001/controller02/.prefix/benchmark-result-small_1970-01-01T00:00:00.prefix
-drwxrwxr-x          - archive/fs-version-001/controller02/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/controller02/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller02/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/controller02/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-INDEX-TOOL

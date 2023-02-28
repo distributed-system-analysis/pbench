@@ -5428,13 +5428,10 @@ lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.21/pbench-sate
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/ctlrA
-drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ctlrA/INDEXED
 lrwxrwxrwx        116 archive/fs-version-001/ctlrA/INDEXED/trafficgen_mock_2020.02.28T19.49.39.tar.xz -> /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz
 lrwxrwxrwx        116 archive/fs-version-001/ctlrA/INDEXED/trafficgen_mock_2020.02.28T20.04.29.tar.xz -> /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX-TOOL

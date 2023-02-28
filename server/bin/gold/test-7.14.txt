@@ -7812,12 +7812,9 @@ lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.14/pbench-sate
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p
-drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/INDEXED
 lrwxrwxrwx        145 archive/fs-version-001/b03-h01-1029p/INDEXED/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz -> /var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL

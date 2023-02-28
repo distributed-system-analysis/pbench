@@ -8,9 +8,9 @@
 # for processing (`pbench-agent` v0.51 and later).  It verifies the tar balls
 # and their MD5 check-sums and then moves the tar balls to the archive tree,
 # setting up the appropriate state links (e.g. a production environment may
-# want the tar balls unpacked (TO-UNPACK), backed up (TO-BACKUP), and indexed
-# (TO-INDEX), while a satellite environment may only need to prepare the
-# tar ball to be synced to the main server (TO-SYNC)).
+# want the tar balls unpacked (TO-UNPACK), and indexed (TO-INDEX), while a
+# satellite environment may only need to prepare the tar ball to be synced to
+# the main server (TO-SYNC)).
 #
 # Only tar balls that have a `.md5` file are considered, since the client might
 # still be in the process of sending over the tar ball (typically, the client
@@ -41,6 +41,10 @@ test -n "${ARCHIVE}" -a -d ${ARCHIVE} || doexit "Bad ARCHIVE=${ARCHIVE}"
 test -n "${LOGSDIR}" -a -d ${LOGSDIR} || doexit "Bad LOGSDIR=${LOGSDIR}"
 install_dir=$(getconf.py install-dir pbench-server)
 test -n "${install_dir}" -a -d ${install_dir} || doexit "Bad install_dir=${install_dir}"
+
+# If a backup directory is specified, it had better exist.
+backup_dir=$(getconf.py pbench-backup-dir pbench-server)
+test -z "${backup_dir}" -o -d ${backup_dir} || doexit "Bad backup_dir=${backup_dir}"
 
 errlog=${LOGSDIR}/${PROG}/${PROG}.error
 mkdir -p ${LOGSDIR}/${PROG}
@@ -191,9 +195,27 @@ while read tbmd5; do
     popd > /dev/null 2>&4
     if [[ ${sts} -ne 0 ]]; then
         log_error "${TS}: Quarantined: ${tb} failed MD5 check" "${status}"
-        quarantine ${quarantine}/${controller} ${tb} ${tb}.md5
+        quarantine ${quarantine}/${controller} ${tbmd5} ${tb}
         (( nquarantined++ ))
         continue
+    fi
+
+    if [[ -n "${backup_dir}" ]]; then
+        # Backup to the local backup directory.
+        mkdir -p ${backup_dir}/${controller}
+        sts=${?}
+        if [[ ${sts} -ne 0 ]]; then
+            log_error "${TS}: failed to create backup directory ${backup_dir}/${controller}: code ${sts}" "${status}"
+            (( nberrs++ ))
+            continue
+        fi
+        cp -a ${tbmd5} ${tb} ${backup_dir}/${controller}/
+        sts=${?}
+        if [[ ${sts} -ne 0 ]]; then
+            log_error "${TS}: failed to backup ${tbmd5} and ${tb}: code ${sts}" "${status}"
+            (( nberrs++ ))
+            continue
+        fi
     fi
 
     if [[ ! -z "${put_token}" ]]; then
@@ -229,10 +251,10 @@ while read tbmd5; do
 
     # First, copy the small .md5 file to the destination. That way, if
     # that operation fails it will fail quickly since the file is small.
-    cp -a ${tb}.md5 ${dest}/
+    cp -a ${tbmd5} ${dest}/
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Error: \"cp -a ${tb}.md5 ${dest}/\", status ${sts}" "${status}"
+        log_error "${TS}: Error: \"cp -a ${tbmd5} ${dest}/\", status ${sts}" "${status}"
         (( nerrs++ ))
         continue
     fi
@@ -267,10 +289,10 @@ while read tbmd5; do
 
     # Now that we have successfully moved the tar ball and its .md5 to the
     # destination, we can remove the original .md5 file.
-    rm ${tb}.md5
+    rm ${tbmd5}
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Warning: cleanup of successful copy operation failed: \"rm ${tb}.md5\", status ${sts}" "${status}"
+        log_error "${TS}: Warning: cleanup of successful copy operation failed: \"rm ${tbmd5}\", status ${sts}" "${status}"
     fi
 
     # Create a link in each state dir - if any fail we don't delete them

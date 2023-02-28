@@ -154,36 +154,6 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-cull-unpacked-tarballs (status=0)
-+++ Running pbench-backup-tarballs
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-backup-tarballs",
-            "text": "pbench-backup-tarballs.py.1970-01-01T00:00:42-UTC(unit-test)\nTotal processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, S3 upload failures: 0, Quarantined: 0\n",
-            "total_chunks": 1,
-            "total_size": 196
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-backup-tarballs (status=0)
 +++ Running pbench-satellite-cleanup
 --- Finished pbench-satellite-cleanup (status=0)
 +++ Running pbench-tarball-stats
@@ -286,8 +256,6 @@ drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
-drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--        902 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
@@ -317,8 +285,6 @@ drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
-drwxrwxr-x          - s3-backup
-drwxrwxr-x          - s3-backup/testbucket
 drwxrwxr-x          - tmp
 --- pbench-local tree state
 +++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-5.1/pbench-satellite)
@@ -371,13 +337,6 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
-+++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-run-1970-01-01T00:00:42-UTC
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, S3 upload failures: 0, Quarantined: 0
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-run-1970-01-01T00:00:42-UTC
------ pbench-backup-tarballs/pbench-backup-tarballs.log
 +++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 ----- pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 +++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log

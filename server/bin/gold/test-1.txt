@@ -19,8 +19,6 @@ pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/
 --- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-cull-unpacked-tarballs
 --- Finished pbench-cull-unpacked-tarballs (status=4)
-+++ Running pbench-backup-tarballs
---- Finished pbench-backup-tarballs (status=3)
 +++ Running pbench-satellite-cleanup
 pbench-satellite-cleanup: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench-satellite/archive/fs-version-001
 --- Finished pbench-satellite-cleanup (status=1)
@@ -86,8 +84,6 @@ drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-1/pbench-local)
 drwxrwxr-x          - logs
-drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--        280 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        226 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-index
@@ -140,9 +136,6 @@ drwxrwxr-x          - tmp
 --- pbench-satellite-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs
-+++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-1970-01-01T00:00:42.000000 ERROR pbench-backup-tarballs.pbench-backup-tarballs sanity_check -- The ARCHIVE directory /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001, does not resolve /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001 to a directory
------ pbench-backup-tarballs/pbench-backup-tarballs.log
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 ERROR pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- The configured ARCHIVE directory, /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001, is not a valid directory
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log

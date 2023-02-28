@@ -73,36 +73,6 @@ pbench-clean-up-dangling-results-links: Bad RESULTS=/var/tmp/pbench-test-server/
 --- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-cull-unpacked-tarballs
 --- Finished pbench-cull-unpacked-tarballs (status=4)
-+++ Running pbench-backup-tarballs
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-backup-tarballs",
-            "text": "pbench-backup-tarballs.py.1970-01-01T00:00:42-UTC(unit-test)\nTotal processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, S3 upload failures: 0, Quarantined: 0\n",
-            "total_chunks": 1,
-            "total_size": 196
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-backup-tarballs (status=0)
 +++ Running pbench-satellite-cleanup
 pbench-satellite-cleanup: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench-satellite/public_html/results
 --- Finished pbench-satellite-cleanup (status=1)
@@ -176,8 +146,6 @@ drwxrwxr-x          - public_html/users
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-3/pbench-local)
 drwxrwxr-x          - archive.backup
 drwxrwxr-x          - logs
-drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--        902 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        223 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
@@ -198,8 +166,6 @@ drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
-drwxrwxr-x          - s3-backup
-drwxrwxr-x          - s3-backup/testbucket
 drwxrwxr-x          - tmp
 --- pbench-local tree state
 +++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-3/pbench-satellite)
@@ -243,13 +209,6 @@ drwxrwxr-x          - tmp
 --- pbench-satellite-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs
-+++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-run-1970-01-01T00:00:42-UTC
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, S3 upload failures: 0, Quarantined: 0
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-run-1970-01-01T00:00:42-UTC
------ pbench-backup-tarballs/pbench-backup-tarballs.log
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 ERROR pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- The configured RESULTS directory, /var/tmp/pbench-test-server/test-3/pbench/public_html/results, is not a valid directory
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
