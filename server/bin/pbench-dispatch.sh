@@ -1,16 +1,16 @@
 #! /bin/bash
 # -*- mode: shell-script -*-
 
-# This script is the first part of the pipeline that processes pbench
-# results tar balls.
+# This script is the first part of the pipeline that processes pbench result
+# tar balls.
 #
 # `pbench-dispatch` prepares tar balls that a version 002 SSH client submits
 # for processing (`pbench-agent` v0.51 and later).  It verifies the tar balls
-# and their MD5 check-sums and then moves the tar balls to the archive tree,
-# setting up the appropriate state links (e.g. a production environment may
-# want the tar balls unpacked (TO-UNPACK), and indexed (TO-INDEX), while a
-# satellite environment may only need to prepare the tar ball to be synced to
-# the main server (TO-SYNC)).
+# and their MD5 check-sums, backups them up, and then moves the tar balls to the
+# archive tree, setting up the appropriate state links (e.g. a production
+# environment may want the tar balls unpacked (TO-UNPACK) and indexed
+# (TO-INDEX), while a satellite environment may only need to prepare the tar
+# ball to be synced to the main server (TO-SYNC)).
 #
 # Only tar balls that have a `.md5` file are considered, since the client might
 # still be in the process of sending over the tar ball (typically, the client
@@ -88,11 +88,11 @@ if [[ ! -d "${receive_dir}" ]]; then
     exit 2
 fi
 
-quarantine=${qdir}/md5-${version}
-mkdir -p ${quarantine}
+bad_md5=${qdir}/md5-${version}
+mkdir -p ${bad_md5}
 sts=${?}
 if [[ ${sts} != 0 ]]; then
-    echo "Failed: \"mkdir -p ${quarantine}\", status ${sts}" >> ${errlog}
+    echo "Failed: \"mkdir -p ${bad_md5}\", status ${sts}" >> ${errlog}
     exit 3
 fi
 
@@ -184,7 +184,7 @@ while read tbmd5; do
 
     if [[ -f ${dest}/${resultname}.tar.xz || -f ${dest}/${resultname}.tar.xz.md5 ]]; then
         log_error "${TS}: Duplicate: ${tb} duplicate name" "${status}"
-        quarantine ${duplicates}/${controller} ${tb} ${tbmd5}
+        quarantine ${duplicates}/${controller} ${tbmd5} ${tb}
         (( ndups++ ))
         continue
     fi
@@ -195,7 +195,7 @@ while read tbmd5; do
     popd > /dev/null 2>&4
     if [[ ${sts} -ne 0 ]]; then
         log_error "${TS}: Quarantined: ${tb} failed MD5 check" "${status}"
-        quarantine ${quarantine}/${controller} ${tbmd5} ${tb}
+        quarantine ${bad_md5}/${controller} ${tbmd5} ${tb}
         (( nquarantined++ ))
         continue
     fi

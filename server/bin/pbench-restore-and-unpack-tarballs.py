@@ -21,7 +21,7 @@ The general algorithm is:
 
         * Creating the controller directory if it doesn't already exist
 
-     d. Create symlink to tar ball in TO-RE-UNPACK directory
+     c. Create symlink to tar ball in TO-RE-UNPACK directory
 
         * Creating the TO-RE-UNPACK directory if it doesn't already exist
 """
