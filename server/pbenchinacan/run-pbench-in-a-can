@@ -56,12 +56,8 @@ sed -Ei \
 mkdir -p -m 0755  \
     ${SRV_PBENCH}/archive/fs-version-001 \
     ${SRV_PBENCH}/public_html/dashboard \
-    ${SRV_PBENCH}/public_html/incoming \
-    ${SRV_PBENCH}/public_html/results \
-    ${SRV_PBENCH}/public_html/users \
-    ${SRV_PBENCH}/logs \
     ${SRV_PBENCH}/tmp \
-    ${SRV_PBENCH}/pbench-move-results-receive/fs-version-002
+    ${SRV_PBENCH}/cache
 
 # Start the services which the Pbench Server depends upon and then start the
 # Pbench Server itself.

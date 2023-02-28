@@ -9,7 +9,7 @@ import time
 import pytest
 from requests.exceptions import HTTPError
 
-from pbench.client import PbenchServerClient
+from pbench.client import API, PbenchServerClient
 from pbench.client.types import Dataset
 
 TARBALL_DIR = Path("lib/pbench/test/functional/server/tarballs")
@@ -122,7 +122,7 @@ class TestPut:
         response = server_client.upload(tarball, metadata={"server.archiveonly:y"})
         assert (
             response.status_code == HTTPStatus.CREATED
-        ), f"upload returned unexpected status {response.status_code}, {response.text}"
+        ), f"upload {Dataset.stem(tarball)} returned unexpected status {response.status_code}, {response.text}"
         metadata = server_client.get_metadata(
             md5, ["dataset.operations", "server.archiveonly"]
         )
@@ -132,10 +132,8 @@ class TestPut:
         # enabled by upload, and INDEX is only enabled by UNPACK: so if they're
         # not here immediately after upload, they'll never be here.
         operations = metadata["dataset.operations"]
-        assert "UNPACK" not in operations
-        assert "INDEX" not in operations
         assert operations["UPLOAD"]["state"] == "OK"
-        assert operations["BACKUP"]["state"] in ("OK", "READY", "WORKING")
+        assert "INDEX" not in operations
 
         # Delete it so we can run the test case again without manual cleanup
         response = server_client.remove(md5)
@@ -154,24 +152,21 @@ class TestPut:
                     dataset.resource_id, ["dataset.operations"]
                 )
                 operations = metadata["dataset.operations"]
-                if "INDEX" in operations and operations["INDEX"]["state"] == "OK":
-                    assert operations["UPLOAD"]["state"] == "OK"
-                    assert operations["UNPACK"]["state"] == "OK"
+                if "INDEX" in operations and operations["INDEX"]["state"] in (
+                    "FAILED",
+                    "OK",
+                ):
                     assert operations["INDEX"]["state"] == "OK"
-
-                    # Backup is asynchronous: it's OK if it hasn't completed
-                    # yet, but must be at least in READY state.
-                    assert operations["BACKUP"]["state"] in ("OK", "READY")
                     indexed.append(dataset)
                 else:
                     done = ",".join(
                         name for name, op in operations.items() if op["state"] == "OK"
                     )
-                    status = ",".join(
-                        f"{name}={op['state']}"
-                        for name, op in operations.items()
-                        if op["state"] != "OK"
-                    )
+                    undone = []
+                    for name, op in operations.items():
+                        if op["state"] != "OK":
+                            undone.append(f"{name}={op['state']}({op['message']})")
+                    status = ",".join(undone)
                     print(f"\t\tfinished {done!r}, awaiting {status!r}")
                     not_indexed.append(dataset)
         except HTTPError as exc:
@@ -264,6 +259,33 @@ class TestPut:
         assert (
             len(tarball_names) == count
         ), f"Didn't find all expected datasets, found {count} of {len(tarball_names)}"
+
+
+class TestIndexing:
+    @pytest.mark.dependency(name="detail", depends=["index"], scope="session")
+    def test_details(self, server_client: PbenchServerClient, login_user):
+        """Check access to indexed data
+
+        Perform a GET /datasets/details/{id} to be sure that basic run data
+        has been indexed and is available.
+        """
+        datasets = server_client.get_list(
+            metadata=["dataset.metalog.pbench,server.archiveonly"], owner="tester"
+        )
+        for d in datasets:
+            print(f"\t... checking run index for {d.name}")
+            response = server_client.get(
+                API.DATASETS_DETAIL, {"dataset": d.resource_id}
+            )
+            detail = response.json()
+            indexed = not d.metadata["server.archiveonly"]
+            if indexed:
+                assert (
+                    d.metadata["dataset.metalog.pbench"]["script"]
+                    == detail["runMetadata"]["script"]
+                )
+            else:
+                print(f"\t\t... {d.name} is archiveonly")
 
 
 class TestList:
@@ -366,7 +388,7 @@ class TestList:
 
 class TestDelete:
     @pytest.mark.dependency(
-        depends=["list_none", "list_all", "list_and", "list_or", "index"],
+        depends=["detail", "index", "list_all", "list_and", "list_none", "list_or"],
         scope="session",
     )
     def test_delete_all(self, server_client: PbenchServerClient, login_user):

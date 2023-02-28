@@ -123,13 +123,10 @@ class PbenchServerConfig(PbenchConfig):
         (
             "ARCHIVE",
             "BINDIR",
-            "INCOMING",
+            "CACHE",
             "LIBDIR",
-            "LOGSDIR",
-            "RESULTS",
             "TMP",
             "TOP",
-            "USERS",
             "rest_uri",
         )
     )
@@ -187,24 +184,6 @@ class PbenchServerConfig(PbenchConfig):
         return self._get_valid_dir_option("TMP", "pbench-server", "pbench-tmp-dir")
 
     @property
-    def LOGSDIR(self) -> Path:
-        if self.log_dir:
-            # We have a logging directory, which means the logger_type is
-            # "file", so we'll ignore any "pbench-logs-dir" configuration
-            # values.
-            return Path(self.log_dir)
-
-        # We don't have a [logging] section "log_dir" option, so we'll
-        # fetch the old "pbench-logs-dir" option.
-        logsdir = self._get_valid_dir_option(
-            "LOGSDIR", "pbench-server", "pbench-logs-dir"
-        )
-        # Provide a value for log_dir since it was provided via the old
-        # pbench-logs-dir configuration.
-        self.log_dir = str(logsdir)
-        return logsdir
-
-    @property
     def BINDIR(self) -> Path:
         return self._get_valid_dir_option("BINDIR", "pbench-server", "script-dir")
 
@@ -219,17 +198,8 @@ class PbenchServerConfig(PbenchConfig):
         )
 
     @property
-    def INCOMING(self) -> Path:
-        return self.TOP / "public_html" / "incoming"
-
-    @property
-    def RESULTS(self) -> Path:
-        # This is where the symlink forest is going to go.
-        return self.TOP / "public_html" / "results"
-
-    @property
-    def USERS(self) -> Path:
-        return self.TOP / "public_html" / "users"
+    def CACHE(self) -> Path:
+        return self._get_valid_dir_option("CACHE", "pbench-server", "pbench-cache-dir")
 
     @property
     def PBENCH_ENV(self) -> str:

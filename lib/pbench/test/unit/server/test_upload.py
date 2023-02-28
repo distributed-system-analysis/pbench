@@ -354,8 +354,7 @@ class TestUpload:
         assert Metadata.getvalue(dataset, "global") == {"pbench": {"test": "data"}}
         assert Metadata.getvalue(dataset, Metadata.SERVER_DELETION) == "1972-01-02"
         assert Metadata.getvalue(dataset, "dataset.operations") == {
-            "BACKUP": {"state": "READY", "message": None},
-            "UNPACK": {"state": "READY", "message": None},
+            "INDEX": {"state": "READY", "message": None},
             "UPLOAD": {"state": "OK", "message": None},
         }
         assert self.cachemanager_created
@@ -554,8 +553,7 @@ class TestUpload:
         assert Metadata.getvalue(dataset, Metadata.SERVER_ORIGIN) == "test"
         assert Metadata.getvalue(dataset, Metadata.SERVER_DELETION) == "1972-01-02"
         assert Metadata.getvalue(dataset, "dataset.operations") == {
-            "BACKUP": {"state": "READY", "message": None},
-            "UPLOAD": {"state": "OK", "message": None},
+            "UPLOAD": {"state": "OK", "message": None}
         }
         assert self.cachemanager_created
         assert dataset.name in self.cachemanager_created

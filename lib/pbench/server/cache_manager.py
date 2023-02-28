@@ -4,7 +4,7 @@ import shlex
 import shutil
 import subprocess
 import tarfile
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
 from pbench.common import MetadataLog, selinux
 from pbench.server import JSONOBJECT, PbenchServerConfig
@@ -13,18 +13,14 @@ from pbench.server.utils import get_tarball_md5
 
 
 class CacheManagerError(Exception):
-    """
-    Base class for exceptions raised from this code.
-    """
+    """Base class for exceptions raised from this module."""
 
     def __str__(self) -> str:
         return "Generic cache manager exception"
 
 
 class BadFilename(CacheManagerError):
-    """
-    A bad path is given for a tarball.
-    """
+    """A bad tarball path was given."""
 
     def __init__(self, path: Union[str, Path]):
         self.path = str(path)
@@ -34,10 +30,7 @@ class BadFilename(CacheManagerError):
 
 
 class TarballNotFound(CacheManagerError):
-    """
-    The on-disk representation of a dataset (tarball and MD5 companion) were
-    not found in the ARCHIVE tree.
-    """
+    """The dataset was not found in the ARCHIVE tree."""
 
     def __init__(self, tarball: str):
         self.tarball = tarball
@@ -47,9 +40,7 @@ class TarballNotFound(CacheManagerError):
 
 
 class DuplicateTarball(CacheManagerError):
-    """
-    A duplicate tarball name was detected.
-    """
+    """A duplicate tarball name was detected."""
 
     def __init__(self, tarball: str):
         self.tarball = tarball
@@ -59,9 +50,7 @@ class DuplicateTarball(CacheManagerError):
 
 
 class MetadataError(CacheManagerError):
-    """
-    A problem was found locating or processing a tarball's metadata.log file.
-    """
+    """A problem was found processing a tarball's metadata.log file."""
 
     def __init__(self, tarball: Path, error: Exception):
         self.tarball = tarball
@@ -72,9 +61,7 @@ class MetadataError(CacheManagerError):
 
 
 class TarballUnpackError(CacheManagerError):
-    """
-    An error occured while trying to unpack tarball in Unpacked Directory.
-    """
+    """An error occured trying to unpack a tarball."""
 
     def __init__(self, tarball: Path, error: str):
         self.tarball = tarball
@@ -85,10 +72,7 @@ class TarballUnpackError(CacheManagerError):
 
 
 class TarballModeChangeError(CacheManagerError):
-    """
-    An error occurred while trying to change the file permissions of
-    unpacked tarball files.
-    """
+    """An error occurred trying to fix unpacked tarball permissions."""
 
     def __init__(self, tarball: Path, error: str):
         self.tarball = tarball
@@ -99,9 +83,10 @@ class TarballModeChangeError(CacheManagerError):
 
 
 class Tarball:
-    """
+    """Representation of an on-disk tarball.
+
     This class corresponds to the physical representation of a Dataset: the
-    tarball, the MD5 file, and the unpacked data.
+    tarball, the MD5 file, and unpacked (cached) data.
 
     It provides discovery and management methods related to a specific
     dataset's on-disk representation. This class does not interact with the
@@ -109,9 +94,7 @@ class Tarball:
     """
 
     def __init__(self, path: Path, controller: "Controller"):
-        """
-        Construct a `Tarball` object instance representing a the file system
-        artifacts of a dataset.
+        """Construct a `Tarball` object instance
 
         Args:
             path: The file path to a discovered tarball (.tar.xz file) in the
@@ -133,11 +116,13 @@ class Tarball:
         # Record the path of the tarball file
         self.tarball_path: Path = path
 
-        # Record the unpacked INCOMING tree directory
-        self.unpacked: Optional[Path] = None
+        # Record where cached unpacked data would live
+        self.cache: Path = controller.cache / self.resource_id
 
-        # Record the RESULTS tree softlink path
-        self.results_link: Optional[Path] = None
+        # Record the base of the unpacked files for cache management, which
+        # is (self.cache / self.name) and will be None when the cache is
+        # inactive.
+        self.unpacked: Optional[Path] = None
 
         # Record the path of the companion MD5 file
         self.md5_path: Path = path.with_suffix(".xz.md5")
@@ -148,39 +133,14 @@ class Tarball:
         # Cache results metadata when it's been processed
         self.metadata: Optional[JSONOBJECT] = None
 
-    def check_unpacked(self, incoming: Path) -> bool:
+    def check_unpacked(self):
+        """Determine whether a tarball has been unpacked.
+
+        Look for the unpacked data root, and record it if found.
         """
-        Determine whether a tarball in the ARCHIVE tree has been unpacked into
-        the INCOMING tree and if so record the link.
-
-        Args
-            incoming: The controller's INCOMING directory
-
-        Return
-            True if an unpacked directory was discovered
-        """
-        dir = incoming / self.name
-        if dir.is_dir():
-            self.unpacked = dir
-            return True
-        return False
-
-    def check_results(self, result: Path) -> bool:
-        """
-        Determine whether a tarball in the ARCHIVE tree has a RESULTS tree link
-        to an unpacked INCOMING tree and if so record the link.
-
-        Args
-            result:   The controller's RESULTS directory
-
-        Return
-            True if a results link was discovered
-        """
-        dir = result / self.name
-        if dir.is_symlink():
-            self.results_link = dir
-            return True
-        return False
+        unpack = self.cache / self.name
+        if unpack.is_dir():
+            self.unpacked = unpack
 
     # Most of the "operational" methods below this point should be called only
     # through Controller and/or CacheManager methods, in order to properly manage
@@ -192,10 +152,10 @@ class Tarball:
     #
     # unpack
     #   Unpack the ARCHIVE tarball file into a new directory under the
-    #   controller directory in the INCOMING directory tree.
+    #   CACHE directory tree.
     #
     # uncache
-    #   Remove the unpacked directory tree under INCOMING when no longer needed.
+    #   Remove the unpacked directory tree under CACHE when no longer needed.
     #
     # delete
     #   Remove the tarball and MD5 file from ARCHIVE after uncaching the
@@ -203,10 +163,10 @@ class Tarball:
 
     @classmethod
     def create(cls, tarball: Path, controller: "Controller") -> "Tarball":
-        """
-        This is an alternate constructor to move an incoming tarball into the
-        proper place along with the md5 companion file. It returns the new
-        Tarball object.
+        """An alternate constructor to import a tarball
+
+        This moves a new tarball into the proper place along with the md5
+        companion file. It returns the new Tarball object.
         """
 
         # Validate the tarball suffix and extract the dataset name
@@ -268,8 +228,7 @@ class Tarball:
 
     @staticmethod
     def extract(tarball_path: Path, path: str) -> str:
-        """
-        Extract a file from the tarball and return it as a string
+        """Extract a file from the tarball and return it as a string
 
         Args:
             path: relative path within the tarball of a file
@@ -287,11 +246,9 @@ class Tarball:
 
     @staticmethod
     def _get_metadata(tarball_path: Path) -> JSONOBJECT:
-        """
-        Fetch the values in metadata.log from the tarball, and return a JSON
-        document organizing the metadata by section.
+        """Fetch the values in metadata.log from the tarball.
 
-        The information is unpacked and processed once, and cached.
+        The information is processed and cached.
 
         Returns:
             A JSON representation of the dataset `metadata.log`
@@ -307,8 +264,7 @@ class Tarball:
     def subprocess_run(
         command: str, working_dir: Path, exception: type[CacheManagerError], ctx: Path
     ):
-        """
-        Runs command under subprocess.run
+        """Runs a command as a subprocess.
 
         Args:
             command: command to be executed.
@@ -323,9 +279,10 @@ class Tarball:
             by the `exception` parameter, instantiated with the value of the
             `ctx` arguments and an explanatory message.
         """
+        cmd = shlex.split(command)
         try:
             process = subprocess.run(
-                shlex.split(command),
+                cmd,
                 cwd=working_dir,
                 stdin=subprocess.DEVNULL,
                 capture_output=True,
@@ -337,89 +294,57 @@ class Tarball:
             if process.returncode != 0:
                 raise exception(
                     ctx,
-                    f"{shlex.split(command)[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
+                    f"{cmd[0]} exited with status {process.returncode}:  {process.stderr.strip()!r}",
                 )
 
-    @staticmethod
-    def do_move(src: Path, dest: Path, ctx: Path):
-        """Moves unpacked Tarball from unpacked to incoming directory
+    def unpack(self):
+        """Unpack a tarball into a temporary directory tree
 
-        Args:
-            src: source directory to move contents from.
-            dest: destinations directory to move contents to.
-            ctx: tarball path/unpack directory path. This is only used at
-                the event of an error as a parameter to the CacheManagerError Exception.
+        Unpack the tarball into a temporary cache directory named with the
+        tarball's resource_id (MD5).
 
-        Raises:
-            TarballUnpackError if an exception/failure occurs while unpacking
-            the tarball.
+        This tree will be used for indexing, and then discarded. As we build
+        out more of the cache manager, it can also be used to build our initial
+        cache map.
+
+        The indexer works off the unpacked data under CACHE, assuming the
+        tarball name in all paths (because this is what's inside the tarball).
+        Rather than passing the indexer the root `/srv/pbench/.cache` or trying
+        to update all of the indexer code (which still jumps back and forth
+        between the tarball and the unpacked files), we maintain the "cache"
+        directory as two paths: self.cache which is the directory we manage
+        here and pass to the indexer (/srv/pbench/.cache/<resource_id>) and
+        the actual unpacked root (/srv/pbench/.cache/<resource_id>/<name>).
         """
-        try:
-            shutil.move(src, dest)
-        except Exception as exc:
-            raise TarballUnpackError(
-                ctx,
-                f"Error moving {str(src)!r} to {str(dest)!r}: {str(exc)}",
-            )
-
-    def unpack(self, incoming: Path, results: Path):
-        """
-        Unpack a tarball into the INCOMING directory tree; this assumes that
-        the INCOMING controller directory already exists, which should be
-        ensured by calling this indirectly through the Controller class unpack
-        method.
-
-        Args:
-            incoming: Controller's directory in the INCOMING tree
-            results: Controller's directory in the RESULTS tree
-        """
-        unpacked = incoming / self.name
-        results_link = results / self.name
-        unpacked_temp = incoming / f"{self.name}.unpack"
-        unpacked_temp.mkdir(parents=True)
+        self.cache.mkdir(parents=True)
 
         try:
             tar_command = f"tar -x --no-same-owner --delay-directory-restore --force-local --file='{str(self.tarball_path)}'"
             self.subprocess_run(
-                tar_command, unpacked_temp, TarballUnpackError, self.tarball_path
+                tar_command, self.cache, TarballUnpackError, self.tarball_path
             )
 
             find_command = "find . ( -type d -exec chmod ugo+rx {} + ) -o ( -type f -exec chmod ugo+r {} + )"
             self.subprocess_run(
-                find_command, unpacked_temp, TarballModeChangeError, unpacked_temp
+                find_command, self.cache, TarballModeChangeError, self.cache
             )
-
-            self.do_move(unpacked_temp / self.name, unpacked, self.tarball_path)
-        finally:
-            shutil.rmtree(unpacked_temp, ignore_errors=True)
-
-        self.unpacked = unpacked
-        results_link.symlink_to(self.unpacked)
-        self.results_link = results_link
+        except Exception:
+            shutil.rmtree(self.cache, ignore_errors=True)
+            raise
+        self.unpacked = self.cache / self.name
 
     def uncache(self):
-        """
-        Remove the unpacked tarball directory and all contents. The caller
-        is responsible for removing empty controller directories.
-        """
+        """Remove the unpacked tarball directory and all contents."""
         if self.unpacked:
             try:
-                shutil.rmtree(self.unpacked)
+                shutil.rmtree(self.cache)
                 self.unpacked = None
             except Exception as e:
                 self.logger.error("incoming remove for {} failed with {}", self.name, e)
                 raise
-        if self.results_link:
-            try:
-                self.results_link.unlink()
-                self.results_link = None
-            except Exception as e:
-                self.logger.error("results unlink for {} failed with {}", self.name, e)
-                raise
 
     def delete(self):
-        """
-        Delete the tarball and MD5 file from the ARCHIVE tree.
+        """Delete the tarball and MD5 file from the ARCHIVE tree.
 
         We'll log errors in deletion, but "succeed" and clear the links to both
         files. There's nothing more we can do.
@@ -442,17 +367,16 @@ class Tarball:
 
 
 class Controller:
-    """
-    Record the existence of a "controller" in the ARCHIVE directory tree: this
-    only means that a directory was found within the root ARCHIVE directory. A
-    controller with no data will be ignored in most contexts, but the audit
-    report generator will flag it.
+    """Record the existence of a "controller" in the ARCHIVE directory tree
+
+    This only means that a directory was found within the root ARCHIVE
+    directory. A controller with no data will be ignored in most contexts,
+    but the audit report generator will flag it.
     """
 
     @staticmethod
     def delete_if_empty(directory: Path) -> None:
-        """
-        Delete a directory only if it exists and is empty.
+        """Delete a directory only if it exists and is empty.
 
         NOTE: rmdir technically will fail if the directory isn't empty, but
         this feels safer.
@@ -465,21 +389,16 @@ class Controller:
         if directory.exists() and not any(directory.iterdir()):
             directory.rmdir()
 
-    def __init__(self, path: Path, incoming: Path, results: Path, logger: Logger):
-        """
-        Manage the representation of a controller on disk, which is a set of
-        directories; one each in the ARCHIVE, INCOMING, and RESULTS trees.
+    def __init__(self, path: Path, cache: Path, logger: Logger):
+        """Manage the representation of a controller archive on disk.
 
         In this context, the path parameter refers to a controller directory
-        within the configured ARCHIVE tree; "incoming" and "results" refer to
-        the configured base directories of INCOMING and RESULTS trees,
-        respectively. There need not be any files or directories related to
-        this controller within those trees at this time.
+        within the configured ARCHIVE tree. There need not be any files or
+        directories related to this controller at this time.
 
         Args:
             path: Controller ARCHIVE directory path
-            incoming: The root of the INCOMING tree
-            results: The root of the RESULTS tree
+            cache: The base of the cache tree
             logger: Logger object
         """
         self.logger = logger
@@ -490,52 +409,52 @@ class Controller:
         # The full controller path in the ARCHIVE tree
         self.path = path
 
+        # Remember the cache tree base
+        self.cache = cache
+
         # Provide a mapping from Tarball file name to object
-        self.tarballs: Dict[str, Tarball] = {}
+        self.tarballs: dict[str, Tarball] = {}
 
         # Provide a mapping from Dataset resource ID to object
-        self.datasets: Dict[str, Tarball] = {}
+        self.datasets: dict[str, Tarball] = {}
 
-        # The directory where the controller's tarballs will be unpacked
-        self.incoming: Path = incoming / self.name
-
-        # A path that will link to the controller's unpacked tarballs
-        self.results: Path = results / self.name
+        # Discover the tarballs that already exist.
+        # Depends on instance properties and should remain at the end of the
+        # constructor!
         self._discover_tarballs()
 
     def _discover_tarballs(self):
-        """
-        Discover the tarballs within the ARCHIVE tree's controller directory.
-        Check for an unpacked tarball in the INCOMING tree and if that's
-        present also check for a RESULTS tree link.
+        """Discover the known tarballs
+
+        Look in the ARCHIVE tree's controller directory for tarballs, and add
+        them to the known set. We also check for unpacked directories in the
+        CACHE tree matching the resource_id of any tarballs we find in order
+        to link them.
         """
         for file in self.path.iterdir():
             if file.is_file() and Dataset.is_tarball(file):
                 tarball = Tarball(file, self)
                 self.tarballs[tarball.name] = tarball
                 self.datasets[tarball.resource_id] = tarball
-                if tarball.check_unpacked(self.incoming):
-                    tarball.check_results(self.results)
+                tarball.check_unpacked()
 
     @classmethod
     def create(
         cls, name: str, options: PbenchServerConfig, logger: Logger
     ) -> "Controller":
-        """
-        Create a new controller directory under the ARCHIVE tree if one doesn't
-        already exist, and return a Controller object.
+        """Create a new controller directory under the ARCHIVE tree
 
         Returns:
             Controller object
         """
         controller_dir = options.ARCHIVE / name
         controller_dir.mkdir(exist_ok=True, mode=0o755)
-        return cls(controller_dir, options.INCOMING, options.RESULTS, logger)
+        return cls(controller_dir, options.CACHE, logger)
 
     def create_tarball(self, tarfile: Path) -> Tarball:
-        """
-        Create a new dataset tarball object under the controller, link it to
-        the controller, and return the new Tarball object.
+        """Create a new dataset tarball object under the controller
+
+        The new tarball object is linked to the controller so we can find it.
 
         Args:
             tarfile: Path to source tarball file
@@ -549,41 +468,25 @@ class Controller:
         return tarball
 
     def unpack(self, dataset_id: str):
-        """
-        Unpack a tarball into the INCOMING tree. Create the INCOMING controller
-        directory if necessary, along with the RESULTS tree link.
-
-        NOTE: This does not not preserve the 0.69 --prefix and --user behaviors
-        which alter the RESULTS tree directory structure and maintain an
-        additional USERS tree; these are not useful or desirable for 1.0 with
-        real users and metadata support.
+        """Unpack a tarball into a temporary cache directory.
 
         Args:
             dataset_id: Resource ID of the dataset to unpack
         """
         tarball = self.datasets[dataset_id]
-        self.incoming.mkdir(exist_ok=True)
-        self.results.mkdir(exist_ok=True)
-        tarball.unpack(self.incoming, self.results)
+        tarball.unpack()
 
     def uncache(self, dataset_id: str):
-        """
-        The reverse of `unpack`, removing the RESULTS tree link and the
-        unpacked tarball contents from INCOMING.
+        """Remove the cached unpack directory.
 
         Args:
             dataset_id: Resource ID of dataset to remove
         """
         tarball = self.datasets[dataset_id]
         tarball.uncache()
-        self.delete_if_empty(self.results)
-        self.delete_if_empty(self.incoming)
 
     def delete(self, dataset_id: str):
-        """
-        Delete a dataset tarball and remove it from the controller. This will
-        also remove any links to the dataset tarball from the controller's
-        state directories.
+        """Delete a dataset tarball and remove it from the controller
 
         Args:
             dataset_id: Resource ID of dataset to delete
@@ -596,11 +499,9 @@ class Controller:
 
 
 class CacheManager:
-    """
-    A hierarchical representation of the Pbench Server's file structure.
+    """A hierarchical representation of the Pbench Server's file structure.
 
-    There are three main trees, which we designate ARCHIVE, INCOMING, and
-    RESULTS.
+    The cache manager manages two directory trees:
 
     ARCHIVE
 
@@ -610,9 +511,6 @@ class CacheManager:
 
             /srv/pbench/archive/fs-version-001/
 
-        This directory is linked from /var/www/html/pbench-tarballs for Apache
-        access.
-
         A directory is created under this root for each controller name used by
         a dataset. Within each ARCHIVE controller directory you'll find:
 
@@ -620,48 +518,18 @@ class CacheManager:
             tar archive (conventionally referred to as a "tarball") and a
             ".tar.xz.md5" MD5 file with the same base name.
 
-    INCOMING
+    CACHE
 
-        The INCOMING tree is rooted under the Pbench "top dir" public_html
-        directory, conventionally something like
+        The CACHE tree is rooted under the Pbench "top dir" directory,
+        with the default path:
 
-            /srv/pbench/public_html/incoming/
+            /srv/pbench/.cache/
 
-        It's also linked from /var/www/html/incoming.
-
-        Like the ARCHIVE tree, it will contain a directory for each controller;
-        but a controller has a subdirectory for each dataset result, with the
-        root name of the tarball (without the trailing `.tar.xz`), that
-        contains the unpacked contents of the tarball.
-
-        This exists only after the pbench-unpack-tarballs script has run (based
-        on the TO-UNPACK state link).
-
-    RESULTS
-
-        The RESULTS tree is rooted under the Pbench "top dir" public_html
-        directory, conventionally something like
-
-            /srv/pbench/public_html/results/
-
-        It's also linked from /var/www/html/results.
-
-        This is almost a mirror of the INCOMING tree structure, except that,
-        instead of directories containing unpacked tarballs, the RESULTS tree
-        contains only a symlink for each dataset name to the INCOMING tree's
-        unpacked tarball directory.
-
-        The link is created when each tarball is unpacked, and gives the normal
-        reference path for unpacked results data (usually through the link at
-        /var/www/html/results).
-
-        NOTE: Under 0.69, the directory structure here is influenced by the
-        "prefix" string in the dataset's metadata.log file, and that's the main
-        reason for this tree's existence. We don't support the prefix under
-        1.0 except as an item of metadata. This makes the RESULTS tree somewhat
-        redundant, but there's little point in removing it until we move away
-        from the file system entirely and replace it with an object store
-        schema.
+        This tree will contain temporary directories of unpacked tarballs to
+        allow establishing a cache manager map and for indexing (which requires
+        a fully unpacked tarball tree for efficiency). After indexing, these
+        directories are deleted, but the cache manager may dynamically unpack
+        files or subtrees here during normal operation.
     """
 
     # The CacheManager class provides a definition of a directory at the same level
@@ -676,8 +544,7 @@ class CacheManager:
 
     @staticmethod
     def delete_if_empty(directory: Path) -> None:
-        """
-        Delete a directory only if it exists and is empty.
+        """Delete a directory only if it exists and is empty.
 
         NOTE: rmdir technically will fail if the directory isn't empty, but
         this feels safer.
@@ -691,11 +558,11 @@ class CacheManager:
             directory.rmdir()
 
     def __init__(self, options: PbenchServerConfig, logger: Logger):
-        """
-        Construct a CacheManager object. We don't do any discovery here, because
-        the mutation operations allow dynamic minimal discovery to save on
-        some time. The `full_discovery` method allows full discovery when
-        desired.
+        """Construct a CacheManager object.
+
+        We don't do any discovery here, because the mutation operations allow
+        dynamic minimal discovery to save time. The `full_discovery` method
+        allows full discovery when desired.
 
         Args:
             options: PbenchServerConfig configuration object
@@ -707,28 +574,23 @@ class CacheManager:
         # Record the root ARCHIVE directory path
         self.archive_root: Path = self.options.ARCHIVE
 
-        # Record the root INCOMING directory path
-        self.incoming_root: Path = self.options.INCOMING
-
-        # Record the root RESULTS directory path
-        self.results_root: Path = self.options.RESULTS
+        # Record the root CACHE directory path
+        self.cache_root: Path = self.options.CACHE
 
         # Construct an index to refer to discovered controllers
-        self.controllers: Dict[str, Controller] = {}
+        self.controllers: dict[str, Controller] = {}
 
         # Construct an index to refer to discovered results tarballs
         # by root tarball name
-        self.tarballs: Dict[str, Tarball] = {}
+        self.tarballs: dict[str, Tarball] = {}
 
         # Construct an index to refer to discovered results tarballs
         # by the tarball MD5 value, corresponding to the dataset formal
         # resource_id.
-        self.datasets: Dict[str, Tarball] = {}
+        self.datasets: dict[str, Tarball] = {}
 
     def full_discovery(self):
-        """
-        We discover the ARCHIVE, INCOMING, and RESULTS trees as defined by the
-        pbench-server.cfg file.
+        """Discover the ARCHIVE and CACHE trees
 
         NOTE: both _discover_unpacked() and _discover_results() rely on the
         results of _discover_archive(), which must run first.
@@ -739,9 +601,7 @@ class CacheManager:
         self._discover_controllers()
 
     def __contains__(self, dataset_id: str) -> bool:
-        """
-        Allow asking whether a CacheManager contains an entry for a specific
-        dataset.
+        """Determine whether the cache manager includes a dataset.
 
         Args:
             dataset_id: Dataset resource ID
@@ -752,8 +612,7 @@ class CacheManager:
         return dataset_id in self.datasets
 
     def __getitem__(self, dataset_id: str) -> Tarball:
-        """
-        Direct access to a dataset Tarball object by dataset ID (MD5).
+        """Find a dataset Tarball object by dataset ID (MD5).
 
         Args:
             dataset_id: Dataset resource ID
@@ -767,56 +626,46 @@ class CacheManager:
             raise TarballNotFound(dataset_id) from None
 
     def _clean_empties(self, controller: str):
-        """
-        Remove empty controller directories from the RESULTS and INCOMING
-        trees. If there are no remaining tarballs in the ARCHIVE controller
-        directory, remove all empty state subdirectories; and, if the
-        controller directory is now empty remove it as well.
+        """Remove empty controller directories from the ARCHIVE tree.
 
         Args:
             controller: Name of the controller to clean up
         """
-        results = self.options.RESULTS / controller
-        self.delete_if_empty(results)
-        incoming = self.options.INCOMING / controller
-        self.delete_if_empty(incoming)
         archive = self.options.ARCHIVE / controller
         if archive.exists() and not any(archive.glob(f"*{Dataset.TARBALL_SUFFIX}")):
             self.delete_if_empty(archive)
             del self.controllers[controller]
 
     def _add_controller(self, directory: Path) -> None:
-        """
-        Create a new Controller object, add it to the set of known controllers,
-        and append the discovered datasets (tarballs) to the list of known
-        datasets (by internal dataset ID) and tarballs (by tarball base name).
+        """Create a new Controller object
+
+        Add a new controller to the set of known controllers, and append the
+        discovered datasets (tarballs) to the list of known datasets (by
+        internal dataset ID) and tarballs (by tarball base name).
 
         Args:
             directory: A controller directory within the ARCHIVE tree
         """
-        controller = Controller(
-            directory, self.options.INCOMING, self.options.RESULTS, self.logger
-        )
+        controller = Controller(directory, self.options.CACHE, self.logger)
         self.controllers[controller.name] = controller
         self.tarballs.update(controller.tarballs)
         self.datasets.update(controller.datasets)
 
     def _discover_controllers(self):
-        """
-        Build a representation of the ARCHIVE tree, recording controllers (top
-        level directories), the tarballs and MD5 files that represent datasets,
-        and the server chain "state" directories.
+        """Build a representation of the ARCHIVE tree
+
+        Record all controllers (top level directories), and the tarballs that
+        that represent datasets within them.
         """
         for file in self.archive_root.iterdir():
             if file.is_dir() and file.name != CacheManager.TEMPORARY:
                 self._add_controller(file)
 
     def find_dataset(self, dataset_id: str) -> Tarball:
-        """
-        Given the resource ID of a dataset, search the ARCHIVE tree for a
-        controller with a matching dataset results MD5 value. This will build
-        the Controller and Tarball object for that dataset if they do not
-        already exist.
+        """Search the ARCHIVE tree for a matching dataset tarball.
+
+        This will build the Controller and Tarball object for that dataset if
+        they do not already exist.
 
         FIXME: This builds the entire Controller, which will discover all
         datasets within the controller. This could be streamlined.
@@ -860,20 +709,21 @@ class CacheManager:
     #
     # unpack
     #   Unpack the ARCHIVE tarball file into a new directory under the
-    #   controller directory in the INCOMING directory tree.
+    #   CACHE directory tree.
     #
     # uncache
-    #   Remove the unpacked directory tree under INCOMING when no longer needed.
+    #   Remove the unpacked directory tree when no longer needed.
     #
     # delete
     #   Remove the tarball and MD5 file from ARCHIVE after uncaching the
     #   unpacked directory tree.
 
     def create(self, tarfile: Path) -> Tarball:
-        """
+        """Bring a new tarball under cache manager management.
+
         Move a dataset tarball and companion MD5 file into the specified
-        controller directory. The controller directory and links will be
-        created if necessary.
+        controller directory. The controller directory will be created if
+        necessary.
 
         Args:
             controller: associated controller name
@@ -908,20 +758,21 @@ class CacheManager:
         self.datasets[tarball.resource_id] = tarball
         return tarball
 
-    def unpack(self, dataset_id: str):
-        """
-        Unpack a tarball into the INCOMING tree, creating the INCOMING
-        controller directory if necessary.
+    def unpack(self, dataset_id: str) -> Tarball:
+        """Unpack a tarball into the CACHE tree
 
         Args:
             dataset_id: Dataset resource ID
+
+        Returns:
+            The tarball object
         """
         tarball = self.find_dataset(dataset_id)
         tarball.controller.unpack(dataset_id)
+        return tarball
 
     def uncache(self, dataset_id: str):
-        """
-        Remove the unpacked INCOMING tree.
+        """Remove the unpacked tarball tree.
 
         Args:
             dataset_id: Dataset resource ID to "uncache"
@@ -932,10 +783,7 @@ class CacheManager:
         self._clean_empties(controller.name)
 
     def delete(self, dataset_id: str):
-        """
-        Delete the tarball and MD5 file as well as all unpacked artifacts.
-
-        This does nothing if the dataset hasn't been unpacked.
+        """Delete the dataset as well as unpacked artifacts.
 
         Args:
             dataset_id: Dataset resource ID to delete

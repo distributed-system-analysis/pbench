@@ -243,11 +243,10 @@ class FakeSync:
 
 
 class FakeController:
-    def __init__(self, path: Path, incoming: Path, results: Path, logger: Logger):
+    def __init__(self, path: Path, cache: Path, logger: Logger):
         self.name = path.name
         self.path = path
-        self.incoming = incoming / self.name
-        self.results = results / self.name
+        self.cache = cache
         self.logger = logger
 
 
@@ -256,7 +255,9 @@ class FakeTarball:
         self.name = path.name
         self.tarball_path = path
         self.controller = controller
-        self.unpacked = f"/incoming/{path.name}"
+        self.cache = controller.cache / "ABC"
+        self.unpacked = self.cache / self.name
+        self.uncache = lambda: None
 
 
 class FakeCacheManager:
@@ -265,10 +266,8 @@ class FakeCacheManager:
         self.logger = logger
         self.datasets = {}
 
-    def find_dataset(self, resource_id: str):
-        controller = FakeController(
-            Path("/archive/ctrl"), Path("/incoming"), Path("/results"), self.logger
-        )
+    def unpack(self, resource_id: str) -> FakeTarball:
+        controller = FakeController(Path("/archive/ctrl"), Path("/.cache"), self.logger)
         return FakeTarball(
             Path(f"/archive/ctrl/tarball-{resource_id}.tar.xz"), controller
         )

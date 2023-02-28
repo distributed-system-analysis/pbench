@@ -75,10 +75,8 @@ def do_setup(tmp_d: Path) -> Path:
     srv_pbench = tmp_d / "srv" / "pbench"
     pbench_tmp = srv_pbench / "tmp"
     pbench_tmp.mkdir(parents=True, exist_ok=True)
-    pbench_logs = srv_pbench / "logs"
-    pbench_logs.mkdir(parents=True, exist_ok=True)
-    pbench_recv = srv_pbench / "pbench-move-results-receive" / "fs-version-002"
-    pbench_recv.mkdir(parents=True, exist_ok=True)
+    pbench_cache = srv_pbench / "cache"
+    pbench_cache.mkdir(parents=True, exist_ok=True)
 
     opt_pbench = tmp_d / "opt" / "pbench-server"
     pbench_bin = opt_pbench / "bin"

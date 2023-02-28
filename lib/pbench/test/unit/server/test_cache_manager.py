@@ -1,4 +1,5 @@
 import hashlib
+from logging import Logger
 from pathlib import Path
 import re
 import shutil
@@ -10,6 +11,7 @@ import pytest
 from pbench.server.cache_manager import (
     BadFilename,
     CacheManager,
+    Controller,
     DuplicateTarball,
     MetadataError,
     Tarball,
@@ -26,7 +28,7 @@ def file_sweeper(server_config):
     Make sure that the required directory trees exist before each test case,
     and clean up afterwards.
     """
-    trees = [server_config.ARCHIVE, server_config.INCOMING, server_config.RESULTS]
+    trees = [server_config.ARCHIVE, server_config.CACHE]
 
     for tree in trees:
         tree.mkdir(parents=True, exist_ok=True)
@@ -80,8 +82,7 @@ class TestCacheManager:
         match = temp.match(str(cm.archive_root))
         root = match.group(1)
         assert str(cm.archive_root) == root + "/srv/pbench/archive/fs-version-001"
-        assert str(cm.incoming_root) == root + "/srv/pbench/public_html/incoming"
-        assert str(cm.results_root) == root + "/srv/pbench/public_html/results"
+        assert str(cm.cache_root) == root + "/srv/pbench/cache"
 
     def test_discover_empties(self, server_config, make_logger):
         """
@@ -111,10 +112,8 @@ class TestCacheManager:
         """
         cm = CacheManager(server_config, make_logger)
         controllers = ["PLUGH", "XYZZY"]
-        roots = [cm.archive_root, cm.incoming_root, cm.results_root]
         for c in controllers:
-            for r in roots:
-                (r / c).mkdir(parents=True)
+            (cm.archive_root / c).mkdir(parents=True)
         cm.full_discovery()
         ctrls = sorted(cm.controllers)
         assert ctrls == controllers
@@ -123,8 +122,7 @@ class TestCacheManager:
             cm._clean_empties(c)
         assert not cm.controllers
         for c in controllers:
-            for r in roots:
-                assert not (r / c).exists()
+            assert not (cm.archive_root / c).exists()
 
     def test_metadata(
         self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
@@ -291,19 +289,19 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr("subprocess.run", mock_run)
             command = f"{my_command} myarg"
-            my_dir = "my_dir"
+            my_dir = Path("my_dir")
 
             with pytest.raises(TarballUnpackError) as exc:
                 Tarball.subprocess_run(command, my_dir, TarballUnpackError, my_dir)
             assert (
                 str(exc.value)
-                == f"An error occurred while unpacking {my_dir}: {my_command} exited with status 1:  'Some error unpacking tarball'"
+                == f"An error occurred while unpacking {my_dir.name}: {my_command} exited with status 1:  'Some error unpacking tarball'"
             )
 
     def test_tarball_subprocess_run_success(self, monkeypatch):
         """Test to check the successful run of subprocess_run functionality of the Tarball."""
         my_command = "mycommand"
-        my_dir = "my_dir"
+        my_dir = Path("my_dir")
         run_called = False
 
         def mock_run(args, **kwargs):
@@ -325,75 +323,27 @@ class TestCacheManager:
             Tarball.subprocess_run(command, my_dir, TarballUnpackError, my_dir)
             assert run_called
 
-    def test_tarball_move_src(self, monkeypatch):
-        """Show that, when source directory for moving results is not present and
-        raises an Exception, it is handled successfully."""
-
-        def mock_move(src: Path, dest: Path):
-            raise FileNotFoundError(f"No such file or directory: '{src}'")
-
-        with monkeypatch.context() as m:
-            m.setattr(shutil, "move", mock_move)
-            tar = "tarball"
-            unpacking_dir = "src_dir"
-            unpacked_dir = "dest_dir"
-            with pytest.raises(TarballUnpackError) as exc:
-                Tarball.do_move(unpacking_dir, unpacked_dir, tar)
-            assert (
-                str(exc.value)
-                == f"An error occurred while unpacking {tar}: Error moving '{unpacking_dir}' to '{unpacked_dir}': No such file or directory: '{unpacking_dir}'"
-            )
-
-    def test_tarball_move_dest(self, monkeypatch):
-        """Show that, when destination directory for moving results is not present and
-        raises an Exception, it is handled successfully."""
-
-        def mock_move(src: Path, dest: Path):
-            assert src == "src_dir"
-            raise FileNotFoundError(f"No such file or directory: '{dest}'")
-
-        with monkeypatch.context() as m:
-            m.setattr(shutil, "move", mock_move)
-            tar = "tarball"
-            unpacking_dir = "src_dir"
-            unpacked_dir = "dest_dir"
-            with pytest.raises(TarballUnpackError) as exc:
-                Tarball.do_move(unpacking_dir, unpacked_dir, tar)
-            assert (
-                str(exc.value)
-                == f"An error occurred while unpacking {tar}: Error moving '{unpacking_dir}' to '{unpacked_dir}': No such file or directory: '{unpacked_dir}'"
-            )
-
-    def test_tarball_move_success(self, monkeypatch):
-        """Show the successful run of move function."""
-        tar = "tarball"
-        move_called = False
-
-        def mock_move(src: Path, dest: Path):
-            nonlocal move_called
-            move_called = True
-            assert src == "src_dir"
-            assert dest == "dest_dir"
-
-        with monkeypatch.context() as m:
-            m.setattr(shutil, "move", mock_move)
-            unpacking_dir = "src_dir"
-            unpacked_dir = "dest_dir"
-            Tarball.do_move(unpacking_dir, unpacked_dir, tar)
-            assert move_called
+    class MockController:
+        def __init__(self, path: Path, cache: Path, logger: Logger):
+            self.name = "ABC"
+            self.path = path
+            self.cache = cache
+            self.logger = logger
+            self.datasets = {}
+            self.tarballs = {}
 
     class MockTarball:
-        def __init__(self, path):
+        def __init__(self, path: Path, controller: Controller):
             self.name = "A"
             self.tarball_path = Path("/mock/A.tar.xz")
+            self.cache = controller.cache / "ABC"
+            self.unpacked = None
 
     def test_unpack_tar_subprocess_exception(self, monkeypatch):
         """Show that, when unpacking of the Tarball fails and raises
         an Exception it is handled successfully."""
         tar = Path("/mock/A.tar.xz")
-        tarball_name = tar.name.removesuffix(".tar.xz")
-        incoming = Path("/mock/incoming/ABC")
-        results = Path("/mock/results/ABC")
+        cache = Path("/mock/.cache")
         rmtree_called = False
 
         def mock_rmtree(path: Path, ignore_errors=False):
@@ -401,7 +351,7 @@ class TestCacheManager:
             rmtree_called = True
 
             assert ignore_errors
-            assert path == incoming / f"{tarball_name}.unpack"
+            assert path == cache / "ABC"
 
         def mock_run(command, dir_path, exception, dir_p):
             verb = "tar"
@@ -413,9 +363,10 @@ class TestCacheManager:
             m.setattr(Tarball, "subprocess_run", staticmethod(mock_run))
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
-            tb = Tarball(tar)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
             with pytest.raises(TarballUnpackError) as exc:
-                tb.unpack(incoming, results)
+                tb.unpack()
             assert (
                 str(exc.value)
                 == f"An error occurred while unpacking {tar}: Command 'tar' timed out after 43 seconds"
@@ -427,10 +378,7 @@ class TestCacheManager:
         """Show that, when permission change of the Tarball fails and raises
         an Exception it is handled successfully."""
         tar = Path("/mock/A.tar.xz")
-        tarball_name = tar.name.removesuffix(".tar.xz")
-        incoming = Path("/mock/incoming/ABC")
-        results = Path("/mock/results/ABC")
-        unpack_dir = incoming / f"{tarball_name}.unpack"
+        cache = Path("/mock/.cache")
         rmtree_called = True
 
         def mock_rmtree(path: Path, ignore_errors=False):
@@ -438,7 +386,7 @@ class TestCacheManager:
             rmtree_called = True
 
             assert ignore_errors
-            assert path == unpack_dir
+            assert path == cache / "ABC"
 
         def mock_run(command, dir_path, exception, dir_p):
             verb = "find"
@@ -452,67 +400,23 @@ class TestCacheManager:
             m.setattr(Tarball, "subprocess_run", staticmethod(mock_run))
             m.setattr(shutil, "rmtree", mock_rmtree)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
-            tb = Tarball(tar)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
 
             with pytest.raises(TarballModeChangeError) as exc:
-                tb.unpack(incoming, results)
+                tb.unpack()
             assert (
                 str(exc.value)
-                == f"An error occurred while changing file permissions of {unpack_dir}: Command 'find' timed out after 43 seconds"
+                == f"An error occurred while changing file permissions of {cache / 'ABC'}: Command 'find' timed out after 43 seconds"
             )
             assert exc.type == TarballModeChangeError
-            assert rmtree_called
-
-    def test_unpack_move_error(self, monkeypatch):
-        """Show that, when something goes wrong while moving results and it
-        raises an Exception, it is handled successfully."""
-        tar = Path("/mock/A.tar.xz")
-        tarball_name = tar.name.removesuffix(".tar.xz")
-        incoming = Path("/mock/incoming/ABC")
-        results = Path("/mock/results/ABC")
-        rmtree_called = False
-
-        def mock_rmtree(path: Path, ignore_errors=False):
-            nonlocal rmtree_called
-            rmtree_called = True
-
-            assert ignore_errors
-            assert path == incoming / f"{tarball_name}.unpack"
-
-        def mock_move(src: Path, dest: Path, ctx: Path):
-            raise FileNotFoundError(f"No such file or directory: '{src}'")
-
-        with monkeypatch.context() as m:
-            m.setattr(Path, "mkdir", lambda path, parents: None)
-            m.setattr(Tarball, "subprocess_run", lambda *args: None)
-            m.setattr(Tarball, "do_move", staticmethod(mock_move))
-            m.setattr(shutil, "rmtree", mock_rmtree)
-            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
-            tb = Tarball(tar)
-
-            unpacking_dir = incoming / f"{tarball_name}.unpack" / tarball_name
-            with pytest.raises(Exception) as exc:
-                tb.unpack(incoming, results)
-            assert str(exc.value) == f"No such file or directory: '{unpacking_dir}'"
             assert rmtree_called
 
     def test_unpack_success(self, monkeypatch):
         """Test to check the unpacking functionality of the CacheManager"""
         tar = Path("/mock/A.tar.xz")
-        tarball_name = tar.name.removesuffix(".tar.xz")
-        incoming = Path("/mock/incoming/ABC")
-        results = Path("/mock/results/ABC")
+        cache = Path("/mock/.cache")
         call = list()
-
-        def mock_rmtree(path: Path, ignore_errors=False):
-            call.append("rmtree")
-            assert ignore_errors
-            assert path == incoming / f"{tarball_name}.unpack"
-
-        def mock_symlink(path: Path, link: Path):
-            call.append("symlink_to")
-            assert path == results / tarball_name
-            assert link == incoming / tarball_name
 
         def mock_run(args, **kwargs):
             call.append(args[0])
@@ -526,15 +430,12 @@ class TestCacheManager:
         with monkeypatch.context() as m:
             m.setattr(Path, "mkdir", lambda path, parents: None)
             m.setattr(subprocess, "run", mock_run)
-            m.setattr(Tarball, "do_move", lambda *args: None)
-            m.setattr(shutil, "rmtree", mock_rmtree)
-            m.setattr(Path, "symlink_to", mock_symlink)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
-            tb = Tarball(tar)
-            tb.unpack(incoming, results)
-            assert call == ["tar", "find", "rmtree", "symlink_to"]
-            assert tb.unpacked == incoming / tb.name
-            assert tb.results_link == results / tb.name
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tb.unpack()
+            assert call == ["tar", "find"]
+            assert tb.unpacked == cache / "ABC" / tb.name
 
     def test_find(
         self, selinux_enabled, server_config, make_logger, tarball, monkeypatch
@@ -581,12 +482,12 @@ class TestCacheManager:
         # There should be nothing else in the cache manager
         controller = tarball.controller
 
-        assert cm.controllers == {controller.name: controller}
+        assert cm.controllers == {"ABC": controller}
         assert cm.datasets == {md5: tarball}
 
         # It hasn't been unpacked
         assert tarball.unpacked is None
-        assert tarball.results_link is None
+        assert tarball.cache == controller.cache / md5
 
         # Try to find a dataset that doesn't exist
         with pytest.raises(TarballNotFound) as exc:
@@ -599,8 +500,8 @@ class TestCacheManager:
 
         # Unpack the dataset, creating INCOMING and RESULTS links
         cm.unpack(md5)
-        assert tarball.unpacked == controller.incoming / tarball.name
-        assert tarball.results_link == controller.results / tarball.name
+        assert tarball.cache == controller.cache / md5
+        assert tarball.unpacked == controller.cache / md5 / tarball.name
 
         # We should be able to find the tarball even in a new cache manager
         # that hasn't been fully discovered.
@@ -612,8 +513,7 @@ class TestCacheManager:
         assert tarball.name == dataset_name
 
         # We should have discovered the INCOMING and RESULTS data automagically
-        assert tarball.unpacked == controller.incoming / tarball.name
-        assert tarball.results_link == controller.results / tarball.name
+        assert tarball.unpacked == controller.cache / md5 / tarball.name
 
         # We should have just one controller and one tarball
         assert tarball.resource_id == md5
@@ -638,23 +538,20 @@ class TestCacheManager:
         source_tarball, source_md5, md5 = tarball
         cm = CacheManager(server_config, make_logger)
         archive = cm.archive_root / "ABC"
-        incoming = cm.incoming_root / "ABC"
-        results = cm.results_root / "ABC"
+        cache = cm.cache_root / md5
         monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
 
         # None of the controller directories should exist yet
         assert not archive.exists()
-        assert not incoming.exists()
-        assert not results.exists()
+        assert not cache.exists()
 
         # Create a dataset in the cache manager from our source tarball
         cm.create(source_tarball)
 
         # Expect the archive directory was created, but we haven't unpacked so
         # incoming and results should not exist.
-        assert archive.is_dir()
-        assert not incoming.exists()
-        assert not results.exists()
+        assert archive.exists()
+        assert not cache.exists()
 
         # The original files should have been removed
         assert not source_tarball.exists()
@@ -677,23 +574,19 @@ class TestCacheManager:
 
         # Now "unpack" the tarball and check that the incoming directory and
         # results link are set up.
-        incoming_dir = incoming / dataset_name
-        results_link = results / dataset_name
         cm.unpack(md5)
-        assert incoming_dir.is_dir()
-        assert results_link.is_symlink()
-        assert results_link.samefile(incoming_dir)
+        assert cache == cm[md5].cache
+        assert cache.is_dir()
+        assert (cache / dataset_name).is_dir()
 
-        assert cm.datasets[md5].unpacked == incoming_dir
-        assert cm.datasets[md5].results_link == results_link
+        assert cm.datasets[md5].unpacked == cache / dataset_name
 
         # Re-discover, with all the files in place, and compare
         newcm = CacheManager(server_config, make_logger)
         newcm.full_discovery()
 
         assert newcm.archive_root == cm.archive_root
-        assert newcm.incoming_root == cm.incoming_root
-        assert newcm.results_root == cm.results_root
+        assert newcm.cache_root == cm.cache_root
         assert sorted(newcm.controllers) == sorted(cm.controllers)
         assert sorted(newcm.datasets) == sorted(cm.datasets)
         assert sorted(newcm.tarballs) == sorted(cm.tarballs)
@@ -701,6 +594,7 @@ class TestCacheManager:
             other = newcm.controllers[controller.name]
             assert controller.name == other.name
             assert controller.path == other.path
+            assert controller.cache == controller.cache
             assert sorted(controller.datasets) == sorted(other.datasets)
             assert sorted(controller.tarballs) == sorted(other.tarballs)
         for tarball in cm.datasets.values():
@@ -710,14 +604,13 @@ class TestCacheManager:
             assert tarball.controller_name == other.controller_name
             assert tarball.tarball_path == other.tarball_path
             assert tarball.md5_path == other.md5_path
+            assert tarball.cache == other.cache
             assert tarball.unpacked == other.unpacked
-            assert tarball.results_link == other.results_link
 
         # Remove the unpacked tarball, and confirm that the directory and link
         # are removed.
         cm.uncache(md5)
-        assert not results_link.exists()
-        assert not incoming_dir.exists()
+        assert not cache.exists()
 
         # Now that we have all that setup, delete the dataset
         cm.delete(md5)

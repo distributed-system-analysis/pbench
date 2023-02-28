@@ -58,22 +58,22 @@ class TestSync:
         """
         drb = Dataset.query(name="drb")
         sync = Sync(make_logger, OperationName.UPLOAD)
-        sync.update(drb, None, [OperationName.BACKUP, OperationName.UNPACK])
+        sync.update(drb, None, [OperationName.DELETE, OperationName.INDEX])
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "READY", "message": None},
-            "BACKUP": {"state": "READY", "message": None},
+            "DELETE": {"state": "READY", "message": None},
+            "INDEX": {"state": "READY", "message": None},
         }
-        sync1 = Sync(make_logger, OperationName.BACKUP)
+        sync1 = Sync(make_logger, OperationName.INDEX)
         sync1.update(drb, OperationState.OK)
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "READY", "message": None},
-            "BACKUP": {"state": "OK", "message": None},
+            "DELETE": {"state": "READY", "message": None},
+            "INDEX": {"state": "OK", "message": None},
         }
-        sync2 = Sync(make_logger, OperationName.UNPACK)
+        sync2 = Sync(make_logger, OperationName.DELETE)
         sync2.update(drb, OperationState.FAILED, message="oops")
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "FAILED", "message": "oops"},
-            "BACKUP": {"state": "OK", "message": None},
+            "DELETE": {"state": "FAILED", "message": "oops"},
+            "INDEX": {"state": "OK", "message": None},
         }
 
     def test_update_state_new(self, make_logger, more_datasets):
@@ -82,31 +82,31 @@ class TestSync:
         """
         drb = Dataset.query(name="drb")
         sync = Sync(make_logger, OperationName.INDEX)
-        sync.update(drb, None, [OperationName.UNPACK, OperationName.BACKUP])
+        sync.update(drb, None, [OperationName.UPLOAD, OperationName.DELETE])
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "READY", "message": None},
-            "BACKUP": {"state": "READY", "message": None},
+            "UPLOAD": {"state": "READY", "message": None},
+            "DELETE": {"state": "READY", "message": None},
         }
         sync.update(drb, state=OperationState.OK)
         assert Metadata.getvalue(drb, "dataset.operations") == {
             "INDEX": {"state": "OK", "message": None},
-            "UNPACK": {"state": "READY", "message": None},
-            "BACKUP": {"state": "READY", "message": None},
+            "UPLOAD": {"state": "READY", "message": None},
+            "DELETE": {"state": "READY", "message": None},
         }
 
     def test_update_state_update(self, make_logger, more_datasets):
         """Test that sync update records operation state."""
         drb = Dataset.query(name="drb")
-        sync = Sync(make_logger, OperationName.BACKUP)
-        sync.update(drb, None, [OperationName.UNPACK, OperationName.BACKUP])
+        sync = Sync(make_logger, OperationName.INDEX)
+        sync.update(drb, None, [OperationName.DELETE, OperationName.INDEX])
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "READY", "message": None},
-            "BACKUP": {"state": "READY", "message": None},
+            "DELETE": {"state": "READY", "message": None},
+            "INDEX": {"state": "READY", "message": None},
         }
         sync.update(drb, state=OperationState.FAILED, message="failed")
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "READY", "message": None},
-            "BACKUP": {"state": "FAILED", "message": "failed"},
+            "DELETE": {"state": "READY", "message": None},
+            "INDEX": {"state": "FAILED", "message": "failed"},
         }
 
     def test_update_enable(self, make_logger, more_datasets):
@@ -117,9 +117,9 @@ class TestSync:
         assert Metadata.getvalue(drb, "dataset.operations") == {
             "REINDEX": {"state": "READY", "message": None}
         }
-        sync.update(drb, enabled=[OperationName.BACKUP, OperationName.INDEX])
+        sync.update(drb, enabled=[OperationName.DELETE, OperationName.INDEX])
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "BACKUP": {"state": "READY", "message": None},
+            "DELETE": {"state": "READY", "message": None},
             "INDEX": {"state": "READY", "message": None},
             "REINDEX": {"state": "READY", "message": None},
         }
@@ -128,17 +128,16 @@ class TestSync:
         """Test that sync update can enable new operations and set a message."""
         drb = Dataset.query(name="drb")
         sync = Sync(make_logger, OperationName.DELETE)
-        sync.update(drb, enabled=[OperationName.UNPACK])
+        sync.update(drb, enabled=[OperationName.INDEX])
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "READY", "message": None}
+            "INDEX": {"state": "READY", "message": None}
         }
         sync.update(
-            drb, enabled=[OperationName.BACKUP, OperationName.INDEX], message="bad"
+            drb, enabled=[OperationName.UPLOAD, OperationName.INDEX], message="bad"
         )
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "BACKUP": {"state": "READY", "message": None},
+            "UPLOAD": {"state": "READY", "message": None},
             "INDEX": {"state": "READY", "message": None},
-            "UNPACK": {"state": "READY", "message": None},
             "DELETE": {"state": "FAILED", "message": "bad"},
         }
 
@@ -147,19 +146,19 @@ class TestSync:
         operations
         """
         drb = Dataset.query(name="drb")
-        sync = Sync(make_logger, OperationName.UNPACK)
+        sync = Sync(make_logger, OperationName.INDEX)
         sync.update(drb, state=OperationState.WORKING)
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "WORKING", "message": None}
+            "INDEX": {"state": "WORKING", "message": None}
         }
         sync.update(
             drb,
             state=OperationState.OK,
-            enabled=[OperationName.BACKUP, OperationName.TOOLINDEX],
+            enabled=[OperationName.UPLOAD, OperationName.TOOLINDEX],
         )
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "OK", "message": None},
-            "BACKUP": {"state": "READY", "message": None},
+            "INDEX": {"state": "OK", "message": None},
+            "UPLOAD": {"state": "READY", "message": None},
             "TOOLINDEX": {"state": "READY", "message": None},
         }
 
@@ -168,16 +167,16 @@ class TestSync:
         operation, enable a new operation, and set a message.
         """
         drb = Dataset.query(name="drb")
-        sync = Sync(make_logger, OperationName.UNPACK)
+        sync = Sync(make_logger, OperationName.UPLOAD)
         sync.update(drb, state=OperationState.WORKING)
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "WORKING", "message": None}
+            "UPLOAD": {"state": "WORKING", "message": None}
         }
         sync.update(
             drb, state=OperationState.OK, enabled=[OperationName.INDEX], message="plugh"
         )
         assert Metadata.getvalue(drb, "dataset.operations") == {
-            "UNPACK": {"state": "OK", "message": "plugh"},
+            "UPLOAD": {"state": "OK", "message": "plugh"},
             "INDEX": {"state": "READY", "message": None},
         }
 
@@ -202,10 +201,10 @@ class TestSync:
         drb = Dataset.query(name="drb")
         fio_1 = Dataset.query(name="fio_1")
         fio_2 = Dataset.query(name="fio_2")
-        sync = Sync(make_logger, OperationName.UNPACK)
-        sync.update(drb, None, [OperationName.UNPACK])
-        sync.update(fio_1, None, [OperationName.UNPACK])
-        sync.update(fio_2, None, [OperationName.BACKUP])
+        sync = Sync(make_logger, OperationName.INDEX)
+        sync.update(drb, None, [OperationName.INDEX])
+        sync.update(fio_1, None, [OperationName.INDEX])
+        sync.update(fio_2, None, [OperationName.TOOLINDEX])
         list = sync.next()
         assert ["drb", "fio_1"] == sorted(d.name for d in list)
 
@@ -214,7 +213,7 @@ class TestSync:
         occurs.
         """
 
-        sync = Sync(make_logger, OperationName.UNPACK)
+        sync = Sync(make_logger, OperationName.INDEX)
         with pytest.raises(SyncSqlError):
             sync.next()
 
@@ -224,7 +223,7 @@ class TestSync:
         """
 
         drb = Dataset.query(name="drb")
-        sync = Sync(make_logger, OperationName.UNPACK)
+        sync = Sync(make_logger, OperationName.INDEX)
         with pytest.raises(SyncSqlError):
             sync.update(drb, OperationState.OK)
 
@@ -234,6 +233,6 @@ class TestSync:
         """
 
         drb = Dataset.query(name="drb")
-        sync = Sync(make_logger, OperationName.UNPACK)
+        sync = Sync(make_logger, OperationName.INDEX)
         with pytest.raises(SyncSqlError):
             sync.error(drb, "this won't work")

@@ -15,7 +15,7 @@ from pbench.common.exceptions import (
     UnsupportedTarballFormat,
 )
 from pbench.server import OperationCode, tstos
-from pbench.server.cache_manager import CacheManager, TarballNotFound
+from pbench.server.cache_manager import CacheManager, Tarball, TarballNotFound
 from pbench.server.database.models.audit import Audit, AuditStatus
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -362,27 +362,24 @@ class Index:
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
                         audit = None
                         ptb = None
+                        tarobj: Optional[Tarball] = None
                         tb_res = error_code["OK"]
                         try:
                             path = os.path.realpath(tb)
 
-                            # First, find the unpacked tarball directory in the
-                            # INCOMING tree. If it's not there, record an error
-                            # but skip the dataset to be re-tried later.
+                            # Dynamically unpack the tarball for indexing.
                             try:
-                                tarobj = self.cache_manager.find_dataset(
-                                    dataset.resource_id
-                                )
+                                tarobj = self.cache_manager.unpack(dataset.resource_id)
                                 if not tarobj.unpacked:
                                     idxctx.logger.warning(
                                         "{} has not been unpacked", dataset
                                     )
                                     continue
-                                unpacked = tarobj.controller.results
+                                unpacked = tarobj.cache  # The indexer needs the root
                             except TarballNotFound as e:
                                 self.sync.error(
                                     dataset,
-                                    f"Unable to find dataset in cache manager: {e!r}",
+                                    f"Unable to unpack dataset: {e!r}",
                                 )
                                 continue
 
@@ -471,6 +468,9 @@ class Index:
                             )
                             tb_res = error_code["OP_ERROR" if failures > 0 else "OK"]
                         finally:
+                            # Remove the unpacked data
+                            if tarobj:
+                                tarobj.uncache()
                             if tb_res.success:
                                 try:
 
