@@ -20,11 +20,6 @@ Through put_tarball:
 - get_object
 - delete_object
 
-** API usage by pbench-verify-backup-tarballs
-Through S3Config.list_objects:
-- list_objects_v2
-
-
 ** =get_object= response
 =get_object= returns a response =obj= with =obj['ETag']= containing
 the contents of the ETag file (including the double quotes wrapping):
@@ -216,12 +211,12 @@ One additional detail: if the bucket is large (i.e. it contains more
 than 1000 entries), the API returns only the first 1000, together with
 an indication that the result is truncated (=resp['IsTruncated']= is
 =True=) and a continuation token =resp[NextContinuationToken']=.
-=pbench-verify-backup-tarballs.py= calls =list_objects()= in a loop,
-setting its =ContinuationToken= to =resp['NextContinuationToken']=,
-indicating to the API that it wants the next 1000. The loop exits when
-the response does not contain a =NextContinuationToken= field (and the
-=IsTruncated= field is =False=, but we don't use that to determine
-when to exit: we assume that that is the case).
+A client calls =list_objects()= in a loop, setting its =ContinuationToken=
+to =resp['NextContinuationToken']=, indicating to the API that it wants
+the next 1000. The loop exits when the response does not contain a
+=NextContinuationToken= field (and the =IsTruncated= field is =False=, but
+we don't use that to determine when to exit: we assume that that is the
+case).
 
  =list_objects()= implements a very simplified version of this
 behavior if the bucket name is ~SPECIAL_BUCKET~: that drives the mock

@@ -52,7 +52,6 @@ binlinks = \
 	pbench-sync-satellite\
 	pbench-tarball-stats\
 	pbench-unpack-tarballs\
-	pbench-verify-backup-tarballs\
 	pbench-verify-indexed
 
 # targets
