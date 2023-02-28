@@ -8,10 +8,10 @@
 # creates symlinks in all the state directories for the particular environment
 # where this server runs, e.g. a production environment may want the tar balls
 # unpacked (TO-UNPACK), backed up (TO-BACKUP), and indexed (TO-INDEX), while
-# a satellite environment it may only need to prepare the tar ball to be synced
-# to the main server (TO-SYNC).  Then the symlink in TODO is deleted: we don't
-# want to deal with this tar ball again; but if there are recoverable errors, we
-# may keep it in TODO and try again later.  Any errors are reported for possible
+# a satellite environment may only need to prepare the tar ball to be synced to
+# the main server (TO-SYNC).  Then the symlink in TODO is deleted: we don't want
+# to deal with this tar ball again; but if there are recoverable errors, we may
+# keep it in TODO and try again later.  Any errors are reported for possible
 # action by an admin.
 #
 
