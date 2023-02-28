@@ -107,7 +107,6 @@ RUN \
         rpmdevtools \
         rpmlint \
         rpm-build \
-        rsync \
         screen \
         sos \
         sqlite \
