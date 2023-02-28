@@ -1,11 +1,7 @@
 from freezegun.api import freeze_time
 import pytest
 
-from pbench.server.database.models.datasets import (
-    Dataset,
-    DatasetBadParameterType,
-    DatasetNotFound,
-)
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 
 
 class TestDatasets:
@@ -13,7 +9,7 @@ class TestDatasets:
         """Test dataset contructor"""
         user = create_user
         with freeze_time("1970-01-01"):
-            ds = Dataset(owner=user.username, name="fio", resource_id="f00b0ad")
+            ds = Dataset(owner=user, name="fio", resource_id="f00b0ad")
             ds.add()
         assert ds.owner.get_json() == user.get_json()
         assert ds.name == "fio"
@@ -34,7 +30,7 @@ class TestDatasets:
         user is removed.
         """
         user = create_user
-        ds = Dataset(owner=user.username, name="fio", resource_id="deadbeef")
+        ds = Dataset(owner=user, name="fio", resource_id="deadbeef")
         ds.add()
         user.delete()
         ds1 = Dataset.query(resource_id="deadbeef")
@@ -63,14 +59,9 @@ class TestDatasets:
             "operations": {},
         }
 
-    def test_construct_bad_owner(self, db_session):
-        """Test with a non-existent username"""
-        with pytest.raises(DatasetBadParameterType):
-            Dataset(owner="notme", name="fio")
-
     def test_query_name(self, db_session, create_user):
         """Test that we can find a dataset by name alone"""
-        ds1 = Dataset(owner=str(create_user.username), resource_id="deed1e", name="fio")
+        ds1 = Dataset(owner=create_user, resource_id="deed1e", name="fio")
         ds1.add()
 
         ds2 = Dataset.query(name="fio")
@@ -82,9 +73,7 @@ class TestDatasets:
 
     def test_delete(self, db_session, create_user):
         """Test that we can delete a dataset"""
-        ds1 = Dataset(
-            owner_id=str(create_user.username), name="foobar", resource_id="f00dea7"
-        )
+        ds1 = Dataset(owner=create_user, name="foobar", resource_id="f00dea7")
         ds1.add()
 
         # we can find it

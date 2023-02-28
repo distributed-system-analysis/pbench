@@ -58,7 +58,6 @@ class TestEndpointConfig:
                 "server_audit": f"{uri}/server/audit",
                 "server_configuration": f"{uri}/server/configuration",
                 "upload": f"{uri}/upload",
-                "user": f"{uri}/user",
             },
             "uri": {
                 "datasets_contents": {
@@ -124,10 +123,6 @@ class TestEndpointConfig:
                 "upload": {
                     "template": f"{uri}/upload/{{filename}}",
                     "params": {"filename": {"type": "string"}},
-                },
-                "user": {
-                    "template": f"{uri}/user/{{target_username}}",
-                    "params": {"target_username": {"type": "string"}},
                 },
             },
         }

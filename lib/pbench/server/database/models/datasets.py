@@ -370,27 +370,6 @@ class Dataset(Database.Base):
             return access
         raise DatasetBadParameterType(value, "access keyword")
 
-    @validates("owner")
-    def validate_owner(self, key: str, value: Any) -> User:
-        """
-        Validate and translate owner name to User object
-        Args:
-            key: owner
-            value: username
-        Raises:
-            DatasetBadParameter: the owner value given doesn't resolve to a
-                Pbench username.
-        Returns:
-            User object
-        """
-        if type(value) is User:
-            return value
-        elif type(value) is str:
-            user = User.query(username=value)
-            if user:
-                return user
-        raise DatasetBadParameterType(value, "username")
-
     @staticmethod
     def query(**kwargs) -> "Dataset":
         """Query dataset object based on a given column name of the run document."""

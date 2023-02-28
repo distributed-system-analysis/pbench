@@ -55,7 +55,6 @@ class API(Enum):
     SERVER_AUDIT = "server_audit"
     SERVER_CONFIGURATION = "server_configuration"
     UPLOAD = "upload"
-    USER = "user"
 
 
 class PbenchServerClient:

@@ -363,14 +363,14 @@ def attach_dataset(create_drb_user, create_user):
     # for one Dataset and letting it default for the other.
     with freeze_time("1970-01-01 00:42:00"):
         Dataset(
-            owner=str(create_drb_user.username),
+            owner=create_drb_user,
             uploaded=datetime.datetime(2022, 1, 1),
             name="drb",
             access="private",
             resource_id="random_md5_string1",
         ).add()
         Dataset(
-            owner=str(create_user.username),
+            owner=create_user,
             name="test",
             access="private",
             resource_id="random_md5_string2",
@@ -412,38 +412,38 @@ def more_datasets(
     """
     with freeze_time("1978-06-26 08:00:00"):
         Dataset(
-            owner=str(create_drb_user.username),
+            owner=create_drb_user,
             name="fio_1",
             access="public",
             resource_id="random_md5_string3",
         ).add()
         Dataset(
-            owner=str(create_user.username),
+            owner=create_user,
             uploaded=datetime.datetime(2022, 1, 1),
             name="fio_2",
             access="public",
             resource_id="random_md5_string4",
         ).add()
         Dataset(
-            owner=str(create_user.username),
+            owner=create_user,
             name="uperf_1",
             access="private",
             resource_id="random_md5_string5",
         ).add()
         Dataset(
-            owner=str(create_user.username),
+            owner=create_user,
             name="uperf_2",
             access="private",
             resource_id="random_md5_string6",
         ).add()
         Dataset(
-            owner=str(create_user.username),
+            owner=create_user,
             name="uperf_3",
             access="private",
             resource_id="random_md5_string7",
         ).add()
         Dataset(
-            owner=str(create_user.username),
+            owner=create_user,
             name="uperf_4",
             access="private",
             resource_id="random_md5_string8",

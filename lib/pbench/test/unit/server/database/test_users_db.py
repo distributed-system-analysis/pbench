@@ -63,38 +63,12 @@ class TestUsers:
         dataset is deleted.
         """
         user = create_user
-        ds = Dataset(owner=user.username, name="fio", resource_id="deadbeef")
+        ds = Dataset(owner=user, name="fio", resource_id="deadbeef")
         ds.add()
         ds.delete()
         with pytest.raises(DatasetNotFound):
             Dataset.query(resource_id=ds.resource_id)
         assert User.query(username=user.username)
-
-    def test_user_survives_dataset_delete(self, fake_db):
-        """The User isn't automatically removed when the referenced
-        dataset is deleted.
-        """
-        self.add_dummy_user(fake_db)
-        user = User.query(username="dummy")
-
-        expected_commits = [FakeRow.clone(user)]
-        self.session.check_session(
-            queries=1, committed=expected_commits, filters=["username=dummy"]
-        )
-
-        ds = Dataset(owner=user.username, name="fio", resource_id="deadbeef")
-        ds.add()
-        ds_row = FakeRow.clone(ds)
-        expected_commits.append(ds_row)
-        self.session.check_session(
-            queries=1, committed=expected_commits, filters=["username=dummy"]
-        )
-
-        ds.delete()
-        expected_commits.remove(ds_row)
-        self.session.check_session(queries=0, committed=expected_commits)
-        assert user
-        self.session.reset_context()
 
     def test_construct_duplicate(self, fake_db):
         """Test handling of User record duplicate value error"""

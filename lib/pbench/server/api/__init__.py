@@ -37,7 +37,6 @@ from pbench.server.api.resources.query_apis.datasets_update import DatasetsUpdat
 from pbench.server.api.resources.server_audit import ServerAudit
 from pbench.server.api.resources.server_configuration import ServerConfiguration
 from pbench.server.api.resources.upload_api import Upload
-from pbench.server.api.resources.users_api import UserAPI
 import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
@@ -151,12 +150,6 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         f"{base_uri}/server/configuration/<string:key>",
         endpoint="server_configuration",
         resource_class_args=(config,),
-    )
-    api.add_resource(
-        UserAPI,
-        f"{base_uri}/user/<string:target_username>",
-        endpoint="user",
-        resource_class_args=(),
     )
     api.add_resource(
         Upload,

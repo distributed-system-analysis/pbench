@@ -249,17 +249,3 @@ class TestPut:
             )
             assert response.ok, f"{response.text}"
             print(f"Deleted {t.name}")
-
-    @staticmethod
-    def test_user_survives_dataset_delete(
-        server_client: PbenchServerClient, login_user
-    ):
-        """Verify after all the datasets deleted for a user, user cache
-        entry is still in our database.
-
-        Requires that test_delete_all has been run successfully.
-        """
-        response = server_client.get(API.USER, {"target_username": "tester"})
-        assert response.status_code == HTTPStatus.OK
-        response_json = response.json()
-        assert response_json["username"] == "tester"

@@ -136,8 +136,9 @@ class Upload(ApiBase):
 
         try:
             try:
-                user_id = Auth.token_auth.current_user().id
-                username = Auth.token_auth.current_user().username
+                authorized_user = Auth.token_auth.current_user()
+                user_id = authorized_user.id
+                username = authorized_user.username
             except Exception:
                 username = None
                 user_id = None
@@ -224,7 +225,7 @@ class Upload(ApiBase):
             # Create a tracking dataset object; it'll begin in UPLOADING state
             try:
                 dataset = Dataset(
-                    owner=username,
+                    owner=authorized_user,
                     name=Dataset.stem(tar_full_path),
                     resource_id=md5sum,
                     access=access,
