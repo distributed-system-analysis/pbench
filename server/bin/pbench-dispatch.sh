@@ -36,8 +36,11 @@ if [[ ! ":${PATH}:" =~ ":/usr/sbin:" ]]; then
    PATH=${PATH}:/usr/sbin; export PATH
 fi
 
-# Check that all the directories exist.
-test -z "${ARCHIVE}" -o -d ${ARCHIVE} || doexit "Bad ARCHIVE=${ARCHIVE}"
+# Check that all required directories specified in the environment exist.
+test ! -z "${ARCHIVE}" -a -d ${ARCHIVE} || doexit "Bad ARCHIVE=${ARCHIVE}"
+test ! -z "${LOGSDIR}" -a -d ${LOGSDIR} || doexit "Bad LOGSDIR=${LOGSDIR}"
+install_dir=$(getconf.py install-dir pbench-server)
+test ! -z "${install_dir}" -a -d ${install_dir} || doexit "Bad install_dir=${install_dir}"
 
 errlog=${LOGSDIR}/${PROG}/${PROG}.error
 mkdir -p ${LOGSDIR}/${PROG}
@@ -145,6 +148,10 @@ if [[ ${sts} != 0 ]]; then
     log_exit "Failed: \"sort ${list}.unsorted > ${list}\", status ${sts}" 6
 fi
 
+server_version="$(< ${install_dir}/VERSION)"
+server_sha1="$(<${install_dir}/SHA1)"
+server_hostname=$(hostname -f)
+
 typeset -i ntotal=0
 typeset -i ntbs=0
 typeset -i npartialsucc=0
@@ -193,16 +200,22 @@ while read tbmd5; do
         # We have a bearer token for the PUT API of a "new" Pbench Server,
         # invoke the `pbench-results-push` agent CLI to send it to the
         # server (configuration of that server handled elsewhere).
+
+        # All tar balls pushed to the "new" Pbench Server are made public just
+        # like they are all public on the current "old" Pbench Server.
+        push_options="--token ${put_token} --access=public"
+        push_options+=" --metadata=server.legacy.version:${server_version}"
+        push_options+=" --metadata=server.legacy.sha1:${server_sha1}"
+        push_options+=" --metadata=server.legacy.hostname:${server_hostname}"
         satellite=${controller%%::*}
         if [[ "${controller}" != "${satellite}" ]]; then
-            metadata_arg="--metadata=server.origin:${satellite}"
+            push_options+=" --metadata=server.legacy.origin:${satellite}"
         fi
-        pbench-results-push ${tb} --token ${put_token} ${metadata_arg}
+        pbench-results-push ${tb} ${push_options}
         sts=${?}
-		if [[ ${sts} -ne 0 ]]; then
-			log_info "${TS}: 'pbench-results-push ${tb} --token ${put_token} ${metadata_arg}' failed, code ${sts}" "${status}"
+        if [[ ${sts} -ne 0 ]]; then
+            log_info "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}" "${status}"
         fi
-        unset metadata_arg
     fi
 
     # Make sure that all the relevant state directories exist

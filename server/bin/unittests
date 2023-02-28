@@ -332,6 +332,12 @@ function _setup_state {
         exit 1
     fi
 
+    echo "X.YY.ZZ" > ${_testopt}/VERSION
+    echo "abcdefg" > ${_testopt}/SHA1
+
+    echo "X.YY.ZZ" > ${_testopt_sat}/VERSION
+    echo "abcdefg" > ${_testopt_sat}/SHA1
+
     # All the "real" scripts are found at $_testopt/bin, the mock scripts
     # are found in $_testopt/unittest-scripts.
     _orig_PATH=$PATH
