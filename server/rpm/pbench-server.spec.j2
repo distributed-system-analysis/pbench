@@ -8,6 +8,9 @@ URL:            http://github.com/distributed-systems-analysis/pbench
 Source0:        pbench-server-%{version}.tar.gz
 Buildarch:      noarch
 
+# Quiet warning for missing `<percent>changelog`; we don't use that feature.
+%define source_date_epoch_from_changelog 0
+
 # NOTE: The Pbench Server requires a RHEL 8 environment with the Python 3.9
 # module enabled.  We add the "six" and "urllib3" Python 3.9 RPM requirements
 # so that we don't end up pip installing those modules in the
@@ -123,7 +126,6 @@ fi
 /%{installdir}/lib/pbench/__init__.py
 /%{installdir}/lib/pbench/indexer.py
 /%{installdir}/lib/pbench/mock.py
-/%{installdir}/lib/pbench/process_tb.py
 /%{installdir}/lib/pbench/report.py
 /%{installdir}/lib/s3backup/__init__.py
 
