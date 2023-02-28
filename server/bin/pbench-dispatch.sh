@@ -37,10 +37,10 @@ if [[ ! ":${PATH}:" =~ ":/usr/sbin:" ]]; then
 fi
 
 # Check that all required directories specified in the environment exist.
-test ! -z "${ARCHIVE}" -a -d ${ARCHIVE} || doexit "Bad ARCHIVE=${ARCHIVE}"
-test ! -z "${LOGSDIR}" -a -d ${LOGSDIR} || doexit "Bad LOGSDIR=${LOGSDIR}"
+test -n "${ARCHIVE}" -a -d ${ARCHIVE} || doexit "Bad ARCHIVE=${ARCHIVE}"
+test -n "${LOGSDIR}" -a -d ${LOGSDIR} || doexit "Bad LOGSDIR=${LOGSDIR}"
 install_dir=$(getconf.py install-dir pbench-server)
-test ! -z "${install_dir}" -a -d ${install_dir} || doexit "Bad install_dir=${install_dir}"
+test -n "${install_dir}" -a -d ${install_dir} || doexit "Bad install_dir=${install_dir}"
 
 errlog=${LOGSDIR}/${PROG}/${PROG}.error
 mkdir -p ${LOGSDIR}/${PROG}
@@ -204,12 +204,12 @@ while read tbmd5; do
         # All tar balls pushed to the "new" Pbench Server are made public just
         # like they are all public on the current "old" Pbench Server.
         push_options="--token ${put_token} --access=public"
-        push_options+=" --metadata=server.legacy.version:${server_version}"
-        push_options+=" --metadata=server.legacy.sha1:${server_sha1}"
-        push_options+=" --metadata=server.legacy.hostname:${server_hostname}"
+        push_options+=" --metadata=global.server.legacy.version:${server_version}"
+        push_options+=" --metadata=global.server.legacy.sha1:${server_sha1}"
+        push_options+=" --metadata=global.server.legacy.hostname:${server_hostname}"
         satellite=${controller%%::*}
         if [[ "${controller}" != "${satellite}" ]]; then
-            push_options+=" --metadata=server.legacy.origin:${satellite}"
+            push_options+=" --metadata=server.origin:${satellite}"
         fi
         pbench-results-push ${tb} ${push_options}
         sts=${?}
