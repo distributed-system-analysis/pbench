@@ -10,9 +10,6 @@ pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/f
 +++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs-small: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-copy-sosreports
-pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
---- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
 --- Finished pbench-index (status=3)
 +++ Running pbench-index --tool-data

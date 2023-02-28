@@ -1114,7 +1114,6 @@ drwxrwxr-x          - archive/fs-version-001/ctlrA
 drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ctlrA/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/ctlrA/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/ctlrA/INDEXED
 lrwxrwxrwx        113 archive/fs-version-001/ctlrA/INDEXED/linpack_mock_2020.02.28T19.10.55.tar.xz -> /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-DONE
@@ -1122,8 +1121,6 @@ drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/ctlrA/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-COPY-SOS
-lrwxrwxrwx        113 archive/fs-version-001/ctlrA/TO-COPY-SOS/linpack_mock_2020.02.28T19.10.55.tar.xz -> /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX-TOOL
@@ -1237,7 +1234,7 @@ drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--       3780 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--       1118 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--       1119 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -1354,7 +1351,7 @@ run-1970-01-01T00:00:42-UTC
 ln -s /var/tmp/pbench-test-server/test-7.22/pbench/public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55 /var/tmp/pbench-test-server/test-7.22/pbench/public_html/results/ctlrA/linpack-dev2/linpack_mock_2020.02.28T19.10.55
 ln -s /var/tmp/pbench-test-server/test-7.22/pbench/public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55 /var/tmp/pbench-test-server/test-7.22/pbench/public_html/users/janedo@example.com/ctlrA/linpack-dev2/linpack_mock_2020.02.28T19.10.55
 run-1970-01-01T00:00:42-UTC: ctlrA/linpack_mock_2020.02.28T19.10.55: success - elapsed time (secs): 0 - size (bytes): 20848
-run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
+run-1970-01-01T00:00:42-UTC: Processed 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log

@@ -91,36 +91,6 @@ len(actions) = 1
 +++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs-small: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench/public_html/results
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-copy-sosreports
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-copy-sosreports",
-            "text": "pbench-copy-sosreports.run-1970-01-01T00:00:42-UTC(unit-test)\nProcessed 0 sosreports for 0 results directories with 0 errors\n",
-            "total_chunks": 1,
-            "total_size": 125
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-copy-sosreports (status=0)
 +++ Running pbench-index
 --- Finished pbench-index (status=0)
 +++ Running pbench-index --tool-data
@@ -268,9 +238,6 @@ drwxrwxr-x          - archive.backup
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-backup-tarballs
 -rw-rw-r--        902 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
-drwxrwxr-x          - logs/pbench-copy-sosreports
--rw-rw-r--          0 logs/pbench-copy-sosreports/pbench-copy-sosreports.error
--rw-rw-r--        635 logs/pbench-copy-sosreports/pbench-copy-sosreports.log
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        223 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
@@ -348,14 +315,6 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-run-1970-01-01T00:00:42-UTC
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
-+++++ pbench-copy-sosreports/pbench-copy-sosreports.error
------ pbench-copy-sosreports/pbench-copy-sosreports.error
-+++++ pbench-copy-sosreports/pbench-copy-sosreports.log
-run-1970-01-01T00:00:42-UTC: starting at 1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: ending at 1970-01-01T00:00:42-UTC, processed 0 sosreports for 0 results directories with 0 errors
-1970-01-01T00:00:42.000000 DEBUG pbench-copy-sosreports.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-copy-sosreports.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
------ pbench-copy-sosreports/pbench-copy-sosreports.log
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 ERROR pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- The configured RESULTS directory, /var/tmp/pbench-test-server/test-3/pbench/public_html/results, is not a valid directory
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log

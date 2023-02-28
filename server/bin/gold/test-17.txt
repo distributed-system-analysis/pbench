@@ -93,15 +93,12 @@ drwxrwxr-x          - archive/fs-version-001/controller00
 drwxrwxr-x          - archive/fs-version-001/controller00/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller00/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller00/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/controller00/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/controller00/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller00/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/controller00/TO-COPY-SOS
-lrwxrwxrwx        128 archive/fs-version-001/controller00/TO-COPY-SOS/benchmark-result-large_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-INDEX-TOOL
@@ -123,7 +120,6 @@ drwxrwxr-x          - archive/fs-version-001/controller01
 drwxrwxr-x          - archive/fs-version-001/controller01/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller01/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller01/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/controller01/COPIED-SOS
 -rw-rw-r--       3176 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1970-01-01T00:00:00.tar.xz
 -rw-rw-r--        103 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1970-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller01/INDEXED
@@ -132,8 +128,6 @@ drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller01/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/controller01/TO-COPY-SOS
-lrwxrwxrwx        129 archive/fs-version-001/controller01/TO-COPY-SOS/benchmark-result-medium_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-INDEX-TOOL
@@ -157,15 +151,12 @@ drwxrwxr-x          - archive/fs-version-001/controller02/.prefix
 drwxrwxr-x          - archive/fs-version-001/controller02/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller02/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller02/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/controller02/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/controller02/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller02/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/controller02/TO-COPY-SOS
-lrwxrwxrwx        128 archive/fs-version-001/controller02/TO-COPY-SOS/benchmark-result-small_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller02/benchmark-result-small_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-INDEX-TOOL
@@ -233,7 +224,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        796 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs-small
 -rw-rw-r--        202 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
--rw-rw-r--       1960 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
+-rw-rw-r--       1961 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -308,7 +299,7 @@ ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller
 run-1970-01-01T00:00:42-UTC: controller00/benchmark-result-large_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 5920
 ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller02/benchmark-result-small_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/results/controller02/benchmark-result-small_1970-01-01T00:00:00
 run-1970-01-01T00:00:42-UTC: controller02/benchmark-result-small_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 848
-run-1970-01-01T00:00:42-UTC: Processed 3 tarballs
+run-1970-01-01T00:00:42-UTC: Processed 3 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log

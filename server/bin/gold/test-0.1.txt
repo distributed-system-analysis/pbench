@@ -10,9 +10,6 @@ pbench-dispatch: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/l
 +++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-copy-sosreports
-pbench-copy-sosreports: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
---- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
 pbench-index: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
 --- Finished pbench-index (status=3)
