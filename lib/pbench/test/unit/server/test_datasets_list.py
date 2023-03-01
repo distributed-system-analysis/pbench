@@ -179,6 +179,11 @@ class TestDatasetsList:
                 {},
                 ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
+            ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
+            ("drb", {"mine": True}, ["drb", "fio_1"]),
+            ("drb", {"mine": "t"}, ["drb", "fio_1"]),
+            ("drb", {"mine": False}, ["fio_2"]),
+            ("drb", {"mine": "n"}, ["fio_2"]),
             (
                 "test_admin",
                 {},
@@ -235,6 +240,16 @@ class TestDatasetsList:
         query.update({"metadata": ["dataset.uploaded"]})
         result = query_as(query, login, HTTPStatus.OK)
         self.compare_results(result.json, results, query, server_config)
+
+    def test_mine_novalue(self, server_config, client, more_datasets, get_token_func):
+        token = get_token_func("drb")
+        headers = {"authorization": f"bearer {token}"}
+        response = client.get(
+            f"{server_config.rest_uri}/datasets/list?mine" "&metadata=dataset.uploaded",
+            headers=headers,
+        )
+        assert response.status_code == HTTPStatus.OK
+        self.compare_results(response.json, ["drb", "fio_1"], {}, server_config)
 
     @pytest.mark.parametrize(
         "login,query,results",

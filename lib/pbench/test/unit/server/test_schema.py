@@ -101,7 +101,7 @@ class TestParamType:
         Check basic consistency of the ParamType ENUM
         """
         assert (
-            len(ParamType.__members__) == 9
+            len(ParamType.__members__) == 10
         ), "Number of ParamType ENUM values has changed; confirm test coverage!"
         for n, t in ParamType.__members__.items():
             assert str(t) == t.friendly.upper()
@@ -298,6 +298,12 @@ class TestParameter:
         """
         x = Parameter("data", ParamType.STRING, required=False)
         assert not x.invalid(json)
+
+    @pytest.mark.parametrize("value,expected", (("", True), ("true", True)))
+    def test_boolean(self, value, expected):
+        """Test boolean parameter handling"""
+        x = Parameter("x", ParamType.BOOLEAN)
+        assert x.normalize(value) == expected
 
     @pytest.mark.parametrize(
         "input,expected",
