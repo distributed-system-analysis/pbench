@@ -104,17 +104,35 @@ if [[ ${sts} != 0 ]]; then
     exit 3
 fi
 
-# The following directory holds tar balls that are quarantined because
-# of operational errors on the server. They should be retried after
-# the problem is fixed: basically, move them back into the reception
-# area for 002 agents and wait.
-errors=${qdir}/errors-${version}
-mkdir -p ${errors}
-sts=${?}
-if [[ ${sts} != 0 ]]; then
-    echo "Failed: \"mkdir -p ${errors}\", status ${sts}" >> ${errlog}
-    exit 3
-fi
+function quarantine () {
+    # Function used by the shims to quarantine problematic tarballs.
+    #
+    # It is assumed that the function is called within a log_init/log_finish
+    # context.  Errors here are fatal but we log an error message to help
+    # diagnose problems.
+    local _dest=${1}
+    shift
+    local _files="${@}"
+
+    mkdir -p ${_dest} > /dev/null 2>&1
+    local _sts=${?}
+    if [[ ${_sts} -ne 0 ]]; then
+        # log error
+        log_exit "${TS}: quarantine ${_dest} ${_files}: \"mkdir -p ${_dest}/\" failed with status ${_sts}" 101
+    fi
+    local _afile
+    for _afile in ${_files}; do
+        if [[ ! -e ${_afile} && ! -L ${_afile} ]]; then
+            continue
+        fi
+        mv ${_afile} ${_dest}/ > /dev/null 2>&1
+        _sts=${?}
+        if [[ ${_sts} -ne 0 ]]; then
+            # log error
+            log_exit "${TS}: quarantine ${_dest} ${_files}: \"mv ${_afile} ${_dest}/\" failed with status ${_sts}" 102
+        fi
+    done
+}
 
 log_init ${PROG}
 
