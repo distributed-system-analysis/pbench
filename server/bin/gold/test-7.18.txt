@@ -164,11 +164,8 @@ lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.18/pbench-sate
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/bad-controller
-drwxrwxr-x          - archive/fs-version-001/bad-controller/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/bad-controller/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/bad-controller/INDEXED
 drwxrwxr-x          - archive/fs-version-001/bad-controller/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-INDEX-TOOL

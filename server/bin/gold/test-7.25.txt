@@ -1587,12 +1587,9 @@ lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.25/pbench-sate
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/rhel8-1
-drwxrwxr-x          - archive/fs-version-001/rhel8-1/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/rhel8-1/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/INDEXED
 lrwxrwxrwx        147 archive/fs-version-001/rhel8-1/INDEXED/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz -> /var/tmp/pbench-test-server/test-7.25/pbench/archive/fs-version-001/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-INDEX-TOOL

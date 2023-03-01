@@ -224,36 +224,6 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-cull-unpacked-tarballs (status=0)
-+++ Running pbench-backup-tarballs
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-backup-tarballs",
-            "text": "pbench-backup-tarballs.py.1970-01-01T00:00:42-UTC(unit-test)\nTotal processed: 8, Local backup successes: 8, Local backup failures: 0, S3 upload successes: 8, S3 upload failures: 0, Quarantined: 0\n",
-            "total_chunks": 1,
-            "total_size": 196
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-backup-tarballs (status=0)
 +++ Running pbench-satellite-cleanup
 --- Finished pbench-satellite-cleanup (status=0)
 +++ Running pbench-tarball-stats
@@ -352,12 +322,8 @@ lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-5.2/pbench-satel
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/BACKED-UP
-lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/BACKED-UP/tarball-simple1_1970-01-01T00:42:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-INDEX-TOOL
@@ -374,12 +340,8 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/WONT-UNPACK
 -rw-rw-r--        220 archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz
 -rw-rw-r--         77 archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/BACKED-UP
-lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/BACKED-UP/tarball-simple2_1970-01-01T00:41:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-INDEX-TOOL
@@ -396,12 +358,8 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/WONT-UNPACK
 -rw-rw-r--        220 archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz
 -rw-rw-r--         79 archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/BACKED-UP
-lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/BACKED-UP/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/INDEXED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-INDEX-TOOL
@@ -418,14 +376,8 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/WONT-UNPACK
 -rw-rw-r--        228 archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
 -rw-rw-r--         86 archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/BACKED-UP
-lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/BACKED-UP/tarball-0_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz
-lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/BACKED-UP/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz
-lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/BACKED-UP/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-INDEX-TOOL
@@ -450,11 +402,8 @@ drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/WONT-UNP
 -rw-rw-r--        224 archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz
 -rw-rw-r--         82 archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate
-drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/BACKED-UP
-lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/BACKED-UP/tarball-duplicate_1970.01.01T00.42.00.tar.xz -> ../tarball-duplicate_1970.01.01T00.42.00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/INDEXED
 lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/INDEXED/tarball-duplicate_1970.01.01T00.42.00.tar.xz -> ../tarball-duplicate_1970.01.01T00.42.00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/UNPACKED
 lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/UNPACKED/tarball-duplicate_1970.01.01T00.42.00.tar.xz -> ../tarball-duplicate_1970.01.01T00.42.00.tar.xz
@@ -463,12 +412,8 @@ lrwxrwxrwx         57 archive/fs-version-001/controller-d-duplicate/WONT-UNPACK/
 -rw-rw-r--        220 archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz
 -rw-rw-r--         79 archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal
-drwxrwxr-x          - archive/fs-version-001/controller-g-normal/BACKED-UP
-lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/BACKED-UP/tarball-normal_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller-g-normal/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-INDEX-TOOL
@@ -566,8 +511,6 @@ drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
-drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--      17681 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
@@ -620,30 +563,6 @@ drwxrwxr-x          - quarantine/md5-002/controller-e-bad-md5
 drwxrwxr-x          - quarantine/md5-002/controller-f-bad-md5
 -rw-rw-r--        220 quarantine/md5-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz
 -rw-rw-r--         79 quarantine/md5-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz.md5
-drwxrwxr-x          - s3-backup
-drwxrwxr-x          - s3-backup/testbucket
-drwxrwxr-x          - s3-backup/testbucket/ONE::controllerA
--rw-rw-r--        220 s3-backup/testbucket/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz
--rw-rw-r--         35 s3-backup/testbucket/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.ETag
-drwxrwxr-x          - s3-backup/testbucket/ONE::controllerB
--rw-rw-r--        220 s3-backup/testbucket/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz
--rw-rw-r--         35 s3-backup/testbucket/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.ETag
-drwxrwxr-x          - s3-backup/testbucket/ONE::controllerC
--rw-rw-r--        228 s3-backup/testbucket/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
--rw-rw-r--         35 s3-backup/testbucket/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.ETag
-drwxrwxr-x          - s3-backup/testbucket/controller-b-with-prefixes
--rw-rw-r--        212 s3-backup/testbucket/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         35 s3-backup/testbucket/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.ETag
--rw-rw-r--        224 s3-backup/testbucket/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         35 s3-backup/testbucket/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.ETag
--rw-rw-r--        224 s3-backup/testbucket/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         35 s3-backup/testbucket/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.ETag
-drwxrwxr-x          - s3-backup/testbucket/controller-d-duplicate
--rw-rw-r--        220 s3-backup/testbucket/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         35 s3-backup/testbucket/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.ETag
-drwxrwxr-x          - s3-backup/testbucket/controller-g-normal
--rw-rw-r--        216 s3-backup/testbucket/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         35 s3-backup/testbucket/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.ETag
 drwxrwxr-x          - tmp
 --- pbench-local tree state
 +++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-5.2/pbench-satellite)
@@ -713,85 +632,6 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
-+++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-run-1970-01-01T00:00:42-UTC
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Start backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Start local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- End local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Local backup of ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz successful
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Start S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- tarball: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz, size = 220
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.__init__ put_tarball -- Upload to s3 succeeded: ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- End S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Start backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Start local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- End local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Local backup of ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz successful
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Start S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- tarball: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz, size = 220
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.__init__ put_tarball -- Upload to s3 succeeded: ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- End S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Start backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Start local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- End local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Local backup of ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz successful
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Start S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- tarball: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz, size = 228
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.__init__ put_tarball -- Upload to s3 succeeded: ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- End S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Start backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Start local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- End local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Local backup of controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz successful
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Start S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- tarball: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz, size = 212
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.__init__ put_tarball -- Upload to s3 succeeded: controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- End S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Start backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Start local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- End local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Local backup of controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz successful
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Start S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- tarball: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz, size = 224
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.__init__ put_tarball -- Upload to s3 succeeded: controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- End S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Start backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Start local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- End local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Local backup of controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz successful
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Start S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- tarball: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz, size = 224
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.__init__ put_tarball -- Upload to s3 succeeded: controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- End S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Start backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Start local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- End local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Local backup of controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz successful
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Start S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- tarball: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz, size = 220
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.__init__ put_tarball -- Upload to s3 succeeded: controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- End S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Start backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Start local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- End local backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Local backup of controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz successful
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Start S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- tarball: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz, size = 216
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.__init__ put_tarball -- Upload to s3 succeeded: controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- End S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 8, Local backup successes: 8, Local backup failures: 0, S3 upload successes: 8, S3 upload failures: 0, Quarantined: 0
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-run-1970-01-01T00:00:42-UTC
------ pbench-backup-tarballs/pbench-backup-tarballs.log
 +++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 ----- pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 +++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log

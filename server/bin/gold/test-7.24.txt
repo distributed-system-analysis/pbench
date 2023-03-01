@@ -1233,13 +1233,10 @@ lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.24/pbench-sate
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/ctlrA
-drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ctlrA/INDEXED
 lrwxrwxrwx        143 archive/fs-version-001/ctlrA/INDEXED/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz -> /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz
 lrwxrwxrwx        164 archive/fs-version-001/ctlrA/INDEXED/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz -> /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX-TOOL

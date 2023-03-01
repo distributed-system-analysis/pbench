@@ -20,11 +20,6 @@
   notify:
     - restart apache
 
-- name: "Make sure rsync is installed. Used below."
-  package:
-    name: rsync
-    state: latest
-
 - name: "Copy the web-server bits to the <pbench>/public_html/static directory."
   synchronize:
     src: "{{ pbench_server_install_dir }}/html/static/"

@@ -21,11 +21,7 @@ The general algorithm is:
 
         * Creating the controller directory if it doesn't already exist
 
-     c. Create symlink to tar ball in BACKED-UP directory
-
-        * Creating the BACKED-UP directory if it doesn't already exist
-
-     d. Create symlink to tar ball in TO-RE-UNPACK directory
+     c. Create symlink to tar ball in TO-RE-UNPACK directory
 
         * Creating the TO-RE-UNPACK directory if it doesn't already exist
 """
@@ -234,15 +230,6 @@ def main(options):
                         file=sys.stderr,
                     )
                     return 1
-
-            # Create the symlink recording the tar ball is already backed up
-            backed_up_dir = ctrl_p / "BACKED-UP"
-            if not options.dry_run:
-                backed_up_dir.mkdir(exist_ok=True)
-            backed_up = backed_up_dir / tb.name
-            print(f"ln -s {a_tb} {backed_up}", flush=True)
-            if not options.dry_run:
-                backed_up.symlink_to(a_tb)
 
             # Create the symlink requesting the tar ball be unpacked
             to_unpack_dir = ctrl_p / "TO-RE-UNPACK"

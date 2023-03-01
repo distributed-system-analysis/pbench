@@ -298,8 +298,6 @@ class PbenchConfig(object):
         self.LINKDIRS = (
             # All unpack tar balls operational states
             "TO-UNPACK TO-RE-UNPACK UNPACKED WONT-UNPACK"
-            # All backup operational states
-            " TO-BACKUP BACKED-UP BACKUP-FAILED"
             # All indexing operational states
             " TO-INDEX TO-RE-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX"
             # All satellite operational states

@@ -38,7 +38,6 @@ bintools = \
 # which needs to be installed as well.
 binlinks = \
 	pbench-audit-server\
-	pbench-backup-tarballs\
 	pbench-check-tb-age\
 	pbench-clean-up-dangling-results-links\
 	pbench-cull-unpacked-tarballs\

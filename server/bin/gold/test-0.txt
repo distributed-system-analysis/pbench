@@ -22,9 +22,6 @@ pbench-clean-up-dangling-results-links: Bad TOP=/var/tmp/pbench-test-server/test
 +++ Running pbench-cull-unpacked-tarballs
 pbench-cull-unpacked-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 --- Finished pbench-cull-unpacked-tarballs (status=2)
-+++ Running pbench-backup-tarballs
-pbench-backup-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
---- Finished pbench-backup-tarballs (status=1)
 +++ Running pbench-satellite-cleanup
 pbench-satellite-cleanup: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench-satellite (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server-satellite/lib/config/pbench-server.cfg)
 --- Finished pbench-satellite-cleanup (status=1)

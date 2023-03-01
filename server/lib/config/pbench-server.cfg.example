@@ -12,13 +12,7 @@ pbench-top-dir = /srv/pbench
 # Backup dir may be remote NFS mounted
 pbench-backup-dir = /mnt/pbench.archive.backup
 # Add role for sync'ing with satellites
-roles = pbench-maintenance, pbench-results, pbench-backup, pbench-sync-satellites
-
-[pbench-server-backup]
-endpoint_url = <the URL of the S3 object store to be used>
-access_key_id = <the S3 object store access key ID provided by an administrator>
-secret_access_key = <the S3 object store secret access key provided by an administrator>
-bucket_name = <the name of an S3 bucket which will contain all of the tar ball objects after they are backed up>
+roles = pbench-maintenance, pbench-results, pbench-sync-satellites
 
 [Indexing]
 # CHANGE ME!

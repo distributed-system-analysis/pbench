@@ -8494,12 +8494,9 @@ lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-7.8/pbench-satel
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/master_40gb
-drwxrwxr-x          - archive/fs-version-001/master_40gb/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/master_40gb/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/master_40gb/INDEXED
 lrwxrwxrwx        112 archive/fs-version-001/master_40gb/INDEXED/uperf__2016-10-06_16:34:03.tar.xz -> /var/tmp/pbench-test-server/test-7.8/pbench/archive/fs-version-001/master_40gb/uperf__2016-10-06_16:34:03.tar.xz
 drwxrwxr-x          - archive/fs-version-001/master_40gb/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-INDEX-TOOL

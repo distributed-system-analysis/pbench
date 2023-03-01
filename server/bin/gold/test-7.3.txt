@@ -164,11 +164,8 @@ lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-7.3/pbench-satel
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/alphaville
-drwxrwxr-x          - archive/fs-version-001/alphaville/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/alphaville/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/alphaville/INDEXED
 drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/alphaville/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX-TOOL

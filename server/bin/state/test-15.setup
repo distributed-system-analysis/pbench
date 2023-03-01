@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir pbench-local/archive.backup || exit ${?}
+
 # Move the local reception directory 002 tree to the side
 mv pbench-local/pbench-move-results-receive/fs-version-002 pbench-local/pbench-move-results-receive/fs-version-002.bad
-exit $?
+exit ${?}
