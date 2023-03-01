@@ -4,6 +4,7 @@ from flask import current_app
 
 from pbench.server import JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
+    ApiAttributes,
     ApiAuthorizationType,
     ApiMethod,
     ApiParams,
@@ -28,11 +29,12 @@ from pbench.server.sync import Sync
 
 class Datasets(ElasticBulkBase):
     """
-    Change the owner and access of a Pbench dataset by modifying the owner
-     and/or access in the Dataset table and in each Elasticsearch document
+     Delete the dataset or change the owner and access of a Pbench dataset by modifying
+     the owner and/or access in the Dataset table and in each Elasticsearch document
     "authorization" sub-document associated with the dataset
 
     Called as `POST /api/v1/datasets/{resource_id}?access=public&owner=user`
+    or DELETE /api/v1/datasets/{resource_id}
     """
 
     def __init__(self, config: PbenchServerConfig):
@@ -51,12 +53,12 @@ class Datasets(ElasticBulkBase):
                 audit_type=AuditType.DATASET,
                 audit_name="update",
                 authorization=ApiAuthorizationType.DATASET,
-                attributes={
-                    "action": "update",
-                    "build_doc": True,
-                    "require_stable": True,
-                    "require_map": True,
-                },
+                attributes=ApiAttributes(
+                    "update",
+                    OperationName.UPDATE,
+                    require_stable=True,
+                    require_map=True,
+                ),
             ),
             ApiSchema(
                 ApiMethod.DELETE,
@@ -67,12 +69,12 @@ class Datasets(ElasticBulkBase):
                 audit_type=AuditType.DATASET,
                 audit_name="delete",
                 authorization=ApiAuthorizationType.DATASET,
-                attributes={
-                    "action": "delete",
-                    "build_doc": False,
-                    "require_stable": False,
-                    "require_map": False,
-                },
+                attributes=ApiAttributes(
+                    "delete",
+                    OperationName.DELETE,
+                    require_stable=True,
+                    require_map=False,
+                ),
             ),
             action="modify",
         )
@@ -97,16 +99,18 @@ class Datasets(ElasticBulkBase):
         Returns:
             A generator for Elasticsearch bulk update actions
         """
-        action = context["attributes"]["action"]
+        action = context["attributes"].action
+
+        sync = Sync(
+            logger=current_app.logger, component=context["attributes"].operation_name
+        )
+        sync.update(dataset=dataset, state=OperationState.WORKING)
+        context["sync"] = sync
+        es_doc = {}
+
         if action == "update":
-
-            sync = Sync(logger=current_app.logger, component=OperationName.UPDATE)
-            sync.update(dataset=dataset, state=OperationState.WORKING)
-            context["sync"] = sync
-
             access = params.query.get("access")
             owner = params.query.get("owner")
-            es_doc = {}
             if not access and not owner:
                 raise MissingParameters(["access", "owner"])
             if access:
@@ -117,42 +121,28 @@ class Datasets(ElasticBulkBase):
                     raise UnauthorizedAdminAccess(authorized_user, OperationCode.UPDATE)
                 context["owner"] = es_doc["owner"] = owner
 
-            # Generate a series of bulk update documents, which will be passed to
-            # the Elasticsearch bulk helper.
-            #
-            # Note that the "doc" specifies explicit instructions for updating only
-            # the "access" field of the "authorization" subdocument: no other data
-            # will be modified.
-            for index, ids in map.items():
-                for id in ids:
-                    yield {
-                        "_op_type": action,
-                        "_index": index,
-                        "_id": id,
-                        "doc": {"authorization": es_doc},
-                    }
+        # Generate a series of bulk operations, which will be passed to
+        # the Elasticsearch bulk helper.
+        #
+        # Note that the "doc" specifies explicit instructions for updating only
+        # the "access" and/or "owner" field(s) of the "authorization" subdocument:
+        # no other data will be modified.
 
-        elif action == "delete":
-            current_app.logger.info("Starting delete operation for dataset {}", dataset)
-            sync = Sync(logger=current_app.logger, component=OperationName.DELETE)
-            sync.update(dataset=dataset, state=OperationState.WORKING)
-
-            # Generate a series of bulk delete documents, which will be passed to
-            # the Elasticsearch bulk helper.
-
-            for index, ids in map.items():
-                for id in ids:
-                    yield {"_op_type": action, "_index": index, "_id": id}
+        for index, ids in map.items():
+            for id in ids:
+                es_action = {"_op_type": action, "_index": index, "_id": id}
+                if es_doc:
+                    es_action["doc"] = es_doc
+                yield es_action
 
     def complete(
         self, dataset: Dataset, context: ApiContext, summary: JSONOBJECT
     ) -> None:
         """
-        Complete the publish operation by updating the access of the Dataset
-        object.
+        Complete the operation by deleting or updating the access/owner of the
+        Dataset object.
 
-        Note that an exception will be caught outside this class; the Dataset
-        object will remain in the previous state to allow a retry.
+        Note that an exception will be caught outside this class.
 
         Args:
             dataset: Dataset object
@@ -163,12 +153,9 @@ class Datasets(ElasticBulkBase):
         """
         auditing: dict[str, Any] = context["auditing"]
         attributes = auditing["attributes"]
-        state = OperationState.FAILED
-        message = "Unable to update some indexed documents"
-        if context["attributes"]["action"] == "update":
-            if summary["failure"] == 0:
-                state = OperationState.OK
-                message = None
+        action = context["attributes"].action
+        if summary["failure"] == 0:
+            if action == "update":
                 access = context.get("access")
                 if access:
                     attributes["access"] = access
@@ -178,9 +165,12 @@ class Datasets(ElasticBulkBase):
                     attributes["owner"] = owner
                     dataset.owner_id = owner
                 dataset.update()
-            context["sync"].update(dataset=dataset, state=state, message=message)
-        elif context["attributes"]["action"] == "delete":
-            if summary["failure"] == 0:
+                context["sync"].update(dataset=dataset, state=OperationState.OK)
+            elif action == "delete":
                 cache_m = CacheManager(self.config, current_app.logger)
                 cache_m.delete(dataset.resource_id)
                 dataset.delete()
+        else:
+            context["sync"].error(
+                dataset=dataset, message=f"Unable to {action} some indexed documents"
+            )

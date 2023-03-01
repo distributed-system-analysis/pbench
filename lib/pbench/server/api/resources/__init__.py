@@ -26,6 +26,7 @@ from pbench.server.database.models.datasets import (
     Metadata,
     MetadataBadKey,
     MetadataError,
+    OperationName,
 )
 from pbench.server.database.models.server_settings import ServerSetting
 from pbench.server.database.models.users import User
@@ -787,6 +788,28 @@ class ApiMethod(Enum):
     PUT = auto()
 
 
+class ApiAttributes:
+    def __init__(
+        self,
+        action: str,
+        operation_name: OperationName,
+        require_stable: bool,
+        require_map: bool,
+    ):
+        """Initialize an ApiAttributes object with its attributes.
+        Args:
+            action: bulk Elasticsearch action (delete, create, update)
+            operation_name: CRUD operation name
+            require_stable: if True, fail if dataset state is mutating (-ing state)
+            require_map: if True, fail if the dataset has no index map
+        """
+
+        self.action = action
+        self.operation_name = operation_name
+        self.require_stable = require_stable
+        self.require_map = require_map
+
+
 class ApiAuthorizationType(Enum):
     """Defines the mechanism by which ApiBase infrastructure will automatically
     authorize the client for the API method:
@@ -928,7 +951,7 @@ class ApiSchema:
         audit_type: AuditType = AuditType.NONE,
         audit_name: Optional[str] = None,
         authorization: ApiAuthorizationType = ApiAuthorizationType.NONE,
-        attributes: Optional[JSON] = None,
+        attributes: Optional[ApiAttributes] = None,
     ):
         """Construct an ApiSchema encapsulating a set of schema objects
         separating URI parameters from query parameters from JSON body
@@ -953,6 +976,8 @@ class ApiSchema:
                     authorization process triggers on a specific type of
                     parameter, DATASET or USER, which must appear in exactly
                     one of the set of schema defined for an HTTP method.
+            attributes :
+                    This contains configurable attributes specific to its operations
         """
         self.method = method
         self.operation = operation
@@ -1721,10 +1746,9 @@ class ApiBase(Resource):
             "attributes": None,
         }
 
-        self.attributes = schema.attributes
-
+        context = {"auditing": auditing, "attributes": schema.attributes}
         try:
-            response = execute(params, request, {"auditing": auditing})
+            response = execute(params, request, context)
         except APIInternalError as e:
             current_app.logger.exception("{} {}", api_name, e.details)
             abort(e.http_status, message=str(e))
