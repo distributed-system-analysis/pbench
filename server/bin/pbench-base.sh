@@ -96,10 +96,9 @@ function log_init {
 }
 
 function log_finish {
-    exec 1>&100  # Restore stdout
-    exec 2>&200  # Restore stderr
-    exec 100>&-  # Close log file
-    exec 4>&-    # Close error file
+    exec 1>&100-  # Restore stdout and close log file
+    exec 2>&200-  # Restore stderr and close saved stderr
+    exec 4>&-     # Close error file
 }
 
 function log_exit {
@@ -131,33 +130,4 @@ function log_error {
     else
         printf -- "%b\n" "${1}" | tee -a "${2}" >&4
     fi
-}
-
-# Function used by the shims to quarantine problematic tarballs.  It
-# is assumed that the function is called within a log_init/log_finish
-# context.  Errors here are fatal but we log an error message to help
-# diagnose problems.
-function quarantine () {
-    local _dest=${1}
-    shift
-    local _files="${@}"
-
-    mkdir -p ${_dest} > /dev/null 2>&1
-    local _sts=${?}
-    if [[ ${_sts} -ne 0 ]]; then
-        # log error
-        log_exit "${TS}: quarantine ${_dest} ${_files}: \"mkdir -p ${_dest}/\" failed with status ${_sts}" 101
-    fi
-    local _afile
-    for _afile in ${_files}; do
-        if [[ ! -e ${_afile} && ! -L ${_afile} ]]; then
-            continue
-        fi
-        mv ${_afile} ${_dest}/ > /dev/null 2>&1
-        _sts=${?}
-        if [[ ${_sts} -ne 0 ]]; then
-            # log error
-            log_exit "${TS}: quarantine ${_dest} ${_files}: \"mv ${_afile} ${_dest}/\" failed with status ${_sts}" 102
-        fi
-    done
 }
