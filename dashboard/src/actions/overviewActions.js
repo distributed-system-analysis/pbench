@@ -23,7 +23,7 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("metadata", CONSTANTS.SERVER_DELETION);
     params.append("metadata", CONSTANTS.USER_FAVORITE);
 
-    params.append("owner", username);
+    params.append("mine", "true");
 
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(endpoints?.api?.datasets_list, {
