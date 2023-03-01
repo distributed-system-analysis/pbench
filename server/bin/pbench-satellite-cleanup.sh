@@ -13,34 +13,28 @@ trap "rm -rf $tmp" EXIT
 
 log_init $PROG
 
-log_info "$TS: $PROG starting"
+start_ts=$(timestamp)
 
 tarballs=$(cd $ARCHIVE > /dev/null; find . -path '*/TO-DELETE/*.tar.xz' -printf '%P\n' | sort)
 hosts="$(for host in $tarballs ;do echo "${host%%/*}" ;done | sort -u )"
 
-typeset -i ntb=0
-typeset -i nerrs=0
+typeset -i nhosts=0
+typeset -i ntbs=0
 typeset -i ntberrs=0
 typeset -i nmd5errs=0
 typeset -i nstateerrs=0
 typeset -i nincomingerrs=0
 typeset -i nresultserrs=0
 
-mail_content=$tmp/mail.log
-index_content=$tmp/index_mail_contents
-
-# Initialize mail content
-> $mail_content
-> $index_content
-
 for host in $hosts; do
+    (( nhosts++ ))
     pushd $ARCHIVE/$host > /dev/null || log_exit "Failed to pushd to $ARCHIVE/$host"
     mkdir -p SATELLITE-DONE > /dev/null || log_exit "Failed to create $ARCHIVE/$host/SATELLITE-DONE"
     for tb in $tarballs; do
         if [ "$host" != "${tb%%/*}" ]; then
             continue
         fi
-        ntb=$ntb+1
+        (( ntbs++ ))
         x=${tb##*/}
         # remove tar file
         if [ -e $x ]; then
@@ -60,8 +54,8 @@ for host in $hosts; do
                 # Note that if we do remove the tarball but fail to change the
                 # state, this error will persist until the state is changed
                 # manually.
-                log_error "$TS: Failed to remove $ARCHIVE/$host/$x, code: $rc" "${mail_content}"
-                ntberrs=$ntberrs+1
+                log_error "$TS: Failed to remove $ARCHIVE/$host/$x, code: $rc"
+                (( ntberrs++ ))
                 popd > /dev/null 2>&4
                 continue
             fi
@@ -71,8 +65,8 @@ for host in $hosts; do
             rm $x.md5
             rc=$?
             if [ $rc != 0 ]; then
-                log_error "$TS: Failed to remove $ARCHIVE/$host/$x.md5, code: $rc" "${mail_content}"
-                nmd5errs=$nmd5errs+1
+                log_error "$TS: Failed to remove $ARCHIVE/$host/$x.md5, code: $rc"
+                (( nmd5errs++ ))
             fi
         fi
         # change the state to SATELLITE-DONE
@@ -80,12 +74,12 @@ for host in $hosts; do
             mv -n TO-DELETE/$x SATELLITE-DONE/
             rc=$?
             if [ $rc != 0 ]; then
-                log_error "$TS: Failed to move $ARCHIVE/$host/TO-DELETE/$x to SATELLITE-DONE, code: $rc" "${mail_content}"
-                nstateerrs=$nstateerrs+1
+                log_error "$TS: Failed to move $ARCHIVE/$host/TO-DELETE/$x to SATELLITE-DONE, code: $rc"
+                (( nstateerrs++ ))
             else
                 if [ -e TO-DELETE/$x ]; then
-                    log_error "$TS: Failed to move $ARCHIVE/$host/TO-DELETE/$x: still exists after successful move to SATELLITE-DONE" "${mail_content}"
-                    nstateerrs=$nstateerrs+1
+                    log_error "$TS: Failed to move $ARCHIVE/$host/TO-DELETE/$x: still exists after successful move to SATELLITE-DONE"
+                    (( nstateerrs++ ))
                 fi
             fi
         fi
@@ -94,8 +88,8 @@ for host in $hosts; do
             rm -rf $INCOMING/$host/${x%%.tar.xz}
             rc=$?
             if [ $rc != 0 ]; then
-                log_error "$TS: Failed to remove the tarball from incoming directory: $INCOMING/$host/${x%%.tar.xz}, code: $rc" "${mail_content}"
-                nincomingerrs=$nincomingerrs+1
+                log_error "$TS: Failed to remove the tarball from incoming directory: $INCOMING/$host/${x%%.tar.xz}, code: $rc"
+                (( nincomingerrs++ ))
             fi
         fi
         # remove the results
@@ -104,31 +98,40 @@ for host in $hosts; do
             rm $sym_link
             rc=$?
             if [ $rc != 0 ]; then
-                log_error "$TS: Failed to remove results symlink: $sym_link, code: $rc" "${mail_content}"
-                nresultserrs=$nresultserrs+1
+                log_error "$TS: Failed to remove results symlink: $sym_link, code: $rc"
+                (( nresultserrs++ ))
             fi
         fi
     done
     popd > /dev/null 2>&4
 done
 
-summary="Total $ntb tarballs cleaned up, with $ntberrs tarball removal errors, $nmd5errs md5 file \
-remove errors, $nstateerrs state change errors, $nincomingerrs incoming removal errors, and $nresultserrs \
-result removal errors errors."
+end_ts=$(timestamp)
 
-log_info "$TS: $PROG ends: $summary"
+if [[ ${ntbs} -gt 0 ]]; then
+    summary_text="Total ${ntbs} tar balls cleaned up (for ${nhosts} hosts), with"
+    summary_text+=" ${ntberrs} tar ball removal errors, ${nmd5errs} md5 file"
+    summary_text+=" removal errors, ${nstateerrs} state change errors,"
+    summary_text+=" ${nincomingerrs} incoming directory removal errors, and"
+    summary_text+=" ${nresultserrs} result directory removal errors."
+    printf -v summary_inner_json \
+        "{\"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\"}" \
+        "end_ts" "${end_ts}" \
+        "errors" "$((nincomingerrs+nmd5errs+nresultserrs+nstateerrs+ntberrs))" \
+        "nhosts" "${nhosts}" \
+        "nincomingerrs" "${nincomingerrs}" \
+        "nmd5errs" "${nmd5errs}" \
+        "nresultserrs" "${nresultserrs}" \
+        "nstateerrs" "${nstateerrs}" \
+        "ntbs" "${ntbs}" \
+        "ntberrs" "${ntberrs}" \
+        "prog" "${PROG}" \
+        "start_ts" "${start_ts}"
+    printf -v summary_json "{\"pbench\": {\"report\": {\"summary\": %s}}}" "${summary_inner_json}"
+
+    log_info "${TS}(${PBENCH_ENV}): ${summary_text} -- @cee:${summary_json}"
+fi
 
 log_finish
-
-nerrs=$ntberrs+$nmd5errs+$nstateerrs+$nincomingerrs+$nresultserrs
-
-subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs total errors"
-cat << EOF > $index_content
-$subj
-$summary
-
-EOF
-cat $mail_content >> $index_content
-pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${index_content}
 
 exit 0

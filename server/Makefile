@@ -25,7 +25,6 @@ binbase = \
 # satellites only, but we install them everywhere.
 bintools = \
 	pbench-trampoline\
-	pbench-pp-status\
 	pbench-server-activate-create-crontab\
 	pbench-remote-satellite-state-change\
 	pbench-remote-sync-package-tarballs\
@@ -43,7 +42,6 @@ binlinks = \
 	pbench-dispatch\
 	pbench-index\
 	pbench-reindex\
-	pbench-report-status\
 	pbench-satellite-cleanup\
 	pbench-satellite-state-change\
 	pbench-sync-package-tarballs\

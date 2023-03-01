@@ -146,15 +146,10 @@ if [[ ${sts} != 0 ]]; then
     log_exit "Failed: \"mkdir -p ${tmp}\", status ${sts}" 4
 fi
 
-# Setup the report file.
-status=${tmp}/status
-> ${status}
-
-# Mark the beginning of execution.
-log_info ${TS}
-
 # File that will contain the list of all .md5 files to be processed.
 list=${tmp}/list.check
+
+start_ts=$(timestamp)
 
 # Check for results that are ready for processing: version 002 agents
 # upload the MD5 file as xxx.md5.check and they rename it to xxx.md5
@@ -201,7 +196,7 @@ while read tbmd5; do
     dest=${ARCHIVE}/${controller}
 
     if [[ -f ${dest}/${resultname}.tar.xz || -f ${dest}/${resultname}.tar.xz.md5 ]]; then
-        log_error "${TS}: Duplicate: ${tb} duplicate name" "${status}"
+        log_error "${TS}: Duplicate: ${tb} duplicate name"
         quarantine ${duplicates}/${controller} ${tbmd5} ${tb}
         (( ndups++ ))
         continue
@@ -212,7 +207,7 @@ while read tbmd5; do
     sts=${?}
     popd > /dev/null 2>&4
     if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Quarantined: ${tb} failed MD5 check" "${status}"
+        log_error "${TS}: Quarantined: ${tb} failed MD5 check"
         quarantine ${bad_md5}/${controller} ${tbmd5} ${tb}
         (( nquarantined++ ))
         continue
@@ -223,14 +218,14 @@ while read tbmd5; do
         mkdir -p ${backup_dir}/${controller}
         sts=${?}
         if [[ ${sts} -ne 0 ]]; then
-            log_error "${TS}: failed to create backup directory ${backup_dir}/${controller}: code ${sts}" "${status}"
+            log_error "${TS}: failed to create backup directory ${backup_dir}/${controller}: code ${sts}"
             (( nberrs++ ))
             continue
         fi
         cp -a ${tbmd5} ${tb} ${backup_dir}/${controller}/
         sts=${?}
         if [[ ${sts} -ne 0 ]]; then
-            log_error "${TS}: failed to backup ${tbmd5} and ${tb}: code ${sts}" "${status}"
+            log_error "${TS}: failed to backup ${tbmd5} and ${tb}: code ${sts}"
             (( nberrs++ ))
             continue
         fi
@@ -254,7 +249,7 @@ while read tbmd5; do
         pbench-results-push ${tb} ${push_options}
         sts=${?}
         if [[ ${sts} -ne 0 ]]; then
-            log_info "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}" "${status}"
+            log_error "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}"
         fi
     fi
 
@@ -262,7 +257,7 @@ while read tbmd5; do
     mk_dirs ${controller}
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Creation of ${controller} processing directories failed for ${tb}: code ${sts}" "${status}"
+        log_error "${TS}: Creation of ${controller} processing directories failed for ${tb}: code ${sts}"
         (( nerrs++ ))
         continue
     fi
@@ -272,7 +267,7 @@ while read tbmd5; do
     cp -a ${tbmd5} ${dest}/
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Error: \"cp -a ${tbmd5} ${dest}/\", status ${sts}" "${status}"
+        log_error "${TS}: Error: \"cp -a ${tbmd5} ${dest}/\", status ${sts}"
         (( nerrs++ ))
         continue
     fi
@@ -285,11 +280,11 @@ while read tbmd5; do
     mv ${tb} ${dest}/
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Error: \"mv ${tb} ${dest}/\", status ${sts}" "${status}"
+        log_error "${TS}: Error: \"mv ${tb} ${dest}/\", status ${sts}"
         rm ${dest}/${resultname}.tar.xz.md5
         sts=${?}
         if [[ ${sts} -ne 0 ]]; then
-            log_error "${TS}: Warning: cleanup of move failure failed itself: \"rm ${dest}/${resultname}.tar.xz.md5\", status ${sts}" "${status}"
+            log_error "${TS}: Warning: cleanup of move failure failed itself: \"rm ${dest}/${resultname}.tar.xz.md5\", status ${sts}"
         fi
         (( nerrs++ ))
         continue
@@ -302,7 +297,7 @@ while read tbmd5; do
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
         # log it but do not abort
-        log_error "${TS}: Error: \"restorecon ${dest}/${tbname} ${dest}/${tbname}.md5\", status ${sts}" "${status}"
+        log_error "${TS}: Error: \"restorecon ${dest}/${tbname} ${dest}/${tbname}.md5\", status ${sts}"
     fi
 
     # Now that we have successfully moved the tar ball and its .md5 to the
@@ -310,7 +305,7 @@ while read tbmd5; do
     rm ${tbmd5}
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Warning: cleanup of successful copy operation failed: \"rm ${tbmd5}\", status ${sts}" "${status}"
+        log_error "${TS}: Warning: cleanup of successful copy operation failed: \"rm ${tbmd5}\", status ${sts}"
     fi
 
     # Create a link in each state dir - if any fail we don't delete them
@@ -323,7 +318,7 @@ while read tbmd5; do
         if [[ ${sts} -eq 0 ]]; then
             (( totsuc++ ))
         else
-            log_error "${TS}: Cannot create ${dest}/${tbname} link to ${state}: code ${sts}" "${status}"
+            log_error "${TS}: Cannot create ${dest}/${tbname} link to ${state}: code ${sts}"
             (( toterr++ ))
         fi
     done
@@ -338,22 +333,37 @@ while read tbmd5; do
         if [[ ${toterr} -gt 0 ]]; then
             # We have had some errors while processing this tar ball, so count
             # this as a partial success.
-            log_info "${TS}: ${controller}/${resultname}: success (partial)" "${status}"
+            log_info "${TS}: ${controller}/${resultname}: success (partial)"
             (( npartialsucc++ ))
         else
-            log_info "${TS}: ${controller}/${resultname}: success" "${status}"
+            log_info "${TS}: ${controller}/${resultname}: success"
         fi
     fi
 done < ${list}
 
-summary_text="Processed ${ntotal} result tar balls, ${ntbs} successfully"\
-" (${npartialsucc} partial), with ${nquarantined} quarantined tar balls,"\
-" ${ndups} duplicately-named tar balls, and ${nerrs} errors."
+end_ts=$(timestamp)
 
-log_info "${PROG}.${TS}(${PBENCH_ENV}): ${summary_text}" "${status}"
+if [[ ${ntotal} -gt 0 ]]; then
+    summary_text="Processed ${ntotal} result tar balls, ${ntbs} successfully"
+    summary_text+=" (${npartialsucc} partial), with ${nquarantined} quarantined"
+    summary_text+=" tar balls, ${ndups} duplicately-named tar balls, and"
+    summary_text+=" ${nerrs} errors."
+    printf -v summary_inner_json \
+        "{\"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\"}" \
+        "end_ts" "${end_ts}" \
+        "errors" "${nerrs}" \
+        "ndups" "${ndups}" \
+        "npartialsucc" "${npartialsucc}" \
+        "nquarantined" "${nquarantined}" \
+        "ntbs" "${ntbs}" \
+        "ntotal" "${ntotal}" \
+        "prog" "${PROG}" \
+        "start_ts" "${start_ts}"
+    printf -v summary_json "{\"pbench\": {\"report\": {\"summary\": %s}}}" "${summary_inner_json}"
+
+    log_info "${TS}(${PBENCH_ENV}): ${summary_text} -- @cee:${summary_json}"
+fi
 
 log_finish
-
-pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${status}
 
 exit ${nerrs}

@@ -88,13 +88,7 @@ mkdir -p ${tmp} || doexit "Failed to create ${tmp}"
 
 log_init ${PROG}
 
-log_info "${TS}"
-
-# Accumulate errors and logs in files for reporting at the end.
-mail_content=${tmp}/mail_content.log
-> ${mail_content}
-index_content=${tmp}/index_mail_contents
-> ${index_content}
+start_ts=$(timestamp)
 
 # The list of files we'll be operating on, when complete, sorted newest to
 # oldest by last modification time.
@@ -135,7 +129,7 @@ function move_symlink() {
     mv ${ARCHIVE}/${hostname}/${linksrc}/${resultname}.tar.xz ${ARCHIVE}/${hostname}/${linkdest}/${resultname}.tar.xz
     local status=${?}
     if [[ ${status} -ne 0 ]]; then
-        log_error "${TS}: Cannot move symlink ${ARCHIVE}/${hostname}/${resultname}.tar.xz from ${linksrc} to ${linkdest}: code ${status}" "${mail_content}"
+        log_error "${TS}: Cannot move symlink ${ARCHIVE}/${hostname}/${resultname}.tar.xz from ${linksrc} to ${linkdest}: code ${status}"
     fi
     return ${status}
 }
@@ -145,15 +139,15 @@ function do_work() {
     local status=0
     local max_seconds=${1}
     while read date size result; do
-        ntotal=${ntotal}+1
+        (( ntotal++ ))
 
         resultname=$(basename ${result})
         resultname=${resultname%.tar.xz}
 
         link=$(readlink -e ${result})
         if [[ -z "${link}" ]]; then
-            log_error "${TS}: symlink target for ${result} does not exist" "${mail_content}"
-            nerrs=${nerrs}+1
+            (( nerrs++ ))
+            log_error "${TS}: symlink target for ${result} does not exist"
             hostname=$(basename $(dirname $(dirname ${result})))
             mkdir -p ${ARCHIVE}/${hostname}/${linkerr}
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for symlink"
@@ -164,8 +158,8 @@ function do_work() {
         pbench-check-tb-age ${link}
         local status=${?}
         if [[ ${status} -gt 0 ]]; then
-            log_info "${TS}: ${result} is older than the configured maximum age (status = ${status})" "${mail_content}"
-            nwarn=${nwarn}+1
+            (( nwarn++ ))
+            log_info "${TS}: ${result} is older than the configured maximum age (status = ${status})"
             hostname=$(basename $(dirname $(dirname ${result})))
             mkdir -p ${ARCHIVE}/${hostname}/${linkerr}
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for symlink"
@@ -180,16 +174,16 @@ function do_work() {
         mk_dirs ${hostname}
         status=${?}
         if [[ ${?} -ne 0 ]]; then
-            log_error "${TS}: Creation of ${hostname} processing directories failed for ${result}: code ${status}" "${mail_content}"
-            nerrs=${nerrs}+1
+            (( nerrs++ ))
+            log_error "${TS}: Creation of ${hostname} processing directories failed for ${result}: code ${status}"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
         fi
 
         incoming=${INCOMING}/${hostname}/${resultname}
         if [[ -e ${incoming} ]]; then
-            log_error "${TS}: Incoming result, ${incoming}, already exists, skipping ${result}" "${mail_content}"
-            nerrs=${nerrs}+1
+            (( nerrs++ ))
+            log_error "${TS}: Incoming result, ${incoming}, already exists, skipping ${result}"
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for already unpacked"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
@@ -198,8 +192,8 @@ function do_work() {
         mkdir -p ${incoming}.unpack
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            log_error "${TS}: 'mkdir ${incoming}.unpack' failed for ${result}: code ${status}" "${mail_content}"
-            nerrs=${nerrs}+1
+            (( nerrs++ ))
+            log_error "${TS}: 'mkdir ${incoming}.unpack' failed for ${result}: code ${status}"
             popd > /dev/null 2>&1
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
@@ -208,9 +202,9 @@ function do_work() {
         tar --extract --no-same-owner --touch --delay-directory-restore --file="${result}" --force-local --directory="${incoming}.unpack"
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            log_error "${TS}: 'tar -xf ${result}' failed: code ${status}" "${mail_content}"
+            (( nerrs++ ))
+            log_error "${TS}: 'tar -xf ${result}' failed: code ${status}"
             rm -rf ${incoming}.unpack
-            nerrs=${nerrs}+1
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed untar"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
@@ -220,8 +214,8 @@ function do_work() {
         find ${incoming}.unpack/${resultname} -type d -print0 | xargs -0 chmod ugo+rx
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            log_error "${TS}: 'chmod ugo+rx' of subdirs ${resultname} for ${result} failed: code ${status}" "${mail_content}"
-            nerrs=${nerrs}+1
+            (( nerrs++ ))
+            log_error "${TS}: 'chmod ugo+rx' of subdirs ${resultname} for ${result} failed: code ${status}"
             rm -rf ${incoming}.unpack
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed find/chmod"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
@@ -232,8 +226,8 @@ function do_work() {
         chmod -R ugo+r ${incoming}.unpack/${resultname}
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            log_error "${TS}: 'chmod -R ugo+r ${resultname}' for ${result} failed: code ${status}" "${mail_content}"
-            nerrs=${nerrs}+1
+            (( nerrs++ ))
+            log_error "${TS}: 'chmod -R ugo+r ${resultname}' for ${result} failed: code ${status}"
             rm -rf ${incoming}.unpack
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed chmod"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
@@ -244,9 +238,9 @@ function do_work() {
         mv ${incoming}.unpack/${resultname} ${INCOMING}/${hostname}/
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            log_error "${TS}: '${result}' does not contain ${resultname} directory at the top level; skipping" "${mail_content}"
+            (( nerrs++ ))
+            log_error "${TS}: '${result}' does not contain ${resultname} directory at the top level; skipping"
             rm -rf ${incoming}.unpack
-            nerrs=${nerrs}+1
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed mv"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
@@ -254,9 +248,9 @@ function do_work() {
         rmdir ${incoming}.unpack
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            log_error "${TS}: WARNING - '${result}' should only contain the ${resultname} directory at the top level, ignoring other content" "${mail_content}"
+            (( nwarn++ ))
+            log_error "${TS}: WARNING - '${result}' should only contain the ${resultname} directory at the top level, ignoring other content"
             rm -rf ${incoming}.unpack
-            nwarn=${nwarn}+1
         fi
 
         # Version 002 agents use the metadata log to store a prefix.
@@ -274,9 +268,9 @@ function do_work() {
         mkdir -p ${RESULTS}/${hostname}/${prefix}
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            log_error "${TS}: mkdir -p ${RESULTS}/${hostname}/${prefix} for ${result} failed: code ${status}" "${mail_content}"
+            (( nerrs++ ))
+            log_error "${TS}: mkdir -p ${RESULTS}/${hostname}/${prefix} for ${result} failed: code ${status}"
             rm -rf ${incoming}
-            nerrs=${nerrs}+1
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed mkdir results prefix"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
@@ -286,8 +280,8 @@ function do_work() {
         ln -s ${incoming} ${RESULTS}/${hostname}/${prefix}${resultname}
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            log_error "${TS}: ln -s ${incoming} ${RESULTS}/${hostname}/${prefix}${resultname} for ${result} failed: code ${status}" "${mail_content}"
-            nerrs=${nerrs}+1
+            (( nerrs++ ))
+            log_error "${TS}: ln -s ${incoming} ${RESULTS}/${hostname}/${prefix}${resultname} for ${result} failed: code ${status}"
             rm -rf ${incoming}
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed ln results prefix"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
@@ -299,10 +293,10 @@ function do_work() {
             mkdir -p ${USERS}/${user}/${hostname}/${prefix}
             status=${?}
             if [[ ${status} -ne 0 ]]; then
-                log_error "${TS}: mkdir -p ${USERS}/${user}/${hostname}/${prefix} for ${result} failed: code ${status}" "${mail_content}"
+                (( nerrs++ ))
+                log_error "${TS}: mkdir -p ${USERS}/${user}/${hostname}/${prefix} for ${result} failed: code ${status}"
                 rm -rf ${incoming}
                 rm -f ${RESULTS}/${hostname}/${prefix}${resultname}
-                nerrs=${nerrs}+1
                 move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed mkdir users prefix"
                 if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
                 continue
@@ -311,10 +305,9 @@ function do_work() {
             log_info "ln -s ${incoming} ${USERS}/${user}/${hostname}/${prefix}${resultname}"
             ln -s ${incoming} ${USERS}/${user}/${hostname}/${prefix}${resultname}
             status=${?}
-
             if [[ ${status} -ne 0 ]]; then
-                log_error "${TS}: code ${status}: ln -s ${incoming} ${USERS}/${user}/${hostname}/${prefix}${resultname}" "${mail_content}"
-                nerrs=${nerrs}+1
+                (( nerrs++ ))
+                log_error "${TS}: code ${status}: ln -s ${incoming} ${USERS}/${user}/${hostname}/${prefix}${resultname}"
                 rm -rf ${incoming}
                 rm -f ${RESULTS}/${hostname}/${prefix}${resultname}
                 move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed ln users prefix"
@@ -326,7 +319,7 @@ function do_work() {
         move_symlink ${hostname} ${resultname} ${linksrc} ${linkdest}
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            nerrs=${nerrs}+1
+            (( nerrs++ ))
             # Cleanup needed here but trap takes care of it.
             rm -rf ${incoming}
             rm -f ${RESULTS}/${hostname}/${prefix}${resultname}
@@ -339,28 +332,25 @@ function do_work() {
         # Create a link in each state dir - if any fail, we should delete them all? No, that
         # would be racy.
         let toterr=0
-        let totsuc=0
         for state in ${linkdestlist}; do
             ln -sf ${ARCHIVE}/${hostname}/${resultname}.tar.xz ${ARCHIVE}/${hostname}/${state}/${resultname}.tar.xz
             status=${?}
-            if [[ ${status} -eq 0 ]]; then
-                let totsuc+=1
-            else
-                log_error "${TS}: Cannot create ${ARCHIVE}/${hostname}/${resultname}.tar.xz link in state ${state}: code ${status}" "${mail_content}"
-                let toterr+=1
+            if [[ ${status} -ne 0 ]]; then
+                log_error "${TS}: Cannot create ${ARCHIVE}/${hostname}/${resultname}.tar.xz link in state ${state}: code ${status}"
+                (( toterr++ ))
             fi
         done
         if [[ ${toterr} -gt 0 ]]; then
             # Count N link creations as one error since it is for handling of a
             # single tar ball.
-            let nerrs+=1
+            (( nerrs++ ))
         fi
 
         let end_time=$(timestamp-seconds-since-epoch)
         let duration=end_time-start_time
         # log the success
         log_info "${TS}: ${hostname}/${resultname}: success - elapsed time (secs): ${duration} - size (bytes): ${size}"
-        ntb=${ntb}+1
+        (( ntbs++ ))
 
         # The job currently default to running once a minute, but once unpack
         # tar balls starts running, we want to re-check for new tar balls that
@@ -372,11 +362,11 @@ function do_work() {
     done
 }
 
-typeset -i ntb=0
+typeset -i ntbs=0
 typeset -i ntotal=0
 typeset -i nerrs=0
-typeset -i ndups=0
 typeset -i nwarn=0
+typeset -i nloops=0
 
 while true; do
     gen_work_list
@@ -385,19 +375,29 @@ while true; do
         break
     fi
     do_work ${max_seconds} < ${list}
+    (( nloops++ ))
 done
 
-log_info "${TS}: Processed ${ntb} tar balls"
+end_ts=$(timestamp)
+
+if [[ ${ntotal} -gt 0 ]]; then
+    (( nloops-- ))
+    summary_text="Processed ${ntotal} result tar balls, ${ntbs} successfully, with ${nloops} rechecks, ${nwarn} warnings, and ${nerrs} errors"
+    printf -v summary_inner_json \
+        "{\"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\"}" \
+        "end_ts" "${end_ts}" \
+        "errors" "${nerrs}" \
+        "nrechecks" "${nloops}" \
+        "ntbs" "${ntbs}" \
+        "ntotal" "${ntotal}" \
+        "nwarn" "${nwarn}" \
+        "prog" "${PROG}" \
+        "start_ts" "${start_ts}"
+    printf -v summary_json "{\"pbench\": {\"report\": {\"summary\": %s}}}" "${summary_inner_json}"
+
+    log_info "${TS}(${PBENCH_ENV}): ${summary_text} -- @cee:${summary_json}"
+fi
 
 log_finish
-
-subj="${PROG}.${TS}(${PBENCH_ENV}) - w/ ${nerrs} errors"
-cat << EOF > ${index_content}
-${subj}
-Processed ${ntotal} result tar balls, ${ntb} successfully, ${nwarn} warnings, ${nerrs} errors, and ${ndups} duplicates
-
-EOF
-cat ${mail_content} >> ${index_content}
-pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${index_content}
 
 exit 0
