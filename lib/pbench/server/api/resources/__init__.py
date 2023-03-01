@@ -650,15 +650,15 @@ def convert_boolean(value: Any, parameter: "Parameter") -> bool:
         ConversionError : input can't be validated or normalized
     """
     v = value
-    if isinstance(value, str):
+    if isinstance(v, str):
         if v.lower() in ("", "t", "true", "y", "yes"):
             v = True
         elif v.lower() in ("f", "false", "n", "no"):
             v = False
         else:
-            raise ConversionError(value, "boolean")
-    elif not isinstance(value, bool):
-        raise ConversionError(value, "boolean")
+            raise ConversionError(v, "boolean")
+    elif not isinstance(v, bool):
+        raise ConversionError(v, "boolean")
     return v
 
 
