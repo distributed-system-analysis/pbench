@@ -299,7 +299,27 @@ class TestParameter:
         x = Parameter("data", ParamType.STRING, required=False)
         assert not x.invalid(json)
 
-    @pytest.mark.parametrize("value,expected", (("", True), ("true", True)))
+    @pytest.mark.parametrize(
+        "value,expected",
+        (
+            ("", True),
+            ("true", True),
+            ("TRUE", True),
+            ("True", True),
+            ("t", True),
+            ("yes", True),
+            ("yES", True),
+            ("y", True),
+            (True, True),
+            ("false", False),
+            ("FALSE", False),
+            ("False", False),
+            ("f", False),
+            ("no", False),
+            ("nO", False),
+            ("n", False),
+        ),
+    )
     def test_boolean(self, value, expected):
         """Test boolean parameter handling"""
         x = Parameter("x", ParamType.BOOLEAN)

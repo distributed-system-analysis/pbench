@@ -9,8 +9,6 @@ import { showToast } from "./toastActions";
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
   try {
-    const username = getState().userAuth.loginDetails.username;
-
     if (alreadyRendered) {
       dispatch({ type: TYPES.LOADING });
     }
