@@ -74,13 +74,14 @@ podman run \
     /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html /srv/pbench/public_html/
 
 # Ensure everything _under_ ${SRV_PBENCH} is owned by the "pbench" user INSIDE
-# the container.
+# the container.  (We have to use bash in order to get the wildcard expansion
+# _inside_ the container.)
 podman run \
     --rm \
     --volume ${SRV_PBENCH}:/srv/pbench:Z \
-    --entrypoint chown \
+    --entrypoint bash \
     ${PB_SERVER_IMAGE} \
-    -R pbench:pbench "/srv/pbench/*"
+    -c "chown -R pbench:pbench /srv/pbench/*"
 
 #+
 # Start the services which the Pbench Server depends upon and then start the
