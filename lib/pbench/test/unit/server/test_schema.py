@@ -125,12 +125,8 @@ class TestParamType:
         self, client, monkeypatch, current_user_drb, ptype, kwd, value, expected
     ):
         user = User(
-            id=1,
+            id="1",
             username="drb",
-            password="password",
-            first_name="first_name",
-            last_name="last_name",
-            email="test@test.com",
         )
 
         def ok(username: str) -> User:
@@ -175,12 +171,8 @@ class TestParamType:
         client is unauthenticated even when the username exists.
         """
         user = User(
-            id=1,
             username="drb",
-            password="password",
-            first_name="first_name",
-            last_name="last_name",
-            email="test@test.com",
+            id="1",
         )
 
         def ok(username: str) -> User:

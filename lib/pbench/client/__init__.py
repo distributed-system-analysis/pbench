@@ -52,13 +52,9 @@ class API(Enum):
     DATASETS_SEARCH = "datasets_search"
     DATASETS_VALUES = "datasets_values"
     ENDPOINTS = "endpoints"
-    LOGIN = "login"
-    LOGOUT = "logout"
-    REGISTER = "register"
     SERVER_AUDIT = "server_audit"
     SERVER_CONFIGURATION = "server_configuration"
     UPLOAD = "upload"
-    USER = "user"
 
 
 class PbenchServerClient:
@@ -208,7 +204,7 @@ class PbenchServerClient:
         api: API,
         uri_params: Optional[JSONOBJECT] = None,
         *,
-        json: Optional[dict[str, str]] = None,
+        json: Optional[JSONOBJECT] = None,
         headers: Optional[dict[str, str]] = None,
         raise_error: bool = True,
         **kwargs,
@@ -243,7 +239,7 @@ class PbenchServerClient:
         api: API,
         uri_params: Optional[JSONOBJECT] = None,
         *,
-        json: Optional[dict[str, str]] = None,
+        json: Optional[JSONOBJECT] = None,
         headers: Optional[dict[str, str]] = None,
         raise_error: bool = True,
         **kwargs,
@@ -441,6 +437,16 @@ class PbenchServerClient:
             if "offset" in args or not next_url:
                 break
             json = self.get(uri=next_url).json()
+
+    def get_user(self, username: str, add_auth_header: bool = True) -> JSONOBJECT:
+        """ """
+        if add_auth_header:
+            return self.get(
+                api=API.USER, uri_params={"target_username": username}
+            ).json()
+        response = self.session.get(self._uri(API.USER, {"target_username": username}))
+        response.raise_for_status()
+        return response.json()
 
     def get_metadata(self, dataset_id: str, metadata: list[str]) -> JSONOBJECT:
         """Return requested metadata for a specified dataset.

@@ -222,9 +222,7 @@ class TestDatasetsUpdate:
             query_json["access"] = access
         if owner:
             query_json["owner"] = owner
-            assert_id = (
-                str(create_drb_user.id) if owner == "drb" else str(create_user.id)
-            )
+            assert_id = create_drb_user.id if owner == "drb" else create_user.id
 
         is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
         if not HeaderTypes.is_valid(build_auth_header["header_param"]):

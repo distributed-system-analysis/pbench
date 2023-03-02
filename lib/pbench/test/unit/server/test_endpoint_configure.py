@@ -55,13 +55,9 @@ class TestEndpointConfig:
                 "datasets_update": f"{uri}/datasets",
                 "datasets_values": f"{uri}/datasets/values",
                 "endpoints": f"{uri}/endpoints",
-                "login": f"{uri}/login",
-                "logout": f"{uri}/logout",
-                "register": f"{uri}/register",
                 "server_audit": f"{uri}/server/audit",
                 "server_configuration": f"{uri}/server/configuration",
                 "upload": f"{uri}/upload",
-                "user": f"{uri}/user",
             },
             "uri": {
                 "datasets_contents": {
@@ -119,9 +115,6 @@ class TestEndpointConfig:
                     },
                 },
                 "endpoints": {"template": f"{uri}/endpoints", "params": {}},
-                "login": {"template": f"{uri}/login", "params": {}},
-                "logout": {"template": f"{uri}/logout", "params": {}},
-                "register": {"template": f"{uri}/register", "params": {}},
                 "server_audit": {"template": f"{uri}/server/audit", "params": {}},
                 "server_configuration": {
                     "template": f"{uri}/server/configuration/{{key}}",
@@ -130,10 +123,6 @@ class TestEndpointConfig:
                 "upload": {
                     "template": f"{uri}/upload/{{filename}}",
                     "params": {"filename": {"type": "string"}},
-                },
-                "user": {
-                    "template": f"{uri}/user/{{target_username}}",
-                    "params": {"target_username": {"type": "string"}},
                 },
             },
         }

@@ -15,7 +15,6 @@ import uuid
 
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
-from email_validator import EmailNotValidError, ValidatedEmail
 from freezegun import freeze_time
 import jwt
 import pytest
@@ -180,7 +179,7 @@ def add_auth_connection_mock(server_config, rsa_keys):
 
 
 @pytest.fixture()
-def client(monkeypatch, server_config, fake_email_validator, add_auth_connection_mock):
+def client(monkeypatch, server_config, add_auth_connection_mock):
     """A test client for the app.
 
     Fixtures:
@@ -259,29 +258,7 @@ def db_session(request, server_config, make_logger):
 
 
 @pytest.fixture()
-def fake_email_validator(monkeypatch):
-    """
-    Set up a mock for the email validator so we control failure modes.
-    """
-
-    def fake_email(value: str, **_kwargs) -> ValidatedEmail:
-
-        # The email validation failure case needs to see an error
-        if "," in value:
-            raise EmailNotValidError("testing")
-
-        # Return just the part of ValidatedEmail we use
-        return ValidatedEmail(email=value)
-
-    # The SQLAlchemy model decorator binds the function oddly, so we have to
-    # reach into the module's namespace.
-    monkeypatch.setattr(
-        "pbench.server.database.models.users.validate_email", fake_email
-    )
-
-
-@pytest.fixture()
-def create_user(client, fake_email_validator) -> User:
+def create_user(client) -> User:
     """Construct a test user and add it to the database.
 
     Args:
@@ -289,19 +266,15 @@ def create_user(client, fake_email_validator) -> User:
         fake_email_validator : Allow fake email to be used
     """
     user = User(
-        email="test@example.com",
         id=TEST_USER_ID,
-        password=generic_password,
         username="test",
-        first_name="Test",
-        last_name="Account",
     )
     user.add()
     return user
 
 
 @pytest.fixture()
-def create_admin_user(client, fake_email_validator) -> User:
+def create_admin_user(client) -> User:
     """Construct an admin user and add it to the database.
 
     Args:
@@ -309,20 +282,16 @@ def create_admin_user(client, fake_email_validator) -> User:
         fake_email_validator : Allow fake email to be used
     """
     user = User(
-        email=admin_email,
         id=ADMIN_USER_ID,
-        password=generic_password,
         username=admin_username,
-        first_name="Admin",
-        last_name="Account",
-        role="ADMIN",
+        roles=["ADMIN"],
     )
     user.add()
     return user
 
 
 @pytest.fixture()
-def create_drb_user(client, fake_email_validator):
+def create_drb_user(client):
     """Construct the "drb" user and add it to the database.
 
     Args:
@@ -330,12 +299,8 @@ def create_drb_user(client, fake_email_validator):
         fake_email_validator : Allow fake email to be used
     """
     drb = User(
-        email="drb@example.com",
         id=DRB_USER_ID,
-        password=generic_password,
         username="drb",
-        first_name="Authorized",
-        last_name="User",
     )
     drb.add()
     return drb
@@ -398,14 +363,14 @@ def attach_dataset(create_drb_user, create_user):
     # for one Dataset and letting it default for the other.
     with freeze_time("1970-01-01 00:42:00"):
         Dataset(
-            owner_id=str(create_drb_user.id),
+            owner=create_drb_user,
             uploaded=datetime.datetime(2022, 1, 1),
             name="drb",
             access="private",
             resource_id="random_md5_string1",
         ).add()
         Dataset(
-            owner_id=str(create_user.id),
+            owner=create_user,
             name="test",
             access="private",
             resource_id="random_md5_string2",
@@ -447,38 +412,38 @@ def more_datasets(
     """
     with freeze_time("1978-06-26 08:00:00"):
         Dataset(
-            owner_id=str(create_drb_user.id),
+            owner=create_drb_user,
             name="fio_1",
             access="public",
             resource_id="random_md5_string3",
         ).add()
         Dataset(
-            owner_id=str(create_user.id),
+            owner=create_user,
             uploaded=datetime.datetime(2022, 1, 1),
             name="fio_2",
             access="public",
             resource_id="random_md5_string4",
         ).add()
         Dataset(
-            owner_id=str(create_user.id),
+            owner=create_user,
             name="uperf_1",
             access="private",
             resource_id="random_md5_string5",
         ).add()
         Dataset(
-            owner_id=str(create_user.id),
+            owner=create_user,
             name="uperf_2",
             access="private",
             resource_id="random_md5_string6",
         ).add()
         Dataset(
-            owner_id=str(create_user.id),
+            owner=create_user,
             name="uperf_3",
             access="private",
             resource_id="random_md5_string7",
         ).add()
         Dataset(
-            owner_id=str(create_user.id),
+            owner=create_user,
             name="uperf_4",
             access="private",
             resource_id="random_md5_string8",
@@ -930,11 +895,11 @@ def generate_token(
         "scope": "openid profile email",
         "sid": "1988612e-774d-43b8-8d4a-bbc05ee55edb",
         "email_verified": True,
-        "name": user.first_name + " " + user.last_name,
+        "name": "first_name last_name",
         "preferred_username": username,
-        "given_name": user.first_name,
-        "family_name": user.last_name,
-        "email": user.email,
+        "given_name": "first_name",
+        "family_name": "last_name",
+        "email": "dummy@example.com",
     }
     if pbench_client_roles:
         payload["resource_access"].update({client_id: {"roles": pbench_client_roles}})
