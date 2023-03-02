@@ -182,6 +182,10 @@ class TestDatasetsList:
             ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
             ("drb", {"mine": "t"}, ["drb", "fio_1"]),
             ("drb", {"mine": "f"}, ["fio_2"]),
+            ("drb", {"mine": "t", "access": "private"}, ["drb"]),
+            ("drb", {"mine": "t", "access": "public"}, ["fio_1"]),
+            ("drb", {"mine": "f", "access": "private"}, []),
+            ("drb", {"mine": "f", "access": "public"}, ["fio_2"]),
             (
                 "test_admin",
                 {},
