@@ -850,12 +850,15 @@ class ApiAuthorizationType(Enum):
         USER_ACCESS:    The client is authorized against the USER and ACCESS
                         type parameters, which must each appear only once in
                         the various schema for the HTTP method used.
+        USER:           The client is authorized against the USER
+                        type parameters
         ADMIN:          The client's authenticated user has administrator role.
     """
 
     NONE = auto()
     DATASET = auto()
     USER_ACCESS = auto()
+    USER = auto()
     ADMIN = auto()
 
 
@@ -1122,6 +1125,13 @@ class ApiSchema:
                 type=self.authorization,
                 user=user.value,
                 access=access.value,
+                role=self.operation,
+            )
+        elif self.authorization == ApiAuthorizationType.USER:
+            user = self.get_param_by_type(ParamType.USER, params)
+            return ApiAuthorization(
+                type=self.authorization,
+                user=user.value,
                 role=self.operation,
             )
         elif self.authorization == ApiAuthorizationType.ADMIN:

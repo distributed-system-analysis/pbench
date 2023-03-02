@@ -69,6 +69,7 @@ class User(Database.Base):
         "Metadata", back_populates="user", cascade="all, delete-orphan"
     )
     _roles = Column(String(255), unique=False, nullable=True)
+    api_key = relationship("APIKey", backref="user")
 
     @property
     def roles(self):
@@ -155,7 +156,12 @@ class User(Database.Base):
         """Update the current user object with given keyword arguments."""
         try:
             for key, value in kwargs.items():
-                setattr(self, key, value)
+                if key == "api_key":
+                    # Insert the api_key
+                    self.api_key.append(value)
+                    Database.db_session.add(value)
+                else:
+                    setattr(self, key, value)
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()

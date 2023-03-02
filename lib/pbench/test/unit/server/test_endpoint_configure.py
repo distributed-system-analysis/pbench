@@ -89,6 +89,7 @@ class TestEndpointConfig:
                     },
                 },
                 "endpoints": {"template": f"{uri}/endpoints", "params": {}},
+                "generate_key": {"template": f"{uri}/generate_key", "params": {}},
                 "server_audit": {"template": f"{uri}/server/audit", "params": {}},
                 "server_settings": {
                     "template": f"{uri}/server/settings/{{key}}",

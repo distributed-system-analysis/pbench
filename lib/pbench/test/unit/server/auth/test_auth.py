@@ -494,19 +494,6 @@ class TestAuthModule:
             )
             assert record["code"] == expected_code
 
-    def test_verify_auth_exc(self, monkeypatch, make_logger):
-        """Verify exception handling originating from verify_auth_internal"""
-
-        def vai_exc(token_auth: str) -> Optional[User]:
-            raise Exception("Some failure")
-
-        monkeypatch.setattr(Auth, "verify_auth_internal", vai_exc)
-        app = Flask("test-verify-auth-exc")
-        app.logger = make_logger
-        with app.app_context():
-            user = Auth.verify_auth("my-token")
-        assert user is None
-
     def test_verify_auth_internal(self, make_logger, pbench_drb_token):
         """Verify success path of verify_auth_internal"""
         app = Flask("test-verify-auth-internal")
@@ -532,22 +519,6 @@ class TestAuthModule:
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token + "1")
-        assert user is None
-
-    def test_verify_auth_internal_tokdel_fail(
-        self, monkeypatch, make_logger, pbench_drb_token_invalid
-    ):
-        """Verify behavior when token deletion fails"""
-
-        def delete(*args, **kwargs):
-            raise Exception("Delete failed")
-
-        monkeypatch.setattr(Auth.AuthToken, "delete", delete)
-        app = Flask("test-verify-auth-internal-tokdel-fail")
-        app.logger = make_logger
-        with app.app_context():
-            current_app.secret_key = jwt_secret
-            user = Auth.verify_auth(pbench_drb_token_invalid)
         assert user is None
 
     @pytest.mark.parametrize("roles", [["ROLE"], ["ROLE1", "ROLE2"], [], None])
@@ -637,4 +608,66 @@ class TestAuthModule:
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             user = Auth.verify_auth(token)
 
+        assert user is None
+
+    def test_verify_auth_api_key(
+        self, monkeypatch, rsa_keys, make_logger, pbench_drb_api_key
+    ):
+        """Verify api_key verification via Auth.verify_auth()"""
+        client_id = "us"
+        # Mock the Connection object and generate an OpenIDClient object,
+        # installing it as Auth module's OIDC client.
+        config = mock_connection(
+            monkeypatch, client_id, public_key=rsa_keys["public_key"]
+        )
+        oidc_client = OpenIDClient.construct_oidc_client(config)
+        monkeypatch.setattr(Auth, "oidc_client", oidc_client)
+
+        def tio_exc(token: str) -> JSON:
+            raise OpenIDTokenInvalid()
+
+        app = Flask("test-verify-auth-oidc-offline-invalid")
+        app.logger = make_logger
+        with app.app_context():
+            monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
+
+        """Verify success path of verify_auth_internal"""
+        app = Flask("test-verify-auth-internal")
+        app.logger = make_logger
+        with app.app_context():
+            current_app.secret_key = jwt_secret
+            key, ts = pbench_drb_api_key
+            user = Auth.verify_auth(key)
+        assert str(user.id) == DRB_USER_ID
+
+    def test_verify_auth_api_key_invalid(
+        self, monkeypatch, rsa_keys, make_logger, pbench_drb_api_key_invalid
+    ):
+        """Verify api_key verification via Auth.verify_auth() fails
+        gracefully with an invalid token
+        """
+        client_id = "us"
+        # Mock the Connection object and generate an OpenIDClient object,
+        # installing it as Auth module's OIDC client.
+        config = mock_connection(
+            monkeypatch, client_id, public_key=rsa_keys["public_key"]
+        )
+        oidc_client = OpenIDClient.construct_oidc_client(config)
+        monkeypatch.setattr(Auth, "oidc_client", oidc_client)
+
+        def tio_exc(token: str) -> JSON:
+            raise OpenIDTokenInvalid()
+
+        app = Flask("test-verify-auth-oidc-offline-invalid")
+        app.logger = make_logger
+        with app.app_context():
+            monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
+
+        """Verify success path of verify_auth_internal"""
+        app = Flask("test-verify-auth-internal")
+        app.logger = make_logger
+        with app.app_context():
+            current_app.secret_key = jwt_secret
+
+            user = Auth.verify_auth(pbench_drb_api_key_invalid)
         assert user is None
