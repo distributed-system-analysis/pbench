@@ -16,6 +16,7 @@ from pbench.server.database.models.server_settings import (
     OPTION_DATASET_LIFETIME,
     ServerSetting,
 )
+from pbench.server.database.models.users import User
 
 
 class DatasetError(Exception):
@@ -277,6 +278,7 @@ class Dataset(Database.Base):
             metadatas: A sequence of Metadata objects linked to this dataset
             operations: A sequence of component Operation objects linked to
                     this dataset
+            users: Owner's user table entry linked in this dataset
     """
 
     __tablename__ = "datasets"
@@ -302,8 +304,11 @@ class Dataset(Database.Base):
     # Dataset name
     name = Column(String(1024), unique=False, nullable=False)
 
-    # OIDC UUID of the owning user
-    owner_id = Column(String(255), nullable=False)
+    # ID of the owning user
+    owner_id = Column(String, ForeignKey("users.id"), nullable=False)
+
+    # Indirect reference to the owning User record
+    owner = relationship("User")
 
     # This is the MD5 hash of the dataset tarball, which we use as the unique
     # dataset resource ID throughout the Pbench server.
@@ -420,7 +425,7 @@ class Dataset(Database.Base):
         return {
             "access": self.access,
             "name": self.name,
-            "owner_id": self.owner_id,
+            "owner": self.owner.username,
             "uploaded": self.uploaded.isoformat(),
             "metalog": metadata_log,
             "operations": {
@@ -435,7 +440,7 @@ class Dataset(Database.Base):
         Returns:
             string: Representation of the dataset
         """
-        return f"({self.owner_id})|{self.name}"
+        return f"({self.owner.username})|{self.name}"
 
     def add(self):
         """Add the Dataset object to the database."""
@@ -676,9 +681,10 @@ class Metadata(Database.Base):
     key = Column(String(255), unique=False, nullable=False, index=True)
     value = Column(JSON, unique=False, nullable=True)
     dataset_ref = Column(Integer, ForeignKey("datasets.id"), nullable=False)
+    user_ref = Column(String, ForeignKey("users.id"), nullable=True)
 
     dataset = relationship("Dataset", back_populates="metadatas")
-    user_id = Column(String(255), nullable=True)
+    user = relationship("User", back_populates="dataset_metadata", single_parent=True)
 
     @validates("key")
     def validate_key(self, _, value: Any) -> str:
@@ -777,7 +783,7 @@ class Metadata(Database.Base):
 
     @staticmethod
     def getvalue(
-        dataset: Dataset, key: str, user_id: Optional[str] = None
+        dataset: Dataset, key: str, user: Optional[User] = None
     ) -> Optional[JSON]:
         """Returns the value of the specified metadata key.
 
@@ -838,7 +844,7 @@ class Metadata(Database.Base):
             value = dataset.as_dict()
         else:
             try:
-                meta = Metadata.get(dataset, native_key, user_id)
+                meta = Metadata.get(dataset, native_key, user)
             except MetadataNotFound:
                 return None
             value = meta.value
@@ -933,7 +939,7 @@ class Metadata(Database.Base):
         return v
 
     @staticmethod
-    def setvalue(dataset: Dataset, key: str, value: Any, user_id: Optional[str] = None):
+    def setvalue(dataset: Dataset, key: str, value: Any, user: Optional[User] = None):
         """Set a metadata value.
 
         This method supports hierarchical dotted paths like "dashboard.seen"
@@ -972,7 +978,7 @@ class Metadata(Database.Base):
             return
 
         try:
-            meta = Metadata.get(dataset, native_key, user_id)
+            meta = Metadata.get(dataset, native_key, user)
 
             # SQLAlchemy determines whether to perform an `update` based on the
             # Python object reference. We make a copy here to ensure that it
@@ -1010,17 +1016,17 @@ class Metadata(Database.Base):
             meta.update()
         else:
             Metadata.create(
-                dataset=dataset, key=native_key, value=meta_value, user_id=user_id
+                dataset=dataset, key=native_key, value=meta_value, user=user
             )
 
     @staticmethod
-    def _query(dataset: Dataset, key: str, user_id: Optional[str]) -> Query:
+    def _query(dataset: Dataset, key: str, user: Optional[User]) -> Query:
         return Database.db_session.query(Metadata).filter_by(
-            dataset=dataset, key=key, user_id=user_id
+            dataset=dataset, key=key, user=user
         )
 
     @staticmethod
-    def get(dataset: Dataset, key: str, user_id: Optional[str] = None) -> "Metadata":
+    def get(dataset: Dataset, key: str, user: Optional[User] = None) -> "Metadata":
         """Fetch a Metadata (row) from the database by key name.
 
         Args:
@@ -1035,7 +1041,7 @@ class Metadata(Database.Base):
             The Metadata model object
         """
         try:
-            meta = __class__._query(dataset, key, user_id).first()
+            meta = __class__._query(dataset, key, user).first()
         except SQLAlchemyError as e:
             Metadata.logger.error("Can't get {}>>{} from DB: {}", dataset, key, str(e))
             raise MetadataSqlError("getting", dataset, key) from e
@@ -1045,7 +1051,7 @@ class Metadata(Database.Base):
             return meta
 
     @staticmethod
-    def remove(dataset: Dataset, key: str, user_id: Optional[str] = None):
+    def remove(dataset: Dataset, key: str, user: Optional[User] = None):
         """Remove a metadata key from the dataset.
 
         Args:
@@ -1056,7 +1062,7 @@ class Metadata(Database.Base):
             DatasetSqlError : Something went wrong
         """
         try:
-            __class__._query(dataset, key, user_id).delete()
+            __class__._query(dataset, key, user).delete()
             Database.db_session.commit()
         except SQLAlchemyError as e:
             Metadata.logger.error(
@@ -1073,7 +1079,7 @@ class Metadata(Database.Base):
             raise DatasetBadParameterType(dataset, Dataset)
 
         try:
-            Metadata.get(dataset, self.key, self.user_id)
+            Metadata.get(dataset, self.key, self.user)
         except MetadataNotFound:
             pass
         else:

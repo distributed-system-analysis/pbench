@@ -1,18 +1,61 @@
-import datetime
 import enum
 from typing import Optional
 
-from flask_bcrypt import generate_password_hash
-from sqlalchemy import Column, DateTime, Enum, Integer, LargeBinary, String
-from sqlalchemy.orm import relationship, validates
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import Column, String
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import relationship
 
+from pbench.server import JSONOBJECT
 from pbench.server.database.database import Database
-from pbench.server.database.models.auth_tokens import AuthToken
 
 
 class Roles(enum.Enum):
     ADMIN = 1
+
+
+class UserError(Exception):
+    """A base class for errors reported by the user class.
+
+    It is never raised directly, but may be used in "except" clauses.
+    """
+
+
+class UserSqlError(UserError):
+    """SQLAlchemy errors reported through User operations.
+
+    The exception will identify the operation being performed and the config
+    key; the cause will specify the original SQLAlchemy exception.
+    """
+
+    def __init__(self, operation: str, params: JSONOBJECT, cause: str):
+        self.operation = operation
+        self.params = params
+        self.cause = cause
+
+    def __str__(self) -> str:
+        return f"Error {self.operation} {self.params!r}: {self.cause}"
+
+
+class UserDuplicate(UserError):
+    """Attempt to commit a duplicate unique value."""
+
+    def __init__(self, user: "User", cause: str):
+        self.user = user
+        self.cause = cause
+
+    def __str__(self) -> str:
+        return f"Duplicate user setting in {self.user.get_json()}: {self.cause}"
+
+
+class UserNullKey(UserError):
+    """Attempt to commit a User row with an empty required column."""
+
+    def __init__(self, user: "User", cause: str):
+        self.user = user
+        self.cause = cause
+
+    def __str__(self) -> str:
+        return f"Missing required key in {self.user.get_json()}: {self.cause}"
 
 
 class User(Database.Base):
@@ -20,39 +63,61 @@ class User(Database.Base):
 
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(String(255), primary_key=True)
     username = Column(String(255), unique=True, nullable=False)
-    first_name = Column(String(255), unique=False, nullable=False)
-    last_name = Column(String(255), unique=False, nullable=False)
-    password = Column(LargeBinary(128), nullable=False)
-    registered_on = Column(DateTime, nullable=False, default=datetime.datetime.now())
-    email = Column(String(255), unique=True, nullable=False)
-    role = Column(Enum(Roles), unique=False, nullable=True)
-    auth_tokens = relationship("AuthToken", back_populates="user")
+    dataset_metadata = relationship(
+        "Metadata", back_populates="user", cascade="all, delete-orphan"
+    )
+    _roles = Column(String(255), unique=False, nullable=True)
+
+    @property
+    def roles(self):
+        if self._roles:
+            return self._roles.split(";")
+        else:
+            return []
+
+    @roles.setter
+    def roles(self, value):
+        try:
+            self._roles = ";".join(value)
+        except Exception as e:
+            raise UserSqlError("Setting role", value, str(e)) from e
 
     def __str__(self):
         return f"User, id: {self.id}, username: {self.username}"
 
-    def get_json(self):
-        return {
-            "username": self.username,
-            "email": self.email,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
-            "registered_on": self.registered_on,
-        }
+    def get_json(self) -> JSONOBJECT:
+        """Return a JSON object for this User object.
 
-    @staticmethod
-    def get_protected() -> list[str]:
-        """Return protected column names that are not allowed for external updates.
-
-        `auth_tokens` is already protected from external updates via PUT api since
-        it is of type sqlalchemy relationship ORM package and not a sqlalchemy column.
+        Returns:
+            A JSONOBJECT with all the object fields mapped to appropriate names.
         """
-        return ["registered_on", "id"]
+        return {"username": self.username, "id": self.id, "roles": self.roles}
+
+    def _decode(self, exception: IntegrityError) -> Exception:
+        """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
+        or NOT NULL constraint violation.
+
+        Return the original exception if it doesn't match.
+
+        Args:
+            exception : An IntegrityError to decode
+
+        Returns:
+            a more specific exception, or the original if decoding fails
+        """
+        # Postgres engine returns (code, message) but sqlite3 engine only
+        # returns (message); so always take the last element.
+        cause = exception.orig.args[-1]
+        if "UNIQUE constraint" in cause:
+            return UserDuplicate(self, cause)
+        elif "NOT NULL constraint" in cause:
+            return UserNullKey(self, cause)
+        return exception
 
     @staticmethod
-    def query(id=None, username=None, email=None) -> Optional["User"]:
+    def query(id: str = None, username: str = None) -> Optional["User"]:
         """Find a user using one of the provided arguments.
 
         The first argument which is not None is used in the query.  The order
@@ -61,12 +126,11 @@ class User(Database.Base):
         Returns:
             A User object if a user is found, None otherwise.
         """
+        dbsq = Database.db_session.query(User)
         if id:
-            user = Database.db_session.query(User).filter_by(id=id).first()
+            user = dbsq.filter_by(id=id).first()
         elif username:
-            user = Database.db_session.query(User).filter_by(username=username).first()
-        elif email:
-            user = Database.db_session.query(User).filter_by(email=email).first()
+            user = dbsq.filter_by(username=username).first()
         else:
             user = None
         return user
@@ -80,34 +144,11 @@ class User(Database.Base):
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
-        except Exception:
+        except Exception as e:
             Database.db_session.rollback()
-            raise
-
-    @validates("role")
-    def evaluate_role(self, key: str, value: str) -> Optional[str]:
-        try:
-            return Roles[value.upper()]
-        except KeyError:
-            return None
-
-    @validates("password")
-    def evaluate_password(self, key: str, value: str) -> str:
-        return generate_password_hash(value)
-
-    def add_token(self, auth_token: AuthToken):
-        """Add the given token to the database
-
-        Args:
-            token : An AuthToken object add for this user
-        """
-        try:
-            self.auth_tokens.append(auth_token)
-            Database.db_session.add(auth_token)
-            Database.db_session.commit()
-        except Exception:
-            Database.db_session.rollback()
-            raise
+            if isinstance(e, IntegrityError):
+                raise self._decode(e) from e
+            raise UserSqlError("adding", self.get_json(), str(e)) from e
 
     def update(self, **kwargs):
         """Update the current user object with given keyword arguments."""
@@ -115,26 +156,20 @@ class User(Database.Base):
             for key, value in kwargs.items():
                 setattr(self, key, value)
             Database.db_session.commit()
-        except Exception:
+        except Exception as e:
             Database.db_session.rollback()
-            raise
+            if isinstance(e, IntegrityError):
+                raise self._decode(e) from e
+            raise UserSqlError("Updating", self.get_json(), str(e)) from e
 
-    @staticmethod
-    def delete(username: str):
-        """Delete the user with a given username, except admin.
-
-        Args:
-            username : the username to delete
-        """
-        user_query = Database.db_session.query(User).filter_by(username=username)
-        if user_query.count() == 0:
-            raise NoResultFound(f"User {username} does not exist")
+    def delete(self):
+        """Delete the user with a given username, except admin."""
         try:
-            user_query.delete()
+            Database.db_session.delete(self)
             Database.db_session.commit()
-        except Exception:
+        except Exception as e:
             Database.db_session.rollback()
-            raise
+            raise UserSqlError("deleting", self.get_json(), str(e)) from e
 
     def is_admin(self) -> bool:
         """This method checks whether the given user has an admin role.
@@ -146,14 +181,4 @@ class User(Database.Base):
         Returns:
             True if the user's role is ADMIN, False otherwise.
         """
-        return self.role is Roles.ADMIN
-
-    @staticmethod
-    def is_admin_username(username: str) -> bool:
-        """Determine if the given user name is an admin user.
-
-        Returns:
-            True if the user is an admin; False otherwise.
-        """
-        admins = ["admin"]
-        return username in admins
+        return Roles.ADMIN.name in self.roles

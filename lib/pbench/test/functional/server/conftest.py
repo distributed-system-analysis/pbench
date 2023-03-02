@@ -13,7 +13,7 @@ FIRST_NAME: str = "Test"
 LAST_NAME: str = "User"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def server_client():
     """
     Used by Pbench Server functional tests to connect to a server.
@@ -31,7 +31,7 @@ def server_client():
     return client
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def oidc_admin(server_client: PbenchServerClient):
     """
     Used by Pbench Server functional tests to get admin access
@@ -40,7 +40,7 @@ def oidc_admin(server_client: PbenchServerClient):
     return OIDCAdmin(server_url=server_client.endpoints["openid"]["server"])
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def register_test_user(oidc_admin: OIDCAdmin):
     """Create a test user for functional tests."""
     response = oidc_admin.create_new_user(

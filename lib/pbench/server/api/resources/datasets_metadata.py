@@ -23,6 +23,7 @@ from pbench.server.database.models.datasets import (
     Metadata,
     MetadataBadValue,
     MetadataError,
+    User,
 )
 
 
