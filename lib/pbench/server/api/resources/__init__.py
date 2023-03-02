@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from enum import auto, Enum
 from http import HTTPStatus
@@ -788,26 +789,21 @@ class ApiMethod(Enum):
     PUT = auto()
 
 
+@dataclass
 class ApiAttributes:
-    def __init__(
-        self,
-        action: str,
-        operation_name: OperationName,
-        require_stable: bool,
-        require_map: bool,
-    ):
-        """Initialize an ApiAttributes object with its attributes.
-        Args:
-            action: bulk Elasticsearch action (delete, create, update)
-            operation_name: CRUD operation name
-            require_stable: if True, fail if dataset state is mutating (-ing state)
-            require_map: if True, fail if the dataset has no index map
-        """
+    """Initialize an ApiAttributes object with its attributes.
 
-        self.action = action
-        self.operation_name = operation_name
-        self.require_stable = require_stable
-        self.require_map = require_map
+    Args:
+        action: bulk Elasticsearch action (delete, create, update)
+        operation_name: Sync operation
+        require_stable: if True, fail if dataset state is mutating (-ing state)
+        require_map: if True, fail if the dataset has no index map
+    """
+
+    action: str
+    operation_name: OperationName
+    require_stable: bool
+    require_map: bool
 
 
 class ApiAuthorizationType(Enum):

@@ -76,7 +76,6 @@ class Datasets(ElasticBulkBase):
                     require_map=False,
                 ),
             ),
-            action="modify",
         )
 
     def generate_actions(

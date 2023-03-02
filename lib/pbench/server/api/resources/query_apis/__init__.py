@@ -512,9 +512,6 @@ class ElasticBulkBase(ApiBase):
         self,
         config: PbenchServerConfig,
         *schemas: ApiSchema,
-        action: Optional[str] = None,
-        require_stable: bool = False,
-        require_map: bool = False,
     ):
         """
         Base class constructor.
@@ -538,9 +535,6 @@ class ElasticBulkBase(ApiBase):
                     body_schema=Schema(Parameter("start", ParamType.DATE)),
                     uri_schema=Schema(Parameter("dataset", ParamType.DATASET))
                 )
-            action: bulk Elasticsearch action (delete, create, update)
-            require_stable: if True, fail if dataset state is mutating (-ing state)
-            require_map: if True, fail if the dataset has no index map
         """
         super().__init__(config, *schemas)
 
@@ -548,9 +542,6 @@ class ElasticBulkBase(ApiBase):
 
         self.elastic_uri = config.get("Indexing", "uri")
         self.config = config
-        self.action = action
-        self.require_stable = require_stable
-        self.require_map = require_map
 
         # Look for a parameter of type DATASET. It may be defined in any of the
         # three schemas (uri, query parameter, or request body), and we don't
@@ -622,7 +613,9 @@ class ElasticBulkBase(ApiBase):
         """
         pass
 
-    def _analyze_bulk(self, results: Iterator[tuple[bool, Any]]) -> BulkResults:
+    def _analyze_bulk(
+        self, results: Iterator[tuple[bool, Any]], context: ApiContext
+    ) -> BulkResults:
         """Elasticsearch returns one response result per action. Each is a
         JSON document where the first-level key is the action name
         ("update", "delete", etc.) and the value of that key includes the
@@ -660,7 +653,7 @@ class ElasticBulkBase(ApiBase):
 
         for ok, response in results:
             count += 1
-            u = response[self.action]
+            u = response[context["attributes"].action]
             status = "ok"
             if "error" in u:
                 e = u["error"]
@@ -714,7 +707,7 @@ class ElasticBulkBase(ApiBase):
             Response to return to client
         """
 
-        return self.common_ES(params, request, context)
+        return self._bulk_dispatch(params, request, context)
 
     def _delete(
         self, params: ApiParams, request: Request, context: ApiContext
@@ -738,9 +731,9 @@ class ElasticBulkBase(ApiBase):
         Returns:
             Response to return to client
         """
-        return self.common_ES(params, request, context)
+        return self._bulk_dispatch(params, request, context)
 
-    def common_ES(
+    def _bulk_dispatch(
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
         """
@@ -754,14 +747,6 @@ class ElasticBulkBase(ApiBase):
         Returns:
             Response to return to client
         """
-
-        if context["attributes"]:
-            if context["attributes"].require_stable:
-                self.require_stable = context["attributes"].require_stable
-            if context["attributes"].require_map:
-                self.require_map = context["attributes"].require_map
-            if context["attributes"].action:
-                self.action = context["attributes"].action
 
         # Our schema requires a valid dataset and uses it to authorize access;
         # therefore the unconditional dereference is assumed safe.
@@ -778,7 +763,7 @@ class ElasticBulkBase(ApiBase):
             )
             .first()
         )
-        if self.require_stable and operation:
+        if context["attributes"].require_stable and operation:
             raise APIAbort(
                 HTTPStatus.CONFLICT,
                 f"Dataset is working on {operation.name.name}",
@@ -802,14 +787,14 @@ class ElasticBulkBase(ApiBase):
                     raise_on_exception=False,
                     raise_on_error=False,
                 )
-                report = self._analyze_bulk(results)
+                report = self._analyze_bulk(results, context)
             except UnauthorizedAdminAccess as e:
                 raise APIAbort(e.http_status, str(e))
             except MissingParameters as e:
                 raise APIAbort(e.http_status, str(e))
             except Exception as e:
                 raise APIInternalError("Unexpected backend error") from e
-        elif self.require_map:
+        elif context["attributes"].require_map:
             raise APIAbort(
                 HTTPStatus.CONFLICT,
                 f"Operation unavailable: dataset {dataset.resource_id} is not indexed.",
@@ -845,8 +830,10 @@ class ElasticBulkBase(ApiBase):
         if report.count and report.errors == report.count:
             auditing["status"] = AuditStatus.WARNING
             auditing["reason"] = AuditReason.INTERNAL
-            attributes["message"] = f"Unable to {self.action} some indexed documents"
+            attributes[
+                "message"
+            ] = f"Unable to {context['attributes'].action} some indexed documents"
             raise APIInternalError(
-                f"Failed to {self.action} any of {report.count} Elasticsearch documents: {json.dumps(report.report)}"
+                f"Failed to {context['attributes'].action} any of {report.count} Elasticsearch documents: {json.dumps(report.report)}"
             )
         return jsonify(summary)
