@@ -38,8 +38,9 @@ PB_SERVER_IMAGE_PULL_POLICY=${PB_SERVER_IMAGE_PULL_POLICY:-"newer"}
 PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"pbench-server"}
 
 # Locations on the host
-PB_DASHBOARD_DIR=${PB_DASHBOARD_DIR:-${GITTOP:=$(git rev-parse --show-toplevel)}/dashboard/build}
-NGINX_FAVICON=${NGINX_FAVICON:-${GITTOP:=$(git rev-parse --show-toplevel)}/server/lib/config/color-square.ico}
+GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
+PB_DASHBOARD_DIR=${PB_DASHBOARD_DIR:-${GITTOP}/dashboard/build}
+NGINX_FAVICON=${NGINX_FAVICON:-${GITTOP}/dashboard/src/assets/logo/color-square.16x16.ico}
 PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${HOME}/Deploy}
 SRV_PBENCH=${SRV_PBENCH:-/srv/pbench}
 
@@ -47,26 +48,36 @@ SRV_PBENCH=${SRV_PBENCH:-/srv/pbench}
 # Deployment
 #-
 
-# Update the dashboard code, removing any existing code and copying in fresh.
+# Update the Dashboard code, removing any existing code and copying in fresh.
 # We expect that the host dashboard directory already exists and contains a
 # build of the Pbench Dashboard application; however, if it is missing, we
-# deploy the Pbench Server without a Dashboard deployment.
+# deploy the Pbench Server without a Dashboard deployment.  If we do update the
+# Dashboard, then also update the Nginx favicon for it.
 podman unshare rm -r ${SRV_PBENCH}/public_html/dashboard
 if [[ -d "${PB_DASHBOARD_DIR}" ]]; then
-    podman unshare cp -r ${PB_DASHBOARD_DIR} ${SRV_PBENCH}/public_html/dashboard
+    podman run \
+        --rm \
+        --volume ${PB_DASHBOARD_DIR}:/dashboard:Z \
+        --volume ${SRV_PBENCH}:/srv/pbench:Z \
+        --entrypoint cp \
+        ${PB_SERVER_IMAGE} \
+        -r /dashboard /srv/pbench/public_html/dashboard
+    podman run \
+        --rm \
+        --volume ${NGINX_FAVICON}:/favicon:Z \
+        --volume ${SRV_PBENCH}:/srv/pbench:Z \
+        --entrypoint cp \
+        ${PB_SERVER_IMAGE} \
+        /favicon /srv/pbench/public_html/favicon.ico
 else
     echo "Warning:  deploying the Pbench Server without a Dashboard" >&2
-    podman unshare mkdir -m 0755 -p ${SRV_PBENCH}/public_html/dashboard
+    podman run \
+        --rm \
+        --volume ${SRV_PBENCH}:/srv/pbench:Z \
+        --entrypoint mkdir \
+        ${PB_SERVER_IMAGE} \
+        -m 0755 -p /srv/pbench/public_html/dashboard
 fi
-
-# Update the Nginx favicon and provide some static fallback pages
-podman unshare cp ${NGINX_FAVICON} ${SRV_PBENCH}/public_html/favicon.ico
-podman run --rm --volume ${SRV_PBENCH}:/srv/pbench:Z --entrypoint cp ${PB_SERVER_IMAGE} \
-    /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html /srv/pbench/public_html/
-
-# Ensure ${SRV_PBENCH} is owned by the "pbench" user INSIDE the container.
-podman run --rm --volume ${SRV_PBENCH}:/srv/pbench:Z --entrypoint chown ${PB_SERVER_IMAGE} \
-    -R pbench:pbench /srv/pbench
 
 # Run the Pbench Server.
 podman run \

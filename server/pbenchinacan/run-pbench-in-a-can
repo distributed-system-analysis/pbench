@@ -39,53 +39,9 @@ TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
 export SRV_PBENCH=${SRV_PBENCH:-${TMP_DIR}/srv/pbench}
 export PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
 
-# This function removes host files/directories which are owned by the pbench
-# user inside the can and therefore may not be accessible outside the can.
-#
-# Usage:
-#   remove_from_can <outside_dir> <inside_dir> <file/dir-to-remove>...
-#
-# Arguments:
-#   <outside_dir> - absolute path in the host file system to the directory
-#                   containing the to-be-removed files/directories
-#   <inside_dir>  - absolute path inside the container to the directory
-#                   containing the to-be-removed files/directories
-#   <file/dir>    - relative path(s) from the specified parent directory to
-#                   the file(s) and/or directory(s) to be removed; may
-#                   contain wildcards
-function remove_from_can {
-    # First, try to remove the target(s) from outside the container, but
-    # suppress all errors.  If (any of) the target(s) still exist(s), try
-    # removing it/them from inside the container with the "outside directory"
-    # mapped to the "inside directory"; display the results, but suppress error
-    # handling.  Finally, try again to remove the target(s) from outside the
-    # container:  the result of this operation will determine the return status
-    # of the function (if the target(s) was/were successfully removed inside the
-    # container, then this will result in a success status from this function;
-    # otherwise, it will trigger an error if it is unsuccessful).
-    local outside_dir=${1}; shift
-    local inside_dir=${1}; shift
-
-    pushd ${outside_dir} 1>/dev/null
-    rm -rf "${@}" 1>/dev/null 2>&1 || true
-    for d in "${@}"; do
-        if [[ -e ${d} ]]; then
-            podman run \
-                --entrypoint rm \
-                --pull ${PB_SERVER_IMAGE_PULL_POLICY} \
-                --rm \
-                --volume ${outside_dir}:${inside_dir}:Z \
-                --workdir ${inside_dir}
-                ${PB_SERVER_IMAGE} \
-                -rf "${@}" \
-                || true
-            break  # The first call _should_ get them all; continuing is pointless.
-        fi
-    done
-    rm -rf "${@}" && rv=0 || rv=1
-    popd 1>/dev/null
-    return ${rv}
-}
+#+
+# Do setup
+#-
 
 # Copy the deployment files to the deployment files directory
 pbiac_etc=server/pbenchinacan/etc
@@ -102,14 +58,34 @@ sed -Ei \
     ${PB_DEPLOY_FILES}/pbench-server.cfg
 
 # Set up the /srv/pbench file tree
-remove_from_can ${SRV_PBENCH} /srv/pbench "*"
+podman unshare rm -rf ${SRV_PBENCH}/*
 mkdir -p -m 0755  \
     ${SRV_PBENCH}/archive/fs-version-001 \
     ${SRV_PBENCH}/public_html/dashboard \
     ${SRV_PBENCH}/tmp \
     ${SRV_PBENCH}/cache
 
+# Set up the static fallback pages for Nginx.
+podman run \
+    --rm \
+    --volume ${SRV_PBENCH}:/srv/pbench:Z \
+    --entrypoint cp \
+    ${PB_SERVER_IMAGE} \
+    /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html /srv/pbench/public_html/
+
+# Ensure everything _under_ ${SRV_PBENCH} is owned by the "pbench" user INSIDE
+# the container.
+podman run \
+    --rm \
+    --volume ${SRV_PBENCH}:/srv/pbench:Z \
+    --entrypoint chown \
+    ${PB_SERVER_IMAGE} \
+    -R pbench:pbench /srv/pbench/*
+
+#+
 # Start the services which the Pbench Server depends upon and then start the
 # Pbench Server itself.
+#-
+
 server/pbenchinacan/deploy-dependencies
 server/pbenchinacan/deploy
