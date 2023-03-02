@@ -1,7 +1,7 @@
 import configparser
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 from flask import current_app, Flask
 import jwt
@@ -13,7 +13,6 @@ from pbench.server import JSON
 import pbench.server.auth
 from pbench.server.auth import (
     Connection,
-    InternalUser,
     OpenIDClient,
     OpenIDClientError,
     OpenIDTokenInvalid,
@@ -191,79 +190,12 @@ class TestConnection:
         assert args["kwargs"] == {"headers": None, "five": "six"}
 
 
-class TestInternalUser:
-    """Verify the behavior of the InternalUser class"""
-
-    def test_str(self):
-        user = InternalUser(id="X", username="Y", email="Z")
-        assert str(user) == "User, id: X, username: Y"
-
-    def test_is_admin(self):
-        user = InternalUser(id="X", username="Y", email="Z")
-        assert not user.is_admin()
-        user = InternalUser(id="X", username="Y", email="Z", roles=["ADMIN"])
-        assert user.is_admin()
-
-    def test_create_missing_sub(self):
-        with pytest.raises(KeyError):
-            InternalUser.create("us", {})
-
-    def test_create_just_sub(self):
-        user = InternalUser.create("us", {"sub": "them"})
-        assert user.id == "them"
-        assert user.username is None
-        assert user.email is None
-        assert user.first_name is None
-        assert user.last_name is None
-        assert user.roles == []
-
-    def test_create_full(self):
-        user = InternalUser.create(
-            "us",
-            {
-                "sub": "them",
-                "preferred_username": "userA",
-                "email": "userA@hostB.net",
-                "given_name": "Agiven",
-                "family_name": "Family",
-            },
-        )
-        assert user.id == "them"
-        assert user.username == "userA"
-        assert user.email == "userA@hostB.net"
-        assert user.first_name == "Agiven"
-        assert user.last_name == "Family"
-        assert user.roles == []
-
-    def test_create_w_roles(self):
-        # Verify not in audience list
-        # FIXME - this is weird as coded, why would we get a payload where no
-        # other audience is listed?
-        user = InternalUser.create(
-            "us",
-            {"sub": "them", "resource_access": {"not-us": {}}},
-        )
-        assert user.id == "them"
-        assert user.username is None
-        assert user.email is None
-        assert user.first_name is None
-        assert user.last_name is None
-        assert user.roles == []
-
-        user = InternalUser.create(
-            "us",
-            {"sub": "them", "resource_access": {"us": {"roles": ["roleA", "roleB"]}}},
-        )
-        assert user.id == "them"
-        assert user.username is None
-        assert user.email is None
-        assert user.first_name is None
-        assert user.last_name is None
-        assert user.roles == ["roleA", "roleB"]
-
-
 def gen_rsa_token(
-    audience: str, private_key: str, exp: str = "99999999999"
+    audience: str,
+    private_key: str,
+    exp: str = "99999999999",
+    username: str = "dummy",
+    oidc_client_roles: Optional[list[str]] = None,
 ) -> Tuple[str, Dict[str, str]]:
     """Helper function for generating an RSA token using the given private key.
 
@@ -272,8 +204,20 @@ def gen_rsa_token(
         private_key : The private key to use for encoding
         exp : Optional expiration Epoch time stamp to use, defaults to Wednesday
             November 16th, 5138 at 9:47:39 AM UTC
+        username: username value to encode in the token
+        oidc_client_roles: Any OIDC client roles to include in the token
     """
-    payload = {"iat": 1659476706, "exp": exp, "sub": "12345", "aud": audience}
+    payload = {
+        "iat": 1659476706,
+        "exp": exp,
+        "sub": "12345",
+        "aud": audience,
+        "preferred_username": username,
+    }
+    if oidc_client_roles:
+        payload["resource_access"] = {
+            audience: {"roles": oidc_client_roles},
+        }
     return jwt.encode(payload, key=private_key, algorithm="RS256"), payload
 
 
@@ -553,7 +497,7 @@ class TestAuthModule:
     def test_verify_auth_exc(self, monkeypatch, make_logger):
         """Verify exception handling originating from verify_auth_internal"""
 
-        def vai_exc(token_auth: str) -> Optional[Union[User, InternalUser]]:
+        def vai_exc(token_auth: str) -> Optional[User]:
             raise Exception("Some failure")
 
         monkeypatch.setattr(Auth, "verify_auth_internal", vai_exc)
@@ -606,7 +550,37 @@ class TestAuthModule:
             user = Auth.verify_auth(pbench_drb_token_invalid)
         assert user is None
 
-    def test_verify_auth_oidc_offline(self, monkeypatch, rsa_keys, make_logger):
+    @pytest.mark.parametrize("roles", [["ROLE"], ["ROLE1", "ROLE2"], [], None])
+    def test_verify_auth_oidc(self, monkeypatch, rsa_keys, make_logger, roles):
+        """Verify OIDC token offline verification success path"""
+        client_id = "us"
+        if roles is None:
+            token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
+        else:
+            token, expected_payload = gen_rsa_token(
+                client_id, rsa_keys["private_key"], oidc_client_roles=roles
+            )
+
+        # Mock the Connection object and generate an OpenIDClient object,
+        # installing it as Auth module's OIDC client.
+        config = mock_connection(
+            monkeypatch, client_id, public_key=rsa_keys["public_key"]
+        )
+        oidc_client = OpenIDClient.construct_oidc_client(config)
+        monkeypatch.setattr(Auth, "oidc_client", oidc_client)
+
+        app = Flask("test-verify-auth-oidc-offline")
+        app.logger = make_logger
+        with app.app_context():
+            user = Auth.verify_auth(token)
+
+        assert user.id == "12345"
+        if roles is not None:
+            assert user.roles == roles
+        else:
+            assert user.roles == []
+
+    def test_verify_auth_oidc_user_update(self, monkeypatch, rsa_keys, make_logger):
         """Verify OIDC token offline verification success path"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
@@ -625,8 +599,22 @@ class TestAuthModule:
             user = Auth.verify_auth(token)
 
         assert user.id == "12345"
+        assert user.roles == []
 
-    def test_verify_auth_oidc_offline_invalid(self, monkeypatch, rsa_keys, make_logger):
+        # Generate a new token with a role for the same user
+        token, expected_payload = gen_rsa_token(
+            client_id,
+            rsa_keys["private_key"],
+            username="new_dummy",
+            oidc_client_roles=["ROLE"],
+        )
+        with app.app_context():
+            user = Auth.verify_auth(token)
+        assert user.id == "12345"
+        assert user.roles == ["ROLE"]
+        assert user.username == "new_dummy"
+
+    def test_verify_auth_oidc_invalid(self, monkeypatch, rsa_keys, make_logger):
         """Verify OIDC token offline verification via Auth.verify_auth() fails
         gracefully with an invalid token
         """

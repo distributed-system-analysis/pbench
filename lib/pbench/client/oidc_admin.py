@@ -102,17 +102,16 @@ class OIDCAdmin(Connection):
         data = {
             "client_id": client_id,
             "grant_type": "password",
-            "scope": "profile email",
+            "scope": "openid profile email",
             "username": username,
             "password": password,
         }
         return self.post(path=url_path, data=data).json()
 
-    def get_user(self, username: str, token: str) -> dict:
+    def get_user(self, token: str) -> dict:
         """Get the OIDC user representation dict.
 
         Args:
-            username: username to query
             token: access_token string to validate
 
         Returns:
@@ -132,10 +131,9 @@ class OIDCAdmin(Connection):
             }
         """
         response = self.get(
-            f"admin/realms/{self.OIDC_REALM}/users",
+            f"/realms/{self.OIDC_REALM}/protocol/openid-connect/userinfo",
             headers={"Authorization": f"Bearer {token}"},
-            username=username,
         )
         if response.status_code == HTTPStatus.OK:
-            return response.json()[0]
+            return response.json()
         return {}

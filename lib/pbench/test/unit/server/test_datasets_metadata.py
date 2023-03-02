@@ -113,7 +113,7 @@ class TestDatasetsMetadataGet:
             "dataset": {
                 "access": "private",
                 "name": "drb",
-                "owner_id": "3",
+                "owner": "drb",
                 "uploaded": "2022-01-01T00:00:00+00:00",
                 "metalog": {
                     "pbench": {
@@ -418,7 +418,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         json = put.json
         assert json["message"] == "at least one specified metadata key is invalid"
         assert json["errors"] == [
-            "Metadata key 'dataset.name' value 1 for dataset (3)|drb must be a UTF-8 string of 1 to 1024 characters"
+            "Metadata key 'dataset.name' value 1 for dataset (drb)|drb must be a UTF-8 string of 1 to 1024 characters"
         ]
 
         # verify that the values didn't change
@@ -455,7 +455,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         json = put.json
         assert json["message"] == "at least one specified metadata key is invalid"
         assert json["errors"] == [
-            "Metadata key 'server.deletion' value '1800-25-55' for dataset (3)|drb must be a date/time"
+            "Metadata key 'server.deletion' value '1800-25-55' for dataset (drb)|drb must be a date/time"
         ]
 
         # verify that the values didn't change
@@ -500,7 +500,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             "errors": {
                 "global.dashboard.nested.dummy": "Key 'nested' value for "
                 "'global.dashboard.nested.dummy' "
-                "in (3)|drb is not a JSON object"
+                "in (drb)|drb is not a JSON object"
             },
             "metadata": {
                 "global.dashboard.nested.dummy": None,

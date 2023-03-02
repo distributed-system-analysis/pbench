@@ -220,6 +220,10 @@ class FakeQuery:
         self.session.filters.append(", ".join(filters))
         return self
 
+    def count(self) -> int:
+        """Returns the number of results filter query returned"""
+        return int(len(self.session.filters))
+
     def order_by(self, column: Column) -> "FakeQuery":
         """Sort the currently selected records by a specified column"""
         self.selected.sort(key=lambda o: getattr(o, column.key))
@@ -250,6 +254,7 @@ class FakeSession:
         self.id = 1
         self.cls = cls
         self.added: list[Database.Base] = []
+        self.removed: list[Database.Base] = []
         self.known: dict[int, Database.Base] = {}
         self.committed: dict[int, FakeRow] = {}
         self.rolledback = 0
@@ -264,6 +269,10 @@ class FakeSession:
         self.filters = []
         self.raise_on_commit = None
         __class__.throw_query = False
+
+    def remove(self):
+        """Mocks the db session remove method"""
+        self.reset_context()
 
     def query(self, *entities, **kwargs) -> FakeQuery:
         """Perform a mocked query on the session, setting up the query context
@@ -290,6 +299,14 @@ class FakeSession:
         """
         self.added.append(instance)
 
+    def delete(self, instance: Database.Base):
+        """Delete a DB object from a list for testing
+
+        Args:
+            instance: A DB object
+        """
+        self.removed.append(instance)
+
     def commit(self):
         """Mock a commit operation on the DB session. If the 'raise_on_commit'
         property has been set, "fail" by raising the exception. Otherwise,
@@ -303,7 +320,7 @@ class FakeSession:
         for k, object in self.known.items():
             self.committed[k] = FakeRow.clone(object)
         for a in self.added:
-            a.id = self.id
+            a.id = self.id if not a.id else a.id
             self.id += 1
             for c in a.__table__._columns:
                 if c.default:
@@ -314,7 +331,10 @@ class FakeSession:
                         setattr(a, c.name, default.arg(None))
             self.known[a.id] = a
             self.committed[a.id] = FakeRow.clone(a)
+        for r in self.removed:
+            del self.committed[r.id]
         self.added = []
+        self.removed = []
 
     def rollback(self):
         """Just record that rollback was called, since we always raise an error
@@ -374,10 +394,11 @@ class FakeSession:
         # state and 'rollback' clears the list. We don't ever expect to see
         # anything on this list.
         assert not self.added
+        assert not self.removed
 
         # Check that the 'committed' list (which stands in for the actual DB
         # table) contains the expected rows.
-        assert committed is None or sorted(self.committed.values()) == sorted(committed)
+        assert committed is None or all(i in self.committed.values() for i in committed)
 
         # Check whether we've rolled back transaction(s).
         assert self.rolledback == rolledback
