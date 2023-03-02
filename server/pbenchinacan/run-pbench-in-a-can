@@ -45,8 +45,8 @@ export PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
 
 # Copy the deployment files to the deployment files directory
 pbiac_etc=server/pbenchinacan/etc
+rm -rf ${PB_DEPLOY_FILES}/etc ${PB_DEPLOY_FILES}/pbench-server.cfg
 mkdir -p -m 755 ${PB_DEPLOY_FILES}/etc
-rm -rf ${PB_DEPLOY_FILES}/etc/*
 cp -r ${pbiac_etc}/rsyslog.d ${pbiac_etc}/rsyslog.conf ${PB_DEPLOY_FILES}/etc/
 cp ${pbiac_etc}/pbench-server/pbench-server.cfg ${PB_DEPLOY_FILES}/
 
@@ -80,7 +80,7 @@ podman run \
     --volume ${SRV_PBENCH}:/srv/pbench:Z \
     --entrypoint chown \
     ${PB_SERVER_IMAGE} \
-    -R pbench:pbench /srv/pbench/*
+    -R pbench:pbench "/srv/pbench/*"
 
 #+
 # Start the services which the Pbench Server depends upon and then start the
