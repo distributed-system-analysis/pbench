@@ -49,9 +49,7 @@ export const getDatasets = () => async (dispatch, getState) => {
       clearCachedSession(dispatch);
     } else {
       const msg = error.response?.data?.message;
-      dispatch(
-        showToast(DANGER, msg ? msg : `Error response: ERROR_MSG`)
-      );
+      dispatch(showToast(DANGER, msg ? msg : `Error response: ERROR_MSG`));
       dispatch({ type: TYPES.NETWORK_ERROR });
     }
   }

@@ -178,9 +178,9 @@ class EndpointConfig(Resource):
         }
 
         try:
-            client = self.server_config.get("openid-connect", "client")
-            realm = self.server_config.get("openid-connect", "realm")
-            server = self.server_config.get("openid-connect", "server_url")
+            client = self.server_config.get("openid", "client")
+            realm = self.server_config.get("openid", "realm")
+            server = self.server_config.get("openid", "server_url")
         except (NoOptionError, NoSectionError):
             pass
         else:

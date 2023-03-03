@@ -446,15 +446,15 @@ class TestMetadataNamespace:
         [
             (
                 True,
-                "Metadata key 'server.origin' value True for dataset (3)|drb must be a string",
+                "Metadata key 'server.origin' value True for dataset (drb)|drb must be a string",
             ),
             (
                 [],
-                "Metadata key 'server.origin' value [] for dataset (3)|drb must be a string",
+                "Metadata key 'server.origin' value [] for dataset (drb)|drb must be a string",
             ),
             (
                 1,
-                "Metadata key 'server.origin' value 1 for dataset (3)|drb must be a string",
+                "Metadata key 'server.origin' value 1 for dataset (drb)|drb must be a string",
             ),
         ],
     )
@@ -494,19 +494,19 @@ class TestMetadataNamespace:
         [
             (
                 "ABC",
-                "Metadata key 'server.archiveonly' value 'ABC' for dataset (3)|drb must be a boolean",
+                "Metadata key 'server.archiveonly' value 'ABC' for dataset (drb)|drb must be a boolean",
             ),
             (
                 "Truth",
-                "Metadata key 'server.archiveonly' value 'Truth' for dataset (3)|drb must be a boolean",
+                "Metadata key 'server.archiveonly' value 'Truth' for dataset (drb)|drb must be a boolean",
             ),
             (
                 [],
-                "Metadata key 'server.archiveonly' value [] for dataset (3)|drb must be a boolean",
+                "Metadata key 'server.archiveonly' value [] for dataset (drb)|drb must be a boolean",
             ),
             (
                 1.00,
-                "Metadata key 'server.archiveonly' value 1.0 for dataset (3)|drb must be a boolean",
+                "Metadata key 'server.archiveonly' value 1.0 for dataset (drb)|drb must be a boolean",
             ),
         ],
     )

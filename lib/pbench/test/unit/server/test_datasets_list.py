@@ -67,7 +67,7 @@ class TestDatasetsList:
             if key == Metadata.USER:
                 if not auth_id:
                     continue
-                terms.append(table.user_id == auth_id)
+                terms.append(table.user_ref == auth_id)
             query = query.outerjoin(table, and_(*terms))
         return aliases, query
 
@@ -525,7 +525,7 @@ class TestDatasetsList:
             "FROM datasets LEFT OUTER JOIN dataset_metadata AS dataset_metadata_1 ON dataset_metadata_1.dataset_ref = datasets.id AND dataset_metadata_1.key = 'metalog' "
             "LEFT OUTER JOIN dataset_metadata AS dataset_metadata_2 ON dataset_metadata_2.dataset_ref = datasets.id AND dataset_metadata_2.key = 'server' "
             "LEFT OUTER JOIN dataset_metadata AS dataset_metadata_3 ON dataset_metadata_3.dataset_ref = datasets.id AND dataset_metadata_3.key = 'global' "
-            "LEFT OUTER JOIN dataset_metadata AS dataset_metadata_4 ON dataset_metadata_4.dataset_ref = datasets.id AND dataset_metadata_4.key = 'user' AND dataset_metadata_4.user_id = '3' WHERE "
+            "LEFT OUTER JOIN dataset_metadata AS dataset_metadata_4 ON dataset_metadata_4.dataset_ref = datasets.id AND dataset_metadata_4.key = 'user' AND dataset_metadata_4.user_ref = '3' WHERE "
         )
         aliases, query = self.filter_setup(DRB_USER_ID)
         query = DatasetsList.filter_query(filters, aliases, query)

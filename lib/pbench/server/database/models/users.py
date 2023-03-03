@@ -44,7 +44,7 @@ class UserDuplicate(UserError):
         self.cause = cause
 
     def __str__(self) -> str:
-        return f"Duplicate user setting in {self.user.get_json()}: {self.cause}"
+        return f"Duplicate user entry in {self.user.get_json()}: {self.cause}"
 
 
 class UserNullKey(UserError):
@@ -95,7 +95,9 @@ class User(Database.Base):
         """
         return {"username": self.username, "id": self.id, "roles": self.roles}
 
-    def _decode(self, exception: IntegrityError) -> Exception:
+    def _decode(
+        self, exception: IntegrityError, operation: Optional[str] = ""
+    ) -> Exception:
         """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
         or NOT NULL constraint violation.
 
@@ -114,7 +116,8 @@ class User(Database.Base):
             return UserDuplicate(self, cause)
         elif "NOT NULL constraint" in cause:
             return UserNullKey(self, cause)
-        return exception
+        else:
+            return UserSqlError(operation, self.get_json(), str(exception))
 
     @staticmethod
     def query(id: str = None, username: str = None) -> Optional["User"]:
@@ -146,9 +149,7 @@ class User(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            if isinstance(e, IntegrityError):
-                raise self._decode(e) from e
-            raise UserSqlError("adding", self.get_json(), str(e)) from e
+            raise self._decode(e, "adding") from e
 
     def update(self, **kwargs):
         """Update the current user object with given keyword arguments."""
@@ -158,18 +159,7 @@ class User(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            if isinstance(e, IntegrityError):
-                raise self._decode(e) from e
-            raise UserSqlError("Updating", self.get_json(), str(e)) from e
-
-    def delete(self):
-        """Delete the user with a given username, except admin."""
-        try:
-            Database.db_session.delete(self)
-            Database.db_session.commit()
-        except Exception as e:
-            Database.db_session.rollback()
-            raise UserSqlError("deleting", self.get_json(), str(e)) from e
+            raise self._decode(e, "updating") from e
 
     def is_admin(self) -> bool:
         """This method checks whether the given user has an admin role.

@@ -458,7 +458,7 @@ class DatasetsList(ApiBase):
             if key == Metadata.USER:
                 if not auth_id:
                     continue
-                terms.append(table.user_id == auth_id)
+                terms.append(table.user_ref == auth_id)
             query = query.outerjoin(table, and_(*terms))
 
         if "start" in json and "end" in json:

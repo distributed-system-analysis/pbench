@@ -28,7 +28,6 @@ from pbench.server.api import create_app
 import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
-from pbench.server.database.models.auth_tokens import AuthToken
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
@@ -48,7 +47,7 @@ uri = sqlite:///:memory:
 [flask-app]
 secret-key = my_precious
 
-[openid-connect]
+[openid]
 server_url = http://openid.example.com
 
 [logging]
@@ -163,8 +162,8 @@ def add_auth_connection_mock(server_config, rsa_keys):
         rsa_keys: rsa_keys fixture to get te public key
     """
     with responses.RequestsMock() as mock:
-        oidc_server = server_config.get("openid-connect", "server_url")
-        oidc_realm = server_config.get("openid-connect", "realm")
+        oidc_server = server_config.get("openid", "server_url")
+        oidc_realm = server_config.get("openid", "realm")
         url = urljoin(oidc_server, f"realms/{oidc_realm}")
 
         mock.add(
@@ -775,7 +774,7 @@ def pbench_admin_token(client, server_config, create_admin_user, rsa_keys):
     return generate_token(
         user=create_admin_user,
         private_key=rsa_keys["private_key"],
-        client_id=server_config.get("openid-connect", "client"),
+        client_id=server_config.get("openid", "client"),
         username=admin_username,
         pbench_client_roles=["ADMIN"],
     )
@@ -786,7 +785,7 @@ def pbench_drb_token(client, server_config, create_drb_user, rsa_keys):
     """OIDC valid token for the 'drb' user"""
     return generate_token(
         username="drb",
-        client_id=server_config.get("openid-connect", "client"),
+        client_id=server_config.get("openid", "client"),
         private_key=rsa_keys["private_key"],
         user=create_drb_user,
     )
@@ -798,7 +797,7 @@ def pbench_drb_token_invalid(client, server_config, create_drb_user, rsa_keys):
     return generate_token(
         username="drb",
         private_key=rsa_keys["private_key"],
-        client_id=server_config.get("openid-connect", "client"),
+        client_id=server_config.get("openid", "client"),
         user=create_drb_user,
         valid=False,
     )
@@ -821,7 +820,7 @@ def get_token_func(pbench_admin_token, server_config, rsa_keys):
         else generate_token(
             username=user,
             private_key=rsa_keys["private_key"],
-            client_id=server_config.get("openid-connect", "client"),
+            client_id=server_config.get("openid", "client"),
         )
     )
 
@@ -869,27 +868,10 @@ def generate_token(
         "sub": user.id,
         "aud": client_id,
         "azp": client_id,
-        "realm_access": {
-            "roles": [
-                "default-roles-pbench-server",
-                "offline_access",
-                "uma_authorization",
-            ]
-        },
-        "resource_access": {
-            "broker": {"roles": ["read-token"]},
-            "account": {
-                "roles": ["manage-account", "manage-account-links", "view-profile"]
-            },
-        },
+        "resource_access": {},
         "scope": "openid profile email",
         "sid": "1988612e-774d-43b8-8d4a-bbc05ee55edb",
-        "email_verified": True,
-        "name": "first_name last_name",
         "preferred_username": username,
-        "given_name": "first_name",
-        "family_name": "last_name",
-        "email": "dummy@example.com",
     }
     if pbench_client_roles:
         payload["resource_access"].update({client_id: {"roles": pbench_client_roles}})

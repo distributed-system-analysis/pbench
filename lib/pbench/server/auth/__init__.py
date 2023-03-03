@@ -262,9 +262,9 @@ class OpenIDClient:
             missing, or any of the required options are missing.
         """
         try:
-            server_url = server_config.get("openid-connect", "server_url")
-            client = server_config.get("openid-connect", "client")
-            realm = server_config.get("openid-connect", "realm")
+            server_url = server_config.get("openid", "server_url")
+            client = server_config.get("openid", "client")
+            realm = server_config.get("openid", "realm")
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 

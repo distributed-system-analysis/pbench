@@ -123,9 +123,9 @@ class TestEndpointConfig:
         }
 
         try:
-            oidc_client = server_config.get("openid-connect", "client")
-            oidc_realm = server_config.get("openid-connect", "realm")
-            oidc_server = server_config.get("openid-connect", "server_url")
+            oidc_client = server_config.get("openid", "client")
+            oidc_realm = server_config.get("openid", "realm")
+            oidc_server = server_config.get("openid", "server_url")
         except (NoOptionError, NoSectionError):
             pass
         else:

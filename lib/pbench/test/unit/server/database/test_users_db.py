@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
-from pbench.server.database.models.users import User, UserDuplicate, UserSqlError
+from pbench.server.database.models.users import User, UserDuplicate
 from pbench.test.unit.server.database import FakeDBOrig, FakeRow, FakeSession
 
 
@@ -68,7 +68,7 @@ class TestUsers:
         ds.delete()
         with pytest.raises(DatasetNotFound):
             Dataset.query(resource_id=ds.resource_id)
-        assert User.query(username=user.username)
+        assert user == User.query(username=user.username)
 
     def test_construct_duplicate(self, fake_db):
         """Test handling of User record duplicate value error"""
@@ -77,7 +77,7 @@ class TestUsers:
         )
         with pytest.raises(
             UserDuplicate,
-            match="Duplicate user setting in {'username': 'dummy', 'id': .*?, 'roles': \\[]}: UNIQUE constraint",
+            match="Duplicate user entry in {'username': 'dummy', 'id': [^,]+, 'roles': \\[]}: UNIQUE constraint",
         ):
             self.add_dummy_user(fake_db)
         self.session.check_session(rolledback=1)
@@ -86,11 +86,10 @@ class TestUsers:
     def test_user_update(self, fake_db):
         """Test updating user roles"""
 
-        data = {"roles": ["NEW_ROLE"]}
         TestUsers.add_dummy_user(fake_db)
 
         user = User.query(username="dummy")
-        user.update(**data)
+        user.update(roles=["NEW_ROLE"])
         assert user.roles == ["NEW_ROLE"]
         assert user._roles == "NEW_ROLE"
 
@@ -98,29 +97,4 @@ class TestUsers:
         self.session.check_session(
             queries=1, committed=expected_commits, filters=["username=dummy"]
         )
-        self.session.reset_context()
-
-    def test_user_delete(self, fake_db):
-        """Test deleting the user from the User table"""
-        self.add_dummy_user(fake_db)
-        user = User.query(username="dummy")
-        expected_commits = [FakeRow.clone(user)]
-        self.session.check_session(
-            queries=1, filters=["username=dummy"], committed=expected_commits
-        )
-        assert user.username == "dummy"
-        user.delete()
-        self.session.check_session(queries=0, filters=[], committed=[])
-
-    def test_delete_exception(self, fake_db):
-        """Test exception raised during the delete operation"""
-        user = User(
-            id="1",
-            username="dummy",
-        )
-        with pytest.raises(
-            UserSqlError,
-            match=r"deleting",
-        ):
-            user.delete()
         self.session.reset_context()

@@ -240,7 +240,7 @@ def mock_connection(
     realm_name = "camelot"
     secret = "shhh"
     config = configparser.ConfigParser()
-    config["openid-connect"] = {
+    config["openid"] = {
         "server_url": server_url,
         "client": client_id,
         "realm": realm_name,
@@ -293,14 +293,14 @@ class TestOpenIDClient:
     def test_construct_oidc_client_fail(self):
         """Verfiy .construct_oidc_client() failure mode"""
 
-        # Start with an empty configuration, no openid-connect section
+        # Start with an empty configuration, no openid section
         config = configparser.ConfigParser()
         with pytest.raises(OpenIDClient.NotConfigured):
             OpenIDClient.construct_oidc_client(config)
 
         # Missing "server_url"
         section = {}
-        config["openid-connect"] = section
+        config["openid"] = section
         with pytest.raises(OpenIDClient.NotConfigured):
             OpenIDClient.construct_oidc_client(config)
 
@@ -322,8 +322,8 @@ class TestOpenIDClient:
         client_id = "us"
         public_key = "hijklmn"
         config = mock_connection(monkeypatch, client_id, public_key)
-        server_url = config["openid-connect"]["server_url"]
-        realm_name = config["openid-connect"]["realm"]
+        server_url = config["openid"]["server_url"]
+        realm_name = config["openid"]["realm"]
 
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
@@ -569,19 +569,17 @@ class TestAuthModule:
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
-        app = Flask("test-verify-auth-oidc-offline")
+        app = Flask("test-verify-auth-oidc")
         app.logger = make_logger
         with app.app_context():
             user = Auth.verify_auth(token)
 
         assert user.id == "12345"
-        if roles is not None:
-            assert user.roles == roles
-        else:
-            assert user.roles == []
+        assert user.roles == (roles if roles else [])
 
     def test_verify_auth_oidc_user_update(self, monkeypatch, rsa_keys, make_logger):
-        """Verify OIDC token offline verification success path"""
+        """Verify we update our internal user database when we get updated user
+        payload from the OIDC token for an existing user."""
         client_id = "us"
         token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
 
@@ -593,13 +591,14 @@ class TestAuthModule:
         oidc_client = OpenIDClient.construct_oidc_client(config)
         monkeypatch.setattr(Auth, "oidc_client", oidc_client)
 
-        app = Flask("test-verify-auth-oidc-offline")
+        app = Flask("test-verify-auth-oidc-user-update")
         app.logger = make_logger
         with app.app_context():
             user = Auth.verify_auth(token)
 
         assert user.id == "12345"
         assert user.roles == []
+        assert user.username == "dummy"
 
         # Generate a new token with a role for the same user
         token, expected_payload = gen_rsa_token(
@@ -632,7 +631,7 @@ class TestAuthModule:
         def tio_exc(token: str) -> JSON:
             raise OpenIDTokenInvalid()
 
-        app = Flask("test-verify-auth-oidc-offline-invalid")
+        app = Flask("test-verify-auth-oidc-invalid")
         app.logger = make_logger
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)

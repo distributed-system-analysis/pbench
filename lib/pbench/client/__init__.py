@@ -321,7 +321,6 @@ class PbenchServerClient:
         self.endpoints = response.json()
         assert self.endpoints
 
-        # Create an OIDCAdmin object and confirm the connection was successful
         self.oidc_admin = OIDCAdmin(server_url=self.endpoints["openid"]["server"])
 
     def login(self, user: str, password: str):
@@ -438,16 +437,6 @@ class PbenchServerClient:
             if "offset" in args or not next_url:
                 break
             json = self.get(uri=next_url).json()
-
-    def get_user(self, username: str, add_auth_header: bool = True) -> JSONOBJECT:
-        """ """
-        if add_auth_header:
-            return self.get(
-                api=API.USER, uri_params={"target_username": username}
-            ).json()
-        response = self.session.get(self._uri(API.USER, {"target_username": username}))
-        response.raise_for_status()
-        return response.json()
 
     def get_metadata(self, dataset_id: str, metadata: list[str]) -> JSONOBJECT:
         """Return requested metadata for a specified dataset.
