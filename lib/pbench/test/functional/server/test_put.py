@@ -412,7 +412,7 @@ class TestDelete:
             "list_and",
             "list_none",
             "list_or",
-            "publish"
+            "publish",
         ],
         scope="session",
     )
