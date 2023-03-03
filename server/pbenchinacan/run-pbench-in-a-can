@@ -39,8 +39,13 @@ TMP_DIR=${TMP_DIR:-${WORKSPACE_TMP:-/var/tmp/pbench}}
 export SRV_PBENCH=${SRV_PBENCH:-${TMP_DIR}/srv/pbench}
 export PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${TMP_DIR}/pbench_server_deployment}
 
+#+
+# Do setup
+#-
+
 # Copy the deployment files to the deployment files directory
 pbiac_etc=server/pbenchinacan/etc
+rm -rf ${PB_DEPLOY_FILES}/etc ${PB_DEPLOY_FILES}/pbench-server.cfg
 mkdir -p -m 755 ${PB_DEPLOY_FILES}/etc
 cp -r ${pbiac_etc}/rsyslog.d ${pbiac_etc}/rsyslog.conf ${PB_DEPLOY_FILES}/etc/
 cp ${pbiac_etc}/pbench-server/pbench-server.cfg ${PB_DEPLOY_FILES}/
@@ -53,13 +58,35 @@ sed -Ei \
     ${PB_DEPLOY_FILES}/pbench-server.cfg
 
 # Set up the /srv/pbench file tree
+podman unshare rm -rf ${SRV_PBENCH}/*
 mkdir -p -m 0755  \
     ${SRV_PBENCH}/archive/fs-version-001 \
     ${SRV_PBENCH}/public_html/dashboard \
     ${SRV_PBENCH}/tmp \
     ${SRV_PBENCH}/cache
 
+# Set up the static fallback pages for Nginx.
+podman run \
+    --rm \
+    --volume ${SRV_PBENCH}:/srv/pbench:Z \
+    --entrypoint cp \
+    ${PB_SERVER_IMAGE} \
+    /usr/share/nginx/html/404.html /usr/share/nginx/html/50x.html /srv/pbench/public_html/
+
+# Ensure everything _under_ ${SRV_PBENCH} is owned by the "pbench" user INSIDE
+# the container.  (We have to use bash in order to get the wildcard expansion
+# _inside_ the container.)
+podman run \
+    --rm \
+    --volume ${SRV_PBENCH}:/srv/pbench:Z \
+    --entrypoint bash \
+    ${PB_SERVER_IMAGE} \
+    -c "chown -R pbench:pbench /srv/pbench/*"
+
+#+
 # Start the services which the Pbench Server depends upon and then start the
 # Pbench Server itself.
+#-
+
 server/pbenchinacan/deploy-dependencies
 server/pbenchinacan/deploy
