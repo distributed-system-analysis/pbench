@@ -269,6 +269,7 @@ class TestIndexing:
         Perform a GET /datasets/details/{id} to be sure that basic run data
         has been indexed and is available.
         """
+        print(" ... checking dataset RUN index ...")
         datasets = server_client.get_list(
             metadata=["dataset.metalog.pbench,server.archiveonly"], owner="tester"
         )
@@ -386,9 +387,33 @@ class TestList:
             ), f"Dataset {dataset.name} date is {date}"
 
 
+class TestUpdate:
+    @pytest.mark.dependency(name="publish", depends=["index"], scope="session")
+    @pytest.mark.parametrize("access", ("public", "private"))
+    def test_publish(self, server_client: PbenchServerClient, login_user, access):
+        expected = "public" if access == "private" else "private"
+        datasets = server_client.get_list(access=access, mine="true")
+        print(f" ... updating {access} datasets to {expected} ...")
+        for dataset in datasets:
+            server_client.update(dataset.resource_id, access=expected)
+            print(f"\t ... updating {dataset.name} to {access!r}")
+            meta = server_client.get_metadata(
+                dataset.resource_id, metadata="dataset.access"
+            )
+            assert meta["dataset.access"] == expected
+
+
 class TestDelete:
     @pytest.mark.dependency(
-        depends=["detail", "index", "list_all", "list_and", "list_none", "list_or"],
+        depends=[
+            "detail",
+            "index",
+            "list_all",
+            "list_and",
+            "list_none",
+            "list_or",
+            "publish"
+        ],
         scope="session",
     )
     def test_delete_all(self, server_client: PbenchServerClient, login_user):

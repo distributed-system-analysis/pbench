@@ -24,7 +24,7 @@ def upgrade() -> None:
     # Instead we simply add the new 'UPDATE' value. Having the obsolete
     # values defined in the ENUM isn't a problem, and removing them isn't
     # worth the complication.
-    op.execute("ALTER TYPE operationname ADD VALUE 'UPDATE' BEFORE 'UPLOAD'")
+    op.execute("ALTER TYPE operationname ADD VALUE 'UPDATE'")
     # ### end Alembic commands ###
 
 
