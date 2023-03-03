@@ -24,7 +24,7 @@ export PB_SERVER_IMAGE_PULL_POLICY="${PB_SERVER_IMAGE_PULL_POLICY:-${PB_COMMON_I
 export PB_DASHBOARD_DIR="${PB_DASHBOARD_DIR:-${PWD}/dashboard/build/}"
 
 export KEYCLOAK_REALM=${KEYCLOAK_REALM:-"pbench-server"}
-export KEYCLOAK_CLIENT=${KEYCLOAK_CLIENT:-"pbench-dashboard"}
+export KEYCLOAK_CLIENT=${KEYCLOAK_CLIENT:-"pbench-client"}
 
 # Set up TMP_DIR, if it's not already defined, to point to WORKSPACE_TMP, if it
 # is defined (e.g., by the CI), or to `/var/tmp/pbench` as a fallback.

@@ -28,6 +28,5 @@ class TestConnect:
             assert e in endpoints["uri"].keys()
 
         # verify all the required openid-connect fields are present
-        if "openid" in endpoints:
-            expected = {"client", "realm", "server"}
-            assert set(endpoints["openid"]) >= expected
+        oid_ep = set(endpoints.get("openid", {}))
+        assert oid_ep >= {"client", "realm", "server"} or not oid_ep

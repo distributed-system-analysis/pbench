@@ -32,12 +32,7 @@ def user_list(context: object) -> None:
         users = User.query_all()
 
         for user in users:
-            click.echo(
-                USER_LIST_ROW_FORMAT.format(
-                    user.username,
-                    user.id,
-                )
-            )
+            click.echo(USER_LIST_ROW_FORMAT.format(user.username, user.id))
 
         rv = 0
     except Exception as exc:

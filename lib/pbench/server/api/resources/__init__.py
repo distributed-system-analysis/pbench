@@ -1327,6 +1327,14 @@ class ApiBase(Resource):
         role = mode.role
         authorized_user: User = Auth.token_auth.current_user()
 
+        username = "none"
+        if user_id:
+            user = User.query(id=user_id)
+            if user:
+                username = user.username
+            else:
+                current_app.logger.error("User ID {} not found", user_id)
+
         # The ADMIN authorization doesn't involve a target resource owner or
         # access, so take care of that first as a special case. If there is
         # an authenticated user, and that user holds ADMIN access rights, the
@@ -1348,9 +1356,10 @@ class ApiBase(Resource):
         access = mode.access
 
         current_app.logger.debug(
-            "Authorizing {} access for {} to user (user id: {}) with access {} using {}",
+            "Authorizing {} access for {} to user {} ({}) with access {} using {}",
             role,
             authorized_user,
+            username,
             user_id,
             mode.access,
             mode.type,
@@ -1379,12 +1388,12 @@ class ApiBase(Resource):
                 # An unauthenticated user is never allowed to access private
                 # data nor to perform an potential mutation of data: REJECT
                 current_app.logger.warning(
-                    "Attempt to {} user {} data without login", role, user_id
+                    "Attempt to {} user {} data without login", role, username
                 )
                 raise UnauthorizedAccess(
                     authorized_user,
                     role,
-                    user_id,
+                    username,
                     access,
                     HTTPStatus.UNAUTHORIZED,
                 )
@@ -1397,7 +1406,7 @@ class ApiBase(Resource):
                     role,
                 )
                 raise UnauthorizedAccess(
-                    authorized_user, role, user_id, access, HTTPStatus.FORBIDDEN
+                    authorized_user, role, username, access, HTTPStatus.FORBIDDEN
                 )
             elif (
                 user_id
@@ -1411,10 +1420,10 @@ class ApiBase(Resource):
                     "Unauthorized attempt by {} to {} user {} data",
                     authorized_user,
                     role,
-                    user_id,
+                    username,
                 )
                 raise UnauthorizedAccess(
-                    authorized_user, role, user_id, access, HTTPStatus.FORBIDDEN
+                    authorized_user, role, username, access, HTTPStatus.FORBIDDEN
                 )
             else:
                 # We have determined that there is an authenticated user with

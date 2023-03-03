@@ -1,10 +1,10 @@
 #!/bin/bash -e
 
 # This script configures a running Keycloak server with following configuration
-# 1. A realm with the name 'pbench'
-# 2. A client 'pbench-server' under the realm pbench
+# 1. A realm with the name 'pbench-server'
+# 2. A client 'pbench-client' under the realm pbench-server
 # 3. A user 'admin' under the realm pbench
-# 4. An 'ADMIN' role under the client pbench-server
+# 4. An 'ADMIN' role under the client pbench-client
 # 5. ADMIN role assigned to the admin user.
 
 # This file uses a realm of 'pbench' and a client name of 'pbench-server'
@@ -24,7 +24,7 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin"}
 # These values must match the options "realm" and "client in the
 # "openid-connect" section of the pbench server configuration file.
 REALM=${KEYCLOAK_REALM:-"pbench-server"}
-CLIENT=${KEYCLOAK_CLIENT:-"pbench-dashboard"}
+CLIENT=${KEYCLOAK_CLIENT:-"pbench-client"}
 
 end_in_epoch_secs=$(date --date "2 minutes" +%s)
 
@@ -66,7 +66,7 @@ else
 fi
 
 # Create a client scope with custom mapper that will instruct Keycloak
-# to include the <client_id> (pbench-dashboard) when someone requests
+# to include the <client_id> (pbench-client) when someone requests
 # a token from Keycloak using a <client_id>.
 # Having <client_id> in the aud claim of the token is essential for the token
 # to be validated.
@@ -102,7 +102,13 @@ curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/client-scopes" 
 CLIENT_CONF=$(curl -si -f -X POST "${KEYCLOAK_HOST_PORT}/admin/realms/${REALM}/clients" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"clientId": "'${CLIENT}'", "publicClient": true,  "defaultClientScopes": ["pbench", "openid", "profile", "email"], "directAccessGrantsEnabled": true, "serviceAccountsEnabled": true, "enabled": true, "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
+  -d '{"clientId": "'${CLIENT}'",
+       "publicClient": true,
+       "defaultClientScopes": ["pbench", "openid", "profile", "email"],
+       "directAccessGrantsEnabled": true,
+       "serviceAccountsEnabled": true,
+       "enabled": true,
+       "redirectUris": ["'${KEYCLOAK_REDIRECT_URI}'"]}')
 
 CLIENT_ID=$(grep -o -e 'http://[^[:space:]]*' <<< ${CLIENT_CONF} | sed -e 's|.*/||')
 if [[ -z "${CLIENT_ID}" ]]; then

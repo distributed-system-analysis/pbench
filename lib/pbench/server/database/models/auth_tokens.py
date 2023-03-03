@@ -1,7 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, DateTime, Integer, String
 
 from pbench.server.database.database import Database
 
@@ -17,13 +16,6 @@ class AuthToken(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     token = Column(String(500), unique=True, nullable=False, index=True)
     expiration = Column(DateTime, nullable=False, index=True)
-    user_id = Column(
-        Integer,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        # no need to add index=True, all FKs have indexes
-    )
-    user = relationship("User", back_populates="auth_tokens")
 
     @staticmethod
     def query(auth_token: str) -> Optional["AuthToken"]:

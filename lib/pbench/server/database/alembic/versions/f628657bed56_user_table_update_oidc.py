@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "f628657bed56"
-down_revision = "fa12f45a2a5a"
+down_revision = "9cc638cb865c"
 branch_labels = None
 depends_on = None
 
@@ -26,9 +26,6 @@ def upgrade() -> None:
         type_=sa.String(length=255),
         existing_nullable=False,
     )
-    op.alter_column(
-        "users", "username", existing_type=sa.VARCHAR(length=255), nullable=False
-    )
     op.create_primary_key("user_primary", "users", ["id"])
     op.drop_constraint("users_email_key", "users", type_="unique")
     op.drop_column("users", "role")
@@ -37,7 +34,7 @@ def upgrade() -> None:
     op.drop_column("users", "last_name")
     op.drop_column("users", "email")
     op.drop_column("users", "registered_on")
-    op.drop_column("active_tokens", "user_id")
+    op.drop_column("auth_tokens", "user_id")
     op.add_column("dataset_metadata", sa.Column("user_ref", sa.String(), nullable=True))
     op.create_foreign_key(None, "dataset_metadata", "users", ["user_ref"], ["id"])
     op.drop_column("dataset_metadata", "user_id")
@@ -84,9 +81,6 @@ def downgrade() -> None:
     )
     op.create_unique_constraint("users_email_key", "users", ["email"])
     op.alter_column(
-        "users", "username", existing_type=sa.VARCHAR(length=255), nullable=False
-    )
-    op.alter_column(
         "users",
         "id",
         existing_type=sa.String(length=255),
@@ -103,12 +97,12 @@ def downgrade() -> None:
     )
     op.drop_column("dataset_metadata", "user_ref")
     op.add_column(
-        "active_tokens",
+        "auth_tokens",
         sa.Column("user_id", sa.INTEGER(), autoincrement=False, nullable=False),
     )
     op.create_foreign_key(
-        "active_tokens_user_id_fkey",
-        "active_tokens",
+        "auth_tokens_user_id_fkey",
+        "auth_tokens",
         "users",
         ["user_id"],
         ["id"],

@@ -25,17 +25,6 @@ class TestDatasets:
             "operations": {},
         }
 
-    def test_dataset_survives_user(self, db_session, create_user):
-        """The Dataset isn't automatically removed when the referenced
-        user is removed.
-        """
-        user = create_user
-        ds = Dataset(owner=user, name="fio", resource_id="deadbeef")
-        ds.add()
-        user.delete()
-        ds1 = Dataset.query(resource_id="deadbeef")
-        assert ds1 == ds
-
     def test_dataset_metadata_log(self, db_session, create_user, provide_metadata):
         """
         Test that `as_dict` provides the mocked metadata.log contents along

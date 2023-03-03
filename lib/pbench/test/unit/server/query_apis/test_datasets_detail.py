@@ -7,7 +7,6 @@ from pbench.server.api.resources.query_apis.datasets.datasets_detail import (
     DatasetsDetail,
 )
 from pbench.server.database.models.datasets import Dataset, Metadata
-from pbench.test.unit.server.conftest import generate_token
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -47,10 +46,9 @@ class TestDatasetsDetail(Commons):
         server_config,
         query_api,
         find_template,
-        pbench_admin_token,
-        rsa_keys,
         user,
         expected_status,
+        get_token_func,
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
@@ -60,14 +58,7 @@ class TestDatasetsDetail(Commons):
         headers = None
 
         if user:
-            if user == "test_admin":
-                token = pbench_admin_token
-            else:
-                token = generate_token(
-                    username=user,
-                    private_key=rsa_keys["private_key"],
-                    client_id=server_config.get("openid-connect", "client"),
-                )
+            token = get_token_func(user)
             assert token
             headers = {"authorization": f"bearer {token}"}
 

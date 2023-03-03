@@ -222,7 +222,7 @@ class FakeQuery:
 
     def count(self) -> int:
         """Returns the number of results filter query returned"""
-        return int(len(self.session.filters))
+        return len(self.session.filters)
 
     def order_by(self, column: Column) -> "FakeQuery":
         """Sort the currently selected records by a specified column"""
@@ -312,6 +312,10 @@ class FakeSession:
         property has been set, "fail" by raising the exception. Otherwise,
         mock a commit by updating any cached "committed" values if the "known"
         proxy objects have changed, and record any new "added" objects.
+
+        Commit operation now also support delete, however, note that deletes
+        are performed after updates and adds, therefore delete-then-add won't
+        work as expected.
         """
         if self.raise_on_commit:
             exc = self.raise_on_commit
@@ -320,8 +324,9 @@ class FakeSession:
         for k, object in self.known.items():
             self.committed[k] = FakeRow.clone(object)
         for a in self.added:
-            a.id = self.id if not a.id else a.id
-            self.id += 1
+            if not a.id:
+                a.id = self.id
+                self.id += 1
             for c in a.__table__._columns:
                 if c.default:
                     default = c.default
@@ -398,7 +403,7 @@ class FakeSession:
 
         # Check that the 'committed' list (which stands in for the actual DB
         # table) contains the expected rows.
-        assert committed is None or all(i in self.committed.values() for i in committed)
+        assert committed is None or sorted(self.committed.values()) == sorted(committed)
 
         # Check whether we've rolled back transaction(s).
         assert self.rolledback == rolledback

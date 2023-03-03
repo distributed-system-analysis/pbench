@@ -171,8 +171,8 @@ class TestParamType:
         client is unauthenticated even when the username exists.
         """
         user = User(
-            username="drb",
             id="1",
+            username="drb",
         )
 
         def ok(username: str) -> User:
