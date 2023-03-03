@@ -631,6 +631,37 @@ def convert_access(value: str, parameter: "Parameter") -> str:
     return v
 
 
+def convert_boolean(value: Any, parameter: "Parameter") -> bool:
+    """Normalize a boolean parameter value
+
+    This can handle a true boolean True or False that might be presented in a
+    JSON body, or one of a set of string values which can appear in the query
+    string of a URI.
+
+    A boolean parameter value of "" signifies "true" by default: this will be
+    the Flask representation of a 'mine' keyword (without a value) appearing
+    in a URI, like `GET /datasets/list?mine`.
+
+    Args:
+        value : parameter value
+        parameter : The Parameter definition
+
+    Raises:
+        ConversionError : input can't be validated or normalized
+    """
+    v = value
+    if isinstance(v, str):
+        if v.lower() in ("", "t", "true", "y", "yes"):
+            v = True
+        elif v.lower() in ("f", "false", "n", "no"):
+            v = False
+        else:
+            raise ConversionError(v, "boolean")
+    elif not isinstance(v, bool):
+        raise ConversionError(v, "boolean")
+    return v
+
+
 # A type defined to pass context through API methods.
 ApiContext = Dict[str, Any]
 
@@ -649,6 +680,7 @@ class ParamType(Enum):
     JSON = ("Json", convert_json)
     KEYWORD = ("Keyword", convert_keyword)
     LIST = ("List", convert_list)
+    BOOLEAN = ("Boolean", convert_boolean)
     STRING = ("String", convert_string)
     USER = ("User", convert_username)
 
@@ -837,9 +869,9 @@ class Schema:
             raise MissingParameters(bad_keys)
 
         processed = {}
-        for p in json_data:
-            tp = self.parameters.get(p)
-            processed[p] = tp.normalize(json_data[p]) if tp else json_data[p]
+        for k, v in json_data.items():
+            tp = self.parameters.get(k)
+            processed[k] = tp.normalize(v) if tp else v
         return processed
 
     def get_param_by_type(

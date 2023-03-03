@@ -50,6 +50,7 @@ class DatasetsList(ApiBase):
                 ApiMethod.GET,
                 OperationCode.READ,
                 query_schema=Schema(
+                    Parameter("mine", ParamType.BOOLEAN),
                     Parameter("name", ParamType.STRING),
                     Parameter("owner", ParamType.USER),
                     Parameter("access", ParamType.ACCESS),
@@ -320,7 +321,31 @@ class DatasetsList(ApiBase):
             query = query.filter(Dataset.name.contains(json["name"]))
         if "filter" in json:
             query = self.filter_query(json["filter"], query)
-        query = self._build_sql_query(json.get("owner"), json.get("access"), query)
+
+        # The "mine" filter allows queries for datasets that are (true) or
+        # aren't (false) owned by the authenticated user. In the absense of
+        # the "mine" filter, datasets are selected based on visibility to the
+        # authenticated user and other explicit filters including "owner" and
+        # "access".
+        if "mine" in json:
+            if "owner" in json:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST,
+                    "'owner' and 'mine' filters cannot be used together",
+                )
+            auth_id = Auth.get_current_user_id()
+            if not auth_id:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST, "'mine' filter requires authentication"
+                )
+            if json["mine"]:
+                owner = auth_id
+            else:
+                owner = None
+                query = query.filter(Dataset.owner_id != auth_id)
+        else:
+            owner = json.get("owner")
+        query = self._build_sql_query(owner, json.get("access"), query)
 
         try:
             datasets, paginated_result = self.get_paginated_obj(

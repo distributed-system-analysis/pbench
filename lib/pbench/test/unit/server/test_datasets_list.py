@@ -179,6 +179,13 @@ class TestDatasetsList:
                 {},
                 ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
+            ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
+            ("drb", {"mine": "t"}, ["drb", "fio_1"]),
+            ("drb", {"mine": "f"}, ["fio_2"]),
+            ("drb", {"mine": "t", "access": "private"}, ["drb"]),
+            ("drb", {"mine": "t", "access": "public"}, ["fio_1"]),
+            ("drb", {"mine": "f", "access": "private"}, []),
+            ("drb", {"mine": "f", "access": "public"}, ["fio_2"]),
             (
                 "test_admin",
                 {},
@@ -222,10 +229,10 @@ class TestDatasetsList:
         ],
     )
     def test_dataset_list(self, server_config, query_as, login, query, results):
-        """Test the operation of `datasets/list` against our set of test
-        datasets.
+        """Test `datasets/list` filters
 
         Args:
+            server_config: The PbenchServerConfig object
             query_as: A fixture to provide a helper that executes the API call
             login: The username as which to perform a query
             query: A JSON representation of the query parameters (these will be
@@ -235,6 +242,51 @@ class TestDatasetsList:
         query.update({"metadata": ["dataset.uploaded"]})
         result = query_as(query, login, HTTPStatus.OK)
         self.compare_results(result.json, results, query, server_config)
+
+    @pytest.mark.parametrize(
+        "login,query,message",
+        (
+            (None, {"mine": True}, "'mine' filter requires authentication"),
+            (None, {"mine": "no"}, "'mine' filter requires authentication"),
+            (
+                "drb",
+                {"mine": "yes", "owner": "drb"},
+                "'owner' and 'mine' filters cannot be used together",
+            ),
+            (
+                "drb",
+                {"mine": False, "owner": "test"},
+                "'owner' and 'mine' filters cannot be used together",
+            ),
+            (
+                "drb",
+                {"mine": "no way!"},
+                "Value 'no way!' (str) cannot be parsed as a boolean",
+            ),
+            ("drb", {"mine": 0}, "Value '0' (str) cannot be parsed as a boolean"),
+        ),
+    )
+    def test_bad_mine(self, query_as, login, query, message):
+        """Test the `mine` filter error conditions.
+
+        Args:
+            query_as: A fixture to provide a helper that executes the API call
+            login: The username as which to perform a query
+            query: A JSON representation of the query parameters
+            message: The expected error message
+        """
+        result = query_as(query, login, HTTPStatus.BAD_REQUEST)
+        assert result.json["message"] == message
+
+    def test_mine_novalue(self, server_config, client, more_datasets, get_token_func):
+        token = get_token_func("drb")
+        headers = {"authorization": f"bearer {token}"}
+        response = client.get(
+            f"{server_config.rest_uri}/datasets/list?mine" "&metadata=dataset.uploaded",
+            headers=headers,
+        )
+        assert response.status_code == HTTPStatus.OK
+        self.compare_results(response.json, ["drb", "fio_1"], {}, server_config)
 
     @pytest.mark.parametrize(
         "login,query,results",
@@ -248,9 +300,8 @@ class TestDatasetsList:
             ),
         ],
     )
-    def test_dataset_list_w_limit(self, query_as, login, query, results, server_config):
-        """Test the operation of `datasets/list` with limits against our set of
-        test datasets.
+    def test_dataset_paged_list(self, query_as, login, query, results, server_config):
+        """Test `datasets/list` with pagination limits.
 
         Args:
             query_as: A fixture to provide a helper that executes the API call
@@ -264,8 +315,7 @@ class TestDatasetsList:
         self.compare_results(result.json, results, query, server_config)
 
     def test_unauth_dataset_list(self, query_as):
-        """Test the operation of `datasets/list` when the client doesn't have
-        access to all of the requested datasets.
+        """Test `datasets/list` of private data for unauthenticated client
 
         Args:
             query_as: A fixture to provide a helper that executes the API call
