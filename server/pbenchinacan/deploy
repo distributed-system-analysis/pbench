@@ -55,6 +55,21 @@ NGINX_FAVICON=${NGINX_FAVICON:-"./dashboard/src/assets/logo/color-square.16x16.i
 # Deployment
 #-
 
+# This is the first invocation of the Podman run command in this script, so we
+# execute a trivial containerized command to make Podman apply the requested
+# pull policy here.  After this invocation (if it doesn't fail...), the
+# container image will be present in the local repository, and so we will use
+# the default Podman policy ("missing") for the subsequent invocations.
+# (Otherwise, we risk pulling a remote image when we shouldn't.)  However, if
+# this script was invoked by the run-pbench-in-a-can script, then _it_ will have
+# done the first pull, and it will have set the policy to "missing" to prompt us
+# to skip it here.  In any case, if the pull policy is set to "missing", then
+# the first Podman run invocation below will do the right thing on its own, so
+# we skip the extra one here.
+if [[ ${PB_SERVER_IMAGE_PULL_POLICY} != "missing" ]]; then
+    podman run --entrypoint true --rm --pull ${PB_SERVER_IMAGE_PULL_POLICY} ${PB_SERVER_IMAGE}
+fi
+
 # Update the Dashboard code, removing any existing code and copying in fresh.
 # We expect that the host dashboard directory already exists and contains a
 # build of the Pbench Dashboard application; however, if it is missing, we
@@ -86,11 +101,12 @@ else
 fi
 
 # Run the Pbench Server.
+#
+# See NOTE above on the first Podman run invocation regarding pull policy.
 podman run \
     --detach \
     --name ${PB_SERVER_CONTAINER_NAME} \
     --network host \
-    --pull ${PB_SERVER_IMAGE_PULL_POLICY} \
     --rm \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.conf:/etc/rsyslog.conf:Z \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.d:/etc/rsyslog.d:Z \

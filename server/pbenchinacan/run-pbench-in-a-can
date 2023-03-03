@@ -66,8 +66,16 @@ mkdir -p -m 0755  \
     ${SRV_PBENCH}/cache
 
 # Set up the static fallback pages for Nginx.
+#
+# NOTE:  This is the first invocation of the Podman run command in this
+#        deployment, so we apply the pull policy here; after this invocation (if
+#        it doesn't fail...), the container image will be present in the local
+#        repository, and so we use the default policy ("missing") for the other
+#        invocations. (Otherwise, we risk pulling a remote image when we
+#        shouldn't.)
 podman run \
     --rm \
+    --pull ${PB_SERVER_IMAGE_PULL_POLICY} \
     --volume ${SRV_PBENCH}:/srv/pbench:Z \
     --entrypoint cp \
     ${PB_SERVER_IMAGE} \
@@ -86,7 +94,9 @@ podman run \
 #+
 # Start the services which the Pbench Server depends upon and then start the
 # Pbench Server itself.
+#
+# See NOTE above on the first Podman run invocation regarding pull policy.
 #-
-
+export PB_SERVER_IMAGE_PULL_POLICY=missing
 server/pbenchinacan/deploy-dependencies
 server/pbenchinacan/deploy
