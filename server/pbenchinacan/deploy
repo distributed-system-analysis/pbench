@@ -40,9 +40,17 @@ PB_SERVER_CONTAINER_NAME=${PB_SERVER_CONTAINER_NAME:-"pbench-server"}
 # Locations on the host
 GITTOP=${GITTOP:-$(git rev-parse --show-toplevel)}
 PB_DASHBOARD_DIR=${PB_DASHBOARD_DIR:-${GITTOP}/dashboard/build}
-NGINX_FAVICON=${NGINX_FAVICON:-${GITTOP}/dashboard/src/assets/logo/color-square.16x16.ico}
 PB_DEPLOY_FILES=${PB_DEPLOY_FILES:-${HOME}/Deploy}
 SRV_PBENCH=${SRV_PBENCH:-/srv/pbench}
+
+# Locations inside the container
+#
+# Note that the Nginx favicon file is a symbolic link (created outside the
+# container in the filesystem which will be mapped into the container).  The
+# value of ${NGINX_FAVICON} points to the location where the file will be found
+# inside the container; by default, it is relative to /srv/pbench/public_html
+# referring to a file in the Dashboard deployment.
+NGINX_FAVICON=${NGINX_FAVICON:-"./dashboard/src/assets/logo/color-square.16x16.ico"}
 
 #+
 # Deployment
@@ -52,7 +60,7 @@ SRV_PBENCH=${SRV_PBENCH:-/srv/pbench}
 # We expect that the host dashboard directory already exists and contains a
 # build of the Pbench Dashboard application; however, if it is missing, we
 # deploy the Pbench Server without a Dashboard deployment.  If we do update the
-# Dashboard, then also update the Nginx favicon for it.
+# Dashboard, then also update the Nginx favicon symlink.
 podman unshare rm -r ${SRV_PBENCH}/public_html/dashboard
 if [[ -d "${PB_DASHBOARD_DIR}" ]]; then
     podman run \
@@ -62,13 +70,7 @@ if [[ -d "${PB_DASHBOARD_DIR}" ]]; then
         --entrypoint cp \
         ${PB_SERVER_IMAGE} \
         -r /dashboard /srv/pbench/public_html/dashboard
-    podman run \
-        --rm \
-        --volume ${NGINX_FAVICON}:/favicon:Z \
-        --volume ${SRV_PBENCH}:/srv/pbench:Z \
-        --entrypoint cp \
-        ${PB_SERVER_IMAGE} \
-        /favicon /srv/pbench/public_html/favicon.ico
+    ln -sf ${NGINX_FAVICON} ${SRV_PBENCH}/public_html/favicon.ico
 else
     echo "Warning:  deploying the Pbench Server without a Dashboard" >&2
     podman run \
