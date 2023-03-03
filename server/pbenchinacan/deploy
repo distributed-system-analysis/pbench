@@ -45,11 +45,10 @@ SRV_PBENCH=${SRV_PBENCH:-/srv/pbench}
 
 # Locations inside the container
 #
-# Note that the Nginx favicon file is a symbolic link (created outside the
-# container in the filesystem which will be mapped into the container).  The
-# value of ${NGINX_FAVICON} points to the location where the file will be found
-# inside the container; by default, it is relative to /srv/pbench/public_html
-# referring to a file in the Dashboard deployment.
+# The value of ${NGINX_FAVICON} points to the location where the file will be
+# found inside the container and is used to create a symbolic link; by default,
+# it refers to a file in the Dashboard deployment relative to
+# /srv/pbench/public_html.
 NGINX_FAVICON=${NGINX_FAVICON:-"./dashboard/src/assets/logo/color-square.16x16.ico"}
 
 #+
@@ -70,7 +69,12 @@ if [[ -d "${PB_DASHBOARD_DIR}" ]]; then
         --entrypoint cp \
         ${PB_SERVER_IMAGE} \
         -r /dashboard /srv/pbench/public_html/dashboard
-    ln -sf ${NGINX_FAVICON} ${SRV_PBENCH}/public_html/favicon.ico
+    podman run \
+        --rm \
+        --volume ${SRV_PBENCH}:/srv/pbench:Z \
+        --entrypoint ln \
+        ${PB_SERVER_IMAGE} \
+        -sf ${NGINX_FAVICON} /srv/pbench/public_html/favicon.ico
 else
     echo "Warning:  deploying the Pbench Server without a Dashboard" >&2
     podman run \
