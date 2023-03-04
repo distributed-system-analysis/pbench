@@ -6,8 +6,8 @@
 . $dir/pbench-base.sh
 
 # check that all the directories exist
-test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
-test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
+test -d "${ARCHIVE}" || doexit "Bad ARCHIVE=${ARCHIVE}"
+test -d "${RESULTS}" || doexit "Bad RESULTS=${RESULTS}"
 
 cd $RESULTS || doexit "cd $RESULTS failed"
 
