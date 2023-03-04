@@ -27,13 +27,14 @@ from argparse import ArgumentParser
 from configparser import ConfigParser, NoOptionError
 from datetime import datetime
 
-import pbench
 from pbench import (
     _STD_DATETIME_FMT,
     TAR_BALL_NAME_PAT_S,
+    UTC,
     BadConfig,
     PbenchConfig,
     get_pbench_logger,
+    utcnow,
 )
 from pbench.report import Report
 
@@ -79,7 +80,7 @@ class ActionSet(object):
         self.name = name
 
     def duration(self):
-        return self.end - self.start
+        return (self.end - self.start).total_seconds()
 
 
 def fetch_username(tb_incoming_dir):
@@ -165,7 +166,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
 
     Returns 0 on success, > 0 if any errors encountered.
     """
-    start = pbench._time()
+    start = utcnow()
     if not dry_run:
         logger.info("Began removing unpacked tar ball directory, '{}'", tb_incoming_dir)
 
@@ -180,7 +181,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
         logger.error(
             "Aborting removal of unpacked tar ball directory, '{}'", tb_incoming_dir
         )
-        return ActionSet(actions_taken, errors, start, pbench._time())
+        return ActionSet(actions_taken, errors, start, utcnow())
 
     # Fetch user from metadata.log file.
     user_name = fetch_username(tb_incoming_dir)
@@ -197,7 +198,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
             logger.error(
                 "Aborting removal of unpacked tar ball directory, '{}'", tb_incoming_dir
             )
-            return ActionSet(actions_taken, errors, start, pbench._time())
+            return ActionSet(actions_taken, errors, start, utcnow())
 
     # Now that all RESULTS symbolic links and any USERS symbolic links to the
     # incoming directory have been removed, we can rename the directory (so it
@@ -240,10 +241,10 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
         else:
             act.set_status("succ")
 
-    end = pbench._time()
+    end = utcnow()
     act_set = ActionSet(actions_taken, errors, start, end)
     if errors == 0:
-        duration = 0.0 if end < start else end - start
+        duration = 0.0 if end < start else (end - start).total_seconds()
         logger.info(
             "After {:0.2f} seconds, finished removal of unpacked tar ball"
             " directory, '{}'",
@@ -307,7 +308,7 @@ def gen_list_unpacked_aged(incoming, archive, curr_dt, max_unpacked_age):
                         int(match.group(4)),
                         int(match.group(5)),
                         int(match.group(6)),
-                    )
+                    ).replace(tzinfo=UTC)
                     # See if this unpacked tar ball directory has aged out.
                     timediff = curr_dt - tb_dt
                     if timediff.days > max_unpacked_age:
@@ -402,14 +403,7 @@ def main(options):
 
     # First phase is to find all the tar balls which are beyond the max
     # unpacked age, and which still have an unpacked directory in INCOMING.
-    if config._ref_datetime is not None:
-        try:
-            curr_dt = config._ref_datetime
-        except Exception:
-            # Ignore bad dates from test environment.
-            curr_dt = datetime.utcnow()
-    else:
-        curr_dt = datetime.utcnow()
+    curr_dt = utcnow()
 
     _msg = "Culling unpacked tar balls {} days older than {}"
     if options.dry_run:
@@ -419,7 +413,7 @@ def main(options):
 
     actions_taken = []
     errors = 0
-    start = pbench._time()
+    start = curr_dt
 
     gen = gen_list_unpacked_aged(incoming_p, archive_p, curr_dt, max_unpacked_age)
     if config._unittests:
@@ -443,7 +437,7 @@ def main(options):
             # Stop any further unpacked tar ball removal if an error is
             # encountered.
             break
-    end = pbench._time()
+    end = utcnow()
 
     # Generate the ${TOP}/public_html prefix so we can strip it from the
     # various targets in the report.
@@ -453,7 +447,7 @@ def main(options):
     with tempfile.NamedTemporaryFile(
         mode="w+t", prefix=f"{_NAME_}.", suffix=".report", dir=config.TMP
     ) as tfp:
-        duration = end - start
+        duration = (end - start).total_seconds()
         total = len(actions_taken)
         print(
             f"Culled {total:d} unpacked tar ball directories ({errors:d}"

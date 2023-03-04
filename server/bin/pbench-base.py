@@ -59,8 +59,7 @@ vars = sorted(
     [
         key
         for key in config.__dict__.keys()
-        if key
-        not in ("files", "conf", "timestamp", "_unittests", "_ref_datetime", "get")
+        if key not in ("files", "conf", "timestamp", "_unittests", "get")
     ]
 )
 for att in vars:
