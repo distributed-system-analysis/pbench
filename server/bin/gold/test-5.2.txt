@@ -1,92 +1,8 @@
 +++ Running pbench-sync-satellite satellite-one
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-sync-satellite",
-            "text": "pbench-sync-satellite.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 3 files and 0 errors.\n\nrun-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-5.2/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: duration (secs): 0\nrun-1970-01-01T00:00:42-UTC: Total 3 files processed and 0 errors\n",
-            "total_chunks": 1,
-            "total_size": 747
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-dispatch",
-            "text": "run-1970-01-01T00:00:42-UTC: ONE::controllerA/tarball-simple1_1970-01-01T00:42:00: success\nrun-1970-01-01T00:00:42-UTC: ONE::controllerB/tarball-simple2_1970-01-01T00:41:00: success\nrun-1970-01-01T00:00:42-UTC: ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00: success\nrun-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-a-missing-tb/tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz failed MD5 check\nrun-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00: success\nrun-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00: success\nrun-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00: success\nrun-1970-01-01T00:00:42-UTC: Duplicate: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz duplicate name\nrun-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-e-bad-md5/tarball-bad-md5_1970.01.01T00.42.00.tar.xz failed MD5 check\nrun-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz failed MD5 check\nrun-1970-01-01T00:00:42-UTC: controller-g-normal/tarball-normal_1970.01.01T00.42.00: success\npbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 11 result tar balls, 7 successfully (0 partial), with 3 quarantined tar balls, 1 duplicately-named tar balls, and 0 errors.\n",
-            "total_chunks": 1,
-            "total_size": 1746
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished pbench-dispatch (status=0)
 +++ Running pbench-unpack-tarballs small
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-unpack-tarballs-small",
-            "text": "pbench-unpack-tarballs-small.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 1 errors\nProcessed 8 result tar balls, 7 successfully, 0 warnings, 1 errors, and 0 duplicates\n\nrun-1970-01-01T00:00:42-UTC: symlink target for /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/TO-UNPACK/tarball-that-does-not-exist_1970.01.01T00.42.00.tar.xz does not exist\n",
-            "total_chunks": 1,
-            "total_size": 386
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
 Template:  pbench-unittests.v3.server-reports
@@ -163,34 +79,6 @@ len(actions) = 1
 +++ Running pbench-index --tool-data
 --- Finished pbench-index (status=0)
 +++ Running pbench-unpack-tarballs none re-unpack
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-re-unpack-tarballs",
-            "text": "pbench-re-unpack-tarballs.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 0 result tar balls, 0 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
-            "total_chunks": 1,
-            "total_size": 165
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
@@ -463,21 +351,21 @@ drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        174 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--        876 logs/pbench-dispatch/pbench-dispatch.error
--rw-rw-r--       2081 logs/pbench-dispatch/pbench-dispatch.log
+-rw-rw-r--       1845 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        254 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       7305 logs/pbench-index/pbench-index.log
+-rw-rw-r--       7317 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-re-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
--rw-rw-r--        528 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
+-rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--        219 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--        849 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--        375 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs-small
 -rw-rw-r--        218 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
--rw-rw-r--       3302 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
+-rw-rw-r--       3123 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/ONE::controllerA
@@ -557,7 +445,7 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-satellite-cleanup
 -rw-rw-r--          0 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.error
--rw-rw-r--        928 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
+-rw-rw-r--        522 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
 drwxrwxr-x          - logs/pbench-sync-package-tarballs
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.log
@@ -591,7 +479,6 @@ run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/p
 run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz failed MD5 check
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
-run-1970-01-01T00:00:42-UTC
 tarball-simple1_1970-01-01T00:42:00.tar.xz: OK
 run-1970-01-01T00:00:42-UTC: ONE::controllerA/tarball-simple1_1970-01-01T00:42:00: success
 ./tarball-simple2_1970-01-01T00:41:00.tar.xz: OK
@@ -613,9 +500,7 @@ tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
 tarball-normal_1970.01.01T00.42.00.tar.xz: OK
 run-1970-01-01T00:00:42-UTC: controller-g-normal/tarball-normal_1970.01.01T00.42.00: success
-pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 11 result tar balls, 7 successfully (0 partial), with 3 quarantined tar balls, 1 duplicately-named tar balls, and 0 errors.
-1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:42-UTC(unit-test): Processed 11 result tar balls, 7 successfully (0 partial), with 3 quarantined tar balls, 1 duplicately-named tar balls, and 0 errors. -- @cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "ndups": 1, "npartialsucc": 0, "nquarantined": 3, "ntbs": 7, "ntotal": 11, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC"}}}}
 ----- pbench-dispatch/pbench-dispatch.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
@@ -627,7 +512,7 @@ pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 11 result tar 
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
 1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-0_1970.01.01T00.42.00.tar.xz (size 212)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- open tar ball
@@ -659,35 +544,23 @@ pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 11 result tar 
 1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/TO-INDEX/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz (size 228)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
 1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: indexed 0 (skipped 7) results, 0 errors
-1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
-run-1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: Processed 0 tar balls
-1970-01-01T00:00:42.000000 DEBUG pbench-re-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-re-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 +++++ pbench-sync-satellite/pbench-sync-satellite.error
 pbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-5.2/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)
 pbench-sync-satellite: completed satellite state changes
 ----- pbench-sync-satellite/pbench-sync-satellite.error
 +++++ pbench-sync-satellite/pbench-sync-satellite.log
-run-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: duration (secs): 0
-run-1970-01-01T00:00:42-UTC: Total 3 files processed and 0 errors
-1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:42-UTC(unit-test): ONE Processed 3 files (from 3 hosts, 3 total tar balls), with 0 errors, in 0 seconds -- @cee:{"pbench": {"report": {"summary": {"duration": 0, "end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nhosts": 3, "nprocessed": 3, "ntotal": 3, "prog": "pbench-sync-satellite", "remote_prefix": "ONE", "start_ts": "1970-01-01T00:00:42-UTC"}}}}
 ----- pbench-sync-satellite/pbench-sync-satellite.log
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
 run-1970-01-01T00:00:42-UTC: symlink target for /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/TO-UNPACK/tarball-that-does-not-exist_1970.01.01T00.42.00.tar.xz does not exist
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
-run-1970-01-01T00:00:42-UTC
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00
 run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00: success - elapsed time (secs): 0 - size (bytes): 212
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00
@@ -702,18 +575,14 @@ ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::cont
 run-1970-01-01T00:00:42-UTC: ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00: success - elapsed time (secs): 0 - size (bytes): 228
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00
 run-1970-01-01T00:00:42-UTC: ONE::controllerB/tarball-simple2_1970-01-01T00:41:00: success - elapsed time (secs): 0 - size (bytes): 220
-run-1970-01-01T00:00:42-UTC: Processed 7 tar balls
-1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:42-UTC(unit-test): Processed 8 result tar balls, 7 successfully, with 0 rechecks, 0 warnings, and 1 errors -- @cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 1, "nrechecks": 0, "ntbs": 7, "ntotal": 8, "nwarn": 0, "prog": "pbench-unpack-tarballs-small", "start_ts": "1970-01-01T00:00:42-UTC"}}}}
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.error
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.error
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.log
-run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup starting
-run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup ends: Total 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, and 0 result removal errors errors.
-1970-01-01T00:00:42.000000 INFO pbench-satellite-cleanup.report post_status -- @cee:{"@generated-by": {"commit_id": "unit-test", "group_id": 43, "hostname": "example.com", "pid": 42, "user_id": 44, "version": ""}, "@timestamp": "1970-01-01T00:00:42", "chunk_id": 1, "doctype": "status", "name": "pbench-satellite-cleanup", "text": "pbench-satellite-cleanup.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 total errors\nTotal 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, and 0 result removal errors errors.\n\n", "total_chunks": 1, "total_size": 257}
+run-1970-01-01T00:00:42-UTC(unit-test): Total 3 tar balls cleaned up (for 3 hosts), with 0 tar ball removal errors, 0 md5 file removal errors, 0 state change errors, 0 incoming directory removal errors, and 0 result directory removal errors. -- @cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nhosts": 3, "nincomingerrs": 0, "nmd5errs": 0, "nresultserrs": 0, "nstateerrs": 0, "ntbs": 3, "ntberrs": 0, "prog": "pbench-satellite-cleanup", "start_ts": "1970-01-01T00:00:42-UTC"}}}}
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.log
 +++++ pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
 ----- pbench-sync-package-tarballs/pbench-sync-package-tarballs.error

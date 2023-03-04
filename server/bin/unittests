@@ -24,6 +24,8 @@ if [[ ! -d $_testbase ]]; then
     exit 1
 fi
 
+alias logger="logger --no-act --stderr"
+
 function remove_path {
     # PATH ($2) => /bin:/opt/a dir/bin:/sbin
     WORK=:$2:
@@ -211,13 +213,6 @@ function _dump_logs {
         echo "+++ $(basename $_testlog) file contents" >> $_testout
         _normalize_output $_testlog >> $_testout 2>&1
         echo "--- $(basename $_testlog) file contents" >> $_testout
-    fi
-
-
-    if [ -s $_testloggerpayload ]; then
-        echo "+++ $(basename $_testloggerpayload) file contents" >> $_testout
-        _normalize_output $_testloggerpayload >> $_testout 2>&1
-        echo "--- $(basename $_testloggerpayload) file contents" >> $_testout
     fi
 }
 
@@ -481,7 +476,6 @@ function _run_test {
     export _testactout=$_testroot/actoutput.txt
     export _testactlog=$_testroot/test-activation-execution.log
     export _testlog=$_testroot/test-execution.log
-    export _testloggerpayload=$_testroot/test-logger-payload.log
     export _testdir=$_testroot/pbench
     export _testdir_local=$_testroot/pbench-local
     export _testdir_sat=$_testroot/pbench-satellite
@@ -527,7 +521,6 @@ function _reset_state {
     rm -f $_testactout
     rm -f $_testlog
     rm -f $_testactlog
-    rm -f $_testloggerpayload
     rm -rf $_testdir
     if [[ -d $_testdir ]]; then
         echo "ERROR: unable to remove pbench hierarchy" >&2

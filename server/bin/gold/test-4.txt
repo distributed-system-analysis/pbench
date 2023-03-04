@@ -1,62 +1,6 @@
 +++ Running pbench-sync-satellite satellite-one
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-sync-satellite",
-            "text": "pbench-sync-satellite.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 0 files and 0 errors.\n\nrun-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: duration (secs): 0\nrun-1970-01-01T00:00:42-UTC: Total 0 files processed and 0 errors\n",
-            "total_chunks": 1,
-            "total_size": 528
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-dispatch",
-            "text": "pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 0 result tar balls, 0 successfully (0 partial), with 0 quarantined tar balls, 0 duplicately-named tar balls, and 0 errors.\n",
-            "total_chunks": 1,
-            "total_size": 189
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished pbench-dispatch (status=0)
 +++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs-small: Bad USERS=/var/tmp/pbench-test-server/test-4/pbench/public_html/users
@@ -151,7 +95,7 @@ drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        219 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
--rw-rw-r--        646 logs/pbench-dispatch/pbench-dispatch.log
+-rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        254 logs/pbench-index-tool-data/pbench-index-tool-data.log
@@ -160,7 +104,7 @@ drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--          0 logs/pbench-sync-satellite/ONE/change_state.log
 -rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--        849 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -199,7 +143,7 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-satellite-cleanup
 -rw-rw-r--          0 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.error
--rw-rw-r--        928 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
+-rw-rw-r--          0 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
 drwxrwxr-x          - logs/pbench-sync-package-tarballs
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.log
@@ -223,10 +167,6 @@ drwxrwxr-x          - tmp
 +++++ pbench-dispatch/pbench-dispatch.error
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
-run-1970-01-01T00:00:42-UTC
-pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 0 result tar balls, 0 successfully (0 partial), with 0 quarantined tar balls, 0 duplicately-named tar balls, and 0 errors.
-1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-dispatch/pbench-dispatch.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
@@ -241,23 +181,12 @@ pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test): Processed 0 result tar b
 +++++ pbench-sync-satellite/pbench-sync-satellite.error
 ----- pbench-sync-satellite/pbench-sync-satellite.error
 +++++ pbench-sync-satellite/pbench-sync-satellite.log
-run-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: duration (secs): 0
-run-1970-01-01T00:00:42-UTC: Total 0 files processed and 0 errors
-1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-sync-satellite/pbench-sync-satellite.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.error
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.error
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.log
-run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup starting
-run-1970-01-01T00:00:42-UTC: pbench-satellite-cleanup ends: Total 0 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, and 0 result removal errors errors.
-1970-01-01T00:00:42.000000 INFO pbench-satellite-cleanup.report post_status -- @cee:{"@generated-by": {"commit_id": "unit-test", "group_id": 43, "hostname": "example.com", "pid": 42, "user_id": 44, "version": ""}, "@timestamp": "1970-01-01T00:00:42", "chunk_id": 1, "doctype": "status", "name": "pbench-satellite-cleanup", "text": "pbench-satellite-cleanup.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 total errors\nTotal 0 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, and 0 result removal errors errors.\n\n", "total_chunks": 1, "total_size": 257}
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.log
 +++++ pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
 ----- pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
