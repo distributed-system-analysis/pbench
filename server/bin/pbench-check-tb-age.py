@@ -16,7 +16,7 @@ from argparse import ArgumentParser
 from configparser import NoOptionError
 from datetime import datetime
 
-from pbench import TAR_BALL_NAME_W_TAR_PAT_S, BadConfig, PbenchConfig
+from pbench import TAR_BALL_NAME_W_TAR_PAT_S, UTC, BadConfig, PbenchConfig, utcnow
 
 _NAME_ = "pbench-check-tb_age"
 
@@ -113,14 +113,7 @@ def main(options):
         return 13
 
     # Determine the proper time to use as a reference.
-    if config._ref_datetime is not None:
-        try:
-            curr_dt = config._ref_datetime
-        except Exception:
-            # Ignore bad dates from test environment.
-            curr_dt = datetime.utcnow()
-    else:
-        curr_dt = datetime.utcnow()
+    curr_dt = utcnow()
 
     # Turn the pattern components of the match into a datetime object.
     tb_dt = datetime(
@@ -130,7 +123,7 @@ def main(options):
         int(match.group(4)),
         int(match.group(5)),
         int(match.group(6)),
-    )
+    ).replace(tzinfo=UTC)
 
     # See if this unpacked tar ball directory has "aged" out.
     timediff = curr_dt - tb_dt

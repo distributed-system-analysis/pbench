@@ -37,10 +37,17 @@ class simple_utc(tzinfo):
         return timedelta(0)
 
 
+UTC = simple_utc()
+
+
+def utcnow():
+    return datetime.utcfromtimestamp(_time()).replace(tzinfo=UTC)
+
+
 def tstos(ts=None):
     if ts is None:
         ts = _time()
-    dt = datetime.utcfromtimestamp(ts).replace(tzinfo=simple_utc())
+    dt = datetime.utcfromtimestamp(ts).replace(tzinfo=UTC)
     return dt.strftime("%Y-%m-%dT%H:%M:%S-%Z")
 
 
@@ -271,20 +278,16 @@ class PbenchConfig(object):
             self._unittests = bool(self._unittests)
 
         if self._unittests:
+            try:
+                clock_start = float(self.conf.get("pbench-server", "debug_clock_start"))
+            except Exception:
+                clock_start = 42.00
 
             def mocked_time():
-                return 42.00
+                return clock_start
 
             global _time
             _time = mocked_time
-
-            try:
-                ref_dt_str = self.conf.get("pbench-server", "debug_ref_datetime")
-            except Exception:
-                ref_dt_str = "1970-01-02T00:00:00.000000"
-            self._ref_datetime = datetime.strptime(ref_dt_str, _STD_DATETIME_FMT)
-        else:
-            self._ref_datetime = None
 
         # Constants
 
