@@ -18,11 +18,12 @@ links).
 
 """
 
+import hashlib
+import json
 import os
 import re
 import shutil
 import sys
-import tempfile
 from argparse import ArgumentParser
 from configparser import ConfigParser, NoOptionError
 from datetime import datetime
@@ -36,7 +37,6 @@ from pbench import (
     get_pbench_logger,
     utcnow,
 )
-from pbench.report import Report
 
 _NAME_ = "pbench-cull-unpacked-tarballs"
 
@@ -436,60 +436,88 @@ def main(options):
         if act_set.errors > 0:
             # Stop any further unpacked tar ball removal if an error is
             # encountered.
+            errors = act_set.errors
             break
     end = utcnow()
+
+    actions_taken_l = len(actions_taken)
+    if actions_taken_l == 0:
+        return 0
 
     # Generate the ${TOP}/public_html prefix so we can strip it from the
     # various targets in the report.
     public_html = os.path.realpath(os.path.join(config.TOP, "public_html"))
+    public_html_len = len(public_html)
 
-    # Write the actions taken into a report file.
-    with tempfile.NamedTemporaryFile(
-        mode="w+t", prefix=f"{_NAME_}.", suffix=".report", dir=config.TMP
-    ) as tfp:
-        duration = (end - start).total_seconds()
-        total = len(actions_taken)
-        print(
-            f"Culled {total:d} unpacked tar ball directories ({errors:d}"
-            f" errors) in {duration:0.2f} secs",
-            file=tfp,
+    # Log a report summary.
+    summary = dict(
+        end=end.strftime(_STD_DATETIME_FMT),
+        errors=errors,
+        prog=_NAME_,
+        start=start.strftime(_STD_DATETIME_FMT),
+        total=len(actions_taken),
+    )
+    # Create the execution ID off of the non-relative information.
+    the_bytes = json.dumps(summary, sort_keys=True).encode("utf-8")
+    exec_id = hashlib.md5(the_bytes).hexdigest()
+    summary["execution_id"] = exec_id
+    # Add duration to the summary.
+    summary["duration"] = (end - start).total_seconds()
+    pbench_namespaced_summary = dict(pbench={"report": {"summary": summary}})
+    summary_text = (
+        "{execution_id}: Culled {total:d} unpacked tar ball directories"
+        " ({errors:d} errors) in {duration:0.2f} secs".format(**summary)
+    )
+    logger.info(
+        "{} -- @cee:{}",
+        summary_text,
+        json.dumps(pbench_namespaced_summary),
+    )
+
+    for act_set in sorted(actions_taken, key=lambda a: a.name):
+        action_set_d = dict(
+            duration=act_set.duration(),
+            errors=act_set.errors,
+            execution_id=exec_id,
+            name=act_set.name,
         )
-        if total > 0:
-            print("\nActions Taken:", file=tfp)
-        for act_set in sorted(actions_taken, key=lambda a: a.name):
-            print(
-                f"  - {act_set.name} ({act_set.errors:d} errors,"
-                f" {act_set.duration():0.2f} secs)",
-                file=tfp,
+        action_set_text = (
+            "Action set {name} ({errors:d} errors, {duration:0.2f} secs)".format(
+                **action_set_d
             )
-            for act in act_set.actions:
-                assert act.noun.startswith(
-                    public_html
-                ), f"Logic bomb! {act.noun} not in .../public_html/"
-                tgt = act.noun[len(public_html) + 1 :]
-                if act.verb == "mv":
-                    name = os.path.basename(tgt)
-                    controller = os.path.dirname(tgt)
-                    ex_tgt = os.path.join(controller, f".delete.{name}")
-                    print(
-                        f"      $ {act.verb} {tgt} {ex_tgt}  # {act.status}", file=tfp
-                    )
-                else:
-                    print(f"      $ {act.verb} {tgt}  # {act.status}", file=tfp)
+        )
+        pbench_namespaced_action_set = dict(
+            pbench={"report": {"action_set": action_set_d}}
+        )
+        logger.debug(
+            "{} -- @cee:{}", action_set_text, json.dumps(pbench_namespaced_action_set)
+        )
 
-        # Flush out the report ahead of posting it.
-        tfp.flush()
-        tfp.seek(0)
-
-        # We need to generate a report that lists all the actions taken.
-        report = Report(config, _NAME_)
-        report.init_report_template()
-        try:
-            report.post_status(
-                config.timestamp(), "status" if errors == 0 else "errors", tfp.name
+        for act in act_set.actions:
+            action_d = dict(
+                execution_id=exec_id,
+                in_public_html=act.noun.startswith(public_html),
+                name=act_set.name,
+                noun=act.noun,
+                status=act.status,
+                verb=act.verb,
             )
-        except Exception:
-            pass
+            if not act.noun.startswith(public_html):
+                tgt = act.noun
+            else:
+                tgt = act.noun[public_html_len + 1 :]
+            if act.verb == "mv":
+                name = os.path.basename(tgt)
+                controller = os.path.dirname(tgt)
+                ex_tgt = os.path.join(controller, f".delete.{name}")
+                ex_tgt = f" {ex_tgt}"
+            else:
+                ex_tgt = ""
+            action_text = f"Action $ {act.verb} {tgt} {ex_tgt}  # {act.status}"
+            pbench_namespaced_action = dict(pbench={"report": {"action": action_d}})
+            logger.debug(
+                "{} -- @cee:{}", action_text, json.dumps(pbench_namespaced_action)
+            )
     return errors
 
 

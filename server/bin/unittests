@@ -199,6 +199,7 @@ function _dump_logs {
                 while read fname; do
                     echo "+++++ ${fname}" >> $_testout
                     _normalize_output ${dir}/logs/${fname} >> $_testout 2>&1
+                    ${_tdir}/test-bin/verify_cee ${dir}/logs/${fname} >> $_testout 2>&1 || echo "Bad CEE JSON in ${dir}/logs/${fname}" >> ${_testout} 2>&1
                     echo "----- ${fname}" >> $_testout
                 done
             echo "---- $(basename ${dir})/logs" >> $_testout

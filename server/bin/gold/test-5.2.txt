@@ -195,34 +195,6 @@ len(actions) = 1
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
 +++ Running pbench-cull-unpacked-tarballs
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-cull-unpacked-tarballs",
-            "text": "Culled 0 unpacked tar ball directories (0 errors) in 0.00 secs\n",
-            "total_chunks": 1,
-            "total_size": 63
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished pbench-cull-unpacked-tarballs (status=0)
 +++ Running pbench-satellite-cleanup
 --- Finished pbench-satellite-cleanup (status=0)
@@ -488,7 +460,7 @@ drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
--rw-rw-r--        631 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
+-rw-rw-r--        174 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--        876 logs/pbench-dispatch/pbench-dispatch.error
 -rw-rw-r--       2081 logs/pbench-dispatch/pbench-dispatch.log
@@ -611,8 +583,6 @@ drwxrwxr-x          - tmp
 ----- pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Culling unpacked tar balls 30 days older than 1970-01-01T00:00:42.000000
-1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 +++++ pbench-dispatch/pbench-dispatch.error
 run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-a-missing-tb/tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz failed MD5 check

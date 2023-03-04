@@ -1,32 +1,4 @@
 +++ Running pbench-cull-unpacked-tarballs
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-02 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-02",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-02-14T00:00:00",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-cull-unpacked-tarballs",
-            "text": "Culled 3 unpacked tar ball directories (0 errors) in 0.00 secs\n\nActions Taken:\n  - controller-no-prefixes/tarball_culled_1970.01.01T00.00.00 (0 errors, 0.00 secs)\n      $ rm results/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00  # succ\n      $ mv incoming/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00 incoming/controller-no-prefixes/.delete.tarball_culled_1970.01.01T00.00.00  # succ\n      $ rmtree incoming/controller-no-prefixes/.delete.tarball_culled_1970.01.01T00.00.00  # succ\n  - controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00 (0 errors, 0.00 secs)\n      $ rm results/controller-prefixes/pre0/pre1/pre2/tarball_culled-w-prefix_1970.01.01T00.00.00  # succ\n      $ mv incoming/controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00 incoming/controller-prefixes/.delete.tarball_culled-w-prefix_1970.01.01T00.00.00  # succ\n      $ rmtree incoming/controller-prefixes/.delete.tarball_culled-w-prefix_1970.01.01T00.00.00  # succ\n  - controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00 (0 errors, 0.00 secs)\n      $ rm results/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00  # succ\n      $ rm users/userA/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00  # succ\n      $ mv incoming/controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00 incoming/controller-prefixes/.delete.tarball_culled-w-userA_1970.01.01T00.00.00  # succ\n      $ rmtree incoming/controller-prefixes/.delete.tarball_culled-w-userA_1970.01.01T00.00.00  # succ\n",
-            "total_chunks": 1,
-            "total_size": 1551
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished pbench-cull-unpacked-tarballs (status=0)
 +++ Running unit test audit
 --- Finished unit test audit (status=3)
@@ -133,7 +105,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 -rw-rw-r--       1073 logs/pbench-audit-server/report.latest.txt
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
--rw-rw-r--       3465 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
+-rw-rw-r--      10600 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -229,8 +201,20 @@ end-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-2
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs remove_symlinks -- Removed symlink '/var/tmp/pbench-test-server/test-27/pbench/public_html/results/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00'
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs remove_symlinks -- Removed symlink '/var/tmp/pbench-test-server/test-27/pbench/public_html/users/userA/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00'
 1970-01-01T00:00:42.000000 INFO pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs remove_unpacked -- After 0.00 seconds, finished removal of unpacked tar ball directory, '/var/tmp/pbench-test-server/test-27/pbench/public_html/incoming/controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00'
-1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.indexer update_templates -- done templates (start ts: 1970-02-14T00:00:00-UTC, end ts: 1970-02-14T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.report post_status -- posted status (start ts: 1970-02-14T00:00:00-UTC, end ts: 1970-02-14T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 INFO pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- ae9baf5d7f271b3a707e28e10d31e7a8: Culled 3 unpacked tar ball directories (0 errors) in 0.00 secs -- @cee:{"pbench": {"report": {"summary": {"end": "1970-02-14T00:00:00.000000", "errors": 0, "prog": "pbench-cull-unpacked-tarballs", "start": "1970-02-14T00:00:00.000000", "total": 3, "execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "duration": 0.0}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action set controller-no-prefixes/tarball_culled_1970.01.01T00.00.00 (0 errors, 0.00 secs) -- @cee:{"pbench": {"report": {"action_set": {"duration": 0.0, "errors": 0, "execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "name": "controller-no-prefixes/tarball_culled_1970.01.01T00.00.00"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action $ rm results/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00   # succ -- @cee:{"pbench": {"report": {"action": {"execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "in_public_html": true, "name": "controller-no-prefixes/tarball_culled_1970.01.01T00.00.00", "noun": "/var/tmp/pbench-test-server/test-27/pbench/public_html/results/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00", "status": "succ", "verb": "rm"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action $ mv incoming/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00  incoming/controller-no-prefixes/.delete.tarball_culled_1970.01.01T00.00.00  # succ -- @cee:{"pbench": {"report": {"action": {"execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "in_public_html": true, "name": "controller-no-prefixes/tarball_culled_1970.01.01T00.00.00", "noun": "/var/tmp/pbench-test-server/test-27/pbench/public_html/incoming/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00", "status": "succ", "verb": "mv"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action $ rmtree incoming/controller-no-prefixes/.delete.tarball_culled_1970.01.01T00.00.00   # succ -- @cee:{"pbench": {"report": {"action": {"execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "in_public_html": true, "name": "controller-no-prefixes/tarball_culled_1970.01.01T00.00.00", "noun": "/var/tmp/pbench-test-server/test-27/pbench/public_html/incoming/controller-no-prefixes/.delete.tarball_culled_1970.01.01T00.00.00", "status": "succ", "verb": "rmtree"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action set controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00 (0 errors, 0.00 secs) -- @cee:{"pbench": {"report": {"action_set": {"duration": 0.0, "errors": 0, "execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "name": "controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action $ rm results/controller-prefixes/pre0/pre1/pre2/tarball_culled-w-prefix_1970.01.01T00.00.00   # succ -- @cee:{"pbench": {"report": {"action": {"execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "in_public_html": true, "name": "controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00", "noun": "/var/tmp/pbench-test-server/test-27/pbench/public_html/results/controller-prefixes/pre0/pre1/pre2/tarball_culled-w-prefix_1970.01.01T00.00.00", "status": "succ", "verb": "rm"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action $ mv incoming/controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00  incoming/controller-prefixes/.delete.tarball_culled-w-prefix_1970.01.01T00.00.00  # succ -- @cee:{"pbench": {"report": {"action": {"execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "in_public_html": true, "name": "controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00", "noun": "/var/tmp/pbench-test-server/test-27/pbench/public_html/incoming/controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00", "status": "succ", "verb": "mv"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action $ rmtree incoming/controller-prefixes/.delete.tarball_culled-w-prefix_1970.01.01T00.00.00   # succ -- @cee:{"pbench": {"report": {"action": {"execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "in_public_html": true, "name": "controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00", "noun": "/var/tmp/pbench-test-server/test-27/pbench/public_html/incoming/controller-prefixes/.delete.tarball_culled-w-prefix_1970.01.01T00.00.00", "status": "succ", "verb": "rmtree"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action set controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00 (0 errors, 0.00 secs) -- @cee:{"pbench": {"report": {"action_set": {"duration": 0.0, "errors": 0, "execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "name": "controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action $ rm results/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00   # succ -- @cee:{"pbench": {"report": {"action": {"execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "in_public_html": true, "name": "controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00", "noun": "/var/tmp/pbench-test-server/test-27/pbench/public_html/results/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00", "status": "succ", "verb": "rm"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action $ rm users/userA/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00   # succ -- @cee:{"pbench": {"report": {"action": {"execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "in_public_html": true, "name": "controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00", "noun": "/var/tmp/pbench-test-server/test-27/pbench/public_html/users/userA/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00", "status": "succ", "verb": "rm"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action $ mv incoming/controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00  incoming/controller-prefixes/.delete.tarball_culled-w-userA_1970.01.01T00.00.00  # succ -- @cee:{"pbench": {"report": {"action": {"execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "in_public_html": true, "name": "controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00", "noun": "/var/tmp/pbench-test-server/test-27/pbench/public_html/incoming/controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00", "status": "succ", "verb": "mv"}}}}
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Action $ rmtree incoming/controller-prefixes/.delete.tarball_culled-w-userA_1970.01.01T00.00.00   # succ -- @cee:{"pbench": {"report": {"action": {"execution_id": "ae9baf5d7f271b3a707e28e10d31e7a8", "in_public_html": true, "name": "controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00", "noun": "/var/tmp/pbench-test-server/test-27/pbench/public_html/incoming/controller-prefixes/.delete.tarball_culled-w-userA_1970.01.01T00.00.00", "status": "succ", "verb": "rmtree"}}}}
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
