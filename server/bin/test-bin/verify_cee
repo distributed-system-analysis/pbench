@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+#
+# Verify that JSON text follows the marker, "@cee:", in a givne file.
+#
+# Returns 0 on success, 1 on JSON validation failures, 2 on bad arguments.
+
+import sys
+import json
+from pathlib import Path
+
+prog = Path(sys.argv[0]).name
+try:
+    file_name = sys.argv[1]
+except IndexError:
+    print(f"{prog}: Missing file name argument", file=sys.stderr)
+    sys.exit(2)
+
+file_name_p = Path(file_name).resolve()
+if not file_name_p.exists():
+    print(f"{prog}: file '{file_name_p}' does not exist", file=sys.stderr)
+    sys.exit(2)
+
+exit_code = 0
+line_number = 0
+with file_name_p.open("r") as fp:
+    for line in fp.readlines():
+        line_number += 1
+        loc = line.find("@cee:")
+        if loc < 0:
+            continue
+        try:
+            json.loads(line[loc+5:].strip())
+        except Exception as exc:
+            print(f"{prog}: invalid JSON at line {line_number} of {file_name_p}: {exc}", file=sys.stderr)
+            exit_code = 1
+
+sys.exit(exit_code)
