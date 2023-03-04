@@ -30,7 +30,7 @@ satellite_config=$1
 shift 1
 . $dir/pbench-base.sh
 
-test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
+test -d "${ARCHIVE}" || doexit "Bad ARCHIVE=${ARCHIVE}"
 
 remote_prefix=$(getconf.py satellite-prefix ${satellite_config})
 remote_host=$(getconf.py satellite-host ${satellite_config})

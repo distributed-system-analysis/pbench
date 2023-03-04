@@ -33,10 +33,10 @@ fi
 . ${dir}/pbench-base.sh
 
 # check that all the directories exist
-test -d ${ARCHIVE} || doexit "Bad ARCHIVE=${ARCHIVE}"
-test -d ${INCOMING} || doexit "Bad INCOMING=${INCOMING}"
-test -d ${RESULTS} || doexit "Bad RESULTS=${RESULTS}"
-test -d ${USERS} || doexit "Bad USERS=${USERS}"
+test -d "${ARCHIVE}"  || doexit "Bad ARCHIVE=${ARCHIVE}"
+test -d "${INCOMING}" || doexit "Bad INCOMING=${INCOMING}"
+test -d "${RESULTS}"  || doexit "Bad RESULTS=${RESULTS}"
+test -d "${USERS}"    || doexit "Bad USERS=${USERS}"
 
 # The base destinations for this script are always the following:
 linkdest=UNPACKED

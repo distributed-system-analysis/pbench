@@ -3,9 +3,9 @@
 # load common things
 . $dir/pbench-base.sh
 
-test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
-test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
-test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
+test -d "${ARCHIVE}"  || doexit "Bad ARCHIVE=${ARCHIVE}"
+test -d "${INCOMING}" || doexit "Bad INCOMING=${INCOMING}"
+test -d "${RESULTS}"  || doexit "Bad RESULTS=${RESULTS}"
 
 tmp=$(get-tempdir-name $PROG)
 mkdir -p "$tmp" || doexit "Failed to create $tmp"

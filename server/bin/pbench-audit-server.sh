@@ -53,10 +53,10 @@
 # load common things
 . $dir/pbench-base.sh
 
-test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
-test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
-test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
-test -d $USERS || doexit "Bad USERS=$USERS"
+test -d "${ARCHIVE}"  || doexit "Bad ARCHIVE=${ARCHIVE}"
+test -d "${INCOMING}" || doexit "Bad INCOMING=${INCOMING}"
+test -d "${RESULTS}"  || doexit "Bad RESULTS=${RESULTS}"
+test -d "${USERS}"    || doexit "Bad USERS=${USERS}"
 
 # Work files
 workdir=$TMP/$PROG.work.$$
