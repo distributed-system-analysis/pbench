@@ -1,6 +1,5 @@
 #! /bin/bash
-
-
+#
 # Audit the fs-version-001 archive, incoming, results, and users
 # directory structures.
 #
@@ -60,12 +59,10 @@ test -d "${USERS}"    || doexit "Bad USERS=${USERS}"
 
 # Work files
 workdir=$TMP/$PROG.work.$$
-report=$workdir/report
 archive_report=$workdir/archive_report
 incoming_report=$workdir/incoming_report
 results_report=$workdir/results_report
 users_report=$workdir/users_report
-index_content=$workdir/index_content
 bad_controllers=$workdir/badcontrollers
 controllers=$workdir/controllers
 non_prefixes=$workdir/nonprefixes
@@ -79,8 +76,13 @@ linkdirs=$workdir/linkdirs
 empty=$workdir/empty
 users=$workdir/users
 
+log_init ${PROG}
+
 # Make sure the directory exists
-mkdir -p $workdir
+mkdir -p ${workdir}
+if [[ ! -d "${workdir}" ]]; then
+    log_exit "${TS}: failed to create working directory, ${workdir}" 2
+fi
 
 trap "rm -rf $workdir" EXIT INT QUIT
 
@@ -713,10 +715,10 @@ function verify_archive {
     return $cnt
 }
 
-log_init $PROG
-
-# Initialize index mail content
-> ${index_content}
+# Ensure we have an existing final report file.
+report=${LOGSDIR}/${PROG}/report.latest.txt
+report_prev=${LOGSDIR}/${PROG}/report.prev.txt
+mv ${report} ${report_prev} 2>/dev/null
 > ${report}
 
 let ret=0
@@ -729,9 +731,9 @@ if [[ $? -ne 0 ]]; then
 fi
 eTS=$(timestamp)
 if [[ -s ${archive_report} ]]; then
-    printf "\nstart-${sTS}: archive hierarchy: $ARCHIVE\n" | tee -a ${report}
-    cat ${archive_report} | tee -a ${report}
-    printf "\nend-${eTS}: archive hierarchy: $ARCHIVE\n" | tee -a ${report}
+    printf "\nstart-${sTS}: archive hierarchy: $ARCHIVE\n" >> ${report}
+    cat ${archive_report} >> ${report}
+    printf "\nend-${eTS}: archive hierarchy: $ARCHIVE\n" >> ${report}
 fi
 
 sTS=$(timestamp)
@@ -741,9 +743,9 @@ if [[ $? -ne 0 ]]; then
 fi
 eTS=$(timestamp)
 if [[ -s ${incoming_report} ]]; then
-    printf "\n\nstart-${sTS}: incoming hierarchy: $INCOMING\n" | tee -a ${report}
-    cat ${incoming_report} | tee -a ${report}
-    printf "\nend-${eTS}: incoming hierarchy: $INCOMING\n" | tee -a ${report}
+    printf "\n\nstart-${sTS}: incoming hierarchy: $INCOMING\n" >> ${report}
+    cat ${incoming_report} >> ${report}
+    printf "\nend-${eTS}: incoming hierarchy: $INCOMING\n" >> ${report}
 fi
 
 sTS=$(timestamp)
@@ -753,9 +755,9 @@ if [[ $? -ne 0 ]]; then
 fi
 eTS=$(timestamp)
 if [[ -s ${results_report} ]]; then
-    printf "\n\nstart-${sTS}: results hierarchy: $RESULTS\n" | tee -a ${report}
-    cat ${results_report} | tee -a ${report}
-    printf "\nend-${eTS}: results hierarchy: $RESULTS\n" | tee -a ${report}
+    printf "\n\nstart-${sTS}: results hierarchy: $RESULTS\n" >> ${report}
+    cat ${results_report} >> ${report}
+    printf "\nend-${eTS}: results hierarchy: $RESULTS\n" >> ${report}
 fi
 
 sTS=$(timestamp)
@@ -765,24 +767,15 @@ if [[ $? -ne 0 ]]; then
 fi
 eTS=$(timestamp)
 if [[ -s ${users_report} ]]; then
-    printf "\n\nstart-${sTS}: users hierarchy: $USERS\n" | tee -a ${report}
-    cat ${users_report} | tee -a ${report}
-    printf "\nend-${eTS}: users hierarchy: $USERS\n" | tee -a ${report}
+    printf "\n\nstart-${sTS}: users hierarchy: $USERS\n" >> ${report}
+    cat ${users_report} >> ${report}
+    printf "\nend-${eTS}: users hierarchy: $USERS\n" >> ${report}
+fi
+
+if [[ -s ${report} ]]; then
+    log_error "${TS}(${PBENCH_ENV}) - audit found problems, please review ${report}"
 fi
 
 log_finish
-
-subj="$PROG.$TS ($PBENCH_ENV)"
-if [[ -s ${report} ]]; then
-    cat << EOF > ${index_content}
-$subj
-
-EOF
-    cat ${report} >> ${index_content}
-else
-    printf "${subj} - Successful audit, nothing to report.\n" > ${index_content}
-fi
-# send it
-pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${index_content}
 
 exit $ret

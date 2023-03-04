@@ -29,34 +29,6 @@ len(actions) = 1
 ]
 --- Finished pbench-cull-unpacked-tarballs (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC (unit-test)\n\n\n\nstart-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/incoming\n\nControllers which do not have a /var/tmp/pbench-test-server/test-27/pbench/archive/fs-version-001 directory:\n\tcontroller-bad-names\n\nControllers which are empty:\n\tcontroller-prefixes\n\nend-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/incoming\n\n\nstart-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/results\n\nResults issues for controller: controller-prefixes\n\tEmpty tar ball directories:\n\t\tpath0/path1\n\t\tpre0/pre1/pre2\n\nend-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/results\n\n\nstart-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/users\n\nResults issues for controller: userA/controller-prefixes\n\tEmpty tar ball directories:\n\t\tpath0/path1\n\nend-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/users\n",
-            "total_chunks": 1,
-            "total_size": 1134
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished unit test audit (status=3)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-27/var-www-html)
 lrwxrwxrwx         63 incoming -> /var/tmp/pbench-test-server/test-27/pbench/public_html/incoming
@@ -157,8 +129,9 @@ drwxrwxr-x          - public_html/users/userA/controller-prefixes/path0/path1
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-27/pbench-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
--rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--       1510 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        169 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--       1073 logs/pbench-audit-server/report.latest.txt
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--       3465 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -208,8 +181,11 @@ drwxrwxr-x          - tmp
 +++ pbench log file contents
 ++++ pbench-local/logs
 +++++ pbench-audit-server/pbench-audit-server.error
+run-1970-01-01T00:00:42-UTC(unit-test) - audit found problems, please review /var/tmp/pbench-test-server/test-27/pbench-local/logs/pbench-audit-server/report.latest.txt
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
+----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-audit-server/report.latest.txt
 
 
 start-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/incoming
@@ -240,9 +216,7 @@ Results issues for controller: userA/controller-prefixes
 		path0/path1
 
 end-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/users
-1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
------ pbench-audit-server/pbench-audit-server.log
+----- pbench-audit-server/report.latest.txt
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Culling unpacked tar balls 30 days older than 1970-02-14T00:00:00.000000
 1970-01-01T00:00:42.000000 INFO pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs remove_unpacked -- Began removing unpacked tar ball directory, '/var/tmp/pbench-test-server/test-27/pbench/public_html/incoming/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00'
