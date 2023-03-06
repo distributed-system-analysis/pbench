@@ -103,11 +103,8 @@ function log_finish {
 
 function log_exit {
     local _msg="${PROG}: ${1}"
-    if [[ -z "${3}" ]]; then
-        printf -- "%s\n" "${_msg}" >&4
-    else
-        printf -- "%s\n" "${_msg}" | tee -a "${3}" >&4
-    fi
+    printf -- "%s\n" "${_msg}" >&4
+    logger -t ${PROG} -p daemon.err -- "${1}"
     log_finish
     if [[ -z "${2}" ]]; then
         exit 1
@@ -117,17 +114,11 @@ function log_exit {
 }
 
 function log_info {
-    if [[ -z "${2}" ]]; then
-        printf -- "%b\n" "${1}"
-    else
-        printf -- "%b\n" "${1}" | tee -a "${2}"
-    fi
+    printf -- "%b\n" "${1}"
+    logger -t ${PROG} -p daemon.info -- "${1}"
 }
 
 function log_error {
-    if [[ -z "${2}" ]]; then
-        printf -- "%b\n" "${1}" >&4
-    else
-        printf -- "%b\n" "${1}" | tee -a "${2}" >&4
-    fi
+    printf -- "%b\n" "${1}" >&4
+    logger -t ${PROG} -p daemon.err -- "${1}"
 }

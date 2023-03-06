@@ -32,34 +32,6 @@ File 4 of 4 (3 restored, 1 existing, so far), exists: /var/tmp/pbench-test-serve
 Restored 3 tar balls from backup volume, /var/tmp/pbench-test-server/test-18/pbench-local/archive.backup (ended at: 42.0, elapsed: 0.00)
 --- Finished pbench-restore-and-unpack-tarballs (status=0)
 +++ Running pbench-unpack-tarballs none re-unpack
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-re-unpack-tarballs",
-            "text": "pbench-re-unpack-tarballs.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 0 result tar balls, 0 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
-            "total_chunks": 1,
-            "total_size": 165
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running unit test audit
 --- Finished unit test audit (status=0)
@@ -141,7 +113,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/report.latest.txt
 drwxrwxr-x          - logs/pbench-re-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
--rw-rw-r--        528 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
+-rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -197,10 +169,6 @@ drwxrwxr-x          - tmp
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
-run-1970-01-01T00:00:42-UTC
-run-1970-01-01T00:00:42-UTC: Processed 0 tar balls
-1970-01-01T00:00:42.000000 DEBUG pbench-re-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-re-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

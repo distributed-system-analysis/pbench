@@ -61,7 +61,7 @@ cp -a ./web-server/* %{buildroot}/%{installdir}/%{static}
 # for the npm install below
 mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 
-%py3_shebang_fix  %{buildroot}/%{installdir}/bin %{buildroot}/%{installdir}/bin/pbench-pp-status
+%py3_shebang_fix  %{buildroot}/%{installdir}/bin
 
 %post
 # Install python dependencies
@@ -126,7 +126,6 @@ fi
 /%{installdir}/lib/pbench/__init__.py
 /%{installdir}/lib/pbench/indexer.py
 /%{installdir}/lib/pbench/mock.py
-/%{installdir}/lib/pbench/report.py
 
 /%{installdir}/bin/pbench-base.sh
 
@@ -145,13 +144,10 @@ fi
 /%{installdir}/bin/pbench-dispatch.sh
 /%{installdir}/bin/pbench-index
 /%{installdir}/bin/pbench-index.py
-/%{installdir}/bin/pbench-pp-status
 /%{installdir}/bin/pbench-reindex
 /%{installdir}/bin/pbench-reindex.py
 /%{installdir}/bin/pbench-remote-satellite-state-change
 /%{installdir}/bin/pbench-remote-sync-package-tarballs
-/%{installdir}/bin/pbench-report-status
-/%{installdir}/bin/pbench-report-status.py
 /%{installdir}/bin/pbench-satellite-cleanup
 /%{installdir}/bin/pbench-satellite-cleanup.sh
 /%{installdir}/bin/pbench-satellite-state-change
