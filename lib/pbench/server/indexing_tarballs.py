@@ -632,7 +632,7 @@ class Index:
                             continue
                 except SigTermException:
                     idxctx.logger.exception(
-                        "Indexing interrupted by SIGQUIT, stop processing tarballs"
+                        "Indexing interrupted by SIGTERM, stop processing tarballs"
                     )
                 finally:
                     # Turn off the SIGQUIT and SIGHUP handler when not indexing.

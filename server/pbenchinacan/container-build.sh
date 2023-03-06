@@ -59,11 +59,6 @@ buildah run $container dnf install -y --nodocs \
 buildah run $container dnf clean all
 buildah run $container rm -f /tmp/pbench-server.rpm
 
-# Work around a problem with cron running jobs as other users in a container.
-buildah run $container bash -c "sed -i -e '/pam_loginuid/ s/^/#/' /etc/pam.d/crond"
-# Keep cron from complaining about inability to connect to systemd-logind
-buildah run $container bash -c "sed -i -e '/pam_systemd/ s/^/#/' /etc/pam.d/system-auth"
-
 # Add our Pbench Server Nginx configuration.
 buildah copy --chown root:root --chmod 0644 $container \
     ${PBINC_SERVER}/lib/config/nginx.conf /etc/nginx/nginx.conf

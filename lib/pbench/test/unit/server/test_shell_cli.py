@@ -4,7 +4,7 @@ import logging
 import os
 from pathlib import Path
 import subprocess
-from typing import Optional
+from typing import Callable, Optional, Union
 
 from flask import Flask
 import pytest
@@ -31,6 +31,92 @@ def exists_false(theself: Path) -> bool:
 def exists_true(theself: Path) -> bool:
     """Mock Path.exists() returning False."""
     return True
+
+
+class FakeIndexer:
+
+    status = 0
+    called = []
+
+    def __init__(self, bin_dir: Path, cwd: Path, logger: logging.Logger):
+        self.bin_dir = bin_dir
+        self.cwd = cwd
+        self.logger = logger
+
+    def start(self):
+        """Start an indexer subprocess.
+
+        The indexer will run in the background, periodically checking for datasets
+        with the INDEX operation enabled. It will loop until it finds no more, and
+        then sleep for a while before trying again.
+
+        Args:
+            bin_dir: Where to find the pbench-index command
+            cwd: Where to set the working directory
+            logger: A Python logger
+
+        Returns:
+            The Popen of the created process so it can be tracked and stopped.
+        """
+        self.called.append("start")
+
+    def shutdown(self):
+        """Stop the indexer
+
+        TODO: We're stopping with SIGTERM, which will interrupt any indexing
+        in progress in favor of a quicker shutdown. We could instead send a
+        """
+
+        self.called.append("shutdown")
+        return self.status
+
+    @classmethod
+    def reset(cls):
+        cls.called.clear()
+        cls.status = 0
+
+
+@pytest.fixture
+def mock_indexer(monkeypatch, server_config):
+    FakeIndexer.reset()
+    monkeypatch.setattr("pbench.cli.server.shell.PbenchIndexer", FakeIndexer)
+
+
+class FakePopen:
+
+    processes = []
+    pid = 0
+
+    def __init__(self, args: list[Union[str, Path]], cwd: Path):
+        self.processes.append((" ".join(str(a) for a in args), cwd))
+        self.running = True
+        self.waited = False
+        self.pid = self.pid
+        __class__.pid += 1
+
+    def terminate(self):
+        self.running = False
+
+    def wait(self, timeout: float = 0.0):
+        self.waited = True
+
+
+class FakeThread:
+
+    threads = []
+
+    def __init__(self, target: Callable, daemon: bool):
+        self.threads.append((target, daemon))
+        self.target = target
+        self.daemon = daemon
+        self.started = False
+        self.joined = False
+
+    def start(self):
+        self.started = True
+
+    def join(self, timeout: float = 0.0):
+        self.joined = True
 
 
 class TestShell:
@@ -70,124 +156,43 @@ class TestShell:
         ), f"Expected PATH to end with '/bin:ONE:TWO', found PATH == '{os.environ['PATH']}'"
 
     @staticmethod
-    def test_generate_crontab_if_necessary_no_action(monkeypatch, make_logger):
-        """Test site.generate_crontab_if_necessary with no action taken"""
+    def test_indexers(monkeypatch, make_logger):
+        """Test startup and shutdown of the indexers"""
+        monkeypatch.setattr("pbench.cli.server.shell.subprocess.Popen", FakePopen)
+        monkeypatch.setattr("pbench.cli.server.shell.Thread", FakeThread)
 
-        called = {"run": False}
+        indexer = shell.PbenchIndexer(bin_dir=Path("/bin"), cwd=Path("/cwd"), logger=make_logger)
+        assert indexer.indexer is None
+        assert indexer.reindexer is None
 
-        def run(args, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
-            called["run"] = True
+        indexer.start()
+        assert FakePopen.processes == [("python3 /bin/pbench-index", Path("/cwd")), ("python3 /bin/pbench-index --re-index", Path("/cwd"))]
+        assert indexer.indexer.running
+        assert not indexer.indexer.waited
+        assert indexer.reindexer.running
+        assert not indexer.reindexer.waited
+        assert indexer.reaper.daemon
+        assert indexer.reaper.started
+        assert not indexer.reaper.joined
 
-        monkeypatch.setenv("PATH", "one:two")
-        # An existing crontab does nothing.
-        monkeypatch.setattr(Path, "exists", exists_true)
-        monkeypatch.setattr(subprocess, "run", run)
-
-        ret_val = shell.generate_crontab_if_necessary(
-            "/tmp", Path("bindir"), "cwd", make_logger
-        )
-
-        assert ret_val == 0
-        assert os.environ["PATH"] == "one:two", f"PATH='{os.environ['PATH']}'"
-        assert not called[
-            "run"
-        ], "generate_crontab_if_necessary() took action unexpectedly"
-
-    @staticmethod
-    def test_generate_crontab_if_necessary_created(monkeypatch, make_logger):
-        """Test site.generate_crontab_if_necessary creating the crontab"""
-
-        commands = []
-
-        def run_success(args, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
-            commands.append(args)
-            return subprocess.CompletedProcess(args, 0)
-
-        monkeypatch.setenv("PATH", "a:b")
-        # We don't have an existing crontab
-        monkeypatch.setattr(Path, "exists", exists_false)
-        monkeypatch.setattr(subprocess, "run", run_success)
-
-        ret_val = shell.generate_crontab_if_necessary(
-            "/tmp", Path("bindir"), "cwd", make_logger
-        )
-
-        assert ret_val == 0
-        assert os.environ["PATH"] == "bindir:a:b", f"PATH='{os.environ['PATH']}'"
-        assert commands == [
-            ["pbench-create-crontab", "/tmp"],
-            ["crontab", "/tmp/crontab"],
-        ]
-
-    @staticmethod
-    def test_generate_crontab_if_necessary_create_failed(monkeypatch, make_logger):
-        monkeypatch.setenv("PATH", "a:b")
-
-        unlink_record = []
-
-        def unlink(*args, **kwargs):
-            unlink_record.append("unlink")
-
-        monkeypatch.setattr(Path, "unlink", unlink)
-
-        commands = []
-
-        def run(args, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
-            commands.append(args)
-            return subprocess.CompletedProcess(args, 1)
-
-        # We don't have an existing crontab
-        monkeypatch.setattr(Path, "exists", exists_false)
-        monkeypatch.setattr(subprocess, "run", run)
-
-        ret_val = shell.generate_crontab_if_necessary(
-            "/tmp", Path("bindir"), "cwd", make_logger
-        )
-
-        assert ret_val == 1
-        assert os.environ["PATH"] == "bindir:a:b", f"PATH='{os.environ['PATH']}'"
-        assert commands == [["pbench-create-crontab", "/tmp"]]
-        assert unlink_record == ["unlink"]
-
-    @staticmethod
-    def test_generate_crontab_if_necessary_crontab_failed(monkeypatch, make_logger):
-        monkeypatch.setenv("PATH", "a:b")
-
-        unlink_record = []
-
-        def unlink(*args, **kwargs):
-            unlink_record.append("unlink")
-
-        monkeypatch.setattr(Path, "unlink", unlink)
-
-        commands = []
-
-        def run(args, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
-            commands.append(args)
-            ret_val = 1 if args[0] == "crontab" else 0
-            return subprocess.CompletedProcess(args, ret_val)
-
-        # We don't have an existing crontab
-        monkeypatch.setattr(Path, "exists", exists_false)
-        monkeypatch.setattr(subprocess, "run", run)
-
-        ret_val = shell.generate_crontab_if_necessary(
-            "/tmp", Path("bindir"), "cwd", make_logger
-        )
-
-        assert ret_val == 1
-        assert os.environ["PATH"] == "bindir:a:b", f"PATH='{os.environ['PATH']}'"
-        assert commands == [
-            ["pbench-create-crontab", "/tmp"],
-            ["crontab", "/tmp/crontab"],
-        ]
-        assert unlink_record == ["unlink"]
+        indexer.shutdown()
+        assert not indexer.indexer.running
+        assert indexer.indexer.waited
+        assert not indexer.reindexer.running
+        assert indexer.reindexer.waited
+        assert indexer.reaper.started
+        assert indexer.reaper.joined
 
     @staticmethod
     @pytest.mark.parametrize("user_site", [False, True])
     @pytest.mark.parametrize("oidc_conf", [False, True])
     def test_main(
-        monkeypatch, make_logger, mock_get_server_config, user_site, oidc_conf
+        monkeypatch,
+        make_logger,
+        mock_get_server_config,
+        mock_indexer,
+        user_site,
+        oidc_conf,
     ):
         called = []
 
@@ -234,10 +239,9 @@ class TestShell:
             "init_indexing",
         ]
         assert called == expected_called
-        assert len(commands) == 3, f"{commands!r}"
-        assert commands[0][0] == "pbench-create-crontab"
-        assert commands[1][0] == "crontab"
-        gunicorn_command = commands[2]
+        assert FakeIndexer.called == ["start", "shutdown"]
+        assert len(commands) == 1, f"{commands!r}"
+        gunicorn_command = commands[0]
         assert gunicorn_command[-1] == "pbench.cli.server.shell:app()", f"{commands!r}"
         gunicorn_command = gunicorn_command[:-1]
         if user_site:
@@ -264,31 +268,16 @@ class TestShell:
         ), f"expected_command = {expected_command!r}, commands[2] = {commands[2]!r}"
 
     @staticmethod
-    def test_main_crontab_failed(monkeypatch, make_logger, mock_get_server_config):
-        def immediate_success(*args, **kwargs):
-            pass
-
-        def generate_crontab_if_necessary(*args, **kwargs) -> int:
-            return 43
-
-        monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
-        monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
-        monkeypatch.setattr(shell, "init_indexing", immediate_success)
-        monkeypatch.setattr(
-            shell, "generate_crontab_if_necessary", generate_crontab_if_necessary
-        )
-
-        ret_val = shell.main()
-
-        assert ret_val == 43
-
-    @staticmethod
     @pytest.mark.parametrize(
         "init_indexing_exc",
         [NoSectionError("missingsection"), NoOptionError("section", "missingoption")],
     )
     def test_main_init_indexing_failed(
-        monkeypatch, make_logger, mock_get_server_config, init_indexing_exc
+        monkeypatch,
+        make_logger,
+        mock_get_server_config,
+        init_indexing_exc,
+        mock_indexer,
     ):
         def immediate_success(*args, **kwargs):
             pass

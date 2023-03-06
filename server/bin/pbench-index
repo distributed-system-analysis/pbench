@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import signal
 import sys
+import time
 
 from pbench.common.exceptions import BadConfig, ConfigFileError, JsonFileError
 from pbench.common.logger import get_pbench_logger
@@ -128,13 +129,24 @@ def main(options, name):
         idxctx.templates.dump_templates()
         return 0
 
-    idxctx.logger.debug("{}.{}: starting", name, idxctx.TS)
+    idxctx.logger.info("{}.{}: starting", name, idxctx.TS)
 
     index_obj = Index(name, options, idxctx)
-    status, tarballs = index_obj.collect_tb()
-    if status == 0 and tarballs:
-        status = index_obj.process_tb(tarballs)
 
+    try:
+        while True:
+            status, tarballs = index_obj.collect_tb()
+            logger.info("COLLECT {}: {}", status, [t.dataset.name for t in tarballs])
+            if status == 0 and tarballs:
+                status = index_obj.process_tb(tarballs)
+                logger.info("PROCESS {}", status)
+
+            time.sleep(60.0)
+    except SigTermException:
+        logger.info("Interrupted for shutdown")
+        raise
+
+    logger.info("Terminating with {}", status)
     return status
 
 

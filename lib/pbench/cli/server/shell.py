@@ -5,6 +5,8 @@ from pathlib import Path
 import site
 import subprocess
 import sys
+from threading import Event, Thread
+from typing import Optional
 
 from flask import Flask
 
@@ -40,42 +42,139 @@ def find_the_unicorn(logger: Logger):
         )
 
 
-def generate_crontab_if_necessary(
-    crontab_dir: str, bin_dir: Path, cwd: str, logger: Logger
-) -> int:
-    """Generate and install the crontab for the Pbench Server.
+class PbenchIndexer:
+    """Managed the context of the indexer subprocesses."""
 
-    If a crontab file already exists, no action is taken, otherwise a crontab
-    file is created using `pbench-create-crontab` and then installed using the
-    `crontab` command.
+    def __init__(self, bin_dir: Path, cwd: Path, logger: Logger):
+        """Construct the subprocess tracker state.
 
-    If either of those operations fail, the crontab file is removed.
+        Args:
+            bin_dir: Where to find the `pbench-index` command
+            cwd: Where to set the command working directory
+            logger: Python logger for feedback.
+        """
+        self.bin_dir = bin_dir
+        self.cwd = cwd
+        self.logger = logger
+        self.indexer: Optional[subprocess.Popen] = None
+        self.reindexer: Optional[subprocess.Popen] = None
+        self.shutoff: Event = Event()
+        self.reaper: Optional[Thread] = None
 
-    Return 0 on success, 1 on failure.
-    """
-    ret_val = 0
-    crontab_f = Path(crontab_dir) / "crontab"
-    if not crontab_f.exists():
-        os.environ["PATH"] = ":".join([str(bin_dir), os.environ["PATH"]])
-        # Create the crontab file from the server configuration.
-        cp = subprocess.run(["pbench-create-crontab", crontab_dir], cwd=cwd)
-        if cp.returncode != 0:
-            logger.error(
-                "Failed to create crontab file from configuration: {}", cp.returncode
-            )
-            ret_val = 1
-        else:
-            # Install the created crontab file.
-            cp = subprocess.run(["crontab", f"{crontab_dir}/crontab"], cwd=cwd)
-            if cp.returncode != 0:
-                logger.error("Failed to install crontab file: {}", cp.returncode)
-                ret_val = 1
-    if ret_val != 0:
-        crontab_f.unlink(missing_ok=True)
-    return ret_val
+    def start_indexer(self):
+        """Isolate starting the primary indexer as a subprocess.
+
+        NOTE: we specify the 'python3' command explicitly rather than relying
+        on the shebang to avoid the intermediate `env python` command which
+        complicates reaping.
+        """
+        self.indexer = subprocess.Popen(
+            ["python3", self.bin_dir / "pbench-index"], cwd=self.cwd
+        )
+        self.logger.info("Index process running in pid {}", self.indexer.pid)
+
+    def start_reindexer(self):
+        """Isolate starting the secondary reindexer as a subprocess.
+
+        TODO: I'm not sure we really want to retain the old "reindex". For one
+        thing, re-indexing with existing index documents may be problematic,
+        especially if the new indexer doesn't overwrite every document. A
+        better mechanism would be to delete all the existing documents using
+        the index-map and then we can simply READY the INDEX operation.
+
+        NOTE: we specify the 'python3' command explicitly rather than relying
+        on the shebang to avoid the intermediate `env python` command which
+        complicates reaping.
+        """
+        self.reindexer = subprocess.Popen(
+            ["python3", self.bin_dir / "pbench-index", "--re-index"], cwd=self.cwd
+        )
+        self.logger.info("Re-index process running in pid {}", self.reindexer.pid)
+
+    def watch_indexers(self):
+        """A thread to monitor our two indexer subprocesses.
+
+        It'll periodically check `wait` for terminated processes in the process
+        group. If the pid matches the indexer or reindexer, restart them. If a
+        gunicorn work fails (or any other subprocess that might occur) just log
+        it.
+        """
+        self.logger.info("Reaper thread is starting")
+        while not self.shutoff.wait(20.0):
+            self.logger.info("Reaper ...")
+
+            # NOTE: the indexers aren't direct children, so a "pid" of `-1`
+            # here would only react to failure of the `env` parent. All of the
+            # `pbench-server` children are in the same process group, however,
+            # so `0` (process group) will find any subprocess failure.
+            pid, status = os.waitpid(0, os.WNOHANG)
+            if pid == self.indexer.pid:
+                self.logger.warning("Indexer {} died with {}", pid, status)
+                self.start_indexer()
+            elif pid == self.reindexer.pid:
+                self.logger.warning("Re-indexer {} died with {}", pid, status)
+                self.start_reindexer()
+            elif pid != 0:
+                self.logger.error(
+                    "Unexpected subprocess {} termination with {}", pid, status
+                )
+
+    def start(self):
+        """Start an indexer subprocess.
+
+        The indexer will run in the background, periodically checking for datasets
+        with the INDEX operation enabled. It will loop until it finds no more, and
+        then sleep for a while before trying again.
+
+        TODO: This starts an indexer and a re-indexer, even though "re-index"
+        isn't cleanly supported. (I suspect we should blow away all current
+        index documents, if any, and then simply "INDEX", if we really want to
+        support this. For now, this is creating both processes.)
+
+        Args:
+            bin_dir: Where to find the pbench-index command
+            cwd: Where to set the working directory
+            logger: A Python logger
+
+        Returns:
+            The Popen of the created process so it can be tracked and stopped.
+        """
+        self.logger.info("Starting indexer subprocesses")
+        self.reaper = Thread(target=self.watch_indexers, daemon=True)
+        self.reaper.start()
+        self.start_indexer()
+        self.start_reindexer()
+
+    def shutdown(self):
+        """Stop the indexer
+
+        We shut down the indexers with SIGTERM, which will terminate the index
+        loop when finished with the current dataset. Other termination signals
+        are ignored during most of the loop.
+        """
+
+        # Stop the background indexer after the server shuts down
+        self.logger.info(
+            "Shutting down background indexers {}, {}",
+            self.indexer.pid,
+            self.reindexer.pid,
+        )
+
+        # Shut down the watcher first so it doesn't re-spawn our indexers
+        self.shutoff.set()
+        self.reaper.join(20.0)
+
+        # Ask both indexers to terminate, and wait for them
+        self.indexer.terminate()
+        self.reindexer.terminate()
+        self.logger.info("Waiting for indexer termination...")
+        istat = self.indexer.wait(5.0)
+        ristat = self.reindexer.wait(5.0)
+        self.logger.info("Waits terminated with {}, {}", istat, ristat)
+        return istat if istat else ristat
 
 
-def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
+def run_server(server_config: PbenchServerConfig, logger: Logger) -> int:
     """Setup of the Gunicorn Pbench Server Flask application.
 
     Returns:
@@ -92,7 +191,6 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         es_wait_timeout = int(server_config.get("Indexing", "wait_timeout"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
-        crontab_dir = server_config.get("pbench-server", "crontab-dir")
         server_config.get("flask-app", "secret-key")
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Error fetching required configuration: {}", exc)
@@ -157,12 +255,13 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         logger.error("Invalid indexing configuration: {}", exc)
         return 1
 
-    logger.info("Generating new crontab file, if necessary")
-    ret_val = generate_crontab_if_necessary(
-        crontab_dir, server_config.BINDIR, server_config.log_dir, logger
-    )
-    if ret_val != 0:
-        return ret_val
+    # Start the Pbench indexers as subprocesses
+    indexer = PbenchIndexer(server_config.BINDIR, server_config.TMP, logger)
+    try:
+        indexer.start()
+    except Exception:
+        logger.exception("Indexer startup failed")
+        return 1
 
     # Beginning of the gunicorn command to start the pbench-server.
     cmd_line = [
@@ -199,8 +298,12 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     cmd_line.append("pbench.cli.server.shell:app()")
     logger.info("Starting Gunicorn Pbench Server application")
     cp = subprocess.run(cmd_line, cwd=server_config.log_dir)
+
+    # NOTE: `systemctl stop` cleanly terminates the processes in the process
+    # group with SIGTERM, and we never get here, but for the record:
     logger.info("Gunicorn Pbench Server application exited with {}", cp.returncode)
-    return cp.returncode
+    istat = indexer.shutdown()
+    return istat if istat else cp.returncode
 
 
 def main() -> int:
@@ -218,7 +321,7 @@ def main() -> int:
         return 1
 
     try:
-        return run_gunicorn(server_config, logger)
+        return run_server(server_config, logger)
     except Exception:
         logger.exception("Unhandled exception running gunicorn")
         return 1
