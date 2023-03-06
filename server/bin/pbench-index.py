@@ -18,8 +18,7 @@ import tarfile
 import tempfile
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
-from configparser import Error as NoSectionError
-from configparser import NoOptionError
+from configparser import NoOptionError, NoSectionError
 
 import pbench
 from pbench import BadConfig, quarantine, rename_tb_link, tstos
