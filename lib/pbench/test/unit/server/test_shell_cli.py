@@ -161,12 +161,17 @@ class TestShell:
         monkeypatch.setattr("pbench.cli.server.shell.subprocess.Popen", FakePopen)
         monkeypatch.setattr("pbench.cli.server.shell.Thread", FakeThread)
 
-        indexer = shell.PbenchIndexer(bin_dir=Path("/bin"), cwd=Path("/cwd"), logger=make_logger)
+        indexer = shell.PbenchIndexer(
+            bin_dir=Path("/bin"), cwd=Path("/cwd"), logger=make_logger
+        )
         assert indexer.indexer is None
         assert indexer.reindexer is None
 
         indexer.start()
-        assert FakePopen.processes == [("python3 /bin/pbench-index", Path("/cwd")), ("python3 /bin/pbench-index --re-index", Path("/cwd"))]
+        assert FakePopen.processes == [
+            ("python3 /bin/pbench-index", Path("/cwd")),
+            ("python3 /bin/pbench-index --re-index", Path("/cwd")),
+        ]
         assert indexer.indexer.running
         assert not indexer.indexer.waited
         assert indexer.reindexer.running
