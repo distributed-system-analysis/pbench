@@ -59,6 +59,7 @@ test -d "${USERS}"    || doexit "Bad USERS=${USERS}"
 
 # Work files
 workdir=$TMP/$PROG.work.$$
+report=$workdir/report
 archive_report=$workdir/archive_report
 incoming_report=$workdir/incoming_report
 results_report=$workdir/results_report
@@ -715,10 +716,11 @@ function verify_archive {
     return $cnt
 }
 
-# Ensure we have an existing final report file.
-report=${LOGSDIR}/${PROG}/report.latest.txt
-report_prev=${LOGSDIR}/${PROG}/report.prev.txt
-mv ${report} ${report_prev} 2>/dev/null
+# Save the previous report.
+latest_report=${LOGSDIR}/${PROG}/report.latest.txt
+prev_report=${LOGSDIR}/${PROG}/report.prev.txt
+mv ${latest_report} ${prev_report} 2>/dev/null
+# Ensure we have an existing intermediate report file.
 > ${report}
 
 let ret=0
@@ -772,8 +774,10 @@ if [[ -s ${users_report} ]]; then
     printf "\nend-${eTS}: users hierarchy: $USERS\n" >> ${report}
 fi
 
-if [[ -s ${report} ]]; then
-    log_error "${TS}(${PBENCH_ENV}) - audit found problems, please review ${report}"
+# Move the completed intermediate report to be the latest.
+mv ${report} ${latest_report}
+if [[ -s "${latest_report}" ]]; then
+    log_error "${TS}(${PBENCH_ENV}) - audit found problems, please review ${latest_report}"
 fi
 
 log_finish
