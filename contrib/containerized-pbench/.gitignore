@@ -1,0 +1,3 @@
+fiotest
+*.tmp
+var_lib_pbench-agent
