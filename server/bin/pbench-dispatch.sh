@@ -37,14 +37,14 @@ if [[ ! ":${PATH}:" =~ ":/usr/sbin:" ]]; then
 fi
 
 # Check that all required directories specified in the environment exist.
-test -n "${ARCHIVE}" -a -d ${ARCHIVE} || doexit "Bad ARCHIVE=${ARCHIVE}"
-test -n "${LOGSDIR}" -a -d ${LOGSDIR} || doexit "Bad LOGSDIR=${LOGSDIR}"
+test -d "${ARCHIVE}" || doexit "Bad ARCHIVE=${ARCHIVE}"
+test -d "${LOGSDIR}" || doexit "Bad LOGSDIR=${LOGSDIR}"
 install_dir=$(getconf.py install-dir pbench-server)
-test -n "${install_dir}" -a -d ${install_dir} || doexit "Bad install_dir=${install_dir}"
+test -d "${install_dir}" || doexit "Bad install_dir=${install_dir}"
 
 # If a backup directory is specified, it had better exist.
 backup_dir=$(getconf.py pbench-backup-dir pbench-server)
-test -z "${backup_dir}" -o -d ${backup_dir} || doexit "Bad backup_dir=${backup_dir}"
+test -z "${backup_dir}" -o -d "${backup_dir}" || doexit "Bad backup_dir=${backup_dir}"
 
 errlog=${LOGSDIR}/${PROG}/${PROG}.error
 mkdir -p ${LOGSDIR}/${PROG}
