@@ -507,7 +507,7 @@ class PbenchServerClient:
         if owner:
             params["owner"] = owner
         return self.post(
-            api=API.DATASETS_UPDATE,
+            api=API.DATASETS,
             uri_params={"dataset": dataset_id},
             params=params,
         ).json()
