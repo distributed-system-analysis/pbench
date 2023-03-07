@@ -3,7 +3,6 @@ aniso8601>=9.0.1
 Bcrypt-Flask
 click>=8.0
 elasticsearch>=7.13.1, <7.14
-email-validator>1.1.1
 flask
 flask_cors
 Flask-HTTPAuth>=4.0.0

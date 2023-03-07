@@ -12,7 +12,6 @@ import tarfile
 from typing import Dict, Optional
 import uuid
 
-from email_validator import EmailNotValidError, ValidatedEmail
 from freezegun import freeze_time
 import jwt
 import pytest
@@ -122,15 +121,11 @@ def server_config(on_disk_server_config) -> PbenchServerConfig:
 
 
 @pytest.fixture()
-def client(monkeypatch, server_config, fake_email_validator):
+def client(monkeypatch, server_config):
     """A test client for the app.
 
     Fixtures:
         server_config: Set up a pbench-server.cfg configuration
-        fake_email_validator: Many tests use the Flask client initialized here
-            to register users, and we need that client to be bound to our
-            fake validator mock. Establishing it here makes the binding
-            universal.
 
     NOTE: The Flask app initialization includes setting up the SQLAlchemy DB.
     For test cases that require the DB but not a full Flask app context, use
@@ -201,34 +196,11 @@ def db_session(request, server_config, make_logger):
 
 
 @pytest.fixture()
-def fake_email_validator(monkeypatch):
-    """
-    Set up a mock for the email validator so we control failure modes.
-    """
-
-    def fake_email(value: str, **_kwargs) -> ValidatedEmail:
-
-        # The email validation failure case needs to see an error
-        if "," in value:
-            raise EmailNotValidError("testing")
-
-        # Return just the part of ValidatedEmail we use
-        return ValidatedEmail(email=value)
-
-    # The SQLAlchemy model decorator binds the function oddly, so we have to
-    # reach into the module's namespace.
-    monkeypatch.setattr(
-        "pbench.server.database.models.users.validate_email", fake_email
-    )
-
-
-@pytest.fixture()
-def create_user(client, fake_email_validator) -> User:
+def create_user(client) -> User:
     """Construct a test user and add it to the database.
 
     Args:
         client : Fixture to ensure we have a database
-        fake_email_validator : Allow fake email to be used
     """
     user = User(
         email="test@example.com",
@@ -243,12 +215,11 @@ def create_user(client, fake_email_validator) -> User:
 
 
 @pytest.fixture()
-def create_admin_user(client, fake_email_validator) -> User:
+def create_admin_user(client) -> User:
     """Construct an admin user and add it to the database.
 
     Args:
         client : Fixture to ensure we have a database
-        fake_email_validator : Allow fake email to be used
     """
     user = User(
         email=admin_email,
@@ -264,12 +235,11 @@ def create_admin_user(client, fake_email_validator) -> User:
 
 
 @pytest.fixture()
-def create_drb_user(client, fake_email_validator):
+def create_drb_user(client):
     """Construct the "drb" user and add it to the database.
 
     Args:
         client : Fixture to ensure we have a database
-        fake_email_validator : Allow fake email to be used
     """
     drb = User(
         email="drb@example.com",
@@ -885,9 +855,9 @@ def current_user_admin(monkeypatch, create_admin_user):
 
 @pytest.fixture()
 def tarball(tmp_path):
-    """
-    Create a test tarball and MD5 file; the tarball is empty, but has a real
-    MD5.
+    """Create a test tarball and MD5 file.
+
+    The tarball has a minimal metadata.log.
 
     This intentionally uses a weird and ugly file name that should be
     maintained through all the marshalling and unmarshalling on the wire until

@@ -2,7 +2,6 @@ import datetime
 import enum
 from typing import Optional
 
-from email_validator import validate_email
 from flask_bcrypt import generate_password_hash
 from sqlalchemy import Column, DateTime, Enum, Integer, LargeBinary, String
 from sqlalchemy.orm import relationship, validates
@@ -95,12 +94,6 @@ class User(Database.Base):
     @validates("password")
     def evaluate_password(self, key: str, value: str) -> str:
         return generate_password_hash(value)
-
-    # validate the email field
-    @validates("email")
-    def evaluate_email(self, key: str, value: str) -> str:
-        valid = validate_email(value)
-        return valid.email
 
     def add_token(self, auth_token: AuthToken):
         """Add the given token to the database
