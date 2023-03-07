@@ -1,1 +1,5 @@
-_mock_simple_cmd_suc
+#! /bin/bash
+
+echo "${0##*/} $*" >> $_testlog
+test -n "${_PBENCH_AGENT_CONFIG}"
+exit ${?}

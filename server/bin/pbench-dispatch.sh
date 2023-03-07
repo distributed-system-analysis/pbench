@@ -63,6 +63,14 @@ fi
 # Optional "PUT API" bearer token for sending tar balls to the "new" Pbench
 # Server.
 put_token=$(getconf.py put-token pbench-server)
+if [[ -n "${put_token}" ]]; then
+    agent_profile=$(getconf.py agent-profile pbench-server)
+    if [[ ! -e "${agent_profile}" ]]; then
+        echo "Failed: PUT API token provided but no pbench-agent profile" >> ${errlog}
+        exit 2
+    fi
+    source ${agent_profile}
+fi
 
 qdir=$(getconf.py pbench-quarantine-dir pbench-server)
 if [[ -z "${qdir}" ]]; then
