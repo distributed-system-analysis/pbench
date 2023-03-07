@@ -463,14 +463,13 @@ def main(options):
     summary["execution_id"] = exec_id
     # Add duration to the summary.
     summary["duration"] = (end - start).total_seconds()
-    pbench_namespaced_summary = dict(pbench={"report": {"summary": summary}})
-    summary_text = (
+    summary["text"] = (
         "{execution_id}: Culled {total:d} unpacked tar ball directories"
         " ({errors:d} errors) in {duration:0.2f} secs".format(**summary)
     )
+    pbench_namespaced_summary = {"pbench": {"report": {"summary": summary}}}
     logger.info(
-        "{} -- @cee:{}",
-        summary_text,
+        "@cee:{}",
         json.dumps(pbench_namespaced_summary),
     )
 
@@ -481,17 +480,15 @@ def main(options):
             execution_id=exec_id,
             name=act_set.name,
         )
-        action_set_text = (
-            "Action set {name} ({errors:d} errors, {duration:0.2f} secs)".format(
-                **action_set_d
-            )
+        action_set_d[
+            "text"
+        ] = "Action set {name} ({errors:d} errors, {duration:0.2f} secs)".format(
+            **action_set_d
         )
         pbench_namespaced_action_set = dict(
             pbench={"report": {"action_set": action_set_d}}
         )
-        logger.debug(
-            "{} -- @cee:{}", action_set_text, json.dumps(pbench_namespaced_action_set)
-        )
+        logger.debug("@cee:{}", json.dumps(pbench_namespaced_action_set))
 
         for act in act_set.actions:
             action_d = dict(
@@ -513,11 +510,9 @@ def main(options):
                 ex_tgt = f" {ex_tgt}"
             else:
                 ex_tgt = ""
-            action_text = f"Action $ {act.verb} {tgt} {ex_tgt}  # {act.status}"
-            pbench_namespaced_action = dict(pbench={"report": {"action": action_d}})
-            logger.debug(
-                "{} -- @cee:{}", action_text, json.dumps(pbench_namespaced_action)
-            )
+            action_d["text"] = f"Action $ {act.verb} {tgt} {ex_tgt}  # {act.status}"
+            pbench_namespaced_action = {"pbench": {"report": {"action": action_d}}}
+            logger.debug("@cee:{}", json.dumps(pbench_namespaced_action))
     return errors
 
 

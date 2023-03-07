@@ -344,12 +344,13 @@ done < ${list}
 end_ts=$(timestamp)
 
 if [[ ${ntotal} -gt 0 ]]; then
-    summary_text="Processed ${ntotal} result tar balls, ${ntbs} successfully"
+    summary_text="(${PBENCH_ENV})"
+    summary_text+=" Processed ${ntotal} result tar balls, ${ntbs} successfully"
     summary_text+=" (${npartialsucc} partial), with ${nquarantined} quarantined"
     summary_text+=" tar balls, ${ndups} duplicately-named tar balls, and"
     summary_text+=" ${nerrs} errors."
     printf -v summary_inner_json \
-        "{\"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\"}" \
+        "{\"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\"}" \
         "end_ts" "${end_ts}" \
         "errors" "${nerrs}" \
         "ndups" "${ndups}" \
@@ -358,10 +359,11 @@ if [[ ${ntotal} -gt 0 ]]; then
         "ntbs" "${ntbs}" \
         "ntotal" "${ntotal}" \
         "prog" "${PROG}" \
-        "start_ts" "${start_ts}"
+        "start_ts" "${start_ts}" \
+        "text" "${summary_text}"
     printf -v summary_json "{\"pbench\": {\"report\": {\"summary\": %s}}}" "${summary_inner_json}"
 
-    log_info "${TS}(${PBENCH_ENV}): ${summary_text} -- @cee:${summary_json}"
+    log_info "@cee:${summary_json}"
 fi
 
 log_finish

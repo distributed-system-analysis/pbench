@@ -103,7 +103,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/report.latest.txt
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
--rw-rw-r--        694 logs/pbench-dispatch/pbench-dispatch.log
+-rw-rw-r--        674 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/SAT::controller
@@ -165,7 +165,7 @@ tarball_for-put-api_1970.01.01T00.00.00.tar.xz: OK
 run-1970-01-01T00:00:42-UTC: SAT::controller/tarball_for-put-api_1970.01.01T00.00.00: success
 tarball_for-put-api_1970.01.01T00.00.00.tar.xz: OK
 run-1970-01-01T00:00:42-UTC: controller/tarball_for-put-api_1970.01.01T00.00.00: success
-run-1970-01-01T00:00:42-UTC(unit-test): Processed 2 result tar balls, 2 successfully (0 partial), with 0 quarantined tar balls, 0 duplicately-named tar balls, and 0 errors. -- @cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "ndups": 0, "npartialsucc": 0, "nquarantined": 0, "ntbs": 2, "ntotal": 2, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC"}}}}
+@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "ndups": 0, "npartialsucc": 0, "nquarantined": 0, "ntbs": 2, "ntotal": 2, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 2 result tar balls, 2 successfully (0 partial), with 0 quarantined tar balls, 0 duplicately-named tar balls, and 0 errors."}}}}
 ----- pbench-dispatch/pbench-dispatch.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

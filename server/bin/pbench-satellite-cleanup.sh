@@ -109,13 +109,14 @@ done
 end_ts=$(timestamp)
 
 if [[ ${ntbs} -gt 0 ]]; then
-    summary_text="Total ${ntbs} tar balls cleaned up (for ${nhosts} hosts), with"
-    summary_text+=" ${ntberrs} tar ball removal errors, ${nmd5errs} md5 file"
-    summary_text+=" removal errors, ${nstateerrs} state change errors,"
+    summary_text="(${PBENCH_ENV})"
+    summary_text+=" Total ${ntbs} tar balls cleaned up (for ${nhosts} hosts),"
+    summary_text+=" with ${ntberrs} tar ball removal errors, ${nmd5errs} md5"
+    summary_text+=" file removal errors, ${nstateerrs} state change errors,"
     summary_text+=" ${nincomingerrs} incoming directory removal errors, and"
     summary_text+=" ${nresultserrs} result directory removal errors."
     printf -v summary_inner_json \
-        "{\"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\"}" \
+        "{\"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\"}" \
         "end_ts" "${end_ts}" \
         "errors" "$((nincomingerrs+nmd5errs+nresultserrs+nstateerrs+ntberrs))" \
         "nhosts" "${nhosts}" \
@@ -126,10 +127,11 @@ if [[ ${ntbs} -gt 0 ]]; then
         "ntbs" "${ntbs}" \
         "ntberrs" "${ntberrs}" \
         "prog" "${PROG}" \
-        "start_ts" "${start_ts}"
+        "start_ts" "${start_ts}" \
+        "text" "${summary_text}"
     printf -v summary_json "{\"pbench\": {\"report\": {\"summary\": %s}}}" "${summary_inner_json}"
 
-    log_info "${TS}(${PBENCH_ENV}): ${summary_text} -- @cee:${summary_json}"
+    log_info "@cee:${summary_json}"
 fi
 
 log_finish

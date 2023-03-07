@@ -198,11 +198,12 @@ end_ts=$(timestamp)
 let duration=end_time-start_time
 
 if [[ ${nhosts} -gt 0 ]]; then
-    summary_text="${remote_prefix} Processed ${nprocessed} files (from"
+    summary_text="(${PBENCH_ENV})"
+    summary_text+=" ${remote_prefix} Processed ${nprocessed} files (from"
     summary_text+=" ${nhosts} hosts, ${ntotal} total tar balls), with ${nerrs}"
     summary_text+=" errors, in ${duration} seconds"
     printf -v summary_inner_json \
-        "{\"%s\": %d, \"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\"}" \
+        "{\"%s\": %d, \"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\"}" \
         "duration" "${duration}" \
         "end_ts" "${end_ts}" \
         "errors" "${nerrs}" \
@@ -211,10 +212,11 @@ if [[ ${nhosts} -gt 0 ]]; then
         "ntotal" "${ntotal}" \
         "prog" "${PROG}" \
         "remote_prefix" "${remote_prefix}" \
-        "start_ts" "${start_ts}"
+        "start_ts" "${start_ts}" \
+        "text" "${summary_text}"
     printf -v summary_json "{\"pbench\": {\"report\": {\"summary\": %s}}}" "${summary_inner_json}"
 
-    log_info "${TS}(${PBENCH_ENV}): ${summary_text} -- @cee:${summary_json}"
+    log_info "@cee:${summary_json}"
 fi
 log_finish
 
