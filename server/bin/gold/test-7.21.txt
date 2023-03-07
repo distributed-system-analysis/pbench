@@ -5669,7 +5669,7 @@ drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--       6541 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--       1616 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--       1596 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -5824,7 +5824,7 @@ run-1970-01-01T00:00:42-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29: success 
 ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/results/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T19.49.39
 ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/users/janedoe@example.com/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T19.49.39
 run-1970-01-01T00:00:42-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39: success - elapsed time (secs): 0 - size (bytes): 53736
-run-1970-01-01T00:00:42-UTC(unit-test): Processed 2 result tar balls, 2 successfully, with 0 rechecks, 0 warnings, and 0 errors -- @cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nrechecks": 0, "ntbs": 2, "ntotal": 2, "nwarn": 0, "prog": "pbench-unpack-tarballs", "start_ts": "1970-01-01T00:00:42-UTC"}}}}
+@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nrechecks": 0, "ntbs": 2, "ntotal": 2, "nwarn": 0, "prog": "pbench-unpack-tarballs", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 2 result tar balls, 2 successfully, with 0 rechecks, 0 warnings, and 0 errors"}}}}
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

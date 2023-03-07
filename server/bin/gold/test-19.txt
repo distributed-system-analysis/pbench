@@ -160,7 +160,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/report.latest.txt
 drwxrwxr-x          - logs/pbench-re-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
--rw-rw-r--       1414 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
+-rw-rw-r--       1394 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -222,7 +222,7 @@ ln -s /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-01/ta
 run-1970-01-01T00:00:42-UTC: ctrl-01/tarball_config-02_1970.01.01T00.00.41: success - elapsed time (secs): 0 - size (bytes): 228
 ln -s /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-00/tarball_config-00_1970.01.01T00.00.40 /var/tmp/pbench-test-server/test-19/pbench/public_html/results/ctrl-00/tarball_config-00_1970.01.01T00.00.40
 run-1970-01-01T00:00:42-UTC: ctrl-00/tarball_config-00_1970.01.01T00.00.40: success - elapsed time (secs): 0 - size (bytes): 224
-run-1970-01-01T00:00:42-UTC(unit-test): Processed 3 result tar balls, 3 successfully, with 0 rechecks, 0 warnings, and 0 errors -- @cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nrechecks": 0, "ntbs": 3, "ntotal": 3, "nwarn": 0, "prog": "pbench-re-unpack-tarballs", "start_ts": "1970-01-01T00:00:42-UTC"}}}}
+@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nrechecks": 0, "ntbs": 3, "ntotal": 3, "nwarn": 0, "prog": "pbench-re-unpack-tarballs", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 3 result tar balls, 3 successfully, with 0 rechecks, 0 warnings, and 0 errors"}}}}
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
