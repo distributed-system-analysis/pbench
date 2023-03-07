@@ -13,6 +13,7 @@ from pbench.client import API, PbenchServerClient
 from pbench.client.types import Dataset
 
 TARBALL_DIR = Path("lib/pbench/test/functional/server/tarballs")
+SPECIAL_DIR = TARBALL_DIR / "special"
 
 
 @dataclass
@@ -114,10 +115,12 @@ class TestPut:
 
     @staticmethod
     def test_archive_only(server_client: PbenchServerClient, login_user):
-        """Try to upload a new dataset with the archiveonly option set, and
+        """Test `server.archiveonly`
+
+        Try to upload a new dataset with the archiveonly option set, and
         validate that it doesn't get enabled for unpacking or indexing.
         """
-        tarball = next(iter((TARBALL_DIR / "bad").glob("*.tar.xz")))
+        tarball = SPECIAL_DIR / "fio_mock_2020.01.19T00.18.06.tar.xz"
         md5 = Dataset.md5(tarball)
         response = server_client.upload(tarball, metadata={"server.archiveonly:y"})
         assert (
@@ -126,6 +129,38 @@ class TestPut:
         metadata = server_client.get_metadata(
             md5, ["dataset.operations", "server.archiveonly"]
         )
+        assert metadata["server.archiveonly"] is True
+
+        # NOTE: we could wait here; however, the UNPACK operation is only
+        # enabled by upload, and INDEX is only enabled by UNPACK: so if they're
+        # not here immediately after upload, they'll never be here.
+        operations = metadata["dataset.operations"]
+        assert operations["UPLOAD"]["state"] == "OK"
+        assert "INDEX" not in operations
+
+        # Delete it so we can run the test case again without manual cleanup
+        response = server_client.remove(md5)
+        assert (
+            response.ok
+        ), f"delete failed with {response.status_code}, {response.text}"
+
+    @staticmethod
+    def test_no_metadata(server_client: PbenchServerClient, login_user):
+        """Test handling for a tarball without a metadata.log.
+
+        Try to upload a new tarball with no `metadata.log` file, and
+        validate that it doesn't get enabled for unpacking or indexing.
+        """
+        tarball = SPECIAL_DIR / "nometadata.tar.xz"
+        md5 = Dataset.md5(tarball)
+        response = server_client.upload(tarball)
+        assert (
+            response.status_code == HTTPStatus.CREATED
+        ), f"upload {Dataset.stem(tarball)} returned unexpected status {response.status_code}, {response.text}"
+        metadata = server_client.get_metadata(
+            md5, ["dataset.operations", "dataset.metalog", "server.archiveonly"]
+        )
+        assert metadata["dataset.metalog"] == {"pbench": {"script": "Foreign"}}
         assert metadata["server.archiveonly"] is True
 
         # NOTE: we could wait here; however, the UNPACK operation is only

@@ -127,9 +127,7 @@ class TestCacheManager:
     def test_metadata(
         self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
     ):
-        """
-        Test behavior of the metadata file when key/value are not present.
-        """
+        """Test behavior with metadata.log access errors."""
 
         def fake_extract_file(self, path):
             raise KeyError(f"filename {path} not found")
@@ -149,47 +147,57 @@ class TestCacheManager:
                 "run": {"controller": ""},
             }
 
-        source_tarball, source_md5, md5 = tarball
-        cm = CacheManager(server_config, make_logger)
         # fetching metadata from metadata.log file and key/value not
         # being there should result in a MetadataError
-        tar_name = source_tarball.name.removesuffix(".tar.xz")
-
-        expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"'filename {tar_name}/metadata.log not found'\""
-        monkeypatch.setattr(tarfile.TarFile, "extractfile", fake_extract_file)
-        with pytest.raises(MetadataError) as exc:
-            cm.create(source_tarball)
-        assert str(exc.value) == expected_metaerror
+        source_tarball, source_md5, md5 = tarball
+        cm = CacheManager(server_config, make_logger)
 
         expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: 'Invalid Tarfile'"
-        monkeypatch.setattr(tarfile, "open", fake_tarfile_open)
-        with pytest.raises(MetadataError) as exc:
-            cm.create(source_tarball)
-        assert str(exc.value) == expected_metaerror
+        # expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: 'Invalid Tarfile'"
+        with monkeypatch.context() as m:
+            m.setattr(tarfile, "open", fake_tarfile_open)
+            with pytest.raises(MetadataError) as exc:
+                cm.create(source_tarball)
+            assert str(exc.value) == expected_metaerror
 
         expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"'run'\""
-        monkeypatch.setattr(Tarball, "_get_metadata", fake_metadata)
-        with pytest.raises(MetadataError) as exc:
-            cm.create(source_tarball)
-        assert str(exc.value) == expected_metaerror
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "_get_metadata", fake_metadata)
+            with pytest.raises(MetadataError) as exc:
+                cm.create(source_tarball)
+            assert str(exc.value) == expected_metaerror
 
         expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: \"'controller'\""
-        monkeypatch.setattr(Tarball, "_get_metadata", fake_metadata_run)
-        with pytest.raises(MetadataError) as exc:
-            cm.create(source_tarball)
-        assert str(exc.value) == expected_metaerror
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "_get_metadata", fake_metadata_run)
+            with pytest.raises(MetadataError) as exc:
+                cm.create(source_tarball)
+            assert str(exc.value) == expected_metaerror
 
         expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: 'no controller value'"
-        monkeypatch.setattr(Tarball, "_get_metadata", fake_metadata_controller)
-        with pytest.raises(MetadataError) as exc:
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "_get_metadata", fake_metadata_controller)
+            with pytest.raises(MetadataError) as exc:
+                cm.create(source_tarball)
+            assert str(exc.value) == expected_metaerror
+
+        with monkeypatch.context() as m:
+            m.setattr(tarfile.TarFile, "extractfile", fake_extract_file)
             cm.create(source_tarball)
-        assert str(exc.value) == expected_metaerror
+            assert cm[md5].metadata is None
 
-        monkeypatch.setattr(Tarball, "_get_metadata", fake_get_metadata)
-        cm.create(source_tarball)
-        tarball = cm.find_dataset(md5)
+    def test_with_metadata(
+        self, monkeypatch, selinux_disabled, server_config, make_logger, tarball
+    ):
+        """Test behavior with metadata.log access errors."""
+        source_tarball, source_md5, md5 = tarball
+        cm = CacheManager(server_config, make_logger)
 
-        assert tarball.metadata == fake_get_metadata(tarball.tarball_path)
+        with monkeypatch.context() as m:
+            m.setattr(Tarball, "_get_metadata", fake_get_metadata)
+            cm.create(source_tarball)
+            tarball = cm.find_dataset(md5)
+            assert tarball.metadata == fake_get_metadata(tarball.tarball_path)
 
     def test_create_bad(
         self, monkeypatch, selinux_disabled, server_config, make_logger, tarball

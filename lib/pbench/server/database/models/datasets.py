@@ -270,10 +270,7 @@ class Dataset(Database.Base):
         access      Dataset is "private" to owner, or "public"
         name        Base name of dataset (tarball)
         md5         The dataset MD5 hash (Elasticsearch ID)
-        created     Tarball metadata timestamp (set during PUT)
         uploaded    Dataset record creation timestamp
-        state       The current state of the dataset
-        transition  The timestamp of the last state transition
     """
 
     __tablename__ = "datasets"

@@ -1,7 +1,5 @@
-from configparser import ConfigParser
 from enum import Enum
 from pathlib import Path
-import tarfile
 from typing import Iterator, Optional
 from urllib import parse
 
@@ -376,22 +374,9 @@ class PbenchServerClient:
             query_parameters["access"] = access
         if "metadata" in kwargs:
             query_parameters["metadata"] = kwargs.get("metadata")
-        if "controller" in kwargs:
-            controller = kwargs["controller"]
-        else:
-            with tarfile.open(tarball) as t:
-                metafile = (
-                    t.extractfile(f"{Dataset.stem(tarball)}/metadata.log")
-                    .read()
-                    .decode()
-                )
-            metadata = ConfigParser(interpolation=None)
-            metadata.read_string(metafile)
-            controller = metadata.get("run", "controller", fallback=None)
 
         headers = {
             "Content-MD5": md5,
-            "controller": controller,
             "content-type": "application/octet-stream",
         }
 
