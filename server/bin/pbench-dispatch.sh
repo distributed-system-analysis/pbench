@@ -64,11 +64,12 @@ fi
 # Server.
 put_token=$(getconf.py put-token pbench-server)
 if [[ -n "${put_token}" ]]; then
-    if [[ ! -e "/etc/profile.d/pbench-agent.sh" ]]; then
+    agent_profile=$(getconf.py agent-profile pbench-server)
+    if [[ ! -e "${agent_profile}" ]]; then
         echo "Failed: PUT API token provided but no pbench-agent profile" >> ${errlog}
         exit 2
     fi
-    source /etc/profile.d/pbench-agent.sh
+    source ${agent_profile}
 fi
 
 qdir=$(getconf.py pbench-quarantine-dir pbench-server)

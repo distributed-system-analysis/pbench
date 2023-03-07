@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rm ${_testroot}/agent-profile
+exit ${?}
