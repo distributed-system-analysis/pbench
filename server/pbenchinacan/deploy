@@ -112,4 +112,5 @@ podman run \
     --volume ${PB_DEPLOY_FILES}/etc/rsyslog.d:/etc/rsyslog.d:Z \
     --volume ${PB_DEPLOY_FILES}/pbench-server.cfg:/opt/pbench-server/lib/config/pbench-server.cfg:Z \
     --volume ${SRV_PBENCH}:/srv/pbench:Z \
+    ${PB_SERVER_PODMAN_SWITCHES} \
     ${PB_SERVER_IMAGE}
