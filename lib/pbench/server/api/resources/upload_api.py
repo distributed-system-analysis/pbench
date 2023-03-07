@@ -92,7 +92,6 @@ class Upload(ApiBase):
                 authorization=ApiAuthorizationType.NONE,
             ),
         )
-        self.max_content_length = config.rest_max_content_length
         self.temporary = config.ARCHIVE / CacheManager.TEMPORARY
         self.temporary.mkdir(mode=0o755, parents=True, exist_ok=True)
         current_app.logger.info(
@@ -243,12 +242,6 @@ class Upload(ApiBase):
                     HTTPStatus.BAD_REQUEST,
                     f"'Content-Length' {content_length} must be greater than 0",
                 )
-            elif content_length > self.max_content_length:
-                raise CleanupTime(
-                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                    f"'Content-Length' {content_length} must be no greater "
-                    f"than {humanize.naturalsize(self.max_content_length)}",
-                )
 
             tar_full_path = self.temporary / filename
             md5_full_path = self.temporary / f"{filename}.md5"
@@ -257,10 +250,10 @@ class Upload(ApiBase):
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
             current_app.logger.info(
-                "{} UPLOAD (pre): {}% full, {} bytes remaining",
+                "{} UPLOAD (pre): {:.3}% full, {} remaining",
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
-                usage.free,
+                humanize.naturalsize(usage.free),
             )
 
             current_app.logger.info(
@@ -414,10 +407,10 @@ class Upload(ApiBase):
 
             usage = shutil.disk_usage(tar_full_path.parent)
             current_app.logger.info(
-                "{} UPLOAD (post): {}% full, {} bytes remaining",
+                "{} UPLOAD (post): {:.3}% full, {} remaining",
                 tar_full_path.name,
                 float(usage.used) / float(usage.total) * 100.0,
-                usage.free,
+                humanize.naturalsize(usage.free),
             )
 
             # From this point, failure will remove the tarball from the cache

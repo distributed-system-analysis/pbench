@@ -11,7 +11,6 @@ from typing import Dict, List, Optional, Union
 
 from pbench import PbenchConfig
 from pbench.common.exceptions import BadConfig
-from pbench.server.utils import filesize_bytes
 
 # A type defined to conform to the semantic definition of a JSON structure
 # with Python syntax.
@@ -244,18 +243,6 @@ class PbenchServerConfig(PbenchConfig):
             "pbench-server",
             "default-dataset-retention-days",
             fallback=self.DEFAULT_RETENTION_DAYS,
-        )
-
-    @property
-    def rest_max_content_length(self) -> int:
-        """Produce an integer representing the maximum content length accepted
-        by the REST APIs.
-
-        Returns:
-            An integer number of bytes.
-        """
-        return filesize_bytes(
-            self.get("pbench-server", "rest_max_content_length", fallback="1 gb")
         )
 
     def _get_valid_dir_option(self, env_name: str, section: str, option: str) -> Path:
