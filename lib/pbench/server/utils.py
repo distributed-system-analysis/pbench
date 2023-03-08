@@ -7,34 +7,6 @@ from dateutil import parser as date_parser
 from pbench.common.utils import md5sum
 
 
-def filesize_bytes(size):
-    size = size.strip()
-    size_name = ["B", "KB", "MB", "GB", "TB"]
-    try:
-        parts = size.split(" ", 1)
-        if len(parts) == 1:
-            try:
-                num = int(size)
-            except ValueError:
-                for i, c in enumerate(size):
-                    if not c.isdigit():
-                        break
-                num = int(size[:i])
-                unit = size[i:]
-            else:
-                unit = ""
-        else:
-            num = int(parts[0])
-            unit = parts[1].strip()
-
-        idx = size_name.index(unit.upper()) if unit else 0
-        factor = 1024**idx
-    except Exception as exc:
-        raise Exception("Invalid file size value encountered, '%s': %s", size, exc)
-    else:
-        return num * factor
-
-
 def get_tarball_md5(tarball: Union[Path, str]) -> str:
     """
     Convenience method to locate the MD5 file associated with a dataset
