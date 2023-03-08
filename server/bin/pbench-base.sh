@@ -113,9 +113,19 @@ function log_exit {
     fi
 }
 
+function log_debug {
+    printf -- "%b\n" "${1}"
+    logger -t ${PROG} -p daemon.debug -- "${1}"
+}
+
 function log_info {
     printf -- "%b\n" "${1}"
     logger -t ${PROG} -p daemon.info -- "${1}"
+}
+
+function log_warn {
+    printf -- "%b\n" "${1}"
+    logger -t ${PROG} -p daemon.warning -- "${1}"
 }
 
 function log_error {

@@ -85,13 +85,13 @@ state_change_log=$logdir_for_remote/change_state.log
 # we try to process any new tar balls on the satellite server.  If it
 # fails again then exit without going further.
 if [ -s ${state_change_log} ]; then
-    log_error "${TS}: Completing previous satellite state changes ... (${state_change_log})"
+    log_debug "${TS}: Completing previous satellite state changes ... (${state_change_log})"
     do_remote_sat_state_change
     status=$?
     if [[ $status != 0 ]]; then
         log_exit "${TS}: unable to complete previous satellite state changes (${state_change_log})"
     fi
-    log_error "${TS}: completed previous satellite state changes"
+    log_debug "${TS}: completed previous satellite state changes"
 else
     # initialize state change log
     > ${state_change_log}
@@ -163,7 +163,7 @@ for host in $hosts ;do
         status=$?
         if [[ $status != 0 ]]; then
            (( nerrs++ ))
-            log_error "Failure moving tar ball ${tbmd5%*.md5} to $localdir"
+            log_error "${TS}: Failure moving tar ball ${tbmd5%*.md5} to $localdir"
             continue
         fi
         mv ${tbmd5} ./
@@ -171,7 +171,7 @@ for host in $hosts ;do
         if [[ $status != 0 ]]; then
             rm -f ${tbmd5%*.md5}
             (( nerrs++ ))
-            log_error "Failure moving tar ball MD5 file ${tbmd5} to $localdir"
+            log_error "${TS}: Failure moving tar ball MD5 file ${tbmd5} to $localdir"
             continue
         fi
         echo "$host/TO-SYNC/$(basename ${tbmd5%*.md5})" >> ${state_change_log}
@@ -183,13 +183,13 @@ done
 
 # change the state of the tarballs on remote
 if [ -s ${state_change_log} ]; then
-    log_error "$PROG: completing satellite state changes ... (${state_change_log})"
+    log_debug "${TS}: Completing satellite state changes ... (${state_change_log})"
     do_remote_sat_state_change
     status=$?
     if [[ $status != 0 ]]; then
-        log_error "$PROG: unable to complete satellite state changes (${state_change_log})"
+        log_error "${TS}: Unable to complete satellite state changes (${state_change_log})"
     else
-        log_error "$PROG: completed satellite state changes"
+        log_debug "${TS}: Completed satellite state changes"
     fi
 fi
 
