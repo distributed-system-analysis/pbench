@@ -350,8 +350,8 @@ drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        174 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
--rw-rw-r--        876 logs/pbench-dispatch/pbench-dispatch.error
--rw-rw-r--       1825 logs/pbench-dispatch/pbench-dispatch.log
+-rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
+-rw-rw-r--       2701 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        254 logs/pbench-index-tool-data/pbench-index-tool-data.log
@@ -361,8 +361,8 @@ drwxrwxr-x          - logs/pbench-re-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
--rw-rw-r--        219 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--        355 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
+-rw-rw-r--        586 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs-small
 -rw-rw-r--        218 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
 -rw-rw-r--       3103 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
@@ -473,10 +473,6 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Culling unpacked tar balls 30 days older than 1970-01-01T00:00:42.000000
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 +++++ pbench-dispatch/pbench-dispatch.error
-run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-a-missing-tb/tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz failed MD5 check
-run-1970-01-01T00:00:42-UTC: Duplicate: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz duplicate name
-run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-e-bad-md5/tarball-bad-md5_1970.01.01T00.42.00.tar.xz failed MD5 check
-run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz failed MD5 check
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
 tarball-simple1_1970-01-01T00:42:00.tar.xz: OK
@@ -488,16 +484,20 @@ run-1970-01-01T00:00:42-UTC: ONE::controllerC/tarball-simple0-prefix_1970-01-01T
 md5sum: tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz: No such file or directory
 tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz: FAILED open or read
 md5sum: WARNING: 1 listed file could not be read
+run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-a-missing-tb/tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz failed MD5 check
 tarball-0_1970.01.01T00.42.00.tar.xz: OK
 run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00: success
 tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz: OK
 run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00: success
 tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz: OK
 run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00: success
+run-1970-01-01T00:00:42-UTC: Duplicate: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz duplicate name
 tarball-bad-md5_1970.01.01T00.42.00.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
+run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-e-bad-md5/tarball-bad-md5_1970.01.01T00.42.00.tar.xz failed MD5 check
 tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
+run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz failed MD5 check
 tarball-normal_1970.01.01T00.42.00.tar.xz: OK
 run-1970-01-01T00:00:42-UTC: controller-g-normal/tarball-normal_1970.01.01T00.42.00: success
 @cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "ndups": 1, "npartialsucc": 0, "nquarantined": 3, "ntbs": 7, "ntotal": 11, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 11 result tar balls, 7 successfully (0 partial), with 3 quarantined tar balls, 1 duplicately-named tar balls, and 0 errors."}}}}
@@ -551,10 +551,10 @@ run-1970-01-01T00:00:42-UTC: controller-g-normal/tarball-normal_1970.01.01T00.42
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 +++++ pbench-sync-satellite/pbench-sync-satellite.error
-pbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-5.2/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)
-pbench-sync-satellite: completed satellite state changes
 ----- pbench-sync-satellite/pbench-sync-satellite.error
 +++++ pbench-sync-satellite/pbench-sync-satellite.log
+run-1970-01-01T00:00:42-UTC: Completing satellite state changes ... (/var/tmp/pbench-test-server/test-5.2/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)
+run-1970-01-01T00:00:42-UTC: Completed satellite state changes
 @cee:{"pbench": {"report": {"summary": {"duration": 0, "end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nhosts": 3, "nprocessed": 3, "ntotal": 3, "prog": "pbench-sync-satellite", "remote_prefix": "ONE", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) ONE Processed 3 files (from 3 hosts, 3 total tar balls), with 0 errors, in 0 seconds"}}}}
 ----- pbench-sync-satellite/pbench-sync-satellite.log
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error

@@ -204,7 +204,7 @@ while read tbmd5; do
     dest=${ARCHIVE}/${controller}
 
     if [[ -f ${dest}/${resultname}.tar.xz || -f ${dest}/${resultname}.tar.xz.md5 ]]; then
-        log_error "${TS}: Duplicate: ${tb} duplicate name"
+        log_warn "${TS}: Duplicate: ${tb} duplicate name"
         quarantine ${duplicates}/${controller} ${tbmd5} ${tb}
         (( ndups++ ))
         continue
@@ -215,7 +215,7 @@ while read tbmd5; do
     sts=${?}
     popd > /dev/null 2>&4
     if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Quarantined: ${tb} failed MD5 check"
+        log_warn "${TS}: Quarantined: ${tb} failed MD5 check"
         quarantine ${bad_md5}/${controller} ${tbmd5} ${tb}
         (( nquarantined++ ))
         continue
@@ -257,7 +257,7 @@ while read tbmd5; do
         pbench-results-push ${tb} ${push_options}
         sts=${?}
         if [[ ${sts} -ne 0 ]]; then
-            log_error "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}"
+            log_warn "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}"
         fi
     fi
 
@@ -292,7 +292,7 @@ while read tbmd5; do
         rm ${dest}/${resultname}.tar.xz.md5
         sts=${?}
         if [[ ${sts} -ne 0 ]]; then
-            log_error "${TS}: Warning: cleanup of move failure failed itself: \"rm ${dest}/${resultname}.tar.xz.md5\", status ${sts}"
+            log_warn "${TS}: Warning: cleanup of move failure failed itself: \"rm ${dest}/${resultname}.tar.xz.md5\", status ${sts}"
         fi
         (( nerrs++ ))
         continue
@@ -305,7 +305,7 @@ while read tbmd5; do
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
         # log it but do not abort
-        log_error "${TS}: Error: \"restorecon ${dest}/${tbname} ${dest}/${tbname}.md5\", status ${sts}"
+        log_warn "${TS}: Warning: \"restorecon ${dest}/${tbname} ${dest}/${tbname}.md5\", status ${sts}"
     fi
 
     # Now that we have successfully moved the tar ball and its .md5 to the
@@ -313,7 +313,7 @@ while read tbmd5; do
     rm ${tbmd5}
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
-        log_error "${TS}: Warning: cleanup of successful copy operation failed: \"rm ${tbmd5}\", status ${sts}"
+        log_warn "${TS}: Warning: cleanup of successful copy operation failed: \"rm ${tbmd5}\", status ${sts}"
     fi
 
     # Create a link in each state dir - if any fail we don't delete them
@@ -341,10 +341,10 @@ while read tbmd5; do
         if [[ ${toterr} -gt 0 ]]; then
             # We have had some errors while processing this tar ball, so count
             # this as a partial success.
-            log_info "${TS}: ${controller}/${resultname}: success (partial)"
+            log_debug "${TS}: ${controller}/${resultname}: success (partial)"
             (( npartialsucc++ ))
         else
-            log_info "${TS}: ${controller}/${resultname}: success"
+            log_debug "${TS}: ${controller}/${resultname}: success"
         fi
     fi
 done < ${list}

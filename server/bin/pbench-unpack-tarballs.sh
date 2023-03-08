@@ -159,7 +159,7 @@ function do_work() {
         local status=${?}
         if [[ ${status} -gt 0 ]]; then
             (( nwarn++ ))
-            log_info "${TS}: ${result} is older than the configured maximum age (status = ${status})"
+            log_warn "${TS}: ${result} is older than the configured maximum age (status = ${status})"
             hostname=$(basename $(dirname $(dirname ${result})))
             mkdir -p ${ARCHIVE}/${hostname}/${linkerr}
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for symlink"
@@ -249,7 +249,7 @@ function do_work() {
         status=${?}
         if [[ ${status} -ne 0 ]]; then
             (( nwarn++ ))
-            log_error "${TS}: WARNING - '${result}' should only contain the ${resultname} directory at the top level, ignoring other content"
+            log_warn "${TS}: WARNING - '${result}' should only contain the ${resultname} directory at the top level, ignoring other content"
             rm -rf ${incoming}.unpack
         fi
 
@@ -276,7 +276,7 @@ function do_work() {
             continue
         fi
         # make a link in results/
-        log_info "ln -s ${incoming} ${RESULTS}/${hostname}/${prefix}${resultname}"
+        log_debug "ln -s ${incoming} ${RESULTS}/${hostname}/${prefix}${resultname}"
         ln -s ${incoming} ${RESULTS}/${hostname}/${prefix}${resultname}
         status=${?}
         if [[ ${status} -ne 0 ]]; then
@@ -302,7 +302,7 @@ function do_work() {
                 continue
             fi
 
-            log_info "ln -s ${incoming} ${USERS}/${user}/${hostname}/${prefix}${resultname}"
+            log_debug "ln -s ${incoming} ${USERS}/${user}/${hostname}/${prefix}${resultname}"
             ln -s ${incoming} ${USERS}/${user}/${hostname}/${prefix}${resultname}
             status=${?}
             if [[ ${status} -ne 0 ]]; then
@@ -349,7 +349,7 @@ function do_work() {
         let end_time=$(timestamp-seconds-since-epoch)
         let duration=end_time-start_time
         # log the success
-        log_info "${TS}: ${hostname}/${resultname}: success - elapsed time (secs): ${duration} - size (bytes): ${size}"
+        log_debug "${TS}: ${hostname}/${resultname}: success - elapsed time (secs): ${duration} - size (bytes): ${size}"
         (( ntbs++ ))
 
         # The job currently default to running once a minute, but once unpack
