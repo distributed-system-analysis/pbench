@@ -2,7 +2,6 @@ from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from typing import NamedTuple
 
-from email_validator import EmailNotValidError
 from flask import current_app, jsonify, make_response, request
 from flask_bcrypt import check_password_hash
 from flask_restful import abort, Resource
@@ -128,9 +127,6 @@ class RegisterUser(Resource):
                 "New user registered, username: {}, email: {}", username, email_id
             )
             return "", HTTPStatus.CREATED
-        except EmailNotValidError:
-            current_app.logger.warning("Invalid email {}", email_id)
-            abort(HTTPStatus.BAD_REQUEST, message=f"Invalid email: {email_id}")
         except Exception:
             current_app.logger.exception("Exception while registering a user")
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")

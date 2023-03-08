@@ -72,24 +72,6 @@ class TestUserAuthentication:
             assert response.status_code == HTTPStatus.BAD_REQUEST
 
     @staticmethod
-    def test_registration_email_validity(client, server_config):
-        """Test for validating an email field during registration"""
-        with client:
-            response = register_user(
-                client,
-                server_config,
-                username="user",
-                firstname="firstname",
-                lastname="lastName",
-                email="user@domain,com",
-                password="12345",
-            )
-            data = response.json
-            assert data["message"] == "Invalid email: user@domain,com"
-            assert response.content_type == "application/json"
-            assert response.status_code == HTTPStatus.BAD_REQUEST
-
-    @staticmethod
     def test_registration_with_registered_user(client, server_config):
         """Test registration with already registered email"""
         user = User(
