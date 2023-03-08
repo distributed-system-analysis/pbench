@@ -1,3 +1,0 @@
-date +%s.%N
-nc -U /var/lib/libvirt/qemu/vm43.monitor
-sleep 42

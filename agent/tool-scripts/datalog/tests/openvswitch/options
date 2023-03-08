@@ -1,4 +1,0 @@
-#/bin/bash
-
-echo "${_execdir} 42"
-exit 0

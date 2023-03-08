@@ -1,6 +1,0 @@
-#!/usr/bin/bash
-
-_dir="${_testtmp}/specjbb2005"
-rm -rf ${_dir}/*
-rmdir ${_dir}
-mv ${_testopt}/unittest-scripts/kill.save ${_testopt}/unittest-scripts/kill

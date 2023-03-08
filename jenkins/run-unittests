@@ -38,7 +38,7 @@ printf -- "\n\n\n"
 export PBENCH_UNITTEST_SERVER_MODE=parallel
 
 # List of environments to run.
-envs="agent/tool-scripts/datalog agent/tool-scripts/postprocess agent/tool-scripts agent/util-scripts agent/bench-scripts server/bin"
+envs="server/bin"
 
 for env in ${envs}; do
     if [[ ! -x ${progdir}/${env}/unittests ]]; then

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "42 /tmp/_does_not_exist_.file"
-exit 0

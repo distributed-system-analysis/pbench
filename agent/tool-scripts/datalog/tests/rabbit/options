@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "42 mad hatter"
-exit 0

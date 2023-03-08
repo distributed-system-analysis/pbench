@@ -1,2 +1,0 @@
-mpstat: running "/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 3 "
-/opt/pbench-agent/tool-scripts/mpstat: line 760: 53287 Terminated              ${tool_cmd_file} > "${tool_stdout_file}" 2> "${tool_stderr_file}"

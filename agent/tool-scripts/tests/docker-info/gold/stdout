@@ -1,4 +1,0 @@
-docker-info: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/docker-info-datalog 10"
-docker-info: stopping
-docker-info: no post-processing available following stop
-docker-info: no data post-processing available

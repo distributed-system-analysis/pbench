@@ -1,2 +1,0 @@
-vmstat-datalog 10
-vmstat-postprocess /var/tmp/pbench-test-tool-scripts/vmstat/tools-group/vmstat

@@ -1,6 +1,0 @@
-+++ Running test-12.01 pbench-list-tools 
---- Finished test-12.01 pbench-list-tools (status=0)
-+++ pbench tree state
-/var/tmp/pbench-test-utils/pbench
-/var/tmp/pbench-test-utils/pbench/tmp
---- pbench tree state

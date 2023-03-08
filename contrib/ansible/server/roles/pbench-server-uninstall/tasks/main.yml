@@ -1,8 +1,0 @@
----
-# Uninstall pbench-server
-- name: uninstall the pbench-server RPM
-  package:
-    name:
-      - pbench-server
-    state: absent
-    

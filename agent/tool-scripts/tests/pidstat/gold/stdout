@@ -1,5 +1,0 @@
-pidstat: pbench-sysstat-12.0.3 is installed
-pidstat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/pidstat-datalog /var/tmp/pbench-test-tool-scripts/pidstat/tools-group/pidstat 10 true p='one42,two43,three44' '-other-opt'"
-pidstat: stopping
-pidstat: no post-processing available following stop
-pidstat: post-processing data

@@ -1,3 +1,0 @@
-date +%s.%N
-docker ps -aq
-sleep 42

@@ -1,1 +1,0 @@
-perf: running "/opt/pbench-agent/tool-scripts/datalog/perf-datalog /var/lib/pbench-agent/fio_bs_4,1024_iod_64_ndisks_8_disksize_128_GiB_njobs_1_2021.05.18T09.50.12/1-rw-4KiB/sample1/tools-default/perf record -a --freq=100"

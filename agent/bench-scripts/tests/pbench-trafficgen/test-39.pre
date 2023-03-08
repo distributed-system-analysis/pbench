@@ -1,4 +1,0 @@
-#!/bin/bash
-
-dir=$(basename $(dirname ${0}))
-cp -r ${_tdir}/tests/${dir}/mock.trafficgen ${_testtmp}/trafficgen

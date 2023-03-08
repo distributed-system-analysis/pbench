@@ -1,4 +1,0 @@
----
-- name: deactivate the server crontab
-  shell: "crontab -u pbench -r || true"
-

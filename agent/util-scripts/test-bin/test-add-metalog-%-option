@@ -1,3 +1,0 @@
-#! /bin/bash
-
-echo "30%" | pbench-add-metalog-option ${benchmark_run_dir}/metadata.log run percent

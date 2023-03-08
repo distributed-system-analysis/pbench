@@ -1,5 +1,0 @@
-bpftrace: bpftrace is installed
-bpftrace: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/bpftrace-datalog my-bpf-script"
-bpftrace: stopping
-bpftrace: no post-processing available following stop
-bpftrace: no data post-processing available
