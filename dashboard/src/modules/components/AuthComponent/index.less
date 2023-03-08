@@ -31,9 +31,7 @@
         .signup-card {
             height: 80%;
             overflow-y: scroll;
-            padding: 0 2vh;
-            -ms-overflow-style: none;  
-            scrollbar-width: none;  
+            padding: 0 2vh; 
 
             .contraints-container {
                 padding: 1vh;
@@ -51,10 +49,17 @@
                 color: red;
                 font-size: var(--pf-global--FontSize--sm);
             } 
-            ::-webkit-scrollbar {
-                display: none;
-            }             
+            // ::-webkit-scrollbar {
+            //     display: none;
+            // }             
         }
+        .orText {
+            padding: 1vh;
+        }
+       .text-center {
+            text-align: center;
+        }
+
     }
     .auth-card {
         .pf-c-card__body {
@@ -91,9 +96,9 @@
             }
         }
     }
-    ::-webkit-scrollbar {
-        width: 0px;
-        background: transparent; /* make scrollbar transparent */
-    }
+    // ::-webkit-scrollbar {
+    //     width: 0px;
+    //     background: transparent; /* make scrollbar transparent */
+    // }
 }
 

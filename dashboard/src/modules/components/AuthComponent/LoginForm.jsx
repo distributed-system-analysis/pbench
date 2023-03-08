@@ -153,6 +153,10 @@ const LoginForm = () => {
           </Button>
         </div>
         <NoLoginComponent />
+        <div className="orText text-center">-or-</div>
+        <div className="text-center">
+          <Button variant="link">Sign up</Button>
+        </div>
       </CardFooter>
     </Card>
   );
