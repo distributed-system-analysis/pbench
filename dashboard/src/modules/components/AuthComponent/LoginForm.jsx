@@ -84,6 +84,12 @@ const LoginForm = () => {
     checkOkButton();
   }, [checkOkButton, details]);
 
+  const handleKeypress = (e) => {
+    // it triggers by pressing the enter key
+    if (e.charCode === 13) {
+      sendLoginDetails();
+    }
+  };
   return (
     <Card>
       <CardTitle>
@@ -116,6 +122,7 @@ const LoginForm = () => {
                 name="password"
                 value={details.password}
                 onChangeMethod={handlePasswordChange}
+                onKeyPress={handleKeypress}
               />
               <Button
                 variant="control"
@@ -137,6 +144,7 @@ const LoginForm = () => {
         <div className="login-footer-btn-wrapper">
           <Button
             variant="primary"
+            type="submit"
             onClick={sendLoginDetails}
             isDisabled={btnDisabled}
             {...primaryLoadingProps}
