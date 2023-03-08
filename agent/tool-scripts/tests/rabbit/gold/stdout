@@ -1,4 +1,0 @@
-rabbit: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/rabbit-datalog 10 guest guest"
-rabbit: stopping
-rabbit: no post-processing available following stop
-rabbit: post-processing data

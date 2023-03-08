@@ -1,3 +1,0 @@
-date +%s.%N
-docker info
-sleep 42

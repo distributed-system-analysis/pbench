@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--script=my-systemtap-script-42"
-exit 0

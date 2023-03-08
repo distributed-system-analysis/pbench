@@ -1,4 +1,0 @@
-jstack: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/jstack-datalog /var/tmp/pbench-test-tool-scripts/jstack/tools-group/jstack 10 42 "jstack-pat-42""
-jstack: stopping
-jstack: no post-processing available following stop
-jstack: post-processing data

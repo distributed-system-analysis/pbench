@@ -1,6 +1,0 @@
-#!/bin/bash
-
-echo "$(basename ${0}) ${@}" >> ${_testlog}
-# This kicks datalog out of its infinite loop for tests since normally
-# sleep will always return 0.
-exit 1

@@ -1,4 +1,0 @@
-date +%s
-jmap -histo 43
-pgrep java
-sleep 42

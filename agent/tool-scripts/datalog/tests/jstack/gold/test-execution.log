@@ -1,4 +1,0 @@
-date +%s.%N
-jstack 43
-pgrep java
-sleep 42

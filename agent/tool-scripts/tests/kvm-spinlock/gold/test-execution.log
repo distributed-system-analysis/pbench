@@ -1,2 +1,0 @@
-kvm-spinlock-datalog 10
-kvm-spinlock-postprocess /var/tmp/pbench-test-tool-scripts/kvm-spinlock/tools-group/kvm-spinlock

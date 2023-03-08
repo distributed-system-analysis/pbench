@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--devices=/dev/sda42,/dev/sdb42,/dev/sdc42"
-exit 0

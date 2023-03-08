@@ -1,7 +1,7 @@
 _prefix="${1}"
 
 if [[ -z "${_prefix}" ]]; then
-    printf -- "Missing prefix argument!" >&2
+    printf -- "Missing prefix argument!\n" >&2
     exit 1
 fi
 
@@ -9,7 +9,6 @@ pip3 install --no-cache-dir --progress-bar off --no-color --prefix="${_prefix}" 
     -r ${progdir}/lint-requirements.txt \
     -r ${progdir}/server/requirements.txt \
     -r ${progdir}/server/test-requirements.txt \
-    -r ${progdir}/agent/test-requirements.txt
 
 _pdir=${_prefix}/bin
 if [[ ":${PATH:-}:" != *":${_pdir}:"* ]]; then

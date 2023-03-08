@@ -1,4 +1,0 @@
-kvmstat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/kvmstat-datalog 10"
-kvmstat: stopping
-kvmstat: no post-processing available following stop
-kvmstat: post-processing data

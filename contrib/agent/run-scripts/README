@@ -1,3 +1,0 @@
-This directory contains examples of how to run tests in pbench.  These scripts
-typically include registering of tools, running of the benchmark, and moving
-results to the archive host.

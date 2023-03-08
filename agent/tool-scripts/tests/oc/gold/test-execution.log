@@ -1,1 +1,0 @@
-oc-datalog /var/tmp/pbench-test-tool-scripts/oc/tools-group/oc rc,ep,pods,pv,pvc,svc,cs

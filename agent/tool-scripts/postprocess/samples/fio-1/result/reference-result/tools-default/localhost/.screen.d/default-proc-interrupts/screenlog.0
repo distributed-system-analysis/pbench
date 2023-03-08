@@ -1,2 +1,0 @@
-proc-interrupts: running "/opt/pbench-agent/tool-scripts/datalog/File-Capture-datalog 3 /proc/interrupts"
-/opt/pbench-agent/tool-scripts/proc-interrupts: line 760: 53377 Terminated              ${tool_cmd_file} > "${tool_stdout_file}" 2> "${tool_stderr_file}"

@@ -1,7 +1,0 @@
-#!/bin/bash
-
-echo "$(basename ${0}) ${@}" >> ${_testlog}
-
-pidstat_data="$(dirname ${0})/../../postprocess/samples/pidstat-3/pidstat-stdout.txt"
-/bin/cat ${pidstat_data}
-exit 0

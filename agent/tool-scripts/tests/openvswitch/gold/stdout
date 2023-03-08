@@ -1,4 +1,0 @@
-openvswitch: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/openvswitch-datalog /var/tmp/pbench-test-tool-scripts/openvswitch/tools-group/openvswitch 10"
-openvswitch: stopping
-openvswitch: no post-processing available following stop
-openvswitch: post-processing data

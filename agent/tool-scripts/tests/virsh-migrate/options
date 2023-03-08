@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--interval=42 --vm=vm42"
-exit 0

@@ -1,7 +1,0 @@
-oc get --all-namespaces ep -o wide -w
-oc get --all-namespaces pods -o wide -w
-oc get ev --all-namespaces -o wide
-oc get ev --all-namespaces -o wide
-oc get nodes --show-labels -o wide
-oc get nodes --show-labels -o wide
-oc get pv -o wide -w

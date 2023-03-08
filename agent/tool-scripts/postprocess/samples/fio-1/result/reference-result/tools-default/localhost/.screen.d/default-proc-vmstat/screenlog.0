@@ -1,2 +1,0 @@
-proc-vmstat: running "/opt/pbench-agent/tool-scripts/datalog/File-Capture-datalog 3 /proc/vmstat"
-/opt/pbench-agent/tool-scripts/proc-vmstat: line 760: 53408 Terminated              ${tool_cmd_file} > "${tool_stdout_file}" 2> "${tool_stderr_file}"

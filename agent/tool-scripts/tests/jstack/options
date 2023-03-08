@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--pattern=jstack-pat-42 --pid=42"
-exit 0

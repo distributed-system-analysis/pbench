@@ -1,2 +1,0 @@
-haproxy-ocp-datalog /var/tmp/pbench-test-tool-scripts/haproxy-ocp/tools-group/haproxy-ocp 10 false
-haproxy-ocp-postprocess /var/tmp/pbench-test-tool-scripts/haproxy-ocp/tools-group/haproxy-ocp

@@ -1,7 +1,0 @@
-#!/bin/bash
-
-cmd="$(basename ${0}) ${@}"
-echo "${cmd}" >> ${_testlog}
-
-printf -- "turbostat line 1\nturbostat line 2\n"
-exit 0

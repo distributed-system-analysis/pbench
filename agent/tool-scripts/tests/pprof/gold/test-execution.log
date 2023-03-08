@@ -1,1 +1,0 @@
-pprof-datalog /var/tmp/pbench-test-tool-scripts/pprof/tools-group/pprof 42 tests/pprof/inventory-hosts.lis
