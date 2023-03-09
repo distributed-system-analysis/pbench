@@ -121,6 +121,8 @@ const SavedRunsComponent = () => {
                 <Th>{columnNames.access}</Th>
                 <Th></Th>
                 <Th></Th>
+                <Th></Th>
+                <Th></Th>
               </Tr>
             </Thead>
             <Tbody>

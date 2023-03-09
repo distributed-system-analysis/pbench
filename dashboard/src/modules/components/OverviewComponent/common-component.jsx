@@ -18,6 +18,7 @@ import {
 import {
   CaretDownIcon,
   CheckIcon,
+  FileIcon,
   PencilAltIcon,
   RedoIcon,
   TimesIcon,
@@ -29,10 +30,15 @@ import {
   SERVER_DELETION,
 } from "assets/constants/overviewConstants";
 import React, { useState } from "react";
+import {
+  constructQuisbyRequest,
+  getQuisbyData,
+} from "actions/quisbyChartActions";
 import { getDatasets, updateMultipleDataset } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import { formatDateTime } from "utils/dateFunctions";
+import { useNavigate } from "react-router-dom";
 
 export const Heading = (props) => {
   return (
@@ -93,18 +99,28 @@ const actions = [
     key: "delete",
     value: true,
   },
+  {
+    name: "Quisby Compare",
+    key: "quisbyCompare",
+    value: false,
+  },
 ];
 
 export const NewRunsHeading = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
   const { selectedRuns } = useSelector((state) => state.overview);
   const dropdownItems = actions.map((item) => {
     return (
       <DropdownItem
         key={item.key}
-        onClick={() => dispatch(updateMultipleDataset(item.key, item.value))}
+        onClick={() =>
+          item.key === "quisbyCompare"
+            ? dispatch(constructQuisbyRequest(navigate))
+            : dispatch(updateMultipleDataset(item.key, item.value))
+        }
       >
         {item.name}
       </DropdownItem>
@@ -272,6 +288,9 @@ export const NewRunsRow = (props) => {
         }}
       />
       <Td>
+        <QuisbyResultsBtn name={item.name} rId={item.resource_id} />
+      </Td>
+      <Td>
         <EditRow
           item={item}
           toggleEdit={props.toggleEdit}
@@ -332,6 +351,9 @@ export const SavedRunsRow = (props) => {
         }}
       />
       <Td>
+        <QuisbyResultsBtn name={item.name} rId={item.resource_id} />
+      </Td>
+      <Td>
         <EditRow
           item={item}
           toggleEdit={props.toggleEdit}
@@ -350,3 +372,24 @@ export const SelectDateComponent = (props) => (
     <DatePicker value={props.value} onChange={props.onDateSelect} />
   </div>
 );
+export const QuisbyResultsBtn = (props) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const loadData = (newPageUrl) => {
+    const params = [{ name: props.name, rid: props.rId }];
+
+    dispatch(getQuisbyData(params, navigate));
+  };
+  return (
+    <Button
+      variant="link"
+      icon={<FileIcon />}
+      iconPosition="right"
+      onClick={() =>
+        loadData(`/dashboard/quisby-results/${props.name}/${props.id}`)
+      }
+    >
+      Quisby Results
+    </Button>
+  );
+};

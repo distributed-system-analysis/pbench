@@ -11,6 +11,7 @@ import {
   Routes,
 } from "react-router-dom";
 import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import { AuthForm } from "modules/components/AuthComponent/common-components";
 import AuthLayout from "modules/containers/AuthLayout";
@@ -20,13 +21,13 @@ import MainLayout from "modules/containers/MainLayout";
 import NoMatchingPage from "modules/components/EmptyPageComponent/NoMatchingPage";
 import OverviewComponent from "modules/components/OverviewComponent";
 import ProfileComponent from "modules/components/ProfileComponent";
+import QuisbyChartsComponent from "modules/components/QuisbyChartsComponent";
+import { ReactKeycloakProvider } from "@react-keycloak/web";
 import TableOfContent from "modules/components/TableOfContent";
 import TableWithFavorite from "modules/components/TableComponent";
 import favicon from "./assets/logo/favicon.ico";
 import { fetchEndpoints } from "./actions/endpointAction";
 import { showToast } from "actions/toastActions";
-import { useDispatch, useSelector } from "react-redux";
-import { ReactKeycloakProvider } from "@react-keycloak/web";
 
 const ProtectedRoute = ({ redirectPath = APP_ROUTES.AUTH, children }) => {
   const loggedIn = Cookies.get("isLoggedIn");
@@ -101,6 +102,15 @@ const App = () => {
                     element={<ComingSoonPage />}
                   />
                 </Route>
+                <Route
+                  path={APP_ROUTES.QUISBY_CHARTS}
+                  element={<QuisbyChartsComponent />}
+                />
+                <Route
+                  path={APP_ROUTES.QUISBY_COMPARE}
+                  element={<QuisbyChartsComponent />}
+                />
+
                 <Route path="*" element={<NoMatchingPage />} />
               </Route>
             </Routes>
