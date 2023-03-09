@@ -1,0 +1,33 @@
+#! /bin/bash -xe
+#
+# This script provides a demonstration of the contrib/containerized-pbench/pbench
+# wrapper script.
+#
+
+#+
+# Set up a few things to make life simpler.  Typically, these would already be
+# set in the users environment (e.g., the `pbench` command alias would be done
+# by the user's login script; we wouldn't need the `shopt` command if these
+# commands were being run interactively; and, we only need `PB_AGENT_IMAGE_NAME`
+# here because we're not using the default image).
+#-
+shopt -s expand_aliases
+alias pbench=$(git rev-parse --show-toplevel)/contrib/containerized-pbench/pbench
+
+FIOTEST=${PWD}/fiotest
+export PB_AGENT_PODMAN_OPTIONS="--pull newer -v ${FIOTEST}:/fiotest:z"
+export PB_AGENT_IMAGE_NAME=images.paas.redhat.com/pbench/pbench-agent-all-fedora-36:3320
+
+mkdir -p ${FIOTEST}
+
+#+
+# Run the demo!
+#-
+pbench pbench-register-tool-set light
+pbench pbench-list-tools
+pbench pbench-user-benchmark --config example-workload -- \
+    fio --directory=/fiotest --name fio_test_file --direct=1 --rw=randread \
+        --bs=16k --size=100M --numjobs=16 --time_based --runtime=20s \
+        --group_reporting --norandommap
+pbench pbench-generate-token --output=/var/lib/pbench-agent/.token
+pbench pbench-results-move --token=$(< /var/tmp/pbench/pbench-agent/run/.token)
