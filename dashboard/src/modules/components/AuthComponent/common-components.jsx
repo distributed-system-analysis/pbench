@@ -190,6 +190,7 @@ export const PasswordTextInput = (props) => {
       name={name}
       value={value}
       onChange={(val) => onChangeMethod(val, name)}
+      onKeyPress={props.onKeyPress}
     />
   );
 };
