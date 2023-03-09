@@ -250,12 +250,7 @@ class Upload(ApiBase):
             )
 
             current_app.logger.info(
-                "PUT uploading {} for {} to {}: (access {}, archiveonly {})",
-                filename,
-                username,
-                tar_full_path,
-                access,
-                metadata.get(Metadata.SERVER_ARCHIVE, False),
+                "PUT uploading {} for {} to {}", filename, username, tar_full_path
             )
 
             # Create a tracking dataset object; it'll begin in UPLOADING state
