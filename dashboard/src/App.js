@@ -96,17 +96,16 @@ const App = () => {
                       path={APP_ROUTES.ANALYSIS}
                       element={<ComingSoonPage />}
                     />
+                    <Route
+                      path={APP_ROUTES.VISUALIZATION}
+                      element={<ComparisonComponent />}
+                    />
                   </Route>
                   <Route
                     path={APP_ROUTES.SEARCH}
                     element={<ComingSoonPage />}
                   />
-                  <Route
-                    path={APP_ROUTES.COMPARISON}
-                    element={<ComparisonComponent />}
-                  />
                 </Route>
-
                 <Route path="*" element={<NoMatchingPage />} />
               </Route>
             </Routes>
