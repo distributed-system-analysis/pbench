@@ -4,7 +4,8 @@ import logging
 import os
 from pathlib import Path
 import subprocess
-from typing import Callable, Optional, Union
+import time
+from typing import Optional, Union
 
 from flask import Flask
 import pytest
@@ -76,6 +77,19 @@ class FakeIndexer:
         cls.status = 0
 
 
+class FakeEvent:
+    def __init__(self):
+        self.flag = False
+        self.waited = 0
+
+    def set(self):
+        self.flag = True
+
+    def wait(self, timeout: float) -> bool:
+        self.waited += 1
+        return self.flag
+
+
 @pytest.fixture
 def mock_indexer(monkeypatch, server_config):
     FakeIndexer.reset()
@@ -84,39 +98,22 @@ def mock_indexer(monkeypatch, server_config):
 
 class FakePopen:
 
-    processes = []
+    processes = {}
     pid = 0
 
     def __init__(self, args: list[Union[str, Path]], cwd: Path):
-        self.processes.append((" ".join(str(a) for a in args), cwd))
+        self.cmd = " ".join(str(a) for a in args)
         self.running = True
         self.waited = False
-        self.pid = self.pid
         __class__.pid += 1
+        self.pid = __class__.pid
+        self.processes[self.pid] = self
 
     def terminate(self):
         self.running = False
 
     def wait(self, timeout: float = 0.0):
         self.waited = True
-
-
-class FakeThread:
-
-    threads = []
-
-    def __init__(self, target: Callable, daemon: bool):
-        self.threads.append((target, daemon))
-        self.target = target
-        self.daemon = daemon
-        self.started = False
-        self.joined = False
-
-    def start(self):
-        self.started = True
-
-    def join(self, timeout: float = 0.0):
-        self.joined = True
 
 
 class TestShell:
@@ -157,9 +154,32 @@ class TestShell:
 
     @staticmethod
     def test_indexers(monkeypatch, make_logger):
+        """Test the indexer subprocess manager.
+
+        This involves launching and stopping the two subprocesses, along with
+        the 'watcher' thread that monitors them. The `waitpid` is faked to
+        trigger each of the watcher's 4 cases (indexer terminated, reindexer
+        terminated, an unknown child terminated, and nobody terminated), and
+        we wait for the waitpid mock to cycle through the set, verifying the
+        state.
+        """
+
+        pid_sequence = [0, 0, 2, 0, 1, 10, 0]
+        pid_index = [0]  # The list allows skipping 'global' in the function
+
+        def fake_waitpid(pid: int, flags: int) -> tuple[int, int]:
+            assert pid == 0
+            assert flags == os.WNOHANG
+            time.sleep(0.2)
+            retval = pid_sequence[pid_index[0]]
+            if pid_index[0] < len(pid_sequence) - 1:
+                pid_index[0] += 1
+            return retval, 1
+
         """Test startup and shutdown of the indexers"""
         monkeypatch.setattr("pbench.cli.server.shell.subprocess.Popen", FakePopen)
-        monkeypatch.setattr("pbench.cli.server.shell.Thread", FakeThread)
+        monkeypatch.setattr("pbench.cli.server.shell.Event", FakeEvent)
+        monkeypatch.setattr("pbench.cli.server.shell.os.waitpid", fake_waitpid)
 
         indexer = shell.PbenchIndexer(
             bin_dir=Path("/bin"), cwd=Path("/cwd"), logger=make_logger
@@ -168,25 +188,29 @@ class TestShell:
         assert indexer.reindexer is None
 
         indexer.start()
-        assert FakePopen.processes == [
-            ("python3 /bin/pbench-index", Path("/cwd")),
-            ("python3 /bin/pbench-index --re-index", Path("/cwd")),
-        ]
+        assert not indexer.shutoff.flag
+        assert indexer.reaper.isDaemon()
+        assert len(FakePopen.processes) == 2
+        assert FakePopen.processes[1].cmd == "python3 /bin/pbench-index"
+        assert FakePopen.processes[2].cmd == "python3 /bin/pbench-index --re-index"
         assert indexer.indexer.running
         assert not indexer.indexer.waited
         assert indexer.reindexer.running
         assert not indexer.reindexer.waited
-        assert indexer.reaper.daemon
-        assert indexer.reaper.started
-        assert not indexer.reaper.joined
+
+        while pid_index[0] < len(pid_sequence) - 1:
+            time.sleep(0.1)
 
         indexer.shutdown()
+        assert indexer.shutoff.flag
+        assert len(FakePopen.processes) == 4
+        assert FakePopen.processes[3].cmd == "python3 /bin/pbench-index --re-index"
+        assert FakePopen.processes[4].cmd == "python3 /bin/pbench-index"
         assert not indexer.indexer.running
         assert indexer.indexer.waited
         assert not indexer.reindexer.running
         assert indexer.reindexer.waited
-        assert indexer.reaper.started
-        assert indexer.reaper.joined
+        assert not indexer.reaper.is_alive()
 
     @staticmethod
     @pytest.mark.parametrize("user_site", [False, True])

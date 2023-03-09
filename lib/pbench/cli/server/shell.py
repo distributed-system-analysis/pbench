@@ -103,10 +103,6 @@ class PbenchIndexer:
         while not self.shutoff.wait(20.0):
             self.logger.info("Reaper ...")
 
-            # NOTE: the indexers aren't direct children, so a "pid" of `-1`
-            # here would only react to failure of the `env` parent. All of the
-            # `pbench-server` children are in the same process group, however,
-            # so `0` (process group) will find any subprocess failure.
             pid, status = os.waitpid(0, os.WNOHANG)
             if pid == self.indexer.pid:
                 self.logger.warning("Indexer {} died with {}", pid, status)
