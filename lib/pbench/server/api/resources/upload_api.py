@@ -4,7 +4,7 @@ import hashlib
 from http import HTTPStatus
 import os
 import shutil
-from typing import Optional
+from typing import Any, Optional
 
 from flask import current_app, jsonify
 from flask.wrappers import Request, Response
@@ -147,7 +147,7 @@ class Upload(ApiBase):
         # We allow the client to set metadata on the new dataset. We won't do
         # anything about this until upload is successful, but we process and
         # validate it here so we can fail early.
-        metadata = {}
+        metadata: dict[str, Any] = {}
         if "metadata" in args.query:
             errors = []
             for kw in args.query["metadata"]:
@@ -175,13 +175,8 @@ class Upload(ApiBase):
                     errors=errors,
                 )
 
-        # Determine whether we should enable the INDEX operation.
-        should_index = not metadata.get(Metadata.SERVER_ARCHIVE, False)
-        enable_next = [OperationName.INDEX] if should_index else None
         attributes = {"access": access, "metadata": metadata}
         filename = args.uri["filename"]
-
-        current_app.logger.info("Uploading {} with {} access", filename, access)
 
         try:
             try:
@@ -191,8 +186,6 @@ class Upload(ApiBase):
                 username = None
                 user_id = None
                 raise CleanupTime(HTTPStatus.UNAUTHORIZED, "Verifying user_id failed")
-
-            current_app.logger.info("Uploading {}", filename)
 
             if os.path.basename(filename) != filename:
                 raise CleanupTime(
@@ -257,11 +250,7 @@ class Upload(ApiBase):
             )
 
             current_app.logger.info(
-                "PUT uploading {} for user_id {} (username: {}) to {}",
-                filename,
-                user_id,
-                username,
-                tar_full_path,
+                "PUT uploading {} for {} to {}", filename, username, tar_full_path
             )
 
             # Create a tracking dataset object; it'll begin in UPLOADING state
@@ -314,14 +303,6 @@ class Upload(ApiBase):
                 attributes=attributes,
             )
             recovery.add(dataset.delete)
-
-            current_app.logger.info(
-                "Uploading file {!a} (user = (user_id: {}, username: {}), to {}",
-                filename,
-                user_id,
-                username,
-                dataset,
-            )
 
             # An exception from this point on MAY leave an uploaded tar file
             # (possibly partial, or corrupted); remove it if possible on
@@ -422,32 +403,23 @@ class Upload(ApiBase):
             # the switch to object store. For now we ignore it.
             recovery.add(tarball.delete)
 
-            # Now that we have the tarball, extract the dataset timestamp from
-            # the metadata.log file.
+            # Add the processed tarball metadata.log file contents, if any.
             #
-            # If the metadata.log is missing or corrupt, or doesn't contain the
-            # "date" property in the "pbench" section, the resulting exception
-            # will cause the upload to fail with an error.
-            #
-            # NOTE: The full metadata.log (as a JSON object with section names
-            # as the top level key) will be stored as a Metadata key using the
-            # reserved internal key "metalog". For retrieval, the "dataset" key
-            # provides a JSON mapping of the Dataset SQL object, enhanced with
-            # the dataset's "metalog" Metadata key value.
-            #
-            # NOTE: we're setting the Dataset "created" timestamp here, but it
-            # won't be committed to the database until the "advance" operation
-            # at the end.
+            # If we were unable to find or parse the tarball's metadata.log
+            # file, construct a minimal metadata context identifying the
+            # dataset as a "foreign" benchmark script, and disable indexing,
+            # which requires the metadata.
             try:
                 metalog = tarball.metadata
-                dataset.created = UtcTimeHelper.from_string(
-                    metalog["pbench"]["date"]
-                ).utc_time
+                if not metalog:
+                    metalog = {"pbench": {"script": "Foreign"}}
+                    metadata[Metadata.SERVER_ARCHIVE] = True
+                    attributes["missing_metadata"] = True
                 Metadata.create(dataset=dataset, key=Metadata.METALOG, value=metalog)
             except Exception as exc:
                 raise CleanupTime(
-                    HTTPStatus.BAD_REQUEST,
-                    f"Tarball {dataset.name!r} is invalid or missing required metadata.log: {exc}",
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    f"Unable to create metalog for Tarball {dataset.name!r}: {exc}",
                 )
 
             try:
@@ -484,6 +456,9 @@ class Upload(ApiBase):
 
             # Finally, update the operational state and Audit success.
             try:
+                # Determine whether we should enable the INDEX operation.
+                should_index = not metadata.get(Metadata.SERVER_ARCHIVE, False)
+                enable_next = [OperationName.INDEX] if should_index else None
                 Sync(current_app.logger, OperationName.UPLOAD).update(
                     dataset=dataset, state=OperationState.OK, enabled=enable_next
                 )

@@ -264,16 +264,19 @@ class MetadataDuplicateKey(MetadataError):
 class Dataset(Database.Base):
     """Identify a Pbench dataset (tarball plus metadata).
 
-    Columns:
-        id          Generated unique ID of table row
-        owner_id    Owning UUID of the owner of the dataset
-        access      Dataset is "private" to owner, or "public"
-        name        Base name of dataset (tarball)
-        md5         The dataset MD5 hash (Elasticsearch ID)
-        created     Tarball metadata timestamp (set during PUT)
-        uploaded    Dataset record creation timestamp
-        state       The current state of the dataset
-        transition  The timestamp of the last state transition
+    Args:
+
+        Columns:
+            id: Generated unique ID of table row
+            owner_id: Owning UUID of the owner of the dataset
+            access: Dataset is "private" to owner, or "public"
+            name: Base name of dataset (tarball)
+            resource_id: The dataset MD5 hash (Elasticsearch ID)
+            uploaded: Dataset record creation timestamp
+        Relationships: (SQLAlchemy JOINs):
+            metadatas: A sequence of Metadata objects linked to this dataset
+            operations: A sequence of component Operation objects linked to
+                    this dataset
     """
 
     __tablename__ = "datasets"

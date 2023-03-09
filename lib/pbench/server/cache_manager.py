@@ -227,38 +227,50 @@ class Tarball:
         return cls(destination, controller)
 
     @staticmethod
-    def extract(tarball_path: Path, path: str) -> str:
+    def extract(tarball_path: Path, path: str) -> Optional[str]:
         """Extract a file from the tarball and return it as a string
+
+        Report failures by raising exceptions.
 
         Args:
             path: relative path within the tarball of a file
 
         Raises:
-            MetadataError if an exception occurs unpacking the tarball
+            MetadataError on failure opening the tarball
+            TarballUnpackError on failure to extract the named path
 
         Returns:
             The named file as a string
         """
         try:
-            return tarfile.open(tarball_path, "r:*").extractfile(path).read().decode()
+            tar = tarfile.open(tarball_path, "r:*")
         except Exception as exc:
-            raise MetadataError(tarball_path, exc)
+            raise MetadataError(tarball_path, exc) from exc
+        try:
+            return tar.extractfile(path).read().decode()
+        except Exception as exc:
+            raise TarballUnpackError(tarball_path, f"Unable to extract {path}") from exc
 
     @staticmethod
-    def _get_metadata(tarball_path: Path) -> JSONOBJECT:
+    def _get_metadata(tarball_path: Path) -> Optional[JSONOBJECT]:
         """Fetch the values in metadata.log from the tarball.
 
-        The information is processed and cached.
-
         Returns:
-            A JSON representation of the dataset `metadata.log`
+            A JSON representation of the dataset `metadata.log` or None if the
+            tarball has no metadata.log.
         """
         name = Dataset.stem(tarball_path)
-        data = Tarball.extract(tarball_path, f"{name}/metadata.log")
-        metadata = MetadataLog()
-        metadata.read_string(data)
-        metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
-        return metadata
+        try:
+            data = Tarball.extract(tarball_path, f"{name}/metadata.log")
+        except TarballUnpackError:
+            data = None
+        if data:
+            metadata = MetadataLog()
+            metadata.read_string(data)
+            metadata = {s: dict(metadata.items(s)) for s in metadata.sections()}
+            return metadata
+        else:
+            return None
 
     @staticmethod
     def subprocess_run(
@@ -734,7 +746,10 @@ class CacheManager:
         """
         try:
             metadata = Tarball._get_metadata(tarfile)
-            controller_name = metadata["run"]["controller"]
+            if metadata:
+                controller_name = metadata["run"]["controller"]
+            else:
+                controller_name = "unknown"
         except MetadataError:
             raise
         except Exception as exc:
