@@ -1,3 +1,4 @@
+import axios from "axios";
 import * as APP_ROUTES from "utils/routeConstants";
 import * as CONSTANTS from "../assets/constants/authConstants";
 import * as TYPES from "./types";
@@ -9,6 +10,33 @@ import { showToast } from "actions/toastActions";
 import { uid } from "../utils/helper";
 import { fetchEndpoints } from "actions/endpointAction";
 
+
+/**
+ * Loop to check if the endpoints are loaded.
+ * @param {getState} getState object.
+ * @return {promise} promise object
+ */
+function waitForEndpoints (getState) {
+  const waitStart = Date.now();
+  const maxWait = 10000;  // Milliseconds
+  /**
+   * Loop to check if the endpoints are loaded.
+   * @param {resolve} resolve object.
+   * @param {reject} reject object
+   */
+   function check(resolve, reject) {
+    if (Object.keys(getState().apiEndpoint.endpoints).length !== 0) {
+      resolve("Loaded");
+    } else if (Date.now() - waitStart > maxWait) {
+      reject(new Error('Something went wrong'));
+    } else {
+      setTimeout(check, 250, resolve, reject);
+    }
+  };
+  return new Promise((resolve, reject) => {
+    check(resolve, reject);
+  });
+}
 
 /**
  * Get user details from the OIDC server.
@@ -50,21 +78,20 @@ export const loadTokens = () => async (dispatch, getState) => {
     }
     let endpoints = getState().apiEndpoint.endpoints;
     console.log(getState());
-    if (!("openid" in endpoints)){
-        await dispatch(fetchEndpoints);
-    }
+    await waitForEndpoints(getState);
     endpoints = getState().apiEndpoint.endpoints;
+    console.log(endpoints);
 
     const oidcServer = endpoints.openid.server
     const oidcRealm = endpoints.openid.realm
     const oidcClient = endpoints.openid.client
     const uri = `${oidcServer}/realms/${oidcRealm}/protocol/openid-connect/token`;
-    const queryParams = [
-      'grant_type=authorization_code',
-      'client_id=' + oidcClient,
-      'code=' + code,
-      'redirect_uri=' + window.location.href.split('?')[0],
-    ];
+    const queryParams = new URLSearchParams({
+      grant_type: "authorization_code",
+      client_id: oidcClient,
+      code: code,
+      redirect_uri: window.location.href.split('?')[0]
+    });
 
     const req = new XMLHttpRequest();
     req.onreadystatechange = async function () {
@@ -104,7 +131,7 @@ export const loadTokens = () => async (dispatch, getState) => {
     }
     req.open('POST', uri);
     req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    req.send(queryParams.join('&'));
+    req.send(queryParams);
 }
 
 // Create an Authentication Request
