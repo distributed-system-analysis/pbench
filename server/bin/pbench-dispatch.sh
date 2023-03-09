@@ -46,42 +46,37 @@ test -d "${install_dir}" || doexit "Bad install_dir=${install_dir}"
 backup_dir=$(getconf.py pbench-backup-dir pbench-server)
 test -z "${backup_dir}" -o -d "${backup_dir}" || doexit "Bad backup_dir=${backup_dir}"
 
-errlog=${LOGSDIR}/${PROG}/${PROG}.error
+log_init ${PROG}
+
 mkdir -p ${LOGSDIR}/${PROG}
 sts=${?}
 if [[ ${sts} != 0 ]]; then
-    echo "Failed: \"mkdir -p ${LOGSDIR}/${PROG}\", status ${sts}" >> ${errlog}
-    exit 1
+    log_exit "${TS}: Failed: \"mkdir -p ${LOGSDIR}/${PROG}\", status ${sts}"
 fi
 
 linkdestlist=$(getconf.py -l dispatch-states pbench-server)
 if [[ -z "${linkdestlist}" ]]; then
-    echo "Failed: \"getconf.py -l dispatch-states pbench-server\"" >> ${errlog}
-    exit 2
+    log_exit "${TS}: Failed: \"getconf.py -l dispatch-states pbench-server\"" 2
 fi
 
 # Optional "PUT API" bearer token for sending tar balls to the "new" Pbench
 # Server.
 put_token=$(getconf.py put-token pbench-server)
 if [[ -z "${put_token}" ]]; then
-    echo "Failed: \"getconf.py put-token pbench-server\"" >> ${errlog}
-    exit 2
+    log_exit "${TS}: Failed: \"getconf.py put-token pbench-server\"" 2
 fi
 agent_profile=$(getconf.py agent-profile pbench-server)
 if [[ ! -e "${agent_profile}" ]]; then
-    echo "Failed: PUT API token provided but no pbench-agent profile" >> ${errlog}
-    exit 2
+    log_exit "${TS}: Failed: PUT API token provided but no pbench-agent profile" 2
 fi
 source ${agent_profile}
 
 qdir=$(getconf.py pbench-quarantine-dir pbench-server)
 if [[ -z "${qdir}" ]]; then
-    echo "Failed: \"getconf.py pbench-quarantine-dir pbench-server\"" >> ${errlog}
-    exit 2
+    log_exit "${TS}: Failed: \"getconf.py pbench-quarantine-dir pbench-server\"" 2
 fi
 if [[ ! -d "${qdir}" ]]; then
-    echo "Failed: ${qdir} does not exist, or is not a directory" >> ${errlog}
-    exit 2
+    log_exit "${TS}: Failed: ${qdir} does not exist, or is not a directory" 2
 fi
 
 # We are explicitly handling only version 002 data.
@@ -89,29 +84,25 @@ version="002"
 
 receive_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
 if [[ -z "${receive_dir_prefix}" ]]; then
-    echo "Failed: \"getconf.py pbench-receive-dir-prefix pbench-server\"" >> ${errlog}
-    exit 2
+    log_exit "${TS}: Failed: \"getconf.py pbench-receive-dir-prefix pbench-server\"" 2
 fi
 receive_dir=${receive_dir_prefix}-${version}
 if [[ ! -d "${receive_dir}" ]]; then
-    echo "Failed: ${receive_dir} does not exist, or is not a directory" >> ${errlog}
-    exit 2
+    log_exit "${TS}: Failed: ${receive_dir} does not exist, or is not a directory" 2
 fi
 
 bad_md5=${qdir}/md5-${version}
 mkdir -p ${bad_md5}
 sts=${?}
 if [[ ${sts} != 0 ]]; then
-    echo "Failed: \"mkdir -p ${bad_md5}\", status ${sts}" >> ${errlog}
-    exit 3
+    log_exit "${TS}: Failed: \"mkdir -p ${bad_md5}\", status ${sts}" 3
 fi
 
 duplicates=${qdir}/duplicates-${version}
 mkdir -p ${duplicates}
 sts=${?}
 if [[ ${sts} != 0 ]]; then
-    echo "Failed: \"mkdir -p ${duplicates}\", status ${sts}" >> ${errlog}
-    exit 3
+    log_exit "${TS}: Failed: \"mkdir -p ${duplicates}\", status ${sts}" 3
 fi
 
 function quarantine () {
@@ -143,8 +134,6 @@ function quarantine () {
         fi
     done
 }
-
-log_init ${PROG}
 
 tmp=${TMP}/${PROG}.${$}
 
