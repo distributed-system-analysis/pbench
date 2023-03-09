@@ -38,16 +38,15 @@ class API(Enum):
     name completion.
     """
 
+    DATASETS = "datasets"
     DATASETS_CONTENTS = "datasets_contents"
     DATASETS_DATERANGE = "datasets_daterange"
-    DATASETS_DELETE = "datasets_delete"
     DATASETS_DETAIL = "datasets_detail"
     DATASETS_INVENTORY = "datasets_inventory"
     DATASETS_LIST = "datasets_list"
     DATASETS_MAPPINGS = "datasets_mappings"
     DATASETS_METADATA = "datasets_metadata"
     DATASETS_NAMESPACE = "datasets_namespace"
-    DATASETS_UPDATE = "datasets_update"
     DATASETS_SEARCH = "datasets_search"
     DATASETS_VALUES = "datasets_values"
     ENDPOINTS = "endpoints"
@@ -412,10 +411,10 @@ class PbenchServerClient:
             dataset_id: the resource ID of the targeted dataset
 
         Returns:
-            The POST response object
+            The DELETE response object
         """
-        return self.post(
-            api=API.DATASETS_DELETE,
+        return self.delete(
+            api=API.DATASETS,
             uri_params={"dataset": dataset_id},
             raise_error=False,
         )
@@ -508,7 +507,7 @@ class PbenchServerClient:
         if owner:
             params["owner"] = owner
         return self.post(
-            api=API.DATASETS_UPDATE,
+            api=API.DATASETS,
             uri_params={"dataset": dataset_id},
             params=params,
         ).json()

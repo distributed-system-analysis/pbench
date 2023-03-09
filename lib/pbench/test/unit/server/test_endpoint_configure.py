@@ -42,9 +42,9 @@ class TestEndpointConfig:
         expected_results = {
             "identification": f"Pbench server {server_config.COMMIT_ID}",
             "api": {
+                "datasets": f"{uri}/datasets",
                 "datasets_contents": f"{uri}/datasets/contents",
                 "datasets_daterange": f"{uri}/datasets/daterange",
-                "datasets_delete": f"{uri}/datasets/delete",
                 "datasets_detail": f"{uri}/datasets/detail",
                 "datasets_inventory": f"{uri}/datasets/inventory",
                 "datasets_list": f"{uri}/datasets/list",
@@ -52,7 +52,6 @@ class TestEndpointConfig:
                 "datasets_metadata": f"{uri}/datasets/metadata",
                 "datasets_namespace": f"{uri}/datasets/namespace",
                 "datasets_search": f"{uri}/datasets/search",
-                "datasets_update": f"{uri}/datasets",
                 "datasets_values": f"{uri}/datasets/values",
                 "endpoints": f"{uri}/endpoints",
                 "login": f"{uri}/login",
@@ -64,6 +63,10 @@ class TestEndpointConfig:
                 "user": f"{uri}/user",
             },
             "uri": {
+                "datasets": {
+                    "template": f"{uri}/datasets/{{dataset}}",
+                    "params": {"dataset": {"type": "string"}},
+                },
                 "datasets_contents": {
                     "template": f"{uri}/datasets/contents/{{dataset}}/{{target}}",
                     "params": {
@@ -74,10 +77,6 @@ class TestEndpointConfig:
                 "datasets_daterange": {
                     "template": f"{uri}/datasets/daterange",
                     "params": {},
-                },
-                "datasets_delete": {
-                    "template": f"{uri}/datasets/delete/{{dataset}}",
-                    "params": {"dataset": {"type": "string"}},
                 },
                 "datasets_detail": {
                     "template": f"{uri}/datasets/detail/{{dataset}}",
@@ -107,10 +106,6 @@ class TestEndpointConfig:
                     },
                 },
                 "datasets_search": {"template": f"{uri}/datasets/search", "params": {}},
-                "datasets_update": {
-                    "template": f"{uri}/datasets/{{dataset}}",
-                    "params": {"dataset": {"type": "string"}},
-                },
                 "datasets_values": {
                     "template": f"{uri}/datasets/values/{{dataset}}/{{dataset_view}}",
                     "params": {

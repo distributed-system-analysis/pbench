@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from enum import auto, Enum
 from http import HTTPStatus
@@ -26,6 +27,7 @@ from pbench.server.database.models.datasets import (
     Metadata,
     MetadataBadKey,
     MetadataError,
+    OperationName,
 )
 from pbench.server.database.models.server_settings import ServerSetting
 from pbench.server.database.models.users import User
@@ -787,6 +789,23 @@ class ApiMethod(Enum):
     PUT = auto()
 
 
+@dataclass
+class ApiAttributes:
+    """Initialize an ApiAttributes object with its attributes.
+
+    Args:
+        action: bulk Elasticsearch action (delete, create, update)
+        operation_name: Sync operation
+        require_stable: if True, fail if dataset state is mutating (-ing state)
+        require_map: if True, fail if the dataset has no index map
+    """
+
+    action: str
+    operation_name: OperationName
+    require_stable: bool
+    require_map: bool
+
+
 class ApiAuthorizationType(Enum):
     """Defines the mechanism by which ApiBase infrastructure will automatically
     authorize the client for the API method:
@@ -928,6 +947,7 @@ class ApiSchema:
         audit_type: AuditType = AuditType.NONE,
         audit_name: Optional[str] = None,
         authorization: ApiAuthorizationType = ApiAuthorizationType.NONE,
+        attributes: Optional[ApiAttributes] = None,
     ):
         """Construct an ApiSchema encapsulating a set of schema objects
         separating URI parameters from query parameters from JSON body
@@ -952,6 +972,8 @@ class ApiSchema:
                     authorization process triggers on a specific type of
                     parameter, DATASET or USER, which must appear in exactly
                     one of the set of schema defined for an HTTP method.
+            attributes :
+                    This contains configurable attributes specific to its operations
         """
         self.method = method
         self.operation = operation
@@ -961,6 +983,7 @@ class ApiSchema:
         self.audit_type = audit_type
         self.audit_name = audit_name
         self.authorization = authorization
+        self.attributes = attributes
 
     def get_param_by_type(
         self, dtype: ParamType, params: Optional[ApiParams]
@@ -1719,8 +1742,9 @@ class ApiBase(Resource):
             "attributes": None,
         }
 
+        context = {"auditing": auditing, "attributes": schema.attributes}
         try:
-            response = execute(params, request, {"auditing": auditing})
+            response = execute(params, request, context)
         except APIInternalError as e:
             current_app.logger.exception("{} {}", api_name, e.details)
             abort(e.http_status, message=str(e))

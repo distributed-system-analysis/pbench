@@ -17,7 +17,7 @@ class TestDatasetsDelete:
 
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
-    constructor and `post` service.
+    constructor and `delete` service.
     """
 
     tarball_deleted = None
@@ -134,8 +134,8 @@ class TestDatasetsDelete:
 
         ds = Dataset.query(name=owner)
 
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
+        response = client.delete(
+            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
             headers=build_auth_header["header"],
         )
         assert response.status_code == expected_status
@@ -167,8 +167,8 @@ class TestDatasetsDelete:
         self.fake_elastic(monkeypatch, get_document_map, True)
         self.fake_cache_manager(monkeypatch)
         ds = Dataset.query(name="drb")
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
+        response = client.delete(
+            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
         assert response.status_code == HTTPStatus.OK
@@ -183,8 +183,8 @@ class TestDatasetsDelete:
         """
         Check the delete API if the dataset doesn't exist.
         """
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/badwolf",
+        response = client.delete(
+            f"{server_config.rest_uri}/datasets/badwolf",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
 
@@ -201,8 +201,8 @@ class TestDatasetsDelete:
         """
         self.fake_cache_manager(monkeypatch)
         ds = Dataset.query(name="drb")
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/{ds.resource_id}",
+        response = client.delete(
+            f"{server_config.rest_uri}/datasets/{ds.resource_id}",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
 
@@ -239,8 +239,8 @@ class TestDatasetsDelete:
 
         monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/delete/random_md5_string1",
+        response = client.delete(
+            f"{server_config.rest_uri}/datasets/random_md5_string1",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
 
