@@ -415,7 +415,6 @@ class Upload(ApiBase):
             # dataset as a "foreign" benchmark script, and disable indexing,
             # which requires the metadata.
             try:
-                current_app.logger.info("Processing metadata: {}", tarball.metadata)
                 metalog = tarball.metadata
                 if not metalog:
                     metalog = {"pbench": {"script": "Foreign"}}
@@ -452,7 +451,6 @@ class Upload(ApiBase):
                     key=Metadata.SERVER_DELETION,
                     value=UtcTimeHelper(deletion).to_iso_string(),
                 )
-                current_app.logger.info("Setting metadata {}", metadata)
                 f = self._set_dataset_metadata(dataset, metadata)
                 if f:
                     attributes["failures"] = f

@@ -153,7 +153,6 @@ class TestCacheManager:
         cm = CacheManager(server_config, make_logger)
 
         expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: 'Invalid Tarfile'"
-        # expected_metaerror = f"A problem occurred processing metadata.log from {source_tarball!s}: 'Invalid Tarfile'"
         with monkeypatch.context() as m:
             m.setattr(tarfile, "open", fake_tarfile_open)
             with pytest.raises(MetadataError) as exc:
