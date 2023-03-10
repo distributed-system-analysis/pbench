@@ -415,7 +415,7 @@ function _setup_state {
     # output unconditionally.  So we move the logs to a special activation
     # log file to make sure we keep it around if we need it when debugging
     # or if a unit test might require it.
-    mv $_testlog $_testactlog
+    /bin/mv $_testlog $_testactlog
     rc=$?
     if [ $rc -ne 0 ]; then
         echo "ERROR: failed to rename $_testlog to $_testactlog: code $rc" >&2
