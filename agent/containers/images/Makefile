@@ -108,7 +108,7 @@ _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 # By default we only build images for the following distributions.
 _DEFAULT_DISTROS = \
 	centos-9 centos-8 centos-7 \
-	fedora-36 fedora-35
+	fedora-38 fedora-37 fedora-36
 #	rhel-9 rhel-8 rhel-7
 
 # This Makefile produces containers named "pbench-agent-<name>-<distro>"; this
