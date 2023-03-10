@@ -59,7 +59,7 @@ const TableOfContent = () => {
   let fileCount = 0;
   useEffect(() => {
     if (Object.keys(endpoints).length > 0)
-      dispatch(fetchTOC(params["dataset_id"], "/", false));
+      dispatch(fetchTOC(params["dataset_id"], "", false));
   }, [dispatch, endpoints, params]);
   const { stack, searchSpace, tableData, contentData, currData, isLoading } =
     useSelector((state) => state.tableOfContent);
@@ -185,7 +185,7 @@ const TableOfContent = () => {
     setBreadCrumbLabels([]);
   };
   const getSubFolderData = (data) => {
-    dispatch(fetchTOC(params["dataset_id"], `/${data}`, true));
+    dispatch(fetchTOC(params["dataset_id"], data, true));
   };
   const attachBreadCrumbs = (data, firstHierarchyLevel) => {
     breadCrumbLabels.push(data);

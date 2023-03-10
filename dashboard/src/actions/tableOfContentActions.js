@@ -1,16 +1,13 @@
 import * as TYPES from "./types";
 import API from "../utils/axiosInstance";
+import { expandUriTemplate } from "../utils/helper";
 
 export const fetchTOC =
   (param, parent, callForSubData) => async (dispatch, getState) => {
     try {
       const endpoints = getState().apiEndpoint.endpoints;
-      const response = await API.post(
-        `${endpoints?.api?.datasets_contents}/${param}`,
-        {
-          parent: parent,
-        }
-      );
+      const uri = expandUriTemplate(endpoints, 'datasets_contents', { dataset: param, target: parent });
+      const response = await API.get(uri);
       if (response.status === 200 && response.data) {
         dispatch({
           type: callForSubData ? "GET_SUB_DIR_DATA" : "GET_TOC_DATA",

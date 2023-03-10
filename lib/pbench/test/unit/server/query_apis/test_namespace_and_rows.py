@@ -23,7 +23,7 @@ class TestSampleNamespace(Commons):
     def _setup(self, client):
         super()._setup(
             cls_obj=SampleNamespace(client.config),
-            pbench_endpoint="/datasets/namespace/random_md5_string1/iterations",
+            pbench_endpoint="/datasets/random_md5_string1/namespace/iterations",
             elastic_endpoint="/_search",
             index_from_metadata="result-data-sample",
             empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
@@ -405,7 +405,7 @@ class TestSampleValues(Commons):
     def _setup(self, client):
         super()._setup(
             cls_obj=SampleValues(client.config),
-            pbench_endpoint="/datasets/values/random_md5_string1/iterations",
+            pbench_endpoint="/datasets/random_md5_string1/values/iterations",
             elastic_endpoint="/_search",
             payload={},
             index_from_metadata="result-data-sample",

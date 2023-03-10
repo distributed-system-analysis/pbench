@@ -64,8 +64,8 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     )
     api.add_resource(
         DatasetsContents,
-        f"{base_uri}/datasets/contents/<string:dataset>/",
-        f"{base_uri}/datasets/contents/<string:dataset>/<path:target>",
+        f"{base_uri}/datasets/<string:dataset>/contents/",
+        f"{base_uri}/datasets/<string:dataset>/contents/<path:target>",
         endpoint="datasets_contents",
         resource_class_args=(config,),
     )
@@ -77,13 +77,13 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     )
     api.add_resource(
         DatasetsDetail,
-        f"{base_uri}/datasets/detail/<string:dataset>",
+        f"{base_uri}/datasets/<string:dataset>/detail",
         endpoint="datasets_detail",
         resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsList,
-        f"{base_uri}/datasets/list",
+        f"{base_uri}/datasets",
         endpoint="datasets_list",
         resource_class_args=(config,),
     )
@@ -95,27 +95,27 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     )
     api.add_resource(
         DatasetsMetadata,
-        f"{base_uri}/datasets/metadata/<string:dataset>",
+        f"{base_uri}/datasets/<string:dataset>/metadata",
         endpoint="datasets_metadata",
         resource_class_args=(config,),
     )
     api.add_resource(
         DatasetsInventory,
-        f"{base_uri}/datasets/inventory/<string:dataset>",
-        f"{base_uri}/datasets/inventory/<string:dataset>/",
-        f"{base_uri}/datasets/inventory/<string:dataset>/<path:target>",
+        f"{base_uri}/datasets/<string:dataset>/inventory",
+        f"{base_uri}/datasets/<string:dataset>/inventory/",
+        f"{base_uri}/datasets/<string:dataset>/inventory/<path:target>",
         endpoint="datasets_inventory",
         resource_class_args=(config,),
     )
     api.add_resource(
         SampleNamespace,
-        f"{base_uri}/datasets/namespace/<string:dataset>/<string:dataset_view>",
+        f"{base_uri}/datasets/<string:dataset>/namespace/<string:dataset_view>",
         endpoint="datasets_namespace",
         resource_class_args=(config,),
     )
     api.add_resource(
         SampleValues,
-        f"{base_uri}/datasets/values/<string:dataset>/<string:dataset_view>",
+        f"{base_uri}/datasets/<string:dataset>/values/<string:dataset_view>",
         endpoint="datasets_values",
         resource_class_args=(config,),
     )
