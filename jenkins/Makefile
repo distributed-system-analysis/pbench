@@ -19,7 +19,7 @@ include ../utils/utils.mk
 # RPMs
 RPMBUILD_BASEIMAGE_DEFAULTS = \
 	rhel-9 rhel-8 rhel-7 \
-	fedora-36 fedora-35 \
+	fedora-38 fedora-37 fedora-36 \
 	centos-9 centos-8 centos-7
 
 # All Fedora images are based on Fedora 36
