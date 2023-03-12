@@ -72,10 +72,6 @@ function _run_activate {
     cat ${_testopt}/lib/crontab/crontab >> $_testout
     rc=$?
     echo "---- ${_testopt}/lib/crontab/crontab" >> $_testout
-    echo "++++ ${_testopt_sat}/lib/crontab/crontab" >> $_testout
-    cat ${_testopt_sat}/lib/crontab/crontab >> $_testout
-    rc=$?
-    echo "---- ${_testopt_sat}/lib/crontab/crontab" >> $_testout
     if [ -s $_testactlog ]; then
         echo "++++ $(basename $_testactlog) file contents" >> $_testout
         cat $_testactlog >> $_testout 2>&1
@@ -85,22 +81,20 @@ function _run_activate {
 }
 
 function _run_allscripts {
-    # Pull in new tar balls the remote satellite pbench servers and feed them
-    # into the dispatch loop.
-    # NOTE WELL: the "satellite-one" argument refers a configuration
-    # section in the unit test's pbench-server.cfg file - keep them
-    # synchronized.
+    # Pull in new tar balls from the remote satellite pbench servers and feed
+    # them into the dispatch loop.
+    #
+    # NOTE WELL: the "satellite-one" argument refers a configuration section in
+    # the unit test's pbench-server.cfg file - keep them synchronized.
     _run pbench-sync-satellite satellite-one
     # These next five are related and would flow in this order.
     _run pbench-dispatch
     _run pbench-unpack-tarballs small
-    # These next five run periodically to accomplish specific tasks outside
-    # the normal transition pipeline.
+    # These next five run periodically to accomplish specific tasks outside the
+    # normal transition pipeline.
     _run pbench-unpack-tarballs none re-unpack
     _run pbench-clean-up-dangling-results-links
     _run pbench-cull-unpacked-tarballs
-    # Invoke pbench-satellite-cleanup in the context of the satellite.
-    PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} _PBENCH_SERVER_CONFIG=${SATCONFIG} _run pbench-satellite-cleanup
     _run pbench-tarball-stats
 }
 
@@ -132,14 +126,6 @@ function _save_tree {
         grep -HvF "\-\-should-n0t-ex1st--" ${_testhtml}/pbench-results-host-info.versioned/pbench-results-host-info.URL00?.* >> $_testout 2>&1
         echo "--- results host info" >> $_testout
     fi
-    if [ -d ${_testhtml_sat} ] ;then
-        echo "+++ var/www/html-satellite tree state (${_testhtml_sat})" >> $_testout
-        _local_find ${_testhtml_sat} >> $_testout
-        echo "--- var/www/html-satellite tree state" >> $_testout
-        echo "+++ results host info (${_testhtml_sat}/pbench-results-host-info.versioned)" >> $_testout
-        grep -HvF "\-\-should-n0t-ex1st--" ${_testhtml_sat}/pbench-results-host-info.versioned/pbench-results-host-info.URL00?.* >> $_testout 2>&1
-        echo "--- results host info" >> $_testout
-    fi
     echo "+++ pbench tree state (${_testdir})" >> $_testout
     if [ -d ${_testdir} ] ;then
         _local_find ${_testdir} | _normalize_output >> $_testout
@@ -149,16 +135,6 @@ function _save_tree {
         echo "+++ pbench-local tree state (${_testdir_local})" >> $_testout
         _local_find ${_testdir_local} | _normalize_output >> $_testout
         echo "--- pbench-local tree state" >> $_testout
-    fi
-    if [ -d ${_testdir_sat} ] ;then
-        echo "+++ pbench-satellite tree state (${_testdir_sat})" >> $_testout
-        _local_find ${_testdir_sat} | _normalize_output >> $_testout
-        echo "--- pbench-satellite tree state" >> $_testout
-    fi
-    if [ -d ${_testdir_sat_local} ] ;then
-        echo "+++ pbench-satellite-local tree state (${_testdir_sat_local})" >> $_testout
-        _local_find ${_testdir_sat_local} | _normalize_output >> $_testout
-        echo "--- pbench-satellite-local tree state" >> $_testout
     fi
     if [ -d ${_testtmp} ]; then
         echo "+++ ${_testtmp}" >> $_testout
@@ -182,7 +158,7 @@ function _audit_server {
 function _dump_logs {
     # Dump the state of any generated script logs
     echo "+++ pbench log file contents" >> $_testout
-    for dir in ${_testdir} ${_testdir_local} ${_testdir_sat} ${_testdir_sat_local} ;do
+    for dir in ${_testdir} ${_testdir_local}; do
         if [ -d ${dir}/logs ] ;then
             echo "++++ $(basename ${dir})/logs" >> $_testout
             find ${dir}/logs -type f -printf "%P\n" | sort | \
@@ -240,15 +216,9 @@ function _setup_state {
     res=0
     mkdir -p $_testopt/unittest-scripts/
     let res=res+$?
-    mkdir -p $_testopt_sat/unittest-scripts/
-    let res=res+$?
     cp -a $_tdir/test-bin/* $_testopt/unittest-scripts/
     let res=res+$?
-    cp $_tdir/test-bin/* $_testopt_sat/unittest-scripts/
-    let res=res+$?
     mkdir -p $_testopt/bin
-    let res=res+$?
-    mkdir -p $_testopt_sat/bin
     let res=res+$?
     cp -a $_tdir/{unittests,getconf.py,pbench*} $_testopt/bin
     let res=res+$?
@@ -262,46 +232,24 @@ function _setup_state {
     let res=res+$?
     cp -a $_tdir/../../web-server/v0.3/css/ $_testopt/html/static/css/v0.3
     let res=res+$?
-    cp -a $_tdir/{unittests,getconf.py,pbench*} $_testopt_sat/bin
-    let res=res+$?
     cp -a $_tdir/../lib $_testopt
     let res=res+$?
     cp -a $_tdir/../../lib/* $_testopt/lib
     let res=res+$?
-    cp -a $_tdir/../lib $_testopt_sat
-    let res=res+$?
-    cp -a $_tdir/../../lib/* $_testopt_sat/lib
-    let res=res+$?
-    mkdir -p $_testopt_sat/html/static/{js,css}/v0.{2,3}
-    let res=res+$?
-    cp -a $_tdir/../../web-server/v0.2/js/ $_testopt_sat/html/static/js/v0.2
-    let res=res+$?
-    cp -a $_tdir/../../web-server/v0.3/js/ $_testopt_sat/html/static/js/v0.3
-    let res=res+$?
-    cp -a $_tdir/../../web-server/v0.2/css/ $_testopt_sat/html/static/css/v0.2
-    let res=res+$?
-    cp -a $_tdir/../../web-server/v0.3/css/ $_testopt_sat/html/static/css/v0.3
-    let res=res+$?
     mkdir -p $_testhtml
-    let res=res+$?
-    mkdir -p $_testhtml_sat
     let res=res+$?
     if [ $res -ne 0 ]; then
         echo "ERROR: failed to properly setup the test environment root, \"$_testroot\"" >&2
         exit $res
     fi
 
-    mkdir $_testdir $_testdir_sat $_testtmp
+    mkdir $_testdir $_testtmp
     if [[ $? -gt 0 ]]; then
-        echo "ERROR: failed to create test pbench, pbench-satellite, and tmp directories, \"$_testdir\", \"$_testdir_sat\", and/or \"$_testtmp\"" >&2
+        echo "ERROR: failed to create test pbench and tmp directories, \"$_testdir\" and/or \"$_testtmp\"" >&2
         exit 1
     fi
     if [[ ! -d $_testdir ]]; then
         echo "ERROR: test pbench directory does not exist, \"$_testdir\"" >&2
-        exit 1
-    fi
-    if [[ ! -d $_testdir_sat ]]; then
-        echo "ERROR: test pbench-satellite directory does not exist, \"$_testdir_sat\"" >&2
         exit 1
     fi
     if [[ ! -d $_testtmp ]]; then
@@ -311,9 +259,6 @@ function _setup_state {
 
     echo "X.YY.ZZ" > ${_testopt}/VERSION
     echo "abcdefg" > ${_testopt}/SHA1
-
-    echo "X.YY.ZZ" > ${_testopt_sat}/VERSION
-    echo "abcdefg" > ${_testopt_sat}/SHA1
 
     cat > ${_testroot}/agent-profile <<-EOF
 	export _PBENCH_AGENT_CONFIG="fake"
@@ -328,7 +273,6 @@ function _setup_state {
     # Expected location of the final configuration files
     export _PBENCH_SERVER_CONFIG=$_testopt/lib/config/pbench-server.cfg
     export LOGSDIR=$_testdir_local/logs
-    export SATCONFIG=$_testopt_sat/lib/config/pbench-server.cfg
 
     # The activate invocations are supposed to work without
     # _PBENCH_SERVER_CONFIG being set, so they do *not* use the global
@@ -352,7 +296,7 @@ function _setup_state {
     printf "unittest-dir = ${_testroot}\n" >> ${_testtmp}/pbench-server.cfg
     cat ${_state_config}                   >> ${_testtmp}/pbench-server.cfg
 
-    # First we activate the main pbench server (not a satellite).
+    # Activate the main pbench server.
     echo "$_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
     $_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
     rc=$?
@@ -369,42 +313,6 @@ function _setup_state {
     fi
     if [ $rc -ne 0 ]; then
         echo "ERROR: failed to properly activate the main server test environment root, \"$_testroot\"" >&2
-        cat $_testactout >&2
-        exit $rc
-    fi
-
-    _state_config="${_tdir}/state/${1}.config-satellite/pbench-server.cfg"
-    if [ ! -e ${_state_config} ]; then
-        _state_config="${_tdir}/state/config-satellite/pbench-server.cfg"
-    else
-        # the testcase-specific config file includes the global state config file
-        # but under the name "state-pbench-server.cfg" to prevent conflicts. It also
-        # gets the default section below, so we have to include the install-dir line in it
-        # and delete it from the global state config file.
-        sed 1d "${_tdir}/state/config/pbench-server.cfg" > ${_testopt}/lib/config/state-pbench-server.cfg
-    fi
-    > ${_testtmp}/pbench-server.cfg
-    printf "[DEFAULT]\n"                   >> ${_testtmp}/pbench-server.cfg
-    printf "unittest-dir = ${_testroot}\n" >> ${_testtmp}/pbench-server.cfg
-    cat ${_state_config}                   >> ${_testtmp}/pbench-server.cfg
-
-    # Next we activate the satellite pbench server.
-    echo "$_testopt_sat/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
-    $_testopt_sat/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
-    rc=$?
-    rm ${_testtmp}/pbench-server.cfg
-    if [ $rc == 0 ] ;then
-        # This script uses the copied config file to do the rest.
-        echo "$_testopt_sat/bin/pbench-server-activate ${SATCONFIG}" >> $_testactout
-        $_testopt_sat/bin/pbench-server-activate ${SATCONFIG} >> $_testactout
-        rc=$?
-        if [ $rc == 0 ] ;then
-            move_out_of_maint ${_testhtml_sat}
-            rc=$?
-        fi
-    fi
-    if [ $rc -ne 0 ]; then
-        echo "ERROR: failed to properly activate the satellite server test environment root, \"$_testroot\"" >&2
         cat $_testactout >&2
         exit $rc
     fi
@@ -470,14 +378,10 @@ function _run_test {
     export _testlog=$_testroot/test-execution.log
     export _testdir=$_testroot/pbench
     export _testdir_local=$_testroot/pbench-local
-    export _testdir_sat=$_testroot/pbench-satellite
-    export _testdir_sat_local=$_testroot/pbench-satellite-local
     export _testtmp=$_testroot/tmp
     export TMPDIR=$_testtmp
     export _testhtml=$_testroot/var-www-html
-    export _testhtml_sat=$_testroot/var-www-html-satellite
     export _testopt=$_testroot/opt/pbench-server
-    export _testopt_sat=$_testroot/opt/pbench-server-satellite
 
     _setup_state ${testname}
     # echo ${testname}: ${cmd}
@@ -508,7 +412,6 @@ function _reset_state {
 
     unset _PBENCH_SERVER_CONFIG
     unset LOGSDIR
-    unset SATCONFIG
 
     rm -f ${_testroot}/agent-profile
     rm -f ${_testopt}/lib/config/state-pbench-server.cfg
@@ -525,16 +428,6 @@ function _reset_state {
         echo "ERROR: unable to remove pbench-local hierarchy" >&2
         exit 1
     fi
-    rm -rf ${_testdir_sat}
-    if [[ -d ${_testdir_sat} ]]; then
-        echo "ERROR: unable to remove pbench-satellite hierarchy" >&2
-        exit 1
-    fi
-    rm -rf ${_testdir_sat_local}
-    if [[ -d ${_testdir_sat_local} ]]; then
-        echo "ERROR: unable to remove pbench-satellite-local hierarchy" >&2
-        exit 1
-    fi
     rm -rf $_testtmp
     if [[ -d $_testtmp ]]; then
         echo "ERROR: unable to remove tmp hierarchy" >&2
@@ -542,11 +435,6 @@ function _reset_state {
     fi
     rm -rf $_testhtml
     if [[ -d $_testhtml ]]; then
-        echo "ERROR: unable to remove var-www-html hierarchy" >&2
-        exit 1
-    fi
-    rm -rf $_testhtml_sat
-    if [[ -d $_testhtml_sat ]]; then
         echo "ERROR: unable to remove var-www-html hierarchy" >&2
         exit 1
     fi
@@ -615,9 +503,6 @@ declare -A cmds=(
 
     # Verify behavior of dispatch when it doesn't do anything
     [test-21]="_run pbench-dispatch"
-
-    # Actually exercises satellite code
-    [test-22]="_run pbench-satellite-cleanup"
 
     # Tests that the behavior of the find command works as we expect to
     # ensure that buckets for pbench-unpack-tarballs work properly.

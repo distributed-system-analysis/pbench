@@ -1,7 +1,5 @@
 #!/bin/bash
 
 # Move the pbench tree to the side
-mv pbench pbench-bad || exit $?
-# Move the satellite pbench tree to the side
-mv pbench-satellite pbench-satellite-bad
+mv pbench pbench-bad
 exit $?
