@@ -33,13 +33,13 @@ dest=$(getconf.py pbench-receive-dir-prefix pbench-server)-002
 test -d "${dest}" || log_exit "Missing \"pbench-receive-dir-prefix\" configuration in \"pbench-server\"" 2
 
 test -n "${satellite_config}" || log_exit "Missing satellite configuration argument" 2
-export remote_prefix=$(getconf.py satellite-prefix ${satellite_config})
+remote_prefix=$(getconf.py satellite-prefix ${satellite_config})
 test -n "${remote_prefix}" || log_exit "Missing \"satellite-prefix\" configuration in \"${satellite_config}\"" 2
-export remote_host=$(getconf.py satellite-host ${satellite_config})
+remote_host=$(getconf.py satellite-host ${satellite_config})
 test -n "${remote_host}" || log_exit "Missing \"satellite-host\" configuration in \"${satellite_config}\"" 2
-export remote_opt=$(getconf.py satellite-opt $satellite_config)
+remote_opt=$(getconf.py satellite-opt $satellite_config)
 test -n "${remote_opt}" || log_exit "Missing \"satellite-opt\" configuration in \"${satellite_config}\"" 2
-export remote_archive=$(getconf.py satellite-archive $satellite_config)
+remote_archive=$(getconf.py satellite-archive $satellite_config)
 test -n "${remote_archive}" || log_exit "Missing \"satellite-archive\" configuration in \"${satellite_config}\"" 2
 
 tmp=$(get-tempdir-name ${PROG})
@@ -60,7 +60,7 @@ mkdir -p ${logdir} || log_exit "Failed to create ${logdir}"
 
 function do_remote_sat_state_change {
     local status
-    pbench-remote-satellite-state-change ${satellite_config} ${state_change_log} > ${logdir}/mv.log 2>&1
+    ssh ${remote_host} "${remote_opt}/bin/pbench-satellite-state-change ${remote_archive}" < ${state_change_log} > ${logdir}/mv.log 2>&1
     status=${?}
     if [[ ${status} != 0 ]]; then
         log_error "${TS}: ${remote_prefix}: satellite state change failed twice, ssh failed to ${remote_host}"
@@ -109,7 +109,7 @@ syncerr=${tmp}/syncerrors
 synctar=${tmp}/satellite.${remote_prefix}.tar
 
 # Fetch all the tarballs from remote host's archive.
-pbench-remote-sync-package-tarballs ${satellite_config} ${synctar} ${syncerr}
+ssh ${remote_host} "${remote_opt}/bin/pbench-sync-package-tarballs" > ${synctar} 2> ${syncerr}
 rc=${?}
 if [[ ${rc} != 0 ]]; then
     log_exit "${TS}: FAILED -- $(cat ${syncerr})" 2
