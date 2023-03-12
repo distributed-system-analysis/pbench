@@ -26,8 +26,6 @@ binbase = \
 bintools = \
 	pbench-trampoline\
 	pbench-server-activate-create-crontab\
-	pbench-remote-satellite-state-change\
-	pbench-remote-sync-package-tarballs\
 	pbench-satellite-state-change.py\
 	getconf.py
 
