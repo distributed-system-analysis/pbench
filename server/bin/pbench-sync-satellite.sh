@@ -27,14 +27,24 @@ satellite_config=${1}
 shift 1
 . ${dir}/pbench-base.sh
 
-test -d "${ARCHIVE}" || doexit "Bad ARCHIVE=${ARCHIVE}"
+log_init ${PROG}
 
-remote_prefix=$(getconf.py satellite-prefix ${satellite_config})
-remote_host=$(getconf.py satellite-host ${satellite_config})
+dest=$(getconf.py pbench-receive-dir-prefix pbench-server)-002
+test -d "${dest}" || log_exit "Missing \"pbench-receive-dir-prefix\" configuration in \"pbench-server\"" 2
+
+test -n "${satellite_config}" || log_exit "Missing satellite configuration argument" 2
+export remote_prefix=$(getconf.py satellite-prefix ${satellite_config})
+test -n "${remote_prefix}" || log_exit "Missing \"satellite-prefix\" configuration in \"${satellite_config}\"" 2
+export remote_host=$(getconf.py satellite-host ${satellite_config})
+test -n "${remote_host}" || log_exit "Missing \"satellite-host\" configuration in \"${satellite_config}\"" 2
+export remote_opt=$(getconf.py satellite-opt $satellite_config)
+test -n "${remote_opt}" || log_exit "Missing \"satellite-opt\" configuration in \"${satellite_config}\"" 2
+export remote_archive=$(getconf.py satellite-archive $satellite_config)
+test -n "${remote_archive}" || log_exit "Missing \"satellite-archive\" configuration in \"${satellite_config}\"" 2
 
 tmp=$(get-tempdir-name ${PROG})
 unpack=${tmp}/unpack.${remote_prefix}
-mkdir -p ${unpack} || doexit "Failed to create ${unpack}"
+mkdir -p ${unpack} || log_exit "Failed to create ${unpack}"
 
 # Be sure ${logdir} is defined before setting up the `trap` below.
 logdir_for_remote=${LOGSDIR}/${PROG}/${remote_prefix}
@@ -46,9 +56,7 @@ trap "rm -rf ${tmp}; rmdir ${logdir} 2>/dev/null" EXIT QUIT INT
 
 # The creation of the ${logdir} hierarchy should happen only after the `trap` soi
 # that if it fails, the ${tmp} directory will be cleaned up as well.
-mkdir -p ${logdir} || doexit "Failed to create ${logdir}"
-
-log_init ${PROG}
+mkdir -p ${logdir} || log_exit "Failed to create ${logdir}"
 
 function do_remote_sat_state_change {
     local status
@@ -98,19 +106,20 @@ typeset -i nprocessed=0
 typeset -i nerrs=0
 
 syncerr=${tmp}/syncerrors
+synctar=${tmp}/satellite.${remote_prefix}.tar
 
 # Fetch all the tarballs from remote host's archive.
-pbench-remote-sync-package-tarballs ${satellite_config} ${tmp}/satellite.${remote_prefix}.tar ${syncerr}
+pbench-remote-sync-package-tarballs ${satellite_config} ${synctar} ${syncerr}
 rc=${?}
 if [[ ${rc} != 0 ]]; then
     log_exit "${TS}: FAILED -- $(cat ${syncerr})" 2
 fi
 
-if [[ -s ${tmp}/satellite.${remote_prefix}.tar ]]; then
+if [[ -s ${synctar} ]]; then
     # Unpack the tarball into the tmp directory, logging any errors reported.
-    tar -xf ${tmp}/satellite.${remote_prefix}.tar -C ${unpack}
+    tar -xf ${synctar} -C ${unpack}
     if [[ ${?} -ne 0 ]]; then
-        cat ${tmp}/satellite.${remote_prefix}.tar >&4
+        cat ${synctar} >&4
     fi
     files=$(find ${unpack} -path '*.tar.xz' -printf '%P\n')
     hosts="$(for host in ${files}; do echo ${host%%/*}; done | sort -u)"
@@ -118,7 +127,6 @@ else
     hosts=""
 fi
 
-dest=$(getconf.py pbench-receive-dir-prefix pbench-server)-002
 let unpack_start_time=$(timestamp-seconds-since-epoch)
 
 for host in ${hosts}; do

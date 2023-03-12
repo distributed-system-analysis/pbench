@@ -1,6 +1,5 @@
 +++ Running pbench-sync-satellite satellite-one
-pbench-sync-satellite: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
---- Finished pbench-sync-satellite (status=1)
+--- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
 pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-dispatch (status=1)
@@ -82,6 +81,11 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        226 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
+drwxrwxr-x          - logs/pbench-sync-satellite
+drwxrwxr-x          - logs/pbench-sync-satellite/ONE
+-rw-rw-r--          0 logs/pbench-sync-satellite/ONE/change_state.log
+-rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
+-rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -131,7 +135,16 @@ drwxrwxr-x          - tmp
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 ERROR pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- The configured ARCHIVE directory, /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001, is not a valid directory
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
++++++ pbench-sync-satellite/ONE/change_state.log
+----- pbench-sync-satellite/ONE/change_state.log
++++++ pbench-sync-satellite/pbench-sync-satellite.error
+----- pbench-sync-satellite/pbench-sync-satellite.error
++++++ pbench-sync-satellite/pbench-sync-satellite.log
+----- pbench-sync-satellite/pbench-sync-satellite.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
++++ test-execution.log file contents
+ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-1/opt/pbench-server-satellite/bin/pbench-sync-package-tarballs
+--- test-execution.log file contents
