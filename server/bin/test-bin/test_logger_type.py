@@ -10,7 +10,7 @@ from pbench import BadConfig, PbenchConfig, get_pbench_logger
 _NAME_ = "pbench-logger-test"
 cfg_name = os.environ["_PBENCH_SERVER_CONFIG"]
 logdir = os.environ["LOGSDIR"]
-assert os.path.isdir(logdir), f"LOGSDIR={logdir}"
+assert os.path.isdir(logdir), f"Bad directory LOGSDIR={logdir}"
 
 log_files = {"file": "file.log", "devlog": "devlog.log", "hostport": "hostport.log"}
 
