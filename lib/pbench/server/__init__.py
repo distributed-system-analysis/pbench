@@ -58,11 +58,15 @@ UTC = SimpleUTC()
 def utcnow(ts: float = None) -> datetime:
     """Convenience method for obtaining a datetime object with a UTC time zone.
 
+    Args:
+        ts : Optional seconds-since-the-epoch time stamp to use instead of the
+            current time
+
     Returns:
         A datetime object with a UTC time zone.
     """
-    ts = _time() if ts is None else ts
-    return datetime.utcfromtimestamp(ts).replace(tzinfo=UTC)
+    tv = _time() if ts is None else ts
+    return datetime.utcfromtimestamp(tv).replace(tzinfo=UTC)
 
 
 def tstos(ts: float = None) -> str:
