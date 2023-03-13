@@ -13,38 +13,38 @@ unset _PBENCH_SERVER_CONFIG
 export LANG=C
 export LC_ALL=C
 
-export _tdir=$(dirname $(readlink -f $0))
-export _gitdir=$(dirname $(dirname $_tdir))
+export _tdir=$(dirname $(readlink -f ${0}))
+export _gitdir=$(dirname $(dirname ${_tdir}))
 export _tlib=${_tdir}/../lib
 export _testbase=/var/tmp/pbench-test-server
 rm -rf ${_testbase}
 mkdir ${_testbase}
-if [[ ! -d $_testbase ]]; then
-    echo "ERROR: failed to create test base directory, \"$_testbase\"" >&2
+if [[ ! -d ${_testbase} ]]; then
+    echo "ERROR: failed to create test base directory, \"${_testbase}\"" >&2
     exit 1
 fi
 
 alias logger="logger --no-act --stderr"
 
 function remove_path {
-    # PATH ($2) => /bin:/opt/a dir/bin:/sbin
-    WORK=:$2:
+    # PATH (${2}) => /bin:/opt/a dir/bin:/sbin
+    local WORK=:${2}:
     # WORK => :/bin:/opt/a dir/bin:/sbin:
-    REMOVE=$1
-    WORK=${WORK/:$REMOVE:/:}
+    local REMOVE=${1}
+    WORK=${WORK/:${REMOVE}:/:}
     # WORK => :/bin:/sbin:
     WORK=${WORK%:}
     WORK=${WORK#:}
-    #PATH=$WORK
+    #PATH=${WORK}
     # PATH => /bin:/sbin
-    echo $WORK
+    echo ${WORK}
 }
-PATH=$(remove_path /opt/pbench-server/bin $PATH)
-PATH=$(remove_path /opt/pbench-agent/bench-scripts $PATH)
-export PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
+PATH=$(remove_path /opt/pbench-server/bin ${PATH})
+PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
+export PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
 
 function _run {
-    tname=${1}
+    local tname=${1}
     shift
     if [[ -z "${@}" ]]; then
         echo "+++ Running ${tname}" >> ${_testout}
@@ -61,23 +61,23 @@ function _run_re_unpack {
 }
 
 function _run_activate {
-    # Testing the server activate script, which is used for every other
-    # unit test as well is just a matter of emitting the resulting
-    # crontab along side the rest of the environment state provided by
-    # the unit test framework.
-    echo "+++ Verifying server activation" >> $_testout
-    sed -i 's;'${_gitdir}'/server/;/home/user/repo/pbench/server/;' $_testactout
-    cat $_testactout >> $_testout
-    echo "++++ ${_testopt}/lib/crontab/crontab" >> $_testout
-    cat ${_testopt}/lib/crontab/crontab >> $_testout
-    rc=$?
-    echo "---- ${_testopt}/lib/crontab/crontab" >> $_testout
-    if [ -s $_testactlog ]; then
-        echo "++++ $(basename $_testactlog) file contents" >> $_testout
-        cat $_testactlog >> $_testout 2>&1
-        echo "---- $(basename $_testactlog) file contents" >> $_testout
+    # Testing the server activate script, which is used for every other unit
+    # test as well is just a matter of emitting the resulting crontab along
+    # side the rest of the environment state provided by the unit test
+    # framework.
+    echo "+++ Verifying server activation" >> ${_testout}
+    sed -i 's;'${_gitdir}'/server/;/home/user/repo/pbench/server/;' ${_testactout}
+    cat ${_testactout} >> ${_testout}
+    echo "++++ ${_testopt}/lib/crontab/crontab" >> ${_testout}
+    cat ${_testopt}/lib/crontab/crontab >> ${_testout}
+    local rc=${?}
+    echo "---- ${_testopt}/lib/crontab/crontab" >> ${_testout}
+    if [[ -s ${_testactlog} ]]; then
+        echo "++++ $(basename ${_testactlog}) file contents" >> ${_testout}
+        cat ${_testactlog} >> ${_testout} 2>&1
+        echo "---- $(basename ${_testactlog}) file contents" >> ${_testout}
     fi
-    echo "--- Finished verifying server activation (status=$rc)" >> $_testout
+    echo "--- Finished verifying server activation (status=${rc})" >> ${_testout}
 }
 
 function _run_allscripts {
@@ -113,33 +113,33 @@ function _local_find {
 
 function _normalize_output {
     # Fix up tmp directory references
-    sed -E -e 's;tmp/pbench-([-a-zA-Z0-9]+)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $*
+    sed -E -e 's;tmp/pbench-([-a-zA-Z0-9]+)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' ${*}
 }
 
 function _save_tree {
     # Save state of the tree
-    if [ -d ${_testhtml} ] ;then
-        echo "+++ var/www/html tree state (${_testhtml})" >> $_testout
-        _local_find ${_testhtml} >> $_testout
-        echo "--- var/www/html tree state" >> $_testout
-        echo "+++ results host info (${_testhtml}/pbench-results-host-info.versioned)" >> $_testout
-        grep -HvF "\-\-should-n0t-ex1st--" ${_testhtml}/pbench-results-host-info.versioned/pbench-results-host-info.URL00?.* >> $_testout 2>&1
-        echo "--- results host info" >> $_testout
+    if [[ -d ${_testhtml} ]]; then
+        echo "+++ var/www/html tree state (${_testhtml})" >> ${_testout}
+        _local_find ${_testhtml} >> ${_testout}
+        echo "--- var/www/html tree state" >> ${_testout}
+        echo "+++ results host info (${_testhtml}/pbench-results-host-info.versioned)" >> ${_testout}
+        grep -HvF "\-\-should-n0t-ex1st--" ${_testhtml}/pbench-results-host-info.versioned/pbench-results-host-info.URL00?.* >> ${_testout} 2>&1
+        echo "--- results host info" >> ${_testout}
     fi
-    echo "+++ pbench tree state (${_testdir})" >> $_testout
-    if [ -d ${_testdir} ] ;then
-        _local_find ${_testdir} | _normalize_output >> $_testout
+    echo "+++ pbench tree state (${_testdir})" >> ${_testout}
+    if [[ -d ${_testdir} ]]; then
+        _local_find ${_testdir} | _normalize_output >> ${_testout}
     fi
-    echo "--- pbench tree state" >> $_testout
-    if [ -d ${_testdir_local} ] ;then
-        echo "+++ pbench-local tree state (${_testdir_local})" >> $_testout
-        _local_find ${_testdir_local} | _normalize_output >> $_testout
-        echo "--- pbench-local tree state" >> $_testout
+    echo "--- pbench tree state" >> ${_testout}
+    if [[ -d ${_testdir_local} ]]; then
+        echo "+++ pbench-local tree state (${_testdir_local})" >> ${_testout}
+        _local_find ${_testdir_local} | _normalize_output >> ${_testout}
+        echo "--- pbench-local tree state" >> ${_testout}
     fi
-    if [ -d ${_testtmp} ]; then
-        echo "+++ ${_testtmp}" >> $_testout
-        find ${_testtmp} -ls >> $_testout 2>&1
-        echo "--- ${_testtmp}" >> $_testout
+    if [[ -d ${_testtmp} ]]; then
+        echo "+++ ${_testtmp}" >> ${_testout}
+        find ${_testtmp} -ls >> ${_testout} 2>&1
+        echo "--- ${_testtmp}" >> ${_testout}
     fi
 }
 
@@ -150,38 +150,41 @@ function _audit_server {
     printf "unittest-dir = ${_testroot}\n"         >> ${_PBENCH_SERVER_CONFIG}
     cat "${_tdir}/state/config/pbench-server.cfg"  >> ${_PBENCH_SERVER_CONFIG}
 
-    echo "+++ Running unit test audit" >> $_testout
-    pbench-audit-server >> $_testout 2>&1
-    echo "--- Finished unit test audit (status=$?)" >> $_testout
+    echo "+++ Running unit test audit" >> ${_testout}
+    pbench-audit-server >> ${_testout} 2>&1
+    echo "--- Finished unit test audit (status=${?})" >> ${_testout}
 }
 
 function _dump_logs {
+    local dir
+    local fname
     # Dump the state of any generated script logs
-    echo "+++ pbench log file contents" >> $_testout
+    echo "+++ pbench log file contents" >> ${_testout}
     for dir in ${_testdir} ${_testdir_local}; do
-        if [ -d ${dir}/logs ] ;then
-            echo "++++ $(basename ${dir})/logs" >> $_testout
+        if [[ -d ${dir}/logs ]]; then
+            echo "++++ $(basename ${dir})/logs" >> ${_testout}
             find ${dir}/logs -type f -printf "%P\n" | sort | \
                 while read fname; do
-                    echo "+++++ ${fname}" >> $_testout
-                    _normalize_output ${dir}/logs/${fname} >> $_testout 2>&1
-                    ${_tdir}/test-bin/verify_cee ${dir}/logs/${fname} >> $_testout 2>&1 || echo "Bad CEE JSON in ${dir}/logs/${fname}" >> ${_testout} 2>&1
-                    echo "----- ${fname}" >> $_testout
+                    echo "+++++ ${fname}" >> ${_testout}
+                    _normalize_output ${dir}/logs/${fname} >> ${_testout} 2>&1
+                    ${_tdir}/test-bin/verify_cee ${dir}/logs/${fname} >> ${_testout} 2>&1 || echo "Bad CEE JSON in ${dir}/logs/${fname}" >> ${_testout} 2>&1
+                    echo "----- ${fname}" >> ${_testout}
                 done
-            echo "---- $(basename ${dir})/logs" >> $_testout
+            echo "---- $(basename ${dir})/logs" >> ${_testout}
         fi
     done
-    echo "--- pbench log file contents" >> $_testout
+    echo "--- pbench log file contents" >> ${_testout}
 
-    if [ -s $_testlog ]; then
-        echo "+++ $(basename $_testlog) file contents" >> $_testout
-        _normalize_output $_testlog >> $_testout 2>&1
-        echo "--- $(basename $_testlog) file contents" >> $_testout
+    if [[ -s ${_testlog} ]]; then
+        echo "+++ $(basename ${_testlog}) file contents" >> ${_testout}
+        _normalize_output ${_testlog} >> ${_testout} 2>&1
+        echo "--- $(basename ${_testlog}) file contents" >> ${_testout}
     fi
 }
 
 function _verify_output {
-    tname=${1}
+    local tname=${1}
+    local res
     # Fix up "_id", "_parent", and "@generated-by" IDs using:
     #   * 5ca1ab1e70015f100dedfab1ed0ff1ce
     #    "scalable tools flooded fabled office"
@@ -213,47 +216,47 @@ function move_out_of_maint {
 }
 
 function _setup_state {
-    res=0
-    mkdir -p $_testopt/unittest-scripts/
-    let res=res+$?
-    cp -a $_tdir/test-bin/* $_testopt/unittest-scripts/
-    let res=res+$?
-    mkdir -p $_testopt/bin
-    let res=res+$?
-    cp -a $_tdir/{unittests,getconf.py,pbench*} $_testopt/bin
-    let res=res+$?
-    mkdir -p $_testopt/html/static/{js,css}/v0.{2,3}
-    let res=res+$?
-    cp -a $_tdir/../../web-server/v0.2/js/ $_testopt/html/static/js/v0.2
-    let res=res+$?
-    cp -a $_tdir/../../web-server/v0.3/js/ $_testopt/html/static/js/v0.3
-    let res=res+$?
-    cp -a $_tdir/../../web-server/v0.2/css/ $_testopt/html/static/css/v0.2
-    let res=res+$?
-    cp -a $_tdir/../../web-server/v0.3/css/ $_testopt/html/static/css/v0.3
-    let res=res+$?
-    cp -a $_tdir/../lib $_testopt
-    let res=res+$?
-    cp -a $_tdir/../../lib/* $_testopt/lib
-    let res=res+$?
-    mkdir -p $_testhtml
-    let res=res+$?
-    if [ $res -ne 0 ]; then
-        echo "ERROR: failed to properly setup the test environment root, \"$_testroot\"" >&2
+    local res=0
+    mkdir -p ${_testopt}/unittest-scripts/
+    let res=res+${?}
+    cp -a ${_tdir}/test-bin/* ${_testopt}/unittest-scripts/
+    let res=res+${?}
+    mkdir -p ${_testopt}/bin
+    let res=res+${?}
+    cp -a ${_tdir}/{unittests,getconf.py,pbench*} ${_testopt}/bin
+    let res=res+${?}
+    mkdir -p ${_testopt}/html/static/{js,css}/v0.{2,3}
+    let res=res+${?}
+    cp -a ${_tdir}/../../web-server/v0.2/js/ ${_testopt}/html/static/js/v0.2
+    let res=res+${?}
+    cp -a ${_tdir}/../../web-server/v0.3/js/ ${_testopt}/html/static/js/v0.3
+    let res=res+${?}
+    cp -a ${_tdir}/../../web-server/v0.2/css/ ${_testopt}/html/static/css/v0.2
+    let res=res+${?}
+    cp -a ${_tdir}/../../web-server/v0.3/css/ ${_testopt}/html/static/css/v0.3
+    let res=res+${?}
+    cp -a ${_tdir}/../lib ${_testopt}
+    let res=res+${?}
+    cp -a ${_tdir}/../../lib/* ${_testopt}/lib
+    let res=res+${?}
+    mkdir -p ${_testhtml}
+    let res=res+${?}
+    if [[ $res -ne 0 ]]; then
+        echo "ERROR: failed to properly setup the test environment root, \"${_testroot}\"" >&2
         exit $res
     fi
 
-    mkdir $_testdir $_testtmp
-    if [[ $? -gt 0 ]]; then
-        echo "ERROR: failed to create test pbench and tmp directories, \"$_testdir\" and/or \"$_testtmp\"" >&2
+    mkdir ${_testdir} ${_testtmp}
+    if [[ ${?} -gt 0 ]]; then
+        echo "ERROR: failed to create test pbench and tmp directories, \"${_testdir}\" and/or \"${_testtmp}\"" >&2
         exit 1
     fi
-    if [[ ! -d $_testdir ]]; then
-        echo "ERROR: test pbench directory does not exist, \"$_testdir\"" >&2
+    if [[ ! -d ${_testdir} ]]; then
+        echo "ERROR: test pbench directory does not exist, \"${_testdir}\"" >&2
         exit 1
     fi
-    if [[ ! -d $_testtmp ]]; then
-        echo "ERROR: test tmp directory does not exist, \"$_testtmp\"" >&2
+    if [[ ! -d ${_testtmp} ]]; then
+        echo "ERROR: test tmp directory does not exist, \"${_testtmp}\"" >&2
         exit 1
     fi
 
@@ -264,15 +267,15 @@ function _setup_state {
 	export _PBENCH_AGENT_CONFIG="fake"
 	EOF
 
-    # All the "real" scripts are found at $_testopt/bin, the mock scripts
-    # are found in $_testopt/unittest-scripts.
-    _orig_PATH=$PATH
-    export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
+    # All the "real" scripts are found at ${_testopt}/bin, the mock scripts
+    # are found in ${_testopt}/unittest-scripts.
+    _orig_PATH=${PATH}
+    export PATH=${_testopt}/unittest-scripts:${_testopt}/bin:${PATH}
     export PYTHONPATH="${_testopt}/lib:${PYTHONPATH}"
 
     # Expected location of the final configuration files
-    export _PBENCH_SERVER_CONFIG=$_testopt/lib/config/pbench-server.cfg
-    export LOGSDIR=$_testdir_local/logs
+    export _PBENCH_SERVER_CONFIG=${_testopt}/lib/config/pbench-server.cfg
+    export LOGSDIR=${_testdir_local}/logs
 
     # The activate invocations are supposed to work without
     # _PBENCH_SERVER_CONFIG being set, so they do *not* use the global
@@ -281,8 +284,8 @@ function _setup_state {
     # tree to isolate any possible changes to the original source.  The activate
     # script copies it to its "final" resting place.
 
-    _state_config="${_tdir}/state/${1}.config/pbench-server.cfg"
-    if [ ! -e ${_state_config} ]; then
+    local _state_config="${_tdir}/state/${1}.config/pbench-server.cfg"
+    if [[ ! -e ${_state_config} ]]; then
         _state_config="${_tdir}/state/config/pbench-server.cfg"
     else
         # the testcase-specific config file includes the global state config file
@@ -297,55 +300,55 @@ function _setup_state {
     cat ${_state_config}                   >> ${_testtmp}/pbench-server.cfg
 
     # Activate the main pbench server.
-    echo "$_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
-    $_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
-    rc=$?
+    echo "${_testopt}/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> ${_testactout}
+    ${_testopt}/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> ${_testactout}
+    local rc=${?}
     rm ${_testtmp}/pbench-server.cfg
-    if [ $rc == 0 ] ;then
+    if [[ ${rc} == 0 ]]; then
         # This script uses the copied config file to do the rest.
-        echo "$_testopt/bin/pbench-server-activate ${_PBENCH_SERVER_CONFIG}" >> $_testactout
-        $_testopt/bin/pbench-server-activate ${_PBENCH_SERVER_CONFIG} >> $_testactout
-        rc=$?
-        if [ $rc == 0 ] ;then
+        echo "${_testopt}/bin/pbench-server-activate ${_PBENCH_SERVER_CONFIG}" >> ${_testactout}
+        ${_testopt}/bin/pbench-server-activate ${_PBENCH_SERVER_CONFIG} >> ${_testactout}
+        rc=${?}
+        if [[ ${rc} == 0 ]]; then
             move_out_of_maint ${_testhtml}
-            rc=$?
+            rc=${?}
         fi
     fi
-    if [ $rc -ne 0 ]; then
-        echo "ERROR: failed to properly activate the main server test environment root, \"$_testroot\"" >&2
-        cat $_testactout >&2
-        exit $rc
+    if [[ ${rc} -ne 0 ]]; then
+        echo "ERROR: failed to properly activate the main server test environment root, \"${_testroot}\"" >&2
+        cat ${_testactout} >&2
+        exit ${rc}
     fi
 
     # Up until this point, the activate scripts have been running using the
-    # mock scripts, which record their output and execution in $_testlog.
+    # mock scripts, which record their output and execution in ${_testlog}.
     # But we don't want to have every unit test inherit activation log
     # output unconditionally.  So we move the logs to a special activation
     # log file to make sure we keep it around if we need it when debugging
     # or if a unit test might require it.
-    /bin/mv $_testlog $_testactlog
-    rc=$?
-    if [ $rc -ne 0 ]; then
-        echo "ERROR: failed to rename $_testlog to $_testactlog: code $rc" >&2
-        exit $rc
+    /bin/mv ${_testlog} ${_testactlog}
+    rc=${?}
+    if [[ ${rc} -ne 0 ]]; then
+        echo "ERROR: failed to rename ${_testlog} to ${_testactlog}: code ${rc}" >&2
+        exit ${rc}
     fi
 
     # Add files for a given test
-    _state_tb=${_tdir}/state/${1}.tar.xz
-    if [ -e ${_state_tb} ]; then
-        (cd $_testroot; tar xpf $_state_tb)
-        if [[ $? -gt 0 ]]; then
-            echo "ERROR: unable to create pbench hierarchy for state $1" >&2
+    local _state_tb=${_tdir}/state/${1}.tar.xz
+    if [[ -e ${_state_tb} ]]; then
+        (cd ${_testroot}; tar xpf ${_state_tb})
+        if [[ ${?} -gt 0 ]]; then
+            echo "ERROR: unable to create pbench hierarchy for state ${1}" >&2
             exit 1
         fi
     fi
 
     # Run per-test state setup
-    _state_setup=${_tdir}/state/${1}.setup
-    if [ -f ${_state_setup} ]; then
-        (cd $_testroot; $_state_setup)
-        if [[ $? -gt 0 ]]; then
-            echo "ERROR: unable to run per-test state setup for $1" >&2
+    local _state_setup=${_tdir}/state/${1}.setup
+    if [[ -f ${_state_setup} ]]; then
+        (cd ${_testroot}; ${_state_setup})
+        if [[ ${?} -gt 0 ]]; then
+            echo "ERROR: unable to run per-test state setup for ${1}" >&2
             exit 1
         fi
     fi
@@ -353,35 +356,35 @@ function _setup_state {
 
 function _run_test {
     # What it takes to run one test
-    testname=$1
-    cmd=$2
+    local testname=${1}
+    local cmd=${2}
     shift 2
 
     export _testroot="${_testbase}/${testname}"
-    mkdir -p $_testroot
-    if [[ ! -d $_testroot ]]; then
-        echo "ERROR: failed to create test root directory, \"$_testroot\"" >&2
+    mkdir -p ${_testroot}
+    if [[ ! -d ${_testroot} ]]; then
+        echo "ERROR: failed to create test root directory, \"${_testroot}\"" >&2
         exit 1
     fi
-    rm -rf $_testroot/*
-    if [[ $? -gt 0 ]]; then
-        echo "ERROR: failed to empty test root directory, \"$_testroot\"" >&2
+    rm -rf ${_testroot}/*
+    if [[ ${?} -gt 0 ]]; then
+        echo "ERROR: failed to empty test root directory, \"${_testroot}\"" >&2
         exit 1
     fi
 
-    export _testdur=$_testroot/result.duration
-    export _testres=$_testroot/result.txt
-    export _testout=$_testroot/output.txt
-    export _testdiff=$_testroot/output.diff
-    export _testactout=$_testroot/actoutput.txt
-    export _testactlog=$_testroot/test-activation-execution.log
-    export _testlog=$_testroot/test-execution.log
-    export _testdir=$_testroot/pbench
-    export _testdir_local=$_testroot/pbench-local
-    export _testtmp=$_testroot/tmp
-    export TMPDIR=$_testtmp
-    export _testhtml=$_testroot/var-www-html
-    export _testopt=$_testroot/opt/pbench-server
+    export _testdur=${_testroot}/result.duration
+    export _testres=${_testroot}/result.txt
+    export _testout=${_testroot}/output.txt
+    export _testdiff=${_testroot}/output.diff
+    export _testactout=${_testroot}/actoutput.txt
+    export _testactlog=${_testroot}/test-activation-execution.log
+    export _testlog=${_testroot}/test-execution.log
+    export _testdir=${_testroot}/pbench
+    export _testdir_local=${_testroot}/pbench-local
+    export _testtmp=${_testroot}/tmp
+    export TMPDIR=${_testtmp}
+    export _testhtml=${_testroot}/var-www-html
+    export _testopt=${_testroot}/opt/pbench-server
 
     _setup_state ${testname}
     # echo ${testname}: ${cmd}
@@ -401,11 +404,11 @@ function _reset_state {
     export PATH=${_orig_PATH}
 
     # Run per-test state reset
-    _state_reset=$_tdir/state/${1}.reset
-    if [ -f ${_state_reset} ]; then
-        (cd $_testroot; $_state_reset)
-        if [[ $? -gt 0 ]]; then
-            echo "ERROR: unable to run per-test state reset for $1" >&2
+    local _state_reset=${_tdir}/state/${1}.reset
+    if [[ -f ${_state_reset} ]]; then
+        (cd ${_testroot}; ${_state_reset})
+        if [[ ${?} -gt 0 ]]; then
+            echo "ERROR: unable to run per-test state reset for ${1}" >&2
             exit 1
         fi
     fi
@@ -415,11 +418,11 @@ function _reset_state {
 
     rm -f ${_testroot}/agent-profile
     rm -f ${_testopt}/lib/config/state-pbench-server.cfg
-    rm -f $_testactout
-    rm -f $_testlog
-    rm -f $_testactlog
-    rm -rf $_testdir
-    if [[ -d $_testdir ]]; then
+    rm -f ${_testactout}
+    rm -f ${_testlog}
+    rm -f ${_testactlog}
+    rm -rf ${_testdir}
+    if [[ -d ${_testdir} ]]; then
         echo "ERROR: unable to remove pbench hierarchy" >&2
         exit 1
     fi
@@ -428,18 +431,18 @@ function _reset_state {
         echo "ERROR: unable to remove pbench-local hierarchy" >&2
         exit 1
     fi
-    rm -rf $_testtmp
-    if [[ -d $_testtmp ]]; then
+    rm -rf ${_testtmp}
+    if [[ -d ${_testtmp} ]]; then
         echo "ERROR: unable to remove tmp hierarchy" >&2
         exit 1
     fi
-    rm -rf $_testhtml
-    if [[ -d $_testhtml ]]; then
+    rm -rf ${_testhtml}
+    if [[ -d ${_testhtml} ]]; then
         echo "ERROR: unable to remove var-www-html hierarchy" >&2
         exit 1
     fi
-    rm -rf $_testroot/opt
-    if [[ -d $_testroot/opt ]]; then
+    rm -rf ${_testroot}/opt
+    if [[ -d ${_testroot}/opt ]]; then
         echo "ERROR: unable to remove opt hierarchy" >&2
         exit 1
     fi
@@ -534,7 +537,7 @@ declare -A cmds=(
     # Test missing satellite archive
     [test-32]="_run pbench-sync-satellite satellite-noarchive"
 )
-all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\+\)-\([0-9]\+\)/\1.\2/')
+all_tests_sorted=$(for x in ${!cmds[@]}; do echo ${x}; done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\+\)-\([0-9]\+\)/\1.\2/')
 
 # Verify each test has a gold file and each gold file has a test by creating
 # two files containing the lists and "diff"ing them.
@@ -549,8 +552,8 @@ rm -f ${_testbase}/gold_directory.lis ${_testbase}/unittests.lis
 ${_tdir}/state/sanity-check || exit ${?}
 
 mode="serial"
-if [[ -n "$PBENCH_UNITTEST_SERVER_MODE" ]]; then
-    mode="$PBENCH_UNITTEST_SERVER_MODE"
+if [[ -n "${PBENCH_UNITTEST_SERVER_MODE}" ]]; then
+    mode="${PBENCH_UNITTEST_SERVER_MODE}"
 fi
 case $1 in
     --serial)
@@ -562,58 +565,59 @@ case $1 in
         mode="parallel"
         ;;
     --*)
-        printf "Bad argument $1\n" >&2
+        printf "Bad argument ${1}\n" >&2
         exit 1
         ;;
 esac
-if [[ "$mode" != "serial" && "$mode" != "parallel" ]]; then
-    printf "Bad server unit test mode \"$mode\", choose either 'serial' or 'parallel'\n" >&2
+if [[ "${mode}" != "serial" && "${mode}" != "parallel" ]]; then
+    printf "Bad server unit test mode \"${mode}\", choose either 'serial' or 'parallel'\n" >&2
     exit 1
 fi
 
-test_args=$*
-if [ -z "$test_args" ] ;then
+test_args=${*}
+if [[ -z "${test_args}" ]]; then
     # No tests given, run them all in sorted order
-    tests=$all_tests_sorted
+    tests=${all_tests_sorted}
 else
     tests=""
-    for test_arg in $test_args ;do
+    for test_arg in ${test_args}; do
         let found=0
-        for test_name in $all_tests_sorted; do
-            case $test_arg in
+        for test_name in ${all_tests_sorted}; do
+            case ${test_arg} in
             test-*)
                 ;;
             *)
-                test_arg="test-$test_arg"
+                test_arg="test-${test_arg}"
                 ;;
             esac
-            case $test_arg in
+            case ${test_arg} in
             *\.)
-                # if $test_arg ends in "." use as a prefix
-                if [[ "$test_name" =~ "$test_arg" ]]; then
-                    tests="$tests $test_name"
+                # if ${test_arg} ends in "." use as a prefix
+                if [[ "${test_name}" =~ "${test_arg}" ]]; then
+                    tests="${tests} ${test_name}"
                     let found=found+1
                 fi
                 ;;
             *)
-                # if $test_arg does not end in "." use as a full test name
-                if [[ "$test_name" = "$test_arg" ]]; then
-                    tests="$tests $test_name"
+                # if ${test_arg} does not end in "." use as a full test name
+                if [[ "${test_name}" = "${test_arg}" ]]; then
+                    tests="${tests} ${test_name}"
                     let found=found+1
                     break
                 fi
                 ;;
             esac
         done
-        if [ $found -eq 0 ]; then
-            printf "Unknown test $test_arg, skipping ...\n" >&2
+        if [[ ${found} -eq 0 ]]; then
+            printf "Unknown test ${test_arg}, skipping ...\n" >&2
         fi
     done
 fi
 
 function report_test_result {
-    testname=$1
-    pass_or_fail=$(cat ${_testbase}/${testname}/result.txt)
+    local testname=${1}
+    local res
+    local pass_or_fail=$(cat ${_testbase}/${testname}/result.txt)
     if [[ ${pass_or_fail} == "PASS" ]]; then
         echo "${pass_or_fail} - ${testname} ($(cat ${_testbase}/${testname}/result.duration))"
         rm ${_testbase}/${testname}/result.txt
@@ -637,36 +641,36 @@ function report_test_result {
 
 declare -A pids
 
-trap "kill -KILL -$$" INT TERM QUIT
+trap "kill -KILL -${$}" INT TERM QUIT
 
 let count=0
 let failures=0
-for testname in $tests ;do
+for testname in ${tests}; do
     cmd=${cmds[$testname]}
-    if [ -z "$cmd" ]; then
+    if [[ -z "${cmd}" ]]; then
         printf "Unknown test - Logic bomb!: \"${testname}\"\n" >&2
         continue
     fi
     let count=count+1
-    if [[ $mode == "parallel" ]]; then
+    if [[ ${mode} == "parallel" ]]; then
         _run_test ${testname} ${cmd} &
         pids[${testname}]=${!}
     else
         _run_test ${testname} ${cmd}
         report_test_result ${testname}
-        if [[ $? -ne 0 ]]; then
+        if [[ ${?} -ne 0 ]]; then
             let failures=${failures}+1
         fi
     fi
 done
-if [ $count -eq 0 ]; then
+if [[ ${count} -eq 0 ]]; then
     printf "No tests run!\n" >&2
     let failures=1
-elif [[ $mode == "parallel" ]]; then
-    for testname in $tests ;do
+elif [[ ${mode} == "parallel" ]]; then
+    for testname in ${tests}; do
         wait ${pids[${testname}]} > /dev/null 2>&1
         report_test_result ${testname}
-        if [[ $? -ne 0 ]]; then
+        if [[ ${?} -ne 0 ]]; then
             let failures=${failures}+1
         fi
     done
@@ -674,6 +678,6 @@ fi
 
 # Attempt to remove test directory entirely; if we fail, ignore it as it
 # just means there are output files present for failed tests.
-rmdir $_testbase > /dev/null 2>&1
+rmdir ${_testbase} > /dev/null 2>&1
 
-exit $failures
+exit ${failures}
