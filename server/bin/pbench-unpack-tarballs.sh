@@ -48,7 +48,7 @@ if [[ "${BUCKET}" == "none" ]]; then
     lowerbound=0
     upperbound=""
 else
-    lowerbound=$(getconf.py lowerbound pbench-unpack-tarballs/${BUCKET})
+    lowerbound=$(pbench-server-config lowerbound pbench-unpack-tarballs/${BUCKET})
     if [[ -z "${lowerbound}" ]]; then
         lb_arg=""
         lowerbound=0
@@ -57,7 +57,7 @@ else
         lowerbound=$(( ${lowerbound} * 1024 * 1024 ))
         lb_arg="-size +$(( ${lowerbound} - 1 ))c"
     fi
-    upperbound=$(getconf.py upperbound pbench-unpack-tarballs/${BUCKET})
+    upperbound=$(pbench-server-config upperbound pbench-unpack-tarballs/${BUCKET})
     if [[ -z "${upperbound}" ]]; then
         ub_arg=""
     else
@@ -251,8 +251,8 @@ function do_work() {
         # They may also store a user option in the metadata log.
         # We check for both of these here (n.b. if nothing is found
         # they are going to be empty strings):
-        prefix=$(getconf.py -C ${INCOMING}/${hostname}/${resultname}/metadata.log prefix run)
-        user=$(getconf.py -C ${INCOMING}/${hostname}/${resultname}/metadata.log user run)
+        prefix=$(pbench-server-config -C ${INCOMING}/${hostname}/${resultname}/metadata.log prefix run)
+        user=$(pbench-server-config -C ${INCOMING}/${hostname}/${resultname}/metadata.log user run)
 
         # if non-empty and does not contain a trailing slash, add one
         if [[ ! -z "${prefix}" && "${prefix%/}" = "${prefix}" ]]; then

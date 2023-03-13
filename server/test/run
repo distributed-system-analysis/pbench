@@ -4,9 +4,9 @@
 # platforms (well, mostly matches on all platforms).
 umask 0002
 
-# Don't allow an external _PBENCH_SERVER_CONFIG environment variable to affect the operation
-# of the unit tests since the unit tests themselves use getconf.py which looks
-# for that envinronment variable as input.
+# Don't allow an external _PBENCH_SERVER_CONFIG environment variable to affect
+# the operation of the unit tests since the unit tests themselves use pbench-
+# config which looks for that envinronment variable as input.
 unset _PBENCH_SERVER_CONFIG
 
 # Ensure we always use the same locale for the unit tests.
@@ -233,7 +233,7 @@ function _setup_state {
     let res=res+${?}
     mkdir -p ${_testopt}/bin
     let res=res+${?}
-    cp -a ${_bdir}/{getconf.py,pbench*} ${_testopt}/bin
+    cp -a ${_bdir}/pbench* ${_testopt}/bin
     let res=res+${?}
     mkdir -p ${_testopt}/html/static/{js,css}/v0.{2,3}
     let res=res+${?}

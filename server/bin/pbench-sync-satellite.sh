@@ -29,17 +29,17 @@ shift 1
 
 log_init ${PROG}
 
-dest=$(getconf.py pbench-receive-dir-prefix pbench-server)-002
+dest=$(pbench-server-config pbench-receive-dir-prefix pbench-server)-002
 test -d "${dest}" || log_exit "Missing \"pbench-receive-dir-prefix\" configuration in \"pbench-server\"" 2
 
 test -n "${satellite_config}" || log_exit "Missing satellite configuration argument" 2
-remote_prefix=$(getconf.py satellite-prefix ${satellite_config})
+remote_prefix=$(pbench-server-config satellite-prefix ${satellite_config})
 test -n "${remote_prefix}" || log_exit "Missing \"satellite-prefix\" configuration in \"${satellite_config}\"" 2
-remote_host=$(getconf.py satellite-host ${satellite_config})
+remote_host=$(pbench-server-config satellite-host ${satellite_config})
 test -n "${remote_host}" || log_exit "Missing \"satellite-host\" configuration in \"${satellite_config}\"" 2
-remote_opt=$(getconf.py satellite-opt $satellite_config)
+remote_opt=$(pbench-server-config satellite-opt $satellite_config)
 test -n "${remote_opt}" || log_exit "Missing \"satellite-opt\" configuration in \"${satellite_config}\"" 2
-remote_archive=$(getconf.py satellite-archive $satellite_config)
+remote_archive=$(pbench-server-config satellite-archive $satellite_config)
 test -n "${remote_archive}" || log_exit "Missing \"satellite-archive\" configuration in \"${satellite_config}\"" 2
 
 tmp=$(get-tempdir-name ${PROG})
