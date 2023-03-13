@@ -16,7 +16,7 @@ alias pbench=$(git rev-parse --show-toplevel)/contrib/containerized-pbench/pbenc
 
 FIOTEST=${PWD}/fiotest
 export PB_AGENT_PODMAN_OPTIONS="--pull newer -v ${FIOTEST}:/fiotest:z"
-export PB_AGENT_IMAGE_NAME=images.paas.redhat.com/pbench/pbench-agent-all-fedora-36:3320
+export PB_AGENT_IMAGE_NAME=quay.io/pbench/pbench-agent-all-fedora-36:main
 
 mkdir -p ${FIOTEST}
 
