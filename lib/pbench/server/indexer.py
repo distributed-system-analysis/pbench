@@ -4083,10 +4083,6 @@ class IdxContext:
                     " contain a period ('.')".format(self.idx_prefix)
                 )
 
-        # We expose the pbench.server module's internal _time() method here
-        # for convenience, allowing us to more easily mock out "time" for unit
-        # test environments.
-        self.time = pbench.server._time
         self.gethostname = socket.gethostname
         self.getpid = os.getpid
         self.getgid = os.getgid

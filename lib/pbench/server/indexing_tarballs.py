@@ -280,7 +280,7 @@ class Index:
         # We use the "start" report ID as the tracking ID for all indexed
         # documents.
         try:
-            tracking_id = self.report.post_status(tstos(idxctx.time()), "start")
+            tracking_id = self.report.post_status(tstos(), "start")
         except SigTermException:
             # Re-raise a SIGTERM to avoid it being lumped in with general
             # exception handling below.
@@ -705,9 +705,7 @@ class Index:
                             for line in sorted(sfp):
                                 print(line.strip(), file=fp)
                 try:
-                    self.report.post_status(
-                        tstos(idxctx.time()), "status", report_fname
-                    )
+                    self.report.post_status(tstos(), "status", report_fname)
                 except SigTermException:
                     # Re-raise a SIGTERM to avoid it being lumped in with general
                     # exception handling below.

@@ -24,7 +24,7 @@ import sys
 
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
-import pbench.server
+from pbench.server import PbenchServerConfig, UTC, utcnow
 from pbench.server.database import init_db
 from pbench.server.database.models.datasets import Dataset, DatasetError, Metadata
 from pbench.server.utils import get_tarball_md5
@@ -146,7 +146,7 @@ def gen_reindex_list(archive, oldest_dt, newest_dt):
                             int(match.group(1)),
                             int(match.group(2)),
                             int(match.group(3)),
-                        )
+                        ).replace(tzinfo=UTC)
                     except ValueError:
                         continue
                     if tb_dt < oldest_dt or newest_dt < tb_dt:
@@ -166,7 +166,7 @@ def main(options):
         return 1
 
     try:
-        config = pbench.server.PbenchServerConfig.create(options.cfg_name)
+        config = PbenchServerConfig.create(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2
@@ -196,8 +196,8 @@ def main(options):
 
     _fmt = "%Y-%m-%d"
     try:
-        oldest_dt = datetime.strptime(options.oldest, _fmt)
-        newest_dt = datetime.strptime(options.newest, _fmt)
+        oldest_dt = datetime.strptime(options.oldest, _fmt).replace(tzinfo=UTC)
+        newest_dt = datetime.strptime(options.newest, _fmt).replace(tzinfo=UTC)
     except Exception as exc:
         print(
             f"Invalid time range, {options.oldest} to {options.newest}, "
@@ -213,19 +213,19 @@ def main(options):
     print(f"Re-indexing tar balls in the range {oldest_dt} to {newest_dt}")
 
     actions = []
-    start = pbench.server._time()
+    start = utcnow()
     for _val in gen_reindex_list(archive_p, oldest_dt, newest_dt):
         controller_name, tb_name = _val
         act_set = reindex(
             controller_name, tb_name, archive_p, incoming_p, options.dry_run
         )
         actions.append(act_set)
-    end = pbench.server._time()
+    end = utcnow()
 
     for act_set in sorted(actions):
         print(f"{act_set!r}")
 
-    print(f"Run-time: {start} {end} {end - start}")
+    print(f"Run-time: {start} {end} {(end - start).total_seconds()}")
     return 0
 
 
