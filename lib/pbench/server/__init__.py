@@ -52,16 +52,30 @@ class SimpleUTC(tzinfo):
         return timedelta(0)
 
 
+UTC = SimpleUTC()
+
+
+def utcnow(ts: float = None) -> datetime:
+    """Convenience method for obtaining a datetime object with a UTC time zone.
+
+    Args:
+        ts : Optional seconds-since-the-epoch time stamp to use instead of the
+            current time
+
+    Returns:
+        A datetime object with a UTC time zone.
+    """
+    tv = _time() if ts is None else ts
+    return datetime.utcfromtimestamp(tv).replace(tzinfo=UTC)
+
+
 def tstos(ts: float = None) -> str:
     """Convert a floating point seconds from the Epoch into a string.
 
     Returns:
         A string representation of a datetime object with a UTC time zone.
     """
-    if ts is None:
-        ts = _time()
-    dt = datetime.utcfromtimestamp(ts).replace(tzinfo=SimpleUTC())
-    return dt.strftime("%Y-%m-%dT%H:%M:%S-%Z")
+    return utcnow(ts).strftime("%Y-%m-%dT%H:%M:%S-%Z")
 
 
 def get_resolved_dir(
@@ -111,7 +125,7 @@ def timestamp() -> str:
         The current timestamp formatted as a string of the following form:
             <YYYY>-<MM>-<DD>T<hh>:<mm>:<ss>-<TZ>
     """
-    return tstos(_time())
+    return tstos()
 
 
 class PbenchServerConfig(PbenchConfig):
