@@ -257,7 +257,8 @@ class PbenchConfig(object):
             self.LIBDIR = self.conf.get("pbench-server", "lib-dir")
             if not os.path.isdir(self.LIBDIR):
                 raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))  # noqa:E701
-            # the scripts may use this to send status messages
+            # Cronjobs use this value for the MAILTO setting, ensure we have it
+            # in the configuration.
             self.conf.get("pbench-server", "mailto")
         except (NoOptionError, NoSectionError) as exc:
             raise BadConfig(str(exc))
