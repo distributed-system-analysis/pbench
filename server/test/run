@@ -13,26 +13,24 @@ unset _PBENCH_SERVER_CONFIG
 export LANG=C
 export LC_ALL=C
 
-export _server=$(dirname $(dirname $(realpath ${0})))
-export _bdir=${_server}/bin
-test -d "${_bdir}" || exit 1
-export _ldir=${_server}/lib
-test -d "${_ldir}" || exit 1
-export _tdir=${_server}/test
-test -d "${_tdir}" || exit 1
-_webs=$(realpath -e ${_server}/../web-server)
-if [[ ! -d "${_webs}" ]]; then
-    echo "ERROR: failed to resolve legacy web-server directory, \"${_webs}\"" >&2
+function _log_exit {
+    echo "${1}" >&2
     exit 1
-fi
-export _webs
+}
+
+export _server=$(dirname $(dirname $(realpath "${0}")))
+export _bdir=${_server}/bin
+test -d "${_bdir}" || _log_exit "ERROR: Missing \"${_bdir}\""
+export _ldir=${_server}/lib
+test -d "${_ldir}" || _log_exit "ERROR: Missing \"${_ldir}\""
+export _tdir=${_server}/test
+test -d "${_tdir}" || _log_exit "ERROR: Missing \"${_tdir}\""
+export _webs=$(dirname "${_server}")/web-server
+test -d "${_webs}" || _log_exit "ERROR: Missing \"${_webs}\""
 export _testbase=/var/tmp/pbench-test-server
 rm -rf ${_testbase}
 mkdir ${_testbase}
-if [[ ! -d ${_testbase} ]]; then
-    echo "ERROR: failed to create test base directory, \"${_testbase}\"" >&2
-    exit 1
-fi
+test -d ${_testbase} || _log_exit "ERROR: Failed to create test base directory, \"${_testbase}\""
 
 alias logger="logger --no-act --stderr"
 
@@ -399,14 +397,14 @@ function _run_test {
     export _testopt=${_testroot}/opt/pbench-server
 
     _setup_state ${testname}
-    if [[ $? -gt 0 ]]; then
-        echo "ERROR: failed to setup test state for \"$testname\"" >&2
+    if [[ ${?} -gt 0 ]]; then
+        echo "ERROR: failed to setup test state for \"${testname}\"" >&2
         exit 1
     fi
 
     # echo ${testname}: ${cmd}
     SECONDS=0
-    ${cmd} $*
+    ${cmd} ${*}
     echo "${SECONDS} secs" > ${_testdur}
 
     _audit_server
