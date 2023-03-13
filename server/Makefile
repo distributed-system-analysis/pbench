@@ -21,7 +21,7 @@ binbase = \
 	pbench-base.sh
 
 # pbench-server-activate-create-crontab is needed by the ansible installation
-# playbook.  pbench-remote* are needed by pbench-sync-satellite.
+# playbook.
 bintools = \
 	pbench-trampoline\
 	pbench-server-activate-create-crontab\
