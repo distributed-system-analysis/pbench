@@ -39,11 +39,11 @@ fi
 # Check that all required directories specified in the environment exist.
 test -d "${ARCHIVE}" || doexit "Bad ARCHIVE=${ARCHIVE}"
 test -d "${LOGSDIR}" || doexit "Bad LOGSDIR=${LOGSDIR}"
-install_dir=$(getconf.py install-dir pbench-server)
+install_dir=$(pbench-server-config install-dir pbench-server)
 test -d "${install_dir}" || doexit "Bad install_dir=${install_dir}"
 
 # If a backup directory is specified, it had better exist.
-backup_dir=$(getconf.py pbench-backup-dir pbench-server)
+backup_dir=$(pbench-server-config pbench-backup-dir pbench-server)
 test -z "${backup_dir}" -o -d "${backup_dir}" || doexit "Bad backup_dir=${backup_dir}"
 
 log_init ${PROG}
@@ -54,26 +54,26 @@ if [[ ${sts} != 0 ]]; then
     log_exit "${TS}: Failed: \"mkdir -p ${LOGSDIR}/${PROG}\", status ${sts}"
 fi
 
-linkdestlist=$(getconf.py -l dispatch-states pbench-server)
+linkdestlist=$(pbench-server-config -l dispatch-states pbench-server)
 if [[ -z "${linkdestlist}" ]]; then
-    log_exit "${TS}: Failed: \"getconf.py -l dispatch-states pbench-server\"" 2
+    log_exit "${TS}: Failed: \"pbench-server-config -l dispatch-states pbench-server\"" 2
 fi
 
 # Optional "PUT API" bearer token for sending tar balls to the "new" Pbench
 # Server.
-put_token=$(getconf.py put-token pbench-server)
+put_token=$(pbench-server-config put-token pbench-server)
 if [[ -z "${put_token}" ]]; then
-    log_exit "${TS}: Failed: \"getconf.py put-token pbench-server\"" 2
+    log_exit "${TS}: Failed: \"pbench-server-config put-token pbench-server\"" 2
 fi
-agent_profile=$(getconf.py agent-profile pbench-server)
+agent_profile=$(pbench-server-config agent-profile pbench-server)
 if [[ ! -e "${agent_profile}" ]]; then
     log_exit "${TS}: Failed: PUT API token provided but no pbench-agent profile" 2
 fi
 source ${agent_profile}
 
-qdir=$(getconf.py pbench-quarantine-dir pbench-server)
+qdir=$(pbench-server-config pbench-quarantine-dir pbench-server)
 if [[ -z "${qdir}" ]]; then
-    log_exit "${TS}: Failed: \"getconf.py pbench-quarantine-dir pbench-server\"" 2
+    log_exit "${TS}: Failed: \"pbench-server-config pbench-quarantine-dir pbench-server\"" 2
 fi
 if [[ ! -d "${qdir}" ]]; then
     log_exit "${TS}: Failed: ${qdir} does not exist, or is not a directory" 2
@@ -82,9 +82,9 @@ fi
 # We are explicitly handling only version 002 data.
 version="002"
 
-receive_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
+receive_dir_prefix=$(pbench-server-config pbench-receive-dir-prefix pbench-server)
 if [[ -z "${receive_dir_prefix}" ]]; then
-    log_exit "${TS}: Failed: \"getconf.py pbench-receive-dir-prefix pbench-server\"" 2
+    log_exit "${TS}: Failed: \"pbench-server-config pbench-receive-dir-prefix pbench-server\"" 2
 fi
 receive_dir=${receive_dir_prefix}-${version}
 if [[ ! -d "${receive_dir}" ]]; then

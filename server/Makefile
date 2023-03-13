@@ -25,7 +25,7 @@ binbase = \
 bintools = \
 	pbench-trampoline\
 	pbench-server-activate-create-crontab\
-	getconf.py
+	pbench-server-config
 
 # All of these should be linked to pbench-trampoline.
 # In addition, each one has a companion (either .sh or .py)
