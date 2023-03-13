@@ -294,20 +294,23 @@ function _setup_state {
     # tree to isolate any possible changes to the original source.  The activate
     # script copies it to its "final" resting place.
 
-    local _state_config="${_tdir}/state/${1}.config/pbench-server.cfg"
-    if [[ ! -e ${_state_config} ]]; then
-        _state_config="${_tdir}/state/config/pbench-server.cfg"
-    else
-        # the testcase-specific config file includes the global state config file
-        # but under the name "state-pbench-server.cfg" to prevent conflicts. It also
-        # gets the default section below, so we have to include the install-dir line in it
-        # and delete it from the global state config file.
-        sed 1d "${_tdir}/state/config/pbench-server.cfg" > ${_testopt}/lib/config/state-pbench-server.cfg
-    fi
     > ${_testtmp}/pbench-server.cfg
     printf "[DEFAULT]\n"                   >> ${_testtmp}/pbench-server.cfg
     printf "unittest-dir = ${_testroot}\n" >> ${_testtmp}/pbench-server.cfg
-    cat ${_state_config}                   >> ${_testtmp}/pbench-server.cfg
+
+    _state_config="${_tdir}/state/${1}.config/pbench-server.cfg"
+    if [[ -e ${_state_config} ]]; then
+        # The individual test configs reference the global test config as
+        # `state-pbench-server.cfg`.  Copy the global test config into place,
+        # and then add the particular test config to final pbench-server.cfg.
+        cp ${_tdir}/state/config/pbench-server.cfg ${_testopt}/lib/config/state-pbench-server.cfg
+        cat ${_state_config} >> ${_testtmp}/pbench-server.cfg
+    else
+        # Since there is no particular test configuration, add the global test
+        # configuration to the final pbench-server.cfg without the duplicate
+        # `[DEFAULT]` header.
+        sed 1d "${_tdir}/state/config/pbench-server.cfg" >> ${_testtmp}/pbench-server.cfg
+    fi
 
     # Activate the main pbench server.
     echo "${_testopt}/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> ${_testactout}
