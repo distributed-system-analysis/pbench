@@ -153,6 +153,15 @@ const LoginForm = () => {
           </Button>
         </div>
         <NoLoginComponent />
+        <div className="orText text-center">-or-</div>
+        <div className="text-center">
+          <Button
+            variant="link"
+            onClick={() => navigate(APP_ROUTES.AUTH_SIGNUP)}
+          >
+            Sign up
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

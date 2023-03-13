@@ -49,7 +49,6 @@ export const signupFormData = [
   },
 ];
 
-
 export const passwordConstraintsText = [
   {
     label: "characters",
@@ -66,5 +65,5 @@ export const passwordConstraintsText = [
   {
     label: "1 uppercase letter",
     name: "passwordBlockLetter",
-  }
-] 
+  },
+];

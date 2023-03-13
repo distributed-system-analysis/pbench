@@ -100,7 +100,7 @@ const SignupForm = () => {
   }, [validateForm, userDetails, dispatch, endpoints]);
 
   const checkPasswordError = (password, cnfPassword) => {
-    if (password !== cnfPassword) {
+    if (cnfPassword.length > 1 && password !== cnfPassword) {
       setErrors({
         ...errors,
         passwordConfirm: "The above passwords do not match!",
@@ -157,16 +157,16 @@ const SignupForm = () => {
       </CardTitle>
       <CardBody>
         <Form>
-          {signupFormData.map((formItem, index) => {
+          {signupFormData.map((formItem) => {
             return (
               <FormGroup
-                key={index}
+                key={formItem.id}
                 label={formItem.label}
                 isRequired={formItem.isRequired}
                 fieldId={formItem.id}
               >
                 <div className="password-holder">
-                  {formItem.name === "password" ? (
+                  {["password", "passwordConfirm"].includes(formItem.name) ? (
                     <PasswordTextInput
                       isRequired={formItem.isRequired}
                       isShowPassword={showPassword}
@@ -188,7 +188,7 @@ const SignupForm = () => {
                       onChange={(val) => changeHandler(val, formItem.name)}
                     />
                   )}
-                  {formItem.name === "password" && (
+                  {["password", "passwordConfirm"].includes(formItem.name) && (
                     <Button
                       variant="control"
                       onClick={onShowPassword}
