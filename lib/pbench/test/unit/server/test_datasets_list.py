@@ -82,7 +82,7 @@ class TestDatasetsList:
                 token = get_token_func(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
-                f"{server_config.rest_uri}/datasets/list",
+                f"{server_config.rest_uri}/datasets",
                 headers=headers,
                 query_string=payload,
             )
@@ -116,7 +116,7 @@ class TestDatasetsList:
             else:
                 query["offset"] = next_offset
                 next_url = (
-                    f"http://localhost{server_config.rest_uri}/datasets/list?"
+                    f"http://localhost{server_config.rest_uri}/datasets?"
                     + urlencode_json(query)
                 )
         else:
@@ -282,7 +282,7 @@ class TestDatasetsList:
         token = get_token_func("drb")
         headers = {"authorization": f"bearer {token}"}
         response = client.get(
-            f"{server_config.rest_uri}/datasets/list?mine" "&metadata=dataset.uploaded",
+            f"{server_config.rest_uri}/datasets?mine&metadata=dataset.uploaded",
             headers=headers,
         )
         assert response.status_code == HTTPStatus.OK

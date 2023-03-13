@@ -5,6 +5,7 @@ import API from "../utils/axiosInstance";
 import { DANGER } from "assets/constants/toastConstants";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
+import { expandUriTemplate } from "../utils/helper";
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
@@ -117,8 +118,9 @@ export const updateDataset =
       const method = metaDataActions[actionType];
 
       const endpoints = getState().apiEndpoint.endpoints;
+      const uri = expandUriTemplate(endpoints, 'datasets_metadata', { dataset: dataset.resource_id });
       const response = await API.put(
-        `${endpoints?.api?.datasets_metadata}/${dataset.resource_id}`,
+        uri,
         {
           metadata: { [method]: actionValue },
         }
@@ -206,8 +208,8 @@ export const updateMultipleDataset =
         method === "delete"
           ? "Deleted!"
           : method === "save"
-          ? "Saved!"
-          : "Updated!";
+            ? "Saved!"
+            : "Updated!";
       dispatch(showToast(CONSTANTS.SUCCESS, toastMsg));
       dispatch(setSelectedRuns([]));
     } else {

@@ -22,27 +22,25 @@ class TestDatasetsContents(Commons):
     def _setup(self, client):
         super()._setup(
             cls_obj=DatasetsContents(client.config),
-            pbench_endpoint="/datasets/contents/random_md5_string1/1-default",
+            pbench_endpoint="/datasets/random_md5_string1/contents/1-default",
             elastic_endpoint="/_search",
             index_from_metadata="run-toc",
         )
 
     api_method = ApiMethod.GET
 
-    def test_with_no_index_document(self, client, server_config):
+    def test_with_no_uri_args(self, client, server_config):
         """
-        Check the DatasetsContents API when no index name is provided
+        Check the DatasetsContents API when no dataset or path is provided
         """
         # remove the last two components of the pbench_endpoint
-        incorrect_endpoint = "/".join(self.pbench_endpoint.split("/")[:-2])
+        incorrect_endpoint = "/datasets/contents/"
         response = client.get(f"{server_config.rest_uri}{incorrect_endpoint}/")
         assert response.status_code == HTTPStatus.NOT_FOUND
 
-    def test_with_incorrect_index_document(
-        self, client, server_config, pbench_drb_token
-    ):
+    def test_with_incorrect_path(self, client, server_config, pbench_drb_token):
         """
-        Check the Contents API when an incorrect index name is provided.
+        Check the Contents API when an incorrect path is provided.
         """
         incorrect_endpoint = (
             "/".join(self.pbench_endpoint.split("/")[:-1]) + "/random_md5_string2"

@@ -37,7 +37,7 @@ class TestDatasetsMetadataGet:
                 token = get_token_func(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.get(
-                f"{server_config.rest_uri}/datasets/metadata/{dataset}",
+                f"{server_config.rest_uri}/datasets/{dataset}/metadata",
                 headers=headers,
                 query_string=payload,
             )
@@ -239,7 +239,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
                 token = get_token_func(username)
                 headers = {"authorization": f"bearer {token}"}
             response = client.put(
-                f"{server_config.rest_uri}/datasets/metadata/{dataset}",
+                f"{server_config.rest_uri}/datasets/{dataset}/metadata",
                 headers=headers,
                 json=payload,
             )
@@ -272,14 +272,14 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         specified but not required.
         """
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata/drb", json={}
+            f"{server_config.rest_uri}/datasets/drb/metadata", json={}
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Missing required parameters: metadata"
 
     def test_put_no_dataset(self, client, server_config, attach_dataset):
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata/foobar",
+            f"{server_config.rest_uri}/datasets/foobar/metadata",
             json={"metadata": {"global.seen": True, "global.saved": False}},
         )
         assert response.status_code == HTTPStatus.NOT_FOUND
@@ -287,7 +287,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
 
     def test_put_bad_keys(self, client, server_config, attach_dataset):
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata/drb",
+            f"{server_config.rest_uri}/datasets/drb/metadata",
             json={
                 "metadata": {"xyzzy": "private", "what": "sup", "global.saved": True}
             },
@@ -299,7 +299,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata/drb",
+            f"{server_config.rest_uri}/datasets/drb/metadata",
             json={"metadata": {"dataset.access": "private"}},
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST

@@ -23,7 +23,7 @@ class TestDatasetsDetail(Commons):
     def _setup(self, client):
         super()._setup(
             cls_obj=DatasetsDetail(client.config),
-            pbench_endpoint="/datasets/detail/random_md5_string1",
+            pbench_endpoint="/datasets/random_md5_string1/detail",
             elastic_endpoint="/_search?ignore_unavailable=true",
             index_from_metadata="run-data",
             empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,

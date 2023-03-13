@@ -33,7 +33,7 @@ class TestDatasetsAccess:
             headers = {"authorization": f"bearer {pbench_drb_token}"}
             k = "" if target is None else f"/{target}"
             response = client.get(
-                f"{server_config.rest_uri}/datasets/inventory/{dataset_id}{k}",
+                f"{server_config.rest_uri}/datasets/{dataset_id}/inventory{k}",
                 headers=headers,
             )
             assert response.status_code == expected_status

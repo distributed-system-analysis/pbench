@@ -263,7 +263,7 @@ class TestServerSettings:
                 }
             },
         )
-        response = client.get(f"{server_config.rest_uri}/datasets/list")
+        response = client.get(f"{server_config.rest_uri}/datasets")
         assert response.status_code == HTTPStatus.SERVICE_UNAVAILABLE
         assert response.json == {
             "contact": "test@example.com",
@@ -285,13 +285,13 @@ class TestServerSettings:
             },
         )
         response = client.get(
-            f"{server_config.rest_uri}/datasets/list?owner=drb",
+            f"{server_config.rest_uri}/datasets?owner=drb",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json["total"] == 2
         response = client.put(
-            f"{server_config.rest_uri}/datasets/metadata/drb",
+            f"{server_config.rest_uri}/datasets/drb/metadata",
             headers={"authorization": f"Bearer {pbench_drb_token}"},
             json={"metadata": {"dataset.name": "Test"}},
         )
