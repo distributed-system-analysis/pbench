@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# This script is the entrypoint for the Agent containers.
+#
+# Since execution in these environments does not follow the normal login path,
+# we first execute the `agent/profile` script to set up the environment for
+# Agent commands.  Then we exec the requested command.
+
+source /opt/pbench-agent/profile
+
+exec "${@}"
