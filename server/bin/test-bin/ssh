@@ -1,16 +1,30 @@
 #! /bin/bash
 
-echo "${0##*/} $*" >> $_testlog
+echo "${0##*/} ${*}" >> ${_testlog}
 
-remote_host=$1
+remote_host=${1}
 shift 1
-if [ "${remote_host}" = "pbench-satellite.example.com" ] ;then
-    # Unset the _PBENCH_SERVER_CONFIG environment variable to prevent the "local" server
-    # environment from leaking into the "remote" server environment.
-    unset _PBENCH_SERVER_CONFIG
-    $*
-elif [ "${remote_host}" == "pbench-satellite-error.example.com" ] ;then
+
+if [[ "${remote_host}" == "pbench-satellite-error.example.com" ]]; then
     echo "ssh: connect to host ${remote_host}: No route to host" >&2
     exit 1
 fi
-exit 0
+if [[ "${remote_host}" == "pbench-satellite.example.com" ]]; then
+    cmd=$(basename "${1}")
+    if [[ "${cmd}" == "pbench-sync-package-tarballs" ]]; then
+        pushd ${_testroot}/pbench-sync-package-tarballs > /dev/null 2>&1
+        if [[ ${?} -ne 0 ]]; then
+            # No tar balls to package up.
+            exit 0
+        fi
+        # Mock a successful tar command the way `pbench-sync-package-tarbslls`
+        # does it, though the names are not sorted.
+        tar cf - *
+        res=${?}
+        popd > /dev/null 2>&1
+        rm -rf ${_testroot}/pbench-sync-package-tarballs
+    else
+        res=0
+    fi
+fi
+exit ${res}

@@ -21,12 +21,10 @@ binbase = \
 	pbench-base.sh
 
 # pbench-server-activate-create-crontab is needed by the ansible installation
-# playbook.  pbench-remote* and pbench-satellite-state-change.py are needed on
-# satellites only, but we install them everywhere.
+# playbook.
 bintools = \
 	pbench-trampoline\
 	pbench-server-activate-create-crontab\
-	pbench-satellite-state-change.py\
 	getconf.py
 
 # All of these should be linked to pbench-trampoline.
@@ -38,9 +36,6 @@ binlinks = \
 	pbench-clean-up-dangling-results-links\
 	pbench-cull-unpacked-tarballs\
 	pbench-dispatch\
-	pbench-satellite-cleanup\
-	pbench-satellite-state-change\
-	pbench-sync-package-tarballs\
 	pbench-sync-satellite\
 	pbench-tarball-stats\
 	pbench-unpack-tarballs\
