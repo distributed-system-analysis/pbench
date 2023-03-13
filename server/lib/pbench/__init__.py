@@ -209,9 +209,29 @@ class BadConfig(Exception):
 
 
 class PbenchConfig(object):
-    """A simple class to wrap a ConfigParser object using the configtools
-    style of multiple configuration files.
+    """A simple class to wrap a ConfigParser object using the configtools style
+    of multiple configuration files.
     """
+
+    # These fields are `export`d for `bash` command environments.
+    export_list = frozenset(
+        (
+            "ARCHIVE",
+            "BINDIR",
+            "COMMIT_ID",
+            "INCOMING",
+            "LIBDIR",
+            "LINKDIRS",
+            "LOGSDIR",
+            "PBENCH_ENV",
+            "RESULTS",
+            "TMP",
+            "TOP",
+            "TS",
+            "TZ",
+            "USERS",
+        )
+    )
 
     def __init__(self, cfg_name):
         # Enumerate the list of files
@@ -237,8 +257,9 @@ class PbenchConfig(object):
             self.LIBDIR = self.conf.get("pbench-server", "lib-dir")
             if not os.path.isdir(self.LIBDIR):
                 raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))  # noqa:E701
-            # the scripts may use this to send status messages
-            self.mail_recipients = self.conf.get("pbench-server", "mailto")
+            # Cronjobs use this value for the MAILTO setting, ensure we have it
+            # in the configuration.
+            self.conf.get("pbench-server", "mailto")
         except (NoOptionError, NoSectionError) as exc:
             raise BadConfig(str(exc))
         else:

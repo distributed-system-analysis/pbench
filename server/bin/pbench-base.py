@@ -54,15 +54,7 @@ except BadConfig as e:
     print("{}: {} (config file {})".format(_prog, e, config_name), file=sys.stderr)
     sys.exit(1)
 
-# Exclude the "files" and "conf" attributes from being exported
-vars = sorted(
-    [
-        key
-        for key in config.__dict__.keys()
-        if key not in ("files", "conf", "timestamp", "_unittests", "get")
-    ]
-)
-for att in vars:
+for att in config.export_list:
     try:
         os.environ[att] = getattr(config, att)
     except AttributeError:
