@@ -30,15 +30,15 @@ printf -- "\n\n\n"
 export PBENCH_UNITTEST_SERVER_MODE=parallel
 
 # List of environments to run.
-envs="server/bin"
+envs="server/test"
 
 for env in ${envs}; do
-    if [[ ! -x ${progdir}/${env}/unittests ]]; then
+    if [[ ! -x ${progdir}/${env}/run ]]; then
         printf -- "Ignoring unrecognized environment, ${env}\n" >&2
         continue
     fi
     env_name="$(basename ${env})"
-    ${progdir}/${env}/unittests > /var/tmp/env-${env_name}.out 2>&1 & echo ${!} > /var/tmp/env-${env_name}.pid
+    ${progdir}/${env}/run > /var/tmp/env-${env_name}.out 2>&1 & echo ${!} > /var/tmp/env-${env_name}.pid
 done
 
 function tail_and_wait {
