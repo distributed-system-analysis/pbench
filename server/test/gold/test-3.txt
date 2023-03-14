@@ -8,9 +8,6 @@ pbench-unpack-tarballs-small: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbe
 +++ Running pbench-unpack-tarballs none re-unpack
 pbench-re-unpack-tarballs: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench/public_html/results
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-clean-up-dangling-results-links
-pbench-clean-up-dangling-results-links: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench/public_html/results
---- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-cull-unpacked-tarballs
 --- Finished pbench-cull-unpacked-tarballs (status=4)
 +++ Running pbench-tarball-stats
@@ -41,8 +38,6 @@ lrwxrwxrwx         59 users -> /var/tmp/pbench-test-server/test-3/pbench/public_
 /var/tmp/pbench-test-server/test-3/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-3/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/no-results
@@ -67,7 +62,7 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-3/pbench-local)
-drwxrwxr-x          - archive.backup
+drwxrwxr-x          - backup
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        223 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
@@ -85,7 +80,9 @@ drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs

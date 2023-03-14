@@ -1,8 +1,8 @@
-+++ Running echo audit archive hierarchy
-audit archive hierarchy
++++ Running echo audit hierarchy
+audit hierarchy
 --- Finished echo (status=0)
 +++ Running unit test audit
---- Finished unit test audit (status=4)
+--- Finished unit test audit (status=3)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-20/var-www-html)
 lrwxrwxrwx         63 incoming -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
@@ -211,14 +211,16 @@ drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        169 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
--rw-rw-r--       4537 logs/pbench-audit-server/report.latest.txt
+-rw-rw-r--       2382 logs/pbench-audit-server/report.latest.txt
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs
@@ -229,51 +231,6 @@ run-1970-01-01T00:00:42-UTC(unit-test) - audit found problems, please review /va
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-audit-server/report.latest.txt
 
-start-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
-
-Bad Controllers:
-	-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt
-	-rw-rw-r--          0 Mon Sep 24 14:38:32.0000000000 2018 wayward-file.txt
-
-Controller: controller.empty
-	* No state directories found in this controller directory.
-	* No tar ball files found in this controller directory.
-
-Controller: controller.unexp_state_dirs
-	* Unexpected state directories found in this controller directory:
-	  ++++++++++
-	  an-unexpected
-	  unexpected
-	  ----------
-	* No tar ball files found in this controller directory.
-
-Controller: controller00
-	* Unexpected symlinks in controller directory:
-	  ++++++++++
-	  an-unexpected-symlink -> /dev/null
-	  unexpected-symlink -> /dev/null
-	  ----------
-	* Unexpected files in controller directory:
-	  ++++++++++
-	  .prefix
-	  unexpected-file
-	  ----------
-	* Prefix directory, .prefix, is not a directory!
-
-Controller: controller01
-	* Unexpected file system objects in .prefix directory:
-	  ++++++++++
-	  a-unexpected
-	  unexpected
-	  ----------
-	* Wrong prefix file names found in /.prefix directory:
-	  ++++++++++
-	  prefix.DUPLICATE__NAME.1.benchmark-result-medium_1970.01.01T00.00.00.tar.xz
-	  prefix.benchmark-result-medium_1970.01.01T00.00.00.tar.xz
-	  ----------
-
-end-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
-
 
 start-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
 
@@ -282,19 +239,15 @@ Unexpected files found:
 	unexpected-file
 	unexpected-symlink
 
-Controllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:
-	controller.mia
-
 Controllers which are empty:
 	controller.empty
+	controller.mia
 
 Controllers which have unexpected objects:
 	controller00
 	controller02
 
 Incoming issues for controller: controller02
-	Invalid tar ball directories (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):
-		not-in-archive_1970.01.01T00.00.00
 	Empty tar ball directories:
 		benchmark-result-small_1970.01.01T00.00.00
 	Invalid unpacking directories (missing tar ball):
@@ -314,11 +267,9 @@ Unexpected files found:
 	unexpected-file
 	unexpected-symlink
 
-Controllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:
-	controller.mia
-
 Controllers which are empty:
 	controller.empty
+	controller.mia
 
 Controllers which have unexpected objects:
 	controller01
@@ -328,18 +279,12 @@ Results issues for controller: controller00
 		orphaned-prefix
 
 Results issues for controller: controller01
-	Tar ball links with unused prefix files:
-		tarball-unused-prefix-file_1970.01.01T00.00.00
-	Tar ball links with missing prefix files:
-		missing/prefix/tarball-missing-prefix-file_1970.01.01T00.00.00
-	Tar ball links with bad prefix files:
-		good/prefix/tarball-bad-prefix-file_1970.01.01T00.00.00
 	Tar ball links with bad prefixes:
 		bad/prefix/tarball-bad-prefix_1970.01.01T00.00.00
+		good/prefix/tarball-bad-prefix-file_1970.01.01T00.00.00
+		missing/prefix/tarball-missing-prefix-file_1970.01.01T00.00.00
 
 Results issues for controller: controller02
-	Invalid tar ball links (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):
-		does-not-exist-tar-ball-link_1970.01.01T00.00.00
 	Incorrectly constructed tar ball links:
 		benchmark-result-small_1970.01.01T00.00.00
 	Tar ball links to invalid incoming location:

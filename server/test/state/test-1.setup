@@ -1,5 +1,8 @@
 #!/bin/bash
 
-# Move the archive tree to the side
-mv pbench/archive pbench/no-archive
-exit $?
+mkdir pbench-local/backup || exit $?
+
+# Move the unpacks tree to the side
+mv pbench-local/unpack pbench-local/no-unpack || exit ${?}
+mv pbench-local/re-unpack pbench-local/no-re-unpack
+exit ${?}

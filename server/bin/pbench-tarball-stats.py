@@ -3,7 +3,7 @@
 
 """Pbench Tar Ball Stats
 
-Scan through the ARCHIVE hierarchy for tar balls and report statistics from the
+Scan through the backup hierarchy for tar balls and report statistics from the
 tar ball names and their controller names.  See the Jinja2 report template for
 what is included.
 """
@@ -27,8 +27,8 @@ TarBallInfo = collections.namedtuple("TarBallInfo", ["ctrl", "tb", "dt", "stat"]
 TarBallStats = collections.namedtuple("TarBallStats", ["ctrls", "count", "size"])
 
 
-def gen_tar_balls(archive: str) -> TarBallInfo:
-    """Traverse the given ARCHIVE hierarchy looking tar balls, generating
+def gen_tar_balls(backup: str) -> TarBallInfo:
+    """Traverse the given backup hierarchy looking tar balls, generating
     TarBallInfo tuples containing information about the tar balls found.
 
     The tuple contains: (
@@ -44,8 +44,8 @@ def gen_tar_balls(archive: str) -> TarBallInfo:
     we STILL generate a tuple for that file but with None for the datetime
     of that tuple.
     """
-    with os.scandir(archive) as archive_scan:
-        for c_entry in archive_scan:
+    with os.scandir(backup) as backup_scan:
+        for c_entry in backup_scan:
             if c_entry.name.startswith(".") or not c_entry.is_dir(
                 follow_symlinks=False
             ):
@@ -211,7 +211,7 @@ Month        Total Count{% for name in server_origin.keys()|sort %}   {{ "{0:>7s
 
 
 def main(options: Namespace) -> int:
-    """Generate a report for the existing tar balls in the ARCHIVE directory.
+    """Generate a report for the existing tar balls in the backup directory.
 
     The report includes a break down by satellite server, good and bad tar
     balls (defined by having a proper time stamp in the name), and finally
@@ -234,18 +234,8 @@ def main(options: Namespace) -> int:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2
 
-    archive_p = os.path.realpath(config.ARCHIVE)
-    if not archive_p:
-        print(
-            f"The configured ARCHIVE directory, {config.ARCHIVE}, does not exist",
-            file=sys.stderr,
-        )
-        return 2
-    if not os.path.isdir(archive_p):
-        print(
-            f"The configured ARCHIVE directory, {config.ARCHIVE}, is not a valid directory",
-            file=sys.stderr,
-        )
+    backup_p = pbench.get_conf_dir(_NAME_, config, "pbench-backup-dir")
+    if backup_p is None:
         return 2
 
     invalid = collections.defaultdict(list)
@@ -264,7 +254,7 @@ def main(options: Namespace) -> int:
 
     now = datetime.utcfromtimestamp(start)
 
-    gen = gen_tar_balls(archive_p)
+    gen = gen_tar_balls(str(backup_p))
 
     satellites_tb = collections.Counter()
     for tb_rec in gen:

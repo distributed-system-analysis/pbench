@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir pbench-local/archive.backup || exit $?
+mkdir pbench-local/backup || exit $?
 
 # Move the incoming tree to the side
 mv pbench/public_html/incoming pbench/public_html/no-incoming

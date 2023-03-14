@@ -4,7 +4,7 @@ Wants=bitrot-detect.timer
 
 [Service]
 Type=oneshot
-ExecStart=/home/pbench/bin/bitrot-detect 1 /srv/pbenchbackup/archive.backup
+ExecStart=/home/pbench/bin/bitrot-detect 1 /srv/pbench/backup
 
 [Install]
 WantedBy=default.target

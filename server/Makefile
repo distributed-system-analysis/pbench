@@ -33,9 +33,9 @@ bintools = \
 binlinks = \
 	pbench-audit-server\
 	pbench-check-tb-age\
-	pbench-clean-up-dangling-results-links\
 	pbench-cull-unpacked-tarballs\
 	pbench-dispatch\
+	pbench-restore-unpacked-tarballs\
 	pbench-sync-satellite\
 	pbench-tarball-stats\
 	pbench-unpack-tarballs\

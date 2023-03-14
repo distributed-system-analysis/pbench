@@ -10,9 +10,6 @@ pbench-unpack-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-
 +++ Running pbench-unpack-tarballs none re-unpack
 pbench-unpack-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-clean-up-dangling-results-links
-pbench-clean-up-dangling-results-links: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
---- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-cull-unpacked-tarballs
 pbench-cull-unpacked-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
 --- Finished pbench-cull-unpacked-tarballs (status=2)
@@ -37,8 +34,6 @@ lrwxrwxrwx         61 users -> /var/tmp/pbench-test-server/test-0.1/pbench/publi
 /var/tmp/pbench-test-server/test-0.1/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-0.1/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -70,7 +65,9 @@ drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
 --- pbench-local tree state
 +++ pbench log file contents
 --- pbench log file contents

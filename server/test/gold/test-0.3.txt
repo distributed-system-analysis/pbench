@@ -1,26 +1,17 @@
 +++ Running pbench-sync-satellite satellite-one
 --- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
-pbench-dispatch: Bad backup_dir=/var/tmp/pbench-test-server/test-0.3/pbench-local/archive.backup
+pbench-dispatch: Bad backup_dir=/var/tmp/pbench-test-server/test-0.3/pbench-local/backup
 --- Finished pbench-dispatch (status=1)
 +++ Running pbench-unpack-tarballs small
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-unpack-tarballs none re-unpack
 --- Finished pbench-unpack-tarballs (status=0)
-+++ Running pbench-clean-up-dangling-results-links
---- Finished pbench-clean-up-dangling-results-links (status=0)
 +++ Running pbench-cull-unpacked-tarballs
 --- Finished pbench-cull-unpacked-tarballs (status=0)
 +++ Running pbench-tarball-stats
-Summary Statistics for Tar Balls on 1970-01-01 (external data only):
-
-    Took 0.00 seconds to find all tar balls.
-
-    Good Tar Balls:
-                         0 count
-
-
---- Finished pbench-tarball-stats (status=0)
+pbench-tarball-stats: ERROR: could not resolve the configured pbench-backup-dir directory, /var/tmp/pbench-test-server/test-0.3/pbench-local/backup: [Errno 2] No such file or directory: '/var/tmp/pbench-test-server/test-0.3/pbench-local/backup'
+--- Finished pbench-tarball-stats (status=2)
 +++ Running unit test audit
 --- Finished unit test audit (status=0)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-0.3/var-www-html)
@@ -38,8 +29,6 @@ lrwxrwxrwx         61 users -> /var/tmp/pbench-test-server/test-0.3/pbench/publi
 /var/tmp/pbench-test-server/test-0.3/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-0.3/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -69,9 +58,6 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 -rw-rw-r--          0 logs/pbench-audit-server/report.latest.txt
-drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
--rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
--rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        174 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-re-unpack-tarballs
@@ -91,7 +77,9 @@ drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs
@@ -101,10 +89,6 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-audit-server/report.latest.txt
 ----- pbench-audit-server/report.latest.txt
-+++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
------ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
-+++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
------ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Culling unpacked tar balls 30 days older than 1970-01-01T00:00:42.000000
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log

@@ -1,20 +1,19 @@
 #! /bin/bash
 # -*- mode: shell-script -*-
 
-# This script is the first part of the pipeline that processes pbench
-# results tar balls.
+# This script is the first part of the pipeline that processes pbench results
+# tar balls.
 
-# `pbench-unpack-tarballs` looks in all the TO-UNPACK or TO-RE-UNPACK
-# directories, unpacks tar balls, and moves the symlink from the TO-[RE-]UNPACK
-# subdir to the UNPACKED subdir.  It runs under cron once a minute in order to
-# minimize the delay between uploading the results and making them available for
-# viewing via the web server.
+# `pbench-unpack-tarballs` looks for tar balls in the "unpack directory"
+# hierarchy and unpacks any tar balls it finds.  An optional "bucket" argument
+# can be given to only consider tar balls in a certain size range determined by
+# the administrator.  It runs under cron once a minute in order to minimize the
+# delay between uploading the results and making them available for viewing via
+# the web server.
 
-# This script loops over the contents of ${ARCHIVE}/<controller>/TO-[RE-]UNPACK
+# This script loops over the contents of ${[re_]unpack_dir}/<controller>/ and
 # and unpacks each tar ball into .../incoming/<controller>/, establishing the
-# proper .../results and .../users symlinks to it.  If everything works, it then
-# moves the tar ball symlink from ${ARCHIVE}/TO-[RE-]UNPACK to
-# ${ARCHIVE}/UNPACKED to mark the process complete.
+# proper .../results and .../users symlinks to it.
 
 BUCKET="${1:-none}"
 PIPELINE="${2}"
@@ -29,18 +28,22 @@ if [[ "${BUCKET}" != "none" ]]; then
     export PROG="${PROG}-${BUCKET}"
 fi
 
-# load common things
+# Load common things
 . ${dir}/pbench-base.sh
 
-# check that all the directories exist
-test -d "${ARCHIVE}"  || doexit "Bad ARCHIVE=${ARCHIVE}"
-test -d "${INCOMING}" || doexit "Bad INCOMING=${INCOMING}"
-test -d "${RESULTS}"  || doexit "Bad RESULTS=${RESULTS}"
-test -d "${USERS}"    || doexit "Bad USERS=${USERS}"
+if [[ "${PIPELINE}" == "re-unpack" ]]; then
+    # The source for re-unpacking.
+    unpack_dir=$(pbench-server-config pbench-re-unpack-dir pbench-server)
+else
+    # The source for normal flow of unpacking.
+    unpack_dir=$(pbench-server-config pbench-unpack-dir pbench-server)
+fi
 
-# The base destinations for this script are always the following:
-linkdest=UNPACKED
-linkerr=WONT-UNPACK
+# Check that all the required directories exist.
+test -d "${unpack_dir}" || doexit "Bad unpack_dir=${unpack_dir}"
+test -d "${INCOMING}"   || doexit "Bad INCOMING=${INCOMING}"
+test -d "${RESULTS}"    || doexit "Bad RESULTS=${RESULTS}"
+test -d "${USERS}"      || doexit "Bad USERS=${USERS}"
 
 if [[ "${BUCKET}" == "none" ]]; then
     lb_arg=""
@@ -67,14 +70,6 @@ else
     fi
 fi
 
-if [[ "${PIPELINE}" == "re-unpack" ]]; then
-    # The link source for re-unpacking.
-    linksrc=TO-RE-UNPACK
-else
-    # The link source for normal flow of unpacking.
-    linksrc=TO-UNPACK
-fi
-
 tmp=${TMP}/${PROG}.${$}
 trap 'rm -rf ${tmp}' EXIT INT QUIT
 
@@ -90,95 +85,57 @@ list=${tmp}/${PROG}.list
 
 function gen_work_list() {
     SECONDS=0
-    # Find all the links in all the ${ARCHIVE}/<controller>/${linksrc}
-    # directories, emitting a list of their modification times, size in bytes,
-    # and full paths of the file the link points to, and then sort them so
-    # that we process the tar balls from newest to oldest.
-    rm -f ${list}
-    > ${list}.unsorted
-    # First we find all the ${linksrc} directories
-    for linksrc_dir in $(find ${ARCHIVE}/ -maxdepth 2 -type d -name ${linksrc}); do
-        # Find all the links in a given ${linksrc} directory that are links to
-        # actual files (bad links are not emitted!).  For now, if it's a
-        # duplicate name, just punt and avoid producing an error.
-        find -L ${linksrc_dir} -type f -name '*.tar.xz' ${lb_arg} ${ub_arg} -printf "%TY-%Tm-%TdT%TT %s %p\n" 2>/dev/null >> ${list}.unsorted
-        if [[ ${lowerbound} == 0 ]]; then
-            # Find all the links in the same ${linksrc} directory that don't
-            # link to anything so that we can count them as errors below.
-            find -L $linksrc_dir -type l -name '*.tar.xz' -printf "%TY-%Tm-%TdT%TT %s %p\n" 2>/dev/null >> ${list}.unsorted
-        fi
-    done
-    sort -k 1 -r ${list}.unsorted > ${list}
-    rm -f ${list}.unsorted
-    # Pad by one minute, the default smallest cronjob interval.
-    let max_seconds=${SECONDS}+60
-    return $(( ${max_seconds} * 2 ))
+    # Find all the tar balls in all the ${unpack_dir}/<controller> directories,
+    # emitting a list of their modification times, size in bytes, and full paths
+    # of the files, and then sort them so that we process the tar balls from
+    # newest to oldest.
+    find ${unpack_dir} \
+        -type f -name '*.tar.xz' ${lb_arg} ${ub_arg} \
+        -printf "%TY-%Tm-%TdT%TT %s %p\n" 2>/dev/null | sort -k 1 -r > ${list}
+    # Pad by one minute, the default smallest cronjob interval, and then double.
+    return $(( (SECONDS+60)*2 ))
 }
 
-function move_symlink() {
-    local hostname="${1}"
-    local resultname="${2}"
-    local linksrc="${3}"
-    local linkdest="${4}"
-    mv ${ARCHIVE}/${hostname}/${linksrc}/${resultname}.tar.xz ${ARCHIVE}/${hostname}/${linkdest}/${resultname}.tar.xz
+function delete_result() {
+    rm ${1} ${1}.md5
     local status=${?}
     if [[ ${status} -ne 0 ]]; then
-        log_error "${TS}: Cannot move symlink ${ARCHIVE}/${hostname}/${resultname}.tar.xz from ${linksrc} to ${linkdest}: code ${status}"
+        log_error "${TS}: Cannot remove result tar ball ${1} from ${unpack_dir} hierarchy: code ${status}"
     fi
     return ${status}
 }
 
 function do_work() {
-    SECONDS=0
-    local status=0
     local max_seconds=${1}
+    local resultname
+    local basedir
+    local hostname
+    local status
+    SECONDS=0
     while read date size result; do
         (( ntotal++ ))
 
         resultname=$(basename ${result})
         resultname=${resultname%.tar.xz}
 
-        link=$(readlink -e ${result})
-        if [[ -z "${link}" ]]; then
-            (( nerrs++ ))
-            log_error "${TS}: symlink target for ${result} does not exist"
-            hostname=$(basename $(dirname $(dirname ${result})))
-            mkdir -p ${ARCHIVE}/${hostname}/${linkerr}
-            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for symlink"
-            if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
-            continue
-        fi
-
-        pbench-check-tb-age ${link}
-        local status=${?}
-        if [[ ${status} -gt 0 ]]; then
-            (( nwarn++ ))
-            log_warn "${TS}: ${result} is older than the configured maximum age (status = ${status})"
-            hostname=$(basename $(dirname $(dirname ${result})))
-            mkdir -p ${ARCHIVE}/${hostname}/${linkerr}
-            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for symlink"
-            if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
-            continue
-        fi
-
-        basedir=$(dirname ${link})
-        hostname=$(basename ${basedir})
-
-        # Make sure that all the relevant state directories exist
-        mk_dirs ${hostname}
+        pbench-check-tb-age ${result}
         status=${?}
-        if [[ ${?} -ne 0 ]]; then
-            (( nerrs++ ))
-            log_error "${TS}: Creation of ${hostname} processing directories failed for ${result}: code ${status}"
+        if [[ ${status} -ne 0 ]]; then
+            (( nold++ ))
+            log_info "${TS}: ${result} is older than the configured maximum age (status = ${status})"
+            delete_result ${result}
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
         fi
+
+        basedir=$(dirname ${result})
+        hostname=$(basename ${basedir})
 
         incoming=${INCOMING}/${hostname}/${resultname}
         if [[ -e ${incoming} ]]; then
-            (( nerrs++ ))
-            log_error "${TS}: Incoming result, ${incoming}, already exists, skipping ${result}"
-            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for already unpacked"
+            (( nwarn++ ))
+            log_warn "${TS}: Incoming result, ${incoming}, already exists, skipping ${result}"
+            delete_result ${result}
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
         fi
@@ -188,10 +145,11 @@ function do_work() {
         if [[ ${status} -ne 0 ]]; then
             (( nerrs++ ))
             log_error "${TS}: 'mkdir ${incoming}.unpack' failed for ${result}: code ${status}"
-            popd > /dev/null 2>&1
+            delete_result ${result}
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
         fi
+
         let start_time=$(timestamp-seconds-since-epoch)
         tar --extract --no-same-owner --touch --delay-directory-restore --file="${result}" --force-local --directory="${incoming}.unpack"
         status=${?}
@@ -199,7 +157,7 @@ function do_work() {
             (( nerrs++ ))
             log_error "${TS}: 'tar -xf ${result}' failed: code ${status}"
             rm -rf ${incoming}.unpack
-            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed untar"
+            delete_result ${result}
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
         fi
@@ -211,7 +169,7 @@ function do_work() {
             (( nerrs++ ))
             log_error "${TS}: 'chmod ugo+rx' of subdirs ${resultname} for ${result} failed: code ${status}"
             rm -rf ${incoming}.unpack
-            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed find/chmod"
+            delete_result ${result}
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
         fi
@@ -223,7 +181,7 @@ function do_work() {
             (( nerrs++ ))
             log_error "${TS}: 'chmod -R ugo+r ${resultname}' for ${result} failed: code ${status}"
             rm -rf ${incoming}.unpack
-            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed chmod"
+            delete_result ${result}
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
         fi
@@ -235,7 +193,7 @@ function do_work() {
             (( nerrs++ ))
             log_error "${TS}: '${result}' does not contain ${resultname} directory at the top level; skipping"
             rm -rf ${incoming}.unpack
-            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed mv"
+            delete_result ${result}
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
         fi
@@ -247,14 +205,18 @@ function do_work() {
             rm -rf ${incoming}.unpack
         fi
 
-        # Version 002 agents use the metadata log to store a prefix.
-        # They may also store a user option in the metadata log.
-        # We check for both of these here (n.b. if nothing is found
-        # they are going to be empty strings):
+        # At this point we can remove the result tar ball it is no longer
+        # needed.
+        delete_result ${result}
+
+        # Version 002 agents use the metadata log to store a prefix.  They may
+        # also store a user option in the metadata log.  We check for both of
+        # these here (n.b. if nothing is found they are going to be empty
+        # strings):
         prefix=$(pbench-server-config -C ${INCOMING}/${hostname}/${resultname}/metadata.log prefix run)
         user=$(pbench-server-config -C ${INCOMING}/${hostname}/${resultname}/metadata.log user run)
 
-        # if non-empty and does not contain a trailing slash, add one
+        # If non-empty and does not contain a trailing slash, add one
         if [[ ! -z "${prefix}" && "${prefix%/}" = "${prefix}" ]]; then
             prefix=${prefix}/
         fi
@@ -264,20 +226,15 @@ function do_work() {
         if [[ ${status} -ne 0 ]]; then
             (( nerrs++ ))
             log_error "${TS}: mkdir -p ${RESULTS}/${hostname}/${prefix} for ${result} failed: code ${status}"
-            rm -rf ${incoming}
-            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed mkdir results prefix"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
         fi
-        # make a link in results/
-        log_debug "ln -s ${incoming} ${RESULTS}/${hostname}/${prefix}${resultname}"
+        # Make a link in results/
         ln -s ${incoming} ${RESULTS}/${hostname}/${prefix}${resultname}
         status=${?}
         if [[ ${status} -ne 0 ]]; then
             (( nerrs++ ))
             log_error "${TS}: ln -s ${incoming} ${RESULTS}/${hostname}/${prefix}${resultname} for ${result} failed: code ${status}"
-            rm -rf ${incoming}
-            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed ln results prefix"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
             continue
         fi
@@ -289,38 +246,18 @@ function do_work() {
             if [[ ${status} -ne 0 ]]; then
                 (( nerrs++ ))
                 log_error "${TS}: mkdir -p ${USERS}/${user}/${hostname}/${prefix} for ${result} failed: code ${status}"
-                rm -rf ${incoming}
-                rm -f ${RESULTS}/${hostname}/${prefix}${resultname}
-                move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed mkdir users prefix"
                 if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
                 continue
             fi
 
-            log_debug "ln -s ${incoming} ${USERS}/${user}/${hostname}/${prefix}${resultname}"
             ln -s ${incoming} ${USERS}/${user}/${hostname}/${prefix}${resultname}
             status=${?}
             if [[ ${status} -ne 0 ]]; then
                 (( nerrs++ ))
                 log_error "${TS}: code ${status}: ln -s ${incoming} ${USERS}/${user}/${hostname}/${prefix}${resultname}"
-                rm -rf ${incoming}
-                rm -f ${RESULTS}/${hostname}/${prefix}${resultname}
-                move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed ln users prefix"
                 if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
                 continue
             fi
-        fi
-
-        move_symlink ${hostname} ${resultname} ${linksrc} ${linkdest}
-        status=${?}
-        if [[ ${status} -ne 0 ]]; then
-            (( nerrs++ ))
-            # Cleanup needed here but trap takes care of it.
-            rm -rf ${incoming}
-            rm -f ${RESULTS}/${hostname}/${prefix}${resultname}
-            rm -f ${USERS}/${user}/${hostname}/${prefix}${resultname}
-            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for failed move_symlink"
-            if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
-            continue
         fi
 
         let end_time=$(timestamp-seconds-since-epoch)
@@ -343,6 +280,7 @@ typeset -i ntbs=0
 typeset -i ntotal=0
 typeset -i nerrs=0
 typeset -i nwarn=0
+typeset -i nold=0
 typeset -i nloops=0
 
 while true; do
@@ -359,11 +297,14 @@ end_ts=$(timestamp)
 
 if [[ ${ntotal} -gt 0 ]]; then
     (( nloops-- ))
-    summary_text="(${PBENCH_ENV}) Processed ${ntotal} result tar balls, ${ntbs} successfully, with ${nloops} rechecks, ${nwarn} warnings, and ${nerrs} errors"
+    summary_text="(${PBENCH_ENV}) Processed ${ntotal} result tar balls, ${ntbs}"
+    summary_text+=" successfully, with ${nloops} rechecks, ${nold} too old to"
+    summary_text+=" unpack, ${nwarn} warnings, and ${nerrs} errors"
     printf -v summary_inner_json \
-        "{\"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\"}" \
+        "{\"%s\": \"%s\", \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": %d, \"%s\": \"%s\", \"%s\": \"%s\", \"%s\": \"%s\"}" \
         "end_ts" "${end_ts}" \
         "errors" "${nerrs}" \
+        "nold" "${nold}" \
         "nrechecks" "${nloops}" \
         "ntbs" "${ntbs}" \
         "ntotal" "${ntotal}" \

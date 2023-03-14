@@ -1,33 +1,33 @@
 +++ Running test-find-behavior
 
 Bucket: small -- 0 <= size < 130
-10 /var/tmp/pbench-test-server/test-25/pbench/archive/dir0/file.sml
-10 /var/tmp/pbench-test-server/test-25/pbench/archive/dir1/file.sml
-10 /var/tmp/pbench-test-server/test-25/pbench/archive/dir2/file.sml
-129 /var/tmp/pbench-test-server/test-25/pbench/archive/dir0/edge-ub.sml
+10 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir0/file.sml
+10 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir1/file.sml
+10 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir2/file.sml
+129 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir0/edge-ub.sml
 
 Bucket: medium -- 130 <= size < 240
-130 /var/tmp/pbench-test-server/test-25/pbench/archive/dir0/boundary.med
-131 /var/tmp/pbench-test-server/test-25/pbench/archive/dir0/edge-lb.med
-140 /var/tmp/pbench-test-server/test-25/pbench/archive/dir0/file.med
-140 /var/tmp/pbench-test-server/test-25/pbench/archive/dir1/file.med
-140 /var/tmp/pbench-test-server/test-25/pbench/archive/dir2/file.med
-239 /var/tmp/pbench-test-server/test-25/pbench/archive/dir1/edge-ub.med
+130 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir0/boundary.med
+131 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir0/edge-lb.med
+140 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir0/file.med
+140 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir1/file.med
+140 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir2/file.med
+239 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir1/edge-ub.med
 
 Bucket: large -- 240 <= size < 820
-240 /var/tmp/pbench-test-server/test-25/pbench/archive/dir1/boundary.lrg
-241 /var/tmp/pbench-test-server/test-25/pbench/archive/dir1/edge-lb.lrg
-250 /var/tmp/pbench-test-server/test-25/pbench/archive/dir0/file.lrg
-250 /var/tmp/pbench-test-server/test-25/pbench/archive/dir1/file.lrg
-250 /var/tmp/pbench-test-server/test-25/pbench/archive/dir2/file.lrg
-819 /var/tmp/pbench-test-server/test-25/pbench/archive/dir2/edge-ub.lrg
+240 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir1/boundary.lrg
+241 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir1/edge-lb.lrg
+250 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir0/file.lrg
+250 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir1/file.lrg
+250 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir2/file.lrg
+819 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir2/edge-ub.lrg
 
 Bucket: huge -- 820 <= size < INF
-820 /var/tmp/pbench-test-server/test-25/pbench/archive/dir2/boundary.hug
-821 /var/tmp/pbench-test-server/test-25/pbench/archive/dir2/edge-lb.hug
-830 /var/tmp/pbench-test-server/test-25/pbench/archive/dir0/file.hug
-830 /var/tmp/pbench-test-server/test-25/pbench/archive/dir1/file.hug
-830 /var/tmp/pbench-test-server/test-25/pbench/archive/dir2/file.hug
+820 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir2/boundary.hug
+821 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir2/edge-lb.hug
+830 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir0/file.hug
+830 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir1/file.hug
+830 /var/tmp/pbench-test-server/test-25/pbench/find-tree/dir2/file.hug
 --- Finished test-find-behavior (status=0)
 +++ Running unit test audit
 --- Finished unit test audit (status=0)
@@ -46,32 +46,31 @@ lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-25/pbench/public
 /var/tmp/pbench-test-server/test-25/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-25/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/dir0
--rw-rw-r--        130 archive/dir0/boundary.med
--rw-rw-r--        131 archive/dir0/edge-lb.med
--rw-rw-r--        129 archive/dir0/edge-ub.sml
--rw-rw-r--        830 archive/dir0/file.hug
--rw-rw-r--        250 archive/dir0/file.lrg
--rw-rw-r--        140 archive/dir0/file.med
--rw-rw-r--         10 archive/dir0/file.sml
-drwxrwxr-x          - archive/dir1
--rw-rw-r--        240 archive/dir1/boundary.lrg
--rw-rw-r--        241 archive/dir1/edge-lb.lrg
--rw-rw-r--        239 archive/dir1/edge-ub.med
--rw-rw-r--        830 archive/dir1/file.hug
--rw-rw-r--        250 archive/dir1/file.lrg
--rw-rw-r--        140 archive/dir1/file.med
--rw-rw-r--         10 archive/dir1/file.sml
-drwxrwxr-x          - archive/dir2
--rw-rw-r--        820 archive/dir2/boundary.hug
--rw-rw-r--        821 archive/dir2/edge-lb.hug
--rw-rw-r--        819 archive/dir2/edge-ub.lrg
--rw-rw-r--        830 archive/dir2/file.hug
--rw-rw-r--        250 archive/dir2/file.lrg
--rw-rw-r--        140 archive/dir2/file.med
--rw-rw-r--         10 archive/dir2/file.sml
-drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - find-tree
+drwxrwxr-x          - find-tree/dir0
+-rw-rw-r--        130 find-tree/dir0/boundary.med
+-rw-rw-r--        131 find-tree/dir0/edge-lb.med
+-rw-rw-r--        129 find-tree/dir0/edge-ub.sml
+-rw-rw-r--        830 find-tree/dir0/file.hug
+-rw-rw-r--        250 find-tree/dir0/file.lrg
+-rw-rw-r--        140 find-tree/dir0/file.med
+-rw-rw-r--         10 find-tree/dir0/file.sml
+drwxrwxr-x          - find-tree/dir1
+-rw-rw-r--        240 find-tree/dir1/boundary.lrg
+-rw-rw-r--        241 find-tree/dir1/edge-lb.lrg
+-rw-rw-r--        239 find-tree/dir1/edge-ub.med
+-rw-rw-r--        830 find-tree/dir1/file.hug
+-rw-rw-r--        250 find-tree/dir1/file.lrg
+-rw-rw-r--        140 find-tree/dir1/file.med
+-rw-rw-r--         10 find-tree/dir1/file.sml
+drwxrwxr-x          - find-tree/dir2
+-rw-rw-r--        820 find-tree/dir2/boundary.hug
+-rw-rw-r--        821 find-tree/dir2/edge-lb.hug
+-rw-rw-r--        819 find-tree/dir2/edge-ub.lrg
+-rw-rw-r--        830 find-tree/dir2/file.hug
+-rw-rw-r--        250 find-tree/dir2/file.lrg
+-rw-rw-r--        140 find-tree/dir2/file.med
+-rw-rw-r--         10 find-tree/dir2/file.sml
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -107,7 +106,9 @@ drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs

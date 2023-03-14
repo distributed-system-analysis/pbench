@@ -1,7 +1,7 @@
 +++ Running pbench-unpack-tarballs small
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running unit test audit
---- Finished unit test audit (status=1)
+--- Finished unit test audit (status=0)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-16/var-www-html)
 lrwxrwxrwx         63 incoming -> /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
@@ -17,35 +17,6 @@ lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-16/pbench/public
 /var/tmp/pbench-test-server/test-16/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-16/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/controller00
-drwxrwxr-x          - archive/fs-version-001/controller00/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller00/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller00/UNPACKED
-lrwxrwxrwx         52 archive/fs-version-001/controller00/UNPACKED/benchmark-result-large_1970-01-01T00:00:00.tar.xz -> ../benchmark-result-large_1970-01-01T00:00:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller00/WONT-UNPACK
-lrwxrwxrwx         52 archive/fs-version-001/controller00/WONT-UNPACK/benchmark-doesnotexist_1970-01-01T00:00:00.tar.xz -> ../benchmark-doesnotexist_1970-01-01T00:00:00.tar.xz
--rw-rw-r--      10240 archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz
--rw-rw-r--         84 archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/controller01
-drwxrwxr-x          - archive/fs-version-001/controller01/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller01/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller01/UNPACKED
-lrwxrwxrwx         53 archive/fs-version-001/controller01/UNPACKED/benchmark-result-medium_1970-01-01T00:00:00.tar.xz -> ../benchmark-result-medium_1970-01-01T00:00:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller01/WONT-UNPACK
--rw-rw-r--       3180 archive/fs-version-001/controller01/benchmark-result-medium_1970-01-01T00:00:00.tar.xz
--rw-rw-r--         85 archive/fs-version-001/controller01/benchmark-result-medium_1970-01-01T00:00:00.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/controller02
-drwxrwxr-x          - archive/fs-version-001/controller02/.prefix
--rw-rw-r--          9 archive/fs-version-001/controller02/.prefix/benchmark-result-small_1970-01-01T00:00:00.prefix
-drwxrwxr-x          - archive/fs-version-001/controller02/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller02/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller02/UNPACKED
-lrwxrwxrwx         52 archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1970-01-01T00:00:00.tar.xz -> ../benchmark-result-small_1970-01-01T00:00:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller02/WONT-UNPACK
--rw-rw-r--        848 archive/fs-version-001/controller02/benchmark-result-small_1970-01-01T00:00:00.tar.xz
--rw-rw-r--         84 archive/fs-version-001/controller02/benchmark-result-small_1970-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/incoming/controller00
@@ -93,51 +64,41 @@ lrwxrwxrwx        120 public_html/users/user01/controller01/prefix01/benchmark-r
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-16/pbench-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
--rw-rw-r--        169 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
--rw-rw-r--        359 logs/pbench-audit-server/report.latest.txt
+-rw-rw-r--          0 logs/pbench-audit-server/report.latest.txt
 drwxrwxr-x          - logs/pbench-unpack-tarballs-small
--rw-rw-r--        202 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
--rw-rw-r--       1763 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
+-rw-rw-r--          0 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
+-rw-rw-r--        788 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
 -rw-rw-r--        442 tmp/README.pbench-unpack-tarballs.sorting
+drwxrwxr-x          - unpack
+drwxrwxr-x          - unpack/controller00
+drwxrwxr-x          - unpack/controller01
+drwxrwxr-x          - unpack/controller02
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs
 +++++ pbench-audit-server/pbench-audit-server.error
-run-1970-01-01T00:00:42-UTC(unit-test) - audit found problems, please review /var/tmp/pbench-test-server/test-16/pbench-local/logs/pbench-audit-server/report.latest.txt
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-audit-server/report.latest.txt
-
-
-start-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-16/pbench/public_html/results
-
-Results issues for controller: controller02
-	Tar ball links with unused prefix files:
-		benchmark-result-small_1970-01-01T00:00:00
-
-end-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-16/pbench/public_html/results
 ----- pbench-audit-server/report.latest.txt
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
-run-1970-01-01T00:00:42-UTC: symlink target for /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1970-01-01T00:00:00.tar.xz does not exist
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
-ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller01/benchmark-result-medium_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/results/controller01/prefix01/benchmark-result-medium_1970-01-01T00:00:00
-ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller01/benchmark-result-medium_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/users/user01/controller01/prefix01/benchmark-result-medium_1970-01-01T00:00:00
 run-1970-01-01T00:00:42-UTC: controller01/benchmark-result-medium_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 3180
-ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller00/benchmark-result-large_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/results/controller00/benchmark-result-large_1970-01-01T00:00:00
 run-1970-01-01T00:00:42-UTC: controller00/benchmark-result-large_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 10240
-ln -s /var/tmp/pbench-test-server/test-16/pbench/public_html/incoming/controller02/benchmark-result-small_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-16/pbench/public_html/results/controller02/benchmark-result-small_1970-01-01T00:00:00
 run-1970-01-01T00:00:42-UTC: controller02/benchmark-result-small_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 848
-@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 1, "nrechecks": 0, "ntbs": 3, "ntotal": 4, "nwarn": 0, "prog": "pbench-unpack-tarballs-small", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 4 result tar balls, 3 successfully, with 0 rechecks, 0 warnings, and 1 errors"}}}}
+@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nold": 0, "nrechecks": 0, "ntbs": 3, "ntotal": 3, "nwarn": 0, "prog": "pbench-unpack-tarballs-small", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 3 result tar balls, 3 successfully, with 0 rechecks, 0 too old to unpack, 0 warnings, and 0 errors"}}}}
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 ---- pbench-local/logs
 --- pbench log file contents
