@@ -496,3 +496,44 @@ class TestDatasetsList:
             if key in m:
                 assert error in m
                 break
+
+    def test_key_summary(self, query_as):
+        """Test keyspace summary.
+
+        With the `keysummary` query parameter, /datasets returns an aggregation
+        of defined metadata key namespaces for the selected datasets.
+
+        We add a few metadata kays to the ones provided by the fixture to show
+        aggregation across multiple selected datasets. Note that without filter
+        criteria, the query here should return drb's "drb" and "fio_1" datasets
+        and test's public "fio_2" dataset.
+        """
+        fio_1 = Dataset.query(name="fio_1")
+        fio_2 = Dataset.query(name="fio_2")
+        Metadata.setvalue(dataset=fio_1, key="server.origin", value="SAT")
+        Metadata.setvalue(dataset=fio_2, key="global.legacy.server", value="ABC")
+        response = query_as({"keysummary": "true"}, "drb", HTTPStatus.OK)
+        assert response.json == {
+            "dataset": {
+                "access": {},
+                "id": {},
+                "metalog": {
+                    "pbench": {"config": {}, "date": {}, "name": {}, "script": {}},
+                    "run": {"controller": {}},
+                },
+                "name": {},
+                "owner_id": {},
+                "resource_id": {},
+                "uploaded": {},
+            },
+            "global": {"contact": {}, "legacy": {"server": {}}},
+            "server": {
+                "deletion": {},
+                "index-map": {
+                    "unit-test.v5.result-data-sample.2020-08": {},
+                    "unit-test.v6.run-data.2020-08": {},
+                    "unit-test.v6.run-toc.2020-05": {},
+                },
+                "origin": {},
+            },
+        }
