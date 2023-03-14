@@ -20,10 +20,7 @@ lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-12/pbench/public
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/SAT::controller
-drwxrwxr-x          - archive/fs-version-001/SAT::controller/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-UNPACK
 lrwxrwxrwx        128 archive/fs-version-001/SAT::controller/TO-UNPACK/tarball_for-put-api_1970.01.01T00.00.00.tar.xz -> /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/SAT::controller/UNPACKED
@@ -31,10 +28,7 @@ drwxrwxr-x          - archive/fs-version-001/SAT::controller/WONT-UNPACK
 -rw-rw-r--        228 archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
 -rw-rw-r--         81 archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller
-drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller/TO-UNPACK
 lrwxrwxrwx        123 archive/fs-version-001/controller/TO-UNPACK/tarball_for-put-api_1970.01.01T00.00.00.tar.xz -> /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller/UNPACKED

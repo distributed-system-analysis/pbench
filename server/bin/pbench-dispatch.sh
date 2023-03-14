@@ -1,16 +1,13 @@
 #! /bin/bash
 # -*- mode: shell-script -*-
 
-# This script is the first part of the pipeline that processes pbench result
-# tar balls.
+# This script is the first part of the pipeline that processes pbench result tar
+# balls.
 #
-# `pbench-dispatch` prepares tar balls that a version 002 SSH client submits
-# for processing (`pbench-agent` v0.51 and later).  It verifies the tar balls
-# and their MD5 check-sums, backups them up, and then moves the tar balls to the
-# archive tree, setting up the appropriate state links (e.g. a production
-# environment may want the tar balls unpacked (TO-UNPACK), while a satellite
-# environment may only need to prepare the tar ball to be synced to the main
-# server (TO-SYNC)).
+# `pbench-dispatch` prepares tar balls that a version 002 SSH client submits for
+# processing (`pbench-agent` v0.51 and later).  It verifies the tar balls and
+# their MD5 check-sums, backs them up, and then pushes the tar balls to the
+# configured "new" (v0.72+) Pbench Server using the PUT API.
 #
 # Only tar balls that have a `.md5` file are considered, since the client might
 # still be in the process of sending over the tar ball (typically, the client
