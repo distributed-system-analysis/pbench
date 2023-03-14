@@ -51,7 +51,7 @@ install-python3-setup: install-bin install-lib
 	mkdir -p ${DESTDIR}/python3
 	${COPY} requirements.txt ${DESTDIR}
 	(cd ..; /usr/bin/python3 -m pip install --prefix=${DESTDIR}/python3 -e .)
-	${COPY} $(addprefix ${DESTDIR}/python3/bin/, pbench-config pbench-server ${click-scripts}) ${BINDIR}/
+	${COPY} $(addprefix ${DESTDIR}/python3/bin/, pbench-server-config pbench-server ${click-scripts}) ${BINDIR}/
 	${RM} -r ${DESTDIR}/python3
 	${COPY} ../lib/pbench ${LIBDIR}/
 	${RM} -r $$(find ${LIBDIR} -name __pycache__) ${LIBDIR}/pbench/test ${LIBDIR}/pbench/agent ${LIBDIR}/pbench/cli/agent
