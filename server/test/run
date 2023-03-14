@@ -20,13 +20,13 @@ function _log_exit {
 
 export _server=$(dirname $(dirname $(realpath "${0}")))
 export _bdir=${_server}/bin
-test -d "${_bdir}" || _log_exit "ERROR: Missing \"${_bdir}\""
+test -d "${_bdir}" || _log_exit "ERROR: \"${_bdir}\" not a directory"
 export _ldir=${_server}/lib
-test -d "${_ldir}" || _log_exit "ERROR: Missing \"${_ldir}\""
+test -d "${_ldir}" || _log_exit "ERROR: \"${_ldir}\" not a directory"
 export _tdir=${_server}/test
-test -d "${_tdir}" || _log_exit "ERROR: Missing \"${_tdir}\""
+test -d "${_tdir}" || _log_exit "ERROR: \"${_tdir}\" not a directory"
 export _webs=$(dirname "${_server}")/web-server
-test -d "${_webs}" || _log_exit "ERROR: Missing \"${_webs}\""
+test -d "${_webs}" || _log_exit "ERROR: \"${_webs}\" not a directory"
 export _testbase=/var/tmp/pbench-test-server
 rm -rf ${_testbase}
 mkdir ${_testbase}
