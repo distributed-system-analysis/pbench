@@ -8,6 +8,8 @@ import {
   EmptyStateBody,
   EmptyStateIcon,
   EmptyStateVariant,
+  HelperText,
+  HelperTextItem,
   InputGroup,
   Text,
   TextContent,
@@ -16,9 +18,10 @@ import {
   Title,
 } from "@patternfly/react-core";
 import React, { useState } from "react";
+import { applyFilter, nameFilter } from "actions/datasetListActions";
 
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import { filterData } from "utils/filterDataset";
+import { useDispatch } from "react-redux";
 import { useOutletContext } from "react-router-dom";
 
 export const LoginHint = (props) => {
@@ -66,18 +69,13 @@ export const Heading = (props) => {
   );
 };
 
-export const SearchBox = ({
-  dataArray,
-  setPublicData,
-  startDate,
-  endDate,
-  setDatasetName,
-}) => {
+export const SearchBox = (props) => {
   const [searchKey, setSearchKey] = useState("");
-
+  const dispatch = useDispatch();
   const search = () => {
-    setPublicData(filterData(dataArray, startDate, endDate, searchKey));
-    setDatasetName(searchKey);
+    dispatch(nameFilter(searchKey));
+    dispatch(applyFilter());
+    props.setPage(1);
   };
   const handleKeyPress = (e) => {
     const key = e.key;
@@ -88,15 +86,24 @@ export const SearchBox = ({
   return (
     <InputGroup className="searchInputGroup">
       <TextInput
-        aria-label="search"
+        value={searchKey}
+        aria-label="search-box"
         type="text"
         placeholder="Search"
         onKeyPress={(e) => handleKeyPress(e)}
-        onChange={(e) => setSearchKey(e)}
-      ></TextInput>
+        onChange={(value) => setSearchKey(value)}
+      />
       <Button variant="control" onClick={search} aria-label="searchButton">
         <SearchIcon />
       </Button>
     </InputGroup>
+  );
+};
+
+export const ErrorText = (props) => {
+  return (
+    <HelperText>
+      <HelperTextItem variant="error">{props.text}</HelperTextItem>
+    </HelperText>
   );
 };
