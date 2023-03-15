@@ -515,25 +515,30 @@ class TestDatasetsList:
         response = query_as({"keysummary": "true"}, "drb", HTTPStatus.OK)
         assert response.json == {
             "dataset": {
-                "access": {},
-                "id": {},
+                "access": None,
+                "id": None,
                 "metalog": {
-                    "pbench": {"config": {}, "date": {}, "name": {}, "script": {}},
-                    "run": {"controller": {}},
+                    "pbench": {
+                        "config": None,
+                        "date": None,
+                        "name": None,
+                        "script": None,
+                    },
+                    "run": {"controller": None},
                 },
-                "name": {},
-                "owner_id": {},
-                "resource_id": {},
-                "uploaded": {},
+                "name": None,
+                "owner_id": None,
+                "resource_id": None,
+                "uploaded": None,
             },
-            "global": {"contact": {}, "legacy": {"server": {}}},
+            "global": {"contact": None, "legacy": {"server": None}},
             "server": {
-                "deletion": {},
+                "deletion": None,
                 "index-map": {
-                    "unit-test.v5.result-data-sample.2020-08": {},
-                    "unit-test.v6.run-data.2020-08": {},
-                    "unit-test.v6.run-toc.2020-05": {},
+                    "unit-test.v5.result-data-sample.2020-08": None,
+                    "unit-test.v6.run-data.2020-08": None,
+                    "unit-test.v6.run-toc.2020-05": None,
                 },
-                "origin": {},
+                "origin": None,
             },
         }

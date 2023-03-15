@@ -294,34 +294,34 @@ class DatasetsList(ApiBase):
 
         return query.filter(and_(*and_list))
 
-    def accumulate(self, keys: JSONOBJECT, key: str, value: Any):
+    def accumulate(self, aggregate: JSONOBJECT, key: str, value: Any):
         """Recursive helper to accumulate the metadata namespace
 
         Iterate through a list of metadata key/value pairs to construct a
-        herarchical aggregation of all metadata keys across the selected
+        hierarchical aggregation of all metadata keys across the selected
         datasets. Each key in the hierarchy is represented as a key in a
-        nested JSON object. "Leaf" keys are represented with empty JSON
-        values. E.g.,
+        nested JSON object. "Leaf" keys have the value None. E.g.,
 
             {
-                "dataset": {"name": {}, "metalog": {"pbench": {"script": {}}}},
-                "server": {"deletion": {}, "tarball-path": {}},
-                "global": {"server": {"legacy": {"sha1": {}}}}
+                "dataset": {"name": None, "metalog": {"pbench": {"script": None}}},
+                "server": {"deletion": None, "tarball-path": None},
+                "global": {"server": {"legacy": {"sha1": None}}}
             }
 
         Args:
-            keys: a JSONOBJECT to update with the recursive key/value
+            aggregate: a JSONOBJECT to update with the recursive key/value
             key: the current metadata key path element
             value: the current metadata key's value
         """
-        if key in keys:
-            p = keys[key]
-        else:
-            p = {}
-            keys[key] = p
         if isinstance(value, dict):
+            p = aggregate.get(key)
+            if p is None:
+                p = {}
+                aggregate[key] = p
             for k, v in value.items():
                 self.accumulate(p, k, v)
+        elif key not in aggregate:
+            aggregate[key] = None
 
     def keyspace(self, query: Query) -> JSONOBJECT:
         """Aggregate the dataset metadata keyspace
@@ -329,9 +329,11 @@ class DatasetsList(ApiBase):
         Run the query we've compiled, but instead of returning Dataset proxies,
         we only want the metadata key/value pairs we've selected.
 
-        NOTE: In general we expect every dataset to have some metadata; however
-        in the event one doesn't, the key and value returned by the joined
-        query will be None. We handle this by ignoring those values.
+        NOTE: The SQL left outer join returns a row for each row in the "left"
+        table (Dataset) even if there is no matching foreign key in the "right"
+        table (Metadata). This means a dataset with no metadata will result in
+        a join row here with key and value of None. The `elif` in the loop will
+        silently ignore rows with a null key to handle this case.
 
         Args:
             query: The basic filtered SQLAlchemy query object
@@ -339,16 +341,18 @@ class DatasetsList(ApiBase):
         Returns:
             The aggregated keyspace JSON object
         """
-        keys: JSONOBJECT = {"dataset": {c.name: {} for c in Dataset.__table__._columns}}
+        aggregate: JSONOBJECT = {
+            "dataset": {c.name: None for c in Dataset.__table__._columns}
+        }
         list = query.with_entities(Metadata.key, Metadata.value).all()
         for k, v in list:
             # "metalog" is a top-level key in the Metadata schema, but we
             # report it as a sub-key of "dataset".
             if k == Metadata.METALOG:
-                self.accumulate(keys["dataset"], k, v)
+                self.accumulate(aggregate["dataset"], k, v)
             elif k:
-                self.accumulate(keys, k, v)
-        return keys
+                self.accumulate(aggregate, k, v)
+        return aggregate
 
     def datasets(self, request: Request, json: JSONOBJECT, query: Query) -> JSONOBJECT:
         """Gather and paginate the selected datasets
