@@ -1,19 +1,19 @@
 ---
 # activate the server - create results dir structure
 
-# The sefcontext module is available from Galaxy with
+# The sefcontext module is available from Galaxy with:
+#
 #    ansible-galaxy collection install community.general
 #
-# We have two tasks to set the SELinux context with semanage on the
-# top level directory (typically /pbench or /srv/pbench) and its
-# subdirectories: they get a default_t type.  We then override the
-# type for the `archive' and `public_html' subdirs (and their subdirs)
-# which must be available through HTTP: they get a httpd_sys_content_t
-# type.
+# We have two tasks to set the SELinux context with semanage on the top level
+# directory (typically /pbench or /srv/pbench) and its subdirectories: they get
+# a default_t type.  We then override the type for the `public_html' subdirs
+# (and their subdirs) which must be available through HTTP: they get a
+# httpd_sys_content_t type.
 
 # The rest of the tasks create the directory structure under the top-level
-# directory. Then at the end, we run a restorecon to give every directory
-# its proper label.
+# directory. Then at the end, we run a restorecon to give every directory its
+# proper label.
 
 - name: add semanage fcontexts - top level dir gets default_t and subdirs inherit
   community.general.sefcontext:
@@ -21,14 +21,13 @@
     setype: default_t
     state: present
 
-- name: add semanage fcontexts - public_html and archive get httpd_sys_content_t
+- name: add semanage fcontexts - public_html gets httpd_sys_content_t
   community.general.sefcontext:
     target: "{{ pbench_dir }}/{{ item}}(/.*)?"
     setype: httpd_sys_content_t
     state: present
   with_items:
     - public_html
-    - archive
 
 - name: ensure top level dir is present with default_t type
   file:
@@ -38,7 +37,7 @@
     mode:  0775
     state: directory
 
-- name: ensure archive and public_html directories and top-level subdirs are present
+- name: ensure public_html directories and top-level subdirs are present
   file:
     path: "{{ pbench_dir }}/{{ item }}"
     owner: "{{ pbench_user }}"
@@ -46,8 +45,6 @@
     mode:  0775
     state: directory
   with_items:
-    - archive
-    - archive/fs-version-001
     - public_html
     - public_html/incoming
     - public_html/results
@@ -93,8 +90,6 @@
     cmd: "restorecon -iv {{ pbench_dir }}/{{ item }}"
   with_items:
     - ""
-    - archive
-    - archive/fs-version-001
     - public_html
     - public_html/incoming
     - public_html/results

@@ -12,14 +12,6 @@
   notify:
     - restart apache
 
-- name: "Create pbench-tarballs link in doc root"
-  file:
-    src: "{{ pbench_dir }}/archive/fs-version-001"
-    path: "{{ httpd_document_root_dir }}/pbench-tarballs"
-    state: link
-  notify:
-    - restart apache
-
 - name: "Copy the web-server bits to the <pbench>/public_html/static directory."
   synchronize:
     src: "{{ pbench_server_install_dir }}/html/static/"
