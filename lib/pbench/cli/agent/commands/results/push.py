@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import List
 
 import click
+import requests
 
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb
@@ -24,10 +25,29 @@ class ResultsPush(BaseCommand):
             self.config,
             self.logger,
         )
-        crt.copy_result_tb(
+        res = crt.copy_result_tb(
             self.context.token, self.context.access, self.context.metadata
         )
-        return 0
+
+        # success
+        if res.status_code == 201:
+            return 0
+
+        try:
+            msg = res.json()["message"]
+        except requests.exceptions.JSONDecodeError:
+            msg = res.text if res.text else res.reason
+
+        # dup or other unexpected but non-error status
+        if res.ok:
+            click.echo(msg, err=True)
+            return 0
+
+        click.echo(
+            f"HTTP Error status: {res.status_code}, message: {msg}",
+            err=True,
+        )
+        return 1
 
 
 @sort_click_command_parameters

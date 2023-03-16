@@ -91,9 +91,11 @@ class TestCopyResults:
             agent_logger,
         )
         if access is None:
-            crt.copy_result_tb("token")
+            res = crt.copy_result_tb("token")
         else:
-            crt.copy_result_tb("token", access)
+            res = crt.copy_result_tb("token", access)
+
+        assert res.ok
         # If we got this far without an exception, then the test passes.
 
     @responses.activate
@@ -132,9 +134,11 @@ class TestCopyResults:
             agent_logger,
         )
         if metadata is None:
-            crt.copy_result_tb("token")
+            res = crt.copy_result_tb("token")
         else:
-            crt.copy_result_tb("token", access, metadata)
+            res = crt.copy_result_tb("token", access, metadata)
+
+        assert res.ok
         # If we got this far without an exception, then the test passes.
 
     @responses.activate

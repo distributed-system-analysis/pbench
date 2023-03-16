@@ -23,11 +23,12 @@ class TestResultsPush:
     URL = "http://pbench.example.com/api/v1"
 
     @staticmethod
-    def add_http_mock_response(code: HTTPStatus = HTTPStatus.OK):
+    def add_http_mock_response(code: HTTPStatus = HTTPStatus.OK, message: str = ""):
         responses.add(
             responses.PUT,
             f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
             status=code,
+            json={"message": message},
         )
 
     @staticmethod
@@ -148,7 +149,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 0, result.stderr
-        assert result.stderr == "File uploaded successfully\n"
+        assert result.stdout == ""
 
     @staticmethod
     @responses.activate
@@ -172,7 +173,56 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 0, result.stderr
-        assert result.stderr == "File uploaded successfully\n"
+        assert result.stdout == ""
+
+    @staticmethod
+    @responses.activate
+    def test_normal_created():
+        """Test normal operation when all arguments and options are specified"""
+
+        TestResultsPush.add_http_mock_response(code=HTTPStatus.CREATED)
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.TOKN_SWITCH,
+                TestResultsPush.TOKN_TEXT,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_TEST + "," + TestResultsPush.META_TEXT_FOO,
+                tarball,
+            ],
+        )
+        assert result.exit_code == 0, result.stderr
+        assert result.stdout == ""
+
+    @staticmethod
+    @responses.activate
+    def test_error_too_large_tarball():
+        """Test normal operation when all arguments and options are specified"""
+
+        TestResultsPush.add_http_mock_response(
+            code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE, message="Request Entity Too Large"
+        )
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.TOKN_SWITCH,
+                TestResultsPush.TOKN_TEXT,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_TEST + "," + TestResultsPush.META_TEXT_FOO,
+                tarball,
+            ],
+        )
+        assert result.exit_code == 1, result.stderr
+        assert (
+            result.stderr
+            == "HTTP Error status: 413, message: Request Entity Too Large\n"
+        )
 
     @staticmethod
     @responses.activate
@@ -196,7 +246,7 @@ class TestResultsPush:
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(main, args=[tarball])
         assert result.exit_code == 0, result.stderr
-        assert result.stderr == "File uploaded successfully\n"
+        assert result.stdout == ""
 
     @staticmethod
     @responses.activate
@@ -239,7 +289,9 @@ class TestResultsPush:
         """Test handling of 404 errors"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_http_mock_response(HTTPStatus.NOT_FOUND)
+        TestResultsPush.add_http_mock_response(
+            HTTPStatus.NOT_FOUND, message="Not Found"
+        )
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(main, args=[tarball])

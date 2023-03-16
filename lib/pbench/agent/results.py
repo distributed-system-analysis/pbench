@@ -313,7 +313,7 @@ class CopyResultTb:
 
     def copy_result_tb(
         self, token: str, access: Optional[str] = None, metadata: Optional[List] = None
-    ) -> None:
+    ) -> requests.Response:
         """Copies the tar ball from the agent to the configured server using upload
         API.
 
@@ -326,6 +326,9 @@ class CopyResultTb:
                 the result will be the server default.
             metadata: list of metadata keys to be sent on PUT. (Optional)
                 Format: key:value
+
+        Returns:
+            response from the PUT request
 
         Raises:
             RuntimeError     if a connection to the server fails
@@ -367,17 +370,12 @@ class CopyResultTb:
                     )
                 )
 
-                response = requests.Session().send(request)
-                response.raise_for_status()
-                self.logger.info("File uploaded successfully")
+                return requests.Session().send(request)
             except requests.exceptions.ConnectionError as exc:
                 raise RuntimeError(f"Cannot connect to '{self.upload_url}': {exc}")
             except Exception as exc:
                 raise self.FileUploadError(
-                    "There was something wrong with file upload request: "
+                    "There was something wrong with the file upload request: "
                     f"file: '{self.tarball}', URL: '{self.upload_url}';"
                     f" error: '{exc}'"
                 )
-        assert (
-            response.ok
-        ), f"Logic error!  Unexpected error response, '{response.reason}' ({response.status_code})"
