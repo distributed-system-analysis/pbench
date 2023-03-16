@@ -509,9 +509,8 @@ class TestDatasetsList:
         and test's public "fio_2" dataset.
         """
         fio_1 = Dataset.query(name="fio_1")
-        fio_2 = Dataset.query(name="fio_2")
         Metadata.setvalue(dataset=fio_1, key="server.origin", value="SAT")
-        Metadata.setvalue(dataset=fio_2, key="global.legacy.server", value="ABC")
+        Metadata.setvalue(dataset=fio_1, key="global.legacy.server", value="ABC")
         response = query_as({"keysummary": "true"}, "drb", HTTPStatus.OK)
         assert response.json == {
             "dataset": {

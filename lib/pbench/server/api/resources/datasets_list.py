@@ -390,9 +390,7 @@ class DatasetsList(ApiBase):
             try:
                 d["metadata"] = self._get_dataset_metadata(dataset, keys)
             except MetadataError as e:
-                current_app.logger.warning(
-                    "Error getting metadata {} for dataset {}: {}", keys, dataset, e
-                )
+                d["metadata"] = None
             response.append(d)
 
         paginated_result["results"] = response
