@@ -4,7 +4,7 @@
 """Pbench Restore Unpacked Tar Balls
 
 The goal is to find all tar balls that are in the backup tree and restore them,
-unpacking as appropriate, where only tar balls without the age range are
+unpacking as appropriate, where only tar balls within the age range are
 re-unpacked.
 
 The general algorithm is:

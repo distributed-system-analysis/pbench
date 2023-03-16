@@ -192,11 +192,17 @@ server_version="$(< ${install_dir}/VERSION)"
 server_sha1="$(<${install_dir}/SHA1)"
 server_hostname=$(hostname -f)
 
+# Total number of tar balls touched.
 typeset -i ntotal=0
+# Total number of tar balls successfully backed up, pushed via PUT API
 typeset -i ntbs=0
+# Total number of errors encountered
 typeset -i nerrs=0
+# Total number of tar balls quarantined due to MD5 check-sum errors
 typeset -i nquarantined=0
+# Total number of errors related to backing up tar balls
 typeset -i nberrs=0
+# Total number of errors related to setting up unpack tar balls
 typeset -i nuerrs=0
 
 while read tbmd5; do
@@ -247,9 +253,7 @@ while read tbmd5; do
     # (configuration of that server handled elsewhere).
 
     # All tar balls pushed to the "new" Pbench Server are made public just like
-    # they are all public on the current "old" Pbench Server.  We use the
-    # "unpackstate" metadata field to keep track of the "unpacked" state of a
-    # tar ball.
+    # they are all public on the current "old" Pbench Server.
     push_options="--token ${put_token} --access=public"
     push_options+=" --metadata=global.server.legacy.version:${server_version}"
     push_options+=" --metadata=global.server.legacy.sha1:${server_sha1}"
