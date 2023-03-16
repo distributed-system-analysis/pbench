@@ -382,7 +382,6 @@ class DatasetsList(ApiBase):
         keys = json.get("metadata")
 
         response = []
-        errors = []
         for dataset in datasets:
             d = {
                 "name": dataset.name,
@@ -390,14 +389,11 @@ class DatasetsList(ApiBase):
             }
             try:
                 d["metadata"] = self._get_dataset_metadata(dataset, keys)
-            except MetadataError as e:
-                errors.append(str(e))
+            except MetadataError:
                 d["metadata"] = None
             response.append(d)
 
         paginated_result["results"] = response
-        if errors:
-            paginated_result["errors"] = errors
         return paginated_result
 
     def _get(

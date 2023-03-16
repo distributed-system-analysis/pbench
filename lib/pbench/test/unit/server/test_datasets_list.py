@@ -345,6 +345,43 @@ class TestDatasetsList:
             )
         }
 
+    def test_get_get_errors(self, server_config, query_as):
+        """Test case reporting key errors
+
+        Args:
+            query_as: Query helper fixture
+        """
+        fio_1 = Dataset.query(name="fio_1")
+        fio_2 = Dataset.query(name="fio_2")
+        Metadata.setvalue(dataset=fio_1, key="global.test", value="ABC")
+        Metadata.setvalue(dataset=fio_2, key="global.test.foo", value="ABC")
+        response = query_as(
+            {"metadata": "global.test.foo"},
+            "drb",
+            HTTPStatus.OK,
+        )
+        assert response.json == {
+            "next_url": "",
+            "results": [
+                {
+                    "metadata": {"global.test.foo": None},
+                    "name": "drb",
+                    "resource_id": "random_md5_string1",
+                },
+                {
+                    "metadata": {"global.test.foo": None},
+                    "name": "fio_1",
+                    "resource_id": "random_md5_string3",
+                },
+                {
+                    "metadata": {"global.test.foo": "ABC"},
+                    "name": "fio_2",
+                    "resource_id": "random_md5_string4",
+                },
+            ],
+            "total": 3,
+        }
+
     def test_get_unknown_keys(self, query_as):
         """Test case requesting non-existent query parameter keys.
 
