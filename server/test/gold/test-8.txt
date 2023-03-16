@@ -19,8 +19,8 @@ chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/
 hostname -f
 chown pbench.pbench /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
 chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks
-chown pbench.pbench /var/tmp/pbench-test-server/test-8/pbench /var/tmp/pbench-test-server/test-8/pbench/archive/fs-version-001 /var/tmp/pbench-test-server/test-8/pbench/public_html /var/tmp/pbench-test-server/test-8/pbench/public_html/incoming /var/tmp/pbench-test-server/test-8/pbench/public_html/results /var/tmp/pbench-test-server/test-8/pbench/public_html/users /var/tmp/pbench-test-server/test-8/pbench/public_html/static
-chown pbench.pbench /var/tmp/pbench-test-server/test-8/pbench/archive/fs-version-001/* /var/tmp/pbench-test-server/test-8/pbench/public_html/incoming/* /var/tmp/pbench-test-server/test-8/pbench/public_html/results/* /var/tmp/pbench-test-server/test-8/pbench/public_html/users/* /var/tmp/pbench-test-server/test-8/pbench/public_html/static/*
+chown pbench.pbench /var/tmp/pbench-test-server/test-8/pbench /var/tmp/pbench-test-server/test-8/pbench/public_html /var/tmp/pbench-test-server/test-8/pbench/public_html/incoming /var/tmp/pbench-test-server/test-8/pbench/public_html/results /var/tmp/pbench-test-server/test-8/pbench/public_html/users /var/tmp/pbench-test-server/test-8/pbench/public_html/static
+chown pbench.pbench /var/tmp/pbench-test-server/test-8/pbench/public_html/incoming/* /var/tmp/pbench-test-server/test-8/pbench/public_html/results/* /var/tmp/pbench-test-server/test-8/pbench/public_html/users/* /var/tmp/pbench-test-server/test-8/pbench/public_html/static/*
 selinuxenabled 
 semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/test-8/pbench/public_html/incoming
 semanage fcontext -a -t httpd_sys_content_t /var/tmp/pbench-test-server/test-8/pbench/public_html/results
@@ -30,6 +30,8 @@ restorecon -v /var/tmp/pbench-test-server/test-8/pbench/public_html /var/tmp/pbe
 chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/logs
 chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/tmp
 chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/pbench-move-results-receive/fs-version-002
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/unpack
+chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/re-unpack
 chown -R pbench.pbench /var/tmp/pbench-test-server/test-8/pbench-local/quarantine
 systemctl enable httpd.service
 systemctl start httpd.service
@@ -54,8 +56,6 @@ lrwxrwxrwx         59 users -> /var/tmp/pbench-test-server/test-8/pbench/public_
 /var/tmp/pbench-test-server/test-8/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-8/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -91,7 +91,9 @@ drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs

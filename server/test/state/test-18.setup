@@ -9,8 +9,8 @@ function _dotouch() {
     return ${?}
 }
 
-_dotouch 04 pbench-local/archive.backup/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz || exit ${?}
-_dotouch 03 pbench-local/archive.backup/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz || exit ${?}
-_dotouch 02 pbench-local/archive.backup/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz || exit ${?}
+_dotouch 04 pbench-local/backup/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz || exit ${?}
+_dotouch 03 pbench-local/backup/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz || exit ${?}
+_dotouch 02 pbench-local/backup/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz || exit ${?}
 
 exit 0

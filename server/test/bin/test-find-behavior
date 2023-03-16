@@ -1,6 +1,7 @@
 #!/bin/bash
 
-ARCHIVE=${_testdir}/archive
+UNPACK=${_testdir}/find-tree
+mkdir ${UNPACK}
 
 SMALL=0      #   0 <= - < 130   90%
 MEDIUM=130   # 130 <= - < 240   95%
@@ -10,37 +11,37 @@ HUGE=820     # 820 <= - < INF  100%
 # We need to test the behavior of find to see how it works with sizes on
 # the boundaries.
 
-mkdir ${ARCHIVE}/dir0
-truncate -s $(( ${MEDIUM} - 1 )) ${ARCHIVE}/dir0/edge-ub.sml    # Upper bound of SMALL
-truncate -s ${MEDIUM}            ${ARCHIVE}/dir0/boundary.med   # Boundary of SMALL/MEDIUM, placed in MEDIUM
-truncate -s $(( ${MEDIUM} + 1 )) ${ARCHIVE}/dir0/edge-lb.med    # One beyond MEDIUM boundary
-mkdir ${ARCHIVE}/dir1
-truncate -s $(( ${LARGE} - 1 ))  ${ARCHIVE}/dir1/edge-ub.med    # Upper bound of MEDIUM
-truncate -s ${LARGE}             ${ARCHIVE}/dir1/boundary.lrg   # Boundary of MEDIUM/LARGE, placed in LARGE
-truncate -s $(( ${LARGE} + 1 ))  ${ARCHIVE}/dir1/edge-lb.lrg    # One beyond LARGE boundary
-mkdir ${ARCHIVE}/dir2
-truncate -s $(( ${HUGE} - 1 ))   ${ARCHIVE}/dir2/edge-ub.lrg    # Upper bound of LARGE
-truncate -s ${HUGE}              ${ARCHIVE}/dir2/boundary.hug   # Boundary of LARGE/HUGE, placed in HUGE
-truncate -s $(( ${HUGE} + 1 ))   ${ARCHIVE}/dir2/edge-lb.hug    # One beyond HUGE boundary
+mkdir ${UNPACK}/dir0
+truncate -s $(( ${MEDIUM} - 1 )) ${UNPACK}/dir0/edge-ub.sml    # Upper bound of SMALL
+truncate -s ${MEDIUM}            ${UNPACK}/dir0/boundary.med   # Boundary of SMALL/MEDIUM, placed in MEDIUM
+truncate -s $(( ${MEDIUM} + 1 )) ${UNPACK}/dir0/edge-lb.med    # One beyond MEDIUM boundary
+mkdir ${UNPACK}/dir1
+truncate -s $(( ${LARGE} - 1 ))  ${UNPACK}/dir1/edge-ub.med    # Upper bound of MEDIUM
+truncate -s ${LARGE}             ${UNPACK}/dir1/boundary.lrg   # Boundary of MEDIUM/LARGE, placed in LARGE
+truncate -s $(( ${LARGE} + 1 ))  ${UNPACK}/dir1/edge-lb.lrg    # One beyond LARGE boundary
+mkdir ${UNPACK}/dir2
+truncate -s $(( ${HUGE} - 1 ))   ${UNPACK}/dir2/edge-ub.lrg    # Upper bound of LARGE
+truncate -s ${HUGE}              ${UNPACK}/dir2/boundary.hug   # Boundary of LARGE/HUGE, placed in HUGE
+truncate -s $(( ${HUGE} + 1 ))   ${UNPACK}/dir2/edge-lb.hug    # One beyond HUGE boundary
 
 # We have three directories, each with a boundary file, now add one other file
 # in each of the buckets per directory.
 
 for dir in dir0 dir1 dir2; do
-    truncate -s $(( ${SMALL}  + 10 )) ${ARCHIVE}/${dir}/file.sml
-    truncate -s $(( ${MEDIUM} + 10 )) ${ARCHIVE}/${dir}/file.med
-    truncate -s $(( ${LARGE}  + 10 )) ${ARCHIVE}/${dir}/file.lrg
-    truncate -s $(( ${HUGE}   + 10 )) ${ARCHIVE}/${dir}/file.hug
+    truncate -s $(( ${SMALL}  + 10 )) ${UNPACK}/${dir}/file.sml
+    truncate -s $(( ${MEDIUM} + 10 )) ${UNPACK}/${dir}/file.med
+    truncate -s $(( ${LARGE}  + 10 )) ${UNPACK}/${dir}/file.lrg
+    truncate -s $(( ${HUGE}   + 10 )) ${UNPACK}/${dir}/file.hug
 done
 
-find -L ${ARCHIVE} \
+find ${UNPACK} \
        \( -type f                              -size -${MEDIUM}c -fprintf small.lis  "%s %p\n" \) \
     -o \( -type f -size +$(( ${MEDIUM} - 1 ))c -size -${LARGE}c  -fprintf medium.lis "%s %p\n" \) \
     -o \( -type f -size +$(( ${LARGE}  - 1 ))c -size -${HUGE}c   -fprintf large.lis  "%s %p\n" \) \
     -o \( -type f -size +$(( ${HUGE}   - 1 ))c                   -fprintf huge.lis   "%s %p\n" \) \
     2>/dev/null
 
-tot_files=$(find ${ARCHIVE} -type f | wc -l)
+tot_files=$(find ${UNPACK} -type f | wc -l)
 bkt_files=$(cat *.lis | wc -l)
 
 if [[ "${bkt_files}" != "${tot_files}" ]]; then

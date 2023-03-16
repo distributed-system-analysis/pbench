@@ -8,8 +8,6 @@ pbench-unpack-tarballs-small: Bad USERS=/var/tmp/pbench-test-server/test-4/pbenc
 +++ Running pbench-unpack-tarballs none re-unpack
 pbench-re-unpack-tarballs: Bad USERS=/var/tmp/pbench-test-server/test-4/pbench/public_html/users
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-clean-up-dangling-results-links
---- Finished pbench-clean-up-dangling-results-links (status=0)
 +++ Running pbench-cull-unpacked-tarballs
 --- Finished pbench-cull-unpacked-tarballs (status=4)
 +++ Running pbench-tarball-stats
@@ -40,8 +38,6 @@ lrwxrwxrwx         59 users -> /var/tmp/pbench-test-server/test-4/pbench/public_
 /var/tmp/pbench-test-server/test-4/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-4/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/no-users
@@ -66,11 +62,8 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 -rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-4/pbench-local)
-drwxrwxr-x          - archive.backup
+drwxrwxr-x          - backup
 drwxrwxr-x          - logs
-drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
--rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
--rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        219 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
@@ -87,14 +80,12 @@ drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs
-+++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
------ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
-+++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
------ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 ERROR pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- The configured USERS directory, /var/tmp/pbench-test-server/test-4/pbench/public_html/users, is not a valid directory
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log

@@ -11,7 +11,9 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 from datetime import datetime, timedelta, tzinfo
 from functools import partial
 from logging import handlers
+from pathlib import Path
 from time import time as _time
+from typing import Optional
 
 import configtools
 
@@ -216,12 +218,10 @@ class PbenchConfig(object):
     # These fields are `export`d for `bash` command environments.
     export_list = frozenset(
         (
-            "ARCHIVE",
             "BINDIR",
             "COMMIT_ID",
             "INCOMING",
             "LIBDIR",
-            "LINKDIRS",
             "LOGSDIR",
             "PBENCH_ENV",
             "RESULTS",
@@ -263,7 +263,6 @@ class PbenchConfig(object):
         except (NoOptionError, NoSectionError) as exc:
             raise BadConfig(str(exc))
         else:
-            self.ARCHIVE = self.conf.get("pbench-server", "pbench-archive-dir")
             self.INCOMING = os.path.join(self.TOP, "public_html", "incoming")
             # this is where the symlink forest is going to go
             self.RESULTS = os.path.join(self.TOP, "public_html", "results")
@@ -316,13 +315,6 @@ class PbenchConfig(object):
         self.TZ = "UTC"
         # Initial common timestamp format
         self.TS = "run-{}".format(self.timestamp())
-        # Make all the state directories for the pipeline and any others
-        # needed.  Every related state directories are paired together with
-        # their final state at the end.
-        self.LINKDIRS = (
-            # All unpack tar balls operational states
-            "TO-UNPACK TO-RE-UNPACK UNPACKED WONT-UNPACK"
-        )
 
     def get(self, *args, **kwargs):
         return self.conf.get(*args, **kwargs)
@@ -333,6 +325,39 @@ class PbenchConfig(object):
                   <YYYY>-<MM>-<DD>T<hh>:<mm>:<ss>-<TZ>
         """
         return tstos(_time())
+
+
+def get_conf_dir(prog: str, config: PbenchConfig, option: str) -> Optional[Path]:
+    """Convenience method to return a Path object for a resolved directory for
+    the given option in the "pbench-server" section.
+
+    Args:
+        prog : The program name to display in error messages
+        config : The pbench configuration object to consult
+        option : The name of the option in the "pbench-server" section
+
+    Returns:
+        None on error, having printed a message to stderr, and a Path object
+        to a fully resolved directory on success
+    """
+    option_val = config.conf.get("pbench-server", option)
+    try:
+        option_p = Path(option_val).resolve(strict=True)
+    except Exception as e:
+        print(
+            f"{prog}: ERROR: could not resolve the configured"
+            f" {option} directory, {option_val}: {e}",
+            file=sys.stderr,
+        )
+        return None
+    if not option_p.is_dir():
+        print(
+            f"{prog}: ERROR: The configured {option} directory,"
+            f" {option_val}, is not a valid directory",
+            file=sys.stderr,
+        )
+        return None
+    return option_p
 
 
 def md5sum(filename):

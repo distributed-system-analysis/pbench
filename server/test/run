@@ -60,12 +60,15 @@ function _run {
     else
         echo "+++ Running ${tname} ${@}" >> ${_testout}
     fi
-    ${tname} ${@} >> ${_testout} 2>&1
-    echo "--- Finished ${tname} (status=${?})" >> ${_testout}
+    ${tname} ${@} > ${_testout}.raw 2>&1
+    local status=${?}
+    sed -E -e 's;tmp/reunpack-[-a-zA-Z0-9_]+/;tmp/reunpack-XXXX/;g' ${_testout}.raw >> ${_testout} 2>&1
+    rm -f ${_testout}.raw
+    echo "--- Finished ${tname} (status=${status})" >> ${_testout}
 }
 
 function _run_re_unpack {
-    _run pbench-restore-and-unpack-tarballs ${1}
+    _run pbench-restore-unpacked-tarballs ${1}
     _run pbench-unpack-tarballs none re-unpack
 }
 
@@ -104,7 +107,6 @@ function _run_allscripts {
     # These next five run periodically to accomplish specific tasks outside the
     # normal transition pipeline.
     _run pbench-unpack-tarballs none re-unpack
-    _run pbench-clean-up-dangling-results-links
     _run pbench-cull-unpacked-tarballs
     _run pbench-tarball-stats
 }
@@ -253,21 +255,21 @@ function _setup_state {
     let res=res+${?}
     if [[ $res -ne 0 ]]; then
         echo "ERROR: failed to properly setup the test environment root, \"${_testroot}\"" >&2
-        exit $res
+        return $res
     fi
 
     mkdir ${_testdir} ${_testtmp}
     if [[ ${?} -gt 0 ]]; then
         echo "ERROR: failed to create test pbench and tmp directories, \"${_testdir}\" and/or \"${_testtmp}\"" >&2
-        exit 1
+        return 1
     fi
     if [[ ! -d ${_testdir} ]]; then
         echo "ERROR: test pbench directory does not exist, \"${_testdir}\"" >&2
-        exit 1
+        return 1
     fi
     if [[ ! -d ${_testtmp} ]]; then
         echo "ERROR: test tmp directory does not exist, \"${_testtmp}\"" >&2
-        exit 1
+        return 1
     fi
 
     echo "X.YY.ZZ" > ${_testopt}/VERSION
@@ -330,7 +332,7 @@ function _setup_state {
     if [[ ${rc} -ne 0 ]]; then
         echo "ERROR: failed to properly activate the main server test environment root, \"${_testroot}\"" >&2
         cat ${_testactout} >&2
-        exit ${rc}
+        return ${rc}
     fi
 
     # Up until this point, the activate scripts have been running using the
@@ -343,7 +345,7 @@ function _setup_state {
     rc=${?}
     if [[ ${rc} -ne 0 ]]; then
         echo "ERROR: failed to rename ${_testlog} to ${_testactlog}: code ${rc}" >&2
-        exit ${rc}
+        return ${rc}
     fi
 
     # Add files for a given test
@@ -352,7 +354,7 @@ function _setup_state {
         (cd ${_testroot}; tar xpf ${_state_tb})
         if [[ ${?} -gt 0 ]]; then
             echo "ERROR: unable to create pbench hierarchy for state ${1}" >&2
-            exit 1
+            return 1
         fi
     fi
 
@@ -362,7 +364,7 @@ function _setup_state {
         (cd ${_testroot}; ${_state_setup})
         if [[ ${?} -gt 0 ]]; then
             echo "ERROR: unable to run per-test state setup for ${1}" >&2
-            exit 1
+            return 1
         fi
     fi
 }
@@ -377,12 +379,12 @@ function _run_test {
     mkdir -p ${_testroot}
     if [[ ! -d ${_testroot} ]]; then
         echo "ERROR: failed to create test root directory, \"${_testroot}\"" >&2
-        exit 1
+        return 1
     fi
     rm -rf ${_testroot}/*
     if [[ ${?} -gt 0 ]]; then
         echo "ERROR: failed to empty test root directory, \"${_testroot}\"" >&2
-        exit 1
+        return 1
     fi
 
     export _testdur=${_testroot}/result.duration
@@ -402,7 +404,7 @@ function _run_test {
     _setup_state ${testname}
     if [[ ${?} -gt 0 ]]; then
         echo "ERROR: failed to setup test state for \"${testname}\"" >&2
-        exit 1
+        return 1
     fi
 
     # echo ${testname}: ${cmd}
@@ -428,7 +430,7 @@ function _reset_state {
         (cd ${_testroot}; ${_state_reset})
         if [[ ${?} -gt 0 ]]; then
             echo "ERROR: unable to run per-test state reset for ${1}" >&2
-            exit 1
+            return 1
         fi
     fi
 
@@ -443,27 +445,27 @@ function _reset_state {
     rm -rf ${_testdir}
     if [[ -d ${_testdir} ]]; then
         echo "ERROR: unable to remove pbench hierarchy" >&2
-        exit 1
+        return 1
     fi
     rm -rf ${_testdir_local}
     if [[ -d ${_testdir_local} ]]; then
         echo "ERROR: unable to remove pbench-local hierarchy" >&2
-        exit 1
+        return 1
     fi
     rm -rf ${_testtmp}
     if [[ -d ${_testtmp} ]]; then
         echo "ERROR: unable to remove tmp hierarchy" >&2
-        exit 1
+        return 1
     fi
     rm -rf ${_testhtml}
     if [[ -d ${_testhtml} ]]; then
         echo "ERROR: unable to remove var-www-html hierarchy" >&2
-        exit 1
+        return 1
     fi
     rm -rf ${_testroot}/opt
     if [[ -d ${_testroot}/opt ]]; then
         echo "ERROR: unable to remove opt hierarchy" >&2
-        exit 1
+        return 1
     fi
 }
 
@@ -478,7 +480,7 @@ declare -A cmds=(
     [test-0.3]="_run_allscripts"
     # check for no receive directory and no backup directory
     [test-0.4]="_run_allscripts"
-    # check for no ARCHIVE directory
+    # check for no unpacking directory
     [test-1]="_run_allscripts"
     # check for no INCOMING directory
     [test-2]="_run_allscripts"
@@ -520,8 +522,8 @@ declare -A cmds=(
     [test-18]="_run_re_unpack --dry-run"
     [test-19]="_run_re_unpack"
 
-    # Simple test to verify an "empty" archive hierarchy
-    [test-20]="_run echo audit archive hierarchy"
+    # Simple test to verify an "empty" hierarchy
+    [test-20]="_run echo audit hierarchy"
 
     # Verify behavior of dispatch when it doesn't do anything
     [test-21]="_run pbench-dispatch"

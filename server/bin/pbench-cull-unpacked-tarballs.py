@@ -254,7 +254,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
     return act_set
 
 
-def gen_list_unpacked_aged(incoming, archive, curr_dt, max_unpacked_age):
+def gen_list_unpacked_aged(incoming, curr_dt, max_unpacked_age):
     """gen_list_unpacked_aged - traverse the given INCOMING hierarchy looking
     for all tar balls whose "age" (as calculated from the date stamp in the tar
     ball ename) is older than the given maximum unpacked age (in days).
@@ -288,14 +288,6 @@ def gen_list_unpacked_aged(incoming, archive, curr_dt, max_unpacked_age):
                     if not match:
                         # Does not appear to be a valid tar ball directory
                         # name.
-                        # NOTE: the pbench-audit-server should pick up and
-                        # flag this unwanted condition.
-                        continue
-                    # We have a tar ball directory name, validate it.
-                    tb_path = os.path.join(
-                        archive, c_entry.name, f"{entry.name}.tar.xz"
-                    )
-                    if not os.path.exists(tb_path):
                         # NOTE: the pbench-audit-server should pick up and
                         # flag this unwanted condition.
                         continue
@@ -335,19 +327,6 @@ def main(options):
         return 2
 
     logger = get_pbench_logger(_NAME_, config)
-
-    archive = config.ARCHIVE
-    archive_p = os.path.realpath(archive)
-
-    if not archive_p:
-        logger.error("The configured ARCHIVE directory, {}, does not exist", archive)
-        return 3
-
-    if not os.path.isdir(archive_p):
-        logger.error(
-            "The configured ARCHIVE directory, {}, is not a valid directory", archive
-        )
-        return 4
 
     incoming = config.INCOMING
     incoming_p = os.path.realpath(incoming)
@@ -415,7 +394,7 @@ def main(options):
     errors = 0
     start = curr_dt
 
-    gen = gen_list_unpacked_aged(incoming_p, archive_p, curr_dt, max_unpacked_age)
+    gen = gen_list_unpacked_aged(incoming_p, curr_dt, max_unpacked_age)
     if config._unittests:
         # force the generator and sort the list
         gen = sorted(list(gen))

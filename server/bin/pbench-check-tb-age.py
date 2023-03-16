@@ -47,23 +47,6 @@ def main(options):
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 4
 
-    archive = config.ARCHIVE
-    archive_p = os.path.realpath(archive)
-
-    if not archive_p:
-        print(
-            f"The configured ARCHIVE directory, {archive}, does not exist",
-            file=sys.stderr,
-        )
-        return 5
-
-    if not os.path.isdir(archive_p):
-        print(
-            f"The configured ARCHIVE directory, {archive}," " is not a valid directory",
-            file=sys.stderr,
-        )
-        return 6
-
     incoming = config.INCOMING
     incoming_p = os.path.realpath(incoming)
 
@@ -101,13 +84,9 @@ def main(options):
         print(f"Unrecognized tar ball name format, {tb_name}", file=sys.stderr)
         return 11
 
-    if not tb_path.startswith(archive_p):
-        print(f"Given tar ball, {tb_path}, not from the ARCHIVE tree", file=sys.stderr)
-        return 12
-
     if not os.path.exists(tb_path):
         print(
-            f"Given tar ball, {tb_path}, does not seem to exist in the ARCHIVE tree",
+            f"Given tar ball, {tb_path}, does not seem to exist",
             file=sys.stderr,
         )
         return 13

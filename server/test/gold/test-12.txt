@@ -17,24 +17,6 @@ lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-12/pbench/public
 /var/tmp/pbench-test-server/test-12/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-12/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/SAT::controller
-drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/SAT::controller/TO-UNPACK
-lrwxrwxrwx        128 archive/fs-version-001/SAT::controller/TO-UNPACK/tarball_for-put-api_1970.01.01T00.00.00.tar.xz -> /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/SAT::controller/UNPACKED
-drwxrwxr-x          - archive/fs-version-001/SAT::controller/WONT-UNPACK
--rw-rw-r--        228 archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
--rw-rw-r--         81 archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/controller
-drwxrwxr-x          - archive/fs-version-001/controller/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller/TO-UNPACK
-lrwxrwxrwx        123 archive/fs-version-001/controller/TO-UNPACK/tarball_for-put-api_1970.01.01T00.00.00.tar.xz -> /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller/UNPACKED
-drwxrwxr-x          - archive/fs-version-001/controller/WONT-UNPACK
--rw-rw-r--        228 archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
--rw-rw-r--         81 archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -59,13 +41,13 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-12/pbench-local)
-drwxrwxr-x          - archive.backup
-drwxrwxr-x          - archive.backup/SAT::controller
--rw-rw-r--        228 archive.backup/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
--rw-rw-r--         81 archive.backup/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
-drwxrwxr-x          - archive.backup/controller
--rw-rw-r--        228 archive.backup/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
--rw-rw-r--         81 archive.backup/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
+drwxrwxr-x          - backup
+drwxrwxr-x          - backup/SAT::controller
+-rw-rw-r--        228 backup/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         81 backup/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
+drwxrwxr-x          - backup/controller
+-rw-rw-r--        228 backup/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         81 backup/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
@@ -73,7 +55,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/report.latest.txt
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
--rw-rw-r--        674 logs/pbench-dispatch/pbench-dispatch.log
+-rw-rw-r--        485 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/SAT::controller
@@ -82,7 +64,15 @@ drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
+drwxrwxr-x          - unpack/SAT::controller
+-rw-rw-r--        228 unpack/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         81 unpack/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
+drwxrwxr-x          - unpack/controller
+-rw-rw-r--        228 unpack/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         81 unpack/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs
@@ -96,17 +86,13 @@ drwxrwxr-x          - tmp
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
 tarball_for-put-api_1970.01.01T00.00.00.tar.xz: OK
-run-1970-01-01T00:00:42-UTC: SAT::controller/tarball_for-put-api_1970.01.01T00.00.00: success
 tarball_for-put-api_1970.01.01T00.00.00.tar.xz: OK
-run-1970-01-01T00:00:42-UTC: controller/tarball_for-put-api_1970.01.01T00.00.00: success
-@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "ndups": 0, "npartialsucc": 0, "nquarantined": 0, "ntbs": 2, "ntotal": 2, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 2 result tar balls, 2 successfully (0 partial), with 0 quarantined tar balls, 0 duplicately-named tar balls, and 0 errors."}}}}
+@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nberrs": 0, "nquarantined": 0, "ntbs": 2, "ntotal": 2, "nuerrs": 0, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 2 result tar balls, 2 successfully, with 0 quarantined, 0 backup errors, 0 unpack setup errors, and 0 archive API errors."}}}}
 ----- pbench-dispatch/pbench-dispatch.log
 ---- pbench-local/logs
 --- pbench log file contents
 +++ test-execution.log file contents
 hostname -f
 pbench-results-push /var/tmp/pbench-test-server/test-12/pbench-local/pbench-move-results-receive/fs-version-002/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com --metadata=server.origin:SAT
-restorecon /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/SAT::controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
 pbench-results-push /var/tmp/pbench-test-server/test-12/pbench-local/pbench-move-results-receive/fs-version-002/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com
-restorecon /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz /var/tmp/pbench-test-server/test-12/pbench/archive/fs-version-001/controller/tarball_for-put-api_1970.01.01T00.00.00.tar.xz.md5
 --- test-execution.log file contents

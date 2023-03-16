@@ -1,42 +1,26 @@
 #! /bin/bash
 #
-# Audit the fs-version-001 archive, incoming, results, and users
-# directory structures.
+# Audit the fs-version-001 incoming, results, and users directory structures.
 #
 # NOTE: This is a pure audit, no changes to any of the hierarchies
 # are made by this script.
 
 # Approach:
-#   Review the archive hierarchy (verify_archive)
-#     Find "bad" controllers (not a sub-directory of $ARCHIVE)
-#     For each "good" controller do:
-#       Verify all sub-directories of a given controller are one
-#         of the expected state directories
-#       Verify all files are *.tar.xz[.md5]
-#         flagging *.tar.xz.prefix or prefix.*.tar.xz in the
-#         controller directory
-#       Verify all prefix files in .prefix directories are *.prefix
 #   Review the incoming hierarchy (verify_controllers $INCOMING)
 #     Find "bad" controllers (not a sub-directory of $INCOMING)
 #     For each "good" controller do:
-#       Identify controllers that don't have a $ARCHIVE directory
 #       Identify empty controllers
 #       Identify controllers that contain files and not directories or links
 #       Review each unpacked tar ball hierarchy or unpack link
-#         Flag expanded tar ball directories that don't exist in $ARCHIVE
 #         Flag empty tar ball directories
 #         Flag invalid tar ball links
 #         Flag tar ball links pointing to an invalid unpack directory
-#         Flag tar ball links/directories which don't have a tar ball
-#           in the $ARCHIVE hierarchy
 #   Review the results hierarchy (verify_controllers $RESULTS)
 #     Find "bad" controllers (not a sub-directory of $RESULTS)
 #     For each "good" controller do:
-#       Identify controllers that don't have a $ARCHIVE directory
 #       Identify empty controllers
 #       Identify controllers that contain files and not directories or links
 #         Tar ball links that don't point to $INCOMING
-#         Tar ball links that don't ultimately have a tar ball in $ARCHIVE
 #         Tar ball links that exist in a prefix hierarchy but don't have a
 #           prefix file
 #         Tar ball links that exist in a prefix hierarchy but have an invalid
@@ -52,7 +36,6 @@
 # load common things
 . $dir/pbench-base.sh
 
-test -d "${ARCHIVE}"  || doexit "Bad ARCHIVE=${ARCHIVE}"
 test -d "${INCOMING}" || doexit "Bad INCOMING=${INCOMING}"
 test -d "${RESULTS}"  || doexit "Bad RESULTS=${RESULTS}"
 test -d "${USERS}"    || doexit "Bad USERS=${USERS}"
@@ -60,7 +43,6 @@ test -d "${USERS}"    || doexit "Bad USERS=${USERS}"
 # Work files
 workdir=$TMP/$PROG.work.$$
 report=$workdir/report
-archive_report=$workdir/archive_report
 incoming_report=$workdir/incoming_report
 results_report=$workdir/results_report
 users_report=$workdir/users_report
@@ -87,122 +69,15 @@ fi
 
 trap "rm -rf $workdir" EXIT INT QUIT
 
-for ldir in $LINKDIRS; do printf "\t  ${ldir}\n"; done | sort > ${linkdirs}
-
-function verify_subdirs {
-    directories_arg=${1}
-
-    local let cnt=0
-
-    if [[ -s ${directories_arg} ]]; then
-        grep -vF "_QUARANTINED" ${directories_arg} > ${directories_arg}.linkdirs
-        comm -13 ${linkdirs} ${directories_arg}.linkdirs > ${directories_arg}.unexpected
-        if [[ -s ${directories_arg}.unexpected ]]; then
-            printf "\t* Unexpected state directories found in this controller directory:\n"
-            printf "\t  ++++++++++\n"
-            cat ${directories_arg}.unexpected
-            printf "\t  ----------\n"
-            let cnt=cnt+1
-        fi
-    else
-        printf "\t* No state directories found in this controller directory.\n"
-        let cnt=cnt+1
-    fi
-    return $cnt
-}
-
-function verify_tarball_names {
-    unexpected_symlinks_arg=${1}
-    unexpected_objects_arg=${2}
-    tarballs_arg=${3}
-
-    local let cnt=0
-
-    if [[ -s ${unexpected_symlinks_arg} ]]; then
-        printf "\t* Unexpected symlinks in controller directory:\n"
-        printf "\t  ++++++++++\n"
-        cat ${unexpected_symlinks_arg}
-        printf "\t  ----------\n"
-        let cnt=cnt+1
-    fi
-
-    if [[ -s ${unexpected_objects_arg} ]]; then
-        printf "\t* Unexpected files in controller directory:\n"
-        printf "\t  ++++++++++\n"
-        cat ${unexpected_objects_arg}
-        printf "\t  ----------\n"
-        let cnt=cnt+1
-    fi
-
-    if [[ ! -s ${tarballs_arg} ]]; then
-        printf "\t* No tar ball files found in this controller directory.\n"
-        let cnt=cnt+1
-    fi
-
-    return $cnt
-}
-
-function verify_prefixes {
-    controller_arg=${1}
-
-    if [[ ! -e ${controller_arg}/.prefix ]]; then
-        return 0
-    fi
-    if [[ ! -d ${controller_arg}/.prefix ]]; then
-        printf "\t* Prefix directory, .prefix, is not a directory!\n"
-        return 1
-    fi
-
-    local let cnt=0
-
-    > ${non_prefixes}
-    > ${wrong_prefixes}
-    find ${controller_arg}/.prefix -maxdepth 1 \
-            \( ! -name 'prefix.*' ! -name '*.prefix' -fprintf ${non_prefixes} "\t  %f\n" \) \
-            -o \( -name 'prefix.*' -fprintf ${wrong_prefixes} "\t  %f\n" \)
-    status=$?
-    if [[ $status -ne 0 ]]; then
-        printf "*** ERROR *** unable to traverse ${controller_arg}/.prefix: find failed with $status\n"
-        let cnt=cnt+1
-    fi
-
-    if [[ -s ${non_prefixes} ]]; then
-        printf "\t* Unexpected file system objects in .prefix directory:\n"
-        printf "\t  ++++++++++\n"
-        sort ${non_prefixes} 2>&1
-        printf "\t  ----------\n"
-        let cnt=cnt+1
-    fi
-    rm -f ${non_prefixes}
-
-    if [[ -s ${wrong_prefixes} ]]; then
-        printf "\t* Wrong prefix file names found in /.prefix directory:\n"
-        printf "\t  ++++++++++\n"
-        sort ${wrong_prefixes} 2>&1
-        printf "\t  ----------\n"
-        let cnt=cnt+1
-    fi
-    rm -f ${wrong_prefixes}
-
-    return $cnt
-}
-
 function verify_incoming {
     controllers_arg=${1}
 
     local let cnt=0
 
     while read controller ;do
-        if [[ ! -d $ARCHIVE/${controller} ]]; then
-            # Skip incoming controller directories that don't have an $ARCHIVE
-            # directory, handled in another part of the audit.
-            continue
-        fi
         lclreport="${workdir}/$(basename -- ${controller})"
         > ${lclreport}
 
-        tarball_dirs="${workdir}/tarballdirs"
-        > ${tarball_dirs}
         empty_tarball_dirs="${workdir}/emptytarballdirs"
         > ${empty_tarball_dirs}
         unpacking_tarball_dirs="${workdir}/unpackingtarballdirs"
@@ -210,8 +85,7 @@ function verify_incoming {
         tarball_links="${workdir}/tarballlinks"
         > ${tarball_links}
         find $INCOMING/${controller} -maxdepth 1 \
-                   \( -type d ! -name ${controller} ! -name '*.unpack' ! -empty -fprintf ${tarball_dirs} "%f\n" \) \
-                -o \( -type d ! -name ${controller} ! -name '*.unpack'   -empty -fprintf ${empty_tarball_dirs} "\t\t%f\n" \) \
+                   \( -type d ! -name ${controller} ! -name '*.unpack'   -empty -fprintf ${empty_tarball_dirs} "\t\t%f\n" \) \
                 -o \( -type d ! -name ${controller}   -name '*.unpack'          -fprintf ${unpacking_tarball_dirs} "\t\t%f\n" \) \
                 -o \( -type l                                                   -fprintf ${tarball_links} "\t\t%f\n" \)
         status=$?
@@ -220,21 +94,6 @@ function verify_incoming {
             let cnt=cnt+1
             continue
         fi
-
-        invalid_tb_dirs="${workdir}/invalidtbdirs"
-        while read tb ; do
-            if [[ -r $ARCHIVE/${controller}/${tb}.tar.xz ]]; then
-                continue
-            fi
-            printf "\t\t${tb}\n"
-        done < ${tarball_dirs} > ${invalid_tb_dirs}
-        rm ${tarball_dirs}
-
-        if [[ -s ${invalid_tb_dirs} ]]; then
-            printf "\tInvalid tar ball directories (not in $ARCHIVE):\n" >> ${lclreport}
-            sort ${invalid_tb_dirs} >> ${lclreport} 2>&1
-        fi
-        rm ${invalid_tb_dirs}
 
         if [[ -s ${empty_tarball_dirs} ]]; then
             printf "\tEmpty tar ball directories:\n" >> ${lclreport}
@@ -245,7 +104,7 @@ function verify_incoming {
         invalid_unpacking_dirs="${workdir}/invalidunpacking"
         while read tb_u ; do
             tb=${tb_u%*.unpack}
-            if [[ -r $ARCHIVE/${controller}/${tb}.tar.xz ]]; then
+            if [[ -r ${unpack_dir}/${controller}/${tb}.tar.xz || -r ${re_unpack_dir}/${controller}/${tb}.tar.xz ]]; then
                 continue
             fi
             printf "\t\t${tb_u}\n"
@@ -288,11 +147,6 @@ function verify_results {
     local let cnt=0
 
     while read controller ;do
-        if [[ ! -d $ARCHIVE/${controller} ]]; then
-            # Skip incoming controller directories that don't have an $ARCHIVE
-            # directory, handled in another part of the audit.
-            continue
-        fi
         lclreport="${workdir}/$(basename -- ${controller})"
         > ${lclreport}
 
@@ -324,18 +178,10 @@ function verify_results {
         # Verify the link name should be a link to the $INCOMING directory or
         # a symlink of the same name, and should be the name of a valid tar
         # ball.
-        invalid_tb_links="${workdir}/invalidtblinks"
-        > ${invalid_tb_links}
         incorrect_tb_dir_links="${workdir}/incorrecttbdirlinks"
         > ${incorrect_tb_dir_links}
         invalid_tb_dir_links="${workdir}/invalidtbdirlinks"
         > ${invalid_tb_dir_links}
-        unused_prefix_files="${workdir}/unusedprefixfiles"
-        > ${unused_prefix_files}
-        missing_prefix_files="${workdir}/missingprefixfiles"
-        > ${missing_prefix_files}
-        bad_prefix_files="${workdir}/badprefixfiles"
-        > ${bad_prefix_files}
         bad_prefixes="${workdir}/badprefixes"
         > ${bad_prefixes}
         unexpected_user_links="${workdir}/unexpecteduserlinks"
@@ -346,89 +192,62 @@ function verify_results {
         rm ${tarball_links}.unsorted
         while read path link ; do
             tb=$(basename -- ${path})
-            if [[ ! -e $ARCHIVE/${controller}/${tb}.tar.xz ]]; then
-                # The tar ball does not exist in the archive hierarchy.
-                printf "\t\t${path}\n" >> ${invalid_tb_links}
+            if [[ "${link}" != "$INCOMING/${controller}/${tb}" ]]; then
+                # The link is not constructed to point to the proper
+                # location in the incoming hierarchy.
+                printf "\t\t${path}\n" >> ${incorrect_tb_dir_links}
+            elif [[ ! -d $INCOMING/${controller}/${tb} && ! -L $INCOMING/${controller}/${tb} ]]; then
+                # The link in the results directory does not point to
+                # a directory or link in the incoming hierarchy.
+                printf "\t\t${path}\n" >> ${invalid_tb_dir_links}
             else
-                if [[ "${link}" != "$INCOMING/${controller}/${tb}" ]]; then
-                    # The link is not constructed to point to the proper
-                    # location in the incoming hierarchy.
-                    printf "\t\t${path}\n" >> ${incorrect_tb_dir_links}
-                elif [[ ! -d $INCOMING/${controller}/${tb} && ! -L $INCOMING/${controller}/${tb} ]]; then
-                    # The link in the results directory does not point to
-                    # a directory or link in the incoming hierarchy.
-                    printf "\t\t${path}\n" >> ${invalid_tb_dir_links}
+                prefix_path=$(dirname -- ${path})
+                # Version 002 agents use the metadata log to store a
+                # prefix.
+                __prefix=$(pbench-server-config -C $INCOMING/${controller}/${tb}/metadata.log prefix run)
+                _prefix=${__prefix#/}
+                prefix=${_prefix%/}
+                if [[ "${prefix_path}" == "." ]]; then
+                    # No prefix, ensure it doesn't have a prefix in the
+                    # metadata.log file.
+                    if [[ ! -z "${prefix}" ]]; then
+                        # The stored prefix does not match the
+                        # actual prefix
+                        printf "\t\t${path}\n" >> ${bad_prefixes}
+                    fi
                 else
-                    prefix_path=$(dirname -- ${path})
-                    prefix_file="$ARCHIVE/${controller}/.prefix/${tb}.prefix"
-                    # Version 002 agents use the metadata log to store a
-                    # prefix.
-                    __prefix=$(pbench-server-config -C $INCOMING/${controller}/${tb}/metadata.log prefix run)
-                    _prefix=${__prefix#/}
-                    prefix=${_prefix%/}
-                    if [[ "${prefix_path}" == "." ]]; then
-                        # No prefix, ensure it doesn't have a prefix in the
-                        # metadata.log file or in a prefix file.
-                        if [[ ! -z "${prefix}" ]]; then
+                    # Have a prefix ...
+                    if [[ ! -z "${prefix}" ]]; then
+                        # Have a prefix in the metadata.log file ...
+                        if [[ ${prefix} != ${prefix_path} ]]; then
                             # The stored prefix does not match the
                             # actual prefix
                             printf "\t\t${path}\n" >> ${bad_prefixes}
-                        elif [[ -e ${prefix_file} ]]; then
-                            printf "\t\t${path}\n" >> ${unused_prefix_files}
                         fi
                     else
-                        # Have a prefix ...
-                        if [[ ! -z "${prefix}" ]]; then
-                            # Have a prefix in the metadata.log file ...
-                            if [[ ${prefix} != ${prefix_path} ]]; then
-                                # The stored prefix does not match the
-                                # actual prefix
-                                printf "\t\t${path}\n" >> ${bad_prefixes}
-                            fi
-                        elif [[ ! -e ${prefix_file} ]]; then
-                            # Don't have a prefix file either.
-                            printf "\t\t${path}\n" >> ${missing_prefix_files}
-                        else
-                            # Ensure we can actually read from the expected
-                            # prefix file
-                            prefix=$(cat ${prefix_file} 2> /dev/null)
-                            if [[ $? -gt 0 ]]; then
-                                printf "\t\t${path}\n" >> ${bad_prefix_files}
-                            else
-                                if [[ ${prefix} != ${prefix_path} ]]; then
-                                    # The stored prefix does not match the
-                                    # actual prefix
-                                    printf "\t\t${path}\n" >> ${bad_prefixes}
-                                fi
-                            fi
-                        fi
+                        # We have a prefix on-disk but no prefix in the metadata
+                        printf "\t\t${path}\n" >> ${bad_prefixes}
                     fi
-                    if [[ ! -z "${user_arg}" ]]; then
-                        # We are reviewing a user tree, so check the user in
-                        # the configuration.  Version 002 agents use the
-                        # metadata log to store a user as well.
-                        user=$(pbench-server-config -C $INCOMING/${controller}/${tb}/metadata.log user run)
-                        if [[ -z "${user}" ]]; then
-                            # No user in the metadata.log of the tar ball, but
-                            # we are examining a link in the user tree that
-                            # does not have a configured user, report it.
-                            printf "\t\t${path}\n" >> ${unexpected_user_links}
-                        elif [[ "${user_arg}" != "${user}" ]]; then
-                            # Configured user does not match the user tree in
-                            # which we found the link.
-                            printf "\t\t${path}\n" >> ${wrong_user_links}
-                        fi
+                fi
+                if [[ ! -z "${user_arg}" ]]; then
+                    # We are reviewing a user tree, so check the user in
+                    # the configuration.  Version 002 agents use the
+                    # metadata log to store a user as well.
+                    user=$(pbench-server-config -C $INCOMING/${controller}/${tb}/metadata.log user run)
+                    if [[ -z "${user}" ]]; then
+                        # No user in the metadata.log of the tar ball, but
+                        # we are examining a link in the user tree that
+                        # does not have a configured user, report it.
+                        printf "\t\t${path}\n" >> ${unexpected_user_links}
+                    elif [[ "${user_arg}" != "${user}" ]]; then
+                        # Configured user does not match the user tree in
+                        # which we found the link.
+                        printf "\t\t${path}\n" >> ${wrong_user_links}
                     fi
                 fi
             fi
         done < ${tarball_links}
         rm ${tarball_links}
-
-        if [[ -s ${invalid_tb_links} ]]; then
-            printf "\tInvalid tar ball links (not in $ARCHIVE):\n" >> ${lclreport}
-            cat ${invalid_tb_links} >> ${lclreport}
-        fi
-        rm ${invalid_tb_links}
 
         if [[ -s ${incorrect_tb_dir_links} ]]; then
             printf "\tIncorrectly constructed tar ball links:\n" >> ${lclreport}
@@ -441,24 +260,6 @@ function verify_results {
             cat ${invalid_tb_dir_links} >> ${lclreport}
         fi
         rm ${invalid_tb_dir_links}
-
-        if [[ -s ${unused_prefix_files} ]]; then
-            printf "\tTar ball links with unused prefix files:\n" >> ${lclreport}
-            cat ${unused_prefix_files} >> ${lclreport}
-        fi
-        rm ${unused_prefix_files}
-
-        if [[ -s ${missing_prefix_files} ]]; then
-            printf "\tTar ball links with missing prefix files:\n" >> ${lclreport}
-            cat ${missing_prefix_files} >> ${lclreport}
-        fi
-        rm ${missing_prefix_files}
-
-        if [[ -s ${bad_prefix_files} ]]; then
-            printf "\tTar ball links with bad prefix files:\n" >> ${lclreport}
-            cat ${bad_prefix_files} >> ${lclreport}
-        fi
-        rm ${bad_prefix_files}
 
         if [[ -s ${bad_prefixes} ]]; then
             printf "\tTar ball links with bad prefixes:\n" >> ${lclreport}
@@ -493,8 +294,7 @@ function verify_results {
 }
 
 function verify_controllers {
-    # Assert that $1/ only contains controller directories, and that each
-    # directory has a $ARCHIVE/ directory that exists as a directory.
+    # Assert that $1/ only contains controller directories/
     hierarchy_root=${1}
 
     if [[ "${hierarchy_root}" = "$INCOMING" ]]; then
@@ -537,8 +337,6 @@ function verify_controllers {
 
     sort ${controllers}.unsorted > ${controllers}
     if [[ -s ${controllers} ]]; then
-        mialist="${workdir}/missing_in_archive"
-        > ${mialist}
         emptylist="${workdir}/empty_controllers"
         > ${emptylist}
         unexpectedlist="${workdir}/controllers_w_unexpected"
@@ -546,42 +344,29 @@ function verify_controllers {
         verifylist="${workdir}/controllers_to_verify"
         > ${verifylist}
         while read controller ;do
-            if [[ ! -d ${ARCHIVE}/${controller} ]]; then
-                # We have a controller in the hierarchy which does not have a
-                # controller of the same name in the archive hierarchy.  All
-                # we do is report it, don't bother analyzing it further.
-                printf "\t${controller}\n" >> ${mialist}
-            else
-                # Report any controllers with objects other than directories
-                # and links, while also recording any empty controllers.
-                > ${unexpected_objects}
-                > ${empty}
-                find ${hierarchy_root}/${controller} -maxdepth 1 \
-                        \( ! -type d ! -type l -fprintf ${unexpected_objects} "%f\n" \) \
-                        -o \( -type d -name ${controller} -empty -fprintf ${empty} "%f\n" \)
-                status=$?
-                if [[ $status -ne 0 ]]; then
-                    printf "*** ERROR *** unable to traverse hiearchy ${hierarchy_root}/${controller}: find failed with $status\n"
-                    let cnt=cnt+1
-                fi
-                if [[ -s "${empty}" ]]; then
-                    printf "\t${controller}\n" >> ${emptylist}
-                elif [[ -s "${unexpected_objects}" ]]; then
-                    printf "\t${controller}\n" >> ${unexpectedlist}
-                    printf "\t${controller}\n" >> ${verifylist}
-                else
-                    printf "\t${controller}\n" >> ${verifylist}
-                fi
-                rm -f ${unexpected_objects} ${empty}
+            # Report any controllers with objects other than directories
+            # and links, while also recording any empty controllers.
+            > ${unexpected_objects}
+            > ${empty}
+            find ${hierarchy_root}/${controller} -maxdepth 1 \
+                    \( ! -type d ! -type l -fprintf ${unexpected_objects} "%f\n" \) \
+                    -o \( -type d -name ${controller} -empty -fprintf ${empty} "%f\n" \)
+            status=$?
+            if [[ $status -ne 0 ]]; then
+                printf "*** ERROR *** unable to traverse hiearchy ${hierarchy_root}/${controller}: find failed with $status\n"
+                let cnt=cnt+1
             fi
+            if [[ -s "${empty}" ]]; then
+                printf "\t${controller}\n" >> ${emptylist}
+            elif [[ -s "${unexpected_objects}" ]]; then
+                printf "\t${controller}\n" >> ${unexpectedlist}
+                printf "\t${controller}\n" >> ${verifylist}
+            else
+                printf "\t${controller}\n" >> ${verifylist}
+            fi
+            rm -f ${unexpected_objects} ${empty}
         done < ${controllers}
 
-        if [[ -s "${mialist}" ]]; then
-            printf "\nControllers which do not have a ${ARCHIVE} directory:\n"
-            cat ${mialist}
-            let cnt=cnt+1
-        fi
-        rm -f ${mialist}
         if [[ -s "${emptylist}" ]]; then
             printf "\nControllers which are empty:\n"
             cat ${emptylist}
@@ -643,79 +428,6 @@ function verify_users {
     return $cnt
 }
 
-function verify_archive {
-    local let cnt=0
-
-    # Find all the non-directory files at the same level of the controller
-    # directories and report them, keeping them in sorted order by name, and
-    # find all the normal controller directories, ignoring the "." (current)
-    # directory (if the $ARCHIVE directory resolves to "."), and ignoring the
-    # $ARCHIVE directory itself, while keeping them all in sorted order.
-    > ${bad_controllers}
-    > ${controllers}.unsorted
-    find $ARCHIVE -maxdepth 1 \
-         \( ! -type d -fprintf ${bad_controllers} "\t%M %10s %t %f\n" \) \
-         -o \( -type d ! -name . ! -name $(basename -- $ARCHIVE) -fprintf ${controllers}.unsorted "%p\n" \)
-    if [[ $? -gt 0 ]]; then
-        printf "\n*** ERROR *** unable to traverse $ARCHIVE hierarchy\n"
-        let cnt=cnt+1
-    fi
-
-    if [[ -s ${bad_controllers} ]]; then
-        printf "\nBad Controllers:\n"
-        sort -k 8 ${bad_controllers} 2>&1
-        let cnt=cnt+1
-    fi
-    rm -f ${bad_controllers}
-
-    # Find all the normal controller directories, ignoring the "." (current)
-    # directory (if the $ARCHIVE directory resolves to "."), and ignoring the
-    # $ARCHIVE directory itself, while keeping them all in sorted order.
-    sort ${controllers}.unsorted > ${controllers}
-    while read controller ;do
-        lclreport="${workdir}/$(basename -- ${controller})"
-        > ${lclreport}
-
-        > ${directories}.unsorted
-        > ${unexpected_symlinks}.unsorted
-        > ${unexpected_objects}.unsorted
-        > ${tarballs}
-        find ${controller} -maxdepth 1 \
-                \( -type d ! -name . ! -name $(basename -- ${controller}) ! -name .prefix -fprintf ${directories}.unsorted "\t  %f\n" \) \
-                -o \( -type l -fprintf ${unexpected_symlinks}.unsorted "\t  %f -> %l\n" \) \
-                -o \( -type f ! -name '*.tar.xz.md5' ! -name '*.tar.xz' -fprintf ${unexpected_objects}.unsorted "\t  %f\n" \) \
-                -o \( -type f \( -name '*.tar.xz.md5' -o -name '*.tar.xz' \) -fprintf ${tarballs} "%f\n" \)
-        status=$?
-        if [[ $status -gt 0 ]]; then
-            printf "*** ERROR *** unable to traverse controller hierarchy for $(basename -- ${controller}): find failed with $status\n" >> ${lclreport}
-            let cnt=cnt+1
-        else
-            sort ${directories}.unsorted > ${directories}
-            verify_subdirs ${directories} >> ${lclreport}
-
-            sort ${unexpected_symlinks}.unsorted > ${unexpected_symlinks}
-            sort ${unexpected_objects}.unsorted > ${unexpected_objects}
-            verify_tarball_names ${unexpected_symlinks} ${unexpected_objects} ${tarballs} >> ${lclreport}
-
-            verify_prefixes ${controller} >> ${lclreport}
-        fi
-        rm -f ${directories}.unsorted ${directories}
-        rm -f ${unexpected_symlinks}.unsorted ${unexpected_symlinks}
-        rm -f ${unexpected_objects}.unsorted ${unexpected_objects}
-        rm -f ${tarballs}
-
-        if [[ -s ${lclreport} ]]; then
-            printf "\nController: $(basename -- ${controller})\n"
-            cat ${lclreport}
-            let cnt=cnt+1
-        fi
-        rm ${lclreport}
-    done < ${controllers}
-    rm -f ${controllers}.unsorted ${controllers}
-
-    return $cnt
-}
-
 # Save the previous report.
 latest_report=${LOGSDIR}/${PROG}/report.latest.txt
 prev_report=${LOGSDIR}/${PROG}/report.prev.txt
@@ -724,19 +436,6 @@ mv ${latest_report} ${prev_report} 2>/dev/null
 > ${report}
 
 let ret=0
-
-# Construct the report file
-sTS=$(timestamp)
-verify_archive > ${archive_report} 2>&1
-if [[ $? -ne 0 ]]; then
-    let ret=ret+1
-fi
-eTS=$(timestamp)
-if [[ -s ${archive_report} ]]; then
-    printf "\nstart-${sTS}: archive hierarchy: $ARCHIVE\n" >> ${report}
-    cat ${archive_report} >> ${report}
-    printf "\nend-${eTS}: archive hierarchy: $ARCHIVE\n" >> ${report}
-fi
 
 sTS=$(timestamp)
 verify_controllers $INCOMING > ${incoming_report} 2>&1

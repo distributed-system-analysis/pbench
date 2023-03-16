@@ -63,20 +63,6 @@ else
     }
 fi
 
-function mk_dirs {
-    local _controller=${1}
-
-    local _d
-    for _d in ${LINKDIRS}; do
-        local _thedir=${ARCHIVE}/${_controller}/${_d}
-        mkdir -p ${_thedir}
-        if [[ ${?} -ne 0 || ! -d "${_thedir}" ]]; then
-            return 1
-        fi
-    done
-    return 0
-}
-
 function log_init {
     local _LOG_DIR=${LOGSDIR}/${1}
     mkdir -p ${_LOG_DIR}

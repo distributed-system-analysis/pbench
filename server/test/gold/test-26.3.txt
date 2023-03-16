@@ -18,8 +18,6 @@ lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-26.3/pbench/publ
 /var/tmp/pbench-test-server/test-26.3/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-26.3/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -55,7 +53,9 @@ drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs

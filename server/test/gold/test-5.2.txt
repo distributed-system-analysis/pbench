@@ -6,8 +6,6 @@
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-unpack-tarballs none re-unpack
 --- Finished pbench-unpack-tarballs (status=0)
-+++ Running pbench-clean-up-dangling-results-links
---- Finished pbench-clean-up-dangling-results-links (status=0)
 +++ Running pbench-cull-unpacked-tarballs
 --- Finished pbench-cull-unpacked-tarballs (status=0)
 +++ Running pbench-tarball-stats
@@ -61,62 +59,6 @@ lrwxrwxrwx         61 users -> /var/tmp/pbench-test-server/test-5.2/pbench/publi
 /var/tmp/pbench-test-server/test-5.2/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-5.2/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerA
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/UNPACKED
-lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/UNPACKED/tarball-simple1_1970-01-01T00:42:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/WONT-UNPACK
--rw-rw-r--        220 archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz
--rw-rw-r--         77 archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerB
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/UNPACKED
-lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/UNPACKED/tarball-simple2_1970-01-01T00:41:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/WONT-UNPACK
--rw-rw-r--        220 archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz
--rw-rw-r--         79 archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/UNPACKED
-lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/UNPACKED/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/WONT-UNPACK
--rw-rw-r--        228 archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
--rw-rw-r--         86 archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/UNPACKED
-lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/UNPACKED/tarball-0_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz
-lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/UNPACKED/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz
-lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/UNPACKED/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/WONT-UNPACK
--rw-rw-r--        212 archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         71 archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.md5
--rw-rw-r--        224 archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         82 archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.md5
--rw-rw-r--        224 archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         82 archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate
-drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/UNPACKED
-lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/UNPACKED/tarball-duplicate_1970.01.01T00.42.00.tar.xz -> ../tarball-duplicate_1970.01.01T00.42.00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/WONT-UNPACK
-lrwxrwxrwx         57 archive/fs-version-001/controller-d-duplicate/WONT-UNPACK/tarball-that-does-not-exist_1970.01.01T00.42.00.tar.xz -> ../tarball-that-does-not-exist_1970.01.01T00.42.00.tar.xz
--rw-rw-r--        220 archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         79 archive/fs-version-001/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/controller-g-normal
-drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/controller-g-normal/UNPACKED
-lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/UNPACKED/tarball-normal_1970.01.01T00.42.00.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller-g-normal/WONT-UNPACK
--rw-rw-r--        216 archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         76 archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/incoming/ONE::controllerA
@@ -135,6 +77,9 @@ drwxrwxr-x          - public_html/incoming/controller-b-with-prefixes/tarball-w-
 -rw-rw-r--          0 public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00/empty
 drwxrwxr-x          - public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00
 -rw-rw-r--          0 public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00/empty
+drwxrwxr-x          - public_html/incoming/controller-d-duplicate
+drwxrwxr-x          - public_html/incoming/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00
+-rw-rw-r--          0 public_html/incoming/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00/empty
 drwxrwxr-x          - public_html/incoming/controller-g-normal
 drwxrwxr-x          - public_html/incoming/controller-g-normal/tarball-normal_1970.01.01T00.42.00
 -rw-rw-r--          0 public_html/incoming/controller-g-normal/tarball-normal_1970.01.01T00.42.00/empty
@@ -149,6 +94,8 @@ drwxrwxr-x          - public_html/results/controller-b-with-prefixes
 lrwxrwxrwx        121 public_html/results/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00 -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00
 lrwxrwxrwx        132 public_html/results/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00 -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00
 lrwxrwxrwx        132 public_html/results/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00 -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00
+drwxrwxr-x          - public_html/results/controller-d-duplicate
+lrwxrwxrwx        125 public_html/results/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00 -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00
 drwxrwxr-x          - public_html/results/controller-g-normal
 lrwxrwxrwx        119 public_html/results/controller-g-normal/tarball-normal_1970.01.01T00.42.00 -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-g-normal/tarball-normal_1970.01.01T00.42.00
 drwxrwxr-x          - public_html/static
@@ -172,42 +119,39 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-5.2/pbench-local)
-drwxrwxr-x          - archive.backup
-drwxrwxr-x          - archive.backup/ONE::controllerA
--rw-rw-r--        220 archive.backup/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz
--rw-rw-r--         77 archive.backup/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.md5
-drwxrwxr-x          - archive.backup/ONE::controllerB
--rw-rw-r--        220 archive.backup/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz
--rw-rw-r--         79 archive.backup/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.md5
-drwxrwxr-x          - archive.backup/ONE::controllerC
--rw-rw-r--        228 archive.backup/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
--rw-rw-r--         86 archive.backup/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.md5
-drwxrwxr-x          - archive.backup/controller-b-with-prefixes
--rw-rw-r--        212 archive.backup/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         71 archive.backup/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.md5
--rw-rw-r--        224 archive.backup/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         82 archive.backup/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.md5
--rw-rw-r--        224 archive.backup/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         82 archive.backup/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.md5
-drwxrwxr-x          - archive.backup/controller-d-duplicate
--rw-rw-r--        220 archive.backup/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         79 archive.backup/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.md5
-drwxrwxr-x          - archive.backup/controller-g-normal
--rw-rw-r--        216 archive.backup/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         76 archive.backup/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.md5
+drwxrwxr-x          - backup
+drwxrwxr-x          - backup/ONE::controllerA
+-rw-rw-r--        220 backup/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz
+-rw-rw-r--         77 backup/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.md5
+drwxrwxr-x          - backup/ONE::controllerB
+-rw-rw-r--        220 backup/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz
+-rw-rw-r--         79 backup/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.md5
+drwxrwxr-x          - backup/ONE::controllerC
+-rw-rw-r--        228 backup/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz
+-rw-rw-r--         86 backup/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.md5
+drwxrwxr-x          - backup/controller-b-with-prefixes
+-rw-rw-r--        212 backup/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz
+-rw-rw-r--         71 backup/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.md5
+-rw-rw-r--        224 backup/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz
+-rw-rw-r--         82 backup/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.md5
+-rw-rw-r--        224 backup/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz
+-rw-rw-r--         82 backup/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.md5
+drwxrwxr-x          - backup/controller-d-duplicate
+-rw-rw-r--        220 backup/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz
+-rw-rw-r--         79 backup/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.md5
+drwxrwxr-x          - backup/controller-g-normal
+-rw-rw-r--        216 backup/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz
+-rw-rw-r--         76 backup/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.md5
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 -rw-rw-r--          0 logs/pbench-audit-server/report.latest.txt
-drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
--rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
--rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        174 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
--rw-rw-r--       2701 logs/pbench-dispatch/pbench-dispatch.log
+-rw-rw-r--       1848 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-re-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
@@ -216,8 +160,8 @@ drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
 -rw-rw-r--        586 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs-small
--rw-rw-r--        218 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
--rw-rw-r--       3103 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
+-rw-rw-r--          0 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
+-rw-rw-r--       1506 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/ONE::controllerA
@@ -235,9 +179,6 @@ drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-f-ba
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-g-normal
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
-drwxrwxr-x          - quarantine/duplicates-002/controller-d-duplicate
--rw-rw-r--        220 quarantine/duplicates-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz
--rw-rw-r--         79 quarantine/duplicates-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz.md5
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - quarantine/md5-002/controller-a-missing-tb
@@ -248,7 +189,15 @@ drwxrwxr-x          - quarantine/md5-002/controller-e-bad-md5
 drwxrwxr-x          - quarantine/md5-002/controller-f-bad-md5
 -rw-rw-r--        220 quarantine/md5-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz
 -rw-rw-r--         79 quarantine/md5-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz.md5
+drwxrwxr-x          - re-unpack
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
+drwxrwxr-x          - unpack/ONE::controllerA
+drwxrwxr-x          - unpack/ONE::controllerB
+drwxrwxr-x          - unpack/ONE::controllerC
+drwxrwxr-x          - unpack/controller-b-with-prefixes
+drwxrwxr-x          - unpack/controller-d-duplicate
+drwxrwxr-x          - unpack/controller-g-normal
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs
@@ -258,10 +207,6 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-audit-server/report.latest.txt
 ----- pbench-audit-server/report.latest.txt
-+++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
------ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
-+++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
------ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Culling unpacked tar balls 30 days older than 1970-01-01T00:00:42.000000
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
@@ -269,22 +214,16 @@ drwxrwxr-x          - tmp
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
 tarball-simple1_1970-01-01T00:42:00.tar.xz: OK
-run-1970-01-01T00:00:42-UTC: ONE::controllerA/tarball-simple1_1970-01-01T00:42:00: success
 ./tarball-simple2_1970-01-01T00:41:00.tar.xz: OK
-run-1970-01-01T00:00:42-UTC: ONE::controllerB/tarball-simple2_1970-01-01T00:41:00: success
 ./tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz: OK
-run-1970-01-01T00:00:42-UTC: ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00: success
 md5sum: tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz: No such file or directory
 tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz: FAILED open or read
 md5sum: WARNING: 1 listed file could not be read
 run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-a-missing-tb/tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz failed MD5 check
 tarball-0_1970.01.01T00.42.00.tar.xz: OK
-run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00: success
 tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz: OK
-run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00: success
 tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz: OK
-run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00: success
-run-1970-01-01T00:00:42-UTC: Duplicate: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz duplicate name
+tarball-duplicate_1970.01.01T00.42.00.tar.xz: OK
 tarball-bad-md5_1970.01.01T00.42.00.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
 run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-e-bad-md5/tarball-bad-md5_1970.01.01T00.42.00.tar.xz failed MD5 check
@@ -292,8 +231,7 @@ tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
 run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz failed MD5 check
 tarball-normal_1970.01.01T00.42.00.tar.xz: OK
-run-1970-01-01T00:00:42-UTC: controller-g-normal/tarball-normal_1970.01.01T00.42.00: success
-@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "ndups": 1, "npartialsucc": 0, "nquarantined": 3, "ntbs": 7, "ntotal": 11, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 11 result tar balls, 7 successfully (0 partial), with 3 quarantined tar balls, 1 duplicately-named tar balls, and 0 errors."}}}}
+@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nberrs": 0, "nquarantined": 3, "ntbs": 8, "ntotal": 11, "nuerrs": 0, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 11 result tar balls, 8 successfully, with 3 quarantined, 0 backup errors, 0 unpack setup errors, and 0 archive API errors."}}}}
 ----- pbench-dispatch/pbench-dispatch.log
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
@@ -307,24 +245,17 @@ run-1970-01-01T00:00:42-UTC: Completed satellite state changes
 @cee:{"pbench": {"report": {"summary": {"duration": 0, "end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nhosts": 3, "nprocessed": 3, "ntotal": 3, "prog": "pbench-sync-satellite", "remote_prefix": "ONE", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) ONE Processed 3 files (from 3 hosts, 3 total tar balls), with 0 errors, in 0 seconds"}}}}
 ----- pbench-sync-satellite/pbench-sync-satellite.log
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
-run-1970-01-01T00:00:42-UTC: symlink target for /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/TO-UNPACK/tarball-that-does-not-exist_1970.01.01T00.42.00.tar.xz does not exist
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00
+run-1970-01-01T00:00:42-UTC: controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00: success - elapsed time (secs): 0 - size (bytes): 220
 run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00: success - elapsed time (secs): 0 - size (bytes): 212
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00
 run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00
 run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-g-normal/tarball-normal_1970.01.01T00.42.00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-g-normal/tarball-normal_1970.01.01T00.42.00
 run-1970-01-01T00:00:42-UTC: controller-g-normal/tarball-normal_1970.01.01T00.42.00: success - elapsed time (secs): 0 - size (bytes): 216
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00
 run-1970-01-01T00:00:42-UTC: ONE::controllerA/tarball-simple1_1970-01-01T00:42:00: success - elapsed time (secs): 0 - size (bytes): 220
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00
 run-1970-01-01T00:00:42-UTC: ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00: success - elapsed time (secs): 0 - size (bytes): 228
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00
 run-1970-01-01T00:00:42-UTC: ONE::controllerB/tarball-simple2_1970-01-01T00:41:00: success - elapsed time (secs): 0 - size (bytes): 220
-@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 1, "nrechecks": 0, "ntbs": 7, "ntotal": 8, "nwarn": 0, "prog": "pbench-unpack-tarballs-small", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 8 result tar balls, 7 successfully, with 0 rechecks, 0 warnings, and 1 errors"}}}}
+@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nold": 0, "nrechecks": 0, "ntbs": 8, "ntotal": 8, "nwarn": 0, "prog": "pbench-unpack-tarballs-small", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 8 result tar balls, 8 successfully, with 0 rechecks, 0 too old to unpack, 0 warnings, and 0 errors"}}}}
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 ---- pbench-local/logs
 --- pbench log file contents
@@ -333,17 +264,11 @@ ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench
 ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench-server-satellite/bin/pbench-satellite-state-change /var/tmp/pbench-test-server/test-5.2/pbench-satellite/archive/fs-version-001
 hostname -f
 pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com --metadata=server.origin:ONE
-restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz.md5
 pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com --metadata=server.origin:ONE
-restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz.md5
 pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com --metadata=server.origin:ONE
-restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.md5
 pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com
-restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz.md5
 pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com
-restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz.md5
 pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com
-restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz.md5
+pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com
 pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com
-restorecon /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.md5
 --- test-execution.log file contents

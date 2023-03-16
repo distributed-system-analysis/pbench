@@ -1,37 +1,42 @@
-+++ Running pbench-restore-and-unpack-tarballs
-Restoring tar balls from backup volume, /var/tmp/pbench-test-server/test-19/pbench-local/archive.backup (started at: 42.0)
-Considering 4 tar balls from backup volume, /var/tmp/pbench-test-server/test-19/pbench-local/archive.backup (at: 42.0, elapsed: 0.00)
++++ Running pbench-restore-unpacked-tarballs
+Restoring tar balls from backup volume, /var/tmp/pbench-test-server/test-19/pbench-local/backup (started at: 1970-01-01T00:00:42-UTC)
+Considering 4 tar balls from backup volume, /var/tmp/pbench-test-server/test-19/pbench-local/backup (at: 1970-01-01T00:00:42-UTC, elapsed: 0.0)
 
-Created controller directory, '/var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00'
-
-cp -a /var/tmp/pbench-test-server/test-19/pbench-local/archive.backup/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz /var/tmp/pbench-test-server/test-19/pbench-local/archive.backup/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz.md5 /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/
-md5sum --check /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz.md5
+cp -a /var/tmp/pbench-test-server/test-19/pbench-local/backup/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz /var/tmp/pbench-test-server/test-19/pbench-local/backup/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz.md5 /var/tmp/pbench-test-server/test-19/pbench-local/tmp/reunpack-XXXX/
+md5sum --check tarball_config-01_1970.01.01T00.00.42.tar.xz.md5
 tarball_config-01_1970.01.01T00.00.42.tar.xz: OK
-ln -s /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/TO-RE-UNPACK/tarball_config-01_1970.01.01T00.00.42.tar.xz
 
-File 1 of 4 (1 restored, 0 existing, so far), restored: /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz
+Created controller directory, '/var/tmp/pbench-test-server/test-19/pbench-local/re-unpack/ctrl-00'
+
+mv /var/tmp/pbench-test-server/test-19/pbench-local/tmp/reunpack-XXXX/tarball_config-01_1970.01.01T00.00.42.tar.xz /var/tmp/pbench-test-server/test-19/pbench-local/tmp/reunpack-XXXX/tarball_config-01_1970.01.01T00.00.42.tar.xz.md5 /var/tmp/pbench-test-server/test-19/pbench-local/re-unpack/ctrl-00/
+
+File 1 of 4 (1 restored, 0 existing, so far), restored: /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-00/tarball_config-01_1970.01.01T00.00.42
 
 
-cp -a /var/tmp/pbench-test-server/test-19/pbench-local/archive.backup/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz /var/tmp/pbench-test-server/test-19/pbench-local/archive.backup/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz.md5 /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-01/
-md5sum --check /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz.md5
+cp -a /var/tmp/pbench-test-server/test-19/pbench-local/backup/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz /var/tmp/pbench-test-server/test-19/pbench-local/backup/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz.md5 /var/tmp/pbench-test-server/test-19/pbench-local/tmp/reunpack-XXXX/
+md5sum --check tarball_config-02_1970.01.01T00.00.41.tar.xz.md5
 tarball_config-02_1970.01.01T00.00.41.tar.xz: OK
-ln -s /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-01/TO-RE-UNPACK/tarball_config-02_1970.01.01T00.00.41.tar.xz
 
-File 2 of 4 (2 restored, 0 existing, so far), restored: /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz
+Created controller directory, '/var/tmp/pbench-test-server/test-19/pbench-local/re-unpack/ctrl-01'
+
+mv /var/tmp/pbench-test-server/test-19/pbench-local/tmp/reunpack-XXXX/tarball_config-02_1970.01.01T00.00.41.tar.xz /var/tmp/pbench-test-server/test-19/pbench-local/tmp/reunpack-XXXX/tarball_config-02_1970.01.01T00.00.41.tar.xz.md5 /var/tmp/pbench-test-server/test-19/pbench-local/re-unpack/ctrl-01/
+
+File 2 of 4 (2 restored, 0 existing, so far), restored: /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-01/tarball_config-02_1970.01.01T00.00.41
 
 
-cp -a /var/tmp/pbench-test-server/test-19/pbench-local/archive.backup/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz /var/tmp/pbench-test-server/test-19/pbench-local/archive.backup/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz.md5 /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/
-md5sum --check /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz.md5
+cp -a /var/tmp/pbench-test-server/test-19/pbench-local/backup/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz /var/tmp/pbench-test-server/test-19/pbench-local/backup/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz.md5 /var/tmp/pbench-test-server/test-19/pbench-local/tmp/reunpack-XXXX/
+md5sum --check tarball_config-00_1970.01.01T00.00.40.tar.xz.md5
 tarball_config-00_1970.01.01T00.00.40.tar.xz: OK
-ln -s /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/TO-RE-UNPACK/tarball_config-00_1970.01.01T00.00.40.tar.xz
 
-File 3 of 4 (3 restored, 0 existing, so far), restored: /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz
+mv /var/tmp/pbench-test-server/test-19/pbench-local/tmp/reunpack-XXXX/tarball_config-00_1970.01.01T00.00.40.tar.xz /var/tmp/pbench-test-server/test-19/pbench-local/tmp/reunpack-XXXX/tarball_config-00_1970.01.01T00.00.40.tar.xz.md5 /var/tmp/pbench-test-server/test-19/pbench-local/re-unpack/ctrl-00/
+
+File 3 of 4 (3 restored, 0 existing, so far), restored: /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-00/tarball_config-00_1970.01.01T00.00.40
 
 
-File 4 of 4 (3 restored, 1 existing, so far), exists: /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-01/tarball_config-exists_1970.01.01T00.00.39.tar.xz
+File 4 of 4 (3 restored, 1 existing, so far), exists: /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-01/tarball_config-exists_1970.01.01T00.00.39
 
-Restored 3 tar balls from backup volume, /var/tmp/pbench-test-server/test-19/pbench-local/archive.backup (ended at: 42.0, elapsed: 0.00)
---- Finished pbench-restore-and-unpack-tarballs (status=0)
+Restored 3 tar balls from backup volume, /var/tmp/pbench-test-server/test-19/pbench-local/backup (ended at: 1970-01-01T00:00:42-UTC, elapsed: 0.0)
+--- Finished pbench-restore-unpacked-tarballs (status=0)
 +++ Running pbench-unpack-tarballs none re-unpack
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running unit test audit
@@ -51,30 +56,6 @@ lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-19/pbench/public
 /var/tmp/pbench-test-server/test-19/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-19/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/ctrl-00
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/UNPACKED
-lrwxrwxrwx        118 archive/fs-version-001/ctrl-00/UNPACKED/tarball_config-00_1970.01.01T00.00.40.tar.xz -> /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz
-lrwxrwxrwx        118 archive/fs-version-001/ctrl-00/UNPACKED/tarball_config-01_1970.01.01T00.00.42.tar.xz -> /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ctrl-00/WONT-UNPACK
--rw-rw-r--        224 archive/fs-version-001/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz
--rw-rw-r--         79 archive/fs-version-001/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz.md5
--rw-rw-r--        228 archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz
--rw-rw-r--         79 archive/fs-version-001/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/ctrl-01
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-RE-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/UNPACKED
-lrwxrwxrwx        118 archive/fs-version-001/ctrl-01/UNPACKED/tarball_config-02_1970.01.01T00.00.41.tar.xz -> /var/tmp/pbench-test-server/test-19/pbench/archive/fs-version-001/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz
-lrwxrwxrwx         51 archive/fs-version-001/ctrl-01/UNPACKED/tarball_config-exists_1970.01.01T00.00.39.tar.xz -> ../tarball_config-exists_1970.01.01T00.00.39.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ctrl-01/WONT-UNPACK
--rw-rw-r--        228 archive/fs-version-001/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz
--rw-rw-r--         79 archive/fs-version-001/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz.md5
--rw-rw-r--        232 archive/fs-version-001/ctrl-01/tarball_config-exists_1970.01.01T00.00.39.tar.xz
--rw-rw-r--         83 archive/fs-version-001/ctrl-01/tarball_config-exists_1970.01.01T00.00.39.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/incoming/ctrl-00
@@ -85,6 +66,8 @@ drwxrwxr-x          - public_html/incoming/ctrl-00/tarball_config-01_1970.01.01T
 drwxrwxr-x          - public_html/incoming/ctrl-01
 drwxrwxr-x          - public_html/incoming/ctrl-01/tarball_config-02_1970.01.01T00.00.41
 -rw-rw-r--          0 public_html/incoming/ctrl-01/tarball_config-02_1970.01.01T00.00.41/metadata.log
+drwxrwxr-x          - public_html/incoming/ctrl-01/tarball_config-exists_1970.01.01T00.00.39
+-rw-rw-r--          0 public_html/incoming/ctrl-01/tarball_config-exists_1970.01.01T00.00.39/metadata.log
 drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/results/ctrl-00
 lrwxrwxrwx        109 public_html/results/ctrl-00/tarball_config-00_1970.01.01T00.00.40 -> /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-00/tarball_config-00_1970.01.01T00.00.40
@@ -112,17 +95,17 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-19/pbench-local)
-drwxrwxr-x          - archive.backup
-drwxrwxr-x          - archive.backup/ctrl-00
--rw-rw-r--        224 archive.backup/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz
--rw-rw-r--         79 archive.backup/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz.md5
--rw-rw-r--        228 archive.backup/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz
--rw-rw-r--         79 archive.backup/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz.md5
-drwxrwxr-x          - archive.backup/ctrl-01
--rw-rw-r--        228 archive.backup/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz
--rw-rw-r--         79 archive.backup/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz.md5
--rw-rw-r--        232 archive.backup/ctrl-01/tarball_config-exists_1970.01.01T00.00.39.tar.xz
--rw-rw-r--         83 archive.backup/ctrl-01/tarball_config-exists_1970.01.01T00.00.39.tar.xz.md5
+drwxrwxr-x          - backup
+drwxrwxr-x          - backup/ctrl-00
+-rw-rw-r--        224 backup/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz
+-rw-rw-r--         79 backup/ctrl-00/tarball_config-00_1970.01.01T00.00.40.tar.xz.md5
+-rw-rw-r--        228 backup/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz
+-rw-rw-r--         79 backup/ctrl-00/tarball_config-01_1970.01.01T00.00.42.tar.xz.md5
+drwxrwxr-x          - backup/ctrl-01
+-rw-rw-r--        228 backup/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz
+-rw-rw-r--         79 backup/ctrl-01/tarball_config-02_1970.01.01T00.00.41.tar.xz.md5
+-rw-rw-r--        232 backup/ctrl-01/tarball_config-exists_1970.01.01T00.00.39.tar.xz
+-rw-rw-r--         83 backup/ctrl-01/tarball_config-exists_1970.01.01T00.00.39.tar.xz.md5
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
@@ -130,14 +113,18 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/report.latest.txt
 drwxrwxr-x          - logs/pbench-re-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
--rw-rw-r--       1394 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
+-rw-rw-r--        751 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - re-unpack
+drwxrwxr-x          - re-unpack/ctrl-00
+drwxrwxr-x          - re-unpack/ctrl-01
 drwxrwxr-x          - tmp
+drwxrwxr-x          - unpack
 --- pbench-local tree state
 +++ pbench log file contents
 ++++ pbench-local/logs
@@ -150,13 +137,10 @@ drwxrwxr-x          - tmp
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
-ln -s /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-00/tarball_config-01_1970.01.01T00.00.42 /var/tmp/pbench-test-server/test-19/pbench/public_html/results/ctrl-00/tarball_config-01_1970.01.01T00.00.42
 run-1970-01-01T00:00:42-UTC: ctrl-00/tarball_config-01_1970.01.01T00.00.42: success - elapsed time (secs): 0 - size (bytes): 228
-ln -s /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-01/tarball_config-02_1970.01.01T00.00.41 /var/tmp/pbench-test-server/test-19/pbench/public_html/results/ctrl-01/tarball_config-02_1970.01.01T00.00.41
 run-1970-01-01T00:00:42-UTC: ctrl-01/tarball_config-02_1970.01.01T00.00.41: success - elapsed time (secs): 0 - size (bytes): 228
-ln -s /var/tmp/pbench-test-server/test-19/pbench/public_html/incoming/ctrl-00/tarball_config-00_1970.01.01T00.00.40 /var/tmp/pbench-test-server/test-19/pbench/public_html/results/ctrl-00/tarball_config-00_1970.01.01T00.00.40
 run-1970-01-01T00:00:42-UTC: ctrl-00/tarball_config-00_1970.01.01T00.00.40: success - elapsed time (secs): 0 - size (bytes): 224
-@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nrechecks": 0, "ntbs": 3, "ntotal": 3, "nwarn": 0, "prog": "pbench-re-unpack-tarballs", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 3 result tar balls, 3 successfully, with 0 rechecks, 0 warnings, and 0 errors"}}}}
+@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nold": 0, "nrechecks": 0, "ntbs": 3, "ntotal": 3, "nwarn": 0, "prog": "pbench-re-unpack-tarballs", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 3 result tar balls, 3 successfully, with 0 rechecks, 0 too old to unpack, 0 warnings, and 0 errors"}}}}
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 ---- pbench-local/logs
 --- pbench log file contents
