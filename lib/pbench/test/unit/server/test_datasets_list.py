@@ -545,7 +545,16 @@ class TestDatasetsList:
         criteria, the query here should return drb's "drb" and "fio_1" datasets
         and test's public "fio_2" dataset.
         """
+        drb = Dataset.query(name="drb")
         fio_1 = Dataset.query(name="fio_1")
+
+        # Make sure we aggregate distinct namespaces across the three visible
+        # datasets by setting some varied keys. We leave fio_2 "pristine" to
+        # prove that the aggregator doesn't fail when we find no metadata for
+        # a dataset. We deliberately create the conflicting "global.legacy"
+        # and "global.legacy.server" to show that the conflict doesn't cause
+        # a problem.
+        Metadata.setvalue(dataset=drb, key="global.legacy", value="Truish")
         Metadata.setvalue(dataset=fio_1, key="server.origin", value="SAT")
         Metadata.setvalue(dataset=fio_1, key="global.legacy.server", value="ABC")
         response = query_as({"keysummary": "true"}, "drb", HTTPStatus.OK)
