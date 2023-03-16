@@ -303,6 +303,9 @@ while read tbmd5; do
     # Even if we fail to move to the unpack directory we just remove the tar
     # ball from the reception area to avoid spamming duplicates via the PUT API..
     rm -f ${tbmd5} ${tb}
+
+    # Tally the successfully processed tar balls.
+    (( ntbs++ ))
 done < ${list}
 
 end_ts=$(timestamp)

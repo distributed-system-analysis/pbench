@@ -231,7 +231,7 @@ tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
 run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz failed MD5 check
 tarball-normal_1970.01.01T00.42.00.tar.xz: OK
-@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nberrs": 0, "nquarantined": 3, "ntbs": 0, "ntotal": 11, "nuerrs": 0, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 11 result tar balls, 0 successfully, with 3 quarantined, 0 backup errors, 0 unpack setup errors, and 0 archive API errors."}}}}
+@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nberrs": 0, "nquarantined": 3, "ntbs": 8, "ntotal": 11, "nuerrs": 0, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 11 result tar balls, 8 successfully, with 3 quarantined, 0 backup errors, 0 unpack setup errors, and 0 archive API errors."}}}}
 ----- pbench-dispatch/pbench-dispatch.log
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 ----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error

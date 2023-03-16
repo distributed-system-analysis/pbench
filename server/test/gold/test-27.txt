@@ -17,27 +17,6 @@ lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-27/pbench/public
 /var/tmp/pbench-test-server/test-27/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-27/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/controller-no-prefixes
-drwxrwxr-x          - archive/fs-version-001/controller-no-prefixes/UNPACKED
-lrwxrwxrwx         44 archive/fs-version-001/controller-no-prefixes/UNPACKED/tarball_culled_1970.01.01T00.00.00.tar.xz -> ../tarball_culled_1970.01.01T00.00.00.tar.xz
-lrwxrwxrwx         42 archive/fs-version-001/controller-no-prefixes/UNPACKED/tarball_keep_1970.01.01T00.00.00.tar.xz -> ../tarball_keep_1970.01.01T00.00.00.tar.xz
-lrwxrwxrwx         48 archive/fs-version-001/controller-no-prefixes/UNPACKED/tarball_not-culled_1970.02.01T00.00.00.tar.xz -> ../tarball_not-culled_1970.02.01T00.00.00.tar.xz
--rw-rw-r--        312 archive/fs-version-001/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00.tar.xz
--rw-rw-r--         76 archive/fs-version-001/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00.tar.xz.md5
--rw-rw-r--        332 archive/fs-version-001/controller-no-prefixes/tarball_keep_1970.01.01T00.00.00.tar.xz
--rw-rw-r--         74 archive/fs-version-001/controller-no-prefixes/tarball_keep_1970.01.01T00.00.00.tar.xz.md5
--rw-rw-r--        316 archive/fs-version-001/controller-no-prefixes/tarball_not-culled_1970.02.01T00.00.00.tar.xz
--rw-rw-r--         80 archive/fs-version-001/controller-no-prefixes/tarball_not-culled_1970.02.01T00.00.00.tar.xz.md5
-drwxrwxr-x          - archive/fs-version-001/controller-prefixes
-drwxrwxr-x          - archive/fs-version-001/controller-prefixes/UNPACKED
-lrwxrwxrwx         53 archive/fs-version-001/controller-prefixes/UNPACKED/tarball_culled-w-prefix_1970.01.01T00.00.00.tar.xz -> ../tarball_culled-w-prefix_1970.01.01T00.00.00.tar.xz
-lrwxrwxrwx         52 archive/fs-version-001/controller-prefixes/UNPACKED/tarball_culled-w-userA_1970.01.01T00.00.00.tar.xz -> ../tarball_culled-w-userA_1970.01.01T00.00.00.tar.xz
--rw-rw-r--        260 archive/fs-version-001/controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00.tar.xz
--rw-rw-r--         85 archive/fs-version-001/controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00.tar.xz.md5
--rw-rw-r--        268 archive/fs-version-001/controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00.tar.xz
--rw-rw-r--         84 archive/fs-version-001/controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/incoming/controller-bad-names

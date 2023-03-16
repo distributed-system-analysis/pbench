@@ -17,13 +17,6 @@ lrwxrwxrwx         60 users -> /var/tmp/pbench-test-server/test-10/pbench/public
 /var/tmp/pbench-test-server/test-10/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ pbench tree state (/var/tmp/pbench-test-server/test-10/pbench)
-drwxrwxr-x          - archive
-drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/controller
--rw-r--r--    1558168 archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz
--rw-r--r--         66 archive/fs-version-001/controller/fio__2016-08-16_22:03:11.tar.xz.md5
--rw-r--r--       7028 archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
--rw-r--r--         86 archive/fs-version-001/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results
@@ -48,12 +41,12 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-10/pbench-local)
-drwxrwxr-x          - archive.backup
-drwxrwxr-x          - archive.backup/controller
--rw-r--r--    1558168 archive.backup/controller/fio__2016-08-16_22:03:11.tar.xz
--rw-r--r--         66 archive.backup/controller/fio__2016-08-16_22:03:11.tar.xz.md5
--rw-r--r--       7028 archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
--rw-r--r--         86 archive.backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
+drwxrwxr-x          - backup
+drwxrwxr-x          - backup/controller
+-rw-r--r--    1558168 backup/controller/fio__2016-08-16_22:03:11.tar.xz
+-rw-r--r--         66 backup/controller/fio__2016-08-16_22:03:11.tar.xz.md5
+-rw-r--r--       7028 backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz
+-rw-r--r--         86 backup/controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz.md5
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error

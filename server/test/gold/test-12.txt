@@ -87,7 +87,7 @@ drwxrwxr-x          - unpack/controller
 +++++ pbench-dispatch/pbench-dispatch.log
 tarball_for-put-api_1970.01.01T00.00.00.tar.xz: OK
 tarball_for-put-api_1970.01.01T00.00.00.tar.xz: OK
-@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nberrs": 0, "nquarantined": 0, "ntbs": 0, "ntotal": 2, "nuerrs": 0, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 2 result tar balls, 0 successfully, with 0 quarantined, 0 backup errors, 0 unpack setup errors, and 0 archive API errors."}}}}
+@cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nberrs": 0, "nquarantined": 0, "ntbs": 2, "ntotal": 2, "nuerrs": 0, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 2 result tar balls, 2 successfully, with 0 quarantined, 0 backup errors, 0 unpack setup errors, and 0 archive API errors."}}}}
 ----- pbench-dispatch/pbench-dispatch.log
 ---- pbench-local/logs
 --- pbench log file contents
