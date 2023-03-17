@@ -345,6 +345,43 @@ class TestDatasetsList:
             )
         }
 
+    def test_get_get_errors(self, server_config, query_as):
+        """Test case reporting key errors
+
+        Args:
+            query_as: Query helper fixture
+        """
+        fio_1 = Dataset.query(name="fio_1")
+        fio_2 = Dataset.query(name="fio_2")
+        Metadata.setvalue(dataset=fio_1, key="global.test", value="ABC")
+        Metadata.setvalue(dataset=fio_2, key="global.test.foo", value="ABC")
+        response = query_as(
+            {"metadata": "global.test.foo"},
+            "drb",
+            HTTPStatus.OK,
+        )
+        assert response.json == {
+            "next_url": "",
+            "results": [
+                {
+                    "metadata": {"global.test.foo": None},
+                    "name": "drb",
+                    "resource_id": "random_md5_string1",
+                },
+                {
+                    "metadata": {"global.test.foo": None},
+                    "name": "fio_1",
+                    "resource_id": "random_md5_string3",
+                },
+                {
+                    "metadata": {"global.test.foo": "ABC"},
+                    "name": "fio_2",
+                    "resource_id": "random_md5_string4",
+                },
+            ],
+            "total": 3,
+        }
+
     def test_get_unknown_keys(self, query_as):
         """Test case requesting non-existent query parameter keys.
 
@@ -496,3 +533,57 @@ class TestDatasetsList:
             if key in m:
                 assert error in m
                 break
+
+    def test_key_summary(self, query_as):
+        """Test keyspace summary.
+
+        With the `keysummary` query parameter, /datasets returns an aggregation
+        of defined metadata key namespaces for the selected datasets.
+
+        We add a few metadata kays to the ones provided by the fixture to show
+        aggregation across multiple selected datasets. Note that without filter
+        criteria, the query here should return drb's "drb" and "fio_1" datasets
+        and test's public "fio_2" dataset.
+        """
+        drb = Dataset.query(name="drb")
+        fio_1 = Dataset.query(name="fio_1")
+
+        # Make sure we aggregate distinct namespaces across the three visible
+        # datasets by setting some varied keys. We leave fio_2 "pristine" to
+        # prove that the aggregator doesn't fail when we find no metadata for
+        # a dataset. We deliberately create the conflicting "global.legacy"
+        # and "global.legacy.server" to show that the conflict doesn't cause
+        # a problem.
+        Metadata.setvalue(dataset=drb, key="global.legacy", value="Truish")
+        Metadata.setvalue(dataset=fio_1, key="server.origin", value="SAT")
+        Metadata.setvalue(dataset=fio_1, key="global.legacy.server", value="ABC")
+        response = query_as({"keysummary": "true"}, "drb", HTTPStatus.OK)
+        assert response.json == {
+            "dataset": {
+                "access": None,
+                "id": None,
+                "metalog": {
+                    "pbench": {
+                        "config": None,
+                        "date": None,
+                        "name": None,
+                        "script": None,
+                    },
+                    "run": {"controller": None},
+                },
+                "name": None,
+                "owner_id": None,
+                "resource_id": None,
+                "uploaded": None,
+            },
+            "global": {"contact": None, "legacy": {"server": None}},
+            "server": {
+                "deletion": None,
+                "index-map": {
+                    "unit-test.v5.result-data-sample.2020-08": None,
+                    "unit-test.v6.run-data.2020-08": None,
+                    "unit-test.v6.run-toc.2020-05": None,
+                },
+                "origin": None,
+            },
+        }

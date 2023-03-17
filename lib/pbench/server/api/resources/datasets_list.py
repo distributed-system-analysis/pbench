@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import Any
 from urllib.parse import urlencode, urlparse
 
 from flask import current_app
@@ -50,26 +51,30 @@ class DatasetsList(ApiBase):
                 ApiMethod.GET,
                 OperationCode.READ,
                 query_schema=Schema(
+                    # Filter criteria
                     Parameter("mine", ParamType.BOOLEAN),
                     Parameter("name", ParamType.STRING),
                     Parameter("owner", ParamType.USER),
                     Parameter("access", ParamType.ACCESS),
                     Parameter("start", ParamType.DATE),
                     Parameter("end", ParamType.DATE),
+                    Parameter(
+                        "filter",
+                        ParamType.LIST,
+                        element_type=ParamType.STRING,
+                        string_list=",",
+                    ),
+                    # Pagination
                     Parameter("offset", ParamType.INT),
                     Parameter("limit", ParamType.INT),
+                    # Output control
+                    Parameter("keysummary", ParamType.BOOLEAN),
                     Parameter(
                         "metadata",
                         ParamType.LIST,
                         element_type=ParamType.KEYWORD,
                         keywords=Metadata.METADATA_KEYS,
                         key_path=True,
-                        string_list=",",
-                    ),
-                    Parameter(
-                        "filter",
-                        ParamType.LIST,
-                        element_type=ParamType.STRING,
                         string_list=",",
                     ),
                 ),
@@ -289,6 +294,108 @@ class DatasetsList(ApiBase):
 
         return query.filter(and_(*and_list))
 
+    def accumulate(self, aggregate: JSONOBJECT, key: str, value: Any):
+        """Recursive helper to accumulate the metadata namespace
+
+        Iterate through a list of metadata key/value pairs to construct a
+        hierarchical aggregation of all metadata keys across the selected
+        datasets. Each key in the hierarchy is represented as a key in a
+        nested JSON object. "Leaf" keys have the value None. E.g.,
+
+            {
+                "dataset": {"name": None, "metalog": {"pbench": {"script": None}}},
+                "server": {"deletion": None, "tarball-path": None},
+                "global": {"server": {"legacy": {"sha1": None}}}
+            }
+
+        Args:
+            aggregate: a JSONOBJECT to update with the recursive key/value
+            key: the current metadata key path element
+            value: the current metadata key's value
+        """
+        if isinstance(value, dict):
+            p = aggregate.get(key)
+            if p is None:
+                p = {}
+                aggregate[key] = p
+            for k, v in value.items():
+                self.accumulate(p, k, v)
+        elif key not in aggregate:
+            aggregate[key] = None
+
+    def keyspace(self, query: Query) -> JSONOBJECT:
+        """Aggregate the dataset metadata keyspace
+
+        Run the query we've compiled, but instead of returning Dataset proxies,
+        we only want the metadata key/value pairs we've selected.
+
+        NOTE: The SQL left outer join returns a row for each row in the "left"
+        table (Dataset) even if there is no matching foreign key in the "right"
+        table (Metadata). This means a dataset with no metadata will result in
+        a join row here with key and value of None. The `elif` in the loop will
+        silently ignore rows with a null key to handle this case.
+
+        Args:
+            query: The basic filtered SQLAlchemy query object
+
+        Returns:
+            The aggregated keyspace JSON object
+        """
+        aggregate: JSONOBJECT = {
+            "dataset": {c.name: None for c in Dataset.__table__._columns}
+        }
+        list = query.with_entities(Metadata.key, Metadata.value).all()
+        for k, v in list:
+            # "metalog" is a top-level key in the Metadata schema, but we
+            # report it as a sub-key of "dataset".
+            if k == Metadata.METALOG:
+                self.accumulate(aggregate["dataset"], k, v)
+            elif k:
+                self.accumulate(aggregate, k, v)
+        return aggregate
+
+    def datasets(self, request: Request, json: JSONOBJECT, query: Query) -> JSONOBJECT:
+        """Gather and paginate the selected datasets
+
+        Run the query we've compiled, with pagination limits applied; collect
+        results into a list of JSON objects including selected metadata keys.
+
+        Args:
+            request: The HTTP Request object
+            json: The JSON query parameters
+            query: The basic filtered SQLAlchemy query object
+
+        Returns:
+            The paginated dataset listing
+        """
+        try:
+            datasets, paginated_result = self.get_paginated_obj(
+                query=query, json=json, url=request.url
+            )
+        except (AttributeError, ProgrammingError, StatementError) as e:
+            raise APIInternalError(
+                f"Constructed SQL for {json} isn't executable"
+            ) from e
+        except Exception as e:
+            raise APIInternalError(f"Unexpected SQL exception: {e}") from e
+
+        keys = json.get("metadata")
+
+        response = []
+        for dataset in datasets:
+            d = {
+                "name": dataset.name,
+                "resource_id": dataset.resource_id,
+            }
+            try:
+                d["metadata"] = self._get_dataset_metadata(dataset, keys)
+            except MetadataError:
+                d["metadata"] = None
+            response.append(d)
+
+        paginated_result["results"] = response
+        return paginated_result
+
     def _get(
         self, params: ApiParams, request: Request, context: ApiContext
     ) -> Response:
@@ -346,33 +453,7 @@ class DatasetsList(ApiBase):
         else:
             owner = json.get("owner")
         query = self._build_sql_query(owner, json.get("access"), query)
-
-        try:
-            datasets, paginated_result = self.get_paginated_obj(
-                query=query, json=json, url=request.url
-            )
-        except (AttributeError, ProgrammingError, StatementError) as e:
-            raise APIInternalError(
-                f"Constructed SQL for {json} isn't executable"
-            ) from e
-        except Exception as e:
-            raise APIInternalError(f"Unexpected SQL exception: {e}") from e
-
-        keys = json.get("metadata")
-
-        response = []
-        for dataset in datasets:
-            d = {
-                "name": dataset.name,
-                "resource_id": dataset.resource_id,
-            }
-            try:
-                d["metadata"] = self._get_dataset_metadata(dataset, keys)
-            except MetadataError as e:
-                current_app.logger.warning(
-                    "Error getting metadata {} for dataset {}: {}", keys, dataset, e
-                )
-            response.append(d)
-
-        paginated_result["results"] = response
-        return jsonify(paginated_result)
+        if json.get("keysummary"):
+            return jsonify(self.keyspace(query))
+        else:
+            return jsonify(self.datasets(request, json, query))
