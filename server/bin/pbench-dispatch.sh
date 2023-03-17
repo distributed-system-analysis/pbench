@@ -262,12 +262,13 @@ while read tbmd5; do
     if [[ "${controller}" != "${satellite}" ]]; then
         push_options+=" --metadata=server.origin:${satellite}"
     fi
-    pbench-results-push ${tb} ${push_options}
+    output=$(pbench-results-push ${tb} ${push_options} 2>&1)
     sts=${?}
     if [[ ${sts} -eq 0 ]]; then
+        log_debug "${TS}: 'pbench-results-push ${tb} ${push_options}' succeeded, output '${output}'"
         (( state++ ))
     else
-        log_error "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}"
+        log_error "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}, output '${output}'"
         (( nerrs++ ))
         continue
     fi

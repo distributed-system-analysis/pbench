@@ -151,7 +151,7 @@ drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
 -rw-rw-r--        174 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
--rw-rw-r--       1848 logs/pbench-dispatch/pbench-dispatch.log
+-rw-rw-r--       6062 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-re-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
 -rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
@@ -214,16 +214,30 @@ drwxrwxr-x          - unpack/controller-g-normal
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
 tarball-simple1_1970-01-01T00:42:00.tar.xz: OK
+run-1970-01-01T00:00:42-UTC: 'pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com --metadata=server.origin:ONE' succeeded, output 'tarball-simple1_1970-01-01T00:42:00.tar.xz: OK
+File successfully uploaded'
 ./tarball-simple2_1970-01-01T00:41:00.tar.xz: OK
+run-1970-01-01T00:00:42-UTC: 'pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com --metadata=server.origin:ONE' succeeded, output 'tarball-simple2_1970-01-01T00:41:00.tar.xz: OK
+File successfully uploaded'
 ./tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz: OK
+run-1970-01-01T00:00:42-UTC: 'pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com --metadata=server.origin:ONE' succeeded, output 'tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz: OK
+File successfully uploaded'
 md5sum: tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz: No such file or directory
 tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz: FAILED open or read
 md5sum: WARNING: 1 listed file could not be read
 run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-a-missing-tb/tarball_have-md5-no-tb_1970.01.01T00.00.00.tar.xz failed MD5 check
 tarball-0_1970.01.01T00.42.00.tar.xz: OK
+run-1970-01-01T00:00:42-UTC: 'pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com' succeeded, output 'tarball-0_1970.01.01T00.42.00.tar.xz: OK
+File successfully uploaded'
 tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz: OK
+run-1970-01-01T00:00:42-UTC: 'pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com' succeeded, output 'tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz: OK
+File successfully uploaded'
 tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz: OK
+run-1970-01-01T00:00:42-UTC: 'pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com' succeeded, output 'tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz: OK
+File successfully uploaded'
 tarball-duplicate_1970.01.01T00.42.00.tar.xz: OK
+run-1970-01-01T00:00:42-UTC: 'pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com' succeeded, output 'tarball-duplicate_1970.01.01T00.42.00.tar.xz: OK
+File successfully uploaded'
 tarball-bad-md5_1970.01.01T00.42.00.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
 run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-e-bad-md5/tarball-bad-md5_1970.01.01T00.42.00.tar.xz failed MD5 check
@@ -231,6 +245,8 @@ tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
 run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz failed MD5 check
 tarball-normal_1970.01.01T00.42.00.tar.xz: OK
+run-1970-01-01T00:00:42-UTC: 'pbench-results-push /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz --token 71ac1fe3f0743aa710e82000e553ec30 --access=public --metadata=global.server.legacy.version:X.YY.ZZ --metadata=global.server.legacy.sha1:abcdefg --metadata=global.server.legacy.hostname:pbench.example.com' succeeded, output 'tarball-normal_1970.01.01T00.42.00.tar.xz: OK
+File successfully uploaded'
 @cee:{"pbench": {"report": {"summary": {"end_ts": "1970-01-01T00:00:42-UTC", "errors": 0, "nberrs": 0, "nquarantined": 3, "ntbs": 8, "ntotal": 11, "nuerrs": 0, "prog": "pbench-dispatch", "start_ts": "1970-01-01T00:00:42-UTC", "text": "(unit-test) Processed 11 result tar balls, 8 successfully, with 3 quarantined, 0 backup errors, 0 unpack setup errors, and 0 archive API errors."}}}}
 ----- pbench-dispatch/pbench-dispatch.log
 +++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
