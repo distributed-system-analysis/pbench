@@ -265,7 +265,7 @@ while read tbmd5; do
     pbench-results-push ${tb} ${push_options}
     sts=${?}
     if [[ ${sts} -eq 0 ]]; then
-        # Foo bar bash new
+        # Foo bar bash new then
         (( state++ ))
     else
         log_error "${TS}: 'pbench-results-push ${tb} ${push_options}' failed, code ${sts}"
