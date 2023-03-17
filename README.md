@@ -1,5 +1,5 @@
 # Pbench
-A Benchmarking and Performance Analysis Framework
+A Benchmarking and Performance Analysis Framework - remove
 
 This is the `b0.69` branch of the code base.  It is currently focused on support
 for the legacy Pbench Server code and behaviors.  The Pbench Agent code has been
