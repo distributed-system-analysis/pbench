@@ -10,4 +10,6 @@ if [[ ! -f ${tb} || ! -f ${tbmd5} ]]; then
     echo "pbench-results-push(mock): bad tar ball argument, \"${tb}\"" >&2
     exit 2
 fi
+echo "$(basename "${tb}"): OK"
+echo "File successfully uploaded"
 exit 0
