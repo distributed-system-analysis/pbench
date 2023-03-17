@@ -45,6 +45,7 @@ class DatasetsDetail(IndexMapBase):
                         keywords=Metadata.METADATA_KEYS,
                         key_path=True,
                         string_list=",",
+                        metalog_ok=True,
                     ),
                 ),
                 authorization=ApiAuthorizationType.DATASET,

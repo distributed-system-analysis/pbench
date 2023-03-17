@@ -5,7 +5,7 @@ import requests
 
 from pbench.server import JSON, OperationCode
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 
 
 class TestDatasetsMetadataGet:
@@ -208,6 +208,50 @@ class TestDatasetsMetadataGet:
             HTTPStatus.BAD_REQUEST,
         )
         assert response.json == {"message": "Unknown URL query keys: controller,plugh"}
+
+    def test_get_funky_metalog_key(self, query_get_as):
+        """Test funky metadata.log key
+
+        Normally we constrain metadata keys to lowercase alphanumeric strings.
+        Traditional Pbench Agent `metadata.log` files contain keys constructed
+        from benchmark iteration values that can contain mixed case and symbol
+        characters. We allow these keys to be filtered and retrieved, but not
+        created, so test that we can filter on a funky key value and return
+        the key.
+
+        Args:
+            query_get_as: Query helper fixture
+        """
+        fio_1 = Dataset.query(name="fio_1")
+        Metadata.create(
+            dataset=fio_1,
+            key=Metadata.METALOG,
+            value={
+                "pbench": {
+                    "date": "2020-02-15T00:00:00",
+                    "config": "test1",
+                    "script": "unit-test",
+                    "name": "fio_1",
+                },
+                "iterations/fooBar=10-what_else@weird": {
+                    "iteration_name": "fooBar=10-what_else@weird"
+                },
+                "run": {"controller": "node1.example.com"},
+            },
+        )
+        response = query_get_as(
+            "fio_1",
+            {
+                "metadata": ["dataset.metalog.iterations/fooBar=10-what_else@weird"],
+            },
+            "drb",
+            HTTPStatus.OK,
+        )
+        assert response.json == {
+            "dataset.metalog.iterations/fooBar=10-what_else@weird": {
+                "iteration_name": "fooBar=10-what_else@weird"
+            }
+        }
 
 
 class TestDatasetsMetadataPut(TestDatasetsMetadataGet):

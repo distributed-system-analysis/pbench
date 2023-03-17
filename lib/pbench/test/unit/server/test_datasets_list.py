@@ -309,6 +309,7 @@ class TestDatasetsList:
             query: A JSON representation of the query parameters (these will be
                 automatically supplemented with a metadata request term)
             results: A list of the dataset names we expect to be returned
+            server_config: The PbenchServerConfig object
         """
         query.update({"metadata": ["dataset.uploaded"], "limit": 5})
         result = query_as(query, login, HTTPStatus.OK)
@@ -319,10 +320,6 @@ class TestDatasetsList:
 
         Args:
             query_as: A fixture to provide a helper that executes the API call
-            login: The username as which to perform a query
-            query: A JSON representation of the query parameters (these will be
-                automatically supplemented with a metadata request term)
-            results: A list of the dataset names we expect to be returned
         """
         query_as({"access": "private"}, None, HTTPStatus.UNAUTHORIZED)
 
@@ -345,7 +342,7 @@ class TestDatasetsList:
             )
         }
 
-    def test_get_get_errors(self, server_config, query_as):
+    def test_get_key_errors(self, query_as):
         """Test case reporting key errors
 
         Args:
@@ -380,6 +377,60 @@ class TestDatasetsList:
                 },
             ],
             "total": 3,
+        }
+
+    def test_use_funk_metalog_keys(self, query_as):
+        """Test funky metadata.log keys
+
+        Normally we constrain metadata keys to lowercase alphanumeric strings.
+        Traditional Pbench Agent `metadata.log` files contain keys constructed
+        from benchmark iteration values that can contain mixed case and symbol
+        characters. We allow these keys to be filtered and retrieved, but not
+        created, so test that we can filter on a funky key value and return
+        the key.
+
+        Args:
+            query_as: Query helper fixture
+        """
+        fio_1 = Dataset.query(name="fio_1")
+        Metadata.create(
+            dataset=fio_1,
+            key=Metadata.METALOG,
+            value={
+                "pbench": {
+                    "date": "2020-02-15T00:00:00",
+                    "config": "test1",
+                    "script": "unit-test",
+                    "name": "fio_1",
+                },
+                "iterations/fooBar=10-what_else@weird": {
+                    "iteration_name": "fooBar=10-what_else@weird"
+                },
+                "run": {"controller": "node1.example.com"},
+            },
+        )
+        response = query_as(
+            {
+                "metadata": "dataset.metalog.iterations/fooBar=10-what_else@weird",
+                "filter": "dataset.metalog.iterations/fooBar=10-what_else@weird.iteration_name:~10",
+            },
+            "drb",
+            HTTPStatus.OK,
+        )
+        assert response.json == {
+            "next_url": "",
+            "results": [
+                {
+                    "metadata": {
+                        "dataset.metalog.iterations/fooBar=10-what_else@weird": {
+                            "iteration_name": "fooBar=10-what_else@weird"
+                        }
+                    },
+                    "name": "fio_1",
+                    "resource_id": "random_md5_string3",
+                }
+            ],
+            "total": 1,
         }
 
     def test_get_unknown_keys(self, query_as):
