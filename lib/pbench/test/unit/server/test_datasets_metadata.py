@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import re
 
 import pytest
 import requests
@@ -329,17 +330,27 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json == {"message": "Dataset 'foobar' not found"}
 
-    def test_put_bad_keys(self, client, server_config, attach_dataset):
+    @pytest.mark.parametrize(
+        "keys,message",
+        (
+            (
+                {"xyzzy": "private", "what": "sup", "global.saved": True},
+                "'what', 'xyzzy'",
+            ),
+            ({"global.AbC@foo=y": True}, "'global.AbC@foo=y'"),
+            ({"global..foo": True}, "'global..foo'"),
+        ),
+    )
+    def test_put_bad_keys(self, client, server_config, attach_dataset, keys, message):
         response = client.put(
             f"{server_config.rest_uri}/datasets/drb/metadata",
-            json={
-                "metadata": {"xyzzy": "private", "what": "sup", "global.saved": True}
-            },
+            json={"metadata": keys},
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json == {
-            "message": "Unrecognized JSON keys ['what', 'xyzzy'] for parameter metadata."
-        }
+        assert re.match(
+            f"Unrecognized JSON keys? \\[{message}\\] for parameter metadata.",
+            response.json["message"],
+        )
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
         response = client.put(

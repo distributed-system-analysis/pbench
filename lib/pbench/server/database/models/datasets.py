@@ -851,12 +851,11 @@ class Metadata(Database.Base):
                 raise MetadataBadStructure(dataset, key, name)
             if i in value:
                 name = i
-                value = value[i]
             elif i.lower() in value:
                 name = i.lower()
-                value = value[name]
             else:
                 return None
+            value = value[name]
         return value
 
     @staticmethod

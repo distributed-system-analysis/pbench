@@ -199,7 +199,7 @@ class TestDatasetsDetail(Commons):
         much of the setup.
         """
 
-        # In order to test that this API support getting non-alphanumeric
+        # In order to test that this API supports getting non-alphanumeric
         # metalog metadata keys, we decorate the dataset with one. To keep it
         # simple, just remove the existing Metadata row and create a new one.
         drb = Dataset.query(name="drb")
