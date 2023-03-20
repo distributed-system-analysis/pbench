@@ -3,6 +3,7 @@ import errno
 import hashlib
 from http import HTTPStatus
 import os
+from pathlib import Path
 import shutil
 from typing import Any, Optional
 
@@ -26,7 +27,7 @@ from pbench.server.api.resources import (
     Schema,
 )
 import pbench.server.auth.auth as Auth
-from pbench.server.cache_manager import CacheManager, MetadataError
+from pbench.server.cache_manager import CacheManager, DuplicateTarball, MetadataError
 from pbench.server.database.models.audit import (
     Audit,
     AuditReason,
@@ -177,6 +178,7 @@ class Upload(ApiBase):
 
         attributes = {"access": access, "metadata": metadata}
         filename = args.uri["filename"]
+        upload_dir: Optional[Path] = None
 
         try:
             try:
@@ -236,9 +238,24 @@ class Upload(ApiBase):
                     f"'Content-Length' {content_length} must be greater than 0",
                 )
 
-            tar_full_path = self.temporary / filename
-            md5_full_path = self.temporary / f"{filename}.md5"
-            dataset_name = Dataset.stem(tar_full_path)
+            dataset_name = Dataset.stem(filename)
+
+            # NOTE: we isolate each uploaded tarball into a private MD5-based
+            # subdirectory in order to retain the original tarball stem name
+            # for the cache manager while giving us protection against multiple
+            # tarballs with the same name. (A duplicate MD5 will have already
+            # failed, so that's not a concern.)
+            try:
+                tmp_dir = self.temporary / md5sum
+                tmp_dir.mkdir()
+            except FileExistsError as e:
+                raise CleanupTime(
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    f"Temporary upload directory {tmp_dir} already exists: {e}",
+                )
+            upload_dir = tmp_dir
+            tar_full_path = upload_dir / filename
+            md5_full_path = upload_dir / f"{filename}.md5"
 
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
@@ -257,7 +274,7 @@ class Upload(ApiBase):
             try:
                 dataset = Dataset(
                     owner_id=user_id,
-                    name=Dataset.stem(tar_full_path),
+                    name=dataset_name,
                     resource_id=md5sum,
                     access=access,
                 )
@@ -309,7 +326,8 @@ class Upload(ApiBase):
             # error recovery.
             recovery.add(tar_full_path.unlink)
 
-            with tar_full_path.open(mode="wb") as ofp:
+            # Open for exclusive WRITE in BINARY mode
+            with tar_full_path.open(mode="xb") as ofp:
                 hash_md5 = hashlib.md5()
 
                 try:
@@ -318,9 +336,13 @@ class Upload(ApiBase):
                         bytes_received += len(chunk)
                         if len(chunk) == 0 or bytes_received > content_length:
                             break
-
                         ofp.write(chunk)
                         hash_md5.update(chunk)
+                except FileExistsError:
+                    raise CleanupTime(
+                        HTTPStatus.CONFLICT,
+                        f"A tarball named {dataset_name!r} is already being uploaded",
+                    )
                 except OSError as exc:
                     if exc.errno == errno.ENOSPC:
                         raise CleanupTime(
@@ -375,6 +397,11 @@ class Upload(ApiBase):
             # Move the files to their final location
             try:
                 tarball = cache_m.create(tar_full_path)
+            except DuplicateTarball:
+                raise CleanupTime(
+                    HTTPStatus.BAD_REQUEST,
+                    f"A tarball with the name {dataset_name!r} already exists",
+                )
             except MetadataError as exc:
                 raise CleanupTime(
                     HTTPStatus.BAD_REQUEST,
@@ -500,6 +527,14 @@ class Upload(ApiBase):
                 raise APIInternalError(message) from e
             else:
                 raise APIAbort(status, message) from e
+        finally:
+            if upload_dir:
+                try:
+                    shutil.rmtree(upload_dir)
+                except Exception as e:
+                    current_app.logger.warning(
+                        "Error removing {}: {}", upload_dir, str(e)
+                    )
 
         response = jsonify(dict(message="File successfully uploaded"))
         response.status_code = HTTPStatus.CREATED
