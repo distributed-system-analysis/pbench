@@ -235,21 +235,21 @@ const TableWithFavorite = () => {
                   )}
                 </Tbody>
               </TableComposable>
+              <TablePagination
+                numberOfRows={
+                  isSelected === "datasetListButton"
+                    ? tableData.length
+                    : favoriteRepoNames.length
+                }
+                page={page}
+                setPage={setPage}
+                perPage={perPage}
+                setPerPage={setPerPage}
+              />
             </InnerScrollContainer>
           </OuterScrollContainer>
         </div>
       </div>
-      <TablePagination
-        numberOfRows={
-          isSelected === "datasetListButton"
-            ? tableData.length
-            : favoriteRepoNames.length
-        }
-        page={page}
-        setPage={setPage}
-        perPage={perPage}
-        setPerPage={setPerPage}
-      />
     </>
   );
 };
