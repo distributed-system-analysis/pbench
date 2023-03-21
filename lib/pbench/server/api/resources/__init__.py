@@ -4,6 +4,7 @@ from enum import auto, Enum
 from http import HTTPStatus
 import json
 from json.decoder import JSONDecodeError
+import re
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 import uuid
 
@@ -427,9 +428,11 @@ def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
     """Validate a parameter of JSON type.
 
     If the Parameter object defines a list of keywords, the JSON key values are
-    validated against that list. If the Parameter key_path attribute is set,
-    then only the first element of a dotted path (e.g., "user" for
-    "user.contact.email") is validated.
+    validated against that list.
+
+    If the Parameter key_path attribute is set, validate that the key is legal
+    and if the value is a JSON object (dict) that all keys within the JSON are
+    legal.
 
     Args:
         value : JSON dict
@@ -442,6 +445,25 @@ def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
     Returns:
         The JSON dict
     """
+    _valid_key = re.compile(r"[a-z0-9_-]+")
+
+    def keysafe(value: dict[str, Any]) -> list[str]:
+        """Test whether nested JSON keys are legal.
+
+        Args:
+            value: A JSON structure
+
+        Returns:
+            A list of bad keys (empty if all are good)
+        """
+        bad = []
+        for k, v in value.items():
+            if not _valid_key.fullmatch(k):
+                bad.append(k)
+            if isinstance(v, dict):
+                bad.extend(keysafe(v))
+        return bad
+
     try:
         washed = json.loads(json.dumps(value))
     except JSONDecodeError as e:
@@ -454,12 +476,17 @@ def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
 
     if parameter.keywords:
         bad = []
-        for k in value.keys():
-            if parameter.key_path:
-                if not Metadata.is_key_path(k, parameter.keywords):
+        try:
+            for k, v in value.items():
+                if parameter.key_path:
+                    if not Metadata.is_key_path(k, parameter.keywords):
+                        bad.append(k)
+                    if isinstance(v, dict):
+                        bad.extend(keysafe(v))
+                elif k not in parameter.keywords:
                     bad.append(k)
-            elif k not in parameter.keywords:
-                bad.append(k)
+        except Exception as e:
+            raise ConversionError(value, "JSON") from e
         if bad:
             raise KeywordError(parameter, f"JSON key{'s' if len(bad) > 1 else ''}", bad)
 

@@ -334,7 +334,8 @@ class TestParameter:
             ("me.You.him", False, "me.you.him"),
             ("ME.US.HER.THEM", False, "me.us.her.them"),
             ("me.a.b.fooBar:test@y=z", True, "me.a.b.fooBar:test@y=z"),
-            ("yes.a7.b2.foo", False, "yes.a7.b2.foo"),
+            ("yes.a-7.b_2.foo", False, "yes.a-7.b_2.foo"),
+            ("yes.a_7.b-2.@foo", True, "yes.a_7.b-2.@foo"),
             ("me.;baR.#f0o.x@y=10", True, "me.;baR.#f0o.x@y=10"),
         ),
     )
@@ -353,8 +354,9 @@ class TestParameter:
         "input,funky",
         (
             ("me..you", False),
+            ("me..you", True),
             ("me.#You.him", False),
-            ("them..us", True),
+            ("them.us", True),
             ("a.b.fooBar:test@y=z", True),
             ("wow.a7.b2.foo", False),
         ),

@@ -1,5 +1,4 @@
 from http import HTTPStatus
-import re
 
 import pytest
 import requests
@@ -331,26 +330,27 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         assert response.json == {"message": "Dataset 'foobar' not found"}
 
     @pytest.mark.parametrize(
-        "keys,message",
+        "keys,keyerr",
         (
             (
                 {"xyzzy": "private", "what": "sup", "global.saved": True},
                 "'what', 'xyzzy'",
             ),
+            ({"global": {"Ab.foo": True}}, "'Ab.foo'"),
+            ({"global": {"ab@": True}}, "'ab@'"),
+            ({"global": {"abc": {"#$": "bad key"}}}, "'#$'"),
             ({"global.AbC@foo=y": True}, "'global.AbC@foo=y'"),
             ({"global..foo": True}, "'global..foo'"),
         ),
     )
-    def test_put_bad_keys(self, client, server_config, attach_dataset, keys, message):
+    def test_put_bad_keys(self, client, server_config, attach_dataset, keys, keyerr):
         response = client.put(
             f"{server_config.rest_uri}/datasets/drb/metadata",
             json={"metadata": keys},
         )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert re.match(
-            f"Unrecognized JSON keys? \\[{message}\\] for parameter metadata.",
-            response.json["message"],
-        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST, response.json["message"]
+        msg = response.json["message"]
+        assert "Unrecognized JSON key" in msg and keyerr in msg
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
         response = client.put(
@@ -511,31 +511,41 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
     def test_put(self, query_get_as, query_put_as):
         response = query_put_as(
             "drb",
-            {"metadata": {"global.seen": False, "global.saved": True}},
+            {"metadata": {"global.seen": False, "global.under-score_hyphen": True}},
             "drb",
             HTTPStatus.OK,
         )
         assert response.json == {
-            "metadata": {"global.saved": True, "global.seen": False},
+            "metadata": {"global.under-score_hyphen": True, "global.seen": False},
             "errors": {},
         }
         response = query_get_as(
             "drb", {"metadata": "global,dataset.access"}, "drb", HTTPStatus.OK
         )
         assert response.json == {
-            "global": {"contact": "me@example.com", "saved": True, "seen": False},
+            "global": {
+                "contact": "me@example.com",
+                "under-score_hyphen": True,
+                "seen": False,
+            },
             "dataset.access": "private",
         }
 
         # Try a second GET, returning "global" fields separately:
         response = query_get_as(
             "drb",
-            {"metadata": ["global.seen", "global.saved", "dataset.access"]},
+            {
+                "metadata": [
+                    "global.seen",
+                    "global.under-score_hyphen",
+                    "dataset.access",
+                ]
+            },
             "drb",
             HTTPStatus.OK,
         )
         assert response.json == {
-            "global.saved": True,
+            "global.under-score_hyphen": True,
             "global.seen": False,
             "dataset.access": "private",
         }
@@ -565,7 +575,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
         assert audit[1].attributes == {
-            "updated": {"global.seen": False, "global.saved": True}
+            "updated": {"global.seen": False, "global.under-score_hyphen": True}
         }
 
     def test_put_user(self, query_get_as, query_put_as):
