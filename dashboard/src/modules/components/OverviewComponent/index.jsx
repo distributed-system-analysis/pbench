@@ -28,7 +28,6 @@ import { getDatasets } from "actions/overviewActions";
 const OverviewComponent = () => {
   const dispatch = useDispatch();
   const { endpoints } = useSelector((state) => state.apiEndpoint);
-  const { loginDetails } = useSelector((state) => state.userAuth);
   const { expiringRuns, savedRuns, newRuns, loadingDone } = useSelector(
     (state) => state.overview
   );
@@ -39,7 +38,7 @@ const OverviewComponent = () => {
     if (Object.keys(endpoints).length > 0) {
       dispatch(getDatasets());
     }
-  }, [dispatch, endpoints, loginDetails]);
+  }, [dispatch, endpoints]);
 
   const onToggle = (id) => {
     if (expanded.has(id)) {

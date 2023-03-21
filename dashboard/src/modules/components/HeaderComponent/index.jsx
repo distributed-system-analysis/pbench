@@ -34,14 +34,19 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { logout } from "actions/authActions";
 import pbenchLogo from "assets/logo/pbench_logo.svg";
+import { useKeycloak } from '@react-keycloak/web';
+import { movePage } from "actions/authActions";
 
 const HeaderToolbar = () => {
   const dispatch = useDispatch();
-  const loginDetails = useSelector((state) => state.userAuth.loginDetails);
+  const username = Cookies.get("username");
+  const { keycloak } = useKeycloak();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const isLoggedIn = Cookies.get("isLoggedIn");
+  const navigatePage = (toPage) => {
+    dispatch(movePage(toPage, navigate));
+  };
 
   const onDropdownSelect = (event) => {
     const type = event.target.name;
@@ -91,14 +96,14 @@ const HeaderToolbar = () => {
             </Button>
           </ToolbarItem>
           <ToolbarItem>
-            {isLoggedIn ? (
+            {keycloak.authenticated ? (
               <Dropdown
                 position="right"
                 onSelect={onDropdownSelect}
                 isOpen={isDropdownOpen}
                 toggle={
                   <DropdownToggle onToggle={onDropdownToggle}>
-                    {loginDetails?.username}
+                    {username}
                   </DropdownToggle>
                 }
                 dropdownItems={userDropdownItems}
@@ -108,7 +113,7 @@ const HeaderToolbar = () => {
                 aria-label="Login"
                 className="header-login-button"
                 variant={ButtonVariant.plain}
-                onClick={() => navigate(APP_ROUTES.AUTH_LOGIN)}
+                onClick={() => navigatePage(APP_ROUTES.AUTH)}
               >
                 Login
               </Button>

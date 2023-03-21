@@ -30,6 +30,7 @@ import PathBreadCrumb from "../BreadCrumbComponent";
 import { TOC } from "assets/constants/navigationConstants";
 import TablePagination from "../PaginationComponent";
 import { useNavigate } from "react-router";
+import { useKeycloak } from '@react-keycloak/web';
 
 let startDate = new Date(Date.UTC(1990, 10, 4));
 let endDate = bumpToDate(getTodayMidnightUTCDate(), 1);
@@ -41,7 +42,7 @@ const TableWithFavorite = () => {
     creationDate: "Created On",
   };
   const { endpoints } = useSelector((state) => state.apiEndpoint);
-  const { loginDetails } = useSelector((state) => state.userAuth);
+  const { keycloak } = useKeycloak();
   const [activeSortIndex, setActiveSortIndex] = useState(null);
   const [activeSortDirection, setActiveSortDirection] = useState(null);
   const [isSelected, setIsSelected] = useState("datasetListButton");
@@ -138,7 +139,7 @@ const TableWithFavorite = () => {
 
   return (
     <>
-      {!loginDetails?.isLoggedIn && loginHintVisible && (
+      {!keycloak.authenticated && loginHintVisible && (
         <LoginHint
           message="Want to see your own data?"
           link="Login or Create an account"

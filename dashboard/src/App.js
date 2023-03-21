@@ -16,21 +16,29 @@ import { AuthForm } from "modules/components/AuthComponent/common-components";
 import AuthLayout from "modules/containers/AuthLayout";
 import ComingSoonPage from "modules/components/EmptyPageComponent/ComingSoon";
 import Cookies from "js-cookie";
-import LoginForm from "modules/components/AuthComponent/LoginForm";
 import MainLayout from "modules/containers/MainLayout";
 import NoMatchingPage from "modules/components/EmptyPageComponent/NoMatchingPage";
 import OverviewComponent from "modules/components/OverviewComponent";
 import ProfileComponent from "modules/components/ProfileComponent";
-import SignupForm from "modules/components/AuthComponent/SignupForm";
 import TableOfContent from "modules/components/TableOfContent";
 import TableWithFavorite from "modules/components/TableComponent";
 import favicon from "./assets/logo/favicon.ico";
 import { fetchEndpoints } from "./actions/endpointAction";
-import { getUserDetails } from "actions/authActions";
 import { showToast } from "actions/toastActions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { ReactKeycloakProvider } from '@react-keycloak/web';
 
-const ProtectedRoute = ({ redirectPath = APP_ROUTES.AUTH_LOGIN, children }) => {
+const eventLogger = (event, error) => {
+  // We might want to consider to refresh the tokens here
+  // if the event === 'onTokenExpired'
+};
+
+const tokenLogger = (tokens) => {
+  // Placeholder for to perform action when new token is generated
+  // console.log('onKeycloakTokens', tokens["refreshToken"]);
+};
+
+const ProtectedRoute = ({ redirectPath = APP_ROUTES.AUTH, children }) => {
   const loggedIn = Cookies.get("isLoggedIn");
   const dispatch = useDispatch();
 
@@ -47,25 +55,36 @@ const HomeRoute = ({ redirectPath = APP_ROUTES.HOME }) => {
 
 const App = () => {
   const dispatch = useDispatch();
+  const { keycloak } = useSelector(
+    state => state.apiEndpoint
+  );
 
   useEffect(() => {
     const faviconLogo = document.getElementById("favicon");
     faviconLogo?.setAttribute("href", favicon);
 
     dispatch(fetchEndpoints);
-    dispatch(getUserDetails());
   }, [dispatch]);
 
   return (
     <div className="App">
+    { keycloak && (
+    <ReactKeycloakProvider
+      authClient={keycloak}
+      onEvent={eventLogger}
+      onTokens={tokenLogger}
+      initOptions={{
+        onLoad:'check-sso',
+        checkLoginIframe: true,
+        enableLogging: true
+      }}
+      >
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomeRoute />}></Route>
           <Route path={"/" + APP_ROUTES.HOME}>
             <Route element={<AuthLayout />}>
-              <Route path={APP_ROUTES.AUTH_LOGIN} element={<LoginForm />} />
               <Route path={APP_ROUTES.AUTH} element={<AuthForm />} />
-              <Route path={APP_ROUTES.AUTH_SIGNUP} element={<SignupForm />} />
             </Route>
             <Route element={<MainLayout />}>
               <Route index element={<TableWithFavorite />} />
@@ -97,6 +116,8 @@ const App = () => {
           </Route>
         </Routes>
       </BrowserRouter>
+    </ReactKeycloakProvider>
+    )}
     </div>
   );
 };

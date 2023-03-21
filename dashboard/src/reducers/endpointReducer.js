@@ -1,7 +1,8 @@
-import { SET_ENDPOINTS } from "../actions/types";
+import { SET_ENDPOINTS, SET_KEYCLOAK } from "../actions/types";
 
 const initialState = {
   endpoints: {},
+  keycloak: null,
 };
 
 const EndpointReducer = (state = initialState, action = {}) => {
@@ -10,6 +11,12 @@ const EndpointReducer = (state = initialState, action = {}) => {
     return {
       ...state,
       endpoints: payload,
+    };
+  }
+  if (type === SET_KEYCLOAK) {
+    return {
+      ...state,
+      keycloak: payload,
     };
   }
   return state;

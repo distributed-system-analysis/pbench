@@ -1,5 +1,6 @@
 /* ENDPOINTS */
 export const SET_ENDPOINTS = "SET_ENDPOINTS";
+export const SET_KEYCLOAK = "SET_KEYCLOAK";
 
 /* TOAST */
 export const SHOW_TOAST = "SHOW_TOAST";

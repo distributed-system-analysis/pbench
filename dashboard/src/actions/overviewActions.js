@@ -5,11 +5,12 @@ import API from "../utils/axiosInstance";
 import { DANGER } from "assets/constants/toastConstants";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
+import Cookies from "js-cookie";
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
   try {
-    const username = getState().userAuth.loginDetails.username;
+    const username = Cookies.get("username");;
 
     if (alreadyRendered) {
       dispatch({ type: TYPES.LOADING });

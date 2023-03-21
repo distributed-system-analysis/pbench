@@ -9,8 +9,7 @@ import React, { useEffect } from "react";
 import { menuOptions, menuOptionsNonLoggedIn } from "./sideMenuOptions";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-
-import Cookies from "js-cookie";
+import { useKeycloak } from '@react-keycloak/web';
 import { setActiveItem } from "actions/sideBarActions";
 
 const MenuItem = ({ data, activeItem }) => {
@@ -34,7 +33,7 @@ const Menu = () => {
   const { pathname } = useLocation();
 
   const activeItem = useSelector((state) => state.sidebar.activeMenuItem);
-  const isLoggedIn = Cookies.get("isLoggedIn");
+  const { keycloak } = useKeycloak();
   const onSelect = (result) => {
     dispatch(setActiveItem(result.itemId));
   };
@@ -49,7 +48,7 @@ const Menu = () => {
 
   return (
     <Nav onSelect={onSelect}>
-      {isLoggedIn ? (
+      {keycloak.authenticated ? (
         menuOptions.map((item, index) => (
           <NavGroup
             key={index}

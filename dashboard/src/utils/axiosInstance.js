@@ -1,16 +1,15 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 import { showSessionExpired } from "actions/toastActions";
 import store from "store/store";
 
-const { dispatch } = store;
+const { dispatch, getState } = store;
 
 const axiosInstance = axios.create({ responseType: "json" });
 
 axiosInstance.interceptors.request.use(async (req) => {
-  const token = Cookies.get("token");
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
+  const keycloak = getState().apiEndpoint.keycloak;
+  if (keycloak.authenticated) {
+    req.headers.Authorization = `Bearer ${keycloak.token}`;
   }
   return req;
 });
