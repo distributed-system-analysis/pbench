@@ -248,10 +248,10 @@ class Upload(ApiBase):
             try:
                 tmp_dir = self.temporary / md5sum
                 tmp_dir.mkdir()
-            except FileExistsError as e:
+            except FileExistsError:
                 raise CleanupTime(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    f"Temporary upload directory {tmp_dir} already exists: {e}",
+                    HTTPStatus.CONFLICT,
+                    "Temporary upload directory already exists",
                 )
             upload_dir = tmp_dir
             tar_full_path = upload_dir / filename
@@ -326,11 +326,14 @@ class Upload(ApiBase):
             # error recovery.
             recovery.add(tar_full_path.unlink)
 
-            # Open for exclusive WRITE in BINARY mode
-            with tar_full_path.open(mode="xb") as ofp:
-                hash_md5 = hashlib.md5()
+            # NOTE: We know that the MD5 is unique at this point; so even if
+            # two tarballs with the same name are uploaded concurrently, by
+            # writing into a temporary directory named for the MD5 we're
+            # assured that they can't conflict.
+            try:
+                with tar_full_path.open(mode="wb") as ofp:
+                    hash_md5 = hashlib.md5()
 
-                try:
                     while True:
                         chunk = request.stream.read(self.CHUNK_SIZE)
                         bytes_received += len(chunk)
@@ -338,53 +341,46 @@ class Upload(ApiBase):
                             break
                         ofp.write(chunk)
                         hash_md5.update(chunk)
-                except FileExistsError:
+            except OSError as exc:
+                if exc.errno == errno.ENOSPC:
                     raise CleanupTime(
-                        HTTPStatus.CONFLICT,
-                        f"A tarball named {dataset_name!r} is already being uploaded",
+                        HTTPStatus.INSUFFICIENT_STORAGE,
+                        f"Out of space on {tar_full_path.root}",
                     )
-                except OSError as exc:
-                    if exc.errno == errno.ENOSPC:
-                        raise CleanupTime(
-                            HTTPStatus.INSUFFICIENT_STORAGE,
-                            f"Out of space on {tar_full_path.root}",
-                        )
-                    else:
-                        raise CleanupTime(
-                            HTTPStatus.INTERNAL_SERVER_ERROR,
-                            f"Unexpected error {exc.errno} encountered during file upload",
-                        )
-                except Exception:
+                else:
                     raise CleanupTime(
                         HTTPStatus.INTERNAL_SERVER_ERROR,
-                        "Unexpected error encountered during file upload",
+                        f"Unexpected error {exc.errno} encountered during file upload",
                     )
-
-                if bytes_received != content_length:
-                    raise CleanupTime(
-                        HTTPStatus.BAD_REQUEST,
-                        f"Expected {content_length} bytes but received {bytes_received} bytes",
-                    )
-                elif hash_md5.hexdigest() != md5sum:
-                    raise CleanupTime(
-                        HTTPStatus.BAD_REQUEST,
-                        f"MD5 checksum {hash_md5.hexdigest()} does not match expected {md5sum}",
-                    )
-
-                # First write the .md5
-                current_app.logger.info(
-                    "Creating MD5 file {}: {}", md5_full_path, md5sum
+            except Exception:
+                raise CleanupTime(
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    "Unexpected error encountered during file upload",
                 )
 
-                # From this point attempt to remove the MD5 file on error exit
-                recovery.add(md5_full_path.unlink)
-                try:
-                    md5_full_path.write_text(f"{md5sum} {filename}\n")
-                except Exception:
-                    raise CleanupTime(
-                        HTTPStatus.INTERNAL_SERVER_ERROR,
-                        f"Failed to write .md5 file '{md5_full_path}'",
-                    )
+            if bytes_received != content_length:
+                raise CleanupTime(
+                    HTTPStatus.BAD_REQUEST,
+                    f"Expected {content_length} bytes but received {bytes_received} bytes",
+                )
+            elif hash_md5.hexdigest() != md5sum:
+                raise CleanupTime(
+                    HTTPStatus.BAD_REQUEST,
+                    f"MD5 checksum {hash_md5.hexdigest()} does not match expected {md5sum}",
+                )
+
+            # First write the .md5
+            current_app.logger.info("Creating MD5 file {}: {}", md5_full_path, md5sum)
+
+            # From this point attempt to remove the MD5 file on error exit
+            recovery.add(md5_full_path.unlink)
+            try:
+                md5_full_path.write_text(f"{md5sum} {filename}\n")
+            except Exception:
+                raise CleanupTime(
+                    HTTPStatus.INTERNAL_SERVER_ERROR,
+                    f"Failed to write .md5 file '{md5_full_path}'",
+                )
 
             # Create a cache manager object
             try:
