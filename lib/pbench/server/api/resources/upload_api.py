@@ -178,7 +178,7 @@ class Upload(ApiBase):
 
         attributes = {"access": access, "metadata": metadata}
         filename = args.uri["filename"]
-        upload_dir: Optional[Path] = None
+        tmp_dir: Optional[Path] = None
 
         try:
             try:
@@ -253,9 +253,8 @@ class Upload(ApiBase):
                     HTTPStatus.CONFLICT,
                     "Temporary upload directory already exists",
                 )
-            upload_dir = tmp_dir
-            tar_full_path = upload_dir / filename
-            md5_full_path = upload_dir / f"{filename}.md5"
+            tar_full_path = tmp_dir / filename
+            md5_full_path = tmp_dir / f"{filename}.md5"
 
             bytes_received = 0
             usage = shutil.disk_usage(tar_full_path.parent)
@@ -524,13 +523,11 @@ class Upload(ApiBase):
             else:
                 raise APIAbort(status, message) from e
         finally:
-            if upload_dir:
+            if tmp_dir:
                 try:
-                    shutil.rmtree(upload_dir)
+                    shutil.rmtree(tmp_dir)
                 except Exception as e:
-                    current_app.logger.warning(
-                        "Error removing {}: {}", upload_dir, str(e)
-                    )
+                    current_app.logger.warning("Error removing {}: {}", tmp_dir, str(e))
 
         response = jsonify(dict(message="File successfully uploaded"))
         response.status_code = HTTPStatus.CREATED
