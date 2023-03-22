@@ -26,7 +26,7 @@ import favicon from "./assets/logo/favicon.ico";
 import { fetchEndpoints } from "./actions/endpointAction";
 import { showToast } from "actions/toastActions";
 import { useDispatch, useSelector } from "react-redux";
-import { ReactKeycloakProvider } from '@react-keycloak/web';
+import { ReactKeycloakProvider } from "@react-keycloak/web";
 
 const eventLogger = (event, error) => {
   // We might want to consider to refresh the tokens here
@@ -55,9 +55,7 @@ const HomeRoute = ({ redirectPath = APP_ROUTES.HOME }) => {
 
 const App = () => {
   const dispatch = useDispatch();
-  const { keycloak } = useSelector(
-    state => state.apiEndpoint
-  );
+  const { keycloak } = useSelector((state) => state.apiEndpoint);
 
   useEffect(() => {
     const faviconLogo = document.getElementById("favicon");
@@ -68,56 +66,59 @@ const App = () => {
 
   return (
     <div className="App">
-    { keycloak && (
-    <ReactKeycloakProvider
-      authClient={keycloak}
-      onEvent={eventLogger}
-      onTokens={tokenLogger}
-      initOptions={{
-        onLoad:'check-sso',
-        checkLoginIframe: true,
-        enableLogging: true
-      }}
-      >
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomeRoute />}></Route>
-          <Route path={"/" + APP_ROUTES.HOME}>
-            <Route element={<AuthLayout />}>
-              <Route path={APP_ROUTES.AUTH} element={<AuthForm />} />
-            </Route>
-            <Route element={<MainLayout />}>
-              <Route index element={<TableWithFavorite />} />
-              <Route element={<ProtectedRoute />}>
-                <Route
-                  path={APP_ROUTES.USER_PROFILE}
-                  element={<ProfileComponent />}
-                />
-                <Route
-                  path={APP_ROUTES.RESULTS}
-                  element={<TableWithFavorite />}
-                />
-                <Route
-                  path={APP_ROUTES.OVERVIEW}
-                  element={<OverviewComponent />}
-                />
-                <Route
-                  path={APP_ROUTES.TABLE_OF_CONTENT}
-                  element={<TableOfContent />}
-                />
-                <Route
-                  path={APP_ROUTES.ANALYSIS}
-                  element={<ComingSoonPage />}
-                />
+      {keycloak && (
+        <ReactKeycloakProvider
+          authClient={keycloak}
+          onEvent={eventLogger}
+          onTokens={tokenLogger}
+          initOptions={{
+            onLoad: "check-sso",
+            checkLoginIframe: true,
+            enableLogging: true,
+          }}
+        >
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<HomeRoute />}></Route>
+              <Route path={"/" + APP_ROUTES.HOME}>
+                <Route element={<AuthLayout />}>
+                  <Route path={APP_ROUTES.AUTH} element={<AuthForm />} />
+                </Route>
+                <Route element={<MainLayout />}>
+                  <Route index element={<TableWithFavorite />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route
+                      path={APP_ROUTES.USER_PROFILE}
+                      element={<ProfileComponent />}
+                    />
+                    <Route
+                      path={APP_ROUTES.RESULTS}
+                      element={<TableWithFavorite />}
+                    />
+                    <Route
+                      path={APP_ROUTES.OVERVIEW}
+                      element={<OverviewComponent />}
+                    />
+                    <Route
+                      path={APP_ROUTES.TABLE_OF_CONTENT}
+                      element={<TableOfContent />}
+                    />
+                    <Route
+                      path={APP_ROUTES.ANALYSIS}
+                      element={<ComingSoonPage />}
+                    />
+                  </Route>
+                  <Route
+                    path={APP_ROUTES.SEARCH}
+                    element={<ComingSoonPage />}
+                  />
+                </Route>
+                <Route path="*" element={<NoMatchingPage />} />
               </Route>
-              <Route path={APP_ROUTES.SEARCH} element={<ComingSoonPage />} />
-            </Route>
-            <Route path="*" element={<NoMatchingPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </ReactKeycloakProvider>
-    )}
+            </Routes>
+          </BrowserRouter>
+        </ReactKeycloakProvider>
+      )}
     </div>
   );
 };

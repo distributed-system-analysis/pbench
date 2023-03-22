@@ -9,7 +9,7 @@ import React, { useEffect } from "react";
 import { menuOptions, menuOptionsNonLoggedIn } from "./sideMenuOptions";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useKeycloak } from '@react-keycloak/web';
+import { useKeycloak } from "@react-keycloak/web";
 import { setActiveItem } from "actions/sideBarActions";
 
 const MenuItem = ({ data, activeItem }) => {

@@ -10,7 +10,7 @@ import Cookies from "js-cookie";
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
   try {
-    const username = Cookies.get("username");;
+    const username = Cookies.get("username");
 
     if (alreadyRendered) {
       dispatch({ type: TYPES.LOADING });

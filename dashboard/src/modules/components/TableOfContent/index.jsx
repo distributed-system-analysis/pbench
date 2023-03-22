@@ -106,30 +106,30 @@ const TableOfContent = () => {
     const dropDownArray = moreBreadCrumbs.map((label, index) =>
       index < moreBreadCrumbs.length - 1 ? (
         <DropdownItem
-            key="dropdown-start"
-            component="button"
-            icon={<AngleLeftIcon />}
-            onClick={() => {
-              setStack(index + 2);
-              const updatedBreadCrumbLabels = breadCrumbLabels.slice(
-                0,
-                index + 1
+          key="dropdown-start"
+          component="button"
+          icon={<AngleLeftIcon />}
+          onClick={() => {
+            setStack(index + 2);
+            const updatedBreadCrumbLabels = breadCrumbLabels.slice(
+              0,
+              index + 1
+            );
+            const newParam = param.split("/");
+            setParam(newParam.slice(0, index + 1).join("/"));
+            setBreadCrumbLabels(updatedBreadCrumbLabels);
+            setCurrData(stack[index + 1]);
+            setTableData(stack[index + 1].files);
+            setSearchSpace(stack[index + 1].files);
+            if (updatedBreadCrumbLabels.length === 1) {
+              setBreadCrumb(initialBreadcrumb(updatedBreadCrumbLabels));
+            } else if (updatedBreadCrumbLabels.length > 1)
+              setBreadCrumb(
+                appGroupingBreadcrumb(false, updatedBreadCrumbLabels)
               );
-              const newParam = param.split("/");
-              setParam(newParam.slice(0, index + 1).join("/"));
-              setBreadCrumbLabels(updatedBreadCrumbLabels);
-              setCurrData(stack[index + 1]);
-              setTableData(stack[index + 1].files);
-              setSearchSpace(stack[index + 1].files);
-              if (updatedBreadCrumbLabels.length === 1) {
-                setBreadCrumb(initialBreadcrumb(updatedBreadCrumbLabels));
-              } else if (updatedBreadCrumbLabels.length > 1)
-                setBreadCrumb(
-                  appGroupingBreadcrumb(false, updatedBreadCrumbLabels)
-                );
-            }}
+          }}
         >
-            {label}
+          {label}
         </DropdownItem>
       ) : (
         <></>

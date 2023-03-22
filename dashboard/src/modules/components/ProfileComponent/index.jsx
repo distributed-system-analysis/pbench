@@ -51,48 +51,46 @@ const ProfileComponent = () => {
                     </GridItem>
                     <GridItem md={4} lg={4} className="item-container">
                       <div className="item-header">First Name</div>
-                      {(
+                      {
                         <TextContent>
                           <Text component={TextVariants.h5}>
                             {user?.first_name}
                           </Text>
                         </TextContent>
-                      )}
+                      }
                     </GridItem>
                     <GridItem md={5} lg={4} className="item-container">
                       <div className="item-header">Last Name</div>
-                      {(
+                      {
                         <TextContent>
                           <Text component={TextVariants.h5}>
                             {user?.last_name}
                           </Text>
                         </TextContent>
-                      )}
+                      }
                     </GridItem>
                   </Grid>
                   <Grid span={12}>
                     <GridItem md={6} lg={4} className="item-container">
                       <div className="item-header">User Name</div>
-                      {(
+                      {
                         <TextContent>
                           <Text component={TextVariants.h5}>
                             {user?.username}
                           </Text>
                         </TextContent>
-                      )}
+                      }
                     </GridItem>
                     <GridItem md={6} lg={4} className="item-container">
                       <div className="item-header">Email</div>
-                      {(
+                      {
                         <TextContent>
                           <Text component={TextVariants.h5}>{user?.email}</Text>
                         </TextContent>
-                      )}
+                      }
                     </GridItem>
                   </Grid>
-                  {(
-                    <></>
-                  )}
+                  {<></>}
                 </div>
               </CardBody>
             </Card>

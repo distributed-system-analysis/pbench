@@ -19,7 +19,7 @@ import PBenchLogo from "assets/logo/pbench_logo.svg";
 import React, { useEffect } from "react";
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { movePage } from "actions/authActions";
-import { useKeycloak } from '@react-keycloak/web';
+import { useKeycloak } from "@react-keycloak/web";
 
 export const LoginHeader = (props) => {
   return <Title headingLevel="h3">{props?.title}</Title>;
@@ -83,7 +83,7 @@ export const AuthForm = () => {
   };
   useEffect(() => {
     dispatch(authCookies());
-  }, );
+  });
   return (
     <Card className="auth-card">
       <CardTitle>
@@ -93,7 +93,9 @@ export const AuthForm = () => {
         <div className="alternate-btn-wrapper">
           <Button
             variant="primary"
-            onClick={() => keycloak.login({redirectUri: navigatePage(APP_ROUTES.OVERVIEW)})}
+            onClick={() =>
+              keycloak.login({ redirectUri: navigatePage(APP_ROUTES.OVERVIEW) })
+            }
           >
             Pbench OpenId
           </Button>

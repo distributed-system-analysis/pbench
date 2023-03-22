@@ -6,29 +6,28 @@ import Cookies from "js-cookie";
 import { SUCCESS } from "assets/constants/overviewConstants";
 import { showToast } from "actions/toastActions";
 
-
 /**
  * Loop to check if the endpoints are loaded.
  * @param {getState} getState object.
  * @return {promise} promise object
  */
-export function waitForKeycloak (getState) {
+export function waitForKeycloak(getState) {
   const waitStart = Date.now();
-  const maxWait = 10000;  // Milliseconds
+  const maxWait = 10000; // Milliseconds
   /**
    * Loop to check if the endpoints are loaded.
    * @param {resolve} resolve object.
    * @param {reject} reject object
    */
-   function check(resolve, reject) {
+  function check(resolve, reject) {
     if (Object.keys(getState().apiEndpoint.endpoints).length !== 0) {
       resolve("Loaded");
     } else if (Date.now() - waitStart > maxWait) {
-      reject(new Error('Something went wrong'));
+      reject(new Error("Something went wrong"));
     } else {
       setTimeout(check, 250, resolve, reject);
     }
-  };
+  }
   return new Promise((resolve, reject) => {
     check(resolve, reject);
   });
@@ -36,24 +35,28 @@ export function waitForKeycloak (getState) {
 
 // Perform some house keeping when the user logs in
 export const authCookies = () => async (dispatch, getState) => {
-    await waitForKeycloak(getState);
-    const keycloak = getState().apiEndpoint.keycloak;
-    if (keycloak.authenticated){
-      Cookies.set("isLoggedIn", true, { expires: keycloak.refreshTokenParsed?.exp });
-      Cookies.set("username", keycloak.tokenParsed?.preferred_username, { expires: keycloak.refreshTokenParsed?.exp });
-      const userPayload = {
-        "username": keycloak.tokenParsed?.preferred_username,
-        "email": keycloak.tokenParsed?.email,
-        "first_name": keycloak.tokenParsed?.given_name,
-        "last_name": keycloak.tokenParsed?.family_name,
-      };
-      dispatch({
-        type: TYPES.GET_USER_DETAILS,
-        payload: userPayload,
-      });
-      dispatch(showToast(SUCCESS, "Logged in successfully!"));
-    }
-}
+  await waitForKeycloak(getState);
+  const keycloak = getState().apiEndpoint.keycloak;
+  if (keycloak.authenticated) {
+    Cookies.set("isLoggedIn", true, {
+      expires: keycloak.refreshTokenParsed?.exp,
+    });
+    Cookies.set("username", keycloak.tokenParsed?.preferred_username, {
+      expires: keycloak.refreshTokenParsed?.exp,
+    });
+    const userPayload = {
+      username: keycloak.tokenParsed?.preferred_username,
+      email: keycloak.tokenParsed?.email,
+      first_name: keycloak.tokenParsed?.given_name,
+      last_name: keycloak.tokenParsed?.family_name,
+    };
+    dispatch({
+      type: TYPES.GET_USER_DETAILS,
+      payload: userPayload,
+    });
+    dispatch(showToast(SUCCESS, "Logged in successfully!"));
+  }
+};
 
 export const movePage = (toPage, navigate) => async (dispatch) => {
   // empty the alerts

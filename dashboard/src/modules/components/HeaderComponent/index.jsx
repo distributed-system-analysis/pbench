@@ -34,7 +34,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { logout } from "actions/authActions";
 import pbenchLogo from "assets/logo/pbench_logo.svg";
-import { useKeycloak } from '@react-keycloak/web';
+import { useKeycloak } from "@react-keycloak/web";
 import { movePage } from "actions/authActions";
 
 const HeaderToolbar = () => {

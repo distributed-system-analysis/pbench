@@ -10,7 +10,7 @@ export const showSessionExpired = () => async (dispatch) => {
     message: "Please login to continue",
   };
   dispatch(showToast(toast.variant, toast.title, toast.message));
-  window.location.href = APP_ROUTES.AUTH
+  window.location.href = APP_ROUTES.AUTH;
 };
 
 export const showFailureToast = () => async (dispatch) => {

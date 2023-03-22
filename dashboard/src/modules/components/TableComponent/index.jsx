@@ -30,7 +30,7 @@ import PathBreadCrumb from "../BreadCrumbComponent";
 import { TOC } from "assets/constants/navigationConstants";
 import TablePagination from "../PaginationComponent";
 import { useNavigate } from "react-router";
-import { useKeycloak } from '@react-keycloak/web';
+import { useKeycloak } from "@react-keycloak/web";
 
 let startDate = new Date(Date.UTC(1990, 10, 4));
 let endDate = bumpToDate(getTodayMidnightUTCDate(), 1);

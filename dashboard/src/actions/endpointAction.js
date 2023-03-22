@@ -1,5 +1,5 @@
 import * as TYPES from "./types";
-import Keycloak from 'keycloak-js';
+import Keycloak from "keycloak-js";
 
 export const fetchEndpoints = async (dispatch) => {
   try {
