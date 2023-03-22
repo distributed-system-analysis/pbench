@@ -6,6 +6,7 @@ from pbench.server.api.resources import ApiMethod
 from pbench.server.api.resources.query_apis.datasets.datasets_detail import (
     DatasetsDetail,
 )
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.test.unit.server.conftest import generate_token
 from pbench.test.unit.server.query_apis.commons import Commons
 
@@ -197,7 +198,29 @@ class TestDatasetsDetail(Commons):
         focus on the database dataset metadata... but necessarily has to borrow
         much of the setup.
         """
-        query_params = {"metadata": ["global.seen", "server.deletion"]}
+
+        # In order to test that this API supports getting non-alphanumeric
+        # metalog metadata keys, we decorate the dataset with one. To keep it
+        # simple, just remove the existing Metadata row and create a new one.
+        drb = Dataset.query(name="drb")
+        Metadata.delete(Metadata.get(drb, Metadata.METALOG))
+        Metadata.create(
+            dataset=drb,
+            key=Metadata.METALOG,
+            value={
+                "iterations/fooBar=10-what_else@weird": {
+                    "iteration_name": "fooBar=10-what_else@weird"
+                },
+                "run": {"controller": "node1.example.com"},
+            },
+        )
+        query_params = {
+            "metadata": [
+                "global.seen",
+                "server.deletion",
+                "dataset.metalog.iterations/fooBar=10-what_else@weird.iteration_name",
+            ]
+        }
 
         response_payload = {
             "took": 112,
@@ -319,6 +342,7 @@ class TestDatasetsDetail(Commons):
             "serverMetadata": {
                 "global.seen": None,
                 "server.deletion": "2022-12-26",
+                "dataset.metalog.iterations/fooBar=10-what_else@weird.iteration_name": "fooBar=10-what_else@weird",
             },
         }
         assert expected == res_json

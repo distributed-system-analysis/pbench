@@ -5,7 +5,7 @@ import requests
 
 from pbench.server import JSON, OperationCode
 from pbench.server.database.models.audit import Audit, AuditStatus, AuditType
-from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound, Metadata
 
 
 class TestDatasetsMetadataGet:
@@ -209,6 +209,50 @@ class TestDatasetsMetadataGet:
         )
         assert response.json == {"message": "Unknown URL query keys: controller,plugh"}
 
+    def test_get_funky_metalog_key(self, query_get_as):
+        """Test funky metadata.log key
+
+        Normally we constrain metadata keys to lowercase alphanumeric strings.
+        Traditional Pbench Agent `metadata.log` files contain keys constructed
+        from benchmark iteration values that can contain mixed case and symbol
+        characters. We allow these keys to be filtered and retrieved, but not
+        created, so test that we can filter on a funky key value and return
+        the key.
+
+        Args:
+            query_get_as: Query helper fixture
+        """
+        fio_1 = Dataset.query(name="fio_1")
+        Metadata.create(
+            dataset=fio_1,
+            key=Metadata.METALOG,
+            value={
+                "pbench": {
+                    "date": "2020-02-15T00:00:00",
+                    "config": "test1",
+                    "script": "unit-test",
+                    "name": "fio_1",
+                },
+                "iterations/fooBar=10-what_else@weird": {
+                    "iteration_name": "fooBar=10-what_else@weird"
+                },
+                "run": {"controller": "node1.example.com"},
+            },
+        )
+        response = query_get_as(
+            "fio_1",
+            {
+                "metadata": ["dataset.metalog.iterations/fooBar=10-what_else@weird"],
+            },
+            "drb",
+            HTTPStatus.OK,
+        )
+        assert response.json == {
+            "dataset.metalog.iterations/fooBar=10-what_else@weird": {
+                "iteration_name": "fooBar=10-what_else@weird"
+            }
+        }
+
 
 class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
     @pytest.fixture()
@@ -285,17 +329,39 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         assert response.status_code == HTTPStatus.NOT_FOUND
         assert response.json == {"message": "Dataset 'foobar' not found"}
 
-    def test_put_bad_keys(self, client, server_config, attach_dataset):
+    @pytest.mark.parametrize(
+        "keys,keyerr",
+        (
+            (
+                {"xyzzy": "private", "what": "sup", "global.saved": True},
+                "'what', 'xyzzy'",
+            ),
+            ({"global": {"Ab.foo": True}}, "'Ab.foo'"),
+            ({"global": {"ab@": True}}, "'ab@'"),
+            ({"global": {"abc": {"#$": "bad key"}}}, "'#$'"),
+            (
+                {
+                    "global": {
+                        "a": {
+                            "#bad": {"still@bad": "ok", "good": True},
+                            ".no": {"Yes": 0, "no?": 1},
+                        }
+                    }
+                },
+                "'#bad', '.no', 'Yes', 'no?', 'still@bad'",
+            ),
+            ({"global.AbC@foo=y": True}, "'global.AbC@foo=y'"),
+            ({"global..foo": True}, "'global..foo'"),
+        ),
+    )
+    def test_put_bad_keys(self, client, server_config, attach_dataset, keys, keyerr):
         response = client.put(
             f"{server_config.rest_uri}/datasets/drb/metadata",
-            json={
-                "metadata": {"xyzzy": "private", "what": "sup", "global.saved": True}
-            },
+            json={"metadata": keys},
         )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json == {
-            "message": "Unrecognized JSON keys ['what', 'xyzzy'] for parameter metadata."
-        }
+        assert response.status_code == HTTPStatus.BAD_REQUEST, response.json["message"]
+        msg = response.json["message"]
+        assert "Unrecognized JSON key" in msg and keyerr in msg
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
         response = client.put(
@@ -456,31 +522,41 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
     def test_put(self, query_get_as, query_put_as):
         response = query_put_as(
             "drb",
-            {"metadata": {"global.seen": False, "global.saved": True}},
+            {"metadata": {"global.seen": False, "global.under-score_hyphen": True}},
             "drb",
             HTTPStatus.OK,
         )
         assert response.json == {
-            "metadata": {"global.saved": True, "global.seen": False},
+            "metadata": {"global.under-score_hyphen": True, "global.seen": False},
             "errors": {},
         }
         response = query_get_as(
             "drb", {"metadata": "global,dataset.access"}, "drb", HTTPStatus.OK
         )
         assert response.json == {
-            "global": {"contact": "me@example.com", "saved": True, "seen": False},
+            "global": {
+                "contact": "me@example.com",
+                "under-score_hyphen": True,
+                "seen": False,
+            },
             "dataset.access": "private",
         }
 
         # Try a second GET, returning "global" fields separately:
         response = query_get_as(
             "drb",
-            {"metadata": ["global.seen", "global.saved", "dataset.access"]},
+            {
+                "metadata": [
+                    "global.seen",
+                    "global.under-score_hyphen",
+                    "dataset.access",
+                ]
+            },
             "drb",
             HTTPStatus.OK,
         )
         assert response.json == {
-            "global.saved": True,
+            "global.under-score_hyphen": True,
             "global.seen": False,
             "dataset.access": "private",
         }
@@ -510,7 +586,7 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
         assert audit[1].attributes == {
-            "updated": {"global.seen": False, "global.saved": True}
+            "updated": {"global.seen": False, "global.under-score_hyphen": True}
         }
 
     def test_put_user(self, query_get_as, query_put_as):

@@ -193,7 +193,7 @@ class TestUpload:
                     "Content-Length": "STRING",
                 },
                 query_string={
-                    "metadata": "foobar.badpath:data,server.deletion:3000-12-25T23:59:59+00:00"
+                    "metadata": "global.xyz#A@b=z:y,foobar.badpath:data,server.deletion:3000-12-25T23:59:59+00:00"
                 },
             )
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -201,6 +201,7 @@ class TestUpload:
         assert "errors" in json and "message" in json
         assert json["message"] == "at least one specified metadata key is invalid"
         assert json["errors"] == [
+            "Key global.xyz#a@b=z is invalid or isn't settable",
             "Key foobar.badpath is invalid or isn't settable",
             "Metadata key 'server.deletion' value '3000-12-25T23:59:59+00:00' for dataset must be a date/time before 1979-12-30",
         ]

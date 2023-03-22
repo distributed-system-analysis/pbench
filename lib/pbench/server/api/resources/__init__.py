@@ -4,6 +4,7 @@ from enum import auto, Enum
 from http import HTTPStatus
 import json
 from json.decoder import JSONDecodeError
+import re
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 import uuid
 
@@ -25,7 +26,6 @@ from pbench.server.database.models.datasets import (
     Dataset,
     DatasetNotFound,
     Metadata,
-    MetadataBadKey,
     MetadataError,
     OperationName,
 )
@@ -428,9 +428,11 @@ def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
     """Validate a parameter of JSON type.
 
     If the Parameter object defines a list of keywords, the JSON key values are
-    validated against that list. If the Parameter key_path attribute is set,
-    then only the first element of a dotted path (e.g., "user" for
-    "user.contact.email") is validated.
+    validated against that list.
+
+    If the Parameter key_path attribute is set, validate that the key is legal
+    and if the value is a JSON object (dict) that all keys within the JSON are
+    legal.
 
     Args:
         value : JSON dict
@@ -443,6 +445,25 @@ def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
     Returns:
         The JSON dict
     """
+    _valid_key = re.compile(r"[a-z0-9_-]+")
+
+    def keysafe(value: dict[str, Any]) -> list[str]:
+        """Test whether nested JSON keys are legal.
+
+        Args:
+            value: A JSON structure
+
+        Returns:
+            A list of bad keys (empty if all are good)
+        """
+        bad = []
+        for k, v in value.items():
+            if not _valid_key.fullmatch(k):
+                bad.append(k)
+            if isinstance(v, dict):
+                bad.extend(keysafe(v))
+        return bad
+
     try:
         washed = json.loads(json.dumps(value))
     except JSONDecodeError as e:
@@ -455,12 +476,17 @@ def convert_json(value: JSONOBJECT, parameter: "Parameter") -> JSONOBJECT:
 
     if parameter.keywords:
         bad = []
-        for k in value.keys():
-            if parameter.key_path:
-                if not Metadata.is_key_path(k, parameter.keywords):
+        try:
+            for k, v in value.items():
+                if parameter.key_path:
+                    if not Metadata.is_key_path(k, parameter.keywords):
+                        bad.append(k)
+                    if isinstance(v, dict):
+                        bad.extend(keysafe(v))
+                elif k not in parameter.keywords:
                     bad.append(k)
-            elif k not in parameter.keywords:
-                bad.append(k)
+        except Exception as e:
+            raise ConversionError(value, "JSON") from e
         if bad:
             raise KeywordError(parameter, f"JSON key{'s' if len(bad) > 1 else ''}", bad)
 
@@ -546,10 +572,12 @@ def convert_keyword(value: str, parameter: "Parameter") -> Union[str, Enum]:
         except ValueError as e:
             raise KeywordError(parameter, "enum", [value]) from e
 
-    keyword = value.lower()
+    keyword = value if parameter.metalog_ok else value.lower()
     if not parameter.keywords:
         return keyword
-    elif parameter.key_path and Metadata.is_key_path(keyword, parameter.keywords):
+    elif parameter.key_path and Metadata.is_key_path(
+        keyword, parameter.keywords, metalog_key_ok=parameter.metalog_ok
+    ):
         return keyword
     elif keyword in parameter.keywords:
         return keyword
@@ -715,6 +743,7 @@ class Parameter:
         key_path: bool = False,
         string_list: Optional[str] = None,
         enum: Optional[type[Enum]] = None,
+        metalog_ok: bool = False,
     ):
         """Initialize a Parameter object describing a JSON parameter with its
         type and attributes.
@@ -731,6 +760,9 @@ class Parameter:
                 will be split into lists.
             enum : An Enum subclass to which an upcased keyword should be
                 converted.
+            metalog_ok : Normal key_path keywords are alphanumeric; in order to
+                accommodate `metadata.log` keys, we allow an expanded character
+                set in restricted cases.
         """
         self.name = name
         self.type = type
@@ -740,6 +772,7 @@ class Parameter:
         self.key_path = key_path
         self.string_list = string_list
         self.enum = enum
+        self.metalog_ok = metalog_ok
 
     def invalid(self, json: JSONOBJECT) -> bool:
         """Check whether the value of this parameter in the JSON document is
@@ -1535,8 +1568,7 @@ class ApiBase(Resource):
     def _get_dataset_metadata(
         self, dataset: Dataset, requested_items: List[str]
     ) -> JSON:
-        """Get requested metadata about a specific Dataset and return a JSON
-        fragment that can be added to other data about the Dataset.
+        """Get requested metadata for a specific Dataset
 
         This supports strict Metadata key/value items associated with the
         Dataset as well as selected columns from the Dataset model.
@@ -1554,29 +1586,26 @@ class ApiBase(Resource):
 
         metadata = {}
         for i in requested_items:
-            if Metadata.is_key_path(i, Metadata.METADATA_KEYS):
-                native_key = Metadata.get_native_key(i)
-                user_id = None
-                if native_key == Metadata.USER:
-                    user_id = Auth.get_current_user_id()
-                try:
-                    metadata[i] = Metadata.getvalue(
-                        dataset=dataset, key=i, user_id=user_id
-                    )
-                except MetadataError:
-                    metadata[i] = None
-            else:
-                raise MetadataBadKey(i)
+            native_key = Metadata.get_native_key(i)
+            user_id = None
+            if native_key == Metadata.USER:
+                user_id = Auth.get_current_user_id()
+            try:
+                metadata[i] = Metadata.getvalue(dataset=dataset, key=i, user_id=user_id)
+            except MetadataError:
+                metadata[i] = None
 
         return metadata
 
     def _set_dataset_metadata(
         self, dataset: Dataset, metadata: dict[str, JSONVALUE]
     ) -> dict[str, str]:
-        """Set metadata on a specific Dataset and return a summary of failures.
+        """Set metadata on a specific Dataset
 
         This supports strict Metadata key/value items associated with the
         Dataset as well as selected columns from the Dataset model.
+
+        Errors are collected and returned.
 
         Args:
             dataset: Dataset object

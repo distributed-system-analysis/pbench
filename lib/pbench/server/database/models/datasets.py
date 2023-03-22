@@ -779,8 +779,25 @@ class Metadata(Database.Base):
     def getvalue(
         dataset: Dataset, key: str, user_id: Optional[str] = None
     ) -> Optional[JSON]:
-        """Returns the value of the specified key, which may be a dotted
-        hierarchical path (e.g., "server.deleted").
+        """Returns the value of the specified metadata key.
+
+        A metadata key may be a dotted hierarchical path, like "server.deleted"
+        or "dataset.metalog.pbench.script".
+
+        This code assumes that any necessary syntax checks have been made by a
+        caller. Normally, user key update is restricted to a specific set of
+        keys and namespaces (first level key like "server" or "global"), and
+        keys are lowercase and alphanumeric.
+
+        In the "dataset.metalog" sub-namespace, keys originate from a Pbench
+        Agent "metadata.log" config file, which may include non-alphanumeric
+        keys such as "iterations/1-tcp_stream-64B-1i". Pbench Server APIs may
+        allow access to these keys in limited circumstances for display and
+        filtering, and we don't interfere with that ability here. The namespace
+        key is always lowercased to find the SQL row; however other keys in the
+        path are opportunistically lowercased only if an exact match isn't
+        found. This allows "DATASET.SERVER" to match "dataset.server" but also
+        allows matching "dataset.metalog.iterations/1-tcp_stream-64B-1i".
 
         The specific value of the dotted key path is returned, not the top
         level Metadata object. The full JSON value of a top level key can be
@@ -812,10 +829,11 @@ class Metadata(Database.Base):
         Returns:
             Value of the key path
         """
-        if not Metadata.is_key_path(key, Metadata.METADATA_KEYS):
+        keys = key.split(".")
+        # Disallow ".." and trailing "."
+        if "" in keys:
             raise MetadataBadKey(key)
-        keys = key.lower().split(".")
-        native_key = keys.pop(0)
+        native_key = keys.pop(0).lower()
         if native_key == "dataset":
             value = dataset.as_dict()
         else:
@@ -831,10 +849,13 @@ class Metadata(Database.Base):
             # the stored data; let the caller know with an exception.
             if type(value) is not dict:
                 raise MetadataBadStructure(dataset, key, name)
-            if i not in value:
+            if i in value:
+                name = i
+            elif i.lower() in value:
+                name = i.lower()
+            else:
                 return None
-            value = value[i]
-            name = i
+            value = value[name]
         return value
 
     @staticmethod

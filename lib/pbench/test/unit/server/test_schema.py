@@ -326,21 +326,57 @@ class TestParameter:
         assert x.normalize(value) == expected
 
     @pytest.mark.parametrize(
-        "input,expected",
+        "input,funky,expected",
         (
-            ("yes", "yes"),
-            ("Yes", "yes"),
-            ("me.you", "me.you"),
-            ("me.You.him", "me.you.him"),
-            ("ME.US.HER.THEM", "me.us.her.them"),
+            ("yes", False, "yes"),
+            ("Yes", False, "yes"),
+            ("me.you", False, "me.you"),
+            ("me.You.him", False, "me.you.him"),
+            ("ME.US.HER.THEM", False, "me.us.her.them"),
+            ("me.a.b.fooBar:test@y=z", True, "me.a.b.fooBar:test@y=z"),
+            ("yes.a-7.b_2.foo", False, "yes.a-7.b_2.foo"),
+            ("yes.a_7.b-2.@foo", True, "yes.a_7.b-2.@foo"),
+            ("me.;baR.#f0o.x@y=10", True, "me.;baR.#f0o.x@y=10"),
         ),
     )
-    def test_keyword_namespace(self, input, expected):
+    def test_keyword_namespace(self, input, funky, expected):
+        """Test parameter normalization for a keyword parameter."""
+        x = Parameter(
+            "data",
+            ParamType.KEYWORD,
+            keywords=["yes", "me"],
+            key_path=True,
+            metalog_ok=funky,
+        )
+        assert x.normalize(input) == expected
+
+    @pytest.mark.parametrize(
+        "input,funky",
+        (
+            ("me..you", False),
+            ("me..you", True),
+            ("me.#You.him", False),
+            ("them.us", True),
+            ("a.b.fooBar:test@y=z", True),
+            ("wow.a7.b2.foo", False),
+        ),
+    )
+    def test_keyword_namespace_bad(self, input, funky):
         """
         Test parameter normalization for a keyword parameter.
         """
-        x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "me"], key_path=True)
-        assert x.normalize(input) == expected
+        x = Parameter(
+            "data",
+            ParamType.KEYWORD,
+            keywords=["yes", "me"],
+            key_path=True,
+            metalog_ok=funky,
+        )
+        with pytest.raises(
+            KeywordError,
+            match=f"Unrecognized keyword \\[{input!r}\\] for parameter data.",
+        ):
+            x.normalize(input)
 
     @pytest.mark.parametrize(
         "input,expected",
