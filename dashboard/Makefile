@@ -27,6 +27,7 @@ build:  package-lock.json node_modules ${FILES}
 
 run_lint:  package-lock.json node_modules
 	npx eslint --max-warnings 0 "src/**"
+	npx prettier --check "src/**"
 
 run_unittests:  package-lock.json node_modules
 	CI=true npm test
