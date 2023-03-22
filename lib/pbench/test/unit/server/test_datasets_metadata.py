@@ -339,6 +339,17 @@ class TestDatasetsMetadataPut(TestDatasetsMetadataGet):
             ({"global": {"Ab.foo": True}}, "'Ab.foo'"),
             ({"global": {"ab@": True}}, "'ab@'"),
             ({"global": {"abc": {"#$": "bad key"}}}, "'#$'"),
+            (
+                {
+                    "global": {
+                        "a": {
+                            "#bad": {"still@bad": "ok", "good": True},
+                            ".no": {"Yes": 0, "no?": 1},
+                        }
+                    }
+                },
+                "'#bad', '.no', 'Yes', 'no?', 'still@bad'",
+            ),
             ({"global.AbC@foo=y": True}, "'global.AbC@foo=y'"),
             ({"global..foo": True}, "'global..foo'"),
         ),
