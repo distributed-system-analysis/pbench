@@ -47,7 +47,7 @@ export const validateEmail = (email) => {
 export const expandUriTemplate = (endpoints, name, args) => {
   let uri = endpoints.uri[name].template;
   for (const [key, value] of Object.entries(args)) {
-    uri = uri.replace(`{${key}}`, value)
+    uri = uri.replace(`{${key}}`, value);
   }
-  return uri
-}
+  return uri;
+};

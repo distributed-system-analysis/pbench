@@ -118,13 +118,12 @@ export const updateDataset =
       const method = metaDataActions[actionType];
 
       const endpoints = getState().apiEndpoint.endpoints;
-      const uri = expandUriTemplate(endpoints, 'datasets_metadata', { dataset: dataset.resource_id });
-      const response = await API.put(
-        uri,
-        {
-          metadata: { [method]: actionValue },
-        }
-      );
+      const uri = expandUriTemplate(endpoints, "datasets_metadata", {
+        dataset: dataset.resource_id,
+      });
+      const response = await API.put(uri, {
+        metadata: { [method]: actionValue },
+      });
       if (response.status === 200) {
         const dataIndex = runs.findIndex(
           (item) => item.resource_id === dataset.resource_id
@@ -208,8 +207,8 @@ export const updateMultipleDataset =
         method === "delete"
           ? "Deleted!"
           : method === "save"
-            ? "Saved!"
-            : "Updated!";
+          ? "Saved!"
+          : "Updated!";
       dispatch(showToast(CONSTANTS.SUCCESS, toastMsg));
       dispatch(setSelectedRuns([]));
     } else {

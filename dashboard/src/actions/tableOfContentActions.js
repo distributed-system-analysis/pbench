@@ -6,7 +6,10 @@ export const fetchTOC =
   (param, parent, callForSubData) => async (dispatch, getState) => {
     try {
       const endpoints = getState().apiEndpoint.endpoints;
-      const uri = expandUriTemplate(endpoints, 'datasets_contents', { dataset: param, target: parent });
+      const uri = expandUriTemplate(endpoints, "datasets_contents", {
+        dataset: param,
+        target: parent,
+      });
       const response = await API.get(uri);
       if (response.status === 200 && response.data) {
         dispatch({

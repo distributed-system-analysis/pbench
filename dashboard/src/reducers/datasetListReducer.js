@@ -7,7 +7,7 @@ import {
 const initialState = {
   publicData: [],
   favoriteRepoNames: [],
-  tableData: []
+  tableData: [],
 };
 
 const DatasetListReducer = (state = initialState, action = {}) => {
@@ -17,7 +17,7 @@ const DatasetListReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         publicData: [...payload],
-        tableData: [...payload]
+        tableData: [...payload],
       };
     case FAVORITED_DATASETS:
       return {
@@ -27,8 +27,8 @@ const DatasetListReducer = (state = initialState, action = {}) => {
     case UPDATE_PUBLIC_DATASETS:
       return {
         ...state,
-        publicData: [...payload]
-      }
+        publicData: [...payload],
+      };
     default:
       return state;
   }
