@@ -43,12 +43,19 @@ pipeline {
                 KEYCLOAK_CLIENT_SECRET=credentials('5cf0304d-8a00-48a4-ade5-9f59cb37ba68')
                 PB_SERVER_IMAGE_TAG="${PB_IMAGE_TAG}"
                 RPM_PATH="${WORKSPACE_TMP}/rpmbuild/RPMS/noarch/pbench-server-*.rpm"
-                EXPIRATION="""${sh(returnStdout: true, script: 'date --date "3 weeks" "+%s"').trim()}"""
             }
             steps {
                 sh 'buildah login -u="${PB_CI_REG_CRED_USR}" -p="${PB_CI_REG_CRED_PSW}" ${PB_CI_REGISTRY}'
                 sh 'bash -ex ./server/pbenchinacan/container-build.sh'
                 sh 'buildah push ${PB_CONTAINER_REG}/${PB_SERVER_IMAGE_NAME}:${PB_IMAGE_TAG}'
+            }
+        }
+        stage('For PRs, set the Pbench Server container image expiration') {
+            when { changeRequest() }
+            environment {
+                EXPIRATION="""${sh(returnStdout: true, script: 'date --date "3 weeks" "+%s"').trim()}"""
+            }
+            steps {
                 sh './jenkins/set-expiration \
                         ${EXPIRATION} \
                         ${PB_CI_REGISTRY} \
