@@ -1,14 +1,13 @@
 from http import HTTPStatus
 from logging import Logger
 from pathlib import Path
-import socket
 from typing import Any
 
 from freezegun import freeze_time
 import pytest
 
 from pbench.server import OperationCode, PbenchServerConfig
-from pbench.server.cache_manager import CacheManager
+from pbench.server.cache_manager import CacheManager, DuplicateTarball
 from pbench.server.database.models.audit import (
     Audit,
     AuditReason,
@@ -26,16 +25,10 @@ from pbench.test.unit.server import DRB_USER_ID
 
 class TestUpload:
     cachemanager_created = None
-    cachemanager_create_fail = False
+    cachemanager_create_fail = None
     cachemanager_create_path = None
     tarball_deleted = None
     create_metadata = True
-
-    @pytest.fixture
-    def setup_ctrl(self):
-        self.controller = socket.gethostname()
-        yield
-        self.controller = None
 
     @staticmethod
     def gen_uri(server_config, filename="f.tar.xz"):
@@ -75,7 +68,7 @@ class TestUpload:
                 controller = "ctrl"
                 TestUpload.cachemanager_create_path = path
                 if TestUpload.cachemanager_create_fail:
-                    raise Exception()
+                    raise TestUpload.cachemanager_create_fail
                 self.controllers.append(controller)
                 tarball = FakeTarball(path)
                 if TestUpload.create_metadata:
@@ -84,7 +77,7 @@ class TestUpload:
                 return tarball
 
         TestUpload.cachemanager_created = None
-        TestUpload.cachemanager_create_fail = False
+        TestUpload.cachemanager_create_fail = None
         TestUpload.cachemanager_create_path = None
         TestUpload.tarball_deleted = None
         monkeypatch.setattr(CacheManager, "__init__", FakeCacheManager.__init__)
@@ -110,7 +103,7 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_missing_md5sum_header_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, server_config, pbench_drb_token
     ):
         expected_message = "Missing required 'Content-MD5' header"
         response = client.put(
@@ -125,14 +118,13 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_missing_md5sum_header_value(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, server_config, pbench_drb_token
     ):
         expected_message = "Missing required 'Content-MD5' header value"
         response = client.put(
             self.gen_uri(server_config),
             headers={
                 "Authorization": "Bearer " + pbench_drb_token,
-                "controller": self.controller,
                 "Content-MD5": "",
             },
         )
@@ -142,7 +134,7 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_missing_filename_extension(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, server_config, pbench_drb_token
     ):
         """Test with URL uploading a file named "f" which is missing the
         required filename extension"""
@@ -159,7 +151,7 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_missing_length_header_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, server_config, pbench_drb_token
     ):
         expected_message = "Missing or invalid 'Content-Length' header"
         response = client.put(
@@ -175,7 +167,7 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_bad_length_header_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, server_config, pbench_drb_token
     ):
         expected_message = "Missing or invalid 'Content-Length' header"
         response = client.put(
@@ -191,15 +183,12 @@ class TestUpload:
         self.verify_logs(caplog)
         assert not self.cachemanager_created
 
-    def test_bad_metadata_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
-    ):
+    def test_bad_metadata_upload(self, client, server_config, pbench_drb_token):
         with freeze_time("1970-01-01 00:42:00"):
             response = client.put(
                 self.gen_uri(server_config),
                 headers={
                     "Authorization": "Bearer " + pbench_drb_token,
-                    "controller": self.controller,
                     "Content-MD5": "ANYMD5",
                     "Content-Length": "STRING",
                 },
@@ -218,7 +207,7 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_mismatched_md5sum_header(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, caplog, server_config, pbench_drb_token
     ):
         filename = "log.tar.xz"
         datafile = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
@@ -245,7 +234,6 @@ class TestUpload:
         tmp_path,
         caplog,
         server_config,
-        setup_ctrl,
         pbench_drb_token,
     ):
         datafile = tmp_path / bad_extension
@@ -264,7 +252,7 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_invalid_authorization_upload(
-        self, client, caplog, server_config, setup_ctrl, pbench_drb_token_invalid
+        self, client, caplog, server_config, pbench_drb_token_invalid
     ):
         # Upload with invalid token
         response = client.put(
@@ -277,7 +265,7 @@ class TestUpload:
         assert not self.cachemanager_created
 
     def test_empty_upload(
-        self, client, tmp_path, caplog, server_config, setup_ctrl, pbench_drb_token
+        self, client, tmp_path, caplog, server_config, pbench_drb_token
     ):
         filename = "tmp.tar.xz"
         datafile = tmp_path / filename
@@ -298,14 +286,51 @@ class TestUpload:
         self.verify_logs(caplog)
         assert not self.cachemanager_created
 
+    def test_temp_exists(
+        self, monkeypatch, client, tmp_path, server_config, pbench_drb_token
+    ):
+        md5 = "d41d8cd98f00b204e9800998ecf8427e"
+
+        def td_exists(self, *args, **kwargs):
+            """Mock out Path.mkdir()
+
+            The trick here is that calling the UPLOAD API results in two calls
+            to Path.mkdir: one in the __init__ to be sure that ARCHIVE/UPLOAD
+            exists, and the second for the temporary subdirectory. We want the
+            first to succeed normally so we'll pass the call to the real mkdir
+            if the path doesn't end with our MD5 value.
+            """
+            if self.name != md5:
+                return self.real_mkdir(*args, **kwargs)
+            raise FileExistsError(str(self))
+
+        filename = "tmp.tar.xz"
+        datafile = tmp_path / filename
+        datafile.write_text("compressed tar ball")
+        with monkeypatch.context() as m:
+            m.setattr(Path, "real_mkdir", Path.mkdir, raising=False)
+            m.setattr(Path, "mkdir", td_exists)
+            with datafile.open("rb") as data_fp:
+                response = client.put(
+                    self.gen_uri(server_config, filename),
+                    data=data_fp,
+                    headers=self.gen_headers(pbench_drb_token, md5),
+                )
+        assert response.status_code == HTTPStatus.CONFLICT
+        assert (
+            response.json.get("message") == "Temporary upload directory already exists"
+        )
+        assert not self.cachemanager_created
+
+    @pytest.mark.parametrize(
+        "exception,status",
+        (
+            (Exception("Test"), HTTPStatus.INTERNAL_SERVER_ERROR),
+            (DuplicateTarball("x"), HTTPStatus.BAD_REQUEST),
+        ),
+    )
     def test_upload_cachemanager_error(
-        self,
-        client,
-        caplog,
-        server_config,
-        setup_ctrl,
-        pbench_drb_token,
-        tarball,
+        self, client, server_config, pbench_drb_token, tarball, exception, status
     ):
         """
         Cause the CacheManager.create() to fail; this should trigger the cleanup
@@ -313,7 +338,7 @@ class TestUpload:
         internal server error.
         """
         datafile, _, md5 = tarball
-        TestUpload.cachemanager_create_fail = True
+        TestUpload.cachemanager_create_fail = exception
 
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -322,7 +347,7 @@ class TestUpload:
                 headers=self.gen_headers(pbench_drb_token, md5),
             )
 
-        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+        assert response.status_code == status
 
         with pytest.raises(DatasetNotFound):
             Dataset.query(resource_id=md5)
@@ -332,7 +357,7 @@ class TestUpload:
         assert not Path(str(self.cachemanager_create_path) + ".md5").exists()
 
     @pytest.mark.freeze_time("1970-01-01")
-    def test_upload(self, client, pbench_drb_token, server_config, setup_ctrl, tarball):
+    def test_upload(self, client, pbench_drb_token, server_config, tarball):
         """Test a successful dataset upload and validate the metadata and audit
         information.
         """
@@ -397,7 +422,7 @@ class TestUpload:
 
     @pytest.mark.freeze_time("1970-01-01")
     def test_upload_invalid_metadata(
-        self, client, pbench_drb_token, server_config, setup_ctrl, tarball
+        self, client, pbench_drb_token, server_config, tarball
     ):
         """Test a dataset upload with a bad metadata. We expect a failure, and
         an 'errors' field in the response JSON explaining each error.
@@ -428,15 +453,7 @@ class TestUpload:
             ],
         }
 
-    def test_upload_duplicate(
-        self,
-        client,
-        caplog,
-        server_config,
-        setup_ctrl,
-        pbench_drb_token,
-        tarball,
-    ):
+    def test_upload_duplicate(self, client, server_config, pbench_drb_token, tarball):
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp:
             response = client.put(
@@ -464,14 +481,7 @@ class TestUpload:
         assert TestUpload.cachemanager_created is None
 
     def test_upload_metadata_error(
-        self,
-        client,
-        caplog,
-        monkeypatch,
-        server_config,
-        setup_ctrl,
-        pbench_drb_token,
-        tarball,
+        self, client, monkeypatch, server_config, pbench_drb_token, tarball
     ):
         """
         Cause the Metadata.setvalue to fail at the very end of the upload so we
@@ -530,9 +540,7 @@ class TestUpload:
         assert audit[1].attributes == {"message": "INTERNAL ERROR"}
 
     @pytest.mark.freeze_time("1970-01-01")
-    def test_upload_archive(
-        self, client, pbench_drb_token, server_config, setup_ctrl, tarball
-    ):
+    def test_upload_archive(self, client, pbench_drb_token, server_config, tarball):
         """Test a successful archiveonly dataset upload."""
         datafile, _, md5 = tarball
         with datafile.open("rb") as data_fp:
@@ -594,9 +602,7 @@ class TestUpload:
         }
 
     @pytest.mark.freeze_time("1970-01-01")
-    def test_upload_nometa(
-        self, client, pbench_drb_token, server_config, setup_ctrl, tarball
-    ):
+    def test_upload_nometa(self, client, pbench_drb_token, server_config, tarball):
         """Test a successful upload of a dataset without metadata.log."""
         datafile, _, md5 = tarball
         TestUpload.create_metadata = False
