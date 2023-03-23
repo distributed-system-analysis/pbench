@@ -31,7 +31,6 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import Cookies from "js-cookie";
 import { logout } from "actions/authActions";
 import pbenchLogo from "assets/logo/pbench_logo.svg";
 import { useKeycloak } from "@react-keycloak/web";
@@ -39,7 +38,6 @@ import { movePage } from "actions/authActions";
 
 const HeaderToolbar = () => {
   const dispatch = useDispatch();
-  const username = Cookies.get("username");
   const { keycloak } = useKeycloak();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -103,7 +101,7 @@ const HeaderToolbar = () => {
                 isOpen={isDropdownOpen}
                 toggle={
                   <DropdownToggle onToggle={onDropdownToggle}>
-                    {username}
+                    {keycloak.tokenParsed?.preferred_username}
                   </DropdownToggle>
                 }
                 dropdownItems={userDropdownItems}

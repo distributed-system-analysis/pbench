@@ -8,8 +8,8 @@ const axiosInstance = axios.create({ responseType: "json" });
 
 axiosInstance.interceptors.request.use(async (req) => {
   const keycloak = getState().apiEndpoint.keycloak;
-  if (keycloak.authenticated) {
-    req.headers.Authorization = `Bearer ${keycloak.token}`;
+  if (keycloak?.authenticated) {
+    req.headers.Authorization = `Bearer ${keycloak?.token}`;
   }
   return req;
 });

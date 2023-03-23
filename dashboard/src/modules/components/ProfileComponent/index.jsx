@@ -1,5 +1,4 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import {
   Card,
   CardBody,
@@ -15,9 +14,10 @@ import {
 import { KeyIcon, UserAltIcon } from "@patternfly/react-icons";
 import "./index.less";
 import avatar from "assets/images/avatar.jpg";
+import { useKeycloak } from "@react-keycloak/web";
 
 const ProfileComponent = () => {
-  const user = useSelector((state) => state.userProfile.userDetails);
+  const { keycloak } = useKeycloak();
 
   const formatDate = (date) => {
     const registerDate = new Date(date);
@@ -54,7 +54,7 @@ const ProfileComponent = () => {
                       {
                         <TextContent>
                           <Text component={TextVariants.h5}>
-                            {user?.first_name}
+                            {keycloak.tokenParsed?.given_name}
                           </Text>
                         </TextContent>
                       }
@@ -64,7 +64,7 @@ const ProfileComponent = () => {
                       {
                         <TextContent>
                           <Text component={TextVariants.h5}>
-                            {user?.last_name}
+                            {keycloak.tokenParsed?.family_name}
                           </Text>
                         </TextContent>
                       }
@@ -76,7 +76,7 @@ const ProfileComponent = () => {
                       {
                         <TextContent>
                           <Text component={TextVariants.h5}>
-                            {user?.username}
+                            {keycloak.tokenParsed?.preferred_username}
                           </Text>
                         </TextContent>
                       }
@@ -85,7 +85,9 @@ const ProfileComponent = () => {
                       <div className="item-header">Email</div>
                       {
                         <TextContent>
-                          <Text component={TextVariants.h5}>{user?.email}</Text>
+                          <Text component={TextVariants.h5}>
+                            {keycloak.tokenParsed?.email}
+                          </Text>
                         </TextContent>
                       }
                     </GridItem>
@@ -105,9 +107,10 @@ const ProfileComponent = () => {
                 <Grid>
                   <GridItem span={12} className="subCardDiv">
                     <TextContent>
+                      {/* TODO: How to handle account creation date */}
                       <span>Account creation Date</span>
                       <Text component={TextVariants.h4}>
-                        {formatDate(user?.registered_on)}
+                        {formatDate("MM/DD/YYYY")}
                       </Text>
                     </TextContent>
                   </GridItem>

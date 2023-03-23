@@ -29,8 +29,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
 
 const eventLogger = (event, error) => {
-  // We might want to consider to refresh the tokens here
-  // if the event === 'onTokenExpired'
+  // Placeholder to perform logging action upon certain Keycloak events.
+  // Keycloak events are described under
+  // https://www.keycloak.org/docs/latest/securing_apps/#javascript-adapter-reference
 };
 
 const tokenLogger = (tokens) => {

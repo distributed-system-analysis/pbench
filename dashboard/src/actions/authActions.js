@@ -7,13 +7,13 @@ import { SUCCESS } from "assets/constants/overviewConstants";
 import { showToast } from "actions/toastActions";
 
 /**
- * Loop to check if the endpoints are loaded.
+ * Timer to check if the endpoints are loaded.
  * @param {getState} getState object.
  * @return {promise} promise object
  */
 export function waitForKeycloak(getState) {
   const waitStart = Date.now();
-  const maxWait = 10000; // Milliseconds
+  const maxWait = 50000; // Milliseconds
   /**
    * Loop to check if the endpoints are loaded.
    * @param {resolve} resolve object.
@@ -21,9 +21,9 @@ export function waitForKeycloak(getState) {
    */
   function check(resolve, reject) {
     if (Object.keys(getState().apiEndpoint.endpoints).length !== 0) {
-      resolve("Loaded");
+      resolve("Endpoints loaded");
     } else if (Date.now() - waitStart > maxWait) {
-      reject(new Error("Something went wrong"));
+      reject(new Error("Timed out waiting for endpoints request"));
     } else {
       setTimeout(check, 250, resolve, reject);
     }
@@ -39,20 +39,7 @@ export const authCookies = () => async (dispatch, getState) => {
   const keycloak = getState().apiEndpoint.keycloak;
   if (keycloak.authenticated) {
     Cookies.set("isLoggedIn", true, {
-      expires: keycloak.refreshTokenParsed?.exp,
-    });
-    Cookies.set("username", keycloak.tokenParsed?.preferred_username, {
-      expires: keycloak.refreshTokenParsed?.exp,
-    });
-    const userPayload = {
-      username: keycloak.tokenParsed?.preferred_username,
-      email: keycloak.tokenParsed?.email,
-      first_name: keycloak.tokenParsed?.given_name,
-      last_name: keycloak.tokenParsed?.family_name,
-    };
-    dispatch({
-      type: TYPES.GET_USER_DETAILS,
-      payload: userPayload,
+      expires: new Date(keycloak.refreshTokenParsed.exp * 1000),
     });
     dispatch(showToast(SUCCESS, "Logged in successfully!"));
   }
@@ -69,9 +56,8 @@ export const movePage = (toPage, navigate) => async (dispatch) => {
 
 export const logout = () => async (dispatch, getState) => {
   dispatch({ type: TYPES.LOADING });
-  // const keycloak = useKeycloak();
   const keycloak = getState().apiEndpoint.keycloak;
-  const keys = ["username", "token", "isLoggedIn"];
+  const keys = ["username", "isLoggedIn"];
   for (const key of keys) {
     Cookies.remove(key);
   }

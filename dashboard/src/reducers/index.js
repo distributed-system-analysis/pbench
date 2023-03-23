@@ -7,14 +7,12 @@ import OverviewReducer from "./overviewReducer";
 import SidebarReducer from "./sidebarReducer";
 import TableOfContentReducer from "./tableOfContentReducer";
 import ToastReducer from "./toastReducer";
-import UserProfileReducer from "./userProfileReducer";
 import { combineReducers } from "redux";
 
 export default combineReducers({
   toastReducer: ToastReducer,
   loading: LoadingReducer,
   userAuth: AuthReducer,
-  userProfile: UserProfileReducer,
   navOpen: NavbarReducer,
   datasetlist: DatasetListReducer,
   apiEndpoint: EndpointReducer,
