@@ -1,5 +1,9 @@
-**/*.md
-**/*.svg
-**/*.html
 **/*.ejs
+**/*.html
+**/*.ico
+**/*.jpg
+**/*.md
+**/*.png
+**/*.snap
+**/*.svg
 package.json
