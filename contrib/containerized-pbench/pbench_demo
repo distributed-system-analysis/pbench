@@ -23,11 +23,11 @@ mkdir -p ${FIOTEST}
 #+
 # Run the demo!
 #-
+pbench pbench-generate-token --output=/var/lib/pbench-agent/.token
 pbench pbench-register-tool-set light
 pbench pbench-list-tools
 pbench pbench-user-benchmark --config example-workload -- \
     fio --directory=/fiotest --name fio_test_file --direct=1 --rw=randread \
-        --bs=16k --size=100M --numjobs=16 --time_based --runtime=20s \
+        --bs=16k --size=100M --numjobs=8 --time_based --runtime=5s \
         --group_reporting --norandommap
-pbench pbench-generate-token --output=/var/lib/pbench-agent/.token
 pbench pbench-results-move --token=$(< /var/tmp/pbench/pbench-agent/run/.token)
