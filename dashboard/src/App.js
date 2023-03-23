@@ -28,17 +28,6 @@ import { showToast } from "actions/toastActions";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
 
-const eventLogger = (event, error) => {
-  // Placeholder to perform logging action upon certain Keycloak events.
-  // Keycloak events are described under
-  // https://www.keycloak.org/docs/latest/securing_apps/#javascript-adapter-reference
-};
-
-const tokenLogger = (tokens) => {
-  // Placeholder for to perform action when new token is generated
-  // console.log('onKeycloakTokens', tokens["refreshToken"]);
-};
-
 const ProtectedRoute = ({ redirectPath = APP_ROUTES.AUTH, children }) => {
   const loggedIn = Cookies.get("isLoggedIn");
   const dispatch = useDispatch();
@@ -70,8 +59,6 @@ const App = () => {
       {keycloak && (
         <ReactKeycloakProvider
           authClient={keycloak}
-          onEvent={eventLogger}
-          onTokens={tokenLogger}
           initOptions={{
             onLoad: "check-sso",
             checkLoginIframe: true,

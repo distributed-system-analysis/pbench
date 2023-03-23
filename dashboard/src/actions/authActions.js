@@ -6,16 +6,16 @@ import Cookies from "js-cookie";
 import { SUCCESS } from "assets/constants/overviewConstants";
 import { showToast } from "actions/toastActions";
 
+const maxWait = 50000; // Milliseconds
 /**
- * Timer to check if the endpoints are loaded.
+ * Wait for the Pbench Server endpoints to be loaded.
  * @param {getState} getState object.
  * @return {promise} promise object
  */
-export function waitForKeycloak(getState) {
+export function waitForEndpoints(getState) {
   const waitStart = Date.now();
-  const maxWait = 50000; // Milliseconds
   /**
-   * Loop to check if the endpoints are loaded.
+   * Settle the wait-for-endpoints promise.
    * @param {resolve} resolve object.
    * @param {reject} reject object
    */
@@ -28,16 +28,15 @@ export function waitForKeycloak(getState) {
       setTimeout(check, 250, resolve, reject);
     }
   }
-  return new Promise((resolve, reject) => {
-    check(resolve, reject);
-  });
+  return new Promise((resolve, reject) => check(resolve, reject));
 }
 
 // Perform some house keeping when the user logs in
 export const authCookies = () => async (dispatch, getState) => {
-  await waitForKeycloak(getState);
+  await waitForEndpoints(getState);
   const keycloak = getState().apiEndpoint.keycloak;
   if (keycloak.authenticated) {
+    // Set the cookie expiry to milliseconds since the UNIX Epoch
     Cookies.set("isLoggedIn", true, {
       expires: new Date(keycloak.refreshTokenParsed.exp * 1000),
     });
@@ -54,16 +53,17 @@ export const movePage = (toPage, navigate) => async (dispatch) => {
   navigate(toPage);
 };
 
-export const logout = () => async (dispatch, getState) => {
+export const localLogout = () => async (dispatch, getState) => {
   dispatch({ type: TYPES.LOADING });
-  const keycloak = getState().apiEndpoint.keycloak;
-  const keys = ["username", "isLoggedIn"];
-  for (const key of keys) {
-    Cookies.remove(key);
-  }
-  keycloak.logout();
+  Cookies.remove("isLoggedIn");
   dispatch({ type: TYPES.COMPLETED });
   setTimeout(() => {
     window.location.href = APP_ROUTES.AUTH;
   }, CONSTANTS.LOGOUT_DELAY_MS);
+};
+
+export const sessionLogout = () => async (dispatch, getState) => {
+  const keycloak = getState().apiEndpoint.keycloak;
+  keycloak.logout();
+  dispatch(localLogout());
 };

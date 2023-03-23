@@ -31,7 +31,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { logout } from "actions/authActions";
+import { sessionLogout } from "actions/authActions";
 import pbenchLogo from "assets/logo/pbench_logo.svg";
 import { useKeycloak } from "@react-keycloak/web";
 import { movePage } from "actions/authActions";
@@ -50,7 +50,7 @@ const HeaderToolbar = () => {
     const type = event.target.name;
     const menuOptions = {
       profile: () => navigate(APP_ROUTES.USER_PROFILE),
-      logout: () => dispatch(logout()),
+      logout: () => dispatch(sessionLogout()),
     };
     const action = menuOptions[type];
     if (action) {

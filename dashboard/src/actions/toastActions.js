@@ -1,7 +1,7 @@
 import * as TYPES from "./types";
-import * as APP_ROUTES from "utils/routeConstants";
 
 import { uid } from "utils/helper";
+import { localLogout } from "./authActions";
 
 export const showSessionExpired = () => async (dispatch) => {
   const toast = {
@@ -10,7 +10,7 @@ export const showSessionExpired = () => async (dispatch) => {
     message: "Please login to continue",
   };
   dispatch(showToast(toast.variant, toast.title, toast.message));
-  window.location.href = APP_ROUTES.AUTH;
+  dispatch(localLogout());
 };
 
 export const showFailureToast = () => async (dispatch) => {
