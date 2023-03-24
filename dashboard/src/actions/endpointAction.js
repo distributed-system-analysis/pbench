@@ -14,9 +14,9 @@ export const fetchEndpoints = async (dispatch) => {
       payload: data,
     });
     const keycloak = new Keycloak({
-      url: data?.openid?.server,
-      realm: data?.openid?.realm,
-      clientId: data?.openid?.client,
+      url: data.openid.server,
+      realm: data.openid.realm,
+      clientId: data.openid.client,
     });
     dispatch({
       type: TYPES.SET_KEYCLOAK,
