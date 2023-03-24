@@ -47,7 +47,7 @@ export const getDatasets = () => async (dispatch, getState) => {
     if (!error?.response) {
       dispatch(showToast(DANGER, "Not Authenticated"));
       dispatch({ type: TYPES.OPENID_ERROR });
-      dispatch(clearCachedSession());
+      clearCachedSession(dispatch);
     } else {
       dispatch(showToast(DANGER, error?.response?.data?.message));
       dispatch({ type: TYPES.NETWORK_ERROR });

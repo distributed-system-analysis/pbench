@@ -11,7 +11,7 @@ import { showToast, clearToast } from "actions/toastActions";
  * @param {getState} getState object.
  * @return {promise} promise object
  */
-export function waitForEndpoints(getState) {
+export async function waitForEndpoints(getState) {
   const waitStart = Date.now();
   /**
    * Settle the wait-for-endpoints promise.
@@ -51,17 +51,21 @@ export const movePage = (toPage, navigate) => async (dispatch) => {
   navigate(toPage);
 };
 
-export const clearCachedSession = () => async (dispatch, getState) => {
+/**
+ * Clear the local cookies and re-direct to the auth page.
+ * @param {dispatch} dispatch object.
+ */
+export async function clearCachedSession(dispatch) {
   dispatch({ type: TYPES.LOADING });
   Cookies.remove("isLoggedIn");
   dispatch({ type: TYPES.COMPLETED });
   setTimeout(() => {
     window.location.href = APP_ROUTES.AUTH;
   }, CONSTANTS.LOGOUT_DELAY_MS);
-};
+}
 
 export const sessionLogout = () => async (dispatch, getState) => {
   const keycloak = getState().apiEndpoint.keycloak;
   keycloak.logout();
-  dispatch(clearCachedSession());
+  clearCachedSession(dispatch);
 };

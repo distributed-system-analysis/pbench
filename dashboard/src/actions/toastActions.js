@@ -10,7 +10,7 @@ export const showSessionExpired = () => async (dispatch) => {
     message: "Please login to continue",
   };
   dispatch(showToast(toast.variant, toast.title, toast.message));
-  dispatch(clearCachedSession());
+  clearCachedSession(dispatch);
 };
 
 export const showFailureToast = () => async (dispatch) => {
