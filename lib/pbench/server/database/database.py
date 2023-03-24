@@ -93,16 +93,17 @@ class Database:
         )
 
     @staticmethod
-    def dump_query(query: Query, logger: Logger):
+    def dump_query(query: Query, logger: Logger, level: int = DEBUG):
         """Dump a fully resolved SQL query if DEBUG logging is enabled
 
         Args:
             query:  A SQLAlchemy Query object
             logger: A Python logger object
+            level: [DEBUG] level at which to log
         """
-        if logger.isEnabledFor(DEBUG):
+        if logger.isEnabledFor(level):
             try:
                 q_str = query.statement.compile(compile_kwargs={"literal_binds": True})
-                logger.debug("QUERY {}", q_str)
+                logger.log(level, "QUERY {}", q_str)
             except Exception as e:
-                logger.debug("Can't compile query {}: {}", query, e)
+                logger.log(level, "Can't compile query {}: {}", query, e)
