@@ -74,6 +74,14 @@ class TestDatasetsList:
                 gtable,
                 and_(gtable.dataset_ref == Dataset.id, gtable.key == Metadata.GLOBAL),
             )
+            .outerjoin(
+                utable,
+                and_(
+                    utable.dataset_ref == Dataset.id,
+                    utable.key == Metadata.USER,
+                    utable.user_id == DRB_USER_ID,
+                ),
+            )
         )
         yield aliases, query
 
@@ -497,22 +505,22 @@ class TestDatasetsList:
     @pytest.mark.parametrize(
         "filters,expected",
         [
-            (["dataset.name:fio"], " WHERE datasets.name = 'fio'"),
+            (["dataset.name:fio"], "datasets.name = 'fio'"),
             (
                 ["dataset.metalog.pbench.script:fio"],
-                " WHERE dataset_metadata_1.value[['pbench', 'script']] = 'fio'",
+                "dataset_metadata_1.value[['pbench', 'script']] = 'fio'",
             ),
             (
                 ["user.d.f:1"],
-                ", dataset_metadata AS dataset_metadata_4 WHERE dataset_metadata_4.value[['d', 'f']] = '1'",
+                "dataset_metadata_4.value[['d', 'f']] = '1'",
             ),
             (
                 ["dataset.name:~fio", "^global.x:1", "^user.y:~yes"],
-                ", dataset_metadata AS dataset_metadata_4 WHERE (datasets.name LIKE '%' || 'fio' || '%') AND (dataset_metadata_3.value[['x']] = '1' OR ((dataset_metadata_4.value[['y']]) LIKE '%' || 'yes' || '%'))",
+                "(datasets.name LIKE '%' || 'fio' || '%') AND (dataset_metadata_3.value[['x']] = '1' OR ((dataset_metadata_4.value[['y']]) LIKE '%' || 'yes' || '%'))",
             ),
             (
                 ["dataset.uploaded:~2000"],
-                " WHERE (CAST(datasets.uploaded AS VARCHAR) LIKE '%' || '2000' || '%')",
+                "(CAST(datasets.uploaded AS VARCHAR) LIKE '%' || '2000' || '%')",
             ),
         ],
     )
@@ -526,16 +534,7 @@ class TestDatasetsList:
             "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
             lambda: DRB_USER_ID,
         )
-        prefix = (
-            "SELECT datasets.access, datasets.id, datasets.name, datasets.owner_id, datasets.resource_id, datasets.uploaded "
-            "FROM datasets LEFT OUTER JOIN dataset_metadata "
-            "AS dataset_metadata_1 ON dataset_metadata_1.dataset_ref = datasets.id AND dataset_metadata_1.key = 'metalog' "
-            "LEFT OUTER JOIN dataset_metadata AS dataset_metadata_2 "
-            "ON dataset_metadata_2.dataset_ref = datasets.id AND "
-            "dataset_metadata_2.key = 'server' LEFT OUTER JOIN dataset_metadata "
-            "AS dataset_metadata_3 ON dataset_metadata_3.dataset_ref = datasets.id "
-            "AND dataset_metadata_3.key = 'global'"
-        )
+        prefix = "SELECT datasets.access, datasets.id, datasets.name, datasets.owner_id, datasets.resource_id, datasets.uploaded FROM datasets LEFT OUTER JOIN dataset_metadata AS dataset_metadata_1 ON dataset_metadata_1.dataset_ref = datasets.id AND dataset_metadata_1.key = 'metalog' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_2 ON dataset_metadata_2.dataset_ref = datasets.id AND dataset_metadata_2.key = 'server' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_3 ON dataset_metadata_3.dataset_ref = datasets.id AND dataset_metadata_3.key = 'global' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_4 ON dataset_metadata_4.dataset_ref = datasets.id AND dataset_metadata_4.key = 'user' AND dataset_metadata_4.user_id = '3' WHERE "
         aliases, query = aliases
         query = DatasetsList.filter_query(filters, aliases, query)
         assert (
