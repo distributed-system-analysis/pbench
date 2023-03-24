@@ -1,6 +1,7 @@
 import datetime
 from http import HTTPStatus
 import re
+from typing import Optional
 
 import pytest
 import requests
@@ -48,42 +49,28 @@ class TestDatasetsList:
     fixture.
     """
 
-    @pytest.fixture()
-    def aliases(self):
-        mtable = aliased(Metadata)
-        stable = aliased(Metadata)
-        gtable = aliased(Metadata)
-        utable = aliased(Metadata)
+    def filter_setup(self, auth_id: Optional[str]):
+        """Set up SQLAlchemy for filter_query unit tests.
+
+        This generates the basic query to allow generating
+        filter expressions.
+        """
         aliases = {
-            Metadata.METALOG: mtable,
-            Metadata.SERVER: stable,
-            Metadata.GLOBAL: gtable,
-            Metadata.USER: utable,
+            Metadata.METALOG: aliased(Metadata),
+            Metadata.SERVER: aliased(Metadata),
+            Metadata.GLOBAL: aliased(Metadata),
+            Metadata.USER: aliased(Metadata),
         }
-        query = (
-            Database.db_session.query(Dataset)
-            .outerjoin(
-                mtable,
-                and_(mtable.dataset_ref == Dataset.id, mtable.key == Metadata.METALOG),
-            )
-            .outerjoin(
-                stable,
-                and_(stable.dataset_ref == Dataset.id, stable.key == Metadata.SERVER),
-            )
-            .outerjoin(
-                gtable,
-                and_(gtable.dataset_ref == Dataset.id, gtable.key == Metadata.GLOBAL),
-            )
-            .outerjoin(
-                utable,
-                and_(
-                    utable.dataset_ref == Dataset.id,
-                    utable.key == Metadata.USER,
-                    utable.user_id == DRB_USER_ID,
-                ),
-            )
-        )
-        yield aliases, query
+        query = Database.db_session.query(Dataset)
+        for key, table in aliases.items():
+            terms = [table.dataset_ref == Dataset.id, table.key == key]
+            if key == Metadata.USER:
+                if auth_id:
+                    terms.append(table.user_id == auth_id)
+                else:
+                    continue
+            query = query.outerjoin(table, and_(*terms))
+        return aliases, query
 
     @pytest.fixture()
     def query_as(
@@ -524,7 +511,7 @@ class TestDatasetsList:
             ),
         ],
     )
-    def test_filter_query(self, monkeypatch, client, aliases, filters, expected):
+    def test_filter_query(self, monkeypatch, client, filters, expected):
         """Test generation of Metadata value filters
 
         Use the filter_query method directly to verify SQL generation from sets
@@ -534,8 +521,14 @@ class TestDatasetsList:
             "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
             lambda: DRB_USER_ID,
         )
-        prefix = "SELECT datasets.access, datasets.id, datasets.name, datasets.owner_id, datasets.resource_id, datasets.uploaded FROM datasets LEFT OUTER JOIN dataset_metadata AS dataset_metadata_1 ON dataset_metadata_1.dataset_ref = datasets.id AND dataset_metadata_1.key = 'metalog' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_2 ON dataset_metadata_2.dataset_ref = datasets.id AND dataset_metadata_2.key = 'server' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_3 ON dataset_metadata_3.dataset_ref = datasets.id AND dataset_metadata_3.key = 'global' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_4 ON dataset_metadata_4.dataset_ref = datasets.id AND dataset_metadata_4.key = 'user' AND dataset_metadata_4.user_id = '3' WHERE "
-        aliases, query = aliases
+        prefix = (
+            "SELECT datasets.access, datasets.id, datasets.name, datasets.owner_id, datasets.resource_id, datasets.uploaded "
+            "FROM datasets LEFT OUTER JOIN dataset_metadata AS dataset_metadata_1 ON dataset_metadata_1.dataset_ref = datasets.id AND dataset_metadata_1.key = 'metalog' "
+            "LEFT OUTER JOIN dataset_metadata AS dataset_metadata_2 ON dataset_metadata_2.dataset_ref = datasets.id AND dataset_metadata_2.key = 'server' "
+            "LEFT OUTER JOIN dataset_metadata AS dataset_metadata_3 ON dataset_metadata_3.dataset_ref = datasets.id AND dataset_metadata_3.key = 'global' "
+            "LEFT OUTER JOIN dataset_metadata AS dataset_metadata_4 ON dataset_metadata_4.dataset_ref = datasets.id AND dataset_metadata_4.key = 'user' AND dataset_metadata_4.user_id = '3' WHERE "
+        )
+        aliases, query = self.filter_setup(DRB_USER_ID)
         query = DatasetsList.filter_query(filters, aliases, query)
         assert (
             FLATTEN.sub(
@@ -545,7 +538,55 @@ class TestDatasetsList:
             == prefix + expected
         )
 
-    def test_user_no_auth(self, monkeypatch, db_session, aliases):
+    @pytest.mark.parametrize(
+        "filters,expected",
+        [
+            (["dataset.name:fio"], "datasets.name = 'fio'"),
+            (
+                ["dataset.metalog.pbench.script:fio"],
+                "dataset_metadata_1.value[['pbench', 'script']] = 'fio'",
+            ),
+            (
+                ["dataset.name:~fio", "^global.x:1"],
+                "(datasets.name LIKE '%' || 'fio' || '%') AND dataset_metadata_3.value[['x']] = '1'",
+            ),
+            (
+                ["dataset.uploaded:~2000"],
+                "(CAST(datasets.uploaded AS VARCHAR) LIKE '%' || '2000' || '%')",
+            ),
+        ],
+    )
+    def test_filter_query_noauth(self, monkeypatch, client, filters, expected):
+        """Test generation of Metadata value filters
+
+        Use the filter_query method directly to verify SQL generation from sets
+        of metadata filter expressions.
+        """
+        monkeypatch.setattr(
+            "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
+            lambda: None,
+        )
+        prefix = (
+            "SELECT datasets.access, datasets.id, datasets.name, datasets.owner_id, datasets.resource_id, datasets.uploaded "
+            "FROM datasets LEFT OUTER JOIN dataset_metadata AS dataset_metadata_1 ON dataset_metadata_1.dataset_ref = datasets.id AND dataset_metadata_1.key = 'metalog' "
+            "LEFT OUTER JOIN dataset_metadata AS dataset_metadata_2 ON dataset_metadata_2.dataset_ref = datasets.id AND dataset_metadata_2.key = 'server' "
+            "LEFT OUTER JOIN dataset_metadata AS dataset_metadata_3 ON dataset_metadata_3.dataset_ref = datasets.id AND dataset_metadata_3.key = 'global' WHERE "
+        )
+
+        # SELECT datasets.access, datasets.id, datasets.name, datasets.owner_id, datasets.resource_id, datasets.uploaded FROM datasets LEFT OUTER JOIN dataset_metadata AS dataset_metadata_1 ON dataset_metadata_1.dataset_ref = datasets.id AND dataset_metadata_1.key = 'metalog' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_2 ON dataset_metadata_2.dataset_ref = datasets.id AND dataset_metadata_2.key = 'server' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_3 ON dataset_metadata_3.dataset_ref = datasets.id AND dataset_metadata_3.key = 'global' WHERE datasets.name = 'fio'
+        # SELECT datasets.access, datasets.id, datasets.name, datasets.owner_id, datasets.resource_id, datasets.uploaded FROM datasets LEFT OUTER JOIN dataset_metadata AS dataset_metadata_1 ON dataset_metadata_1.dataset_ref = datasets.id AND dataset_metadata_1.key = 'metalog' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_2 ON dataset_metadata_2.dataset_ref = datasets.id AND dataset_metadata_2.key = 'server' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_3 ON dataset_metadata_3.dataset_ref = datasets.id AND dataset_metadata_3.key = 'global' LEFT OUTER JOIN dataset_metadata AS dataset_metadata_4 ON dataset_metadata_4.dataset_ref = datasets.id AND dataset_metadata_4.key = 'user' AND dataset_metadata_4.user_id = '3' WHERE datasets.name = 'fio'
+
+        aliases, query = self.filter_setup(None)
+        query = DatasetsList.filter_query(filters, aliases, query)
+        assert (
+            FLATTEN.sub(
+                " ",
+                str(query.statement.compile(compile_kwargs={"literal_binds": True})),
+            )
+            == prefix + expected
+        )
+
+    def test_user_no_auth(self, monkeypatch, db_session):
         """Test the authorization error when a match against a key in the user
         namespace is attempted from an unauthenticated session.
         """
@@ -553,7 +594,7 @@ class TestDatasetsList:
             "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
             lambda: None,
         )
-        aliases, query = aliases
+        aliases, query = self.filter_setup(None)
         with pytest.raises(APIAbort) as e:
             DatasetsList.filter_query(["user.foo:1"], aliases, query)
         assert e.value.http_status == HTTPStatus.UNAUTHORIZED
@@ -567,13 +608,13 @@ class TestDatasetsList:
             ("dataset.notright:10", HTTPStatus.BAD_REQUEST),
         ],
     )
-    def test_filter_errors(self, monkeypatch, db_session, aliases, meta, error):
+    def test_filter_errors(self, monkeypatch, db_session, meta, error):
         """Test invalid filter expressions."""
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
             lambda: None,
         )
-        aliases, query = aliases
+        aliases, query = self.filter_setup(None)
         with pytest.raises(APIAbort) as e:
             DatasetsList.filter_query([meta], aliases, query)
         assert e.value.http_status == error

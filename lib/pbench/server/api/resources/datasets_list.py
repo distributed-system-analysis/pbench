@@ -234,8 +234,7 @@ class DatasetsList(ApiBase):
                 raise APIAbort(HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k)))
             keys = k.split(".")
             native_key = keys.pop(0).lower()
-            terms = []
-            use_dataset = False
+            filter = None
 
             if native_key == Metadata.DATASET:
                 second = keys[0].lower()
@@ -260,8 +259,7 @@ class DatasetsList(ApiBase):
                         raise APIAbort(
                             HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k))
                         ) from e
-                    use_dataset = True
-                    terms = [column.contains(v) if contains else column == v]
+                    filter = column.contains(v) if contains else column == v
             elif native_key == Metadata.USER:
                 # The user namespace requires special handling because the
                 # values are always qualified by the owning user rather than
@@ -273,11 +271,11 @@ class DatasetsList(ApiBase):
                         f"Metadata key {k} cannot be used by an unauthenticated client",
                     )
 
-            if not use_dataset:
+            # NOTE: We don't want to *evaluate* the filter expression here, so
+            # check explicitly for None.
+            if filter is None:
                 expression = aliases[native_key].value[keys].as_string()
                 filter = expression.contains(v) if contains else expression == v
-            else:
-                filter = and_(*terms)
 
             if combine_or:
                 or_list.append(filter)
@@ -342,6 +340,8 @@ class DatasetsList(ApiBase):
         datasets = query.all()
         for d in datasets:
             for m in d.metadatas:
+                # "metalog" is a top-level key in the Metadata schema, but we
+                # report it as a sub-key of "dataset".
                 if m.key == Metadata.METALOG:
                     self.accumulate(aggregate["dataset"], m.key, m.value)
                 else:
@@ -446,40 +446,22 @@ class DatasetsList(ApiBase):
                    }             }           }               }
                   }             }           }               }
         """
-        mtable = aliased(Metadata)
-        stable = aliased(Metadata)
-        gtable = aliased(Metadata)
-        utable = aliased(Metadata)
         aliases = {
-            Metadata.METALOG: mtable,
-            Metadata.SERVER: stable,
-            Metadata.GLOBAL: gtable,
-            Metadata.USER: utable,
+            Metadata.METALOG: aliased(Metadata),
+            Metadata.SERVER: aliased(Metadata),
+            Metadata.GLOBAL: aliased(Metadata),
+            Metadata.USER: aliased(Metadata),
         }
-        query = (
-            Database.db_session.query(Dataset)
-            .outerjoin(
-                mtable,
-                and_(mtable.dataset_ref == Dataset.id, mtable.key == Metadata.METALOG),
-            )
-            .outerjoin(
-                stable,
-                and_(stable.dataset_ref == Dataset.id, stable.key == Metadata.SERVER),
-            )
-            .outerjoin(
-                gtable,
-                and_(gtable.dataset_ref == Dataset.id, gtable.key == Metadata.GLOBAL),
-            )
-        )
-        if auth_id:
-            query = query.outerjoin(
-                utable,
-                and_(
-                    utable.dataset_ref == Dataset.id,
-                    utable.key == Metadata.USER,
-                    utable.user_id == auth_id,
-                ),
-            )
+        query = Database.db_session.query(Dataset)
+        for key, table in aliases.items():
+            terms = [table.dataset_ref == Dataset.id, table.key == key]
+            if key == Metadata.USER:
+                if auth_id:
+                    terms.append(table.user_id == auth_id)
+                else:
+                    continue
+            current_app.logger.info("Adding JOIN {}", key)
+            query = query.outerjoin(table, and_(*terms))
 
         if "start" in json and "end" in json:
             query = query.filter(Dataset.uploaded.between(json["start"], json["end"]))
