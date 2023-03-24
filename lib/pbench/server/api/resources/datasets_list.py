@@ -7,7 +7,8 @@ from flask.json import jsonify
 from flask.wrappers import Request, Response
 from sqlalchemy import and_, cast, or_, String
 from sqlalchemy.exc import ProgrammingError, StatementError
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import aliased, Query
+from sqlalchemy.sql.expression import Alias
 
 from pbench.server import JSON, JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -134,7 +135,9 @@ class DatasetsList(ApiBase):
         return items, paginated_result
 
     @staticmethod
-    def filter_query(filters: list[str], query: Query) -> Query:
+    def filter_query(
+        filters: list[str], aliases: dict[str, Alias], query: Query
+    ) -> Query:
         """Provide Metadata filtering for datasets.
 
         Add SQLAlchemy filters to fulfill the intent of a series of filter
@@ -233,7 +236,6 @@ class DatasetsList(ApiBase):
             native_key = keys.pop(0).lower()
             terms = []
             use_dataset = False
-            user_private = None
 
             if native_key == Metadata.DATASET:
                 second = keys[0].lower()
@@ -270,17 +272,12 @@ class DatasetsList(ApiBase):
                         HTTPStatus.UNAUTHORIZED,
                         f"Metadata key {k} cannot be used by an unauthenticated client",
                     )
-                user_private = [Metadata.user_id == user_id]
 
             if not use_dataset:
-                expression = Metadata.value[keys].as_string()
-                terms = [
-                    Metadata.key == native_key,
-                    expression.contains(v) if contains else expression == v,
-                ]
-                if user_private:
-                    terms.extend(user_private)
-            filter = and_(*terms)
+                expression = aliases[native_key].value[keys].as_string()
+                filter = expression.contains(v) if contains else expression == v
+            else:
+                filter = and_(*terms)
 
             if combine_or:
                 or_list.append(filter)
@@ -416,9 +413,78 @@ class DatasetsList(ApiBase):
             A JSON response containing the paginated query result
         """
         json = params.query
+        auth_id = Auth.get_current_user_id()
 
         # Build a SQLAlchemy Query object expressing all of our constraints
-        query = Database.db_session.query(Dataset).outerjoin(Metadata)
+
+        """SQL notes:
+
+        We want to be able to query across all four metadata key namespaces,
+        and a SELECT WHERE clause can only match within individual rows.
+        That is, if we look for "value1 = 'a' and value2 = 'b'", we won't
+        find a match with a single LEFT JOIN as the matched Metadata is
+        distributed across separate rows in the join table.
+
+        The way we get around this is ugly and inflexible, but I'm unable to
+        find a better way. We actually JOIN against Metadata four separate
+        times; all are constrained by the Dataset foreign key, and each is
+        additionally constrained by the primary Metadata.key value. (And the
+        "user" namespace is additionally constrained by the authorized user
+        ID, and omitted if we're not authenticated.)
+
+        This results in a join table with a JSON value column for each of the
+        tables, so that a single SELECT WHERE can match against all four of the
+        namespaces on a single row in the join table. In order to be able to
+        access the duplicate Metadata.value columns, we first create some
+        SQL name aliases. What we'll end up with, before we start adding our
+        filters, is something (simplified) like:
+
+        Dataset   mtable        stable      gtable          utable
+        --------- ------------- ----------- --------------- --------------
+        drb       {             {           {               {
+                   "pbench":{    "origin":{  "dashboard":{   "dashboard":{
+                   }             }           }               }
+                  }             }           }               }
+        test      {             {           {               {
+                   "pbench":{    "origin":{  "dashboard":{   "dashboard":{
+                   }             }           }               }
+                  }             }           }               }
+        """
+        mtable = aliased(Metadata)
+        stable = aliased(Metadata)
+        gtable = aliased(Metadata)
+        utable = aliased(Metadata)
+        aliases = {
+            Metadata.METALOG: mtable,
+            Metadata.SERVER: stable,
+            Metadata.GLOBAL: gtable,
+            Metadata.USER: utable,
+        }
+        query = (
+            Database.db_session.query(Dataset)
+            .outerjoin(
+                mtable,
+                and_(mtable.dataset_ref == Dataset.id, mtable.key == Metadata.METALOG),
+            )
+            .outerjoin(
+                stable,
+                and_(stable.dataset_ref == Dataset.id, stable.key == Metadata.SERVER),
+            )
+            .outerjoin(
+                gtable,
+                and_(gtable.dataset_ref == Dataset.id, gtable.key == Metadata.GLOBAL),
+            )
+        )
+        if auth_id:
+            query = query.outerjoin(
+                utable,
+                and_(
+                    utable.dataset_ref == Dataset.id,
+                    utable.key == Metadata.USER,
+                    utable.user_id == auth_id,
+                ),
+            )
+
         if "start" in json and "end" in json:
             query = query.filter(Dataset.uploaded.between(json["start"], json["end"]))
         elif "start" in json:
@@ -428,7 +494,7 @@ class DatasetsList(ApiBase):
         if "name" in json:
             query = query.filter(Dataset.name.contains(json["name"]))
         if "filter" in json:
-            query = self.filter_query(json["filter"], query)
+            query = self.filter_query(json["filter"], aliases, query)
 
         # The "mine" filter allows queries for datasets that are (true) or
         # aren't (false) owned by the authenticated user. In the absense of
@@ -441,7 +507,6 @@ class DatasetsList(ApiBase):
                     HTTPStatus.BAD_REQUEST,
                     "'owner' and 'mine' filters cannot be used together",
                 )
-            auth_id = Auth.get_current_user_id()
             if not auth_id:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST, "'mine' filter requires authentication"
