@@ -1,4 +1,3 @@
-import AuthReducer from "./authReducer";
 import DatasetListReducer from "./datasetListReducer";
 import EndpointReducer from "./endpointReducer";
 import LoadingReducer from "./loadingReducer";
@@ -12,7 +11,6 @@ import { combineReducers } from "redux";
 export default combineReducers({
   toastReducer: ToastReducer,
   loading: LoadingReducer,
-  userAuth: AuthReducer,
   navOpen: NavbarReducer,
   datasetlist: DatasetListReducer,
   apiEndpoint: EndpointReducer,

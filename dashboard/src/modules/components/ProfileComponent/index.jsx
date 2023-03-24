@@ -54,7 +54,9 @@ const ProfileComponent = () => {
                       {
                         <TextContent>
                           <Text component={TextVariants.h5}>
-                            {keycloak.tokenParsed?.given_name}
+                            {keycloak.tokenParsed?.given_name
+                              ? keycloak.tokenParsed?.given_name
+                              : ""}
                           </Text>
                         </TextContent>
                       }
@@ -64,7 +66,9 @@ const ProfileComponent = () => {
                       {
                         <TextContent>
                           <Text component={TextVariants.h5}>
-                            {keycloak.tokenParsed?.family_name}
+                            {keycloak.tokenParsed?.family_name
+                              ? keycloak.tokenParsed?.family_name
+                              : ""}
                           </Text>
                         </TextContent>
                       }
@@ -76,7 +80,9 @@ const ProfileComponent = () => {
                       {
                         <TextContent>
                           <Text component={TextVariants.h5}>
-                            {keycloak.tokenParsed?.preferred_username}
+                            {keycloak.tokenParsed?.preferred_username
+                              ? keycloak.tokenParsed?.preferred_username
+                              : ""}
                           </Text>
                         </TextContent>
                       }
@@ -86,7 +92,9 @@ const ProfileComponent = () => {
                       {
                         <TextContent>
                           <Text component={TextVariants.h5}>
-                            {keycloak.tokenParsed?.email}
+                            {keycloak.tokenParsed?.email
+                              ? keycloak.tokenParsed?.email
+                              : ""}
                           </Text>
                         </TextContent>
                       }

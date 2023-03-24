@@ -5,12 +5,13 @@ import API from "../utils/axiosInstance";
 import { DANGER } from "assets/constants/toastConstants";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
+import { clearCachedSession } from "./authActions";
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
   try {
     const keycloak = getState().apiEndpoint.keycloak;
-    const username = keycloak?.idTokenParsed?.preferred_username;
+    const username = keycloak.idTokenParsed.preferred_username;
 
     if (alreadyRendered) {
       dispatch({ type: TYPES.LOADING });
@@ -43,8 +44,14 @@ export const getDatasets = () => async (dispatch, getState) => {
       }
     }
   } catch (error) {
-    dispatch(showToast(DANGER, error?.response?.data?.message));
-    dispatch({ type: TYPES.NETWORK_ERROR });
+    if (!error?.response) {
+      dispatch(showToast(DANGER, "Not Authenticated"));
+      dispatch({ type: TYPES.OPENID_ERROR });
+      dispatch(clearCachedSession());
+    } else {
+      dispatch(showToast(DANGER, error?.response?.data?.message));
+      dispatch({ type: TYPES.NETWORK_ERROR });
+    }
   }
   if (alreadyRendered) {
     dispatch({ type: TYPES.COMPLETED });

@@ -4,9 +4,8 @@ import * as TYPES from "./types";
 
 import Cookies from "js-cookie";
 import { SUCCESS } from "assets/constants/overviewConstants";
-import { showToast } from "actions/toastActions";
+import { showToast, clearToast } from "actions/toastActions";
 
-const maxWait = 50000; // Milliseconds
 /**
  * Wait for the Pbench Server endpoints to be loaded.
  * @param {getState} getState object.
@@ -22,7 +21,7 @@ export function waitForEndpoints(getState) {
   function check(resolve, reject) {
     if (Object.keys(getState().apiEndpoint.endpoints).length !== 0) {
       resolve("Endpoints loaded");
-    } else if (Date.now() - waitStart > maxWait) {
+    } else if (Date.now() - waitStart > CONSTANTS.MAX_WAIT_MS) {
       reject(new Error("Timed out waiting for endpoints request"));
     } else {
       setTimeout(check, 250, resolve, reject);
@@ -47,11 +46,8 @@ export const authCookies = () => async (dispatch, getState) => {
 };
 
 export const movePage = (toPage, navigate) => async (dispatch) => {
-  // empty the alerts
-  dispatch({
-    type: TYPES.USER_NOTION_ALERTS,
-    payload: [],
-  });
+  // clear all the toasts before navigating to another page
+  dispatch(clearToast());
   navigate(toPage);
 };
 
