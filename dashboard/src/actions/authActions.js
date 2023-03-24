@@ -36,7 +36,9 @@ export const authCookies = () => async (dispatch, getState) => {
   await waitForEndpoints(getState);
   const keycloak = getState().apiEndpoint.keycloak;
   if (keycloak.authenticated) {
-    // Set the cookie expiry to milliseconds since the UNIX Epoch
+    // Set the isLoggedIn cookie with an expiry of OIDC refresh token.
+    // We have to convert the UNIX epoch seconds returned by the refresh token
+    // expiry to milliseconds before we can use it for creating a Date object.
     Cookies.set("isLoggedIn", true, {
       expires: new Date(keycloak.refreshTokenParsed.exp * 1000),
     });
@@ -53,7 +55,7 @@ export const movePage = (toPage, navigate) => async (dispatch) => {
   navigate(toPage);
 };
 
-export const localLogout = () => async (dispatch, getState) => {
+export const clearCachedSession = () => async (dispatch, getState) => {
   dispatch({ type: TYPES.LOADING });
   Cookies.remove("isLoggedIn");
   dispatch({ type: TYPES.COMPLETED });
@@ -65,5 +67,5 @@ export const localLogout = () => async (dispatch, getState) => {
 export const sessionLogout = () => async (dispatch, getState) => {
   const keycloak = getState().apiEndpoint.keycloak;
   keycloak.logout();
-  dispatch(localLogout());
+  dispatch(clearCachedSession());
 };
