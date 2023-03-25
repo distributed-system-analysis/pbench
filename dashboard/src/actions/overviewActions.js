@@ -49,7 +49,10 @@ export const getDatasets = () => async (dispatch, getState) => {
       dispatch({ type: TYPES.OPENID_ERROR });
       clearCachedSession(dispatch);
     } else {
-      dispatch(showToast(DANGER, error?.response?.data?.message));
+      const msg = error.response?.data?.message;
+      dispatch(
+        showToast(DANGER, msg ? msg : `Error response: ${error.response}`)
+      );
       dispatch({ type: TYPES.NETWORK_ERROR });
     }
   }

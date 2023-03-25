@@ -11,7 +11,7 @@ import { showToast, clearToast } from "actions/toastActions";
  * @param {getState} getState object.
  * @return {promise} promise object
  */
-export async function waitForEndpoints(getState) {
+export function waitForEndpoints(getState) {
   const waitStart = Date.now();
   /**
    * Settle the wait-for-endpoints promise.
@@ -21,7 +21,7 @@ export async function waitForEndpoints(getState) {
   function check(resolve, reject) {
     if (Object.keys(getState().apiEndpoint.endpoints).length !== 0) {
       resolve("Endpoints loaded");
-    } else if (Date.now() - waitStart > CONSTANTS.MAX_WAIT_MS) {
+    } else if (Date.now() - waitStart > CONSTANTS.MAX_ENDPOINTS_WAIT_MS) {
       reject(new Error("Timed out waiting for endpoints request"));
     } else {
       setTimeout(check, 250, resolve, reject);
@@ -31,7 +31,7 @@ export async function waitForEndpoints(getState) {
 }
 
 // Perform some house keeping when the user logs in
-export const authCookies = () => async (dispatch, getState) => {
+export const authCookies = async (dispatch, getState) => {
   await waitForEndpoints(getState);
   const keycloak = getState().apiEndpoint.keycloak;
   if (keycloak.authenticated) {
@@ -55,7 +55,7 @@ export const movePage = (toPage, navigate) => async (dispatch) => {
  * Clear the local cookies and re-direct to the auth page.
  * @param {dispatch} dispatch object.
  */
-export async function clearCachedSession(dispatch) {
+export function clearCachedSession(dispatch) {
   dispatch({ type: TYPES.LOADING });
   Cookies.remove("isLoggedIn");
   dispatch({ type: TYPES.COMPLETED });

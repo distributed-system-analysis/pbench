@@ -82,7 +82,7 @@ export const AuthForm = () => {
     dispatch(movePage(toPage, navigate));
   };
   useEffect(() => {
-    dispatch(authCookies());
+    dispatch(authCookies);
   });
   return (
     <Card className="auth-card">

@@ -101,7 +101,7 @@ const HeaderToolbar = () => {
                 isOpen={isDropdownOpen}
                 toggle={
                   <DropdownToggle onToggle={onDropdownToggle}>
-                    {keycloak.tokenParsed?.preferred_username}
+                    {keycloak.tokenParsed.preferred_username}
                   </DropdownToggle>
                 }
                 dropdownItems={userDropdownItems}
