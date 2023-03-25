@@ -3,9 +3,9 @@ import * as TYPES from "./types";
 
 import API from "../utils/axiosInstance";
 import { DANGER } from "assets/constants/toastConstants";
+import { expandUriTemplate } from "../utils/helper";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
-import { expandUriTemplate } from "../utils/helper";
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
@@ -22,7 +22,7 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("metadata", CONSTANTS.SERVER_DELETION);
     params.append("metadata", CONSTANTS.USER_FAVORITE);
 
-    params.append("mine", "true");
+    // params.append("mine", "true");
 
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(endpoints?.api?.datasets_list, {
@@ -129,14 +129,14 @@ export const updateDataset =
           (item) => item.resource_id === dataset.resource_id
         );
         runs[dataIndex].metadata[metaDataActions[actionType]] =
-          response.data[metaDataActions[actionType]];
+          response.data.metadata[metaDataActions[actionType]];
         dispatch({
           type: TYPES.USER_RUNS,
           payload: runs,
         });
         dispatch(initializeRuns());
       } else {
-        dispatch(showToast(DANGER, response?.data?.message));
+        dispatch(showToast(DANGER, response?.data?.errors));
       }
     } catch (error) {
       dispatch(showToast(DANGER, error?.response?.data?.message));
