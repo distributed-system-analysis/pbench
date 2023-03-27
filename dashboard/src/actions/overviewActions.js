@@ -206,6 +206,12 @@ export const setSelectedRuns = (rows) => {
   };
 };
 
+export const setSelectedSavedRuns = (rows) => {
+  return {
+    type: TYPES.SELECTED_SAVED_RUNS,
+    payload: rows,
+  };
+};
 export const updateMultipleDataset =
   (method, value) => (dispatch, getState) => {
     const selectedRuns = getState().overview.selectedRuns;

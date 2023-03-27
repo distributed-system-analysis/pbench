@@ -7,6 +7,7 @@ const initialState = {
   defaultPerPage: 5,
   initNewRuns: [],
   selectedRuns: [],
+  selectedSavedRuns: [],
   expiringRuns: [],
   loadingDone: !!sessionStorage.getItem("loadingDone"),
 };
@@ -37,7 +38,12 @@ const OverviewReducer = (state = initialState, action = {}) => {
     case TYPES.SELECTED_NEW_RUNS:
       return {
         ...state,
-        selectedRuns: payload,
+        selectedRuns: [...payload],
+      };
+    case TYPES.SELECTED_SAVED_RUNS:
+      return {
+        ...state,
+        selectedSavedRuns: [...payload],
       };
     case TYPES.EXPIRING_RUNS:
       return {
