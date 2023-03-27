@@ -1,7 +1,7 @@
 import * as TYPES from "./types";
 
-import { logout } from "./authActions";
 import { uid } from "utils/helper";
+import { clearCachedSession } from "./authActions";
 
 export const showSessionExpired = () => async (dispatch) => {
   const toast = {
@@ -10,7 +10,7 @@ export const showSessionExpired = () => async (dispatch) => {
     message: "Please login to continue",
   };
   dispatch(showToast(toast.variant, toast.title, toast.message));
-  dispatch(logout());
+  clearCachedSession(dispatch);
 };
 
 export const showFailureToast = () => async (dispatch) => {

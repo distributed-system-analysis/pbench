@@ -7,6 +7,7 @@ import API from "../utils/axiosInstance";
 import { expandUriTemplate } from "../utils/helper";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
+import { clearCachedSession } from "./authActions";
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
@@ -42,8 +43,17 @@ export const getDatasets = () => async (dispatch, getState) => {
       }
     }
   } catch (error) {
-    dispatch(showToast(DANGER, error?.response?.data?.message ?? ERROR_MSG));
-    dispatch({ type: TYPES.NETWORK_ERROR });
+    if (!error?.response) {
+      dispatch(showToast(DANGER, "Not Authenticated"));
+      dispatch({ type: TYPES.OPENID_ERROR });
+      clearCachedSession(dispatch);
+    } else {
+      const msg = error.response?.data?.message;
+      dispatch(
+        showToast(DANGER, msg ? msg : `Error response: ERROR_MSG`)
+      );
+      dispatch({ type: TYPES.NETWORK_ERROR });
+    }
   }
   if (alreadyRendered) {
     dispatch({ type: TYPES.COMPLETED });

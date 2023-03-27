@@ -1,4 +1,5 @@
 import * as TYPES from "./types";
+import Keycloak from "keycloak-js";
 
 export const fetchEndpoints = async (dispatch) => {
   try {
@@ -11,6 +12,15 @@ export const fetchEndpoints = async (dispatch) => {
     dispatch({
       type: TYPES.SET_ENDPOINTS,
       payload: data,
+    });
+    const keycloak = new Keycloak({
+      url: data.openid.server,
+      realm: data.openid.realm,
+      clientId: data.openid.client,
+    });
+    dispatch({
+      type: TYPES.SET_KEYCLOAK,
+      payload: keycloak,
     });
   } catch (error) {
     dispatch({
