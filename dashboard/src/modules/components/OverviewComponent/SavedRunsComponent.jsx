@@ -107,6 +107,7 @@ const SavedRunsComponent = () => {
                       selectAllRuns(isSelecting),
                     isSelected: areAllRunsSelected,
                   }}
+                  style={{ borderTop: "1px solid #d2d2d2" }}
                 ></Th>
                 <Th>{columnNames.result}</Th>
                 <Th>{columnNames.uploadedtime}</Th>
