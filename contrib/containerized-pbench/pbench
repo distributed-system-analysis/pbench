@@ -36,7 +36,7 @@ if [[ $# == 0 || $1 == "help" || $1 == "-h" || $1 == "--help" ]]; then
 fi
 
 if [[ -d "${HOME}/.ssh" && -r "${HOME}/.ssh" ]]; then
-    other_options="-v ${HOME}/.ssh:/root/.ssh ${other_options}"
+    other_options="--security-opt=label=disable -v ${HOME}/.ssh:/root/.ssh ${other_options}"
 fi
 
 if [[ -f "${config_file}" && -r "${config_file}" ]]; then
