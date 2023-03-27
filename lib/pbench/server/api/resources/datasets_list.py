@@ -7,7 +7,8 @@ from flask.json import jsonify
 from flask.wrappers import Request, Response
 from sqlalchemy import and_, cast, or_, String
 from sqlalchemy.exc import ProgrammingError, StatementError
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import aliased, Query
+from sqlalchemy.sql.expression import Alias
 
 from pbench.server import JSON, JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -134,7 +135,9 @@ class DatasetsList(ApiBase):
         return items, paginated_result
 
     @staticmethod
-    def filter_query(filters: list[str], query: Query) -> Query:
+    def filter_query(
+        filters: list[str], aliases: dict[str, Alias], query: Query
+    ) -> Query:
         """Provide Metadata filtering for datasets.
 
         Add SQLAlchemy filters to fulfill the intent of a series of filter
@@ -231,9 +234,7 @@ class DatasetsList(ApiBase):
                 raise APIAbort(HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k)))
             keys = k.split(".")
             native_key = keys.pop(0).lower()
-            terms = []
-            use_dataset = False
-            user_private = None
+            filter = None
 
             if native_key == Metadata.DATASET:
                 second = keys[0].lower()
@@ -258,8 +259,7 @@ class DatasetsList(ApiBase):
                         raise APIAbort(
                             HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k))
                         ) from e
-                    use_dataset = True
-                    terms = [column.contains(v) if contains else column == v]
+                    filter = column.contains(v) if contains else column == v
             elif native_key == Metadata.USER:
                 # The user namespace requires special handling because the
                 # values are always qualified by the owning user rather than
@@ -270,17 +270,12 @@ class DatasetsList(ApiBase):
                         HTTPStatus.UNAUTHORIZED,
                         f"Metadata key {k} cannot be used by an unauthenticated client",
                     )
-                user_private = [Metadata.user_id == user_id]
 
-            if not use_dataset:
-                expression = Metadata.value[keys].as_string()
-                terms = [
-                    Metadata.key == native_key,
-                    expression.contains(v) if contains else expression == v,
-                ]
-                if user_private:
-                    terms.extend(user_private)
-            filter = and_(*terms)
+            # NOTE: We don't want to *evaluate* the filter expression here, so
+            # check explicitly for None.
+            if filter is None:
+                expression = aliases[native_key].value[keys].as_string()
+                filter = expression.contains(v) if contains else expression == v
 
             if combine_or:
                 or_list.append(filter)
@@ -327,14 +322,8 @@ class DatasetsList(ApiBase):
     def keyspace(self, query: Query) -> JSONOBJECT:
         """Aggregate the dataset metadata keyspace
 
-        Run the query we've compiled, but instead of returning Dataset proxies,
-        we only want the metadata key/value pairs we've selected.
-
-        NOTE: The SQL left outer join returns a row for each row in the "left"
-        table (Dataset) even if there is no matching foreign key in the "right"
-        table (Metadata). This means a dataset with no metadata will result in
-        a join row here with key and value of None. The `elif` in the loop will
-        silently ignore rows with a null key to handle this case.
+        Run the query we've compiled, and process the metadata collections
+        attached to each dataset.
 
         Args:
             query: The basic filtered SQLAlchemy query object
@@ -345,14 +334,18 @@ class DatasetsList(ApiBase):
         aggregate: JSONOBJECT = {
             "dataset": {c.name: None for c in Dataset.__table__._columns}
         }
-        list = query.with_entities(Metadata.key, Metadata.value).all()
-        for k, v in list:
-            # "metalog" is a top-level key in the Metadata schema, but we
-            # report it as a sub-key of "dataset".
-            if k == Metadata.METALOG:
-                self.accumulate(aggregate["dataset"], k, v)
-            elif k:
-                self.accumulate(aggregate, k, v)
+
+        Database.dump_query(query, current_app.logger)
+
+        datasets = query.all()
+        for d in datasets:
+            for m in d.metadatas:
+                # "metalog" is a top-level key in the Metadata schema, but we
+                # report it as a sub-key of "dataset".
+                if m.key == Metadata.METALOG:
+                    self.accumulate(aggregate["dataset"], m.key, m.value)
+                else:
+                    self.accumulate(aggregate, m.key, m.value)
         return aggregate
 
     def datasets(self, request: Request, json: JSONOBJECT, query: Query) -> JSONOBJECT:
@@ -416,9 +409,58 @@ class DatasetsList(ApiBase):
             A JSON response containing the paginated query result
         """
         json = params.query
+        auth_id = Auth.get_current_user_id()
 
         # Build a SQLAlchemy Query object expressing all of our constraints
-        query = Database.db_session.query(Dataset).outerjoin(Metadata)
+
+        """SQL notes:
+
+        We want to be able to query across all four metadata key namespaces,
+        and a SELECT WHERE clause can only match within individual rows.
+        That is, if we look for "value1 = 'a' and value2 = 'b'", we won't
+        find a match with a single LEFT JOIN as the matched Metadata is
+        distributed across separate rows in the join table.
+
+        The way we get around this is ugly and inflexible, but I'm unable to
+        find a better way. We actually JOIN against Metadata four separate
+        times; all are constrained by the Dataset foreign key, and each is
+        additionally constrained by the primary Metadata.key value. (And the
+        "user" namespace is additionally constrained by the authorized user
+        ID, and omitted if we're not authenticated.)
+
+        This results in a join table with a JSON value column for each of the
+        tables, so that a single SELECT WHERE can match against all four of the
+        namespaces on a single row in the join table. In order to be able to
+        access the duplicate Metadata.value columns, we first create some
+        SQL name aliases. What we'll end up with, before we start adding our
+        filters, is something (simplified) like:
+
+        Dataset   mtable        stable      gtable          utable
+        --------- ------------- ----------- --------------- --------------
+        drb       {             {           {               {
+                   "pbench":{    "origin":{  "dashboard":{   "dashboard":{
+                   }             }           }               }
+                  }             }           }               }
+        test      {             {           {               {
+                   "pbench":{    "origin":{  "dashboard":{   "dashboard":{
+                   }             }           }               }
+                  }             }           }               }
+        """
+        aliases = {
+            Metadata.METALOG: aliased(Metadata),
+            Metadata.SERVER: aliased(Metadata),
+            Metadata.GLOBAL: aliased(Metadata),
+            Metadata.USER: aliased(Metadata),
+        }
+        query = Database.db_session.query(Dataset)
+        for key, table in aliases.items():
+            terms = [table.dataset_ref == Dataset.id, table.key == key]
+            if key == Metadata.USER:
+                if not auth_id:
+                    continue
+                terms.append(table.user_id == auth_id)
+            query = query.outerjoin(table, and_(*terms))
+
         if "start" in json and "end" in json:
             query = query.filter(Dataset.uploaded.between(json["start"], json["end"]))
         elif "start" in json:
@@ -428,7 +470,7 @@ class DatasetsList(ApiBase):
         if "name" in json:
             query = query.filter(Dataset.name.contains(json["name"]))
         if "filter" in json:
-            query = self.filter_query(json["filter"], query)
+            query = self.filter_query(json["filter"], aliases, query)
 
         # The "mine" filter allows queries for datasets that are (true) or
         # aren't (false) owned by the authenticated user. In the absense of
@@ -441,7 +483,6 @@ class DatasetsList(ApiBase):
                     HTTPStatus.BAD_REQUEST,
                     "'owner' and 'mine' filters cannot be used together",
                 )
-            auth_id = Auth.get_current_user_id()
             if not auth_id:
                 raise APIAbort(
                     HTTPStatus.BAD_REQUEST, "'mine' filter requires authentication"
