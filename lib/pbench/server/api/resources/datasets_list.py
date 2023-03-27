@@ -456,11 +456,9 @@ class DatasetsList(ApiBase):
         for key, table in aliases.items():
             terms = [table.dataset_ref == Dataset.id, table.key == key]
             if key == Metadata.USER:
-                if auth_id:
-                    terms.append(table.user_id == auth_id)
-                else:
+                if not auth_id:
                     continue
-            current_app.logger.info("Adding JOIN {}", key)
+                terms.append(table.user_id == auth_id)
             query = query.outerjoin(table, and_(*terms))
 
         if "start" in json and "end" in json:
