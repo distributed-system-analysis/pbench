@@ -32,6 +32,4 @@ pbench pbench-user-benchmark --config example-workload -- \
         --group_reporting --norandommap
 # Note that the token file location below is evaluated -outside- the container,
 # unlike in the pbench-generate-token command above.
-pbench pbench-results-move \
-        --token=$(< /var/tmp/${USER}/pbench-agent/run/.token) \
-        --metadata global.perfconf.year:2023,global.perfconf.location:Westford
+pbench pbench-results-move --token=$(< /var/tmp/${USER}/pbench-agent/run/.token)
