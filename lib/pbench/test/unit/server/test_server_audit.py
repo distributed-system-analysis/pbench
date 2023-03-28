@@ -53,7 +53,11 @@ class TestServerAudit:
 
     @pytest.fixture()
     def make_audits(
-        self, client: FlaskClient, create_user: User, attach_dataset: None
+        self,
+        client: FlaskClient,
+        create_user: User,
+        attach_dataset: None,
+        query_get: Callable[..., Response],
     ) -> str:
         """Create some audit records to test."""
         user_id = str(create_user.id)
@@ -80,32 +84,12 @@ class TestServerAudit:
             Audit.create(
                 root=root, status=AuditStatus.FAILURE, reason=AuditReason.PERMISSION
             )
-        return user_id
-
-    def check_audits(self, actual: list[Audit], expected: list[int]):
-        assert len(actual) == len(expected)
-        ai = 0
-
-        for e in expected:
-            assert actual[ai] == self.audits[e]
-            ai += 1
-
-    def test_get_bad_keys(self, query_get: Callable[..., Response]):
-        response = query_get({"xyzzy": "foo"}, HTTPStatus.BAD_REQUEST)
-        assert response.json == {"message": "Unknown URL query keys: xyzzy"}
-
-    def test_get_all(
-        self, query_get: Callable[..., Response], attach_dataset: None, make_audits: str
-    ):
-        """With no query parameters, we should get all audit records"""
-        expected_user_id = make_audits
-        drb = Dataset.query(name="drb")
         response = query_get(expected_status=HTTPStatus.OK)
         audits = response.json
         assert audits[0]["status"] == "BEGIN"
         assert audits[0]["operation"] == "CREATE"
         assert audits[0]["name"] == "first"
-        assert audits[0]["user_id"] == expected_user_id
+        assert audits[0]["user_id"] == str(create_user.id)
         assert audits[0]["user_name"] == "test"
         assert audits[0]["object_id"] is None
         assert audits[0]["object_name"] is None
@@ -115,7 +99,7 @@ class TestServerAudit:
         assert audits[1]["status"] == "SUCCESS"
         assert audits[1]["operation"] == "CREATE"
         assert audits[1]["name"] == "first"
-        assert audits[1]["user_id"] == expected_user_id
+        assert audits[1]["user_id"] == str(create_user.id)
         assert audits[1]["user_name"] == "test"
         assert audits[1]["object_id"] is None
         assert audits[1]["object_name"] is None
@@ -143,6 +127,19 @@ class TestServerAudit:
         # The responses are cached so we can avoid repeating the individual
         # fields in subsequent tests.
         TestServerAudit.audits = audits
+        return user_id
+
+    def check_audits(self, actual: list[Audit], expected: list[int]):
+        assert len(actual) == len(expected)
+        ai = 0
+
+        for e in expected:
+            assert actual[ai] == self.audits[e]
+            ai += 1
+
+    def test_get_bad_keys(self, query_get: Callable[..., Response]):
+        response = query_get({"xyzzy": "foo"}, HTTPStatus.BAD_REQUEST)
+        assert response.json == {"message": "Unknown URL query keys: xyzzy"}
 
     def test_unauthenticated(
         self, query_get: Callable[..., Response], make_audits: str
