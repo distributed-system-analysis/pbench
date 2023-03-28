@@ -33,7 +33,10 @@ const ToastComponent = () => {
             />
           }
         >
-          {item?.message && <p>{item?.message}</p>}
+          {item?.message &&
+            item?.message.split("\n").map((i, key) => {
+              return <p key={i}>{i}</p>;
+            })}
         </Alert>
       ))}
     </AlertGroup>

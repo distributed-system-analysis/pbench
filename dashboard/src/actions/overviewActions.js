@@ -1,11 +1,12 @@
 import * as CONSTANTS from "assets/constants/overviewConstants";
 import * as TYPES from "./types";
 
+import { DANGER, ERROR_MSG } from "assets/constants/toastConstants";
+
 import API from "../utils/axiosInstance";
-import { DANGER } from "assets/constants/toastConstants";
+import { expandUriTemplate } from "../utils/helper";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
-import { expandUriTemplate } from "../utils/helper";
 
 export const getDatasets = () => async (dispatch, getState) => {
   const alreadyRendered = getState().overview.loadingDone;
@@ -41,7 +42,7 @@ export const getDatasets = () => async (dispatch, getState) => {
       }
     }
   } catch (error) {
-    dispatch(showToast(DANGER, error?.response?.data?.message));
+    dispatch(showToast(DANGER, error?.response?.data?.message ?? ERROR_MSG));
     dispatch({ type: TYPES.NETWORK_ERROR });
   }
   if (alreadyRendered) {
@@ -129,14 +130,26 @@ export const updateDataset =
           (item) => item.resource_id === dataset.resource_id
         );
         runs[dataIndex].metadata[metaDataActions[actionType]] =
-          response.data[metaDataActions[actionType]];
+          response.data.metadata[metaDataActions[actionType]];
         dispatch({
           type: TYPES.USER_RUNS,
           payload: runs,
         });
         dispatch(initializeRuns());
+
+        const errors = response.data?.errors;
+        if (errors && Object.keys(errors).length > 0) {
+          let errorText = "";
+
+          for (const [key, value] of Object.entries(errors)) {
+            errorText += `${key} : ${value} \n`;
+          }
+          dispatch(
+            showToast("warning", "Problem updating metadata", errorText)
+          );
+        }
       } else {
-        dispatch(showToast(DANGER, response?.data?.message));
+        dispatch(showToast(DANGER, response?.data?.message ?? ERROR_MSG));
       }
     } catch (error) {
       dispatch(showToast(DANGER, error?.response?.data?.message));
@@ -173,7 +186,7 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
       dispatch(showToast(CONSTANTS.SUCCESS, "Deleted!"));
     }
   } catch (error) {
-    dispatch(showToast(DANGER, error?.response?.data?.message));
+    dispatch(showToast(DANGER, error?.response?.data?.message ?? ERROR_MSG));
     dispatch({ type: TYPES.NETWORK_ERROR });
   }
   dispatch({ type: TYPES.COMPLETED });
@@ -193,6 +206,12 @@ export const setSelectedRuns = (rows) => {
   };
 };
 
+export const setSelectedSavedRuns = (rows) => {
+  return {
+    type: TYPES.SELECTED_SAVED_RUNS,
+    payload: rows,
+  };
+};
 export const updateMultipleDataset =
   (method, value) => (dispatch, getState) => {
     const selectedRuns = getState().overview.selectedRuns;
@@ -245,7 +264,7 @@ export const publishDataset =
         dispatch(showToast(CONSTANTS.SUCCESS, "Updated!"));
       }
     } catch (error) {
-      dispatch(showToast(DANGER, error?.response?.data?.message));
+      dispatch(showToast(DANGER, error?.response?.data?.message ?? ERROR_MSG));
       dispatch({ type: TYPES.NETWORK_ERROR });
     }
     dispatch({ type: TYPES.COMPLETED });

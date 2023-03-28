@@ -20,7 +20,7 @@ import {
   editMetadata,
   publishDataset,
   setRowtoEdit,
-  setSelectedRuns,
+  setSelectedSavedRuns,
   updateDataset,
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,23 +29,25 @@ import { SavedRunsRow } from "./common-component";
 
 const SavedRunsComponent = () => {
   const dispatch = useDispatch();
-  const { savedRuns, selectedRuns } = useSelector((state) => state.overview);
+  const { savedRuns, selectedSavedRuns } = useSelector(
+    (state) => state.overview
+  );
 
   /* Selecting */
   const areAllRunsSelected =
-    savedRuns?.length > 0 && savedRuns?.length === selectedRuns?.length;
+    savedRuns?.length > 0 && savedRuns?.length === selectedSavedRuns?.length;
   const selectAllRuns = (isSelecting) => {
-    dispatch(setSelectedRuns(isSelecting ? [...savedRuns] : []));
+    dispatch(setSelectedSavedRuns(isSelecting ? [...savedRuns] : []));
   };
   const onSelectRuns = (run, _rowIndex, isSelecting) => {
-    const otherSelectedRuns = selectedRuns.filter(
+    const otherSelectedRuns = selectedSavedRuns.filter(
       (r) => r.resource_id !== run.resource_id
     );
     const c = isSelecting ? [...otherSelectedRuns, run] : otherSelectedRuns;
-    dispatch(setSelectedRuns(c));
+    dispatch(setSelectedSavedRuns(c));
   };
   const isRowSelected = (run) =>
-    selectedRuns.filter((item) => item.name === run.name).length > 0;
+    selectedSavedRuns.filter((item) => item.name === run.name).length > 0;
   /* Selecting */
 
   /* Actions Row */
@@ -107,6 +109,7 @@ const SavedRunsComponent = () => {
                       selectAllRuns(isSelecting),
                     isSelected: areAllRunsSelected,
                   }}
+                  style={{ borderTop: "1px solid #d2d2d2" }}
                 ></Th>
                 <Th>{columnNames.result}</Th>
                 <Th>{columnNames.uploadedtime}</Th>

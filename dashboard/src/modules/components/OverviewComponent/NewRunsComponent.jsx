@@ -147,6 +147,7 @@ const NewRunsComponent = () => {
                       selectAllRuns(isSelecting),
                     isSelected: areAllRunsSelected,
                   }}
+                  style={{ borderTop: "1px solid #d2d2d2" }}
                 ></Th>
                 <Th width={35}>{columnNames.result}</Th>
                 <Th width={25}>{columnNames.endtime}</Th>
