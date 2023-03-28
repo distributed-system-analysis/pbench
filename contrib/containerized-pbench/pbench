@@ -24,7 +24,7 @@
 # these options and any others which the user has specified and passes in the
 # command to be executed.
 
-image_name=${PB_AGENT_IMAGE_NAME:-quay.io/pbench/pbench-agent-all-centos-8:latest}
+image_name=${PB_AGENT_IMAGE_NAME:-quay.io/pbench/pbench-agent-all-centos-8:main}
 config_file=${_PBENCH_AGENT_CONFIG:-${HOME}/.config/pbench/pbench-agent.cfg}
 pbench_run_dir=${PB_AGENT_RUN_DIR:-/var/tmp/${USER}/pbench-agent/run}
 pbench_server=${PB_AGENT_SERVER_LOC}
@@ -36,15 +36,14 @@ if [[ $# == 0 || $1 == "help" || $1 == "-h" || $1 == "--help" ]]; then
 fi
 
 if [[ -d "${HOME}/.ssh" && -r "${HOME}/.ssh" ]]; then
-    other_options="-v ${HOME}/.ssh:/root/.ssh:z ${other_options}"
+    other_options="--security-opt=label=disable -v ${HOME}/.ssh:/root/.ssh ${other_options}"
 fi
 
 if [[ -f "${config_file}" && -r "${config_file}" ]]; then
     other_options="-v ${config_file}:/opt/pbench-agent/config/pbench-agent.cfg:z ${other_options}"
 elif [[ -n "${pbench_server}" ]]; then
     echo "Warning:  the Pbench Agent config file is missing; attempting to generate one in ${config_file}" >&2
-    # TODO:  this should be handled by a separate Pbench Agent command which
-    #        provides a "configuration wizard".
+    # TODO:  this should be handled by a separate Pbench Agent "configuration wizard".
     mkdir -p $(dirname ${config_file})
     cat > ${config_file} <<- EOF
 		[DEFAULT]
