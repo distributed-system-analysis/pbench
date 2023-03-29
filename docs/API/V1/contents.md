@@ -1,4 +1,4 @@
-# `GET /api/v1/datasets/contents/<dataset>/<path>`
+# `GET /api/v1/datasets/<dataset>/contents/[<path>]`
 
 This API returns an `application/json` document describing a file or the
 content of a directory at a specified `<path>` within the `<dataset>` tarball
@@ -13,8 +13,8 @@ The resource ID of a dataset on the Pbench Server.
 The path of an item in the dataset inventory, as captured by the Pbench Agent
 packaging. Note that the `/` separating the two parameters serves to mark the
 relative root directory of the tarball. For example
-`/api/v1/datasets/contents/<dataset>/` represents the root, and
-`/api/v1/datasets/contents/<dataset>/directory/` represents a directory named
+`/api/v1/datasets/<dataset>/contents/` represents the root, and
+`/api/v1/datasets/<dataset>/contents/directory/` represents a directory named
 `directory` at the root level.
 
 ## Request headers

@@ -43,8 +43,8 @@ among all users registered on the Pbench Server. The user resource has a
 
 A user resource is the "owner" of each [dataset](#datasets) managed by the
 Pbench Server. If a user is deleted, then any datasets owned by that user
-become orphaned; datasets with PUBLIC access are still accessible to other
-users, and PRIVATE datasets are accessible through the `ADMIN` user role (see
+become orphaned; datasets with `public` access are still accessible to other
+users, and `private` datasets are accessible through the `ADMIN` user role (see
 [access model](../access_model.md)).
 
 ### Metadata
@@ -96,8 +96,8 @@ associated with the authorization token given to the Pbench Agent
 calculate a default deletion date for the dataset based on the owner's
 retention policy and the server administrator's retention policy.
 
-Clients can also set arbitrary metadata through the `dashboard` and `user`
-metadata namespaces. The `dashboard` namespace can only be modified by the
+Clients can also set arbitrary metadata in the `global` and `user`
+metadata namespaces. The `global` namespace can only be modified by the
 owner of the dataset, and is visible to anyone with read access to the dataset.
 The `user` namespace is private to each authenticated user, and even if you
 don't own a dataset you can set your own private `user` metadata to help you

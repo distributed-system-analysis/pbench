@@ -1,4 +1,4 @@
-# `GET /api/v1/datasets/inventory/<dataset><path>`
+# `GET /api/v1/datasets/<dataset>/inventory/[<path>]`
 
 This API returns an `application/octet-stream` document containing the raw byte
 stream of a regular file at the `<path>` within the `<dataset>` tarball

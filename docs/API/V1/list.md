@@ -1,11 +1,14 @@
-# `GET /api/v1/datasets/list`
+# `GET /api/v1/datasets`
 
-This API returns an `application/json` document describing the set of datasets
-accessible to the client. (An unauthenticated client can only access "public"
-datasets.)
+This API returns an `application/json` document describing a filtered
+collection of datasets accessible to the client. (An unauthenticated client
+can only list `public` datasets.)
 
-The list of datasets may be further filtered by owner, access, name substring,
-or by creation date range using the query parameters.
+The collection of datasets may be filtered by `owner`, `access`, `name`
+substring, by date range, or by arbitrary metadata using the query parameters.
+
+Large collections can be paginated for efficiency using the `limit` and `offset`
+query parameters.
 
 ## Query parameters
 
@@ -24,6 +27,28 @@ specified in ISO standard format, as `YYYY-MM-DDThh:mm:ss.ffffff[+|-]HH:MM`.
 If the timezone offset is omitted it will be assumed to be UTC (`+00:00`); if
 the time is omitted it will be assumed as midnight (`00:00:00`) on the
 specified date.
+
+`filter` metadata filtering \
+Select datasets matching the metadata expressions specified via `filter`
+query parameters. Each expression is the name of a metadata key (for example,
+`dataset.name`), followed by a colon (`:`) and the comparison string. The
+comparison string may be prefixed with a tilda (`~`) to make it a partial
+("contains") comparison instead of an exact match. For example,
+`dataset.name:foo` looks for datasets with the name "foo" exactly, whereas
+`dataset.name:~foo` looks for datasets with a name containing the substring
+"foo".
+
+These may be combined across multiple `filter` query parameters or as
+comma-separated lists in a single query parameter. Multiple filter expressions
+form an `AND` expression, however consecutive filter expressions can be joined
+in an `OR` expression by using the circumflex (`^`) character prior to each.
+(The first expression with `^` begins an `OR` list while the first subsequent
+expression outout `^` ends the `OR` list and is combined with an `AND`.)
+
+For example,
+- `filter=dataset.name:a,server.origin:EC2` returns datasets with a name of
+"a" and an origin of "EC2".
+- `filter=dataset.name:a,^server.origin:EC2,^dataset.metalog.pbench.script:fio` returns datasets with a name of "a" and *either* an origin of "EC2" or generated from the "pbench-fio" script.
 
 `limit` integer \
 "Paginate" the selected datasets by returning at most `limit` datasets. This
@@ -96,7 +121,24 @@ a message, and optional JSON data provided by the system administrator.
 ## Response body
 
 The `application/json` response body contains a list of objects which describe
-the datasets selected by the specified query criteria.
+the datasets selected by the specified query criteria, along with the total
+number of matching datasets and a `next_url` to support pagination.
+
+### next_url
+
+When pagination is used, this gives the full URI to acquire the next page using
+the same `metadata` and `limit` values. The client can simply `GET` this URI for
+the next page. When the entire collection has been returned, `next_url` will be
+null.
+
+### total
+
+The total number of datasets matching the filter criteria regardless of the
+pagination settings.
+
+### results
+
+The paginated dataset collection.
 
 Each of these objects contains the following fields:
 * `resource_id`: The internal unique ID of the dataset within the Pbench Server.
@@ -109,20 +151,35 @@ display purposes and must not be assumed to be unique or definitive.
 JSON object in this field.
 
 For example, the query
-`GET http://host/api/v1/datasets/list?metadata=user.dashboard.favorite`
+`GET http://host/api/v1/datasets/list?metadata=user.dashboard.favorite&limit=3`
 might return:
 
 ```json
-[
-    {
-        "name": "pbench-fio_config_2022-06-29:00:00:00",
-        "resource_id": "07f0a9cb817e258a54dbf3444abcd3aa",
-        "metadata": {"user.dashboard.favorite": true}
-    },
-    {
-        "name": "the dataset I created for fun",
-        "resource_id": "8322d8043755ccd33dc6d7091d1f9ff9",
-        "metadata": {"user.dashboard.favorite": false}
-    }
-]
+{
+    "next_url": "http://pbench.example.com/api/v1/datasets?limit=3&metadata=user.dashboard.favorite&offset=3",
+    "results": [
+        {
+            "metadata": {
+                "user.dashboard.favorite": null
+            },
+            "name": "pbench-user-benchmark__2023.03.23T20.26.03",
+            "resource_id": "001ab7f04079f620f6f624b6eea913df"
+        },
+        {
+            "metadata": {
+                "user.dashboard.favorite": null
+            },
+            "name": "pbench-user-benchmark__2023.03.18T19.07.42",
+            "resource_id": "006fab853eb42907c6c202af1d6b750b"
+        },
+        {
+            "metadata": {
+                "user.dashboard.favorite": null
+            },
+            "name": "fio__2023.03.28T03.58.19",
+            "resource_id": "009ad5f818d9a32af6128dd2b0255161"
+        }
+    ],
+    "total": 722
+}
 ```
