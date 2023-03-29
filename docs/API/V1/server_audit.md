@@ -6,32 +6,32 @@ records.
 
 ## Query parameters
 
-### `end` \
+### `end`
 The latest date to return.
 
-### `start` \
+### `start`
 The earliest date to return.
 
-### `dataset` \
+### `dataset`
 This is an alias for specifying [#object_id] and [#object_type] to select all
 audit records for a specific dataset.
 
-### `name` \
+### `name`
 Each type of Pbench Server "actor" has a simple name, so it's easy to select
 all upload or index operations.
 
-### `object_id` \
+### `object_id`
 Select by the object ID. For datasets, this is the `resource_id`; for users it's
 the OIDC ID, and for server configuration settings there is no ID. It's possible
 to select datasets (or users), for example, that no longer exist, as long as they
 once did exist.
 
-### `object_name` \
+### `object_name`
 Select by the object name. If an object is deleted, or the object name is changed,
 this can be used to select older resource events when the name existed. To track
 a dataset across name changes, use `object_id` and `object_type`, or `dataset`.
 
-### `object_type` \
+### `object_type`
 Select by the object type.
 * DATASET: Dataset objects.
 * CONFIG: Server config settings.
@@ -39,7 +39,7 @@ Select by the object type.
 * NONE: Unspecified.
 * TOKEN: API Key tokens.
 
-### `operation` \
+### `operation`
 The CRUD operation type associated with the audit records.
 
 * CREATE: A resource was created.
@@ -47,7 +47,7 @@ The CRUD operation type associated with the audit records.
 * UPDATE: A resource was updated.
 * DELETE: A resource was deleted.
 
-### `reason` \
+### `reason`
 Failure reason codes: additional information will be encoded in the `attributes`
 JSON object, but can't be filtered directly.
 
@@ -55,7 +55,7 @@ JSON object, but can't be filtered directly.
 * INTERNAL: The operation failed due to internal processing. (Fairly generic.)
 * CONSISTENCY: The operation failed due to resource or process consistency issues.
 
-### `status` \
+### `status`
 Each linked set of audit records begins with a `BEGIN` record; the status of the
 finalization record reflects the completion status.
 
@@ -64,10 +64,10 @@ finalization record reflects the completion status.
 * FAILURE: Total failure of an operation.
 * WARNING: Partial failure of an operation.
 
-### `user_id` \
+### `user_id`
 The OIDC ID of the user responsible for the operation.
 
-### `user_name` \
+### `user_name`
 The username of the user responsible for the operation, or `BACKGROUND` when there's
 no active user.
 
@@ -85,6 +85,9 @@ E.g., `authorization: bearer <token>`
 The return is a serialized JSON object with the selected audit log records.
 
 ## Response status
+
+`200`   **OK** \
+Successful request.
 
 `401`   **UNAUTHORIZED** \
 The client is not authenticated.

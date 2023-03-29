@@ -6,6 +6,11 @@ Pbench Server version identification.
 
 This API does not require authentication and has no access restrictions.
 
+## Response status
+
+`200`   **OK** \
+Successful request.
+
 ## Response headers
 
 `content-type: application/json` \

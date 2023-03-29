@@ -40,6 +40,9 @@ See [Access model](../access_model.md)
 
 ## Response status
 
+`200`   **OK** \
+Successful request.
+
 `400`   **BAD_REQUEST** \
 One or more metadata keys specified were unacceptable.
 

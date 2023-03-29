@@ -36,6 +36,9 @@ See [Access model](../access_model.md)
 
 ## Response status
 
+`200`   **OK** \
+Successful request.
+
 `401`   **UNAUTHORIZED** \
 The client is not authenticated and does not have READ access to the specified
 dataset.
