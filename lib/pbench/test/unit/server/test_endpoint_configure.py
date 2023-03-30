@@ -41,23 +41,6 @@ class TestEndpointConfig:
         uri = urljoin(host, uri_prefix)
         expected_results = {
             "identification": f"Pbench server {server_config.COMMIT_ID}",
-            "api": {
-                "datasets": f"{uri}/datasets",
-                "datasets_contents": f"{uri}/datasets/contents",
-                "datasets_daterange": f"{uri}/datasets/daterange",
-                "datasets_detail": f"{uri}/datasets/detail",
-                "datasets_inventory": f"{uri}/datasets/inventory",
-                "datasets_list": f"{uri}/datasets",
-                "datasets_mappings": f"{uri}/datasets/mappings",
-                "datasets_metadata": f"{uri}/datasets/metadata",
-                "datasets_namespace": f"{uri}/datasets/namespace",
-                "datasets_search": f"{uri}/datasets/search",
-                "datasets_values": f"{uri}/datasets/values",
-                "endpoints": f"{uri}/endpoints",
-                "server_audit": f"{uri}/server/audit",
-                "server_settings": f"{uri}/server/settings",
-                "upload": f"{uri}/upload",
-            },
             "uri": {
                 "datasets": {
                     "template": f"{uri}/datasets/{{dataset}}",

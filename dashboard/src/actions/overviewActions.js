@@ -4,7 +4,7 @@ import * as TYPES from "./types";
 import { DANGER, ERROR_MSG } from "assets/constants/toastConstants";
 
 import API from "../utils/axiosInstance";
-import { expandUriTemplate } from "../utils/helper";
+import { uriTemplate } from "../utils/helper";
 import { findNoOfDays } from "utils/dateFunctions";
 import { showToast } from "./toastActions";
 import { clearCachedSession } from "./authActions";
@@ -27,9 +27,13 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("mine", "true");
 
     const endpoints = getState().apiEndpoint.endpoints;
-    const response = await API.get(endpoints?.api?.datasets_list, {
-      params: params,
-    });
+    const response = await API.get(
+      uriTemplate(endpoints, "datasets_list", {}),
+      null,
+      {
+        params: params,
+      }
+    );
 
     if (response.status === 200) {
       if (response?.data?.results?.length > 0) {
@@ -127,7 +131,7 @@ export const updateDataset =
       const method = metaDataActions[actionType];
 
       const endpoints = getState().apiEndpoint.endpoints;
-      const uri = expandUriTemplate(endpoints, "datasets_metadata", {
+      const uri = uriTemplate(endpoints, "datasets_metadata", {
         dataset: dataset.resource_id,
       });
       const response = await API.put(uri, {
@@ -176,7 +180,9 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.delete(
-      `${endpoints.api.datasets}/${dataset.resource_id}`
+      uriTemplate(endpoints, "datasets_update", {
+        dataset: dataset.resource_id,
+      })
     );
     if (response.status === 200) {
       const datasets = getState().overview.datasets;
@@ -257,7 +263,11 @@ export const publishDataset =
       const savedRuns = getState().overview.savedRuns;
 
       const response = await API.post(
-        `${endpoints.api.datasets}/${dataset.resource_id}?access=${updateValue}`
+        uriTemplate(endpoints, `datasets_update`, {
+          dataset: dataset.resource_id,
+        }),
+        null,
+        { params: { access: updateValue } }
       );
       if (response.status === 200) {
         const dataIndex = savedRuns.findIndex(
