@@ -82,6 +82,15 @@ If the timezone offset is omitted it will be assumed to be UTC (`+00:00`); if
 the time is omitted it will be assumed as midnight (`00:00:00`) on the
 specified date.
 
+`keysummary` boolean \
+Instead of displaying a list of selected datasets and metadata, use the set of
+specified filters to accumulate a nested report on the metadata key namespace
+for the set of datasets. See [metadata](../metadata.md) for deails on the
+Pbench Server metadata namespaces. Because the `global` and `user` namespaces
+are completely dynamic, and the `dataset.metalog` sub-namespace varies greatly
+across Pbench Agent benchmark scripts, this mode provides a mechanism for a
+metadata visualizer to understand what's available for a set of datasets.
+
 ## Request headers
 
 `authorization: bearer` token [_optional_] \
@@ -104,6 +113,9 @@ See [Access model](../access_model.md)
 
 ## Response status
 
+`200`   **OK** \
+Successful request.
+
 `401`   **UNAUTHORIZED** \
 The client did not provide an authentication token but asked to filter datasets
 by `owner` or `access=private`.
@@ -120,23 +132,25 @@ a message, and optional JSON data provided by the system administrator.
 
 ## Response body
 
+### Dataset list
+
 The `application/json` response body contains a list of objects which describe
 the datasets selected by the specified query criteria, along with the total
 number of matching datasets and a `next_url` to support pagination.
 
-### next_url
+#### next_url
 
 When pagination is used, this gives the full URI to acquire the next page using
 the same `metadata` and `limit` values. The client can simply `GET` this URI for
 the next page. When the entire collection has been returned, `next_url` will be
 null.
 
-### total
+#### total
 
 The total number of datasets matching the filter criteria regardless of the
 pagination settings.
 
-### results
+#### results
 
 The paginated dataset collection.
 
@@ -181,5 +195,103 @@ might return:
         }
     ],
     "total": 722
+}
+```
+
+### Key namespace summary
+
+When the `keysummary` query parameter is `true` (e.g., either `?keysummary` or `?keysummary=true`),
+instead of reporting a list of datasets and metadata for each dataset, report a hierarchical
+representation of the aggregate metadata namespace across all selected datasets. This returns much
+less data and is not subject to pagination.
+
+"Leaf" nodes in the metadata tree are represented by `null` values while any key with children will
+be represented as a nested JSON object showing those child keys. That is, the example below shows
+that the selected datasets include keys like `dataset.access`, `dataset.metalog.controller.hostname`.
+
+Any of the partial or complete key paths represented here are valid targets for metadata queries.
+Since filters (e.g., `GET /api/v1/datasets?filter=xxx`) are always *string* comparisons, it's best
+to match leaf node values.
+
+```json
+{
+    "dataset": {
+        "access": null,
+        "id": null,
+        "metalog": {
+            "controller": {
+                "hostname": null,
+                "hostname-alias": null,
+                "hostname-all-fqdns": null,
+                "hostname-all-ip-addresses": null,
+                "hostname-domain": null,
+                "hostname-fqdn": null,
+                "hostname-ip-address": null,
+                "hostname-nis": null,
+                "hostname-short": null,
+                "ssh_opts": null
+            },
+            "iterations/1-default": {
+                "iteration_name": null,
+                "iteration_number": null,
+                "user_script": null
+            },
+            "pbench": {
+                "config": null,
+                "date": null,
+                "hostname_f": null,
+                "hostname_ip": null,
+                "hostname_s": null,
+                "iterations": null,
+                "name": null,
+                "rpm-version": null,
+                "script": null,
+                "tar-ball-creation-timestamp": null
+            },
+            "run": {
+                "controller": null,
+                "end_run": null,
+                "raw_size": null,
+                "start_run": null
+            },
+            "tools": {
+                "group": null,
+                "hosts": null,
+                "trigger": null
+            },
+            "tools/dbutenho.bos.csb": {
+                "hostname-alias": null,
+                "hostname-all-fqdns": null,
+                "hostname-all-ip-addresses": null,
+                "hostname-domain": null,
+                "hostname-fqdn": null,
+                "hostname-ip-address": null,
+                "hostname-nis": null,
+                "hostname-short": null,
+                "label": null,
+                "rpm-version": null,
+                "tools": null,
+                "vmstat": null
+            },
+            "tools/dbutenho.bos.csb/vmstat": {
+                "install_check_output": null,
+                "install_check_status_code": null,
+                "options": null
+            }
+        },
+        "name": null,
+        "owner_id": null,
+        "resource_id": null,
+        "uploaded": null
+    },
+    "server": {
+        "deletion": null,
+        "index-map": {
+            "container-pbench.v6.run-data.2023-03": null,
+            "container-pbench.v6.run-toc.2023-03": null
+        },
+        "origin": null,
+        "tarball-path": null
+    }
 }
 ```

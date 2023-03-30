@@ -96,6 +96,12 @@ The client is not authenticated.
 The authenticated client does not hold the `ADMIN` role required to access the
 audit log.
 
+`503`   **SERVICE UNAVAILABLE** \
+The server has been disabled using the `server-state` server configuration
+setting in the [server configuration](./server_config.md) API. The response
+body is an `application/json` document describing the current server state,
+a message, and optional JSON data provided by the system administrator.
+
 ## Response body
 
 The `application/json` response body is a JSON document containing the selected
