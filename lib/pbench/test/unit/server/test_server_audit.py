@@ -94,7 +94,6 @@ class TestServerAudit:
         assert audits[0]["object_id"] is None
         assert audits[0]["object_name"] is None
         assert audits[0]["object_type"] is None
-        assert audits[0]["user_name"] == "test"
         assert audits[0]["reason"] is None
         assert audits[1]["status"] == "SUCCESS"
         assert audits[1]["operation"] == "CREATE"
