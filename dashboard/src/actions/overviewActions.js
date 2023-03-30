@@ -29,9 +29,8 @@ export const getDatasets = () => async (dispatch, getState) => {
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(
       uriTemplate(endpoints, "datasets_list", {}),
-      null,
       {
-        params: params,
+        params,
       }
     );
 
@@ -180,7 +179,7 @@ export const deleteDataset = (dataset) => async (dispatch, getState) => {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.delete(
-      uriTemplate(endpoints, "datasets_update", {
+      uriTemplate(endpoints, "datasets", {
         dataset: dataset.resource_id,
       })
     );
@@ -263,7 +262,7 @@ export const publishDataset =
       const savedRuns = getState().overview.savedRuns;
 
       const response = await API.post(
-        uriTemplate(endpoints, `datasets_update`, {
+        uriTemplate(endpoints, "datasets", {
           dataset: dataset.resource_id,
         }),
         null,

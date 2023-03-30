@@ -9,7 +9,6 @@ export const fetchPublicDatasets = () => async (dispatch, getState) => {
     const endpoints = getState().apiEndpoint.endpoints;
     const response = await API.get(
       uriTemplate(endpoints, "datasets_list", {}),
-      null,
       { params: { metadata: "dataset.uploaded", access: "public" } }
     );
     if (response.status === 200 && response.data) {
