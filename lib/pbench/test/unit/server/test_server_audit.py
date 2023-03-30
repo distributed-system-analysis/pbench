@@ -131,11 +131,9 @@ class TestServerAudit:
 
     def check_audits(self, actual: list[Audit], expected: list[int]):
         assert len(actual) == len(expected)
-        ai = 0
 
-        for e in expected:
-            assert actual[ai] == self.audits[e]
-            ai += 1
+        for a, e in enumerate(expected):
+            assert actual[a] == self.audits[e]
 
     def test_get_bad_keys(self, query_get: Callable[..., Response]):
         response = query_get({"xyzzy": "foo"}, HTTPStatus.BAD_REQUEST)
