@@ -5,7 +5,6 @@ Elasticsearch index. It can also return Pbench Server [metadata](../metadata.md)
 
 Note that this information is mostly acquired from the dataset's `metadata.log`
 file which is also directly accessible as metadata through `dataset.metalog`.
-This API is "mostly obsolete".
 
 ## URI parameters
 
@@ -47,8 +46,7 @@ Successful request.
 One or more metadata keys specified were unacceptable.
 
 `401`   **UNAUTHORIZED** \
-The client is not authenticated and does not have READ access to the specified
-dataset.
+The client is not authenticated.
 
 `403`   **FORBIDDEN** \
 The authenticated client does not have READ access to the specified dataset.
@@ -67,7 +65,8 @@ a message, and optional JSON data provided by the system administrator.
 The `application/json` response body is a JSON object containing the dataset
 index "run" data and any requested server metadata, as follows.
 
-This assumes the query parameter `?metadata=dataset.access`.
+The following example shows server metadata from the query parameter
+`?metadata=dataset.access`.
 
 ```json
 {

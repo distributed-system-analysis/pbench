@@ -24,7 +24,7 @@ Server configuration.
 
 The information is divided into four sections, as described below.
 
-### api
+### `api`
 
 A simplistic representation of the API endpoints supported on the Pbench Server.
 
@@ -32,30 +32,35 @@ A simplistic representation of the API endpoints supported on the Pbench Server.
 resource-oriented API paths, few of these API URIs can be used directly. Instead,
 see [URI](#uri) templates.)
 
-### identification
+### `identification`
 
 This identifies the name and version of the Pbench Server.
 
-### openid
+### `openid`
 
 The Pench Server authenticates through an OIDC broker (e.g., Keycloak). In order
 to authenticate and receive an authorization token to present to server APIs, the
-client must redirect to the broker login page using the `uri` given here, and
-with the specified `client`.
+client must redirect to the broker login page using the `server_url` given here,
+with the Pbench Server `realm` and `client` ID.
 
-### uri
+### `uri`
 
 A representation of the Pbench Server APIs supported on this server. Each is
 presented as a `name`, which is the key of the `uri` JSON object, containing
 `params` and `template` keys.
 
-#### name
+#### `name`
 
 A convenient name key for the API. For example, to format a URI to get a list of
 datasets, `endpoints.uri.dataset_list` would return a JSON object describing the
 template and parameters for the API.
 
-#### params
+#### `template`
+
+The API's URI template pattern, with URI parameters in the form `{name}`, as in
+`http://host:port/api/v1/datasets/{dataset}/metadata`.
+
+#### `params`
 
 A sub-object describing the URI parameters referenced in the URI template. Each
 param has a name and type. Note that "type" refers to the Flask URI parsing, and
@@ -81,7 +86,7 @@ A similar formatter can be built easily for Javascript:
  * @param {Object} args - value for each templated parameter
  * @return {string} - formatted URI
  */
-export const expandUriTemplate = (endpoints, name, args) => {
+export const uriTemplate = (endpoints, name, args) => {
   let uri = endpoints.uri[name].template;
   for (const [key, value] of Object.entries(args)) {
     uri = uri.replace(`{${key}}`, value);
@@ -89,7 +94,7 @@ export const expandUriTemplate = (endpoints, name, args) => {
   return uri;
 };
 
-uri = expandUriTemplate(endpoints, 'datasets_metadata', {dataset: resource_id})
+uri = uriTemplate(endpoints, 'datasets_metadata', {dataset: resource_id})
 ```
 
 ```json

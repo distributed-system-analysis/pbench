@@ -37,8 +37,7 @@ See [Access model](../access_model.md)
 Successful request.
 
 `401`   **UNAUTHORIZED** \
-The client is not authenticated and does not have READ access to the specified
-dataset.
+The client is not authenticated.
 
 `403`   **FORBIDDEN** \
 The authenticated client does not have READ access to the specified dataset.

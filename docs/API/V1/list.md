@@ -65,6 +65,11 @@ example, the following are all equivalent:
 * `?metadata=dataset.created&metadata=dataset.deletion,user`
 * `?metadata=dataset.created&metadata=dataset.deletion&metadata=user`
 
+`mine` boolean \
+Allows filtering for datasets owned by the authenticated client (if the value
+is omitted, e.g., `?mine` or `?mine=true`) or owned by *other* users (e.g.,
+`?mine=false`).
+
 `offset` integer \
 "Paginate" the selected datasets by skipping the first `offset` datasets that
 would have been selected by the other query terms. This can be used with
@@ -118,7 +123,7 @@ Successful request.
 
 `401`   **UNAUTHORIZED** \
 The client did not provide an authentication token but asked to filter datasets
-by `owner` or `access=private`.
+by `owner`, `access=private`, `mine`, or asked for `user` namespace metadata.
 
 `403`   **FORBIDDEN** \
 The client asked to filter `access=private` datasets for an `owner` for which
