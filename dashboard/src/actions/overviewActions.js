@@ -27,12 +27,9 @@ export const getDatasets = () => async (dispatch, getState) => {
     params.append("mine", "true");
 
     const endpoints = getState().apiEndpoint.endpoints;
-    const response = await API.get(
-      uriTemplate(endpoints, "datasets_list", {}),
-      {
-        params,
-      }
-    );
+    const response = await API.get(uriTemplate(endpoints, "datasets_list"), {
+      params,
+    });
 
     if (response.status === 200) {
       if (response?.data?.results?.length > 0) {
