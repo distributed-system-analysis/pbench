@@ -30,7 +30,6 @@ class TestConnect:
                 url,
                 json={
                     "identification": "string",
-
                     "uri": {},
                     "openid": openid_dict,
                 },
