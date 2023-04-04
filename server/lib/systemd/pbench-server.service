@@ -9,14 +9,14 @@ Documentation = https://github.com/distributed-system-analysis/pbench
 After=network.target httpd.service
 
 [Service]
-Type = simple
+Type = notify
+NotifyAccess = all
 User = pbench
 Group = pbench
 RuntimeDirectory = pbench-server
 Environment = _PBENCH_SERVER_CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
-PIDFile = /run/pbench-server/gunicorn.pid
+KillSignal = TERM
 ExecStart = /opt/pbench-server/bin/pbench-server
-ExecStop = /bin/kill -s TERM $MAINPID
 Restart = always
 RestartSec = 30
 StartLimitInterval = 600

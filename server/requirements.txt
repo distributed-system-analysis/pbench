@@ -17,5 +17,6 @@ pyesbulk>=2.0.1
 PyJwt[crypto]
 python-dateutil
 requests
+sdnotify
 sqlalchemy>=1.4.23
 sqlalchemy_utils>=0.37.6

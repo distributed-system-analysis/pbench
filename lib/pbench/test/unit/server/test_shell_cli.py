@@ -70,120 +70,6 @@ class TestShell:
         ), f"Expected PATH to end with '/bin:ONE:TWO', found PATH == '{os.environ['PATH']}'"
 
     @staticmethod
-    def test_generate_crontab_if_necessary_no_action(monkeypatch, make_logger):
-        """Test site.generate_crontab_if_necessary with no action taken"""
-
-        called = {"run": False}
-
-        def run(args, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
-            called["run"] = True
-
-        monkeypatch.setenv("PATH", "one:two")
-        # An existing crontab does nothing.
-        monkeypatch.setattr(Path, "exists", exists_true)
-        monkeypatch.setattr(subprocess, "run", run)
-
-        ret_val = shell.generate_crontab_if_necessary(
-            "/tmp", Path("bindir"), "cwd", make_logger
-        )
-
-        assert ret_val == 0
-        assert os.environ["PATH"] == "one:two", f"PATH='{os.environ['PATH']}'"
-        assert not called[
-            "run"
-        ], "generate_crontab_if_necessary() took action unexpectedly"
-
-    @staticmethod
-    def test_generate_crontab_if_necessary_created(monkeypatch, make_logger):
-        """Test site.generate_crontab_if_necessary creating the crontab"""
-
-        commands = []
-
-        def run_success(args, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
-            commands.append(args)
-            return subprocess.CompletedProcess(args, 0)
-
-        monkeypatch.setenv("PATH", "a:b")
-        # We don't have an existing crontab
-        monkeypatch.setattr(Path, "exists", exists_false)
-        monkeypatch.setattr(subprocess, "run", run_success)
-
-        ret_val = shell.generate_crontab_if_necessary(
-            "/tmp", Path("bindir"), "cwd", make_logger
-        )
-
-        assert ret_val == 0
-        assert os.environ["PATH"] == "bindir:a:b", f"PATH='{os.environ['PATH']}'"
-        assert commands == [
-            ["pbench-create-crontab", "/tmp"],
-            ["crontab", "/tmp/crontab"],
-        ]
-
-    @staticmethod
-    def test_generate_crontab_if_necessary_create_failed(monkeypatch, make_logger):
-        monkeypatch.setenv("PATH", "a:b")
-
-        unlink_record = []
-
-        def unlink(*args, **kwargs):
-            unlink_record.append("unlink")
-
-        monkeypatch.setattr(Path, "unlink", unlink)
-
-        commands = []
-
-        def run(args, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
-            commands.append(args)
-            return subprocess.CompletedProcess(args, 1)
-
-        # We don't have an existing crontab
-        monkeypatch.setattr(Path, "exists", exists_false)
-        monkeypatch.setattr(subprocess, "run", run)
-
-        ret_val = shell.generate_crontab_if_necessary(
-            "/tmp", Path("bindir"), "cwd", make_logger
-        )
-
-        assert ret_val == 1
-        assert os.environ["PATH"] == "bindir:a:b", f"PATH='{os.environ['PATH']}'"
-        assert commands == [["pbench-create-crontab", "/tmp"]]
-        assert unlink_record == ["unlink"]
-
-    @staticmethod
-    def test_generate_crontab_if_necessary_crontab_failed(monkeypatch, make_logger):
-        monkeypatch.setenv("PATH", "a:b")
-
-        unlink_record = []
-
-        def unlink(*args, **kwargs):
-            unlink_record.append("unlink")
-
-        monkeypatch.setattr(Path, "unlink", unlink)
-
-        commands = []
-
-        def run(args, cwd: Optional[str] = None) -> subprocess.CompletedProcess:
-            commands.append(args)
-            ret_val = 1 if args[0] == "crontab" else 0
-            return subprocess.CompletedProcess(args, ret_val)
-
-        # We don't have an existing crontab
-        monkeypatch.setattr(Path, "exists", exists_false)
-        monkeypatch.setattr(subprocess, "run", run)
-
-        ret_val = shell.generate_crontab_if_necessary(
-            "/tmp", Path("bindir"), "cwd", make_logger
-        )
-
-        assert ret_val == 1
-        assert os.environ["PATH"] == "bindir:a:b", f"PATH='{os.environ['PATH']}'"
-        assert commands == [
-            ["pbench-create-crontab", "/tmp"],
-            ["crontab", "/tmp/crontab"],
-        ]
-        assert unlink_record == ["unlink"]
-
-    @staticmethod
     @pytest.mark.parametrize("user_site", [False, True])
     @pytest.mark.parametrize("oidc_conf", [False, True])
     def test_main(
@@ -234,16 +120,14 @@ class TestShell:
             "init_indexing",
         ]
         assert called == expected_called
-        assert len(commands) == 3, f"{commands!r}"
-        assert commands[0][0] == "pbench-create-crontab"
-        assert commands[1][0] == "crontab"
-        gunicorn_command = commands[2]
+        assert len(commands) == 1, f"{commands!r}"
+        gunicorn_command = commands[0]
         assert gunicorn_command[-1] == "pbench.cli.server.shell:app()", f"{commands!r}"
         gunicorn_command = gunicorn_command[:-1]
         if user_site:
             assert (
                 gunicorn_command[-2:][0] == "--pythonpath"
-            ), f"commands[2] = {commands[2]!r}"
+            ), f"commands[0] = {commands[0]!r}"
             gunicorn_command = gunicorn_command[:-2]
         expected_command = [
             "gunicorn",
@@ -261,31 +145,7 @@ class TestShell:
         ]
         assert (
             gunicorn_command == expected_command
-        ), f"expected_command = {expected_command!r}, commands[2] = {commands[2]!r}"
-
-    @staticmethod
-    def test_main_crontab_failed(monkeypatch, make_logger, mock_get_server_config):
-        def immediate_success(*args, **kwargs):
-            pass
-
-        def generate_crontab_if_necessary(*args, **kwargs) -> int:
-            return 43
-
-        monkeypatch.setattr(
-            shell.OpenIDClient,
-            "wait_for_oidc_server",
-            lambda config, logger: "https://oidc.example.com",
-        )
-        monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
-        monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
-        monkeypatch.setattr(shell, "init_indexing", immediate_success)
-        monkeypatch.setattr(
-            shell, "generate_crontab_if_necessary", generate_crontab_if_necessary
-        )
-
-        ret_val = shell.main()
-
-        assert ret_val == 43
+        ), f"expected_command = {expected_command!r}, commands[0] = {commands[0]!r}"
 
     @staticmethod
     @pytest.mark.parametrize(
