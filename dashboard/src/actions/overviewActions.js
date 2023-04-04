@@ -136,13 +136,12 @@ export const updateDataset =
 
       const runs = getState().overview.datasets;
       const endpoints = getState().apiEndpoint.endpoints;
-      const method = metaDataActions[payload.actionType];
 
       const uri = uriTemplate(endpoints, "datasets_metadata", {
         dataset: dataset.resource_id,
       });
       const response = await API.put(uri, {
-        metadata: { [method]: payload.actionValue },
+        metadata: { payload },
       });
       if (response.status === 200) {
         const dataIndex = runs.findIndex(
