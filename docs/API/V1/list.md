@@ -2,10 +2,11 @@
 
 This API returns an `application/json` document describing a filtered
 collection of datasets accessible to the client. (An unauthenticated client
-can only list `public` datasets.)
+can only list datasets with access `public`.)
 
-The collection of datasets may be filtered by `owner`, `access`, `name`
-substring, by date range, or by arbitrary metadata using the query parameters.
+The collection of datasets may be filtered using any combination of a number
+of query parameters, including `owner`, `access`, `name` substring, date range,
+and arbitrary metadata filter expressions.
 
 Large collections can be paginated for efficiency using the `limit` and `offset`
 query parameters.
@@ -32,7 +33,7 @@ specified date.
 Select datasets matching the metadata expressions specified via `filter`
 query parameters. Each expression is the name of a metadata key (for example,
 `dataset.name`), followed by a colon (`:`) and the comparison string. The
-comparison string may be prefixed with a tilda (`~`) to make it a partial
+comparison string may be prefixed with a tilde (`~`) to make it a partial
 ("contains") comparison instead of an exact match. For example,
 `dataset.name:foo` looks for datasets with the name "foo" exactly, whereas
 `dataset.name:~foo` looks for datasets with a name containing the substring
@@ -48,7 +49,15 @@ expression outout `^` ends the `OR` list and is combined with an `AND`.)
 For example,
 - `filter=dataset.name:a,server.origin:EC2` returns datasets with a name of
 "a" and an origin of "EC2".
-- `filter=dataset.name:a,^server.origin:EC2,^dataset.metalog.pbench.script:fio` returns datasets with a name of "a" and *either* an origin of "EC2" or generated from the "pbench-fio" script.
+- `filter=dataset.name:a,^server.origin:EC2,^dataset.metalog.pbench.script:fio`
+returns datasets with a name of "a" and *either* an origin of "EC2" or generated
+from the "pbench-fio" script.
+
+_NOTE_: `filter` expression values like the `2023` in
+`GET /api/v1/datasets?filter=server.deletion:2023`, are always interpreted as
+strings, which often means that partial matches like `~2023` are often more
+useful than exact matches; and this also makes matching a JSON document (such
+as `dataset.metalog.pbench`) problematic.
 
 `limit` integer \
 "Paginate" the selected datasets by returning at most `limit` datasets. This
@@ -205,18 +214,23 @@ might return:
 
 ### Key namespace summary
 
-When the `keysummary` query parameter is `true` (e.g., either `?keysummary` or `?keysummary=true`),
-instead of reporting a list of datasets and metadata for each dataset, report a hierarchical
-representation of the aggregate metadata namespace across all selected datasets. This returns much
-less data and is not subject to pagination.
+When the `keysummary` query parameter is `true` (e.g., either `?keysummary` or
+`?keysummary=true`), instead of reporting a list of datasets and metadata for
+each dataset, report a hierarchical representation of the aggregate metadata
+namespace across all selected datasets. This returns much less data and is not
+subject to pagination.
 
-"Leaf" nodes in the metadata tree are represented by `null` values while any key with children will
-be represented as a nested JSON object showing those child keys. That is, the example below shows
-that the selected datasets include keys like `dataset.access`, `dataset.metalog.controller.hostname`.
+"Leaf" nodes in the metadata tree are represented by `null` values while any
+key with children will be represented as a nested JSON object showing those
+child keys. From the example output below a client can identify many key paths
+including `dataset.access` and `dataset.metalog.controller.hostname`.
 
-Any of the partial or complete key paths represented here are valid targets for metadata queries.
-Since filters (e.g., `GET /api/v1/datasets?filter=xxx`) are always *string* comparisons, it's best
-to match leaf node values.
+Any of the partial or complete key paths represented in the output document are
+valid targets for metadata queries: for example `dataset.metalog.pbench.script`
+is a "leaf" node, but `GET /api/v1/datasets?metadata=dataset.metalog.pbench`
+will return a JSON document with the keys `config`, `date`, `hostname_f`,
+`hostname_ip`, `hostname_s`, `iterations`, `name`, `rpm-version`, `script`, and
+`tar-ball-creation-timestamp`.
 
 ```json
 {

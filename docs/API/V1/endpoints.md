@@ -24,14 +24,6 @@ Server configuration.
 
 The information is divided into four sections, as described below.
 
-### `api`
-
-A simplistic representation of the API endpoints supported on the Pbench Server.
-
-(This is mostly historical, as with the ongoing migration towards RESTful
-resource-oriented API paths, few of these API URIs can be used directly. Instead,
-see [URI](#uri) templates.)
-
 ### `identification`
 
 This identifies the name and version of the Pbench Server.
@@ -49,18 +41,18 @@ A representation of the Pbench Server APIs supported on this server. Each is
 presented as a `name`, which is the key of the `uri` JSON object, containing
 `params` and `template` keys.
 
-#### `name`
+#### name
 
 A convenient name key for the API. For example, to format a URI to get a list of
 datasets, `endpoints.uri.dataset_list` would return a JSON object describing the
 template and parameters for the API.
 
-#### `template`
+##### `template`
 
-The API's URI template pattern, with URI parameters in the form `{name}`, as in
+The API's URI template pattern, with URI parameters in the form `{<name>}`, as in
 `http://host:port/api/v1/datasets/{dataset}/metadata`.
 
-#### `params`
+##### `params`
 
 A sub-object describing the URI parameters referenced in the URI template. Each
 param has a name and type. Note that "type" refers to the Flask URI parsing, and
@@ -87,14 +79,17 @@ A similar formatter can be built easily for Javascript:
  * @return {string} - formatted URI
  */
 export const uriTemplate = (endpoints, name, args) => {
-  let uri = endpoints.uri[name].template;
-  for (const [key, value] of Object.entries(args)) {
-    uri = uri.replace(`{${key}}`, value);
-  }
-  return uri;
+  return Object.entries(args).reduce(
+    (uri, [key, value]) => uri.replace(`{${key}}`, value),
+    endpoints.uri[name].template
+  )
 };
 
-uri = uriTemplate(endpoints, 'datasets_metadata', {dataset: resource_id})
+let uri = uriTemplate(
+    endpoints,
+    'datasets_metadata',
+    {dataset: resource_id}
+    )
 ```
 
 ```json

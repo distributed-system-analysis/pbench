@@ -14,9 +14,8 @@ export const uid = () => {
  * @return {string} - formatted URI
  */
 export const uriTemplate = (endpoints, name, args = {}) => {
-  let uri = endpoints.uri[name].template;
-  for (const [key, value] of Object.entries(args)) {
-    uri = uri.replace(`{${key}}`, value);
-  }
-  return uri;
+  return Object.entries(args).reduce(
+    (uri, [key, value]) => uri.replace(`{${key}}`, value),
+    endpoints.uri[name].template
+  )
 };

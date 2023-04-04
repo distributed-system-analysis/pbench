@@ -1,6 +1,8 @@
 # `PUT /api/v1/upload/<file>`
 
-This API creates a dataset resource by uploading a performance tarball.
+This API creates a dataset resource by uploading a tarball to the Pbench Server.
+The tarball must be compressed with the `xz` program, and have the compound
+file type suffix of ".tar.xz".
 
 Primarily this is expected to be a native Pbench Agent tarball with a specific
 structure; however with the `server.archiveonly` metadata key the Pbench Server
@@ -22,30 +24,31 @@ to the owner. The default is `private`.
 For example, `?access=public`
 
 `metadata` metadata keys \
-A valid Pbench Server username to be given ownership of the specified dataset.
-This requires the authenticated user to hold `ADMIN` role, essentially granting
-full access to both the current and new owners.
+A set of desired Pbench Server metadata keys to be assigned to the new dataset.
+You can set the initial resource name (`dataset.name`), for example, as well as
+assigning any keys in the `global` and `user` namespaces.
 
-In particular the `server.archiveonly` metadata key allows telling the Pbench
-Server that the tarball should not be unpacked, analyzed, or indexed, for example
-when it doesn't have the expected Pbench Agent `metadata.log`. The tarball will be
-archived on the server, and is visible in the dataset collection but won't be indexed.
+In particular the `server.archiveonly` metadata key can be set to `false` to
+prevent the Pbench Server from unpacking or indexing the tarball, for example
+when the tarball doesn't contain the expected Pbench Agent `metadata.log`.
+The tarball will be archived on the server, is visible in the dataset
+collection and can be decorated with metadata, but won't be indexed.
 
 For example, `?metadata=server.archiveonly:true,global.project:oidc`
 
 ## Request headers
 
 `authorization: bearer` token \
-*Bearer* schema authorization is required to access any non-public dataset.
-E.g., `authorization: bearer <token>`
+*Bearer* schema authorization assigns the ownership of the new dataset to the
+authenticated user. E.g., `authorization: bearer <token>`
 
 `content-length` tarball size \
-The size of the tarball payload in bytes. Generally supplied automatically by
+The size of the request octet stream in bytes. Generally supplied automatically by
 an upload agent such as Python `requests` or `curl`.
 
 `content-md5` MD5 hash \
-The MD5 hash of the compressed tarball file. This must match the actual byte
-stream uploaded.
+The MD5 hash of the compressed tarball file. This must match the actual tarball
+octet stream provided as the request body.
 
 ## Response headers
 
@@ -55,14 +58,15 @@ The return is a serialized JSON object with status information.
 ## Response status
 
 `200`   **OK** \
-Successful request. The dataset already exists on the Pbench Server; that is,
-the MD5 hash is an exact match.
+Successful request. The dataset MD5 hash is identical to that of a dataset
+previously uploaded to the Pbench Server. This is assumed to be an identical
+tarball.
 
 `201`   **CREATED** \
 The tarball was successfully uploaded and the dataset has been created.
 
 `400`   **BAD_REQUEST** \
-One of the required headers is missing on incorrect, invalid query parameters
+One of the required headers is missing or incorrect, invalid query parameters
 were specified, or a bad value was specified for a query parameter. The return
 payload will be a JSON document with a `message` field containing details.
 

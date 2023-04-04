@@ -1,8 +1,7 @@
 # `GET /api/v1/server/audit`
 
-This API returns an `application/json` document describing the Pbench Server
-audit log. Various query parameters are available to limit the returned
-records.
+This API returns the Pbench Server audit log as an `application/json` document.
+Various query parameters are available to filter the returned records.
 
 ## Query parameters
 
@@ -19,50 +18,54 @@ audit records for a specific dataset.
 ### `name`
 Each type of Pbench Server "actor" has a simple name, so it's easy to select
 all upload or index operations.
+* `config`: Server configuration values were modified.
+* `metadata`: Dataset metadata values were modified.
+* `upload`: A dataset was uploaded to the server.
 
 ### `object_id`
 Select by the object ID. For datasets, this is the `resource_id`; for users it's
-the OIDC ID, and for server configuration settings there is no ID. It's possible
-to select datasets (or users), for example, that no longer exist, as long as they
-once did exist.
+the OIDC ID, and for server configuration settings there is no ID. This allows
+selecting datasets (or users) that no longer exist, using the original values.
 
 ### `object_name`
-Select by the object name. If an object is deleted, or the object name is changed,
-this can be used to select older resource events when the name existed. To track
-a dataset across name changes, use `object_id` and `object_type`, or `dataset`.
+Select by the name of an object at the time the audit record was generated. If
+an object is deleted, or the object name is changed, older audit records retain
+the previous name and can be used to track "phases in the object's evolution".
+To track a dataset across name changes, use `object_id` and `object_type`, or
+`dataset`.
 
 ### `object_type`
 Select by the object type.
-* DATASET: Dataset objects.
-* CONFIG: Server config settings.
-* TEMPLATE: Elasticsearch templates.
-* NONE: Unspecified.
-* TOKEN: API Key tokens.
+* `DATASET`: Dataset objects.
+* `CONFIG`: Server config settings.
+* `TEMPLATE`: Elasticsearch templates.
+* `NONE`: Unspecified.
+* `TOKEN`: API Key tokens.
 
 ### `operation`
 The CRUD operation type associated with the audit records.
 
-* CREATE: A resource was created.
-* READ: A resource was read. (Pbench Server does not generally audit read operations.)
-* UPDATE: A resource was updated.
-* DELETE: A resource was deleted.
+* `CREATE`: A resource was created.
+* `READ`: A resource was read. (The Pbench Server does not generally audit read operations.)
+* `UPDATE`: A resource was updated.
+* `DELETE`: A resource was deleted.
 
 ### `reason`
 Failure reason codes: additional information will be encoded in the `attributes`
 JSON object, but can't be filtered directly.
 
-* PERMISSION: The operation failed due to a permission failure.
-* INTERNAL: The operation failed due to internal processing. (Fairly generic.)
-* CONSISTENCY: The operation failed due to resource or process consistency issues.
+* `PERMISSION`: The operation failed due to a permission failure.
+* `INTERNAL`: The operation failed due to internal Pbench Server processing errors.
+* `CONSISTENCY`: The operation failed due to resource or process consistency issues.
 
 ### `status`
 Each linked set of audit records begins with a `BEGIN` record; the status of the
 finalization record reflects the completion status.
 
-* BEGIN: Begin an operation.
-* SUCCESS: Successful completion of an operation.
-* FAILURE: Total failure of an operation.
-* WARNING: Partial failure of an operation.
+* `BEGIN`: Begin an operation.
+* `SUCCESS`: Successful completion of an operation.
+* `FAILURE`: Total failure of an operation.
+* `WARNING`: Partial failure of an operation.
 
 ### `user_id`
 The OIDC ID of the user responsible for the operation.
@@ -74,7 +77,7 @@ no active user.
 ## Request headers
 
 `authorization: bearer` token \
-**Bearer* schema authorization for a user holding the `ADMIN` role is required
+*Bearer* schema authorization for a user holding the `ADMIN` role is required
 to access audit log data.
 
 E.g., `authorization: bearer <token>`
@@ -115,7 +118,7 @@ record.
 The `attributes` JSON provides any additional information on the operation,
 including at least a `message` field on failure.
 
-The `timestamp` records when the audit record was generated.
+The absolute UTC `timestamp` when the audit record was generated.
 
 ```python
 GET /api/v1/server/audit?start=2023-03-26&name=upload&status=success

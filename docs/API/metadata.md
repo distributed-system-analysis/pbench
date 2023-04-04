@@ -20,17 +20,20 @@ The four namespaces are:
 after creation.
 * `server` provides server management state about a dataset. Most of these
 cannot be changed by the user. While many may not be directly meaningful to the
-user they are visible.
-* `global` provides user-controlled metadata which can only be modified by the
-owner of the dataset, but is visible to anyone with read access to the dataset.
-By convention, a client should use a unique second-level key to avoid
+user, the Pbench Server does not hide them. (Beware that retrieving the entire
+`server` namespace may result in a substantial amount of data that's of little
+use to a client.)
+* `global` provides user-controlled dataset metadata which can only be modified
+by the owner of the dataset, but is visible to anyone with read access to the
+dataset. By convention, a client should use a unique second-level key to avoid
 conflicting paths. For example, the Pbench Dashboard uses `global.dashboard`.
-* `user` provides a metadata namespace that's private to a user: each user will
-see their own set of nested object structure and values, and these are not
-shareable. Even if you don't own a dataset you can set your own private `user`
-metadata to help you categorize that dataset and to find it again.
-By convention, a client should use a unique second-level key to avoid
-conflicting paths. For example, the Pbench Dashboard uses `user.dashboard`.
+* `user` provides a metadata namespace for each dataset that's private to the
+authenticated user: each user will see their own set of nested object structure
+and values, and these are not shareable. Even if you don't own a dataset you
+can set your own private `user` metadata to help you categorize that dataset
+and to find it again. By convention, a client should use a unique second-level
+key to avoid conflicting paths. For example, the Pbench Dashboard uses
+`user.dashboard`.
 
 When a dataset is first processed, the Pbench Server will populate basic
 metadata, including the creation timestamp, the owner of the dataset (the
@@ -148,7 +151,7 @@ authenticated client able to see a dataset can set metadata keys within this
 namespace to any valid JSON values (string, number, boolean, list, or nested
 objects) for retrieval later. Each authenticated client may set distinct values
 for the same keys, or use completely different keys, and can retrieve those
-values later. A client authenticated for another user has its own comletely
+values later. A client authenticated for another user has its own completely
 unique `user` namespace.
 
 The `user` metadata namespace behaves as a user-specific sub-resource under the
