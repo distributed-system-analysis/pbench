@@ -68,10 +68,10 @@ buildah copy --chown root:root --chmod 0644 $container \
 buildah run $container rm /etc/logrotate.d/nginx
 
 # Setup the Pbench Server systemd service.
-buildah run $container cp ${SERVER_LIB}/systemd/pbench-server.service \
-    /etc/systemd/system/pbench-server.service
-buildah run $container cp ${SERVER_LIB}/pbench/system/pbench-index.service \
-    ${SERVER_LIB}/pbench/system/pbench-index.timer \
+buildah run $container cp \
+    ${SERVER_LIB}/systemd/pbench-server.service \
+    ${SERVER_LIB}/systemd/pbench-index.service \
+    ${SERVER_LIB}/systemd/pbench-index.timer \
     /etc/systemd/system/
 
 buildah run $container systemctl enable nginx

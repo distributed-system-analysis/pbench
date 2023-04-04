@@ -77,14 +77,14 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     try:
         wait_for_uri(db_uri, db_wait_timeout)
     except BadConfig as exc:
+        logger.error(f"{exc}")
         notifier.notify("STOPPING=1")
         notifier.notify(f"STATUS=Bad DB config {exc}")
-        logger.error(f"{exc}")
         return 1
     except ConnectionRefusedError:
+        logger.error("Database {} not responding", db_uri)
         notifier.notify("STOPPING=1")
         notifier.notify("STATUS=DB not responding")
-        logger.error("Database {} not responding", db_uri)
         return 1
 
     notifier.notify("STATUS=Waiting for Elasticsearch instance")
@@ -96,23 +96,23 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     try:
         wait_for_uri(es_uri, es_wait_timeout)
     except BadConfig as exc:
+        logger.error(f"{exc}")
         notifier.notify("STOPPING=1")
         notifier.notify(f"STATUS=Bad index config {exc}")
-        logger.error(f"{exc}")
         return 1
     except ConnectionRefusedError:
+        logger.error("Index {} not responding", es_uri)
         notifier.notify("STOPPING=1")
         notifier.notify("STATUS=Index service not responding")
-        logger.error("Index {} not responding", es_uri)
         return 1
 
     notifier.notify("STATUS=Initializing OIDC")
     try:
         oidc_server = OpenIDClient.wait_for_oidc_server(server_config, logger)
     except OpenIDClient.NotConfigured as exc:
+        logger.warning("OpenID Connect client not configured, {}", exc)
         notifier.notify("STOPPING=1")
         notifier.notify("STATUS=OPENID broker not responding")
-        logger.warning("OpenID Connect client not configured, {}", exc)
     else:
         logger.info("Pbench server using OIDC server {}", oidc_server)
 
@@ -126,9 +126,9 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     try:
         init_db(server_config, logger)
     except (NoOptionError, NoSectionError) as exc:
+        logger.error("Invalid database configuration: {}", exc)
         notifier.notify("STOPPING=1")
         notifier.notify(f"STATUS=Error initializing database: {exc}")
-        logger.error("Invalid database configuration: {}", exc)
         return 1
 
     # Multiple cron jobs will attempt to file reports with the Elasticsearch
@@ -141,9 +141,9 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     try:
         init_indexing(PROG, server_config, logger)
     except (NoOptionError, NoSectionError) as exc:
+        logger.error("Invalid indexing configuration: {}", exc)
         notifier.notify("STOPPING=1")
         notifier.notify(f"STATUS=Invalid indexing config {exc}")
-        logger.error("Invalid indexing configuration: {}", exc)
         return 1
 
     notifier.notify("READY=1")

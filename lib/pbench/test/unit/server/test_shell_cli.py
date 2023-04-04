@@ -317,7 +317,6 @@ class TestShell:
             "wait_timeout",
             "workers",
             "worker_timeout",
-            "crontab-dir",
         ],
     )
     def test_main_server_config_no_option(
@@ -329,8 +328,6 @@ class TestShell:
             section = (
                 "database"
                 if option in frozenset(("uri", "wait_timeout"))
-                else "DEFAULT"
-                if option == "crontab-dir"
                 else "pbench-server"
             )
             make_logger.error(config._conf[section][option])
