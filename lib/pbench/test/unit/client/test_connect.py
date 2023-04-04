@@ -30,7 +30,6 @@ class TestConnect:
                 url,
                 json={
                     "identification": "string",
-                    "api": {},
                     "uri": {},
                     "openid": openid_dict,
                 },
@@ -54,7 +53,6 @@ class TestConnect:
         # Check that the fake endpoints we returned are captured
         endpoints = pbench.endpoints
         assert endpoints
-        assert endpoints["api"] == {}
         assert endpoints["identification"] == "string"
         assert endpoints["uri"] == {}
         assert endpoints["openid"] == openid_dict

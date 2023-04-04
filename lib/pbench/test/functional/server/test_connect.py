@@ -12,19 +12,15 @@ class TestConnect:
         assert server_client.session.headers["Accept"] == "application/json"
         endpoints = server_client.endpoints
         assert endpoints
-        assert "api" in endpoints
         assert "identification" in endpoints
         assert "uri" in endpoints
 
         # Verify that all expected endpoints are reported
-        for a in endpoints["api"].keys():
-            assert a in expected
         for a in endpoints["uri"].keys():
             assert a in expected
 
         # Verify that no unexpected endpoints are reported
         for e in expected:
-            assert e in endpoints["api"].keys()
             assert e in endpoints["uri"].keys()
 
         # verify all the required openid-connect fields are present

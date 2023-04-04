@@ -120,15 +120,13 @@ class PbenchServerClient:
         Returns:
             A fully specified URI
         """
-        if not uri_params:
-            return self.endpoints["api"][api.value]
-        else:
-            description = self.endpoints["uri"][api.value]
-            template = description["template"]
-            cnt = len(description["params"])
-            if cnt != len(uri_params):
-                raise IncorrectParameterCount(api, cnt, uri_params)
-            return template.format(**uri_params)
+        description = self.endpoints["uri"][api.value]
+        template = description["template"]
+        cnt = len(description["params"])
+        params = uri_params if uri_params else {}
+        if cnt != len(params):
+            raise IncorrectParameterCount(api, cnt, params)
+        return template.format(**params)
 
     def get(
         self,

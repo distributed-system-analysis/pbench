@@ -1,12 +1,12 @@
 import * as TYPES from "./types";
 import API from "../utils/axiosInstance";
-import { expandUriTemplate } from "../utils/helper";
+import { uriTemplate } from "../utils/helper";
 
 export const fetchTOC =
   (param, parent, callForSubData) => async (dispatch, getState) => {
     try {
       const endpoints = getState().apiEndpoint.endpoints;
-      const uri = expandUriTemplate(endpoints, "datasets_contents", {
+      const uri = uriTemplate(endpoints, "datasets_contents", {
         dataset: param,
         target: parent,
       });
