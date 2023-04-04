@@ -17,5 +17,5 @@ export const uriTemplate = (endpoints, name, args = {}) => {
   return Object.entries(args).reduce(
     (uri, [key, value]) => uri.replace(`{${key}}`, value),
     endpoints.uri[name].template
-  )
+  );
 };
