@@ -6,7 +6,7 @@ import requests
 
 class TestDatasetsAccess:
     @pytest.fixture()
-    def query_get_as(self, client, server_config, more_datasets):
+    def query_get_as(self, client, server_config):
         """
         Helper fixture to perform the API query and validate an expected
         return status.
@@ -14,7 +14,6 @@ class TestDatasetsAccess:
         Args:
             client: Flask test API client fixture
             server_config: Pbench config fixture
-            more_datasets: Dataset construction fixture
         """
 
         def query_api(user_token, expected_status: HTTPStatus) -> requests.Response:

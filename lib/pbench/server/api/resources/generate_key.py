@@ -33,11 +33,6 @@ def generate_key(time_delta: timedelta, user):
         "username": user_obj["username"],
         "audience": Auth.oidc_client.client_id,
     }
-    current_app.logger.info(
-        "Payload is {}",
-        payload,
-    )
-
     try:
         generated_api_key = jwt.encode(
             payload, current_app.secret_key, algorithm=Auth._TOKEN_ALG_INT
