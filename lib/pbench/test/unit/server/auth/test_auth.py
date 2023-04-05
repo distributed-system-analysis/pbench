@@ -18,7 +18,6 @@ from pbench.server.auth import (
     OpenIDTokenInvalid,
 )
 import pbench.server.auth.auth as Auth
-from pbench.server.database.models.users import User
 from pbench.test.unit.server import DRB_USER_ID
 from pbench.test.unit.server.conftest import jwt_secret
 
