@@ -53,11 +53,12 @@ For example,
 returns datasets with a name of "a" and *either* an origin of "EC2" or generated
 from the "pbench-fio" script.
 
-_NOTE_: `filter` expression values like the `2023` in
-`GET /api/v1/datasets?filter=server.deletion:2023`, are always interpreted as
-strings, which often means that partial matches like `~2023` are often more
-useful than exact matches; and this also makes matching a JSON document (such
-as `dataset.metalog.pbench`) problematic.
+_NOTE_: `filter` expression values, like the `true` in
+`GET /api/v1/datasets?filter=server.archiveonly:true`, are always interpreted
+as strings, so be careful about the string representation of the value (in this
+case, a boolean, which is represented in JSON as "true" or "false"). Beware
+especially when attempting to match a JSON document (such as
+`dataset.metalog.pbench`).
 
 `limit` integer \
 "Paginate" the selected datasets by returning at most `limit` datasets. This
