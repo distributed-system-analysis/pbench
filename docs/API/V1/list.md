@@ -56,7 +56,7 @@ from the "pbench-fio" script.
 _NOTE_: `filter` expression values, like the `true` in
 `GET /api/v1/datasets?filter=server.archiveonly:true`, are always interpreted
 as strings, so be careful about the string representation of the value (in this
-case, a boolean, which is represented in JSON as "true" or "false"). Beware
+case, a boolean, which is represented in JSON as `true` or `false`). Beware
 especially when attempting to match a JSON document (such as
 `dataset.metalog.pbench`).
 

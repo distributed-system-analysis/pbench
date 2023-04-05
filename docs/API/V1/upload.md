@@ -29,11 +29,11 @@ You can set the initial resource name (`dataset.name`), for example, as well as
 assigning any keys in the `global` and `user` namespaces. See
 [metadata](../metadata.md) for more information.
 
-In particular the client can set the
-[default dataset name](../metadata.md#datasetname), the
-[dataset origin](../metadata.md#serverorigin),
-[disable indexing](../metadata.md#serverarchiveonly), and override the
-[default dataset expiration time](../metadata.md#serverdeletion).
+In particular the client can set any of:
+* `dataset.name`: [default dataset name](../metadata.md#datasetname)
+* `server.origin`: [dataset origin](../metadata.md#serverorigin)
+* `server.archiveonly`: [suppress indexing](../metadata.md#serverarchiveonly)
+* `server.deletion`: [default dataset expiration time](../metadata.md#serverdeletion).
 
 For example, `?metadata=server.archiveonly:true,global.project:oidc`
 

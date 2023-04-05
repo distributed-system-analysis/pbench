@@ -35,12 +35,6 @@ artifacts, and the archived tarball. The resource ID becomes invalid subsequentl
 unless a new dataset is created with the same checksum value. (This is highly
 unlikely, unless the same Pbench Agent tarball is uploaded again.)
 
-A user resource is the "owner" of each [dataset](#datasets) managed by the
-Pbench Server. If a user is deleted, then any datasets owned by that user
-become orphaned; datasets with `public` access are still accessible to other
-users, and `private` datasets are accessible through the `ADMIN` user role (see
-[access model](../access_model.md)).
-
 ### Metadata
 
 Metadata resources are secondary resources tied to a dataset resource and, for

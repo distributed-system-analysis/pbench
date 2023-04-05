@@ -23,9 +23,9 @@ all upload or index operations.
 * `upload`: A dataset was uploaded to the server.
 
 ### `object_id`
-Select by the object ID. For datasets, this is the `resource_id`; for users it's
-the OIDC ID, and for server configuration settings there is no ID. This allows
-selecting datasets (or users) that no longer exist, using the original values.
+Select by the object ID: the `resource_id` for datasets, or the OIDC ID for
+users. (Server configuration settings have no ID.) This allows
+selecting datasets or users that no longer exist, or have been renamed.
 
 ### `object_name`
 Select by the name of an object at the time the audit record was generated. If

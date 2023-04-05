@@ -89,8 +89,8 @@ to exist if the associated dataset is deleted.
 ### Dataset namespace
 
 This defines the dataset resource, and contains metadata received from the
-Pbench Agent, including the full contents of a `metadata.log` file created
-while gathering results and during dataset packaging.
+Pbench Agent, including the full contents of a `metadata.log` file if one is
+present in the tarball. (Support for additional tarball formats is TBD.)
 
 The `metadata.log` data is represented under the key `dataset.metalog` and can
 be queried as part of the entire dataset using the `dataset` key, as a discrete
@@ -129,8 +129,7 @@ analysis but the server will do nothing else with it. The value can be
 specified as "t", "true", "y" or "yes" (case insensitive) for True, and "f",
 "false", "n", or "no" (also case insensitive) for False. Note that this is
 currently only interpreted by the Pbench Server when a dataset is first
-uploaded, and will inhibit unpacking and indexing the dataset. It can be
-changed later, but the server currently takes no action on such changes.
+uploaded, and has no effect if modified later.
 
 #### `server.origin`
 
