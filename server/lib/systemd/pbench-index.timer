@@ -1,0 +1,13 @@
+[Unit]
+Description=Pbench Server indexer timer
+After=pbench-server.service
+Requires=pbench-index.service
+
+[Timer]
+Unit=pbench-index.service
+OnUnitActiveSec=240
+OnCalendar=*-*-* *:*:15
+
+[Install]
+WantedBy=timers.target
+BindsTo=pbench-server.service

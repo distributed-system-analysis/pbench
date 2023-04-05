@@ -1,0 +1,14 @@
+[Unit]
+Description=Index Pbench Server datasets
+Wants=pbench-index.timer
+
+[Service]
+Type = simple
+User = pbench
+Group = pbench
+Environment = _PBENCH_SERVER_CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
+ExecStart=-/opt/pbench-server/bin/pbench-index
+KillSignal = TERM
+
+[Install]
+WantedBy=pbench-server.service

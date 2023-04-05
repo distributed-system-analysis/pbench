@@ -7,6 +7,7 @@ import subprocess
 import sys
 
 from flask import Flask
+import sdnotify
 
 from pbench.common import wait_for_uri
 from pbench.common.exceptions import BadConfig
@@ -40,47 +41,15 @@ def find_the_unicorn(logger: Logger):
         )
 
 
-def generate_crontab_if_necessary(
-    crontab_dir: str, bin_dir: Path, cwd: str, logger: Logger
-) -> int:
-    """Generate and install the crontab for the Pbench Server.
-
-    If a crontab file already exists, no action is taken, otherwise a crontab
-    file is created using `pbench-create-crontab` and then installed using the
-    `crontab` command.
-
-    If either of those operations fail, the crontab file is removed.
-
-    Return 0 on success, 1 on failure.
-    """
-    ret_val = 0
-    crontab_f = Path(crontab_dir) / "crontab"
-    if not crontab_f.exists():
-        os.environ["PATH"] = ":".join([str(bin_dir), os.environ["PATH"]])
-        # Create the crontab file from the server configuration.
-        cp = subprocess.run(["pbench-create-crontab", crontab_dir], cwd=cwd)
-        if cp.returncode != 0:
-            logger.error(
-                "Failed to create crontab file from configuration: {}", cp.returncode
-            )
-            ret_val = 1
-        else:
-            # Install the created crontab file.
-            cp = subprocess.run(["crontab", f"{crontab_dir}/crontab"], cwd=cwd)
-            if cp.returncode != 0:
-                logger.error("Failed to install crontab file: {}", cp.returncode)
-                ret_val = 1
-    if ret_val != 0:
-        crontab_f.unlink(missing_ok=True)
-    return ret_val
-
-
 def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     """Setup of the Gunicorn Pbench Server Flask application.
 
     Returns:
         1 on error, or the gunicorn sub-process status code
     """
+    notifier = sdnotify.SystemdNotifier()
+
+    notifier.notify("STATUS=Identifying configuration")
     if site.ENABLE_USER_SITE:
         find_the_unicorn(logger)
     try:
@@ -92,12 +61,14 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         es_wait_timeout = int(server_config.get("Indexing", "wait_timeout"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
-        crontab_dir = server_config.get("pbench-server", "crontab-dir")
         server_config.get("flask-app", "secret-key")
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Error fetching required configuration: {}", exc)
+        notifier.notify("STOPPING=1")
+        notifier.notify("STATUS=Unable to configure gunicorn")
         return 1
 
+    notifier.notify("STATUS=Waiting for database")
     logger.info(
         "Waiting at most {:d} seconds for database instance {} to become available.",
         db_wait_timeout,
@@ -107,11 +78,16 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         wait_for_uri(db_uri, db_wait_timeout)
     except BadConfig as exc:
         logger.error(f"{exc}")
+        notifier.notify("STOPPING=1")
+        notifier.notify(f"STATUS=Bad DB config {exc}")
         return 1
     except ConnectionRefusedError:
         logger.error("Database {} not responding", db_uri)
+        notifier.notify("STOPPING=1")
+        notifier.notify("STATUS=DB not responding")
         return 1
 
+    notifier.notify("STATUS=Waiting for Elasticsearch instance")
     logger.info(
         "Waiting at most {:d} seconds for the Elasticsearch instance {} to become available.",
         es_wait_timeout,
@@ -121,15 +97,22 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         wait_for_uri(es_uri, es_wait_timeout)
     except BadConfig as exc:
         logger.error(f"{exc}")
+        notifier.notify("STOPPING=1")
+        notifier.notify(f"STATUS=Bad index config {exc}")
         return 1
     except ConnectionRefusedError:
-        logger.error("Elasticsearch {} not responding", es_uri)
+        logger.error("Index {} not responding", es_uri)
+        notifier.notify("STOPPING=1")
+        notifier.notify("STATUS=Index service not responding")
         return 1
 
+    notifier.notify("STATUS=Initializing OIDC")
     try:
         oidc_server = OpenIDClient.wait_for_oidc_server(server_config, logger)
     except OpenIDClient.NotConfigured as exc:
         logger.warning("OpenID Connect client not configured, {}", exc)
+        notifier.notify("STOPPING=1")
+        notifier.notify("STATUS=OPENID broker not responding")
     else:
         logger.info("Pbench server using OIDC server {}", oidc_server)
 
@@ -137,12 +120,15 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     # attempt to synchronize them, detect a missing DB (from the database URI)
     # and create it here. It's safer to do this here, where we're
     # single-threaded.
+    notifier.notify("STATUS=Initializing database")
     logger.info("Performing database setup")
     Database.create_if_missing(db_uri, logger)
     try:
         init_db(server_config, logger)
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Invalid database configuration: {}", exc)
+        notifier.notify("STOPPING=1")
+        notifier.notify(f"STATUS=Error initializing database: {exc}")
         return 1
 
     # Multiple cron jobs will attempt to file reports with the Elasticsearch
@@ -150,19 +136,17 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     # initialize the templates in the Indexing sub-system.  To avoid race
     # conditions that can create stack traces, we initialize the indexing sub-
     # system before we start the cron jobs.
+    notifier.notify("STATUS=Initializing Elasticsearch")
     logger.info("Performing Elasticsearch indexing setup")
     try:
         init_indexing(PROG, server_config, logger)
     except (NoOptionError, NoSectionError) as exc:
         logger.error("Invalid indexing configuration: {}", exc)
+        notifier.notify("STOPPING=1")
+        notifier.notify(f"STATUS=Invalid indexing config {exc}")
         return 1
 
-    logger.info("Generating new crontab file, if necessary")
-    ret_val = generate_crontab_if_necessary(
-        crontab_dir, server_config.BINDIR, server_config.log_dir, logger
-    )
-    if ret_val != 0:
-        return ret_val
+    notifier.notify("READY=1")
 
     # Beginning of the gunicorn command to start the pbench-server.
     cmd_line = [
@@ -198,8 +182,11 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
 
     cmd_line.append("pbench.cli.server.shell:app()")
     logger.info("Starting Gunicorn Pbench Server application")
+    notifier.notify("STATUS=Starting gunicorn")
     cp = subprocess.run(cmd_line, cwd=server_config.log_dir)
     logger.info("Gunicorn Pbench Server application exited with {}", cp.returncode)
+    notifier.notify(f"STATUS=Gunicorn terminated with {cp.returncode}")
+    notifier.notify("STOPPING=1")
     return cp.returncode
 
 
