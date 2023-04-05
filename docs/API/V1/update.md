@@ -3,7 +3,7 @@
 This API sets the access and/or name property of the identified dataset. The
 specified `<access>` can be either `private` or `public`, or the `access`
 query parameter can be omitted to set only the owner. The `<name>` can be
-any username know to the Pbench Server, or the `owner` query parameter can
+any username known to the Pbench Server, or the `owner` query parameter can
 be omitted to set only the access.
 
 ## URI parameters
@@ -21,13 +21,13 @@ to the owner.
 
 `owner` valid username \
 A valid Pbench Server username to be given ownership of the specified dataset.
-This requires the authenticated user to hold `ADMIN` role, essentially granting
+This requires the authenticated user to hold `ADMIN` role establishing
 full access to both the current and new owners.
 
 ## Request headers
 
 `authorization: bearer` token \
-*Bearer* schema authorization is required to access any non-public dataset.
+*Bearer* schema authorization is required to update a dataset.
 E.g., `authorization: bearer <token>`
 
 ## Response headers
@@ -48,8 +48,7 @@ See [Access model](../access_model.md)
 Successful request.
 
 `401`   **UNAUTHORIZED** \
-The client is not authenticated and does not have `UPDATE`` access to the specified
-dataset.
+The client is not authenticated.
 
 `403`   **FORBIDDEN** \
 The authenticated client does not have `UPDATE`` access to the specified dataset.

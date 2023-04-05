@@ -19,19 +19,12 @@ the administrator *role*, can UPDATE or DELETE the dataset.
 
 ## Roles
 
-The Pbench Server user model allows assigning an `ADMIN` role to one or more
-user accounts on the server. These users will be granted full CRUD access to
-all server data, including
+The Pbench Server acess model allows assigning an `ADMIN` role to one or more
+user accounts through the OIDC identity provider. These users will be granted
+full CRUD access to all server data, including
 
 - All datasets
-- All user profiles
 - Server configuration settings
-
-A user with the `ADMIN` role can use the [user](V1/user.md) (profile) API to
-assign the `ADMIN` role to other users. On installation of the Pbench Server
-there are no users with `ADMIN` role, so the server management CLI (described
-elsewhere) must be used to create an administrator account or assign the `ADMIN`
-role to some user.
 
 ## Groups
 

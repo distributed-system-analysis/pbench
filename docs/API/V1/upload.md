@@ -26,13 +26,14 @@ For example, `?access=public`
 `metadata` metadata keys \
 A set of desired Pbench Server metadata keys to be assigned to the new dataset.
 You can set the initial resource name (`dataset.name`), for example, as well as
-assigning any keys in the `global` and `user` namespaces.
+assigning any keys in the `global` and `user` namespaces. See
+[metadata](../metadata.md) for more information.
 
-In particular the `server.archiveonly` metadata key can be set to `false` to
-prevent the Pbench Server from unpacking or indexing the tarball, for example
-when the tarball doesn't contain the expected Pbench Agent `metadata.log`.
-The tarball will be archived on the server, is visible in the dataset
-collection and can be decorated with metadata, but won't be indexed.
+In particular the client can set the
+[default dataset name](../metadata.md#datasetname), the
+[dataset origin](../metadata.md#serverorigin),
+[disable indexing](../metadata.md#serverarchiveonly), and override the
+[default dataset expiration time](../metadata.md#serverdeletion).
 
 For example, `?metadata=server.archiveonly:true,global.project:oidc`
 

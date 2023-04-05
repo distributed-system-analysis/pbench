@@ -37,15 +37,13 @@ with the Pbench Server `realm` and `client` ID.
 
 ### `uri`
 
-A representation of the Pbench Server APIs supported on this server. Each is
-presented as a `name`, which is the key of the `uri` JSON object, containing
-`params` and `template` keys.
+A representation of the Pbench Server APIs supported on this server.
 
-#### name
+#### Name
 
-A convenient name key for the API. For example, to format a URI to get a list of
-datasets, `endpoints.uri.dataset_list` would return a JSON object describing the
-template and parameters for the API.
+The "name" of the API. For example, to query or set metadata for a dataset,
+`endpoints.uri.dataset_metadata` would return a JSON object describing the
+URI template and parameters for the API.
 
 ##### `template`
 
@@ -60,7 +58,7 @@ the main useful distinction here is that `string` means a simple undeliminated
 string whereas `path` refers to a `/`-separated string that resembles a UNIX file
 path.
 
-Each param name appears in the template in the form `{name}`, which is a convenient
+Each param name appears in the template in the form `{<name>}`, which is a convenient
 format for the Python `format` function.
 
 ```python
@@ -82,39 +80,18 @@ export const uriTemplate = (endpoints, name, args) => {
   return Object.entries(args).reduce(
     (uri, [key, value]) => uri.replace(`{${key}}`, value),
     endpoints.uri[name].template
-  )
+  );
 };
 
 let uri = uriTemplate(
     endpoints,
     'datasets_metadata',
     {dataset: resource_id}
-    )
+    );
 ```
 
 ```json
 {
-    "api": {
-        "datasets": "http://10.1.1.1:8080/api/v1/datasets",
-        "datasets_contents": "http://10.1.1.1:8080/api/v1/datasets/contents",
-        "datasets_daterange": "http://10.1.1.1:8080/api/v1/datasets/daterange",
-        "datasets_detail": "http://10.1.1.1:8080/api/v1/datasets/detail",
-        "datasets_inventory": "http://10.1.1.1:8080/api/v1/datasets/inventory",
-        "datasets_list": "http://10.1.1.1:8080/api/v1/datasets",
-        "datasets_mappings": "http://10.1.1.1:8080/api/v1/datasets/mappings",
-        "datasets_metadata": "http://10.1.1.1:8080/api/v1/datasets/metadata",
-        "datasets_namespace": "http://10.1.1.1:8080/api/v1/datasets/namespace",
-        "datasets_search": "http://10.1.1.1:8080/api/v1/datasets/search",
-        "datasets_values": "http://10.1.1.1:8080/api/v1/datasets/values",
-        "endpoints": "http://10.1.1.1:8080/api/v1/endpoints",
-        "login": "http://10.1.1.1:8080/api/v1/login",
-        "logout": "http://10.1.1.1:8080/api/v1/logout",
-        "register": "http://10.1.1.1:8080/api/v1/register",
-        "server_audit": "http://10.1.1.1:8080/api/v1/server/audit",
-        "server_settings": "http://10.1.1.1:8080/api/v1/server/settings",
-        "upload": "http://10.1.1.1:8080/api/v1/upload",
-        "user": "http://10.1.1.1:8080/api/v1/user"
-    },
     "identification": "Pbench server 1.0.0-85189370c",
     "openid": {
         "uri": "openid.example.com",

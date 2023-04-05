@@ -35,12 +35,6 @@ artifacts, and the archived tarball. The resource ID becomes invalid subsequentl
 unless a new dataset is created with the same checksum value. (This is highly
 unlikely, unless the same Pbench Agent tarball is uploaded again.)
 
-### Users
-
-User resources are identified by a `username` property, which must be unique
-among all users registered on the Pbench Server. The user resource has a
-"user profile" that includes first and last name, and a contact email.
-
 A user resource is the "owner" of each [dataset](#datasets) managed by the
 Pbench Server. If a user is deleted, then any datasets owned by that user
 become orphaned; datasets with `public` access are still accessible to other
@@ -66,22 +60,6 @@ is made PRIVATE, or if the user relies on a role or group (see
 [access model](../access_model.md)) to READ the dataset and that privilege is
 removed. In this case, however, the metadata values remain, and will become
 visible again if READ access is restored.
-
-## Login and registration
-
-You can register a new user (depending on the administration policy of the
-server) using the [register](register.md) API. If this succeeds, you can log in
-using the new username and password.
-
-You can log in as a registered user by calling the [login](login.md) API, which
-returns a bearer schema authentication token that should be provided to
-subsequent API calls using the `authorization` header.
-
-You can log out an active authentication token by passing it as the
-`authorization` header to the [logout](logout.md) API.
-
-While logged in, you can retrieve (`GET`) and modify (`PUT`) your user profile
-through the [user](user.md) API.
 
 ## Dataset metadata
 

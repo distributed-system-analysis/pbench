@@ -116,11 +116,12 @@ The response body is a serialized JSON object with the selected server settings.
 ## Response status
 
 `401`   **UNAUTHORIZED** \
-The client did not provide an authentication token.
+The client is attempting to change server settings with `PUT` and did not
+provide an authentication token.
 
 `403`   **FORBIDDEN** \
-The client's authentication token does not correspond to a user with `ADMIN`
-role.
+The client is attempting to change server settings with `PUT` and the provided
+authentication token does not correspond to a user with `ADMIN` role.
 
 ## Response body
 
