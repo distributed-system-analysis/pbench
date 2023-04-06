@@ -13,7 +13,6 @@ from flask_restful import Api
 from pbench.common.exceptions import ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources.datasets_daterange import DatasetsDateRange
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
@@ -66,12 +65,6 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         f"{base_uri}/datasets/<string:dataset>/contents/",
         f"{base_uri}/datasets/<string:dataset>/contents/<path:target>",
         endpoint="datasets_contents",
-        resource_class_args=(config,),
-    )
-    api.add_resource(
-        DatasetsDateRange,
-        f"{base_uri}/datasets/daterange",
-        endpoint="datasets_daterange",
         resource_class_args=(config,),
     )
     api.add_resource(

@@ -5,7 +5,7 @@ from urllib.parse import urlencode, urlparse
 from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
-from sqlalchemy import and_, cast, or_, String
+from sqlalchemy import and_, cast, func, or_, String
 from sqlalchemy.exc import ProgrammingError, StatementError
 from sqlalchemy.orm import aliased, Query
 from sqlalchemy.sql.expression import Alias
@@ -69,6 +69,7 @@ class DatasetsList(ApiBase):
                     Parameter("offset", ParamType.INT),
                     Parameter("limit", ParamType.INT),
                     # Output control
+                    Parameter("daterange", ParamType.BOOLEAN),
                     Parameter("keysummary", ParamType.BOOLEAN),
                     Parameter(
                         "metadata",
@@ -348,6 +349,27 @@ class DatasetsList(ApiBase):
                     self.accumulate(aggregate, m.key, m.value)
         return aggregate
 
+    def daterange(self, request: Request, json: JSONOBJECT, query: Query) -> JSONOBJECT:
+        """Return only the date range of the selected datasets.
+
+        Replace the selected "entities" (normally Dataset columns) with the
+        SQL min and max functions on the dataset upload timestamp so that the
+        generated SQL query will return a tuple of those two values.
+
+        Args:
+            request: The HTTP Request object
+            json: The JSON query parameters
+            query: The basic filtered SQLAlchemy query object
+
+        Returns:
+            The date range of the selected datasets
+        """
+        results = query.with_entities(
+            func.min(Dataset.uploaded), func.max(Dataset.uploaded)
+        ).first()
+
+        return {"from": results[0].isoformat(), "to": results[1].isoformat()}
+
     def datasets(self, request: Request, json: JSONOBJECT, query: Query) -> JSONOBJECT:
         """Gather and paginate the selected datasets
 
@@ -497,5 +519,7 @@ class DatasetsList(ApiBase):
         query = self._build_sql_query(owner, json.get("access"), query)
         if json.get("keysummary"):
             return jsonify(self.keyspace(query))
+        elif json.get("daterange"):
+            return jsonify(self.daterange(request, json, query))
         else:
             return jsonify(self.datasets(request, json, query))

@@ -22,6 +22,11 @@ authenticated user; specifying `private` will show only the authenticated user's
 private datasets, while specifying `public` will show only `public` datasets
 (regardless of ownership).
 
+`daterange` boolean \
+Instead of returning a filtered set of datasets, return only the upload
+timestamps of the oldest and most recent datasets in the filtered set. This
+can be useful for initializing a date picker, for example.
+
 `end` date/time \
 Select only datasets created on or before the specified time. Time should be
 specified in ISO standard format, as `YYYY-MM-DDThh:mm:ss.ffffff[+|-]HH:MM`.
@@ -146,6 +151,18 @@ body is an `application/json` document describing the current server state,
 a message, and optional JSON data provided by the system administrator.
 
 ## Response body
+
+### Dataset date range
+
+The `application/json` response body is a JSON object describing the earliest
+and most recent dataset upload time for the selected list of datasets.
+
+```json
+{
+    "from": "2023-03-17T03:14:02.013184+00:00",
+    "to": "2023-04-05T11:29:02.585772+00:00"
+}
+```
 
 ### Dataset list
 

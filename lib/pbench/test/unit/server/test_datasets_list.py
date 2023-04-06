@@ -698,3 +698,71 @@ class TestDatasetsList:
                 "origin": None,
             },
         }
+
+    def get_daterange_results(
+        self, name_list: list[str]
+    ) -> dict[str, datetime.datetime]:
+        """
+        Use a list of "expected results" to determine the earliest and the
+        latest creation date of the set of datasets.
+
+        Args:
+            name_list: List of dataset names
+
+        Returns:
+            {"from": first_date, "to": last_date}
+        """
+        from_time = datetime.datetime.now(datetime.timezone.utc)
+        to_time = datetime.datetime(
+            year=1970, month=1, day=1, tzinfo=datetime.timezone.utc
+        )
+        for name in sorted(name_list):
+            dataset = Dataset.query(name=name)
+            to_time = max(dataset.uploaded, to_time)
+            from_time = min(dataset.uploaded, from_time)
+        return {"from": from_time.isoformat(), "to": to_time.isoformat()}
+
+    @pytest.mark.parametrize(
+        "login,query,results",
+        [
+            ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
+            ("drb", {"mine": "true"}, ["drb", "fio_1"]),
+            ("drb", {"access": "public"}, ["fio_1", "fio_2"]),
+            ("test_admin", {"owner": "drb"}, ["drb", "fio_1"]),
+            ("drb", {}, ["drb", "fio_1", "fio_2"]),
+            (
+                "test",
+                {},
+                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            (
+                "test_admin",
+                {},
+                [
+                    "drb",
+                    "test",
+                    "fio_1",
+                    "fio_2",
+                    "uperf_1",
+                    "uperf_2",
+                    "uperf_3",
+                    "uperf_4",
+                ],
+            ),
+        ],
+    )
+    def test_dataset_daterange(self, query_as, login, query, results):
+        """
+        Test the operation of `GET datasets?daterange` against our set of test
+        datasets.
+
+        Args:
+            query_as: A fixture to provide a helper that executes the API call
+            login: The username as which to perform a query
+            query: A JSON representation of the query parameters (these will be
+                automatically supplemented with the "daterange" parameter)
+            results: A list of the dataset names we expect to be returned
+        """
+        query["daterange"] = "true"
+        result = query_as(query, login, HTTPStatus.OK)
+        assert result.json == self.get_daterange_results(results)
