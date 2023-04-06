@@ -34,7 +34,7 @@ server settings.
 
 ### Examples
 
-```
+```python
 GET /api/v1/server/settings/dataset-lifetime
 {
     "dataset-lifetime": "4"
@@ -83,7 +83,7 @@ the `value` query parameter. You can do this even if the value is a simple
 string, although it's more useful when you need to specify a JSON object value.
 For example,
 
-```
+```python
 PUT /api/v1/server/settings/server-state
 {
     "value": {"status": "enabled"}
@@ -94,7 +94,7 @@ If you omit the `{key}` value from the URI, specify all server settings you wish
 to change in the `application/json` request body. You can specify a single
 server setting, or any group of server settings at once. For example,
 
-```
+```python
 PUT /api/v1/server/settings/
 {
     "server-state": {"status": "disabled", "message": "down for maintenance"},
@@ -116,11 +116,12 @@ The response body is a serialized JSON object with the selected server settings.
 ## Response status
 
 `401`   **UNAUTHORIZED** \
-The client did not provide an authentication token.
+The client is attempting to change server settings with `PUT` and did not
+provide an authentication token.
 
 `403`   **FORBIDDEN** \
-The client's authentication token does not correspond to a user with `ADMIN`
-role.
+The client is attempting to change server settings with `PUT` and the provided
+authentication token does not correspond to a user with `ADMIN` role.
 
 ## Response body
 
@@ -129,12 +130,12 @@ The `application/json` response body for `PUT` is exactly the same as for
 only the server settings that were changed in the `PUT`.
 
 _This request:_
-```
+```python
 PUT /api/v1/server/settings/dataset-lifetime?value=4
 ```
 
 _returns this response:_
-```
+```python
 {
     "dataset-lifetime": "4"
 }
@@ -142,7 +143,7 @@ _returns this response:_
 
 
 _And this request:_
-```
+```python
 PUT /api/v1/server/settings
 {
     "dataset-lifetime": "4 days",
@@ -151,7 +152,7 @@ PUT /api/v1/server/settings
 ```
 
 _returns this response:_
-```
+```python
 {
     "dataset-lifetime": "4",
     "server-state": {"status": "enabled"}
@@ -174,7 +175,7 @@ The number of days is specified as an string representing an integer, optionally
 followed by a space and `day` or `days`. For example, "4" or "4 days" or "4 day"
 are equivalent.
 
-```
+```python
 {
     "dataset-lifetime": "4"
 }
@@ -194,7 +195,7 @@ any information in this JSON object.
 
 For example, the following are examples of valid banners:
 
-```
+```python
 {
     "server-banner": {
         "message": "Have a Happy Pbench Day"
@@ -202,7 +203,7 @@ For example, the following are examples of valid banners:
 }
 ```
 
-```
+```python
 {
     "server-banner": {
         "message": "The server will be down for 2 hours on Monday, July 31",

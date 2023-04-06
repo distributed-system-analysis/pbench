@@ -35,18 +35,6 @@ artifacts, and the archived tarball. The resource ID becomes invalid subsequentl
 unless a new dataset is created with the same checksum value. (This is highly
 unlikely, unless the same Pbench Agent tarball is uploaded again.)
 
-### Users
-
-User resources are identified by a `username` property, which must be unique
-among all users registered on the Pbench Server. The user resource has a
-"user profile" that includes first and last name, and a contact email.
-
-A user resource is the "owner" of each [dataset](#datasets) managed by the
-Pbench Server. If a user is deleted, then any datasets owned by that user
-become orphaned; datasets with PUBLIC access are still accessible to other
-users, and PRIVATE datasets are accessible through the `ADMIN` user role (see
-[access model](../access_model.md)).
-
 ### Metadata
 
 Metadata resources are secondary resources tied to a dataset resource and, for
@@ -67,22 +55,6 @@ is made PRIVATE, or if the user relies on a role or group (see
 removed. In this case, however, the metadata values remain, and will become
 visible again if READ access is restored.
 
-## Login and registration
-
-You can register a new user (depending on the administration policy of the
-server) using the [register](register.md) API. If this succeeds, you can log in
-using the new username and password.
-
-You can log in as a registered user by calling the [login](login.md) API, which
-returns a bearer schema authentication token that should be provided to
-subsequent API calls using the `authorization` header.
-
-You can log out an active authentication token by passing it as the
-`authorization` header to the [logout](logout.md) API.
-
-While logged in, you can retrieve (`GET`) and modify (`PUT`) your user profile
-through the [user](user.md) API.
-
 ## Dataset metadata
 
 You can read a more complete specification of Pbench Server metadata at
@@ -96,8 +68,8 @@ associated with the authorization token given to the Pbench Agent
 calculate a default deletion date for the dataset based on the owner's
 retention policy and the server administrator's retention policy.
 
-Clients can also set arbitrary metadata through the `dashboard` and `user`
-metadata namespaces. The `dashboard` namespace can only be modified by the
+Clients can also set arbitrary metadata in the `global` and `user`
+metadata namespaces. The `global` namespace can only be modified by the
 owner of the dataset, and is visible to anyone with read access to the dataset.
 The `user` namespace is private to each authenticated user, and even if you
 don't own a dataset you can set your own private `user` metadata to help you

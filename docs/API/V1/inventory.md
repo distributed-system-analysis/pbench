@@ -1,4 +1,4 @@
-# `GET /api/v1/datasets/inventory/<dataset><path>`
+# `GET /api/v1/datasets/<dataset>/inventory/[<path>]`
 
 This API returns an `application/octet-stream` document containing the raw byte
 stream of a regular file at the `<path>` within the `<dataset>` tarball
@@ -33,9 +33,11 @@ See [Access model](../access_model.md)
 
 ## Response status
 
+`200`   **OK** \
+Successful request.
+
 `401`   **UNAUTHORIZED** \
-The client is not authenticated and does not have READ access to the specified
-dataset.
+The client is not authenticated.
 
 `403`   **FORBIDDEN** \
 The authenticated client does not have READ access to the specified dataset.

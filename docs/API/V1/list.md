@@ -1,11 +1,15 @@
-# `GET /api/v1/datasets/list`
+# `GET /api/v1/datasets`
 
-This API returns an `application/json` document describing the set of datasets
-accessible to the client. (An unauthenticated client can only access "public"
-datasets.)
+This API returns an `application/json` document describing a filtered
+collection of datasets accessible to the client. (An unauthenticated client
+can only list datasets with access `public`.)
 
-The list of datasets may be further filtered by owner, access, name substring,
-or by creation date range using the query parameters.
+The collection of datasets may be filtered using any combination of a number
+of query parameters, including `owner`, `access`, `name` substring, date range,
+and arbitrary metadata filter expressions.
+
+Large collections can be paginated for efficiency using the `limit` and `offset`
+query parameters.
 
 ## Query parameters
 
@@ -25,6 +29,37 @@ If the timezone offset is omitted it will be assumed to be UTC (`+00:00`); if
 the time is omitted it will be assumed as midnight (`00:00:00`) on the
 specified date.
 
+`filter` metadata filtering \
+Select datasets matching the metadata expressions specified via `filter`
+query parameters. Each expression is the name of a metadata key (for example,
+`dataset.name`), followed by a colon (`:`) and the comparison string. The
+comparison string may be prefixed with a tilde (`~`) to make it a partial
+("contains") comparison instead of an exact match. For example,
+`dataset.name:foo` looks for datasets with the name "foo" exactly, whereas
+`dataset.name:~foo` looks for datasets with a name containing the substring
+"foo".
+
+These may be combined across multiple `filter` query parameters or as
+comma-separated lists in a single query parameter. Multiple filter expressions
+form an `AND` expression, however consecutive filter expressions can be joined
+in an `OR` expression by using the circumflex (`^`) character prior to each.
+(The first expression with `^` begins an `OR` list while the first subsequent
+expression outout `^` ends the `OR` list and is combined with an `AND`.)
+
+For example,
+- `filter=dataset.name:a,server.origin:EC2` returns datasets with a name of
+"a" and an origin of "EC2".
+- `filter=dataset.name:a,^server.origin:EC2,^dataset.metalog.pbench.script:fio`
+returns datasets with a name of "a" and *either* an origin of "EC2" or generated
+from the "pbench-fio" script.
+
+_NOTE_: `filter` expression values, like the `true` in
+`GET /api/v1/datasets?filter=server.archiveonly:true`, are always interpreted
+as strings, so be careful about the string representation of the value (in this
+case, a boolean, which is represented in JSON as `true` or `false`). Beware
+especially when attempting to match a JSON document (such as
+`dataset.metalog.pbench`).
+
 `limit` integer \
 "Paginate" the selected datasets by returning at most `limit` datasets. This
 can be used in conjunction with `offset` to progress through the full list in
@@ -39,6 +74,11 @@ example, the following are all equivalent:
 * `?metadata=dataset.created,server.deletion,user`
 * `?metadata=dataset.created&metadata=dataset.deletion,user`
 * `?metadata=dataset.created&metadata=dataset.deletion&metadata=user`
+
+`mine` boolean \
+Allows filtering for datasets owned by the authenticated client (if the value
+is omitted, e.g., `?mine` or `?mine=true`) or owned by *other* users (e.g.,
+`?mine=false`).
 
 `offset` integer \
 "Paginate" the selected datasets by skipping the first `offset` datasets that
@@ -56,6 +96,15 @@ specified in ISO standard format, as `YYYY-MM-DDThh:mm:ss.ffffff[+|-]HH:MM`.
 If the timezone offset is omitted it will be assumed to be UTC (`+00:00`); if
 the time is omitted it will be assumed as midnight (`00:00:00`) on the
 specified date.
+
+`keysummary` boolean \
+Instead of displaying a list of selected datasets and metadata, use the set of
+specified filters to accumulate a nested report on the metadata key namespace
+for the set of datasets. See [metadata](../metadata.md) for deails on the
+Pbench Server metadata namespaces. Because the `global` and `user` namespaces
+are completely dynamic, and the `dataset.metalog` sub-namespace varies greatly
+across Pbench Agent benchmark scripts, this mode provides a mechanism for a
+metadata visualizer to understand what's available for a set of datasets.
 
 ## Request headers
 
@@ -79,9 +128,12 @@ See [Access model](../access_model.md)
 
 ## Response status
 
+`200`   **OK** \
+Successful request.
+
 `401`   **UNAUTHORIZED** \
 The client did not provide an authentication token but asked to filter datasets
-by `owner` or `access=private`.
+by `owner`, `access=private`, `mine`, or asked for `user` namespace metadata.
 
 `403`   **FORBIDDEN** \
 The client asked to filter `access=private` datasets for an `owner` for which
@@ -95,8 +147,27 @@ a message, and optional JSON data provided by the system administrator.
 
 ## Response body
 
+### Dataset list
+
 The `application/json` response body contains a list of objects which describe
-the datasets selected by the specified query criteria.
+the datasets selected by the specified query criteria, along with the total
+number of matching datasets and a `next_url` to support pagination.
+
+#### next_url
+
+When pagination is used, this gives the full URI to acquire the next page using
+the same `metadata` and `limit` values. The client can simply `GET` this URI for
+the next page. When the entire collection has been returned, `next_url` will be
+null.
+
+#### total
+
+The total number of datasets matching the filter criteria regardless of the
+pagination settings.
+
+#### results
+
+The paginated dataset collection.
 
 Each of these objects contains the following fields:
 * `resource_id`: The internal unique ID of the dataset within the Pbench Server.
@@ -109,20 +180,138 @@ display purposes and must not be assumed to be unique or definitive.
 JSON object in this field.
 
 For example, the query
-`GET http://host/api/v1/datasets/list?metadata=user.dashboard.favorite`
+`GET http://host/api/v1/datasets/list?metadata=user.dashboard.favorite&limit=3`
 might return:
 
 ```json
-[
-    {
-        "name": "pbench-fio_config_2022-06-29:00:00:00",
-        "resource_id": "07f0a9cb817e258a54dbf3444abcd3aa",
-        "metadata": {"user.dashboard.favorite": true}
+{
+    "next_url": "http://pbench.example.com/api/v1/datasets?limit=3&metadata=user.dashboard.favorite&offset=3",
+    "results": [
+        {
+            "metadata": {
+                "user.dashboard.favorite": null
+            },
+            "name": "pbench-user-benchmark__2023.03.23T20.26.03",
+            "resource_id": "001ab7f04079f620f6f624b6eea913df"
+        },
+        {
+            "metadata": {
+                "user.dashboard.favorite": null
+            },
+            "name": "pbench-user-benchmark__2023.03.18T19.07.42",
+            "resource_id": "006fab853eb42907c6c202af1d6b750b"
+        },
+        {
+            "metadata": {
+                "user.dashboard.favorite": null
+            },
+            "name": "fio__2023.03.28T03.58.19",
+            "resource_id": "009ad5f818d9a32af6128dd2b0255161"
+        }
+    ],
+    "total": 722
+}
+```
+
+### Key namespace summary
+
+When the `keysummary` query parameter is `true` (e.g., either `?keysummary` or
+`?keysummary=true`), instead of reporting a list of datasets and metadata for
+each dataset, report a hierarchical representation of the aggregate metadata
+namespace across all selected datasets. This returns much less data and is not
+subject to pagination.
+
+"Leaf" nodes in the metadata tree are represented by `null` values while any
+key with children will be represented as a nested JSON object showing those
+child keys. From the example output below a client can identify many key paths
+including `dataset.access` and `dataset.metalog.controller.hostname`.
+
+Any of the partial or complete key paths represented in the output document are
+valid targets for metadata queries: for example `dataset.metalog.pbench.script`
+is a "leaf" node, but `GET /api/v1/datasets?metadata=dataset.metalog.pbench`
+will return a JSON document with the keys `config`, `date`, `hostname_f`,
+`hostname_ip`, `hostname_s`, `iterations`, `name`, `rpm-version`, `script`, and
+`tar-ball-creation-timestamp`.
+
+```json
+{
+    "dataset": {
+        "access": null,
+        "id": null,
+        "metalog": {
+            "controller": {
+                "hostname": null,
+                "hostname-alias": null,
+                "hostname-all-fqdns": null,
+                "hostname-all-ip-addresses": null,
+                "hostname-domain": null,
+                "hostname-fqdn": null,
+                "hostname-ip-address": null,
+                "hostname-nis": null,
+                "hostname-short": null,
+                "ssh_opts": null
+            },
+            "iterations/1-default": {
+                "iteration_name": null,
+                "iteration_number": null,
+                "user_script": null
+            },
+            "pbench": {
+                "config": null,
+                "date": null,
+                "hostname_f": null,
+                "hostname_ip": null,
+                "hostname_s": null,
+                "iterations": null,
+                "name": null,
+                "rpm-version": null,
+                "script": null,
+                "tar-ball-creation-timestamp": null
+            },
+            "run": {
+                "controller": null,
+                "end_run": null,
+                "raw_size": null,
+                "start_run": null
+            },
+            "tools": {
+                "group": null,
+                "hosts": null,
+                "trigger": null
+            },
+            "tools/dbutenho.bos.csb": {
+                "hostname-alias": null,
+                "hostname-all-fqdns": null,
+                "hostname-all-ip-addresses": null,
+                "hostname-domain": null,
+                "hostname-fqdn": null,
+                "hostname-ip-address": null,
+                "hostname-nis": null,
+                "hostname-short": null,
+                "label": null,
+                "rpm-version": null,
+                "tools": null,
+                "vmstat": null
+            },
+            "tools/dbutenho.bos.csb/vmstat": {
+                "install_check_output": null,
+                "install_check_status_code": null,
+                "options": null
+            }
+        },
+        "name": null,
+        "owner_id": null,
+        "resource_id": null,
+        "uploaded": null
     },
-    {
-        "name": "the dataset I created for fun",
-        "resource_id": "8322d8043755ccd33dc6d7091d1f9ff9",
-        "metadata": {"user.dashboard.favorite": false}
+    "server": {
+        "deletion": null,
+        "index-map": {
+            "container-pbench.v6.run-data.2023-03": null,
+            "container-pbench.v6.run-toc.2023-03": null
+        },
+        "origin": null,
+        "tarball-path": null
     }
-]
+}
 ```
