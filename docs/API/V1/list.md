@@ -11,6 +11,11 @@ and arbitrary metadata filter expressions.
 Large collections can be paginated for efficiency using the `limit` and `offset`
 query parameters.
 
+The `keysummary` and `daterange` query parameters (if `true`) select "summary"
+modes where aggregate metadata is returned without a list of datasets. These two
+may be used together, but cannot be used along with the normal collection list
+mode as they aren't subject to pagination.
+
 ## Query parameters
 
 `access`    string \
@@ -65,6 +70,15 @@ case, a boolean, which is represented in JSON as `true` or `false`). Beware
 especially when attempting to match a JSON document (such as
 `dataset.metalog.pbench`).
 
+`keysummary` boolean \
+Instead of displaying a list of selected datasets and metadata, use the set of
+specified filters to accumulate a nested report on the metadata key namespace
+for the set of datasets. See [metadata](../metadata.md) for deails on the
+Pbench Server metadata namespaces. Because the `global` and `user` namespaces
+are completely dynamic, and the `dataset.metalog` sub-namespace varies greatly
+across Pbench Agent benchmark scripts, this mode provides a mechanism for a
+metadata visualizer to understand what's available for a set of datasets.
+
 `limit` integer \
 "Paginate" the selected datasets by returning at most `limit` datasets. This
 can be used in conjunction with `offset` to progress through the full list in
@@ -101,15 +115,6 @@ specified in ISO standard format, as `YYYY-MM-DDThh:mm:ss.ffffff[+|-]HH:MM`.
 If the timezone offset is omitted it will be assumed to be UTC (`+00:00`); if
 the time is omitted it will be assumed as midnight (`00:00:00`) on the
 specified date.
-
-`keysummary` boolean \
-Instead of displaying a list of selected datasets and metadata, use the set of
-specified filters to accumulate a nested report on the metadata key namespace
-for the set of datasets. See [metadata](../metadata.md) for deails on the
-Pbench Server metadata namespaces. Because the `global` and `user` namespaces
-are completely dynamic, and the `dataset.metalog` sub-namespace varies greatly
-across Pbench Agent benchmark scripts, this mode provides a mechanism for a
-metadata visualizer to understand what's available for a set of datasets.
 
 ## Request headers
 
@@ -155,7 +160,9 @@ a message, and optional JSON data provided by the system administrator.
 ### Dataset date range
 
 The `application/json` response body is a JSON object describing the earliest
-and most recent dataset upload time for the selected list of datasets.
+and most recent dataset upload time for the selected list of datasets. If the
+collection filters exclude all datasets (the result set is empty), the return
+value will be empty, omitting both the `from` and `to` keywords.
 
 ```json
 {
@@ -234,9 +241,9 @@ might return:
 
 When the `keysummary` query parameter is `true` (e.g., either `?keysummary` or
 `?keysummary=true`), instead of reporting a list of datasets and metadata for
-each dataset, report a hierarchical representation of the aggregate metadata
-namespace across all selected datasets. This returns much less data and is not
-subject to pagination.
+each dataset, the `application/json` response body contains a hierarchical
+representation of the aggregate metadata namespace across all selected datasets.
+This returns much less data and is not subject to pagination.
 
 "Leaf" nodes in the metadata tree are represented by `null` values while any
 key with children will be represented as a nested JSON object showing those
@@ -252,83 +259,93 @@ will return a JSON document with the keys `config`, `date`, `hostname_f`,
 
 ```json
 {
-    "dataset": {
-        "access": null,
-        "id": null,
-        "metalog": {
-            "controller": {
-                "hostname": null,
-                "hostname-alias": null,
-                "hostname-all-fqdns": null,
-                "hostname-all-ip-addresses": null,
-                "hostname-domain": null,
-                "hostname-fqdn": null,
-                "hostname-ip-address": null,
-                "hostname-nis": null,
-                "hostname-short": null,
-                "ssh_opts": null
+    "keys": {
+        "dataset": {
+            "access": null,
+            "id": null,
+            "metalog": {
+                "controller": {
+                    "hostname": null,
+                    "hostname-alias": null,
+                    "hostname-all-fqdns": null,
+                    "hostname-all-ip-addresses": null,
+                    "hostname-domain": null,
+                    "hostname-fqdn": null,
+                    "hostname-ip-address": null,
+                    "hostname-nis": null,
+                    "hostname-short": null,
+                    "ssh_opts": null
+                },
+                "iterations/1-default": {
+                    "iteration_name": null,
+                    "iteration_number": null,
+                    "user_script": null
+                },
+                "pbench": {
+                    "config": null,
+                    "date": null,
+                    "hostname_f": null,
+                    "hostname_ip": null,
+                    "hostname_s": null,
+                    "iterations": null,
+                    "name": null,
+                    "rpm-version": null,
+                    "script": null,
+                    "tar-ball-creation-timestamp": null
+                },
+                "run": {
+                    "controller": null,
+                    "end_run": null,
+                    "raw_size": null,
+                    "start_run": null
+                },
+                "tools": {
+                    "group": null,
+                    "hosts": null,
+                    "trigger": null
+                },
+                "tools/dbutenho.bos.csb": {
+                    "hostname-alias": null,
+                    "hostname-all-fqdns": null,
+                    "hostname-all-ip-addresses": null,
+                    "hostname-domain": null,
+                    "hostname-fqdn": null,
+                    "hostname-ip-address": null,
+                    "hostname-nis": null,
+                    "hostname-short": null,
+                    "label": null,
+                    "rpm-version": null,
+                    "tools": null,
+                    "vmstat": null
+                },
+                "tools/dbutenho.bos.csb/vmstat": {
+                    "install_check_output": null,
+                    "install_check_status_code": null,
+                    "options": null
+                }
             },
-            "iterations/1-default": {
-                "iteration_name": null,
-                "iteration_number": null,
-                "user_script": null
-            },
-            "pbench": {
-                "config": null,
-                "date": null,
-                "hostname_f": null,
-                "hostname_ip": null,
-                "hostname_s": null,
-                "iterations": null,
-                "name": null,
-                "rpm-version": null,
-                "script": null,
-                "tar-ball-creation-timestamp": null
-            },
-            "run": {
-                "controller": null,
-                "end_run": null,
-                "raw_size": null,
-                "start_run": null
-            },
-            "tools": {
-                "group": null,
-                "hosts": null,
-                "trigger": null
-            },
-            "tools/dbutenho.bos.csb": {
-                "hostname-alias": null,
-                "hostname-all-fqdns": null,
-                "hostname-all-ip-addresses": null,
-                "hostname-domain": null,
-                "hostname-fqdn": null,
-                "hostname-ip-address": null,
-                "hostname-nis": null,
-                "hostname-short": null,
-                "label": null,
-                "rpm-version": null,
-                "tools": null,
-                "vmstat": null
-            },
-            "tools/dbutenho.bos.csb/vmstat": {
-                "install_check_output": null,
-                "install_check_status_code": null,
-                "options": null
-            }
+            "name": null,
+            "owner_id": null,
+            "resource_id": null,
+            "uploaded": null
         },
-        "name": null,
-        "owner_id": null,
-        "resource_id": null,
-        "uploaded": null
-    },
-    "server": {
-        "deletion": null,
-        "index-map": {
-            "container-pbench.v6.run-data.2023-03": null,
-            "container-pbench.v6.run-toc.2023-03": null
-        },
-        "origin": null,
-        "tarball-path": null
+        "server": {
+            "deletion": null,
+            "index-map": {
+                "container-pbench.v6.run-data.2023-03": null,
+                "container-pbench.v6.run-toc.2023-03": null
+            },
+            "origin": null,
+            "tarball-path": null
+        }
     }
 }
 ```
+
+### Combining key namespace summary and date range
+
+When both the `keysummary` and `daterange` query parameters are `true`, the
+`application/json` response body contains the `from`, `to`, and `keys` key
+values. If the selected collection filters produce no results, as with
+`daterange` alone, the `from` and `to` keys will be omitted and the value of
+`keys` will be an empty object.

@@ -347,9 +347,9 @@ class DatasetsList(ApiBase):
                     self.accumulate(aggregate["dataset"], m.key, m.value)
                 else:
                     self.accumulate(aggregate, m.key, m.value)
-        return aggregate
+        return {"keys": aggregate}
 
-    def daterange(self, request: Request, json: JSONOBJECT, query: Query) -> JSONOBJECT:
+    def daterange(self, query: Query) -> JSONOBJECT:
         """Return only the date range of the selected datasets.
 
         Replace the selected "entities" (normally Dataset columns) with the
@@ -357,8 +357,6 @@ class DatasetsList(ApiBase):
         generated SQL query will return a tuple of those two values.
 
         Args:
-            request: The HTTP Request object
-            json: The JSON query parameters
             query: The basic filtered SQLAlchemy query object
 
         Returns:
@@ -368,7 +366,10 @@ class DatasetsList(ApiBase):
             func.min(Dataset.uploaded), func.max(Dataset.uploaded)
         ).first()
 
-        return {"from": results[0].isoformat(), "to": results[1].isoformat()}
+        if results and results[0] and results[1]:
+            return {"from": results[0].isoformat(), "to": results[1].isoformat()}
+        else:
+            return {}
 
     def datasets(self, request: Request, json: JSONOBJECT, query: Query) -> JSONOBJECT:
         """Gather and paginate the selected datasets
@@ -517,9 +518,20 @@ class DatasetsList(ApiBase):
         else:
             owner = json.get("owner")
         query = self._build_sql_query(owner, json.get("access"), query)
+        result = {}
+        done = False
+
+        # We can do "keysummary" and "daterange", but, as it makes no real
+        # sense to paginate either, we don't support them in combination with
+        # a normal list query. So we will perform either/or keysummary and
+        # daterange, and acquire a normal list of datasets only if neither was
+        # specified.
         if json.get("keysummary"):
-            return jsonify(self.keyspace(query))
-        elif json.get("daterange"):
-            return jsonify(self.daterange(request, json, query))
-        else:
-            return jsonify(self.datasets(request, json, query))
+            result.update(self.keyspace(query))
+            done = True
+        if json.get("daterange"):
+            result.update(self.daterange(query))
+            done = True
+        if not done:
+            result = self.datasets(request, json, query)
+        return jsonify(result)

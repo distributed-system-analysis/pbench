@@ -670,33 +670,35 @@ class TestDatasetsList:
         Metadata.setvalue(dataset=fio_1, key="global.legacy.server", value="ABC")
         response = query_as({"keysummary": "true"}, "drb", HTTPStatus.OK)
         assert response.json == {
-            "dataset": {
-                "access": None,
-                "id": None,
-                "metalog": {
-                    "pbench": {
-                        "config": None,
-                        "date": None,
-                        "name": None,
-                        "script": None,
+            "keys": {
+                "dataset": {
+                    "access": None,
+                    "id": None,
+                    "metalog": {
+                        "pbench": {
+                            "config": None,
+                            "date": None,
+                            "name": None,
+                            "script": None,
+                        },
+                        "run": {"controller": None},
                     },
-                    "run": {"controller": None},
+                    "name": None,
+                    "owner_id": None,
+                    "resource_id": None,
+                    "uploaded": None,
                 },
-                "name": None,
-                "owner_id": None,
-                "resource_id": None,
-                "uploaded": None,
-            },
-            "global": {"contact": None, "legacy": {"server": None}},
-            "server": {
-                "deletion": None,
-                "index-map": {
-                    "unit-test.v5.result-data-sample.2020-08": None,
-                    "unit-test.v6.run-data.2020-08": None,
-                    "unit-test.v6.run-toc.2020-05": None,
+                "global": {"contact": None, "legacy": {"server": None}},
+                "server": {
+                    "deletion": None,
+                    "index-map": {
+                        "unit-test.v5.result-data-sample.2020-08": None,
+                        "unit-test.v6.run-data.2020-08": None,
+                        "unit-test.v6.run-toc.2020-05": None,
+                    },
+                    "origin": None,
                 },
-                "origin": None,
-            },
+            }
         }
 
     def get_daterange_results(
@@ -711,15 +713,15 @@ class TestDatasetsList:
 
         Returns:
             {"from": first_date, "to": last_date}
+
+            or
+
+            {} if the list is empty
         """
-        from_time = datetime.datetime.now(datetime.timezone.utc)
-        to_time = datetime.datetime(
-            year=1970, month=1, day=1, tzinfo=datetime.timezone.utc
-        )
-        for name in sorted(name_list):
-            dataset = Dataset.query(name=name)
-            to_time = max(dataset.uploaded, to_time)
-            from_time = min(dataset.uploaded, from_time)
+        if not name_list:
+            return {}
+        to_time = max(Dataset.query(name=n).uploaded for n in name_list)
+        from_time = min(Dataset.query(name=n).uploaded for n in name_list)
         return {"from": from_time.isoformat(), "to": to_time.isoformat()}
 
     @pytest.mark.parametrize(
@@ -728,6 +730,7 @@ class TestDatasetsList:
             ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
             ("drb", {"mine": "true"}, ["drb", "fio_1"]),
             ("drb", {"access": "public"}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "noname"}, []),
             ("test_admin", {"owner": "drb"}, ["drb", "fio_1"]),
             ("drb", {}, ["drb", "fio_1", "fio_2"]),
             (
@@ -766,3 +769,44 @@ class TestDatasetsList:
         query["daterange"] = "true"
         result = query_as(query, login, HTTPStatus.OK)
         assert result.json == self.get_daterange_results(results)
+
+    def test_key_and_dates(self, query_as):
+        """Test keyspace summary in combination with date range
+
+        This tests that we can use "keysummary" and "daterange" together.
+        """
+        response = query_as(
+            {"keysummary": "true", "daterange": "true"}, "drb", HTTPStatus.OK
+        )
+        assert response.json == {
+            "from": "1978-06-26T08:00:00+00:00",
+            "to": "2022-01-01T00:00:00+00:00",
+            "keys": {
+                "dataset": {
+                    "access": None,
+                    "id": None,
+                    "metalog": {
+                        "pbench": {
+                            "config": None,
+                            "date": None,
+                            "name": None,
+                            "script": None,
+                        },
+                        "run": {"controller": None},
+                    },
+                    "name": None,
+                    "owner_id": None,
+                    "resource_id": None,
+                    "uploaded": None,
+                },
+                "global": {"contact": None},
+                "server": {
+                    "deletion": None,
+                    "index-map": {
+                        "unit-test.v5.result-data-sample.2020-08": None,
+                        "unit-test.v6.run-data.2020-08": None,
+                        "unit-test.v6.run-toc.2020-05": None,
+                    },
+                },
+            },
+        }
