@@ -1,10 +1,7 @@
 from http import HTTPStatus
 import logging
 import os
-
-# python >= 3.10 - :-(
-# from types import NoneType
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 from click.testing import CliRunner
 import pytest
@@ -29,7 +26,7 @@ class TestResultsPush:
 
     @staticmethod
     def add_http_mock_response(
-        status_code: HTTPStatus = None, message: Union[str, Dict, type(None)] = None
+        status_code: HTTPStatus = None, message: Optional[Union[str, Dict]] = None
     ):
         if status_code:
             if message is None:
@@ -45,14 +42,6 @@ class TestResultsPush:
                     status=status_code,
                     json=message,
                 )
-            # I can only add a `json' attribute to the response. Trying `text' or `reason' makes
-            # responses.add() barf:
-            #   File "/var/tmp/nick/tox/py39/lib/python3.9/site-packages/responses/__init__.py", line 770, in add
-            #     response = Response(method=method, url=url, body=body, **kwargs)
-            #   File "/var/tmp/nick/tox/py39/lib/python3.9/site-packages/responses/__init__.py", line 563, in __init__
-            #     super().__init__(method, url, **kwargs)
-            # TypeError: __init__() got an unexpected keyword argument 'reason'
-
         else:
             responses.add(
                 responses.PUT,
