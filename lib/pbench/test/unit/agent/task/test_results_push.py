@@ -2,7 +2,12 @@ from http import HTTPStatus
 import logging
 import os
 
+# python >= 3.10 - :-(
+# from types import NoneType
+from typing import Dict, Union
+
 from click.testing import CliRunner
+import pytest
 import requests
 import responses
 
@@ -23,13 +28,36 @@ class TestResultsPush:
     URL = "http://pbench.example.com/api/v1"
 
     @staticmethod
-    def add_http_mock_response(code: HTTPStatus = HTTPStatus.OK, message: str = ""):
-        responses.add(
-            responses.PUT,
-            f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
-            status=code,
-            json={"message": message},
-        )
+    def add_http_mock_response(
+        status_code: HTTPStatus = None, message: Union[str, Dict, type(None)] = None
+    ):
+        if status_code:
+            if message is None:
+                responses.add(
+                    responses.PUT,
+                    f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
+                    status=status_code,
+                )
+            elif isinstance(message, dict):
+                responses.add(
+                    responses.PUT,
+                    f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
+                    status=status_code,
+                    json=message,
+                )
+            # I can only add a `json' attribute to the response. Trying `text' or `reason' makes
+            # responses.add() barf:
+            #   File "/var/tmp/nick/tox/py39/lib/python3.9/site-packages/responses/__init__.py", line 770, in add
+            #     response = Response(method=method, url=url, body=body, **kwargs)
+            #   File "/var/tmp/nick/tox/py39/lib/python3.9/site-packages/responses/__init__.py", line 563, in __init__
+            #     super().__init__(method, url, **kwargs)
+            # TypeError: __init__() got an unexpected keyword argument 'reason'
+
+        else:
+            responses.add(
+                responses.PUT,
+                f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
+            )
 
     @staticmethod
     def add_connectionerr_mock_response():
@@ -79,12 +107,9 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 2
-        assert (
-            result.stderr.find(
-                "Invalid value for 'RESULT_TB_NAME': "
-                "File 'nothing.tar.xz' does not exist."
-            )
-            > -1
+        assert result.stderr.find(
+            "Invalid value for 'RESULT_TB_NAME': "
+            "File 'nothing.tar.xz' does not exist."
         )
 
     @staticmethod
@@ -177,10 +202,24 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_normal_created():
+    @pytest.mark.parametrize(
+        "status_code,message,exit_code",
+        (
+            (HTTPStatus.CREATED, None, 0),
+            (HTTPStatus.OK, {"message": "Dup"}, 0),
+            (HTTPStatus.NO_CONTENT, {"message": "No content"}, 0),
+            (
+                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                {"message": "Request Entity Too Large"},
+                1,
+            ),
+            (HTTPStatus.NOT_FOUND, {"message": "Not Found"}, 1),
+        ),
+    )
+    def test_push_status(status_code, message, exit_code):
         """Test normal operation when all arguments and options are specified"""
 
-        TestResultsPush.add_http_mock_response(code=HTTPStatus.CREATED)
+        TestResultsPush.add_http_mock_response(status_code, message)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -194,8 +233,9 @@ class TestResultsPush:
                 tarball,
             ],
         )
-        assert result.exit_code == 0, result.stderr
+        assert result.exit_code == exit_code, result.stderr
         assert result.stdout == ""
+        assert result.stderr.strip() == "" if not message else message["message"]
 
     @staticmethod
     @responses.activate
@@ -203,7 +243,8 @@ class TestResultsPush:
         """Test normal operation when all arguments and options are specified"""
 
         TestResultsPush.add_http_mock_response(
-            code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE, message="Request Entity Too Large"
+            status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+            message={"message": "Request Entity Too Large"},
         )
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
@@ -290,7 +331,7 @@ class TestResultsPush:
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
         TestResultsPush.add_http_mock_response(
-            HTTPStatus.NOT_FOUND, message="Not Found"
+            HTTPStatus.NOT_FOUND, message={"message": "Not Found"}
         )
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
