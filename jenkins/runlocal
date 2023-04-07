@@ -38,7 +38,7 @@ if [[ -z ${BASE_IMAGE} ]]; then
     elif [[ ${ID} == "centos" && "${major}" == "9" ]]; then
         # Only CentOS 9 is supported
         BASE_IMAGE=${ID}:stream${major}
-    elif [[ ${ID} == "rhel" && "" == "9" ]]; then
+    elif [[ ${ID} == "rhel" && "${major}" == "9" ]]; then
         # Only RHEL 9 is supported
         BASE_IMAGE=ubi${major}:latest
     else
