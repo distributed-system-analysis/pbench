@@ -42,18 +42,20 @@ class TestCopyResults:
         bad_tarball_name = "nonexistent-tarball.tar.xz"
         expected_error_message = f"Tar ball '{bad_tarball_name}' does not exist"
 
-        monkeypatch.setattr(
-            Path, "exists", self.get_path_exists_mock(bad_tarball_name, False)
-        )
-
-        with pytest.raises(FileNotFoundError) as excinfo:
-            CopyResultTb(
-                bad_tarball_name,
-                0,
-                "ignoremd5",
-                self.config,
-                agent_logger,
+        with monkeypatch.context() as m:
+            m.setattr(
+                Path, "exists", self.get_path_exists_mock(bad_tarball_name, False)
             )
+
+            with pytest.raises(FileNotFoundError) as excinfo:
+                CopyResultTb(
+                    bad_tarball_name,
+                    0,
+                    "ignoremd5",
+                    self.config,
+                    agent_logger,
+                )
+
         assert str(excinfo.value).endswith(
             expected_error_message
         ), f"expected='...{expected_error_message}', found='{str(excinfo.value)}'"
@@ -70,7 +72,7 @@ class TestCopyResults:
             else:
                 assert "access" in request.params
                 assert request.params["access"] == access
-            return HTTPStatus.OK, {}, ""
+            return HTTPStatus.CREATED, {}, ""
 
         responses.add_callback(
             responses.PUT,
@@ -78,24 +80,25 @@ class TestCopyResults:
             callback=request_callback,
         )
 
-        monkeypatch.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
-        monkeypatch.setattr(
-            Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
-        )
+        with monkeypatch.context() as m:
+            m.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
+            m.setattr(
+                Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
+            )
 
-        crt = CopyResultTb(
-            tb_name,
-            len(tb_contents),
-            "someMD5",
-            self.config,
-            agent_logger,
-        )
-        if access is None:
-            res = crt.copy_result_tb("token")
-        else:
-            res = crt.copy_result_tb("token", access)
+            crt = CopyResultTb(
+                tb_name,
+                len(tb_contents),
+                "someMD5",
+                self.config,
+                agent_logger,
+            )
+            if access is None:
+                res = crt.copy_result_tb("token")
+            else:
+                res = crt.copy_result_tb("token", access)
 
-        assert res.ok
+        assert res.status_code == HTTPStatus.CREATED
         # If we got this far without an exception, then the test passes.
 
     @responses.activate
@@ -113,7 +116,7 @@ class TestCopyResults:
                 assert request.params["metadata"] == metadata
             else:
                 assert "metadata" not in request.params
-            return HTTPStatus.OK, {}, ""
+            return HTTPStatus.CREATED, {}, ""
 
         responses.add_callback(
             responses.PUT,
@@ -121,24 +124,25 @@ class TestCopyResults:
             callback=request_callback,
         )
 
-        monkeypatch.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
-        monkeypatch.setattr(
-            Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
-        )
+        with monkeypatch.context() as m:
+            m.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
+            m.setattr(
+                Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
+            )
 
-        crt = CopyResultTb(
-            tb_name,
-            len(tb_contents),
-            "someMD5",
-            self.config,
-            agent_logger,
-        )
-        if metadata is None:
-            res = crt.copy_result_tb("token")
-        else:
-            res = crt.copy_result_tb("token", access, metadata)
+            crt = CopyResultTb(
+                tb_name,
+                len(tb_contents),
+                "someMD5",
+                self.config,
+                agent_logger,
+            )
+            if metadata is None:
+                res = crt.copy_result_tb("token")
+            else:
+                res = crt.copy_result_tb("token", access, metadata)
 
-        assert res.ok
+        assert res.status_code == HTTPStatus.CREATED
         # If we got this far without an exception, then the test passes.
 
     @responses.activate
@@ -151,20 +155,22 @@ class TestCopyResults:
             responses.PUT, upload_url, body=requests.exceptions.ConnectionError("uh-oh")
         )
 
-        monkeypatch.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
-        monkeypatch.setattr(
-            Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
-        )
-
-        with pytest.raises(RuntimeError) as excinfo:
-            crt = CopyResultTb(
-                tb_name,
-                len(tb_contents),
-                "someMD5",
-                self.config,
-                agent_logger,
+        with monkeypatch.context() as m:
+            m.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
+            m.setattr(
+                Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
             )
-            crt.copy_result_tb("token")
+
+            with pytest.raises(RuntimeError) as excinfo:
+                crt = CopyResultTb(
+                    tb_name,
+                    len(tb_contents),
+                    "someMD5",
+                    self.config,
+                    agent_logger,
+                )
+                res = crt.copy_result_tb("token")
+                assert not res.ok
 
         assert str(excinfo.value).startswith(
             expected_error_message
@@ -178,18 +184,21 @@ class TestCopyResults:
 
         responses.add(responses.PUT, upload_url, body=RuntimeError("uh-oh"))
 
-        monkeypatch.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
-        monkeypatch.setattr(
-            Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
-        )
-
-        with pytest.raises(CopyResultTb.FileUploadError) as excinfo:
-            crt = CopyResultTb(
-                tb_name,
-                len(tb_contents),
-                "someMD5",
-                self.config,
-                agent_logger,
+        with monkeypatch.context() as m:
+            m.setattr(Path, "exists", self.get_path_exists_mock(tb_name, True))
+            m.setattr(
+                Path, "open", self.get_path_open_mock(tb_name, io.StringIO(tb_contents))
             )
-            crt.copy_result_tb("token")
+
+            with pytest.raises(CopyResultTb.FileUploadError) as excinfo:
+                crt = CopyResultTb(
+                    tb_name,
+                    len(tb_contents),
+                    "someMD5",
+                    self.config,
+                    agent_logger,
+                )
+                res = crt.copy_result_tb("token")
+                assert not res.ok
+
         assert "something wrong" in str(excinfo.value)
