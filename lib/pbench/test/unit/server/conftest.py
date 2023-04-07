@@ -386,10 +386,10 @@ def more_datasets(
         test        20 private  1970-01-01:00:42
         fio_1        3 public   1978-06-26:08:00
         fio_2       20 public   2022-01-01:00:00
-        uperf_1     20 private  1978-06-26:08:00
-        uperf_2     20 private  1978-06-26:08:00
-        uperf_3     20 private  1978-06-26:08:00
-        uperf_4     20 private  1978-06-26:08:00
+        uperf_1     20 private  1978-06-26:08:10
+        uperf_2     20 private  1978-06-26:09:01
+        uperf_3     20 private  1978-06-26:09:30
+        uperf_4     20 private  1978-06-26:10:00
 
     Args:
         client: Provide a Flask API client
@@ -399,44 +399,48 @@ def more_datasets(
         attach_dataset: Provide some datasets
         create_user: Create the "test" user
     """
-    with freeze_time("1978-06-26 08:00:00"):
-        Dataset(
-            owner=create_drb_user,
-            name="fio_1",
-            access="public",
-            resource_id="random_md5_string3",
-        ).add()
-        Dataset(
-            owner=create_user,
-            uploaded=datetime.datetime(2022, 1, 1),
-            name="fio_2",
-            access="public",
-            resource_id="random_md5_string4",
-        ).add()
-        Dataset(
-            owner=create_user,
-            name="uperf_1",
-            access="private",
-            resource_id="random_md5_string5",
-        ).add()
-        Dataset(
-            owner=create_user,
-            name="uperf_2",
-            access="private",
-            resource_id="random_md5_string6",
-        ).add()
-        Dataset(
-            owner=create_user,
-            name="uperf_3",
-            access="private",
-            resource_id="random_md5_string7",
-        ).add()
-        Dataset(
-            owner=create_user,
-            name="uperf_4",
-            access="private",
-            resource_id="random_md5_string8",
-        ).add()
+    Dataset(
+        owner=create_drb_user,
+        uploaded=datetime.datetime(1978, 6, 26, 8, 0, 0, 0),
+        name="fio_1",
+        access="public",
+        resource_id="random_md5_string3",
+    ).add()
+    Dataset(
+        owner=create_user,
+        uploaded=datetime.datetime(2022, 1, 1),
+        name="fio_2",
+        access="public",
+        resource_id="random_md5_string4",
+    ).add()
+    Dataset(
+        owner=create_user,
+        uploaded=datetime.datetime(1978, 6, 26, 8, 1, 0, 0),
+        name="uperf_1",
+        access="private",
+        resource_id="random_md5_string5",
+    ).add()
+    Dataset(
+        owner=create_user,
+        uploaded=datetime.datetime(1978, 6, 26, 9, 0, 0, 0),
+        name="uperf_2",
+        access="private",
+        resource_id="random_md5_string6",
+    ).add()
+    Dataset(
+        owner=create_user,
+        uploaded=datetime.datetime(1978, 6, 26, 9, 30, 0, 0),
+        name="uperf_3",
+        access="private",
+        resource_id="random_md5_string7",
+    ).add()
+    Dataset(
+        owner=create_user,
+        uploaded=datetime.datetime(1978, 6, 26, 10, 0, 0, 0),
+        name="uperf_4",
+        access="private",
+        resource_id="random_md5_string8",
+    ).add()
 
 
 @pytest.fixture()

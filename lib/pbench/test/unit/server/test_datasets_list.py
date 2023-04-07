@@ -5,7 +5,7 @@ from typing import Optional
 
 import pytest
 import requests
-from sqlalchemy import and_
+from sqlalchemy import and_, desc
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import aliased, Query
 
@@ -14,6 +14,7 @@ from pbench.server.api.resources import APIAbort
 from pbench.server.api.resources.datasets_list import DatasetsList, urlencode_json
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.users import User
 from pbench.test.unit.server import DRB_USER_ID
 
 FLATTEN = re.compile(r"[\n\s]+")
@@ -147,7 +148,7 @@ class TestDatasetsList:
             paginated_name_list = name_list[offset:]
             next_url = ""
 
-        for name in sorted(paginated_name_list):
+        for name in paginated_name_list:
             dataset = Dataset.query(name=name)
             results.append(
                 {
@@ -175,8 +176,8 @@ class TestDatasetsList:
         expected = self.get_results(name_list, query, server_config)
         for k, v in result.items():
             if k == "results":
-                assert sorted(v, key=lambda d: d["resource_id"]) == sorted(
-                    expected[k], key=lambda d: d["resource_id"]
+                assert (
+                    v == expected[k]
                 ), f"Actual {k}={v} doesn't match expected {expected[k]}"
             else:
                 assert (
@@ -810,3 +811,76 @@ class TestDatasetsList:
                 },
             },
         }
+
+    @pytest.mark.parametrize(
+        "sort,results",
+        [
+            (
+                "dataset.name",
+                ["fio_1", "fio_2", "test", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            (
+                "dataset.name:asc",
+                ["fio_1", "fio_2", "test", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            (
+                "dataset.name:desc",
+                ["uperf_4", "uperf_3", "uperf_2", "uperf_1", "test", "fio_2", "fio_1"],
+            ),
+            (
+                "dataset.uploaded",
+                ["test", "fio_1", "uperf_1", "uperf_2", "uperf_3", "uperf_4", "fio_2"],
+            ),
+            (
+                "dataset.uploaded:desc",
+                ["fio_2", "uperf_4", "uperf_3", "uperf_2", "uperf_1", "fio_1", "test"],
+            ),
+            (
+                "dataset.metalog.run.controller",
+                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            (
+                "global.test.sequence:desc",
+                ["fio_1", "fio_2", "test", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            (
+                "global.test.sequence",
+                ["uperf_4", "uperf_3", "uperf_2", "uperf_1", "test", "fio_2", "fio_1"],
+            ),
+            (
+                "user.test.odd,global.test.sequence:desc",
+                ["fio_1", "test", "uperf_2", "uperf_4", "fio_2", "uperf_1", "uperf_3"],
+            ),
+            (
+                "user.test.odd:desc,dataset.name:desc",
+                ["uperf_3", "uperf_1", "fio_2", "uperf_4", "uperf_2", "test", "fio_1"],
+            ),
+        ],
+    )
+    def test_dataset_sort(self, server_config, query_as, sort, results):
+        """Test `datasets/list?sort`
+
+        We want a couple of consistent values sequences to play with. We can
+        use the dataset.name and dataset.resource_id fields, but we want to
+        cross Metadata namespaces, so add "global" and "user" keys we can
+        order.
+
+        Args:
+            server_config: The PbenchServerConfig object
+            query_as: A fixture to provide a helper that executes the API call
+            login: The username as which to perform a query
+            query: A JSON representation of the query parameters (these will be
+                automatically supplemented with a metadata request term)
+            results: A list of the dataset names we expect to be returned
+        """
+
+        # Assign "sequence numbers" in the inverse order of name
+        test = User.query(username="test")
+        all = Database.db_session.query(Dataset).order_by(desc(Dataset.name)).all()
+        for i, d in enumerate(all):
+            odd = i & 1
+            Metadata.setvalue(d, "global.test.sequence", i)
+            Metadata.setvalue(d, "user.test.odd", odd, user=test)
+        query = {"sort": sort, "metadata": ["dataset.uploaded"]}
+        result = query_as(query, "test", HTTPStatus.OK)
+        self.compare_results(result.json, results, query, server_config)
