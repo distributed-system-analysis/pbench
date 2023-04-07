@@ -170,6 +170,9 @@ class TestCopyResults:
                     agent_logger,
                 )
                 res = crt.copy_result_tb("token")
+                # we should never get here but flake8 flakes out
+                # complaining about the unused variable, so we
+                # might as well use it.
                 assert not res.ok
 
         assert str(excinfo.value).startswith(
@@ -199,6 +202,9 @@ class TestCopyResults:
                     agent_logger,
                 )
                 res = crt.copy_result_tb("token")
+                # we should never get here but flake8 flakes out
+                # complaining about the unused variable, so we
+                # might as well use it.
                 assert not res.ok
 
         assert "something wrong" in str(excinfo.value)

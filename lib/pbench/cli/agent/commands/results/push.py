@@ -19,20 +19,16 @@ class ResultsPush(BaseCommand):
 
     def execute(self) -> int:
         tarball_len, tarball_md5 = md5sum(self.context.result_tb_name)
-        try:
-            crt = CopyResultTb(
-                self.context.result_tb_name,
-                tarball_len,
-                tarball_md5,
-                self.config,
-                self.logger,
-            )
-            res = crt.copy_result_tb(
-                self.context.token, self.context.access, self.context.metadata
-            )
-        except (RuntimeError, CopyResultTb.FileUploadError) as e:
-            click.echo(e.args[0], err=True)
-            return 1
+        crt = CopyResultTb(
+            self.context.result_tb_name,
+            tarball_len,
+            tarball_md5,
+            self.config,
+            self.logger,
+        )
+        res = crt.copy_result_tb(
+            self.context.token, self.context.access, self.context.metadata
+        )
 
         # success
         if res.status_code == HTTPStatus.CREATED:
