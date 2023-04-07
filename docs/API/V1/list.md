@@ -81,7 +81,7 @@ are completely dynamic, and the `dataset.metalog` sub-namespace varies greatly
 across Pbench Agent benchmark scripts, this mode provides a mechanism for a
 metadata visualizer to understand what's available for a set of datasets. If no
 datasets are selected by the specified filters, the `keys` key (see
-[results](#key-namespace-summary) will be set to an empty object.
+[results](#key-namespace-summary)) will be set to an empty object.
 
 `limit` integer \
 "Paginate" the selected datasets by returning at most `limit` datasets. This
