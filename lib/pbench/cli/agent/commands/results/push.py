@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from pathlib import Path
 from typing import List
 
@@ -34,7 +35,7 @@ class ResultsPush(BaseCommand):
             return 1
 
         # success
-        if res.status_code == 201:
+        if res.status_code == HTTPStatus.CREATED:
             return 0
 
         try:
