@@ -332,14 +332,15 @@ class DatasetsList(ApiBase):
         Returns:
             The aggregated keyspace JSON object
         """
-        aggregate: JSONOBJECT = {
-            "dataset": {c.name: None for c in Dataset.__table__._columns}
-        }
-
         Database.dump_query(query, current_app.logger)
+        aggregate: JSONOBJECT = {}
 
         datasets = query.all()
         for d in datasets:
+            if not aggregate:
+                aggregate.update(
+                    {"dataset": {c.name: None for c in Dataset.__table__._columns}}
+                )
             for m in d.metadatas:
                 # "metalog" is a top-level key in the Metadata schema, but we
                 # report it as a sub-key of "dataset".

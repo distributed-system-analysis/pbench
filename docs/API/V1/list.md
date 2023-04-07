@@ -30,7 +30,9 @@ private datasets, while specifying `public` will show only `public` datasets
 `daterange` boolean \
 Instead of returning a filtered set of datasets, return only the upload
 timestamps of the oldest and most recent datasets in the filtered set. This
-can be useful for initializing a date picker, for example.
+may be useful for initializing a date picker. If no datasets are selected by
+the specified filters, the `from` and `to` keys (see
+[results](#dataset-date-range)) will not be returned.
 
 `end` date/time \
 Select only datasets created on or before the specified time. Time should be
@@ -77,7 +79,9 @@ for the set of datasets. See [metadata](../metadata.md) for deails on the
 Pbench Server metadata namespaces. Because the `global` and `user` namespaces
 are completely dynamic, and the `dataset.metalog` sub-namespace varies greatly
 across Pbench Agent benchmark scripts, this mode provides a mechanism for a
-metadata visualizer to understand what's available for a set of datasets.
+metadata visualizer to understand what's available for a set of datasets. If no
+datasets are selected by the specified filters, the `keys` key (see
+[results](#key-namespace-summary) will be set to an empty object.
 
 `limit` integer \
 "Paginate" the selected datasets by returning at most `limit` datasets. This
