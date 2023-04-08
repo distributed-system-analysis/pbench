@@ -28,32 +28,20 @@ class TestResultsPush:
     def add_http_mock_response(
         status_code: HTTPStatus = None, message: Optional[Union[str, Dict]] = None
     ):
+        parms = {}
         if status_code:
-            if message is None:
-                responses.add(
-                    responses.PUT,
-                    f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
-                    status=status_code,
-                )
-            elif isinstance(message, dict):
-                responses.add(
-                    responses.PUT,
-                    f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
-                    status=status_code,
-                    json=message,
-                )
-            else:
-                responses.add(
-                    responses.PUT,
-                    f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
-                    status=status_code,
-                    body=message,
-                )
-        else:
-            responses.add(
-                responses.PUT,
-                f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
-            )
+            parms["status"] = status_code
+
+        if isinstance(message, dict):
+            parms["json"] = message
+        elif isinstance(message, (str, Exception)):
+            parms["body"] = message
+
+        responses.add(
+            responses.PUT,
+            f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
+            **parms,
+        )
 
     @staticmethod
     def add_connectionerr_mock_response():
