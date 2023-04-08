@@ -42,6 +42,13 @@ class TestResultsPush:
                     status=status_code,
                     json=message,
                 )
+            else:
+                responses.add(
+                    responses.PUT,
+                    f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
+                    status=status_code,
+                    body=message,
+                )
         else:
             responses.add(
                 responses.PUT,
@@ -81,7 +88,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 2
-        assert result.stderr.find("Missing argument") > -1
+        assert "Missing argument" in result.stderr
 
     @staticmethod
     @responses.activate
@@ -96,9 +103,9 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 2
-        assert result.stderr.find(
+        assert (
             "Invalid value for 'RESULT_TB_NAME': "
-            "File 'nothing.tar.xz' does not exist."
+            "File 'nothing.tar.xz' does not exist." in result.stderr
         )
 
     @staticmethod
@@ -141,7 +148,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 2
-        assert result.stderr.find("unexpected extra argument") > -1
+        assert "unexpected extra argument" in result.stderr
 
     @staticmethod
     @responses.activate
@@ -196,13 +203,17 @@ class TestResultsPush:
         (
             (HTTPStatus.CREATED, None, 0),
             (HTTPStatus.OK, {"message": "Dup"}, 0),
+            (HTTPStatus.OK, "Dup", 0),
             (HTTPStatus.NO_CONTENT, {"message": "No content"}, 0),
+            (HTTPStatus.NO_CONTENT, "No content", 0),
             (
                 HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                 {"message": "Request Entity Too Large"},
                 1,
             ),
+            (HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Request Entity Too Large", 1),
             (HTTPStatus.NOT_FOUND, {"message": "Not Found"}, 1),
+            (HTTPStatus.NOT_FOUND, "Not Found", 1),
         ),
     )
     def test_push_status(status_code, message, exit_code):
@@ -224,7 +235,15 @@ class TestResultsPush:
         )
         assert result.exit_code == exit_code, result.stderr
         assert result.stdout == ""
-        assert result.stderr.strip() == "" if not message else message["message"]
+
+        try:
+            err_msg = "" if not message else message["message"]
+        except TypeError:
+            err_msg = message
+
+        if status_code >= HTTPStatus.BAD_REQUEST:
+            err_msg = f"HTTP Error status: {status_code.value}, message: {err_msg}"
+        assert result.stderr.strip() == err_msg
 
     @staticmethod
     @responses.activate
@@ -327,5 +346,5 @@ class TestResultsPush:
         result = runner.invoke(main, args=[tarball])
         assert result.exit_code == 1
         assert (
-            str(result.stderr).find("Not Found") > -1
+            "Not Found" in result.stderr
         ), f"stderr: {result.stderr!r}; stdout: {result.stdout!r}"
