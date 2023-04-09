@@ -5,9 +5,9 @@ import jwt
 from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 
-import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models import TZDateTime
+from pbench.server.database.models.users import User
 
 
 class APIKeyError(Exception):
@@ -70,7 +70,7 @@ class APIKeys(Database.Base):
             dbs.rollback()
             raise
 
-    def generate_api_key(user):
+    def generate_api_key(Auth, user: Optional[User]):
         """Creates an `api_key` for the requested user
 
         Returns:

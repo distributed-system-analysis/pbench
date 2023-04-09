@@ -65,7 +65,7 @@ class APIKey(ApiBase):
                 "User provided access_token is invalid or expired token",
             )
         try:
-            new_key = APIKeys.generate_api_key(user=user)
+            new_key = APIKeys.generate_api_key(Auth, user=user)
         except APIKeyError as e:
             raise APIInternalError(e.message)
         except Exception as e:
