@@ -28,7 +28,7 @@ from pbench.server.api import create_app
 import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
-from pbench.server.database.models.api_key import APIKey
+from pbench.server.database.models.api_key import APIKeys
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
@@ -829,22 +829,20 @@ def get_token_func(pbench_admin_token, server_config, rsa_keys):
 @pytest.fixture()
 def pbench_drb_api_key(client, server_config, create_drb_user):
     """Valid api_key for the 'drb' user"""
-    key, created_timestamp = generate_api_key(
+    return generate_api_key(
         username="drb",
         user=create_drb_user,
     )
-    return key, created_timestamp
 
 
 @pytest.fixture()
 def pbench_drb_api_key_invalid(client, server_config, create_drb_user):
     """Invalid api_key for the 'drb' user"""
-    key, created_timestamp = generate_api_key(
+    return generate_api_key(
         username="drb",
         user=create_drb_user,
         valid=False,
     )
-    return key
 
 
 def generate_token(
@@ -1010,8 +1008,8 @@ def generate_api_key(
         username: username to include in the token payload
         user: user attributes will be extracted from the user object to include
             in the token payload.
-        valid: If True, the generated token will be valid for 10 mins.
-            If False, generated token would be invalid and expired
+        valid: If True, the generated key will be valid for 10 mins.
+               If False, generated key will be invalid and expired
 
     Returns:
         JWT token string
@@ -1033,6 +1031,6 @@ def generate_api_key(
         "audience": Auth.oidc_client.client_id,
     }
     key = jwt.encode(payload, jwt_secret, algorithm="HS256")
-    user.update(api_key=APIKey(api_key=key, created=current_utc, expiration=exp))
-
-    return key, current_utc
+    api_key = APIKeys(api_key=key, user=user)
+    api_key.add()
+    return key

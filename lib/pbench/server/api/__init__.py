@@ -13,11 +13,11 @@ from flask_restful import Api
 from pbench.common.exceptions import ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
+from pbench.server.api.resources.api_key import APIKey
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
-from pbench.server.api.resources.generate_key import GenerateKey
 from pbench.server.api.resources.query_apis.dataset import Datasets
 from pbench.server.api.resources.query_apis.datasets.datasets_contents import (
     DatasetsContents,
@@ -125,9 +125,9 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         resource_class_args=(config,),
     )
     api.add_resource(
-        GenerateKey,
-        f"{base_uri}/generate_key",
-        endpoint="generate_key",
+        APIKey,
+        f"{base_uri}/key",
+        endpoint="key",
         resource_class_args=(config,),
     )
     api.add_resource(

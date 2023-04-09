@@ -433,7 +433,7 @@ class TestAuthModule:
     encode_auth_token() since they are slated for removal and are covered well
     by other parts of the unit testing for the server code.
 
-    It does, however, verify the verify_auth_internal() method because we need
+    It does, however, verify the verify_auth() method because we need
     it to function properly until the use of an internal user is removed.
     """
 
@@ -493,27 +493,27 @@ class TestAuthModule:
             )
             assert record["code"] == expected_code
 
-    def test_verify_auth_internal(self, make_logger, pbench_drb_token):
-        """Verify success path of verify_auth_internal"""
-        app = Flask("test-verify-auth-internal")
+    def test_verify_auth(self, make_logger, pbench_drb_token):
+        """Verify success path of verify_auth"""
+        app = Flask("test-verify-auth")
         app.logger = make_logger
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token)
         assert str(user.id) == DRB_USER_ID
 
-    def test_verify_auth_internal_invalid(self, make_logger, pbench_drb_token_invalid):
-        """Verify handling of an invalid (expired) token in verify_auth_internal"""
-        app = Flask("test-verify-auth-internal-invalid")
+    def test_verify_auth_invalid(self, make_logger, pbench_drb_token_invalid):
+        """Verify handling of an invalid (expired) token in verify_auth"""
+        app = Flask("test-verify-auth-invalid")
         app.logger = make_logger
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token_invalid)
         assert user is None
 
-    def test_verify_auth_internal_invsig(self, make_logger, pbench_drb_token):
+    def test_verify_auth_invsig(self, make_logger, pbench_drb_token):
         """Verify handling of a token with an invalid signature"""
-        app = Flask("test-verify-auth-internal-invsig")
+        app = Flask("test-verify-auth-invsig")
         app.logger = make_logger
         with app.app_context():
             current_app.secret_key = jwt_secret
@@ -630,14 +630,13 @@ class TestAuthModule:
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
 
-        """Verify success path of verify_auth_internal"""
-        app = Flask("test-verify-auth-internal")
+        """Verify success path of verify_auth_api_key"""
+        app = Flask("test-verify-auth")
         app.logger = make_logger
         with app.app_context():
             current_app.secret_key = jwt_secret
-            key, ts = pbench_drb_api_key
-            user = Auth.verify_auth(key)
-        assert str(user.id) == DRB_USER_ID
+            user = Auth.verify_auth(pbench_drb_api_key)
+        assert user.id == DRB_USER_ID
 
     def test_verify_auth_api_key_invalid(
         self, monkeypatch, rsa_keys, make_logger, pbench_drb_api_key_invalid
@@ -662,8 +661,7 @@ class TestAuthModule:
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
 
-        """Verify success path of verify_auth_internal"""
-        app = Flask("test-verify-auth-internal")
+        app = Flask("test-verify-auth")
         app.logger = make_logger
         with app.app_context():
             current_app.secret_key = jwt_secret

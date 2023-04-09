@@ -4,7 +4,7 @@ import pytest
 import requests
 
 
-class TestDatasetsAccess:
+class TestAPIKey:
     @pytest.fixture()
     def query_get_as(self, client, server_config):
         """
@@ -19,7 +19,7 @@ class TestDatasetsAccess:
         def query_api(user_token, expected_status: HTTPStatus) -> requests.Response:
             headers = {"authorization": f"bearer {user_token}"}
             response = client.post(
-                f"{server_config.rest_uri}/generate_key",
+                f"{server_config.rest_uri}/key",
                 headers=headers,
             )
             assert response.status_code == expected_status
@@ -34,5 +34,6 @@ class TestDatasetsAccess:
         }
 
     def test_successful_api_key_generation(self, query_get_as, pbench_drb_token):
-        response = query_get_as(pbench_drb_token, HTTPStatus.OK)
+        response = query_get_as(pbench_drb_token, HTTPStatus.CREATED)
+        assert response.json["api_key"]
         assert response.json["username"] == "drb"

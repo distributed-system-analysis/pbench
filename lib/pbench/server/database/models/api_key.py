@@ -1,38 +1,58 @@
 from typing import Optional
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from flask import current_app
+import jwt
+from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy.orm import relationship
 
+import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
+from pbench.server.database.models import TZDateTime
 
 
-class APIKey(Database.Base):
+class APIKeyError(Exception):
+    """A base class for errors reported by the APIKey class."""
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return repr(self.message)
+
+
+class APIKeys(Database.Base):
     """Model for storing the API key associated with a user."""
 
-    __tablename__ = "api_key"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    api_key = Column(String(500), unique=True, nullable=False, index=True)
-    created = Column(DateTime, nullable=False)
-    expiration = Column(DateTime, nullable=False)
-    user_id = Column(
-        String,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
+    __tablename__ = "api_keys"
+    api_key = Column(
+        String(500), primary_key=True, unique=True, nullable=False, index=True
     )
+    created = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
+    # ID of the owning user
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
 
-    def __init__(self, api_key: str, created, expiration):
-        self.api_key = api_key
-        self.created = created
-        self.expiration = expiration
+    # Indirect reference to the owning User record
+    user = relationship("User")
+
+    def add(self):
+        """Add an api_key object to the database."""
+        try:
+            Database.db_session.add(self)
+            Database.db_session.commit()
+        except Exception as e:
+            Database.db_session.rollback()
+            self.logger.error("Can't add {} to DB: {}", str(self), str(e))
+            raise APIKeyError("Error adding api_key to db")
 
     @staticmethod
-    def query(key: str) -> Optional["APIKey"]:
+    def query(key: str) -> Optional["APIKeys"]:
         """Find the given api_key in the database.
 
         Returns:
             An APIKey object if found, otherwise None
         """
         # We currently only query api_key database with given api_key
-        api_key = Database.db_session.query(APIKey).filter_by(api_key=key).first()
+        api_key = Database.db_session.query(APIKeys).filter_by(api_key=key).first()
         return api_key
 
     @staticmethod
@@ -44,20 +64,40 @@ class APIKey(Database.Base):
         """
         dbs = Database.db_session
         try:
-            api_key_delete = dbs.query(APIKey).filter_by(api_key=api_key)
-            if not api_key_delete:
-                return
-            api_key_delete.delete()
-            Database.db_session.commit()
+            dbs.query(APIKeys).filter_by(api_key=api_key).delete()
+            dbs.commit()
         except Exception:
             dbs.rollback()
             raise
 
-    @staticmethod
-    def valid(api_key: str) -> bool:
-        """Validate an api_key using the database.
+    def generate_api_key(user):
+        """Creates an `api_key` for the requested user
 
         Returns:
-            True if valid (api_key is found in the database), False otherwise.
+            `api_key` or raises `APIKeyError`
         """
-        return bool(APIKey.query(api_key))
+        user_obj = user.get_json()
+        current_utc = TZDateTime.current_time()
+        payload = {
+            "iat": current_utc,
+            "user_id": user_obj["id"],
+            "username": user_obj["username"],
+            "audience": Auth.oidc_client.client_id,
+        }
+        try:
+            generated_api_key = jwt.encode(
+                payload, current_app.secret_key, algorithm=Auth._TOKEN_ALG_INT
+            )
+        except (
+            jwt.InvalidIssuer,
+            jwt.InvalidIssuedAtError,
+            jwt.InvalidAlgorithmError,
+            jwt.PyJWTError,
+        ):
+            current_app.logger.exception(
+                "Could not encode the JWT api_key for user: {} and the payload is : {}",
+                user,
+                payload,
+            )
+            raise APIKeyError("Could not encode the JWT api_key for the user")
+        return generated_api_key
