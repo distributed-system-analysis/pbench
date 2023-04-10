@@ -61,13 +61,6 @@ class PbenchAgentConfig(PbenchConfig):
             )
             self.pbench_lib_dir = self.pbench_install_dir / "lib"
 
-        if self.logger_type == "file" and self.log_dir is None:
-            # The configuration file has a logging section configured to use
-            # "file" logging, but no log directory is set.  We'll set the log
-            # directory to be the directory of the legacy ${pbench_log} value
-            # determined above.
-            self.log_dir = str(self.pbench_log.parent)
-
         try:
             self.ssh_opts = self.get("results", "ssh_opts", fallback=DEFAULT_SSH_OPTS)
         except (NoOptionError, NoSectionError):
