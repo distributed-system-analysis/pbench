@@ -5,7 +5,7 @@ from urllib.parse import urlencode, urlparse
 from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
-from sqlalchemy import and_, asc, cast, func, desc, or_, String
+from sqlalchemy import and_, asc, cast, desc, func, or_, String
 from sqlalchemy.exc import ProgrammingError, StatementError
 from sqlalchemy.orm import aliased, Query
 from sqlalchemy.sql.expression import Alias
@@ -404,13 +404,7 @@ class DatasetsList(ApiBase):
                 k = sort
                 order = asc
             else:
-                try:
-                    k, o = sort.split(":", maxsplit=1)
-                except ValueError:
-                    raise APIAbort(
-                        HTTPStatus.BAD_REQUEST,
-                        f"sort {sort!r} must have the form 'k[:o]'",
-                    )
+                k, o = sort.split(":", maxsplit=1)
                 if o.lower() == "asc":
                     order = asc
                 elif o.lower() == "desc":
@@ -418,7 +412,7 @@ class DatasetsList(ApiBase):
                 else:
                     raise APIAbort(
                         HTTPStatus.BAD_REQUEST,
-                        f"sort order in {sort!r} must be 'asc' or 'desc'",
+                        f"The sort order in {sort!r} must be 'asc' or 'desc'",
                     )
 
             if not Metadata.is_key_path(k, Metadata.METADATA_KEYS, metalog_key_ok=True):

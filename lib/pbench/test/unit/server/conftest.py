@@ -386,8 +386,8 @@ def more_datasets(
         test        20 private  1970-01-01:00:42
         fio_1        3 public   1978-06-26:08:00
         fio_2       20 public   2022-01-01:00:00
-        uperf_1     20 private  1978-06-26:08:10
-        uperf_2     20 private  1978-06-26:09:01
+        uperf_1     20 private  1978-06-26:08:01
+        uperf_2     20 private  1978-06-26:09:00
         uperf_3     20 private  1978-06-26:09:30
         uperf_4     20 private  1978-06-26:10:00
 

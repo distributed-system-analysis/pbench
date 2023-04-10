@@ -816,44 +816,64 @@ class TestDatasetsList:
         "sort,results",
         [
             (
+                # Simple sort by name
                 "dataset.name",
                 ["fio_1", "fio_2", "test", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
             (
+                # Simple sort by name with explicit "ascending" order
                 "dataset.name:asc",
                 ["fio_1", "fio_2", "test", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
             (
+                # Simple sort by name with "descending" order
                 "dataset.name:desc",
                 ["uperf_4", "uperf_3", "uperf_2", "uperf_1", "test", "fio_2", "fio_1"],
             ),
             (
+                # Sort by date timestamp
                 "dataset.uploaded",
                 ["test", "fio_1", "uperf_1", "uperf_2", "uperf_3", "uperf_4", "fio_2"],
             ),
             (
+                # Sort by date timestamp with descending order
                 "dataset.uploaded:desc",
                 ["fio_2", "uperf_4", "uperf_3", "uperf_2", "uperf_1", "fio_1", "test"],
             ),
             (
+                # Sort by a "dataset.metalog" value
                 "dataset.metalog.run.controller",
                 ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
             (
+                # Sort by a general global metadata value in descending order
                 "global.test.sequence:desc",
                 ["fio_1", "fio_2", "test", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
             (
+                # Sprt by a general global metadata value in ascending order
                 "global.test.sequence",
                 ["uperf_4", "uperf_3", "uperf_2", "uperf_1", "test", "fio_2", "fio_1"],
             ),
             (
+                # Sort two keys across distinct metadata namespaces asc/desc
                 "user.test.odd,global.test.sequence:desc",
                 ["fio_1", "test", "uperf_2", "uperf_4", "fio_2", "uperf_1", "uperf_3"],
             ),
             (
+                # Sort two keys across distinct metadata namespaces desc/desc
                 "user.test.odd:desc,dataset.name:desc",
                 ["uperf_3", "uperf_1", "fio_2", "uperf_4", "uperf_2", "test", "fio_1"],
+            ),
+            (
+                # Sort by a JSON sub-object containing two keys ascending
+                "global.test",
+                ["uperf_4", "uperf_3", "uperf_2", "uperf_1", "test", "fio_2", "fio_1"],
+            ),
+            (
+                # Sort by a JSON sub-object containing two keys descending
+                "global.test:desc",
+                ["fio_1", "fio_2", "test", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
             ),
         ],
     )
@@ -868,9 +888,7 @@ class TestDatasetsList:
         Args:
             server_config: The PbenchServerConfig object
             query_as: A fixture to provide a helper that executes the API call
-            login: The username as which to perform a query
-            query: A JSON representation of the query parameters (these will be
-                automatically supplemented with a metadata request term)
+            sort: A JSON representation of the sort query parameter value
             results: A list of the dataset names we expect to be returned
         """
 
@@ -880,7 +898,54 @@ class TestDatasetsList:
         for i, d in enumerate(all):
             odd = i & 1
             Metadata.setvalue(d, "global.test.sequence", i)
+            Metadata.setvalue(d, "global.test.mcguffin", 100 - i)
             Metadata.setvalue(d, "user.test.odd", odd, user=test)
         query = {"sort": sort, "metadata": ["dataset.uploaded"]}
         result = query_as(query, "test", HTTPStatus.OK)
         self.compare_results(result.json, results, query, server_config)
+
+    @pytest.mark.parametrize(
+        "sort,message",
+        [
+            (
+                # Specify a sort by a Dataset table column that doesn't exist
+                "dataset.noname",
+                "Metadata key 'dataset.noname' is not supported",
+            ),
+            (
+                # Specify a sort using an undefined order keyword
+                "dataset.name:backwards",
+                "The sort order in 'dataset.name:backwards' must be 'asc' or 'desc'",
+            ),
+            (
+                # Specify a sort using bad sort order syntax
+                "dataset.name:desc:",
+                "The sort order in 'dataset.name:desc:' must be 'asc' or 'desc'",
+            ),
+            (
+                # Specify a sort using a bad metadata namespace
+                "xyzzy.uploaded",
+                "Metadata key 'xyzzy.uploaded' is not supported",
+            ),
+        ],
+    )
+    def test_dataset_sort_errors(self, server_config, query_as, sort, message):
+        """Test `datasets/list?sort` error cases
+
+        Args:
+            server_config: The PbenchServerConfig object
+            query_as: A fixture to provide a helper that executes the API call
+            sort: A JSON representation of the sort query parameter value
+            message: The expected error message
+        """
+
+        # Assign "sequence numbers" in the inverse order of name
+        test = User.query(username="test")
+        all = Database.db_session.query(Dataset).order_by(desc(Dataset.name)).all()
+        for i, d in enumerate(all):
+            odd = i & 1
+            Metadata.setvalue(d, "global.test.sequence", i)
+            Metadata.setvalue(d, "user.test.odd", odd, user=test)
+        query = {"sort": sort}
+        result = query_as(query, "test", HTTPStatus.BAD_REQUEST)
+        assert result.json["message"] == message
