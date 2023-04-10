@@ -34,7 +34,7 @@ class TestResultsPush:
 
         if isinstance(message, dict):
             parms["json"] = message
-        elif isinstance(message, (str, Exception)):
+        elif isinstance(message, str):
             parms["body"] = message
 
         responses.add(
