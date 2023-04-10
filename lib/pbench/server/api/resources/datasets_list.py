@@ -5,7 +5,7 @@ from urllib.parse import urlencode, urlparse
 from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
-from sqlalchemy import and_, cast, or_, String
+from sqlalchemy import and_, cast, func, or_, String
 from sqlalchemy.exc import ProgrammingError, StatementError
 from sqlalchemy.orm import aliased, Query
 from sqlalchemy.sql.expression import Alias
@@ -69,6 +69,7 @@ class DatasetsList(ApiBase):
                     Parameter("offset", ParamType.INT),
                     Parameter("limit", ParamType.INT),
                     # Output control
+                    Parameter("daterange", ParamType.BOOLEAN),
                     Parameter("keysummary", ParamType.BOOLEAN),
                     Parameter(
                         "metadata",
@@ -331,14 +332,15 @@ class DatasetsList(ApiBase):
         Returns:
             The aggregated keyspace JSON object
         """
-        aggregate: JSONOBJECT = {
-            "dataset": {c.name: None for c in Dataset.__table__._columns}
-        }
-
         Database.dump_query(query, current_app.logger)
+        aggregate: JSONOBJECT = {}
 
         datasets = query.all()
         for d in datasets:
+            if not aggregate:
+                aggregate.update(
+                    {"dataset": {c.name: None for c in Dataset.__table__._columns}}
+                )
             for m in d.metadatas:
                 # "metalog" is a top-level key in the Metadata schema, but we
                 # report it as a sub-key of "dataset".
@@ -346,7 +348,29 @@ class DatasetsList(ApiBase):
                     self.accumulate(aggregate["dataset"], m.key, m.value)
                 else:
                     self.accumulate(aggregate, m.key, m.value)
-        return aggregate
+        return {"keys": aggregate}
+
+    def daterange(self, query: Query) -> JSONOBJECT:
+        """Return only the date range of the selected datasets.
+
+        Replace the selected "entities" (normally Dataset columns) with the
+        SQL min and max functions on the dataset upload timestamp so that the
+        generated SQL query will return a tuple of those two values.
+
+        Args:
+            query: The basic filtered SQLAlchemy query object
+
+        Returns:
+            The date range of the selected datasets
+        """
+        results = query.with_entities(
+            func.min(Dataset.uploaded), func.max(Dataset.uploaded)
+        ).first()
+
+        if results and results[0] and results[1]:
+            return {"from": results[0].isoformat(), "to": results[1].isoformat()}
+        else:
+            return {}
 
     def datasets(self, request: Request, json: JSONOBJECT, query: Query) -> JSONOBJECT:
         """Gather and paginate the selected datasets
@@ -495,7 +519,20 @@ class DatasetsList(ApiBase):
         else:
             owner = json.get("owner")
         query = self._build_sql_query(owner, json.get("access"), query)
+        result = {}
+        done = False
+
+        # We can do "keysummary" and "daterange", but, as it makes no real
+        # sense to paginate either, we don't support them in combination with
+        # a normal list query. So we will perform either/or keysummary and
+        # daterange, and acquire a normal list of datasets only if neither was
+        # specified.
         if json.get("keysummary"):
-            return jsonify(self.keyspace(query))
-        else:
-            return jsonify(self.datasets(request, json, query))
+            result.update(self.keyspace(query))
+            done = True
+        if json.get("daterange"):
+            result.update(self.daterange(query))
+            done = True
+        if not done:
+            result = self.datasets(request, json, query)
+        return jsonify(result)

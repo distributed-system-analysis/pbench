@@ -670,31 +670,143 @@ class TestDatasetsList:
         Metadata.setvalue(dataset=fio_1, key="global.legacy.server", value="ABC")
         response = query_as({"keysummary": "true"}, "drb", HTTPStatus.OK)
         assert response.json == {
-            "dataset": {
-                "access": None,
-                "id": None,
-                "metalog": {
-                    "pbench": {
-                        "config": None,
-                        "date": None,
-                        "name": None,
-                        "script": None,
+            "keys": {
+                "dataset": {
+                    "access": None,
+                    "id": None,
+                    "metalog": {
+                        "pbench": {
+                            "config": None,
+                            "date": None,
+                            "name": None,
+                            "script": None,
+                        },
+                        "run": {"controller": None},
                     },
-                    "run": {"controller": None},
+                    "name": None,
+                    "owner_id": None,
+                    "resource_id": None,
+                    "uploaded": None,
                 },
-                "name": None,
-                "owner_id": None,
-                "resource_id": None,
-                "uploaded": None,
-            },
-            "global": {"contact": None, "legacy": {"server": None}},
-            "server": {
-                "deletion": None,
-                "index-map": {
-                    "unit-test.v5.result-data-sample.2020-08": None,
-                    "unit-test.v6.run-data.2020-08": None,
-                    "unit-test.v6.run-toc.2020-05": None,
+                "global": {"contact": None, "legacy": {"server": None}},
+                "server": {
+                    "deletion": None,
+                    "index-map": {
+                        "unit-test.v5.result-data-sample.2020-08": None,
+                        "unit-test.v6.run-data.2020-08": None,
+                        "unit-test.v6.run-toc.2020-05": None,
+                    },
+                    "origin": None,
                 },
-                "origin": None,
+            }
+        }
+
+    def get_daterange_results(
+        self, name_list: list[str]
+    ) -> dict[str, datetime.datetime]:
+        """
+        Use a list of "expected results" to determine the earliest and the
+        latest creation date of the set of datasets.
+
+        Args:
+            name_list: List of dataset names
+
+        Returns:
+            {"from": first_date, "to": last_date}
+
+            or
+
+            {} if the list is empty
+        """
+        if not name_list:
+            return {}
+        to_time = max(Dataset.query(name=n).uploaded for n in name_list)
+        from_time = min(Dataset.query(name=n).uploaded for n in name_list)
+        return {"from": from_time.isoformat(), "to": to_time.isoformat()}
+
+    @pytest.mark.parametrize(
+        "login,query,results",
+        [
+            ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
+            ("drb", {"mine": "true"}, ["drb", "fio_1"]),
+            ("drb", {"access": "public"}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "noname"}, []),
+            ("test_admin", {"owner": "drb"}, ["drb", "fio_1"]),
+            ("drb", {}, ["drb", "fio_1", "fio_2"]),
+            (
+                "test",
+                {},
+                ["test", "fio_1", "fio_2", "uperf_1", "uperf_2", "uperf_3", "uperf_4"],
+            ),
+            (
+                "test_admin",
+                {},
+                [
+                    "drb",
+                    "test",
+                    "fio_1",
+                    "fio_2",
+                    "uperf_1",
+                    "uperf_2",
+                    "uperf_3",
+                    "uperf_4",
+                ],
+            ),
+        ],
+    )
+    def test_dataset_daterange(self, query_as, login, query, results):
+        """
+        Test the operation of `GET datasets?daterange` against our set of test
+        datasets.
+
+        Args:
+            query_as: A fixture to provide a helper that executes the API call
+            login: The username as which to perform a query
+            query: A JSON representation of the query parameters (these will be
+                automatically supplemented with the "daterange" parameter)
+            results: A list of the dataset names we expect to be returned
+        """
+        query["daterange"] = "true"
+        result = query_as(query, login, HTTPStatus.OK)
+        assert result.json == self.get_daterange_results(results)
+
+    def test_key_and_dates(self, query_as):
+        """Test keyspace summary in combination with date range
+
+        This tests that we can use "keysummary" and "daterange" together.
+        """
+        response = query_as(
+            {"keysummary": "true", "daterange": "true"}, "drb", HTTPStatus.OK
+        )
+        assert response.json == {
+            "from": "1978-06-26T08:00:00+00:00",
+            "to": "2022-01-01T00:00:00+00:00",
+            "keys": {
+                "dataset": {
+                    "access": None,
+                    "id": None,
+                    "metalog": {
+                        "pbench": {
+                            "config": None,
+                            "date": None,
+                            "name": None,
+                            "script": None,
+                        },
+                        "run": {"controller": None},
+                    },
+                    "name": None,
+                    "owner_id": None,
+                    "resource_id": None,
+                    "uploaded": None,
+                },
+                "global": {"contact": None},
+                "server": {
+                    "deletion": None,
+                    "index-map": {
+                        "unit-test.v5.result-data-sample.2020-08": None,
+                        "unit-test.v6.run-data.2020-08": None,
+                        "unit-test.v6.run-toc.2020-05": None,
+                    },
+                },
             },
         }

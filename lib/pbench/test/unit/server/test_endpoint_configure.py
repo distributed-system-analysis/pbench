@@ -53,10 +53,6 @@ class TestEndpointConfig:
                         "target": {"type": "path"},
                     },
                 },
-                "datasets_daterange": {
-                    "template": f"{uri}/datasets/daterange",
-                    "params": {},
-                },
                 "datasets_detail": {
                     "template": f"{uri}/datasets/{{dataset}}/detail",
                     "params": {"dataset": {"type": "string"}},
