@@ -1,8 +1,10 @@
 from http import HTTPStatus
 import logging
 import os
+from typing import Dict, Optional, Union
 
 from click.testing import CliRunner
+import pytest
 import requests
 import responses
 
@@ -23,11 +25,22 @@ class TestResultsPush:
     URL = "http://pbench.example.com/api/v1"
 
     @staticmethod
-    def add_http_mock_response(code: HTTPStatus = HTTPStatus.OK):
+    def add_http_mock_response(
+        status_code: HTTPStatus = None, message: Optional[Union[str, Dict]] = None
+    ):
+        parms = {}
+        if status_code:
+            parms["status"] = status_code
+
+        if isinstance(message, dict):
+            parms["json"] = message
+        elif isinstance(message, str):
+            parms["body"] = message
+
         responses.add(
             responses.PUT,
             f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
-            status=code,
+            **parms,
         )
 
     @staticmethod
@@ -63,7 +76,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 2
-        assert result.stderr.find("Missing argument") > -1
+        assert "Missing argument" in result.stderr
 
     @staticmethod
     @responses.activate
@@ -79,11 +92,8 @@ class TestResultsPush:
         )
         assert result.exit_code == 2
         assert (
-            result.stderr.find(
-                "Invalid value for 'RESULT_TB_NAME': "
-                "File 'nothing.tar.xz' does not exist."
-            )
-            > -1
+            "Invalid value for 'RESULT_TB_NAME': "
+            "File 'nothing.tar.xz' does not exist." in result.stderr
         )
 
     @staticmethod
@@ -126,7 +136,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 2
-        assert result.stderr.find("unexpected extra argument") > -1
+        assert "unexpected extra argument" in result.stderr
 
     @staticmethod
     @responses.activate
@@ -148,7 +158,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 0, result.stderr
-        assert result.stderr == "File uploaded successfully\n"
+        assert result.stdout == ""
 
     @staticmethod
     @responses.activate
@@ -172,7 +182,84 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 0, result.stderr
-        assert result.stderr == "File uploaded successfully\n"
+        assert result.stdout == ""
+
+    @staticmethod
+    @responses.activate
+    @pytest.mark.parametrize(
+        "status_code,message,exit_code",
+        (
+            (HTTPStatus.CREATED, None, 0),
+            (HTTPStatus.OK, {"message": "Dup"}, 0),
+            (HTTPStatus.OK, "Dup", 0),
+            (HTTPStatus.NO_CONTENT, {"message": "No content"}, 0),
+            (HTTPStatus.NO_CONTENT, "No content", 0),
+            (
+                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                {"message": "Request Entity Too Large"},
+                1,
+            ),
+            (HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Request Entity Too Large", 1),
+            (HTTPStatus.NOT_FOUND, {"message": "Not Found"}, 1),
+            (HTTPStatus.NOT_FOUND, "Not Found", 1),
+        ),
+    )
+    def test_push_status(status_code, message, exit_code):
+        """Test normal operation when all arguments and options are specified"""
+
+        TestResultsPush.add_http_mock_response(status_code, message)
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.TOKN_SWITCH,
+                TestResultsPush.TOKN_TEXT,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_TEST + "," + TestResultsPush.META_TEXT_FOO,
+                tarball,
+            ],
+        )
+        assert result.exit_code == exit_code, result.stderr
+        assert result.stdout == ""
+
+        try:
+            err_msg = "" if not message else message["message"]
+        except TypeError:
+            err_msg = message
+
+        if status_code >= HTTPStatus.BAD_REQUEST:
+            err_msg = f"HTTP Error status: {status_code.value}, message: {err_msg}"
+        assert result.stderr.strip() == err_msg
+
+    @staticmethod
+    @responses.activate
+    def test_error_too_large_tarball():
+        """Test normal operation when all arguments and options are specified"""
+
+        TestResultsPush.add_http_mock_response(
+            status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+            message={"message": "Request Entity Too Large"},
+        )
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.TOKN_SWITCH,
+                TestResultsPush.TOKN_TEXT,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_TEST + "," + TestResultsPush.META_TEXT_FOO,
+                tarball,
+            ],
+        )
+        assert result.exit_code == 1, result.stderr
+        assert (
+            result.stderr
+            == "HTTP Error status: 413, message: Request Entity Too Large\n"
+        )
 
     @staticmethod
     @responses.activate
@@ -196,7 +283,7 @@ class TestResultsPush:
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(main, args=[tarball])
         assert result.exit_code == 0, result.stderr
-        assert result.stderr == "File uploaded successfully\n"
+        assert result.stdout == ""
 
     @staticmethod
     @responses.activate
@@ -239,11 +326,13 @@ class TestResultsPush:
         """Test handling of 404 errors"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_http_mock_response(HTTPStatus.NOT_FOUND)
+        TestResultsPush.add_http_mock_response(
+            HTTPStatus.NOT_FOUND, message={"message": "Not Found"}
+        )
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(main, args=[tarball])
         assert result.exit_code == 1
         assert (
-            str(result.stderr).find("Not Found") > -1
+            "Not Found" in result.stderr
         ), f"stderr: {result.stderr!r}; stdout: {result.stdout!r}"

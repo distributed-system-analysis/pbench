@@ -54,11 +54,6 @@ class BaseCommand(metaclass=abc.ABCMeta):
             )
             click.get_current_context().exit(1)
 
-        # log file - N.B. not a directory
-        self.pbench_log = self.config.pbench_log
-        if self.pbench_log is None:
-            self.pbench_log = self.pbench_run / "pbench.log"
-
         self.pbench_install_dir = self.config.pbench_install_dir
         if self.pbench_install_dir is None:
             self.pbench_install_dir = "/opt/pbench-agent"
@@ -71,7 +66,7 @@ class BaseCommand(metaclass=abc.ABCMeta):
         self.pbench_bspp_dir = self.pbench_install_dir / "bench-scripts" / "postprocess"
         self.pbench_lib_dir = self.pbench_install_dir / "lib"
 
-        self.logger = setup_logging(debug=False, logfile=self.pbench_log)
+        self.logger = setup_logging(debug=False, logfile=None)
 
         self.ssh_opts = os.environ.get("ssh_opts", self.config.ssh_opts)
         self.scp_opts = os.environ.get("scp_opts", self.config.scp_opts)
