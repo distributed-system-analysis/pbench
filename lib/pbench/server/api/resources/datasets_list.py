@@ -412,7 +412,7 @@ class DatasetsList(ApiBase):
                 else:
                     raise APIAbort(
                         HTTPStatus.BAD_REQUEST,
-                        f"The sort order in {sort!r} must be 'asc' or 'desc'",
+                        f"The sort order {o!r} for key {k!r} must be 'asc' or 'desc'",
                     )
 
             if not Metadata.is_key_path(k, Metadata.METADATA_KEYS, metalog_key_ok=True):

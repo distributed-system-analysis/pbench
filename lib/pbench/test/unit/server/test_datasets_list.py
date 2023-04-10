@@ -915,12 +915,12 @@ class TestDatasetsList:
             (
                 # Specify a sort using an undefined order keyword
                 "dataset.name:backwards",
-                "The sort order in 'dataset.name:backwards' must be 'asc' or 'desc'",
+                "The sort order 'backwards' for key 'dataset.name' must be 'asc' or 'desc'",
             ),
             (
                 # Specify a sort using bad sort order syntax
                 "dataset.name:desc:",
-                "The sort order in 'dataset.name:desc:' must be 'asc' or 'desc'",
+                "The sort order 'desc:' for key 'dataset.name' must be 'asc' or 'desc'",
             ),
             (
                 # Specify a sort using a bad metadata namespace
@@ -938,14 +938,6 @@ class TestDatasetsList:
             sort: A JSON representation of the sort query parameter value
             message: The expected error message
         """
-
-        # Assign "sequence numbers" in the inverse order of name
-        test = User.query(username="test")
-        all = Database.db_session.query(Dataset).order_by(desc(Dataset.name)).all()
-        for i, d in enumerate(all):
-            odd = i & 1
-            Metadata.setvalue(d, "global.test.sequence", i)
-            Metadata.setvalue(d, "user.test.odd", odd, user=test)
         query = {"sort": sort}
         result = query_as(query, "test", HTTPStatus.BAD_REQUEST)
         assert result.json["message"] == message
