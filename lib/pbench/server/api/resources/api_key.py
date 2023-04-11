@@ -1,8 +1,7 @@
 from http import HTTPStatus
 
-from flask import jsonify, make_response
+from flask import jsonify
 from flask.wrappers import Request, Response
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
@@ -16,7 +15,7 @@ from pbench.server.api.resources import (
     ApiSchema,
 )
 import pbench.server.auth.auth as Auth
-from pbench.server.database.models.api_key import APIKeyError, APIKeys
+from pbench.server.database.models.api_keys import APIKey, APIKeyError
 from pbench.server.database.models.audit import (
     Audit,
     AuditStatus,
@@ -25,7 +24,7 @@ from pbench.server.database.models.audit import (
 )
 
 
-class APIKey(ApiBase):
+class APIKeyManage(ApiBase):
     def __init__(self, config: PbenchServerConfig):
         super().__init__(
             config,
@@ -37,7 +36,6 @@ class APIKey(ApiBase):
                 authorization=ApiAuthorizationType.NONE,
             ),
         )
-        self.server_config = config
 
     def _post(
         self, params: ApiParams, request: Request, context: ApiContext
@@ -51,7 +49,7 @@ class APIKey(ApiBase):
             Accept:         application/json
 
         Returns:
-            Success: 201 with api_key and user
+            Success: 201 with api_key
 
         Raises:
             APIAbort, reporting "UNAUTHORIZED"
@@ -62,31 +60,22 @@ class APIKey(ApiBase):
         if not user:
             raise APIAbort(
                 HTTPStatus.UNAUTHORIZED,
-                "User provided access_token is invalid or expired token",
+                "User provided access_token is invalid or expired",
             )
         try:
-            new_key = APIKeys.generate_api_key(Auth, user=user)
+            new_key = APIKey.generate_api_key(user)
         except APIKeyError as e:
-            raise APIInternalError(e.message)
+            raise APIInternalError(e.message) from e
         except Exception as e:
             raise APIInternalError("Unexpected backend error") from e
 
         try:
-            key = APIKeys(
-                api_key=new_key,
-                user=user,
-            )
+            key = APIKey(api_key=new_key, user=user)
             key.add()
-        except IntegrityError:
-            raise APIInternalError("Duplicate api_key exists in the DB")
-        except SQLAlchemyError:
-            raise APIInternalError(
-                "SQLAlchemy Exception while adding an api_key in the DB"
-            )
         except APIKeyError as e:
-            raise APIInternalError(e.message)
-        except Exception:
-            raise APIInternalError("Error while adding api_key to the DB")
+            raise APIInternalError(e.message) from e
+        except Exception as e:
+            raise APIInternalError(e) from e
 
         Audit.create(
             operation=OperationCode.CREATE,
@@ -97,8 +86,6 @@ class APIKey(ApiBase):
             status=AuditStatus.SUCCESS,
         )
 
-        response_object = {
-            "api_key": new_key,
-            "username": user.username,
-        }
-        return make_response(jsonify(response_object), HTTPStatus.CREATED)
+        response = jsonify({"api_key": new_key})
+        response.status = HTTPStatus.CREATED
+        return response

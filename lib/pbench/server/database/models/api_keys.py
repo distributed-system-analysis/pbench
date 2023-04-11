@@ -20,13 +20,11 @@ class APIKeyError(Exception):
         return repr(self.message)
 
 
-class APIKeys(Database.Base):
+class APIKey(Database.Base):
     """Model for storing the API key associated with a user."""
 
     __tablename__ = "api_keys"
-    api_key = Column(
-        String(500), primary_key=True, unique=True, nullable=False, index=True
-    )
+    api_key = Column(String(500), primary_key=True)
     created = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
     # ID of the owning user
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
@@ -41,18 +39,18 @@ class APIKeys(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't add {} to DB: {}", str(self), str(e))
-            raise APIKeyError("Error adding api_key to db")
+            self.logger.error("Can't add api_key to DB: {}", str(e))
+            raise APIKeyError(f"Error adding api_key to db : {e}") from e
 
     @staticmethod
-    def query(key: str) -> Optional["APIKeys"]:
+    def query(key: str) -> Optional["APIKey"]:
         """Find the given api_key in the database.
 
         Returns:
             An APIKey object if found, otherwise None
         """
         # We currently only query api_key database with given api_key
-        api_key = Database.db_session.query(APIKeys).filter_by(api_key=key).first()
+        api_key = Database.db_session.query(APIKey).filter_by(api_key=key).first()
         return api_key
 
     @staticmethod
@@ -64,13 +62,14 @@ class APIKeys(Database.Base):
         """
         dbs = Database.db_session
         try:
-            dbs.query(APIKeys).filter_by(api_key=api_key).delete()
+            dbs.query(APIKey).filter_by(api_key=api_key).delete()
             dbs.commit()
         except Exception:
             dbs.rollback()
             raise
 
-    def generate_api_key(Auth, user: Optional[User]):
+    @staticmethod
+    def generate_api_key(user: User):
         """Creates an `api_key` for the requested user
 
         Returns:
@@ -82,11 +81,10 @@ class APIKeys(Database.Base):
             "iat": current_utc,
             "user_id": user_obj["id"],
             "username": user_obj["username"],
-            "audience": Auth.oidc_client.client_id,
         }
         try:
             generated_api_key = jwt.encode(
-                payload, current_app.secret_key, algorithm=Auth._TOKEN_ALG_INT
+                payload, current_app.secret_key, algorithm="HS256"
             )
         except (
             jwt.InvalidIssuer,

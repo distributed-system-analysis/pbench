@@ -4,11 +4,10 @@ from typing import Optional
 from flask import current_app, Flask, request
 from flask_httpauth import HTTPTokenAuth
 from flask_restful import abort
-import jwt
 
 from pbench.server import PbenchServerConfig
 from pbench.server.auth import OpenIDClient, OpenIDTokenInvalid
-from pbench.server.database.models.api_key import APIKeys
+from pbench.server.database.models.api_keys import APIKey
 from pbench.server.database.models.users import User
 
 # Module private constants
@@ -123,35 +122,22 @@ def verify_auth_api_key(api_key: str) -> Optional[User]:
         None if the api_key is not valid, a `User` object when the api_key is valid.
 
     """
-    try:
-        payload = jwt.decode(
-            api_key,
-            current_app.secret_key,
-            algorithms=_TOKEN_ALG_INT,
-            options={
-                "verify_signature": True,
-                "verify_aud": True,
-            },
-        )
-
-    except jwt.InvalidSignatureError:
-        pass
-    else:
-        key = APIKeys.query(api_key)
-        if key and payload["user_id"] == key.user.id:
-            return key.user
+    key = APIKey.query(api_key)
+    if key:
+        return key.user
     return None
 
 
 def verify_auth_oidc(auth_token: str) -> Optional[User]:
-    """Verify a token provided to the Pbench server which was obtained from a
-    third party identity provider.
+    """
+    The verification will pass either if the token is from a third-party OIDC
+    identity provider or if the token is a Pbench Server API key
 
-    `auth_token` will be validated against `verify_auth_api_key` only if
-    the provided `auth_token` is not a valid `access_token`
+    The function will first attempt to validate the token as an OIDC access token
+    if that fails, it will then attempt to validate it as a Pbench Server API key
 
-    Note: Upon token introspection if we get a valid token, we import the
-    available user information from the token into our internal User database.
+    If the token is a valid access token (and not if it is an API key),
+    we will import its contents into the internal user database.
 
     Args:
         auth_token : Token to authenticate

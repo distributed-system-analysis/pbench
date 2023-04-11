@@ -28,7 +28,7 @@ from pbench.server.api import create_app
 import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
-from pbench.server.database.models.api_key import APIKeys
+from pbench.server.database.models.api_keys import APIKey
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
@@ -838,11 +838,7 @@ def pbench_drb_api_key(client, server_config, create_drb_user):
 @pytest.fixture()
 def pbench_drb_api_key_invalid(client, server_config, create_drb_user):
     """Invalid api_key for the 'drb' user"""
-    return generate_api_key(
-        username="drb",
-        user=create_drb_user,
-        valid=False,
-    )
+    return "pbench_drb_invalid_api_key"
 
 
 def generate_token(
@@ -1020,17 +1016,13 @@ def generate_api_key(
     if not user:
         user = User.query(username=username)
         assert user
-    offset = datetime.timedelta(minutes=10)
-    exp = current_utc + (offset if valid else -offset)
 
     payload = {
         "iat": current_utc,
-        "exp": exp,
         "user_id": user.id,
         "username": user.username,
-        "audience": Auth.oidc_client.client_id,
     }
     key = jwt.encode(payload, jwt_secret, algorithm="HS256")
-    api_key = APIKeys(api_key=key, user=user)
+    api_key = APIKey(api_key=key, user=user)
     api_key.add()
     return key

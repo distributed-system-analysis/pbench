@@ -30,10 +30,9 @@ class TestAPIKey:
     def test_unauthorized_access(self, query_get_as, pbench_drb_token_invalid):
         response = query_get_as(pbench_drb_token_invalid, HTTPStatus.UNAUTHORIZED)
         assert response.json == {
-            "message": "User provided access_token is invalid or expired token"
+            "message": "User provided access_token is invalid or expired"
         }
 
     def test_successful_api_key_generation(self, query_get_as, pbench_drb_token):
         response = query_get_as(pbench_drb_token, HTTPStatus.CREATED)
         assert response.json["api_key"]
-        assert response.json["username"] == "drb"
