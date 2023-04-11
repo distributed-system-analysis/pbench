@@ -1,8 +1,9 @@
 """ Update table for storing api_key and removing auth_token
 
-Revision ID: 0e74664bae6f
+
+Revision ID: 80c8c690f09b
 Revises: f628657bed56
-Create Date: 2023-04-09 15:16:29.549025
+Create Date: 2023-04-11 19:20:36.892126
 
 """
 from alembic import op
@@ -12,7 +13,7 @@ from sqlalchemy.dialects import postgresql
 from pbench.server.database.models import TZDateTime
 
 # revision identifiers, used by Alembic.
-revision = "0e74664bae6f"
+revision = "80c8c690f09b"
 down_revision = "f628657bed56"
 branch_labels = None
 depends_on = None
@@ -30,7 +31,6 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("api_key"),
     )
-    op.create_index(op.f("ix_api_keys_api_key"), "api_keys", ["api_key"], unique=True)
     op.drop_index("ix_auth_tokens_expiration", table_name="auth_tokens")
     op.drop_index("ix_auth_tokens_token", table_name="auth_tokens")
     op.drop_table("auth_tokens")
@@ -50,5 +50,4 @@ def downgrade() -> None:
     op.create_index(
         "ix_auth_tokens_expiration", "auth_tokens", ["expiration"], unique=False
     )
-    op.drop_index(op.f("ix_api_keys_api_key"), table_name="api_keys")
     op.drop_table("api_keys")
