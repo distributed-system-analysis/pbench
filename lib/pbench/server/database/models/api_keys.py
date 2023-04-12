@@ -76,8 +76,7 @@ class APIKey(Database.Base):
             An APIKey object if found, otherwise None
         """
         # We currently only query api_key database with given api_key
-        api_key = Database.db_session.query(APIKey).filter_by(api_key=key).first()
-        return api_key
+        return Database.db_session.query(APIKey).filter_by(api_key=key).first()
 
     @staticmethod
     def delete(api_key: str):
