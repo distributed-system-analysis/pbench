@@ -6,7 +6,9 @@ can only list datasets with access `public`.)
 
 The collection of datasets may be filtered using any combination of a number
 of query parameters, including `owner`, `access`, `name` substring, date range,
-and arbitrary metadata filter expressions.
+and arbitrary metadata filter expressions. The selected datasets may be sorted
+by any metadata key value in either ascending or descending order. Multiple
+sort parameters will be processed in order.
 
 Large collections can be paginated for efficiency using the `limit` and `offset`
 query parameters.
@@ -112,6 +114,24 @@ with a paginated display or to limit data transfer requirements.
 `owner` string \
 Select only datasets owned by the specified username. Unless the username
 matches the authenticated user, only "public" datasets can be selected.
+
+`sort` sort expression \
+Sort the returned datasets by one or more sort expressions. You can separate
+multiple expressions using comma lists, or across separate `sort` query
+parameters, which will be processed in order. Any Metadata namespace key can
+be specified.
+
+Specify a sort order using the keywords `asc` (ascending) or `desc`
+(descending), separated from the key name with a colon (`:`). For example,
+`dataset.name:asc` or `dataset.metalog.pbench.script:desc`. The default is
+"ascending" if no order is specified. If no sort expressions are specified,
+datasets are returned sorted by `dataset.resource_id`.
+
+For example, `GET /api/v1/datasets?sort=global.dashboard.seen:desc,dataset.name`
+will return selected datasets sorted first in descending order based on whether
+the dataset has been marked "seen" by the dashboard, and secondly sorted by the
+dataset name. The Pbench Dashboard stores `global.dashboard.seen` as a `boolean`
+value, so in this case `true` values will appear before `false` values.
 
 `start` date/time \
 Select only datasets created on or after the specified time. Time should be
