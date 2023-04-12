@@ -90,4 +90,4 @@ class TestAPIKey:
         assert audit[1].user_id == "3"
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
-        assert audit[1].attributes["key"]
+        assert audit[1].attributes["key"] == response.json["api_key"]

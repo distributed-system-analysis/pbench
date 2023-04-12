@@ -6,7 +6,7 @@ from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from pbench.server.database.database import Database
-from pbench.server.database.models import commonDBException, TZDateTime
+from pbench.server.database.models import decode_integrity_error, TZDateTime
 from pbench.server.database.models.users import User
 
 # Module private constants
@@ -21,6 +21,26 @@ class APIKeyError(Exception):
 
     def __str__(self):
         return repr(self.message)
+
+
+class DuplicateApiKey(APIKeyError):
+    """Attempt to commit a duplicate unique value."""
+
+    def __init__(self, cause: str):
+        self.cause = cause
+
+    def __str__(self) -> str:
+        return f"Duplicate api_key: {self.cause}"
+
+
+class NullKey(APIKeyError):
+    """Attempt to commit an APIkey row with an empty required column."""
+
+    def __init__(self, cause: str):
+        self.cause = cause
+
+    def __str__(self) -> str:
+        return f"Missing required key: {self.cause}"
 
 
 class APIKey(Database.Base):
@@ -38,26 +58,6 @@ class APIKey(Database.Base):
     def __str__(self):
         return f"key: {self.api_key}"
 
-    class DuplicateValue(commonDBException):
-        """Attempt to commit a duplicate unique value."""
-
-        def __init__(self, api_key: "APIKey", cause: str):
-            self.api_key = api_key
-            self.cause = cause
-
-        def __str__(self) -> str:
-            return f"Duplicate api_key {self.api_key}: {self.cause}"
-
-    class NullKey(commonDBException):
-        """Attempt to commit an APIkey row with an empty required column."""
-
-        def __init__(self, api_key: "APIKey", cause: str):
-            self.api_key = api_key
-            self.cause = cause
-
-        def __str__(self) -> str:
-            return f"Missing required key in {self.api_key.as_json()}: {self.cause}"
-
     def add(self):
         """Add an api_key object to the database."""
         try:
@@ -66,7 +66,9 @@ class APIKey(Database.Base):
         except Exception as e:
             Database.db_session.rollback()
             self.logger.error("Can't add key:{} to DB: {}", str(self), str(e))
-            raise commonDBException._decode(self, e) from e
+            raise decode_integrity_error(
+                e, on_duplicate=DuplicateApiKey, on_null=NullKey
+            )
 
     @staticmethod
     def query(key: str) -> Optional["APIKey"]:

@@ -15,7 +15,7 @@ from pbench.server.api.resources import (
     ApiSchema,
 )
 import pbench.server.auth.auth as Auth
-from pbench.server.database.models.api_keys import APIKey
+from pbench.server.database.models.api_keys import APIKey, DuplicateApiKey
 from pbench.server.database.models.audit import AuditType, OperationCode
 
 
@@ -65,7 +65,7 @@ class APIKeyManage(ApiBase):
         try:
             key = APIKey(api_key=new_key, user=user)
             key.add()
-        except APIKey.DuplicateValue:
+        except DuplicateApiKey:
             pass
         except Exception as e:
             raise APIInternalError(str(e)) from e

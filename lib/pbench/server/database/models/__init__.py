@@ -1,4 +1,5 @@
 import datetime
+from pyclbr import Class
 
 from sqlalchemy import DateTime
 from sqlalchemy.exc import IntegrityError
@@ -53,42 +54,24 @@ class TZDateTime(TypeDecorator):
         return value
 
 
-class commonDBException(Exception):
-    """Generic base class for reporting errors ."""
+def decode_integrity_error(
+    exception: IntegrityError, on_null: type[Class], on_duplicate: type[Class]
+) -> Exception:
 
-    def DuplicateValue(self):
-        """This method will be invoked if SQLAlchemy IntegrityError
-        throws UNIQUE constraint violation
+    """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
+    or NOT NULL constraint violation.
 
-        ABSTRACT METHOD: override in subclass to perform operation.
-        """
-        raise NotImplementedError()
+    Return the original exception if it doesn't match.
 
-    def NullKey(self):
-        """This method will be invoked if SQLAlchemy IntegrityError
-        throws NOT NULL constraint violation
+    Args:
+        exception : An IntegrityError to decode
 
-        ABSTRACT METHOD: override in subclass to perform operation.
-        """
-        raise NotImplementedError()
-
-    def _decode(self, exception: IntegrityError) -> Exception:
-        """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
-        or NOT NULL constraint violation.
-
-        Return the original exception if it doesn't match.
-
-        Args:
-            exception : An IntegrityError to decode
-
-        Returns:
-            a more specific exception, or the original if decoding fails
-        """
-        # Postgres engine returns (code, message) but sqlite3 engine only
-        # returns (message); so always take the last element.
-        cause = exception.orig.args[-1]
-        if "UNIQUE constraint" in cause:
-            return self.DuplicateValue(self, cause)
-        elif "NOT NULL constraint" in cause:
-            return self.NullKey(self, cause)
-        return exception
+    Returns:
+        a more specific exception, or the original if decoding fails
+    """
+    cause = exception.orig.args[-1]
+    if "UNIQUE constraint" in cause:
+        return on_duplicate(cause)
+    elif "NOT NULL constraint" in cause:
+        return on_null(cause)
+    return exception
