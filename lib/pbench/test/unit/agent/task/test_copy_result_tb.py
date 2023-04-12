@@ -99,7 +99,6 @@ class TestCopyResults:
                 res = crt.copy_result_tb("token", access)
 
         assert res.status_code == HTTPStatus.CREATED
-        # If we got this far without an exception, then the test passes.
 
     @responses.activate
     @pytest.mark.parametrize(
@@ -143,7 +142,6 @@ class TestCopyResults:
                 res = crt.copy_result_tb("token", access, metadata)
 
         assert res.status_code == HTTPStatus.CREATED
-        # If we got this far without an exception, then the test passes.
 
     @responses.activate
     def test_connection_error(self, monkeypatch, agent_logger):

@@ -1,5 +1,4 @@
 from http import HTTPStatus
-import logging
 import os
 from typing import Dict, Optional, Union
 
@@ -26,7 +25,8 @@ class TestResultsPush:
 
     @staticmethod
     def add_http_mock_response(
-        status_code: HTTPStatus = None, message: Optional[Union[str, Dict]] = None
+        status_code: HTTPStatus = HTTPStatus.CREATED,
+        message: Optional[Union[str, Dict]] = None,
     ):
         parms = {}
         if status_code:
@@ -34,25 +34,13 @@ class TestResultsPush:
 
         if isinstance(message, dict):
             parms["json"] = message
-        elif isinstance(message, str):
+        elif isinstance(message, (str, Exception)):
             parms["body"] = message
 
         responses.add(
             responses.PUT,
             f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
             **parms,
-        )
-
-    @staticmethod
-    def add_connectionerr_mock_response():
-        responses.add(
-            responses.PUT,
-            f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
-            body=requests.exceptions.ConnectionError(
-                "<urllib3.connection.HTTPConnection object at 0x1080854c0>: "
-                "Failed to establish a new connection: [Errno 8] "
-                "nodename nor servname provided, or not known"
-            ),
         )
 
     @staticmethod
@@ -101,7 +89,6 @@ class TestResultsPush:
     def test_meta_args():
         """Test operation when irregular arguments and options are specified"""
 
-        TestResultsPush.add_http_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
@@ -162,46 +149,105 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
-    def test_multiple_meta_args():
-        """Test normal operation when all arguments and options are specified"""
+    def test_token_omitted():
+        """Test error when the token option is omitted"""
 
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(main, args=[tarball])
+        assert result.exit_code == 2, result.stderr
+        assert "Missing option '--token'" in str(result.stderr)
+
+    @staticmethod
+    @responses.activate
+    def test_token_envar(monkeypatch):
+        """Test normal operation with the token in an environment variable"""
+
+        monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
         TestResultsPush.add_http_mock_response()
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(main, args=[tarball])
+        assert result.exit_code == 0, result.stderr
+        assert result.stdout == ""
+
+    @staticmethod
+    @responses.activate
+    def test_access_error(monkeypatch):
+        """Test error in access value"""
+
+        monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             main,
             args=[
-                TestResultsPush.TOKN_SWITCH,
-                TestResultsPush.TOKN_TEXT,
-                TestResultsPush.ACCESS_SWITCH,
-                TestResultsPush.ACCESS_TEXT,
-                TestResultsPush.META_SWITCH,
-                TestResultsPush.META_TEXT_TEST,
-                TestResultsPush.META_SWITCH,
-                TestResultsPush.META_TEXT_FOO,
                 tarball,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_WRONG_TEXT,
             ],
         )
-        assert result.exit_code == 0, result.stderr
-        assert result.stdout == ""
+        assert result.exit_code == 2, result.stderr
+        assert "Error: Invalid value for '-a' / '--access': 'public/private'" in str(
+            result.stderr
+        )
 
     @staticmethod
     @responses.activate
     @pytest.mark.parametrize(
         "status_code,message,exit_code",
         (
-            (HTTPStatus.CREATED, None, 0),
-            (HTTPStatus.OK, {"message": "Dup"}, 0),
-            (HTTPStatus.OK, "Dup", 0),
-            (HTTPStatus.NO_CONTENT, {"message": "No content"}, 0),
-            (HTTPStatus.NO_CONTENT, "No content", 0),
+            (
+                HTTPStatus.CREATED,
+                None,
+                0,
+            ),
+            (
+                HTTPStatus.OK,
+                {"message": "Dup"},
+                0,
+            ),
+            (
+                HTTPStatus.OK,
+                "Dup",
+                0,
+            ),
+            (
+                HTTPStatus.NO_CONTENT,
+                {"message": "No content"},
+                0,
+            ),
+            (
+                HTTPStatus.NO_CONTENT,
+                "No content",
+                0,
+            ),
             (
                 HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                 {"message": "Request Entity Too Large"},
                 1,
             ),
-            (HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Request Entity Too Large", 1),
-            (HTTPStatus.NOT_FOUND, {"message": "Not Found"}, 1),
-            (HTTPStatus.NOT_FOUND, "Not Found", 1),
+            (
+                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                "Request Entity Too Large",
+                1,
+            ),
+            (
+                HTTPStatus.NOT_FOUND,
+                {"message": "Not Found"},
+                1,
+            ),
+            (
+                HTTPStatus.NOT_FOUND,
+                "Not Found",
+                1,
+            ),
+            (
+                0,
+                requests.exceptions.ConnectionError(
+                    "<urllib3.connection.HTTPConnection object at 0x1080854c0>: "
+                    "Failed to establish a new connection: [Errno 8] "
+                    "nodename nor servname provided, or not known"
+                ),
+                1,
+            ),
         ),
     )
     def test_push_status(status_code, message, exit_code):
@@ -221,118 +267,21 @@ class TestResultsPush:
                 tarball,
             ],
         )
+
         assert result.exit_code == exit_code, result.stderr
         assert result.stdout == ""
 
-        try:
-            err_msg = "" if not message else message["message"]
-        except TypeError:
+        if not message:
+            err_msg = ""
+        elif isinstance(message, dict):
+            err_msg = message["message"]
+        elif isinstance(message, str):
             err_msg = message
+        elif isinstance(message, Exception):
+            err_msg = str(message)
+        else:
+            assert False, "message must be dict, string, Exception or None"
 
-        if status_code >= HTTPStatus.BAD_REQUEST:
+        if status_code >= 400:
             err_msg = f"HTTP Error status: {status_code.value}, message: {err_msg}"
-        assert result.stderr.strip() == err_msg
-
-    @staticmethod
-    @responses.activate
-    def test_error_too_large_tarball():
-        """Test normal operation when all arguments and options are specified"""
-
-        TestResultsPush.add_http_mock_response(
-            status_code=HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-            message={"message": "Request Entity Too Large"},
-        )
-        runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(
-            main,
-            args=[
-                TestResultsPush.TOKN_SWITCH,
-                TestResultsPush.TOKN_TEXT,
-                TestResultsPush.ACCESS_SWITCH,
-                TestResultsPush.ACCESS_TEXT,
-                TestResultsPush.META_SWITCH,
-                TestResultsPush.META_TEXT_TEST + "," + TestResultsPush.META_TEXT_FOO,
-                tarball,
-            ],
-        )
-        assert result.exit_code == 1, result.stderr
-        assert (
-            result.stderr
-            == "HTTP Error status: 413, message: Request Entity Too Large\n"
-        )
-
-    @staticmethod
-    @responses.activate
-    def test_token_omitted():
-        """Test error when the token option is omitted"""
-
-        TestResultsPush.add_http_mock_response()
-        runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(main, args=[tarball])
-        assert result.exit_code == 2, result.stderr
-        assert "Missing option '--token'" in str(result.stderr)
-
-    @staticmethod
-    @responses.activate
-    def test_token_envar(monkeypatch, caplog):
-        """Test normal operation with the token in an environment variable"""
-
-        monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_http_mock_response()
-        caplog.set_level(logging.DEBUG)
-        runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(main, args=[tarball])
-        assert result.exit_code == 0, result.stderr
-        assert result.stdout == ""
-
-    @staticmethod
-    @responses.activate
-    def test_access_error(monkeypatch, caplog):
-        """Test error in access value"""
-
-        monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_http_mock_response()
-        caplog.set_level(logging.DEBUG)
-        runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(
-            main,
-            args=[
-                tarball,
-                TestResultsPush.ACCESS_SWITCH,
-                TestResultsPush.ACCESS_WRONG_TEXT,
-            ],
-        )
-        assert result.exit_code == 2, result.stderr
-        assert "Error: Invalid value for '-a' / '--access': 'public/private'" in str(
-            result.stderr
-        )
-
-    @staticmethod
-    @responses.activate
-    def test_connection_error(monkeypatch, caplog):
-        """Test handling of connection errors"""
-
-        monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_connectionerr_mock_response()
-        caplog.set_level(logging.DEBUG)
-        runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(main, args=[tarball])
-        assert result.exit_code == 1
-        assert str(result.stderr).startswith("Cannot connect to")
-
-    @staticmethod
-    @responses.activate
-    def test_http_error(monkeypatch, caplog):
-        """Test handling of 404 errors"""
-
-        monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_http_mock_response(
-            HTTPStatus.NOT_FOUND, message={"message": "Not Found"}
-        )
-        caplog.set_level(logging.DEBUG)
-        runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(main, args=[tarball])
-        assert result.exit_code == 1
-        assert (
-            "Not Found" in result.stderr
-        ), f"stderr: {result.stderr!r}; stdout: {result.stdout!r}"
+        assert err_msg in result.stderr.strip()
