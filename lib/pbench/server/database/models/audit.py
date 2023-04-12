@@ -80,7 +80,8 @@ class AuditType(enum.Enum):
     object_name."""
     TEMPLATE = enum.auto()
 
-    """Operation on an API key."""
+    """Operation on an API key.The 'attributes' field will be updated with the 
+    'key' once it is generated"""
     API_KEY = enum.auto()
 
 

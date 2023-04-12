@@ -6,8 +6,11 @@ from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from pbench.server.database.database import Database
-from pbench.server.database.models import TZDateTime
+from pbench.server.database.models import commonDBException, TZDateTime
 from pbench.server.database.models.users import User
+
+# Module private constants
+_TOKEN_ALG_INT = "HS256"
 
 
 class APIKeyError(Exception):
@@ -32,6 +35,29 @@ class APIKey(Database.Base):
     # Indirect reference to the owning User record
     user = relationship("User")
 
+    def __str__(self):
+        return f"key: {self.api_key}"
+
+    class DuplicateValue(commonDBException):
+        """Attempt to commit a duplicate unique value."""
+
+        def __init__(self, api_key: "APIKey", cause: str):
+            self.api_key = api_key
+            self.cause = cause
+
+        def __str__(self) -> str:
+            return f"Duplicate api_key {self.api_key}: {self.cause}"
+
+    class NullKey(commonDBException):
+        """Attempt to commit an APIkey row with an empty required column."""
+
+        def __init__(self, api_key: "APIKey", cause: str):
+            self.api_key = api_key
+            self.cause = cause
+
+        def __str__(self) -> str:
+            return f"Missing required key in {self.api_key.as_json()}: {self.cause}"
+
     def add(self):
         """Add an api_key object to the database."""
         try:
@@ -39,8 +65,8 @@ class APIKey(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't add api_key to DB: {}", str(e))
-            raise APIKeyError(f"Error adding api_key to db : {e}") from e
+            self.logger.error("Can't add key:{} to DB: {}", str(self), str(e))
+            raise commonDBException._decode(self, e) from e
 
     @staticmethod
     def query(key: str) -> Optional["APIKey"]:
@@ -64,9 +90,9 @@ class APIKey(Database.Base):
         try:
             dbs.query(APIKey).filter_by(api_key=api_key).delete()
             dbs.commit()
-        except Exception:
+        except Exception as e:
             dbs.rollback()
-            raise
+            raise APIKeyError(f"Error deleting api_key from db : {e}") from e
 
     @staticmethod
     def generate_api_key(user: User):
@@ -84,7 +110,7 @@ class APIKey(Database.Base):
         }
         try:
             generated_api_key = jwt.encode(
-                payload, current_app.secret_key, algorithm="HS256"
+                payload, current_app.secret_key, algorithm=_TOKEN_ALG_INT
             )
         except (
             jwt.InvalidIssuer,

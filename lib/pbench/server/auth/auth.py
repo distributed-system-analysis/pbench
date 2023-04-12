@@ -10,9 +10,6 @@ from pbench.server.auth import OpenIDClient, OpenIDTokenInvalid
 from pbench.server.database.models.api_keys import APIKey
 from pbench.server.database.models.users import User
 
-# Module private constants
-_TOKEN_ALG_INT = "HS256"
-
 # Module public
 token_auth = HTTPTokenAuth("Bearer")
 oidc_client: OpenIDClient = None
@@ -123,18 +120,17 @@ def verify_auth_api_key(api_key: str) -> Optional[User]:
 
     """
     key = APIKey.query(api_key)
-    if key:
-        return key.user
-    return None
+    return key.user if key else None
 
 
 def verify_auth_oidc(auth_token: str) -> Optional[User]:
-    """
+    """Authorization token verification function.
+
     The verification will pass either if the token is from a third-party OIDC
-    identity provider or if the token is a Pbench Server API key
+    identity provider or if the token is a Pbench Server API key.
 
     The function will first attempt to validate the token as an OIDC access token
-    if that fails, it will then attempt to validate it as a Pbench Server API key
+    if that fails, it will then attempt to validate it as a Pbench Server API key.
 
     If the token is a valid access token (and not if it is an API key),
     we will import its contents into the internal user database.

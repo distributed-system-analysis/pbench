@@ -1,6 +1,7 @@
 import datetime
 
 from sqlalchemy import DateTime
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.types import TypeDecorator
 
 
@@ -50,3 +51,44 @@ class TZDateTime(TypeDecorator):
         if value is not None:
             value = value.replace(tzinfo=datetime.timezone.utc)
         return value
+
+
+class commonDBException(Exception):
+    """Generic base class for reporting errors ."""
+
+    def DuplicateValue(self):
+        """This method will be invoked if SQLAlchemy IntegrityError
+        throws UNIQUE constraint violation
+
+        ABSTRACT METHOD: override in subclass to perform operation.
+        """
+        raise NotImplementedError()
+
+    def NullKey(self):
+        """This method will be invoked if SQLAlchemy IntegrityError
+        throws NOT NULL constraint violation
+
+        ABSTRACT METHOD: override in subclass to perform operation.
+        """
+        raise NotImplementedError()
+
+    def _decode(self, exception: IntegrityError) -> Exception:
+        """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
+        or NOT NULL constraint violation.
+
+        Return the original exception if it doesn't match.
+
+        Args:
+            exception : An IntegrityError to decode
+
+        Returns:
+            a more specific exception, or the original if decoding fails
+        """
+        # Postgres engine returns (code, message) but sqlite3 engine only
+        # returns (message); so always take the last element.
+        cause = exception.orig.args[-1]
+        if "UNIQUE constraint" in cause:
+            return self.DuplicateValue(self, cause)
+        elif "NOT NULL constraint" in cause:
+            return self.NullKey(self, cause)
+        return exception

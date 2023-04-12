@@ -15,13 +15,8 @@ from pbench.server.api.resources import (
     ApiSchema,
 )
 import pbench.server.auth.auth as Auth
-from pbench.server.database.models.api_keys import APIKey, APIKeyError
-from pbench.server.database.models.audit import (
-    Audit,
-    AuditStatus,
-    AuditType,
-    OperationCode,
-)
+from pbench.server.database.models.api_keys import APIKey
+from pbench.server.database.models.audit import AuditType, OperationCode
 
 
 class APIKeyManage(ApiBase):
@@ -64,28 +59,18 @@ class APIKeyManage(ApiBase):
             )
         try:
             new_key = APIKey.generate_api_key(user)
-        except APIKeyError as e:
-            raise APIInternalError(e.message) from e
         except Exception as e:
-            raise APIInternalError("Unexpected backend error") from e
+            raise APIInternalError(str(e)) from e
 
         try:
             key = APIKey(api_key=new_key, user=user)
             key.add()
-        except APIKeyError as e:
-            raise APIInternalError(e.message) from e
+        except APIKey.DuplicateValue:
+            pass
         except Exception as e:
-            raise APIInternalError(e) from e
+            raise APIInternalError(str(e)) from e
 
-        Audit.create(
-            operation=OperationCode.CREATE,
-            name="api_key",
-            user_id=user.id,
-            object_type=AuditType.API_KEY,
-            user_name=user.username,
-            status=AuditStatus.SUCCESS,
-        )
-
+        context["auditing"]["attributes"] = {"key": new_key}
         response = jsonify({"api_key": new_key})
         response.status = HTTPStatus.CREATED
         return response
