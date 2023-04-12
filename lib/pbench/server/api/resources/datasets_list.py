@@ -5,7 +5,7 @@ from urllib.parse import urlencode, urlparse
 from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
-from sqlalchemy import and_, cast, func, or_, String
+from sqlalchemy import and_, asc, cast, desc, func, or_, String
 from sqlalchemy.exc import ProgrammingError, StatementError
 from sqlalchemy.orm import aliased, Query
 from sqlalchemy.sql.expression import Alias
@@ -80,6 +80,12 @@ class DatasetsList(ApiBase):
                         string_list=",",
                         metalog_ok=True,
                     ),
+                    Parameter(
+                        "sort",
+                        ParamType.LIST,
+                        element_type=ParamType.STRING,
+                        string_list=",",
+                    ),
                 ),
                 authorization=ApiAuthorizationType.USER_ACCESS,
             ),
@@ -105,7 +111,7 @@ class DatasetsList(ApiBase):
             start to narrow down the result.
         """
         paginated_result = {}
-        query = query.order_by(Dataset.resource_id).distinct()
+        query = query.distinct()
         total_count = query.count()
 
         # Shift the query search by user specified offset value,
@@ -222,7 +228,7 @@ class DatasetsList(ApiBase):
                 k, v = kw.split(":", maxsplit=1)
             except ValueError:
                 raise APIAbort(
-                    HTTPStatus.BAD_REQUEST, f"filter {kw!r} must have the form 'k=v'"
+                    HTTPStatus.BAD_REQUEST, f"filter {kw!r} must have the form 'k:v'"
                 )
             if k.startswith("^"):
                 combine_or = True
@@ -372,7 +378,9 @@ class DatasetsList(ApiBase):
         else:
             return {}
 
-    def datasets(self, request: Request, json: JSONOBJECT, query: Query) -> JSONOBJECT:
+    def datasets(
+        self, request: Request, aliases: dict[str, Any], json: JSONOBJECT, query: Query
+    ) -> JSONOBJECT:
         """Gather and paginate the selected datasets
 
         Run the query we've compiled, with pagination limits applied; collect
@@ -380,12 +388,61 @@ class DatasetsList(ApiBase):
 
         Args:
             request: The HTTP Request object
+            aliases: Map of join column aliases for each Metadata namespace
             json: The JSON query parameters
             query: The basic filtered SQLAlchemy query object
 
         Returns:
             The paginated dataset listing
         """
+
+        # Process a possible list of sort terms. By default, we sort by the
+        # dataset resource_id.
+        sorters = []
+        for sort in json.get("sort", ["dataset.resource_id"]):
+            if ":" not in sort:
+                k = sort
+                order = asc
+            else:
+                k, o = sort.split(":", maxsplit=1)
+                if o.lower() == "asc":
+                    order = asc
+                elif o.lower() == "desc":
+                    order = desc
+                else:
+                    raise APIAbort(
+                        HTTPStatus.BAD_REQUEST,
+                        f"The sort order {o!r} for key {k!r} must be 'asc' or 'desc'",
+                    )
+
+            if not Metadata.is_key_path(k, Metadata.METADATA_KEYS, metalog_key_ok=True):
+                raise APIAbort(HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k)))
+            keys = k.split(".")
+            native_key = keys.pop(0).lower()
+            sorter = None
+            if native_key == Metadata.DATASET:
+                second = keys[0].lower()
+                # The dataset namespace requires special handling because
+                # "dataset.metalog" is really a special native key space
+                # named "metalog", while other "dataset" sub-keys are primary
+                # columns in the Dataset table.
+                if second == Metadata.METALOG:
+                    native_key = keys.pop(0).lower()
+                else:
+                    try:
+                        c = getattr(Dataset, second)
+                    except AttributeError as e:
+                        raise APIAbort(
+                            HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k))
+                        ) from e
+                    sorter = order(c)
+            if sorter is None:
+                sorter = order(aliases[native_key].value[keys])
+            sorters.append(sorter)
+
+        # Apply our list of sort terms
+        query = query.order_by(*sorters)
+
         try:
             datasets, paginated_result = self.get_paginated_obj(
                 query=query, json=json, url=request.url
@@ -534,5 +591,5 @@ class DatasetsList(ApiBase):
             result.update(self.daterange(query))
             done = True
         if not done:
-            result = self.datasets(request, json, query)
+            result = self.datasets(request, aliases, json, query)
         return jsonify(result)
