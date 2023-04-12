@@ -26,7 +26,7 @@ class TestResultsPush:
     @staticmethod
     def add_http_mock_response(
         status_code: HTTPStatus = HTTPStatus.CREATED,
-        message: Optional[Union[str, Dict]] = None,
+        message: Optional[Union[str, Dict, Exception]] = None,
     ):
         parms = {}
         if status_code:
@@ -194,60 +194,20 @@ class TestResultsPush:
     @pytest.mark.parametrize(
         "status_code,message,exit_code",
         (
-            (
-                HTTPStatus.CREATED,
-                None,
-                0,
-            ),
-            (
-                HTTPStatus.OK,
-                {"message": "Dup"},
-                0,
-            ),
-            (
-                HTTPStatus.OK,
-                "Dup",
-                0,
-            ),
-            (
-                HTTPStatus.NO_CONTENT,
-                {"message": "No content"},
-                0,
-            ),
-            (
-                HTTPStatus.NO_CONTENT,
-                "No content",
-                0,
-            ),
+            (HTTPStatus.CREATED, None, 0),
+            (HTTPStatus.OK, {"message": "Dup"}, 0),
+            (HTTPStatus.OK, "Dup", 0),
+            (HTTPStatus.NO_CONTENT, {"message": "No content"}, 0),
+            (HTTPStatus.NO_CONTENT, "No content", 0),
             (
                 HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
                 {"message": "Request Entity Too Large"},
                 1,
             ),
-            (
-                HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                "Request Entity Too Large",
-                1,
-            ),
-            (
-                HTTPStatus.NOT_FOUND,
-                {"message": "Not Found"},
-                1,
-            ),
-            (
-                HTTPStatus.NOT_FOUND,
-                "Not Found",
-                1,
-            ),
-            (
-                0,
-                requests.exceptions.ConnectionError(
-                    "<urllib3.connection.HTTPConnection object at 0x1080854c0>: "
-                    "Failed to establish a new connection: [Errno 8] "
-                    "nodename nor servname provided, or not known"
-                ),
-                1,
-            ),
+            (HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Request Entity Too Large", 1),
+            (HTTPStatus.NOT_FOUND, {"message": "Not Found"}, 1),
+            (HTTPStatus.NOT_FOUND, "Not Found", 1),
+            (None, requests.exceptions.ConnectionError("Oops"), 1),
         ),
     )
     def test_push_status(status_code, message, exit_code):
@@ -282,6 +242,6 @@ class TestResultsPush:
         else:
             assert False, "message must be dict, string, Exception or None"
 
-        if status_code >= 400:
+        if status_code and status_code >= 400:
             err_msg = f"HTTP Error status: {status_code.value}, message: {err_msg}"
-        assert err_msg in result.stderr.strip()
+        assert err_msg in result.stderr
