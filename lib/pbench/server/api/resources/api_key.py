@@ -65,14 +65,13 @@ class APIKeyManage(ApiBase):
         try:
             key = APIKey(api_key=new_key, user=user)
             key.add()
+            status = HTTPStatus.CREATED
         except DuplicateApiKey:
-            response = jsonify({"api_key": new_key})
-            response.status_code = HTTPStatus.OK
-            return response
+            status = HTTPStatus.OK
         except Exception as e:
             raise APIInternalError(str(e)) from e
 
         context["auditing"]["attributes"] = {"key": new_key}
         response = jsonify({"api_key": new_key})
-        response.status = HTTPStatus.CREATED
+        response.status_code = status
         return response

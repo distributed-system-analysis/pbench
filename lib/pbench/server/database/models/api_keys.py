@@ -66,9 +66,13 @@ class APIKey(Database.Base):
         except Exception as e:
             Database.db_session.rollback()
             self.logger.error("Can't add {} to DB: {}", str(self), str(e))
-            raise decode_integrity_error(
+            decode_exc = decode_integrity_error(
                 e, on_duplicate=DuplicateApiKey, on_null=NullKey
             )
+            if decode_exc == e:
+                raise APIKeyError(str(e)) from e
+            else:
+                raise decode_exc from e
 
     @staticmethod
     def query(key: str) -> Optional["APIKey"]:
