@@ -149,6 +149,30 @@ class TestResultsPush:
 
     @staticmethod
     @responses.activate
+    def test_multiple_meta_args():
+        """Test normal operation when all arguments and options are specified"""
+
+        TestResultsPush.add_http_mock_response()
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            main,
+            args=[
+                TestResultsPush.TOKN_SWITCH,
+                TestResultsPush.TOKN_TEXT,
+                TestResultsPush.ACCESS_SWITCH,
+                TestResultsPush.ACCESS_TEXT,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_TEST,
+                TestResultsPush.META_SWITCH,
+                TestResultsPush.META_TEXT_FOO,
+                tarball,
+            ],
+        )
+        assert result.exit_code == 0, result.stderr
+        assert result.stderr == ""
+
+    @staticmethod
+    @responses.activate
     def test_token_omitted():
         """Test error when the token option is omitted"""
 
