@@ -5,6 +5,7 @@ import tempfile
 from typing import List
 
 import click
+import requests
 
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb, MakeResultTb
@@ -104,9 +105,15 @@ class MoveResults(BaseCommand):
                         self.config,
                         self.logger,
                     )
-                    crt.copy_result_tb(
+                    res = crt.copy_result_tb(
                         self.context.token, self.context.access, self.context.metadata
                     )
+                    if not res.ok:
+                        try:
+                            msg = res.json()["message"]
+                        except requests.exceptions.JSONDecodeError:
+                            msg = res.text if res.text else res.reason
+                        raise CopyResultTb.FileUploadError(msg)
                 except Exception as exc:
                     if isinstance(exc, (CopyResultTb.FileUploadError, RuntimeError)):
                         msg = "Error uploading file"
