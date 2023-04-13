@@ -1,4 +1,5 @@
 import datetime
+from typing import Callable
 
 from sqlalchemy import DateTime
 from sqlalchemy.exc import IntegrityError
@@ -54,7 +55,7 @@ class TZDateTime(TypeDecorator):
 
 
 def decode_integrity_error(
-    exception: IntegrityError, on_null: type, on_duplicate: type
+    exception: IntegrityError, on_null: Callable, on_duplicate: Callable
 ) -> Exception:
 
     """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
