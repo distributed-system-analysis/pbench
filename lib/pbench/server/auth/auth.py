@@ -129,8 +129,8 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
     The verification will pass either if the token is from a third-party OIDC
     identity provider or if the token is a Pbench Server API key.
 
-    The function will first attempt to validate the token as an OIDC access token
-    if that fails, it will then attempt to validate it as a Pbench Server API key.
+    The function will first attempt to validate the token as an OIDC access token.
+    If that fails, it will then attempt to validate it as a Pbench Server API key.
 
     If the token is a valid access token (and not if it is an API key),
     we will import its contents into the internal user database.

@@ -1,5 +1,4 @@
 import datetime
-from pyclbr import Class
 
 from sqlalchemy import DateTime
 from sqlalchemy.exc import IntegrityError
@@ -55,7 +54,7 @@ class TZDateTime(TypeDecorator):
 
 
 def decode_integrity_error(
-    exception: IntegrityError, on_null: type[Class], on_duplicate: type[Class]
+    exception: IntegrityError, on_null: type, on_duplicate: type
 ) -> Exception:
 
     """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE

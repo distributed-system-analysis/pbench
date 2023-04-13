@@ -40,7 +40,7 @@ class NullKey(APIKeyError):
         self.cause = cause
 
     def __str__(self) -> str:
-        return f"Missing required key: {self.cause}"
+        return f"Missing required value: {self.cause}"
 
 
 class APIKey(Database.Base):
@@ -56,7 +56,7 @@ class APIKey(Database.Base):
     user = relationship("User")
 
     def __str__(self):
-        return f"key: {self.api_key}"
+        return f"API key {self.api_key}"
 
     def add(self):
         """Add an api_key object to the database."""
@@ -65,7 +65,7 @@ class APIKey(Database.Base):
             Database.db_session.commit()
         except Exception as e:
             Database.db_session.rollback()
-            self.logger.error("Can't add key:{} to DB: {}", str(self), str(e))
+            self.logger.error("Can't add {} to DB: {}", str(self), str(e))
             raise decode_integrity_error(
                 e, on_duplicate=DuplicateApiKey, on_null=NullKey
             )
@@ -77,7 +77,6 @@ class APIKey(Database.Base):
         Returns:
             An APIKey object if found, otherwise None
         """
-        # We currently only query api_key database with given api_key
         return Database.db_session.query(APIKey).filter_by(api_key=key).first()
 
     @staticmethod

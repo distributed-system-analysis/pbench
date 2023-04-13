@@ -66,7 +66,9 @@ class APIKeyManage(ApiBase):
             key = APIKey(api_key=new_key, user=user)
             key.add()
         except DuplicateApiKey:
-            pass
+            response = jsonify({"api_key": new_key})
+            response.status_code = HTTPStatus.OK
+            return response
         except Exception as e:
             raise APIInternalError(str(e)) from e
 
