@@ -51,7 +51,6 @@ util-scripts = \
 # Scripts based on the Python Click package, which are generated during
 # installation.
 click-scripts = \
-	pbench-generate-token \
 	pbench-cleanup \
 	pbench-clear-results \
 	pbench-clear-tools \

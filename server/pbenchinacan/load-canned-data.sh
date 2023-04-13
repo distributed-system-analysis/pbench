@@ -31,14 +31,9 @@ then
   exit 2
 fi
 
-if [[ $# == 1 ]]
-then
-  token=$1
-else
-  username=${1:-pbench_user}
-  password=${2:-pbench}
-  token=$(pbench-generate-token --username $username --password $password)
-fi
+# Get the Pbench authentication token
+token_location=$1
+token=$(< ${token_location})
 
 # We skip test-7.8, test-7.12, and test-7.15, which have controllers that are
 # not legal nodenames, so the server refuses to accept them.  We skip test-7.14,

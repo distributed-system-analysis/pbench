@@ -20,16 +20,18 @@ export PB_AGENT_IMAGE_NAME=quay.io/pbench/pbench-agent-all-fedora-36:main
 
 mkdir -p ${FIOTEST}
 
+# Before we run the demo, we need a Pbench authentication token. The token
+# location need to be supplied to this script as an argument.
+token_location=$1
+token=$(< ${token_location})
 #+
 # Run the demo!
 #-
-pbench pbench-generate-token --output=/var/lib/pbench-agent/.token
 pbench pbench-register-tool-set light
 pbench pbench-list-tools
 pbench pbench-user-benchmark --config example-workload -- \
     fio --directory=/fiotest --name fio_test_file --direct=1 --rw=randread \
         --bs=16k --size=100M --numjobs=8 --time_based --runtime=5s \
         --group_reporting --norandommap
-# Note that the token file location below is evaluated -outside- the container,
-# unlike in the pbench-generate-token command above.
-pbench pbench-results-move --token=$(< /var/tmp/${USER}/pbench-agent/run/.token)
+# Note that the token file location below is evaluated -outside- the container.
+pbench pbench-results-move --token=token
