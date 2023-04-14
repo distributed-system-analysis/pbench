@@ -48,6 +48,7 @@ class API(Enum):
     DATASETS_SEARCH = "datasets_search"
     DATASETS_VALUES = "datasets_values"
     ENDPOINTS = "endpoints"
+    KEY = "key"
     SERVER_AUDIT = "server_audit"
     SERVER_SETTINGS = "server_settings"
     UPLOAD = "upload"

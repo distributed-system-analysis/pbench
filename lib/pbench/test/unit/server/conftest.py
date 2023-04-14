@@ -28,6 +28,7 @@ from pbench.server.api import create_app
 import pbench.server.auth.auth as Auth
 from pbench.server.database import init_db
 from pbench.server.database.database import Database
+from pbench.server.database.models.api_keys import APIKey
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.templates import Template
 from pbench.server.database.models.users import User
@@ -829,6 +830,21 @@ def get_token_func(pbench_admin_token, server_config, rsa_keys):
     )
 
 
+@pytest.fixture()
+def pbench_drb_api_key(client, server_config, create_drb_user):
+    """Valid api_key for the 'drb' user"""
+    return generate_api_key(
+        username="drb",
+        user=create_drb_user,
+    )
+
+
+@pytest.fixture()
+def pbench_drb_api_key_invalid(client, server_config, create_drb_user):
+    """Invalid api_key for the 'drb' user"""
+    return "pbench_drb_invalid_api_key"
+
+
 def generate_token(
     username: str,
     private_key: str,
@@ -975,3 +991,42 @@ def tarball(tmp_path):
         md5file.unlink()
     if datafile.exists():
         datafile.unlink()
+
+
+def generate_api_key(
+    username: str,
+    user: Optional[User] = None,
+    valid: bool = True,
+) -> str:
+    """Generates an api_key which will be mimic of how POST v1/generate_key call works.
+
+    Note: The OIDC client id passed as an argument has to match with the
+        oidc client id from the default config file. Otherwise the token
+        validation will fail in the server code.
+
+    Args:
+        username: username to include in the token payload
+        user: user attributes will be extracted from the user object to include
+            in the token payload.
+        valid: If True, the generated key will be valid for 10 mins.
+               If False, generated key will be invalid and expired
+
+    Returns:
+        JWT token string
+    """
+    # Current time to encode in the token payload
+    current_utc = datetime.datetime.now(datetime.timezone.utc)
+
+    if not user:
+        user = User.query(username=username)
+        assert user
+
+    payload = {
+        "iat": current_utc,
+        "user_id": user.id,
+        "username": user.username,
+    }
+    key = jwt.encode(payload, jwt_secret, algorithm="HS256")
+    api_key = APIKey(api_key=key, user=user)
+    api_key.add()
+    return key

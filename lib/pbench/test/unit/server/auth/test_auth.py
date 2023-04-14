@@ -18,7 +18,6 @@ from pbench.server.auth import (
     OpenIDTokenInvalid,
 )
 import pbench.server.auth.auth as Auth
-from pbench.server.database.models.users import User
 from pbench.test.unit.server import DRB_USER_ID
 from pbench.test.unit.server.conftest import jwt_secret
 
@@ -430,12 +429,8 @@ class TestAuthModule:
     This class does not verify the setup_app() method itself as it is verified
     in other tests related to the overall Flask application setup.
 
-    It also does not attempt to verify get_current_user_id() and
-    encode_auth_token() since they are slated for removal and are covered well
-    by other parts of the unit testing for the server code.
-
-    It does, however, verify the verify_auth_internal() method because we need
-    it to function properly until the use of an internal user is removed.
+    It verifies the verify_auth() method which covers both OIDC token verification
+    and also the Pbench server API key verification.
     """
 
     def test_get_auth_token_succ(self, monkeypatch, make_logger):
@@ -494,60 +489,31 @@ class TestAuthModule:
             )
             assert record["code"] == expected_code
 
-    def test_verify_auth_exc(self, monkeypatch, make_logger):
-        """Verify exception handling originating from verify_auth_internal"""
-
-        def vai_exc(token_auth: str) -> Optional[User]:
-            raise Exception("Some failure")
-
-        monkeypatch.setattr(Auth, "verify_auth_internal", vai_exc)
-        app = Flask("test-verify-auth-exc")
-        app.logger = make_logger
-        with app.app_context():
-            user = Auth.verify_auth("my-token")
-        assert user is None
-
-    def test_verify_auth_internal(self, make_logger, pbench_drb_token):
-        """Verify success path of verify_auth_internal"""
-        app = Flask("test-verify-auth-internal")
+    def test_verify_auth(self, make_logger, pbench_drb_token):
+        """Verify success path of verify_auth"""
+        app = Flask("test-verify-auth")
         app.logger = make_logger
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token)
-        assert str(user.id) == DRB_USER_ID
+        assert user.id == DRB_USER_ID
 
-    def test_verify_auth_internal_invalid(self, make_logger, pbench_drb_token_invalid):
-        """Verify handling of an invalid (expired) token in verify_auth_internal"""
-        app = Flask("test-verify-auth-internal-invalid")
+    def test_verify_auth_invalid(self, make_logger, pbench_drb_token_invalid):
+        """Verify handling of an invalid (expired) token in verify_auth"""
+        app = Flask("test-verify-auth-invalid")
         app.logger = make_logger
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token_invalid)
         assert user is None
 
-    def test_verify_auth_internal_invsig(self, make_logger, pbench_drb_token):
+    def test_verify_auth_invsig(self, make_logger, pbench_drb_token):
         """Verify handling of a token with an invalid signature"""
-        app = Flask("test-verify-auth-internal-invsig")
+        app = Flask("test-verify-auth-invsig")
         app.logger = make_logger
         with app.app_context():
             current_app.secret_key = jwt_secret
             user = Auth.verify_auth(pbench_drb_token + "1")
-        assert user is None
-
-    def test_verify_auth_internal_tokdel_fail(
-        self, monkeypatch, make_logger, pbench_drb_token_invalid
-    ):
-        """Verify behavior when token deletion fails"""
-
-        def delete(*args, **kwargs):
-            raise Exception("Delete failed")
-
-        monkeypatch.setattr(Auth.AuthToken, "delete", delete)
-        app = Flask("test-verify-auth-internal-tokdel-fail")
-        app.logger = make_logger
-        with app.app_context():
-            current_app.secret_key = jwt_secret
-            user = Auth.verify_auth(pbench_drb_token_invalid)
         assert user is None
 
     @pytest.mark.parametrize("roles", [["ROLE"], ["ROLE1", "ROLE2"], [], None])
@@ -637,4 +603,49 @@ class TestAuthModule:
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             user = Auth.verify_auth(token)
 
+        assert user is None
+
+    def test_verify_auth_api_key(
+        self, monkeypatch, rsa_keys, make_logger, pbench_drb_api_key
+    ):
+        """Verify api_key verification via Auth.verify_auth()"""
+
+        # Mock the Connection object and generate an OpenIDClient object,
+        # installing it as Auth module's OIDC client.
+        config = mock_connection(monkeypatch, "us", public_key=rsa_keys["public_key"])
+        oidc_client = OpenIDClient.construct_oidc_client(config)
+        monkeypatch.setattr(Auth, "oidc_client", oidc_client)
+
+        def tio_exc(token: str) -> JSON:
+            raise OpenIDTokenInvalid()
+
+        app = Flask("test_verify_auth_api_key")
+        app.logger = make_logger
+        with app.app_context():
+            monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
+            current_app.secret_key = jwt_secret
+            user = Auth.verify_auth(pbench_drb_api_key)
+        assert user.id == DRB_USER_ID
+
+    def test_verify_auth_api_key_invalid(
+        self, monkeypatch, rsa_keys, make_logger, pbench_drb_api_key_invalid
+    ):
+        """Verify api_key verification via Auth.verify_auth() fails
+        gracefully with an invalid token
+        """
+        # Mock the Connection object and generate an OpenIDClient object,
+        # installing it as Auth module's OIDC client.
+        config = mock_connection(monkeypatch, "us", public_key=rsa_keys["public_key"])
+        oidc_client = OpenIDClient.construct_oidc_client(config)
+        monkeypatch.setattr(Auth, "oidc_client", oidc_client)
+
+        def tio_exc(token: str) -> JSON:
+            raise OpenIDTokenInvalid()
+
+        app = Flask("test_verify_auth_api_key_invalid")
+        app.logger = make_logger
+        with app.app_context():
+            monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
+            current_app.secret_key = jwt_secret
+            user = Auth.verify_auth(pbench_drb_api_key_invalid)
         assert user is None
