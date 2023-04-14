@@ -21,11 +21,19 @@ elif [[ -n "${1}" ]]; then
     exit 2
 fi
 
+function dump_journal {
+    printf -- "+++ journalctl dump +++\n"
+    # Try to capture the functional test container's logs.
+    podman exec ${PB_SERVER_CONTAINER_NAME} journalctl
+    printf -- "\n--- journalctl dump ---\n\n"
+}
+
 function cleanup {
     if [[ -n "${cleanup_flag}" ]]; then
         # Remove the Pbench Server container and the dependencies pod which we
         # just created and ran; remove any dangling containers; and then remove
         # any dangling images.
+        dump_journal
         echo "Forcefully removing the Pbench Server container..." >&2
         podman rm --force --ignore ${PB_SERVER_CONTAINER_NAME}
         echo "Forcefully removing the Pbench Support Services pod..." >&2
@@ -85,10 +93,7 @@ fi
 
 if [[ ${exit_status} -ne 0 ]]; then
     printf -- "\nFunctional tests exited with code %s\n" ${exit_status}
-    printf -- "+++ journalctl dump +++\n"
-    # Try to capture the functional test container's logs.
-    podman exec ${PB_SERVER_CONTAINER_NAME} journalctl
-    printf -- "\n--- journalctl dump ---\n\n"
+    dump_journal
 fi
 
 if [[ -z "${cleanup_flag}" ]]; then

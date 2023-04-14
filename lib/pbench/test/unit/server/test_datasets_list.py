@@ -492,18 +492,58 @@ class TestDatasetsList:
     @pytest.mark.parametrize(
         "filters,expected",
         [
-            (["dataset.name:fio"], "datasets.name = 'fio'"),
+            (["dataset.name:=fio"], "datasets.name = 'fio'"),
             (
-                ["dataset.metalog.pbench.script:fio"],
-                "dataset_metadata_1.value[['pbench', 'script']] = 'fio'",
+                ["dataset.uploaded:>2023-01-01:date"],
+                "datasets.uploaded > '2023-01-01 00:00:00'",
+            ),
+            (
+                ["dataset.uploaded:!=2023-01-01:date"],
+                "datasets.uploaded != '2023-01-01 00:00:00'",
+            ),
+            (
+                ["server.deletion:<2023-05-01:date"],
+                "CAST(dataset_metadata_2.value[['deletion']] AS DATETIME) < '2023-05-01 00:00:00'",
+            ),
+            (
+                ["'dataset.metalog.pbench.script':='fio'"],
+                "CAST(dataset_metadata_1.value[['pbench', 'script']] AS VARCHAR) = 'fio'",
+            ),
+            (
+                ["'dataset.metalog.pbench.script':!=fio"],
+                "CAST(dataset_metadata_1.value[['pbench', 'script']] AS VARCHAR) != 'fio'",
+            ),
+            (
+                ["dataset.metalog.run.date:~fio"],
+                "(CAST(dataset_metadata_1.value[['run', 'date']] AS VARCHAR) LIKE '%' || 'fio' || '%')",
+            ),
+            (
+                ["global.something.integer:<1:int"],
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) < 1",
+            ),
+            (
+                ["global.something.integer:>2:int"],
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) > 2",
+            ),
+            (
+                ["global.something.integer:<=1:int"],
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) <= 1",
+            ),
+            (
+                ["global.something.integer:>=2:int"],
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) >= 2",
+            ),
+            (
+                ["global.something.boolean:t:bool"],
+                "CAST(dataset_metadata_3.value[['something', 'boolean']] AS BOOLEAN) = true",
             ),
             (
                 ["user.d.f:1"],
-                "dataset_metadata_4.value[['d', 'f']] = '1'",
+                "CAST(dataset_metadata_4.value[['d', 'f']] AS VARCHAR) = '1'",
             ),
             (
-                ["dataset.name:~fio", "^global.x:1", "^user.y:~yes"],
-                "(datasets.name LIKE '%' || 'fio' || '%') AND (dataset_metadata_3.value[['x']] = '1' OR ((dataset_metadata_4.value[['y']]) LIKE '%' || 'yes' || '%'))",
+                ["dataset.name:~fio", "^'global.x':1", "^user.y:~yes"],
+                "(datasets.name LIKE '%' || 'fio' || '%') AND (CAST(dataset_metadata_3.value[['x']] AS VARCHAR) = '1' OR (CAST(dataset_metadata_4.value[['y']] AS VARCHAR) LIKE '%' || 'yes' || '%'))",
             ),
             (
                 ["dataset.uploaded:~2000"],
@@ -544,11 +584,11 @@ class TestDatasetsList:
             (["dataset.name:fio"], "datasets.name = 'fio'"),
             (
                 ["dataset.metalog.pbench.script:fio"],
-                "dataset_metadata_1.value[['pbench', 'script']] = 'fio'",
+                "CAST(dataset_metadata_1.value[['pbench', 'script']] AS VARCHAR) = 'fio'",
             ),
             (
                 ["dataset.name:~fio", "^global.x:1"],
-                "(datasets.name LIKE '%' || 'fio' || '%') AND dataset_metadata_3.value[['x']] = '1'",
+                "(datasets.name LIKE '%' || 'fio' || '%') AND CAST(dataset_metadata_3.value[['x']] AS VARCHAR) = '1'",
             ),
             (
                 ["dataset.uploaded:~2000"],
@@ -596,15 +636,47 @@ class TestDatasetsList:
         assert e.value.http_status == HTTPStatus.UNAUTHORIZED
 
     @pytest.mark.parametrize(
-        "meta,error",
+        "meta,error,message",
         [
-            ("user.foo:1", HTTPStatus.UNAUTHORIZED),
-            ("x.y:1", HTTPStatus.BAD_REQUEST),
-            ("global.x=3", HTTPStatus.BAD_REQUEST),
-            ("dataset.notright:10", HTTPStatus.BAD_REQUEST),
+            (
+                "user.foo:1",
+                HTTPStatus.UNAUTHORIZED,
+                "Metadata key user.foo cannot be used by an unauthenticated client",
+            ),
+            ("x.y:1", HTTPStatus.BAD_REQUEST, "Metadata key 'x.y' is not supported"),
+            (
+                "global.x=3",
+                HTTPStatus.BAD_REQUEST,
+                "Missing terminator for 'global.x=3'",
+            ),
+            (
+                "dataset.notright:10",
+                HTTPStatus.BAD_REQUEST,
+                "Metadata key 'dataset.notright' is not supported",
+            ),
+            (
+                "'dataset.name:foo",
+                HTTPStatus.BAD_REQUEST,
+                'Bad quote termination in "\'dataset.name:foo"',
+            ),
+            (
+                "dataset.name:'foo",
+                HTTPStatus.BAD_REQUEST,
+                'Bad quote termination in "dataset.name:\'foo"',
+            ),
+            (
+                "server.deletion:<2023-05-01:time",
+                HTTPStatus.BAD_REQUEST,
+                "The filter type 'time' must be one of bool,date,int,str",
+            ),
+            (
+                "server.deletion:2023-05-01:date:",
+                HTTPStatus.BAD_REQUEST,
+                "The filter type 'date:' must be one of bool,date,int,str",
+            ),
         ],
     )
-    def test_filter_errors(self, monkeypatch, db_session, meta, error):
+    def test_filter_errors(self, monkeypatch, client, meta, error, message):
         """Test invalid filter expressions."""
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
@@ -614,6 +686,7 @@ class TestDatasetsList:
         with pytest.raises(APIAbort) as e:
             DatasetsList.filter_query([meta], aliases, query)
         assert e.value.http_status == error
+        assert str(e.value) == message
 
     @pytest.mark.parametrize(
         "exception,error",

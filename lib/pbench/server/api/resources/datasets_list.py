@@ -1,14 +1,16 @@
+from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Any
+import logging
+from typing import Any, Callable, Optional
 from urllib.parse import urlencode, urlparse
 
 from flask import current_app
 from flask.json import jsonify
 from flask.wrappers import Request, Response
-from sqlalchemy import and_, asc, cast, desc, func, or_, String
+from sqlalchemy import and_, asc, Boolean, cast, desc, func, Integer, or_, String
 from sqlalchemy.exc import ProgrammingError, StatementError
 from sqlalchemy.orm import aliased, Query
-from sqlalchemy.sql.expression import Alias
+from sqlalchemy.sql.expression import Alias, BinaryExpression, ColumnElement
 
 from pbench.server import JSON, JSONOBJECT, OperationCode, PbenchServerConfig
 from pbench.server.api.resources import (
@@ -20,12 +22,17 @@ from pbench.server.api.resources import (
     ApiMethod,
     ApiParams,
     ApiSchema,
+    convert_boolean,
+    convert_date,
+    convert_int,
+    convert_string,
     Parameter,
     ParamType,
     Schema,
 )
 import pbench.server.auth.auth as Auth
 from pbench.server.database.database import Database
+from pbench.server.database.models import TZDateTime
 from pbench.server.database.models.datasets import (
     Dataset,
     Metadata,
@@ -34,12 +41,202 @@ from pbench.server.database.models.datasets import (
 )
 
 
+@dataclass
+class Type:
+    """Link query filter type data
+
+    Link the filter type name, the equivalent SQLAlchemy type, and the Pbench
+    API conversion method to create a compatible object from a string.
+
+    Fields:
+        sqtype: The base SQLAlchemy type corresponding to a Python target type
+        convert: The Pbench API conversion method to verify and convert a
+                string
+    """
+
+    sqltype: Any
+    convert: Callable[[str, Any], Any]
+
+
+"""Associate the name of a filter type to the Type record describing it."""
+TYPES = {
+    "bool": Type(Boolean, convert_boolean),
+    "date": Type(TZDateTime, convert_date),
+    "int": Type(Integer, convert_int),
+    "str": Type(String, convert_string),
+}
+
+
+"""Define the set of operators we allow in query filters.
+
+This maps a symbolic name to a SQLAlchemy filter method on the column.
+"""
+OPERATORS = {
+    "~": "contains",
+    "=": "__eq__",
+    "<": "__lt__",
+    ">": "__gt__",
+    "<=": "__le__",
+    ">=": "__ge__",
+    "!=": "__ne__",
+}
+
+
+def make_operator(
+    expression: ColumnElement, operator: str, value: Any
+) -> BinaryExpression:
+    """Return the SQLAlchemy operator method of a column or JSON expression.
+
+    Args:
+        expression: A SQLAlchemy expression or column
+        operator: The operator prefix
+        value: The value to be compared against
+
+    Returns:
+        A SQLAlchemy filter expression.
+    """
+    x = getattr(expression, OPERATORS[operator])(value)
+    current_app.logger.info(
+        "Expression type {} yields type {}", type(expression).__name__, type(x).__name__
+    )
+    return x
+
+
 def urlencode_json(json: JSON) -> str:
     """We must properly encode the metadata query parameter as a list of keys."""
     new_json = {}
     for k, v in sorted(json.items()):
         new_json[k] = ",".join(v) if k in ("metadata", "filter") else v
     return urlencode(new_json)
+
+
+class Term:
+    """Help parsing a filter term."""
+
+    def __init__(self, term: str):
+        self.chain = None
+        self.key = None
+        self.value = None
+        self.term = term
+        self.buffer = term
+        self.logger = logging.getLogger("term")
+
+    def _remove_prefix(
+        self, prefixes: tuple[str], default: Optional[str] = None
+    ) -> Optional[str]:
+        """Remove a string prefix.
+
+        Looking at the current buffer, remove a known prefix before processing
+        the next character. A list of prefixes may be specified: they're sorted
+        longest first so that we don't accidentally match a substring.
+
+        Args:
+            prefixes: a collection of prefix strings
+            default: the default prefix if none appears in the string.
+
+        Returns:
+            The prefix, or the default.
+        """
+        prefix = default
+        for p in sorted(prefixes, key=lambda k: len(k), reverse=True):
+            if self.buffer.startswith(p):
+                prefix = self.buffer[: len(p)]
+                self.buffer = self.buffer[len(p) :]
+                break
+        return prefix
+
+    def _next_token(self, optional: bool = False) -> str:
+        """Extract a string from the head of the buffer.
+
+        To filter using metadata keys (e.g., unusual benchmark generated
+        metadata.log keys) or values (e.g. a date/time string) which may
+        contain ":" symbols, the key or value may be enclosed in quotes.
+        Either single or double quotes are allowed.
+
+        We're looking for the ":" symbol delimiting the next term of the filter
+        expression, or (if that's marked "optional") the end of the buffer.
+
+        Args:
+            optional: The terminating ":" separator is optional.
+
+        Returns:
+            The token, unquoted
+        """
+        buffer = self.buffer
+        if buffer.startswith(("'", '"')):
+            quote = buffer[:1]
+            end = buffer.find(quote, 1)
+            if end < 0:
+                raise APIAbort(
+                    HTTPStatus.BAD_REQUEST, f"Bad quote termination in {self.term!r}"
+                )
+            next = buffer[1:end]
+            end += 1
+        else:
+            end = buffer.find(":")
+            if end < 0:
+                if not optional:
+                    raise APIAbort(
+                        HTTPStatus.BAD_REQUEST, f"Missing terminator for {buffer!r}"
+                    )
+                next = buffer
+                end = len(buffer)
+            else:
+                next = buffer[:end]
+        buffer = buffer[end:]
+        if not optional and (len(buffer) == 0 or not buffer.startswith(":")):
+            self.logger.info(
+                "[optional %s, len %d, next %s]", optional, len(buffer), buffer[0]
+            )
+            raise APIAbort(HTTPStatus.BAD_REQUEST, f"Missing terminator for {buffer!r}")
+        buffer = buffer[1:]
+        self.buffer = buffer
+        return next
+
+    def parse_filter(self) -> "Term":
+        """Parse a filter term like "server.deletion:[<op>]value:type"
+
+        Returns a dictionary with "native_key", "full_key", "operator" (default
+        "="), "value", and "type" fields.
+
+        The key and value can be quoted to include mixed case and symbols,
+        including the ":"character, by starting and starting and ending the key
+        or value with the "'" or '"' character, e.g.,
+        "'dataset.metalog.tool/iteration:1':'foo:1#bar':str".
+
+        Returns:
+            self
+        """
+
+        # The "chain" allows chaining multiple expressions as an OR
+        self.chain = self._remove_prefix(("^",))
+
+        # The metadata key token
+        self.key = self._next_token()
+        if not Metadata.is_key_path(
+            self.key, Metadata.METADATA_KEYS, metalog_key_ok=True
+        ):
+            raise APIAbort(HTTPStatus.BAD_REQUEST, str(MetadataBadKey(self.key)))
+
+        # The comparison operator (defaults to "=")
+        self.operator = self._remove_prefix(OPERATORS.keys(), default="=")
+
+        # The filter value
+        self.value = self._next_token(optional=True)
+
+        # The comparison type, defaults to "str"
+        self.type = self.buffer.lower()
+        if self.type and self.type not in TYPES:
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST,
+                f"The filter type {self.type!r} must be one of {','.join(t for t in TYPES.keys())}",
+            )
+        if not self.key or not self.value:
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST,
+                f"filter {self.term!r} must have the form 'k:v[:type]'",
+            )
+        return self
 
 
 class DatasetsList(ApiBase):
@@ -159,14 +356,41 @@ class DatasetsList(ApiBase):
         'saved': True}` because there's no mechanism to parse JSON expressions.
         This might be added in the future.
 
-        To match against a key value, separate the key path from the value with
-        a `:` character, e.g., "dataset.name:fio". This produces an exact match
-        expression as an AND (required) term in the query: only datasets with
-        the exact name "fio" will be returned.
+        Specify the value to match separated from the key path by a `:`
+        character, e.g., "dataset.name:fio". By default this produces an exact
+        match expression as an AND (required) term in the query: only datasets
+        with the exact name "fio" will be returned.
 
-        To match against a subset of a key value, insert a tilde (~) following
-        the `:`, like "dataset.name:~fio". This produces a "contains" filter
-        that will match against any name containing the substring "fio".
+        The value may be prefixed by an optional operator in order to perform a
+        comparison other than strict equality:
+
+        =   Look for matches strictly equal to the specified value (default)
+        ~   Look for matches containing the specified value as a substring
+        >   Look for matches strictly greater than the specified value
+        <   Look for matches strictly less than the specified value
+        >=  Look for matches greater than or equal to the specified value
+        <=  Look for matches less than or equal to the specified value
+        !=  Look for matches not strictly equal to the specified value
+
+        After the value, you can optionally specify a type for the comparison.
+        Note that an incompatible type (other than the default "str") for a
+        primary "dataset" column will be rejected, but general Metadata
+        (including "dataset.metalog") is stored as generic JSON and the API
+        will attempt to cast the selected data to the specified type.
+
+        str     Perform a string match
+        int     Perform an integer match
+        bool    Perform a boolean match (boolean values are t[rue], f[alse],
+                y[es], and n[o])
+        date    Perform a date match: the selected key must have a string value
+                in ISO-8601 format, and will be interpreted as UTC if no time
+                zone is specified.
+
+        For example
+
+            dataset.uploaded:>2023-05-01:date
+            global.dashboard.seen:t:bool
+            dataset.metalog.pbench.script:!=fio
 
         To produce an OR (optional) filter term, you can prefix the `key:value`
         with the caret (^) character. Adjacent OR terms will be combined in a
@@ -177,8 +401,8 @@ class DatasetsList(ApiBase):
 
         AND and OR terms can be chained by ordering them:
 
-            "dataset.name:~fio,^global.dashboard.saved:true,
-            ^user.dashboard.favorite:true,server.origin:RIYA"
+            "dataset.name:~fio,^global.dashboard.saved:true:bool,
+            ^user.dashboard.favorite:true:bool,server.origin:RIYA"
 
         will match any dataset with a name containing the substring "fio" which
         ALSO has been marked in the dashboard as either "saved" OR (by the
@@ -223,24 +447,13 @@ class DatasetsList(ApiBase):
         and_list = []
         for kw in filters:
             combine_or = False
-            contains = False
-            try:
-                k, v = kw.split(":", maxsplit=1)
-            except ValueError:
-                raise APIAbort(
-                    HTTPStatus.BAD_REQUEST, f"filter {kw!r} must have the form 'k:v'"
-                )
-            if k.startswith("^"):
+            term = Term(kw).parse_filter()
+            if term.chain == "^":
                 combine_or = True
-                k = k[1:]
-            if v.startswith("~"):
-                contains = True
-                v = v[1:]
-
-            if not Metadata.is_key_path(k, Metadata.METADATA_KEYS, metalog_key_ok=True):
-                raise APIAbort(HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k)))
-            keys = k.split(".")
+            keys = term.key.split(".")
             native_key = keys.pop(0).lower()
+            vtype = term.type if term.type else "str"
+            value = TYPES[vtype].convert(term.value, None)
             filter = None
 
             if native_key == Metadata.DATASET:
@@ -254,19 +467,20 @@ class DatasetsList(ApiBase):
                 else:
                     try:
                         c = getattr(Dataset, second)
-                        try:
-                            is_str = c.type.python_type is str
-                        except NotImplementedError:
-                            is_str = False
-                        if is_str:
-                            column = c
-                        else:
+                        if vtype == "str" and not isinstance(c.type, String):
                             column = cast(getattr(Dataset, second), String)
+                        else:
+                            if not isinstance(c.type, TYPES[vtype].sqltype):
+                                raise APIAbort(
+                                    HTTPStatus.BAD_REQUEST,
+                                    f"Type {vtype} of value {value} is not compatible with dataset column {c.name}",
+                                )
+                            column = c
                     except AttributeError as e:
                         raise APIAbort(
-                            HTTPStatus.BAD_REQUEST, str(MetadataBadKey(k))
+                            HTTPStatus.BAD_REQUEST, str(MetadataBadKey(term.key))
                         ) from e
-                    filter = column.contains(v) if contains else column == v
+                    filter = make_operator(column, term.operator, value)
             elif native_key == Metadata.USER:
                 # The user namespace requires special handling because the
                 # values are always qualified by the owning user rather than
@@ -275,14 +489,20 @@ class DatasetsList(ApiBase):
                 if not user_id:
                     raise APIAbort(
                         HTTPStatus.UNAUTHORIZED,
-                        f"Metadata key {k} cannot be used by an unauthenticated client",
+                        f"Metadata key {term.key} cannot be used by an unauthenticated client",
                     )
 
             # NOTE: We don't want to *evaluate* the filter expression here, so
-            # check explicitly for None.
+            # check explicitly for None. I.e., "we have no filter" rather than
+            # "the evaluated result of this filter is falsey".
             if filter is None:
-                expression = aliases[native_key].value[keys].as_string()
-                filter = expression.contains(v) if contains else expression == v
+                expression = (
+                    aliases[native_key]
+                    .value[keys]
+                    .as_string()
+                    .cast(TYPES[vtype].sqltype)
+                )
+                filter = make_operator(expression, term.operator, value)
 
             if combine_or:
                 or_list.append(filter)

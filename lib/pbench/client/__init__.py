@@ -489,3 +489,16 @@ class PbenchServerClient:
             uri_params={"dataset": dataset_id},
             params=params,
         ).json()
+
+    def get_settings(self, key: Optional[str] = None) -> JSONOBJECT:
+        """Return requested metadata for a specified dataset.
+
+        Args:
+            dataset_id: the resource ID of the targeted dataset
+            metadata: a list of metadata keys to return
+
+        Returns:
+            A JSON document containing the requested key values
+        """
+        params = {"key": key} if key else None
+        return self.get(api=API.SERVER_SETTINGS, uri_params=params).json()
