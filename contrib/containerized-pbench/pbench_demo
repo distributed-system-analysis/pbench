@@ -12,13 +12,13 @@
 # here because we're not using the default image).
 #-
 shopt -s expand_aliases
-alias pbench=$(git rev-parse --show-toplevel)/contrib/containerized-pbench/pbench
+alias pbench="$(git rev-parse --show-toplevel)"/contrib/containerized-pbench/pbench
 
 FIOTEST=${PWD}/fiotest
 export PB_AGENT_PODMAN_OPTIONS="--pull newer -v ${FIOTEST}:/fiotest:z"
 export PB_AGENT_IMAGE_NAME=quay.io/pbench/pbench-agent-all-fedora-36:main
 
-mkdir -p ${FIOTEST}
+mkdir -p "${FIOTEST}"
 
 # Before we run the demo, we need a Pbench API key. The key can be an
 # environment variable of PBENCH_API_KEY or need to be supplied to this
@@ -28,6 +28,7 @@ if [[ -z "${api_key}" ]]; then
   echo "Pbench API key must be provided, either on the command line or via the PBENCH_API_KEY environment variable"
   exit 2
 fi
+
 #+
 # Run the demo!
 #-
