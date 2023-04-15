@@ -233,7 +233,7 @@ const TableWithFavorite = () => {
                       </Tr>
                     ))
                   ) : (
-                    <Tr>
+                    <Tr key={"empty-row"}>
                       <Td colSpan={8}>
                         <EmptyTable />
                       </Td>

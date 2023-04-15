@@ -8,33 +8,47 @@ import {
 } from "actions/datasetListActions";
 import { useDispatch, useSelector } from "react-redux";
 
+import { LIMIT_MULTIPLIER } from "assets/constants/browsingPageConstants";
 import React from "react";
 
 const TablePagination = ({ page, setPage }) => {
   const dispatch = useDispatch();
 
-  const { totalDatasets, publicData, perPage, limit } = useSelector(
+  const { totalDatasets, publicData, perPage } = useSelector(
     (state) => state.datasetlist
   );
   const onSetPage = (_event, pageNumber) => {
     setPage(pageNumber);
 
-    fetchData(_event, pageNumber);
+    fetchData(_event, pageNumber, perPage);
   };
-  const onPerPageSelect = (_event, perPage, newPage) => {
-    if (perPage > limit) {
-      dispatch(setPageLimit(perPage));
-    }
-    dispatch(setPerPage(perPage));
+  const onPerPageSelect = (_event, newPerPage, newPage) => {
+    dispatch(setPageLimit(newPerPage * LIMIT_MULTIPLIER));
+
+    dispatch(setPerPage(newPerPage));
     setPage(newPage);
 
-    fetchData(_event, newPage);
+    fetchData(_event, newPage, newPerPage);
   };
-  const fetchData = (_event, newPage) => {
-    const startIdx = (newPage - 1) * perPage;
-
-    if (!publicData[startIdx]) {
-      const offset = (newPage - 1) * perPage;
+  const fetchData = (_event, newPage, newPerPage = perPage) => {
+    const startIdx = (newPage - 1) * newPerPage;
+    const endIdx = newPage * newPerPage;
+    let left = startIdx;
+    let right = endIdx;
+    while (left < right) {
+      if (publicData[startIdx]) {
+        left++;
+      } else {
+        break;
+      }
+      if (publicData[endIdx]) {
+        right--;
+      } else {
+        break;
+      }
+    }
+    if (left !== right) {
+      const offset = (newPage - 1) * newPerPage;
 
       dispatch({
         type: TYPES.SET_PAGE_OFFSET,
