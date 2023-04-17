@@ -72,7 +72,6 @@ const initializeRuns = () => (dispatch, getState) => {
     item[CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
     item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
 
-    item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.DEFAULT;
     item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
     item[CONSTANTS.IS_ITEM_FAVORITED] =
       !!item?.metadata?.[CONSTANTS.USER_FAVORITE];
@@ -150,7 +149,7 @@ export const updateDataset =
         const item = runs[dataIndex];
 
         for (const key in response.data.metadata) {
-          if (item.metadata.hasOwnProperty(key))
+          if (key in item.metadata)
             item.metadata[key] = response.data.metadata[key];
         }
         dispatch({
@@ -392,10 +391,7 @@ export const getEditedMetadata =
   (dataset, type) => async (dispatch, getState) => {
     const data = filterDatasetType(type, getState);
 
-    const rIndex = data.findIndex(
-      (item) => item.resource_id === dataset.resource_id
-    );
-    const item = data[rIndex];
+    const item = data.find((item) => item.resource_id === dataset.resource_id);
 
     const editedMetadata = {};
     if (item[CONSTANTS.IS_DIRTY_NAME]) {
