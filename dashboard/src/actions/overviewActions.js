@@ -68,8 +68,7 @@ const initializeRuns = () => (dispatch, getState) => {
     item[CONSTANTS.SERVER_DELETION_COPY] =
       item.metadata[CONSTANTS.SERVER_DELETION];
 
-    item[CONSTANTS.IS_DIRTY_NAME] = false;
-    item[CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
+    markEditableFields(item, false);
     item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
 
     item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
@@ -336,7 +335,6 @@ export const editMetadata =
     const rIndex = data.findIndex((item) => item.resource_id === rId);
 
     if (metadata === CONSTANTS.NAME_KEY) {
-      data[rIndex][CONSTANTS.NAME_KEY] = value;
       if (value.length > CONSTANTS.DATASET_NAME_LENGTH) {
         data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.ERROR;
         data[rIndex][
@@ -347,8 +345,9 @@ export const editMetadata =
         data[rIndex][CONSTANTS.NAME_ERROR_MSG] = `Length cannot be 0`;
       } else {
         data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
+        data[rIndex][CONSTANTS.NAME_KEY] = value;
+        data[rIndex][CONSTANTS.IS_DIRTY_NAME] = true;
       }
-      data[rIndex][CONSTANTS.IS_DIRTY_NAME] = true;
     } else if (metadata === CONSTANTS.SERVER_DELETION_KEY) {
       data[rIndex][CONSTANTS.IS_DIRTY_SERVER_DELETE] = true;
       data[rIndex].metadata[CONSTANTS.SERVER_DELETION] = value;
@@ -374,8 +373,7 @@ export const setRowtoEdit =
       data[rIndex].name = data[rIndex][CONSTANTS.NAME_COPY];
       data[rIndex].metadata[CONSTANTS.SERVER_DELETION] =
         data[rIndex][CONSTANTS.SERVER_DELETION_COPY];
-      data[rIndex][CONSTANTS.IS_DIRTY_NAME] = false;
-      data[rIndex][CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
+      markEditableFields(data[rIndex], false);
       data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
     }
     dispatch(updateDatasetType(data, type));
@@ -405,3 +403,10 @@ export const getEditedMetadata =
     }
     dispatch(updateDataset(dataset, editedMetadata));
   };
+
+const markEditableFields = (item, isDirty) => {
+  item[CONSTANTS.IS_DIRTY_NAME] = isDirty;
+  item[CONSTANTS.IS_DIRTY_SERVER_DELETE] = isDirty;
+
+  return item;
+};
