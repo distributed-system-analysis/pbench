@@ -436,41 +436,30 @@ class TestList:
     def test_list_filter_typed(self, server_client: PbenchServerClient, login_user):
         """Test filtering using typed matches.
 
-        We compare the actual `server.deletion` time against what we believe we
-        set when uploading. Note that the metadata validator adds a full day to
-        the specified timestamp and then drops the time of day, effectively
-        rounding up to midnight, so here we add a day to the offset.
+        We set an early "server.deletion" time on alternating datasets as we
+        uploaded them. Now prove that we can use a typed "date" filter to find
+        them. We'll further validate that none of the other datasets we
+        uploaded from TARBALL_DIR should have been returned.
         """
         test_sets = {}
         for t in TARBALL_DIR.glob("*.tar.xz"):
             r = Dataset.md5(t)
             m = server_client.get_metadata(
                 r,
-                [
-                    "dataset.access",
-                    "dataset.name",
-                    "dataset.uploaded",
-                    "server.deletion",
-                ],
+                ["dataset.name", "server.deletion"],
             )
             test_sets[r] = m
         soonish = datetime.now(timezone.utc) + timedelta(days=20)
-        print(
-            f"... find matches for 'server.deletion:<{soonish:%Y-%m-%dT%H:%M%z}:date'"
-        )
 
         datasets = server_client.get_list(
-            metadata=[
-                "dataset.metalog.pbench.script",
-                "dataset.uploaded",
-                "server.deletion",
-            ],
+            metadata=["server.deletion"],
             owner="tester",
-            # NOTE: we use archaic "US standard" date notation here to minimize
+            # NOTE: using weird "US standard" date notation here minimizes
             # the risk of succeeding via a simple alphanumeric comparison.
             filter=[f"server.deletion:<'{soonish:%m/%d/%Y %H:%M%z}':date"],
         )
 
+        # Confirm that the returned datasets match
         for dataset in datasets:
             deletion = utc_from_str(dataset.metadata["server.deletion"])
             assert (
@@ -478,6 +467,7 @@ class TestList:
             ), f"Filter returned {dataset.name}, with expiration out of range ({deletion:%Y-%m-%d})"
             test_sets.pop(dataset.resource_id, None)
 
+        # Confirm that the remaining TARBALL_DIR datasets don't match
         for r, m in test_sets.items():
             deletion = utc_from_str(m["server.deletion"])
             assert (

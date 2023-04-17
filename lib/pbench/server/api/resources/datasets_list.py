@@ -95,11 +95,7 @@ def make_operator(
     Returns:
         A SQLAlchemy filter expression.
     """
-    x = getattr(expression, OPERATORS[operator])(value)
-    current_app.logger.info(
-        "Expression type {} yields type {}", type(expression).__name__, type(x).__name__
-    )
-    return x
+    return getattr(expression, OPERATORS[operator])(value)
 
 
 def urlencode_json(json: JSON) -> str:
