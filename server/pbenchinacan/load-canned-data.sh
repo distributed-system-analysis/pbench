@@ -31,9 +31,17 @@ then
   exit 2
 fi
 
-# Get the Pbench authentication token
-token_location=$1
-token=$(< ${token_location})
+# Get the Pbench authentication API_KEY
+if [[ $# == 1 ]]; then
+  api_key=$1
+else
+  api_key=${PBENCH_API_KEY}
+fi
+
+if [[ -z "${api_key}" ]]; then
+  echo "PBENCH_API_KEY is not provided"
+  exit 1
+fi
 
 # We skip test-7.8, test-7.12, and test-7.15, which have controllers that are
 # not legal nodenames, so the server refuses to accept them.  We skip test-7.14,
@@ -52,7 +60,7 @@ done
 for ctlr_dir in ${tmp}/pbench/archive/fs-version-001/*; do
   for tarball in ${ctlr_dir}/*.tar.xz; do
     echo "Pushing $(basename ${ctlr_dir}) $(basename ${tarball}):"
-    pbench-results-push --token ${token} $(basename ${ctlr_dir}) ${tarball}
+    pbench-results-push --token ${api_key} $(basename ${ctlr_dir}) ${tarball}
   done
 done
 
