@@ -23,15 +23,10 @@ mkdir -p ${FIOTEST}
 # Before we run the demo, we need a Pbench API key. The key can be an
 # environment variable of PBENCH_API_KEY or need to be supplied to this
 # script as an argument.
-if [[ $# == 1 ]]; then
-  api_key=$1
-else
-  api_key=${PBENCH_API_KEY}
-fi
-
+api_key=${1:-${PBENCH_API_KEY}}
 if [[ -z "${api_key}" ]]; then
-  echo "PBENCH_API_KEY is not provided"
-  exit 1
+  echo "Pbench API key must be provided, either on the command line or via the PBENCH_API_KEY environment variable"
+  exit 2
 fi
 #+
 # Run the demo!
