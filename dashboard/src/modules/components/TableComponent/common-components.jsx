@@ -8,8 +8,6 @@ import {
   EmptyStateBody,
   EmptyStateIcon,
   EmptyStateVariant,
-  HelperText,
-  HelperTextItem,
   InputGroup,
   Text,
   TextContent,
@@ -97,13 +95,5 @@ export const SearchBox = (props) => {
         <SearchIcon />
       </Button>
     </InputGroup>
-  );
-};
-
-export const ErrorText = (props) => {
-  return (
-    <HelperText>
-      <HelperTextItem variant="error">{props.text}</HelperTextItem>
-    </HelperText>
   );
 };
