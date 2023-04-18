@@ -33,7 +33,6 @@ function cleanup {
         # Remove the Pbench Server container and the dependencies pod which we
         # just created and ran; remove any dangling containers; and then remove
         # any dangling images.
-        dump_journal
         echo "Forcefully removing the Pbench Server container..." >&2
         podman rm --force --ignore ${PB_SERVER_CONTAINER_NAME}
         echo "Forcefully removing the Pbench Support Services pod..." >&2
@@ -67,6 +66,7 @@ until curl -s -o /dev/null ${SERVER_API_ENDPOINTS}; do
     if [[ $(date +"%s") -ge ${end_in_epoch_secs} ]]; then
         echo "Timed out waiting for the reverse proxy to show up!" >&2
         exit_status=1
+        dump_journal
         exit ${exit_status}
     fi
     sleep 1
@@ -92,8 +92,8 @@ else
 fi
 
 if [[ ${exit_status} -ne 0 ]]; then
-    printf -- "\nFunctional tests exited with code %s\n" ${exit_status}
     dump_journal
+    printf -- "\nFunctional tests exited with code %s\n" ${exit_status}
 fi
 
 if [[ -z "${cleanup_flag}" ]]; then

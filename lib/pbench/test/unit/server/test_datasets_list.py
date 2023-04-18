@@ -647,7 +647,17 @@ class TestDatasetsList:
             (
                 "global.x=3",
                 HTTPStatus.BAD_REQUEST,
-                "Missing terminator for 'global.x=3'",
+                "Missing ':' terminator in 'global.x=3'",
+            ),
+            (
+                "'global.x'",
+                HTTPStatus.BAD_REQUEST,
+                "Missing ':' terminator in 'global.x'",
+            ),
+            (
+                "dataset.x':v",
+                HTTPStatus.BAD_REQUEST,
+                'Metadata key "dataset.x\'" is not supported',
             ),
             (
                 "dataset.notright:10",
@@ -687,6 +697,61 @@ class TestDatasetsList:
             DatasetsList.filter_query([meta], aliases, query)
         assert e.value.http_status == error
         assert str(e.value) == message
+
+    @pytest.mark.parametrize(
+        "query,results",
+        [
+            ("global.legacy:t:bool", ["drb"]),
+            ("global.legacy:>2:int", ["fio_2"]),
+            ("global.legacy:>2023-05-01:date", []),
+        ],
+    )
+    def test_mismatched_json_cast(self, query_as, server_config, query, results):
+        """Verify DB engine behavior for mismatched metadata casts.
+
+        Verify that a typed filter ignores datasets where the metadata key
+        type isn't compatible with the implicit cast.
+        """
+        drb = Dataset.query(name="drb")
+        fio_1 = Dataset.query(name="fio_1")
+        fio_2 = Dataset.query(name="fio_2")
+
+        Metadata.setvalue(dataset=drb, key="global.legacy", value=True)
+        Metadata.setvalue(dataset=fio_1, key="global.legacy.server", value="ABC")
+        Metadata.setvalue(dataset=fio_2, key="global.legacy", value=4)
+
+        response = query_as(
+            {"filter": query, "metadata": ["dataset.uploaded"]},
+            "drb",
+            HTTPStatus.OK,
+        )
+        self.compare_results(response.json, results, {}, server_config)
+
+    @pytest.mark.parametrize(
+        "query,message",
+        [
+            (
+                "dataset.name:t:bool",
+                "Type 'bool' of value True is not compatible with dataset column name",
+            ),
+            (
+                "dataset.uploaded:>2:int",
+                "Type 'int' of value 2 is not compatible with dataset column uploaded",
+            ),
+        ],
+    )
+    def test_mismatched_dataset_cast(self, query_as, server_config, query, message):
+        """Verify DB engine behavior for mismatched metadata casts.
+
+        Verify that a typed filter ignores datasets where the metadata key
+        type isn't compatible with the implicit cast.
+        """
+        response = query_as(
+            {"filter": query, "metadata": ["dataset.uploaded"]},
+            "drb",
+            HTTPStatus.BAD_REQUEST,
+        )
+        assert response.json["message"] == message
 
     @pytest.mark.parametrize(
         "exception,error",

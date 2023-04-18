@@ -43,10 +43,10 @@ from pbench.server.database.models.datasets import (
 
 @dataclass
 class Type:
-    """Link query filter type data
+    """Help keep track of filter types
 
-    Link the filter type name, the equivalent SQLAlchemy type, and the Pbench
-    API conversion method to create a compatible object from a string.
+    Used to link a filter type name to the equivalent SQLAlchemy type and the
+    Pbench API conversion method to create a compatible object from a string.
 
     Fields:
         sqtype: The base SQLAlchemy type corresponding to a Python target type
@@ -112,7 +112,9 @@ class Term:
     def __init__(self, term: str):
         self.chain = None
         self.key = None
+        self.operator = None
         self.value = None
+        self.type = None
         self.term = term
         self.buffer = term
         self.logger = logging.getLogger("term")
@@ -171,29 +173,25 @@ class Term:
         else:
             end = buffer.find(":")
             if end < 0:
-                if not optional:
-                    raise APIAbort(
-                        HTTPStatus.BAD_REQUEST, f"Missing terminator for {buffer!r}"
-                    )
                 next = buffer
                 end = len(buffer)
             else:
                 next = buffer[:end]
         buffer = buffer[end:]
-        if not optional and (len(buffer) == 0 or not buffer.startswith(":")):
-            self.logger.info(
-                "[optional %s, len %d, next %s]", optional, len(buffer), buffer[0]
+        if buffer.startswith(":"):
+            buffer = buffer[1:]
+        elif not optional:
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST, f"Missing ':' terminator in {next!r}"
             )
-            raise APIAbort(HTTPStatus.BAD_REQUEST, f"Missing terminator for {buffer!r}")
-        buffer = buffer[1:]
         self.buffer = buffer
         return next
 
     def parse_filter(self) -> "Term":
-        """Parse a filter term like "server.deletion:[<op>]value:type"
+        """Parse a filter term like "<key>:[<op>]value[:type]"
 
-        Returns a dictionary with "native_key", "full_key", "operator" (default
-        "="), "value", and "type" fields.
+        Returns a dictionary with "key", "operator" (default "="), "value", and
+        "type" fields.
 
         The key and value can be quoted to include mixed case and symbols,
         including the ":"character, by starting and starting and ending the key
@@ -366,7 +364,7 @@ class DatasetsList(ApiBase):
         <   Look for matches strictly less than the specified value
         >=  Look for matches greater than or equal to the specified value
         <=  Look for matches less than or equal to the specified value
-        !=  Look for matches not strictly equal to the specified value
+        !=  Look for matches not equal to the specified value
 
         After the value, you can optionally specify a type for the comparison.
         Note that an incompatible type (other than the default "str") for a
@@ -378,9 +376,9 @@ class DatasetsList(ApiBase):
         int     Perform an integer match
         bool    Perform a boolean match (boolean values are t[rue], f[alse],
                 y[es], and n[o])
-        date    Perform a date match: the selected key must have a string value
-                in ISO-8601 format, and will be interpreted as UTC if no time
-                zone is specified.
+        date    Perform a date match: the selected key must have a representing
+                a date-time string (ISO-8601 preferred). UTC is assumed if no
+                timezone is specified.
 
         For example
 
@@ -442,10 +440,8 @@ class DatasetsList(ApiBase):
         or_list = []
         and_list = []
         for kw in filters:
-            combine_or = False
             term = Term(kw).parse_filter()
-            if term.chain == "^":
-                combine_or = True
+            combine_or = term.chain == "^"
             keys = term.key.split(".")
             native_key = keys.pop(0).lower()
             vtype = term.type if term.type else "str"
@@ -469,7 +465,7 @@ class DatasetsList(ApiBase):
                             if not isinstance(c.type, TYPES[vtype].sqltype):
                                 raise APIAbort(
                                     HTTPStatus.BAD_REQUEST,
-                                    f"Type {vtype} of value {value} is not compatible with dataset column {c.name}",
+                                    f"Type {vtype!r} of value {value!r} is not compatible with dataset column {c.name}",
                                 )
                             column = c
                     except AttributeError as e:
@@ -492,12 +488,8 @@ class DatasetsList(ApiBase):
             # check explicitly for None. I.e., "we have no filter" rather than
             # "the evaluated result of this filter is falsey".
             if filter is None:
-                expression = (
-                    aliases[native_key]
-                    .value[keys]
-                    .as_string()
-                    .cast(TYPES[vtype].sqltype)
-                )
+                expression = aliases[native_key].value[keys].as_string()
+                expression = expression.cast(TYPES[vtype].sqltype)
                 filter = make_operator(expression, term.operator, value)
 
             if combine_or:

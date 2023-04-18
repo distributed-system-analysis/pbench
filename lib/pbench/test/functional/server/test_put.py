@@ -449,7 +449,7 @@ class TestList:
                 ["dataset.name", "server.deletion"],
             )
             test_sets[r] = m
-        soonish = datetime.now(timezone.utc) + timedelta(days=20)
+        soonish = datetime.now(timezone.utc) + timedelta(days=SHORT_EXPIRATION_DAYS * 2)
 
         datasets = server_client.get_list(
             metadata=["server.deletion"],
