@@ -36,15 +36,16 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
     );
 
     if (response.status === 200 && response.data) {
-      let startIdx = (page - 1) * perPage;
+      const startIdx = (page - 1) * perPage;
 
       if (publicData.length === 0) {
-        publicData = new Array(response.data?.total);
+        publicData = new Array(response.data.total);
       }
-      for (let i = 0; i < response?.data?.results.length; i++) {
-        publicData[startIdx] = response?.data?.results[i];
-        startIdx++;
-      }
+      publicData.splice(
+        startIdx,
+        response.data.results.length,
+        ...response.data.results
+      );
 
       dispatch({
         type: TYPES.GET_PUBLIC_DATASETS,
@@ -116,7 +117,7 @@ export const applyFilter = () => (dispatch) => {
   });
   dispatch({
     type: TYPES.SET_PAGE_OFFSET,
-    payload: Number(0),
+    payload: 0,
   });
   dispatch(fetchPublicDatasets(1));
 };
