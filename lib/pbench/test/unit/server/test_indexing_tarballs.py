@@ -412,7 +412,7 @@ class TestIndexingTarballs:
         FakeMetadata.no_tarball = ["ds2"]
         tb_list = index.collect_tb()
         assert FakeSync.called == ["next-INDEX"]
-        assert FakeSync.errors["ds2"] == "ds2 does not have a tarball-path"
+        assert FakeSync.errors["ds2"] == "Dataset does not have a tarball-path"
         assert tb_list == (0, [tarball_1])
 
     def test_collect_tb_fail(self, mocks, index):
