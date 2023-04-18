@@ -68,7 +68,7 @@ const initializeRuns = () => (dispatch, getState) => {
     item[CONSTANTS.SERVER_DELETION_COPY] =
       item.metadata[CONSTANTS.SERVER_DELETION];
 
-    markEditableFields(item, false);
+    clearEditableFields(item);
     item[CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
 
     item[CONSTANTS.IS_ITEM_SEEN] = !!item?.metadata?.[CONSTANTS.DASHBOARD_SEEN];
@@ -373,7 +373,7 @@ export const setRowtoEdit =
       data[rIndex].name = data[rIndex][CONSTANTS.NAME_COPY];
       data[rIndex].metadata[CONSTANTS.SERVER_DELETION] =
         data[rIndex][CONSTANTS.SERVER_DELETION_COPY];
-      markEditableFields(data[rIndex], false);
+      clearEditableFields(data[rIndex]);
       data[rIndex][CONSTANTS.NAME_VALIDATED] = CONSTANTS.SUCCESS;
     }
     dispatch(updateDatasetType(data, type));
@@ -404,9 +404,9 @@ export const getEditedMetadata =
     dispatch(updateDataset(dataset, editedMetadata));
   };
 
-const markEditableFields = (item, isDirty) => {
-  item[CONSTANTS.IS_DIRTY_NAME] = isDirty;
-  item[CONSTANTS.IS_DIRTY_SERVER_DELETE] = isDirty;
+const clearEditableFields = (item) => {
+  item[CONSTANTS.IS_DIRTY_NAME] = false;
+  item[CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
 
   return item;
 };
