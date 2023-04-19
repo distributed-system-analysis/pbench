@@ -142,10 +142,9 @@ export const updateDataset =
         metadata: { payload },
       });
       if (response.status === 200) {
-        const dataIndex = runs.findIndex(
+        const item = runs.find(
           (item) => item.resource_id === dataset.resource_id
         );
-        const item = runs[dataIndex];
 
         for (const key in response.data.metadata) {
           if (key in item.metadata)
@@ -407,6 +406,4 @@ export const getEditedMetadata =
 const clearEditableFields = (item) => {
   item[CONSTANTS.IS_DIRTY_NAME] = false;
   item[CONSTANTS.IS_DIRTY_SERVER_DELETE] = false;
-
-  return item;
 };

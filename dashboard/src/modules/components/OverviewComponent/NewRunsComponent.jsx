@@ -84,10 +84,8 @@ const NewRunsComponent = () => {
     dispatch(getMetaDataActions(dataset, "favorite", isFavoriting));
   };
   const saveRowData = (dataset) => {
-    const index = newRuns.findIndex(
-      (run) => run.resource_id === dataset.resource_id
-    );
-    dispatch(getMetaDataActions(dataset, "datasetName", newRuns[index].name));
+    const item = newRuns.find((run) => run.resource_id === dataset.resource_id);
+    dispatch(getMetaDataActions(dataset, "datasetName", item.name));
   };
   const moreActionItems = (dataset) => [
     {
