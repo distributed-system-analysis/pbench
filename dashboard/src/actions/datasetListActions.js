@@ -30,9 +30,7 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
 
     const response = await API.get(
       uriTemplate(endpoints, "datasets_list", {}),
-      {
-        params,
-      }
+      { params }
     );
 
     if (response.status === 200 && response.data) {
@@ -63,7 +61,7 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
       }
       dispatch({
         type: TYPES.SET_TOTAL_DATASETS,
-        payload: response.data?.total,
+        payload: response.data.total,
       });
     }
   } catch (error) {
