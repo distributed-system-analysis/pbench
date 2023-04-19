@@ -13,6 +13,7 @@ from flask_restful import Api
 from pbench.common.exceptions import ConfigFileNotSpecified
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
+from pbench.server.api.resources.api_key import APIKeyManage
 from pbench.server.api.resources.datasets_inventory import DatasetsInventory
 from pbench.server.api.resources.datasets_list import DatasetsList
 from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
@@ -121,6 +122,12 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
         EndpointConfig,
         f"{base_uri}/endpoints",
         endpoint="endpoints",
+        resource_class_args=(config,),
+    )
+    api.add_resource(
+        APIKeyManage,
+        f"{base_uri}/key",
+        endpoint="key",
         resource_class_args=(config,),
     )
     api.add_resource(

@@ -1,6 +1,8 @@
 import datetime
+from typing import Callable
 
 from sqlalchemy import DateTime
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.types import TypeDecorator
 
 
@@ -50,3 +52,26 @@ class TZDateTime(TypeDecorator):
         if value is not None:
             value = value.replace(tzinfo=datetime.timezone.utc)
         return value
+
+
+def decode_integrity_error(
+    exception: IntegrityError, on_null: Callable, on_duplicate: Callable
+) -> Exception:
+
+    """Decode a SQLAlchemy IntegrityError to look for a recognizable UNIQUE
+    or NOT NULL constraint violation.
+
+    Return the original exception if it doesn't match.
+
+    Args:
+        exception : An IntegrityError to decode
+
+    Returns:
+        a more specific exception, or the original if decoding fails
+    """
+    cause = exception.orig.args[-1]
+    if "UNIQUE constraint" in cause:
+        return on_duplicate(cause)
+    elif "NOT NULL constraint" in cause:
+        return on_null(cause)
+    return exception
