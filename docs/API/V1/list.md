@@ -136,6 +136,10 @@ Allows filtering for datasets owned by the authenticated client (if the value
 is omitted, e.g., `?mine` or `?mine=true`) or owned by *other* users (e.g.,
 `?mine=false`).
 
+`name` string \
+Select only datasets with a specified substring in their name. The filter
+`?name=fio` is semantically equivalent to `?filter=dataset.name:~fio`.
+
 `offset` integer \
 "Paginate" the selected datasets by skipping the first `offset` datasets that
 would have been selected by the other query terms. This can be used with
