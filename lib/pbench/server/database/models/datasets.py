@@ -6,7 +6,7 @@ import re
 from typing import Any, Dict, List, Optional, Union
 
 from dateutil import parser as date_parser
-from sqlalchemy import Column, Enum, event, ForeignKey, Integer, JSON, String
+from sqlalchemy import Column, Enum, event, ForeignKey, Integer, JSON, String, Text
 from sqlalchemy.exc import DataError, IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Query, relationship, validates
 
@@ -524,7 +524,7 @@ class Operation(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Enum(OperationName), index=True)
     state = Column(Enum(OperationState))
-    message = Column(String(255))
+    message = Column(Text)
     dataset_ref = Column(Integer, ForeignKey("datasets.id"))
     dataset = relationship("Dataset", back_populates="operations")
 

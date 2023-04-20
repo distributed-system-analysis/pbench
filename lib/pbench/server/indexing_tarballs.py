@@ -178,16 +178,14 @@ class Index:
             for dataset in self.sync.next():
                 tb = Metadata.getvalue(dataset, Metadata.TARBALL_PATH)
                 if not tb:
-                    self.sync.error(dataset, f"{dataset} does not have a tarball-path")
+                    self.sync.error(dataset, "Dataset does not have a tarball-path")
                     continue
 
                 try:
                     # get size
                     size = os.stat(tb).st_size
                 except OSError as e:
-                    self.sync.error(
-                        dataset, f"Could not fetch tar ball size for {tb}: {e}"
-                    )
+                    self.sync.error(dataset, f"Could not fetch tarball size: {e!s}")
                     continue
                 else:
                     tarballs.append(TarballData(dataset=dataset, tarball=tb, size=size))
@@ -379,7 +377,7 @@ class Index:
                             except TarballNotFound as e:
                                 self.sync.error(
                                     dataset,
-                                    f"Unable to unpack dataset: {e!r}",
+                                    f"Unable to unpack dataset: {e!s}",
                                 )
                                 continue
 
