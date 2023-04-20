@@ -1,5 +1,5 @@
 # Pbench
-A Benchmarking and Performance Analysis Framework - Bar
+A Benchmarking and Performance Analysis Framework - Bar Bash
 
 The code base includes three sub-systems. The first is the collection agent,
 `pbench-agent`, responsible for providing commands for running benchmarks
