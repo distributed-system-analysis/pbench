@@ -119,6 +119,15 @@ class Term:
         self.buffer = term
         self.logger = logging.getLogger("term")
 
+    @classmethod
+    def parse(cls, term: str) -> "Term":
+        """Factory method to construct an instance and parse a string
+
+        Args:
+            term: A filter expression to parse
+        """
+        return cls(term).parse_filter()
+
     def _remove_prefix(
         self, prefixes: tuple[str], default: Optional[str] = None
     ) -> Optional[str]:
@@ -188,7 +197,7 @@ class Term:
         return next
 
     def parse_filter(self) -> "Term":
-        """Parse a filter term like "<key>:[<op>]value[:type]"
+        """Parse a filter term like "<key>:[<op>]<value>[:<type>]"
 
         Returns a dictionary with "key", "operator" (default "="), "value", and
         "type" fields.
@@ -219,7 +228,7 @@ class Term:
         self.value = self._next_token(optional=True)
 
         # The comparison type, defaults to "str"
-        self.type = self.buffer.lower()
+        self.type = self.buffer.lower() if self.buffer else "str"
         if self.type and self.type not in TYPES:
             raise APIAbort(
                 HTTPStatus.BAD_REQUEST,
@@ -376,9 +385,9 @@ class DatasetsList(ApiBase):
         int     Perform an integer match
         bool    Perform a boolean match (boolean values are t[rue], f[alse],
                 y[es], and n[o])
-        date    Perform a date match: the selected key must have a representing
-                a date-time string (ISO-8601 preferred). UTC is assumed if no
-                timezone is specified.
+        date    Perform a date match: the selected key value (and supplied
+                filter value) must be strings representing a date-time, ideally
+                in ISO-8601 format. UTC is assumed if no timezone is specified.
 
         For example
 
@@ -440,11 +449,11 @@ class DatasetsList(ApiBase):
         or_list = []
         and_list = []
         for kw in filters:
-            term = Term(kw).parse_filter()
+            term = Term.parse(kw)
             combine_or = term.chain == "^"
             keys = term.key.split(".")
             native_key = keys.pop(0).lower()
-            vtype = term.type if term.type else "str"
+            vtype = term.type
             value = TYPES[vtype].convert(term.value, None)
             filter = None
 
@@ -465,7 +474,7 @@ class DatasetsList(ApiBase):
                             if not isinstance(c.type, TYPES[vtype].sqltype):
                                 raise APIAbort(
                                     HTTPStatus.BAD_REQUEST,
-                                    f"Type {vtype!r} of value {value!r} is not compatible with dataset column {c.name}",
+                                    f"Filter of type {vtype!r} is not compatible with key 'dataset.{c.name}'",
                                 )
                             column = c
                     except AttributeError as e:

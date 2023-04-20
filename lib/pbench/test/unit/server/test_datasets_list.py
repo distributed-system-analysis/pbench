@@ -710,7 +710,7 @@ class TestDatasetsList:
         """Verify DB engine behavior for mismatched metadata casts.
 
         Verify that a typed filter ignores datasets where the metadata key
-        type isn't compatible with the implicit cast.
+        type isn't compatible with the required cast.
         """
         drb = Dataset.query(name="drb")
         fio_1 = Dataset.query(name="fio_1")
@@ -732,19 +732,19 @@ class TestDatasetsList:
         [
             (
                 "dataset.name:t:bool",
-                "Type 'bool' of value True is not compatible with dataset column name",
+                "Filter of type 'bool' is not compatible with key 'dataset.name'",
             ),
             (
                 "dataset.uploaded:>2:int",
-                "Type 'int' of value 2 is not compatible with dataset column uploaded",
+                "Filter of type 'int' is not compatible with key 'dataset.uploaded'",
             ),
         ],
     )
     def test_mismatched_dataset_cast(self, query_as, server_config, query, message):
         """Verify DB engine behavior for mismatched metadata casts.
 
-        Verify that a typed filter ignores datasets where the metadata key
-        type isn't compatible with the implicit cast.
+        Verify that a typed filter generates an error when it targets a primary
+        dataset key with an incompatible type.
         """
         response = query_as(
             {"filter": query, "metadata": ["dataset.uploaded"]},

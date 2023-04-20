@@ -83,24 +83,25 @@ substring "foo".
 Multiple expressions may be combined across multiple `filter` query parameters
 or as comma-separated lists in a single query parameter. Multiple filter
 expressions are combined as an `AND` expression, matching only when all
-expressions match. However a set of consecutive filter expressions can form
-an `OR` expression by using the circumflex (`^`) "chain" character on each
-expression term. The first expression with `^` begins an `OR` list while the
-first subsequent expression without `^` ends the `OR` list and is combined with
-the nested `OR` expression as an `AND`.
+expressions match. However any consecutive set of expressions starting with `^`
+are collected into an "`OR` list" that will be `AND`-ed with the surrounding
+terms.
 
 For example,
 - `filter=dataset.name:a,server.origin:EC2` returns datasets with a name of
 "a" and an origin of "EC2".
-- `filter=dataset.name:a,^server.origin:EC2,^dataset.metalog.pbench.script:fio`
-returns datasets with a name of "a" and *either* an origin of "EC2" or generated
-from the "pbench-fio" script.
+- `filter=dataset.name:~andy,^server.origin:EC2,^server.origin:RIYA,
+dataset.access:public`
+returns only "public" datasets with a name containing the string "andy" which also
+have an origin of either "EC2" or "RIYA". As a SQL query, we might write it
+as `dataset.name like "%andy%" and (server.origin = 'EC2' or
+server.origin = 'RIYA') and dataset.access = 'public'`.
 
 _NOTE_: `filter` expression term values, like the `true` in
 `GET /api/v1/datasets?filter=server.archiveonly:true`, are by default
 interpreted as strings, so be careful about the string representation of the
 value. In this case, `server.archiveonly` is a boolean, which will be matched
-as a string value `true` or `false`. You can instead specify the expression
+as a string value "true" or "false". You can instead specify the expression
 term as `server.archiveonly:t:bool` which will treat the specified match value
 as a boolean (`t[rue]` or `y[es]` for true, `f[alse]` or `n[o]` for false) and
 match against the boolean metadata value.
