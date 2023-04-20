@@ -52,6 +52,19 @@ class TestSync:
             "UPLOAD": {"state": "FAILED", "message": "this is an error"}
         }
 
+    def test_error_long(self, make_logger, more_datasets):
+        """Test handling of long error messages"""
+        drb = Dataset.query(name="drb")
+        sync = Sync(make_logger, OperationName.UPLOAD)
+        sync.update(drb, enabled=[OperationName.UPLOAD])
+        assert Metadata.getvalue(drb, "dataset.operations") == {
+            "UPLOAD": {"state": "READY", "message": None}
+        }
+        sync.error(drb, "tenletters" * 26)
+        assert Metadata.getvalue(drb, "dataset.operations") == {
+            "UPLOAD": {"state": "FAILED", "message": "tenletters" * 26}
+        }
+
     def test_update_state(self, make_logger, more_datasets):
         """Test that the sync update operation sets the component state as
         specified.
@@ -107,6 +120,21 @@ class TestSync:
         assert Metadata.getvalue(drb, "dataset.operations") == {
             "DELETE": {"state": "READY", "message": None},
             "INDEX": {"state": "FAILED", "message": "failed"},
+        }
+
+    def test_update_state_update_long(self, make_logger, more_datasets):
+        """Test that sync update allows messages over 255 characters."""
+        drb = Dataset.query(name="drb")
+        sync = Sync(make_logger, OperationName.INDEX)
+        sync.update(drb, None, [OperationName.DELETE, OperationName.INDEX])
+        assert Metadata.getvalue(drb, "dataset.operations") == {
+            "DELETE": {"state": "READY", "message": None},
+            "INDEX": {"state": "READY", "message": None},
+        }
+        sync.update(drb, state=OperationState.FAILED, message="tenletters" * 26)
+        assert Metadata.getvalue(drb, "dataset.operations") == {
+            "DELETE": {"state": "READY", "message": None},
+            "INDEX": {"state": "FAILED", "message": "tenletters" * 26},
         }
 
     def test_update_enable(self, make_logger, more_datasets):
