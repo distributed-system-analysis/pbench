@@ -517,7 +517,9 @@ class TestAuthModule:
         assert user is None
 
     @pytest.mark.parametrize("roles", [["ROLE"], ["ROLE1", "ROLE2"], [], None])
-    def test_verify_auth_oidc(self, monkeypatch, rsa_keys, make_logger, roles):
+    def test_verify_auth_oidc(
+        self, monkeypatch, db_session, rsa_keys, make_logger, roles
+    ):
         """Verify OIDC token offline verification success path"""
         client_id = "us"
         if roles is None:
@@ -543,7 +545,9 @@ class TestAuthModule:
         assert user.id == "12345"
         assert user.roles == (roles if roles else [])
 
-    def test_verify_auth_oidc_user_update(self, monkeypatch, rsa_keys, make_logger):
+    def test_verify_auth_oidc_user_update(
+        self, monkeypatch, db_session, rsa_keys, make_logger
+    ):
         """Verify we update our internal user database when we get updated user
         payload from the OIDC token for an existing user."""
         client_id = "us"
