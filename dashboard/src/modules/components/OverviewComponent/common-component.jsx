@@ -5,6 +5,7 @@ import * as CONSTANTS from "assets/constants/overviewConstants";
 import { ActionsColumn, Td } from "@patternfly/react-table";
 import {
   Button,
+  DatePicker,
   Dropdown,
   DropdownItem,
   DropdownToggle,
@@ -175,6 +176,12 @@ export const RenderPagination = (props) => {
 };
 
 export const EditRow = (props) => {
+  const isDirtyRow = () => {
+    return (
+      props.item[CONSTANTS.IS_DIRTY_NAME] ||
+      props.item[CONSTANTS.IS_DIRTY_SERVER_DELETE]
+    );
+  };
   return (
     <div className="pf-c-inline-edit__action pf-m-enable-editable">
       {!props.item[CONSTANTS.IS_EDIT] ? (
@@ -187,13 +194,11 @@ export const EditRow = (props) => {
         <div>
           <Button
             isDisabled={
-              !props.item[CONSTANTS.IS_DIRTY] ||
+              !isDirtyRow() ||
               !props.item.name ||
-              props.item[CONSTANTS.NAME_VALIDATED] === "error"
+              props.item[CONSTANTS.NAME_VALIDATED] === CONSTANTS.ERROR
             }
-            onClick={() =>
-              props.saveRowData("datasetName", props.item, props.item.name)
-            }
+            onClick={() => props.saveRowData(props.item)}
             variant="plain"
             icon={<CheckIcon />}
           />
@@ -308,7 +313,14 @@ export const SavedRunsRow = (props) => {
         {formatDateTime(item.metadata[DATASET_UPLOADED])}
       </Td>
       <Td dataLabel={columnNames.scheduled}>
-        {formatDateTime(item.metadata[SERVER_DELETION])}
+        {item.isEdit ? (
+          <SelectDateComponent
+            value={item.metadata[SERVER_DELETION]}
+            onDateSelect={props.onDateSelect}
+          />
+        ) : (
+          formatDateTime(item.metadata[SERVER_DELETION])
+        )}
       </Td>
       <Td className="access">{item.metadata[DATASET_ACCESS]}</Td>
       <Td
@@ -332,3 +344,9 @@ export const SavedRunsRow = (props) => {
     </>
   );
 };
+
+export const SelectDateComponent = (props) => (
+  <div className="date-picker-container">
+    <DatePicker value={props.value} onChange={props.onDateSelect} />
+  </div>
+);

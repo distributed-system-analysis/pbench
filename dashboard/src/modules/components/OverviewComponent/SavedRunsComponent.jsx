@@ -4,6 +4,8 @@ import {
   DASHBOARD_SEEN,
   DATASET_ACCESS,
   IS_ITEM_SEEN,
+  NAME_KEY,
+  SERVER_DELETION_KEY,
 } from "assets/constants/overviewConstants";
 import {
   InnerScrollContainer,
@@ -18,10 +20,11 @@ import React, { useCallback } from "react";
 import {
   deleteDataset,
   editMetadata,
+  getEditedMetadata,
+  getMetaDataActions,
   publishDataset,
   setRowtoEdit,
   setSelectedSavedRuns,
-  updateDataset,
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -65,7 +68,7 @@ const SavedRunsComponent = () => {
       title: dataset.metadata[DASHBOARD_SEEN] ? "Mark unread" : "Mark read",
       onClick: () =>
         dispatch(
-          updateDataset(dataset, "read", !dataset.metadata[DASHBOARD_SEEN])
+          getMetaDataActions(dataset, "read", !dataset.metadata[DASHBOARD_SEEN])
         ),
     },
     {
@@ -75,11 +78,11 @@ const SavedRunsComponent = () => {
   ];
   /* Actions Row */
   const makeFavorites = (dataset, isFavoriting = true) => {
-    dispatch(updateDataset(dataset, "favorite", isFavoriting));
+    dispatch(getMetaDataActions(dataset, "favorite", isFavoriting));
   };
   /* Edit Dataset */
-  const saveRowData = (metadataType, dataset, value) => {
-    dispatch(updateDataset(dataset, metadataType, value));
+  const saveRowData = (dataset) => {
+    dispatch(getEditedMetadata(dataset, "savedRuns"));
   };
   const toggleEdit = useCallback(
     (rId, isEdit) => dispatch(setRowtoEdit(rId, isEdit, "savedRuns")),
@@ -88,6 +91,7 @@ const SavedRunsComponent = () => {
   const updateTblValue = (newValue, metadata, rId) => {
     dispatch(editMetadata(newValue, metadata, rId, "savedRuns"));
   };
+
   /* Edit Dataset */
   const columnNames = {
     result: "Result",
@@ -136,9 +140,16 @@ const SavedRunsComponent = () => {
                       onSelectRuns={onSelectRuns}
                       isRowSelected={isRowSelected}
                       textInputEdit={(val) =>
-                        updateTblValue(val, "name", item.resource_id)
+                        updateTblValue(val, NAME_KEY, item.resource_id)
                       }
                       toggleEdit={toggleEdit}
+                      onDateSelect={(str) =>
+                        updateTblValue(
+                          str,
+                          SERVER_DELETION_KEY,
+                          item.resource_id
+                        )
+                      }
                       saveRowData={saveRowData}
                     />
                   </Tr>

@@ -3,6 +3,7 @@ import "./index.less";
 import {
   DASHBOARD_SEEN,
   IS_ITEM_SEEN,
+  NAME_KEY,
   ROWS_PER_PAGE,
   START_PAGE_NUMBER,
   USER_FAVORITE,
@@ -21,10 +22,10 @@ import React, { useCallback, useState } from "react";
 import {
   deleteDataset,
   editMetadata,
+  getMetaDataActions,
   setRows,
   setRowtoEdit,
   setSelectedRuns,
-  updateDataset,
 } from "actions/overviewActions";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -80,21 +81,22 @@ const NewRunsComponent = () => {
   /* Selecting */
 
   const makeFavorites = (dataset, isFavoriting = true) => {
-    dispatch(updateDataset(dataset, "favorite", isFavoriting));
+    dispatch(getMetaDataActions(dataset, "favorite", isFavoriting));
   };
-  const saveRowData = (metadataType, dataset, value) => {
-    dispatch(updateDataset(dataset, metadataType, value));
+  const saveRowData = (dataset) => {
+    const item = newRuns.find((run) => run.resource_id === dataset.resource_id);
+    dispatch(getMetaDataActions(dataset, "datasetName", item.name));
   };
   const moreActionItems = (dataset) => [
     {
       title: "Save",
-      onClick: () => dispatch(updateDataset(dataset, "save", true)),
+      onClick: () => dispatch(getMetaDataActions(dataset, "save", true)),
     },
     {
       title: dataset.metadata[DASHBOARD_SEEN] ? "Mark unread" : "Mark read",
       onClick: () =>
         dispatch(
-          updateDataset(dataset, "read", !dataset.metadata[DASHBOARD_SEEN])
+          getMetaDataActions(dataset, "read", !dataset.metadata[DASHBOARD_SEEN])
         ),
     },
     {
@@ -103,7 +105,11 @@ const NewRunsComponent = () => {
         : "Mark favorite",
       onClick: () =>
         dispatch(
-          updateDataset(dataset, "favorite", !dataset.metadata[USER_FAVORITE])
+          getMetaDataActions(
+            dataset,
+            "favorite",
+            !dataset.metadata[USER_FAVORITE]
+          )
         ),
     },
     {
@@ -179,7 +185,7 @@ const NewRunsComponent = () => {
                       rowActions={rowActions}
                       item={item}
                       textInputEdit={(val) =>
-                        updateTblValue(val, "name", item.resource_id)
+                        updateTblValue(val, NAME_KEY, item.resource_id)
                       }
                     />
                   </Tr>
