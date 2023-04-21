@@ -197,15 +197,19 @@ class Term:
         return next
 
     def parse_filter(self) -> "Term":
-        """Parse a filter term like "<key>:[<op>]<value>[:<type>]"
+        """Parse a filter term like "<key>:[<operator>]<value>[:<type>]"
 
-        Returns a dictionary with "key", "operator" (default "="), "value", and
-        "type" fields.
+        Separates the "key", "operator", "value", and "type" fields of a filter
+        expression.
 
         The key and value can be quoted to include mixed case and symbols,
-        including the ":"character, by starting and starting and ending the key
-        or value with the "'" or '"' character, e.g.,
+        including the ":" character, by starting and starting and ending the
+        key or value with the "'" or '"' character, e.g.,
         "'dataset.metalog.tool/iteration:1':'foo:1#bar':str".
+
+        The "operator", if omitted, defaults to "=", and "type" defaults to
+        "str" (string), so that `dataset.name:foo` has the same effect as
+        `dataset.name:=foo:str`.
 
         Returns:
             self
