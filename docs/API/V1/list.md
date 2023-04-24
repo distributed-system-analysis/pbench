@@ -45,34 +45,66 @@ specified date.
 
 `filter` metadata filtering \
 Select datasets matching the metadata expressions specified via `filter`
-query parameters. Each expression is the name of a metadata key (for example,
-`dataset.name`), followed by a colon (`:`) and the comparison string. The
-comparison string may be prefixed with a tilde (`~`) to make it a partial
-("contains") comparison instead of an exact match. For example,
-`dataset.name:foo` looks for datasets with the name "foo" exactly, whereas
-`dataset.name:~foo` looks for datasets with a name containing the substring
-"foo".
+query parameters. Each expression has the format `[chain]key:[op]value[:type]`:
 
-These may be combined across multiple `filter` query parameters or as
-comma-separated lists in a single query parameter. Multiple filter expressions
-form an `AND` expression, however consecutive filter expressions can be joined
-in an `OR` expression by using the circumflex (`^`) character prior to each.
-(The first expression with `^` begins an `OR` list while the first subsequent
-expression outout `^` ends the `OR` list and is combined with an `AND`.)
+* `chain` Prefix an expression with `^` (circumflex) to allow combining a set
+of expressions with `OR` rather than the default `AND`.
+* `key` The name of a metadata key (for example, `dataset.name`)
+
+* `op` An operator to specify how to compare the key value:
+
+  * `=` (Default) Compare for equality
+  * `~` Compare against a substring
+  * `>` Greater than
+  * `<` Less than
+  * `>=` Greater than or equal to
+  * `<=` Less than or equal to
+  * `!=` Not equal
+
+* `value` The value to compare against. This will be interpreted based on the specified type.
+* `type` The string value will be cast to this type. Any value can be cast to
+type `str`. General metadata keys (`server`, `global`, `user`, and
+`dataset.metalog` namespaces) that have values incompatible with the specified
+type will be ignored. If you specify an incompatible type for a primary
+`dataset` key, an error will be returned as these types are defined by the
+Pbench schema so no match would be possible. (For example, `dataset.name:2:int`
+or `dataset.access:2023-05-01:date`.)
+
+  * `str` (Default) Compare as a string
+  * `bool` Compare as a boolean
+  * `int` Compare as an integer
+  * `date` Compare as a date-time string. ISO-8601 recommended, and UTC is
+  assumed if no timezone is specified.
+
+For example, `dataset.name:foo` looks for datasets with the name "foo" exactly,
+whereas `dataset.name:~foo` looks for datasets with a name containing the
+substring "foo".
+
+Multiple expressions may be combined across multiple `filter` query parameters
+or as comma-separated lists in a single query parameter. Multiple filter
+expressions are combined as an `AND` expression, matching only when all
+expressions match. However any consecutive set of expressions starting with `^`
+are collected into an "`OR` list" that will be `AND`-ed with the surrounding
+terms.
 
 For example,
 - `filter=dataset.name:a,server.origin:EC2` returns datasets with a name of
 "a" and an origin of "EC2".
-- `filter=dataset.name:a,^server.origin:EC2,^dataset.metalog.pbench.script:fio`
-returns datasets with a name of "a" and *either* an origin of "EC2" or generated
-from the "pbench-fio" script.
+- `filter=dataset.name:~andy,^server.origin:EC2,^server.origin:RIYA,
+dataset.access:public`
+returns only "public" datasets with a name containing the string "andy" which also
+have an origin of either "EC2" or "RIYA". As a SQL query, we might write it
+as `dataset.name like "%andy%" and (server.origin = 'EC2' or
+server.origin = 'RIYA') and dataset.access = 'public'`.
 
-_NOTE_: `filter` expression values, like the `true` in
-`GET /api/v1/datasets?filter=server.archiveonly:true`, are always interpreted
-as strings, so be careful about the string representation of the value (in this
-case, a boolean, which is represented in JSON as `true` or `false`). Beware
-especially when attempting to match a JSON document (such as
-`dataset.metalog.pbench`).
+_NOTE_: `filter` expression term values, like the `true` in
+`GET /api/v1/datasets?filter=server.archiveonly:true`, are by default
+interpreted as strings, so be careful about the string representation of the
+value. In this case, `server.archiveonly` is a boolean, which will be matched
+as a string value "true" or "false". You can instead specify the expression
+term as `server.archiveonly:t:bool` which will treat the specified match value
+as a boolean (`t[rue]` or `y[es]` for true, `f[alse]` or `n[o]` for false) and
+match against the boolean metadata value.
 
 `keysummary` boolean \
 Instead of displaying a list of selected datasets and metadata, use the set of
@@ -104,6 +136,10 @@ example, the following are all equivalent:
 Allows filtering for datasets owned by the authenticated client (if the value
 is omitted, e.g., `?mine` or `?mine=true`) or owned by *other* users (e.g.,
 `?mine=false`).
+
+`name` string \
+Select only datasets with a specified substring in their name. The filter
+`?name=fio` is semantically equivalent to `?filter=dataset.name:~fio`.
 
 `offset` integer \
 "Paginate" the selected datasets by skipping the first `offset` datasets that

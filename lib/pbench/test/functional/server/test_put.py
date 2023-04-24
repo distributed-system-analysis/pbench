@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 import os.path
 from pathlib import Path
 import re
 import time
 
+import dateutil.parser
 import pytest
 from requests.exceptions import HTTPError
 
@@ -14,6 +15,11 @@ from pbench.client.types import Dataset
 
 TARBALL_DIR = Path("lib/pbench/test/functional/server/tarballs")
 SPECIAL_DIR = TARBALL_DIR / "special"
+SHORT_EXPIRATION_DAYS = 10
+
+
+def utc_from_str(date: str) -> datetime:
+    return dateutil.parser.parse(date).replace(tzinfo=timezone.utc)
 
 
 @dataclass
@@ -32,17 +38,22 @@ class TestPut:
         """Upload each of the pregenerated tarballs, and perform some basic
         sanity checks on the resulting server state.
         """
-        print(" ... reporting behaviors ...")
+        print(" ... uploading tarballs ...")
 
         tarballs: dict[str, Tarball] = {}
         access = ["private", "public"]
         cur_access = 0
 
+        # We're going to make some datasets expire "soon" (much sooner than the
+        # default) so we can test filtering typed metadata.
+        expire_soon = datetime.now(timezone.utc) + timedelta(days=SHORT_EXPIRATION_DAYS)
+
         for t in TARBALL_DIR.glob("*.tar.xz"):
             a = access[cur_access]
             if a == "public":
                 metadata = (
-                    "server.origin:test,user.pbench.access:public,server.archiveonly:n"
+                    "server.origin:test,user.pbench.access:public,server.archiveonly:n",
+                    f"server.deletion:{expire_soon:%Y-%m-%d %H:%M%z}",
                 )
             else:
                 metadata = None
@@ -53,7 +64,7 @@ class TestPut:
             assert (
                 response.status_code == HTTPStatus.CREATED
             ), f"upload returned unexpected status {response.status_code}, {response.text} ({t})"
-            print(f"\t... uploaded {t.name}")
+            print(f"\t... uploaded {t.name}: {a}")
 
         datasets = server_client.get_list(
             metadata=["dataset.access", "server.tarball-path", "dataset.operations"]
@@ -182,7 +193,7 @@ class TestPut:
         not_indexed = []
         try:
             for dataset in datasets:
-                print(f"\t... on {dataset.metadata['server.tarball-path']}")
+                print(f"\t... on {dataset.name}")
                 metadata = server_client.get_metadata(
                     dataset.resource_id, ["dataset.operations"]
                 )
@@ -217,8 +228,7 @@ class TestPut:
         state and metadata look good.
         """
         tarball_names = frozenset(t.name for t in TARBALL_DIR.glob("*.tar.xz"))
-
-        print(" ... reporting behaviors ...")
+        print(" ... reporting dataset status ...")
 
         # Test get_list pagination: to avoid forcing a list, we'll count the
         # iterations separately. (Note that this is really an implicit test
@@ -233,6 +243,7 @@ class TestPut:
                 "dataset.access",
                 "server.archiveonly",
                 "server.origin",
+                "server.deletion",
                 "user.pbench.access",
             ],
         )
@@ -258,11 +269,11 @@ class TestPut:
                 f" = {exc.response.status_code}, text = {exc.response.text!r}"
             )
 
-        # For each dataset we find, poll the state until it reaches Indexed
-        # state, or until we time out.  Since the cron jobs run once a minute
-        # and they start on the minute, we make our 1st check 45 seconds into
-        # the next minute, and then check at 45 seconds past the minute until
-        # we reached 5 minutes past the original start time.
+        # For each dataset we find, poll the state until it has been indexed,
+        # or until we time out. The indexer runs once a minute slightly after
+        # the minute, so we make our 1st check 45 seconds into the next minute,
+        # and then check at 45 seconds past the minute until we reach 5 minutes
+        # past the original start time.
         oneminute = timedelta(minutes=1)
         now = start = datetime.utcnow()
         timeout = start + timedelta(minutes=5)
@@ -280,7 +291,7 @@ class TestPut:
                 if os.path.basename(tp) not in tarball_names:
                     continue
                 count += 1
-                print(f"\t... indexed {tp}")
+                print(f"\t... indexed {dataset.name}")
             now = datetime.utcnow()
             if not not_indexed or now >= timeout:
                 break
@@ -289,7 +300,7 @@ class TestPut:
             now = datetime.utcnow()
         assert not not_indexed, (
             f"Timed out after {(now - start).total_seconds()} seconds; unindexed datasets: "
-            + ", ".join(d.metadata["server.tarball-path"] for d in not_indexed)
+            + ", ".join(d.name for d in not_indexed)
         )
         assert (
             len(tarball_names) == count
@@ -421,6 +432,48 @@ class TestList:
                 "2018" in date or "2019" in date
             ), f"Dataset {dataset.name} date is {date}"
 
+    @pytest.mark.dependency(name="list_type", depends=["upload"], scope="session")
+    def test_list_filter_typed(self, server_client: PbenchServerClient, login_user):
+        """Test filtering using typed matches.
+
+        We set an early "server.deletion" time on alternating datasets as we
+        uploaded them. Now prove that we can use a typed "date" filter to find
+        them. We'll further validate that none of the other datasets we
+        uploaded from TARBALL_DIR should have been returned.
+        """
+        test_sets = {}
+        for t in TARBALL_DIR.glob("*.tar.xz"):
+            r = Dataset.md5(t)
+            m = server_client.get_metadata(
+                r,
+                ["dataset.name", "server.deletion"],
+            )
+            test_sets[r] = m
+        soonish = datetime.now(timezone.utc) + timedelta(days=SHORT_EXPIRATION_DAYS * 2)
+
+        datasets = server_client.get_list(
+            metadata=["server.deletion"],
+            owner="tester",
+            # NOTE: using weird "US standard" date notation here minimizes
+            # the risk of succeeding via a simple alphanumeric comparison.
+            filter=[f"server.deletion:<'{soonish:%m/%d/%Y %H:%M%z}':date"],
+        )
+
+        # Confirm that the returned datasets match
+        for dataset in datasets:
+            deletion = utc_from_str(dataset.metadata["server.deletion"])
+            assert (
+                deletion < soonish
+            ), f"Filter returned {dataset.name}, with expiration out of range ({deletion:%Y-%m-%d})"
+            test_sets.pop(dataset.resource_id, None)
+
+        # Confirm that the remaining TARBALL_DIR datasets don't match
+        for r, m in test_sets.items():
+            deletion = utc_from_str(m["server.deletion"])
+            assert (
+                deletion >= soonish
+            ), f"Filter failed to return {m['dataset.name']}, with expiration in range ({deletion:%Y-%m-%d})"
+
 
 class TestUpdate:
     @pytest.mark.dependency(name="publish", depends=["index"], scope="session")
@@ -447,6 +500,7 @@ class TestDelete:
             "list_and",
             "list_none",
             "list_or",
+            "list_type",
             "publish",
         ],
         scope="session",

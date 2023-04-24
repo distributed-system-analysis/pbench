@@ -489,3 +489,15 @@ class PbenchServerClient:
             uri_params={"dataset": dataset_id},
             params=params,
         ).json()
+
+    def get_settings(self, key: str = "") -> JSONOBJECT:
+        """Return requested server setting.
+
+        Args:
+            key: A server settings key; if omitted, return all settings
+
+        Returns:
+            A JSON document containing the requested key values
+        """
+        params = {"key": key}
+        return self.get(api=API.SERVER_SETTINGS, uri_params=params).json()

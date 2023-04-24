@@ -492,18 +492,58 @@ class TestDatasetsList:
     @pytest.mark.parametrize(
         "filters,expected",
         [
-            (["dataset.name:fio"], "datasets.name = 'fio'"),
+            (["dataset.name:=fio"], "datasets.name = 'fio'"),
             (
-                ["dataset.metalog.pbench.script:fio"],
-                "dataset_metadata_1.value[['pbench', 'script']] = 'fio'",
+                ["dataset.uploaded:>2023-01-01:date"],
+                "datasets.uploaded > '2023-01-01 00:00:00'",
+            ),
+            (
+                ["dataset.uploaded:!=2023-01-01:date"],
+                "datasets.uploaded != '2023-01-01 00:00:00'",
+            ),
+            (
+                ["server.deletion:<2023-05-01:date"],
+                "CAST(dataset_metadata_2.value[['deletion']] AS DATETIME) < '2023-05-01 00:00:00'",
+            ),
+            (
+                ["'dataset.metalog.pbench.script':='fio'"],
+                "CAST(dataset_metadata_1.value[['pbench', 'script']] AS VARCHAR) = 'fio'",
+            ),
+            (
+                ["'dataset.metalog.pbench.script':!=fio"],
+                "CAST(dataset_metadata_1.value[['pbench', 'script']] AS VARCHAR) != 'fio'",
+            ),
+            (
+                ["dataset.metalog.run.date:~fio"],
+                "(CAST(dataset_metadata_1.value[['run', 'date']] AS VARCHAR) LIKE '%' || 'fio' || '%')",
+            ),
+            (
+                ["global.something.integer:<1:int"],
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) < 1",
+            ),
+            (
+                ["global.something.integer:>2:int"],
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) > 2",
+            ),
+            (
+                ["global.something.integer:<=1:int"],
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) <= 1",
+            ),
+            (
+                ["global.something.integer:>=2:int"],
+                "CAST(dataset_metadata_3.value[['something', 'integer']] AS INTEGER) >= 2",
+            ),
+            (
+                ["global.something.boolean:t:bool"],
+                "CAST(dataset_metadata_3.value[['something', 'boolean']] AS BOOLEAN) = true",
             ),
             (
                 ["user.d.f:1"],
-                "dataset_metadata_4.value[['d', 'f']] = '1'",
+                "CAST(dataset_metadata_4.value[['d', 'f']] AS VARCHAR) = '1'",
             ),
             (
-                ["dataset.name:~fio", "^global.x:1", "^user.y:~yes"],
-                "(datasets.name LIKE '%' || 'fio' || '%') AND (dataset_metadata_3.value[['x']] = '1' OR ((dataset_metadata_4.value[['y']]) LIKE '%' || 'yes' || '%'))",
+                ["dataset.name:~fio", "^'global.x':1", "^user.y:~yes"],
+                "(datasets.name LIKE '%' || 'fio' || '%') AND (CAST(dataset_metadata_3.value[['x']] AS VARCHAR) = '1' OR (CAST(dataset_metadata_4.value[['y']] AS VARCHAR) LIKE '%' || 'yes' || '%'))",
             ),
             (
                 ["dataset.uploaded:~2000"],
@@ -544,11 +584,11 @@ class TestDatasetsList:
             (["dataset.name:fio"], "datasets.name = 'fio'"),
             (
                 ["dataset.metalog.pbench.script:fio"],
-                "dataset_metadata_1.value[['pbench', 'script']] = 'fio'",
+                "CAST(dataset_metadata_1.value[['pbench', 'script']] AS VARCHAR) = 'fio'",
             ),
             (
                 ["dataset.name:~fio", "^global.x:1"],
-                "(datasets.name LIKE '%' || 'fio' || '%') AND dataset_metadata_3.value[['x']] = '1'",
+                "(datasets.name LIKE '%' || 'fio' || '%') AND CAST(dataset_metadata_3.value[['x']] AS VARCHAR) = '1'",
             ),
             (
                 ["dataset.uploaded:~2000"],
@@ -596,15 +636,57 @@ class TestDatasetsList:
         assert e.value.http_status == HTTPStatus.UNAUTHORIZED
 
     @pytest.mark.parametrize(
-        "meta,error",
+        "meta,error,message",
         [
-            ("user.foo:1", HTTPStatus.UNAUTHORIZED),
-            ("x.y:1", HTTPStatus.BAD_REQUEST),
-            ("global.x=3", HTTPStatus.BAD_REQUEST),
-            ("dataset.notright:10", HTTPStatus.BAD_REQUEST),
+            (
+                "user.foo:1",
+                HTTPStatus.UNAUTHORIZED,
+                "Metadata key user.foo cannot be used by an unauthenticated client",
+            ),
+            ("x.y:1", HTTPStatus.BAD_REQUEST, "Metadata key 'x.y' is not supported"),
+            (
+                "global.x=3",
+                HTTPStatus.BAD_REQUEST,
+                "Missing ':' terminator in 'global.x=3'",
+            ),
+            (
+                "'global.x'",
+                HTTPStatus.BAD_REQUEST,
+                "Missing ':' terminator in 'global.x'",
+            ),
+            (
+                "dataset.x':v",
+                HTTPStatus.BAD_REQUEST,
+                'Metadata key "dataset.x\'" is not supported',
+            ),
+            (
+                "dataset.notright:10",
+                HTTPStatus.BAD_REQUEST,
+                "Metadata key 'dataset.notright' is not supported",
+            ),
+            (
+                "'dataset.name:foo",
+                HTTPStatus.BAD_REQUEST,
+                'Bad quote termination in "\'dataset.name:foo"',
+            ),
+            (
+                "dataset.name:'foo",
+                HTTPStatus.BAD_REQUEST,
+                'Bad quote termination in "dataset.name:\'foo"',
+            ),
+            (
+                "server.deletion:<2023-05-01:time",
+                HTTPStatus.BAD_REQUEST,
+                "The filter type 'time' must be one of bool,date,int,str",
+            ),
+            (
+                "server.deletion:2023-05-01:date:",
+                HTTPStatus.BAD_REQUEST,
+                "The filter type 'date:' must be one of bool,date,int,str",
+            ),
         ],
     )
-    def test_filter_errors(self, monkeypatch, db_session, meta, error):
+    def test_filter_errors(self, monkeypatch, client, meta, error, message):
         """Test invalid filter expressions."""
         monkeypatch.setattr(
             "pbench.server.api.resources.datasets_list.Auth.get_current_user_id",
@@ -614,6 +696,62 @@ class TestDatasetsList:
         with pytest.raises(APIAbort) as e:
             DatasetsList.filter_query([meta], aliases, query)
         assert e.value.http_status == error
+        assert str(e.value) == message
+
+    @pytest.mark.parametrize(
+        "query,results",
+        [
+            ("global.legacy:t:bool", ["drb"]),
+            ("global.legacy:>2:int", ["fio_2"]),
+            ("global.legacy:>2023-05-01:date", []),
+        ],
+    )
+    def test_mismatched_json_cast(self, query_as, server_config, query, results):
+        """Verify DB engine behavior for mismatched metadata casts.
+
+        Verify that a typed filter ignores datasets where the metadata key
+        type isn't compatible with the required cast.
+        """
+        drb = Dataset.query(name="drb")
+        fio_1 = Dataset.query(name="fio_1")
+        fio_2 = Dataset.query(name="fio_2")
+
+        Metadata.setvalue(dataset=drb, key="global.legacy", value=True)
+        Metadata.setvalue(dataset=fio_1, key="global.legacy.server", value="ABC")
+        Metadata.setvalue(dataset=fio_2, key="global.legacy", value=4)
+
+        response = query_as(
+            {"filter": query, "metadata": ["dataset.uploaded"]},
+            "drb",
+            HTTPStatus.OK,
+        )
+        self.compare_results(response.json, results, {}, server_config)
+
+    @pytest.mark.parametrize(
+        "query,message",
+        [
+            (
+                "dataset.name:t:bool",
+                "Filter of type 'bool' is not compatible with key 'dataset.name'",
+            ),
+            (
+                "dataset.uploaded:>2:int",
+                "Filter of type 'int' is not compatible with key 'dataset.uploaded'",
+            ),
+        ],
+    )
+    def test_mismatched_dataset_cast(self, query_as, server_config, query, message):
+        """Verify DB engine behavior for mismatched metadata casts.
+
+        Verify that a typed filter generates an error when it targets a primary
+        dataset key with an incompatible type.
+        """
+        response = query_as(
+            {"filter": query, "metadata": ["dataset.uploaded"]},
+            "drb",
+            HTTPStatus.BAD_REQUEST,
+        )
+        assert response.json["message"] == message
 
     @pytest.mark.parametrize(
         "exception,error",
