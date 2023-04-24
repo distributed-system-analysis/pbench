@@ -1,4 +1,6 @@
+from datetime import datetime
 from logging import Logger
+import os
 from pathlib import Path
 import shlex
 import shutil
@@ -82,6 +84,13 @@ class TarballModeChangeError(CacheManagerError):
         return f"An error occurred while changing file permissions of {self.tarball}: {self.error}"
 
 
+class TarInfo:
+    def __init__(self, path):
+        self.location = path
+        mtime = os.path.getmtime(path)
+        self.timestamp = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S")
+
+
 class Tarball:
     """Representation of an on-disk tarball.
 
@@ -118,6 +127,9 @@ class Tarball:
 
         # Record where cached unpacked data would live
         self.cache: Path = controller.cache / self.resource_id
+
+        # Record hierarchy of a Tar ball
+        self.cachemap: dict = None
 
         # Record the base of the unpacked files for cache management, which
         # is (self.cache / self.name) and will be None when the cache is
@@ -225,6 +237,30 @@ class Tarball:
             controller.logger.error("Error removing incoming dataset {}: {}", name, e)
 
         return cls(destination, controller)
+
+    def cache_map(self, tarball: Path):
+        """Builds Hierarchy structure of a Tarball in a Dictionary
+        Format.
+
+        Args:
+            tarball: path of an unpacked tarball
+        """
+        cmap = {tarball.name: {"details": TarInfo(tarball)}}
+        dir_queue = [(tarball, cmap)]
+        while dir_queue:
+            tar_path, parent_map = dir_queue.pop(0)
+            tar_n = tar_path.name
+            curr = parent_map[tar_n]
+
+            dir_list = tar_path.glob("*")
+            for l_path in dir_list:
+                tar_info = TarInfo(l_path)
+                if l_path.is_dir():
+                    curr[l_path.name] = {"details": tar_info}
+                    dir_queue.append((l_path, curr))
+                elif l_path.is_file:
+                    curr[l_path.name] = {"details": tar_info}
+        self.cachemap = cmap
 
     @staticmethod
     def extract(tarball_path: Path, path: str) -> Optional[str]:
@@ -344,6 +380,7 @@ class Tarball:
             shutil.rmtree(self.cache, ignore_errors=True)
             raise
         self.unpacked = self.cache / self.name
+        self.cache_map(self.unpacked)
 
     def uncache(self):
         """Remove the unpacked tarball directory and all contents."""

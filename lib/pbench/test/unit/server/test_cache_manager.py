@@ -1,5 +1,6 @@
 import hashlib
 from logging import Logger
+import os
 from pathlib import Path
 import re
 import shutil
@@ -439,8 +440,93 @@ class TestCacheManager:
             m.setattr(subprocess, "run", mock_run)
             m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
             m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            m.setattr(os.path, "getmtime", lambda self: 1681814586.1138802)
             tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
             tb.unpack()
+            assert call == ["tar", "find"]
+            assert tb.unpacked == cache / "ABC" / tb.name
+
+    def test_cachemap_modification_time(self, monkeypatch):
+        """Test to build the cache map of the unpacked tarball"""
+        tar = Path("/mock/A.tar.xz")
+        cache = Path("/mock/.cache")
+        call = list()
+
+        def mock_run(args, **kwargs):
+            call.append(args[0])
+
+            tar_target = "--file=" + str(tar)
+            assert args[0] == "find" or args[0] == "tar" and tar_target in args
+            return subprocess.CompletedProcess(
+                args, returncode=0, stdout="Successfully Unpacked!", stderr=None
+            )
+
+        def mock_getmtime(path):
+            """Mock file/directory modification time"""
+            if path == Path("/mock/.cache/ABC/A"):
+                raise FileNotFoundError(
+                    f"[Errno 2] No such file or directory: '{path}'"
+                )
+
+        with monkeypatch.context() as m:
+            m.setattr(Path, "mkdir", lambda path, parents: None)
+            m.setattr(subprocess, "run", mock_run)
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            m.setattr(os.path, "getmtime", mock_getmtime)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            with pytest.raises(FileNotFoundError) as exc:
+                tb.unpack()
+            assert (
+                str(exc.value)
+                == "[Errno 2] No such file or directory: '/mock/.cache/ABC/A'"
+            )
+            assert call == ["tar", "find"]
+            assert tb.unpacked == cache / "ABC" / tb.name
+
+    def test_cachemap_success(self, monkeypatch):
+        """Test to build the cache map of the unpacked tarball"""
+        tar = Path("/mock/A.tar.xz")
+        cache = Path("/mock/.cache")
+        call = list()
+
+        def mock_run(args, **kwargs):
+            call.append(args[0])
+
+            tar_target = "--file=" + str(tar)
+            assert args[0] == "find" or args[0] == "tar" and tar_target in args
+            return subprocess.CompletedProcess(
+                args, returncode=0, stdout="Successfully Unpacked!", stderr=None
+            )
+
+        def mock_glob(self, path):
+            """Mock directory hierarchy structure"""
+            if self.name == "dir1":
+                return [Path("/mock/A/dir1/dir2"), Path("/mock/A/dir1/dir3")]
+            elif self.name == "dir3":
+                return [Path("/mock/A/dir1/dir3/file.json")]
+            elif self.name == "A":
+                return [Path("/mock/A/dir1")]
+            else:
+                return []
+
+        with monkeypatch.context() as m:
+            m.setattr(Path, "mkdir", lambda path, parents: None)
+            m.setattr(subprocess, "run", mock_run)
+            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
+            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
+            m.setattr(Path, "glob", mock_glob)
+            m.setattr(os.path, "getmtime", lambda self: 1681814586.1138802)
+            m.setattr(Path, "is_dir", lambda self: True)
+            m.setattr(Path, "is_file", lambda self: True)
+            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
+            tb.unpack()
+            assert tb.cachemap
+            assert tb.cachemap["A"]["dir1"]["details"].location == Path("/mock/A/dir1")
+            assert (
+                tb.cachemap["A"]["dir1"]["dir2"]["details"].timestamp
+                == "2023-04-18 16:13:06"
+            )
             assert call == ["tar", "find"]
             assert tb.unpacked == cache / "ABC" / tb.name
 
