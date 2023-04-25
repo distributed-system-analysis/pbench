@@ -418,6 +418,8 @@ class TestOpenIDClient:
     def test_token_introspect_alg(self, monkeypatch, rsa_keys):
         """Verify .token_introspect() failure via algorithm error"""
         client_id = "us"
+
+        # Make the algorithm invalid.
         generated_api_key = jwt.encode(
             {"some_key": "some_value"}, "my_secret", algorithm="HS256"
         )
@@ -427,7 +429,6 @@ class TestOpenIDClient:
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
         with pytest.raises(OpenIDTokenInvalid) as exc:
-            # Make the algorithm invalid.
             oidc_client.token_introspect(generated_api_key)
         assert (
             str(exc.value.__cause__) == "The specified alg value is not allowed"
