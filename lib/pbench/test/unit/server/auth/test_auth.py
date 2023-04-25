@@ -337,7 +337,7 @@ class TestOpenIDClient:
         )
 
     def test_token_introspect_succ(self, monkeypatch, rsa_keys):
-        """Verify .token_introspect_offline() success path"""
+        """Verify .token_introspect() success path"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
 
@@ -364,7 +364,7 @@ class TestOpenIDClient:
         assert response == expected_payload
 
     def test_token_introspect_exp(self, monkeypatch, rsa_keys):
-        """Verify .token_introspect_offline() failure via expiration"""
+        """Verify .token_introspect() failure via expiration"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(
             client_id, rsa_keys["private_key"], exp=42
@@ -383,7 +383,7 @@ class TestOpenIDClient:
         ), f"{exc.value.__cause__}"
 
     def test_token_introspect_aud(self, monkeypatch, rsa_keys):
-        """Verify .token_introspect_offline() failure via audience error"""
+        """Verify .token_introspect() failure via audience error"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
 
@@ -397,7 +397,7 @@ class TestOpenIDClient:
         assert str(exc.value.__cause__) == "Invalid audience", f"{exc.value.__cause__}"
 
     def test_token_introspect_sig(self, monkeypatch, rsa_keys):
-        """Verify .token_introspect_offline() failure via signature error"""
+        """Verify .token_introspect() failure via signature error"""
         client_id = "us"
         token, expected_payload = gen_rsa_token(client_id, rsa_keys["private_key"])
 
@@ -416,7 +416,7 @@ class TestOpenIDClient:
         ), f"{exc.value.__cause__}"
 
     def test_token_introspect_alg(self, monkeypatch, rsa_keys):
-        """Verify .token_introspect_offline() failure via algorithm error"""
+        """Verify .token_introspect() failure via algorithm error"""
         client_id = "us"
         generated_api_key = jwt.encode(
             {"some_key": "some_value"}, "my_secret", algorithm="HS256"
@@ -427,7 +427,7 @@ class TestOpenIDClient:
         oidc_client = OpenIDClient.construct_oidc_client(config)
 
         with pytest.raises(OpenIDTokenInvalid) as exc:
-            # Make the signature invalid.
+            # Make the algorithm invalid.
             oidc_client.token_introspect(generated_api_key)
         assert (
             str(exc.value.__cause__) == "The specified alg value is not allowed"
