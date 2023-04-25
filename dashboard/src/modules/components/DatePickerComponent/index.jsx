@@ -1,5 +1,7 @@
 import "./index.less";
 
+import * as CONSTANTS from "assets/constants/browsingPageConstants";
+
 import {
   Button,
   DatePicker,
@@ -43,7 +45,7 @@ const DatePickerWidget = (props) => {
     if (from) {
       dispatch(setFilterKeys(from, new Date(to)));
       dispatch(applyFilter());
-      props.setPage(1);
+      props.setPage(CONSTANTS.START_PAGE_NUMBER);
     }
   };
 

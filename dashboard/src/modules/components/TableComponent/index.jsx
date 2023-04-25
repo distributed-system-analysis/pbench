@@ -140,11 +140,7 @@ const TableWithFavorite = () => {
     setFavPage(newPage);
     selectedArray = favoriteRepoNames?.slice(startIdx, endIdx);
   };
-  const perPageOptions = [
-    { title: "10", value: 10 },
-    { title: "20", value: 20 },
-    { title: "50", value: 50 },
-  ];
+
   const onPerPageSelect = (_evt, newPerPage, newPage, startIdx, endIdx) => {
     setfavTblPerPage(newPerPage);
     setFavPage(newPage);
@@ -251,7 +247,7 @@ const TableWithFavorite = () => {
                   perPage={favTblperPage}
                   setPerPage={setfavTblPerPage}
                   onSetPage={onSetPage}
-                  perPageOptions={perPageOptions}
+                  perPageOptions={CONSTANTS.PER_PAGE_OPTIONS}
                   onPerPageSelect={onPerPageSelect}
                 />
               )}

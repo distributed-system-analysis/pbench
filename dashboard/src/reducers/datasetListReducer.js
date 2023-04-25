@@ -6,7 +6,7 @@ const initialState = {
   favoriteRepoNames: [],
   tableData: [],
   offset: 0,
-  limit: CONSTANTS.LIMIT,
+  limit: CONSTANTS.INITIAL_PAGE_LIMIT,
   perPage: CONSTANTS.DEFAULT_PER_PAGE,
   totalDatasets: 0,
   searchKey: "",
@@ -19,7 +19,7 @@ const initialState = {
 const DatasetListReducer = (state = initialState, action = {}) => {
   const { type, payload } = action;
   switch (type) {
-    case TYPES.GET_PUBLIC_DATASETS:
+    case TYPES.UPDATE_PUBLIC_DATASETS:
       return {
         ...state,
         publicData: [...payload],

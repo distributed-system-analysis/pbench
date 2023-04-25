@@ -1,5 +1,7 @@
 import "./index.less";
 
+import * as CONSTANTS from "assets/constants/browsingPageConstants";
+
 import {
   Alert,
   AlertActionCloseButton,
@@ -73,7 +75,7 @@ export const SearchBox = (props) => {
   const search = () => {
     dispatch(nameFilter(searchKey));
     dispatch(applyFilter());
-    props.setPage(1);
+    props.setPage(CONSTANTS.START_PAGE_NUMBER);
   };
   const handleKeyPress = (e) => {
     const key = e.key;

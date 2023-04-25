@@ -8,7 +8,7 @@ import {
 } from "actions/datasetListActions";
 import { useDispatch, useSelector } from "react-redux";
 
-import { LIMIT_MULTIPLIER } from "assets/constants/browsingPageConstants";
+import { OVERFETCH_FACTOR } from "assets/constants/browsingPageConstants";
 import React from "react";
 
 const TablePagination = ({ page, setPage }) => {
@@ -23,7 +23,7 @@ const TablePagination = ({ page, setPage }) => {
     fetchData(_event, pageNumber, perPage);
   };
   const onPerPageSelect = (_event, newPerPage, newPage) => {
-    dispatch(setPageLimit(newPerPage * LIMIT_MULTIPLIER));
+    dispatch(setPageLimit(newPerPage * OVERFETCH_FACTOR));
 
     dispatch(setPerPage(newPerPage));
     setPage(newPage);
@@ -48,11 +48,9 @@ const TablePagination = ({ page, setPage }) => {
       }
     }
     if (left !== right) {
-      const offset = (newPage - 1) * newPerPage;
-
       dispatch({
         type: TYPES.SET_PAGE_OFFSET,
-        payload: Number(offset),
+        payload: startIdx,
       });
       dispatch(fetchPublicDatasets(newPage));
     }
