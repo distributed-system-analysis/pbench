@@ -415,6 +415,24 @@ class TestOpenIDClient:
             str(exc.value.__cause__) == "Signature verification failed"
         ), f"{exc.value.__cause__}"
 
+    def test_token_introspect_alg(self, monkeypatch, rsa_keys):
+        """Verify .token_introspect_offline() failure via algorithm error"""
+        client_id = "us"
+        generated_api_key = jwt.encode(
+            {"some_key": "some_value"}, "my_secret", algorithm="HS256"
+        )
+        config = mock_connection(
+            monkeypatch, client_id, public_key=rsa_keys["public_key"]
+        )
+        oidc_client = OpenIDClient.construct_oidc_client(config)
+
+        with pytest.raises(OpenIDTokenInvalid) as exc:
+            # Make the signature invalid.
+            oidc_client.token_introspect(generated_api_key)
+        assert (
+            str(exc.value.__cause__) == "The specified alg value is not allowed"
+        ), f"{exc.value.__cause__}"
+
 
 @dataclass
 class MockRequest:

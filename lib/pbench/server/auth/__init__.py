@@ -375,5 +375,6 @@ class OpenIDClient:
             jwt.ExpiredSignatureError,
             jwt.InvalidSignatureError,
             jwt.InvalidAudienceError,
+            jwt.InvalidAlgorithmError,
         ) as exc:
             raise OpenIDTokenInvalid() from exc
