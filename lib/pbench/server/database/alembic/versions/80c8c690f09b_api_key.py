@@ -31,6 +31,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("api_key"),
     )
+    op.execute("ALTER TYPE audittype ADD VALUE 'API_KEY'")
     op.drop_index("ix_auth_tokens_expiration", table_name="auth_tokens")
     op.drop_index("ix_auth_tokens_token", table_name="auth_tokens")
     op.drop_table("auth_tokens")
