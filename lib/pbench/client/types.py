@@ -49,6 +49,14 @@ class JSONMap:
         """
         return self.json[key]
 
+    def __repr__(self) -> str:
+        """Represent by returning the JSON representation"""
+        return repr(self.json)
+
+    def __str__(self) -> str:
+        """Stringify by returning the stringified JSON"""
+        return str(self.json)
+
 
 class Dataset(JSONMap):
     @staticmethod
@@ -67,3 +75,7 @@ class Dataset(JSONMap):
         """
         md5_file = Path(f"{str(tarball)}.md5")
         return md5_file.read_text().split()[0]
+
+    def __str__(self) -> str:
+        """Identify the dataset by ID and name"""
+        return f"Dataset({self.resource_id}, {self.name!r})"
