@@ -77,6 +77,7 @@ class PbenchServerClient:
             url = f"{self.scheme}://{self.host}"
         self.url = url
         self.username: Optional[str] = None
+        self.api_key: Optional[str] = None
         self.auth_token: Optional[str] = None
         self.session: Optional[requests.Session] = None
         self.endpoints: Optional[JSONOBJECT] = None
@@ -101,8 +102,9 @@ class PbenchServerClient:
             Case-insensitive header dictionary
         """
         headers = CaseInsensitiveDict()
-        if self.auth_token:
-            headers["authorization"] = f"Bearer {self.auth_token}"
+        token = self.api_key if self.api_key else self.auth_token
+        if token:
+            headers["authorization"] = f"Bearer {token}"
         if user_headers:
             headers.update(user_headers)
         return headers
@@ -336,6 +338,25 @@ class PbenchServerClient:
         )
         self.username = user
         self.auth_token = response["access_token"]
+        self.api_key = None
+
+    def create_api_key(self):
+        """Create an API key from the current authenticated user
+
+        Creating an API key will cause the new key to be used instead of a
+        normal login auth_token until the API key is removed.
+        """
+        response = self.post(api=API.KEY)
+        self.api_key = response.json()["api_key"]
+        assert self.api_key, f"API key creation failed, {response.json()}"
+
+    def remove_api_key(self):
+        """Remove the session's API key
+
+        NOTE: when we support `DELETE /api/v1/key/{key}` this should delete the
+        key from the server.
+        """
+        self.api_key = None
 
     def upload(self, tarball: Path, **kwargs) -> requests.Response:
         """Upload a tarball to the server.
@@ -427,7 +448,9 @@ class PbenchServerClient:
         args = kwargs.copy()
         if "limit" not in args:
             args["limit"] = self.DEFAULT_PAGE_SIZE
-        json = self.get(api=API.DATASETS_LIST, params=args).json()
+        response = self.get(api=API.DATASETS_LIST, params=args, raise_error=False)
+        json = response.json()
+        assert response.ok, f"GET failed with {json['message']}"
         while True:
             for d in json["results"]:
                 yield Dataset(d)
