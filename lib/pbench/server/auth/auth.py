@@ -141,20 +141,16 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
     Returns:
         User object if the verification succeeds, None on failure.
     """
-    user = None
     try:
         token_payload = oidc_client.token_introspect(token=auth_token)
     except OpenIDTokenInvalid:
-        try:
-            user = verify_auth_api_key(auth_token)
-        except Exception:
-            pass
+        # The token is not a valid access token, fall through.
+        pass
     except Exception:
         current_app.logger.exception(
             "Unexpected exception occurred while verifying the auth token {}",
             auth_token,
         )
-        pass
     else:
         # Extract what we want to cache from the access token
         user_id = token_payload["sub"]
@@ -170,4 +166,14 @@ def verify_auth_oidc(auth_token: str) -> Optional[User]:
             user.add()
         else:
             user.update(username=username, roles=roles)
-    return user
+        return user
+
+    try:
+        return verify_auth_api_key(auth_token)
+    except Exception:
+        current_app.logger.exception(
+            "Unexpected exception occurred while verifying the API key {}",
+            auth_token,
+        )
+
+    return None
