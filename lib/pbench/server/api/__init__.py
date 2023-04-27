@@ -127,6 +127,7 @@ def register_endpoints(api: Api, app: Flask, config: PbenchServerConfig):
     api.add_resource(
         APIKeyManage,
         f"{base_uri}/key",
+        f"{base_uri}/key/<string:key>",
         endpoint="key",
         resource_class_args=(config,),
     )

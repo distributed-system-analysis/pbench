@@ -49,6 +49,7 @@ class APIKey(Database.Base):
     __tablename__ = "api_keys"
     api_key = Column(String(500), primary_key=True)
     created = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
+    name = Column(String(128), unique=False, nullable=False)
     # ID of the owning user
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
 
@@ -69,19 +70,22 @@ class APIKey(Database.Base):
             decode_exc = decode_integrity_error(
                 e, on_duplicate=DuplicateApiKey, on_null=NullKey
             )
-            if decode_exc == e:
+            if decode_exc is e:
                 raise APIKeyError(str(e)) from e
             else:
                 raise decode_exc from e
 
     @staticmethod
-    def query(key: str) -> Optional["APIKey"]:
+    def query(**kwargs) -> Optional["APIKey"]:
         """Find the given api_key in the database.
 
         Returns:
             An APIKey object if found, otherwise None
         """
-        return Database.db_session.query(APIKey).filter_by(api_key=key).first()
+        if "api_key" in kwargs:
+            return Database.db_session.query(APIKey).filter_by(**kwargs).first()
+        elif "user" in kwargs:
+            return Database.db_session.query(APIKey).filter_by(**kwargs).all()
 
     @staticmethod
     def delete(api_key: str):

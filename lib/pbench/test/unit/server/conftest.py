@@ -835,6 +835,17 @@ def pbench_drb_api_key(client, server_config, create_drb_user):
     """Valid api_key for the 'drb' user"""
     return generate_api_key(
         username="drb",
+        name="drb_key",
+        user=create_drb_user,
+    )
+
+
+@pytest.fixture()
+def pbench_drb_secondary_api_key(client, server_config, create_drb_user):
+    """Valid api_key for the 'drb' user"""
+    return generate_api_key(
+        username="drb",
+        name="secondary_key",
         user=create_drb_user,
     )
 
@@ -995,6 +1006,7 @@ def tarball(tmp_path):
 
 def generate_api_key(
     username: str,
+    name: str,
     user: Optional[User] = None,
     valid: bool = True,
 ) -> str:
@@ -1025,8 +1037,9 @@ def generate_api_key(
         "iat": current_utc,
         "user_id": user.id,
         "username": user.username,
+        "name": name,
     }
     key = jwt.encode(payload, jwt_secret, algorithm="HS256")
-    api_key = APIKey(api_key=key, user=user)
+    api_key = APIKey(api_key=key, user=user, name=name)
     api_key.add()
     return key
