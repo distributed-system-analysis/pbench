@@ -1,6 +1,5 @@
-from datetime import datetime
+from collections import deque
 from logging import Logger
-import os
 from pathlib import Path
 import shlex
 import shutil
@@ -84,11 +83,26 @@ class TarballModeChangeError(CacheManagerError):
         return f"An error occurred while changing file permissions of {self.tarball}: {self.error}"
 
 
-class TarInfo:
-    def __init__(self, path):
+class FileInfo:
+    def __init__(self, path: Path):
+        """Collects the file info
+
+        Args:
+            path: path to a file/directory
+
+        """
+        self.name = path.name
         self.location = path
-        mtime = os.path.getmtime(path)
-        self.timestamp = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S")
+        if path.is_dir():
+            self.type = "directory"
+        elif path.is_symlink():
+            self.type = "symlink"
+            self.resolve_path = path.readlink()
+            self.resolve_type = "directory" if self.resolve_path.is_dir() else "file"
+        elif path.is_file():
+            self.name = path.name
+            self.size = path.stat().st_size
+            self.type = "file"
 
 
 class Tarball:
@@ -129,7 +143,7 @@ class Tarball:
         self.cache: Path = controller.cache / self.resource_id
 
         # Record hierarchy of a Tar ball
-        self.cachemap: dict = None
+        self.cachemap: Optional[dict[str, JSONOBJECT]] = None
 
         # Record the base of the unpacked files for cache management, which
         # is (self.cache / self.name) and will be None when the cache is
@@ -238,29 +252,77 @@ class Tarball:
 
         return cls(destination, controller)
 
-    def cache_map(self, tarball: Path):
+    def cache_map(self, tar_path: Path):
         """Builds Hierarchy structure of a Tarball in a Dictionary
         Format.
 
         Args:
             tarball: path of an unpacked tarball
         """
-        cmap = {tarball.name: {"details": TarInfo(tarball)}}
-        dir_queue = [(tarball, cmap)]
+        cmap = {tar_path.name: {"details": FileInfo(tar_path)}}
+        dir_queue = deque([(tar_path, cmap)])
         while dir_queue:
-            tar_path, parent_map = dir_queue.pop(0)
+            tar_path, parent_map = dir_queue.popleft()
             tar_n = tar_path.name
             curr = parent_map[tar_n]
 
-            dir_list = tar_path.glob("*")
+            dir_list = list(tar_path.glob("*"))
+            if dir_list:
+                curr["children"] = {}
+                curr = curr["children"]
+
             for l_path in dir_list:
-                tar_info = TarInfo(l_path)
+                tar_info = FileInfo(l_path)
+                curr[l_path.name] = {"details": tar_info}
                 if l_path.is_dir():
-                    curr[l_path.name] = {"details": tar_info}
                     dir_queue.append((l_path, curr))
-                elif l_path.is_file:
-                    curr[l_path.name] = {"details": tar_info}
         self.cachemap = cmap
+
+    @staticmethod
+    def traverse_cmap(path, cachemap):
+        files_list = path.parts
+        c_map = cachemap
+
+        for file_l in files_list:
+            c_map = c_map[file_l]
+            if c_map["details"].type == "directory":
+                if "children" in c_map:
+                    c_map = c_map["children"]
+            elif c_map["details"].type == "symlink":
+                resolve_path = c_map["details"].resolve_path
+                c_map = Tarball.traverse_cmap(resolve_path, cachemap)
+
+        return c_map
+
+    def get_info(self, path):
+        c_map = Tarball.traverse_cmap(path, self.cachemap)
+        fd_info = {}
+
+        print("get_info c_map == ", c_map)
+
+        if "details" in c_map:
+            if c_map["details"].type == "file":
+                fd_info = {
+                    "location": c_map["details"].location,
+                    "name": c_map["details"].name,
+                    "size": "1024",
+                    "type": c_map["details"].type,
+                }
+            elif c_map["details"].type == "directory":
+                fd_info = {
+                    "location": c_map["details"].location,
+                    "name": c_map["details"].name,
+                    "type": c_map["details"].type,
+                }
+        else:
+            for key, value in c_map.items():
+                if value["details"].type == "directory":
+                    fd_info.setdefault("directory", []).append(key)
+                if value["details"].type == "file":
+                    fd_info.setdefault("file", []).append(key)
+
+        print("fd_info == ", fd_info)
+        return fd_info
 
     @staticmethod
     def extract(tarball_path: Path, path: str) -> Optional[str]:
@@ -822,6 +884,20 @@ class CacheManager:
         tarball = self.find_dataset(dataset_id)
         tarball.controller.unpack(dataset_id)
         return tarball
+
+    def get_info(self, dataset_id: str, path: Path) -> Tarball:
+        """Access files of a tarball into the CACHE tree
+
+        Args:
+            dataset_id: Dataset resource ID
+            path: path of requested content
+
+        Returns:
+            Contents inside the given path
+        """
+        tarball = self.find_dataset(dataset_id)
+        tmap = tarball.get_info(path)
+        return tmap
 
     def uncache(self, dataset_id: str):
         """Remove the unpacked tarball tree.
