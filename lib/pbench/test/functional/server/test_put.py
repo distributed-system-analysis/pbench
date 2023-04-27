@@ -354,6 +354,28 @@ class TestList:
 
         assert count > 1
 
+    @pytest.mark.dependency(name="list_api_key", depends=["upload"], scope="session")
+    def test_list_api_key(self, server_client: PbenchServerClient, login_user):
+        """List "my" datasets using an API key.
+
+        We should see all datasets owned by the tester account, both private
+        and public. That is, using the API key is the same as using the normal
+        auth token.
+        """
+        server_client.create_api_key()
+        assert server_client.api_key, "No API key was set on the session"
+        datasets = server_client.get_list(mine="true")
+
+        expected = [
+            {"resource_id": Dataset.md5(f), "name": Dataset.stem(f), "metadata": {}}
+            for f in TARBALL_DIR.glob("*.tar.xz")
+        ]
+        expected.sort(key=lambda e: e["resource_id"])
+        actual = [d.json for d in datasets]
+        assert expected == actual
+        server_client.remove_api_key()
+        assert not server_client.api_key, "API key was not removed as expected"
+
     @pytest.mark.dependency(name="list_or", depends=["upload"], scope="session")
     def test_list_filter_or(self, server_client: PbenchServerClient, login_user):
         """Check a simple OR filter list.

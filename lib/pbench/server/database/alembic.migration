@@ -56,6 +56,9 @@ elif [[ "${1}" == "create" ]]; then
     # We have been asked to auto-generate a migration based on the existing
     # model compared against the most recent migration "head".
     alembic revision --autogenerate
+elif [[ "${1}" == "show" ]]; then
+    alembic heads
+    alembic history
 else
     printf "Unsupported operation requested, '%s'\n" "${1}" >&2
     exit 1
