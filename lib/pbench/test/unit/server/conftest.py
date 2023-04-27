@@ -1042,4 +1042,4 @@ def generate_api_key(
     key = jwt.encode(payload, jwt_secret, algorithm="HS256")
     api_key = APIKey(api_key=key, user=user, name=name)
     api_key.add()
-    return key
+    return api_key

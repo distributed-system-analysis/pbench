@@ -32,9 +32,7 @@ class TestAPIKeyDB:
         """Test api_key constructor"""
 
         api_key = APIKey(
-            api_key="generated_api_key",
-            user=create_user,
-            name="test_api_key"
+            api_key="generated_api_key", user=create_user, name="test_api_key"
         )
         api_key.add()
 
@@ -42,25 +40,30 @@ class TestAPIKeyDB:
         assert api_key.user.id is create_user.id
         assert api_key.name == "test_api_key"
 
-    def test_query(self, db_session, pbench_drb_api_key,pbench_drb_secondary_api_key,create_drb_user):
+    def test_query(
+        self,
+        db_session,
+        pbench_drb_api_key,
+        pbench_drb_secondary_api_key,
+        create_drb_user,
+    ):
         """Test that we can able to query api_key in the table"""
 
-        key = APIKey.query(api_key=pbench_drb_api_key)
-        assert key.api_key == pbench_drb_api_key
+        key = APIKey.query(api_key=pbench_drb_api_key.api_key)
+        assert key.api_key == pbench_drb_api_key.api_key
         assert key.name == "drb_key"
         assert key.user.id == DRB_USER_ID
         assert key.user.username == "drb"
 
         key_list = APIKey.query(user=create_drb_user)
         assert len(key_list) == 2
-        print(key_list)
 
     def test_delete(self, db_session, create_user, pbench_drb_api_key):
         """Test that we can delete an api_key"""
 
         # we can find it
-        key = APIKey.query(api_key=pbench_drb_api_key)
-        assert key.api_key == pbench_drb_api_key
+        key = APIKey.query(api_key=pbench_drb_api_key.api_key)
+        assert key.api_key == pbench_drb_api_key.api_key
 
-        APIKey.delete(pbench_drb_api_key)
-        assert APIKey.query(api_key=pbench_drb_api_key) is None
+        APIKey.delete(pbench_drb_api_key.api_key)
+        assert APIKey.query(api_key=pbench_drb_api_key.api_key) is None

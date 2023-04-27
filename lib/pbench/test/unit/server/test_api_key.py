@@ -92,7 +92,7 @@ class TestPostAPIKey:
         assert audit[1].user_id == "3"
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
-        assert audit[1].attributes["key"] == response.json["api_key"]
+        assert audit[1].attributes["key_id"] == response.json["id"]
 
 
 class TestAPIKeyGet:
@@ -130,10 +130,12 @@ class TestAPIKeyGet:
 
         assert response.json["api_key"]
         assert len(response.json["api_key"]) == 2
-        assert "drb_key" in response.json["api_key"]
-        assert "secondary_key" in response.json["api_key"]
-        assert response.json["api_key"]["drb_key"] == pbench_drb_api_key
-        assert response.json["api_key"]["secondary_key"] == pbench_drb_secondary_api_key
+        assert response.json["api_key"]["1"]["name"] == "drb_key"
+        assert response.json["api_key"]["1"]["key"] == pbench_drb_api_key.api_key
+        assert response.json["api_key"]["2"]["name"] == "secondary_key"
+        assert (
+            response.json["api_key"]["2"]["key"] == pbench_drb_secondary_api_key.api_key
+        )
 
     def test_unauthorized_get(self, query_get_as, pbench_drb_token_invalid):
         response = query_get_as(pbench_drb_token_invalid, HTTPStatus.UNAUTHORIZED)
@@ -170,39 +172,81 @@ class TestAPIKeyDelete:
     def test_delete_api_key(self, query_as, pbench_drb_token, pbench_drb_api_key):
 
         # we can find it
-        key = APIKey.query(api_key=pbench_drb_api_key)
-        assert key.api_key == pbench_drb_api_key
+        key = APIKey.query(api_key=pbench_drb_api_key.api_key)
+        assert key.api_key == pbench_drb_api_key.api_key
+        assert key.id == pbench_drb_api_key.id
 
-        query_as(pbench_drb_token, pbench_drb_api_key, HTTPStatus.OK)
+        query_as(pbench_drb_token, pbench_drb_api_key.id, HTTPStatus.OK)
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].id == 1
+        assert audit[0].root_id is None
+        assert audit[0].operation == OperationCode.DELETE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "apikey"
+        assert audit[0].object_type == AuditType.API_KEY
+        assert audit[0].object_id is None
+        assert audit[0].object_name is None
+        assert audit[0].user_id == "3"
+        assert audit[0].user_name == "drb"
+        assert audit[0].reason is None
+        assert audit[0].attributes is None
+        assert audit[1].id == 2
+        assert audit[1].root_id == 1
+        assert audit[1].operation == OperationCode.DELETE
+        assert audit[1].status == AuditStatus.SUCCESS
+        assert audit[1].name == "apikey"
+        assert audit[1].object_type == AuditType.API_KEY
+        assert audit[1].object_id is None
+        assert audit[1].object_name is None
+        assert audit[1].user_id == "3"
+        assert audit[1].user_name == "drb"
+        assert audit[1].reason is None
+        assert audit[1].attributes["key_id"] == pbench_drb_api_key.id
+        assert audit[1].attributes["name"] == "drb_key"
 
-        assert APIKey.query(api_key=pbench_drb_api_key) is None
+        assert APIKey.query(api_key=pbench_drb_api_key.api_key) is None
 
     def test_unauthorized_delete(
         self, query_as, pbench_drb_token_invalid, pbench_drb_api_key
     ):
 
         response = query_as(
-            pbench_drb_token_invalid, pbench_drb_api_key, HTTPStatus.UNAUTHORIZED
+            pbench_drb_token_invalid,
+            pbench_drb_api_key.id,
+            HTTPStatus.UNAUTHORIZED,
         )
         assert response.json == {
             "message": "User provided access_token is invalid or expired"
         }
 
-    def test_delete_api_key_notfound(
-        self, query_as, pbench_drb_token, pbench_drb_token_invalid
-    ):
-
+    def test_delete_api_key_notfound(self, query_as, pbench_drb_token):
         response = query_as(
-            pbench_drb_token, pbench_drb_token_invalid, HTTPStatus.NOT_FOUND
+            pbench_drb_token, "pbench_drb_token_invalid", HTTPStatus.NOT_FOUND
         )
         assert response.json == {"message": "Requested key not found"}
+        audit = Audit.query()
+        assert len(audit) == 2
+        assert audit[0].id == 1
+        assert audit[0].root_id is None
+        assert audit[0].operation == OperationCode.DELETE
+        assert audit[0].status == AuditStatus.BEGIN
+        assert audit[0].name == "apikey"
+        assert audit[0].object_type == AuditType.API_KEY
+        assert audit[1].id == 2
+        assert audit[1].root_id == 1
+        assert audit[1].operation == OperationCode.DELETE
+        assert audit[1].status == AuditStatus.FAILURE
+        assert audit[1].name == "apikey"
+        assert audit[1].object_type == AuditType.API_KEY
+        assert audit[1].attributes is None
 
     def test_delete_api_key_fail(
         self, query_as, pbench_admin_token, pbench_drb_api_key
     ):
 
         response = query_as(
-            pbench_admin_token, pbench_drb_api_key, HTTPStatus.FORBIDDEN
+            pbench_admin_token, pbench_drb_api_key.id, HTTPStatus.FORBIDDEN
         )
         assert response.json == {
             "message": "User does not have rights to delete the specified key"

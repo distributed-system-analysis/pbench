@@ -2,7 +2,7 @@ from typing import Optional
 
 from flask import current_app
 import jwt
-from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from pbench.server.database.database import Database
@@ -47,7 +47,8 @@ class APIKey(Database.Base):
     """Model for storing the API key associated with a user."""
 
     __tablename__ = "api_keys"
-    api_key = Column(String(500), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    api_key = Column(String(500), unique=True, nullable=False)
     created = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
     name = Column(String(128), unique=False, nullable=False)
     # ID of the owning user
@@ -82,10 +83,10 @@ class APIKey(Database.Base):
         Returns:
             An APIKey object if found, otherwise None
         """
-        if "api_key" in kwargs:
-            return Database.db_session.query(APIKey).filter_by(**kwargs).first()
-        elif "user" in kwargs:
+        if "user" in kwargs:
             return Database.db_session.query(APIKey).filter_by(**kwargs).all()
+        else:
+            return Database.db_session.query(APIKey).filter_by(**kwargs).first()
 
     @staticmethod
     def delete(api_key: str):

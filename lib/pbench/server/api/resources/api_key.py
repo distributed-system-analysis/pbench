@@ -77,7 +77,8 @@ class APIKeyManage(ApiBase):
         key = APIKey.query(user=user)
         key_dict: JSONOBJECT = {}
         if key:
-            for i in key:key_dict[i.name] = i.api_key
+            for i in key:
+                key_dict[i.id] = {"name": i.name, "key": i.api_key}
 
         response = {"api_key": key_dict}
         return response
@@ -123,9 +124,8 @@ class APIKeyManage(ApiBase):
             status = HTTPStatus.OK
         except Exception as e:
             raise APIInternalError(str(e)) from e
-
-        context["auditing"]["attributes"] = {"key": new_key, "name": name}
-        response = jsonify({"api_key": new_key})
+        context["auditing"]["attributes"] = {"key_id": key.id, "name": name}
+        response = jsonify({"api_key": new_key, "id": key.id})
         response.status_code = status
         return response
 
@@ -143,7 +143,7 @@ class APIKeyManage(ApiBase):
             APIAbort, reporting "UNAUTHORIZED" and "FORBIDDEN"
             APIInternalError, reporting the failure message
         """
-        api_key = params.uri["key"]
+        key_id = params.uri["key"]
         user = Auth.token_auth.current_user()
 
         if not user:
@@ -151,12 +151,13 @@ class APIKeyManage(ApiBase):
                 HTTPStatus.UNAUTHORIZED,
                 "User provided access_token is invalid or expired",
             )
-        key = APIKey.query(api_key=api_key)
+        key = APIKey.query(id=key_id)
         if not key:
             raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
         if key.user == user:
             try:
-                APIKey.delete(api_key)
+                APIKey.delete(key.api_key)
+                context["auditing"]["attributes"] = {"key_id": key.id, "name": key.name}
                 return "", HTTPStatus.OK
             except Exception as e:
                 raise APIInternalError(str(e)) from e
