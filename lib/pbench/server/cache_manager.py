@@ -274,6 +274,14 @@ class Tarball:
             for l_path in dir_list:
                 tar_info = FileInfo(l_path)
                 curr[l_path.name] = {"details": tar_info}
+                # Note: have to handle symlink case as it
+                # is not being checked whether it is a symlink,
+                # it is checking for the redirected path. Currently,
+                # as I have used file for the symlink it is not added it
+                # the queue, but if it a symlink is pointing to a directory
+                # it turns out to be an endless loop. There may be case
+                # that the way I am creating symlink in tests is wrong because
+                # when I am testing manually I am not seeing the same case.
                 if l_path.is_dir():
                     dir_queue.append((l_path, curr))
         self.cachemap = cmap
@@ -284,21 +292,20 @@ class Tarball:
         c_map = cachemap
 
         for file_l in files_list:
-            c_map = c_map[file_l]
-            if c_map["details"].type == "directory":
-                if "children" in c_map:
-                    c_map = c_map["children"]
-            elif c_map["details"].type == "symlink":
-                resolve_path = c_map["details"].resolve_path
-                c_map = Tarball.traverse_cmap(resolve_path, cachemap)
+            if file_l != ["/", "//"]:
+                c_map = c_map[file_l]
+                if c_map["details"].type == "directory":
+                    if "children" in c_map:
+                        c_map = c_map["children"]
+                elif c_map["details"].type == "symlink":
+                    resolve_path = c_map["details"].resolve_path
+                    c_map = Tarball.traverse_cmap(resolve_path, cachemap)
 
         return c_map
 
     def get_info(self, path):
         c_map = Tarball.traverse_cmap(path, self.cachemap)
         fd_info = {}
-
-        print("get_info c_map == ", c_map)
 
         if "details" in c_map:
             if c_map["details"].type == "file":
@@ -321,7 +328,6 @@ class Tarball:
                 if value["details"].type == "file":
                     fd_info.setdefault("file", []).append(key)
 
-        print("fd_info == ", fd_info)
         return fd_info
 
     @staticmethod
