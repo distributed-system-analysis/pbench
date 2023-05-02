@@ -1,7 +1,7 @@
 import datetime
 from http import HTTPStatus
 import re
-from typing import Optional
+from typing import Any, Optional
 
 import pytest
 import requests
@@ -10,7 +10,7 @@ from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import aliased, Query
 
 from pbench.server import JSON, JSONARRAY, JSONOBJECT
-from pbench.server.api.resources import APIAbort
+from pbench.server.api.resources import APIAbort, ApiParams
 from pbench.server.api.resources.datasets_list import DatasetsList, urlencode_json
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata
@@ -129,17 +129,26 @@ class TestDatasetsList:
         Returns:
             Paginated JSON object containing list of dataset values
         """
+
+        def convert(k: str, v: Any) -> Any:
+            if isinstance(v, str) and k in ("filter", "sort", "metadata"):
+                return [v]
+            elif isinstance(v, int):
+                return str(v)
+            else:
+                return v
+
         results: list[JSON] = []
-        offset = query.get("offset", 0)
+        offset = int(query.get("offset", 0))
         limit = query.get("limit")
 
         if limit:
-            next_offset = offset + limit
+            next_offset = offset + int(limit)
             paginated_name_list = name_list[offset:next_offset]
             if next_offset >= len(name_list):
                 next_url = ""
             else:
-                query["offset"] = next_offset
+                query["offset"] = str(next_offset)
                 next_url = (
                     f"http://localhost{server_config.rest_uri}/datasets?"
                     + urlencode_json(query)
@@ -161,7 +170,15 @@ class TestDatasetsList:
                     },
                 }
             )
-        return {"next_url": next_url, "results": results, "total": len(name_list)}
+        q1 = {k: convert(k, v) for k, v in query.items()}
+        if "metadata" not in q1:
+            q1["metadata"] = ["dataset.uploaded"]
+        return {
+            "parameters": q1,
+            "next_url": next_url,
+            "results": results,
+            "total": len(name_list),
+        }
 
     def compare_results(
         self, result: JSONOBJECT, name_list: list[str], query: JSON, server_config
@@ -190,8 +207,8 @@ class TestDatasetsList:
             (None, {}, ["fio_1", "fio_2"]),
             (None, {"access": "public"}, ["fio_1", "fio_2"]),
             ("drb", {"name": "fio"}, ["fio_1", "fio_2"]),
-            ("drb", {"name": "fio", "limit": 1}, ["fio_1", "fio_2"]),
-            ("drb", {"name": "fio", "limit": 1, "offset": 2}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "limit": "1"}, ["fio_1", "fio_2"]),
+            ("drb", {"name": "fio", "limit": 1, "offset": "2"}, ["fio_1", "fio_2"]),
             ("drb", {"name": "fio", "offset": 1}, ["fio_1", "fio_2"]),
             ("drb", {"name": "fio", "offset": 2}, ["fio_1", "fio_2"]),
             ("drb", {"owner": "drb"}, ["drb", "fio_1"]),
@@ -311,7 +328,9 @@ class TestDatasetsList:
             headers=headers,
         )
         assert response.status_code == HTTPStatus.OK
-        self.compare_results(response.json, ["drb", "fio_1"], {}, server_config)
+        self.compare_results(
+            response.json, ["drb", "fio_1"], {"mine": ""}, server_config
+        )
 
     @pytest.mark.parametrize(
         "login,query,results",
@@ -336,7 +355,7 @@ class TestDatasetsList:
             results: A list of the dataset names we expect to be returned
             server_config: The PbenchServerConfig object
         """
-        query.update({"metadata": ["dataset.uploaded"], "limit": 5})
+        query.update({"metadata": ["dataset.uploaded"], "limit": "5"})
         result = query_as(query, login, HTTPStatus.OK)
         self.compare_results(result.json, results, query, server_config)
 
@@ -384,6 +403,7 @@ class TestDatasetsList:
         )
         assert response.json == {
             "next_url": "",
+            "parameters": {"metadata": ["global.test.foo"]},
             "results": [
                 {
                     "metadata": {"global.test.foo": None},
@@ -444,6 +464,12 @@ class TestDatasetsList:
         )
         assert response.json == {
             "next_url": "",
+            "parameters": {
+                "filter": [
+                    "dataset.metalog.iterations/fooBar=10-what_else@weird.iteration_name:~10"
+                ],
+                "metadata": ["dataset.metalog.iterations/fooBar=10-what_else@weird"],
+            },
             "results": [
                 {
                     "metadata": {
@@ -725,7 +751,7 @@ class TestDatasetsList:
             "drb",
             HTTPStatus.OK,
         )
-        self.compare_results(response.json, results, {}, server_config)
+        self.compare_results(response.json, results, {"filter": query}, server_config)
 
     @pytest.mark.parametrize(
         "query,message",
@@ -769,7 +795,7 @@ class TestDatasetsList:
         """
 
         def do_error(
-            self, query: Query, json: JSONOBJECT, url: str
+            self, query: Query, json: JSONOBJECT, raw_params: ApiParams, url: str
         ) -> tuple[JSONARRAY, JSONOBJECT]:
             raise exception
 
