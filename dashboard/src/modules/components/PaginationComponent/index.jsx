@@ -14,9 +14,7 @@ import React from "react";
 const TablePagination = ({ page, setPage }) => {
   const dispatch = useDispatch();
 
-  const { totalDatasets, publicData, perPage } = useSelector(
-    (state) => state.datasetlist
-  );
+  const { publicData, perPage } = useSelector((state) => state.datasetlist);
   const onSetPage = (_event, pageNumber) => {
     setPage(pageNumber);
 
@@ -36,12 +34,12 @@ const TablePagination = ({ page, setPage }) => {
     let left = startIdx;
     let right = endIdx;
     while (left < right) {
-      if (publicData[startIdx]) {
+      if (publicData[left]) {
         left++;
       } else {
         break;
       }
-      if (publicData[endIdx]) {
+      if (publicData[right]) {
         right--;
       } else {
         break;
@@ -69,7 +67,7 @@ const TablePagination = ({ page, setPage }) => {
       onLastClick={fetchData}
       toggleTemplate={({ firstIndex, lastIndex }) => (
         <React.Fragment>
-          {firstIndex} - {lastIndex} of {totalDatasets}
+          {firstIndex} - {lastIndex} of {publicData.length}
         </React.Fragment>
       )}
     ></Pagination>

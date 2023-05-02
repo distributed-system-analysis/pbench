@@ -5,10 +5,9 @@ const initialState = {
   publicData: [],
   favoriteRepoNames: [],
   tableData: [],
-  offset: 0,
+  offset: CONSTANTS.START_PAGE_NUMBER - 1,
   limit: CONSTANTS.INITIAL_PAGE_LIMIT,
   perPage: CONSTANTS.DEFAULT_PER_PAGE,
-  totalDatasets: 0,
   searchKey: "",
   filter: {
     startDate: "",
@@ -29,16 +28,10 @@ const DatasetListReducer = (state = initialState, action = {}) => {
         ...state,
         favoriteRepoNames: [...payload],
       };
-
     case TYPES.SET_PAGE_OFFSET:
       return {
         ...state,
         offset: payload,
-      };
-    case TYPES.SET_TOTAL_DATASETS:
-      return {
-        ...state,
-        totalDatasets: payload,
       };
     case TYPES.SET_PAGE_LIMIT:
       return {

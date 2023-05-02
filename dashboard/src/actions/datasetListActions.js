@@ -24,10 +24,10 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
       params.append("name", searchKey);
     }
     if (filter.startDate instanceof Date && !isNaN(filter.startDate)) {
-      params.append("start", new Date(filter.startDate).toUTCString());
+      params.append("start", filter.startDate.toUTCString());
     }
     if (filter.endDate instanceof Date && !isNaN(filter.endDate)) {
-      params.append("end", new Date(filter.endDate).toUTCString());
+      params.append("end", filter.endDate.toUTCString());
     }
 
     const response = await API.get(
@@ -54,17 +54,13 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
       // in case of last page, next_url is empty
       if (response.data.next_url) {
         const urlSearchParams = new URLSearchParams(response.data.next_url);
-        const params = Object.fromEntries(urlSearchParams.entries());
+        const offset = urlSearchParams.get("offset");
 
         dispatch({
           type: TYPES.SET_PAGE_OFFSET,
-          payload: Number(params?.offset),
+          payload: Number(offset),
         });
       }
-      dispatch({
-        type: TYPES.SET_TOTAL_DATASETS,
-        payload: response.data.total,
-      });
     }
   } catch (error) {
     dispatch(showToast(DANGER, ERROR_MSG));
