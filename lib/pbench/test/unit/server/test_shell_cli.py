@@ -138,7 +138,7 @@ class TestShell:
             "--pid",
             "/run/pbench-server/gunicorn.pid",
             "--bind",
-            "0.0.0.0:8001",
+            "unix:/run/pbench-server/pbench-server.sock",
             "--log-syslog",
             "--log-syslog-prefix",
             "pbench-server",
@@ -311,8 +311,6 @@ class TestShell:
     @pytest.mark.parametrize(
         "option",
         [
-            "bind_host",
-            "bind_port",
             "uri",
             "wait_timeout",
             "workers",

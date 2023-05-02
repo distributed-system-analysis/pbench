@@ -53,8 +53,6 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     if site.ENABLE_USER_SITE:
         find_the_unicorn(logger)
     try:
-        host = server_config.get("pbench-server", "bind_host")
-        port = str(server_config.get("pbench-server", "bind_port"))
         db_uri = server_config.get("database", "uri")
         db_wait_timeout = int(server_config.get("database", "wait_timeout"))
         es_uri = server_config.get("Indexing", "uri")
@@ -158,7 +156,7 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         "--pid",
         "/run/pbench-server/gunicorn.pid",
         "--bind",
-        f"{host}:{port}",
+        "unix:/run/pbench-server/pbench-server.sock",
         "--log-syslog",
         "--log-syslog-prefix",
         "pbench-server",
