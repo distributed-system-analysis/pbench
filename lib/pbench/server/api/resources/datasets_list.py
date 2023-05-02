@@ -346,6 +346,8 @@ class DatasetsList(ApiBase):
             parsed_url = urlparse(url)
             next_url = parsed_url._replace(query=urlencode_json(json)).geturl()
         else:
+            if limit:
+                raw["offset"] = str(total_count)
             next_url = ""
 
         paginated_result["parameters"] = raw

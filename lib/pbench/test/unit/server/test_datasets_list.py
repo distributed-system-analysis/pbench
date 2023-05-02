@@ -139,13 +139,14 @@ class TestDatasetsList:
                 return v
 
         results: list[JSON] = []
-        offset = int(query.get("offset", 0))
+        offset = int(query.get("offset", "0"))
         limit = query.get("limit")
 
         if limit:
             next_offset = offset + int(limit)
             paginated_name_list = name_list[offset:next_offset]
             if next_offset >= len(name_list):
+                query["offset"] = str(len(name_list))
                 next_url = ""
             else:
                 query["offset"] = str(next_offset)
@@ -167,7 +168,7 @@ class TestDatasetsList:
                         "dataset.uploaded": datetime.datetime.isoformat(
                             dataset.uploaded
                         )
-                    },
+                    }
                 }
             )
         q1 = {k: convert(k, v) for k, v in query.items()}
@@ -272,6 +273,17 @@ class TestDatasetsList:
     )
     def test_dataset_list(self, server_config, query_as, login, query, results):
         """Test `datasets/list` filters
+
+        NOTE: Several of these queries use the "limit" and/or "offset" options
+        to test how the result set is segmented during pagination. These are
+        represented in the parametrization above interchangeably as integers or
+        strings. This is because (1) the actual input to the Pbench Server API
+        is always in string form as a URI query parameter but (2) the requests
+        package understands this and stringifies integer parameters while (3)
+        the Pbench Server API framework recognizes these are integer values and
+        presents them to the API code as integers. Mixing integer and string
+        representation here must have no impact on the operation of the API so
+        it's worth testing.
 
         Args:
             server_config: The PbenchServerConfig object
