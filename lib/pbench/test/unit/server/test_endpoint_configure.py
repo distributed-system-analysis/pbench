@@ -17,9 +17,7 @@ class TestEndpointConfig:
         local Flask mocked environment, `request.host` will always be
         "localhost".
         """
-        self.check_config(
-            client, server_config, "localhost", {"X-Forwarded-Proto": "https"}
-        )
+        self.check_config(client, server_config, "localhost")
 
     def test_proxy_query(self, client, server_config):
         host = "proxy.example.com:8901"
