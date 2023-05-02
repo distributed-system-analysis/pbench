@@ -105,7 +105,7 @@ class EndpointConfig(Resource):
                     host_value = header
         if not origin:
             origin = host_value
-        host = f"http://{origin}"
+        host = f"{request.headers.get('X-Forwarded-Proto')}://{origin}"
         current_app.logger.info(
             "Advertising endpoints at {} relative to {} ({})",
             host,

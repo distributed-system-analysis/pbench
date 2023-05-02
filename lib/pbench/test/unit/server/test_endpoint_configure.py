@@ -17,27 +17,42 @@ class TestEndpointConfig:
         local Flask mocked environment, `request.host` will always be
         "localhost".
         """
-        self.check_config(client, server_config, "localhost")
+        self.check_config(
+            client, server_config, "localhost", {"X-Forwarded-Proto": "https"}
+        )
 
     def test_proxy_query(self, client, server_config):
         host = "proxy.example.com:8901"
         forward = f"by=server.example.com;for=client.example.com;host={host};proto=http"
-        self.check_config(client, server_config, host, {"Forwarded": forward})
+        self.check_config(
+            client,
+            server_config,
+            host,
+            {"Forwarded": forward, "X-Forwarded-Proto": "https"},
+        )
 
     def test_x_forward_proxy_query(self, client, server_config):
         host = "proxy.example.com:8902"
-        self.check_config(client, server_config, host, {"X-Forwarded-Host": host})
+        self.check_config(
+            client,
+            server_config,
+            host,
+            {"X-Forwarded-Host": host, "X-Forwarded-Proto": "https"},
+        )
 
     def test_x_forward_list_proxy_query(self, client, server_config):
         host1 = "proxy.example.com:8902"
         host2 = "proxy2.example.com"
         self.check_config(
-            client, server_config, host1, {"X-Forwarded-Host": f"{host1}, {host2}"}
+            client,
+            server_config,
+            host1,
+            {"X-Forwarded-Host": f"{host1}, {host2}", "X-Forwarded-Proto": "https"},
         )
 
     def check_config(self, client, server_config, host, my_headers={}):
         uri_prefix = server_config.rest_uri
-        host = "http://" + host
+        host = "https://" + host
         uri = urljoin(host, uri_prefix)
         expected_results = {
             "identification": f"Pbench server {server_config.COMMIT_ID}",
