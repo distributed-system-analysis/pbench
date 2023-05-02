@@ -60,7 +60,8 @@ click-scripts = \
 	pbench-list-triggers \
 	pbench-results-move \
 	pbench-results-push \
-	pbench-register-tool-trigger
+	pbench-register-tool-trigger \
+	pbench-tools-kill
 
 bench-scripts = \
 	pbench-fio \
