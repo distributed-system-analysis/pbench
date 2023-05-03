@@ -1700,11 +1700,8 @@ class ApiBase(Resource):
         try:
             if schema.query_schema:
                 query_params = self._gather_query_params(request, schema.query_schema)
-
-            params = self.schemas.validate(
-                method,
-                ApiParams(body=body_params, query=query_params, uri=uri_params),
-            )
+            raw_params = ApiParams(body=body_params, query=query_params, uri=uri_params)
+            params = self.schemas.validate(method, raw_params)
         except APIInternalError as e:
             current_app.logger.exception("{} {}", api_name, e.details)
             abort(e.http_status, message=str(e))
@@ -1772,7 +1769,11 @@ class ApiBase(Resource):
             "attributes": None,
         }
 
-        context = {"auditing": auditing, "attributes": schema.attributes}
+        context = {
+            "auditing": auditing,
+            "attributes": schema.attributes,
+            "raw_params": raw_params,
+        }
         try:
             response = execute(params, request, context)
         except APIInternalError as e:

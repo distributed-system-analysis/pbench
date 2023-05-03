@@ -296,7 +296,7 @@ class DatasetsList(ApiBase):
         )
 
     def get_paginated_obj(
-        self, query: Query, json: JSON, url: str
+        self, query: Query, json: JSON, raw_params: ApiParams, url: str
     ) -> tuple[list[JSONOBJECT], dict[str, str]]:
         """Helper function to return a slice of datasets (constructed according
         to the user specified limit and an offset number) and a paginated object
@@ -309,10 +309,15 @@ class DatasetsList(ApiBase):
             "limit": 10 -> dataset[0: 10]
             "offset": 20 -> dataset[20: total_items_count]
 
-        TODO: We may need to optimize the pagination
-            e.g Use of unique pointers to record the last returned row and then
-            use this pointer in subsequent page request instead of an initial
-            start to narrow down the result.
+        Args:
+            query: A SQLAlchemy query object
+            json: The query parameters in normalized JSON form
+            raw_params: The original API parameters for reference
+            url: The API URL
+
+        Returns:
+            The list of Dataset objects matched by the query and a pagination
+            framework object.
         """
         paginated_result = {}
         query = query.distinct()
@@ -333,14 +338,19 @@ class DatasetsList(ApiBase):
         Database.dump_query(query, current_app.logger)
 
         items = query.all()
+        raw = raw_params.query.copy()
         next_offset = offset + len(items)
         if next_offset < total_count:
-            json["offset"] = next_offset
+            json["offset"] = str(next_offset)
+            raw["offset"] = str(next_offset)
             parsed_url = urlparse(url)
             next_url = parsed_url._replace(query=urlencode_json(json)).geturl()
         else:
+            if limit:
+                raw["offset"] = str(total_count)
             next_url = ""
 
+        paginated_result["parameters"] = raw
         paginated_result["next_url"] = next_url
         paginated_result["total"] = total_count
         return items, paginated_result
@@ -600,7 +610,12 @@ class DatasetsList(ApiBase):
             return {}
 
     def datasets(
-        self, request: Request, aliases: dict[str, Any], json: JSONOBJECT, query: Query
+        self,
+        request: Request,
+        aliases: dict[str, Any],
+        json: JSONOBJECT,
+        raw_params: ApiParams,
+        query: Query,
     ) -> JSONOBJECT:
         """Gather and paginate the selected datasets
 
@@ -611,6 +626,7 @@ class DatasetsList(ApiBase):
             request: The HTTP Request object
             aliases: Map of join column aliases for each Metadata namespace
             json: The JSON query parameters
+            raw_params: The original API parameters (used for pagination)
             query: The basic filtered SQLAlchemy query object
 
         Returns:
@@ -666,7 +682,7 @@ class DatasetsList(ApiBase):
 
         try:
             datasets, paginated_result = self.get_paginated_obj(
-                query=query, json=json, url=request.url
+                query=query, json=json, raw_params=raw_params, url=request.url
             )
         except (AttributeError, ProgrammingError, StatementError) as e:
             raise APIInternalError(
@@ -812,5 +828,5 @@ class DatasetsList(ApiBase):
             result.update(self.daterange(query))
             done = True
         if not done:
-            result = self.datasets(request, aliases, json, query)
+            result = self.datasets(request, aliases, json, context["raw_params"], query)
         return jsonify(result)
