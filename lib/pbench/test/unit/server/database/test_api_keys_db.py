@@ -40,6 +40,22 @@ class TestAPIKeyDB:
         assert api_key.user.id is create_user.id
         assert api_key.name == "test_api_key"
 
+    def test_query_by_id(
+        self,
+        db_session,
+        pbench_drb_api_key,
+        pbench_drb_secondary_api_key,
+        create_drb_user,
+    ):
+        """Test that we can able to query api_key by 'id' in the table"""
+
+        key = APIKey.query_by_id(pbench_drb_api_key.id)
+        assert key.api_key == pbench_drb_api_key.api_key
+        assert key.name == "drb_key"
+        assert key.name == "drb_key"
+        assert key.user.id == DRB_USER_ID
+        assert key.user.username == "drb"
+
     def test_query(
         self,
         db_session,
@@ -49,22 +65,21 @@ class TestAPIKeyDB:
     ):
         """Test that we can able to query api_key in the table"""
 
-        key = APIKey.query(api_key=pbench_drb_api_key.api_key)
-        assert key.api_key == pbench_drb_api_key.api_key
-        assert key.name == "drb_key"
-        assert key.name == "drb_key"
-        assert key.user.id == DRB_USER_ID
-        assert key.user.username == "drb"
-
-        key_list = APIKey.query_by_user(user=create_drb_user)
+        key_list = APIKey.query(user=create_drb_user)
         assert len(key_list) == 2
+        assert key_list[0].name == pbench_drb_api_key.name
+        assert key_list[0].id == pbench_drb_api_key.id
+        assert key_list[0].api_key == pbench_drb_api_key.api_key
+        assert key_list[1].name == pbench_drb_secondary_api_key.name
+        assert key_list[1].id == pbench_drb_secondary_api_key.id
+        assert key_list[1].api_key == pbench_drb_secondary_api_key.api_key
 
     def test_delete(self, db_session, create_user, pbench_drb_api_key):
         """Test that we can delete an api_key"""
 
         # we can find it
-        key = APIKey.query(api_key=pbench_drb_api_key.api_key)
+        key = APIKey.query_by_id(pbench_drb_api_key.id)
         assert key.api_key == pbench_drb_api_key.api_key
 
         key.delete()
-        assert APIKey.query(api_key=pbench_drb_api_key.api_key) is None
+        assert APIKey.query_by_id(pbench_drb_api_key.id) is None

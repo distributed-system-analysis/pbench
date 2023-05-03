@@ -18,12 +18,9 @@ depends_on = None
 
 def upgrade() -> None:
     op.drop_constraint("api_keys_pkey", "api_keys", type_="primary")
-    op.add_column(
-        "api_keys", sa.Column("id", sa.Integer(), autoincrement=True, nullable=False)
-    )
+    op.execute("ALTER TABLE api_keys ADD COLUMN id SERIAL PRIMARY KEY")
     op.add_column("api_keys", sa.Column("name", sa.String(length=128), nullable=True))
     op.create_unique_constraint("api_keys_api_key_key", "api_keys", ["api_key"])
-    op.create_primary_key("api_keys_pkey", "api_keys", ["id"])
 
 
 def downgrade() -> None:

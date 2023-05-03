@@ -82,24 +82,24 @@ class APIKey(Database.Base):
         """Find the given api_key in the database.
 
         Returns:
-            An APIKey object if found, otherwise None
-        """
-
-        return Database.db_session.query(APIKey).filter_by(**kwargs).first()
-
-    def query_by_user(user: str) -> Optional["APIKey"]:
-        """Find the given api_key in the database.
-
-        Returns:
             List of APIKey object if found, otherwise []
         """
 
         return (
             Database.db_session.query(APIKey)
-            .filter_by(user=user)
+            .filter_by(**kwargs)
             .order_by(APIKey.id)
             .all()
         )
+
+    def query_by_id(id: int) -> Optional["APIKey"]:
+        """Find the given api_key in the database using 'id'.
+
+        Returns:
+            An APIKey object if found, otherwise None
+        """
+
+        return Database.db_session.query(APIKey).filter_by(id=id).first()
 
     def delete(self):
         """Remove the api_key instance from the database."""
@@ -120,7 +120,7 @@ class APIKey(Database.Base):
             "id": self.id,
             "name": self.name,
             "key": self.api_key,
-            "created_at": self.created.isoformat() if self.created else None,
+            "created": self.created.isoformat(),
         }
 
     @staticmethod

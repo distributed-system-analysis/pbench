@@ -346,8 +346,8 @@ class PbenchServerClient:
         Creating an API key will cause the new key to be used instead of a
         normal login auth_token until the API key is removed.
         """
-        response = self.post(api=API.KEY)
-        self.api_key = response.json()["api_key"]
+        response = self.post(api=API.KEY, uri_params={"key": ""})
+        self.api_key = response.json()["key"]
         assert self.api_key, f"API key creation failed, {response.json()}"
 
     def remove_api_key(self):

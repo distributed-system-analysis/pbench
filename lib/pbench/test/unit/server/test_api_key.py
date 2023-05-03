@@ -179,16 +179,15 @@ class TestAPIKeyGet:
         )
         assert response.json == {"message": "Requested key not found"}
 
-    def test_get_single_api_key_forbidden(
+    def test_get_single_api_key_fail(
         self, query_get_as, pbench_user_token, pbench_drb_api_key
     ):
-        response = query_get_as(
-            pbench_user_token, HTTPStatus.FORBIDDEN, pbench_drb_api_key.id
-        )
+        """Accessing api_key that belongs to another user"""
 
-        assert response.json == {
-            "message": "User does not have permission to get the specified key"
-        }
+        response = query_get_as(
+            pbench_user_token, HTTPStatus.NOT_FOUND, pbench_drb_api_key.id
+        )
+        assert response.json == {"message": "Requested key not found"}
 
 
 class TestAPIKeyDelete:
@@ -221,7 +220,7 @@ class TestAPIKeyDelete:
     ):
 
         # we can find it
-        key = APIKey.query(api_key=pbench_drb_api_key.api_key)
+        key = APIKey.query_by_id(pbench_drb_api_key.id)
         assert key.api_key == pbench_drb_api_key.api_key
         assert key.id == pbench_drb_api_key.id
 
@@ -257,7 +256,7 @@ class TestAPIKeyDelete:
         assert audit[1].attributes["key_id"] == pbench_drb_api_key.id
         assert audit[1].attributes["name"] == pbench_drb_api_key.name
 
-        assert APIKey.query(api_key=pbench_drb_api_key.api_key) is None
+        assert APIKey.query_by_id(pbench_drb_api_key.id) is None
 
     def test_unauthorized_delete(
         self, query_delete_as, pbench_drb_token_invalid, pbench_drb_api_key
@@ -296,10 +295,9 @@ class TestAPIKeyDelete:
     def test_delete_api_key_fail(
         self, query_delete_as, pbench_user_token, pbench_drb_api_key
     ):
+        """Deleting api_key that belongs to another user"""
 
         response = query_delete_as(
-            pbench_user_token, pbench_drb_api_key.id, HTTPStatus.FORBIDDEN
+            pbench_user_token, pbench_drb_api_key.id, HTTPStatus.NOT_FOUND
         )
-        assert response.json == {
-            "message": "User does not have rights to delete the specified key"
-        }
+        assert response.json == {"message": "Requested key not found"}

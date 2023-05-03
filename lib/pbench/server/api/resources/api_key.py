@@ -67,7 +67,7 @@ class APIKeyManage(ApiBase):
             Success: 200 with response containing the list of api_key
 
         Raises:
-            APIAbort, reporting "UNAUTHORIZED", "NOT_FOUND" and "FORBIDDEN"
+            APIAbort, reporting "UNAUTHORIZED" and "NOT_FOUND"
         """
         user = Auth.token_auth.current_user()
         key_id = params.uri.get("key")
@@ -77,19 +77,14 @@ class APIKeyManage(ApiBase):
                 HTTPStatus.UNAUTHORIZED,
                 "User provided access_token is invalid or expired",
             )
-        if key_id:
-            key = APIKey.query(id=key_id)
-            if not key:
-                raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
-            if key.user != user:
-                raise APIAbort(
-                    HTTPStatus.FORBIDDEN,
-                    "User does not have permission to get the specified key",
-                )
-            response = [key.as_json()]
+
+        if not key_id:
+            keys = APIKey.query(user=user)
         else:
-            keys = APIKey.query_by_user(user=user)
-            response = [key.as_json() for key in keys]
+            keys = APIKey.query(id=key_id, user=user)
+            if not keys:
+                raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
+        response = [key.as_json() for key in keys]
         return response
 
     def _post(
@@ -123,7 +118,6 @@ class APIKeyManage(ApiBase):
             new_key = APIKey.generate_api_key(user)
         except Exception as e:
             raise APIInternalError(str(e)) from e
-        name = name if name else ""
         try:
             key = APIKey(api_key=new_key, user=user, name=name)
             key.add()
@@ -148,7 +142,7 @@ class APIKeyManage(ApiBase):
             Success: 200
 
         Raises:
-            APIAbort, reporting "UNAUTHORIZED", "NOT_FOUND" and "FORBIDDEN"
+            APIAbort, reporting "UNAUTHORIZED" and "NOT_FOUND"
             APIInternalError, reporting the failure message
         """
         key_id = params.uri["key"]
@@ -159,18 +153,13 @@ class APIKeyManage(ApiBase):
                 HTTPStatus.UNAUTHORIZED,
                 "User provided access_token is invalid or expired",
             )
-        key = APIKey.query(id=key_id)
+        key = APIKey.query(id=key_id, user=user)
         if not key:
             raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
-        if key.user == user:
-            try:
-                key.delete()
-                context["auditing"]["attributes"] = {"key_id": key.id, "name": key.name}
-                return "deleted", HTTPStatus.OK
-            except Exception as e:
-                raise APIInternalError(str(e)) from e
-        else:
-            raise APIAbort(
-                HTTPStatus.FORBIDDEN,
-                "User does not have rights to delete the specified key",
-            )
+        key = key[0]
+        try:
+            key.delete()
+            context["auditing"]["attributes"] = {"key_id": key.id, "name": key.name}
+            return "deleted", HTTPStatus.OK
+        except Exception as e:
+            raise APIInternalError(str(e)) from e
