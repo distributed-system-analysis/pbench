@@ -168,7 +168,7 @@ class TestDatasetsList:
                         "dataset.uploaded": datetime.datetime.isoformat(
                             dataset.uploaded
                         )
-                    }
+                    },
                 }
             )
         q1 = {k: convert(k, v) for k, v in query.items()}
