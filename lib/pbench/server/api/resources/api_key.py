@@ -3,7 +3,7 @@ from http import HTTPStatus
 from flask import jsonify
 from flask.wrappers import Request, Response
 
-from pbench.server import JSONOBJECT, PbenchServerConfig
+from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     APIAbort,
     ApiAuthorizationType,
@@ -30,7 +30,7 @@ class APIKeyManage(ApiBase):
                 ApiMethod.POST,
                 OperationCode.CREATE,
                 query_schema=Schema(
-                    Parameter("name", ParamType.STRING, required=True),
+                    Parameter("name", ParamType.STRING, required=False),
                 ),
                 audit_type=AuditType.API_KEY,
                 audit_name="apikey",
@@ -39,6 +39,9 @@ class APIKeyManage(ApiBase):
             ApiSchema(
                 ApiMethod.GET,
                 OperationCode.READ,
+                uri_schema=Schema(
+                    Parameter("key", ParamType.STRING, required=False),
+                ),
                 authorization=ApiAuthorizationType.NONE,
             ),
             ApiSchema(
@@ -64,23 +67,29 @@ class APIKeyManage(ApiBase):
             Success: 200 with response containing the list of api_key
 
         Raises:
-            APIAbort, reporting "UNAUTHORIZED"
+            APIAbort, reporting "UNAUTHORIZED", "NOT_FOUND" and "FORBIDDEN"
         """
         user = Auth.token_auth.current_user()
+        key_id = params.uri.get("key")
 
         if not user:
             raise APIAbort(
                 HTTPStatus.UNAUTHORIZED,
                 "User provided access_token is invalid or expired",
             )
-
-        key = APIKey.query(user=user)
-        key_dict: JSONOBJECT = {}
-        if key:
-            for i in key:
-                key_dict[i.id] = {"name": i.name, "key": i.api_key}
-
-        response = {"api_key": key_dict}
+        if key_id:
+            key = APIKey.query(id=key_id)
+            if not key:
+                raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
+            if key.user != user:
+                raise APIAbort(
+                    HTTPStatus.FORBIDDEN,
+                    "User does not have permission to get the specified key",
+                )
+            response = [key.as_json()]
+        else:
+            keys = APIKey.query_by_user(user=user)
+            response = [key.as_json() for key in keys]
         return response
 
     def _post(
@@ -92,7 +101,6 @@ class APIKeyManage(ApiBase):
         POST /api/v1/key?name=name
 
         Required headers include
-
             Content-Type:   application/json
             Accept:         application/json
 
@@ -115,7 +123,7 @@ class APIKeyManage(ApiBase):
             new_key = APIKey.generate_api_key(user)
         except Exception as e:
             raise APIInternalError(str(e)) from e
-
+        name = name if name else ""
         try:
             key = APIKey(api_key=new_key, user=user, name=name)
             key.add()
@@ -124,8 +132,8 @@ class APIKeyManage(ApiBase):
             status = HTTPStatus.OK
         except Exception as e:
             raise APIInternalError(str(e)) from e
-        context["auditing"]["attributes"] = {"key_id": key.id, "name": name}
-        response = jsonify({"api_key": new_key, "id": key.id})
+        context["auditing"]["attributes"] = key.as_json()
+        response = jsonify(key.as_json())
         response.status_code = status
         return response
 
@@ -140,7 +148,7 @@ class APIKeyManage(ApiBase):
             Success: 200
 
         Raises:
-            APIAbort, reporting "UNAUTHORIZED" and "FORBIDDEN"
+            APIAbort, reporting "UNAUTHORIZED", "NOT_FOUND" and "FORBIDDEN"
             APIInternalError, reporting the failure message
         """
         key_id = params.uri["key"]
@@ -156,9 +164,9 @@ class APIKeyManage(ApiBase):
             raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
         if key.user == user:
             try:
-                APIKey.delete(key.api_key)
+                key.delete()
                 context["auditing"]["attributes"] = {"key_id": key.id, "name": key.name}
-                return "", HTTPStatus.OK
+                return "deleted", HTTPStatus.OK
             except Exception as e:
                 raise APIInternalError(str(e)) from e
         else:

@@ -52,10 +52,11 @@ class TestAPIKeyDB:
         key = APIKey.query(api_key=pbench_drb_api_key.api_key)
         assert key.api_key == pbench_drb_api_key.api_key
         assert key.name == "drb_key"
+        assert key.name == "drb_key"
         assert key.user.id == DRB_USER_ID
         assert key.user.username == "drb"
 
-        key_list = APIKey.query(user=create_drb_user)
+        key_list = APIKey.query_by_user(user=create_drb_user)
         assert len(key_list) == 2
 
     def test_delete(self, db_session, create_user, pbench_drb_api_key):
@@ -65,5 +66,5 @@ class TestAPIKeyDB:
         key = APIKey.query(api_key=pbench_drb_api_key.api_key)
         assert key.api_key == pbench_drb_api_key.api_key
 
-        APIKey.delete(pbench_drb_api_key.api_key)
+        key.delete()
         assert APIKey.query(api_key=pbench_drb_api_key.api_key) is None

@@ -5,6 +5,7 @@ import jwt
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from pbench.server import JSONOBJECT
 from pbench.server.database.database import Database
 from pbench.server.database.models import decode_integrity_error, TZDateTime
 from pbench.server.database.models.users import User
@@ -50,7 +51,7 @@ class APIKey(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     api_key = Column(String(500), unique=True, nullable=False)
     created = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
-    name = Column(String(128), unique=False, nullable=False)
+    name = Column(String(128), nullable=True)
     # ID of the owning user
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
 
@@ -83,25 +84,44 @@ class APIKey(Database.Base):
         Returns:
             An APIKey object if found, otherwise None
         """
-        if "user" in kwargs:
-            return Database.db_session.query(APIKey).filter_by(**kwargs).all()
-        else:
-            return Database.db_session.query(APIKey).filter_by(**kwargs).first()
 
-    @staticmethod
-    def delete(api_key: str):
-        """Delete the given api_key.
+        return Database.db_session.query(APIKey).filter_by(**kwargs).first()
 
-        Args:
-            api_key : the api_key to delete
+    def query_by_user(user: str) -> Optional["APIKey"]:
+        """Find the given api_key in the database.
+
+        Returns:
+            List of APIKey object if found, otherwise []
         """
-        dbs = Database.db_session
+
+        return (
+            Database.db_session.query(APIKey)
+            .filter_by(user=user)
+            .order_by(APIKey.id)
+            .all()
+        )
+
+    def delete(self):
+        """Remove the api_key instance from the database."""
         try:
-            dbs.query(APIKey).filter_by(api_key=api_key).delete()
-            dbs.commit()
+            Database.db_session.delete(self)
+            Database.db_session.commit()
         except Exception as e:
-            dbs.rollback()
+            Database.db_session.rollback()
             raise APIKeyError(f"Error deleting api_key from db : {e}") from e
+
+    def as_json(self) -> JSONOBJECT:
+        """Return a JSON object for this APIkey object.
+
+        Returns:
+            A JSONOBJECT with all the object fields mapped to appropriate names.
+        """
+        return {
+            "id": self.id,
+            "name": self.name,
+            "key": self.api_key,
+            "created_at": self.created.isoformat() if self.created else None,
+        }
 
     @staticmethod
     def generate_api_key(user: User):
