@@ -144,10 +144,10 @@ class TestAPIKeyGet:
 
         assert response.json[0]["id"] == pbench_drb_api_key.id
         assert response.json[0]["name"] == pbench_drb_api_key.name
-        assert response.json[0]["key"] == pbench_drb_api_key.api_key
+        assert response.json[0]["key"] == pbench_drb_api_key.key
         assert response.json[1]["id"] == pbench_drb_secondary_api_key.id
         assert response.json[1]["name"] == pbench_drb_secondary_api_key.name
-        assert response.json[1]["key"] == pbench_drb_secondary_api_key.api_key
+        assert response.json[1]["key"] == pbench_drb_secondary_api_key.key
 
     def test_unauthorized_get(self, query_get_as, pbench_drb_token_invalid):
         response = query_get_as(pbench_drb_token_invalid, HTTPStatus.UNAUTHORIZED)
@@ -166,7 +166,7 @@ class TestAPIKeyGet:
         )
         assert response.json[0]["id"] == pbench_drb_secondary_api_key.id
         assert response.json[0]["name"] == pbench_drb_secondary_api_key.name
-        assert response.json[0]["key"] == pbench_drb_secondary_api_key.api_key
+        assert response.json[0]["key"] == pbench_drb_secondary_api_key.key
 
     def test_get_single_api_key_notfound(
         self,
@@ -221,7 +221,7 @@ class TestAPIKeyDelete:
 
         # we can find it
         key = APIKey.query_by_id(pbench_drb_api_key.id)
-        assert key.api_key == pbench_drb_api_key.api_key
+        assert key.key == pbench_drb_api_key.key
         assert key.id == pbench_drb_api_key.id
 
         response = query_delete_as(
@@ -253,7 +253,7 @@ class TestAPIKeyDelete:
         assert audit[1].user_id == "3"
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
-        assert audit[1].attributes["key_id"] == pbench_drb_api_key.id
+        assert audit[1].attributes["id"] == pbench_drb_api_key.id
         assert audit[1].attributes["name"] == pbench_drb_api_key.name
 
         assert APIKey.query_by_id(pbench_drb_api_key.id) is None

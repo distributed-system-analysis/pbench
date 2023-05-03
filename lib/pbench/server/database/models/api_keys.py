@@ -49,7 +49,7 @@ class APIKey(Database.Base):
 
     __tablename__ = "api_keys"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    api_key = Column(String(500), unique=True, nullable=False)
+    key = Column(String(500), unique=True, nullable=False)
     created = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
     name = Column(String(128), nullable=True)
     # ID of the owning user
@@ -59,7 +59,7 @@ class APIKey(Database.Base):
     user = relationship("User")
 
     def __str__(self):
-        return f"API key {self.api_key}"
+        return f"API key {self.key}"
 
     def add(self):
         """Add an api_key object to the database."""
@@ -119,7 +119,7 @@ class APIKey(Database.Base):
         return {
             "id": self.id,
             "name": self.name,
-            "key": self.api_key,
+            "key": self.key,
             "created": self.created.isoformat(),
         }
 

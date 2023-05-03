@@ -119,7 +119,7 @@ class APIKeyManage(ApiBase):
         except Exception as e:
             raise APIInternalError(str(e)) from e
         try:
-            key = APIKey(api_key=new_key, user=user, name=name)
+            key = APIKey(key=new_key, user=user, name=name)
             key.add()
             status = HTTPStatus.CREATED
         except DuplicateApiKey:
@@ -159,7 +159,7 @@ class APIKeyManage(ApiBase):
         key = key[0]
         try:
             key.delete()
-            context["auditing"]["attributes"] = {"key_id": key.id, "name": key.name}
+            context["auditing"]["attributes"] = key.as_json()
             return "deleted", HTTPStatus.OK
         except Exception as e:
             raise APIInternalError(str(e)) from e

@@ -641,7 +641,7 @@ class TestAuthModule:
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             current_app.secret_key = jwt_secret
-            user = Auth.verify_auth(pbench_drb_api_key.api_key)
+            user = Auth.verify_auth(pbench_drb_api_key.key)
         assert user.id == DRB_USER_ID
 
     def test_verify_auth_api_key_invalid(

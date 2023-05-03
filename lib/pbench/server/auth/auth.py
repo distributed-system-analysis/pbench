@@ -119,7 +119,7 @@ def verify_auth_api_key(api_key: str) -> Optional[User]:
         None if the api_key is not valid, a `User` object when the api_key is valid.
 
     """
-    key = APIKey.query(api_key=api_key)
+    key = APIKey.query(key=api_key)
     return key[0].user if key and len(key) == 1 else None
 
 
