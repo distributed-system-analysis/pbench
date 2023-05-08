@@ -38,10 +38,7 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
     if (response.status === 200 && response.data) {
       const startIdx = (page - 1) * perPage;
 
-      if (
-        publicData.length === 0 ||
-        publicData.length !== response.data.total
-      ) {
+      if (publicData.length !== response.data.total) {
         publicData = new Array(response.data.total);
       }
       publicData.splice(
@@ -60,8 +57,13 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
         const offset = urlSearchParams.get("offset");
 
         dispatch({
-          type: TYPES.SET_PAGE_OFFSET,
+          type: TYPES.SET_RESULT_OFFSET,
           payload: Number(offset),
+        });
+      } else {
+        dispatch({
+          type: TYPES.SET_RESULT_OFFSET,
+          payload: Number(response.data.total),
         });
       }
     }
@@ -107,8 +109,8 @@ export const applyFilter = () => (dispatch) => {
     payload: [],
   });
   dispatch({
-    type: TYPES.SET_PAGE_OFFSET,
-    payload: 0,
+    type: TYPES.SET_RESULT_OFFSET,
+    payload: CONSTANTS.INITIAL_RESULT_OFFSET,
   });
   dispatch(fetchPublicDatasets(CONSTANTS.START_PAGE_NUMBER));
 };

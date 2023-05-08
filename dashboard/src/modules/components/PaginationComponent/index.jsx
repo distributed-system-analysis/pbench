@@ -46,7 +46,7 @@ const TablePagination = ({ page, setPage }) => {
     }
     if (left !== right) {
       dispatch({
-        type: TYPES.SET_PAGE_OFFSET,
+        type: TYPES.SET_RESULT_OFFSET,
         payload: startIdx,
       });
       dispatch(fetchPublicDatasets(newPage));

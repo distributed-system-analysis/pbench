@@ -31,24 +31,26 @@ const DatePickerWidget = (props) => {
       ? ""
       : 'The "to" date must be after the "from" date';
 
-  const onFromChange = (_str, date) => {
-    dispatch(setFilterKeys(new Date(date), filter.endDate));
+  const onFromChange = (_event, _str, date) => {
+    dispatch(setFilterKeys(date, filter.endDate));
     if (filter.endDate) {
       checkEndDate(date, filter.endDate);
+    } else {
+      setIsEndDateError(true);
     }
   };
 
-  const onToChange = (_str, date) => {
-    if (isValidDate(new Date(date))) {
-      dispatch(setFilterKeys(filter.startDate, new Date(date)));
+  const onToChange = (_event, _str, date) => {
+    if (isValidDate(date)) {
+      dispatch(setFilterKeys(filter.startDate, date));
     }
     checkEndDate(filter.startDate, date);
   };
-  const checkEndDate = (fromDate, toDate) => {
+  const checkEndDate = (fromDate, toDate) =>
     new Date(fromDate) >= new Date(toDate)
       ? setIsEndDateError(true)
       : setIsEndDateError(false);
-  };
+
   const filterByDate = () => {
     if (filter.startDate) {
       dispatch(applyFilter());
