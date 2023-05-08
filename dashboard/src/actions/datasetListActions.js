@@ -38,7 +38,10 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
     if (response.status === 200 && response.data) {
       const startIdx = (page - 1) * perPage;
 
-      if (publicData.length === 0) {
+      if (
+        publicData.length === 0 ||
+        publicData.length !== response.data.total
+      ) {
         publicData = new Array(response.data.total);
       }
       publicData.splice(

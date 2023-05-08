@@ -93,7 +93,12 @@ export const SearchBox = (props) => {
         onKeyPress={(e) => handleKeyPress(e)}
         onChange={(value) => setSearchKey(value)}
       />
-      <Button variant="control" onClick={search} aria-label="searchButton">
+      <Button
+        variant="control"
+        onClick={search}
+        aria-label="searchButton"
+        className="filter-btn"
+      >
         <SearchIcon />
       </Button>
     </InputGroup>

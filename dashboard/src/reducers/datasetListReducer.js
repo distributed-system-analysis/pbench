@@ -1,6 +1,8 @@
 import * as CONSTANTS from "assets/constants/browsingPageConstants";
 import * as TYPES from "actions/types";
 
+import { getTodayMidnightUTCDate } from "utils/dateFunctions";
+
 const initialState = {
   publicData: [],
   favoriteRepoNames: [],
