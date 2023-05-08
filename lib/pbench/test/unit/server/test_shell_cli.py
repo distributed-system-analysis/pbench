@@ -12,7 +12,6 @@ import pytest
 import pbench.cli.server.shell as shell
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.server import PbenchServerConfig
-from pbench.server.auth import OpenIDClient
 
 
 @pytest.fixture
