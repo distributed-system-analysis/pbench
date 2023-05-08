@@ -92,15 +92,6 @@ class APIKey(Database.Base):
             .all()
         )
 
-    def query_by_id(id: int) -> Optional["APIKey"]:
-        """Find the given api_key in the database using 'id'.
-
-        Returns:
-            An APIKey object if found, otherwise None
-        """
-
-        return Database.db_session.query(APIKey).filter_by(id=id).first()
-
     def delete(self):
         """Remove the api_key instance from the database."""
         try:
@@ -120,6 +111,7 @@ class APIKey(Database.Base):
             "id": self.id,
             "name": self.name,
             "key": self.key,
+            "username": self.user.username,
             "created": self.created.isoformat(),
         }
 

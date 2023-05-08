@@ -645,7 +645,7 @@ class TestAuthModule:
         assert user.id == DRB_USER_ID
 
     def test_verify_auth_api_key_invalid(
-        self, monkeypatch, rsa_keys, make_logger, pbench_drb_api_key_invalid
+        self, monkeypatch, rsa_keys, make_logger, pbench_invalid_api_key
     ):
         """Verify api_key verification via Auth.verify_auth() fails
         gracefully with an invalid token
@@ -664,5 +664,5 @@ class TestAuthModule:
         with app.app_context():
             monkeypatch.setattr(oidc_client, "token_introspect", tio_exc)
             current_app.secret_key = jwt_secret
-            user = Auth.verify_auth(pbench_drb_api_key_invalid)
+            user = Auth.verify_auth(pbench_invalid_api_key)
         assert user is None

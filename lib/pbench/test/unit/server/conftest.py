@@ -809,17 +809,6 @@ def pbench_drb_token_invalid(client, server_config, create_drb_user, rsa_keys):
 
 
 @pytest.fixture()
-def pbench_user_token(client, server_config, create_user, rsa_keys):
-    """OIDC valid token for the 'test' user"""
-    return generate_token(
-        username="test",
-        client_id=server_config.get("openid", "client"),
-        private_key=rsa_keys["private_key"],
-        user=create_user,
-    )
-
-
-@pytest.fixture()
 def get_token_func(pbench_admin_token, server_config, rsa_keys):
     """Get the token function for fetching the token for a user
 
@@ -862,9 +851,9 @@ def pbench_drb_secondary_api_key(client, server_config, create_drb_user):
 
 
 @pytest.fixture()
-def pbench_drb_api_key_invalid(client, server_config, create_drb_user):
-    """Invalid api_key for the 'drb' user"""
-    return "pbench_drb_invalid_api_key"
+def pbench_invalid_api_key(client, server_config):
+    """Invalid api_key"""
+    return "nonexistent_API_key_value"
 
 
 def generate_token(
@@ -1019,7 +1008,7 @@ def generate_api_key(
     username: str,
     name: str,
     user: Optional[User] = None,
-) -> str:
+) -> APIKey:
     """Generates an api_key which will be mimic of how POST v1/generate_key call works.
 
     Note: The OIDC client id passed as an argument has to match with the

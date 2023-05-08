@@ -67,10 +67,9 @@ class APIKeyManage(ApiBase):
             Success: 200 with response containing the list of api_key
 
         Raises:
-            APIAbort, reporting "UNAUTHORIZED" and "NOT_FOUND"
+            APIAbort, reporting "UNAUTHORIZED" or "NOT_FOUND"
         """
         user = Auth.token_auth.current_user()
-        key_id = params.uri.get("key")
 
         if not user:
             raise APIAbort(
@@ -78,13 +77,17 @@ class APIKeyManage(ApiBase):
                 "User provided access_token is invalid or expired",
             )
 
+        key_id = params.uri.get("key")
         if not key_id:
             keys = APIKey.query(user=user)
+            response = [key.as_json() for key in keys]
+
         else:
-            keys = APIKey.query(id=key_id, user=user)
-            if not keys:
+            key = APIKey.query(id=key_id, user=user)
+            if not key:
                 raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
-        response = [key.as_json() for key in keys]
+            response = key[0].as_json()
+
         return response
 
     def _post(
@@ -142,7 +145,7 @@ class APIKeyManage(ApiBase):
             Success: 200
 
         Raises:
-            APIAbort, reporting "UNAUTHORIZED" and "NOT_FOUND"
+            APIAbort, reporting "UNAUTHORIZED" or "NOT_FOUND"
             APIInternalError, reporting the failure message
         """
         key_id = params.uri["key"]
@@ -153,13 +156,16 @@ class APIKeyManage(ApiBase):
                 HTTPStatus.UNAUTHORIZED,
                 "User provided access_token is invalid or expired",
             )
-        key = APIKey.query(id=key_id, user=user)
-        if not key:
+        term = {"id": key_id}
+        if not user.is_admin():
+            term["user"] = user
+        keys = APIKey.query(**term)
+        if not keys:
             raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
-        key = key[0]
+        key = keys[0]
         try:
-            key.delete()
             context["auditing"]["attributes"] = key.as_json()
+            key.delete()
             return "deleted", HTTPStatus.OK
         except Exception as e:
             raise APIInternalError(str(e)) from e
