@@ -111,6 +111,7 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
         logger.warning("OpenID Connect client not configured, {}", exc)
         notifier.notify("STOPPING=1")
         notifier.notify("STATUS=OPENID broker not responding")
+        return 1
     else:
         logger.info("Pbench server using OIDC server {}", oidc_server)
 

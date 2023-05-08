@@ -71,10 +71,7 @@ class TestShell:
 
     @staticmethod
     @pytest.mark.parametrize("user_site", [False, True])
-    @pytest.mark.parametrize("oidc_conf", [False, True])
-    def test_main(
-        monkeypatch, make_logger, mock_get_server_config, user_site, oidc_conf
-    ):
+    def test_main(monkeypatch, make_logger, mock_get_server_config, user_site):
         called = []
 
         def find_the_unicorn(logger: logging.Logger):
@@ -89,10 +86,8 @@ class TestShell:
         def wait_for_oidc_server(
             server_config: PbenchServerConfig, logger: logging.Logger
         ) -> str:
-            if oidc_conf:
-                return "https://oidc.example.com"
-            else:
-                raise OpenIDClient.NotConfigured()
+            called.append("wait_for_oidc_server")
+            return "https://oidc.example.com"
 
         commands = []
 
@@ -117,6 +112,7 @@ class TestShell:
         expected_called += [
             "wait_for_uri(sqlite:///:memory:,120)",
             "wait_for_uri(http://elasticsearch.example.com:7080,120)",
+            "wait_for_oidc_server",
             "init_indexing",
         ]
         assert called == expected_called
