@@ -1,13 +1,11 @@
 import * as CONSTANTS from "assets/constants/browsingPageConstants";
 import * as TYPES from "actions/types";
 
-import { getTodayMidnightUTCDate } from "utils/dateFunctions";
-
 const initialState = {
   publicData: [],
   favoriteRepoNames: [],
   tableData: [],
-  offset: CONSTANTS.START_PAGE_NUMBER - 1,
+  offset: CONSTANTS.START_OFFSET,
   limit: CONSTANTS.INITIAL_PAGE_LIMIT,
   perPage: CONSTANTS.DEFAULT_PER_PAGE,
   searchKey: "",

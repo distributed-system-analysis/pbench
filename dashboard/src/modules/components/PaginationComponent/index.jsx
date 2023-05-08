@@ -30,9 +30,8 @@ const TablePagination = ({ page, setPage }) => {
   };
   const fetchData = (_event, newPage, newPerPage = perPage) => {
     const startIdx = (newPage - 1) * newPerPage;
-    const endIdx = newPage * newPerPage;
     let left = startIdx;
-    let right = endIdx;
+    let right = startIdx + newPerPage - 1;
     while (left < right) {
       if (publicData[left]) {
         left++;
