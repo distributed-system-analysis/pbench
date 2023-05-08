@@ -93,16 +93,19 @@ class FileInfo:
         """
         self.name = path.name
         self.location = path
+        self.resolve_path = path.resolve(strict=True)
+        self.resolve_type = None
+        self.size = None
         if path.is_dir():
             self.type = "directory"
         elif path.is_symlink():
             self.type = "symlink"
-            self.resolve_path = path.readlink()
+            if self.resolve_path.is_symlink():
+                self.file_info(self.resolve_path)
             self.resolve_type = "directory" if self.resolve_path.is_dir() else "file"
         elif path.is_file():
-            self.name = path.name
-            self.size = path.stat().st_size
             self.type = "file"
+            self.size = path.stat().st_size
 
 
 class Tarball:
@@ -253,11 +256,11 @@ class Tarball:
         return cls(destination, controller)
 
     def cache_map(self, tar_path: Path):
-        """Builds Hierarchy structure of a Tarball in a Dictionary
+        """Builds Hierarchy structure of a Directory in a Dictionary
         Format.
 
         Args:
-            tarball: path of an unpacked tarball
+            dir_path: root of a directory
         """
         cmap = {tar_path.name: {"details": FileInfo(tar_path)}}
         dir_queue = deque([(tar_path, cmap)])
@@ -274,59 +277,51 @@ class Tarball:
             for l_path in dir_list:
                 tar_info = FileInfo(l_path)
                 curr[l_path.name] = {"details": tar_info}
-                # Note: have to handle symlink case as it
-                # is not being checked whether it is a symlink,
-                # it is checking for the redirected path. Currently,
-                # as I have used file for the symlink it is not added it
-                # the queue, but if it a symlink is pointing to a directory
-                # it turns out to be an endless loop. There may be case
-                # that the way I am creating symlink in tests is wrong because
-                # when I am testing manually I am not seeing the same case.
                 if l_path.is_dir():
                     dir_queue.append((l_path, curr))
         self.cachemap = cmap
 
     @staticmethod
-    def traverse_cmap(path, cachemap):
+    def traverse_cmap(path: Path, cachemap: dict):
+        name = path.name
         files_list = path.parts
         c_map = cachemap
 
         for file_l in files_list:
-            if file_l != ["/", "//"]:
+            if file_l not in ("/", "//"):
                 c_map = c_map[file_l]
                 if c_map["details"].type == "directory":
-                    if "children" in c_map:
+                    if "children" in c_map and file_l != name:
                         c_map = c_map["children"]
-                elif c_map["details"].type == "symlink":
-                    resolve_path = c_map["details"].resolve_path
-                    c_map = Tarball.traverse_cmap(resolve_path, cachemap)
 
         return c_map
 
-    def get_info(self, path):
-        c_map = Tarball.traverse_cmap(path, self.cachemap)
+    def get_info(self, path: Path):
+        # FixMe: Handle a Symlink
+        c_map = self.traverse_cmap(path, self.cachemap)
         fd_info = {}
+        children = c_map["children"] if "children" in c_map else False
+        details = c_map["details"]
 
-        if "details" in c_map:
-            if c_map["details"].type == "file":
-                fd_info = {
-                    "location": c_map["details"].location,
-                    "name": c_map["details"].name,
-                    "size": "1024",
-                    "type": c_map["details"].type,
-                }
-            elif c_map["details"].type == "directory":
-                fd_info = {
-                    "location": c_map["details"].location,
-                    "name": c_map["details"].name,
-                    "type": c_map["details"].type,
-                }
-        else:
-            for key, value in c_map.items():
+        fd_info = {
+            "location": c_map["details"].location,
+            "name": c_map["details"].name,
+            "resolve_path": c_map["details"].resolve_path,
+            "resolve_type": c_map["details"].resolve_type,
+            "size": c_map["details"].size,
+            "type": c_map["details"].type,
+        }
+
+        if children:
+            for key, value in children.items():
                 if value["details"].type == "directory":
                     fd_info.setdefault("directory", []).append(key)
                 if value["details"].type == "file":
                     fd_info.setdefault("file", []).append(key)
+        else:
+            if details.type == "directory":
+                fd_info.setdefault("directory", [])
+                fd_info.setdefault("file", [])
 
         return fd_info
 
@@ -891,15 +886,15 @@ class CacheManager:
         tarball.controller.unpack(dataset_id)
         return tarball
 
-    def get_info(self, dataset_id: str, path: Path) -> Tarball:
-        """Access files of a tarball into the CACHE tree
+    def get_info(self, dataset_id: str, path: Path) -> dict:
+        """Get information about dataset files from the cache map
 
         Args:
             dataset_id: Dataset resource ID
             path: path of requested content
 
         Returns:
-            Contents inside the given path
+            File Metadata
         """
         tarball = self.find_dataset(dataset_id)
         tmap = tarball.get_info(path)
