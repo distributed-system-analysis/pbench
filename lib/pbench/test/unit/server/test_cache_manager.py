@@ -581,7 +581,7 @@ class TestCacheManager:
             # test get_info with a directory path
             dir_info = tb.get_info(Path("dir_name/subdir1"))
             expected_info = {
-                "directory": ["subdir13", "subdir12", "subdir11"],
+                "directory": ["subdir11", "subdir12", "subdir13"],
                 "file": ["f11.txt"],
                 "location": Path(f"{tar_dir}/subdir1"),
                 "name": "subdir1",
