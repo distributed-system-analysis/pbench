@@ -93,6 +93,12 @@ class FileInfo:
         """
         self.name = path.name
         self.location = path
+        try:
+            self.file_info(path)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"The '{path}' does not resolve to a real location")
+
+    def file_info(self, path):
         self.resolve_path = path.resolve(strict=True)
         self.resolve_type = None
         self.size = None
@@ -282,46 +288,52 @@ class Tarball:
         self.cachemap = cmap
 
     @staticmethod
-    def traverse_cmap(path: Path, cachemap: dict):
+    def traverse_cmap(path: Path, cachemap: dict) -> dict:
         name = path.name
-        files_list = path.parts
+        file_list = path.parts
         c_map = cachemap
+        i = 0
 
-        for file_l in files_list:
-            if file_l not in ("/", "//"):
-                c_map = c_map[file_l]
-                if c_map["details"].type == "directory":
-                    if "children" in c_map and file_l != name:
-                        c_map = c_map["children"]
+        if file_list[i] in ("/", "//"):
+            i += 1
+
+        while i < len(file_list):
+            c_map = c_map[file_list[i]]
+            if c_map["details"].type == "directory":
+                if "children" in c_map and file_list[i] != name:
+                    c_map = c_map["children"]
+            i += 1
 
         return c_map
 
-    def get_info(self, path: Path):
+    def get_info(self, path: Path) -> dict:
         # FixMe: Handle a Symlink
         c_map = self.traverse_cmap(path, self.cachemap)
         fd_info = {}
-        children = c_map["children"] if "children" in c_map else False
+        children = c_map["children"] if "children" in c_map else {}
         details = c_map["details"]
 
         fd_info = {
-            "location": c_map["details"].location,
-            "name": c_map["details"].name,
-            "resolve_path": c_map["details"].resolve_path,
-            "resolve_type": c_map["details"].resolve_type,
-            "size": c_map["details"].size,
-            "type": c_map["details"].type,
+            "location": details.location,
+            "name": details.name,
+            "resolve_path": details.resolve_path,
+            "resolve_type": details.resolve_type,
+            "size": details.size,
+            "type": details.type,
         }
 
-        if children:
+        if details.type == "directory":
+            fd_info["directories"] = []
+            fd_info["files"] = []
+
             for key, value in children.items():
                 if value["details"].type == "directory":
-                    fd_info.setdefault("directory", []).append(key)
-                if value["details"].type == "file":
-                    fd_info.setdefault("file", []).append(key)
-        else:
-            if details.type == "directory":
-                fd_info.setdefault("directory", [])
-                fd_info.setdefault("file", [])
+                    fd_info["directories"].append(key)
+                elif value["details"].type == "file":
+                    fd_info["files"].append(key)
+
+            fd_info["directories"].sort()
+            fd_info["files"].sort()
 
         return fd_info
 
