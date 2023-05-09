@@ -1,0 +1,5 @@
+name: "CodeQL config for Python"
+
+paths-ignore:
+  - agent/bench-scripts/test-bin/fio-histo-log-pctiles.py
+  - web-server/v0.3/demo.py
