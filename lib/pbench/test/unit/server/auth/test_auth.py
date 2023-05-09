@@ -8,6 +8,7 @@ import jwt
 import pytest
 import requests
 from requests.structures import CaseInsensitiveDict
+import responses
 
 from pbench.server import JSON
 import pbench.server.auth
@@ -288,6 +289,64 @@ def mock_connection(
 
 class TestOpenIDClient:
     """Verify the OpenIDClient class."""
+
+    @responses.activate
+    def test_wait_for_oidc_server_fail(self, make_logger):
+        """Verfiy .wait_for_oidc_server() failure mode"""
+        # Start with an empty configuration, no openid section
+        config = configparser.ConfigParser()
+        with pytest.raises(OpenIDClient.NotConfigured):
+            OpenIDClient.wait_for_oidc_server(config, make_logger)
+        # Missing "server_url"
+        section = {}
+        config["openid"] = section
+        with pytest.raises(OpenIDClient.NotConfigured):
+            OpenIDClient.wait_for_oidc_server(config, make_logger)
+
+        section = {"server_url": "https://example.com"}
+        config["openid"] = section
+
+        # Keycloak health returning response but status is not UP
+        responses.add(
+            responses.GET,
+            "https://example.com/health",
+            body='{"status": "DOWN","checks": []}',
+            content_type="application/json",
+        )
+
+        with pytest.raises(OpenIDClient.ServerConnectionTimedOut):
+            OpenIDClient.wait_for_oidc_server(config, make_logger)
+
+        # Keycloak health returning network exception and no content
+        responses.add(
+            responses.GET,
+            "https://example.com/health",
+            body=Exception("some network exception"),
+        )
+
+        with pytest.raises(OpenIDClient.ServerConnectionError):
+            OpenIDClient.wait_for_oidc_server(config, make_logger)
+
+    @responses.activate
+    def test_wait_for_oidc_server_succ(self, make_logger):
+        """Verfiy .wait_for_oidc_server() success mode"""
+
+        config = configparser.ConfigParser()
+        section = {"server_url": "https://example.com"}
+        config["openid"] = section
+
+        # Keycloak health returning response with status UP
+        responses.add(
+            responses.GET,
+            "https://example.com/health",
+            body='{"status": "UP","checks": []}',
+            content_type="application/json",
+        )
+
+        assert (
+            OpenIDClient.wait_for_oidc_server(config, make_logger)
+            == "https://example.com"
+        )
 
     def test_construct_oidc_client_fail(self):
         """Verfiy .construct_oidc_client() failure mode"""

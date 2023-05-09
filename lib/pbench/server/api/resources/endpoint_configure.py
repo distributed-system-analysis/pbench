@@ -50,7 +50,7 @@ class EndpointConfig(Resource):
         Return server configuration information required by web clients
         including the Pbench dashboard UI. This includes:
 
-        openid-connect: A JSON object containing the OpenID Connect parameters
+        openid: A JSON object containing the OpenID Connect parameters
                 required for the web client to use OIDC authentication.
         identification: The Pbench server name and version
         uri:    A dict of server API templates, where each template defines a

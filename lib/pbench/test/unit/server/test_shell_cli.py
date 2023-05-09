@@ -12,6 +12,7 @@ import pytest
 import pbench.cli.server.shell as shell
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.server import PbenchServerConfig
+from pbench.server.auth import OpenIDClient
 
 
 @pytest.fixture
@@ -226,6 +227,24 @@ class TestShell:
             shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
         )
 
+        ret_val = shell.main()
+
+        assert called[0]
+        assert ret_val == 1
+
+        called = [False]
+
+        # Test when specifically OpenIDClient.NotConfigured is raised from
+        # wait_for_oidc_server
+        def wait_for_oidc_server(
+            server_config: PbenchServerConfig, logger: logging.Logger
+        ) -> str:
+            called[0] = True
+            raise OpenIDClient.NotConfigured
+
+        monkeypatch.setattr(
+            shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
+        )
         ret_val = shell.main()
 
         assert called[0]
