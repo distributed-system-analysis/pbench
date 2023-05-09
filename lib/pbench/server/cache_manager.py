@@ -107,28 +107,31 @@ class FileInfo:
         else:
             self.location = Path(dir_name) / str(path).split(f"{dir_name}/")[1]
 
-        try:
-            resolve_path = path.resolve(strict=True)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"The '{path}' does not resolve to a real location")
-
-        if resolve_path.name == dir_name:
-            self.resolve_path = dir_name
-        else:
-            self.resolve_path = (
-                Path(dir_name) / str(resolve_path).split(f"{dir_name}/")[1]
-            )
-
+        self.resolve_path = None
         self.resolve_type = None
         self.size = None
         if path.is_symlink():
             self.type = "symlink"
-            self.resolve_type = "directory" if resolve_path.is_dir() else "file"
+            try:
+                resolve_path = path.resolve(strict=True)
+                self.resolve_type = "directory" if resolve_path.is_dir() else "file"
+            except FileNotFoundError:
+                resolve_path = path.readlink()
+                self.resolve_type = "symlink"
+
+            if resolve_path.name == dir_name:
+                self.resolve_path = dir_name
+            else:
+                self.resolve_path = (
+                    Path(dir_name) / str(resolve_path).split(f"{dir_name}/")[1]
+                )
         elif path.is_file():
             self.type = "file"
             self.size = path.stat().st_size
         elif path.is_dir():
             self.type = "directory"
+        else:
+            self.type = "other"
 
 
 class Tarball:

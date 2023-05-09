@@ -504,27 +504,6 @@ class TestCacheManager:
             assert call == ["tar", "find"]
             assert tb.unpacked == cache / "ABC" / tb.name
 
-    def test_cache_map_FileNotFound_exception(self, monkeypatch, tmp_path):
-        tar = Path("/mock/dir_name.tar.xz")
-        cache = Path("/mock/.cache")
-
-        def mock_resolve(path, strict=False):
-            if path:
-                raise FileNotFoundError
-
-        with monkeypatch.context() as m:
-            m.setattr(Tarball, "__init__", TestCacheManager.MockTarball.__init__)
-            m.setattr(Controller, "__init__", TestCacheManager.MockController.__init__)
-            m.setattr(Path, "resolve", mock_resolve)
-            tb = Tarball(tar, Controller(Path("/mock/archive"), cache, None))
-            tar_dir = TestCacheManager.MockController.generate_test_result_tree(
-                tmp_path, "dir_name"
-            )
-            expected_msg = f"The '{tar_dir}' does not resolve to a real location"
-            with pytest.raises(FileNotFoundError) as exc:
-                tb.cache_map(tar_dir)
-            assert str(exc.value) == expected_msg
-
     def test_cache_map_success(self, monkeypatch, tmp_path):
         """Test to build the cache map of the unpacked tarball"""
         tar = Path("/mock/dir_name.tar.xz")
@@ -588,7 +567,7 @@ class TestCacheManager:
             c_map = Tarball.traverse_cmap(file_path, tb.cachemap)
             assert c_map["details"].location == file_path
             assert c_map["details"].name == "f1.json"
-            assert c_map["details"].resolve_path == file_path
+            assert c_map["details"].resolve_path is None
             assert c_map["details"].resolve_type is None
             assert c_map["details"].size == 0
             assert c_map["details"].type == "file"
@@ -598,7 +577,7 @@ class TestCacheManager:
             c_map = Tarball.traverse_cmap(dir_path, tb.cachemap)
             assert c_map["details"].location == dir_path
             assert c_map["details"].name == "subdir11"
-            assert c_map["details"].resolve_path == dir_path
+            assert c_map["details"].resolve_path is None
             assert c_map["details"].resolve_type is None
             assert c_map["details"].size is None
             assert c_map["details"].type == "directory"
@@ -619,7 +598,7 @@ class TestCacheManager:
             expected_info = {
                 "location": file_path,
                 "name": "f11.txt",
-                "resolve_path": file_path,
+                "resolve_path": None,
                 "resolve_type": None,
                 "size": 0,
                 "type": "file",
@@ -634,7 +613,7 @@ class TestCacheManager:
                 "files": ["f11.txt"],
                 "location": dir_path,
                 "name": "subdir1",
-                "resolve_path": dir_path,
+                "resolve_path": None,
                 "resolve_type": None,
                 "size": None,
                 "type": "directory",
@@ -649,7 +628,7 @@ class TestCacheManager:
                 "files": [],
                 "location": dir_path,
                 "name": "subdir11",
-                "resolve_path": dir_path,
+                "resolve_path": None,
                 "resolve_type": None,
                 "size": None,
                 "type": "directory",
