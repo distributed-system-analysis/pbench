@@ -1,4 +1,3 @@
-from configparser import NoOptionError, NoSectionError
 from http import HTTPStatus
 import re
 from typing import Any, Dict
@@ -150,18 +149,15 @@ class EndpointConfig(Resource):
             "uri": templates,
         }
 
-        try:
-            client = self.server_config.get("openid", "client")
-            realm = self.server_config.get("openid", "realm")
-            server = self.server_config.get("openid", "server_url")
-        except (NoOptionError, NoSectionError):
-            pass
-        else:
-            endpoints["openid"] = {
-                "client": client,
-                "realm": realm,
-                "server": server,
-            }
+        client = self.server_config.get("openid", "client")
+        realm = self.server_config.get("openid", "realm")
+        server = self.server_config.get("openid", "server_url")
+
+        endpoints["openid"] = {
+            "client": client,
+            "realm": realm,
+            "server": server,
+        }
 
         try:
             response = jsonify(endpoints)

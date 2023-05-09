@@ -110,6 +110,14 @@ def run_gunicorn(server_config: PbenchServerConfig, logger: Logger) -> int:
     except OpenIDClient.NotConfigured as exc:
         logger.warning("OpenID Connect client not configured, {}", exc)
         notifier.notify("STOPPING=1")
+        notifier.notify("STATUS=OPENID broker not configured")
+        return 1
+    except [
+        OpenIDClient.ServerConnectionError,
+        OpenIDClient.ServerConnectionTimedOut,
+    ] as exc:
+        logger.warning("OpenID Connect client not reachable, {}", exc)
+        notifier.notify("STOPPING=1")
         notifier.notify("STATUS=OPENID broker not responding")
         return 1
     else:

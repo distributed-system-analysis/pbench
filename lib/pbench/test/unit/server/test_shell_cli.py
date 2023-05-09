@@ -207,8 +207,17 @@ class TestShell:
         assert ret_val == 1
 
     @staticmethod
+    @pytest.mark.parametrize(
+        "exc",
+        [
+            Exception("oidc exception"),
+            OpenIDClient.NotConfigured,
+            OpenIDClient.ServerConnectionTimedOut,
+            OpenIDClient.ServerConnectionError,
+        ],
+    )
     def test_main_wait_for_oidc_server_exc(
-        monkeypatch, make_logger, mock_get_server_config
+        monkeypatch, make_logger, mock_get_server_config, exc
     ):
         def immediate_success(*args, **kwargs):
             pass
@@ -219,7 +228,7 @@ class TestShell:
             server_config: PbenchServerConfig, logger: logging.Logger
         ) -> str:
             called[0] = True
-            raise Exception("oidc exception")
+            raise exc
 
         monkeypatch.setattr(shell.site, "ENABLE_USER_SITE", False)
         monkeypatch.setattr(shell, "wait_for_uri", immediate_success)
@@ -227,24 +236,6 @@ class TestShell:
             shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
         )
 
-        ret_val = shell.main()
-
-        assert called[0]
-        assert ret_val == 1
-
-        called = [False]
-
-        # Test when specifically OpenIDClient.NotConfigured is raised from
-        # wait_for_oidc_server
-        def wait_for_oidc_server(
-            server_config: PbenchServerConfig, logger: logging.Logger
-        ) -> str:
-            called[0] = True
-            raise OpenIDClient.NotConfigured
-
-        monkeypatch.setattr(
-            shell.OpenIDClient, "wait_for_oidc_server", wait_for_oidc_server
-        )
         ret_val = shell.main()
 
         assert called[0]
