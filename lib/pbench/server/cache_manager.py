@@ -20,6 +20,16 @@ class CacheManagerError(Exception):
         return "Generic cache manager exception"
 
 
+class BadDirpath(CacheManagerError):
+    """A bad directory path was given."""
+
+    def __init__(self, path: Union[str, Path]):
+        self.path = str(path)
+
+    def __str__(self) -> str:
+        return f"The directory path {self.path!r} is not valid"
+
+
 class BadFilename(CacheManagerError):
     """A bad tarball path was given."""
 
@@ -84,7 +94,7 @@ class TarballModeChangeError(CacheManagerError):
 
 
 class FileInfo:
-    def __init__(self, path: Path):
+    def __init__(self, dir_name: str, path: Path):
         """Collects the file info
 
         Args:
@@ -92,26 +102,33 @@ class FileInfo:
 
         """
         self.name = path.name
-        self.location = path
+        if self.name == dir_name:
+            self.location = dir_name
+        else:
+            self.location = Path(dir_name) / str(path).split(f"{dir_name}/")[1]
+
         try:
-            self.file_info(path)
+            resolve_path = path.resolve(strict=True)
         except FileNotFoundError:
             raise FileNotFoundError(f"The '{path}' does not resolve to a real location")
 
-    def file_info(self, path):
-        self.resolve_path = path.resolve(strict=True)
+        if resolve_path.name == dir_name:
+            self.resolve_path = dir_name
+        else:
+            self.resolve_path = (
+                Path(dir_name) / str(resolve_path).split(f"{dir_name}/")[1]
+            )
+
         self.resolve_type = None
         self.size = None
-        if path.is_dir():
-            self.type = "directory"
-        elif path.is_symlink():
+        if path.is_symlink():
             self.type = "symlink"
-            if self.resolve_path.is_symlink():
-                self.file_info(self.resolve_path)
-            self.resolve_type = "directory" if self.resolve_path.is_dir() else "file"
+            self.resolve_type = "directory" if resolve_path.is_dir() else "file"
         elif path.is_file():
             self.type = "file"
             self.size = path.stat().st_size
+        elif path.is_dir():
+            self.type = "directory"
 
 
 class Tarball:
@@ -261,68 +278,77 @@ class Tarball:
 
         return cls(destination, controller)
 
-    def cache_map(self, tar_path: Path):
+    def cache_map(self, dir_path: Path):
         """Builds Hierarchy structure of a Directory in a Dictionary
         Format.
 
         Args:
-            dir_path: root of a directory
+            dir_path: root directory
         """
-        cmap = {tar_path.name: {"details": FileInfo(tar_path)}}
-        dir_queue = deque([(tar_path, cmap)])
+        cmap = {dir_path.name: {"details": FileInfo(self.name, dir_path)}}
+        dir_queue = deque([(dir_path, cmap)])
         while dir_queue:
-            tar_path, parent_map = dir_queue.popleft()
-            tar_n = tar_path.name
+            dir_path, parent_map = dir_queue.popleft()
+            tar_n = dir_path.name
             curr = parent_map[tar_n]
 
-            dir_list = list(tar_path.glob("*"))
+            dir_list = list(dir_path.glob("*"))
             if dir_list:
                 curr["children"] = {}
                 curr = curr["children"]
 
             for l_path in dir_list:
-                tar_info = FileInfo(l_path)
-                curr[l_path.name] = {"details": tar_info}
+                dir_info = FileInfo(self.name, l_path)
+                curr[l_path.name] = {"details": dir_info}
                 if l_path.is_dir():
                     dir_queue.append((l_path, curr))
         self.cachemap = cmap
 
     @staticmethod
     def traverse_cmap(path: Path, cachemap: dict) -> dict:
+        """Sequentially traverses the cachemap to find the leaf of a
+        relative path reference
+
+        Args:
+            path: relative path of the sub-directory/file
+            cachemap: dictionary mapping of the root Dicrectory
+
+        Returns:
+            Dictionary with directory/file details or children if present
+        """
         name = path.name
         file_list = path.parts
         c_map = cachemap
-        i = 0
 
-        if file_list[i] in ("/", "//"):
-            i += 1
-
-        while i < len(file_list):
-            c_map = c_map[file_list[i]]
+        for file_l in file_list:
+            c_map = c_map[file_l]
             if c_map["details"].type == "directory":
-                if "children" in c_map and file_list[i] != name:
+                if "children" in c_map and file_l != name:
                     c_map = c_map["children"]
-            i += 1
 
         return c_map
 
     def get_info(self, path: Path) -> dict:
+        """Returns the details of the given file/directory in dict format
+
+        Args:
+            path: path of the file/sub-directory
+
+        Raises:
+            BadDirpath on bad directory path
+
+        Returns:
+            Dictionary with Details of the file/directory
+        """
         # FixMe: Handle a Symlink
+        if str(path).startswith("/"):
+            raise BadDirpath(path)
+
         c_map = self.traverse_cmap(path, self.cachemap)
-        fd_info = {}
         children = c_map["children"] if "children" in c_map else {}
-        details = c_map["details"]
+        fd_info = c_map["details"].__dict__.copy()
 
-        fd_info = {
-            "location": details.location,
-            "name": details.name,
-            "resolve_path": details.resolve_path,
-            "resolve_type": details.resolve_type,
-            "size": details.size,
-            "type": details.type,
-        }
-
-        if details.type == "directory":
+        if c_map["details"].type == "directory":
             fd_info["directories"] = []
             fd_info["files"] = []
 
