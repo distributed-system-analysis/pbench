@@ -308,7 +308,7 @@ class Tarball:
         self.cachemap = cmap
 
     @staticmethod
-    def traverse_cmap(path: Path, cachemap: dict) -> dict:
+    def traverse_cmap(path: Path, cachemap: dict) -> dict[str, dict]:
         """Sequentially traverses the cachemap to find the leaf of a
         relative path reference
 
@@ -331,7 +331,7 @@ class Tarball:
 
         return c_map
 
-    def get_info(self, path: Path) -> dict:
+    def get_info(self, path: Path) -> dict[str, dict]:
         """Returns the details of the given file/directory in dict format
 
         Args:
