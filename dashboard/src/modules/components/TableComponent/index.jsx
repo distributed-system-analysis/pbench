@@ -1,6 +1,7 @@
 import "./index.less";
 
 import * as APP_ROUTES from "utils/routeConstants";
+import * as CONSTANTS from "assets/constants/browsingPageConstants";
 
 import { EmptyTable, Heading, LoginHint, SearchBox } from "./common-components";
 import {
@@ -15,26 +16,21 @@ import {
 } from "@patternfly/react-table";
 import React, { useEffect, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core";
-import { bumpToDate, getTodayMidnightUTCDate } from "utils/dateFunctions";
 import {
   fetchPublicDatasets,
   getFavoritedDatasets,
   updateFavoriteRepoNames,
-  updateTblData,
 } from "actions/datasetListActions";
 import { useDispatch, useSelector } from "react-redux";
 
 import { DATASET_UPLOADED } from "assets/constants/overviewConstants";
 import DatePickerWidget from "../DatePickerComponent";
 import PathBreadCrumb from "../BreadCrumbComponent";
+import { RenderPagination } from "../OverviewComponent/common-component";
 import { TOC } from "assets/constants/navigationConstants";
 import TablePagination from "../PaginationComponent";
-import { useNavigate } from "react-router";
 import { useKeycloak } from "@react-keycloak/web";
-
-let startDate = new Date(Date.UTC(1990, 10, 4));
-let endDate = bumpToDate(getTodayMidnightUTCDate(), 1);
-let datasetName = "";
+import { useNavigate } from "react-router";
 
 const TableWithFavorite = () => {
   const columnNames = {
@@ -46,26 +42,30 @@ const TableWithFavorite = () => {
   const [activeSortIndex, setActiveSortIndex] = useState(null);
   const [activeSortDirection, setActiveSortDirection] = useState(null);
   const [isSelected, setIsSelected] = useState("datasetListButton");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+
   const [loginHintVisible, setLoginHintVisible] = useState(true);
+
+  const [favTblperPage, setfavTblPerPage] = useState(
+    CONSTANTS.DEFAULT_PER_PAGE
+  );
+  const [favPage, setFavPage] = useState(CONSTANTS.START_PAGE_NUMBER);
+  const [page, setPage] = useState(CONSTANTS.START_PAGE_NUMBER);
+
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (Object.keys(endpoints).length > 0) {
-      dispatch(fetchPublicDatasets());
+      dispatch(fetchPublicDatasets(CONSTANTS.START_PAGE_NUMBER));
       dispatch(getFavoritedDatasets());
     }
   }, [dispatch, endpoints]);
 
-  const { publicData, favoriteRepoNames, tableData } = useSelector(
+  const { publicData, favoriteRepoNames, perPage } = useSelector(
     (state) => state.datasetlist
   );
-  const setPublicData = (data) => {
-    dispatch(updateTblData(data));
-  };
+
   const markRepoFavorited = (repo, isFavoriting = true) => {
     const otherFavorites = favoriteRepoNames.filter(
       (r) => r.name !== repo.name
@@ -76,13 +76,17 @@ const TableWithFavorite = () => {
     saveFavorites(newFavorite);
     dispatch(updateFavoriteRepoNames(newFavorite));
   };
-  const selectedArray =
+
+  let selectedArray =
     isSelected === "datasetListButton"
       ? publicData?.slice((page - 1) * perPage, page * perPage)
-      : favoriteRepoNames?.slice((page - 1) * perPage, page * perPage);
+      : favoriteRepoNames?.slice(
+          (favPage - 1) * favTblperPage,
+          favPage * favTblperPage
+        );
 
   const isRepoFavorited = (repo) =>
-    !!favoriteRepoNames.find((element) => element.name === repo.name);
+    !!favoriteRepoNames?.find((element) => element?.name === repo?.name);
 
   const getSortableRowValues = (data) => {
     const uploadedDate = data.metadata[DATASET_UPLOADED];
@@ -118,13 +122,7 @@ const TableWithFavorite = () => {
     const id = event.currentTarget.id;
     setIsSelected(id);
   };
-  const setDatasetName = (datasetNameValue) => {
-    datasetName = datasetNameValue;
-  };
-  const setDateRange = (startDateValue, endDateValue) => {
-    startDate = startDateValue;
-    endDate = endDateValue;
-  };
+
   const saveFavorites = (fav) => {
     localStorage.setItem("favorite_datasets", JSON.stringify(fav));
   };
@@ -137,6 +135,18 @@ const TableWithFavorite = () => {
     { name: "Results", link: "" },
   ];
 
+  /* Favorite Table Pagination */
+  const onSetPage = (_evt, newPage, _perPage, startIdx, endIdx) => {
+    setFavPage(newPage);
+    selectedArray = favoriteRepoNames?.slice(startIdx, endIdx);
+  };
+
+  const onPerPageSelect = (_evt, newPerPage, newPage, startIdx, endIdx) => {
+    setfavTblPerPage(newPerPage);
+    setFavPage(newPage);
+    selectedArray = favoriteRepoNames?.slice(startIdx, endIdx);
+  };
+  /* Favorite Table Pagination*/
   return (
     <>
       {!keycloak.authenticated && loginHintVisible && (
@@ -154,22 +164,11 @@ const TableWithFavorite = () => {
           headingTitle="Results"
         ></Heading>
         <div className="filterContainer">
-          <SearchBox
-            dataArray={tableData}
-            setPublicData={setPublicData}
-            startDate={startDate}
-            endDate={endDate}
-            setDatasetName={setDatasetName}
-            aria-label="search box"
-          />
-          <DatePickerWidget
-            dataArray={tableData}
-            setPublicData={setPublicData}
-            datasetName={datasetName}
-            setDateRange={setDateRange}
-            aria-label="date picker"
-          />
+          <SearchBox setPage={setPage} aria-label="search box" />
+
+          <DatePickerWidget setPage={setPage} aria-label="date picker" />
         </div>
+
         <ToggleGroup aria-label="Result Selection Options">
           <ToggleGroupItem
             text={`All Results(${publicData?.length})`}
@@ -206,15 +205,17 @@ const TableWithFavorite = () => {
                 <Tbody>
                   {selectedArray.length > 0 ? (
                     selectedArray.map((repo, rowIndex) => (
-                      <Tr key={rowIndex}>
+                      <Tr key={repo?.resource_id}>
                         <Td
                           dataLabel={columnNames.name}
-                          onClick={() => navigate(`${TOC}/${repo.resource_id}`)}
+                          onClick={() =>
+                            navigate(`${TOC}/${repo?.resource_id}`)
+                          }
                         >
-                          {repo.name}
+                          {repo?.name}
                         </Td>
                         <Td dataLabel={columnNames.uploadedDate}>
-                          {repo.metadata[DATASET_UPLOADED]}
+                          {repo?.metadata[DATASET_UPLOADED]}
                         </Td>
                         <Td
                           favorites={{
@@ -228,7 +229,7 @@ const TableWithFavorite = () => {
                       </Tr>
                     ))
                   ) : (
-                    <Tr>
+                    <Tr key={"empty-row"}>
                       <Td colSpan={8}>
                         <EmptyTable />
                       </Td>
@@ -236,17 +237,20 @@ const TableWithFavorite = () => {
                   )}
                 </Tbody>
               </TableComposable>
-              <TablePagination
-                numberOfRows={
-                  isSelected === "datasetListButton"
-                    ? tableData.length
-                    : favoriteRepoNames.length
-                }
-                page={page}
-                setPage={setPage}
-                perPage={perPage}
-                setPerPage={setPerPage}
-              />
+              {isSelected === "datasetListButton" ? (
+                <TablePagination page={page} setPage={setPage} />
+              ) : (
+                <RenderPagination
+                  items={favoriteRepoNames.length}
+                  page={favPage}
+                  setPage={setFavPage}
+                  perPage={favTblperPage}
+                  setPerPage={setfavTblPerPage}
+                  onSetPage={onSetPage}
+                  perPageOptions={CONSTANTS.PER_PAGE_OPTIONS}
+                  onPerPageSelect={onPerPageSelect}
+                />
+              )}
             </InnerScrollContainer>
           </OuterScrollContainer>
         </div>

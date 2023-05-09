@@ -1,77 +1,101 @@
-import React, { useState } from "react";
-import {
-  InputGroup,
-  InputGroupText,
-  DatePicker,
-  isValidDate,
-  Button,
-} from "@patternfly/react-core";
 import "./index.less";
-import { filterData } from "utils/filterDataset";
+
+import * as CONSTANTS from "assets/constants/browsingPageConstants";
+
 import {
-  bumpToDate,
-  dateFromUTCString,
-  getTodayMidnightUTCDate,
-} from "utils/dateFunctions";
+  Button,
+  DatePicker,
+  Split,
+  SplitItem,
+  isValidDate,
+} from "@patternfly/react-core";
+import React, { useState } from "react";
+import { applyFilter, setFilterKeys } from "actions/datasetListActions";
+import { useDispatch, useSelector } from "react-redux";
 
-const DatePickerWidget = ({
-  dataArray,
-  setPublicData,
-  datasetName,
-  setDateRange,
-}) => {
-  const [fromDate, setFromDate] = useState({});
-  const [toDate, setToDate] = useState(
-    bumpToDate(getTodayMidnightUTCDate(), 1)
-  );
-  const [strDate, setStrDate] = useState(
-    new Date().toLocaleDateString("fr-CA") // Return a YYYY-MM-DD string
-  );
-  const toValidator = (date) =>
-    date >= fromDate
+import { getTodayMidnightUTCDate } from "utils/dateFunctions";
+
+const DatePickerWidget = (props) => {
+  const dispatch = useDispatch();
+  const { filter } = useSelector((state) => state.datasetlist);
+
+  const [isEndDateError, setIsEndDateError] = useState(false);
+
+  const fromValidator = (date) =>
+    date <= getTodayMidnightUTCDate()
       ? ""
-      : "To date must be greater than or equal to from date";
+      : "The Uploaded date cannot be in the future!";
 
-  const onFromChange = (_str, date) => {
-    const selectedDate = dateFromUTCString(_str);
-    setFromDate(isValidDate(date) ? selectedDate : {});
-    if (isValidDate(date)) {
-      if (date > new Date(strDate)) {
-        setToDate(bumpToDate(dateFromUTCString(_str), 1));
-        setStrDate(_str);
-      }
+  const toValidator = (date) =>
+    isValidDate(filter.startDate) && date >= filter.startDate
+      ? ""
+      : 'The "to" date must be after the "from" date';
+
+  const onFromChange = (_event, _str, date) => {
+    dispatch(setFilterKeys(date, filter.endDate));
+    if (filter.endDate) {
+      checkEndDate(date, filter.endDate);
+    } else {
+      setIsEndDateError(true);
     }
   };
 
-  const filterByDate = () => {
-    setPublicData(filterData(dataArray, fromDate, toDate, datasetName));
-    setDateRange(fromDate, toDate);
+  const onToChange = (_event, _str, date) => {
+    if (isValidDate(date)) {
+      dispatch(setFilterKeys(filter.startDate, date));
+      checkEndDate(filter.startDate, date);
+    } else {
+      setIsEndDateError(true);
+    }
   };
+  const checkEndDate = (fromDate, toDate) =>
+    setIsEndDateError(fromDate >= toDate);
+
+  const filterByDate = () => {
+    if (filter.startDate) {
+      dispatch(applyFilter());
+      props.setPage(CONSTANTS.START_PAGE_NUMBER);
+    }
+  };
+
   return (
-    <InputGroup className="filterInputGroup">
-      <InputGroupText>Filter By Date</InputGroupText>
-      <DatePicker
-        onChange={onFromChange}
-        aria-label="Start date"
-        placeholder="YYYY-MM-DD"
-      />
-      <InputGroupText>to</InputGroupText>
-      <DatePicker
-        value={strDate}
-        onChange={(_str, _date) => {
-          setStrDate(_str);
-          setToDate(bumpToDate(dateFromUTCString(_str), 1));
-        }}
-        isDisabled={!isValidDate(fromDate)}
-        rangeStart={fromDate}
-        validators={[toValidator]}
-        aria-label="End date"
-        placeholder="YYYY-MM-DD"
-      />
-      <Button variant="control" onClick={filterByDate}>
-        Update
-      </Button>
-    </InputGroup>
+    <>
+      <Split className="browsing-page-date-picker">
+        <SplitItem style={{ padding: "6px 12px 0 12px" }}>
+          Filter by date
+        </SplitItem>
+        <SplitItem>
+          <DatePicker
+            onChange={onFromChange}
+            aria-label="Start date"
+            placeholder="YYYY-MM-DD"
+            validators={[fromValidator]}
+          />
+        </SplitItem>
+        <SplitItem style={{ padding: "6px 12px 0 12px" }}>to</SplitItem>
+        <SplitItem>
+          <DatePicker
+            onChange={onToChange}
+            isDisabled={!isValidDate(filter.startDate)}
+            rangeStart={filter.startDate}
+            validators={[toValidator]}
+            aria-label="End date"
+            placeholder="YYYY-MM-DD"
+            helperText={
+              isEndDateError && `The "to" date must be after the "from" date`
+            }
+          />
+        </SplitItem>
+        <Button
+          variant="control"
+          onClick={filterByDate}
+          className="filter-btn"
+          isDisabled={isEndDateError}
+        >
+          Update
+        </Button>
+      </Split>
+    </>
   );
 };
 

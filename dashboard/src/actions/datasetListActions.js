@@ -1,27 +1,70 @@
+import * as CONSTANTS from "assets/constants/browsingPageConstants";
 import * as TYPES from "./types";
 
+import { DANGER, ERROR_MSG } from "assets/constants/toastConstants";
+
 import API from "../utils/axiosInstance";
+import { showToast } from "./toastActions";
 import { uriTemplate } from "utils/helper";
 
-export const fetchPublicDatasets = () => async (dispatch, getState) => {
+export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
   try {
     dispatch({ type: TYPES.LOADING });
     const endpoints = getState().apiEndpoint.endpoints;
+    const { offset, limit, filter, searchKey, perPage } =
+      getState().datasetlist;
+    let publicData = [...getState().datasetlist.publicData];
+    const params = new URLSearchParams();
+    params.append("metadata", "dataset.uploaded");
+    params.append("access", "public");
+    params.append("offset", offset);
+    params.append("limit", limit);
+
+    if (searchKey) {
+      params.append("name", searchKey);
+    }
+    if (filter.startDate instanceof Date && !isNaN(filter.startDate)) {
+      params.append("start", filter.startDate.toUTCString());
+    }
+    if (filter.endDate instanceof Date && !isNaN(filter.endDate)) {
+      params.append("end", filter.endDate.toUTCString());
+    }
+
     const response = await API.get(
       uriTemplate(endpoints, "datasets_list", {}),
-      { params: { metadata: "dataset.uploaded", access: "public" } }
+      { params }
     );
+
     if (response.status === 200 && response.data) {
+      const startIdx = (page - 1) * perPage;
+
+      if (publicData.length !== response.data.total) {
+        publicData = new Array(response.data.total);
+      }
+      publicData.splice(
+        startIdx,
+        response.data.results.length,
+        ...response.data.results
+      );
+
       dispatch({
-        type: "GET_PUBLIC_DATASETS",
-        payload: response?.data?.results,
+        type: TYPES.UPDATE_PUBLIC_DATASETS,
+        payload: publicData,
+      });
+      // in case of last page, next_url is empty
+      const offset = response.data.next_url
+        ? new URLSearchParams(response.data.next_url).get("offset")
+        : response.data.total;
+      dispatch({
+        type: TYPES.SET_RESULT_OFFSET,
+        payload: Number(offset),
       });
     }
-    dispatch({ type: TYPES.COMPLETED });
-    dispatch(callLoading());
   } catch (error) {
-    return error;
+    dispatch(showToast(DANGER, ERROR_MSG));
+    dispatch({ type: TYPES.NETWORK_ERROR });
   }
+  dispatch({ type: TYPES.COMPLETED });
 };
 
 export const getFavoritedDatasets = () => async (dispatch) => {
@@ -33,23 +76,39 @@ export const getFavoritedDatasets = () => async (dispatch) => {
   });
 };
 
-export const updateFavoriteRepoNames = (favorites) => async (dispatch) => {
-  dispatch({
-    type: TYPES.FAVORITED_DATASETS,
-    payload: [...favorites],
-  });
-};
+export const updateFavoriteRepoNames = (favorites) => ({
+  type: TYPES.FAVORITED_DATASETS,
+  payload: [...favorites],
+});
 
-export const updateTblData = (data) => async (dispatch) => {
+export const setPageLimit = (newPerPage) => ({
+  type: TYPES.SET_PAGE_LIMIT,
+  payload: newPerPage,
+});
+
+export const setFilterKeys = (startDate, endDate) => ({
+  type: TYPES.SET_DATE_RANGE,
+  payload: { startDate, endDate },
+});
+
+export const nameFilter = (value) => ({
+  type: TYPES.SET_SEARCH_KEY,
+  payload: value,
+});
+
+export const applyFilter = () => (dispatch) => {
   dispatch({
     type: TYPES.UPDATE_PUBLIC_DATASETS,
-    payload: [...data],
+    payload: [],
   });
+  dispatch({
+    type: TYPES.SET_RESULT_OFFSET,
+    payload: CONSTANTS.INITIAL_RESULT_OFFSET,
+  });
+  dispatch(fetchPublicDatasets(CONSTANTS.START_PAGE_NUMBER));
 };
 
-export const callLoading = () => (dispatch) => {
-  dispatch({ type: TYPES.LOADING });
-  setTimeout(() => {
-    dispatch({ type: TYPES.COMPLETED });
-  }, 5000);
-};
+export const setPerPage = (value) => ({
+  type: TYPES.SET_PER_PAGE,
+  payload: value,
+});
