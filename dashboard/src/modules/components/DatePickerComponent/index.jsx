@@ -43,13 +43,13 @@ const DatePickerWidget = (props) => {
   const onToChange = (_event, _str, date) => {
     if (isValidDate(date)) {
       dispatch(setFilterKeys(filter.startDate, date));
+      checkEndDate(filter.startDate, date);
+    } else {
+      setIsEndDateError(true);
     }
-    checkEndDate(filter.startDate, date);
   };
   const checkEndDate = (fromDate, toDate) =>
-    new Date(fromDate) >= new Date(toDate)
-      ? setIsEndDateError(true)
-      : setIsEndDateError(false);
+    setIsEndDateError(fromDate >= toDate);
 
   const filterByDate = () => {
     if (filter.startDate) {

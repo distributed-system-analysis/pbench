@@ -52,20 +52,13 @@ export const fetchPublicDatasets = (page) => async (dispatch, getState) => {
         payload: publicData,
       });
       // in case of last page, next_url is empty
-      if (response.data.next_url) {
-        const urlSearchParams = new URLSearchParams(response.data.next_url);
-        const offset = urlSearchParams.get("offset");
-
-        dispatch({
-          type: TYPES.SET_RESULT_OFFSET,
-          payload: Number(offset),
-        });
-      } else {
-        dispatch({
-          type: TYPES.SET_RESULT_OFFSET,
-          payload: Number(response.data.total),
-        });
-      }
+      const offset = response.data.next_url
+        ? new URLSearchParams(response.data.next_url).get("offset")
+        : response.data.total;
+      dispatch({
+        type: TYPES.SET_RESULT_OFFSET,
+        payload: Number(offset),
+      });
     }
   } catch (error) {
     dispatch(showToast(DANGER, ERROR_MSG));
