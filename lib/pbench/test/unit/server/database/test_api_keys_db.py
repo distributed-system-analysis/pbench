@@ -26,12 +26,14 @@ class TestAPIKeyDB:
     def test_construct(self, db_session, create_drb_user, create_user):
         """Test api_key constructor"""
 
-        api_key = APIKey(key="generated_api_key", user=create_user, name="test_api_key")
+        api_key = APIKey(
+            key="generated_api_key", user=create_user, label="test_api_key"
+        )
         api_key.add()
 
         assert api_key.key == "generated_api_key"
         assert api_key.user.id is create_user.id
-        assert api_key.name == "test_api_key"
+        assert api_key.label == "test_api_key"
 
     def test_query(
         self,
@@ -39,18 +41,28 @@ class TestAPIKeyDB:
         pbench_drb_api_key,
         pbench_drb_secondary_api_key,
         create_drb_user,
+        create_user,
     ):
         """Test that we are able to query api_key by user"""
+
+        api_key = APIKey(
+            key="generated_api_key", user=create_user, label="test_api_key"
+        )
+        api_key.add()
+
+        assert api_key.key == "generated_api_key"
+        assert api_key.user.id is create_user.id
+        assert api_key.label == "test_api_key"
 
         key_list = APIKey.query(user=create_drb_user)
         assert len(key_list) == 2
 
-        assert key_list[0].user.id == pbench_drb_api_key.user.id
-        assert key_list[0].name == pbench_drb_api_key.name
+        assert key_list[0].user.id == create_drb_user.id
+        assert key_list[0].label == pbench_drb_api_key.label
         assert key_list[0].id == pbench_drb_api_key.id
         assert key_list[0].key == pbench_drb_api_key.key
-        assert key_list[1].user.id == pbench_drb_secondary_api_key.user.id
-        assert key_list[1].name == pbench_drb_secondary_api_key.name
+        assert key_list[1].user.id == create_drb_user.id
+        assert key_list[1].label == pbench_drb_secondary_api_key.label
         assert key_list[1].id == pbench_drb_secondary_api_key.id
         assert key_list[1].key == pbench_drb_secondary_api_key.key
 

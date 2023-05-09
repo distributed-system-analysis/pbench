@@ -30,7 +30,7 @@ class APIKeyManage(ApiBase):
                 ApiMethod.POST,
                 OperationCode.CREATE,
                 query_schema=Schema(
-                    Parameter("name", ParamType.STRING, required=False),
+                    Parameter("label", ParamType.STRING, required=False),
                 ),
                 audit_type=AuditType.API_KEY,
                 audit_name="apikey",
@@ -80,15 +80,13 @@ class APIKeyManage(ApiBase):
         key_id = params.uri.get("key")
         if not key_id:
             keys = APIKey.query(user=user)
-            response = [key.as_json() for key in keys]
+            return [key.as_json() for key in keys]
 
         else:
             key = APIKey.query(id=key_id, user=user)
             if not key:
                 raise APIAbort(HTTPStatus.NOT_FOUND, "Requested key not found")
-            response = key[0].as_json()
-
-        return response
+            return key[0].as_json()
 
     def _post(
         self, params: ApiParams, request: Request, context: ApiContext
@@ -96,7 +94,7 @@ class APIKeyManage(ApiBase):
         """
         Post request for generating a new persistent API key.
 
-        POST /api/v1/key?name=name
+        POST /api/v1/key?label=label
 
         Required headers include
             Content-Type:   application/json
@@ -110,7 +108,7 @@ class APIKeyManage(ApiBase):
             APIInternalError, reporting the failure message
         """
         user = Auth.token_auth.current_user()
-        name = params.query.get("name")
+        label = params.query.get("label")
 
         if not user:
             raise APIAbort(
@@ -122,7 +120,7 @@ class APIKeyManage(ApiBase):
         except Exception as e:
             raise APIInternalError(str(e)) from e
         try:
-            key = APIKey(key=new_key, user=user, name=name)
+            key = APIKey(key=new_key, user=user, label=label)
             key.add()
             status = HTTPStatus.CREATED
         except DuplicateApiKey:

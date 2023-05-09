@@ -835,7 +835,7 @@ def pbench_drb_api_key(client, server_config, create_drb_user):
     """Valid api_key for the 'drb' user"""
     return generate_api_key(
         username="drb",
-        name="drb_key",
+        label="drb_key",
         user=create_drb_user,
     )
 
@@ -844,9 +844,7 @@ def pbench_drb_api_key(client, server_config, create_drb_user):
 def pbench_drb_secondary_api_key(client, server_config, create_drb_user):
     """Create secondary api_key for the 'drb' user"""
     return generate_api_key(
-        username="drb",
-        name="secondary_key",
-        user=create_drb_user,
+        username="drb", label="secondary_key", user=create_drb_user, offset=True
     )
 
 
@@ -1006,8 +1004,9 @@ def tarball(tmp_path):
 
 def generate_api_key(
     username: str,
-    name: str,
+    label: str,
     user: Optional[User] = None,
+    offset: bool = False,
 ) -> APIKey:
     """Generates an api_key which will be mimic of how POST v1/generate_key call works.
 
@@ -1020,6 +1019,8 @@ def generate_api_key(
         name: name or description of the key.
         user: user attributes will be extracted from the user object to include
             in the token payload.
+        offset: If True, 10 min will be added to 'current_utc',to avoid duplicate error
+            while generating multiple api_key to a user
 
     Returns:
         APIKey Object
@@ -1031,13 +1032,15 @@ def generate_api_key(
         user = User.query(username=username)
         assert user
 
+    if offset:
+        current_utc = current_utc + datetime.timedelta(minutes=10)
+
     payload = {
         "iat": current_utc,
         "user_id": user.id,
         "username": user.username,
-        "name": name,
     }
     key = jwt.encode(payload, jwt_secret, algorithm="HS256")
-    api_key = APIKey(key=key, user=user, name=name)
+    api_key = APIKey(key=key, user=user, label=label)
     api_key.add()
     return api_key

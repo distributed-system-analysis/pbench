@@ -22,10 +22,10 @@ class TestPostAPIKey:
         """
 
         def query_api(
-            user_token, expected_status: HTTPStatus, name: Optional[str] = "new_key"
+            user_token, expected_status: HTTPStatus, label: Optional[str] = "new_key"
         ) -> requests.Response:
             headers = {"authorization": f"bearer {user_token}"}
-            payload = {"name": name} if name is not None else {}
+            payload = {"label": label} if label is not None else {}
 
             response = client.post(
                 f"{server_config.rest_uri}/key",
@@ -100,16 +100,16 @@ class TestPostAPIKey:
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
         assert audit[1].attributes["id"] == response.json["id"]
-        assert audit[1].attributes["name"] == response.json["name"]
+        assert audit[1].attributes["label"] == response.json["label"]
 
-    def test_successful_api_key_generation_without_name(
+    def test_successful_api_key_generation_without_label(
         self, query_post_as, pbench_drb_token
     ):
-        response = query_post_as(pbench_drb_token, HTTPStatus.CREATED, name=None)
+        response = query_post_as(pbench_drb_token, HTTPStatus.CREATED, label=None)
         assert response.json["key"]
         audit = Audit.query()
         assert audit[1].attributes["id"] == response.json["id"]
-        assert audit[1].attributes["name"] is None
+        assert audit[1].attributes["label"] is None
 
 
 class TestAPIKeyGet:
@@ -125,7 +125,7 @@ class TestAPIKeyGet:
         """
 
         def query_api_get(
-            user_token, expected_status: HTTPStatus, key_id: Optional[int] = None
+            user_token, expected_status: HTTPStatus, key_id: Optional[str] = None
         ) -> requests.Response:
             headers = {"authorization": f"bearer {user_token}"}
             uri = f"{server_config.rest_uri}/key"
@@ -148,13 +148,13 @@ class TestAPIKeyGet:
 
         assert response.json[0]["username"] == pbench_drb_api_key.user.username
         assert response.json[0]["id"] == pbench_drb_api_key.id
-        assert response.json[0]["name"] == pbench_drb_api_key.name
+        assert response.json[0]["label"] == pbench_drb_api_key.label
         assert response.json[0]["key"] == pbench_drb_api_key.key
         assert (
             response.json[1]["username"] == pbench_drb_secondary_api_key.user.username
         )
         assert response.json[1]["id"] == pbench_drb_secondary_api_key.id
-        assert response.json[1]["name"] == pbench_drb_secondary_api_key.name
+        assert response.json[1]["label"] == pbench_drb_secondary_api_key.label
         assert response.json[1]["key"] == pbench_drb_secondary_api_key.key
 
     def test_unauthorized_get(self, query_get_as, pbench_drb_token_invalid):
@@ -224,7 +224,11 @@ class TestAPIKeyDelete:
         return query_api_delete
 
     def test_delete_api_key(
-        self, query_delete_as, pbench_drb_token, pbench_drb_api_key
+        self,
+        query_delete_as,
+        pbench_drb_token,
+        pbench_drb_api_key,
+        pbench_drb_secondary_api_key,
     ):
 
         # we can find it
@@ -263,9 +267,10 @@ class TestAPIKeyDelete:
         assert audit[1].user_name == "drb"
         assert audit[1].reason is None
         assert audit[1].attributes["id"] == pbench_drb_api_key.id
-        assert audit[1].attributes["name"] == pbench_drb_api_key.name
-
+        assert audit[1].attributes["label"] == pbench_drb_api_key.label
         assert APIKey.query(id=pbench_drb_api_key.id) == []
+        keys = APIKey.query(id=pbench_drb_secondary_api_key.id)
+        assert keys[0].key == pbench_drb_secondary_api_key.key
 
     def test_unauthorized_delete(
         self, query_delete_as, pbench_drb_token_invalid, pbench_drb_api_key
@@ -279,6 +284,8 @@ class TestAPIKeyDelete:
         assert response.json == {
             "message": "User provided access_token is invalid or expired"
         }
+        keys = APIKey.query(id=pbench_drb_api_key.id)
+        assert keys[0].id == pbench_drb_api_key.id
 
     def test_delete_api_key_notfound(
         self, query_delete_as, pbench_drb_token, pbench_invalid_api_key
@@ -312,9 +319,15 @@ class TestAPIKeyDelete:
             get_token_func("test"), pbench_drb_api_key.id, HTTPStatus.NOT_FOUND
         )
         assert response.json == {"message": "Requested key not found"}
+        keys = APIKey.query(id=pbench_drb_api_key.id)
+        assert keys[0].id == pbench_drb_api_key.id
 
     def test_delete_api_key_by_admin(
-        self, query_delete_as, pbench_admin_token, pbench_drb_api_key
+        self,
+        query_delete_as,
+        pbench_admin_token,
+        pbench_drb_api_key,
+        pbench_drb_secondary_api_key,
     ):
 
         # we can find it
@@ -326,3 +339,5 @@ class TestAPIKeyDelete:
         )
         assert response.json == "deleted"
         assert APIKey.query(id=pbench_drb_api_key.id) == []
+        keys = APIKey.query(id=pbench_drb_secondary_api_key.id)
+        assert keys[0].key == pbench_drb_secondary_api_key.key

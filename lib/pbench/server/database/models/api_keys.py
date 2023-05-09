@@ -51,7 +51,7 @@ class APIKey(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(500), unique=True, nullable=False)
     created = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
-    name = Column(String(128), nullable=True)
+    label = Column(String(128), nullable=True)
     # ID of the owning user
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
 
@@ -109,7 +109,7 @@ class APIKey(Database.Base):
         """
         return {
             "id": self.id,
-            "name": self.name,
+            "label": self.label,
             "key": self.key,
             "username": self.user.username,
             "created": self.created.isoformat(),
