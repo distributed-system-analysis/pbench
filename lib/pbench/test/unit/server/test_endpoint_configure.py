@@ -102,7 +102,10 @@ class TestEndpointConfig:
                     },
                 },
                 "endpoints": {"template": f"{uri}/endpoints", "params": {}},
-                "key": {"template": f"{uri}/key", "params": {}},
+                "key": {
+                    "template": f"{uri}/key/{{key}}",
+                    "params": {"key": {"type": "string"}},
+                },
                 "server_audit": {"template": f"{uri}/server/audit", "params": {}},
                 "server_settings": {
                     "template": f"{uri}/server/settings/{{key}}",

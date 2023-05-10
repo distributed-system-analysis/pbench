@@ -1,18 +1,13 @@
 import pytest
 
 from pbench.server.database.database import Database
-from pbench.server.database.models import TZDateTime
 from pbench.server.database.models.api_keys import APIKey
-from pbench.test.unit.server import DRB_USER_ID
 from pbench.test.unit.server.database import FakeSession
 
 
 class TestAPIKeyDB:
 
     session = None
-
-    # Current time to encode in the payload
-    current_utc = TZDateTime.current_time()
 
     @pytest.fixture()
     def fake_db(self, monkeypatch, server_config):
@@ -32,28 +27,55 @@ class TestAPIKeyDB:
         """Test api_key constructor"""
 
         api_key = APIKey(
-            api_key="generated_api_key",
-            user=create_user,
+            key="generated_api_key", user=create_user, label="test_api_key"
         )
         api_key.add()
 
-        assert api_key.api_key == "generated_api_key"
+        assert api_key.key == "generated_api_key"
         assert api_key.user.id is create_user.id
+        assert api_key.label == "test_api_key"
 
-    def test_query(self, db_session, pbench_drb_api_key):
-        """Test that we can able to query api_key in the table"""
+    def test_query(
+        self,
+        db_session,
+        pbench_drb_api_key,
+        pbench_drb_secondary_api_key,
+        create_drb_user,
+        create_user,
+    ):
+        """Test that we are able to query api_key by user"""
 
-        key = APIKey.query(pbench_drb_api_key)
-        assert key.api_key == pbench_drb_api_key
-        assert key.user.id == DRB_USER_ID
-        assert key.user.username == "drb"
+        api_key = APIKey(
+            key="generated_api_key", user=create_user, label="test_api_key"
+        )
+        api_key.add()
 
-    def test_delete(self, db_session, create_user, pbench_drb_api_key):
+        assert api_key.key == "generated_api_key"
+        assert api_key.user.id is create_user.id
+        assert api_key.label == "test_api_key"
+
+        key_list = APIKey.query(user=create_drb_user)
+        assert len(key_list) == 2
+
+        assert key_list[0].user.id == create_drb_user.id
+        assert key_list[0].label == pbench_drb_api_key.label
+        assert key_list[0].id == pbench_drb_api_key.id
+        assert key_list[0].key == pbench_drb_api_key.key
+        assert key_list[1].user.id == create_drb_user.id
+        assert key_list[1].label == pbench_drb_secondary_api_key.label
+        assert key_list[1].id == pbench_drb_secondary_api_key.id
+        assert key_list[1].key == pbench_drb_secondary_api_key.key
+
+    def test_delete(self, db_session, pbench_drb_api_key, pbench_drb_secondary_api_key):
         """Test that we can delete an api_key"""
 
         # we can find it
-        key = APIKey.query(pbench_drb_api_key)
-        assert key.api_key == pbench_drb_api_key
+        keys = APIKey.query(id=pbench_drb_api_key.id)
+        key = keys[0]
+        assert key.key == pbench_drb_api_key.key
 
-        APIKey.delete(pbench_drb_api_key)
-        assert APIKey.query(pbench_drb_api_key) is None
+        key.delete()
+        assert APIKey.query(id=pbench_drb_api_key.id) == []
+
+        keys = APIKey.query(id=pbench_drb_secondary_api_key.id)
+        assert keys[0].key == pbench_drb_secondary_api_key.key

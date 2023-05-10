@@ -835,14 +835,23 @@ def pbench_drb_api_key(client, server_config, create_drb_user):
     """Valid api_key for the 'drb' user"""
     return generate_api_key(
         username="drb",
+        label="drb_key",
         user=create_drb_user,
     )
 
 
 @pytest.fixture()
-def pbench_drb_api_key_invalid(client, server_config, create_drb_user):
-    """Invalid api_key for the 'drb' user"""
-    return "pbench_drb_invalid_api_key"
+def pbench_drb_secondary_api_key(client, server_config, create_drb_user):
+    """Create secondary api_key for the 'drb' user"""
+    return generate_api_key(
+        username="drb", label="secondary_key", user=create_drb_user, offset=True
+    )
+
+
+@pytest.fixture()
+def pbench_invalid_api_key(client, server_config):
+    """Invalid api_key"""
+    return "nonexistent_API_key_value"
 
 
 def generate_token(
@@ -995,24 +1004,26 @@ def tarball(tmp_path):
 
 def generate_api_key(
     username: str,
+    label: str,
     user: Optional[User] = None,
-    valid: bool = True,
-) -> str:
+    offset: bool = False,
+) -> APIKey:
     """Generates an api_key which will be mimic of how POST v1/generate_key call works.
 
     Note: The OIDC client id passed as an argument has to match with the
-        oidc client id from the default config file. Otherwise the token
+        oidc client id from the default config file. Otherwise, the token
         validation will fail in the server code.
 
     Args:
-        username: username to include in the token payload
+        username: username to include in the token payload.
+        name: name or description of the key.
         user: user attributes will be extracted from the user object to include
             in the token payload.
-        valid: If True, the generated key will be valid for 10 mins.
-               If False, generated key will be invalid and expired
+        offset: If True, 10 min will be added to 'current_utc',to avoid duplicate error
+            while generating multiple api_key to a user
 
     Returns:
-        JWT token string
+        APIKey Object
     """
     # Current time to encode in the token payload
     current_utc = datetime.datetime.now(datetime.timezone.utc)
@@ -1021,12 +1032,15 @@ def generate_api_key(
         user = User.query(username=username)
         assert user
 
+    if offset:
+        current_utc = current_utc + datetime.timedelta(minutes=10)
+
     payload = {
         "iat": current_utc,
         "user_id": user.id,
         "username": user.username,
     }
     key = jwt.encode(payload, jwt_secret, algorithm="HS256")
-    api_key = APIKey(api_key=key, user=user)
+    api_key = APIKey(key=key, user=user, label=label)
     api_key.add()
-    return key
+    return api_key

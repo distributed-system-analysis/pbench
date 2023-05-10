@@ -2,9 +2,10 @@ from typing import Optional
 
 from flask import current_app
 import jwt
-from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from pbench.server import JSONOBJECT
 from pbench.server.database.database import Database
 from pbench.server.database.models import decode_integrity_error, TZDateTime
 from pbench.server.database.models.users import User
@@ -47,8 +48,10 @@ class APIKey(Database.Base):
     """Model for storing the API key associated with a user."""
 
     __tablename__ = "api_keys"
-    api_key = Column(String(500), primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    key = Column(String(500), unique=True, nullable=False)
     created = Column(TZDateTime, nullable=False, default=TZDateTime.current_time)
+    label = Column(String(128), nullable=True)
     # ID of the owning user
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
 
@@ -56,7 +59,7 @@ class APIKey(Database.Base):
     user = relationship("User")
 
     def __str__(self):
-        return f"API key {self.api_key}"
+        return f"API key {self.key}"
 
     def add(self):
         """Add an api_key object to the database."""
@@ -69,34 +72,48 @@ class APIKey(Database.Base):
             decode_exc = decode_integrity_error(
                 e, on_duplicate=DuplicateApiKey, on_null=NullKey
             )
-            if decode_exc == e:
+            if decode_exc is e:
                 raise APIKeyError(str(e)) from e
             else:
                 raise decode_exc from e
 
     @staticmethod
-    def query(key: str) -> Optional["APIKey"]:
+    def query(**kwargs) -> Optional["APIKey"]:
         """Find the given api_key in the database.
 
         Returns:
-            An APIKey object if found, otherwise None
+            List of APIKey object if found, otherwise []
         """
-        return Database.db_session.query(APIKey).filter_by(api_key=key).first()
 
-    @staticmethod
-    def delete(api_key: str):
-        """Delete the given api_key.
+        return (
+            Database.db_session.query(APIKey)
+            .filter_by(**kwargs)
+            .order_by(APIKey.id)
+            .all()
+        )
 
-        Args:
-            api_key : the api_key to delete
-        """
-        dbs = Database.db_session
+    def delete(self):
+        """Remove the api_key instance from the database."""
         try:
-            dbs.query(APIKey).filter_by(api_key=api_key).delete()
-            dbs.commit()
+            Database.db_session.delete(self)
+            Database.db_session.commit()
         except Exception as e:
-            dbs.rollback()
+            Database.db_session.rollback()
             raise APIKeyError(f"Error deleting api_key from db : {e}") from e
+
+    def as_json(self) -> JSONOBJECT:
+        """Return a JSON object for this APIkey object.
+
+        Returns:
+            A JSONOBJECT with all the object fields mapped to appropriate names.
+        """
+        return {
+            "id": self.id,
+            "label": self.label,
+            "key": self.key,
+            "username": self.user.username,
+            "created": self.created.isoformat(),
+        }
 
     @staticmethod
     def generate_api_key(user: User):
