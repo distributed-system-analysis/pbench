@@ -28,11 +28,7 @@ class OpenIDClientError(Exception):
 
 
 class OpenIDTokenInvalid(Exception):
-    def __init__(self, exc_type: Exception):
-        self.exc_type = exc_type
-
-    def __str__(self) -> str:
-        return str(f"Token invalid with exception: {self.exc_type}")
+    pass
 
 
 class Connection:
@@ -381,4 +377,4 @@ class OpenIDClient:
             jwt.InvalidAudienceError,
             jwt.InvalidAlgorithmError,
         ) as exc:
-            raise OpenIDTokenInvalid(exc_type=exc.__class__)
+            raise OpenIDTokenInvalid() from exc

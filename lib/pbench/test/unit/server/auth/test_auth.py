@@ -378,7 +378,7 @@ class TestOpenIDClient:
 
         with pytest.raises(OpenIDTokenInvalid) as exc:
             oidc_client.token_introspect(token)
-        assert exc.value.exc_type == jwt.ExpiredSignatureError, f"{exc.value.exc_type}"
+        assert isinstance(exc.value.__cause__, jwt.exceptions.ExpiredSignatureError)
 
     def test_token_introspect_aud(self, monkeypatch, rsa_keys):
         """Verify .token_introspect() failure via audience error"""
@@ -392,7 +392,7 @@ class TestOpenIDClient:
 
         with pytest.raises(OpenIDTokenInvalid) as exc:
             oidc_client.token_introspect(token)
-        assert exc.value.exc_type == jwt.InvalidAudienceError, f"{exc.value.exc_type}"
+        assert isinstance(exc.value.__cause__, jwt.exceptions.InvalidAudienceError)
 
     def test_token_introspect_sig(self, monkeypatch, rsa_keys):
         """Verify .token_introspect() failure via signature error"""
@@ -409,7 +409,7 @@ class TestOpenIDClient:
         with pytest.raises(OpenIDTokenInvalid) as exc:
             # Make the signature invalid.
             oidc_client.token_introspect(token + "1")
-        assert exc.value.exc_type == jwt.InvalidSignatureError, f"{exc.value.exc_type}"
+        assert isinstance(exc.value.__cause__, jwt.exceptions.InvalidSignatureError)
 
     def test_token_introspect_alg(self, monkeypatch, rsa_keys):
         """Verify .token_introspect() failure via algorithm error"""
@@ -426,7 +426,7 @@ class TestOpenIDClient:
 
         with pytest.raises(OpenIDTokenInvalid) as exc:
             oidc_client.token_introspect(generated_api_key)
-        assert exc.value.exc_type == jwt.InvalidAlgorithmError, f"{exc.value.exc_type}"
+        assert isinstance(exc.value.__cause__, jwt.exceptions.InvalidAlgorithmError)
 
 
 @dataclass
