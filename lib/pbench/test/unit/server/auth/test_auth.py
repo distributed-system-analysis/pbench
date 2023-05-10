@@ -532,9 +532,7 @@ class TestOpenIDClient:
 
         with pytest.raises(OpenIDTokenInvalid) as exc:
             oidc_client.token_introspect_offline(token)
-        assert (
-            str(exc.value.__cause__) == "Signature has expired"
-        ), f"{exc.value.__cause__}"
+        assert isinstance(exc.value.__cause__, jwt.exceptions.ExpiredSignatureError)
 
     def test_token_introspect_offline_aud(self, monkeypatch, rsa_keys):
         """Verify .token_introspect_offline() failure via audience error"""
@@ -548,7 +546,7 @@ class TestOpenIDClient:
 
         with pytest.raises(OpenIDTokenInvalid) as exc:
             oidc_client.token_introspect_offline(token)
-        assert str(exc.value.__cause__) == "Invalid audience", f"{exc.value.__cause__}"
+        assert isinstance(exc.value.__cause__, jwt.exceptions.InvalidAudienceError)
 
     def test_token_introspect_offline_sig(self, monkeypatch, rsa_keys):
         """Verify .token_introspect_offline() failure via signature error"""
@@ -565,9 +563,7 @@ class TestOpenIDClient:
         with pytest.raises(OpenIDTokenInvalid) as exc:
             # Make the signature invalid.
             oidc_client.token_introspect_offline(token + "1")
-        assert (
-            str(exc.value.__cause__) == "Signature verification failed"
-        ), f"{exc.value.__cause__}"
+        assert isinstance(exc.value.__cause__, jwt.exceptions.InvalidSignatureError)
 
     def test_get_userinfo(self, monkeypatch):
         """Verify .get_userinfo() properly invokes Connection.get()"""
