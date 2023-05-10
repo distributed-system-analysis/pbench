@@ -112,8 +112,9 @@ class APIKeyManage(ApiBase):
         label = params.query.get("label")
 
         if context["raw_params"].uri:
-            raise APIAbort(HTTPStatus.BAD_REQUEST, "Key cannot be specified by the user")
-
+            raise APIAbort(
+                HTTPStatus.BAD_REQUEST, "Key cannot be specified by the user"
+            )
 
         if not user:
             raise APIAbort(
