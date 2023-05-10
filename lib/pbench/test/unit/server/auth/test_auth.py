@@ -292,7 +292,7 @@ class TestOpenIDClient:
 
     @responses.activate
     def test_wait_for_oidc_server_fail(self, make_logger):
-        """Verfiy .wait_for_oidc_server() failure mode"""
+        """Verify .wait_for_oidc_server() failure mode"""
         # Start with an empty configuration, no openid section
         config = configparser.ConfigParser()
         with pytest.raises(OpenIDClient.NotConfigured):
@@ -329,7 +329,7 @@ class TestOpenIDClient:
 
     @responses.activate
     def test_wait_for_oidc_server_succ(self, make_logger):
-        """Verfiy .wait_for_oidc_server() success mode"""
+        """Verify .wait_for_oidc_server() success mode"""
 
         config = configparser.ConfigParser()
         section = {"server_url": "https://example.com"}
