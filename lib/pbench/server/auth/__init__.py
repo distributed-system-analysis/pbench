@@ -208,7 +208,7 @@ class OpenIDClient:
                 times out.
         """
         try:
-            oidc_server = server_config.get("openid-connect", "server_url")
+            oidc_server = server_config.get("openid", "server_url")
         except (NoOptionError, NoSectionError) as exc:
             raise OpenIDClient.NotConfigured() from exc
 

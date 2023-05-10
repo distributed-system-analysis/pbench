@@ -1,4 +1,3 @@
-from configparser import NoOptionError, NoSectionError
 from http import HTTPStatus
 import re
 from typing import Any, Dict
@@ -50,7 +49,7 @@ class EndpointConfig(Resource):
         Return server configuration information required by web clients
         including the Pbench dashboard UI. This includes:
 
-        openid-connect: A JSON object containing the OpenID Connect parameters
+        openid: A JSON object containing the OpenID Connect parameters
                 required for the web client to use OIDC authentication.
         identification: The Pbench server name and version
         uri:    A dict of server API templates, where each template defines a
@@ -150,18 +149,15 @@ class EndpointConfig(Resource):
             "uri": templates,
         }
 
-        try:
-            client = self.server_config.get("openid", "client")
-            realm = self.server_config.get("openid", "realm")
-            server = self.server_config.get("openid", "server_url")
-        except (NoOptionError, NoSectionError):
-            pass
-        else:
-            endpoints["openid"] = {
-                "client": client,
-                "realm": realm,
-                "server": server,
-            }
+        client = self.server_config.get("openid", "client")
+        realm = self.server_config.get("openid", "realm")
+        server = self.server_config.get("openid", "server_url")
+
+        endpoints["openid"] = {
+            "client": client,
+            "realm": realm,
+            "server": server,
+        }
 
         try:
             response = jsonify(endpoints)
